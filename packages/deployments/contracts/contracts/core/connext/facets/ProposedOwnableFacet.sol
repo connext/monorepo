@@ -43,10 +43,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   error ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
   error ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed();
 
-  // ============ Properties ============
-
-  uint256 private constant _delay = 7 days;
-
   // ============ Events ============
 
   event RouterWhitelistRemovalProposed(uint256 timestamp);
@@ -115,8 +111,8 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   /**
    * @notice Returns the delay period before a new owner can be accepted.
    */
-  function delay() public pure returns (uint256) {
-    return _delay;
+  function delay() public view returns (uint256) {
+    return s._ownershipDelay;
   }
 
   // ============ External ============
@@ -147,7 +143,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     if (s._routerWhitelistTimestamp == 0) revert ProposedOwnableFacet__removeRouterWhitelist_noProposal();
 
     // Delay has elapsed
-    if ((block.timestamp - s._routerWhitelistTimestamp) <= _delay)
+    if ((block.timestamp - s._routerWhitelistTimestamp) <= delay())
       revert ProposedOwnableFacet__removeRouterWhitelist_delayNotElapsed();
 
     // Set renounced, emit event, reset timestamp to 0
@@ -180,7 +176,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     if (s._assetWhitelistTimestamp == 0) revert ProposedOwnableFacet__removeAssetWhitelist_noProposal();
 
     // Ensure delay has elapsed
-    if ((block.timestamp - s._assetWhitelistTimestamp) <= _delay)
+    if ((block.timestamp - s._assetWhitelistTimestamp) <= delay())
       revert ProposedOwnableFacet__removeAssetWhitelist_delayNotElapsed();
 
     // Set ownership, reset timestamp, emit event
@@ -218,7 +214,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     if (s._proposedOwnershipTimestamp == 0) revert ProposedOwnableFacet__renounceOwnership_noProposal();
 
     // Ensure delay has elapsed
-    if ((block.timestamp - s._proposedOwnershipTimestamp) <= _delay)
+    if ((block.timestamp - s._proposedOwnershipTimestamp) <= delay())
       revert ProposedOwnableFacet__renounceOwnership_delayNotElapsed();
 
     // Require proposed is set to 0
@@ -242,7 +238,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     // above)
 
     // Ensure delay has elapsed
-    if ((block.timestamp - s._proposedOwnershipTimestamp) <= _delay)
+    if ((block.timestamp - s._proposedOwnershipTimestamp) <= delay())
       revert ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed();
 
     // Emit event, set new owner, reset timestamp

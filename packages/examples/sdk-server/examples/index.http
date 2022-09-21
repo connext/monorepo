@@ -37,7 +37,6 @@ Content-Type: application/json
     "destinationDomain": "1735356532",
     "agent": "{{yourAddress}}",
     "recovery": "{{yourAddress}}",
-    "forceSlow": false,
     "receiveLocal": false,
     "callback": "0x0000000000000000000000000000000000000000",
     "callbackFee": 0,

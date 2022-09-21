@@ -107,7 +107,6 @@ export const TransferButton = ({
           agent: address!,
           callback: constants.AddressZero,
           recovery: address!,
-          forceSlow: false,
           receiveLocal: false,
           relayerFee: "0",
           destinationMinOut: utils

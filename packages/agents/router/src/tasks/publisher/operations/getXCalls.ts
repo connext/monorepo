@@ -36,7 +36,6 @@ export const getXCalls = async () => {
       subgraphQueryMetaParams.set(domain, {
         maxBlockNumber: latestBlockNumber - safeConfirmations,
         latestNonce: latestNonce + 1, // queries at >= latest nonce, so use 1 larger than whats in the cache
-        forceSlow: false,
         destinationDomains,
         orderDirection: "asc",
       });

@@ -151,29 +151,15 @@ export class NxtpSdkBase {
     }
 
     const { params, amount, asset, originMinOut } = args;
-    const { originDomain, destinationDomain, relayerFee: _relayerFee } = params;
+    const { originDomain } = params;
 
     // Calculate estimate for relayer fee and include it in the call params.
-    let relayerFee = _relayerFee;
-    if (!_relayerFee || _relayerFee == "0") {
-      relayerFee = (
-        await this.estimateRelayerFee({
-          originDomain: originDomain,
-          destinationDomain: destinationDomain,
-        })
-      ).toString();
-    }
 
     // Substitute default values as needed.
     const formattedXParams: CallParams = {
       ...params,
       callData: params.callData || "0x",
-      callback: params.callback || constants.AddressZero,
-      callbackFee: params.callbackFee || "0",
-      recovery: params.recovery || params.to,
-      forceSlow: params.forceSlow || false,
       receiveLocal: params.receiveLocal || false,
-      relayerFee: relayerFee!,
       // Default to using the user's signer address as the 'agent'.
       agent: params.agent || signerAddress,
     };
@@ -203,7 +189,7 @@ export class NxtpSdkBase {
     }
 
     // Add callback and relayer fee together to get the total ETH value that should be sent.
-    const value = BigNumber.from(formattedXParams.relayerFee).add(BigNumber.from(formattedXParams.callbackFee));
+    const value = BigNumber.from("0");
 
     // Take the finalized xcall arguments and encode calldata.
     const formattedXCallArgs: XCallArgs = {

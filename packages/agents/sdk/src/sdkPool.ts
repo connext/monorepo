@@ -1,5 +1,5 @@
 import { providers, BigNumber, utils } from "ethers";
-import { getChainData, Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
+import { getChainData, Logger, createLoggingContext, ChainData, getCanonicalHash } from "@connext/nxtp-utils";
 import { getContractInterfaces, contractDeployments, ChainReader } from "@connext/nxtp-txservice";
 import {
   ConnextHandler as TConnext,
@@ -478,7 +478,7 @@ export class NxtpSdkPool {
       throw new PoolDoesNotExist(domainId, tokenAddress);
     }
 
-    const key = this.calculateCanonicalHash(canonicalDomain, canonicalId);
+    const key = getCanonicalHash(canonicalDomain, canonicalId);
 
     let pool = this.pools.get(key);
     if (pool) {
@@ -604,14 +604,5 @@ export class NxtpSdkPool {
     };
 
     return stats;
-  }
-
-  public calculateCanonicalHash(canonicalDomain: string, _canonicalId: string): string {
-    const canonicalId = utils.hexlify(canonizeId(_canonicalId));
-    const payload = utils.defaultAbiCoder.encode(
-      ["tuple(bytes32 canonicalId,uint32 canonicalDomain)"],
-      [{ canonicalId, canonicalDomain }],
-    );
-    return utils.solidityKeccak256(["bytes"], [payload]);
   }
 }

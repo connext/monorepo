@@ -69,15 +69,9 @@ type OriginTransfer @entity {
   # CallParams
   to: Bytes
   callData: Bytes
-  originDomain: BigInt
   destinationDomain: BigInt
   agent: Bytes
-  recovery: Bytes
-  forceSlow: Boolean
   receiveLocal: Boolean
-  callback: Bytes
-  callbackFee: BigInt
-  relayerFee: BigInt
   destinationMinOut: BigInt
 
   # Event Data
@@ -120,12 +114,7 @@ type DestinationTransfer @entity {
   originDomain: BigInt
   destinationDomain: BigInt
   agent: Bytes
-  recovery: Bytes
-  forceSlow: Boolean
   receiveLocal: Boolean
-  callback: Bytes
-  callbackFee: BigInt
-  relayerFee: BigInt
   destinationMinOut: BigInt
 
   # Event Data
