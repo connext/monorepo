@@ -4,6 +4,7 @@
 export type { IAavePool } from "./IAavePool";
 export type { IBridgeHook } from "./IBridgeHook";
 export type { IBridgeRouter } from "./IBridgeRouter";
+export type { IBridgeToken } from "./IBridgeToken";
 export type { IConnextHandler } from "./IConnextHandler";
 export type { IDiamondCut } from "./IDiamondCut";
 export type { IDiamondLoupe } from "./IDiamondLoupe";

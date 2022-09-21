@@ -120,7 +120,7 @@ contract NomadFacet is BaseConnextFacet, IBridgeHook {
     bytes memory _extraData
   ) external onlyBridgeRouter {
     // Assert sender was the connext contract on the origin domain
-    if (_sender == bytes32(0) || s.connextions[_origin] != _sender) {
+    if (_sender == bytes32(0) || s.remotes[_origin] != _sender) {
       revert NomadFacet__reconcile_notConnext();
     }
 

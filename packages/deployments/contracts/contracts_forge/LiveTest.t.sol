@@ -22,8 +22,7 @@ import {RelayerFeeMessage} from "../contracts/core/relayer-fee/libraries/Relayer
 
 import {TestERC20} from "../contracts/test/TestERC20.sol";
 import {TokenRegistry} from "../contracts/test/TokenRegistry.sol";
-import {BridgeMessage} from "../contracts/test/BridgeMessage.sol";
-import {BridgeRouter} from "../contracts/test/BridgeRouter.sol";
+import {BridgeMessage} from "../contracts/core/connext/helpers/BridgeMessage.sol";
 
 import {WETH} from "./utils/TestWeth.sol";
 import "./utils/ForgeHelper.sol";
@@ -92,7 +91,6 @@ contract LiveTest is ForgeHelper {
     vm.startPrank(0x54BAA998771639628ffC0206c3b916c466b79c89);
     TestERC20(transactingAsset).approve(address(connext), 150000000000000000);
 
-    emit log_named_address("bridge router: ", address(connext.bridgeRouter()));
     emit log_named_address("token registry: ", address(connext.tokenRegistry()));
     emit log_named_bytes32("canonical id: ", connext.adoptedToCanonical(transactingAsset).id);
 
@@ -132,7 +130,6 @@ contract LiveTest is ForgeHelper {
   function test_xcall_native_asset_zero_amount() public {
     vm.startPrank(0x54BAA998771639628ffC0206c3b916c466b79c89);
 
-    emit log_named_address("bridge router: ", address(connext.bridgeRouter()));
     emit log_named_address("token registry: ", address(connext.tokenRegistry()));
 
     (uint32 canonicalDomain, bytes32 canonicalId) = connext.tokenRegistry().getTokenId(NATIVE_ASSET);

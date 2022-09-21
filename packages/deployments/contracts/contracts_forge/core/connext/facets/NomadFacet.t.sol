@@ -80,7 +80,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     ds.contractOwner = _ds_owner;
     s.bridgeRouter = IBridgeRouter(_bridge);
-    s.connextions[_originDomain] = _originConnext;
+    s.remotes[_originDomain] = _originConnext;
   }
 
   // ============ Utils ============

@@ -254,11 +254,13 @@ struct AppStorage {
   // 21
   mapping(bytes32 => bool) receiveLocalOverrides;
   /**
-   * @notice Stores a mapping of connext addresses keyed on domains
-   * @dev Addresses are cast to bytes32
+   * @notice Stores a mapping of remote routers keyed on domains
+   * @dev Addresses are cast to bytes32.
+   * This mapping is required because the ConnextHandler now contains the BridgeRouter and must implement
+   * the remotes interface.
    */
   // 22
-  mapping(uint32 => bytes32) connextions;
+  mapping(uint32 => bytes32) remotes;
   //
   // ProposedOwnable
   //

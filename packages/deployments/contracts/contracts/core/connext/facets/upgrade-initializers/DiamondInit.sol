@@ -38,7 +38,7 @@ contract DiamondInit is BaseConnextFacet {
     address _relayerFeeRouter,
     address payable _promiseRouter,
     uint256 _acceptanceDelay,
-    address _xappConnectionManager
+    address _xAppConnectionManager
   ) external {
     // adding ERC165 data
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();

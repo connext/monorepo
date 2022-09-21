@@ -91,12 +91,12 @@ contract Deployer {
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](19);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](26);
     // getters
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
     bridgeFacetSelectors[1] = BridgeFacet.routedTransfers.selector;
     bridgeFacetSelectors[2] = BridgeFacet.reconciledTransfers.selector;
-    bridgeFacetSelectors[3] = BridgeFacet.connextion.selector;
+    bridgeFacetSelectors[3] = BridgeFacet.remote.selector;
     bridgeFacetSelectors[4] = BridgeFacet.domain.selector;
     bridgeFacetSelectors[5] = BridgeFacet.executor.selector;
     bridgeFacetSelectors[6] = BridgeFacet.nonce.selector;
@@ -106,14 +106,23 @@ contract Deployer {
     bridgeFacetSelectors[9] = BridgeFacet.setPromiseRouter.selector;
     bridgeFacetSelectors[10] = BridgeFacet.setExecutor.selector;
     bridgeFacetSelectors[11] = BridgeFacet.setSponsorVault.selector;
-    bridgeFacetSelectors[12] = BridgeFacet.addConnextion.selector;
-    bridgeFacetSelectors[13] = BridgeFacet.addSequencer.selector;
-    bridgeFacetSelectors[14] = BridgeFacet.removeSequencer.selector;
-    // public
+    bridgeFacetSelectors[12] = BridgeFacet.addSequencer.selector;
+    bridgeFacetSelectors[13] = BridgeFacet.removeSequencer.selector;
+    // public:bridge
     bridgeFacetSelectors[15] = BridgeFacet.xcall.selector;
     bridgeFacetSelectors[16] = BridgeFacet.execute.selector;
     bridgeFacetSelectors[17] = BridgeFacet.bumpTransfer.selector;
     bridgeFacetSelectors[18] = BridgeFacet.forceReceiveLocal.selector;
+    // public:xappclient
+    bridgeFacetSelectors[19] = BridgeFacet.setXAppConnectionManager.selector;
+    // public:router
+    bridgeFacetSelectors[20] = BridgeFacet.enrollRemoteRouter.selector;
+    bridgeFacetSelectors[21] = BridgeFacet.handle.selector;
+    bridgeFacetSelectors[22] = BridgeFacet.send.selector;
+    bridgeFacetSelectors[23] = BridgeFacet.sendToHook.selector;
+    bridgeFacetSelectors[24] = BridgeFacet.enrollCustom.selector;
+    bridgeFacetSelectors[25] = BridgeFacet.migrate.selector;
+
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,

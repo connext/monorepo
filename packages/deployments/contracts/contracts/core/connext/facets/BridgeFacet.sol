@@ -11,6 +11,7 @@ import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
 
 import {IOutbox} from "../../../messaging/interfaces/IOutbox.sol";
+import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
@@ -44,7 +45,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__setPromiseRouter_invalidPromiseRouter();
   error BridgeFacet__setExecutor_invalidExecutor();
   error BridgeFacet__setSponsorVault_invalidSponsorVault();
-  error BridgeFacet__addConnextion_invalidDomain();
+  error BridgeFacet__addRemote_invalidDomain();
   error BridgeFacet__addSequencer_alreadyApproved();
   error BridgeFacet__removeSequencer_notApproved();
   error BridgeFacet__xcall_nativeAssetNotSupported();
@@ -179,12 +180,12 @@ contract BridgeFacet is BaseConnextFacet {
   event ExecutorUpdated(address oldExecutor, address newExecutor, address caller);
 
   /**
-   * @notice Emitted when a new connext instance is added
-   * @param domain - The domain the connext instance is on
-   * @param connext - The address of the connext instance
+   * @notice Emitted when a new remote instance is added
+   * @param domain - The domain the remote instance is on
+   * @param remote - The address of the remote instance
    * @param caller - The account that called the function
    */
-  event ConnextionAdded(uint32 domain, address connext, address caller);
+  event RemoteAdded(uint32 domain, address remote, address caller);
 
   /**
    * @notice Emitted when a sequencer is added or removed from whitelists
@@ -250,6 +251,16 @@ contract BridgeFacet is BaseConnextFacet {
     _;
   }
 
+  /**
+   * @notice Only accept messages from a remote Router contract
+   * @param _origin The domain the message is coming from
+   * @param _router The address the message is coming from
+   */
+  modifier onlyRemoteRouter(uint32 _origin, bytes32 _router) {
+    require(_isRemoteRouter(_origin, _router), "!remote router");
+    _;
+  }
+
   // ============ Getters ============
 
   function relayerFees(bytes32 _transferId) public view returns (uint256) {
@@ -264,8 +275,8 @@ contract BridgeFacet is BaseConnextFacet {
     return s.reconciledTransfers[_transferId];
   }
 
-  function connextion(uint32 _domain) public view returns (address) {
-    return TypeCasts.bytes32ToAddress(s.connextions[_domain]);
+  function remote(uint32 _domain) public view returns (address) {
+    return TypeCasts.bytes32ToAddress(s.remotes[_domain]);
   }
 
   function domain() public view returns (uint32) {
@@ -320,16 +331,6 @@ contract BridgeFacet is BaseConnextFacet {
     emit SponsorVaultUpdated(old, _sponsorVault, msg.sender);
   }
 
-  function addConnextion(uint32 _domain, address _connext) external onlyOwner {
-    // Make sure we aren't setting the current domain as the connextion.
-    if (_domain == s.domain) {
-      revert BridgeFacet__addConnextion_invalidDomain();
-    }
-
-    s.connextions[_domain] = TypeCasts.addressToBytes32(_connext);
-    emit ConnextionAdded(_domain, _connext, msg.sender);
-  }
-
   /**
    * @notice Used to add an approved sequencer to the whitelist.
    * @param _sequencer - The sequencer address to add.
@@ -352,7 +353,7 @@ contract BridgeFacet is BaseConnextFacet {
     emit SequencerRemoved(_sequencer, msg.sender);
   }
 
-  // ============ Public methods ==============
+  // ============ Public Functions: Bridge ==============
 
   /**
    * @notice Initiates a cross-chain transfer of funds, calldata, and/or various named properties using the nomad
@@ -387,8 +388,8 @@ contract BridgeFacet is BaseConnextFacet {
 
       // Destination domain is supported.
       // NOTE: This check implicitly also checks that `_args.params.destinationDomain != s.domain`, because the index
-      // `s.domain` of `s.connextions` should always be `bytes32(0)`.
-      remoteInstance = s.connextions[_args.params.destinationDomain];
+      // `s.domain` of `s.remotes` should always be `bytes32(0)`.
+      remoteInstance = s.remotes[_args.params.destinationDomain];
       if (remoteInstance == bytes32(0)) {
         revert BridgeFacet__xcall_destinationNotSupported();
       }
@@ -591,7 +592,160 @@ contract BridgeFacet is BaseConnextFacet {
     emit ForcedReceiveLocal(transferId, _canonicalId, _canonicalDomain, _amount);
   }
 
-  // ============ Private Functions ============
+  // ============ Public Functions: XAppConnection ============
+  /**
+   * @notice Modify the contract the xApp uses to validate Replica contracts
+   * @param _xAppConnectionManager The address of the xAppConnectionManager contract
+   */
+  function setXAppConnectionManager(address _xAppConnectionManager) external onlyOwner {
+    s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
+  }
+
+  // ============ Public Functions: Router ============
+  /**
+   * @notice Register the address of a Router contract for the same xApp on a remote chain
+   * @param _domain The domain of the remote xApp Router
+   * @param _router The address of the remote xApp Router
+   */
+  function enrollRemoteRouter(uint32 _domain, bytes32 _router) external onlyOwner {
+    // Make sure we aren't setting the current domain as the connextion.
+    if (_domain == s.domain) {
+      revert BridgeFacet__addRemote_invalidDomain();
+    }
+    s.remotes[_domain] = _router;
+    emit RemoteAdded(_domain, TypeCasts.bytes32ToAddress(_router), msg.sender);
+  }
+
+  /**
+   * @notice Handles an incoming message
+   * @param _origin The origin domain
+   * @param _nonce The unique identifier for the message from origin to
+   *        destination
+   * @param _sender The sender address
+   * @param _message The message
+   */
+  function handle(
+    uint32 _origin,
+    uint32 _nonce,
+    bytes32 _sender,
+    bytes memory _message
+  ) external onlyReplica onlyRemoteRouter(_origin, _sender) {
+    // parse tokenId and action from message
+    bytes29 _msg = _message.ref(0).mustBeMessage();
+    bytes29 _tokenId = _msg.tokenId();
+    bytes29 _action = _msg.action();
+    // handle message based on the intended action
+    if (_action.isTransfer()) {
+      _handleTransfer(_origin, _nonce, _tokenId, _action);
+    } else if (_action.isTransferToHook()) {
+      _handleTransferToHook(_origin, _nonce, _tokenId, _action);
+    } else {
+      require(false, "!valid action");
+    }
+  }
+
+  // ======== Public Functions: BridgeRouter =========
+  /**
+   * @notice Send tokens to a recipient on a remote chain
+   * @param _token The token address
+   * @param _amount The token amount
+   * @param _destination The destination domain
+   * @param _recipient The recipient address
+   */
+  function send(
+    address _token,
+    uint256 _amount,
+    uint32 _destination,
+    bytes32 _recipient,
+    bool /*_enableFast - deprecated field, left argument for backwards compatibility */
+  ) external {
+    // validate inputs
+    require(_recipient != bytes32(0), "!recip");
+    // get the token id
+    (bytes29 _tokenId, bytes32 _detailsHash, bool _isLocal) = _getTokenIdAndDetailsHash(_token);
+    // debit tokens from the sender
+    _takeTokens(_token, _amount, _isLocal);
+    // format Transfer message
+    bytes29 _action = BridgeMessage.formatTransfer(_recipient, _amount, _detailsHash);
+    // send message to destination chain bridge router
+    _sendTransferMessage(_destination, _tokenId, _action);
+    // emit Send event to record token sender
+    emit Send(_token, msg.sender, _destination, _recipient, _amount, false);
+  }
+
+  /**
+   * @notice Send tokens to a hook on the remote chain
+   * @param _token The token address
+   * @param _amount The token amount
+   * @param _destination The destination domain
+   * @param _remoteHook The hook contract on the remote chain
+   * @param _extraData Extra data that will be passed to the hook for
+   *        execution
+   */
+  function sendToHook(
+    address _token,
+    uint256 _amount,
+    uint32 _destination,
+    bytes32 _remoteHook,
+    bytes calldata _extraData
+  ) external returns (bytes32) {
+    // get the token id
+    (bytes29 _tokenId, bytes32 _detailsHash, bool _isLocal) = _getTokenIdAndDetailsHash(_token);
+    // debit tokens from the sender
+    _takeTokens(_token, _amount, _isLocal);
+    // format Hook transfer message
+    bytes29 _action = BridgeMessage.formatTransferToHook(
+      _remoteHook,
+      _amount,
+      _detailsHash,
+      TypeCasts.addressToBytes32(msg.sender),
+      _extraData
+    );
+    // send message to destination chain bridge router
+    bytes32 _messageHash = _sendTransferMessage(_destination, _tokenId, _action);
+    // emit Send event to record token sender
+    emit Send(_token, msg.sender, _destination, _remoteHook, _amount, true);
+    return _messageHash;
+  }
+
+  /**
+   * @notice Enroll a custom token. This allows projects to work with
+   *         governance to specify a custom representation.
+   * @param _domain the domain of the canonical Token to enroll
+   * @param _id the bytes32 ID of the canonical of the Token to enroll
+   * @param _custom the address of the custom implementation to use.
+   */
+  function enrollCustom(
+    uint32 _domain,
+    bytes32 _id,
+    address _custom
+  ) external onlyOwner {
+    // Sanity check. Ensures that human error doesn't cause an
+    // unpermissioned contract to be enrolled.
+    IBridgeToken(_custom).mint(address(this), 1);
+    IBridgeToken(_custom).burn(address(this), 1);
+    s.tokenRegistry.enrollCustom(_domain, _id, _custom);
+  }
+
+  /**
+   * @notice Migrate all tokens in a previous representation to the latest
+   *         custom representation. This works by looking up local mappings
+   *         and then burning old tokens and minting new tokens.
+   * @dev This is explicitly opt-in to allow dapps to decide when and how to
+   *      upgrade to the new representation.
+   * @param _oldRepr The address of the old token to migrate
+   */
+  function migrate(address _oldRepr) external {
+    address _currentRepr = s.tokenRegistry.oldReprToCurrentRepr(_oldRepr);
+    require(_currentRepr != _oldRepr, "!different");
+    // burn the total balance of old tokens & mint the new ones
+    IBridgeToken _old = IBridgeToken(_oldRepr);
+    uint256 _bal = _old.balanceOf(msg.sender);
+    _old.burn(msg.sender, _bal);
+    IBridgeToken(_currentRepr).mint(msg.sender, _bal);
+  }
+
+  // ============ Private Functions: Bridge ============
 
   /**
    * @notice Holds the logic to recover the signer from an encoded payload.
@@ -921,139 +1075,6 @@ contract BridgeFacet is BaseConnextFacet {
     return (_fastTransferAmount, adopted);
   }
 
-  // BRIDGE ROUTER FUNCTIONS
-  /**
-   * @notice Handles an incoming message
-   * @param _origin The origin domain
-   * @param _nonce The unique identifier for the message from origin to
-   *        destination
-   * @param _sender The sender address
-   * @param _message The message
-   */
-  function handle(
-    uint32 _origin,
-    uint32 _nonce,
-    bytes32 _sender,
-    bytes memory _message
-  ) external override onlyReplica onlyRemoteRouter(_origin, _sender) {
-    // parse tokenId and action from message
-    bytes29 _msg = _message.ref(0).mustBeMessage();
-    bytes29 _tokenId = _msg.tokenId();
-    bytes29 _action = _msg.action();
-    // handle message based on the intended action
-    if (_action.isTransfer()) {
-      _handleTransfer(_origin, _nonce, _tokenId, _action);
-    } else if (_action.isTransferToHook()) {
-      _handleTransferToHook(_origin, _nonce, _tokenId, _action);
-    } else {
-      require(false, "!valid action");
-    }
-  }
-
-  // ======== External: Send Token =========
-
-  /**
-   * @notice Send tokens to a recipient on a remote chain
-   * @param _token The token address
-   * @param _amount The token amount
-   * @param _destination The destination domain
-   * @param _recipient The recipient address
-   */
-  function send(
-    address _token,
-    uint256 _amount,
-    uint32 _destination,
-    bytes32 _recipient,
-    bool /*_enableFast - deprecated field, left argument for backwards compatibility */
-  ) external {
-    // validate inputs
-    require(_recipient != bytes32(0), "!recip");
-    // get the token id
-    (bytes29 _tokenId, bytes32 _detailsHash, bool _isLocal) = _getTokenIdAndDetailsHash(_token);
-    // debit tokens from the sender
-    _takeTokens(_token, _amount, _isLocal);
-    // format Transfer message
-    bytes29 _action = BridgeMessage.formatTransfer(_recipient, _amount, _detailsHash);
-    // send message to destination chain bridge router
-    _sendTransferMessage(_destination, _tokenId, _action);
-    // emit Send event to record token sender
-    emit Send(_token, msg.sender, _destination, _recipient, _amount, false);
-  }
-
-  /**
-   * @notice Send tokens to a hook on the remote chain
-   * @param _token The token address
-   * @param _amount The token amount
-   * @param _destination The destination domain
-   * @param _remoteHook The hook contract on the remote chain
-   * @param _extraData Extra data that will be passed to the hook for
-   *        execution
-   */
-  function sendToHook(
-    address _token,
-    uint256 _amount,
-    uint32 _destination,
-    bytes32 _remoteHook,
-    bytes calldata _extraData
-  ) external returns (bytes32) {
-    // get the token id
-    (bytes29 _tokenId, bytes32 _detailsHash, bool _isLocal) = _getTokenIdAndDetailsHash(_token);
-    // debit tokens from the sender
-    _takeTokens(_token, _amount, _isLocal);
-    // format Hook transfer message
-    bytes29 _action = BridgeMessage.formatTransferToHook(
-      _remoteHook,
-      _amount,
-      _detailsHash,
-      TypeCasts.addressToBytes32(msg.sender),
-      _extraData
-    );
-    // send message to destination chain bridge router
-    bytes32 _messageHash = _sendTransferMessage(_destination, _tokenId, _action);
-    // emit Send event to record token sender
-    emit Send(_token, msg.sender, _destination, _remoteHook, _amount, true);
-    return _messageHash;
-  }
-
-  // ======== External: Custom Tokens =========
-
-  /**
-   * @notice Enroll a custom token. This allows projects to work with
-   *         governance to specify a custom representation.
-   * @param _domain the domain of the canonical Token to enroll
-   * @param _id the bytes32 ID of the canonical of the Token to enroll
-   * @param _custom the address of the custom implementation to use.
-   */
-  function enrollCustom(
-    uint32 _domain,
-    bytes32 _id,
-    address _custom
-  ) external onlyOwner {
-    // Sanity check. Ensures that human error doesn't cause an
-    // unpermissioned contract to be enrolled.
-    IBridgeToken(_custom).mint(address(this), 1);
-    IBridgeToken(_custom).burn(address(this), 1);
-    s.tokenRegistry.enrollCustom(_domain, _id, _custom);
-  }
-
-  /**
-   * @notice Migrate all tokens in a previous representation to the latest
-   *         custom representation. This works by looking up local mappings
-   *         and then burning old tokens and minting new tokens.
-   * @dev This is explicitly opt-in to allow dapps to decide when and how to
-   *      upgrade to the new representation.
-   * @param _oldRepr The address of the old token to migrate
-   */
-  function migrate(address _oldRepr) external {
-    address _currentRepr = s.tokenRegistry.oldReprToCurrentRepr(_oldRepr);
-    require(_currentRepr != _oldRepr, "!different");
-    // burn the total balance of old tokens & mint the new ones
-    IBridgeToken _old = IBridgeToken(_oldRepr);
-    uint256 _bal = _old.balanceOf(msg.sender);
-    _old.burn(msg.sender, _bal);
-    IBridgeToken(_currentRepr).mint(msg.sender, _bal);
-  }
-
   // ============ Internal: Send ============
 
   /**
@@ -1142,7 +1163,7 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 _remote = _mustHaveRemote(_destination);
     // send message to remote chain via Nomad
     return
-      IOutbox(xAppConnectionManager.home()).dispatch(
+      IOutbox(s.xAppConnectionManager.home()).dispatch(
         _destination,
         _remote,
         BridgeMessage.formatMessage(_tokenId, _action)
@@ -1308,18 +1329,7 @@ contract BridgeFacet is BaseConnextFacet {
     return (uint64(_origin) << 32) | _nonce;
   }
 
-  // ============ XAppConnectionManager functions ============
-  // ============ External functions ============
-
-  /**
-   * @notice Modify the contract the xApp uses to validate Replica contracts
-   * @param _xAppConnectionManager The address of the xAppConnectionManager contract
-   */
-  function setXAppConnectionManager(address _xAppConnectionManager) external onlyOwner {
-    s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
-  }
-
-  // ============ Internal functions ============
+  // ============ Internal: XAppConnectionManager ============
 
   /**
    * @notice Get the local Home contract from the xAppConnectionManager
@@ -1343,5 +1353,24 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function _localDomain() internal view virtual returns (uint32) {
     return s.xAppConnectionManager.localDomain();
+  }
+
+  /**
+   * @notice Return true if the given domain / router is the address of a remote xApp Router
+   * @param _domain The domain of the potential remote xApp Router
+   * @param _router The address of the potential remote xApp Router
+   */
+  function _isRemoteRouter(uint32 _domain, bytes32 _router) internal view returns (bool) {
+    return s.remotes[_domain] == _router && _router != bytes32(0);
+  }
+
+  /**
+   * @notice Assert that the given domain has a xApp Router registered and return its address
+   * @param _domain The domain of the chain for which to get the xApp Router
+   * @return _remote The address of the remote xApp Router on _domain
+   */
+  function _mustHaveRemote(uint32 _domain) internal view returns (bytes32 _remote) {
+    _remote = s.remotes[_domain];
+    require(_remote != bytes32(0), "!remote");
   }
 }

@@ -61,7 +61,7 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function reconciledTransfers(bytes32 _transferId) external view returns (bool);
 
-  function connextion(uint32 _domain) external view returns (address);
+  function remote(uint32 _domain) external view returns (address);
 
   function domain() external view returns (uint256);
 
@@ -101,6 +101,41 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
     uint32 _canonicalDomain,
     address _originSender
   ) external payable;
+
+  function setXAppConnectionManager(address _xAppConnectionManager) external;
+
+  function enrollRemoteRouter(uint32 _domain, bytes32 _router) external;
+
+  function handle(
+    uint32 _origin,
+    uint32 _nonce,
+    bytes32 _sender,
+    bytes memory _message
+  ) external;
+
+  function send(
+    address _token,
+    uint256 _amount,
+    uint32 _destination,
+    bytes32 _recipient,
+    bool /*_enableFast - deprecated field, left argument for backwards compatibility */
+  ) external;
+
+  function sendToHook(
+    address _token,
+    uint256 _amount,
+    uint32 _destination,
+    bytes32 _remoteHook,
+    bytes calldata _extraData
+  ) external returns (bytes32);
+
+  function enrollCustom(
+    uint32 _domain,
+    bytes32 _id,
+    address _custom
+  ) external;
+
+  function migrate(address _oldRepr) external;
 
   // NomadFacet
   function bridgeRouter() external view returns (IBridgeRouter);

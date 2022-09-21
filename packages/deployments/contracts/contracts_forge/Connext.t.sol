@@ -23,8 +23,7 @@ import {RelayerFeeMessage} from "../contracts/core/relayer-fee/libraries/Relayer
 
 import {TestERC20} from "../contracts/test/TestERC20.sol";
 import {TokenRegistry} from "../contracts/test/TokenRegistry.sol";
-import {BridgeMessage} from "../contracts/test/BridgeMessage.sol";
-import {BridgeRouter} from "../contracts/test/BridgeRouter.sol";
+import {BridgeMessage} from "../contracts/core/connext/helpers/BridgeMessage.sol";
 
 import {WETH} from "./utils/TestWeth.sol";
 import "./utils/ForgeHelper.sol";
@@ -194,35 +193,6 @@ contract ConnextTest is ForgeHelper, Deployer {
     );
     _destinationRegistry = TokenRegistry(address(destinationProxy));
 
-    // Deploy BridgeRouter implementation
-    BridgeRouter bridgeImp = new BridgeRouter();
-    // Deploy origin BridgeRouter
-    ERC1967Proxy originBridgeProxy = new ERC1967Proxy(
-      address(bridgeImp),
-      abi.encodeWithSelector(BridgeRouter.initialize.selector, address(_originRegistry), address(_originManager))
-    );
-    _originBridgeRouter = address(originBridgeProxy);
-    // Deploy destination BridgeRouter
-    ERC1967Proxy destBridgeProxy = new ERC1967Proxy(
-      address(bridgeImp),
-      abi.encodeWithSelector(
-        BridgeRouter.initialize.selector,
-        address(_destinationRegistry),
-        address(_destinationManager)
-      )
-    );
-    _destinationBridgeRouter = address(destBridgeProxy);
-
-    // set remote routers
-    BridgeRouter(payable(_originBridgeRouter)).enrollRemoteRouter(
-      _destination,
-      TypeCasts.addressToBytes32(_destinationBridgeRouter)
-    );
-    BridgeRouter(payable(_destinationBridgeRouter)).enrollRemoteRouter(
-      _origin,
-      TypeCasts.addressToBytes32(_originBridgeRouter)
-    );
-
     // set this to be a replica so we can call `handle` directly on routers
     MockXAppConnectionManager(address(_destinationManager)).enrollInbox(address(this));
     MockXAppConnectionManager(address(_originManager)).enrollInbox(address(this));
@@ -312,8 +282,9 @@ contract ConnextTest is ForgeHelper, Deployer {
     _destinationPromise.setConnext(address(_destinationConnext));
 
     // enroll instances
-    _originConnext.addConnextion(_destination, address(_destinationConnext));
-    _destinationConnext.addConnextion(_origin, address(_originConnext));
+    // set remote routers
+    _originConnext.enrollRemoteRouter(_destination, TypeCasts.addressToBytes32(address(_destinationConnext)));
+    _destinationConnext.enrollRemoteRouter(_origin, TypeCasts.addressToBytes32(address(_originConnext)));
   }
 
   function utils_setupAssets(uint32 canonicalDomain, bool localIsAdopted) public {

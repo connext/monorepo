@@ -2,6 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as connextPriceOracleSol from "./ConnextPriceOracle.sol";
+export * as ozerc20Sol from "./OZERC20.sol";
+export { BridgeToken__factory } from "./BridgeToken__factory";
 export { ConnextProxyAdmin__factory } from "./ConnextProxyAdmin__factory";
 export { Diamond__factory } from "./Diamond__factory";
 export { Executor__factory } from "./Executor__factory";

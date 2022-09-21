@@ -25,7 +25,7 @@ import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import {TokenRegistry} from "../../../../contracts/test/TokenRegistry.sol";
-import {BridgeMessage} from "../../../../contracts/test/BridgeMessage.sol";
+import {BridgeMessage} from "../../../../contracts/core/connext/helpers/BridgeMessage.sol";
 import {PromiseRouter} from "../../../../contracts/core/promise/PromiseRouter.sol";
 
 import "../../../utils/Mock.sol";
@@ -118,9 +118,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s._routerWhitelistRemoved = true;
     s.bridgeRouter = IBridgeRouter(_bridgeRouter);
 
-    s.connextions[_destinationDomain] = TypeCasts.addressToBytes32(address(this));
-    s.connextions[_originDomain] = TypeCasts.addressToBytes32(address(this));
-    s.connextions[_canonicalDomain] = TypeCasts.addressToBytes32(address(this));
+    s.remotes[_destinationDomain] = TypeCasts.addressToBytes32(address(this));
+    s.remotes[_originDomain] = TypeCasts.addressToBytes32(address(this));
+    s.remotes[_canonicalDomain] = TypeCasts.addressToBytes32(address(this));
 
     vm.prank(address(this));
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
@@ -353,7 +353,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         bridged,
         bridgedAmt,
         args.params.destinationDomain,
-        s.connextions[args.params.destinationDomain], // always use this as remote connext
+        s.remotes[args.params.destinationDomain], // always use this as remote connext
         abi.encode(TransferIdInformation(args.params, s.nonce, _originSender))
       )
     );
