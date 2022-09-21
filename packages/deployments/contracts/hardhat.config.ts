@@ -54,6 +54,7 @@ import "./tasks/submitExitProof";
 import "./tasks/addConnectors";
 import "./tasks/connector/proveAndProcess";
 import "./tasks/addSender";
+import "./tasks/connector/processFromRoot";
 
 envConfig();
 const urlOverride = process.env.ETH_PROVIDER_URL;
@@ -266,6 +267,23 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 421611,
       url: urlOverride || process.env.ARB_RINK_ETH_PROVIDER_URL || "https://rinkeby.arbitrum.io/rpc",
+    },
+    "arbitrum-goerli": {
+      accounts: { mnemonic },
+      chainId: 421613,
+      url:
+        urlOverride ||
+        process.env.OPTI_GOERLI_ETH_PROVIDER_URL ||
+        "https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+      companionNetworks: {
+        hub: "goerli",
+      },
+      verify: {
+        etherscan: {
+          apiKey: process.env.ETHERSCAN_API_KEY!,
+          apiUrl: "https://goerli-rollup-explorer.arbitrum.io",
+        },
+      },
     },
   },
   etherscan: {

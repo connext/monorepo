@@ -202,10 +202,14 @@ export type { SendOutboundRootResolver } from "./contracts/messaging/connectors/
 export { SendOutboundRootResolver__factory } from "./factories/contracts/messaging/connectors/SendOutboundRootResolver__factory";
 export type { SpokeConnector } from "./contracts/messaging/connectors/SpokeConnector";
 export { SpokeConnector__factory } from "./factories/contracts/messaging/connectors/SpokeConnector__factory";
-export type { ArbitrumL1Amb } from "./contracts/messaging/interfaces/ambs/ArbitrumL1Amb";
-export { ArbitrumL1Amb__factory } from "./factories/contracts/messaging/interfaces/ambs/ArbitrumL1Amb__factory";
-export type { ArbitrumL2Amb } from "./contracts/messaging/interfaces/ambs/ArbitrumL2Amb";
-export { ArbitrumL2Amb__factory } from "./factories/contracts/messaging/interfaces/ambs/ArbitrumL2Amb__factory";
+export type { ArbitrumL2Amb } from "./contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb";
+export { ArbitrumL2Amb__factory } from "./factories/contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb__factory";
+export type { IArbitrumInbox } from "./contracts/messaging/interfaces/ambs/arbitrum/IArbitrumInbox";
+export { IArbitrumInbox__factory } from "./factories/contracts/messaging/interfaces/ambs/arbitrum/IArbitrumInbox__factory";
+export type { IArbitrumOutbox } from "./contracts/messaging/interfaces/ambs/arbitrum/IArbitrumOutbox";
+export { IArbitrumOutbox__factory } from "./factories/contracts/messaging/interfaces/ambs/arbitrum/IArbitrumOutbox__factory";
+export type { IArbitrumRollup } from "./contracts/messaging/interfaces/ambs/arbitrum/IArbitrumRollup";
+export { IArbitrumRollup__factory } from "./factories/contracts/messaging/interfaces/ambs/arbitrum/IArbitrumRollup__factory";
 export type { GnosisAmb } from "./contracts/messaging/interfaces/ambs/GnosisAmb";
 export { GnosisAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/GnosisAmb__factory";
 export type { Multichain } from "./contracts/messaging/interfaces/ambs/Multichain";
