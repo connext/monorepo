@@ -25,7 +25,7 @@ import type {
 
 export interface DiamondInitInterface extends utils.Interface {
   functions: {
-    "init(uint32,address,address,uint256,uint256)": FunctionFragment;
+    "init(uint32,address,address,address,uint256,uint256)": FunctionFragment;
   };
 
   getFunction(nameOrSignatureOrTopic: "init"): FunctionFragment;
@@ -34,6 +34,7 @@ export interface DiamondInitInterface extends utils.Interface {
     functionFragment: "init",
     values: [
       PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
@@ -77,6 +78,7 @@ export interface DiamondInit extends BaseContract {
       _domain: PromiseOrValue<BigNumberish>,
       _tokenRegistry: PromiseOrValue<string>,
       _relayerFeeRouter: PromiseOrValue<string>,
+      _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
       _ownershipDelay: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -87,6 +89,7 @@ export interface DiamondInit extends BaseContract {
     _domain: PromiseOrValue<BigNumberish>,
     _tokenRegistry: PromiseOrValue<string>,
     _relayerFeeRouter: PromiseOrValue<string>,
+    _xAppConnectionManager: PromiseOrValue<string>,
     _acceptanceDelay: PromiseOrValue<BigNumberish>,
     _ownershipDelay: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -97,6 +100,7 @@ export interface DiamondInit extends BaseContract {
       _domain: PromiseOrValue<BigNumberish>,
       _tokenRegistry: PromiseOrValue<string>,
       _relayerFeeRouter: PromiseOrValue<string>,
+      _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
       _ownershipDelay: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -110,6 +114,7 @@ export interface DiamondInit extends BaseContract {
       _domain: PromiseOrValue<BigNumberish>,
       _tokenRegistry: PromiseOrValue<string>,
       _relayerFeeRouter: PromiseOrValue<string>,
+      _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
       _ownershipDelay: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -121,6 +126,7 @@ export interface DiamondInit extends BaseContract {
       _domain: PromiseOrValue<BigNumberish>,
       _tokenRegistry: PromiseOrValue<string>,
       _relayerFeeRouter: PromiseOrValue<string>,
+      _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
       _ownershipDelay: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }

@@ -20,6 +20,7 @@ import {BaseConnextFacet} from "../BaseConnextFacet.sol";
 
 import {IProposedOwnable} from "../../../../shared/interfaces/IProposedOwnable.sol";
 import {RelayerFeeRouter} from "../../../relayer-fee/RelayerFeeRouter.sol";
+import {IConnectorManager} from "../../../../messaging/interfaces/IConnectorManager.sol";
 
 // It is expected that this contract is customized if you want to deploy your diamond
 // with data from a deployment script. Use the init function to initialize state variables
@@ -32,6 +33,7 @@ contract DiamondInit is BaseConnextFacet {
     uint32 _domain,
     address _tokenRegistry, // Nomad token registry
     address _relayerFeeRouter,
+    address _xAppConnectionManager,
     uint256 _acceptanceDelay,
     uint256 _ownershipDelay
   ) external {
@@ -65,6 +67,7 @@ contract DiamondInit is BaseConnextFacet {
       s.tokenRegistry = ITokenRegistry(_tokenRegistry);
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.maxRoutersPerTransfer = 5;
+      s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
       s._ownershipDelay = _ownershipDelay;
     }
   }

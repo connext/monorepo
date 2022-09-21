@@ -14,8 +14,8 @@ import {XAppConnectionClient} from "../core/XAppConnectionClient.sol";
 import {ITokenRegistry} from "../core/connext/interfaces/ITokenRegistry.sol";
 
 import {Encoding} from "./Encoding.sol";
-import {BridgeMessage} from "./BridgeMessage.sol";
-import {IBridgeToken} from "./IBridgeToken.sol";
+import {BridgeMessage} from "../core/connext/helpers/BridgeMessage.sol";
+import {IBridgeToken} from "../core/connext/interfaces/IBridgeToken.sol";
 
 /**
  * @title TokenRegistry

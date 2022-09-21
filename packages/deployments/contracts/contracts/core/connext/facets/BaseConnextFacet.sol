@@ -48,14 +48,6 @@ contract BaseConnextFacet {
   }
 
   /**
-   * @notice Throws if called by any account other than the proposed owner.
-   */
-  modifier onlyBridgeRouter() {
-    if (address(s.bridgeRouter) != msg.sender) revert BaseConnextFacet__onlyBridgeRouter_notBridgeRouter();
-    _;
-  }
-
-  /**
    * @notice Throws if called by any account other than the owner.
    */
   modifier onlyOwner() {

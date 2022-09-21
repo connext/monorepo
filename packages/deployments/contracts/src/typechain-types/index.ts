@@ -92,6 +92,8 @@ export type { DiamondInit } from "./contracts/core/connext/facets/upgrade-initia
 export { DiamondInit__factory } from "./factories/contracts/core/connext/facets/upgrade-initializers/DiamondInit__factory";
 export type { VersionFacet } from "./contracts/core/connext/facets/VersionFacet";
 export { VersionFacet__factory } from "./factories/contracts/core/connext/facets/VersionFacet__factory";
+export type { BridgeToken } from "./contracts/core/connext/helpers/BridgeToken";
+export { BridgeToken__factory } from "./factories/contracts/core/connext/helpers/BridgeToken__factory";
 export type { AggregatorV3Interface } from "./contracts/core/connext/helpers/ConnextPriceOracle.sol/AggregatorV3Interface";
 export { AggregatorV3Interface__factory } from "./factories/contracts/core/connext/helpers/ConnextPriceOracle.sol/AggregatorV3Interface__factory";
 export type { ConnextPriceOracle } from "./contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle";
@@ -116,6 +118,8 @@ export type { IBridgeHook } from "./contracts/core/connext/interfaces/IBridgeHoo
 export { IBridgeHook__factory } from "./factories/contracts/core/connext/interfaces/IBridgeHook__factory";
 export type { IBridgeRouter } from "./contracts/core/connext/interfaces/IBridgeRouter";
 export { IBridgeRouter__factory } from "./factories/contracts/core/connext/interfaces/IBridgeRouter__factory";
+export type { IBridgeToken } from "./contracts/core/connext/interfaces/IBridgeToken";
+export { IBridgeToken__factory } from "./factories/contracts/core/connext/interfaces/IBridgeToken__factory";
 export type { IConnextHandler } from "./contracts/core/connext/interfaces/IConnextHandler";
 export { IConnextHandler__factory } from "./factories/contracts/core/connext/interfaces/IConnextHandler__factory";
 export type { IDiamondCut } from "./contracts/core/connext/interfaces/IDiamondCut";
@@ -250,12 +254,6 @@ export type { UpgradeBeaconController } from "./contracts/shared/upgrade/Upgrade
 export { UpgradeBeaconController__factory } from "./factories/contracts/shared/upgrade/UpgradeBeaconController__factory";
 export type { UpgradeBeaconProxy } from "./contracts/shared/upgrade/UpgradeBeaconProxy";
 export { UpgradeBeaconProxy__factory } from "./factories/contracts/shared/upgrade/UpgradeBeaconProxy__factory";
-export type { BridgeRouter } from "./contracts/test/BridgeRouter";
-export { BridgeRouter__factory } from "./factories/contracts/test/BridgeRouter__factory";
-export type { BridgeToken } from "./contracts/test/BridgeToken";
-export { BridgeToken__factory } from "./factories/contracts/test/BridgeToken__factory";
-export type { IBridgeToken } from "./contracts/test/IBridgeToken";
-export { IBridgeToken__factory } from "./factories/contracts/test/IBridgeToken__factory";
 export type { TestAavePool } from "./contracts/test/TestAavePool";
 export { TestAavePool__factory } from "./factories/contracts/test/TestAavePool__factory";
 export type { TestAggregator } from "./contracts/test/TestAggregator";

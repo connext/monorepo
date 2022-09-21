@@ -57,7 +57,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     ds.contractOwner = _ds_owner;
     s.bridgeRouter = IBridgeRouter(_bridge);
-    s.connextions[_originDomain] = _originConnext;
+    s.remotes[_originDomain] = _originConnext;
 
     // set domain
     s.domain = _originDomain;
@@ -182,27 +182,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
 
   // ============ bridgeRouter ============
   // NOTE: tested via assertions below
-
-  // ============ setBridgeRouter ============
-
-  function test_NomadFacet__setBridgeRouter_works() public {
-    s.bridgeRouter = IBridgeRouter(address(0));
-    assertEq(address(this.bridgeRouter()), address(0));
-    address value = address(1234);
-
-    vm.prank(LibDiamond.contractOwner());
-    this.setBridgeRouter(value);
-    assertEq(address(this.bridgeRouter()), value);
-  }
-
-  function test_NomadFacet__setBridgeRouter_failsIfNotOwner() public {
-    s.bridgeRouter = IBridgeRouter(address(0));
-    assertEq(address(this.bridgeRouter()), address(0));
-    address value = address(1234);
-    vm.prank(address(2345));
-    vm.expectRevert(abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector));
-    this.setBridgeRouter(value);
-  }
 
   // =========== reconcile ==========
 

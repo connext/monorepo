@@ -22,8 +22,7 @@ import {RelayerFeeMessage} from "../contracts/core/relayer-fee/libraries/Relayer
 
 import {TestERC20} from "../contracts/test/TestERC20.sol";
 import {TokenRegistry} from "../contracts/test/TokenRegistry.sol";
-import {BridgeMessage} from "../contracts/test/BridgeMessage.sol";
-import {BridgeRouter} from "../contracts/test/BridgeRouter.sol";
+import {BridgeMessage} from "../contracts/core/connext/helpers/BridgeMessage.sol";
 
 import {WETH} from "./utils/TestWeth.sol";
 import "./utils/ForgeHelper.sol";
@@ -84,7 +83,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
   event XSendCalled(address _token, uint256 _amount, uint32 _destination, bytes32 _externalId);
 
-  // BridgeRouter event
+  // BridgeFacet event
   event Send(
     address indexed token,
     address indexed from,
@@ -99,9 +98,6 @@ contract ConnextTest is ForgeHelper, Deployer {
   uint32 _origin = 1111;
   uint32 _destination = 2221;
   uint32 _other = 3331;
-
-  address _destinationBridgeRouter;
-  address _originBridgeRouter;
 
   // ============ Assets
   address _canonical;
@@ -181,35 +177,6 @@ contract ConnextTest is ForgeHelper, Deployer {
     );
     _destinationRegistry = TokenRegistry(address(destinationProxy));
 
-    // Deploy BridgeRouter implementation
-    BridgeRouter bridgeImp = new BridgeRouter();
-    // Deploy origin BridgeRouter
-    ERC1967Proxy originBridgeProxy = new ERC1967Proxy(
-      address(bridgeImp),
-      abi.encodeWithSelector(BridgeRouter.initialize.selector, address(_originRegistry), address(_originManager))
-    );
-    _originBridgeRouter = address(originBridgeProxy);
-    // Deploy destination BridgeRouter
-    ERC1967Proxy destBridgeProxy = new ERC1967Proxy(
-      address(bridgeImp),
-      abi.encodeWithSelector(
-        BridgeRouter.initialize.selector,
-        address(_destinationRegistry),
-        address(_destinationManager)
-      )
-    );
-    _destinationBridgeRouter = address(destBridgeProxy);
-
-    // set remote routers
-    BridgeRouter(payable(_originBridgeRouter)).enrollRemoteRouter(
-      _destination,
-      TypeCasts.addressToBytes32(_destinationBridgeRouter)
-    );
-    BridgeRouter(payable(_destinationBridgeRouter)).enrollRemoteRouter(
-      _origin,
-      TypeCasts.addressToBytes32(_originBridgeRouter)
-    );
-
     // set this to be a replica so we can call `handle` directly on routers
     MockXAppConnectionManager(address(_destinationManager)).enrollInbox(address(this));
     MockXAppConnectionManager(address(_originManager)).enrollInbox(address(this));
@@ -261,10 +228,6 @@ contract ConnextTest is ForgeHelper, Deployer {
     );
     _destinationConnext = IConnextHandler(destinationConnext);
 
-    // enroll bridge router (so we can call `reconcile` directly)
-    _originConnext.setBridgeRouter(_originBridgeRouter);
-    _destinationConnext.setBridgeRouter(_destinationBridgeRouter);
-
     // whitelist contract as router
     _originConnext.addRelayer(address(this));
     _destinationConnext.addRelayer(address(this));
@@ -274,8 +237,9 @@ contract ConnextTest is ForgeHelper, Deployer {
     _destinationRelayerFee.setConnext(address(_destinationConnext));
 
     // enroll instances
-    _originConnext.addConnextion(_destination, address(_destinationConnext));
-    _destinationConnext.addConnextion(_origin, address(_originConnext));
+    // set remote routers
+    _originConnext.enrollRemoteRouter(_destination, TypeCasts.addressToBytes32(address(_destinationConnext)));
+    _destinationConnext.enrollRemoteRouter(_origin, TypeCasts.addressToBytes32(address(_originConnext)));
   }
 
   function utils_setupAssets(uint32 canonicalDomain, bool localIsAdopted) public {
@@ -454,7 +418,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       vm.expectEmit(true, true, true, true);
       emit Send(
         bridgedAsset,
-        address(_originConnext),
+        address(this),
         params.destinationDomain,
         TypeCasts.addressToBytes32(address(_destinationConnext)),
         params.bridgedAmt,
@@ -739,9 +703,9 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // expect emit
     vm.expectEmit(true, true, true, true);
-    emit Reconciled(transferId, _origin, routers, _destinationLocal, bridgedAmt, _destinationBridgeRouter);
+    emit Reconciled(transferId, _origin, routers, _destinationLocal, bridgedAmt, address(_destinationConnext));
 
-    vm.prank(_destinationBridgeRouter);
+    vm.prank(address(_destinationConnext));
     _destinationConnext.onReceive(
       _origin, // origin, not used
       TypeCasts.addressToBytes32(address(_originConnext)),
@@ -753,7 +717,6 @@ contract ConnextTest is ForgeHelper, Deployer {
     );
 
     ReconcileBalances memory end = utils_getReconcileBalances(transferId, routers);
-
     // assert router liquidity balance
     uint256 credited = routers.length != 0 ? bridgedAmt / routers.length : 0;
     for (uint256 i; i < routers.length; i++) {
@@ -763,7 +726,6 @@ contract ConnextTest is ForgeHelper, Deployer {
     // assert portal balance didnt change during reconcile call
     assertEq(end.portalDebt, initial.portalDebt);
     assertEq(end.portalFeeDebt, initial.portalFeeDebt);
-
     // assert transfer marked as reconciled
     assertTrue(_destinationConnext.reconciledTransfers(transferId));
   }
