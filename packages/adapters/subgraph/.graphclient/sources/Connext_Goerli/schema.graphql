@@ -1362,9 +1362,6 @@ type Query {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-<<<<<<< HEAD
-  ): [goerli_RootMessage!]!
-=======
   ): [goerli_ConnectorMeta!]!
   goerli_rootMessageSent(
     id: ID!
@@ -1418,7 +1415,6 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_RootMessageProcessed!]!
->>>>>>> 1807-xcall-interface
   """Access to subgraph metadata"""
   goerli__meta(block: goerli_Block_height): goerli__Meta_
 }
@@ -1529,8 +1525,6 @@ input goerli_RootMessageProcessed_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-<<<<<<< HEAD
-=======
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -1634,7 +1628,6 @@ input goerli_RootMessageSent_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
->>>>>>> 1807-xcall-interface
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -2168,9 +2161,6 @@ type Subscription {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-<<<<<<< HEAD
-  ): [goerli_RootMessage!]!
-=======
   ): [goerli_ConnectorMeta!]!
   goerli_rootMessageSent(
     id: ID!
@@ -2224,7 +2214,6 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_RootMessageProcessed!]!
->>>>>>> 1807-xcall-interface
   """Access to subgraph metadata"""
   goerli__meta(block: goerli_Block_height): goerli__Meta_
 }

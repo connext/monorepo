@@ -43,17 +43,22 @@ export const originTransfer = (entity: any): OriginTransfer => {
   return {
     // Meta Data
     transferId: entity.transferId,
-    nonce: BigNumber.from(entity.nonce).toNumber(),
 
     // Call Params
     xparams: {
-      to: entity.to,
-      callData: entity.callData,
-      receiveLocal: entity.receiveLocal,
       originDomain: entity.originDomain,
       destinationDomain: entity.destinationDomain,
-      agent: entity.agent,
-      destinationMinOut: entity.destinationMinOut,
+      canonicalDomain: entity.canonicalDomain,
+      to: entity.to,
+      delegate: entity.delegate,
+      receiveLocal: entity.receiveLocal,
+      callData: entity.callData,
+      slippage: entity.slippage,
+      originSender: entity.originSender,
+      bridgedAmt: entity.bridgedAmt,
+      normalizedIn: entity.normalizedIn,
+      nonce: BigNumber.from(entity.nonce).toNumber(),
+      canonicalId: entity.canonicalId,
     },
 
     // Origin Info
@@ -122,17 +127,22 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
     // Meta Data
 
     transferId: entity.transferId,
-    nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : undefined,
 
     // Call Params
     xparams: {
-      to: entity.to,
-      callData: entity.callData,
-      receiveLocal: entity.receiveLocal,
-      destinationDomain: entity.destinationDomain,
       originDomain: entity.originDomain,
-      agent: entity.agent,
-      destinationMinOut: entity.destinationMinOut,
+      destinationDomain: entity.destinationDomain,
+      canonicalDomain: entity.canonicalDomain,
+      to: entity.to,
+      delegate: entity.delegate,
+      receiveLocal: entity.receiveLocal,
+      callData: entity.callData,
+      slippage: entity.slippage,
+      originSender: entity.originSender,
+      bridgedAmt: entity.bridgedAmt,
+      normalizedIn: entity.normalizedIn,
+      nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : 0,
+      canonicalId: entity.canonicalId,
     },
 
     // Origin Info
