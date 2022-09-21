@@ -521,7 +521,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__addConnextion_invalidDomain",
+    name: "BridgeFacet__addRemote_invalidDomain",
     type: "error",
   },
   {
@@ -606,11 +606,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BridgeFacet__onlyDelegate_notDelegate",
     type: "error",
   },
@@ -673,31 +668,6 @@ const _abi = [
       },
     ],
     name: "AavePortalMintUnbacked",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint32",
-        name: "domain",
-        type: "uint32",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "connext",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "ConnextionAdded",
     type: "event",
   },
   {
@@ -841,6 +811,31 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "address",
+        name: "oldExecutor",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "newExecutor",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "ExecutorUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "bytes32",
         name: "transferId",
@@ -860,6 +855,111 @@ const _abi = [
       },
     ],
     name: "ExternalCalldataExecuted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint64",
+        name: "originAndNonce",
+        type: "uint64",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "recipient",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "liquidityProvider",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "Receive",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "domain",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "remote",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "RemoteAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "from",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "uint32",
+        name: "toDomain",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "toId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "toHook",
+        type: "bool",
+      },
+    ],
+    name: "Send",
     type: "event",
   },
   {
@@ -917,6 +1017,31 @@ const _abi = [
       },
     ],
     name: "SlippageUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "oldSponsorVault",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "newSponsorVault",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "SponsorVaultUpdated",
     type: "event",
   },
   {
@@ -1056,21 +1181,16 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
+    inputs: [],
+    name: "DUST_AMOUNT",
+    outputs: [
       {
-        internalType: "uint32",
-        name: "_domain",
-        type: "uint32",
-      },
-      {
-        internalType: "address",
-        name: "_connext",
-        type: "address",
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
-    name: "addConnextion",
-    outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -1119,25 +1239,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "_domain",
-        type: "uint32",
-      },
-    ],
-    name: "connextion",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "domain",
     outputs: [
@@ -1148,6 +1249,47 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "_domain",
+        type: "uint32",
+      },
+      {
+        internalType: "bytes32",
+        name: "_id",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "_custom",
+        type: "address",
+      },
+    ],
+    name: "enrollCustom",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "_domain",
+        type: "uint32",
+      },
+      {
+        internalType: "bytes32",
+        name: "_router",
+        type: "bytes32",
+      },
+    ],
+    name: "enrollRemoteRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1349,6 +1491,47 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "_origin",
+        type: "uint32",
+      },
+      {
+        internalType: "uint32",
+        name: "_nonce",
+        type: "uint32",
+      },
+      {
+        internalType: "bytes32",
+        name: "_sender",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes",
+        name: "_message",
+        type: "bytes",
+      },
+    ],
+    name: "handle",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_oldRepr",
+        type: "address",
+      },
+    ],
+    name: "migrate",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "nonce",
     outputs: [
@@ -1402,6 +1585,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint32",
+        name: "_domain",
+        type: "uint32",
+      },
+    ],
+    name: "remote",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "_sequencer",
         type: "address",
@@ -1429,6 +1631,91 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_token",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint32",
+        name: "_destination",
+        type: "uint32",
+      },
+      {
+        internalType: "bytes32",
+        name: "_recipient",
+        type: "bytes32",
+      },
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    name: "send",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_token",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint32",
+        name: "_destination",
+        type: "uint32",
+      },
+      {
+        internalType: "bytes32",
+        name: "_remoteHook",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes",
+        name: "_extraData",
+        type: "bytes",
+      },
+    ],
+    name: "sendToHook",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_xAppConnectionManager",
+        type: "address",
+      },
+    ],
+    name: "setXAppConnectionManager",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -2011,19 +2298,6 @@ const _abi = [
     type: "event",
   },
   {
-    inputs: [],
-    name: "bridgeRouter",
-    outputs: [
-      {
-        internalType: "contract IBridgeRouter",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "uint32",
@@ -2062,19 +2336,6 @@ const _abi = [
       },
     ],
     name: "onReceive",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_bridgeRouter",
-        type: "address",
-      },
-    ],
-    name: "setBridgeRouter",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
