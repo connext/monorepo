@@ -132,10 +132,8 @@ contract Deployer {
   }
 
   function getNomadFacetCut(address _nomadFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory nomadFacetSelectors = new bytes4[](3);
-    nomadFacetSelectors[0] = NomadFacet.bridgeRouter.selector;
-    nomadFacetSelectors[1] = NomadFacet.setBridgeRouter.selector;
-    nomadFacetSelectors[2] = NomadFacet.onReceive.selector;
+    bytes4[] memory nomadFacetSelectors = new bytes4[](1);
+    nomadFacetSelectors[0] = NomadFacet.onReceive.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _nomadFacet,
@@ -374,7 +372,8 @@ contract Deployer {
       tokenRegistry,
       relayerFeeRouter,
       promiseRouter,
-      acceptanceDelay
+      acceptanceDelay,
+      xAppConnectionManager
     );
 
     deployFacets();

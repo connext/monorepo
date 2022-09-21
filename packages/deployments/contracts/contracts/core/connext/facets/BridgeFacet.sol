@@ -464,10 +464,6 @@ contract BridgeFacet is BaseConnextFacet {
           _args.transactingAmount,
           _args.originMinOut
         );
-
-        // Approve bridge router
-        SafeERC20.safeApprove(IERC20(bridgedAsset), address(s.bridgeRouter), 0);
-        SafeERC20.safeIncreaseAllowance(IERC20(bridgedAsset), address(s.bridgeRouter), bridgedAmount);
       } else {
         // Get the bridged asset so you can emit it properly within the event
         bridgedAsset = _args.transactingAsset == address(0)
@@ -492,7 +488,7 @@ contract BridgeFacet is BaseConnextFacet {
       }
 
       // Send message
-      messageHash = s.bridgeRouter.sendToHook(
+      messageHash = sendToHook(
         bridgedAsset,
         bridgedAmount,
         _args.params.destinationDomain,
@@ -682,13 +678,14 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _extraData Extra data that will be passed to the hook for
    *        execution
    */
+  // TODO: does this need to be public?
   function sendToHook(
     address _token,
     uint256 _amount,
     uint32 _destination,
     bytes32 _remoteHook,
-    bytes calldata _extraData
-  ) external returns (bytes32) {
+    bytes memory _extraData
+  ) public returns (bytes32) {
     // get the token id
     (bytes29 _tokenId, bytes32 _detailsHash, bool _isLocal) = _getTokenIdAndDetailsHash(_token);
     // debit tokens from the sender
@@ -1100,11 +1097,13 @@ contract BridgeFacet is BaseConnextFacet {
     if (_isLocal) {
       // if the token originates on this chain,
       // hold the tokens in escrow in the Router
-      IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+      // the tokens should be in the contract already at this point
+      // from xcall
+      require(_t.balanceOf(address(this)) >= _amount, "BridgeFacet: insufficient balance");
     } else {
       // if the token originates on a remote chain,
       // burn the representation tokens on this chain
-      _t.burn(msg.sender, _amount);
+      _t.burn(address(this), _amount);
     }
   }
 

@@ -116,7 +116,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.approvedSequencers[_sequencer] = true;
     s.maxRoutersPerTransfer = 5;
     s._routerWhitelistRemoved = true;
-    s.bridgeRouter = IBridgeRouter(_bridgeRouter);
 
     s.remotes[_destinationDomain] = TypeCasts.addressToBytes32(address(this));
     s.remotes[_originDomain] = TypeCasts.addressToBytes32(address(this));
