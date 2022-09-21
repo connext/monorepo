@@ -164,22 +164,14 @@ export default task("xcall", "Prepare a cross-chain tx")
       }
       console.log(`connextion for domain ${destinationDomain}: ${connextion}`);
 
-      // Construct xcall args
-      const params: CallParams = {
-        to: to,
-        callData,
-        originDomain: `${originDomain}`,
-        destinationDomain: `${destinationDomain}`,
-        agent,
-        receiveLocal,
-        destinationMinOut,
-      };
-
       const args: XCallArgs = {
-        params,
+        destination: `${destinationDomain}`,
+        to: to,
         asset: assetId,
+        delegate: agent,
         amount: amount,
-        originMinOut,
+        slippage: "0",
+        callData,
       };
       // Check balances and allowances
       for (let i = 0; i < senders.length; i++) {
@@ -213,7 +205,7 @@ export default task("xcall", "Prepare a cross-chain tx")
       for (let i = 1; i <= runs; i++) {
         const receipts = Promise.all(
           senders.map(async (sender) => {
-            args.params.to = sender.address;
+            args.to = sender.address;
             const encoded = connext.interface.encodeFunctionData("xcall", [args]);
             if (showArgs) {
               console.log("  originDomain: ", originDomain);
