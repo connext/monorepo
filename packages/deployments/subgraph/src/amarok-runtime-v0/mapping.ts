@@ -48,10 +48,10 @@ const DEFAULT_CONNECTOR_META_ID = "CONNECTOR_META_ID";
 
 /// MARK - Assets
 export function handleAssetAdded(event: AssetAdded): void {
-  let assetId = event.params.localAsset.toHex();
-  let asset = Asset.load(assetId);
+  let uniqueId = event.params.key.toHex();
+  let asset = Asset.load(uniqueId);
   if (asset == null) {
-    asset = new Asset(assetId);
+    asset = new Asset(uniqueId);
   }
   asset.key = event.params.key;
   asset.local = event.params.localAsset;
@@ -62,6 +62,7 @@ export function handleAssetAdded(event: AssetAdded): void {
   asset.save();
 }
 
+// TODO: Need an update!
 export function handleStableSwapAdded(event: StableSwapAdded): void {
   // StableSwapAdded: bytes32 canonicalId, uint32 domain, address swapPool, address caller
   let stableSwapId = `${event.params.canonicalId.toHex()}-${event.params.domain.toHex()}-${event.params.swapPool.toHex()}`;
@@ -172,7 +173,7 @@ export function handleRouterOwnerAccepted(event: RouterOwnerAccepted): void {
  * @param event - The contract event to update the subgraph record with
  */
 export function handleRouterLiquidityAdded(event: RouterLiquidityAdded): void {
-  const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.router);
+  const assetBalance = getOrCreateAssetBalance(event.params.key, event.params.router);
 
   // add new amount
   assetBalance.amount = assetBalance.amount.plus(event.params.amount);
@@ -188,7 +189,7 @@ export function handleRouterLiquidityAdded(event: RouterLiquidityAdded): void {
  */
 export function handleRouterLiquidityRemoved(event: RouterLiquidityRemoved): void {
   // ID is of the format ROUTER_ADDRESS-ASSET_ID
-  const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.router);
+  const assetBalance = getOrCreateAssetBalance(event.params.key, event.params.router);
 
   // update amount
   assetBalance.amount = assetBalance.amount.minus(event.params.amount);
@@ -541,8 +542,8 @@ function getChainId(): BigInt {
   return chainId;
 }
 
-function getOrCreateAssetBalance(local: Address, routerAddress: Address): AssetBalance {
-  let assetBalanceId = local.toHex() + "-" + routerAddress.toHex();
+function getOrCreateAssetBalance(key: Bytes, routerAddress: Address): AssetBalance {
+  let assetBalanceId = key.toHex() + "-" + routerAddress.toHex();
   let assetBalance = AssetBalance.load(assetBalanceId);
 
   let router = Router.load(routerAddress.toHex());
@@ -553,10 +554,12 @@ function getOrCreateAssetBalance(local: Address, routerAddress: Address): AssetB
   }
 
   if (assetBalance == null) {
-    let asset = Asset.load(local.toHex());
+    let asset = Asset.load(key.toHex());
     if (asset == null) {
-      asset = new Asset(local.toHex());
-      asset.local = local;
+      asset = new Asset(key.toHex());
+
+      asset.key = key;
+      asset.local = new Bytes(32);
       asset.adoptedAsset = new Bytes(20);
       asset.canonicalId = new Bytes(32);
       asset.canonicalDomain = new BigInt(0);
