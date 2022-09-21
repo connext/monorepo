@@ -20,7 +20,6 @@ export const ORIGIN_TRANSFER_ENTITY = `
       callData
       originDomain
       destinationDomain
-      forceSlow
       receiveLocal
       recovery
       agent
@@ -31,8 +30,8 @@ export const ORIGIN_TRANSFER_ENTITY = `
       destinationMinOut
       
       # Asset Data
-      transactingAsset
-      transactingAmount
+      asset
+      amount
       originMinOut
       bridgedAsset
       bridgedAmount
@@ -62,7 +61,6 @@ export const DESTINATION_TRANSFER_ENTITY = `
       callData
       originDomain
       destinationDomain
-      forceSlow
       receiveLocal
       recovery
       agent
@@ -76,8 +74,8 @@ export const DESTINATION_TRANSFER_ENTITY = `
       localAsset
       localAmount
       originMinOut
-      transactingAsset
-      transactingAmount
+      asset
+      amount
       sponsorVaultRelayerFee
 
       # Executed event Data
@@ -326,13 +324,11 @@ const originTransferQueryString = (
   originDomain: string,
   fromNonce: number,
   destinationDomains: string[],
-  forceSlow: boolean,
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "desc",
 ) => {
   return `${prefix}_originTransfers(
     where: {
-      forceSlow: ${forceSlow},
       originDomain: ${originDomain},
       nonce_gte: ${fromNonce},
       destinationDomain_in: [${destinationDomains}]
@@ -356,7 +352,6 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
         domain,
         agents.get(domain)!.latestNonce,
         domains,
-        agents.get(domain)?.forceSlow ?? false,
         agents.get(domain)!.maxBlockNumber,
         agents.get(domain)!.orderDirection,
       );

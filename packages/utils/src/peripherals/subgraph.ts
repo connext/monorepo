@@ -2,7 +2,6 @@ export type SubgraphQueryMetaParams = {
   maxBlockNumber: number;
   latestNonce: number;
   destinationDomains?: string[];
-  forceSlow?: boolean;
   orderDirection?: "asc" | "desc";
 };
 
