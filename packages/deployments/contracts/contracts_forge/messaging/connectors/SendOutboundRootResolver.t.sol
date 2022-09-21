@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-import {SendOutboundRootResolver} from "../../contracts/messaging/connectors/SendOutboundRootResolver.sol";
-import {IHubConnector} from "../../contracts/messaging/interfaces/IHubConnector.sol";
+import {SendOutboundRootResolver} from "../../../contracts/messaging/connectors/SendOutboundRootResolver.sol";
+import {SpokeConnector} from "../../../contracts/messaging/connectors/SpokeConnector.sol";
 
-import "../utils/ConnectorHelper.sol";
+import "../../utils/ConnectorHelper.sol";
 
 contract SendOutboundRootResolverTest is ForgeHelper {
   // ============ Errors ============
@@ -19,7 +19,7 @@ contract SendOutboundRootResolverTest is ForgeHelper {
   uint256 execution_interval = 100;
 
   function setUp() public {
-    _resolver = new SendOutboundRootResolver();
+    _resolver = new SendOutboundRootResolver(connector, execution_interval);
   }
 
   // ============ Utils ============
