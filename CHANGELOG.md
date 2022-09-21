@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.24
+
+- [sdk] CanonicalHash as key for pools.
+- [release] X.X.X-alpha.N for releases from main branch.
+
 ## Amarok 0.2.0-beta.21
 
 - [sdk] Function updates.

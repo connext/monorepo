@@ -180,12 +180,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("balance: ", balance.toString());
 
   // Retrieve Router deployments, format into ethers.Contract objects:
-  const promiseRouterDeployment = await hre.deployments.getOrNull(getDeploymentName("PromiseRouterUpgradeBeaconProxy"));
-  if (!promiseRouterDeployment) {
-    throw new Error("PromiseRouterUpgradeBeaconProxy deployment not found!");
-  }
-  const promiseRouter = await hre.ethers.getContractAt("PromiseRouter", promiseRouterDeployment.address, deployer);
-
   const relayerFeeRouterDeployment = await hre.deployments.getOrNull(
     getDeploymentName("RelayerFeeRouterUpgradeBeaconProxy"),
   );
@@ -313,14 +307,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         : {
             contract: "DiamondInit",
             methodName: "init",
-            args: [
-              domain,
-              tokenRegistry.address,
-              relayerFeeRouter.address,
-              promiseRouter.address,
-              acceptanceDelay,
-              ownershipDelay,
-            ],
+            args: [domain, tokenRegistry.address, relayerFeeRouter.address, acceptanceDelay, ownershipDelay],
           },
     });
   }
@@ -346,15 +333,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     await addTm.wait();
   } else {
     console.log("relayer fee router connext set");
-  }
-
-  // Add connext to promise router
-  if ((await promiseRouter.connext()) !== connextAddress) {
-    console.log("setting connext on promiseRouter router");
-    const addTm = await promiseRouter.connect(deployer).setConnext(connextAddress);
-    await addTm.wait();
-  } else {
-    console.log("promise router connext set");
   }
 
   console.log("Deploying multicall...");

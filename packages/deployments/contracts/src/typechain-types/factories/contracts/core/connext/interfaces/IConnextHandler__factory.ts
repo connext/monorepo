@@ -886,16 +886,6 @@ const _abi = [
           {
             components: [
               {
-                internalType: "address",
-                name: "to",
-                type: "address",
-              },
-              {
-                internalType: "bytes",
-                name: "callData",
-                type: "bytes",
-              },
-              {
                 internalType: "uint32",
                 name: "originDomain",
                 type: "uint32",
@@ -906,19 +896,19 @@ const _abi = [
                 type: "uint32",
               },
               {
+                internalType: "uint32",
+                name: "canonicalDomain",
+                type: "uint32",
+              },
+              {
                 internalType: "address",
-                name: "agent",
+                name: "to",
                 type: "address",
               },
               {
                 internalType: "address",
-                name: "recovery",
+                name: "delegate",
                 type: "address",
-              },
-              {
-                internalType: "bool",
-                name: "forceSlow",
-                type: "bool",
               },
               {
                 internalType: "bool",
@@ -926,34 +916,44 @@ const _abi = [
                 type: "bool",
               },
               {
+                internalType: "bytes",
+                name: "callData",
+                type: "bytes",
+              },
+              {
+                internalType: "uint256",
+                name: "slippage",
+                type: "uint256",
+              },
+              {
                 internalType: "address",
-                name: "callback",
+                name: "originSender",
                 type: "address",
               },
               {
                 internalType: "uint256",
-                name: "callbackFee",
+                name: "bridgedAmt",
                 type: "uint256",
               },
               {
                 internalType: "uint256",
-                name: "relayerFee",
+                name: "normalizedIn",
                 type: "uint256",
               },
               {
                 internalType: "uint256",
-                name: "destinationMinOut",
+                name: "nonce",
                 type: "uint256",
+              },
+              {
+                internalType: "bytes32",
+                name: "canonicalId",
+                type: "bytes32",
               },
             ],
             internalType: "struct CallParams",
             name: "params",
             type: "tuple",
-          },
-          {
-            internalType: "address",
-            name: "local",
-            type: "address",
           },
           {
             internalType: "address[]",
@@ -975,21 +975,6 @@ const _abi = [
             name: "sequencerSignature",
             type: "bytes",
           },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "nonce",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "originSender",
-            type: "address",
-          },
         ],
         internalType: "struct ExecuteArgs",
         name: "_args",
@@ -1005,19 +990,6 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "executor",
-    outputs: [
-      {
-        internalType: "contract IExecutor",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -1101,16 +1073,6 @@ const _abi = [
       {
         components: [
           {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "bytes",
-            name: "callData",
-            type: "bytes",
-          },
-          {
             internalType: "uint32",
             name: "originDomain",
             type: "uint32",
@@ -1121,19 +1083,19 @@ const _abi = [
             type: "uint32",
           },
           {
+            internalType: "uint32",
+            name: "canonicalDomain",
+            type: "uint32",
+          },
+          {
             internalType: "address",
-            name: "agent",
+            name: "to",
             type: "address",
           },
           {
             internalType: "address",
-            name: "recovery",
+            name: "delegate",
             type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "forceSlow",
-            type: "bool",
           },
           {
             internalType: "bool",
@@ -1141,24 +1103,39 @@ const _abi = [
             type: "bool",
           },
           {
+            internalType: "bytes",
+            name: "callData",
+            type: "bytes",
+          },
+          {
+            internalType: "uint256",
+            name: "slippage",
+            type: "uint256",
+          },
+          {
             internalType: "address",
-            name: "callback",
+            name: "originSender",
             type: "address",
           },
           {
             internalType: "uint256",
-            name: "callbackFee",
+            name: "bridgedAmt",
             type: "uint256",
           },
           {
             internalType: "uint256",
-            name: "relayerFee",
+            name: "normalizedIn",
             type: "uint256",
           },
           {
             internalType: "uint256",
-            name: "destinationMinOut",
+            name: "nonce",
             type: "uint256",
+          },
+          {
+            internalType: "bytes32",
+            name: "canonicalId",
+            type: "bytes32",
           },
         ],
         internalType: "struct CallParams",
@@ -1167,33 +1144,13 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "_amount",
+        name: "_slippage",
         type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_nonce",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes32",
-        name: "_canonicalId",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint32",
-        name: "_canonicalDomain",
-        type: "uint32",
-      },
-      {
-        internalType: "address",
-        name: "_originSender",
-        type: "address",
       },
     ],
-    name: "forceReceiveLocal",
+    name: "forceUpdateSlippage",
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1768,19 +1725,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "promiseRouter",
-    outputs: [
-      {
-        internalType: "contract PromiseRouter",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "proposeAssetWhitelistRemoval",
     outputs: [],
     stateMutability: "nonpayable",
@@ -2248,16 +2192,6 @@ const _abi = [
       {
         components: [
           {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "bytes",
-            name: "callData",
-            type: "bytes",
-          },
-          {
             internalType: "uint32",
             name: "originDomain",
             type: "uint32",
@@ -2268,19 +2202,19 @@ const _abi = [
             type: "uint32",
           },
           {
+            internalType: "uint32",
+            name: "canonicalDomain",
+            type: "uint32",
+          },
+          {
             internalType: "address",
-            name: "agent",
+            name: "to",
             type: "address",
           },
           {
             internalType: "address",
-            name: "recovery",
+            name: "delegate",
             type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "forceSlow",
-            type: "bool",
           },
           {
             internalType: "bool",
@@ -2288,49 +2222,44 @@ const _abi = [
             type: "bool",
           },
           {
+            internalType: "bytes",
+            name: "callData",
+            type: "bytes",
+          },
+          {
+            internalType: "uint256",
+            name: "slippage",
+            type: "uint256",
+          },
+          {
             internalType: "address",
-            name: "callback",
+            name: "originSender",
             type: "address",
           },
           {
             internalType: "uint256",
-            name: "callbackFee",
+            name: "bridgedAmt",
             type: "uint256",
           },
           {
             internalType: "uint256",
-            name: "relayerFee",
+            name: "normalizedIn",
             type: "uint256",
           },
           {
             internalType: "uint256",
-            name: "destinationMinOut",
+            name: "nonce",
             type: "uint256",
+          },
+          {
+            internalType: "bytes32",
+            name: "canonicalId",
+            type: "bytes32",
           },
         ],
         internalType: "struct CallParams",
         name: "_params",
         type: "tuple",
-      },
-      {
-        internalType: "address",
-        name: "_local",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_originSender",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_bridgedAmt",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_nonce",
-        type: "uint256",
       },
       {
         internalType: "uint256",
@@ -2358,16 +2287,6 @@ const _abi = [
       {
         components: [
           {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "bytes",
-            name: "callData",
-            type: "bytes",
-          },
-          {
             internalType: "uint32",
             name: "originDomain",
             type: "uint32",
@@ -2378,19 +2297,19 @@ const _abi = [
             type: "uint32",
           },
           {
+            internalType: "uint32",
+            name: "canonicalDomain",
+            type: "uint32",
+          },
+          {
             internalType: "address",
-            name: "agent",
+            name: "to",
             type: "address",
           },
           {
             internalType: "address",
-            name: "recovery",
+            name: "delegate",
             type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "forceSlow",
-            type: "bool",
           },
           {
             internalType: "bool",
@@ -2398,49 +2317,44 @@ const _abi = [
             type: "bool",
           },
           {
+            internalType: "bytes",
+            name: "callData",
+            type: "bytes",
+          },
+          {
+            internalType: "uint256",
+            name: "slippage",
+            type: "uint256",
+          },
+          {
             internalType: "address",
-            name: "callback",
+            name: "originSender",
             type: "address",
           },
           {
             internalType: "uint256",
-            name: "callbackFee",
+            name: "bridgedAmt",
             type: "uint256",
           },
           {
             internalType: "uint256",
-            name: "relayerFee",
+            name: "normalizedIn",
             type: "uint256",
           },
           {
             internalType: "uint256",
-            name: "destinationMinOut",
+            name: "nonce",
             type: "uint256",
+          },
+          {
+            internalType: "bytes32",
+            name: "canonicalId",
+            type: "bytes32",
           },
         ],
         internalType: "struct CallParams",
         name: "_params",
         type: "tuple",
-      },
-      {
-        internalType: "address",
-        name: "_adopted",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_originSender",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_bridgedAmt",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_nonce",
-        type: "uint256",
       },
       {
         internalType: "uint256",
@@ -2609,19 +2523,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_executor",
-        type: "address",
-      },
-    ],
-    name: "setExecutor",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "_numerator",
         type: "uint256",
@@ -2641,19 +2542,6 @@ const _abi = [
       },
     ],
     name: "setMaxRoutersPerTransfer",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address payable",
-        name: "_promiseRouter",
-        type: "address",
-      },
-    ],
-    name: "setPromiseRouter",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2685,19 +2573,6 @@ const _abi = [
       },
     ],
     name: "setRouterRecipient",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_sponsorVault",
-        type: "address",
-      },
-    ],
-    name: "setSponsorVault",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2807,19 +2682,6 @@ const _abi = [
     name: "setupRouter",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "sponsorVault",
-    outputs: [
-      {
-        internalType: "contract ISponsorVault",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -3035,96 +2897,91 @@ const _abi = [
   {
     inputs: [
       {
-        components: [
-          {
-            components: [
-              {
-                internalType: "address",
-                name: "to",
-                type: "address",
-              },
-              {
-                internalType: "bytes",
-                name: "callData",
-                type: "bytes",
-              },
-              {
-                internalType: "uint32",
-                name: "originDomain",
-                type: "uint32",
-              },
-              {
-                internalType: "uint32",
-                name: "destinationDomain",
-                type: "uint32",
-              },
-              {
-                internalType: "address",
-                name: "agent",
-                type: "address",
-              },
-              {
-                internalType: "address",
-                name: "recovery",
-                type: "address",
-              },
-              {
-                internalType: "bool",
-                name: "forceSlow",
-                type: "bool",
-              },
-              {
-                internalType: "bool",
-                name: "receiveLocal",
-                type: "bool",
-              },
-              {
-                internalType: "address",
-                name: "callback",
-                type: "address",
-              },
-              {
-                internalType: "uint256",
-                name: "callbackFee",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "relayerFee",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "destinationMinOut",
-                type: "uint256",
-              },
-            ],
-            internalType: "struct CallParams",
-            name: "params",
-            type: "tuple",
-          },
-          {
-            internalType: "address",
-            name: "transactingAsset",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "transactingAmount",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "originMinOut",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct XCallArgs",
-        name: "_args",
-        type: "tuple",
+        internalType: "uint32",
+        name: "_destination",
+        type: "uint32",
+      },
+      {
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_asset",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_delegate",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_slippage",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes",
+        name: "_callData",
+        type: "bytes",
       },
     ],
     name: "xcall",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "_destination",
+        type: "uint32",
+      },
+      {
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_asset",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_delegate",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_slippage",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes",
+        name: "_callData",
+        type: "bytes",
+      },
+    ],
+    name: "xcallIntoLocal",
     outputs: [
       {
         internalType: "bytes32",

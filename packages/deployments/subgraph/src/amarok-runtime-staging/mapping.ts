@@ -251,20 +251,14 @@ export function handleXCalled(event: XCalled): void {
   // Call Params
   transfer.to = event.params.xcallArgs.params.to;
   transfer.callData = event.params.xcallArgs.params.callData;
-  transfer.originDomain = event.params.xcallArgs.params.originDomain;
   transfer.destinationDomain = event.params.xcallArgs.params.destinationDomain;
-  transfer.recovery = event.params.xcallArgs.params.recovery;
   transfer.agent = event.params.xcallArgs.params.agent;
-  transfer.forceSlow = event.params.xcallArgs.params.forceSlow;
   transfer.receiveLocal = event.params.xcallArgs.params.receiveLocal;
-  transfer.callback = event.params.xcallArgs.params.callback;
-  transfer.callbackFee = event.params.xcallArgs.params.callbackFee;
-  transfer.relayerFee = event.params.xcallArgs.params.relayerFee;
   transfer.destinationMinOut = event.params.xcallArgs.params.destinationMinOut;
 
   // Assets
-  transfer.transactingAsset = event.params.xcallArgs.transactingAsset;
-  transfer.transactingAmount = event.params.xcallArgs.transactingAmount;
+  transfer.asset = event.params.xcallArgs.asset;
+  transfer.amount = event.params.xcallArgs.amount;
   transfer.bridgedAsset = event.params.bridgedAsset;
   transfer.bridgedAmount = event.params.bridgedAmount;
 
@@ -340,18 +334,13 @@ export function handleExecuted(event: Executed): void {
   transfer.callData = event.params.args.params.callData;
   transfer.originDomain = event.params.args.params.originDomain;
   transfer.destinationDomain = event.params.args.params.destinationDomain;
-  transfer.forceSlow = event.params.args.params.forceSlow;
   transfer.receiveLocal = event.params.args.params.receiveLocal;
-  transfer.recovery = event.params.args.params.recovery;
   transfer.agent = event.params.args.params.agent;
-  transfer.callback = event.params.args.params.callback;
-  transfer.callbackFee = event.params.args.params.callbackFee;
-  transfer.relayerFee = event.params.args.params.relayerFee;
   transfer.destinationMinOut = event.params.args.params.destinationMinOut;
 
   // Assets
-  transfer.transactingAmount = event.params.transactingAmount;
-  transfer.transactingAsset = event.params.transactingAsset;
+  transfer.amount = event.params.amount;
+  transfer.asset = event.params.asset;
   transfer.localAsset = event.params.args.local;
   transfer.localAmount = event.params.args.amount;
 

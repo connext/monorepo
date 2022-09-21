@@ -20,9 +20,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   uint256 ownershipDelay = 6 days;
   address internal xAppConnectionManager = address(1);
   address relayerFeeRouter = address(3);
-  address promiseRouter = address(4);
   address tokenRegistry = address(5);
-  address executor = address(0);
 
   // ============ Setup ============
 
@@ -32,13 +30,11 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       xAppConnectionManager,
       tokenRegistry,
       address(relayerFeeRouter),
-      payable(promiseRouter),
       acceptanceDelay,
       ownershipDelay
     );
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
-    executor = address(connextHandler.executor());
   }
 
   // ============ Utils ============
@@ -46,7 +42,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   // Should work: first initialization
   function test_LibDiamond__initializeDiamondCut_works() public {
     assertTrue(connextDiamondProxy.isInitialized());
-    assertTrue(executor != address(0));
   }
 
   // Second initialization should not alter state.
@@ -54,7 +49,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
     address newRelayerFeeRouter = address(13);
-    address newPromiseRouter = address(14);
     address newTokenRegistry = address(15);
 
     bytes memory initCallData = abi.encodeWithSelector(
@@ -63,7 +57,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       newXAppConnectionManager,
       newTokenRegistry,
       newRelayerFeeRouter,
-      newPromiseRouter,
       acceptanceDelay,
       ownershipDelay
     );
@@ -85,13 +78,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
     // still initialized
     assertTrue(connextDiamondProxy.isInitialized());
-
-    // executor not updated
-    assertTrue(address(connextHandler.executor()) == executor);
-
-    // promise router not updated
-    assertTrue(address(connextHandler.promiseRouter()) != newPromiseRouter);
-    assertTrue(address(connextHandler.promiseRouter()) == promiseRouter);
   }
 
   // Diamond cut prior to elapsed delay should revert.
@@ -99,7 +85,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
     address newRelayerFeeRouter = address(13);
-    address newPromiseRouter = address(14);
     address newTokenRegistry = address(15);
 
     bytes memory initCallData = abi.encodeWithSelector(
@@ -108,7 +93,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       newXAppConnectionManager,
       newTokenRegistry,
       newRelayerFeeRouter,
-      newPromiseRouter,
       acceptanceDelay,
       ownershipDelay
     );
@@ -131,23 +115,13 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // Diamond cut after setting 0 acceptance delay should work.
   function test_LibDiamond__initializeDiamondCut_withZeroAcceptanceDelay_works() public {
-    deployConnext(
-      uint256(domain),
-      xAppConnectionManager,
-      tokenRegistry,
-      address(relayerFeeRouter),
-      payable(promiseRouter),
-      0,
-      0
-    );
+    deployConnext(uint256(domain), xAppConnectionManager, tokenRegistry, address(relayerFeeRouter), 0, 0);
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
-    executor = address(connextHandler.executor());
 
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
     address newRelayerFeeRouter = address(13);
-    address newPromiseRouter = address(14);
     address newTokenRegistry = address(15);
 
     bytes memory initCallData = abi.encodeWithSelector(
@@ -156,7 +130,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       newXAppConnectionManager,
       newTokenRegistry,
       newRelayerFeeRouter,
-      newPromiseRouter,
       acceptanceDelay,
       ownershipDelay
     );
@@ -175,6 +148,5 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     connextHandler.diamondCut(facetCuts, address(diamondInit), initCallData);
 
     assertTrue(connextDiamondProxy.isInitialized());
-    assertTrue(executor != address(0));
   }
 }

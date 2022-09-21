@@ -341,7 +341,7 @@ const callParams = {
 
 const xCallArgs = {
   params: callParams,
-  transactingAssetId: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F", // the Kovan Test Token
+  asset: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F", // the Kovan Test Token
   amount: "1000000000000000000", // amount to send (1 TEST)
   relayerFee: "0", // relayers on testnet don't take a fee
 };
@@ -356,7 +356,7 @@ This is necessary because funds will first be sent to the ConnextHandler contrac
 ```ts
 const approveTxReq = await nxtpSdkBase.approveIfNeeded(
   xCallArgs.params.originDomain,
-  xCallArgs.transactingAssetId,
+  xCallArgs.asset,
   xCallArgs.amount,
 );
 const approveTxReceipt = await signer.sendTransaction(approveTxReq);
@@ -433,7 +433,7 @@ const callParams = {
 
 const xCallArgs = {
   params: callParams,
-  transactingAssetId: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F", // the Kovan Test Token
+  asset: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F", // the Kovan Test Token
   amount: "0", // not sending any funds
   relayerFee: "0", // relayers on testnet don't take a fee
 };
@@ -586,6 +586,8 @@ Note: We use `node-lib` as the template for all the packages. There are some oth
 
 - Update the [`CHANGELOG.md`](./CHANGELOG.md).
 - Run `yarn version:all X.X.X` where `X.X.X` is the full version string of the NPM version to deploy (i.e. `0.0.1`).
+  - Use `X.X.X-beta.N` for Amarok releases from `production` branch and `X.X.X-alpha.N` for Amarok releases from `main` branch.
+- Commit and add a tag matching the version: `git commit -am "<version>" && git tag -am "<version>"`
 - Run `git push --follow-tags`.
 - The [GitHub action will](./.github/workflows/build-docker-image-and-verify.yml) publish the packages by recognizing the version tag.
 
