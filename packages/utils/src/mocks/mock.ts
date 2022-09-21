@@ -159,6 +159,7 @@ export const mock = {
         status?: XTransferStatus;
         asset?: string;
         transferId?: string;
+        messageHash?: string;
         nonce?: number;
         user?: string;
         routers?: string[];
@@ -182,12 +183,14 @@ export const mock = {
       const nonce = overrides.nonce ?? 1234;
       const user: string = overrides.user ?? mkAddress("0xfaded");
       const routers = overrides.routers ?? [mock.address.router];
+      const messageHash: string = overrides.messageHash ?? getRandomBytes32();
 
       const shouldHaveOriginDefined = true;
       const shouldHaveDestinationDefined = !!status;
       return {
         // Meta
         transferId,
+        messageHash,
 
         // Call Params
         xparams: {
