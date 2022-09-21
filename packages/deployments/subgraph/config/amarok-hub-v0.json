@@ -1,0 +1,18 @@
+[
+  {
+    "subgraphName": "connext/nxtp-amarok-hub-v0-goerli",
+    "network": "goerli",
+    "source": [
+      {
+        "name": "PolygonHubConnector",
+        "address": "0x5201FF98a4c4c249A39dA5C10B30C1FA6A85324E",
+        "startBlock": 7585189
+      },
+      {
+        "name": "OptimismHubConnector",
+        "address": "0xD193b05da966D0fd4e1DFf164a4a70812DC4cF64",
+        "startBlock": 7585185
+      }
+    ]
+  }
+]

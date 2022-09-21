@@ -17,6 +17,7 @@ on:
 
 jobs:
   build-and-test:
+    if: github.ref != 'refs/heads/staging'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -69,7 +70,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/router-publisher
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -111,7 +111,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/router-subscriber
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -153,7 +152,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/router-executor
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -195,7 +193,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/sequencer-publisher
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -237,7 +234,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/sequencer-subscriber
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -279,7 +275,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/cartographer-routers
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -321,7 +316,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/cartographer-transfers
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -363,7 +357,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/cartographer-messages
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -405,7 +398,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/lighthouse-prover
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -447,7 +439,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/relayer
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -485,9 +476,11 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   smoke-tests:
+    if: github.ref != 'refs/heads/staging'
     runs-on: ubuntu-latest
     needs:
       [
+        build-and-test,
         build-and-push-router-publisher-image,
         build-and-push-router-subscriber-image,
         build-and-push-router-executor-image,
@@ -537,9 +530,11 @@ jobs:
       lighthouse-prover-tags: ${{ needs.build-and-push-lighthouse-prover-image.outputs.json }}
 
   e2e-tests:
+    if: github.ref != 'refs/heads/staging'
     runs-on: ubuntu-latest
     needs:
       [
+        build-and-test,
         build-and-push-router-publisher-image,
         build-and-push-router-subscriber-image,
         build-and-push-router-executor-image,

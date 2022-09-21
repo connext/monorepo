@@ -35,11 +35,11 @@ dataSources:
           handler: handleRelayerRemoved
         - event: RouterLiquidityAdded(indexed address,address,bytes32,uint256,address)
           handler: handleRouterLiquidityAdded
-        - event: RouterLiquidityRemoved(indexed address,address,address,uint256,address)
+        - event: RouterLiquidityRemoved(indexed address,address,address,bytes32,uint256,address)
           handler: handleRouterLiquidityRemoved
-        - event: XCalled(indexed bytes32,indexed uint256,indexed bytes32,((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256),address,uint256,address)
+        - event: XCalled(indexed bytes32,indexed uint256,indexed bytes32,(uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32))
           handler: handleXCalled
-        - event: Executed(indexed bytes32,indexed address,((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address),address,uint256,address)
+        - event: Executed(indexed bytes32,indexed address,((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes),address,uint256,address)
           handler: handleExecuted
           # Reconciled: transferId, origin, routers, asset, amount, caller
         - event: Reconciled(indexed bytes32,uint32,address[],address,uint256,address)
@@ -47,9 +47,6 @@ dataSources:
           # StableSwapAdded: bytes32 canonicalId, bytes32 domain, address swapPool, address caller
         - event: StableSwapAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address)
           handler: handleStableSwapAdded
-          # SponsorVaultUpdated: address oldSponsorVault, address newSponsorVault, address caller
-        - event: SponsorVaultUpdated(address,address,address)
-          handler: handleSponsorVaultUpdated
         - event: RouterAdded(indexed address,address)
           handler: handleRouterAdded
         - event: RouterRemoved(indexed address,address)
@@ -107,10 +104,12 @@ dataSources:
         - event: Dispatch(bytes32,uint256,bytes32,bytes)
           handler: handleDispatch
         # Process(bytes32 leaf, bool success, bytes returnData);
-        - event: Process(bytes32,bool,bytes)
-          handler: handleProcess
+        # - event: Process(bytes32,bool,bytes)
+        #   handler: handleProcess
         - event: MessageSent(bytes,address)
           handler: handleMessageSent
         - event: MessageProcessed(bytes,address)
           handler: handleMessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handleNewConnector
       file: ./src/amarok-runtime-v0/mapping.ts

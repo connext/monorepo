@@ -18725,7 +18725,7 @@ const schemaAST = {
           "kind": "FieldDefinition",
           "description": {
             "kind": "StringValue",
-            "value": "Timestamp of the block if available, format depends on the chain",
+            "value": "Integer representation of the timestamp stored in blocks for the chain",
             "block": true
           },
           "name": {
@@ -18737,7 +18737,7 @@ const schemaAST = {
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "String"
+              "value": "Int"
             }
           },
           "directives": []

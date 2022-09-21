@@ -37,9 +37,9 @@ export const bindServer = async (): Promise<FastifyInstance> => {
   } = getContext();
   const server = fastify();
 
-  server.get("/ping", async (_req, res) => {
-    return res.code(200).send("pong\n");
-  });
+  server.get("/ping", (_, res) => api.get.ping(res));
+
+  server.get("/supportedBidVersion", (_, res) => api.get.supportedBidVersion(res));
 
   server.get<{
     Params: { transferId: string };
@@ -207,6 +207,22 @@ export const api = {
         return res.status(401).send("Unauthorized to perform this operation");
       }
       return nested(res);
+    },
+  },
+  get: {
+    ping: async (res: FastifyReply) => {
+      return res.status(200).send("pong\n");
+    },
+    supportedBidVersion: async (res: FastifyReply) => {
+      const { config } = getContext();
+      try {
+        return res.status(200).send({
+          supportedVersion: config.supportedVersion,
+        });
+      } catch (e: unknown) {
+        const json = jsonifyError(e as NxtpError);
+        return res.status(500).send(json);
+      }
     },
   },
   post: {

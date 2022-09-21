@@ -4,6 +4,7 @@ import {
   RouterBalance,
   convertFromDbTransfer,
   XMessage,
+  RootMessage,
   convertFromDbMessage,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
@@ -17,23 +18,23 @@ import { pool } from "./index";
 const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
   return {
     transfer_id: transfer.transferId,
-    nonce: transfer.nonce,
+    message_hash: transfer.messageHash,
 
-    to: transfer.xparams?.to,
-    call_data: transfer.xparams?.callData,
+    // xparams: call_params
     origin_domain: transfer.xparams!.originDomain,
     destination_domain: transfer.xparams!.destinationDomain,
-    agent: transfer.xparams?.agent,
-    recovery: transfer.xparams?.recovery,
-    callback: transfer.xparams?.callback,
-    callback_fee: transfer.xparams?.callbackFee as any,
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    relayer_fee: transfer.xparams?.relayerFee as any,
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    destination_min_out: transfer.xparams?.destinationMinOut as any,
-
-    force_slow: transfer.xparams?.forceSlow,
+    canonical_domain: transfer.xparams?.canonicalDomain,
+    to: transfer.xparams?.to,
+    delegate: transfer.xparams?.delegate,
     receive_local: transfer.xparams?.receiveLocal,
+    call_data: transfer.xparams?.callData,
+    slippage: transfer.xparams?.slippage,
+    origin_sender: transfer.xparams?.originSender,
+    bridged_amt: transfer.xparams?.bridgedAmt as any,
+    normalized_in: transfer.xparams?.normalizedIn as any,
+    nonce: transfer.xparams?.nonce,
+    canonical_id: transfer.xparams?.canonicalId,
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 
     origin_chain: transfer.origin?.chain,
     origin_transacting_asset: transfer.origin?.assets.transacting.asset,
@@ -85,6 +86,36 @@ const convertToDbMessage = (message: XMessage): s.messages.Insertable => {
   };
 };
 
+const convertToDbSentRootMessage = (message: RootMessage): s.sent_root_messages.Insertable => {
+  return {
+    id: message.id,
+    spoke_domain: message.spokeDomain,
+    hub_domain: message.hubDomain,
+    root: message.root,
+    caller: message.caller,
+    transaction_hash: message.transactionHash,
+    sent_timestamp: message.timestamp,
+    gas_price: message.gasPrice,
+    gas_limit: message.gasLimit,
+    block_number: message.blockNumber,
+  };
+};
+
+const convertToDbProcessedRootMessage = (message: RootMessage): s.processed_root_messages.Insertable => {
+  return {
+    id: message.id,
+    spoke_domain: message.spokeDomain,
+    hub_domain: message.hubDomain,
+    root: message.root,
+    caller: message.caller,
+    transaction_hash: message.transactionHash,
+    processed_timestamp: message.timestamp,
+    gas_price: message.gasPrice,
+    gas_limit: message.gasLimit,
+    block_number: message.blockNumber,
+  };
+};
+
 const sanitizeNull = (obj: { [s: string]: any }): any => {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
 };
@@ -113,6 +144,38 @@ export const saveMessages = async (xMessages: XMessage[], _pool?: Pool): Promise
     const message = sanitizeNull(oneMessage);
     await db.sql<s.messages.SQL, s.messages.JSONSelectable[]>`INSERT INTO ${"messages"} (${db.cols(message)})
     VALUES (${db.vals(message)}) ON CONFLICT ("leaf") DO UPDATE SET (${db.cols(message)}) = (${db.vals(
+      message,
+    )}) RETURNING *`.run(poolToUse);
+  }
+};
+
+export const saveSentRootMessages = async (_messages: RootMessage[], _pool?: Pool): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const messages: s.sent_root_messages.Insertable[] = _messages.map(convertToDbSentRootMessage);
+
+  for (const oneMessage of messages) {
+    const message = sanitizeNull(oneMessage);
+    await db.sql<
+      s.sent_root_messages.SQL,
+      s.sent_root_messages.JSONSelectable[]
+    >`INSERT INTO ${"sent_root_messages"} (${db.cols(message)})
+    VALUES (${db.vals(message)}) ON CONFLICT ("id") DO UPDATE SET (${db.cols(message)}) = (${db.vals(
+      message,
+    )}) RETURNING *`.run(poolToUse);
+  }
+};
+
+export const saveProcessedRootMessages = async (_messages: RootMessage[], _pool?: Pool): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const messages: s.processed_root_messages.Insertable[] = _messages.map(convertToDbProcessedRootMessage);
+
+  for (const oneMessage of messages) {
+    const message = sanitizeNull(oneMessage);
+    await db.sql<
+      s.processed_root_messages.SQL,
+      s.processed_root_messages.JSONSelectable[]
+    >`INSERT INTO ${"processed_root_messages"} (${db.cols(message)})
+    VALUES (${db.vals(message)}) ON CONFLICT ("id") DO UPDATE SET (${db.cols(message)}) = (${db.vals(
       message,
     )}) RETURNING *`.run(poolToUse);
   }

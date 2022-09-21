@@ -1,6 +1,6 @@
 {
   "name": "@connext/cartographer-poller",
-  "version": "0.2.0-beta.22",
+  "version": "0.2.0-alpha.24",
   "description": "",
   "types": "dist/index.d.ts",
   "files": [
@@ -20,7 +20,8 @@
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
     "zapatos": "zapatos",
-    "dbmate": "dbmate"
+    "dbmate": "dbmate",
+    "version": "yarn version"
   },
   "author": "Connext",
   "license": "ISC",

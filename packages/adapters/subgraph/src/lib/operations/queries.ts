@@ -20,7 +20,6 @@ export const ORIGIN_TRANSFER_ENTITY = `
       callData
       originDomain
       destinationDomain
-      forceSlow
       receiveLocal
       recovery
       agent
@@ -62,7 +61,6 @@ export const DESTINATION_TRANSFER_ENTITY = `
       callData
       originDomain
       destinationDomain
-      forceSlow
       receiveLocal
       recovery
       agent
@@ -125,6 +123,31 @@ export const DESTINATION_MESSAGE_ENTITY = `
       processed
       returnData
 `;
+export const ROOT_MESSAGE_SENT_ENTITY = `
+      id
+      spokeDomain
+      hubDomain
+      root
+      caller
+      transactionHash
+      timestamp
+      gasPrice
+      gasLimit
+      blockNumber
+`;
+export const ROOT_MESSAGE_PROCESSED_ENTITY = `
+      id
+      spokeDomain
+      hubDomain
+      root
+      caller
+      transactionHash
+      timestamp
+      gasPrice
+      gasLimit
+      blockNumber
+`;
+
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };
@@ -301,13 +324,11 @@ const originTransferQueryString = (
   originDomain: string,
   fromNonce: number,
   destinationDomains: string[],
-  forceSlow: boolean,
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "desc",
 ) => {
   return `${prefix}_originTransfers(
     where: {
-      forceSlow: ${forceSlow},
       originDomain: ${originDomain},
       nonce_gte: ${fromNonce},
       destinationDomain_in: [${destinationDomains}]
@@ -331,7 +352,6 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
         domain,
         agents.get(domain)!.latestNonce,
         domains,
-        agents.get(domain)?.forceSlow ?? false,
         agents.get(domain)!.maxBlockNumber,
         agents.get(domain)!.orderDirection,
       );
@@ -595,6 +615,40 @@ export const getDestinationMessagesByDomainAndLeafQuery = (params: Map<string, s
 
   return gql`
     query GetOriginMessages {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getSentRootMessagesByDomainAndBlockQuery = (
+  params: { domain: string; offset: number; limit: number }[],
+) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.domain].prefix;
+    combinedQuery += `${prefix}_rootMessageSent ( first: ${param.limit}, where: { blockNumber_gt: ${param.offset} }) {${ROOT_MESSAGE_SENT_ENTITY}}`;
+  }
+
+  return gql`
+    query GetSentRootMessages {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getProcessedRootMessagesByDomainAndBlockQuery = (
+  params: { domain: string; offset: number; limit: number }[],
+) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.domain].prefix;
+    combinedQuery += `${prefix}_rootMessageProcessed ( first: ${param.limit}, where: { blockNumber_gt: ${param.offset} }) {${ROOT_MESSAGE_PROCESSED_ENTITY}}`;
+  }
+
+  return gql`
+    query GetProcessedRootMessages {
       ${combinedQuery}
     }
   `;

@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-integration",
-  "version": "0.2.0-beta.22",
+  "version": "0.2.0-alpha.24",
   "description": "Integration tests for NXTP",
   "author": "Connext",
   "license": "MIT",
@@ -30,7 +30,8 @@
     "docker:all:down": "docker-compose -f ops/sequencer.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/web3signer.docker-compose.yml -f ops/router.docker-compose.yml down",
     "concurrency:router": "ts-node ./test/load/routerConcurrency.ts",
     "cyclical:router": "ts-node ./test/load/routerCyclical.ts | tee packages/integration/logs.json",
-    "concurrency:txservice": "ts-node ./test/load/txserviceConcurrency.ts"
+    "concurrency:txservice": "ts-node ./test/load/txserviceConcurrency.ts",
+    "version": "yarn version"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

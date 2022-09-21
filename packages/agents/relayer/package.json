@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-relayer",
-  "version": "0.2.0-beta.22",
+  "version": "0.2.0-alpha.24",
   "description": "Generic relayer agent for Amarok",
   "author": "Connext",
   "license": "MIT",
@@ -12,7 +12,8 @@
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
-    "purge": "yarn clean && rimraf ./node_modules"
+    "purge": "yarn clean && rimraf ./node_modules",
+    "version": "yarn version"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

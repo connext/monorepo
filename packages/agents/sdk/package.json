@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-sdk",
-  "version": "0.2.0-beta.22",
+  "version": "0.2.0-alpha.24",
   "description": "Client-side package for interacting with the NXTP protocol for crosschain packages",
   "author": "Connext",
   "license": "MIT",
@@ -13,7 +13,8 @@
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules",
-    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)"
+    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
+    "version": "yarn version"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

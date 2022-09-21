@@ -1,4 +1,11 @@
-import { NxtpError, DestinationTransfer, OriginTransfer, OriginMessage, DestinationMessage } from "@connext/nxtp-utils";
+import {
+  NxtpError,
+  DestinationTransfer,
+  OriginTransfer,
+  OriginMessage,
+  DestinationMessage,
+  RootMessage,
+} from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
 import { XQueryResultParseError } from "../errors";
@@ -36,22 +43,22 @@ export const originTransfer = (entity: any): OriginTransfer => {
   return {
     // Meta Data
     transferId: entity.transferId,
-    nonce: BigNumber.from(entity.nonce).toNumber(),
 
     // Call Params
     xparams: {
-      to: entity.to,
-      callData: entity.callData,
-      callback: entity.callback,
-      callbackFee: entity.callbackFee,
-      relayerFee: entity.relayerFee,
-      forceSlow: entity.forceSlow,
-      receiveLocal: entity.receiveLocal,
       originDomain: entity.originDomain,
       destinationDomain: entity.destinationDomain,
-      recovery: entity.recovery,
-      agent: entity.agent,
-      destinationMinOut: entity.destinationMinOut,
+      canonicalDomain: entity.canonicalDomain,
+      to: entity.to,
+      delegate: entity.delegate,
+      receiveLocal: entity.receiveLocal,
+      callData: entity.callData,
+      slippage: entity.slippage,
+      originSender: entity.originSender,
+      bridgedAmt: entity.bridgedAmt,
+      normalizedIn: entity.normalizedIn,
+      nonce: BigNumber.from(entity.nonce).toNumber(),
+      canonicalId: entity.canonicalId,
     },
 
     // Origin Info
@@ -120,22 +127,22 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
     // Meta Data
 
     transferId: entity.transferId,
-    nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : undefined,
 
     // Call Params
     xparams: {
-      to: entity.to,
-      callData: entity.callData,
-      callback: entity.callback,
-      callbackFee: entity.callbackFee,
-      relayerFee: entity.relayerFee,
-      forceSlow: entity.forceSlow,
-      receiveLocal: entity.receiveLocal,
-      destinationDomain: entity.destinationDomain,
       originDomain: entity.originDomain,
-      recovery: entity.recovery,
-      agent: entity.agent,
-      destinationMinOut: entity.destinationMinOut,
+      destinationDomain: entity.destinationDomain,
+      canonicalDomain: entity.canonicalDomain,
+      to: entity.to,
+      delegate: entity.delegate,
+      receiveLocal: entity.receiveLocal,
+      callData: entity.callData,
+      slippage: entity.slippage,
+      originSender: entity.originSender,
+      bridgedAmt: entity.bridgedAmt,
+      normalizedIn: entity.normalizedIn,
+      nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : 0,
+      canonicalId: entity.canonicalId,
     },
 
     // Origin Info
@@ -226,7 +233,7 @@ export const destinationMessage = (entity: any): DestinationMessage => {
     throw new NxtpError("Subgraph `DestinationMessage` entity parser: DestinationMessage entity is `undefined`.");
   }
   for (const field of ["leaf", "processed", "returnData", "domain"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined) {
       throw new NxtpError("Subgraph `DestinationMessage` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -268,4 +275,43 @@ export const xquery = (response: any): Map<string, any[]> => {
   } else {
     throw new XQueryResultParseError({ response });
   }
+};
+
+export const rootMessage = (entity: any): RootMessage => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `RootMessage` entity parser: RootMessage, entity is `undefined`.");
+  }
+  for (const field of [
+    "id",
+    "spokeDomain",
+    "hubDomain",
+    "root",
+    "caller",
+    "transactionHash",
+    "timestamp",
+    "gasPrice",
+    "gasLimit",
+    "blockNumber",
+  ]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `RootMessage` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    spokeDomain: entity.spokeDomain,
+    hubDomain: entity.hubDomain,
+    root: entity.root,
+    caller: entity.caller,
+    transactionHash: entity.transactionHash,
+    timestamp: entity.timestamp,
+    gasPrice: entity.gasPrice,
+    gasLimit: entity.gasLimit,
+    blockNumber: entity.blockNumber,
+  };
 };

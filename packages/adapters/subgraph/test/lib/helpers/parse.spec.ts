@@ -1,6 +1,14 @@
-import { expect, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
-import { destinationTransfer, originTransfer, xquery } from "../../../src/lib/helpers/parse";
+import { expect, mkAddress, mkBytes32, OriginMessage, DestinationMessage, RootMessage } from "@connext/nxtp-utils";
+import {
+  destinationTransfer,
+  originMessage,
+  destinationMessage,
+  rootMessage,
+  originTransfer,
+  xquery,
+} from "../../../src/lib/helpers/parse";
 import { stubContext, mockOriginTransferEntity, mockDestinationTransferEntity } from "../../mock";
+import { mock } from "@connext/nxtp-utils";
 import { restore, reset } from "sinon";
 
 describe("Helpers:parse", () => {
@@ -54,7 +62,6 @@ describe("Helpers:parse", () => {
           callback: "0xaaa0000000000000000000000000000000000000",
           callbackFee: "0",
           recovery: "0x1000000000000000000000000000000000000000",
-          forceSlow: false,
           receiveLocal: false,
           agent: "foo",
           relayerFee: "1",
@@ -92,7 +99,6 @@ describe("Helpers:parse", () => {
           callback: "0xaaa0000000000000000000000000000000000000",
           callbackFee: "0",
           recovery: "0x1000000000000000000000000000000000000000",
-          forceSlow: false,
           receiveLocal: false,
           agent: "foo",
           relayerFee: "1",
@@ -192,7 +198,6 @@ describe("Helpers:parse", () => {
           callData: "0x",
           callback: "0xaaa0000000000000000000000000000000000000",
           callbackFee: "0",
-          forceSlow: false,
           receiveLocal: false,
           recovery: "0x1000000000000000000000000000000000000000",
           to: "0x1000000000000000000000000000000000000000",
@@ -254,7 +259,6 @@ describe("Helpers:parse", () => {
           callback: "0xaaa0000000000000000000000000000000000000",
           callbackFee: "0",
           destinationDomain: "3331",
-          forceSlow: false,
           originDomain: "1111",
           receiveLocal: false,
           recovery: "0x1000000000000000000000000000000000000000",
@@ -343,6 +347,90 @@ describe("Helpers:parse", () => {
           },
         ],
       ]);
+    });
+  });
+  describe("#originMessage", () => {
+    it("should throw if the entity is undefined", () => {
+      const entity = undefined;
+      expect(() => {
+        originMessage(entity);
+      }).to.throw("Subgraph `OriginMessage` entity parser: OriginMessage entity is `undefined`.");
+    });
+
+    it("should throw if wrong message type", () => {
+      const entity: OriginMessage = mock.entity.destinationMessage();
+      expect(() => {
+        originMessage(entity);
+      }).to.throw("Subgraph `OriginMessage` entity parser: Message entity missing required field");
+    });
+
+    it("should throw if a required field is missing", () => {
+      const entity: OriginMessage = {};
+
+      expect(() => {
+        originMessage(entity);
+      }).to.throw("Subgraph `OriginMessage` entity parser: Message entity missing required field");
+    });
+
+    it("should parse valid origin message", () => {
+      const entity: OriginMessage = mock.entity.originMessage();
+      expect(originMessage(entity)).to.be.deep.eq(entity);
+    });
+  });
+  describe("#destinationMessage", () => {
+    it("should throw if the entity is undefined", () => {
+      const entity = undefined;
+      expect(() => {
+        destinationMessage(entity);
+      }).to.throw("Subgraph `DestinationMessage` entity parser: DestinationMessage entity is `undefined`.");
+    });
+
+    it("should throw if wrong message type", () => {
+      const entity: DestinationMessage = mock.entity.originMessage();
+      expect(() => {
+        destinationMessage(entity);
+      }).to.throw("Subgraph `DestinationMessage` entity parser: Message entity missing required field");
+    });
+
+    it("should throw if a required field is missing", () => {
+      const entity: DestinationMessage = {};
+
+      expect(() => {
+        destinationMessage(entity);
+      }).to.throw("Subgraph `DestinationMessage` entity parser: Message entity missing required field");
+    });
+
+    it("should parse valid destination message", () => {
+      const entity: DestinationMessage = mock.entity.destinationMessage();
+      expect(destinationMessage(entity)).to.be.deep.eq(entity);
+    });
+  });
+  describe("#rootMessage", () => {
+    it("should throw if the entity is undefined", () => {
+      const entity = undefined;
+      expect(() => {
+        rootMessage(entity);
+      }).to.throw("Subgraph `RootMessage` entity parser: RootMessage, entity is `undefined`.");
+    });
+
+    it("should throw if wrong message type", () => {
+      const entity: RootMessage = mock.entity.destinationMessage();
+      expect(() => {
+        rootMessage(entity);
+      }).to.throw("Subgraph `RootMessage` entity parser: Message entity missing required field");
+    });
+
+    it("should throw if a required field is missing", () => {
+      const entity: RootMessage = {};
+
+      expect(() => {
+        rootMessage(entity);
+      }).to.throw("Subgraph `RootMessage` entity parser: Message entity missing required field");
+    });
+
+    it("should parse valid root message", () => {
+      const entity: RootMessage = mock.entity.rootMessage();
+      expect(rootMessage(entity)).to.be.deep.eq(entity);
     });
   });
 });
