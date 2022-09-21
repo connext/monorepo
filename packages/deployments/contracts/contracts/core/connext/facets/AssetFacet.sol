@@ -70,11 +70,11 @@ contract AssetFacet is BaseConnextFacet {
   // ============ Getters ============
 
   function canonicalToAdopted(bytes32 _key) public view returns (address) {
-    return s.canonicalToAdopted[_key];
+    return _getAdoptedAsset(_key);
   }
 
   function canonicalToAdopted(TokenId calldata _canonical) public view returns (address) {
-    return canonicalToAdopted(_calculateCanonicalHash(_canonical));
+    return _getAdoptedAsset(_canonical.id, _canonical.domain);
   }
 
   function adoptedToCanonical(address _adopted) public view returns (TokenId memory) {

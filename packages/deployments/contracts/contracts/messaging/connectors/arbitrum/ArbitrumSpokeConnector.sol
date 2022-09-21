@@ -4,9 +4,10 @@ pragma solidity 0.8.15;
 import {LibArbitrumL2} from "@openzeppelin/contracts/crosschain/arbitrum/LibArbitrumL2.sol";
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
-import {ArbitrumL2Amb} from "../../interfaces/ambs/ArbitrumL2Amb.sol";
+import {ArbitrumL2Amb} from "../../interfaces/ambs/arbitrum/ArbitrumL2Amb.sol";
 
 import {SpokeConnector} from "../SpokeConnector.sol";
+import {Connector} from "../Connector.sol";
 
 contract ArbitrumSpokeConnector is SpokeConnector {
   constructor(
@@ -29,7 +30,10 @@ contract ArbitrumSpokeConnector is SpokeConnector {
   }
 
   function _sendMessage(bytes memory _data) internal override {
-    ArbitrumL2Amb(AMB).sendTxToL1(mirrorConnector, _data);
+    // Get the calldata
+    bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
+    // Send to L1
+    ArbitrumL2Amb(AMB).sendTxToL1(mirrorConnector, _calldata);
   }
 
   function _processMessage(bytes memory _data) internal override {

@@ -10,11 +10,13 @@ import "../../../utils/FacetHelper.sol";
 contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
   // ============ Storage ============
   address _owner = address(123123);
+  uint256 DELAY = 6 days;
 
   // ============ Test set up ============
   function setUp() public {
     LibDiamond.setContractOwner(_owner);
     assertEq(this.owner(), _owner);
+    vm.mockCall(address(this), abi.encodeWithSelector(this.delay.selector), abi.encode(DELAY));
   }
 
   // ============ Utils ============
@@ -153,7 +155,7 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
 
   // ============ delay ============
   function test_ProposedOwnableFacet__delay_works() public {
-    assertEq(this.delay(), 7 days);
+    assertEq(this.delay(), DELAY);
   }
 
   // ============ proposeRouterWhitelistRemoval ============

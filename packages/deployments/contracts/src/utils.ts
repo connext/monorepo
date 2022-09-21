@@ -162,6 +162,18 @@ export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
   return deployments;
 };
 
+export const getProviderFromHardhatConfig = (
+  hardhatConfig: HardhatUserConfig,
+  chainId: number,
+): providers.JsonRpcProvider => {
+  // Get the provider address from the hardhat config on given chain
+  const url = (Object.values(hardhatConfig.networks!).find((n) => n?.chainId === chainId) as any)?.url;
+  if (!url) {
+    throw new Error(`No provider url found for ${chainId}`);
+  }
+  return new providers.JsonRpcProvider(url as string, chainId);
+};
+
 export const executeOnAllConnectors = async <T = any>(
   hardhatConfig: HardhatUserConfig,
   env: Env,
@@ -170,13 +182,7 @@ export const executeOnAllConnectors = async <T = any>(
   const deployments = getConnectorDeployments(env);
   const results = [];
   for (const deploy of deployments) {
-    // Get the provider address from the hardhat config on given chain
-    const url = (Object.values(hardhatConfig.networks!).find((n) => n?.chainId === deploy.chain) as any)?.url;
-    if (!url) {
-      throw new Error(`No provider url found for ${deploy.chain}`);
-    }
-
-    results.push(await fn(deploy, new providers.JsonRpcProvider(url as string, deploy.chain)));
+    results.push(await fn(deploy, getProviderFromHardhatConfig(hardhatConfig, deploy.chain)));
   }
   return results;
 };

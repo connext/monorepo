@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {SafeERC20, IERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {SafeERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 
@@ -114,39 +116,95 @@ library AssetLogic {
   }
 
   /**
+   * @notice This function calculates slippage as a %age of the amount in, and normalizes
+   * That to the `_out` decimals.
+   *
+   * @dev This *ONLY* works for 1:1 assets
+   *
+   * @param _in The decimals of the asset in / amount in
+   * @param _out The decimals of the target asset
+   * @param _amountIn The starting amount for the swap
+   * @param _slippage The slippage allowed for the swap, in BPS
+   * @return The minimum amount out for the swap
+   */
+  function calculateSlippageBoundary(
+    uint8 _in,
+    uint8 _out,
+    uint256 _amountIn,
+    uint256 _slippage
+  ) internal pure returns (uint256) {
+    if (_amountIn == 0) {
+      return 0;
+    }
+    // Get the min recieved (in same decimals as _amountIn)
+    uint256 min = (_amountIn * (10_000 - _slippage)) / 10_000;
+    return normalizeDecimals(_in, _out, min);
+  }
+
+  /**
+   * @notice This function translates the _amount in _in decimals
+   * to _out decimals
+   *
+   * @param _in The decimals of the asset in / amount in
+   * @param _out The decimals of the target asset
+   * @param _amount The value to normalize to the `_out` decimals
+   */
+  function normalizeDecimals(
+    uint8 _in,
+    uint8 _out,
+    uint256 _amount
+  ) internal pure returns (uint256) {
+    if (_in == _out) {
+      return _amount;
+    }
+    // Convert this value to the same decimals as _out
+    uint256 normalized;
+    if (_in < _out) {
+      normalized = _amount * (10**(_out - _in));
+    } else {
+      normalized = _amount / (10**(_in - _out));
+    }
+    return normalized;
+  }
+
+  /**
    * @notice Swaps an adopted asset to the local (representation or canonical) nomad asset
    * @dev Will not swap if the asset passed in is the local asset
-   * @param _canonical - The canonical token
+   * @param _canonicalId - The canonical token identifier
+   * @param _canonicalDomain - The canonical token domain
    * @param _asset - The address of the adopted asset to swap into the local asset
    * @param _amount - The amount of the adopted asset to swap
-   * @param _minOut - The minimum amount of `_assetOut` the user will accept
+   * @param _slippage - The minimum amount of slippage user will take on from _amount in BPS
    * @return The amount of local asset received from swap
-   * @return The address of asset received post-swap
-   */
+4   */
   function swapToLocalAssetIfNeeded(
-    TokenId memory _canonical,
+    bytes32 _canonicalId,
+    uint32 _canonicalDomain,
     address _asset,
+    address _local,
     uint256 _amount,
-    uint256 _minOut
-  ) internal returns (uint256, address) {
-    AppStorage storage s = LibConnextStorage.connextStorage();
-
-    // Get the local token for this domain (may return canonical or representation).
-    address local = s.tokenRegistry.getLocalAddress(_canonical.domain, _canonical.id);
-
+    uint256 _slippage
+  ) internal returns (uint256) {
     // If there's no amount, no need to swap.
     if (_amount == 0) {
-      return (_amount, local);
+      return _amount;
     }
 
     // Check the case where the adopted asset *is* the local asset. If so, no need to swap.
-    if (local == _asset) {
-      return (_amount, _asset);
+    if (_local == _asset) {
+      return _amount;
     }
 
     // Swap the asset to the proper local asset.
-    bytes32 key = keccak256(abi.encode(_canonical.id, _canonical.domain));
-    return _swapAsset(key, _asset, local, _amount, _minOut);
+    bytes32 key = keccak256(abi.encode(_canonicalId, _canonicalDomain));
+    (uint256 out, ) = _swapAsset(
+      key,
+      _asset,
+      _local,
+      _amount,
+      calculateSlippageBoundary(ERC20(_asset).decimals(), ERC20(_local).decimals(), _amount, _slippage)
+    );
+    return out;
   }
 
   /**
@@ -155,7 +213,9 @@ library AssetLogic {
    * @param _key the hash of the canonical id and domain
    * @param _asset - The address of the local asset to swap into the adopted asset
    * @param _amount - The amount of the local asset to swap
-   * @param _minOut - The minimum amount of `_assetOut` the user will accept
+   * @param _slippage - The minimum amount of slippage user will take on from _amount in BPS
+   * @param _normalizedIn - The amount sent in on xcall to take the slippage from, in 18 decimals
+   * by convention
    * @return The amount of adopted asset received from swap
    * @return The address of asset received post-swap
    */
@@ -163,7 +223,8 @@ library AssetLogic {
     bytes32 _key,
     address _asset,
     uint256 _amount,
-    uint256 _minOut
+    uint256 _slippage,
+    uint256 _normalizedIn
   ) internal returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
@@ -178,8 +239,19 @@ library AssetLogic {
       return (_amount, adopted);
     }
 
+    // NOTE: To get the slippage boundary here, you must take the slippage % off of the
+    // normalized amount in (at 18 decimals by convention), then convert that amount
+    // to the proper decimals of adopted.
+
     // Swap the asset to the proper local asset
-    return _swapAsset(_key, _asset, adopted, _amount, _minOut);
+    return
+      _swapAsset(
+        _key,
+        _asset,
+        adopted,
+        _amount,
+        calculateSlippageBoundary(uint8(18), ERC20(adopted).decimals(), _normalizedIn, _slippage)
+      );
   }
 
   /**
