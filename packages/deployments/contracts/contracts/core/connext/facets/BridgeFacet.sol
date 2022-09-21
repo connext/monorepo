@@ -376,7 +376,7 @@ contract BridgeFacet is BaseConnextFacet {
     CallParams memory _params,
     address _asset,
     uint256 _amount
-  ) internal nonReentrant whenNotPaused returns (bytes32) {
+  ) internal whenNotPaused returns (bytes32) {
     // Sanity checks.
     bytes32 remoteInstance;
     {
