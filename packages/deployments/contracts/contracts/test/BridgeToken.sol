@@ -21,6 +21,7 @@ contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
 
   function initialize() public override initializer {
     __Ownable_init();
+    __ERC20_init(token.name, "1");
   }
 
   // ============ Events ============
