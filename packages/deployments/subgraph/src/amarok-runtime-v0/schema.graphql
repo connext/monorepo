@@ -1,5 +1,5 @@
 type Asset @entity {
-  id: ID!
+  id: ID! # Key
   key: Bytes
   local: Bytes!
   adoptedAsset: Bytes!
@@ -9,7 +9,7 @@ type Asset @entity {
 }
 
 type AssetBalance @entity {
-  id: ID!
+  id: ID! # `key-router_address`
   amount: BigInt!
   router: Router!
   asset: Asset!
@@ -65,34 +65,25 @@ type OriginTransfer @entity {
   chainId: BigInt
   transferId: Bytes
   nonce: BigInt
+  status: TransferStatus
+  messageHash: Bytes
 
-  # CallParams
-  to: Bytes
-  callData: Bytes
+  # event data
   originDomain: BigInt
   destinationDomain: BigInt
-  agent: Bytes
-  recovery: Bytes
-  forceSlow: Boolean
+  canonicalDomain: BigInt
+  to: Bytes
+  delegate: Bytes
   receiveLocal: Boolean
-  callback: Bytes
-  callbackFee: BigInt
-  relayerFee: BigInt
-  destinationMinOut: BigInt
-
-  # Event Data
-  status: TransferStatus
-  originMinOut: BigInt
+  callData: Bytes
+  slippage: BigInt
+  originSender: Bytes
+  bridgedAmt: BigInt
+  normalizedIn: BigInt
+  canonicalId: Bytes
 
   # Asset
-  # The asset that gets sent in.
-  transactingAsset: Bytes
-  # Amount of asset sent in.
-  transactingAmount: BigInt
-  # asset being bridged.
-  bridgedAsset: Bytes
-  # Amount of bridged nomad asset.
-  bridgedAmount: BigInt
+  asset: Asset
 
   # Message
   message: OriginMessage
@@ -120,12 +111,7 @@ type DestinationTransfer @entity {
   originDomain: BigInt
   destinationDomain: BigInt
   agent: Bytes
-  recovery: Bytes
-  forceSlow: Boolean
   receiveLocal: Boolean
-  callback: Bytes
-  callbackFee: BigInt
-  relayerFee: BigInt
   destinationMinOut: BigInt
 
   # Event Data
@@ -135,9 +121,9 @@ type DestinationTransfer @entity {
 
   # Asset
   # The asset that gets delivered.
-  transactingAsset: Bytes
+  asset: Bytes
   # Amount of delivered asset.
-  transactingAmount: BigInt
+  amount: BigInt
   # The local version of the bridged asset.
   localAsset: Bytes
   # The amount of the local asset.

@@ -234,17 +234,24 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
       // },
       // Arbitrum nitro goerli testnet:
       // https://developer.offchainlabs.com/docs/Useful_Addresses
-      // 421613: {
-      //   prefix: "Arbitrum",
-      //   ambs: {
-      //     // https://goerli.etherscan.io/address/0x6BEbC4925716945D46F0Ec336D5C2564F419682C
-      //     hub: "0x6BEbC4925716945D46F0Ec336D5C2564F419682C",
-      //     // https://goerli-rollup-explorer.arbitrum.io/address/0x0000000000000000000000000000000000000064
-      //     spoke: "0x0000000000000000000000000000000000000064",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      // },
+      421613: {
+        prefix: "Arbitrum",
+        ambs: {
+          // https://goerli.etherscan.io/address/0x6BEbC4925716945D46F0Ec336D5C2564F419682C
+          hub: "0x6BEbC4925716945D46F0Ec336D5C2564F419682C",
+          // https://goerli-rollup-explorer.arbitrum.io/address/0x0000000000000000000000000000000000000064
+          spoke: "0x0000000000000000000000000000000000000064",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {
+          hub: {
+            defaultGasPrice: DEFAULT_RESERVE_GAS,
+            // https://goerli.etherscan.io/address/0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049
+            outbox: "0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049",
+          },
+        },
+      },
       80001: {
         prefix: "Polygon",
         ambs: {

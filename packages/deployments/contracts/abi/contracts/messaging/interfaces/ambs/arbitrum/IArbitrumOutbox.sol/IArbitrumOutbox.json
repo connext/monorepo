@@ -1,0 +1,19 @@
+[
+  "event OutBoxTransactionExecuted(address indexed,address indexed,uint256 indexed,uint256)",
+  "event SendRootUpdated(bytes32 indexed,bytes32 indexed)",
+  "function OUTBOX_VERSION() view returns (uint128)",
+  "function calculateItemHash(address,address,uint256,uint256,uint256,uint256,bytes) pure returns (bytes32)",
+  "function calculateMerkleRoot(bytes32[],uint256,bytes32) pure returns (bytes32)",
+  "function executeTransaction(bytes32[],uint256,address,address,uint256,uint256,uint256,uint256,bytes)",
+  "function executeTransactionSimulation(uint256,address,address,uint256,uint256,uint256,uint256,bytes)",
+  "function isSpent(uint256) view returns (bool)",
+  "function l2ToL1Block() view returns (uint256)",
+  "function l2ToL1EthBlock() view returns (uint256)",
+  "function l2ToL1OutputId() view returns (bytes32)",
+  "function l2ToL1Sender() view returns (address)",
+  "function l2ToL1Timestamp() view returns (uint256)",
+  "function rollup() view returns (address)",
+  "function roots(bytes32) view returns (bytes32)",
+  "function spent(uint256) view returns (bytes32)",
+  "function updateSendRoot(bytes32,bytes32)"
+]
