@@ -7,6 +7,7 @@ import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
 
 import {MerkleLib} from "../libraries/Merkle.sol";
 import {Message} from "../libraries/Message.sol";
+import {ISpokeConnector} from "../interfaces/ISpokeConnector.sol";
 
 import {MerkleTreeManager} from "../Merkle.sol";
 
@@ -25,24 +26,13 @@ import {ConnectorManager} from "./ConnectorManager.sol";
  *
  * TODO: what about the queue manager? see Home.sol for context
  */
-abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManager, ReentrancyGuard {
+abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager, MerkleTreeManager, ReentrancyGuard {
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
   using Message for bytes29;
-
-  // ============ Events ============
-  event SenderAdded(address sender);
-
-  event SenderRemoved(address sender);
-
-  event AggregateRootUpdated(bytes32 current, bytes32 previous);
-
-  event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
-
-  event Process(bytes32 leaf, bool success, bytes returnData);
 
   // ============ Structs ============
   // Status of Message:
@@ -53,18 +43,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     None,
     Proven,
     Processed
-  }
-
-  /**
-   * Struct for submitting a proof for a given message.
-   * @param message Bytes of message to be processed. The hash of this message is considered the leaf.
-   * @param proof Merkle proof of inclusion for given leaf.
-   * @param index Index of leaf in home's merkle tree.
-   */
-  struct Proof {
-    bytes message;
-    bytes32[32] path;
-    uint256 index;
   }
 
   // ============ Public storage ============
@@ -258,7 +236,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
    * @param _aggregatorIndex Index of the inbound root in the aggregator's merkle tree in the hub.
    */
   function proveAndProcess(
-    Proof[] calldata _proofs,
+    ISpokeConnector.Proof[] calldata _proofs,
     bytes32[32] calldata _aggregatorPath,
     uint256 _aggregatorIndex
   ) external {
