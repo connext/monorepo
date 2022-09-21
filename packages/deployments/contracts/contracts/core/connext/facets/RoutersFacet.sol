@@ -141,14 +141,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @param amount - The amount of liquidity withdrawn
    * @param caller - The account that called the function
    */
-  event RouterLiquidityRemoved(
-    address indexed router,
-    address to,
-    address local,
-    bytes32 key,
-    uint256 amount,
-    address caller
-  );
+  event RouterLiquidityRemoved(address indexed router, address to, address local, uint256 amount, address caller);
 
   // ============ Modifiers ============
 
@@ -587,10 +580,6 @@ contract RoutersFacet is BaseConnextFacet {
     // Sanity check: nonzero amounts.
     if (_amount == 0) revert RoutersFacet__removeRouterLiquidity_amountIsZero();
 
-    // Get the canonical asset ID from the representation.
-    (uint32 domain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
-    bytes32 key = _calculateCanonicalHash(canonicalId, domain);
-
     // Get existing router balance.
     uint256 routerBalance = s.routerBalances[_router][_local];
 
@@ -605,6 +594,6 @@ contract RoutersFacet is BaseConnextFacet {
     // Transfer from contract to specified `to` address.
     AssetLogic.handleOutgoingAsset(_local, recipient, _amount);
 
-    emit RouterLiquidityRemoved(_router, recipient, _local, key, _amount, msg.sender);
+    emit RouterLiquidityRemoved(_router, recipient, _local, _amount, msg.sender);
   }
 }
