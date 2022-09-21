@@ -232,21 +232,33 @@ export function handleXCalled(event: XCalled): void {
   transfer.transferId = event.params.transferId;
   transfer.nonce = event.params.nonce;
   transfer.status = "XCalled";
-  transfer.originMinOut = event.params.xcallArgs.originMinOut;
+  transfer.messageHash = event.params.messageHash;
 
   // Call Params
-  transfer.to = event.params.xcallArgs.params.to;
-  transfer.callData = event.params.xcallArgs.params.callData;
-  transfer.destinationDomain = event.params.xcallArgs.params.destinationDomain;
-  transfer.agent = event.params.xcallArgs.params.agent;
-  transfer.receiveLocal = event.params.xcallArgs.params.receiveLocal;
-  transfer.destinationMinOut = event.params.xcallArgs.params.destinationMinOut;
+  transfer.originDomain = event.params.params.originDomain;
+  transfer.destinationDomain = event.params.params.destinationDomain;
+  transfer.canonicalDomain = event.params.params.canonicalDomain;
+  transfer.to = event.params.params.to;
+  transfer.delegate = event.params.params.delegate;
+  transfer.receiveLocal = event.params.params.receiveLocal;
+  transfer.callData = event.params.params.callData;
+  transfer.slippage = event.params.params.slippage;
+  transfer.originSender = event.params.params.originSender;
+  transfer.bridgedAmt = event.params.params.bridgedAmt;
+  transfer.normalizedIn = event.params.params.normalizedIn;
+  transfer.canonicalId = event.params.params.canonicalId;
 
   // Assets
-  transfer.asset = event.params.xcallArgs.asset;
-  transfer.amount = event.params.xcallArgs.amount;
-  transfer.bridgedAsset = event.params.bridgedAsset;
-  transfer.bridgedAmount = event.params.bridgedAmount;
+
+  let uniqueAssetId = getCanonicalHash(
+    event.params.params.canonicalDomain.toString(),
+    event.params.params.canonicalId.toString(),
+  );
+  let asset = Asset.load(uniqueAssetId);
+  if (asset == null) {
+    asset = new Asset(uniqueAssetId);
+  }
+  transfer.asset = asset.id;
 
   // Message
   let message = OriginMessage.load(event.params.messageHash.toHex());
@@ -254,13 +266,13 @@ export function handleXCalled(event: XCalled): void {
     message = new OriginMessage(event.params.messageHash.toHex());
   }
   message.leaf = event.params.messageHash;
-  message.destinationDomain = event.params.xcallArgs.params.destinationDomain;
+  message.destinationDomain = event.params.params.destinationDomain;
   message.transferId = event.params.transferId;
   message.save();
   transfer.message = message.id;
 
   // XCall Transaction
-  transfer.caller = event.params.caller;
+  transfer.caller = event.transaction.from;
   transfer.transactionHash = event.transaction.hash;
   transfer.timestamp = event.block.timestamp;
   transfer.gasPrice = event.transaction.gasPrice;
