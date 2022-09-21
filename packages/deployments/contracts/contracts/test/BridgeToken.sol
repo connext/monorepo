@@ -9,7 +9,7 @@ import {ERC20} from "./OZERC20.sol";
 import {BridgeMessage} from "./BridgeMessage.sol";
 import {IBridgeToken} from "./IBridgeToken.sol";
 
-abstract contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
+contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
   /// @dev hash commitment to the name/symbol/decimals
   bytes32 public override detailsHash;
 
