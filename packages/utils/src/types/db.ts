@@ -17,7 +17,6 @@ export const transfersCastForUrl =
  */
 export const convertFromDbTransfer = (transfer: any): XTransfer => {
   return {
-    nonce: BigNumber.from(transfer.nonce).toNumber(),
     xparams: {
       originDomain: transfer.origin_domain,
       destinationDomain: transfer.destination_domain,
@@ -30,7 +29,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       originSender: transfer.origin_sender,
       bridgedAmt: transfer.bridged_amount,
       normalizedIn: transfer.normalized_in,
-      nonce: transfer.nonce,
+      nonce: BigNumber.from(transfer.nonce).toNumber(),
       canonicalId: transfer.canonical_id,
     },
     transferId: transfer.transfer_id,

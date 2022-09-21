@@ -185,12 +185,9 @@ export const mock = {
 
       const shouldHaveOriginDefined = true;
       const shouldHaveDestinationDefined = !!status;
-      const isReconciledOnly = !shouldHaveOriginDefined && status === XTransferStatus.Reconciled;
-
       return {
         // Meta
         transferId,
-        nonce: !isReconciledOnly ? nonce : undefined,
 
         // Call Params
         xparams: {

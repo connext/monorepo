@@ -102,9 +102,6 @@ export const XTransferSchema = Type.Intersect([
   Type.Object({
     transferId: Type.String(),
 
-    // NOTE: Nonce is delivered by XCalled and Executed events, but not Reconciled event.
-    nonce: Type.Optional(Type.Integer()),
-
     // Call Params
     // NOTE: CallParams is emitted by XCalled and Executed events, but not Reconciled event.
     xparams: CallParamsSchema,
@@ -119,7 +116,6 @@ export type XTransfer = Static<typeof XTransferSchema>;
 export const OriginTransferSchema = Type.Intersect([
   Type.Object({
     transferId: Type.String(),
-    nonce: Type.Integer(),
     xparams: CallParamsSchema,
   }),
   Type.Object({
@@ -132,7 +128,6 @@ export type OriginTransfer = Static<typeof OriginTransferSchema>;
 export const DestinationTransferSchema = Type.Intersect([
   Type.Object({
     transferId: Type.String(),
-    nonce: Type.Optional(Type.Integer()),
     xparams: CallParamsSchema,
   }),
   Type.Object({
