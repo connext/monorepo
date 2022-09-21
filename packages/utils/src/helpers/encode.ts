@@ -1,4 +1,4 @@
-import { defaultAbiCoder, keccak256, hexlify, solidityKeccak256 } from "ethers/lib/utils";
+import { defaultAbiCoder, keccak256, hexlify, solidityKeccak256, BytesLike } from "ethers/lib/utils";
 
 import { ExternalCall, ReconciledTransaction, canonizeId } from "..";
 
@@ -98,7 +98,7 @@ export const getExternalCallHash = (externalCallData: ExternalCall): string => {
 };
 
 export const getCanonicalHash = (canonicalDomain: string, _canonicalId: string): string => {
-  const canonicalId = hexlify(canonizeId(_canonicalId));
+  const canonicalId = hexlify(canonizeId(_canonicalId as BytesLike));
   const payload = defaultAbiCoder.encode(
     ["tuple(bytes32 canonicalId,uint32 canonicalDomain)"],
     [{ canonicalId, canonicalDomain }],

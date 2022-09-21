@@ -25,6 +25,7 @@ export const XTransferOriginSchema = Type.Object({
   chain: TIntegerString,
 
   // Event Data
+  messageHash: Type.String(),
   originMinOut: TIntegerString,
 
   // Assets
@@ -101,7 +102,6 @@ export const CallParamsSchema = Type.Object({
 export const XTransferSchema = Type.Intersect([
   Type.Object({
     transferId: Type.String(),
-    messageHash: Type.String(),
 
     // Call Params
     // NOTE: CallParams is emitted by XCalled and Executed events, but not Reconciled event.
