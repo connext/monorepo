@@ -25,6 +25,7 @@ import {TestERC20} from "../contracts/test/TestERC20.sol";
 import {TokenRegistry} from "../contracts/test/TokenRegistry.sol";
 import {BridgeMessage} from "../contracts/test/BridgeMessage.sol";
 import {BridgeRouter} from "../contracts/test/BridgeRouter.sol";
+import {BridgeToken} from "../contracts/test/BridgeToken.sol";
 
 import {WETH} from "./utils/TestWeth.sol";
 import "./utils/ForgeHelper.sol";
@@ -177,7 +178,13 @@ contract ConnextTest is ForgeHelper, Deployer {
     _destinationManager = new MockXAppConnectionManager(destinationHome);
 
     // Deploy token beacon
-    address beacon = address(new TestERC20("Test Token", "TEST"));
+    BridgeToken bridgeTokenImp = new BridgeToken();
+    ERC1967Proxy bridgeTokenProxy = new ERC1967Proxy(
+      address(bridgeTokenImp),
+      abi.encodeWithSelector(BridgeToken.initialize.selector)
+    );
+
+    address beacon = address(bridgeTokenProxy);
 
     // Deploy TokenRegistry implementation
     TokenRegistry registryImp = new TokenRegistry();
