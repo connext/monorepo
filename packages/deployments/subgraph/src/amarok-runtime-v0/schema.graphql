@@ -1,5 +1,5 @@
 type Asset @entity {
-  id: ID!
+  id: ID! # Key
   key: Bytes
   local: Bytes!
   adoptedAsset: Bytes!
@@ -9,7 +9,7 @@ type Asset @entity {
 }
 
 type AssetBalance @entity {
-  id: ID!
+  id: ID! // `key-router_address`
   amount: BigInt!
   router: Router!
   asset: Asset!
