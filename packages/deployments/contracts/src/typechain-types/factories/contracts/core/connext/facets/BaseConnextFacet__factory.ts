@@ -12,6 +12,11 @@ import type {
 const _abi = [
   {
     inputs: [],
+    name: "BaseConnextFacet__getAdoptedAsset_notWhitelisted",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BaseConnextFacet__nonReentrant_reentrantCall",
     type: "error",
   },
@@ -38,7 +43,7 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220a8ca3f29f575e945e1cde23d800ba72894ea54a06e61aad0360cf00b6e3fb4bd64736f6c634300080f0033";
+  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212207e04e844efb1ce56fe1dc26203708463faccf452b2dbadf89534a7a076379ce064736f6c634300080f0033";
 
 type BaseConnextFacetConstructorParams =
   | [signer?: Signer]
