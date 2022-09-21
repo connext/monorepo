@@ -209,7 +209,7 @@
   "event RouterAdded(address indexed,address)",
   "event RouterApprovedForPortal(address,address)",
   "event RouterLiquidityAdded(address indexed,address,bytes32,uint256,address)",
-  "event RouterLiquidityRemoved(address indexed,address,address,uint256,address)",
+  "event RouterLiquidityRemoved(address indexed,address,address,bytes32,uint256,address)",
   "event RouterOwnerAccepted(address indexed,address indexed,address indexed)",
   "event RouterOwnerProposed(address indexed,address indexed,address indexed)",
   "event RouterRecipientSet(address indexed,address indexed,address indexed)",

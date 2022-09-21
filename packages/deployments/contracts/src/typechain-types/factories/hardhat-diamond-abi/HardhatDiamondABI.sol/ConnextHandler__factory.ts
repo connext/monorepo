@@ -3345,6 +3345,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "bytes32",
+        name: "key",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
         internalType: "uint256",
         name: "amount",
         type: "uint256",
