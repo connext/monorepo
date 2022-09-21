@@ -7,10 +7,22 @@ pragma solidity 0.8.15;
 // removed to silence solidity inheritance issues
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol";
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/draft-EIP712Upgradeable.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /**
  * @dev Implementation of the {IERC20} interface.
+ *
+ * Implements ERC20 Permit extension allowing approvals to be made via
+ * signatures, as defined in https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
+ *
+ * Adds the {permit} method, which can be used to change an account's ERC20
+ * allowance (see {IERC20-allowance}) by presenting a message signed by the
+ * account. By not relying on {IERC20-approve}, the token holder account doesn't
+ * need to send a transaction, and thus is not required to hold Ether at all.
  *
  * This implementation is agnostic to the way tokens are created. This means
  * that a supply mechanism has to be added in a derived contract using {_mint}.
@@ -33,7 +45,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract ERC20 is IERC20 {
+contract ERC20 is IERC20, IERC20Permit, EIP712Upgradeable {
   using SafeMath for uint256;
 
   mapping(address => uint256) private balances;
@@ -41,6 +53,25 @@ contract ERC20 is IERC20 {
   mapping(address => mapping(address => uint256)) private allowances;
 
   uint256 private supply;
+
+  using Counters for Counters.Counter;
+
+  mapping(address => Counters.Counter) private _nonces;
+
+  // Immutables used in EIP 712 structured data hashing & signing
+  // https://eips.ethereum.org/EIPS/eip-712
+  bytes32 private constant _PERMIT_TYPEHASH =
+    keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
+
+  /**
+   * @dev Initializes the {EIP712} domain separator using the `name` parameter,
+   * and setting `version` to `"1"`.
+   *
+   * It's a good idea to use the same `name` that is defined as the ERC20 token name.
+   */
+  function __ERC20_init(string memory name, string memory version) internal onlyInitializing {
+    __EIP712_init(name, version);
+  }
 
   struct Token {
     string name;
@@ -287,4 +318,67 @@ contract ERC20 is IERC20 {
     address _to,
     uint256 _amount
   ) internal virtual {}
+
+  /**
+   * @dev See {IERC20Permit-permit}.
+   * @notice Sets approval from owner to spender to value
+   * as long as deadline has not passed
+   * by submitting a valid signature from owner
+   * Uses EIP 712 structured data hashing & signing
+   * https://eips.ethereum.org/EIPS/eip-712
+   * @param _owner The account setting approval & signing the message
+   * @param _spender The account receiving approval to spend owner's tokens
+   * @param _value The amount to set approval for
+   * @param _deadline The timestamp before which the signature must be submitted
+   * @param _v ECDSA signature v
+   * @param _r ECDSA signature r
+   * @param _s ECDSA signature s
+   */
+  function permit(
+    address _owner,
+    address _spender,
+    uint256 _value,
+    uint256 _deadline,
+    uint8 _v,
+    bytes32 _r,
+    bytes32 _s
+  ) public virtual override {
+    require(block.timestamp <= _deadline, "ERC20Permit: expired deadline");
+
+    bytes32 _structHash = keccak256(
+      abi.encode(_PERMIT_TYPEHASH, _owner, _spender, _value, _useNonce(_owner), _deadline)
+    );
+
+    bytes32 _hash = _hashTypedDataV4(_structHash);
+
+    address _signer = ECDSA.recover(_hash, _v, _r, _s);
+    require(_signer == _owner, "ERC20Permit: invalid signature");
+
+    _approve(_owner, _spender, _value);
+  }
+
+  /**
+   * @dev See {IERC20Permit-nonces}.
+   */
+  function nonces(address _owner) public view virtual override returns (uint256) {
+    return _nonces[_owner].current();
+  }
+
+  /**
+   * @dev See {IERC20Permit-DOMAIN_SEPARATOR}.
+   * This is ALWAYS calculated at runtime
+   * because the token name may change
+   */
+  function DOMAIN_SEPARATOR() external view override returns (bytes32) {
+    return _domainSeparatorV4();
+  }
+
+  /**
+   * @dev "Consume a nonce": return the current value and increment.
+   */
+  function _useNonce(address _owner) internal virtual returns (uint256 current) {
+    Counters.Counter storage nonce = _nonces[_owner];
+    current = nonce.current();
+    nonce.increment();
+  }
 }
