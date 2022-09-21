@@ -32,7 +32,8 @@ contract DiamondInit is BaseConnextFacet {
     uint32 _domain,
     address _tokenRegistry, // Nomad token registry
     address _relayerFeeRouter,
-    uint256 _acceptanceDelay
+    uint256 _acceptanceDelay,
+    uint256 _ownershipDelay
   ) external {
     // adding ERC165 data
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
@@ -64,6 +65,7 @@ contract DiamondInit is BaseConnextFacet {
       s.tokenRegistry = ITokenRegistry(_tokenRegistry);
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.maxRoutersPerTransfer = 5;
+      s._ownershipDelay = _ownershipDelay;
     }
   }
 }

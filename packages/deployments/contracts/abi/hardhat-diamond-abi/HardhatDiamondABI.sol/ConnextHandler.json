@@ -142,7 +142,7 @@
   "function acceptProposedOwner()",
   "function assetWhitelistRemoved() view returns (bool)",
   "function assetWhitelistTimestamp() view returns (uint256)",
-  "function delay() pure returns (uint256)",
+  "function delay() view returns (uint256)",
   "function owner() view returns (address)",
   "function pause()",
   "function proposeAssetWhitelistRemoval()",

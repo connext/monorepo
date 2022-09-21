@@ -348,14 +348,16 @@ contract Deployer {
     address xAppConnectionManager,
     address tokenRegistry,
     address relayerFeeRouter,
-    uint256 acceptanceDelay
+    uint256 acceptanceDelay,
+    uint256 ownershipDelay
   ) internal returns (address) {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       domain,
       tokenRegistry,
       relayerFeeRouter,
-      acceptanceDelay
+      acceptanceDelay,
+      ownershipDelay
     );
 
     deployFacets();
