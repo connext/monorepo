@@ -37,19 +37,6 @@ contract RootManagerTest is ForgeHelper {
 
   // ============ Utils ============
 
-  // function utils_setConnectors(uint32[] memory domains, address[] memory connectors) public {
-  //   for (uint8 i; i < domains.length; i++) {
-  //     // _rootManager.connectors[domains[i]] = connectors[i];
-  //     _rootManager.domains.push(domains[i]);
-  //   }
-  // }
-
-  // function utils_setOutboundRoots(uint32[] memory domains, bytes32[] memory outbounds) public {
-  //   for (uint8 i; i < domains.length; i++) {
-  //     _rootManager.outboundRoots[domains[i]] = outbounds[i];
-  //   }
-  // }
-
   // ============ RootManager.addWatcher ============
   function test_RootManager__addWatcher_shouldWork() public {
     vm.expectEmit(true, true, true, true);
