@@ -154,11 +154,11 @@ export default task("xcall", "Prepare a cross-chain tx")
 
       console.log("domain", domain);
 
-      const connextion = await connext.connect(senders[0]).connextion(destinationDomain);
-      if (connextion === "0x0000000000000000000000000000000000000000") {
+      const remote = await connext.connect(senders[0]).remote(destinationDomain);
+      if (remote === "0x0000000000000000000000000000000000000000") {
         throw new Error(`destination domain not supported!`);
       }
-      console.log(`connextion for domain ${destinationDomain}: ${connextion}`);
+      console.log(`remote for domain ${destinationDomain}: ${remote}`);
 
       // Check balances and allowances
       for (let i = 0; i < senders.length; i++) {
