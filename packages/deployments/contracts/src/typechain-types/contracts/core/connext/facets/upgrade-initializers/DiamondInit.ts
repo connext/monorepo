@@ -15,11 +15,17 @@ import type {
 } from "ethers";
 import type { FunctionFragment, Result } from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
-import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from "../../../../../common";
+import type {
+  TypedEventFilter,
+  TypedEvent,
+  TypedListener,
+  OnEvent,
+  PromiseOrValue,
+} from "../../../../../common";
 
 export interface DiamondInitInterface extends utils.Interface {
   functions: {
-    "init(uint32,address,address,uint256)": FunctionFragment;
+    "init(uint32,address,address,uint256,uint256)": FunctionFragment;
   };
 
   getFunction(nameOrSignatureOrTopic: "init"): FunctionFragment;
@@ -31,7 +37,8 @@ export interface DiamondInitInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
-    ],
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
 
   decodeFunctionResult(functionFragment: "init", data: BytesLike): Result;
@@ -49,12 +56,16 @@ export interface DiamondInit extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
+    toBlock?: string | number | undefined
   ): Promise<Array<TEvent>>;
 
-  listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
+  listeners<TEvent extends TypedEvent>(
+    eventFilter?: TypedEventFilter<TEvent>
+  ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -68,7 +79,7 @@ export interface DiamondInit extends BaseContract {
       _relayerFeeRouter: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
       _ownershipDelay: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -78,7 +89,7 @@ export interface DiamondInit extends BaseContract {
     _relayerFeeRouter: PromiseOrValue<string>,
     _acceptanceDelay: PromiseOrValue<BigNumberish>,
     _ownershipDelay: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -88,7 +99,7 @@ export interface DiamondInit extends BaseContract {
       _relayerFeeRouter: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
       _ownershipDelay: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
   };
 
@@ -101,7 +112,7 @@ export interface DiamondInit extends BaseContract {
       _relayerFeeRouter: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
       _ownershipDelay: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -112,7 +123,7 @@ export interface DiamondInit extends BaseContract {
       _relayerFeeRouter: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
       _ownershipDelay: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }
