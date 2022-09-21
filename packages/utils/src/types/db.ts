@@ -33,7 +33,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       canonicalId: transfer.canonical_id,
     },
     transferId: transfer.transfer_id,
-
+    messageHash: transfer.message_hash,
     origin: transfer.origin_chainP
       ? {
           chain: transfer.origin_chain,
