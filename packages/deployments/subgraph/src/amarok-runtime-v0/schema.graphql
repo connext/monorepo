@@ -65,18 +65,24 @@ type OriginTransfer @entity {
   chainId: BigInt
   transferId: Bytes
   nonce: BigInt
+  messageHash: Bytes
 
-  # CallParams
-  to: Bytes
-  callData: Bytes
+  # event data
+  originDomain: BigInt
   destinationDomain: BigInt
-  agent: Bytes
+  canonicalDomain: BigInt
+  to: Bytes
+  delegate: Bytes
   receiveLocal: Boolean
-  destinationMinOut: BigInt
+  callData: Bytes
+  slippage: BigInt
+  originSender: Bytes
+  bridgedAmount: BigInt
+  normalizedIn: BigInt
+  canonicalId: Bytes
 
   # Event Data
   status: TransferStatus
-  originMinOut: BigInt
 
   # Asset
   # The asset that gets sent in.

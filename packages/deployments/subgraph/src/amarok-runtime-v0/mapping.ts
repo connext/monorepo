@@ -7,7 +7,6 @@ import {
   RelayerAdded,
   RelayerRemoved,
   StableSwapAdded,
-  SponsorVaultUpdated,
   XCalled,
   Executed,
   Reconciled,
@@ -22,7 +21,6 @@ import {
 import {
   NewConnector,
   Dispatch,
-  Process,
   AggregateRootUpdated,
   MessageSent,
   MessageProcessed,
@@ -38,7 +36,6 @@ import {
   DestinationTransfer,
   Setting,
   OriginMessage,
-  DestinationMessage,
   AggregateRoot,
   RootMessageSent,
   RootMessageProcessed,
@@ -76,18 +73,6 @@ export function handleStableSwapAdded(event: StableSwapAdded): void {
     stableSwap.domain = event.params.domain;
     stableSwap.swapPool = event.params.swapPool;
     stableSwap.save();
-  }
-}
-
-export function handleSponsorVaultUpdated(event: SponsorVaultUpdated): void {
-  // SponsorVaultUpdated: address oldSponsorVault, address newSponsorVault, address caller
-  let sponsorVaultId = event.params.newSponsorVault.toHex();
-  let sponsorVault = SponsorVault.load(sponsorVaultId);
-
-  if (sponsorVault == null) {
-    sponsorVault = new SponsorVault(sponsorVaultId);
-    sponsorVault.sponsorVault = event.params.newSponsorVault;
-    sponsorVault.save();
   }
 }
 
@@ -441,20 +426,6 @@ export function handleDispatch(event: Dispatch): void {
 
   message.save();
 }
-
-// export function handleProcess(event: Process): void {
-//   let message = DestinationMessage.load(event.params.leaf.toHexString());
-//   if (message == null) {
-//     message = new DestinationMessage(event.params.leaf.toHexString());
-//   }
-
-//   message.leaf = event.params.leaf;
-//   message.processed = event.params.success;
-//   message.returnData = event.params.returnData;
-//   message.transactionHash = event.transaction.hash;
-
-//   message.save();
-// }
 
 export function handleAggregateRootUpdated(event: AggregateRootUpdated): void {
   let aggregateRoot = AggregateRoot.load(event.params.current.toHexString());
