@@ -45,7 +45,6 @@ import "./tasks/stableswap/setSwapFees";
 import "./tasks/connector/send";
 import "./tasks/rootmanager/propagate";
 import "./tasks/setMirrorConnectors";
-import "./tasks/setBridgeRouter";
 import "./tasks/addSequencer";
 import "./tasks/setXAppConnectionManager";
 import "./tasks/queryRoots";
