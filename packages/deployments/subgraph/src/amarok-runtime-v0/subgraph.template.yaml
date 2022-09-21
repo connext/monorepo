@@ -35,7 +35,7 @@ dataSources:
           handler: handleRelayerRemoved
         - event: RouterLiquidityAdded(indexed address,address,bytes32,uint256,address)
           handler: handleRouterLiquidityAdded
-        - event: RouterLiquidityRemoved(indexed address,address,address,uint256,address)
+        - event: RouterLiquidityRemoved(indexed address,address,address,bytes32,uint256,address)
           handler: handleRouterLiquidityRemoved
         - event: XCalled(indexed bytes32,indexed uint256,indexed bytes32,(uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32))
           handler: handleXCalled
