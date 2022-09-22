@@ -26,7 +26,7 @@ contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
 
   // ============ Events ============
 
-  event UpdateDetails(string indexed name, string indexed symbol, uint8 indexed decimals);
+  event UpdateDetails(string indexed name, string indexed symbol);
 
   // ============ External Functions ============
 
@@ -70,17 +70,26 @@ contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
    * @param _newName The new name
    * @param _newSymbol The new symbol
    */
-  function setDetails(string calldata _newName, string calldata _newSymbol, uint8 _newDecimals) external override {
+  function setDetails(
+    string calldata _newName,
+    string calldata _newSymbol,
+    uint8 _newDecimals
+  ) external override {
     bool _isFirstDetails = bytes(token.name).length == 0;
     // 0 case is the initial deploy. We allow the deploying registry to set
     // these once. After the first transfer is made, detailsHash will be
     // set, allowing anyone to supply correct name/symbols/decimals
-    require(_isFirstDetails || BridgeMessage.getDetailsHash(_newName, _newSymbol, _newDecimals) == detailsHash, "!committed details");
+    require(
+      _isFirstDetails || BridgeMessage.getDetailsHash(_newName, _newSymbol, _newDecimals) == detailsHash,
+      "!committed details"
+    );
     // careful with naming convention change here
     token.name = _newName;
     token.symbol = _newSymbol;
-    if (!_isFirstDetails) {
-      emit UpdateDetails(_newName, _newSymbol, 18);
+    if (_isFirstDetails) {
+      token.decimals = _newDecimals;
+    } else {
+      emit UpdateDetails(_newName, _newSymbol);
     }
   }
 

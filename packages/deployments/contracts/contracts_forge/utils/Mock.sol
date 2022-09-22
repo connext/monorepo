@@ -302,7 +302,11 @@ contract MockTokenRegistry is ITokenRegistry {
     return true;
   }
 
-  function ensureLocalToken(uint32 _domain, bytes32 _id) external pure returns (address _local) {
+  function ensureLocalToken(
+    uint32 _domain,
+    bytes32 _id,
+    uint8 _decimals
+  ) external pure returns (address _local) {
     return address(42);
   }
 
