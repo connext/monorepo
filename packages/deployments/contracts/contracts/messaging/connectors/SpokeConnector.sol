@@ -44,6 +44,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
 
   event Process(bytes32 leaf, bool success, bytes returnData);
 
+  event WatcherAdded(address watcher);
+
+  event WatcherRemoved(address watcher);
+
   // ============ Structs ============
   // Status of Message:
   //   0 - None - message has not been proven or processed
@@ -97,6 +101,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
    * @notice Mapping of message leaves to MessageStatus, keyed on leaf
    */
   mapping(bytes32 => MessageStatus) public messages;
+
+  mapping(address => bool) public watchers;
 
   // ============ Modifiers ============
 
@@ -164,6 +170,24 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
   function removeSender(address _sender) public onlyOwner {
     whitelistedSenders[_sender] = false;
     emit SenderRemoved(_sender);
+  }
+
+  /**
+   * @dev Owner can enroll a watcher (who has ability to disconnect connector)
+   */
+  function addWatcher(address _watcher) external onlyOwner {
+    require(!watchers[_watcher], "already watcher");
+    watchers[_watcher] = true;
+    emit WatcherAdded(_watcher);
+  }
+
+  /**
+   * @dev Owner can unenroll a watcher (who has ability to disconnect connector)
+   */
+  function removeWatcher(address _watcher) external onlyOwner {
+    require(watchers[_watcher], "!exist");
+    watchers[_watcher] = false;
+    emit WatcherRemoved(_watcher);
   }
 
   // ============ Public fns ============
@@ -242,25 +266,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     require(prove(keccak256(_message), _proof, _index), "!prove");
     // FIXME: implement proofs above before processing the message
     process(_message);
-  }
-
-  // ============ Watcher fns ============
-  /**
-   * @dev Owner can enroll a watcher (who has ability to disconnect connector)
-   */
-  function addWatcher(address _watcher) external onlyOwner {
-    require(!watchers[_watcher], "already watcher");
-    watchers[_watcher] = true;
-    emit WatcherAdded(_watcher);
-  }
-
-  /**
-   * @dev Owner can unenroll a watcher (who has ability to disconnect connector)
-   */
-  function removeWatcher(address _watcher) external onlyOwner {
-    require(watchers[_watcher], "!exist");
-    watchers[_watcher] = false;
-    emit WatcherRemoved(_watcher);
   }
 
   // ============ Private fns ============

@@ -20,18 +20,12 @@ contract RootManager is ProposedOwnable, IRootManager {
 
   event ConnectorRemoved(uint32 domain, address connector);
 
-  event WatcherAdded(address watcher);
-
-  event WatcherRemoved(address watcher);
-
   // ============ Properties ============
   mapping(uint32 => address) public connectors;
 
   mapping(uint32 => bytes32) public outboundRoots;
 
   uint32[] public domains;
-
-  mapping(address => bool) public watchers;
 
   // ============ Constructor ============
   constructor() ProposedOwnable() {
