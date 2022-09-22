@@ -31,7 +31,7 @@ contract DiamondInit is BaseConnextFacet {
   // data to set your own state variables
   function init(
     uint32 _domain,
-    address _tokenRegistry, // Nomad token registry
+    address _tokenRegistry,
     address _relayerFeeRouter,
     address _xAppConnectionManager,
     uint256 _acceptanceDelay,

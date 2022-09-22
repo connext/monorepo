@@ -7,6 +7,7 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 import {IConnectorManager} from "../contracts/messaging/interfaces/IConnectorManager.sol";
 import {TypeCasts} from "../contracts/shared/libraries/TypeCasts.sol";
 
+import {IBridgeToken} from "../contracts/core/connext/interfaces/IBridgeToken.sol";
 import {IConnextHandler} from "../contracts/core/connext/interfaces/IConnextHandler.sol";
 import {ITokenRegistry} from "../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IBridgeRouter} from "../contracts/core/connext/interfaces/IBridgeRouter.sol";
@@ -207,9 +208,9 @@ contract ConnextTest is ForgeHelper, Deployer {
     // deploy connext
     address originConnext = deployConnext(
       _origin,
-      address(_originManager),
       address(_originRegistry),
       address(_originRelayerFee),
+      address(_originManager),
       7 days,
       6 days
     );
@@ -217,9 +218,9 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     address destinationConnext = deployConnext(
       _destination,
-      address(_destinationManager),
       address(_destinationRegistry),
       address(_destinationRelayerFee),
+      address(_destinationManager),
       7 days,
       6 days
     );
@@ -682,6 +683,30 @@ contract ConnextTest is ForgeHelper, Deployer {
       );
   }
 
+  // Format cross-chain message from call params.
+  function utils_formatMessage(
+    CallParams memory params,
+    address local,
+    uint256 bridgedAmt,
+    bool isCanonical
+  ) public returns (bytes memory) {
+    bytes32 transferId = keccak256(abi.encode(params));
+    IBridgeToken token = IBridgeToken(local);
+
+    bytes29 tokenId = BridgeMessage.formatTokenId(params.canonicalDomain, params.canonicalId);
+
+    bytes32 detailsHash;
+    if (local != address(0)) {
+      detailsHash = isCanonical
+        ? BridgeMessage.getDetailsHash(token.name(), token.symbol(), token.decimals())
+        : token.detailsHash();
+    }
+
+    bytes29 action = BridgeMessage.formatTransfer(bridgedAmt, detailsHash, transferId);
+
+    return BridgeMessage.formatMessage(tokenId, action);
+  }
+
   function utils_reconcileAndAssert(
     CallParams memory params,
     bytes32 transferId,
@@ -689,11 +714,10 @@ contract ConnextTest is ForgeHelper, Deployer {
   ) public {
     uint256 bridgedAmt = params.bridgedAmt;
     uint256 nonce = params.nonce;
-    address originSender = params.originSender;
     // NOTE: the bridge router handles the minting and custodying of assets. as far
     // as connext is concerned, the funds will *always* be transferred to the contract
     // when `reconcile` is called. Mint funds to the contract to mock
-    TestERC20(_destinationLocal).mint(address(_destinationConnext), bridgedAmt);
+    // TestERC20(_destinationLocal).mint(address(_destinationConnext), bridgedAmt);
 
     // Get initial bridge balance and router liquidity
     ReconcileBalances memory initial = utils_getReconcileBalances(transferId, routers);
@@ -702,18 +726,12 @@ contract ConnextTest is ForgeHelper, Deployer {
     vm.expectEmit(true, true, true, true);
     emit Reconciled(transferId, _origin, routers, _destinationLocal, bridgedAmt, address(_destinationConnext));
 
-    vm.prank(address(_destinationConnext));
-    // FIXME: Pass valid message bytes!
-    // _destinationConnext.handle(
-    //   _origin,
-    //   nonce,
-    //   TypeCasts.addressToBytes32(address(_originConnext)),
-    //   // _canonicalDomain,
-    //   // TypeCasts.addressToBytes32(_canonical),
-    //   // _destinationLocal,
-    //   // bridgedAmt,
-    //   // abi.encode(transferId)
-    // );
+    _destinationConnext.handle(
+      _origin,
+      0,
+      TypeCasts.addressToBytes32(address(_originConnext)),
+      utils_formatMessage(params, _destinationLocal, bridgedAmt, _canonicalDomain == _destination)
+    );
 
     ReconcileBalances memory end = utils_getReconcileBalances(transferId, routers);
     // assert router liquidity balance
