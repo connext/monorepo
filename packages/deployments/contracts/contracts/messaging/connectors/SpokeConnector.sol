@@ -105,6 +105,11 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     _;
   }
 
+  modifier onlyWatcher() {
+    require(watchers[msg.sender], "!watcher");
+    _;
+  }
+
   // ============ Constructor ============
 
   /**
@@ -237,6 +242,25 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     require(prove(keccak256(_message), _proof, _index), "!prove");
     // FIXME: implement proofs above before processing the message
     process(_message);
+  }
+
+  // ============ Watcher fns ============
+  /**
+   * @dev Owner can enroll a watcher (who has ability to disconnect connector)
+   */
+  function addWatcher(address _watcher) external onlyOwner {
+    require(!watchers[_watcher], "already watcher");
+    watchers[_watcher] = true;
+    emit WatcherAdded(_watcher);
+  }
+
+  /**
+   * @dev Owner can unenroll a watcher (who has ability to disconnect connector)
+   */
+  function removeWatcher(address _watcher) external onlyOwner {
+    require(watchers[_watcher], "!exist");
+    watchers[_watcher] = false;
+    emit WatcherRemoved(_watcher);
   }
 
   // ============ Private fns ============

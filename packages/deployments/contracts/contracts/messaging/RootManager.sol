@@ -39,10 +39,6 @@ contract RootManager is ProposedOwnable, IRootManager {
   }
 
   // ============ Modifiers ============
-  modifier onlyWatcher() {
-    require(watchers[msg.sender], "!watcher");
-    _;
-  }
 
   modifier onlyConnector(uint32 _domain) {
     require(connectors[_domain] == msg.sender, "!connector");
@@ -107,23 +103,5 @@ contract RootManager is ProposedOwnable, IRootManager {
     }
     domains.pop();
     emit ConnectorRemoved(_domain, connector);
-  }
-
-  /**
-   * @dev Owner can enroll a watcher (who has ability to disconnect connector)
-   */
-  function addWatcher(address _watcher) external onlyOwner {
-    require(!watchers[_watcher], "already watcher");
-    watchers[_watcher] = true;
-    emit WatcherAdded(_watcher);
-  }
-
-  /**
-   * @dev Owner can unenroll a watcher (who has ability to disconnect connector)
-   */
-  function removeWatcher(address _watcher) external onlyOwner {
-    require(watchers[_watcher], "!exist");
-    watchers[_watcher] = false;
-    emit WatcherRemoved(_watcher);
   }
 }
