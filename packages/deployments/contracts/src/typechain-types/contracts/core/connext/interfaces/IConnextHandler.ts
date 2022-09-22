@@ -203,7 +203,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "approvedSequencers(address)": FunctionFragment;
     "assetWhitelistRemoved()": FunctionFragment;
     "assetWhitelistTimestamp()": FunctionFragment;
-    "bridgeRouter()": FunctionFragment;
     "bumpTransfer(bytes32)": FunctionFragment;
     "calculateRemoveSwapLiquidity(bytes32,uint256)": FunctionFragment;
     "calculateRemoveSwapLiquidityOneToken(bytes32,uint256,uint8)": FunctionFragment;
@@ -244,9 +243,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "initializeSwap(bytes32,address[],uint8[],string,string,uint256,uint256,uint256,address)": FunctionFragment;
     "initiateClaim(uint32,address,bytes32[])": FunctionFragment;
     "maxRoutersPerTransfer()": FunctionFragment;
-    "migrate(address)": FunctionFragment;
     "nonce()": FunctionFragment;
-    "onReceive(uint32,bytes32,uint32,bytes32,address,uint256,bytes)": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
     "proposeAssetWhitelistRemoval()": FunctionFragment;
@@ -282,11 +279,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "routerBalances(address,address)": FunctionFragment;
     "routerWhitelistRemoved()": FunctionFragment;
     "routerWhitelistTimestamp()": FunctionFragment;
-    "send(address,uint256,uint32,bytes32,bool)": FunctionFragment;
-    "sendToHook(address,uint256,uint32,bytes32,bytes)": FunctionFragment;
     "setAavePool(address)": FunctionFragment;
     "setAavePortalFee(uint256)": FunctionFragment;
-    "setBridgeRouter(address)": FunctionFragment;
     "setLiquidityFeeNumerator(uint256)": FunctionFragment;
     "setMaxRoutersPerTransfer(uint256)": FunctionFragment;
     "setRelayerFeeRouter(address)": FunctionFragment;
@@ -336,7 +330,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "approvedSequencers"
       | "assetWhitelistRemoved"
       | "assetWhitelistTimestamp"
-      | "bridgeRouter"
       | "bumpTransfer"
       | "calculateRemoveSwapLiquidity"
       | "calculateRemoveSwapLiquidityOneToken"
@@ -377,9 +370,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "initializeSwap"
       | "initiateClaim"
       | "maxRoutersPerTransfer"
-      | "migrate"
       | "nonce"
-      | "onReceive"
       | "owner"
       | "pause"
       | "proposeAssetWhitelistRemoval"
@@ -415,11 +406,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "routerBalances"
       | "routerWhitelistRemoved"
       | "routerWhitelistTimestamp"
-      | "send"
-      | "sendToHook"
       | "setAavePool"
       | "setAavePortalFee"
-      | "setBridgeRouter"
       | "setLiquidityFeeNumerator"
       | "setMaxRoutersPerTransfer"
       | "setRelayerFeeRouter"
@@ -540,10 +528,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "assetWhitelistTimestamp",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "bridgeRouter",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -737,23 +721,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     functionFragment: "maxRoutersPerTransfer",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "migrate",
-    values: [PromiseOrValue<string>]
-  ): string;
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "onReceive",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
-  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(
@@ -929,36 +897,12 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "send",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<boolean>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "sendToHook",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BytesLike>
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setAavePool",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setAavePortalFee",
     values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setBridgeRouter",
-    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setLiquidityFeeNumerator",
@@ -1171,10 +1115,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "bridgeRouter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "bumpTransfer",
     data: BytesLike
   ): Result;
@@ -1310,9 +1250,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     functionFragment: "maxRoutersPerTransfer",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "migrate", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "onReceive", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(
@@ -1435,18 +1373,12 @@ export interface IConnextHandlerInterface extends utils.Interface {
     functionFragment: "routerWhitelistTimestamp",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "sendToHook", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setAavePool",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "setAavePortalFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setBridgeRouter",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1698,8 +1630,6 @@ export interface IConnextHandler extends BaseContract {
 
     assetWhitelistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    bridgeRouter(overrides?: CallOverrides): Promise<[string]>;
-
     bumpTransfer(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -1925,23 +1855,7 @@ export interface IConnextHandler extends BaseContract {
 
     maxRoutersPerTransfer(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    migrate(
-      _oldRepr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     nonce(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    onReceive(
-      _origin: PromiseOrValue<BigNumberish>,
-      _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
-      _localToken: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _extraData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -2121,24 +2035,6 @@ export interface IConnextHandler extends BaseContract {
 
     routerWhitelistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    send(
-      _token: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _destination: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<BytesLike>,
-      arg4: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    sendToHook(
-      _token: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _destination: PromiseOrValue<BigNumberish>,
-      _remoteHook: PromiseOrValue<BytesLike>,
-      _extraData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setAavePool(
       _aavePool: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2146,11 +2042,6 @@ export interface IConnextHandler extends BaseContract {
 
     setAavePortalFee(
       _aavePortalFeeNumerator: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setBridgeRouter(
-      _bridge: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2398,8 +2289,6 @@ export interface IConnextHandler extends BaseContract {
 
   assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-  bridgeRouter(overrides?: CallOverrides): Promise<string>;
-
   bumpTransfer(
     _transferId: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -2617,23 +2506,7 @@ export interface IConnextHandler extends BaseContract {
 
   maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
 
-  migrate(
-    _oldRepr: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   nonce(overrides?: CallOverrides): Promise<BigNumber>;
-
-  onReceive(
-    _origin: PromiseOrValue<BigNumberish>,
-    _sender: PromiseOrValue<BytesLike>,
-    _tokenDomain: PromiseOrValue<BigNumberish>,
-    _tokenAddress: PromiseOrValue<BytesLike>,
-    _localToken: PromiseOrValue<string>,
-    _amount: PromiseOrValue<BigNumberish>,
-    _extraData: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -2813,24 +2686,6 @@ export interface IConnextHandler extends BaseContract {
 
   routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-  send(
-    _token: PromiseOrValue<string>,
-    _amount: PromiseOrValue<BigNumberish>,
-    _destination: PromiseOrValue<BigNumberish>,
-    _recipient: PromiseOrValue<BytesLike>,
-    arg4: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  sendToHook(
-    _token: PromiseOrValue<string>,
-    _amount: PromiseOrValue<BigNumberish>,
-    _destination: PromiseOrValue<BigNumberish>,
-    _remoteHook: PromiseOrValue<BytesLike>,
-    _extraData: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setAavePool(
     _aavePool: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2838,11 +2693,6 @@ export interface IConnextHandler extends BaseContract {
 
   setAavePortalFee(
     _aavePortalFeeNumerator: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setBridgeRouter(
-    _bridge: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3086,8 +2936,6 @@ export interface IConnextHandler extends BaseContract {
 
     assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    bridgeRouter(overrides?: CallOverrides): Promise<string>;
-
     bumpTransfer(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -3307,23 +3155,7 @@ export interface IConnextHandler extends BaseContract {
 
     maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
 
-    migrate(
-      _oldRepr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
-
-    onReceive(
-      _origin: PromiseOrValue<BigNumberish>,
-      _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
-      _localToken: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _extraData: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -3491,24 +3323,6 @@ export interface IConnextHandler extends BaseContract {
 
     routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    send(
-      _token: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _destination: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<BytesLike>,
-      arg4: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    sendToHook(
-      _token: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _destination: PromiseOrValue<BigNumberish>,
-      _remoteHook: PromiseOrValue<BytesLike>,
-      _extraData: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     setAavePool(
       _aavePool: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -3516,11 +3330,6 @@ export interface IConnextHandler extends BaseContract {
 
     setAavePortalFee(
       _aavePortalFeeNumerator: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setBridgeRouter(
-      _bridge: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3804,8 +3613,6 @@ export interface IConnextHandler extends BaseContract {
 
     assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    bridgeRouter(overrides?: CallOverrides): Promise<BigNumber>;
-
     bumpTransfer(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -4023,23 +3830,7 @@ export interface IConnextHandler extends BaseContract {
 
     maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
 
-    migrate(
-      _oldRepr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
-
-    onReceive(
-      _origin: PromiseOrValue<BigNumberish>,
-      _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
-      _localToken: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _extraData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -4219,24 +4010,6 @@ export interface IConnextHandler extends BaseContract {
 
     routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    send(
-      _token: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _destination: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<BytesLike>,
-      arg4: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    sendToHook(
-      _token: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _destination: PromiseOrValue<BigNumberish>,
-      _remoteHook: PromiseOrValue<BytesLike>,
-      _extraData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setAavePool(
       _aavePool: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4244,11 +4017,6 @@ export interface IConnextHandler extends BaseContract {
 
     setAavePortalFee(
       _aavePortalFeeNumerator: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setBridgeRouter(
-      _bridge: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4505,8 +4273,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    bridgeRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     bumpTransfer(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -4726,23 +4492,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    migrate(
-      _oldRepr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     nonce(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    onReceive(
-      _origin: PromiseOrValue<BigNumberish>,
-      _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
-      _localToken: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _extraData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -4926,24 +4676,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    send(
-      _token: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _destination: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<BytesLike>,
-      arg4: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    sendToHook(
-      _token: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _destination: PromiseOrValue<BigNumberish>,
-      _remoteHook: PromiseOrValue<BytesLike>,
-      _extraData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     setAavePool(
       _aavePool: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4951,11 +4683,6 @@ export interface IConnextHandler extends BaseContract {
 
     setAavePortalFee(
       _aavePortalFeeNumerator: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setBridgeRouter(
-      _bridge: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

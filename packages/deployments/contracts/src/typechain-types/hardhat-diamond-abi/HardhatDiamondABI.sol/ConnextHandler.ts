@@ -220,7 +220,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "facetFunctionSelectors(address)": FunctionFragment;
     "facets()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
-    "handle(uint32,uint32,bytes32,bytes)": FunctionFragment;
     "aavePool()": FunctionFragment;
     "aavePortalFee()": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
@@ -343,7 +342,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "facetFunctionSelectors"
       | "facets"
       | "supportsInterface"
-      | "handle"
       | "aavePool"
       | "aavePortalFee"
       | "getAavePortalDebt"
@@ -613,15 +611,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "handle",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BytesLike>
-    ]
   ): string;
   encodeFunctionData(functionFragment: "aavePool", values?: undefined): string;
   encodeFunctionData(
@@ -1136,7 +1125,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "handle", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "aavePool", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "aavePortalFee",
@@ -1430,8 +1418,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "DiamondCut(tuple[],address,bytes)": EventFragment;
     "DiamondCutProposed(tuple[],address,bytes,uint256)": EventFragment;
     "DiamondCutRescinded(tuple[],address,bytes)": EventFragment;
-    "Receive(uint64,address,address,address,uint256)": EventFragment;
-    "Reconciled(bytes32,uint32,address[],address,uint256,address)": EventFragment;
     "AavePortalRepayment(bytes32,address,uint256,uint256,address)": EventFragment;
     "AssetWhitelistRemovalProposed(uint256)": EventFragment;
     "AssetWhitelistRemoved(bool)": EventFragment;
@@ -1478,8 +1464,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "DiamondCut"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DiamondCutProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DiamondCutRescinded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Receive"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Reconciled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AavePortalRepayment"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "AssetWhitelistRemovalProposed"
@@ -1760,35 +1744,6 @@ export type DiamondCutRescindedEvent = TypedEvent<
 
 export type DiamondCutRescindedEventFilter =
   TypedEventFilter<DiamondCutRescindedEvent>;
-
-export interface ReceiveEventObject {
-  originAndNonce: BigNumber;
-  token: string;
-  recipient: string;
-  liquidityProvider: string;
-  amount: BigNumber;
-}
-export type ReceiveEvent = TypedEvent<
-  [BigNumber, string, string, string, BigNumber],
-  ReceiveEventObject
->;
-
-export type ReceiveEventFilter = TypedEventFilter<ReceiveEvent>;
-
-export interface ReconciledEventObject {
-  transferId: string;
-  originDomain: number;
-  routers: string[];
-  asset: string;
-  amount: BigNumber;
-  caller: string;
-}
-export type ReconciledEvent = TypedEvent<
-  [string, number, string[], string, BigNumber, string],
-  ReconciledEventObject
->;
-
-export type ReconciledEventFilter = TypedEventFilter<ReconciledEvent>;
 
 export interface AavePortalRepaymentEventObject {
   transferId: string;
@@ -2329,14 +2284,6 @@ export interface ConnextHandler extends BaseContract {
       _interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    handle(
-      _origin: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _sender: PromiseOrValue<BytesLike>,
-      _message: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     aavePool(overrides?: CallOverrides): Promise<[string]>;
 
@@ -2944,14 +2891,6 @@ export interface ConnextHandler extends BaseContract {
     _interfaceId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  handle(
-    _origin: PromiseOrValue<BigNumberish>,
-    _nonce: PromiseOrValue<BigNumberish>,
-    _sender: PromiseOrValue<BytesLike>,
-    _message: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   aavePool(overrides?: CallOverrides): Promise<string>;
 
@@ -3562,14 +3501,6 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    handle(
-      _origin: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _sender: PromiseOrValue<BytesLike>,
-      _message: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     aavePool(overrides?: CallOverrides): Promise<string>;
 
     aavePortalFee(overrides?: CallOverrides): Promise<BigNumber>;
@@ -4175,38 +4106,6 @@ export interface ConnextHandler extends BaseContract {
       _calldata?: null
     ): DiamondCutRescindedEventFilter;
 
-    "Receive(uint64,address,address,address,uint256)"(
-      originAndNonce?: PromiseOrValue<BigNumberish> | null,
-      token?: PromiseOrValue<string> | null,
-      recipient?: PromiseOrValue<string> | null,
-      liquidityProvider?: null,
-      amount?: null
-    ): ReceiveEventFilter;
-    Receive(
-      originAndNonce?: PromiseOrValue<BigNumberish> | null,
-      token?: PromiseOrValue<string> | null,
-      recipient?: PromiseOrValue<string> | null,
-      liquidityProvider?: null,
-      amount?: null
-    ): ReceiveEventFilter;
-
-    "Reconciled(bytes32,uint32,address[],address,uint256,address)"(
-      transferId?: PromiseOrValue<BytesLike> | null,
-      originDomain?: null,
-      routers?: null,
-      asset?: null,
-      amount?: null,
-      caller?: null
-    ): ReconciledEventFilter;
-    Reconciled(
-      transferId?: PromiseOrValue<BytesLike> | null,
-      originDomain?: null,
-      routers?: null,
-      asset?: null,
-      amount?: null,
-      caller?: null
-    ): ReconciledEventFilter;
-
     "AavePortalRepayment(bytes32,address,uint256,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       asset?: null,
@@ -4647,14 +4546,6 @@ export interface ConnextHandler extends BaseContract {
     supportsInterface(
       _interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    handle(
-      _origin: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _sender: PromiseOrValue<BytesLike>,
-      _message: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     aavePool(overrides?: CallOverrides): Promise<BigNumber>;
@@ -5265,14 +5156,6 @@ export interface ConnextHandler extends BaseContract {
     supportsInterface(
       _interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    handle(
-      _origin: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _sender: PromiseOrValue<BytesLike>,
-      _message: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     aavePool(overrides?: CallOverrides): Promise<PopulatedTransaction>;
