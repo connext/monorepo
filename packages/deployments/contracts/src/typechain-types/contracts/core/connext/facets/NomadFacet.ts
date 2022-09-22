@@ -29,47 +29,45 @@ import type {
 
 export interface NomadFacetInterface extends utils.Interface {
   functions: {
-    "onReceive(uint32,bytes32,uint32,bytes32,address,uint256,bytes)": FunctionFragment;
+    "handle(uint32,uint32,bytes32,bytes)": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "onReceive"): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "handle"): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "onReceive",
+    functionFragment: "handle",
     values: [
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>
     ]
   ): string;
 
-  decodeFunctionResult(functionFragment: "onReceive", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "handle", data: BytesLike): Result;
 
   events: {
-    "BridgeRouterUpdated(address,address,address)": EventFragment;
+    "Receive(uint64,address,address,address,uint256)": EventFragment;
     "Reconciled(bytes32,uint32,address[],address,uint256,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "BridgeRouterUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Receive"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Reconciled"): EventFragment;
 }
 
-export interface BridgeRouterUpdatedEventObject {
-  oldBridgeRouter: string;
-  newBridgeRouter: string;
-  caller: string;
+export interface ReceiveEventObject {
+  originAndNonce: BigNumber;
+  token: string;
+  recipient: string;
+  liquidityProvider: string;
+  amount: BigNumber;
 }
-export type BridgeRouterUpdatedEvent = TypedEvent<
-  [string, string, string],
-  BridgeRouterUpdatedEventObject
+export type ReceiveEvent = TypedEvent<
+  [BigNumber, string, string, string, BigNumber],
+  ReceiveEventObject
 >;
 
-export type BridgeRouterUpdatedEventFilter =
-  TypedEventFilter<BridgeRouterUpdatedEvent>;
+export type ReceiveEventFilter = TypedEventFilter<ReceiveEvent>;
 
 export interface ReconciledEventObject {
   transferId: string;
@@ -113,53 +111,48 @@ export interface NomadFacet extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    onReceive(
+    handle(
       _origin: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      arg2: PromiseOrValue<BigNumberish>,
-      arg3: PromiseOrValue<BytesLike>,
-      _localToken: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _extraData: PromiseOrValue<BytesLike>,
+      _message: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  onReceive(
+  handle(
     _origin: PromiseOrValue<BigNumberish>,
+    _nonce: PromiseOrValue<BigNumberish>,
     _sender: PromiseOrValue<BytesLike>,
-    arg2: PromiseOrValue<BigNumberish>,
-    arg3: PromiseOrValue<BytesLike>,
-    _localToken: PromiseOrValue<string>,
-    _amount: PromiseOrValue<BigNumberish>,
-    _extraData: PromiseOrValue<BytesLike>,
+    _message: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    onReceive(
+    handle(
       _origin: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      arg2: PromiseOrValue<BigNumberish>,
-      arg3: PromiseOrValue<BytesLike>,
-      _localToken: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _extraData: PromiseOrValue<BytesLike>,
+      _message: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
 
   filters: {
-    "BridgeRouterUpdated(address,address,address)"(
-      oldBridgeRouter?: null,
-      newBridgeRouter?: null,
-      caller?: null
-    ): BridgeRouterUpdatedEventFilter;
-    BridgeRouterUpdated(
-      oldBridgeRouter?: null,
-      newBridgeRouter?: null,
-      caller?: null
-    ): BridgeRouterUpdatedEventFilter;
+    "Receive(uint64,address,address,address,uint256)"(
+      originAndNonce?: PromiseOrValue<BigNumberish> | null,
+      token?: PromiseOrValue<string> | null,
+      recipient?: PromiseOrValue<string> | null,
+      liquidityProvider?: null,
+      amount?: null
+    ): ReceiveEventFilter;
+    Receive(
+      originAndNonce?: PromiseOrValue<BigNumberish> | null,
+      token?: PromiseOrValue<string> | null,
+      recipient?: PromiseOrValue<string> | null,
+      liquidityProvider?: null,
+      amount?: null
+    ): ReceiveEventFilter;
 
     "Reconciled(bytes32,uint32,address[],address,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
@@ -180,27 +173,21 @@ export interface NomadFacet extends BaseContract {
   };
 
   estimateGas: {
-    onReceive(
+    handle(
       _origin: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      arg2: PromiseOrValue<BigNumberish>,
-      arg3: PromiseOrValue<BytesLike>,
-      _localToken: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _extraData: PromiseOrValue<BytesLike>,
+      _message: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    onReceive(
+    handle(
       _origin: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      arg2: PromiseOrValue<BigNumberish>,
-      arg3: PromiseOrValue<BytesLike>,
-      _localToken: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _extraData: PromiseOrValue<BytesLike>,
+      _message: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

@@ -7,18 +7,21 @@ import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.
 import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBridgeRouter.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
+import {BridgeMessage} from "../../../../contracts/core/connext/libraries/BridgeMessage.sol";
 
-import {NomadFacet} from "../../../../contracts/core/connext/facets/NomadFacet.sol";
+import {InboxFacet} from "../../../../contracts/core/connext/facets/InboxFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {CallParams, ExecuteArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
+import {MessagingUtils} from "../../../utils/Messaging.sol";
 
-contract NomadFacetTest is NomadFacet, FacetHelper {
+contract InboxFacetTest is InboxFacet, FacetHelper {
   // ============ Libs ============
   using TypedMemView for bytes29;
   using TypedMemView for bytes;
+  using BridgeMessage for bytes29;
 
   struct SwapInfo {
     uint256 input;
@@ -44,9 +47,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
   // default nonce on xcall
   uint256 _nonce = 1;
 
-  // bridge router
-  address _bridge = address(565656565);
-
   // ============ Test set up ============
   function setUp() public {
     // Deploy any needed contracts.
@@ -56,8 +56,10 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     vm.prank(address(this));
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     ds.contractOwner = _ds_owner;
-    s.bridgeRouter = IBridgeRouter(_bridge);
     s.remotes[_originDomain] = _originConnext;
+
+    s.xAppConnectionManager = new MockXAppConnectionManager(new MockHome(_originDomain));
+    MockXAppConnectionManager(address(s.xAppConnectionManager)).enrollInbox(_originSender);
 
     // set domain
     s.domain = _originDomain;
@@ -69,6 +71,11 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     // setup aave pool
     _aavePool = address(new MockPool(false));
     s.aavePool = _aavePool;
+  }
+
+  function utils_createMessage(CallParams memory params) public returns (bytes memory) {
+    address local = s.tokenRegistry.getLocalAddress(params.canonicalDomain, params.canonicalId);
+    return MessagingUtils.formatMessage(params, local, params.canonicalDomain == s.domain);
   }
 
   function utils_createCallParams(address asset) public returns (CallParams memory, bytes32) {
@@ -116,16 +123,10 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
 
   // ============ Helpers ===============
 
-  function helpers_reconcileCaller(
-    address _local,
-    uint256 _amount,
-    bytes32 _bridgeCaller,
-    bytes32 _transferId
-  ) public {
-    (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
-    bytes memory data = abi.encode(_transferId);
-    vm.prank(_bridge);
-    this.onReceive(_originDomain, _bridgeCaller, canonicalDomain, canonicalId, _local, _amount, data);
+  function helpers_reconcileCaller(CallParams memory params) public {
+    bytes memory message = utils_createMessage(params);
+    vm.prank(_originSender);
+    this.handle(params.originDomain, uint32(_nonce), _originConnext, message);
   }
 
   // Helper for calling `reconcile` and asserting expected behavior.
@@ -149,12 +150,19 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
 
     if (shouldSucceed) {
       vm.expectEmit(true, true, true, true);
-      emit Reconciled(transferId, _originDomain, s.routedTransfers[transferId], _local, params.bridgedAmt, _bridge);
+      emit Reconciled(
+        transferId,
+        _originDomain,
+        _local,
+        s.routedTransfers[transferId],
+        params.bridgedAmt,
+        _originSender
+      );
     } else {
       vm.expectRevert(expectedError);
     }
 
-    helpers_reconcileCaller(_local, params.bridgedAmt, bridgeCaller, transferId);
+    helpers_reconcileCaller(params);
 
     if (shouldSucceed) {
       assertEq(s.reconciledTransfers[transferId], true);
@@ -187,45 +195,40 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
 
   // ============ reconcile fail cases
 
-  // fails if not sent by connext
-  function test_NomadFacet__reconcile_failIfNotConnext() public {
-    utils_setupAsset(true, false);
-    (CallParams memory params, bytes32 transferId) = utils_createCallParams(_local);
+  // fails if message is not transfer
+  function test_InboxFacet__handle_failIfNotTransfer() public {
+    bytes29[] memory _views = new bytes29[](2);
+    _views[0] = BridgeMessage.formatTokenId(_canonicalDomain, _canonicalId);
+    _views[1] = abi
+      .encodePacked(
+        BridgeMessage.Types.Invalid,
+        uint256(0),
+        BridgeMessage.getDetailsHash("Hello", "WRLD", 18),
+        TypeCasts.addressToBytes32(address(123))
+      )
+      .ref(uint40(BridgeMessage.Types.Invalid));
+    bytes memory message = TypedMemView.join(_views);
 
-    vm.expectRevert(NomadFacet.NomadFacet__reconcile_notConnext.selector);
-    vm.prank(_bridge);
-    this.onReceive(
-      params.originDomain,
-      TypeCasts.addressToBytes32(address(1234)), // random address as sender
-      params.canonicalDomain,
-      params.canonicalId,
-      _local,
-      params.bridgedAmt,
-      abi.encode(transferId)
-    );
+    vm.expectRevert(InboxFacet.InboxFacet__handle_notTransfer.selector);
+    vm.prank(_originSender);
+    this.handle(_originDomain, uint32(_nonce), _originConnext, message);
   }
 
   // fails if already reconciled (s.reconciledTransfers[transferId] = true)
-  function test_NomadFacet__reconcile_failIfAlreadyReconciled() public {
+  function test_InboxFacet__reconcile_failIfAlreadyReconciled() public {
     utils_setupAsset(true, false);
     (CallParams memory params, bytes32 transferId) = utils_createCallParams(_local);
     s.reconciledTransfers[transferId] = true;
 
-    vm.expectRevert(NomadFacet.NomadFacet__reconcile_alreadyReconciled.selector);
-    vm.prank(_bridge);
-    this.onReceive(
-      _originDomain,
-      _originConnext,
-      params.canonicalDomain,
-      params.canonicalId,
-      _local,
-      params.bridgedAmt,
-      abi.encode(transferId)
-    );
+    bytes memory message = utils_createMessage(params);
+
+    vm.expectRevert(InboxFacet.InboxFacet__reconcile_alreadyReconciled.selector);
+    vm.prank(_originSender);
+    this.handle(params.originDomain, uint32(_nonce), _originConnext, message);
   }
 
   // fails if portal record, but used in slow mode
-  function test_NomadFacet__reconcile_failsIfPortalAndNoRouter() public {
+  function test_InboxFacet__reconcile_failsIfPortalAndNoRouter() public {
     utils_setupAsset(true, false);
     (CallParams memory params, bytes32 transferId) = utils_createCallParams(_local);
     delete s.routedTransfers[transferId];
@@ -234,33 +237,27 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     s.portalDebt[transferId] = 15;
     s.portalFeeDebt[transferId] = 10;
 
-    vm.expectRevert(NomadFacet.NomadFacet__reconcile_noPortalRouter.selector);
-    vm.prank(_bridge);
-    this.onReceive(
-      _originDomain,
-      _originConnext,
-      params.canonicalDomain,
-      params.canonicalId,
-      _local,
-      params.bridgedAmt,
-      abi.encode(transferId)
-    );
+    bytes memory message = utils_createMessage(params);
+
+    vm.expectRevert(InboxFacet.InboxFacet__reconcile_noPortalRouter.selector);
+    vm.prank(_originSender);
+    this.handle(params.originDomain, uint32(_nonce), _originConnext, message);
   }
 
   // ============ reconcile success cases
   // works with local representational tokens (remote origin, so they will be minted)
-  function test_NomadFacet__reconcile_worksWithLocal() public {
+  function test_InboxFacet__reconcile_worksWithLocal() public {
     utils_setupAsset(true, false);
     helpers_reconcileAndAssert();
   }
 
-  function test_NomadFacet__reconcile_worksWithCanonical() public {
+  function test_InboxFacet__reconcile_worksWithCanonical() public {
     utils_setupAsset(true, true);
     helpers_reconcileAndAssert();
   }
 
   // funds contract when pre-execute (slow liquidity route)
-  function test_NomadFacet__reconcile_worksPreExecute() public {
+  function test_InboxFacet__reconcile_worksPreExecute() public {
     utils_setupAsset(true, false);
     (CallParams memory params, bytes32 transferId) = utils_createCallParams(_local);
     delete s.routedTransfers[transferId];
@@ -269,7 +266,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
   }
 
   // funds router when post-execute (fast liquidity route)
-  function test_NomadFacet__reconcile_fastLiquiditySingleRouterWorks() public {
+  function test_InboxFacet__reconcile_fastLiquiditySingleRouterWorks() public {
     utils_setupAsset(true, false);
     (CallParams memory params, bytes32 transferId) = utils_createCallParams(_local);
     s.routedTransfers[transferId] = [address(42)];
@@ -277,7 +274,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
   }
 
   // funds routers when post-execute multipath (fast liquidity route)
-  function test_NomadFacet__reconcile_fastLiquidityMultipathWorks() public {
+  function test_InboxFacet__reconcile_fastLiquidityMultipathWorks() public {
     utils_setupAsset(true, false);
     (CallParams memory params, bytes32 transferId) = utils_createCallParams(_local);
     s.routedTransfers[transferId] = [address(42), address(43), address(44), address(45)];

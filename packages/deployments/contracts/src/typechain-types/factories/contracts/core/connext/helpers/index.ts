@@ -11,3 +11,4 @@ export { Multicall__factory } from "./Multicall__factory";
 export { OwnerPausableUpgradeable__factory } from "./OwnerPausableUpgradeable__factory";
 export { PriceOracle__factory } from "./PriceOracle__factory";
 export { StableSwap__factory } from "./StableSwap__factory";
+export { TokenRegistry__factory } from "./TokenRegistry__factory";

@@ -8,7 +8,7 @@ export type { BaseConnextFacet } from "./BaseConnextFacet";
 export type { BridgeFacet } from "./BridgeFacet";
 export type { DiamondCutFacet } from "./DiamondCutFacet";
 export type { DiamondLoupeFacet } from "./DiamondLoupeFacet";
-export type { NomadFacet } from "./NomadFacet";
+export type { InboxFacet } from "./InboxFacet";
 export type { PortalFacet } from "./PortalFacet";
 export type { ProposedOwnableFacet } from "./ProposedOwnableFacet";
 export type { RelayerFacet } from "./RelayerFacet";

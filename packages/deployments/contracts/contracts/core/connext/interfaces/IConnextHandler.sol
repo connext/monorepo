@@ -102,50 +102,19 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function enrollRemoteRouter(uint32 _domain, bytes32 _router) external;
 
-  function handle(
-    uint32 _origin,
-    uint32 _nonce,
-    bytes32 _sender,
-    bytes memory _message
-  ) external;
-
-  function send(
-    address _token,
-    uint256 _amount,
-    uint32 _destination,
-    bytes32 _recipient,
-    bool /*_enableFast - deprecated field, left argument for backwards compatibility */
-  ) external;
-
-  function sendToHook(
-    address _token,
-    uint256 _amount,
-    uint32 _destination,
-    bytes32 _remoteHook,
-    bytes calldata _extraData
-  ) external returns (bytes32);
-
   function enrollCustom(
     uint32 _domain,
     bytes32 _id,
     address _custom
   ) external;
 
-  function migrate(address _oldRepr) external;
+  // InboxFacet
 
-  // NomadFacet
-  function bridgeRouter() external view returns (IBridgeRouter);
-
-  function setBridgeRouter(address _bridge) external;
-
-  function onReceive(
+  function handle(
     uint32 _origin,
+    uint32 _nonce,
     bytes32 _sender,
-    uint32 _tokenDomain,
-    bytes32 _tokenAddress,
-    address _localToken,
-    uint256 _amount,
-    bytes memory _extraData
+    bytes memory _message
   ) external;
 
   // ProposedOwnableFacet

@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-import {TypedMemView} from "../shared/libraries/TypedMemView.sol";
-import {TypeCasts} from "../shared/libraries/TypeCasts.sol";
-
-import {UpgradeBeaconProxy} from "../shared/upgrade/UpgradeBeaconProxy.sol";
-
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import {TokenId} from "../core/connext/libraries/LibConnextStorage.sol";
-import {XAppConnectionClient} from "../core/XAppConnectionClient.sol";
-import {ITokenRegistry} from "../core/connext/interfaces/ITokenRegistry.sol";
+import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
+import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
+import {UpgradeBeaconProxy} from "../../../shared/upgrade/UpgradeBeaconProxy.sol";
 
-import {Encoding} from "./Encoding.sol";
-import {BridgeMessage} from "../core/connext/helpers/BridgeMessage.sol";
-import {IBridgeToken} from "../core/connext/interfaces/IBridgeToken.sol";
+import {XAppConnectionClient} from "../../XAppConnectionClient.sol";
+
+import {TokenId} from "../libraries/LibConnextStorage.sol";
+import {Encoding} from "../libraries/Encoding.sol";
+import {BridgeMessage} from "../libraries/BridgeMessage.sol";
+
+import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
+import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
 
 /**
  * @title TokenRegistry

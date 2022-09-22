@@ -6,7 +6,7 @@ import {DiamondLoupeFacet} from "../../contracts/core/connext/facets/DiamondLoup
 import {DiamondInit} from "../../contracts/core/connext/facets/upgrade-initializers/DiamondInit.sol";
 import {AssetFacet} from "../../contracts/core/connext/facets/AssetFacet.sol";
 import {BridgeFacet} from "../../contracts/core/connext/facets/BridgeFacet.sol";
-import {NomadFacet} from "../../contracts/core/connext/facets/NomadFacet.sol";
+import {InboxFacet} from "../../contracts/core/connext/facets/InboxFacet.sol";
 import {ProposedOwnableFacet} from "../../contracts/core/connext/facets/ProposedOwnableFacet.sol";
 import {RelayerFacet} from "../../contracts/core/connext/facets/RelayerFacet.sol";
 import {RoutersFacet} from "../../contracts/core/connext/facets/RoutersFacet.sol";
@@ -27,7 +27,7 @@ contract Deployer {
   DiamondInit diamondInit;
   AssetFacet assetFacet;
   BridgeFacet bridgeFacet;
-  NomadFacet nomadFacet;
+  InboxFacet inboxFacet;
   ProposedOwnableFacet proposedOwnableFacet;
   RelayerFacet relayerFacet;
   RoutersFacet routersFacet;
@@ -91,7 +91,7 @@ contract Deployer {
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](20);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](17);
     // getters
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
     bridgeFacetSelectors[1] = BridgeFacet.routedTransfers.selector;
@@ -115,12 +115,6 @@ contract Deployer {
     bridgeFacetSelectors[15] = BridgeFacet.bumpTransfer.selector;
     bridgeFacetSelectors[16] = BridgeFacet.forceUpdateSlippage.selector;
 
-    // public:messaging
-    bridgeFacetSelectors[17] = BridgeFacet.handle.selector;
-    bridgeFacetSelectors[18] = BridgeFacet.send.selector;
-    bridgeFacetSelectors[19] = BridgeFacet.sendToHook.selector;
-    bridgeFacetSelectors[20] = BridgeFacet.migrate.selector;
-
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,
@@ -129,14 +123,14 @@ contract Deployer {
       });
   }
 
-  function getNomadFacetCut(address _nomadFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory nomadFacetSelectors = new bytes4[](1);
-    nomadFacetSelectors[0] = NomadFacet.onReceive.selector;
+  function getInboxFacetCut(address _inboxFacet) internal pure returns (IDiamondCut.FacetCut memory) {
+    bytes4[] memory inboxFacetSelectors = new bytes4[](1);
+    inboxFacetSelectors[0] = InboxFacet.handle.selector;
     return
       IDiamondCut.FacetCut({
-        facetAddress: _nomadFacet,
+        facetAddress: _inboxFacet,
         action: IDiamondCut.FacetCutAction.Add,
-        functionSelectors: nomadFacetSelectors
+        functionSelectors: inboxFacetSelectors
       });
   }
 
@@ -325,7 +319,7 @@ contract Deployer {
     diamondInit = new DiamondInit();
     assetFacet = new AssetFacet();
     bridgeFacet = new BridgeFacet();
-    nomadFacet = new NomadFacet();
+    inboxFacet = new InboxFacet();
     proposedOwnableFacet = new ProposedOwnableFacet();
     relayerFacet = new RelayerFacet();
     routersFacet = new RoutersFacet();
@@ -343,7 +337,7 @@ contract Deployer {
     facetCuts[2] = getDiamondLoupeFacetCut(address(diamondLoupeFacet));
     facetCuts[3] = getAssetFacetCut(address(assetFacet));
     facetCuts[4] = getBridgeFacetCut(address(bridgeFacet));
-    facetCuts[5] = getNomadFacetCut(address(nomadFacet));
+    facetCuts[5] = getInboxFacetCut(address(inboxFacet));
     facetCuts[6] = getProposedOwnableFacetCut(address(proposedOwnableFacet));
     facetCuts[7] = getRelayerFacetCut(address(relayerFacet));
     facetCuts[8] = getRoutersFacetCut(address(routersFacet));
