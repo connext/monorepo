@@ -42,6 +42,9 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   error ProposedOwnableFacet__renounceOwnership_invalidProposal();
   error ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
   error ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed();
+  error ProposedOwnableFacet__assignRouterRole_alreadyAdded();
+  error ProposedOwnableFacet__assignWatcherRole_alreadyAdded();
+  error ProposedOwnableFacet__assignAdminRole_alreadyAdded();
 
   // ============ Events ============
 
@@ -52,6 +55,12 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   event AssetWhitelistRemovalProposed(uint256 timestamp);
 
   event AssetWhitelistRemoved(bool renounced);
+
+  event AssignRouterRole(address router, address caller);
+
+  event AssignWatcherRole(address watcher, address caller);
+
+  event AssignAdminRole(address watcher, address caller);
 
   event Paused();
 
@@ -121,7 +130,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * @notice Indicates if the ownership of the router whitelist has
    * been renounced
    */
-  function proposeRouterWhitelistRemoval() public onlyOwner {
+  function proposeRouterWhitelistRemoval() public onlyOwnerOrAdmin {
     // Use contract as source of truth
     // Will fail if all ownership is renounced by modifier
     if (s._routerWhitelistRemoved) revert ProposedOwnableFacet__proposeRouterWhitelistRemoval_noOwnershipChange();
@@ -134,7 +143,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * @notice Indicates if the ownership of the asset whitelist has
    * been renounced
    */
-  function removeRouterWhitelist() public onlyOwner {
+  function removeRouterWhitelist() public onlyOwnerOrAdmin {
     // Contract as sounce of truth
     // Will fail if all ownership is renounced by modifier
     if (s._routerWhitelistRemoved) revert ProposedOwnableFacet__removeRouterWhitelist_noOwnershipChange();
@@ -154,7 +163,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * @notice Indicates if the ownership of the asset whitelist has
    * been renounced
    */
-  function proposeAssetWhitelistRemoval() public onlyOwner {
+  function proposeAssetWhitelistRemoval() public onlyOwnerOrAdmin {
     // Contract as source of truth
     // Will fail if all ownership is renounced by modifier
     if (s._assetWhitelistRemoved) revert ProposedOwnableFacet__proposeAssetWhitelistRemoval_noOwnershipChange();
@@ -167,7 +176,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * @notice Indicates if the ownership of the asset whitelist has
    * been renounced
    */
-  function removeAssetWhitelist() public onlyOwner {
+  function removeAssetWhitelist() public onlyOwnerOrAdmin {
     // Contract as source of truth
     // Will fail if all ownership is renounced by modifier
     if (s._assetWhitelistRemoved) revert ProposedOwnableFacet__removeAssetWhitelist_noOwnershipChange();
@@ -245,12 +254,48 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     _setOwner(s._proposed);
   }
 
-  function pause() public onlyOwner {
+  /**
+   * @notice Assign candidate -> router role
+   */
+  function assignRouterRole(address routerRoleCandidate) public onlyOwnerOrRouter {
+    // Use contract as source of truth
+    // Will fail if candidate is already added
+    if (s.routerRole[routerRoleCandidate]) revert ProposedOwnableFacet__assignRouterRole_alreadyAdded();
+
+    s.routerRole[routerRoleCandidate] = true;
+    emit AssignRouterRole(routerRoleCandidate, msg.sender);
+  }
+
+  /**
+   * @notice Assign candidate -> watcher role
+   */
+  function assignWatcherRole(address watcherRoleCandidate) public onlyOwnerOrWatcher {
+    // Use contract as source of truth
+    // Will fail if candidate is already added
+    if (s.watcherRole[watcherRoleCandidate]) revert ProposedOwnableFacet__assignWatcherRole_alreadyAdded();
+
+    s.watcherRole[watcherRoleCandidate] = true;
+    emit AssignWatcherRole(watcherRoleCandidate, msg.sender);
+  }
+
+  /**
+   * @notice Assign candidate -> admin role
+   */
+  function assignAdminRole(address adminRoleCandidate) public onlyOwnerOrAdmin {
+    // Use contract as source of truth
+    // Will fail if candidate is already added
+    if (s.adminRole[adminRoleCandidate]) revert ProposedOwnableFacet__assignAdminRole_alreadyAdded();
+
+    s.adminRole[adminRoleCandidate] = true;
+    emit AssignAdminRole(adminRoleCandidate, msg.sender);
+  }
+
+  function pause() public onlyOwnerOrWatcher {
     s._paused = true;
     emit Paused();
   }
 
-  function unpause() public onlyOwner {
+  function unpause() public onlyOwnerOrAdmin {
     s._paused = false;
     emit Unpaused();
   }
