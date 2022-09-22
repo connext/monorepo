@@ -621,6 +621,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BridgeFacet__xcall_canonicalAssetNotReceived",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BridgeFacet__xcall_emptyTo",
     type: "error",
   },
@@ -986,31 +991,6 @@ const _abi = [
       },
     ],
     name: "SlippageUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "oldSponsorVault",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "newSponsorVault",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "SponsorVaultUpdated",
     type: "event",
   },
   {
@@ -2069,6 +2049,137 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "NomadFacet__reconcile_alreadyReconciled",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NomadFacet__reconcile_noPortalRouter",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NomadFacet__reconcile_notConnext",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NomadFacet__setBridgeRouter_invalidBridge",
+    type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "oldBridgeRouter",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "newBridgeRouter",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "BridgeRouterUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "transferId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "originDomain",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "address[]",
+        name: "routers",
+        type: "address[]",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "asset",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "Reconciled",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "_origin",
+        type: "uint32",
+      },
+      {
+        internalType: "bytes32",
+        name: "_sender",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
+      },
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "_localToken",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes",
+        name: "_extraData",
+        type: "bytes",
+      },
+    ],
+    name: "onReceive",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
