@@ -37,7 +37,7 @@ contract GnosisHubConnector is HubConnector, GnosisBase {
     // send message via AMB, should call "processMessage" which will update aggregate root
     GnosisAmb(AMB).requireToPassMessage(
       mirrorConnector,
-      abi.encodeWithSelector(Connector.processMessage.selector, address(this), _data),
+      abi.encodeWithSelector(Connector.processMessage.selector, _data),
       mirrorGas
     );
   }
