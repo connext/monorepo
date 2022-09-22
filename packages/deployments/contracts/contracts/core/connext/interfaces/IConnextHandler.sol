@@ -108,7 +108,7 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
     address _custom
   ) external;
 
-  // InboundMessageFacet
+  // InboxFacet
 
   function handle(
     uint32 _origin,
