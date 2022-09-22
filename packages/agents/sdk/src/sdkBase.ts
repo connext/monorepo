@@ -150,36 +150,22 @@ export class NxtpSdkBase {
       throw new SignerAddressMissing();
     }
 
-    const { params, transactingAmount, transactingAsset, originMinOut } = args;
-    const { originDomain, destinationDomain, relayerFee: _relayerFee } = params;
+    const { params, amount, asset, originMinOut } = args;
+    const { originDomain } = params;
 
     // Calculate estimate for relayer fee and include it in the call params.
-    let relayerFee = _relayerFee;
-    if (!_relayerFee || _relayerFee == "0") {
-      relayerFee = (
-        await this.estimateRelayerFee({
-          originDomain: originDomain,
-          destinationDomain: destinationDomain,
-        })
-      ).toString();
-    }
 
     // Substitute default values as needed.
     const formattedXParams: CallParams = {
       ...params,
       callData: params.callData || "0x",
-      callback: params.callback || constants.AddressZero,
-      callbackFee: params.callbackFee || "0",
-      recovery: params.recovery || params.to,
-      forceSlow: params.forceSlow || false,
       receiveLocal: params.receiveLocal || false,
-      relayerFee: relayerFee!,
       // Default to using the user's signer address as the 'agent'.
       agent: params.agent || signerAddress,
     };
 
     // Validate XCall arguments.
-    if (transactingAsset === constants.AddressZero && transactingAmount !== "0") {
+    if (asset === constants.AddressZero && amount !== "0") {
       // TODO: Custom error.
       throw new Error("Transacting asset specified was address zero; native assets are not supported!");
     }
@@ -203,13 +189,13 @@ export class NxtpSdkBase {
     }
 
     // Add callback and relayer fee together to get the total ETH value that should be sent.
-    const value = BigNumber.from(formattedXParams.relayerFee).add(BigNumber.from(formattedXParams.callbackFee));
+    const value = BigNumber.from("0");
 
     // Take the finalized xcall arguments and encode calldata.
     const formattedXCallArgs: XCallArgs = {
       params: formattedXParams,
-      transactingAsset,
-      transactingAmount,
+      asset,
+      amount,
       originMinOut,
     };
     const data = this.contracts.connext.encodeFunctionData("xcall", [formattedXCallArgs]);
@@ -253,7 +239,7 @@ export class NxtpSdkBase {
     }
     const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
-    // if transactingAsset is AddressZero then we are adding relayerFee to amount for value
+    // if asset is AddressZero then we are adding relayerFee to amount for value
     const value = BigNumber.from(relayerFee);
 
     const data = this.contracts.connext.encodeFunctionData("bumpTransfer", [transferId]);

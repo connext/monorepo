@@ -29,99 +29,71 @@ import type {
 } from "../../../../common";
 
 export type CallParamsStruct = {
-  to: PromiseOrValue<string>;
-  callData: PromiseOrValue<BytesLike>;
   originDomain: PromiseOrValue<BigNumberish>;
   destinationDomain: PromiseOrValue<BigNumberish>;
-  agent: PromiseOrValue<string>;
-  recovery: PromiseOrValue<string>;
-  forceSlow: PromiseOrValue<boolean>;
+  canonicalDomain: PromiseOrValue<BigNumberish>;
+  to: PromiseOrValue<string>;
+  delegate: PromiseOrValue<string>;
   receiveLocal: PromiseOrValue<boolean>;
-  callback: PromiseOrValue<string>;
-  callbackFee: PromiseOrValue<BigNumberish>;
-  relayerFee: PromiseOrValue<BigNumberish>;
-  destinationMinOut: PromiseOrValue<BigNumberish>;
+  callData: PromiseOrValue<BytesLike>;
+  slippage: PromiseOrValue<BigNumberish>;
+  originSender: PromiseOrValue<string>;
+  bridgedAmt: PromiseOrValue<BigNumberish>;
+  normalizedIn: PromiseOrValue<BigNumberish>;
+  nonce: PromiseOrValue<BigNumberish>;
+  canonicalId: PromiseOrValue<BytesLike>;
 };
 
 export type CallParamsStructOutput = [
-  string,
-  string,
+  number,
   number,
   number,
   string,
   string,
   boolean,
-  boolean,
   string,
   BigNumber,
+  string,
   BigNumber,
-  BigNumber
-] & {
-  to: string;
-  callData: string;
-  originDomain: number;
-  destinationDomain: number;
-  agent: string;
-  recovery: string;
-  forceSlow: boolean;
-  receiveLocal: boolean;
-  callback: string;
-  callbackFee: BigNumber;
-  relayerFee: BigNumber;
-  destinationMinOut: BigNumber;
-};
-
-export type ExecuteArgsStruct = {
-  params: CallParamsStruct;
-  local: PromiseOrValue<string>;
-  routers: PromiseOrValue<string>[];
-  routerSignatures: PromiseOrValue<BytesLike>[];
-  sequencer: PromiseOrValue<string>;
-  sequencerSignature: PromiseOrValue<BytesLike>;
-  amount: PromiseOrValue<BigNumberish>;
-  nonce: PromiseOrValue<BigNumberish>;
-  originSender: PromiseOrValue<string>;
-};
-
-export type ExecuteArgsStructOutput = [
-  CallParamsStructOutput,
-  string,
-  string[],
-  string[],
-  string,
-  string,
   BigNumber,
   BigNumber,
   string
 ] & {
+  originDomain: number;
+  destinationDomain: number;
+  canonicalDomain: number;
+  to: string;
+  delegate: string;
+  receiveLocal: boolean;
+  callData: string;
+  slippage: BigNumber;
+  originSender: string;
+  bridgedAmt: BigNumber;
+  normalizedIn: BigNumber;
+  nonce: BigNumber;
+  canonicalId: string;
+};
+
+export type ExecuteArgsStruct = {
+  params: CallParamsStruct;
+  routers: PromiseOrValue<string>[];
+  routerSignatures: PromiseOrValue<BytesLike>[];
+  sequencer: PromiseOrValue<string>;
+  sequencerSignature: PromiseOrValue<BytesLike>;
+};
+
+export type ExecuteArgsStructOutput = [
+  CallParamsStructOutput,
+  string[],
+  string[],
+  string,
+  string
+] & {
   params: CallParamsStructOutput;
-  local: string;
   routers: string[];
   routerSignatures: string[];
   sequencer: string;
   sequencerSignature: string;
-  amount: BigNumber;
-  nonce: BigNumber;
-  originSender: string;
-};
-
-export type XCallArgsStruct = {
-  params: CallParamsStruct;
-  transactingAsset: PromiseOrValue<string>;
-  transactingAmount: PromiseOrValue<BigNumberish>;
-  originMinOut: PromiseOrValue<BigNumberish>;
-};
-
-export type XCallArgsStructOutput = [
-  CallParamsStructOutput,
-  string,
-  BigNumber,
-  BigNumber
-] & {
-  params: CallParamsStructOutput;
-  transactingAsset: string;
-  transactingAmount: BigNumber;
-  originMinOut: BigNumber;
 };
 
 export interface BridgeFacetInterface extends utils.Interface {
@@ -133,20 +105,15 @@ export interface BridgeFacetInterface extends utils.Interface {
     "bumpTransfer(bytes32)": FunctionFragment;
     "connextion(uint32)": FunctionFragment;
     "domain()": FunctionFragment;
-    "execute(((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address))": FunctionFragment;
-    "executor()": FunctionFragment;
-    "forceReceiveLocal((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),uint256,uint256,bytes32,uint32,address)": FunctionFragment;
+    "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes))": FunctionFragment;
+    "forceUpdateSlippage((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256)": FunctionFragment;
     "nonce()": FunctionFragment;
-    "promiseRouter()": FunctionFragment;
     "reconciledTransfers(bytes32)": FunctionFragment;
     "relayerFees(bytes32)": FunctionFragment;
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
-    "setExecutor(address)": FunctionFragment;
-    "setPromiseRouter(address)": FunctionFragment;
-    "setSponsorVault(address)": FunctionFragment;
-    "sponsorVault()": FunctionFragment;
-    "xcall(((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256))": FunctionFragment;
+    "xcall(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
+    "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
   };
 
   getFunction(
@@ -159,19 +126,14 @@ export interface BridgeFacetInterface extends utils.Interface {
       | "connextion"
       | "domain"
       | "execute"
-      | "executor"
-      | "forceReceiveLocal"
+      | "forceUpdateSlippage"
       | "nonce"
-      | "promiseRouter"
       | "reconciledTransfers"
       | "relayerFees"
       | "removeSequencer"
       | "routedTransfers"
-      | "setExecutor"
-      | "setPromiseRouter"
-      | "setSponsorVault"
-      | "sponsorVault"
       | "xcall"
+      | "xcallIntoLocal"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -203,23 +165,11 @@ export interface BridgeFacetInterface extends utils.Interface {
     functionFragment: "execute",
     values: [ExecuteArgsStruct]
   ): string;
-  encodeFunctionData(functionFragment: "executor", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "forceReceiveLocal",
-    values: [
-      CallParamsStruct,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
+    functionFragment: "forceUpdateSlippage",
+    values: [CallParamsStruct, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "promiseRouter",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "reconciledTransfers",
     values: [PromiseOrValue<BytesLike>]
@@ -237,24 +187,28 @@ export interface BridgeFacetInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setExecutor",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setPromiseRouter",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSponsorVault",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "sponsorVault",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "xcall",
-    values: [XCallArgsStruct]
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "xcallIntoLocal",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
 
   decodeFunctionResult(
@@ -280,16 +234,11 @@ export interface BridgeFacetInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "connextion", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "executor", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "forceReceiveLocal",
+    functionFragment: "forceUpdateSlippage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "promiseRouter",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "reconciledTransfers",
     data: BytesLike
@@ -306,47 +255,31 @@ export interface BridgeFacetInterface extends utils.Interface {
     functionFragment: "routedTransfers",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setExecutor",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setPromiseRouter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setSponsorVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "sponsorVault",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "xcallIntoLocal",
+    data: BytesLike
+  ): Result;
 
   events: {
     "AavePortalMintUnbacked(bytes32,address,address,uint256)": EventFragment;
     "ConnextionAdded(uint32,address,address)": EventFragment;
     "Executed(bytes32,address,tuple,address,uint256,address)": EventFragment;
-    "ExecutorUpdated(address,address,address)": EventFragment;
-    "ForcedReceiveLocal(bytes32,bytes32,uint32,uint256)": EventFragment;
-    "PromiseRouterUpdated(address,address,address)": EventFragment;
+    "ExternalCalldataExecuted(bytes32,bool,bytes)": EventFragment;
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
-    "SponsorVaultUpdated(address,address,address)": EventFragment;
+    "SlippageUpdated(bytes32,uint256)": EventFragment;
     "TransferRelayerFeesUpdated(bytes32,uint256,address)": EventFragment;
-    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)": EventFragment;
+    "XCalled(bytes32,uint256,bytes32,tuple)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AavePortalMintUnbacked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ConnextionAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ExecutorUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ForcedReceiveLocal"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PromiseRouterUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ExternalCalldataExecuted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerRemoved"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SponsorVaultUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SlippageUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferRelayerFeesUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
 }
@@ -381,8 +314,8 @@ export interface ExecutedEventObject {
   transferId: string;
   to: string;
   args: ExecuteArgsStructOutput;
-  transactingAsset: string;
-  transactingAmount: BigNumber;
+  asset: string;
+  amount: BigNumber;
   caller: string;
 }
 export type ExecutedEvent = TypedEvent<
@@ -392,44 +325,18 @@ export type ExecutedEvent = TypedEvent<
 
 export type ExecutedEventFilter = TypedEventFilter<ExecutedEvent>;
 
-export interface ExecutorUpdatedEventObject {
-  oldExecutor: string;
-  newExecutor: string;
-  caller: string;
-}
-export type ExecutorUpdatedEvent = TypedEvent<
-  [string, string, string],
-  ExecutorUpdatedEventObject
->;
-
-export type ExecutorUpdatedEventFilter = TypedEventFilter<ExecutorUpdatedEvent>;
-
-export interface ForcedReceiveLocalEventObject {
+export interface ExternalCalldataExecutedEventObject {
   transferId: string;
-  canonicalId: string;
-  canonicalDomain: number;
-  amount: BigNumber;
+  success: boolean;
+  returnData: string;
 }
-export type ForcedReceiveLocalEvent = TypedEvent<
-  [string, string, number, BigNumber],
-  ForcedReceiveLocalEventObject
+export type ExternalCalldataExecutedEvent = TypedEvent<
+  [string, boolean, string],
+  ExternalCalldataExecutedEventObject
 >;
 
-export type ForcedReceiveLocalEventFilter =
-  TypedEventFilter<ForcedReceiveLocalEvent>;
-
-export interface PromiseRouterUpdatedEventObject {
-  oldRouter: string;
-  newRouter: string;
-  caller: string;
-}
-export type PromiseRouterUpdatedEvent = TypedEvent<
-  [string, string, string],
-  PromiseRouterUpdatedEventObject
->;
-
-export type PromiseRouterUpdatedEventFilter =
-  TypedEventFilter<PromiseRouterUpdatedEvent>;
+export type ExternalCalldataExecutedEventFilter =
+  TypedEventFilter<ExternalCalldataExecutedEvent>;
 
 export interface SequencerAddedEventObject {
   sequencer: string;
@@ -454,18 +361,16 @@ export type SequencerRemovedEvent = TypedEvent<
 export type SequencerRemovedEventFilter =
   TypedEventFilter<SequencerRemovedEvent>;
 
-export interface SponsorVaultUpdatedEventObject {
-  oldSponsorVault: string;
-  newSponsorVault: string;
-  caller: string;
+export interface SlippageUpdatedEventObject {
+  transferId: string;
+  slippage: BigNumber;
 }
-export type SponsorVaultUpdatedEvent = TypedEvent<
-  [string, string, string],
-  SponsorVaultUpdatedEventObject
+export type SlippageUpdatedEvent = TypedEvent<
+  [string, BigNumber],
+  SlippageUpdatedEventObject
 >;
 
-export type SponsorVaultUpdatedEventFilter =
-  TypedEventFilter<SponsorVaultUpdatedEvent>;
+export type SlippageUpdatedEventFilter = TypedEventFilter<SlippageUpdatedEvent>;
 
 export interface TransferRelayerFeesUpdatedEventObject {
   transferId: string;
@@ -484,13 +389,10 @@ export interface XCalledEventObject {
   transferId: string;
   nonce: BigNumber;
   messageHash: string;
-  xcallArgs: XCallArgsStructOutput;
-  bridgedAsset: string;
-  bridgedAmount: BigNumber;
-  caller: string;
+  params: CallParamsStructOutput;
 }
 export type XCalledEvent = TypedEvent<
-  [string, BigNumber, string, XCallArgsStructOutput, string, BigNumber, string],
+  [string, BigNumber, string, CallParamsStructOutput],
   XCalledEventObject
 >;
 
@@ -558,21 +460,13 @@ export interface BridgeFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    executor(overrides?: CallOverrides): Promise<[string]>;
-
-    forceReceiveLocal(
+    forceUpdateSlippage(
       _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
+      _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     nonce(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    promiseRouter(overrides?: CallOverrides): Promise<[string]>;
 
     reconciledTransfers(
       _transferId: PromiseOrValue<BytesLike>,
@@ -594,25 +488,25 @@ export interface BridgeFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string[]]>;
 
-    setExecutor(
-      _executor: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setPromiseRouter(
-      _promiseRouter: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<[string]>;
-
     xcall(
-      _args: XCallArgsStruct,
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    xcallIntoLocal(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -652,21 +546,13 @@ export interface BridgeFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  executor(overrides?: CallOverrides): Promise<string>;
-
-  forceReceiveLocal(
+  forceUpdateSlippage(
     _params: CallParamsStruct,
-    _amount: PromiseOrValue<BigNumberish>,
-    _nonce: PromiseOrValue<BigNumberish>,
-    _canonicalId: PromiseOrValue<BytesLike>,
-    _canonicalDomain: PromiseOrValue<BigNumberish>,
-    _originSender: PromiseOrValue<string>,
+    _slippage: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   nonce(overrides?: CallOverrides): Promise<BigNumber>;
-
-  promiseRouter(overrides?: CallOverrides): Promise<string>;
 
   reconciledTransfers(
     _transferId: PromiseOrValue<BytesLike>,
@@ -688,25 +574,25 @@ export interface BridgeFacet extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string[]>;
 
-  setExecutor(
-    _executor: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setPromiseRouter(
-    _promiseRouter: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setSponsorVault(
-    _sponsorVault: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  sponsorVault(overrides?: CallOverrides): Promise<string>;
-
   xcall(
-    _args: XCallArgsStruct,
+    _destination: PromiseOrValue<BigNumberish>,
+    _to: PromiseOrValue<string>,
+    _asset: PromiseOrValue<string>,
+    _delegate: PromiseOrValue<string>,
+    _amount: PromiseOrValue<BigNumberish>,
+    _slippage: PromiseOrValue<BigNumberish>,
+    _callData: PromiseOrValue<BytesLike>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  xcallIntoLocal(
+    _destination: PromiseOrValue<BigNumberish>,
+    _to: PromiseOrValue<string>,
+    _asset: PromiseOrValue<string>,
+    _delegate: PromiseOrValue<string>,
+    _amount: PromiseOrValue<BigNumberish>,
+    _slippage: PromiseOrValue<BigNumberish>,
+    _callData: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -746,21 +632,13 @@ export interface BridgeFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    executor(overrides?: CallOverrides): Promise<string>;
-
-    forceReceiveLocal(
+    forceUpdateSlippage(
       _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
+      _slippage: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
-
-    promiseRouter(overrides?: CallOverrides): Promise<string>;
 
     reconciledTransfers(
       _transferId: PromiseOrValue<BytesLike>,
@@ -782,24 +660,27 @@ export interface BridgeFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string[]>;
 
-    setExecutor(
-      _executor: PromiseOrValue<string>,
+    xcall(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
 
-    setPromiseRouter(
-      _promiseRouter: PromiseOrValue<string>,
+    xcallIntoLocal(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<void>;
-
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<string>;
-
-    xcall(_args: XCallArgsStruct, overrides?: CallOverrides): Promise<string>;
+    ): Promise<string>;
   };
 
   filters: {
@@ -831,53 +712,29 @@ export interface BridgeFacet extends BaseContract {
       transferId?: PromiseOrValue<BytesLike> | null,
       to?: PromiseOrValue<string> | null,
       args?: null,
-      transactingAsset?: null,
-      transactingAmount?: null,
+      asset?: null,
+      amount?: null,
       caller?: null
     ): ExecutedEventFilter;
     Executed(
       transferId?: PromiseOrValue<BytesLike> | null,
       to?: PromiseOrValue<string> | null,
       args?: null,
-      transactingAsset?: null,
-      transactingAmount?: null,
+      asset?: null,
+      amount?: null,
       caller?: null
     ): ExecutedEventFilter;
 
-    "ExecutorUpdated(address,address,address)"(
-      oldExecutor?: null,
-      newExecutor?: null,
-      caller?: null
-    ): ExecutorUpdatedEventFilter;
-    ExecutorUpdated(
-      oldExecutor?: null,
-      newExecutor?: null,
-      caller?: null
-    ): ExecutorUpdatedEventFilter;
-
-    "ForcedReceiveLocal(bytes32,bytes32,uint32,uint256)"(
+    "ExternalCalldataExecuted(bytes32,bool,bytes)"(
       transferId?: PromiseOrValue<BytesLike> | null,
-      canonicalId?: PromiseOrValue<BytesLike> | null,
-      canonicalDomain?: null,
-      amount?: null
-    ): ForcedReceiveLocalEventFilter;
-    ForcedReceiveLocal(
+      success?: null,
+      returnData?: null
+    ): ExternalCalldataExecutedEventFilter;
+    ExternalCalldataExecuted(
       transferId?: PromiseOrValue<BytesLike> | null,
-      canonicalId?: PromiseOrValue<BytesLike> | null,
-      canonicalDomain?: null,
-      amount?: null
-    ): ForcedReceiveLocalEventFilter;
-
-    "PromiseRouterUpdated(address,address,address)"(
-      oldRouter?: null,
-      newRouter?: null,
-      caller?: null
-    ): PromiseRouterUpdatedEventFilter;
-    PromiseRouterUpdated(
-      oldRouter?: null,
-      newRouter?: null,
-      caller?: null
-    ): PromiseRouterUpdatedEventFilter;
+      success?: null,
+      returnData?: null
+    ): ExternalCalldataExecutedEventFilter;
 
     "SequencerAdded(address,address)"(
       sequencer?: null,
@@ -894,16 +751,14 @@ export interface BridgeFacet extends BaseContract {
       caller?: null
     ): SequencerRemovedEventFilter;
 
-    "SponsorVaultUpdated(address,address,address)"(
-      oldSponsorVault?: null,
-      newSponsorVault?: null,
-      caller?: null
-    ): SponsorVaultUpdatedEventFilter;
-    SponsorVaultUpdated(
-      oldSponsorVault?: null,
-      newSponsorVault?: null,
-      caller?: null
-    ): SponsorVaultUpdatedEventFilter;
+    "SlippageUpdated(bytes32,uint256)"(
+      transferId?: PromiseOrValue<BytesLike> | null,
+      slippage?: null
+    ): SlippageUpdatedEventFilter;
+    SlippageUpdated(
+      transferId?: PromiseOrValue<BytesLike> | null,
+      slippage?: null
+    ): SlippageUpdatedEventFilter;
 
     "TransferRelayerFeesUpdated(bytes32,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
@@ -916,23 +771,17 @@ export interface BridgeFacet extends BaseContract {
       caller?: null
     ): TransferRelayerFeesUpdatedEventFilter;
 
-    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)"(
+    "XCalled(bytes32,uint256,bytes32,tuple)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
       messageHash?: PromiseOrValue<BytesLike> | null,
-      xcallArgs?: null,
-      bridgedAsset?: null,
-      bridgedAmount?: null,
-      caller?: null
+      params?: null
     ): XCalledEventFilter;
     XCalled(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
       messageHash?: PromiseOrValue<BytesLike> | null,
-      xcallArgs?: null,
-      bridgedAsset?: null,
-      bridgedAmount?: null,
-      caller?: null
+      params?: null
     ): XCalledEventFilter;
   };
 
@@ -972,21 +821,13 @@ export interface BridgeFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    executor(overrides?: CallOverrides): Promise<BigNumber>;
-
-    forceReceiveLocal(
+    forceUpdateSlippage(
       _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
+      _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
-
-    promiseRouter(overrides?: CallOverrides): Promise<BigNumber>;
 
     reconciledTransfers(
       _transferId: PromiseOrValue<BytesLike>,
@@ -1008,25 +849,25 @@ export interface BridgeFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    setExecutor(
-      _executor: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setPromiseRouter(
-      _promiseRouter: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<BigNumber>;
-
     xcall(
-      _args: XCallArgsStruct,
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    xcallIntoLocal(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -1069,21 +910,13 @@ export interface BridgeFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    executor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    forceReceiveLocal(
+    forceUpdateSlippage(
       _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
+      _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     nonce(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    promiseRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     reconciledTransfers(
       _transferId: PromiseOrValue<BytesLike>,
@@ -1105,25 +938,25 @@ export interface BridgeFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    setExecutor(
-      _executor: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setPromiseRouter(
-      _promiseRouter: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     xcall(
-      _args: XCallArgsStruct,
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    xcallIntoLocal(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
