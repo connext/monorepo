@@ -425,7 +425,7 @@ export class SubgraphReader {
   public async getDestinationTransfersByDomainAndReconcileTimestamp(
     param: SubgraphQueryByTimestampMetaParams,
     domain: string,
-  ): Promise<XTransfer[]> {
+  ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
     const xcalledXQuery = getDestinationTransfersByDomainAndReconcileTimestampQuery(param, domain);
     const response = await execute(xcalledXQuery);
@@ -441,7 +441,7 @@ export class SubgraphReader {
       );
     }
 
-    const destinationTransfers: XTransfer[] = transfers
+    const destinationTransfers: DestinationTransfer[] = transfers
       .flat()
       .filter((x: any) => !!x)
       .map(parser.destinationTransfer);

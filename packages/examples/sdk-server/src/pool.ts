@@ -1,6 +1,7 @@
 import { NxtpSdkPool } from "@connext/nxtp-sdk";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
+import { getCanonicalHash } from "@connext/nxtp-utils";
 
 import {
   getCanonicalFromLocalSchema,
@@ -264,7 +265,7 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
     },
     async (request, reply) => {
       const { canonicalDomain, canonicalId } = request.body;
-      const res = sdkPoolInstance.calculateCanonicalHash(canonicalDomain, canonicalId);
+      const res = getCanonicalHash(canonicalDomain, canonicalId);
       reply.status(200).send(res);
     },
   );

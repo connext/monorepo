@@ -1,18 +1,18 @@
-import { NxtpSdkBase } from "@connext/nxtp-sdk";
 import { FastifyInstance } from "fastify";
-import { XCallArgsSchema, XCallArgs } from "@connext/nxtp-utils";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
+import { NxtpSdkBase } from "@connext/nxtp-sdk";
+import { SdkServerApiXCallSchema, SdkServerApiXCall } from "@connext/nxtp-utils";
 
 import { approveIfNeededSchema } from "./types/api";
 
 export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpSdkBase): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
 
-  s.post<{ Body: XCallArgs }>(
+  s.post<{ Body: SdkServerApiXCall }>(
     "/xcall",
     {
       schema: {
-        body: XCallArgsSchema,
+        body: SdkServerApiXCallSchema,
       },
     },
     async (request, reply) => {

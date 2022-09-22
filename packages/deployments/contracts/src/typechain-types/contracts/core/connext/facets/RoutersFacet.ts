@@ -291,7 +291,7 @@ export interface RoutersFacetInterface extends utils.Interface {
     "RouterAdded(address,address)": EventFragment;
     "RouterApprovedForPortal(address,address)": EventFragment;
     "RouterLiquidityAdded(address,address,bytes32,uint256,address)": EventFragment;
-    "RouterLiquidityRemoved(address,address,address,uint256,address)": EventFragment;
+    "RouterLiquidityRemoved(address,address,address,bytes32,uint256,address)": EventFragment;
     "RouterOwnerAccepted(address,address,address)": EventFragment;
     "RouterOwnerProposed(address,address,address)": EventFragment;
     "RouterRecipientSet(address,address,address)": EventFragment;
@@ -382,11 +382,12 @@ export interface RouterLiquidityRemovedEventObject {
   router: string;
   to: string;
   local: string;
+  key: string;
   amount: BigNumber;
   caller: string;
 }
 export type RouterLiquidityRemovedEvent = TypedEvent<
-  [string, string, string, BigNumber, string],
+  [string, string, string, string, BigNumber, string],
   RouterLiquidityRemovedEventObject
 >;
 
@@ -894,10 +895,11 @@ export interface RoutersFacet extends BaseContract {
       caller?: null
     ): RouterLiquidityAddedEventFilter;
 
-    "RouterLiquidityRemoved(address,address,address,uint256,address)"(
+    "RouterLiquidityRemoved(address,address,address,bytes32,uint256,address)"(
       router?: PromiseOrValue<string> | null,
       to?: null,
       local?: null,
+      key?: null,
       amount?: null,
       caller?: null
     ): RouterLiquidityRemovedEventFilter;
@@ -905,6 +907,7 @@ export interface RoutersFacet extends BaseContract {
       router?: PromiseOrValue<string> | null,
       to?: null,
       local?: null,
+      key?: null,
       amount?: null,
       caller?: null
     ): RouterLiquidityRemovedEventFilter;

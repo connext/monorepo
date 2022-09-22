@@ -3,7 +3,7 @@ import { Type, Static } from "@sinclair/typebox";
 import { BidSchema } from "./auctions";
 import { ExecutorDataSchema, RelayerTaskStatus } from "./relayer";
 import { NxtpErrorJsonSchema } from "./error";
-import { TAddress, TChainId, TDecimalString } from "./primitives";
+import { TAddress, TChainId, TDecimalString, TIntegerString } from "./primitives";
 
 export enum ExecStatus {
   None = "None",
@@ -162,3 +162,17 @@ export type GelatoApiStatusResponse = {
   };
   lastExecution: string;
 };
+
+/// MARK - SDK Server API ---------------------------------------------------------------------------
+export const SdkServerApiXCallSchema = Type.Object({
+  origin: Type.String(),
+  destination: Type.String(),
+  to: TAddress,
+  asset: TAddress,
+  amount: TIntegerString,
+  slippage: TIntegerString,
+  callData: Type.String(),
+  delegate: TAddress,
+});
+
+export type SdkServerApiXCall = Static<typeof SdkServerApiXCallSchema>;

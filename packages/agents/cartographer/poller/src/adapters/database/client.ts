@@ -18,23 +18,23 @@ import { pool } from "./index";
 const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
   return {
     transfer_id: transfer.transferId,
-    nonce: transfer.nonce,
+    message_hash: transfer.origin?.messageHash,
 
-    to: transfer.xparams?.to,
-    call_data: transfer.xparams?.callData,
+    // xparams: call_params
     origin_domain: transfer.xparams!.originDomain,
     destination_domain: transfer.xparams!.destinationDomain,
-    agent: transfer.xparams?.agent,
-    recovery: transfer.xparams?.recovery,
-    callback: transfer.xparams?.callback,
-    callback_fee: transfer.xparams?.callbackFee as any,
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    relayer_fee: transfer.xparams?.relayerFee as any,
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    destination_min_out: transfer.xparams?.destinationMinOut as any,
-
-    force_slow: transfer.xparams?.forceSlow,
+    canonical_domain: transfer.xparams?.canonicalDomain,
+    to: transfer.xparams?.to,
+    delegate: transfer.xparams?.delegate,
     receive_local: transfer.xparams?.receiveLocal,
+    call_data: transfer.xparams?.callData,
+    slippage: parseInt(transfer.xparams!.slippage),
+    origin_sender: transfer.xparams?.originSender,
+    bridged_amt: transfer.xparams?.bridgedAmt as any,
+    normalized_in: transfer.xparams?.normalizedIn as any,
+    nonce: transfer.xparams?.nonce,
+    canonical_id: transfer.xparams?.canonicalId,
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 
     origin_chain: transfer.origin?.chain,
     origin_transacting_asset: transfer.origin?.assets.transacting.asset,

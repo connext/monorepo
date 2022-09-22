@@ -39,99 +39,71 @@ export type TokenIdStructOutput = [number, string] & {
 };
 
 export type CallParamsStruct = {
-  to: PromiseOrValue<string>;
-  callData: PromiseOrValue<BytesLike>;
   originDomain: PromiseOrValue<BigNumberish>;
   destinationDomain: PromiseOrValue<BigNumberish>;
-  agent: PromiseOrValue<string>;
-  recovery: PromiseOrValue<string>;
-  forceSlow: PromiseOrValue<boolean>;
+  canonicalDomain: PromiseOrValue<BigNumberish>;
+  to: PromiseOrValue<string>;
+  delegate: PromiseOrValue<string>;
   receiveLocal: PromiseOrValue<boolean>;
-  callback: PromiseOrValue<string>;
-  callbackFee: PromiseOrValue<BigNumberish>;
-  relayerFee: PromiseOrValue<BigNumberish>;
-  destinationMinOut: PromiseOrValue<BigNumberish>;
+  callData: PromiseOrValue<BytesLike>;
+  slippage: PromiseOrValue<BigNumberish>;
+  originSender: PromiseOrValue<string>;
+  bridgedAmt: PromiseOrValue<BigNumberish>;
+  normalizedIn: PromiseOrValue<BigNumberish>;
+  nonce: PromiseOrValue<BigNumberish>;
+  canonicalId: PromiseOrValue<BytesLike>;
 };
 
 export type CallParamsStructOutput = [
-  string,
-  string,
+  number,
   number,
   number,
   string,
   string,
   boolean,
-  boolean,
   string,
   BigNumber,
+  string,
   BigNumber,
-  BigNumber
-] & {
-  to: string;
-  callData: string;
-  originDomain: number;
-  destinationDomain: number;
-  agent: string;
-  recovery: string;
-  forceSlow: boolean;
-  receiveLocal: boolean;
-  callback: string;
-  callbackFee: BigNumber;
-  relayerFee: BigNumber;
-  destinationMinOut: BigNumber;
-};
-
-export type ExecuteArgsStruct = {
-  params: CallParamsStruct;
-  local: PromiseOrValue<string>;
-  routers: PromiseOrValue<string>[];
-  routerSignatures: PromiseOrValue<BytesLike>[];
-  sequencer: PromiseOrValue<string>;
-  sequencerSignature: PromiseOrValue<BytesLike>;
-  amount: PromiseOrValue<BigNumberish>;
-  nonce: PromiseOrValue<BigNumberish>;
-  originSender: PromiseOrValue<string>;
-};
-
-export type ExecuteArgsStructOutput = [
-  CallParamsStructOutput,
-  string,
-  string[],
-  string[],
-  string,
-  string,
   BigNumber,
   BigNumber,
   string
 ] & {
+  originDomain: number;
+  destinationDomain: number;
+  canonicalDomain: number;
+  to: string;
+  delegate: string;
+  receiveLocal: boolean;
+  callData: string;
+  slippage: BigNumber;
+  originSender: string;
+  bridgedAmt: BigNumber;
+  normalizedIn: BigNumber;
+  nonce: BigNumber;
+  canonicalId: string;
+};
+
+export type ExecuteArgsStruct = {
+  params: CallParamsStruct;
+  routers: PromiseOrValue<string>[];
+  routerSignatures: PromiseOrValue<BytesLike>[];
+  sequencer: PromiseOrValue<string>;
+  sequencerSignature: PromiseOrValue<BytesLike>;
+};
+
+export type ExecuteArgsStructOutput = [
+  CallParamsStructOutput,
+  string[],
+  string[],
+  string,
+  string
+] & {
   params: CallParamsStructOutput;
-  local: string;
   routers: string[];
   routerSignatures: string[];
   sequencer: string;
   sequencerSignature: string;
-  amount: BigNumber;
-  nonce: BigNumber;
-  originSender: string;
-};
-
-export type XCallArgsStruct = {
-  params: CallParamsStruct;
-  transactingAsset: PromiseOrValue<string>;
-  transactingAmount: PromiseOrValue<BigNumberish>;
-  originMinOut: PromiseOrValue<BigNumberish>;
-};
-
-export type XCallArgsStructOutput = [
-  CallParamsStructOutput,
-  string,
-  BigNumber,
-  BigNumber
-] & {
-  params: CallParamsStructOutput;
-  transactingAsset: string;
-  transactingAmount: BigNumber;
-  originMinOut: BigNumber;
 };
 
 export declare namespace IDiamondCut {
@@ -221,26 +193,28 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "setupAsset((uint32,bytes32),address,address)": FunctionFragment;
     "tokenRegistry()": FunctionFragment;
     "AAVE_REFERRAL_CODE()": FunctionFragment;
-    "addConnextion(uint32,address)": FunctionFragment;
+    "DUST_AMOUNT()": FunctionFragment;
     "addSequencer(address)": FunctionFragment;
     "approvedSequencers(address)": FunctionFragment;
     "bumpTransfer(bytes32)": FunctionFragment;
-    "connextion(uint32)": FunctionFragment;
     "domain()": FunctionFragment;
-    "execute(((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address))": FunctionFragment;
-    "executor()": FunctionFragment;
-    "forceReceiveLocal((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),uint256,uint256,bytes32,uint32,address)": FunctionFragment;
+    "enrollCustom(uint32,bytes32,address)": FunctionFragment;
+    "enrollRemoteRouter(uint32,bytes32)": FunctionFragment;
+    "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes))": FunctionFragment;
+    "forceUpdateSlippage((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256)": FunctionFragment;
+    "handle(uint32,uint32,bytes32,bytes)": FunctionFragment;
+    "migrate(address)": FunctionFragment;
     "nonce()": FunctionFragment;
-    "promiseRouter()": FunctionFragment;
     "reconciledTransfers(bytes32)": FunctionFragment;
     "relayerFees(bytes32)": FunctionFragment;
+    "remote(uint32)": FunctionFragment;
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
-    "setExecutor(address)": FunctionFragment;
-    "setPromiseRouter(address)": FunctionFragment;
-    "setSponsorVault(address)": FunctionFragment;
-    "sponsorVault()": FunctionFragment;
-    "xcall(((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256))": FunctionFragment;
+    "send(address,uint256,uint32,bytes32,bool)": FunctionFragment;
+    "sendToHook(address,uint256,uint32,bytes32,bytes)": FunctionFragment;
+    "setXAppConnectionManager(address)": FunctionFragment;
+    "xcall(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
+    "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -250,15 +224,13 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "facetFunctionSelectors(address)": FunctionFragment;
     "facets()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
-    "bridgeRouter()": FunctionFragment;
     "onReceive(uint32,bytes32,uint32,bytes32,address,uint256,bytes)": FunctionFragment;
-    "setBridgeRouter(address)": FunctionFragment;
     "aavePool()": FunctionFragment;
     "aavePortalFee()": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
-    "repayAavePortal((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
-    "repayAavePortalFor((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortal((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortalFor((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256)": FunctionFragment;
     "setAavePool(address)": FunctionFragment;
     "setAavePortalFee(uint256)": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
@@ -348,26 +320,28 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "setupAsset"
       | "tokenRegistry"
       | "AAVE_REFERRAL_CODE"
-      | "addConnextion"
+      | "DUST_AMOUNT"
       | "addSequencer"
       | "approvedSequencers"
       | "bumpTransfer"
-      | "connextion"
       | "domain"
+      | "enrollCustom"
+      | "enrollRemoteRouter"
       | "execute"
-      | "executor"
-      | "forceReceiveLocal"
+      | "forceUpdateSlippage"
+      | "handle"
+      | "migrate"
       | "nonce"
-      | "promiseRouter"
       | "reconciledTransfers"
       | "relayerFees"
+      | "remote"
       | "removeSequencer"
       | "routedTransfers"
-      | "setExecutor"
-      | "setPromiseRouter"
-      | "setSponsorVault"
-      | "sponsorVault"
+      | "send"
+      | "sendToHook"
+      | "setXAppConnectionManager"
       | "xcall"
+      | "xcallIntoLocal"
       | "diamondCut"
       | "getAcceptanceTime"
       | "proposeDiamondCut"
@@ -377,9 +351,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "facetFunctionSelectors"
       | "facets"
       | "supportsInterface"
-      | "bridgeRouter"
       | "onReceive"
-      | "setBridgeRouter"
       | "aavePool"
       | "aavePortalFee"
       | "getAavePortalDebt"
@@ -516,8 +488,8 @@ export interface ConnextHandlerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "addConnextion",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+    functionFragment: "DUST_AMOUNT",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "addSequencer",
@@ -531,32 +503,41 @@ export interface ConnextHandlerInterface extends utils.Interface {
     functionFragment: "bumpTransfer",
     values: [PromiseOrValue<BytesLike>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "connextion",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
   encodeFunctionData(functionFragment: "domain", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "enrollCustom",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "enrollRemoteRouter",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
+  ): string;
   encodeFunctionData(
     functionFragment: "execute",
     values: [ExecuteArgsStruct]
   ): string;
-  encodeFunctionData(functionFragment: "executor", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "forceReceiveLocal",
+    functionFragment: "forceUpdateSlippage",
+    values: [CallParamsStruct, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "handle",
     values: [
-      CallParamsStruct,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
+      PromiseOrValue<BytesLike>
     ]
   ): string;
-  encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "promiseRouter",
-    values?: undefined
+    functionFragment: "migrate",
+    values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "reconciledTransfers",
     values: [PromiseOrValue<BytesLike>]
@@ -564,6 +545,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "relayerFees",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "remote",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "removeSequencer",
@@ -574,24 +559,52 @@ export interface ConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setExecutor",
-    values: [PromiseOrValue<string>]
+    functionFragment: "send",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<boolean>
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "setPromiseRouter",
-    values: [PromiseOrValue<string>]
+    functionFragment: "sendToHook",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "setSponsorVault",
+    functionFragment: "setXAppConnectionManager",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "sponsorVault",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "xcall",
-    values: [XCallArgsStruct]
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "xcallIntoLocal",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "diamondCut",
@@ -643,10 +656,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "bridgeRouter",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "onReceive",
     values: [
       PromiseOrValue<BigNumberish>,
@@ -657,10 +666,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>
     ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setBridgeRouter",
-    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "aavePool", values?: undefined): string;
   encodeFunctionData(
@@ -679,10 +684,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     functionFragment: "repayAavePortal",
     values: [
       CallParamsStruct,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
@@ -692,10 +693,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     functionFragment: "repayAavePortalFor",
     values: [
       CallParamsStruct,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
@@ -1097,7 +1094,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "addConnextion",
+    functionFragment: "DUST_AMOUNT",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1112,19 +1109,23 @@ export interface ConnextHandlerInterface extends utils.Interface {
     functionFragment: "bumpTransfer",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "connextion", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "enrollCustom",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "enrollRemoteRouter",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "executor", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "forceReceiveLocal",
+    functionFragment: "forceUpdateSlippage",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "handle", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "migrate", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "promiseRouter",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "reconciledTransfers",
     data: BytesLike
@@ -1133,6 +1134,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     functionFragment: "relayerFees",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "remote", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeSequencer",
     data: BytesLike
@@ -1141,23 +1143,17 @@ export interface ConnextHandlerInterface extends utils.Interface {
     functionFragment: "routedTransfers",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "sendToHook", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setExecutor",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setPromiseRouter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setSponsorVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "sponsorVault",
+    functionFragment: "setXAppConnectionManager",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "xcallIntoLocal",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "diamondCut", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getAcceptanceTime",
@@ -1188,15 +1184,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "bridgeRouter",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "onReceive", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setBridgeRouter",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "aavePool", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "aavePortalFee",
@@ -1476,16 +1464,18 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "StableSwapAdded(bytes32,bytes32,uint32,address,address)": EventFragment;
     "TokenRegistryUpdated(address,address,address)": EventFragment;
     "AavePortalMintUnbacked(bytes32,address,address,uint256)": EventFragment;
-    "ConnextionAdded(uint32,address,address)": EventFragment;
     "Executed(bytes32,address,tuple,address,uint256,address)": EventFragment;
     "ExecutorUpdated(address,address,address)": EventFragment;
-    "ForcedReceiveLocal(bytes32,bytes32,uint32,uint256)": EventFragment;
-    "PromiseRouterUpdated(address,address,address)": EventFragment;
+    "ExternalCalldataExecuted(bytes32,bool,bytes)": EventFragment;
+    "Receive(uint64,address,address,address,uint256)": EventFragment;
+    "RemoteAdded(uint32,address,address)": EventFragment;
+    "Send(address,address,uint32,bytes32,uint256,bool)": EventFragment;
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
+    "SlippageUpdated(bytes32,uint256)": EventFragment;
     "SponsorVaultUpdated(address,address,address)": EventFragment;
     "TransferRelayerFeesUpdated(bytes32,uint256,address)": EventFragment;
-    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)": EventFragment;
+    "XCalled(bytes32,uint256,bytes32,tuple)": EventFragment;
     "DiamondCut(tuple[],address,bytes)": EventFragment;
     "DiamondCutProposed(tuple[],address,bytes,uint256)": EventFragment;
     "DiamondCutRescinded(tuple[],address,bytes)": EventFragment;
@@ -1510,7 +1500,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "RouterAdded(address,address)": EventFragment;
     "RouterApprovedForPortal(address,address)": EventFragment;
     "RouterLiquidityAdded(address,address,bytes32,uint256,address)": EventFragment;
-    "RouterLiquidityRemoved(address,address,address,uint256,address)": EventFragment;
+    "RouterLiquidityRemoved(address,address,address,bytes32,uint256,address)": EventFragment;
     "RouterOwnerAccepted(address,address,address)": EventFragment;
     "RouterOwnerProposed(address,address,address)": EventFragment;
     "RouterRecipientSet(address,address,address)": EventFragment;
@@ -1523,13 +1513,15 @@ export interface ConnextHandlerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "StableSwapAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenRegistryUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AavePortalMintUnbacked"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ConnextionAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ExecutorUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ForcedReceiveLocal"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PromiseRouterUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ExternalCalldataExecuted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Receive"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RemoteAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Send"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SlippageUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SponsorVaultUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferRelayerFeesUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
@@ -1640,24 +1632,12 @@ export type AavePortalMintUnbackedEvent = TypedEvent<
 export type AavePortalMintUnbackedEventFilter =
   TypedEventFilter<AavePortalMintUnbackedEvent>;
 
-export interface ConnextionAddedEventObject {
-  domain: number;
-  connext: string;
-  caller: string;
-}
-export type ConnextionAddedEvent = TypedEvent<
-  [number, string, string],
-  ConnextionAddedEventObject
->;
-
-export type ConnextionAddedEventFilter = TypedEventFilter<ConnextionAddedEvent>;
-
 export interface ExecutedEventObject {
   transferId: string;
   to: string;
   args: ExecuteArgsStructOutput;
-  transactingAsset: string;
-  transactingAmount: BigNumber;
+  asset: string;
+  amount: BigNumber;
   caller: string;
 }
 export type ExecutedEvent = TypedEvent<
@@ -1679,32 +1659,59 @@ export type ExecutorUpdatedEvent = TypedEvent<
 
 export type ExecutorUpdatedEventFilter = TypedEventFilter<ExecutorUpdatedEvent>;
 
-export interface ForcedReceiveLocalEventObject {
+export interface ExternalCalldataExecutedEventObject {
   transferId: string;
-  canonicalId: string;
-  canonicalDomain: number;
+  success: boolean;
+  returnData: string;
+}
+export type ExternalCalldataExecutedEvent = TypedEvent<
+  [string, boolean, string],
+  ExternalCalldataExecutedEventObject
+>;
+
+export type ExternalCalldataExecutedEventFilter =
+  TypedEventFilter<ExternalCalldataExecutedEvent>;
+
+export interface ReceiveEventObject {
+  originAndNonce: BigNumber;
+  token: string;
+  recipient: string;
+  liquidityProvider: string;
   amount: BigNumber;
 }
-export type ForcedReceiveLocalEvent = TypedEvent<
-  [string, string, number, BigNumber],
-  ForcedReceiveLocalEventObject
+export type ReceiveEvent = TypedEvent<
+  [BigNumber, string, string, string, BigNumber],
+  ReceiveEventObject
 >;
 
-export type ForcedReceiveLocalEventFilter =
-  TypedEventFilter<ForcedReceiveLocalEvent>;
+export type ReceiveEventFilter = TypedEventFilter<ReceiveEvent>;
 
-export interface PromiseRouterUpdatedEventObject {
-  oldRouter: string;
-  newRouter: string;
+export interface RemoteAddedEventObject {
+  domain: number;
+  remote: string;
   caller: string;
 }
-export type PromiseRouterUpdatedEvent = TypedEvent<
-  [string, string, string],
-  PromiseRouterUpdatedEventObject
+export type RemoteAddedEvent = TypedEvent<
+  [number, string, string],
+  RemoteAddedEventObject
 >;
 
-export type PromiseRouterUpdatedEventFilter =
-  TypedEventFilter<PromiseRouterUpdatedEvent>;
+export type RemoteAddedEventFilter = TypedEventFilter<RemoteAddedEvent>;
+
+export interface SendEventObject {
+  token: string;
+  from: string;
+  toDomain: number;
+  toId: string;
+  amount: BigNumber;
+  toHook: boolean;
+}
+export type SendEvent = TypedEvent<
+  [string, string, number, string, BigNumber, boolean],
+  SendEventObject
+>;
+
+export type SendEventFilter = TypedEventFilter<SendEvent>;
 
 export interface SequencerAddedEventObject {
   sequencer: string;
@@ -1728,6 +1735,17 @@ export type SequencerRemovedEvent = TypedEvent<
 
 export type SequencerRemovedEventFilter =
   TypedEventFilter<SequencerRemovedEvent>;
+
+export interface SlippageUpdatedEventObject {
+  transferId: string;
+  slippage: BigNumber;
+}
+export type SlippageUpdatedEvent = TypedEvent<
+  [string, BigNumber],
+  SlippageUpdatedEventObject
+>;
+
+export type SlippageUpdatedEventFilter = TypedEventFilter<SlippageUpdatedEvent>;
 
 export interface SponsorVaultUpdatedEventObject {
   oldSponsorVault: string;
@@ -1759,13 +1777,10 @@ export interface XCalledEventObject {
   transferId: string;
   nonce: BigNumber;
   messageHash: string;
-  xcallArgs: XCallArgsStructOutput;
-  bridgedAsset: string;
-  bridgedAmount: BigNumber;
-  caller: string;
+  params: CallParamsStructOutput;
 }
 export type XCalledEvent = TypedEvent<
-  [string, BigNumber, string, XCallArgsStructOutput, string, BigNumber, string],
+  [string, BigNumber, string, CallParamsStructOutput],
   XCalledEventObject
 >;
 
@@ -2056,11 +2071,12 @@ export interface RouterLiquidityRemovedEventObject {
   router: string;
   to: string;
   local: string;
+  key: string;
   amount: BigNumber;
   caller: string;
 }
 export type RouterLiquidityRemovedEvent = TypedEvent<
-  [string, string, string, BigNumber, string],
+  [string, string, string, string, BigNumber, string],
   RouterLiquidityRemovedEventObject
 >;
 
@@ -2225,11 +2241,7 @@ export interface ConnextHandler extends BaseContract {
 
     AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<[number]>;
 
-    addConnextion(
-      _domain: PromiseOrValue<BigNumberish>,
-      _connext: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    DUST_AMOUNT(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     addSequencer(
       _sequencer: PromiseOrValue<string>,
@@ -2246,33 +2258,46 @@ export interface ConnextHandler extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    connextion(
-      _domain: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     domain(overrides?: CallOverrides): Promise<[number]>;
+
+    enrollCustom(
+      _domain: PromiseOrValue<BigNumberish>,
+      _id: PromiseOrValue<BytesLike>,
+      _custom: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    enrollRemoteRouter(
+      _domain: PromiseOrValue<BigNumberish>,
+      _router: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     execute(
       _args: ExecuteArgsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    executor(overrides?: CallOverrides): Promise<[string]>;
-
-    forceReceiveLocal(
+    forceUpdateSlippage(
       _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    handle(
+      _origin: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
+      _sender: PromiseOrValue<BytesLike>,
+      _message: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    migrate(
+      _oldRepr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     nonce(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    promiseRouter(overrides?: CallOverrides): Promise<[string]>;
 
     reconciledTransfers(
       _transferId: PromiseOrValue<BytesLike>,
@@ -2284,6 +2309,11 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    remote(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     removeSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2294,25 +2324,48 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string[]]>;
 
-    setExecutor(
-      _executor: PromiseOrValue<string>,
+    send(
+      _token: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _destination: PromiseOrValue<BigNumberish>,
+      _recipient: PromiseOrValue<BytesLike>,
+      arg4: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setPromiseRouter(
-      _promiseRouter: PromiseOrValue<string>,
+    sendToHook(
+      _token: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _destination: PromiseOrValue<BigNumberish>,
+      _remoteHook: PromiseOrValue<BytesLike>,
+      _extraData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
+    setXAppConnectionManager(
+      _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<[string]>;
 
     xcall(
-      _args: XCallArgsStruct,
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    xcallIntoLocal(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2371,21 +2424,14 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    bridgeRouter(overrides?: CallOverrides): Promise<[string]>;
-
     onReceive(
       _origin: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       _localToken: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
       _extraData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setBridgeRouter(
-      _bridgeRouter: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2405,10 +2451,6 @@ export interface ConnextHandler extends BaseContract {
 
     repayAavePortal(
       _params: CallParamsStruct,
-      _local: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -2417,10 +2459,6 @@ export interface ConnextHandler extends BaseContract {
 
     repayAavePortalFor(
       _params: CallParamsStruct,
-      _adopted: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -2860,11 +2898,7 @@ export interface ConnextHandler extends BaseContract {
 
   AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
 
-  addConnextion(
-    _domain: PromiseOrValue<BigNumberish>,
-    _connext: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  DUST_AMOUNT(overrides?: CallOverrides): Promise<BigNumber>;
 
   addSequencer(
     _sequencer: PromiseOrValue<string>,
@@ -2881,33 +2915,46 @@ export interface ConnextHandler extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  connextion(
-    _domain: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
   domain(overrides?: CallOverrides): Promise<number>;
+
+  enrollCustom(
+    _domain: PromiseOrValue<BigNumberish>,
+    _id: PromiseOrValue<BytesLike>,
+    _custom: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  enrollRemoteRouter(
+    _domain: PromiseOrValue<BigNumberish>,
+    _router: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   execute(
     _args: ExecuteArgsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  executor(overrides?: CallOverrides): Promise<string>;
-
-  forceReceiveLocal(
+  forceUpdateSlippage(
     _params: CallParamsStruct,
-    _amount: PromiseOrValue<BigNumberish>,
+    _slippage: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  handle(
+    _origin: PromiseOrValue<BigNumberish>,
     _nonce: PromiseOrValue<BigNumberish>,
-    _canonicalId: PromiseOrValue<BytesLike>,
-    _canonicalDomain: PromiseOrValue<BigNumberish>,
-    _originSender: PromiseOrValue<string>,
+    _sender: PromiseOrValue<BytesLike>,
+    _message: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  migrate(
+    _oldRepr: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   nonce(overrides?: CallOverrides): Promise<BigNumber>;
-
-  promiseRouter(overrides?: CallOverrides): Promise<string>;
 
   reconciledTransfers(
     _transferId: PromiseOrValue<BytesLike>,
@@ -2919,6 +2966,11 @@ export interface ConnextHandler extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  remote(
+    _domain: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   removeSequencer(
     _sequencer: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2929,25 +2981,48 @@ export interface ConnextHandler extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string[]>;
 
-  setExecutor(
-    _executor: PromiseOrValue<string>,
+  send(
+    _token: PromiseOrValue<string>,
+    _amount: PromiseOrValue<BigNumberish>,
+    _destination: PromiseOrValue<BigNumberish>,
+    _recipient: PromiseOrValue<BytesLike>,
+    arg4: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setPromiseRouter(
-    _promiseRouter: PromiseOrValue<string>,
+  sendToHook(
+    _token: PromiseOrValue<string>,
+    _amount: PromiseOrValue<BigNumberish>,
+    _destination: PromiseOrValue<BigNumberish>,
+    _remoteHook: PromiseOrValue<BytesLike>,
+    _extraData: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setSponsorVault(
-    _sponsorVault: PromiseOrValue<string>,
+  setXAppConnectionManager(
+    _xAppConnectionManager: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  sponsorVault(overrides?: CallOverrides): Promise<string>;
 
   xcall(
-    _args: XCallArgsStruct,
+    _destination: PromiseOrValue<BigNumberish>,
+    _to: PromiseOrValue<string>,
+    _asset: PromiseOrValue<string>,
+    _delegate: PromiseOrValue<string>,
+    _amount: PromiseOrValue<BigNumberish>,
+    _slippage: PromiseOrValue<BigNumberish>,
+    _callData: PromiseOrValue<BytesLike>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  xcallIntoLocal(
+    _destination: PromiseOrValue<BigNumberish>,
+    _to: PromiseOrValue<string>,
+    _asset: PromiseOrValue<string>,
+    _delegate: PromiseOrValue<string>,
+    _amount: PromiseOrValue<BigNumberish>,
+    _slippage: PromiseOrValue<BigNumberish>,
+    _callData: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2998,21 +3073,14 @@ export interface ConnextHandler extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  bridgeRouter(overrides?: CallOverrides): Promise<string>;
-
   onReceive(
     _origin: PromiseOrValue<BigNumberish>,
     _sender: PromiseOrValue<BytesLike>,
-    _tokenDomain: PromiseOrValue<BigNumberish>,
-    _tokenAddress: PromiseOrValue<BytesLike>,
+    arg2: PromiseOrValue<BigNumberish>,
+    arg3: PromiseOrValue<BytesLike>,
     _localToken: PromiseOrValue<string>,
     _amount: PromiseOrValue<BigNumberish>,
     _extraData: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setBridgeRouter(
-    _bridgeRouter: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3032,10 +3100,6 @@ export interface ConnextHandler extends BaseContract {
 
   repayAavePortal(
     _params: CallParamsStruct,
-    _local: PromiseOrValue<string>,
-    _originSender: PromiseOrValue<string>,
-    _bridgedAmt: PromiseOrValue<BigNumberish>,
-    _nonce: PromiseOrValue<BigNumberish>,
     _backingAmount: PromiseOrValue<BigNumberish>,
     _feeAmount: PromiseOrValue<BigNumberish>,
     _maxIn: PromiseOrValue<BigNumberish>,
@@ -3044,10 +3108,6 @@ export interface ConnextHandler extends BaseContract {
 
   repayAavePortalFor(
     _params: CallParamsStruct,
-    _adopted: PromiseOrValue<string>,
-    _originSender: PromiseOrValue<string>,
-    _bridgedAmt: PromiseOrValue<BigNumberish>,
-    _nonce: PromiseOrValue<BigNumberish>,
     _backingAmount: PromiseOrValue<BigNumberish>,
     _feeAmount: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -3487,11 +3547,7 @@ export interface ConnextHandler extends BaseContract {
 
     AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
 
-    addConnextion(
-      _domain: PromiseOrValue<BigNumberish>,
-      _connext: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    DUST_AMOUNT(overrides?: CallOverrides): Promise<BigNumber>;
 
     addSequencer(
       _sequencer: PromiseOrValue<string>,
@@ -3508,33 +3564,46 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    connextion(
-      _domain: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     domain(overrides?: CallOverrides): Promise<number>;
+
+    enrollCustom(
+      _domain: PromiseOrValue<BigNumberish>,
+      _id: PromiseOrValue<BytesLike>,
+      _custom: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    enrollRemoteRouter(
+      _domain: PromiseOrValue<BigNumberish>,
+      _router: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     execute(
       _args: ExecuteArgsStruct,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    executor(overrides?: CallOverrides): Promise<string>;
-
-    forceReceiveLocal(
+    forceUpdateSlippage(
       _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    handle(
+      _origin: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
+      _sender: PromiseOrValue<BytesLike>,
+      _message: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    migrate(
+      _oldRepr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
-
-    promiseRouter(overrides?: CallOverrides): Promise<string>;
 
     reconciledTransfers(
       _transferId: PromiseOrValue<BytesLike>,
@@ -3546,6 +3615,11 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    remote(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     removeSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -3556,24 +3630,50 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string[]>;
 
-    setExecutor(
-      _executor: PromiseOrValue<string>,
+    send(
+      _token: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _destination: PromiseOrValue<BigNumberish>,
+      _recipient: PromiseOrValue<BytesLike>,
+      arg4: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setPromiseRouter(
-      _promiseRouter: PromiseOrValue<string>,
+    sendToHook(
+      _token: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _destination: PromiseOrValue<BigNumberish>,
+      _remoteHook: PromiseOrValue<BytesLike>,
+      _extraData: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    setXAppConnectionManager(
+      _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
+    xcall(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
 
-    sponsorVault(overrides?: CallOverrides): Promise<string>;
-
-    xcall(_args: XCallArgsStruct, overrides?: CallOverrides): Promise<string>;
+    xcallIntoLocal(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     diamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
@@ -3624,21 +3724,14 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    bridgeRouter(overrides?: CallOverrides): Promise<string>;
-
     onReceive(
       _origin: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       _localToken: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
       _extraData: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setBridgeRouter(
-      _bridgeRouter: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3658,10 +3751,6 @@ export interface ConnextHandler extends BaseContract {
 
     repayAavePortal(
       _params: CallParamsStruct,
-      _local: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -3670,10 +3759,6 @@ export interface ConnextHandler extends BaseContract {
 
     repayAavePortalFor(
       _params: CallParamsStruct,
-      _adopted: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -4094,31 +4179,20 @@ export interface ConnextHandler extends BaseContract {
       amount?: null
     ): AavePortalMintUnbackedEventFilter;
 
-    "ConnextionAdded(uint32,address,address)"(
-      domain?: null,
-      connext?: null,
-      caller?: null
-    ): ConnextionAddedEventFilter;
-    ConnextionAdded(
-      domain?: null,
-      connext?: null,
-      caller?: null
-    ): ConnextionAddedEventFilter;
-
     "Executed(bytes32,address,tuple,address,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       to?: PromiseOrValue<string> | null,
       args?: null,
-      transactingAsset?: null,
-      transactingAmount?: null,
+      asset?: null,
+      amount?: null,
       caller?: null
     ): ExecutedEventFilter;
     Executed(
       transferId?: PromiseOrValue<BytesLike> | null,
       to?: PromiseOrValue<string> | null,
       args?: null,
-      transactingAsset?: null,
-      transactingAmount?: null,
+      asset?: null,
+      amount?: null,
       caller?: null
     ): ExecutedEventFilter;
 
@@ -4133,29 +4207,59 @@ export interface ConnextHandler extends BaseContract {
       caller?: null
     ): ExecutorUpdatedEventFilter;
 
-    "ForcedReceiveLocal(bytes32,bytes32,uint32,uint256)"(
+    "ExternalCalldataExecuted(bytes32,bool,bytes)"(
       transferId?: PromiseOrValue<BytesLike> | null,
-      canonicalId?: PromiseOrValue<BytesLike> | null,
-      canonicalDomain?: null,
-      amount?: null
-    ): ForcedReceiveLocalEventFilter;
-    ForcedReceiveLocal(
+      success?: null,
+      returnData?: null
+    ): ExternalCalldataExecutedEventFilter;
+    ExternalCalldataExecuted(
       transferId?: PromiseOrValue<BytesLike> | null,
-      canonicalId?: PromiseOrValue<BytesLike> | null,
-      canonicalDomain?: null,
-      amount?: null
-    ): ForcedReceiveLocalEventFilter;
+      success?: null,
+      returnData?: null
+    ): ExternalCalldataExecutedEventFilter;
 
-    "PromiseRouterUpdated(address,address,address)"(
-      oldRouter?: null,
-      newRouter?: null,
+    "Receive(uint64,address,address,address,uint256)"(
+      originAndNonce?: PromiseOrValue<BigNumberish> | null,
+      token?: PromiseOrValue<string> | null,
+      recipient?: PromiseOrValue<string> | null,
+      liquidityProvider?: null,
+      amount?: null
+    ): ReceiveEventFilter;
+    Receive(
+      originAndNonce?: PromiseOrValue<BigNumberish> | null,
+      token?: PromiseOrValue<string> | null,
+      recipient?: PromiseOrValue<string> | null,
+      liquidityProvider?: null,
+      amount?: null
+    ): ReceiveEventFilter;
+
+    "RemoteAdded(uint32,address,address)"(
+      domain?: null,
+      remote?: null,
       caller?: null
-    ): PromiseRouterUpdatedEventFilter;
-    PromiseRouterUpdated(
-      oldRouter?: null,
-      newRouter?: null,
+    ): RemoteAddedEventFilter;
+    RemoteAdded(
+      domain?: null,
+      remote?: null,
       caller?: null
-    ): PromiseRouterUpdatedEventFilter;
+    ): RemoteAddedEventFilter;
+
+    "Send(address,address,uint32,bytes32,uint256,bool)"(
+      token?: PromiseOrValue<string> | null,
+      from?: PromiseOrValue<string> | null,
+      toDomain?: PromiseOrValue<BigNumberish> | null,
+      toId?: null,
+      amount?: null,
+      toHook?: null
+    ): SendEventFilter;
+    Send(
+      token?: PromiseOrValue<string> | null,
+      from?: PromiseOrValue<string> | null,
+      toDomain?: PromiseOrValue<BigNumberish> | null,
+      toId?: null,
+      amount?: null,
+      toHook?: null
+    ): SendEventFilter;
 
     "SequencerAdded(address,address)"(
       sequencer?: null,
@@ -4171,6 +4275,15 @@ export interface ConnextHandler extends BaseContract {
       sequencer?: null,
       caller?: null
     ): SequencerRemovedEventFilter;
+
+    "SlippageUpdated(bytes32,uint256)"(
+      transferId?: PromiseOrValue<BytesLike> | null,
+      slippage?: null
+    ): SlippageUpdatedEventFilter;
+    SlippageUpdated(
+      transferId?: PromiseOrValue<BytesLike> | null,
+      slippage?: null
+    ): SlippageUpdatedEventFilter;
 
     "SponsorVaultUpdated(address,address,address)"(
       oldSponsorVault?: null,
@@ -4194,23 +4307,17 @@ export interface ConnextHandler extends BaseContract {
       caller?: null
     ): TransferRelayerFeesUpdatedEventFilter;
 
-    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)"(
+    "XCalled(bytes32,uint256,bytes32,tuple)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
       messageHash?: PromiseOrValue<BytesLike> | null,
-      xcallArgs?: null,
-      bridgedAsset?: null,
-      bridgedAmount?: null,
-      caller?: null
+      params?: null
     ): XCalledEventFilter;
     XCalled(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
       messageHash?: PromiseOrValue<BytesLike> | null,
-      xcallArgs?: null,
-      bridgedAsset?: null,
-      bridgedAmount?: null,
-      caller?: null
+      params?: null
     ): XCalledEventFilter;
 
     "DiamondCut(tuple[],address,bytes)"(
@@ -4435,10 +4542,11 @@ export interface ConnextHandler extends BaseContract {
       caller?: null
     ): RouterLiquidityAddedEventFilter;
 
-    "RouterLiquidityRemoved(address,address,address,uint256,address)"(
+    "RouterLiquidityRemoved(address,address,address,bytes32,uint256,address)"(
       router?: PromiseOrValue<string> | null,
       to?: null,
       local?: null,
+      key?: null,
       amount?: null,
       caller?: null
     ): RouterLiquidityRemovedEventFilter;
@@ -4446,6 +4554,7 @@ export interface ConnextHandler extends BaseContract {
       router?: PromiseOrValue<string> | null,
       to?: null,
       local?: null,
+      key?: null,
       amount?: null,
       caller?: null
     ): RouterLiquidityRemovedEventFilter;
@@ -4572,11 +4681,7 @@ export interface ConnextHandler extends BaseContract {
 
     AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    addConnextion(
-      _domain: PromiseOrValue<BigNumberish>,
-      _connext: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    DUST_AMOUNT(overrides?: CallOverrides): Promise<BigNumber>;
 
     addSequencer(
       _sequencer: PromiseOrValue<string>,
@@ -4593,33 +4698,46 @@ export interface ConnextHandler extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    connextion(
+    domain(overrides?: CallOverrides): Promise<BigNumber>;
+
+    enrollCustom(
       _domain: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      _id: PromiseOrValue<BytesLike>,
+      _custom: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    domain(overrides?: CallOverrides): Promise<BigNumber>;
+    enrollRemoteRouter(
+      _domain: PromiseOrValue<BigNumberish>,
+      _router: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     execute(
       _args: ExecuteArgsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    executor(overrides?: CallOverrides): Promise<BigNumber>;
-
-    forceReceiveLocal(
+    forceUpdateSlippage(
       _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    handle(
+      _origin: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
+      _sender: PromiseOrValue<BytesLike>,
+      _message: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    migrate(
+      _oldRepr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
-
-    promiseRouter(overrides?: CallOverrides): Promise<BigNumber>;
 
     reconciledTransfers(
       _transferId: PromiseOrValue<BytesLike>,
@@ -4628,6 +4746,11 @@ export interface ConnextHandler extends BaseContract {
 
     relayerFees(
       _transferId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    remote(
+      _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -4641,25 +4764,48 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    setExecutor(
-      _executor: PromiseOrValue<string>,
+    send(
+      _token: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _destination: PromiseOrValue<BigNumberish>,
+      _recipient: PromiseOrValue<BytesLike>,
+      arg4: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setPromiseRouter(
-      _promiseRouter: PromiseOrValue<string>,
+    sendToHook(
+      _token: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _destination: PromiseOrValue<BigNumberish>,
+      _remoteHook: PromiseOrValue<BytesLike>,
+      _extraData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
+    setXAppConnectionManager(
+      _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<BigNumber>;
 
     xcall(
-      _args: XCallArgsStruct,
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    xcallIntoLocal(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4710,21 +4856,14 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    bridgeRouter(overrides?: CallOverrides): Promise<BigNumber>;
-
     onReceive(
       _origin: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       _localToken: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
       _extraData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setBridgeRouter(
-      _bridgeRouter: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4744,10 +4883,6 @@ export interface ConnextHandler extends BaseContract {
 
     repayAavePortal(
       _params: CallParamsStruct,
-      _local: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -4756,10 +4891,6 @@ export interface ConnextHandler extends BaseContract {
 
     repayAavePortalFor(
       _params: CallParamsStruct,
-      _adopted: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -5202,11 +5333,7 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    addConnextion(
-      _domain: PromiseOrValue<BigNumberish>,
-      _connext: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    DUST_AMOUNT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     addSequencer(
       _sequencer: PromiseOrValue<string>,
@@ -5223,33 +5350,46 @@ export interface ConnextHandler extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    connextion(
+    domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    enrollCustom(
       _domain: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      _id: PromiseOrValue<BytesLike>,
+      _custom: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    enrollRemoteRouter(
+      _domain: PromiseOrValue<BigNumberish>,
+      _router: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     execute(
       _args: ExecuteArgsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    executor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    forceReceiveLocal(
+    forceUpdateSlippage(
       _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    handle(
+      _origin: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
+      _sender: PromiseOrValue<BytesLike>,
+      _message: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    migrate(
+      _oldRepr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     nonce(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    promiseRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     reconciledTransfers(
       _transferId: PromiseOrValue<BytesLike>,
@@ -5258,6 +5398,11 @@ export interface ConnextHandler extends BaseContract {
 
     relayerFees(
       _transferId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    remote(
+      _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -5271,25 +5416,48 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    setExecutor(
-      _executor: PromiseOrValue<string>,
+    send(
+      _token: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _destination: PromiseOrValue<BigNumberish>,
+      _recipient: PromiseOrValue<BytesLike>,
+      arg4: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setPromiseRouter(
-      _promiseRouter: PromiseOrValue<string>,
+    sendToHook(
+      _token: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _destination: PromiseOrValue<BigNumberish>,
+      _remoteHook: PromiseOrValue<BytesLike>,
+      _extraData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
+    setXAppConnectionManager(
+      _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     xcall(
-      _args: XCallArgsStruct,
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    xcallIntoLocal(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5340,21 +5508,14 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    bridgeRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     onReceive(
       _origin: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       _localToken: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
       _extraData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setBridgeRouter(
-      _bridgeRouter: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5374,10 +5535,6 @@ export interface ConnextHandler extends BaseContract {
 
     repayAavePortal(
       _params: CallParamsStruct,
-      _local: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -5386,10 +5543,6 @@ export interface ConnextHandler extends BaseContract {
 
     repayAavePortalFor(
       _params: CallParamsStruct,
-      _adopted: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
