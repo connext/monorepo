@@ -7,7 +7,7 @@ export { BaseConnextFacet__factory } from "./BaseConnextFacet__factory";
 export { BridgeFacet__factory } from "./BridgeFacet__factory";
 export { DiamondCutFacet__factory } from "./DiamondCutFacet__factory";
 export { DiamondLoupeFacet__factory } from "./DiamondLoupeFacet__factory";
-export { NomadFacet__factory } from "./NomadFacet__factory";
+export { InboxFacet__factory } from "./InboxFacet__factory";
 export { PortalFacet__factory } from "./PortalFacet__factory";
 export { ProposedOwnableFacet__factory } from "./ProposedOwnableFacet__factory";
 export { RelayerFacet__factory } from "./RelayerFacet__factory";

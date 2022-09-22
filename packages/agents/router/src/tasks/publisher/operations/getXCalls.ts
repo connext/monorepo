@@ -36,7 +36,6 @@ export const getXCalls = async () => {
       subgraphQueryMetaParams.set(domain, {
         maxBlockNumber: latestBlockNumber - safeConfirmations,
         latestNonce: latestNonce + 1, // queries at >= latest nonce, so use 1 larger than whats in the cache
-        forceSlow: false,
         destinationDomains,
         orderDirection: "asc",
       });
@@ -75,7 +74,7 @@ export const getXCalls = async () => {
             logger.debug("Published transfer to mq", _requestContext, _methodContext, { transfer });
 
             // TODO: once per transfer instead
-            await cache.transfers.setLatestNonce(transfer.xparams.originDomain, transfer.nonce!);
+            await cache.transfers.setLatestNonce(transfer.xparams.originDomain, transfer.xparams.nonce);
           } catch (err: unknown) {
             logger.error("Error publishing to mq", _requestContext, _methodContext, jsonifyError(err as Error));
           }

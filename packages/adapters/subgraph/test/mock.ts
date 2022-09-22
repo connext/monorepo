@@ -39,7 +39,6 @@ const mockCallData = {
   callData: "0x",
   callback: mkAddress("0xaaa"),
   callbackFee: "0",
-  forceSlow: false,
   recovery: mkAddress("0x1"),
   receiveLocal: false,
   slippageTol: "0",

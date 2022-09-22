@@ -585,19 +585,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "bridgeRouter",
-    outputs: [
-      {
-        internalType: "contract IBridgeRouter",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "bytes32",
@@ -795,25 +782,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "_domain",
-        type: "uint32",
-      },
-    ],
-    name: "connextion",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "delay",
     outputs: [
@@ -877,6 +845,47 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "_domain",
+        type: "uint32",
+      },
+      {
+        internalType: "bytes32",
+        name: "_id",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "_custom",
+        type: "address",
+      },
+    ],
+    name: "enrollCustom",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "_domain",
+        type: "uint32",
+      },
+      {
+        internalType: "bytes32",
+        name: "_router",
+        type: "bytes32",
+      },
+    ],
+    name: "enrollRemoteRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1561,6 +1570,34 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint32",
+        name: "_origin",
+        type: "uint32",
+      },
+      {
+        internalType: "uint32",
+        name: "_nonce",
+        type: "uint32",
+      },
+      {
+        internalType: "bytes32",
+        name: "_sender",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes",
+        name: "_message",
+        type: "bytes",
+      },
+    ],
+    name: "handle",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "_canonicalId",
         type: "bytes32",
@@ -1658,49 +1695,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "_origin",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes32",
-        name: "_sender",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint32",
-        name: "_tokenDomain",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes32",
-        name: "_tokenAddress",
-        type: "bytes32",
-      },
-      {
-        internalType: "address",
-        name: "_localToken",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes",
-        name: "_extraData",
-        type: "bytes",
-      },
-    ],
-    name: "onReceive",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1903,6 +1897,25 @@ const _abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "_domain",
+        type: "uint32",
+      },
+    ],
+    name: "remote",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -2510,19 +2523,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_bridge",
-        type: "address",
-      },
-    ],
-    name: "setBridgeRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "_numerator",
         type: "uint256",
@@ -2622,6 +2622,19 @@ const _abi = [
       },
     ],
     name: "setTokenRegistry",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_xAppConnectionManager",
+        type: "address",
+      },
+    ],
+    name: "setXAppConnectionManager",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

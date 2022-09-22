@@ -1,0 +1,17 @@
+[
+  "error BaseConnextFacet__getAdoptedAsset_notWhitelisted()",
+  "error BaseConnextFacet__nonReentrant_reentrantCall()",
+  "error BaseConnextFacet__onlyBridgeRouter_notBridgeRouter()",
+  "error BaseConnextFacet__onlyOwner_notOwner()",
+  "error BaseConnextFacet__onlyProposed_notProposedOwner()",
+  "error BaseConnextFacet__whenNotPaused_paused()",
+  "error InboxFacet__handle_notTransfer()",
+  "error InboxFacet__onlyRemoteRouter_notRemote()",
+  "error InboxFacet__onlyReplica_notReplica()",
+  "error InboxFacet__reconcile_alreadyReconciled()",
+  "error InboxFacet__reconcile_noPortalRouter()",
+  "error InboxFacet__reconcile_notConnext()",
+  "event Receive(uint64 indexed,address indexed,address indexed,address,uint256)",
+  "event Reconciled(bytes32 indexed,uint32 indexed,address indexed,address[],uint256,address)",
+  "function handle(uint32,uint32,bytes32,bytes)"
+]

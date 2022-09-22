@@ -7,14 +7,66 @@ import {IArbSys as ArbitrumL2_Bridge} from "@openzeppelin/contracts/vendor/arbit
 import "@openzeppelin/contracts/crosschain/errors.sol";
 
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
+import {Node} from "../../../../contracts/messaging/interfaces/ambs/arbitrum/IArbitrumRollup.sol";
 
-import {ArbitrumHubConnector} from "../../../../contracts/messaging/connectors/arbitrum/ArbitrumHubConnector.sol";
+import {ArbitrumHubConnector, L2Message} from "../../../../contracts/messaging/connectors/arbitrum/ArbitrumHubConnector.sol";
 
-import {ArbitrumL1Amb} from "../../../../contracts/messaging/interfaces/ambs/ArbitrumL1Amb.sol";
-import {ArbitrumL2Amb} from "../../../../contracts/messaging/interfaces/ambs/ArbitrumL2Amb.sol";
+import {IArbitrumInbox} from "../../../../contracts/messaging/interfaces/ambs/arbitrum/IArbitrumInbox.sol";
+import {ArbitrumL2Amb} from "../../../../contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
+
+contract MockArbitrumRollup {
+  Node _node;
+
+  function getNode(uint64 _nodeNum) public view returns (Node memory) {
+    return _node;
+  }
+
+  function setNode(bytes32 _confirmData) public {
+    Node memory node;
+    node.confirmData = _confirmData;
+    _node = node;
+  }
+}
+
+contract MockArbitrumOutbox {
+  address private _rollup;
+  bytes32 root;
+
+  constructor(address rollup_) {
+    _rollup = rollup_;
+  }
+
+  function rollup() public view returns (address) {
+    return _rollup;
+  }
+
+  function setMerkleRoot(bytes32 _root) public {
+    root = _root;
+  }
+
+  function calculateItemHash(
+    address l2Sender,
+    address to,
+    uint256 l2Block,
+    uint256 l1Block,
+    uint256 l2Timestamp,
+    uint256 value,
+    bytes calldata data
+  ) public pure returns (bytes32) {
+    return keccak256(abi.encodePacked(l2Sender, to, l2Block, l1Block, l2Timestamp, value, data));
+  }
+
+  function calculateMerkleRoot(
+    bytes32[] memory proof,
+    uint256 path,
+    bytes32 item
+  ) public returns (bytes32) {
+    return root;
+  }
+}
 
 contract ArbitrumHubConnectorTest is ConnectorHelper {
   // ============ Events ============
@@ -22,12 +74,47 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
 
   // ============ Storage ============
   uint256 _defaultGasPrice = 10 gwei;
+  address _outbox;
+  address _rollup;
+
+  // processFromRoot argument defaults
+  uint64 _nodeNum = 17623;
+  bytes32 _sendRoot = bytes32(abi.encode(12321));
+  bytes32 _blockHash = bytes32(abi.encode(5646465));
+  bytes32[] _proof = [_sendRoot, _blockHash];
+  uint256 _index = 2;
+  bytes32 _root = bytes32(abi.encode(3131312252525));
+  L2Message _message;
 
   function setUp() public {
     _l2Connector = address(3432123);
+    // deploy rollup
+    _rollup = address(new MockArbitrumRollup());
+    // deploy outbox
+    _outbox = address(new MockArbitrumOutbox(_rollup));
     // deploy
     _l1Connector = address(
-      new ArbitrumHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, _l2Connector, _mirrorGas, _defaultGasPrice)
+      new ArbitrumHubConnector(
+        _l1Domain,
+        _l2Domain,
+        _amb,
+        _rootManager,
+        _l2Connector,
+        _mirrorGas,
+        _defaultGasPrice,
+        _outbox
+      )
+    );
+
+    // set message
+    _message = L2Message(
+      _l2Connector, // l2Sender
+      _l1Connector, // to
+      1232, // l2Block
+      123123, // l1Block
+      block.timestamp, // l2Timestamp
+      0, // value
+      abi.encodeWithSelector(Connector.processMessage.selector, _root) // callData
     );
   }
 
@@ -43,9 +130,78 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
   }
 
   function utils_setHubConnectorProcessMocks(address _sender) public {
+    _message.l2Sender = _sender;
     utils_setHubConnectorVerifyMocks(_sender);
+    // call to get node and validate confirmData
+    // - set the confirm data on the node
+    MockArbitrumRollup(_rollup).setNode(keccak256(abi.encodePacked(_blockHash, _sendRoot)));
+
+    // call to get the item hash -- fn implemented on mock outbox
+
+    // call to calculate the merkle root
+    MockArbitrumOutbox(_outbox).setMerkleRoot(_sendRoot);
+
     // 3. call to root manager
     vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector), abi.encode(true));
+  }
+
+  function utils_setHubConnectorProcessAssertAndCall() public {
+    // should call getNode
+    vm.expectCall(_rollup, abi.encodeWithSelector(MockArbitrumRollup.getNode.selector, _nodeNum));
+
+    // should call calculateItemHash
+    vm.expectCall(
+      _outbox,
+      abi.encodeWithSelector(
+        MockArbitrumOutbox.calculateItemHash.selector,
+        _message.l2Sender,
+        _message.to,
+        _message.l2Block,
+        _message.l1Block,
+        _message.l2Timestamp,
+        _message.value,
+        _message.callData
+      )
+    );
+
+    // should call calculateMerkleRoot
+    vm.expectCall(
+      _outbox,
+      abi.encodeWithSelector(
+        MockArbitrumOutbox.calculateMerkleRoot.selector,
+        _proof,
+        _index,
+        MockArbitrumOutbox(_outbox).calculateItemHash(
+          _message.l2Sender,
+          _message.to,
+          _message.l2Block,
+          _message.l1Block,
+          _message.l2Timestamp,
+          _message.value,
+          _message.callData
+        )
+      )
+    );
+
+    // should call root manager
+    vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.setOutboundRoot.selector, _l2Domain, _root));
+
+    // should emit an event
+    vm.expectEmit(true, true, true, true);
+    emit MessageProcessed(_message.callData, address(this));
+
+    // make call
+    ArbitrumHubConnector(_l1Connector).processMessageFromRoot(
+      _nodeNum,
+      _sendRoot,
+      _blockHash,
+      _proof,
+      _index,
+      _message
+    );
+
+    // ensure the index is processed
+    assertTrue(ArbitrumHubConnector(_l1Connector).processed(_index));
   }
 
   // ============ ArbitrumHubConnector.setDefaultGasPrice ============
@@ -87,10 +243,10 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
   // ============ ArbitrumHubConnector.sendMessage ============
   function test_ArbitrumHubConnector__sendMessage_works() public {
     // setup mock
-    vm.mockCall(_amb, abi.encodeWithSelector(ArbitrumL1Amb.sendContractTransaction.selector), abi.encode(123));
+    vm.mockCall(_amb, abi.encodeWithSelector(IArbitrumInbox.sendContractTransaction.selector), abi.encode(123));
 
     // data
-    bytes memory _data = abi.encode(123123123);
+    bytes memory _data = abi.encodePacked(bytes32(bytes("test")));
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
@@ -100,12 +256,12 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     vm.expectCall(
       _amb,
       abi.encodeWithSelector(
-        ArbitrumL1Amb.sendContractTransaction.selector,
+        IArbitrumInbox.sendContractTransaction.selector,
         _mirrorGas,
         _defaultGasPrice,
         _l2Connector,
         0,
-        _data
+        abi.encodeWithSelector(Connector.processMessage.selector, _data)
       )
     );
 
@@ -113,58 +269,132 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     ArbitrumHubConnector(_l1Connector).sendMessage(_data);
   }
 
-  // ============ ArbitrumHubConnector.processMessage ============
-  function test_ArbitrumHubConnector__processMessage_works() public {
+  // ============ ArbitrumHubConnector.processMessageFromRootFromRoot ============
+  function test_ArbitrumHubConnector__processMessageFromRoot_works() public {
     utils_setHubConnectorProcessMocks(_l2Connector);
-
-    // get outbound data
-    bytes memory _data = abi.encode(bytes32("test"));
-
-    // should emit an event
-    vm.expectEmit(true, true, true, true);
-    emit MessageProcessed(_data, _amb);
-
-    // should call root manager
-    vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector, _l2Domain, bytes32(_data)));
-
-    // call comes from amb
-    vm.prank(_amb);
-    // make call
-    ArbitrumHubConnector(_l1Connector).processMessage(_data);
+    utils_setHubConnectorProcessAssertAndCall();
   }
 
-  function test_ArbitrumHubConnector__processMessage_failsIfNotSentByBridge() public {
+  function test_ArbitrumHubConnector__processMessageFromRoot_failsIfInvalidSendRoot() public {
     utils_setHubConnectorProcessMocks(_l2Connector);
 
-    // call does not originate from amb
-    vm.expectRevert(bytes("!AMB"));
-    // make call
-    ArbitrumHubConnector(_l1Connector).processMessage(abi.encode(bytes32("test")));
+    // set confirmdata
+    MockArbitrumRollup(_rollup).setNode(keccak256(abi.encodePacked("failure")));
+
+    vm.expectRevert("!confirmData");
+    ArbitrumHubConnector(_l1Connector).processMessageFromRoot(
+      _nodeNum,
+      _sendRoot,
+      _blockHash,
+      _proof,
+      _index,
+      _message
+    );
   }
 
-  function test_ArbitrumHubConnector__processMessage_failsIfNotMirrorConnector() public {
+  function test_ArbitrumHubConnector__processMessageFromRoot_failsIfNotMirrorConnector() public {
     // setup mocks
     utils_setHubConnectorProcessMocks(address(654321));
 
-    // should revert because not bridge
+    // should revert because not connector
     vm.expectRevert(bytes("!mirrorConnector"));
-    // call comes from amb
-    vm.prank(_amb);
     // make call
-    ArbitrumHubConnector(_l1Connector).processMessage(abi.encode(bytes32("test")));
+    ArbitrumHubConnector(_l1Connector).processMessageFromRoot(
+      _nodeNum,
+      _sendRoot,
+      _blockHash,
+      _proof,
+      _index,
+      _message
+    );
   }
 
-  function test_ArbitrumHubConnector__processMessage_failsIfNot32Bytes() public {
+  function test_ArbitrumHubConnector__processMessageFromRoot_failsIfProofTooLong() public {
+    _proof = new bytes32[](257);
     utils_setHubConnectorProcessMocks(_l2Connector);
 
-    // get outbound data
-    bytes memory _data = abi.encode(bytes32("test"), 123123123);
+    // should revert because proof length
+    vm.expectRevert(bytes("proof length"));
+    // make call
+    ArbitrumHubConnector(_l1Connector).processMessageFromRoot(
+      _nodeNum,
+      _sendRoot,
+      _blockHash,
+      _proof,
+      _index,
+      _message
+    );
+  }
+
+  function test_ArbitrumHubConnector__processMessageFromRoot_failsIfProofNotMinimal() public {
+    _index = 3021548;
+    utils_setHubConnectorProcessMocks(_l2Connector);
+
+    // should revert because proof length
+    vm.expectRevert(bytes("!minimal proof"));
+    // make call
+    ArbitrumHubConnector(_l1Connector).processMessageFromRoot(
+      _nodeNum,
+      _sendRoot,
+      _blockHash,
+      _proof,
+      _index,
+      _message
+    );
+  }
+
+  function test_ArbitrumHubConnector__processMessageFromRoot_failsIfAlreadyProcessed() public {
+    utils_setHubConnectorProcessMocks(_l2Connector);
+    utils_setHubConnectorProcessAssertAndCall();
+
+    // should revert because proof length
+    vm.expectRevert(bytes("spent"));
+    // make call
+    ArbitrumHubConnector(_l1Connector).processMessageFromRoot(
+      _nodeNum,
+      _sendRoot,
+      _blockHash,
+      _proof,
+      _index,
+      _message
+    );
+  }
+
+  function test_ArbitrumHubConnector__processMessageFromRoot_failsIfIncorrectProof() public {
+    utils_setHubConnectorProcessMocks(_l2Connector);
+
+    // call to calculate the merkle root
+    MockArbitrumOutbox(_outbox).setMerkleRoot(bytes32(abi.encodePacked("so dumb i cant merkle omg")));
+
+    // should revert because proof length
+    vm.expectRevert(bytes("!proof"));
+    // make call
+    ArbitrumHubConnector(_l1Connector).processMessageFromRoot(
+      _nodeNum,
+      _sendRoot,
+      _blockHash,
+      _proof,
+      _index,
+      _message
+    );
+  }
+
+  function test_ArbitrumHubConnector__processMessageFromRoot_failsIfNot36Bytes() public {
+    _message.callData = abi.encode(
+      "somehow this should be longer than 36 bytes and really i should use a more elegant way to generate this but its the last test so im feeling pretty quick and dirty and my typing speed is faster than trying to think rn"
+    );
+    utils_setHubConnectorProcessMocks(_l2Connector);
 
     // should revert because not bridge
     vm.expectRevert(bytes("!length"));
-    // call comes from amb
-    vm.prank(_amb);
     // make call
-    ArbitrumHubConnector(_l1Connector).processMessage(_data);
+    ArbitrumHubConnector(_l1Connector).processMessageFromRoot(
+      _nodeNum,
+      _sendRoot,
+      _blockHash,
+      _proof,
+      _index,
+      _message
+    );
   }
 }
