@@ -27,7 +27,7 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
-export interface NomadFacetInterface extends utils.Interface {
+export interface InboxFacetInterface extends utils.Interface {
   functions: {
     "handle(uint32,uint32,bytes32,bytes)": FunctionFragment;
   };
@@ -48,7 +48,7 @@ export interface NomadFacetInterface extends utils.Interface {
 
   events: {
     "Receive(uint64,address,address,address,uint256)": EventFragment;
-    "Reconciled(bytes32,uint32,address[],address,uint256,address)": EventFragment;
+    "Reconciled(bytes32,uint32,address,address[],uint256,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Receive"): EventFragment;
@@ -72,24 +72,24 @@ export type ReceiveEventFilter = TypedEventFilter<ReceiveEvent>;
 export interface ReconciledEventObject {
   transferId: string;
   originDomain: number;
+  local: string;
   routers: string[];
-  asset: string;
   amount: BigNumber;
   caller: string;
 }
 export type ReconciledEvent = TypedEvent<
-  [string, number, string[], string, BigNumber, string],
+  [string, number, string, string[], BigNumber, string],
   ReconciledEventObject
 >;
 
 export type ReconciledEventFilter = TypedEventFilter<ReconciledEvent>;
 
-export interface NomadFacet extends BaseContract {
+export interface InboxFacet extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: NomadFacetInterface;
+  interface: InboxFacetInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -154,19 +154,19 @@ export interface NomadFacet extends BaseContract {
       amount?: null
     ): ReceiveEventFilter;
 
-    "Reconciled(bytes32,uint32,address[],address,uint256,address)"(
+    "Reconciled(bytes32,uint32,address,address[],uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
-      originDomain?: null,
+      originDomain?: PromiseOrValue<BigNumberish> | null,
+      local?: PromiseOrValue<string> | null,
       routers?: null,
-      asset?: null,
       amount?: null,
       caller?: null
     ): ReconciledEventFilter;
     Reconciled(
       transferId?: PromiseOrValue<BytesLike> | null,
-      originDomain?: null,
+      originDomain?: PromiseOrValue<BigNumberish> | null,
+      local?: PromiseOrValue<string> | null,
       routers?: null,
-      asset?: null,
       amount?: null,
       caller?: null
     ): ReconciledEventFilter;

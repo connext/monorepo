@@ -585,19 +585,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "bridgeRouter",
-    outputs: [
-      {
-        internalType: "contract IBridgeRouter",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "bytes32",
@@ -1698,19 +1685,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_oldRepr",
-        type: "address",
-      },
-    ],
-    name: "migrate",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "nonce",
     outputs: [
@@ -1721,49 +1695,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "_origin",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes32",
-        name: "_sender",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint32",
-        name: "_tokenDomain",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes32",
-        name: "_tokenAddress",
-        type: "bytes32",
-      },
-      {
-        internalType: "address",
-        name: "_localToken",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes",
-        name: "_extraData",
-        type: "bytes",
-      },
-    ],
-    name: "onReceive",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -2567,78 +2498,6 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "_token",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint32",
-        name: "_destination",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes32",
-        name: "_recipient",
-        type: "bytes32",
-      },
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    name: "send",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_token",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint32",
-        name: "_destination",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes32",
-        name: "_remoteHook",
-        type: "bytes32",
-      },
-      {
-        internalType: "bytes",
-        name: "_extraData",
-        type: "bytes",
-      },
-    ],
-    name: "sendToHook",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
         name: "_aavePool",
         type: "address",
       },
@@ -2657,19 +2516,6 @@ const _abi = [
       },
     ],
     name: "setAavePortalFee",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_bridge",
-        type: "address",
-      },
-    ],
-    name: "setBridgeRouter",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

@@ -19,7 +19,7 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
-import {BridgeMessage} from "../helpers/BridgeMessage.sol";
+import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 
 import {Router} from "../../Router.sol";
 
@@ -37,8 +37,6 @@ contract BridgeFacet is BaseConnextFacet {
   using BridgeMessage for bytes29;
   using SafeERC20 for IERC20;
 
-  // ========== Structs ===========
-
   // ========== Custom Errors ===========
 
   error BridgeFacet__addRemote_invalidDomain();
@@ -46,7 +44,6 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__addSequencer_alreadyApproved();
   error BridgeFacet__removeSequencer_notApproved();
   error BridgeFacet__xcall_nativeAssetNotSupported();
-  error BridgeFacet__xcall_destinationNotSupported();
   error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_invalidSlippage();
@@ -65,6 +62,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__bumpTransfer_valueIsZero();
   error BridgeFacet__forceUpdateSlippage_invalidSlippage();
   error BridgeFacet__forceUpdateSlippage_notDestination();
+  error BridgeFacet__mustHaveRemote_destinationNotSupported();
 
   // ============ Properties ============
 
@@ -74,12 +72,20 @@ contract BridgeFacet is BaseConnextFacet {
   // ============ Events ============
 
   /**
-   * @notice Emitted when `xcall` is called on the origin domain
+   * @notice Emitted when `xcall` is called on the origin domain of a transfer.
    * @param transferId - The unique identifier of the crosschain transfer.
    * @param nonce - The bridge nonce of the transfer on the origin domain.
+   * @param messageHash - The hash of the message bytes (containing all transfer info) that were bridged.
    * @param params - The `CallParams` provided to the function.
+   * @param local - The address of the local asset (i.e. bridged token) used in the transfer.
    */
-  event XCalled(bytes32 indexed transferId, uint256 indexed nonce, bytes32 indexed messageHash, CallParams params);
+  event XCalled(
+    bytes32 indexed transferId,
+    uint256 indexed nonce,
+    bytes32 indexed messageHash,
+    CallParams params,
+    address local
+  );
 
   /**
    * @notice Emitted when a transfer has its external data executed
@@ -90,22 +96,25 @@ contract BridgeFacet is BaseConnextFacet {
   event ExternalCalldataExecuted(bytes32 indexed transferId, bool success, bytes returnData);
 
   /**
-   * @notice Emitted when `execute` is called on the destination chain
-   * @dev `execute` may be called when providing fast liquidity *or* when processing a reconciled transfer
+   * @notice Emitted when `execute` is called on the destination domain of a transfer.
+   * @dev `execute` may be called when providing fast liquidity or when processing a reconciled (slow) transfer.
    * @param transferId - The unique identifier of the crosschain transfer.
    * @param to - The recipient `CallParams.to` provided, created as indexed parameter.
-   * @param args - The `ExecuteArgs` provided to the function.
-   * @param asset - The asset the to gets or the external call is executed with. Should be the
+   * @param asset - The asset the recipient is given or the external call is executed with. Should be the
    * adopted asset on that chain.
-   * @param amount - The amount of transferring asset the to address receives or the external call is
+   * @param args - The `ExecuteArgs` provided to the function.
+   * @param local - The local asset that was either supplied by the router for a fast-liquidity transfer or
+   * minted by the bridge in a reconciled (slow) transfer. Could be the same as the adopted `asset` param.
+   * @param amount - The amount of transferring asset the recipient address receives or the external call is
    * executed with.
    * @param caller - The account that called the function.
    */
   event Executed(
     bytes32 indexed transferId,
     address indexed to,
+    address indexed asset,
     ExecuteArgs args,
-    address asset,
+    address local,
     uint256 amount,
     address caller
   );
@@ -191,46 +200,7 @@ contract BridgeFacet is BaseConnextFacet {
     bool toHook
   );
 
-  /**
-   * @notice emitted when tokens are dispensed to an account on this domain
-   *         emitted both when fast liquidity is provided, and when the
-   *         transfer ultimately settles
-   * @param originAndNonce Domain where the transfer originated and the
-   *        unique identifier for the message from origin to destination,
-   *        combined in a single field ((origin << 32) & nonce)
-   * @param token The address of the local token contract being received
-   * @param recipient The address receiving the tokens; the original
-   *        recipient of the transfer
-   * @param liquidityProvider The account providing liquidity
-   * @param amount The amount of tokens being received
-   */
-  event Receive(
-    uint64 indexed originAndNonce,
-    address indexed token,
-    address indexed recipient,
-    address liquidityProvider,
-    uint256 amount
-  );
-
   // ============ Modifiers ============
-
-  /**
-   * @notice Only accept messages from an Nomad Replica contract.
-   */
-  modifier onlyReplica() {
-    require(_isReplica(msg.sender), "!replica");
-    _;
-  }
-
-  /**
-   * @notice Only accept messages from a remote Router contract.
-   * @param _origin The domain the message is coming from.
-   * @param _router The address the message is coming from.
-   */
-  modifier onlyRemoteRouter(uint32 _origin, bytes32 _router) {
-    require(_isRemoteRouter(_origin, _router), "!remote router");
-    _;
-  }
 
   /**
    * @notice Only accept a transfer's designated delegate.
@@ -422,7 +392,7 @@ contract BridgeFacet is BaseConnextFacet {
     // Supply assets to target recipient. Use router liquidity when this is a fast transfer, or mint bridge tokens
     // when this is a slow transfer.
     // NOTE: Asset will be adopted unless specified to `receiveLocal` in params.
-    (uint256 amountOut, address asset) = _handleExecuteLiquidity(
+    (uint256 amountOut, address asset, address local) = _handleExecuteLiquidity(
       transferId,
       _calculateCanonicalHash(_args.params.canonicalId, _args.params.canonicalDomain),
       !reconciled,
@@ -430,10 +400,10 @@ contract BridgeFacet is BaseConnextFacet {
     );
 
     // Execute the transaction using the designated calldata.
-    uint256 amountWithSponsors = _handleExecuteTransaction(_args, amountOut, asset, transferId, reconciled);
+    uint256 amount = _handleExecuteTransaction(_args, amountOut, asset, transferId, reconciled);
 
     // Emit event.
-    emit Executed(transferId, _args.params.to, _args, asset, amountWithSponsors, msg.sender);
+    emit Executed(transferId, _args.params.to, asset, _args, local, amount, msg.sender);
 
     return transferId;
   }
@@ -478,118 +448,6 @@ contract BridgeFacet is BaseConnextFacet {
     emit SlippageUpdated(transferId, _slippage);
   }
 
-  // ============ Public Functions: Messaging Layer ============
-
-  /**
-   * @notice Handles an incoming message
-   * @param _origin The origin domain
-   * @param _nonce The unique identifier for the message from origin to
-   *        destination
-   * @param _sender The sender address
-   * @param _message The message
-   */
-  function handle(
-    uint32 _origin,
-    uint32 _nonce,
-    bytes32 _sender,
-    bytes memory _message
-  ) external onlyReplica onlyRemoteRouter(_origin, _sender) {
-    // parse tokenId and action from message
-    bytes29 _msg = _message.ref(0).mustBeMessage();
-    bytes29 _tokenId = _msg.tokenId();
-    bytes29 _action = _msg.action();
-    // handle message based on the intended action
-    if (_action.isTransfer()) {
-      _handleTransfer(_origin, _nonce, _tokenId, _action);
-    } else if (_action.isTransferToHook()) {
-      _handleTransferToHook(_origin, _nonce, _tokenId, _action);
-    } else {
-      require(false, "!valid action");
-    }
-  }
-
-  /**
-   * @notice Send tokens to a recipient on a remote chain
-   * @param _token The token address
-   * @param _amount The token amount
-   * @param _destination The destination domain
-   * @param _recipient The recipient address
-   */
-  function send(
-    address _token,
-    uint256 _amount,
-    uint32 _destination,
-    bytes32 _recipient,
-    bool /*_enableFast - deprecated field, left argument for backwards compatibility */
-  ) external {
-    // validate inputs
-    require(_recipient != bytes32(0), "!recip");
-    // get the token id
-    (bytes29 _tokenId, bytes32 _detailsHash, bool _isLocal) = _getTokenIdAndDetailsHash(_token);
-    // debit tokens from the sender
-    _takeTokens(_token, _amount, _isLocal);
-    // format Transfer message
-    bytes29 _action = BridgeMessage.formatTransfer(_recipient, _amount, _detailsHash);
-    // send message to destination chain bridge router
-    _sendTransferMessage(_destination, _tokenId, _action);
-    // emit Send event to record token sender
-    emit Send(_token, msg.sender, _destination, _recipient, _amount, false);
-  }
-
-  /**
-   * @notice Send tokens to a hook on the remote chain
-   * @param _token The token address
-   * @param _amount The token amount
-   * @param _destination The destination domain
-   * @param _remoteHook The hook contract on the remote chain
-   * @param _extraData Extra data that will be passed to the hook for
-   *        execution
-   */
-  // TODO: does this need to be public?
-  function sendToHook(
-    address _token,
-    uint256 _amount,
-    uint32 _destination,
-    bytes32 _remoteHook,
-    bytes memory _extraData
-  ) public returns (bytes32) {
-    // get the token id
-    (bytes29 _tokenId, bytes32 _detailsHash, bool _isLocal) = _getTokenIdAndDetailsHash(_token);
-    // debit tokens from the sender
-    _takeTokens(_token, _amount, _isLocal);
-    // format Hook transfer message
-    bytes29 _action = BridgeMessage.formatTransferToHook(
-      _remoteHook,
-      _amount,
-      _detailsHash,
-      TypeCasts.addressToBytes32(msg.sender),
-      _extraData
-    );
-    // send message to destination chain bridge router
-    bytes32 _messageHash = _sendTransferMessage(_destination, _tokenId, _action);
-    // emit Send event to record token sender
-    emit Send(_token, msg.sender, _destination, _remoteHook, _amount, true);
-    return _messageHash;
-  }
-
-  /**
-   * @notice Migrate all tokens in a previous representation to the latest
-   *         custom representation. This works by looking up local mappings
-   *         and then burning old tokens and minting new tokens.
-   * @dev This is explicitly opt-in to allow dapps to decide when and how to
-   *      upgrade to the new representation.
-   * @param _oldRepr The address of the old token to migrate
-   */
-  function migrate(address _oldRepr) external {
-    address _currentRepr = s.tokenRegistry.oldReprToCurrentRepr(_oldRepr);
-    require(_currentRepr != _oldRepr, "!different");
-    // burn the total balance of old tokens & mint the new ones
-    IBridgeToken _old = IBridgeToken(_oldRepr);
-    uint256 _bal = _old.balanceOf(msg.sender);
-    _old.burn(msg.sender, _bal);
-    IBridgeToken(_currentRepr).mint(msg.sender, _bal);
-  }
-
   // ============ Internal: Bridge ============
 
   /**
@@ -625,10 +483,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Destination domain is supported.
       // NOTE: This check implicitly also checks that `_params.destinationDomain != s.domain`, because the index
       // `s.domain` of `s.remotes` should always be `bytes32(0)`.
-      remoteInstance = s.remotes[_params.destinationDomain];
-      if (remoteInstance == bytes32(0)) {
-        revert BridgeFacet__xcall_destinationNotSupported();
-      }
+      remoteInstance = _mustHaveRemote(_params.destinationDomain);
 
       // Recipient defined.
       if (_params.to == address(0)) {
@@ -721,17 +576,11 @@ contract BridgeFacet is BaseConnextFacet {
       s.relayerFees[transferId] += msg.value;
 
       // Send the crosschain message.
-      messageHash = sendToHook(
-        local,
-        _params.bridgedAmt,
-        _params.destinationDomain,
-        remoteInstance,
-        abi.encode(transferId)
-      );
+      messageHash = _sendMessage(local, _params.bridgedAmt, _params.destinationDomain, remoteInstance, transferId);
     }
 
     // emit event
-    emit XCalled(transferId, _params.nonce, messageHash, _params);
+    emit XCalled(transferId, _params.nonce, messageHash, _params, local);
 
     return transferId;
   }
@@ -748,8 +597,8 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Performs some sanity checks for `execute`
-   * @dev Need this to prevent stack too deep
+   * @notice Performs some sanity checks for `execute`.
+   * @dev Need this to prevent stack too deep.
    */
   function _executeSanityChecks(ExecuteArgs calldata _args) private view returns (bytes32, bool) {
     // If the sender is not approved relayer, revert
@@ -848,24 +697,35 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Execute liquidity process used when calling `execute`
-   * @dev Need this to prevent stack too deep
+   * @notice Execute liquidity process used when calling `execute`.
+   * @dev Will revert with underflow if any router in the path has insufficient liquidity to provide
+   * for the transfer.
+   * @dev Need this to prevent stack too deep.
    */
   function _handleExecuteLiquidity(
     bytes32 _transferId,
     bytes32 _key,
     bool _isFast,
     ExecuteArgs calldata _args
-  ) private returns (uint256, address) {
+  )
+    private
+    returns (
+      uint256,
+      address,
+      address
+    )
+  {
     // Save the addresses of all routers providing liquidity for this transfer.
     s.routedTransfers[_transferId] = _args.routers;
 
-    // Get the local asset
+    // Get the local asset contract address.
     address local = s.tokenRegistry.getLocalAddress(_args.params.canonicalDomain, _args.params.canonicalId);
 
+    // If this is a zero-value transfer, short-circuit remaining logic.
     if (_args.params.bridgedAmt == 0) {
-      return (0, local);
+      return (0, local, local);
     }
+
     uint256 toSwap = _args.params.bridgedAmt;
     // If this is a fast liquidity path, we should handle deducting from applicable routers' liquidity.
     // If this is a slow liquidity path, the transfer must have been reconciled (if we've reached this point),
@@ -879,16 +739,22 @@ contract BridgeFacet is BaseConnextFacet {
 
       if (pathLen == 1) {
         // If router does not have enough liquidity, try to use Aave Portals.
-        // only one router should be responsible for taking on this credit risk, and it should only
-        // deal with transfers expecting adopted assets (to avoid introducing runtime slippage).
+        // NOTE: Only one router should be responsible for taking on this credit risk, and it should only deal
+        // with transfers expecting adopted assets (to avoid introducing runtime slippage).
         if (
           !_args.params.receiveLocal && s.routerBalances[_args.routers[0]][local] < toSwap && s.aavePool != address(0)
         ) {
           if (!s.routerPermissionInfo.approvedForPortalRouters[_args.routers[0]])
             revert BridgeFacet__execute_notApprovedForPortals();
 
-          // Portal provides the adopted asset so we early return here
-          return _executePortalTransfer(_transferId, _key, toSwap, _args.routers[0]);
+          // Portals deliver the adopted asset directly; return after portal execution is completed.
+          (uint256 portalDeliveredAmount, address adoptedAsset) = _executePortalTransfer(
+            _transferId,
+            _key,
+            toSwap,
+            _args.routers[0]
+          );
+          return (portalDeliveredAmount, adoptedAsset, local);
         } else {
           // Decrement the router's liquidity.
           s.routerBalances[_args.routers[0]][local] -= toSwap;
@@ -898,6 +764,7 @@ contract BridgeFacet is BaseConnextFacet {
         uint256 routerAmount = toSwap / pathLen;
         for (uint256 i; i < pathLen - 1; ) {
           // Decrement router's liquidity.
+          // NOTE: If any router in the path has insufficient liquidity, this will revert with an underflow error.
           s.routerBalances[_args.routers[i]][local] -= routerAmount;
 
           unchecked {
@@ -910,22 +777,22 @@ contract BridgeFacet is BaseConnextFacet {
       }
     }
 
-    // if the local asset is specified, or the adopted asset was overridden (i.e. when
-    // user facing slippage conditions outside of their boundaries), exit
+    // If the local asset is specified, or the adopted asset was overridden (e.g. when user facing slippage
+    // conditions outside of their boundaries), exit without swapping.
     if (_args.params.receiveLocal) {
-      return (toSwap, local);
+      return (toSwap, local, local);
     }
 
-    // swap out of mad* asset into adopted asset if needed
+    // Swap out of representational asset into adopted asset if needed.
     uint256 slippageOverride = s.slippage[_transferId];
-    return
-      AssetLogic.swapFromLocalAssetIfNeeded(
-        _key,
-        local,
-        toSwap,
-        slippageOverride != 0 ? slippageOverride : _args.params.slippage,
-        _args.params.normalizedIn
-      );
+    (uint256 amount, address adopted) = AssetLogic.swapFromLocalAssetIfNeeded(
+      _key,
+      local,
+      toSwap,
+      slippageOverride != 0 ? slippageOverride : _args.params.slippage,
+      _args.params.normalizedIn
+    );
+    return (amount, adopted, local);
   }
 
   /**
@@ -1051,6 +918,38 @@ contract BridgeFacet is BaseConnextFacet {
   // ============ Internal: Send ============
 
   /**
+   * @notice Send transfer message to a remote chain
+   * @param _token The token address
+   * @param _amount The token amount
+   * @param _destination The destination domain
+   * @param _connextion The connext instance on the destination domain
+   * @param _transferId Unique identifier for the transfer
+   */
+  function _sendMessage(
+    address _token,
+    uint256 _amount,
+    uint32 _destination,
+    bytes32 _connextion,
+    bytes32 _transferId
+  ) private returns (bytes32) {
+    // get the token id
+    (bytes29 _tokenId, bytes32 _detailsHash, bool _isLocal) = _getTokenIdAndDetailsHash(_token);
+    // debit tokens from the sender
+    _takeTokens(_token, _amount, _isLocal);
+    // format Hook transfer message
+    bytes29 _action = BridgeMessage.formatTransfer(_amount, _detailsHash, _transferId);
+    // send message to destination chain bridge router
+    bytes32 _messageHash = IOutbox(s.xAppConnectionManager.home()).dispatch(
+      _destination,
+      _connextion,
+      BridgeMessage.formatMessage(_tokenId, _action)
+    );
+    // emit Send event to record token sender
+    emit Send(_token, msg.sender, _destination, _connextion, _amount, true);
+    return _messageHash;
+  }
+
+  /**
    * @notice Take from msg.sender as part of sending tokens across chains
    * @dev Locks canonical tokens in escrow in BridgeRouter
    *      OR Burns representation tokens
@@ -1121,231 +1020,14 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Dispatch a message via Nomad to a destination domain
-   *         addressed to the remote BridgeRouter on that chain
-   * @dev Message will trigger `handle` method on the remote BridgeRouter
-   *      when it is received on the destination chain
-   * @param _destination The domain of the destination chain
-   * @param _tokenId The canonical token identifier for the transfer message
-   * @param _action The contents of the transfer message
-   */
-  function _sendTransferMessage(
-    uint32 _destination,
-    bytes29 _tokenId,
-    bytes29 _action
-  ) internal returns (bytes32) {
-    // get remote BridgeRouter address; revert if not found
-    bytes32 _remote = _mustHaveRemote(_destination);
-    // send message to remote chain via Nomad
-    return
-      IOutbox(s.xAppConnectionManager.home()).dispatch(
-        _destination,
-        _remote,
-        BridgeMessage.formatMessage(_tokenId, _action)
-      );
-  }
-
-  // ============ Internal: Handle ============
-
-  /**
-   * @notice Handles an incoming Transfer message.
-   *
-   * If the token is of local origin, the amount is sent from escrow.
-   * Otherwise, a representation token is minted.
-   *
-   * @param _origin The domain of the chain from which the transfer originated
-   * @param _nonce The unique identifier for the message from origin to
-   *        destination
-   * @param _tokenId The token ID
-   * @param _action The action
-   */
-  function _handleTransfer(
-    uint32 _origin,
-    uint32 _nonce,
-    bytes29 _tokenId,
-    bytes29 _action
-  ) internal {
-    // tokens will be sent to the specified recipient
-    address _recipient = _action.evmRecipient();
-    // send tokens
-    _giveTokens(_origin, _nonce, _tokenId, _action, _recipient);
-    // dust the recipient with gas tokens
-    _dust(_recipient);
-  }
-
-  /**
-   * @notice Handles an incoming TransferToHook message.
-   *
-   * @dev The hook is called AFTER tokens have been transferred to the hook
-   *      contract. If this hook errors, the bridge WILL NOT revert, and the
-   *      hook contract will own those tokens. Hook contracts MUST have a
-   *      recovery plan in place for these situations.
-   *
-   * @param _origin The domain of the chain from which the transfer originated
-   * @param _nonce The unique identifier for the message from origin to destination
-   * @param _tokenId The token ID
-   * @param _action The action
-   */
-  function _handleTransferToHook(
-    uint32 _origin,
-    uint32 _nonce,
-    bytes29 _tokenId,
-    bytes29 _action
-  ) internal {
-    // tokens will be sent to user-specified hook
-    address _hook = _action.evmHook();
-    // send tokens
-    address _token = _giveTokens(_origin, _nonce, _tokenId, _action, _hook);
-    // NOTE: in the case of 0-value transfers, the token will be empty
-    // ABI-encode the calldata for a `Hook.onRecive` call
-    bytes memory _call = abi.encodeWithSelector(
-      IBridgeHook.onReceive.selector,
-      _origin,
-      _action.sender(),
-      _tokenId.domain(),
-      _tokenId.id(),
-      _token,
-      _action.amnt(),
-      _action.extraData().clone()
-    );
-    // Call the hook with the ABI-encoded payload
-    // We use a low-level call here so that solc will skip pre-call
-    // and post-call checks. Specifically we want to skip
-    // 1. pre-flight extcode check
-    // 2. post-flight success check
-    // We do this so that the hook contract need not exist, and need
-    // not execute succesfully
-    _hook.call(_call);
-  }
-
-  /**
-   * @notice Send tokens to a specified recipient.
-   * @dev Unlocks canonical tokens from escrow in BridgeRouter
-   *      OR Mints representation tokens
-   * @param _origin The domain of the chain from which the transfer originated
-   * @param _nonce The unique identifier for the message from origin to
-   *        destination
-   * @param _tokenId The canonical token identifier to credit
-   * @param _action The contents of the transfer message
-   * @param _recipient The recipient that will receive tokens
-   * @return _token The address of the local token contract
-   */
-  function _giveTokens(
-    uint32 _origin,
-    uint32 _nonce,
-    bytes29 _tokenId,
-    bytes29 _action,
-    address _recipient
-  ) internal returns (address _token) {
-    // get the token contract for the given tokenId on this chain;
-    // (if the token is of remote origin and there is
-    // no existing representation token contract, the TokenRegistry will
-    // deploy a new one)
-    _token = s.tokenRegistry.ensureLocalToken(_tokenId.domain(), _tokenId.id());
-    // load amount once
-    uint256 _amount = _action.amnt();
-    if (_amount == 0) {
-      // emit receive event
-      emit Receive(_originAndNonce(_origin, _nonce), _token, _recipient, address(0), _amount);
-      // exit early
-      return _token;
-    }
-    // send the tokens into circulation on this chain
-    if (s.tokenRegistry.isLocalOrigin(_token)) {
-      // if the token is of local origin, the tokens have been held in
-      // escrow in this contract
-      // while they have been circulating on remote chains;
-      // transfer the tokens to the recipient
-      IERC20(_token).safeTransfer(_recipient, _amount);
-    } else {
-      // if the token is of remote origin, mint the tokens to the
-      // recipient on this chain
-      IBridgeToken(_token).mint(_recipient, _amount);
-      // Tell the token what its detailsHash is
-      IBridgeToken(_token).setDetailsHash(_action.detailsHash());
-    }
-    // emit Receive event
-    emit Receive(_originAndNonce(_origin, _nonce), _token, _recipient, address(0), _amount);
-  }
-
-  // ============ Internal: Dust with Gas ============
-
-  /**
-   * @notice Dust the recipient. This feature allows chain operators to use
-   * the Bridge as a faucet if so desired. Any gas asset held by the
-   * bridge will be slowly sent to users who need initial gas bootstrapping
-   * @dev Does not dust if insufficient funds, or if user has funds already
-   */
-  function _dust(address _recipient) internal {
-    if (_recipient.balance < DUST_AMOUNT && address(this).balance >= DUST_AMOUNT) {
-      // `send` gives execution 2300 gas and returns a `success` boolean.
-      // however, we do not care if the call fails. A failed call
-      // indicates a smart contract attempting to execute logic, which we
-      // specifically do not want.
-      // While we could check EXTCODESIZE, it seems sufficient to rely on
-      // the 2300 gas stipend to ensure that no state change logic can
-      // be executed.
-      payable(_recipient).send(DUST_AMOUNT);
-    }
-  }
-
-  // ============ Internal: Utils ============
-
-  /**
-     * @notice Internal utility function that combines
-     *         `_origin` and `_nonce`.
-     * @dev Both origin and nonce should be less than 2^32 - 1
-     * @param _origin Domain of chain where the transfer originated
-     * @param _nonce The unique identifier for the message from origin to
-              destination
-     * @return Returns (`_origin` << 32) & `_nonce`
-     */
-  function _originAndNonce(uint32 _origin, uint32 _nonce) internal pure returns (uint64) {
-    return (uint64(_origin) << 32) | _nonce;
-  }
-
-  // ============ Internal: XAppConnectionManager ============
-
-  /**
-   * @notice Get the local Home contract from the xAppConnectionManager
-   * @return The local Home contract
-   */
-  function _home() internal view returns (IOutbox) {
-    return s.xAppConnectionManager.home();
-  }
-
-  /**
-   * @notice Determine whether _potentialReplica is an enrolled Replica from the xAppConnectionManager
-   * @return True if _potentialReplica is an enrolled Replica
-   */
-  function _isReplica(address _potentialReplica) internal view returns (bool) {
-    return s.xAppConnectionManager.isReplica(_potentialReplica);
-  }
-
-  /**
-   * @notice Get the local domain from the xAppConnectionManager
-   * @return The local domain
-   */
-  function _localDomain() internal view virtual returns (uint32) {
-    return s.xAppConnectionManager.localDomain();
-  }
-
-  /**
-   * @notice Return true if the given domain / router is the address of a remote xApp Router
-   * @param _domain The domain of the potential remote xApp Router
-   * @param _router The address of the potential remote xApp Router
-   */
-  function _isRemoteRouter(uint32 _domain, bytes32 _router) internal view returns (bool) {
-    return s.remotes[_domain] == _router && _router != bytes32(0);
-  }
-
-  /**
    * @notice Assert that the given domain has a xApp Router registered and return its address
    * @param _domain The domain of the chain for which to get the xApp Router
    * @return _remote The address of the remote xApp Router on _domain
    */
   function _mustHaveRemote(uint32 _domain) internal view returns (bytes32 _remote) {
     _remote = s.remotes[_domain];
-    require(_remote != bytes32(0), "!remote");
+    if (_remote == bytes32(0)) {
+      revert BridgeFacet__mustHaveRemote_destinationNotSupported();
+    }
   }
 }

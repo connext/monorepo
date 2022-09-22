@@ -606,17 +606,17 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BridgeFacet__mustHaveRemote_destinationNotSupported",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BridgeFacet__onlyDelegate_notDelegate",
     type: "error",
   },
   {
     inputs: [],
     name: "BridgeFacet__removeSequencer_notApproved",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BridgeFacet__xcall_destinationNotSupported",
     type: "error",
   },
   {
@@ -683,6 +683,12 @@ const _abi = [
         indexed: true,
         internalType: "address",
         name: "to",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "asset",
         type: "address",
       },
       {
@@ -788,7 +794,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
-        name: "asset",
+        name: "local",
         type: "address",
       },
       {
@@ -855,43 +861,6 @@ const _abi = [
       },
     ],
     name: "ExternalCalldataExecuted",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "uint64",
-        name: "originAndNonce",
-        type: "uint64",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "recipient",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "liquidityProvider",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "Receive",
     type: "event",
   },
   {
@@ -1162,6 +1131,12 @@ const _abi = [
         internalType: "struct CallParams",
         name: "params",
         type: "tuple",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "local",
+        type: "address",
       },
     ],
     name: "XCalled",
@@ -1491,47 +1466,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "_origin",
-        type: "uint32",
-      },
-      {
-        internalType: "uint32",
-        name: "_nonce",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes32",
-        name: "_sender",
-        type: "bytes32",
-      },
-      {
-        internalType: "bytes",
-        name: "_message",
-        type: "bytes",
-      },
-    ],
-    name: "handle",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_oldRepr",
-        type: "address",
-      },
-    ],
-    name: "migrate",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "nonce",
     outputs: [
@@ -1631,78 +1565,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_token",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint32",
-        name: "_destination",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes32",
-        name: "_recipient",
-        type: "bytes32",
-      },
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    name: "send",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_token",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint32",
-        name: "_destination",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes32",
-        name: "_remoteHook",
-        type: "bytes32",
-      },
-      {
-        internalType: "bytes",
-        name: "_extraData",
-        type: "bytes",
-      },
-    ],
-    name: "sendToHook",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {

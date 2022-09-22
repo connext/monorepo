@@ -27,7 +27,7 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
-export interface NomadFacetInterface extends utils.Interface {
+export interface InboundMessageFacetInterface extends utils.Interface {
   functions: {
     "handle(uint32,uint32,bytes32,bytes)": FunctionFragment;
   };
@@ -84,12 +84,12 @@ export type ReconciledEvent = TypedEvent<
 
 export type ReconciledEventFilter = TypedEventFilter<ReconciledEvent>;
 
-export interface NomadFacet extends BaseContract {
+export interface InboundMessageFacet extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: NomadFacetInterface;
+  interface: InboundMessageFacetInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
