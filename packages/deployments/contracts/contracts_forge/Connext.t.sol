@@ -54,22 +54,29 @@ struct ReconcileBalances {
 
 contract ConnextTest is ForgeHelper, Deployer {
   // ============ Events ============
-  event XCalled(bytes32 indexed transferId, uint256 indexed nonce, bytes32 indexed messageHash, CallParams params);
+  event XCalled(
+    bytes32 indexed transferId,
+    uint256 indexed nonce,
+    bytes32 indexed messageHash,
+    CallParams params,
+    address local
+  );
 
   event Executed(
     bytes32 indexed transferId,
     address indexed to,
+    address indexed asset,
     ExecuteArgs args,
-    address asset,
+    address local,
     uint256 amount,
     address caller
   );
 
   event Reconciled(
     bytes32 indexed transferId,
-    uint32 originDomain,
+    uint32 indexed originDomain,
+    address indexed local,
     address[] routers,
-    address asset,
     uint256 amount,
     address caller
   );
@@ -432,7 +439,8 @@ contract ConnextTest is ForgeHelper, Deployer {
         keccak256(abi.encode(params)),
         params.nonce,
         MockHome(address(MockXAppConnectionManager(address(_originManager)).home())).MESSAGE_HASH(),
-        params
+        params,
+        _originLocal
       );
     }
 
@@ -597,7 +605,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // Expect an event.
     vm.expectEmit(true, true, true, true);
-    emit Executed(transferId, args.params.to, args, receiving, bridgeOut + vaultOut, address(this));
+    emit Executed(transferId, args.params.to, receiving, args, _destinationLocal, bridgeOut + vaultOut, address(this));
 
     // Execute on the bridge.
     _destinationConnext.execute(args);
@@ -701,7 +709,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // expect emit
     vm.expectEmit(true, true, true, true);
-    emit Reconciled(transferId, _origin, routers, _destinationLocal, bridgedAmt, address(_destinationConnext));
+    emit Reconciled(transferId, _origin, _destinationLocal, routers, bridgedAmt, address(this));
 
     _destinationConnext.handle(
       _origin,
