@@ -7,10 +7,10 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
+import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 
 import {IAavePool} from "../interfaces/IAavePool.sol";
-import {IBridgeRouter} from "../interfaces/IBridgeRouter.sol";
-import {IBridgeHook} from "../interfaces/IBridgeHook.sol";
+import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
@@ -20,16 +20,43 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
  * the transfer
  *
  */
-contract NomadFacet is BaseConnextFacet, IBridgeHook {
+contract NomadFacet is BaseConnextFacet {
   // ============ Libraries ============
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
+  using BridgeMessage for bytes29;
 
   // ========== Custom Errors ===========
-  error NomadFacet__setBridgeRouter_invalidBridge();
+  error NomadFacet__onlyReplica_notReplica();
+  error NomadFacet__onlyRemoteRouter_notRemote();
+  error NomadFacet__handle_notTransfer();
   error NomadFacet__reconcile_notConnext();
   error NomadFacet__reconcile_alreadyReconciled();
   error NomadFacet__reconcile_noPortalRouter();
+
+  // ============ Modifiers ============
+
+  /**
+   * @notice Only accept messages from an Nomad Replica contract.
+   */
+  modifier onlyReplica() {
+    if (!_isReplica(msg.sender)) {
+      revert NomadFacet__onlyReplica_notReplica();
+    }
+    _;
+  }
+
+  /**
+   * @notice Only accept messages from a remote Router contract.
+   * @param _origin The domain the message is coming from.
+   * @param _router The address the message is coming from.
+   */
+  modifier onlyRemoteRouter(uint32 _origin, bytes32 _router) {
+    if (!_isRemoteRouter(_origin, _router)) {
+      revert NomadFacet__onlyRemoteRouter_notRemote();
+    }
+    _;
+  }
 
   // ============ Events ============
 
@@ -52,72 +79,82 @@ contract NomadFacet is BaseConnextFacet, IBridgeHook {
   );
 
   /**
-   * @notice Emitted when the bridgeRouter variable is updated
-   * @param oldBridgeRouter - The bridgeRouter old value
-   * @param newBridgeRouter - The bridgeRouter new value
-   * @param caller - The account that called the function
+   * @notice emitted when tokens are dispensed to an account on this domain
+   *         emitted both when fast liquidity is provided, and when the
+   *         transfer ultimately settles
+   * @param originAndNonce Domain where the transfer originated and the
+   *        unique identifier for the message from origin to destination,
+   *        combined in a single field ((origin << 32) & nonce)
+   * @param token The address of the local token contract being received
+   * @param recipient The address receiving the tokens; the original
+   *        recipient of the transfer
+   * @param liquidityProvider The account providing liquidity
+   * @param amount The amount of tokens being received
    */
-  event BridgeRouterUpdated(address oldBridgeRouter, address newBridgeRouter, address caller);
+  event Receive(
+    uint64 indexed originAndNonce,
+    address indexed token,
+    address indexed recipient,
+    address liquidityProvider,
+    uint256 amount
+  );
 
   // ============ External functions ============
 
   /**
-   * @notice Called via `handle` on Nomad BridgeRouter. Will either (a) credit the router(s) if fast liquidity was provided (i.e. `execute`
-   * has already occurred) or (b) make funds available for execution, updating state to mark the transfer as having
-   * been reconciled (i.e. verified).
-   *
-   * @dev The output asset will be the one registered under the canonical token ID in the TokenRegistry. If the output
-   * asset is an adopted token, the bridged nomad counterpart (i.e. the local asset) will be minted then swapped via
-   * the configured AMM to the adopted token. If the target output is the canonical token (i.e. this domain is the
-   * canonical domain for the token), then we will release custody of the appropriate amount of that canonical token
-   * (tokens which were previously deposited into this bridge via outgoing `xcall`s). If the target adopted token
-   * is also the local nomad asset (which would be minted here), then no swap is necessary.
-   *
-   * @dev Should be interface compatible with interface defined here:
-   * https://github.com/nomad-xyz/monorepo/blob/main/packages/contracts-bridge/contracts/interfaces/IBridgeHook.sol
-   *
-   * @param _origin - The origin domain
-   * @param _sender - The msg.sender of the original bridge call on origin domain
-   * @param _localToken - The address of the token representation on this domain, or the canonical
-   * address if you are on the canonical domain
-   * @param _amount - The amount bridged
-   * @param _extraData - The extra data passed with the transfer on `sendToHook` (in this case transferId)
+   * @notice Handles an incoming message
+   * @param _origin The origin domain
+   * @param _nonce The unique identifier for the message from origin to
+   *        destination
+   * @param _sender The sender address
+   * @param _message The message
    */
-  function onReceive(
+  function handle(
     uint32 _origin,
+    uint32 _nonce,
     bytes32 _sender,
-    uint32, // _tokenDomain of canonical token not used
-    bytes32, // _tokenAddress of canonical token
+    bytes memory _message
+  ) external onlyReplica onlyRemoteRouter(_origin, _sender) {
+    // parse tokenId and action from message
+    bytes29 _msg = _message.ref(0).mustBeMessage();
+    bytes29 _tokenId = _msg.tokenId();
+    bytes29 _action = _msg.action();
+    // handle message based on the intended action
+    if (!_action.isTransfer()) {
+      revert NomadFacet__handle_notTransfer();
+    }
+    // mint tokens
+    address _token = _giveTokens(_origin, _nonce, _tokenId, _action);
+    // call _reconcile
+    _reconcile(_origin, _token, _action.amnt(), _action.transferId());
+  }
+
+  // ============ Internal functions ============
+
+  function _reconcile(
+    uint32 _origin,
     address _localToken,
     uint256 _amount,
-    bytes memory _extraData /* onlyBridgeRouter TODO: how to handle this? the call comes from this contract now*/
-  ) external {
-    // Assert sender was the connext contract on the origin domain
-    if (_sender == bytes32(0) || s.remotes[_origin] != _sender) {
-      revert NomadFacet__reconcile_notConnext();
-    }
-
-    // Get the transfer id
-    bytes32 transferId = bytes32(_extraData);
-
+    bytes32 _transferId
+  ) internal {
     // Ensure the transaction has not already been handled (i.e. previously reconciled).
-    if (s.reconciledTransfers[transferId]) {
+    if (s.reconciledTransfers[_transferId]) {
       revert NomadFacet__reconcile_alreadyReconciled();
     }
 
     // Mark the transfer as reconciled.
-    s.reconciledTransfers[transferId] = true;
+    s.reconciledTransfers[_transferId] = true;
 
     // If the transfer was executed using fast-liquidity provided by routers, then this value would be set
     // to the participating routers.
     // NOTE: If the transfer was not executed using fast-liquidity, then the funds will be reserved for
     // execution (i.e. funds will be delivered to the transfer's recipient in a subsequent `execute` call).
-    address[] memory routers = s.routedTransfers[transferId];
+    address[] memory routers = s.routedTransfers[_transferId];
 
     // If fast transfer was made using portal liquidity, we need to repay
     // NOTE: routers can repay any-amount out-of-band using the `repayAavePortal` method
     // or by interacting with the aave contracts directly
-    uint256 portalTransferAmount = s.portalDebt[transferId] + s.portalFeeDebt[transferId];
+    uint256 portalTransferAmount = s.portalDebt[_transferId] + s.portalFeeDebt[_transferId];
 
     uint256 pathLen = routers.length;
     if (portalTransferAmount != 0 && pathLen != 1) {
@@ -140,6 +177,67 @@ contract NomadFacet is BaseConnextFacet, IBridgeHook {
       s.routerBalances[routers[pathLen - 1]][_localToken] += toSweep;
     }
 
-    emit Reconciled(transferId, _origin, routers, _localToken, _amount, msg.sender);
+    emit Reconciled(_transferId, _origin, routers, _localToken, _amount, msg.sender);
+  }
+
+  /**
+   * @notice Determine whether _potentialReplica is an enrolled Replica from the xAppConnectionManager
+   * @return True if _potentialReplica is an enrolled Replica
+   */
+  function _isReplica(address _potentialReplica) internal view returns (bool) {
+    return s.xAppConnectionManager.isReplica(_potentialReplica);
+  }
+
+  /**
+   * @notice Return true if the given domain / router is the address of a remote xApp Router
+   * @param _domain The domain of the potential remote xApp Router
+   * @param _router The address of the potential remote xApp Router
+   */
+  function _isRemoteRouter(uint32 _domain, bytes32 _router) internal view returns (bool) {
+    return s.remotes[_domain] == _router && _router != bytes32(0);
+  }
+
+  /**
+   * @notice Mint tokens corresponding to the inbound message
+   * @param _origin The domain of the chain from which the transfer originated
+   * @param _nonce The unique identifier for the message from origin to
+   *        destination
+   * @param _tokenId The canonical token identifier to credit
+   * @param _action The contents of the transfer message
+   * @return _token The address of the local token contract
+   */
+  function _giveTokens(
+    uint32 _origin,
+    uint32 _nonce,
+    bytes29 _tokenId,
+    bytes29 _action
+  ) internal returns (address _token) {
+    // get the token contract for the given tokenId on this chain;
+    // (if the token is of remote origin and there is
+    // no existing representation token contract, the TokenRegistry will
+    // deploy a new one)
+    _token = s.tokenRegistry.ensureLocalToken(_tokenId.domain(), _tokenId.id());
+    // load amount once
+    uint256 _amount = _action.amnt();
+    if (_amount == 0) {
+      // emit receive event
+      emit Receive(_originAndNonce(_origin, _nonce), _token, address(this), address(0), _amount);
+      // exit early
+      return _token;
+    }
+    // send the tokens into circulation on this chain
+    if (!s.tokenRegistry.isLocalOrigin(_token)) {
+      // if the token is of remote origin, mint the tokens to the
+      // recipient on this chain
+      IBridgeToken(_token).mint(address(this), _amount);
+      // Tell the token what its detailsHash is
+      IBridgeToken(_token).setDetailsHash(_action.detailsHash());
+    }
+    // otherwise, if the token is of local origin,
+    // the tokens have been held in escrow in this contract
+    // while they have been circulating on remote chains;
+
+    // emit Receive event
+    emit Receive(_originAndNonce(_origin, _nonce), _token, address(this), address(0), _amount);
   }
 }
