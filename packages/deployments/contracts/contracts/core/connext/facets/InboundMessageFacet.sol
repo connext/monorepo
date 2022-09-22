@@ -15,12 +15,12 @@ import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 /**
- * @title NomadFacet
+ * @title InboundMessageFacet
  * @notice This is the facet that holds all the functionality needed for nomad to reconcile
  * the transfer
  *
  */
-contract NomadFacet is BaseConnextFacet {
+contract InboundMessageFacet is BaseConnextFacet {
   // ============ Libraries ============
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
