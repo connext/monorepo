@@ -388,12 +388,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       balances.contractAsset = tokenIn.balanceOf(address(this));
 
       // Debugging logs.
-      console.log("initial balances");
-      console.log(address(this).balance);
-      console.log(params.originSender.balance);
-      console.log(tokenIn.balanceOf(params.originSender));
-      console.log(tokenIn.balanceOf(address(this)));
-      console.log(TestERC20(_local).balanceOf(address(this)));
+      // console.log("initial balances");
+      // console.log(address(this).balance);
+      // console.log(params.originSender.balance);
+      // console.log(tokenIn.balanceOf(params.originSender));
+      // console.log(tokenIn.balanceOf(address(this)));
+      // console.log(TestERC20(_local).balanceOf(address(this)));
     }
 
     if (shouldSwap) {
@@ -416,15 +416,18 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     if (shouldSucceed) {
       assertEq(ret, transferId);
 
+      // Nonce should have increased.
+      assertEq(s.nonce, params.nonce + 1);
+
       TestERC20 tokenIn = TestERC20(asset != address(0) ? asset : _local);
 
       // Debugging logs.
-      console.log("out balances");
-      console.log(address(this).balance);
-      console.log(params.originSender.balance);
-      console.log(tokenIn.balanceOf(params.originSender));
-      console.log(tokenIn.balanceOf(address(this)));
-      console.log(TestERC20(_local).balanceOf(address(this)));
+      // console.log("out balances");
+      // console.log(address(this).balance);
+      // console.log(params.originSender.balance);
+      // console.log(tokenIn.balanceOf(params.originSender));
+      // console.log(tokenIn.balanceOf(address(this)));
+      // console.log(TestERC20(_local).balanceOf(address(this)));
 
       // Contract should have received relayer fee from user.
       assertEq(address(this).balance, balances.contractEth + _relayerFee);
