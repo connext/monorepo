@@ -21,7 +21,7 @@ library MessagingUtils {
         : token.detailsHash();
     }
 
-    bytes29 action = BridgeMessage.formatTransfer(params.bridgedAmt, detailsHash, transferId);
+    bytes29 action = BridgeMessage.formatTransfer(params.bridgedAmt, detailsHash, transferId, token.decimals());
 
     return BridgeMessage.formatMessage(tokenId, action);
   }
