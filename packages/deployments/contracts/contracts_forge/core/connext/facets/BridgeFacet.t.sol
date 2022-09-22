@@ -19,10 +19,10 @@ import {CallParams, ExecuteArgs, TokenId} from "../../../../contracts/core/conne
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
-import {BridgeMessage} from "../../../../contracts/core/connext/helpers/BridgeMessage.sol";
+import {BridgeMessage} from "../../../../contracts/core/connext/libraries/BridgeMessage.sol";
+import {TokenRegistry} from "../../../../contracts/core/connext/helpers/TokenRegistry.sol";
 
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
-import {TokenRegistry} from "../../../../contracts/test/TokenRegistry.sol";
 
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
@@ -241,7 +241,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     address bridged = asset == address(0) ? address(0) : _canonicalDomain == s.domain ? _canonical : _local;
     uint256 bridgedAmt = params.bridgedAmt;
     vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, s.nonce, MockBridgeRouter(_bridgeRouter).MESSAGE_HASH(), params);
+    emit XCalled(transferId, s.nonce, MockBridgeRouter(_bridgeRouter).MESSAGE_HASH(), params, _local);
 
     // assert swap if expected
     if (shouldSwap && bridgedAmt != 0) {
@@ -629,7 +629,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // register expected emit event
     address sender = _inputs.useDelegate ? _args.params.delegate : address(this);
     vm.expectEmit(true, true, false, true);
-    emit Executed(transferId, _args.params.to, _args, _inputs.token, _inputs.expectedAmt, sender);
+    emit Executed(transferId, _args.params.to, _inputs.token, _args, _local, _inputs.expectedAmt, sender);
     // make call
     vm.prank(sender);
     this.execute(_args);
@@ -883,7 +883,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   function test_BridgeFacet__xcall_failIfDestinationNotSupported() public {
     _defaultParams.destinationDomain = 999999;
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_destinationNotSupported.selector);
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__mustHaveRemote_destinationNotSupported.selector);
   }
 
   function test_BridgeFacet__xcall_failIfEmptyTo() public {

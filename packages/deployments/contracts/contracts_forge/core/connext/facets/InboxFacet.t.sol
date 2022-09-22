@@ -125,7 +125,8 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
     (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
     bytes memory data = abi.encode(_transferId);
     vm.prank(_bridge);
-    this.onReceive(_originDomain, _bridgeCaller, canonicalDomain, canonicalId, _local, _amount, data);
+    // FIXME: Pass valid message bytes!
+    // this.handle(_originDomain, _bridgeCaller, canonicalDomain, canonicalId, _local, _amount, data);
   }
 
   // Helper for calling `reconcile` and asserting expected behavior.
@@ -149,7 +150,7 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
 
     if (shouldSucceed) {
       vm.expectEmit(true, true, true, true);
-      emit Reconciled(transferId, _originDomain, s.routedTransfers[transferId], _local, params.bridgedAmt, _bridge);
+      emit Reconciled(transferId, _originDomain, _local, s.routedTransfers[transferId], params.bridgedAmt, _bridge);
     } else {
       vm.expectRevert(expectedError);
     }
@@ -194,15 +195,16 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
 
     vm.expectRevert(InboxFacet.InboxFacet__reconcile_notConnext.selector);
     vm.prank(_bridge);
-    this.onReceive(
-      params.originDomain,
-      TypeCasts.addressToBytes32(address(1234)), // random address as sender
-      params.canonicalDomain,
-      params.canonicalId,
-      _local,
-      params.bridgedAmt,
-      abi.encode(transferId)
-    );
+    // FIXME: Pass valid message bytes!
+    // this.handle(
+    //   params.originDomain,
+    //   TypeCasts.addressToBytes32(address(1234)), // random address as sender
+    //   params.canonicalDomain,
+    //   params.canonicalId,
+    //   _local,
+    //   params.bridgedAmt,
+    //   abi.encode(transferId)
+    // );
   }
 
   // fails if already reconciled (s.reconciledTransfers[transferId] = true)
@@ -213,15 +215,16 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
 
     vm.expectRevert(InboxFacet.InboxFacet__reconcile_alreadyReconciled.selector);
     vm.prank(_bridge);
-    this.onReceive(
-      _originDomain,
-      _originConnext,
-      params.canonicalDomain,
-      params.canonicalId,
-      _local,
-      params.bridgedAmt,
-      abi.encode(transferId)
-    );
+    // FIXME: Pass valid message bytes!
+    // this.handle(
+    //   _originDomain,
+    //   _originConnext,
+    //   params.canonicalDomain,
+    //   params.canonicalId,
+    //   _local,
+    //   params.bridgedAmt,
+    //   abi.encode(transferId)
+    // );
   }
 
   // fails if portal record, but used in slow mode
@@ -236,15 +239,16 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
 
     vm.expectRevert(InboxFacet.InboxFacet__reconcile_noPortalRouter.selector);
     vm.prank(_bridge);
-    this.onReceive(
-      _originDomain,
-      _originConnext,
-      params.canonicalDomain,
-      params.canonicalId,
-      _local,
-      params.bridgedAmt,
-      abi.encode(transferId)
-    );
+    // FIXME: Pass valid message bytes!
+    // this.handle(
+    //   _originDomain,
+    //   _originConnext,
+    //   params.canonicalDomain,
+    //   params.canonicalId,
+    //   _local,
+    //   params.bridgedAmt,
+    //   abi.encode(transferId)
+    // );
   }
 
   // ============ reconcile success cases

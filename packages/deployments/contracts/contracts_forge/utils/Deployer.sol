@@ -115,12 +115,6 @@ contract Deployer {
     bridgeFacetSelectors[15] = BridgeFacet.bumpTransfer.selector;
     bridgeFacetSelectors[16] = BridgeFacet.forceUpdateSlippage.selector;
 
-    // public:messaging
-    bridgeFacetSelectors[17] = BridgeFacet.handle.selector;
-    bridgeFacetSelectors[18] = BridgeFacet.send.selector;
-    bridgeFacetSelectors[19] = BridgeFacet.sendToHook.selector;
-    bridgeFacetSelectors[20] = BridgeFacet.migrate.selector;
-
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,
@@ -132,7 +126,7 @@ contract Deployer {
   // TODO: Rename NomadFacet => InboxFacet
   function getNomadFacetCut(address _inboxFacet) internal pure returns (IDiamondCut.FacetCut memory) {
     bytes4[] memory inboxFacetSelectors = new bytes4[](1);
-    inboxFacetSelectors[0] = InboxFacet.onReceive.selector;
+    inboxFacetSelectors[0] = InboxFacet.handle.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _inboxFacet,

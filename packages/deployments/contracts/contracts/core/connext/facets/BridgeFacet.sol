@@ -144,14 +144,6 @@ contract BridgeFacet is BaseConnextFacet {
   event AavePortalMintUnbacked(bytes32 indexed transferId, address indexed router, address asset, uint256 amount);
 
   /**
-   * @notice Emitted when the sponsorVault variable is updated
-   * @param oldSponsorVault - The sponsorVault old value
-   * @param newSponsorVault - The sponsorVault new value
-   * @param caller - The account that called the function
-   */
-  event SponsorVaultUpdated(address oldSponsorVault, address newSponsorVault, address caller);
-
-  /**
    * @notice Emitted when the executor variable is updated
    * @param oldExecutor - The executor old value
    * @param newExecutor - The executor new value
