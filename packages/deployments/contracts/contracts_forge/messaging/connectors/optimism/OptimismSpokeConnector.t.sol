@@ -81,7 +81,8 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
       abi.encodeWithSelector(
         OptimismAmb.sendMessage.selector,
         _l1Connector,
-        abi.encodeWithSelector(Connector.processMessage.selector, _data, _mirrorGas)
+        abi.encodeWithSelector(Connector.processMessage.selector, _data),
+        _mirrorGas
       )
     );
 
