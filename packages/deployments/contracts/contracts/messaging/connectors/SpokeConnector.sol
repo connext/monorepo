@@ -26,7 +26,7 @@ import {ConnectorManager} from "./ConnectorManager.sol";
  *
  * TODO: what about the queue manager? see Home.sol for context
  */
-abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager, MerkleTreeManager, ReentrancyGuard {
+abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager, ReentrancyGuard {
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
@@ -35,6 +35,7 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
   using Message for bytes29;
 
   // ============ Structs ============
+
   // Status of Message:
   //   0 - None - message has not been proven or processed
   //   1 - Proven - message inclusion proof has been validated
@@ -45,7 +46,13 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
     Processed
   }
 
-  // ============ Public storage ============
+  // ============ Public Storage ============
+
+  /**
+   * @notice MerkleTreeManager contract instance. Will hold the active tree of message hashes, whose root
+   * will be sent crosschain to the hub for aggregation and redistribution.
+   */
+  MerkleTreeManager public immutable MERKLE;
 
   /**
    * @notice Minimum gas for processing a received message (reserved for handle)
@@ -98,40 +105,41 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
   // ============ Constructor ============
 
   /**
-   * @notice Creates a new SpokeConnector instance
-   * @param _domain The domain this connector lives on
-   * @param _mirrorDomain The spoke domain
-   * @param _amb The address of the amb on the domain this connector lives on
-   * @param _rootManager The address of the RootManager on mainnet
-   * @param _mirrorConnector The address of the spoke connector
-   * @param _mirrorGas The gas costs required to process a message on mirror
+   * @notice Creates a new SpokeConnector instance.
+   * @param _domain The domain this connector lives on.
+   * @param _mirrorDomain The hub domain.
+   * @param _amb The address of the AMB on the spoke domain this connector lives on.
+   * @param _rootManager The address of the RootManager on the hub.
+   * @param _merkle The address of the MerkleTreeManager on this spoke domain.
+   * @param _mirrorConnector The address of the spoke connector.
+   * @param _mirrorGas The gas costs required to process a message on mirror.
    * @param _processGas The gas costs used in `handle` to ensure meaningful state changes can occur (minimum gas needed
-   * to handle transaction)
-   * @param _reserveGas The gas costs reserved when `handle` is called to ensure failures are handled
+   * to handle transaction).
+   * @param _reserveGas The gas costs reserved when `handle` is called to ensure failures are handled.
    */
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
+    address _merkle,
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas
-  )
-    ConnectorManager()
-    MerkleTreeManager()
-    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
-  {
-    // sanity check constants
+  ) ConnectorManager() Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) {
+    // Sanity check: constants are reasonable.
     require(_processGas >= 850_000, "!process gas");
     require(_reserveGas >= 15_000, "!reserve gas");
-
     PROCESS_GAS = _processGas;
     RESERVE_GAS = _reserveGas;
+
+    // If no MerkleTreeManager instance is specified, create a new one.
+    MERKLE = _merkle == address(0) ? new MerkleTreeManager() : MerkleTreeManager(_merkle);
   }
 
-  // ============ Admin fns ============
+  // ============ Admin Functions ============
+
   /**
    * @notice Adds a sender to the whitelist
    * @dev Only whitelisted routers can call `dispatch`
@@ -150,13 +158,14 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
     emit SenderRemoved(_sender);
   }
 
-  // ============ Public fns ============
+  // ============ Public Functions ============
+
   /**
    * @notice This returns the root of all messages with the origin domain as this domain (i.e.
    * all outbound messages)
    */
   function outboundRoot() external view returns (bytes32) {
-    return tree.root();
+    return MERKLE.root();
   }
 
   /**
@@ -172,7 +181,7 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
    * all outbound messages)
    */
   function send() external {
-    bytes memory _data = abi.encodePacked(tree.root());
+    bytes memory _data = abi.encodePacked(MERKLE.root());
     _sendMessage(_data);
     emit MessageSent(_data, msg.sender);
   }
@@ -188,10 +197,11 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
     bytes32 _recipientAddress,
     bytes memory _messageBody
   ) external onlyWhitelistedSender returns (bytes32) {
-    // get the next nonce for the destination domain, then increment it
+    // Get the next nonce for the destination domain, then increment it.
     uint32 _nonce = nonces[_destinationDomain];
     nonces[_destinationDomain] = _nonce + 1;
-    // format the message into packed bytes
+
+    // Format the message into packed bytes.
     bytes memory _message = Message.formatMessage(
       DOMAIN,
       bytes32(uint256(uint160(msg.sender))), // TODO necessary?
@@ -200,14 +210,15 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
       _recipientAddress,
       _messageBody
     );
-    // insert the hashed message into the Merkle tree
+
+    // Insert the hashed message into the Merkle tree.
     bytes32 _messageHash = keccak256(_message);
-    // TODO: Optimization: have insert return the leafIndex to save the `count()` call below.
-    tree.insert(_messageHash);
+    (bytes32 _root, uint256 _count) = MERKLE.insert(_messageHash);
+
     // TODO: see comment on queue manager at the top
-    // Emit Dispatch event with message information
-    // note: leafIndex is count() - 1 since new leaf has already been inserted
-    emit Dispatch(_messageHash, count() - 1, tree.root(), _message);
+    // Emit Dispatch event with message information.
+    // NOTE: Current leaf index is count - 1 since new leaf has already been inserted.
+    emit Dispatch(_messageHash, _count - 1, _root, _message);
     return _messageHash;
   }
 
