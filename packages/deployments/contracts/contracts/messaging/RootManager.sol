@@ -15,12 +15,13 @@ import {MerkleTreeManager} from "./Merkle.sol";
  * spokes into a single merkle root
  */
 
-contract RootManager is MerkleTreeManager, ProposedOwnable, IRootManager {
+contract RootManager is ProposedOwnable, IRootManager {
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
 
   // ============ Events ============
+
   event RootAggregated(uint32 domain, bytes32 receivedRoot, uint256 index);
 
   event RootPropagated(bytes32 aggregate, uint32[] domains);
@@ -34,6 +35,13 @@ contract RootManager is MerkleTreeManager, ProposedOwnable, IRootManager {
   event WatcherRemoved(address watcher);
 
   // ============ Properties ============
+
+  /**
+   * @notice MerkleTreeManager contract instance. Will hold the active tree of aggregated inbound roots.
+   * The root of this tree will be distributed crosschain to all spoke domains.
+   */
+  MerkleTreeManager public immutable MERKLE;
+
   mapping(uint32 => address) public connectors;
 
   mapping(uint32 => bytes32) public outboundRoots;
@@ -41,12 +49,6 @@ contract RootManager is MerkleTreeManager, ProposedOwnable, IRootManager {
   uint32[] public domains;
 
   mapping(address => bool) public watchers;
-
-  // ============ Constructor ============
-
-  constructor() ProposedOwnable() {
-    _setOwner(msg.sender);
-  }
 
   // ============ Modifiers ============
 
@@ -60,7 +62,20 @@ contract RootManager is MerkleTreeManager, ProposedOwnable, IRootManager {
     _;
   }
 
-  // ============ Public fns ============
+  // ============ Constructor ============
+
+  /**
+   * @notice Creates a new RootManager instance.
+   * @param _merkle The address of the MerkleTreeManager on this spoke domain.
+   */
+  constructor(address _merkle) ProposedOwnable() {
+    _setOwner(msg.sender);
+
+    // If no MerkleTreeManager instance is specified, create a new one.
+    MERKLE = _merkle == address(0) ? new MerkleTreeManager() : MerkleTreeManager(_merkle);
+  }
+
+  // ============ Public Functions ============
 
   /**
    * @notice This is called by relayers to take the current aggregate tree root and propagate it to all
@@ -68,7 +83,7 @@ contract RootManager is MerkleTreeManager, ProposedOwnable, IRootManager {
    * @dev Should be called by relayers at a regular interval.
    */
   function propagate() external override {
-    bytes32 _aggregated = tree.root();
+    bytes32 _aggregated = MERKLE.root();
 
     uint256 _numDomains = domains.length;
     for (uint32 i; i < _numDomains; ) {
@@ -92,8 +107,8 @@ contract RootManager is MerkleTreeManager, ProposedOwnable, IRootManager {
    * @param _inbound The inbound root coming from the given domain.
    */
   function aggregate(uint32 _domain, bytes32 _inbound) external override onlyConnector(_domain) {
-    tree.insert(_inbound);
-    emit RootAggregated(_domain, _inbound, tree.count - 1);
+    (, uint256 count) = MERKLE.insert(_inbound);
+    emit RootAggregated(_domain, _inbound, count - 1);
   }
 
   // ============ Admin fns ============
