@@ -48,14 +48,6 @@ contract BaseConnextFacet {
   }
 
   /**
-   * @notice Throws if called by any account other than the proposed owner.
-   */
-  modifier onlyBridgeRouter() {
-    if (address(s.bridgeRouter) != msg.sender) revert BaseConnextFacet__onlyBridgeRouter_notBridgeRouter();
-    _;
-  }
-
-  /**
    * @notice Throws if called by any account other than the owner.
    */
   modifier onlyOwner() {
@@ -133,5 +125,17 @@ contract BaseConnextFacet {
    */
   function _calculateCanonicalHash(TokenId calldata _canonical) internal pure returns (bytes32) {
     return _calculateCanonicalHash(_canonical.id, _canonical.domain);
+  }
+
+  /**
+   * @notice Internal utility function that combines
+   *         `_origin` and `_nonce`.
+   * @dev Both origin and nonce should be less than 2^32 - 1
+   * @param _origin Domain of chain where the transfer originated
+   * @param _nonce The unique identifier for the message from origin to destination
+   * @return Returns (`_origin` << 32) & `_nonce`
+   */
+  function _originAndNonce(uint32 _origin, uint32 _nonce) internal pure returns (uint64) {
+    return (uint64(_origin) << 32) | _nonce;
   }
 }

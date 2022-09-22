@@ -1,10 +1,9 @@
 type Asset @entity {
-  id: ID! # Key
-  key: Bytes
-  local: Bytes!
-  adoptedAsset: Bytes!
+  id: ID! # local asset address
+  key: Bytes!
   canonicalId: Bytes!
   canonicalDomain: BigInt!
+  adoptedAsset: Bytes!
   blockNumber: BigInt! # needed in case multiple locals are stored under the same canonicalId
 }
 
@@ -45,11 +44,6 @@ type StableSwap @entity {
   swapPool: Bytes!
 }
 
-type SponsorVault @entity {
-  id: ID!
-  sponsorVault: Bytes!
-}
-
 enum TransferStatus {
   XCalled
   Executed
@@ -68,7 +62,7 @@ type OriginTransfer @entity {
   status: TransferStatus
   messageHash: Bytes
 
-  # event data
+  # CallParams
   originDomain: BigInt
   destinationDomain: BigInt
   canonicalDomain: BigInt
@@ -104,32 +98,25 @@ type DestinationTransfer @entity {
   chainId: BigInt
   transferId: Bytes
   nonce: BigInt
-
-  # CallParams
-  to: Bytes
-  callData: Bytes
-  originDomain: BigInt
-  destinationDomain: BigInt
-  agent: Bytes
-  receiveLocal: Boolean
-  destinationMinOut: BigInt
-
-  # Event Data
   status: TransferStatus
   routers: [Router!]
+
+  # CallParams
+  originDomain: BigInt
+  destinationDomain: BigInt
+  canonicalDomain: BigInt
+  to: Bytes
+  delegate: Bytes
+  receiveLocal: Boolean
+  callData: Bytes
+  slippage: BigInt
   originSender: Bytes
+  bridgedAmt: BigInt
+  normalizedIn: BigInt
+  canonicalId: Bytes
 
   # Asset
-  # The asset that gets delivered.
-  asset: Bytes
-  # Amount of delivered asset.
-  amount: BigInt
-  # The local version of the bridged asset.
-  localAsset: Bytes
-  # The amount of the local asset.
-  localAmount: BigInt
-
-  sponsorVaultRelayerFee: BigInt
+  asset: Asset
 
   # Executed Transaction
   executedCaller: Bytes

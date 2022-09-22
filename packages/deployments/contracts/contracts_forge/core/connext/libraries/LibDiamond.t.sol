@@ -17,6 +17,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   IConnextHandler connextHandler;
   uint32 domain = 1;
   uint256 acceptanceDelay = 7 days;
+  uint256 ownershipDelay = 6 days;
   address internal xAppConnectionManager = address(1);
   address relayerFeeRouter = address(3);
   address tokenRegistry = address(5);
@@ -24,7 +25,14 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   // ============ Setup ============
 
   function setUp() public {
-    deployConnext(uint256(domain), xAppConnectionManager, tokenRegistry, address(relayerFeeRouter), acceptanceDelay);
+    deployConnext(
+      uint256(domain),
+      xAppConnectionManager,
+      tokenRegistry,
+      address(relayerFeeRouter),
+      acceptanceDelay,
+      ownershipDelay
+    );
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
   }
@@ -49,7 +57,8 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       newXAppConnectionManager,
       newTokenRegistry,
       newRelayerFeeRouter,
-      acceptanceDelay
+      acceptanceDelay,
+      ownershipDelay
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
@@ -84,7 +93,8 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       newXAppConnectionManager,
       newTokenRegistry,
       newRelayerFeeRouter,
-      acceptanceDelay
+      acceptanceDelay,
+      ownershipDelay
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
@@ -105,7 +115,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // Diamond cut after setting 0 acceptance delay should work.
   function test_LibDiamond__initializeDiamondCut_withZeroAcceptanceDelay_works() public {
-    deployConnext(uint256(domain), xAppConnectionManager, tokenRegistry, address(relayerFeeRouter), 0);
+    deployConnext(uint256(domain), xAppConnectionManager, tokenRegistry, address(relayerFeeRouter), 0, 0);
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
 
@@ -120,7 +130,8 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       newXAppConnectionManager,
       newTokenRegistry,
       newRelayerFeeRouter,
-      acceptanceDelay
+      acceptanceDelay,
+      ownershipDelay
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);

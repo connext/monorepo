@@ -3,16 +3,14 @@ import { DeployFunction, Facet } from "hardhat-deploy/types";
 import { constants, Contract, providers, Wallet } from "ethers";
 import { ethers } from "hardhat";
 import { FunctionFragment, Interface } from "ethers/lib/utils";
-import { FacetCut, FacetCutAction } from "hardhat-deploy/dist/types";
+import { FacetCut, FacetCutAction, ExtendedArtifact, DeploymentSubmission } from "hardhat-deploy/dist/types";
+import { mergeABIs } from "hardhat-deploy/dist/src/utils";
 
 import { SKIP_SETUP } from "../src/constants";
 import { getConnectorName, getDeploymentName, getProtocolNetwork } from "../src/utils";
 import { chainIdToDomain } from "../src";
 import { deployConfigs } from "../deployConfig";
 import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
-import { ExtendedArtifact } from "hardhat-deploy/dist/types";
-import { mergeABIs } from "hardhat-deploy/dist/src/utils";
-import { DeploymentSubmission } from "hardhat-deploy/dist/types";
 
 function sigsFromABI(abi: any[]): string[] {
   return abi
@@ -41,7 +39,7 @@ const proposeDiamondUpgrade = async (
     }
   }
 
-  let diamondArtifact: ExtendedArtifact = await hre.deployments.getExtendedArtifact("Diamond");
+  const diamondArtifact: ExtendedArtifact = await hre.deployments.getExtendedArtifact("Diamond");
   let abi: any[] = diamondArtifact.abi.concat([]);
 
   // Add DiamondLoupeFacet
@@ -160,6 +158,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const chainId = await hre.getChainId();
 
   const acceptanceDelay = 0; // 604800 = 7 days
+  const ownershipDelay = 0; // 604800 = 7 days
 
   let _deployer: any;
   ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
@@ -308,7 +307,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         : {
             contract: "DiamondInit",
             methodName: "init",
-            args: [domain, tokenRegistry.address, relayerFeeRouter.address, acceptanceDelay],
+            args: [domain, tokenRegistry.address, relayerFeeRouter.address, acceptanceDelay, ownershipDelay],
           },
     });
   }
