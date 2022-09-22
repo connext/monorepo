@@ -544,10 +544,6 @@ contract BridgeFacet is BaseConnextFacet {
           _amount,
           _params.slippage
         );
-
-        // Approve bridge router
-        // SafeERC20.safeApprove(IERC20(local), address(s.bridgeRouter), 0);
-        // SafeERC20.safeIncreaseAllowance(IERC20(local), address(s.bridgeRouter), _params.bridgedAmt);
       }
 
       // Get the normalized amount in (amount sent in by user in 18 decimals).
@@ -910,12 +906,12 @@ contract BridgeFacet is BaseConnextFacet {
   // ============ Internal: Send ============
 
   /**
-   * @notice Send transfer message to a remote chain
-   * @param _token The token address
-   * @param _amount The token amount
-   * @param _destination The destination domain
-   * @param _connextion The connext instance on the destination domain
-   * @param _transferId Unique identifier for the transfer
+   * @notice Send transfer message to a remote chain.
+   * @param _token The token address.
+   * @param _amount The token amount.
+   * @param _destination The destination domain.
+   * @param _connextion The connext instance on the destination domain.
+   * @param _transferId Unique identifier for the transfer.
    */
   function _sendMessage(
     address _token,
@@ -942,12 +938,11 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Take from msg.sender as part of sending tokens across chains
-   * @dev Locks canonical tokens in escrow in BridgeRouter
-   *      OR Burns representation tokens
-   * @param _token The token to pull from the sender
-   * @param _amount The amount to pull from the sender
-   * @param _isLocal Whether or not the token is locally originating
+   * @notice Take tokens from msg.sender for the purpose of bridging them cross-chain.
+   * @dev Locks canonical tokens in escrow here OR burns representational tokens, depending on domain.
+   * @param _token The token to pull from the sender.
+   * @param _amount The amount to pull from the sender.
+   * @param _isLocal Whether or not the token is locally originating.
    */
   function _takeTokens(
     address _token,

@@ -126,6 +126,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function utils_deployContracts() public {
     utils_deployAssetContracts();
 
+    // Deploy mock home.
+    MockHome originHome = new MockHome(_originDomain);
+    // Deploy xAppConnectionManager contract.
+    s.xAppConnectionManager = new MockXAppConnectionManager(originHome);
+
     // Deploy a mock xapp consumer.
     _xapp = address(new MockXApp());
 
@@ -241,7 +246,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     address bridged = asset == address(0) ? address(0) : _canonicalDomain == s.domain ? _canonical : _local;
     uint256 bridgedAmt = params.bridgedAmt;
     vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, s.nonce, MockBridgeRouter(_bridgeRouter).MESSAGE_HASH(), params, _local);
+    emit XCalled(transferId, s.nonce, MockBridgeRouter(_bridgeRouter).MESSAGE_HASH(), params, bridged);
 
     // assert swap if expected
     if (shouldSwap && bridgedAmt != 0) {
@@ -260,24 +265,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         )
       );
     }
-
-    // Assert approval call
-    if (bridgedAmt > 0) {
-      vm.expectCall(bridged, abi.encodeWithSelector(IERC20.approve.selector, _bridgeRouter, bridgedAmt));
-    }
-
-    // Assert bridge router call
-    vm.expectCall(
-      _bridgeRouter,
-      abi.encodeWithSelector(
-        IBridgeRouter.sendToHook.selector,
-        bridged,
-        bridgedAmt,
-        params.destinationDomain,
-        s.remotes[params.destinationDomain], // always use this as remote connext
-        abi.encode(transferId)
-      )
-    );
   }
 
   // Helper to prevent stack too deep issues (since there a lot of arguments to xcall).
