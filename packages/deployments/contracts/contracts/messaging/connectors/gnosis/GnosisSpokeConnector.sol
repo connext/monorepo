@@ -40,7 +40,7 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
     // send the message to the l1 connector by calling `processMessage`
     GnosisAmb(AMB).requireToPassMessage(
       mirrorConnector,
-      abi.encodeWithSelector(Connector.processMessage.selector, address(this), _data),
+      abi.encodeWithSelector(Connector.processMessage.selector, _data),
       mirrorGas
     );
   }
