@@ -246,7 +246,7 @@ export function handleXCalled(event: XCalled): void {
   transfer.normalizedIn = event.params.params.normalizedIn;
   transfer.canonicalId = event.params.params.canonicalId;
   transfer.canonicalDomain = event.params.params.canonicalDomain;
-  transfer.asset = getOrCreateAsset(event.params.local);
+  transfer.asset = getOrCreateAsset(event.params.local).id;
 
   // Message
   let message = OriginMessage.load(event.params.messageHash.toHex());
@@ -331,7 +331,7 @@ export function handleExecuted(event: Executed): void {
   transfer.normalizedIn = event.params.args.params.normalizedIn;
   transfer.canonicalId = event.params.args.params.canonicalId;
   transfer.canonicalDomain = event.params.args.params.canonicalDomain;
-  transfer.asset = getOrCreateAsset(event.params.local);
+  transfer.asset = getOrCreateAsset(event.params.local).id;
 
   // Event Data
   if (transfer.status == "Reconciled") {
@@ -389,7 +389,7 @@ export function handleReconciled(event: Reconciled): void {
   transfer.originDomain = event.params.originDomain;
 
   // Assets
-  transfer.asset = getOrCreateAsset(event.params.asset);
+  transfer.asset = getOrCreateAsset(event.params.asset).id;
 
   // Event Data
   if (transfer.status == "Executed") {
@@ -546,10 +546,10 @@ function getOrCreateAsset(local: Address): Asset {
   let asset = Asset.load(id);
   if (asset == null) {
     asset = new Asset(id);
-    asset.localAsset = new Bytes(20);
-    asset.adoptedAsset = new Bytes(20);
     asset.canonicalId = new Bytes(32);
     asset.canonicalDomain = new BigInt(0);
+    asset.adoptedAsset = new Bytes(20);
+    asset.key = new Bytes(32);
     asset.blockNumber = new BigInt(0);
     asset.save();
   }
