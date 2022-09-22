@@ -123,16 +123,10 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
 
   // ============ Helpers ===============
 
-  function helpers_reconcileCaller(
-    address _local,
-    uint256 _amount,
-    bytes32 _bridgeCaller,
-    bytes32 _transferId
-  ) public {
-    (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
-    bytes memory data = abi.encode(_transferId);
-    // FIXME: Pass valid message bytes!
-    // this.handle(_originDomain, _bridgeCaller, canonicalDomain, canonicalId, _local, _amount, data);
+  function helpers_reconcileCaller(CallParams memory params) public {
+    bytes memory message = utils_createMessage(params);
+    vm.prank(_originSender);
+    this.handle(params.originDomain, uint32(_nonce), _originConnext, message);
   }
 
   // Helper for calling `reconcile` and asserting expected behavior.
@@ -162,13 +156,13 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
         _local,
         s.routedTransfers[transferId],
         params.bridgedAmt,
-        address(this)
+        _originSender
       );
     } else {
       vm.expectRevert(expectedError);
     }
 
-    helpers_reconcileCaller(_local, params.bridgedAmt, bridgeCaller, transferId);
+    helpers_reconcileCaller(params);
 
     if (shouldSucceed) {
       assertEq(s.reconciledTransfers[transferId], true);
@@ -226,17 +220,11 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
     (CallParams memory params, bytes32 transferId) = utils_createCallParams(_local);
     s.reconciledTransfers[transferId] = true;
 
+    bytes memory message = utils_createMessage(params);
+
     vm.expectRevert(InboxFacet.InboxFacet__reconcile_alreadyReconciled.selector);
-    // FIXME: Pass valid message bytes!
-    // this.handle(
-    //   _originDomain,
-    //   _originConnext,
-    //   params.canonicalDomain,
-    //   params.canonicalId,
-    //   _local,
-    //   params.bridgedAmt,
-    //   abi.encode(transferId)
-    // );
+    vm.prank(_originSender);
+    this.handle(params.originDomain, uint32(_nonce), _originConnext, message);
   }
 
   // fails if portal record, but used in slow mode
@@ -249,17 +237,11 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
     s.portalDebt[transferId] = 15;
     s.portalFeeDebt[transferId] = 10;
 
+    bytes memory message = utils_createMessage(params);
+
     vm.expectRevert(InboxFacet.InboxFacet__reconcile_noPortalRouter.selector);
-    // FIXME: Pass valid message bytes!
-    // this.handle(
-    //   _originDomain,
-    //   _originConnext,
-    //   params.canonicalDomain,
-    //   params.canonicalId,
-    //   _local,
-    //   params.bridgedAmt,
-    //   abi.encode(transferId)
-    // );
+    vm.prank(_originSender);
+    this.handle(params.originDomain, uint32(_nonce), _originConnext, message);
   }
 
   // ============ reconcile success cases
