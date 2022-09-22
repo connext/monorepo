@@ -91,7 +91,7 @@ contract Deployer {
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](20);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](17);
     // getters
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
     bridgeFacetSelectors[1] = BridgeFacet.routedTransfers.selector;
@@ -123,8 +123,7 @@ contract Deployer {
       });
   }
 
-  // TODO: Rename NomadFacet => InboxFacet
-  function getNomadFacetCut(address _inboxFacet) internal pure returns (IDiamondCut.FacetCut memory) {
+  function getInboxFacetCut(address _inboxFacet) internal pure returns (IDiamondCut.FacetCut memory) {
     bytes4[] memory inboxFacetSelectors = new bytes4[](1);
     inboxFacetSelectors[0] = InboxFacet.handle.selector;
     return
@@ -338,7 +337,7 @@ contract Deployer {
     facetCuts[2] = getDiamondLoupeFacetCut(address(diamondLoupeFacet));
     facetCuts[3] = getAssetFacetCut(address(assetFacet));
     facetCuts[4] = getBridgeFacetCut(address(bridgeFacet));
-    facetCuts[5] = getNomadFacetCut(address(inboxFacet));
+    facetCuts[5] = getInboxFacetCut(address(inboxFacet));
     facetCuts[6] = getProposedOwnableFacetCut(address(proposedOwnableFacet));
     facetCuts[7] = getRelayerFacetCut(address(relayerFacet));
     facetCuts[8] = getRoutersFacetCut(address(routersFacet));
