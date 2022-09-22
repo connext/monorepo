@@ -98,6 +98,8 @@ type DestinationTransfer @entity {
   chainId: BigInt
   transferId: Bytes
   nonce: BigInt
+  status: TransferStatus
+  routers: [Router!]
 
   # CallParams
   originDomain: BigInt
@@ -115,11 +117,6 @@ type DestinationTransfer @entity {
 
   # Asset
   asset: Asset
-
-  # Event Data
-  status: TransferStatus
-  routers: [Router!]
-  originSender: Bytes
 
   # Executed Transaction
   executedCaller: Bytes
