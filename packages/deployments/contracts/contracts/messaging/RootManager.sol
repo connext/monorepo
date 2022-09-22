@@ -111,7 +111,7 @@ contract RootManager is ProposedOwnable, IRootManager {
     emit RootAggregated(_domain, _inbound, count - 1);
   }
 
-  // ============ Admin fns ============
+  // ============ Admin Functions ============
 
   /**
    * @dev Owner can add a new connector. Address should be the connector on l1

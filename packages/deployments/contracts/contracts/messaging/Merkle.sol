@@ -66,7 +66,7 @@ contract MerkleTreeManager {
    * @notice Method for the current arborist to assign write permissions to a new arborist.
    * @param newArborist The new address to set as the current arborist.
    */
-  function setConnector(address newArborist) public onlyArborist {
+  function setArborist(address newArborist) public onlyArborist {
     arborist = newArborist;
   }
 
