@@ -268,7 +268,7 @@ library BridgeMessage {
    */
   function decimals(bytes29 _transferAction) internal pure returns (uint8) {
     // before = 1 byte identifier + 32 bytes amount + 32 bytes details + 32 bytes transferId = 97 bytes
-    return uint8(_transferAction.indexUint(97, 98));
+    return uint8(_transferAction.indexUint(97, 1));
   }
 
   /**
