@@ -26,6 +26,7 @@ import {WETH} from "./utils/TestWeth.sol";
 import "./utils/ForgeHelper.sol";
 import "./utils/Mock.sol";
 import "./utils/Deployer.sol";
+import {MessagingUtils} from "./utils/Messaging.sol";
 
 // Holds all balances that are impacted by an xcall
 struct XCallBalances {
@@ -53,22 +54,29 @@ struct ReconcileBalances {
 
 contract ConnextTest is ForgeHelper, Deployer {
   // ============ Events ============
-  event XCalled(bytes32 indexed transferId, uint256 indexed nonce, bytes32 indexed messageHash, CallParams params);
+  event XCalled(
+    bytes32 indexed transferId,
+    uint256 indexed nonce,
+    bytes32 indexed messageHash,
+    CallParams params,
+    address local
+  );
 
   event Executed(
     bytes32 indexed transferId,
     address indexed to,
+    address indexed asset,
     ExecuteArgs args,
-    address asset,
+    address local,
     uint256 amount,
     address caller
   );
 
   event Reconciled(
     bytes32 indexed transferId,
-    uint32 originDomain,
+    uint32 indexed originDomain,
+    address indexed local,
     address[] routers,
-    address asset,
     uint256 amount,
     address caller
   );
@@ -431,7 +439,8 @@ contract ConnextTest is ForgeHelper, Deployer {
         keccak256(abi.encode(params)),
         params.nonce,
         MockHome(address(MockXAppConnectionManager(address(_originManager)).home())).MESSAGE_HASH(),
-        params
+        params,
+        _originLocal
       );
     }
 
@@ -596,7 +605,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // Expect an event.
     vm.expectEmit(true, true, true, true);
-    emit Executed(transferId, args.params.to, args, receiving, bridgeOut + vaultOut, address(this));
+    emit Executed(transferId, args.params.to, receiving, args, _destinationLocal, bridgeOut + vaultOut, address(this));
 
     // Execute on the bridge.
     _destinationConnext.execute(args);
@@ -683,30 +692,6 @@ contract ConnextTest is ForgeHelper, Deployer {
       );
   }
 
-  // Format cross-chain message from call params.
-  function utils_formatMessage(
-    CallParams memory params,
-    address local,
-    uint256 bridgedAmt,
-    bool isCanonical
-  ) public returns (bytes memory) {
-    bytes32 transferId = keccak256(abi.encode(params));
-    IBridgeToken token = IBridgeToken(local);
-
-    bytes29 tokenId = BridgeMessage.formatTokenId(params.canonicalDomain, params.canonicalId);
-
-    bytes32 detailsHash;
-    if (local != address(0)) {
-      detailsHash = isCanonical
-        ? BridgeMessage.getDetailsHash(token.name(), token.symbol(), token.decimals())
-        : token.detailsHash();
-    }
-
-    bytes29 action = BridgeMessage.formatTransfer(bridgedAmt, detailsHash, transferId);
-
-    return BridgeMessage.formatMessage(tokenId, action);
-  }
-
   function utils_reconcileAndAssert(
     CallParams memory params,
     bytes32 transferId,
@@ -724,13 +709,13 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // expect emit
     vm.expectEmit(true, true, true, true);
-    emit Reconciled(transferId, _origin, routers, _destinationLocal, bridgedAmt, address(_destinationConnext));
+    emit Reconciled(transferId, _origin, _destinationLocal, routers, bridgedAmt, address(this));
 
     _destinationConnext.handle(
       _origin,
       0,
       TypeCasts.addressToBytes32(address(_originConnext)),
-      utils_formatMessage(params, _destinationLocal, bridgedAmt, _canonicalDomain == _destination)
+      MessagingUtils.formatMessage(params, _destinationLocal, _canonicalDomain == _destination)
     );
 
     ReconcileBalances memory end = utils_getReconcileBalances(transferId, routers);
