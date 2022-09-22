@@ -15,14 +15,12 @@ library BridgeMessage {
   // WARNING: do NOT re-write the numbers / order
   // of message types in an upgrade;
   // will cause in-flight messages to be mis-interpreted
-  // The Types enum has to do with the TypedMemView library and it defines
-  // the types of `views` that we use in BridgeMessage. A view is not interesting data
-  // itself, but rather it points to a specific part of the memory where
-  // the data we care about live. When we give a `type` to a view, we define what type
-  // is the data it points to, so that we can do easy runtime assertions without
+  // The Types enum it defines the types of `views` that we use in BridgeMessage. A view
+  // points to a specific part of the memory and can slice bytes out of it. When we give a `type` to a view,
+  // we define the structure of the data it points to, so that we can do easy runtime assertions without
   // having to fetch the whole data from memory and check for ourselves. In BridgeMessage.sol
   // the types of `data` we can have are defined in this enum and may belong to different taxonomies.
-  // For example, a `Message` includes a `TokenId` and an Action, either a `Transfer` or a `TransferToHook`.
+  // For example, a `Message` includes a `TokenId` and an Action (a `Transfer`).
   // The Message is a different TYPE of data than a TokenId or Transfer, as TokenId and Transfer live inside
   // the message. For that reason, we define them as different data types and we add them to the same enum
   // for ease of use.
@@ -30,10 +28,7 @@ library BridgeMessage {
     Invalid, // 0
     TokenId, // 1
     Message, // 2
-    Transfer, // 3
-    DeprecatedFastTransfer, // 4
-    TransferToHook, // 5
-    ExtraData // 6
+    Transfer // 3
   }
 
   // ============ Structs ============
@@ -50,8 +45,7 @@ library BridgeMessage {
 
   uint256 private constant TOKEN_ID_LEN = 36; // 4 bytes domain + 32 bytes id
   uint256 private constant IDENTIFIER_LEN = 1;
-  uint256 private constant TRANSFER_LEN = 97; // 1 byte identifier + 32 bytes recipient + 32 bytes amount + 32 bytes detailsHash
-  uint256 private constant MIN_TRANSFER_HOOK_LEN = 129; // 1 byte identifier + 32 bytes hook address + 32 bytes amount + 32 bytes detailsHash + 32 bytes sender + X bytes extraData
+  uint256 private constant TRANSFER_LEN = 97; // 1 byte identifier + 32 bytes amount + 32 bytes detailsHash + 32 bytes transfer id
 
   // ============ Modifiers ============
 
@@ -73,7 +67,7 @@ library BridgeMessage {
    * @return TRUE if action is valid
    */
   function isValidAction(bytes29 _action) internal pure returns (bool) {
-    return isTransfer(_action) || isTransferToHook(_action);
+    return isTransfer(_action);
   }
 
   /**
@@ -83,7 +77,7 @@ library BridgeMessage {
    */
   function isValidMessageLength(bytes29 _view) internal pure returns (bool) {
     uint256 _len = _view.len();
-    return _len == TOKEN_ID_LEN + TRANSFER_LEN || _len >= TOKEN_ID_LEN + MIN_TRANSFER_HOOK_LEN;
+    return _len == TOKEN_ID_LEN + TRANSFER_LEN;
   }
 
   /**
@@ -134,48 +128,18 @@ library BridgeMessage {
   }
 
   /**
-   * @notice Checks that the message is of type TransferToHook
-   * @param _action The message
-   * @return True if the message is of type TransferToHook
-   */
-  function isTransferToHook(bytes29 _action) internal pure returns (bool) {
-    return isType(_action, Types.TransferToHook);
-  }
-
-  /**
    * @notice Formats Transfer
-   * @param _to The recipient address as bytes32
    * @param _amnt The transfer amount
    * @param _detailsHash The hash of the token name, symbol, and decimals
+   * @param _transferId The unique identifier of the transfer
    * @return
    */
   function formatTransfer(
-    bytes32 _to,
-    uint256 _amnt,
-    bytes32 _detailsHash
-  ) internal pure returns (bytes29) {
-    return abi.encodePacked(Types.Transfer, _to, _amnt, _detailsHash).ref(uint40(Types.Transfer));
-  }
-
-  /**
-   * @notice Formats TransferToHook message
-   * @param _hook The hook that will handle this token transfer
-   * @param _amnt The transfer amount
-   * @param _detailsHash The hash of the token name, symbol, and decimals
-   * @param _extraData User-provided data for the receiving hook
-   * @return
-   */
-  function formatTransferToHook(
-    bytes32 _hook,
     uint256 _amnt,
     bytes32 _detailsHash,
-    bytes32 _sender,
-    bytes memory _extraData
+    bytes32 _transferId
   ) internal pure returns (bytes29) {
-    return
-      abi.encodePacked(Types.TransferToHook, _hook, _amnt, _detailsHash, _sender, _extraData).ref(
-        uint40(Types.TransferToHook)
-      );
+    return abi.encodePacked(Types.Transfer, _amnt, _detailsHash, _transferId).ref(uint40(Types.Transfer));
   }
 
   /**
@@ -266,43 +230,13 @@ library BridgeMessage {
   }
 
   /**
-   * @notice Retrieves the recipient from a Transfer
-   * @param _transferAction The message
-   * @return The recipient address as bytes32
-   */
-  function recipient(bytes29 _transferAction)
-    internal
-    pure
-    typeAssert(_transferAction, Types.Transfer)
-    returns (bytes32)
-  {
-    // before = 1 byte identifier
-    return _transferAction.index(1, 32);
-  }
-
-  /**
-   * @notice Retrieves the EVM Recipient from a Transfer
-   * @param _transferAction The message
-   * @return The EVM Recipient
-   */
-  function evmRecipient(bytes29 _transferAction)
-    internal
-    pure
-    typeAssert(_transferAction, Types.Transfer)
-    returns (address)
-  {
-    // before = 1 byte identifier + 12 bytes empty to trim for address = 13 bytes
-    return _transferAction.indexAddress(13);
-  }
-
-  /**
    * @notice Retrieves the amount from a Transfer
    * @param _transferAction The message
    * @return The amount
    */
   function amnt(bytes29 _transferAction) internal pure returns (uint256) {
-    // before = 1 byte identifier + 32 bytes ID = 33 bytes
-    return _transferAction.indexUint(33, 32);
+    // before = 1 byte identifier = 1 bytes
+    return _transferAction.indexUint(1, 32);
   }
 
   /**
@@ -311,7 +245,17 @@ library BridgeMessage {
    * @return The detailsHash
    */
   function detailsHash(bytes29 _transferAction) internal pure returns (bytes32) {
-    // before = 1 byte identifier + 32 bytes ID + 32 bytes amount = 65 bytes
+    // before = 1 byte identifier + 32 bytes amount = 33 bytes
+    return _transferAction.index(33, 32);
+  }
+
+  /**
+   * @notice Retrieves the transfer id from a Transfer
+   * @param _transferAction The message
+   * @return The id
+   */
+  function transferId(bytes29 _transferAction) internal pure returns (bytes32) {
+    // before = 1 byte identifier + 32 bytes amount + 32 bytes details = 65 bytes
     return _transferAction.index(65, 32);
   }
 
@@ -322,55 +266,6 @@ library BridgeMessage {
    */
   function tokenId(bytes29 _message) internal pure typeAssert(_message, Types.Message) returns (bytes29) {
     return _message.slice(0, TOKEN_ID_LEN, uint40(Types.TokenId));
-  }
-
-  /**
-   * @notice Retrieves the hook contract EVM address from a TransferWithHook
-   * @param _transferAction The message
-   * @return The hook contract address
-   */
-  function evmHook(bytes29 _transferAction)
-    internal
-    pure
-    typeAssert(_transferAction, Types.TransferToHook)
-    returns (address)
-  {
-    return _transferAction.indexAddress(13);
-  }
-
-  /**
-   * @notice Retrieves the sender from a TransferWithHook
-   * @param _transferAction The message
-   * @return The sender as bytes32
-   */
-  function sender(bytes29 _transferAction)
-    internal
-    pure
-    typeAssert(_transferAction, Types.TransferToHook)
-    returns (bytes32)
-  {
-    // before = 1 byte identifier + 32 bytes hook address + 32 bytes amount + 32 bytes detailsHash = 97
-    return _transferAction.index(97, 32);
-  }
-
-  /**
-   * @notice Retrieves the extra data from a TransferWithHook
-   * @param _transferAction The message
-   * @return A TypedMemview of extraData
-   */
-  function extraData(bytes29 _transferAction)
-    internal
-    pure
-    typeAssert(_transferAction, Types.TransferToHook)
-    returns (bytes29)
-  {
-    // anything past the end is the extradata
-    return
-      _transferAction.slice(
-        MIN_TRANSFER_HOOK_LEN,
-        _transferAction.len() - MIN_TRANSFER_HOOK_LEN,
-        uint40(Types.ExtraData)
-      );
   }
 
   /**
