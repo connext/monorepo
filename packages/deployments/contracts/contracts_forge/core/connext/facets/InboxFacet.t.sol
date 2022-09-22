@@ -7,6 +7,7 @@ import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.
 import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBridgeRouter.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
+import {BridgeMessage} from "../../../../contracts/core/connext/libraries/BridgeMessage.sol";
 
 import {InboxFacet} from "../../../../contracts/core/connext/facets/InboxFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
@@ -14,11 +15,13 @@ import {CallParams, ExecuteArgs} from "../../../../contracts/core/connext/librar
 
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
+import {MessagingUtils} from "../../../utils/Messaging.sol";
 
 contract InboxFacetTest is InboxFacet, FacetHelper {
   // ============ Libs ============
   using TypedMemView for bytes29;
   using TypedMemView for bytes;
+  using BridgeMessage for bytes29;
 
   struct SwapInfo {
     uint256 input;
@@ -44,9 +47,6 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
   // default nonce on xcall
   uint256 _nonce = 1;
 
-  // bridge router
-  address _bridge = address(565656565);
-
   // ============ Test set up ============
   function setUp() public {
     // Deploy any needed contracts.
@@ -56,8 +56,10 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
     vm.prank(address(this));
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     ds.contractOwner = _ds_owner;
-    s.bridgeRouter = IBridgeRouter(_bridge);
     s.remotes[_originDomain] = _originConnext;
+
+    s.xAppConnectionManager = new MockXAppConnectionManager(new MockHome(_originDomain));
+    MockXAppConnectionManager(address(s.xAppConnectionManager)).enrollInbox(_originSender);
 
     // set domain
     s.domain = _originDomain;
@@ -69,6 +71,11 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
     // setup aave pool
     _aavePool = address(new MockPool(false));
     s.aavePool = _aavePool;
+  }
+
+  function utils_createMessage(CallParams memory params) public returns (bytes memory) {
+    address local = s.tokenRegistry.getLocalAddress(params.canonicalDomain, params.canonicalId);
+    return MessagingUtils.formatMessage(params, local, params.canonicalDomain == s.domain);
   }
 
   function utils_createCallParams(address asset) public returns (CallParams memory, bytes32) {
@@ -124,7 +131,6 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
   ) public {
     (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
     bytes memory data = abi.encode(_transferId);
-    vm.prank(_bridge);
     // FIXME: Pass valid message bytes!
     // this.handle(_originDomain, _bridgeCaller, canonicalDomain, canonicalId, _local, _amount, data);
   }
@@ -150,7 +156,14 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
 
     if (shouldSucceed) {
       vm.expectEmit(true, true, true, true);
-      emit Reconciled(transferId, _originDomain, _local, s.routedTransfers[transferId], params.bridgedAmt, _bridge);
+      emit Reconciled(
+        transferId,
+        _originDomain,
+        _local,
+        s.routedTransfers[transferId],
+        params.bridgedAmt,
+        address(this)
+      );
     } else {
       vm.expectRevert(expectedError);
     }
@@ -188,23 +201,23 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
 
   // ============ reconcile fail cases
 
-  // fails if not sent by connext
-  function test_InboxFacet__reconcile_failIfNotConnext() public {
-    utils_setupAsset(true, false);
-    (CallParams memory params, bytes32 transferId) = utils_createCallParams(_local);
+  // fails if message is not transfer
+  function test_InboxFacet__handle_failIfNotTransfer() public {
+    bytes29[] memory _views = new bytes29[](2);
+    _views[0] = BridgeMessage.formatTokenId(_canonicalDomain, _canonicalId);
+    _views[1] = abi
+      .encodePacked(
+        BridgeMessage.Types.Invalid,
+        uint256(0),
+        BridgeMessage.getDetailsHash("Hello", "WRLD", 18),
+        TypeCasts.addressToBytes32(address(123))
+      )
+      .ref(uint40(BridgeMessage.Types.Invalid));
+    bytes memory message = TypedMemView.join(_views);
 
-    vm.expectRevert(InboxFacet.InboxFacet__reconcile_notConnext.selector);
-    vm.prank(_bridge);
-    // FIXME: Pass valid message bytes!
-    // this.handle(
-    //   params.originDomain,
-    //   TypeCasts.addressToBytes32(address(1234)), // random address as sender
-    //   params.canonicalDomain,
-    //   params.canonicalId,
-    //   _local,
-    //   params.bridgedAmt,
-    //   abi.encode(transferId)
-    // );
+    vm.expectRevert(InboxFacet.InboxFacet__handle_notTransfer.selector);
+    vm.prank(_originSender);
+    this.handle(_originDomain, uint32(_nonce), _originConnext, message);
   }
 
   // fails if already reconciled (s.reconciledTransfers[transferId] = true)
@@ -214,7 +227,6 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
     s.reconciledTransfers[transferId] = true;
 
     vm.expectRevert(InboxFacet.InboxFacet__reconcile_alreadyReconciled.selector);
-    vm.prank(_bridge);
     // FIXME: Pass valid message bytes!
     // this.handle(
     //   _originDomain,
@@ -238,7 +250,6 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
     s.portalFeeDebt[transferId] = 10;
 
     vm.expectRevert(InboxFacet.InboxFacet__reconcile_noPortalRouter.selector);
-    vm.prank(_bridge);
     // FIXME: Pass valid message bytes!
     // this.handle(
     //   _originDomain,

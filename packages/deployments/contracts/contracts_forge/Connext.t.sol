@@ -26,6 +26,7 @@ import {WETH} from "./utils/TestWeth.sol";
 import "./utils/ForgeHelper.sol";
 import "./utils/Mock.sol";
 import "./utils/Deployer.sol";
+import {MessagingUtils} from "./utils/Messaging.sol";
 
 // Holds all balances that are impacted by an xcall
 struct XCallBalances {
@@ -683,30 +684,6 @@ contract ConnextTest is ForgeHelper, Deployer {
       );
   }
 
-  // Format cross-chain message from call params.
-  function utils_formatMessage(
-    CallParams memory params,
-    address local,
-    uint256 bridgedAmt,
-    bool isCanonical
-  ) public returns (bytes memory) {
-    bytes32 transferId = keccak256(abi.encode(params));
-    IBridgeToken token = IBridgeToken(local);
-
-    bytes29 tokenId = BridgeMessage.formatTokenId(params.canonicalDomain, params.canonicalId);
-
-    bytes32 detailsHash;
-    if (local != address(0)) {
-      detailsHash = isCanonical
-        ? BridgeMessage.getDetailsHash(token.name(), token.symbol(), token.decimals())
-        : token.detailsHash();
-    }
-
-    bytes29 action = BridgeMessage.formatTransfer(bridgedAmt, detailsHash, transferId);
-
-    return BridgeMessage.formatMessage(tokenId, action);
-  }
-
   function utils_reconcileAndAssert(
     CallParams memory params,
     bytes32 transferId,
@@ -730,7 +707,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       _origin,
       0,
       TypeCasts.addressToBytes32(address(_originConnext)),
-      utils_formatMessage(params, _destinationLocal, bridgedAmt, _canonicalDomain == _destination)
+      MessagingUtils.formatMessage(params, _destinationLocal, _canonicalDomain == _destination)
     );
 
     ReconcileBalances memory end = utils_getReconcileBalances(transferId, routers);
