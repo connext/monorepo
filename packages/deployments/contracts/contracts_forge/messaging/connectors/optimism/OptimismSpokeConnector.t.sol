@@ -67,14 +67,62 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
   }
 
   // ============ OptimismSpokeConnector.sendMessage ============
-  function test_OptimismSpokeConnector__sendMessage_works() public {}
+  function test_OptimismSpokeConnector__sendMessage_works() public {
+    bytes32 outboundRoot = OptimismSpokeConnector(_l2Connector).outboundRoot();
+    bytes memory _data = abi.encode(outboundRoot);
+
+    vm.mockCall(_amb, abi.encodeWithSelector(OptimismAmb.sendMessage.selector), abi.encode());
+
+    vm.expectEmit(true, true, true, true);
+    emit MessageSent(_data, _rootManager);
+
+    vm.expectCall(
+      _amb,
+      abi.encodeWithSelector(
+        OptimismAmb.sendMessage.selector,
+        _l1Connector,
+        abi.encodeWithSelector(Connector.processMessage.selector, _data, _mirrorGas)
+      )
+    );
+
+    vm.prank(_rootManager);
+    OptimismSpokeConnector(_l2Connector).send();
+  }
 
   // ============ OptimismSpokeConnector.processMessage ============
-  function test_OptimismSpokeConnector__processMessage_works() public {}
+  function test_OptimismSpokeConnector__processMessage_works() public {
+    utils_setSpokeConnectorVerifyMocks(_l1Connector);
 
-  function test_OptimismSpokeConnector__processMessage_failsIfNotCrosschain() public {}
+    bytes memory _data = abi.encode(bytes32("test"));
 
-  function test_OptimismSpokeConnector__processMessage_failsIfNotMirrorConnector() public {}
+    vm.expectEmit(true, true, true, true);
+    emit MessageProcessed(_data, _amb);
 
-  function test_OptimismSpokeConnector__processMessage_failsIfNot32Bytes() public {}
+    vm.prank(_amb);
+    OptimismSpokeConnector(_l2Connector).processMessage(_data);
+
+    assertEq(bytes32(_data), OptimismSpokeConnector(_l2Connector).aggregateRoot());
+  }
+
+  function test_OptimismSpokeConnector__processMessage_failsIfNotMirrorConnector() public {
+    utils_setSpokeConnectorVerifyMocks(address(123));
+
+    bytes memory _data = abi.encode(bytes32("test"));
+
+    vm.expectRevert(bytes("!mirrorConnector"));
+
+    vm.prank(_amb);
+    OptimismSpokeConnector(_l2Connector).processMessage(_data);
+  }
+
+  function test_OptimismSpokeConnector__processMessage_failsIfNot32Bytes() public {
+    utils_setSpokeConnectorVerifyMocks(_l1Connector);
+
+    bytes memory _data = abi.encode(bytes32("test"), 123123123);
+
+    vm.expectRevert(bytes("!length"));
+
+    vm.prank(_amb);
+    OptimismSpokeConnector(_l2Connector).processMessage(_data);
+  }
 }
