@@ -386,6 +386,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       balances.callerAsset = tokenIn.balanceOf(params.originSender);
       balances.contractEth = address(this).balance;
       balances.contractAsset = tokenIn.balanceOf(address(this));
+
+      // Debugging logs.
+      console.log("initial balances");
+      console.log(address(this).balance);
+      console.log(params.originSender.balance);
+      console.log(tokenIn.balanceOf(params.originSender));
+      console.log(tokenIn.balanceOf(address(this)));
+      console.log(TestERC20(_local).balanceOf(address(this)));
     }
 
     if (shouldSwap) {
@@ -410,10 +418,18 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
       TestERC20 tokenIn = TestERC20(asset != address(0) ? asset : _local);
 
+      // Debugging logs.
+      console.log("out balances");
+      console.log(address(this).balance);
+      console.log(params.originSender.balance);
+      console.log(tokenIn.balanceOf(params.originSender));
+      console.log(tokenIn.balanceOf(address(this)));
+      console.log(TestERC20(_local).balanceOf(address(this)));
+
       // Contract should have received relayer fee from user.
       assertEq(address(this).balance, balances.contractEth + _relayerFee);
       // User should have been debited relayer fee ETH and tx cost.
-      assertLe(address(params.originSender).balance, balances.callerEth - _relayerFee);
+      assertLe(params.originSender.balance, balances.callerEth - _relayerFee);
 
       // Check that the contract has been credited the correct amount of tokens and that the user has
       // been debited the correct amount of tokens.
