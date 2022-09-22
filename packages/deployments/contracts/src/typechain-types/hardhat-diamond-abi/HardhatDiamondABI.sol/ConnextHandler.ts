@@ -220,7 +220,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "facetFunctionSelectors(address)": FunctionFragment;
     "facets()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
-    "onReceive(uint32,bytes32,uint32,bytes32,address,uint256,bytes)": FunctionFragment;
     "aavePool()": FunctionFragment;
     "aavePortalFee()": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
@@ -343,7 +342,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "facetFunctionSelectors"
       | "facets"
       | "supportsInterface"
-      | "onReceive"
       | "aavePool"
       | "aavePortalFee"
       | "getAavePortalDebt"
@@ -613,18 +611,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "onReceive",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
   ): string;
   encodeFunctionData(functionFragment: "aavePool", values?: undefined): string;
   encodeFunctionData(
@@ -1139,7 +1125,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "onReceive", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "aavePool", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "aavePortalFee",
@@ -1432,8 +1417,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "DiamondCut(tuple[],address,bytes)": EventFragment;
     "DiamondCutProposed(tuple[],address,bytes,uint256)": EventFragment;
     "DiamondCutRescinded(tuple[],address,bytes)": EventFragment;
-    "BridgeRouterUpdated(address,address,address)": EventFragment;
-    "Reconciled(bytes32,uint32,address[],address,uint256,address)": EventFragment;
     "AavePortalRepayment(bytes32,address,uint256,uint256,address)": EventFragment;
     "AssetWhitelistRemovalProposed(uint256)": EventFragment;
     "AssetWhitelistRemoved(bool)": EventFragment;
@@ -1479,8 +1462,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "DiamondCut"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DiamondCutProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DiamondCutRescinded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "BridgeRouterUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Reconciled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AavePortalRepayment"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "AssetWhitelistRemovalProposed"
@@ -1750,34 +1731,6 @@ export type DiamondCutRescindedEvent = TypedEvent<
 
 export type DiamondCutRescindedEventFilter =
   TypedEventFilter<DiamondCutRescindedEvent>;
-
-export interface BridgeRouterUpdatedEventObject {
-  oldBridgeRouter: string;
-  newBridgeRouter: string;
-  caller: string;
-}
-export type BridgeRouterUpdatedEvent = TypedEvent<
-  [string, string, string],
-  BridgeRouterUpdatedEventObject
->;
-
-export type BridgeRouterUpdatedEventFilter =
-  TypedEventFilter<BridgeRouterUpdatedEvent>;
-
-export interface ReconciledEventObject {
-  transferId: string;
-  originDomain: number;
-  routers: string[];
-  asset: string;
-  amount: BigNumber;
-  caller: string;
-}
-export type ReconciledEvent = TypedEvent<
-  [string, number, string[], string, BigNumber, string],
-  ReconciledEventObject
->;
-
-export type ReconciledEventFilter = TypedEventFilter<ReconciledEvent>;
 
 export interface AavePortalRepaymentEventObject {
   transferId: string;
@@ -2318,17 +2271,6 @@ export interface ConnextHandler extends BaseContract {
       _interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    onReceive(
-      _origin: PromiseOrValue<BigNumberish>,
-      _sender: PromiseOrValue<BytesLike>,
-      arg2: PromiseOrValue<BigNumberish>,
-      arg3: PromiseOrValue<BytesLike>,
-      _localToken: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _extraData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     aavePool(overrides?: CallOverrides): Promise<[string]>;
 
@@ -2936,17 +2878,6 @@ export interface ConnextHandler extends BaseContract {
     _interfaceId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  onReceive(
-    _origin: PromiseOrValue<BigNumberish>,
-    _sender: PromiseOrValue<BytesLike>,
-    arg2: PromiseOrValue<BigNumberish>,
-    arg3: PromiseOrValue<BytesLike>,
-    _localToken: PromiseOrValue<string>,
-    _amount: PromiseOrValue<BigNumberish>,
-    _extraData: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   aavePool(overrides?: CallOverrides): Promise<string>;
 
@@ -3557,17 +3488,6 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    onReceive(
-      _origin: PromiseOrValue<BigNumberish>,
-      _sender: PromiseOrValue<BytesLike>,
-      arg2: PromiseOrValue<BigNumberish>,
-      arg3: PromiseOrValue<BytesLike>,
-      _localToken: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _extraData: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     aavePool(overrides?: CallOverrides): Promise<string>;
 
     aavePortalFee(overrides?: CallOverrides): Promise<BigNumber>;
@@ -4166,34 +4086,6 @@ export interface ConnextHandler extends BaseContract {
       _calldata?: null
     ): DiamondCutRescindedEventFilter;
 
-    "BridgeRouterUpdated(address,address,address)"(
-      oldBridgeRouter?: null,
-      newBridgeRouter?: null,
-      caller?: null
-    ): BridgeRouterUpdatedEventFilter;
-    BridgeRouterUpdated(
-      oldBridgeRouter?: null,
-      newBridgeRouter?: null,
-      caller?: null
-    ): BridgeRouterUpdatedEventFilter;
-
-    "Reconciled(bytes32,uint32,address[],address,uint256,address)"(
-      transferId?: PromiseOrValue<BytesLike> | null,
-      originDomain?: null,
-      routers?: null,
-      asset?: null,
-      amount?: null,
-      caller?: null
-    ): ReconciledEventFilter;
-    Reconciled(
-      transferId?: PromiseOrValue<BytesLike> | null,
-      originDomain?: null,
-      routers?: null,
-      asset?: null,
-      amount?: null,
-      caller?: null
-    ): ReconciledEventFilter;
-
     "AavePortalRepayment(bytes32,address,uint256,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       asset?: null,
@@ -4634,17 +4526,6 @@ export interface ConnextHandler extends BaseContract {
     supportsInterface(
       _interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    onReceive(
-      _origin: PromiseOrValue<BigNumberish>,
-      _sender: PromiseOrValue<BytesLike>,
-      arg2: PromiseOrValue<BigNumberish>,
-      arg3: PromiseOrValue<BytesLike>,
-      _localToken: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _extraData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     aavePool(overrides?: CallOverrides): Promise<BigNumber>;
@@ -5255,17 +5136,6 @@ export interface ConnextHandler extends BaseContract {
     supportsInterface(
       _interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    onReceive(
-      _origin: PromiseOrValue<BigNumberish>,
-      _sender: PromiseOrValue<BytesLike>,
-      arg2: PromiseOrValue<BigNumberish>,
-      arg3: PromiseOrValue<BytesLike>,
-      _localToken: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _extraData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     aavePool(overrides?: CallOverrides): Promise<PopulatedTransaction>;
