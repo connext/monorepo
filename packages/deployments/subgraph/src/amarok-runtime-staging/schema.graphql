@@ -1,7 +1,6 @@
 type Asset @entity {
-  id: ID!
-  key: Bytes
-  local: Bytes!
+  id: ID! # Key
+  localAsset: Bytes!
   adoptedAsset: Bytes!
   canonicalId: Bytes!
   canonicalDomain: BigInt!
@@ -9,7 +8,7 @@ type Asset @entity {
 }
 
 type AssetBalance @entity {
-  id: ID!
+  id: ID! # `key-router_address`
   amount: BigInt!
   router: Router!
   asset: Asset!
@@ -45,11 +44,6 @@ type StableSwap @entity {
   swapPool: Bytes!
 }
 
-type SponsorVault @entity {
-  id: ID!
-  sponsorVault: Bytes!
-}
-
 enum TransferStatus {
   XCalled
   Executed
@@ -65,28 +59,25 @@ type OriginTransfer @entity {
   chainId: BigInt
   transferId: Bytes
   nonce: BigInt
+  status: TransferStatus
+  messageHash: Bytes
 
   # CallParams
-  to: Bytes
-  callData: Bytes
+  originDomain: BigInt
   destinationDomain: BigInt
-  agent: Bytes
+  canonicalDomain: BigInt
+  to: Bytes
+  delegate: Bytes
   receiveLocal: Boolean
-  destinationMinOut: BigInt
-
-  # Event Data
-  status: TransferStatus
-  originMinOut: BigInt
+  callData: Bytes
+  slippage: BigInt
+  originSender: Bytes
+  bridgedAmt: BigInt
+  normalizedIn: BigInt
+  canonicalId: Bytes
 
   # Asset
-  # The asset that gets sent in.
-  asset: Bytes
-  # Amount of asset sent in.
-  amount: BigInt
-  # asset being bridged.
-  bridgedAsset: Bytes
-  # Amount of bridged nomad asset.
-  bridgedAmount: BigInt
+  asset: Asset
 
   # Message
   message: OriginMessage
@@ -109,30 +100,26 @@ type DestinationTransfer @entity {
   nonce: BigInt
 
   # CallParams
-  to: Bytes
-  callData: Bytes
   originDomain: BigInt
   destinationDomain: BigInt
-  agent: Bytes
+  canonicalDomain: BigInt
+  to: Bytes
+  delegate: Bytes
   receiveLocal: Boolean
-  destinationMinOut: BigInt
+  callData: Bytes
+  slippage: BigInt
+  originSender: Bytes
+  bridgedAmt: BigInt
+  normalizedIn: BigInt
+  canonicalId: Bytes
+
+  # Asset
+  asset: Asset
 
   # Event Data
   status: TransferStatus
   routers: [Router!]
   originSender: Bytes
-
-  # Asset
-  # The asset that gets delivered.
-  asset: Bytes
-  # Amount of delivered asset.
-  amount: BigInt
-  # The local version of the bridged asset.
-  localAsset: Bytes
-  # The amount of the local asset.
-  localAmount: BigInt
-
-  sponsorVaultRelayerFee: BigInt
 
   # Executed Transaction
   executedCaller: Bytes

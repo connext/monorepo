@@ -37,8 +37,6 @@ contract BridgeFacet is BaseConnextFacet {
   using BridgeMessage for bytes29;
   using SafeERC20 for IERC20;
 
-  // ========== Structs ===========
-
   // ========== Custom Errors ===========
 
   error BridgeFacet__addRemote_invalidDomain();
@@ -74,12 +72,20 @@ contract BridgeFacet is BaseConnextFacet {
   // ============ Events ============
 
   /**
-   * @notice Emitted when `xcall` is called on the origin domain
+   * @notice Emitted when `xcall` is called on the origin domain of a transfer.
    * @param transferId - The unique identifier of the crosschain transfer.
    * @param nonce - The bridge nonce of the transfer on the origin domain.
+   * @param messageHash - The hash of the message bytes (containing all transfer info) that were bridged.
    * @param params - The `CallParams` provided to the function.
+   * @param local - The address of the local asset (i.e. bridged token) used in the transfer.
    */
-  event XCalled(bytes32 indexed transferId, uint256 indexed nonce, bytes32 indexed messageHash, CallParams params);
+  event XCalled(
+    bytes32 indexed transferId,
+    uint256 indexed nonce,
+    bytes32 indexed messageHash,
+    CallParams params,
+    address local
+  );
 
   /**
    * @notice Emitted when a transfer has its external data executed
@@ -90,22 +96,25 @@ contract BridgeFacet is BaseConnextFacet {
   event ExternalCalldataExecuted(bytes32 indexed transferId, bool success, bytes returnData);
 
   /**
-   * @notice Emitted when `execute` is called on the destination chain
-   * @dev `execute` may be called when providing fast liquidity *or* when processing a reconciled transfer
+   * @notice Emitted when `execute` is called on the destination domain of a transfer.
+   * @dev `execute` may be called when providing fast liquidity or when processing a reconciled (slow) transfer.
    * @param transferId - The unique identifier of the crosschain transfer.
    * @param to - The recipient `CallParams.to` provided, created as indexed parameter.
-   * @param args - The `ExecuteArgs` provided to the function.
-   * @param asset - The asset the to gets or the external call is executed with. Should be the
+   * @param asset - The asset the recipient is given or the external call is executed with. Should be the
    * adopted asset on that chain.
-   * @param amount - The amount of transferring asset the to address receives or the external call is
+   * @param args - The `ExecuteArgs` provided to the function.
+   * @param local - The local asset that was either supplied by the router for a fast-liquidity transfer or
+   * minted by the bridge in a reconciled (slow) transfer. Could be the same as the adopted `asset` param.
+   * @param amount - The amount of transferring asset the recipient address receives or the external call is
    * executed with.
    * @param caller - The account that called the function.
    */
   event Executed(
     bytes32 indexed transferId,
     address indexed to,
+    address indexed asset,
     ExecuteArgs args,
-    address asset,
+    address local,
     uint256 amount,
     address caller
   );
@@ -383,7 +392,7 @@ contract BridgeFacet is BaseConnextFacet {
     // Supply assets to target recipient. Use router liquidity when this is a fast transfer, or mint bridge tokens
     // when this is a slow transfer.
     // NOTE: Asset will be adopted unless specified to `receiveLocal` in params.
-    (uint256 amountOut, address asset) = _handleExecuteLiquidity(
+    (uint256 amountOut, address asset, address local) = _handleExecuteLiquidity(
       transferId,
       _calculateCanonicalHash(_args.params.canonicalId, _args.params.canonicalDomain),
       !reconciled,
@@ -391,10 +400,10 @@ contract BridgeFacet is BaseConnextFacet {
     );
 
     // Execute the transaction using the designated calldata.
-    uint256 amountWithSponsors = _handleExecuteTransaction(_args, amountOut, asset, transferId, reconciled);
+    uint256 amount = _handleExecuteTransaction(_args, amountOut, asset, transferId, reconciled);
 
     // Emit event.
-    emit Executed(transferId, _args.params.to, _args, asset, amountWithSponsors, msg.sender);
+    emit Executed(transferId, _args.params.to, asset, _args, local, amount, msg.sender);
 
     return transferId;
   }
@@ -571,7 +580,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // emit event
-    emit XCalled(transferId, _params.nonce, messageHash, _params);
+    emit XCalled(transferId, _params.nonce, messageHash, _params, local);
 
     return transferId;
   }
@@ -588,8 +597,8 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Performs some sanity checks for `execute`
-   * @dev Need this to prevent stack too deep
+   * @notice Performs some sanity checks for `execute`.
+   * @dev Need this to prevent stack too deep.
    */
   function _executeSanityChecks(ExecuteArgs calldata _args) private view returns (bytes32, bool) {
     // If the sender is not approved relayer, revert
@@ -688,24 +697,35 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Execute liquidity process used when calling `execute`
-   * @dev Need this to prevent stack too deep
+   * @notice Execute liquidity process used when calling `execute`.
+   * @dev Will revert with underflow if any router in the path has insufficient liquidity to provide
+   * for the transfer.
+   * @dev Need this to prevent stack too deep.
    */
   function _handleExecuteLiquidity(
     bytes32 _transferId,
     bytes32 _key,
     bool _isFast,
     ExecuteArgs calldata _args
-  ) private returns (uint256, address) {
+  )
+    private
+    returns (
+      uint256,
+      address,
+      address
+    )
+  {
     // Save the addresses of all routers providing liquidity for this transfer.
     s.routedTransfers[_transferId] = _args.routers;
 
-    // Get the local asset
+    // Get the local asset contract address.
     address local = s.tokenRegistry.getLocalAddress(_args.params.canonicalDomain, _args.params.canonicalId);
 
+    // If this is a zero-value transfer, short-circuit remaining logic.
     if (_args.params.bridgedAmt == 0) {
-      return (0, local);
+      return (0, local, local);
     }
+
     uint256 toSwap = _args.params.bridgedAmt;
     // If this is a fast liquidity path, we should handle deducting from applicable routers' liquidity.
     // If this is a slow liquidity path, the transfer must have been reconciled (if we've reached this point),
@@ -719,16 +739,22 @@ contract BridgeFacet is BaseConnextFacet {
 
       if (pathLen == 1) {
         // If router does not have enough liquidity, try to use Aave Portals.
-        // only one router should be responsible for taking on this credit risk, and it should only
-        // deal with transfers expecting adopted assets (to avoid introducing runtime slippage).
+        // NOTE: Only one router should be responsible for taking on this credit risk, and it should only deal
+        // with transfers expecting adopted assets (to avoid introducing runtime slippage).
         if (
           !_args.params.receiveLocal && s.routerBalances[_args.routers[0]][local] < toSwap && s.aavePool != address(0)
         ) {
           if (!s.routerPermissionInfo.approvedForPortalRouters[_args.routers[0]])
             revert BridgeFacet__execute_notApprovedForPortals();
 
-          // Portal provides the adopted asset so we early return here
-          return _executePortalTransfer(_transferId, _key, toSwap, _args.routers[0]);
+          // Portals deliver the adopted asset directly; return after portal execution is completed.
+          (uint256 portalDeliveredAmount, address adoptedAsset) = _executePortalTransfer(
+            _transferId,
+            _key,
+            toSwap,
+            _args.routers[0]
+          );
+          return (portalDeliveredAmount, adoptedAsset, local);
         } else {
           // Decrement the router's liquidity.
           s.routerBalances[_args.routers[0]][local] -= toSwap;
@@ -738,6 +764,7 @@ contract BridgeFacet is BaseConnextFacet {
         uint256 routerAmount = toSwap / pathLen;
         for (uint256 i; i < pathLen - 1; ) {
           // Decrement router's liquidity.
+          // NOTE: If any router in the path has insufficient liquidity, this will revert with an underflow error.
           s.routerBalances[_args.routers[i]][local] -= routerAmount;
 
           unchecked {
@@ -750,22 +777,22 @@ contract BridgeFacet is BaseConnextFacet {
       }
     }
 
-    // if the local asset is specified, or the adopted asset was overridden (i.e. when
-    // user facing slippage conditions outside of their boundaries), exit
+    // If the local asset is specified, or the adopted asset was overridden (e.g. when user facing slippage
+    // conditions outside of their boundaries), exit without swapping.
     if (_args.params.receiveLocal) {
-      return (toSwap, local);
+      return (toSwap, local, local);
     }
 
-    // swap out of mad* asset into adopted asset if needed
+    // Swap out of representational asset into adopted asset if needed.
     uint256 slippageOverride = s.slippage[_transferId];
-    return
-      AssetLogic.swapFromLocalAssetIfNeeded(
-        _key,
-        local,
-        toSwap,
-        slippageOverride != 0 ? slippageOverride : _args.params.slippage,
-        _args.params.normalizedIn
-      );
+    (uint256 amount, address adopted) = AssetLogic.swapFromLocalAssetIfNeeded(
+      _key,
+      local,
+      toSwap,
+      slippageOverride != 0 ? slippageOverride : _args.params.slippage,
+      _args.params.normalizedIn
+    );
+    return (amount, adopted, local);
   }
 
   /**

@@ -74,8 +74,10 @@ export type { DiamondCutFacet } from "./contracts/core/connext/facets/DiamondCut
 export { DiamondCutFacet__factory } from "./factories/contracts/core/connext/facets/DiamondCutFacet__factory";
 export type { DiamondLoupeFacet } from "./contracts/core/connext/facets/DiamondLoupeFacet";
 export { DiamondLoupeFacet__factory } from "./factories/contracts/core/connext/facets/DiamondLoupeFacet__factory";
-export type { InboundMessageFacet } from "./contracts/core/connext/facets/InboundMessageFacet";
-export { InboundMessageFacet__factory } from "./factories/contracts/core/connext/facets/InboundMessageFacet__factory";
+export type { InboxFacet } from "./contracts/core/connext/facets/InboxFacet";
+export { InboxFacet__factory } from "./factories/contracts/core/connext/facets/InboxFacet__factory";
+export type { NomadFacet } from "./contracts/core/connext/facets/NomadFacet";
+export { NomadFacet__factory } from "./factories/contracts/core/connext/facets/NomadFacet__factory";
 export type { PortalFacet } from "./contracts/core/connext/facets/PortalFacet";
 export { PortalFacet__factory } from "./factories/contracts/core/connext/facets/PortalFacet__factory";
 export type { ProposedOwnableFacet } from "./contracts/core/connext/facets/ProposedOwnableFacet";

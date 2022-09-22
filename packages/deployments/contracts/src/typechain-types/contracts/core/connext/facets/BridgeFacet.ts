@@ -297,7 +297,7 @@ export interface BridgeFacetInterface extends utils.Interface {
 
   events: {
     "AavePortalMintUnbacked(bytes32,address,address,uint256)": EventFragment;
-    "Executed(bytes32,address,tuple,address,uint256,address)": EventFragment;
+    "Executed(bytes32,address,address,tuple,address,uint256,address)": EventFragment;
     "ExecutorUpdated(address,address,address)": EventFragment;
     "ExternalCalldataExecuted(bytes32,bool,bytes)": EventFragment;
     "RemoteAdded(uint32,address,address)": EventFragment;
@@ -307,7 +307,7 @@ export interface BridgeFacetInterface extends utils.Interface {
     "SlippageUpdated(bytes32,uint256)": EventFragment;
     "SponsorVaultUpdated(address,address,address)": EventFragment;
     "TransferRelayerFeesUpdated(bytes32,uint256,address)": EventFragment;
-    "XCalled(bytes32,uint256,bytes32,tuple)": EventFragment;
+    "XCalled(bytes32,uint256,bytes32,tuple,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AavePortalMintUnbacked"): EventFragment;
@@ -341,13 +341,14 @@ export type AavePortalMintUnbackedEventFilter =
 export interface ExecutedEventObject {
   transferId: string;
   to: string;
-  args: ExecuteArgsStructOutput;
   asset: string;
+  args: ExecuteArgsStructOutput;
+  local: string;
   amount: BigNumber;
   caller: string;
 }
 export type ExecutedEvent = TypedEvent<
-  [string, string, ExecuteArgsStructOutput, string, BigNumber, string],
+  [string, string, string, ExecuteArgsStructOutput, string, BigNumber, string],
   ExecutedEventObject
 >;
 
@@ -470,9 +471,10 @@ export interface XCalledEventObject {
   nonce: BigNumber;
   messageHash: string;
   params: CallParamsStructOutput;
+  local: string;
 }
 export type XCalledEvent = TypedEvent<
-  [string, BigNumber, string, CallParamsStructOutput],
+  [string, BigNumber, string, CallParamsStructOutput, string],
   XCalledEventObject
 >;
 
@@ -819,19 +821,21 @@ export interface BridgeFacet extends BaseContract {
       amount?: null
     ): AavePortalMintUnbackedEventFilter;
 
-    "Executed(bytes32,address,tuple,address,uint256,address)"(
+    "Executed(bytes32,address,address,tuple,address,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       to?: PromiseOrValue<string> | null,
+      asset?: PromiseOrValue<string> | null,
       args?: null,
-      asset?: null,
+      local?: null,
       amount?: null,
       caller?: null
     ): ExecutedEventFilter;
     Executed(
       transferId?: PromiseOrValue<BytesLike> | null,
       to?: PromiseOrValue<string> | null,
+      asset?: PromiseOrValue<string> | null,
       args?: null,
-      asset?: null,
+      local?: null,
       amount?: null,
       caller?: null
     ): ExecutedEventFilter;
@@ -932,17 +936,19 @@ export interface BridgeFacet extends BaseContract {
       caller?: null
     ): TransferRelayerFeesUpdatedEventFilter;
 
-    "XCalled(bytes32,uint256,bytes32,tuple)"(
+    "XCalled(bytes32,uint256,bytes32,tuple,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
       messageHash?: PromiseOrValue<BytesLike> | null,
-      params?: null
+      params?: null,
+      local?: null
     ): XCalledEventFilter;
     XCalled(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
       messageHash?: PromiseOrValue<BytesLike> | null,
-      params?: null
+      params?: null,
+      local?: null
     ): XCalledEventFilter;
   };
 
