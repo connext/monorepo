@@ -43,11 +43,13 @@ contract RootManager is MerkleTreeManager, ProposedOwnable, IRootManager {
   mapping(address => bool) public watchers;
 
   // ============ Constructor ============
+
   constructor() ProposedOwnable() {
     _setOwner(msg.sender);
   }
 
   // ============ Modifiers ============
+
   modifier onlyWatcher() {
     require(watchers[msg.sender], "!watcher");
     _;

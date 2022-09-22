@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-// ============ Internal Imports ============
 import {MerkleLib} from "./libraries/Merkle.sol";
 
 /**
  * @title MerkleTreeManager
- * @author Illusory Systems Inc.
- * @notice Contains a Merkle tree instance and
- * exposes view functions for the tree.
+ * @notice Contains a Merkle tree instance and exposes read/write functions for the tree.
  */
 contract MerkleTreeManager {
   // ============ Libraries ============
@@ -19,19 +16,20 @@ contract MerkleTreeManager {
 
   /**
    * @notice Core data structure with which this contract is tasked with keeping custody.
-   * Writable only by the designated connector.
+   * Writable only by the designated arborist.
    */
   MerkleLib.Tree public tree;
 
   /**
-   * @notice The connector contract that has permission to write to this tree.
+   * @notice The arborist contract that has permission to write to this tree.
+   * @dev This could be the root manager contract or a spoke connector contract, for example.
    */
-  address public connector;
+  address public arborist;
 
   // ============ Modifiers ============
 
-  modifier onlyConnector() {
-    require(connector == msg.sender, "!connector");
+  modifier onlyArborist() {
+    require(arborist == msg.sender, "!owner");
     _;
   }
 
@@ -56,20 +54,20 @@ contract MerkleTreeManager {
 
   /**
    * @notice Creates a new MerkleTreeManager instance. Sets the msg.sender as the initial permissioned
-   * connector contract.
+   * arborist contract.
    */
   constructor() {
-    connector = msg.sender;
+    arborist = msg.sender;
   }
 
   // ============ Admin Functions ==============
 
   /**
-   * @notice Method for the current connector to assign write permissions to a new connector.
-   * @param newConnector The new address to set as the current connector.
+   * @notice Method for the current arborist to assign write permissions to a new arborist.
+   * @param newArborist The new address to set as the current arborist.
    */
-  function setConnector(address newConnector) public onlyConnector {
-    connector = newConnector;
+  function setConnector(address newArborist) public onlyArborist {
+    arborist = newArborist;
   }
 
   // ========= Public Functions =========
@@ -81,7 +79,7 @@ contract MerkleTreeManager {
    * @return _count Current node count (i.e. number of indices) AFTER the insertion of the new leaf,
    * provided for convenience.
    */
-  function insert(bytes32 leaf) public onlyConnector returns (bytes32 _root, uint256 _count) {
+  function insert(bytes32 leaf) public onlyArborist returns (bytes32 _root, uint256 _count) {
     // NOTE: Considerably more efficient to put this tree into memory, conduct operations,
     // then re-assign it to storage.
     MerkleLib.Tree memory _tree = tree;
