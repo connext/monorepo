@@ -131992,13 +131992,8 @@
             }
           ]
         },
-<<<<<<< HEAD
         "ArbitrumSpokeConnectorStaging": {
           "address": "0xBA3171e092705A09ef68DEaeC86F184B92026236",
-=======
-        "TokenRegistryStaging": {
-          "address": "0xA47Ed4e18d5f6a86b10B6e5aa88398CbdB9C2284",
->>>>>>> main
           "abi": [
             {
               "inputs": [],
@@ -132050,28 +132045,12 @@
               "inputs": [
                 {
                   "indexed": false,
-<<<<<<< HEAD
                   "internalType": "bytes",
                   "name": "data",
                   "type": "bytes"
                 },
                 {
                   "indexed": false,
-=======
-                  "internalType": "uint8",
-                  "name": "version",
-                  "type": "uint8"
-                }
-              ],
-              "name": "Initialized",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
->>>>>>> main
                   "internalType": "address",
                   "name": "proposedOwner",
                   "type": "address"
@@ -132392,32 +132371,8 @@
               "type": "function"
             },
             {
-<<<<<<< HEAD
               "inputs": [],
               "name": "home",
-=======
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_oldRepr",
-                  "type": "address"
-                }
-              ],
-              "name": "oldReprToCurrentRepr",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "_currentRepr",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "owner",
->>>>>>> main
               "outputs": [
                 {
                   "internalType": "address",
@@ -132625,38 +132580,6 @@
             {
               "inputs": [
                 {
-<<<<<<< HEAD
-=======
-                  "internalType": "address",
-                  "name": "_upgradeBeacon",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "_initializationCalldata",
-                  "type": "bytes"
-                }
-              ],
-              "stateMutability": "payable",
-              "type": "constructor"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "fallback"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "receive"
-            }
-          ]
-        },
-        "TokenRegistryUpgradeBeaconStaging": {
-          "address": "0xd683Cfd4a9e643d3935115dB306e898d7B64f35f",
-          "abi": [
-            {
-              "inputs": [
-                {
->>>>>>> main
                   "internalType": "address",
                   "name": "_initialImplementation",
                   "type": "address"
@@ -132754,29 +132677,7 @@
               "inputs": [
                 {
                   "internalType": "address",
-<<<<<<< HEAD
                   "name": "_mirrorConnector",
-=======
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "transferOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_beacon",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "_implementation",
->>>>>>> main
                   "type": "address"
                 }
               ],

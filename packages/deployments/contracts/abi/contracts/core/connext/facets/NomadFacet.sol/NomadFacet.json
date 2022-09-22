@@ -11,7 +11,5 @@
   "error NomadFacet__setBridgeRouter_invalidBridge()",
   "event BridgeRouterUpdated(address,address,address)",
   "event Reconciled(bytes32 indexed,uint32,address[],address,uint256,address)",
-  "function bridgeRouter() view returns (address)",
-  "function onReceive(uint32,bytes32,uint32,bytes32,address,uint256,bytes)",
-  "function setBridgeRouter(address)"
+  "function onReceive(uint32,bytes32,uint32,bytes32,address,uint256,bytes)"
 ]

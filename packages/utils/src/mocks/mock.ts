@@ -190,7 +190,6 @@ export const mock = {
       return {
         // Meta
         transferId,
-        messageHash,
 
         // Call Params
         xparams: {
@@ -213,6 +212,7 @@ export const mock = {
           ? {
               chain: originChain,
 
+              messageHash,
               originMinOut: "0",
 
               // Assets

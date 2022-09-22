@@ -70,6 +70,7 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "processMessageFromRoot(uint64,bytes32,bytes32,bytes32[],uint256,(address,address,uint256,uint256,uint256,uint256,bytes))": FunctionFragment;
+    "processed(uint256)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
@@ -98,6 +99,7 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
       | "owner"
       | "processMessage"
       | "processMessageFromRoot"
+      | "processed"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
@@ -151,6 +153,10 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       L2MessageStruct
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "processed",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
@@ -222,6 +228,7 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     functionFragment: "processMessageFromRoot",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "processed", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
@@ -441,6 +448,11 @@ export interface ArbitrumHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    processed(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -523,6 +535,11 @@ export interface ArbitrumHubConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  processed(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -602,6 +619,11 @@ export interface ArbitrumHubConnector extends BaseContract {
       _message: L2MessageStruct,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    processed(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -756,6 +778,11 @@ export interface ArbitrumHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    processed(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -837,6 +864,11 @@ export interface ArbitrumHubConnector extends BaseContract {
       _index: PromiseOrValue<BigNumberish>,
       _message: L2MessageStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    processed(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(

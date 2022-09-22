@@ -36,23 +36,5 @@ export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
         });
       }
     }
-
-    // TODO: If Connext === bridge router, this contract property will be removed; remove the following code in that case!
-    // Set the bridge router in Connext contract, if applicable.
-    if (handlerName === "BridgeRouter") {
-      console.log("\tSetting bridgeRouter for all Connext contracts...");
-
-      for (const network of protocol.networks) {
-        const { BridgeRouter } = network.deployments.handlers;
-
-        // If bridge router is not set, we need to set it to be the BridgeRouterUpgradeBeaconProxy address.
-        await updateIfNeeded({
-          deployment: network.deployments.Connext,
-          desired: BridgeRouter.address,
-          read: "bridgeRouter",
-          write: { method: "setBridgeRouter", args: [BridgeRouter.address] },
-        });
-      }
-    }
   }
 };

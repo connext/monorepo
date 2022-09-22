@@ -1,12 +1,7 @@
-import { providers, BigNumber, utils } from "ethers";
+import { providers, BigNumber } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData, getCanonicalHash } from "@connext/nxtp-utils";
 import { getContractInterfaces, contractDeployments, ChainReader } from "@connext/nxtp-txservice";
-import {
-  ConnextHandler as TConnext,
-  TokenRegistry as TTokenRegistry,
-  IERC20Extended,
-  canonizeId,
-} from "@connext/nxtp-contracts";
+import { ConnextHandler as TConnext, TokenRegistry as TTokenRegistry, IERC20Extended } from "@connext/nxtp-contracts";
 
 import { NxtpSdkConfig, getConfig } from "./config";
 import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined, PoolDoesNotExist } from "./lib/errors";
@@ -478,7 +473,7 @@ export class NxtpSdkPool {
       throw new PoolDoesNotExist(domainId, tokenAddress);
     }
 
-    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const key: string = getCanonicalHash(canonicalDomain, canonicalId);
 
     let pool = this.pools.get(key);
     if (pool) {

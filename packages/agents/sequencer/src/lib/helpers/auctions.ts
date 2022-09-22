@@ -18,7 +18,6 @@ export const encodeExecuteFromBids = async (
   round: number,
   bids: Bid[],
   transfer: OriginTransfer,
-  local: string,
   _requestContext: RequestContext,
 ): Promise<string> => {
   const {
@@ -35,23 +34,11 @@ export const encodeExecuteFromBids = async (
   // Format arguments from XTransfer.
   const routers = bids.map((b) => b.router);
   const args: ExecuteArgs = {
-    params: {
-      originDomain: transfer.xparams.originDomain,
-      destinationDomain: transfer.xparams.destinationDomain,
-      to: transfer.xparams.to,
-      callData: transfer.xparams.callData,
-      receiveLocal: transfer.xparams.receiveLocal,
-      agent: transfer.xparams.agent,
-      destinationMinOut: transfer.xparams.destinationMinOut,
-    },
-    local,
+    params: transfer.xparams,
     routers,
     routerSignatures: bids.map((b) => b.signatures[round.toString()]),
     sequencer: await wallet.getAddress(),
     sequencerSignature: await signSequencerPermitPayload(transfer.transferId, routers, wallet),
-    amount: transfer.origin.assets.bridged.amount,
-    nonce: transfer.nonce,
-    originSender: transfer.origin.xcall.caller,
   };
   logger.debug("Encoded execute args", requestContext, methodContext, { args });
   return contracts.connext.encodeFunctionData("execute", [args]);

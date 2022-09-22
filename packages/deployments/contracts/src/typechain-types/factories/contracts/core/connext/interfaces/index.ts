@@ -4,6 +4,7 @@
 export { IAavePool__factory } from "./IAavePool__factory";
 export { IBridgeHook__factory } from "./IBridgeHook__factory";
 export { IBridgeRouter__factory } from "./IBridgeRouter__factory";
+export { IBridgeToken__factory } from "./IBridgeToken__factory";
 export { IConnextHandler__factory } from "./IConnextHandler__factory";
 export { IDiamondCut__factory } from "./IDiamondCut__factory";
 export { IDiamondLoupe__factory } from "./IDiamondLoupe__factory";

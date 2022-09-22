@@ -1,10 +1,10 @@
 import {
   NxtpError,
   DestinationTransfer,
-  OriginTransfer,
   OriginMessage,
   DestinationMessage,
   RootMessage,
+  OriginTransfer,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
@@ -66,6 +66,7 @@ export const originTransfer = (entity: any): OriginTransfer => {
       chain: entity.chainId,
 
       // Event Data
+      messageHash: entity.messageHash,
       originMinOut: entity.originMinOut,
 
       // Assets
@@ -125,7 +126,6 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
 
   return {
     // Meta Data
-
     transferId: entity.transferId,
 
     // Call Params

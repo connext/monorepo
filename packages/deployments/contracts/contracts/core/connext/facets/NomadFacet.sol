@@ -59,30 +59,6 @@ contract NomadFacet is BaseConnextFacet, IBridgeHook {
    */
   event BridgeRouterUpdated(address oldBridgeRouter, address newBridgeRouter, address caller);
 
-  // ============ Getters ============
-
-  /**
-   * @notice Returns the stored bridge router reference
-   */
-  function bridgeRouter() external view returns (IBridgeRouter) {
-    return s.bridgeRouter;
-  }
-
-  // ============ Admin functions ============
-
-  /**
-   * @notice Updates the bridge router
-   * @param _bridgeRouter The new bridge router address
-   */
-  function setBridgeRouter(address _bridgeRouter) external onlyOwner {
-    address old = address(s.bridgeRouter);
-    if (old == _bridgeRouter) {
-      revert NomadFacet__setBridgeRouter_invalidBridge();
-    }
-    s.bridgeRouter = IBridgeRouter(_bridgeRouter);
-    emit BridgeRouterUpdated(old, _bridgeRouter, msg.sender);
-  }
-
   // ============ External functions ============
 
   /**
@@ -114,10 +90,10 @@ contract NomadFacet is BaseConnextFacet, IBridgeHook {
     bytes32, // _tokenAddress of canonical token
     address _localToken,
     uint256 _amount,
-    bytes memory _extraData
-  ) external onlyBridgeRouter {
+    bytes memory _extraData /* onlyBridgeRouter TODO: how to handle this? the call comes from this contract now*/
+  ) external {
     // Assert sender was the connext contract on the origin domain
-    if (_sender == bytes32(0) || s.connextions[_origin] != _sender) {
+    if (_sender == bytes32(0) || s.remotes[_origin] != _sender) {
       revert NomadFacet__reconcile_notConnext();
     }
 

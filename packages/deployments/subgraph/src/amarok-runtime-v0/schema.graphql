@@ -45,11 +45,6 @@ type StableSwap @entity {
   swapPool: Bytes!
 }
 
-type SponsorVault @entity {
-  id: ID!
-  sponsorVault: Bytes!
-}
-
 enum TransferStatus {
   XCalled
   Executed
@@ -68,7 +63,7 @@ type OriginTransfer @entity {
   status: TransferStatus
   messageHash: Bytes
 
-  # event data
+  # CallParams
   originDomain: BigInt
   destinationDomain: BigInt
   canonicalDomain: BigInt
@@ -106,13 +101,18 @@ type DestinationTransfer @entity {
   nonce: BigInt
 
   # CallParams
-  to: Bytes
-  callData: Bytes
   originDomain: BigInt
   destinationDomain: BigInt
-  agent: Bytes
+  canonicalDomain: BigInt
+  to: Bytes
+  delegate: Bytes
   receiveLocal: Boolean
-  destinationMinOut: BigInt
+  callData: Bytes
+  slippage: BigInt
+  originSender: Bytes
+  bridgedAmt: BigInt
+  normalizedIn: BigInt
+  canonicalId: Bytes
 
   # Event Data
   status: TransferStatus
@@ -128,8 +128,6 @@ type DestinationTransfer @entity {
   localAsset: Bytes
   # The amount of the local asset.
   localAmount: BigInt
-
-  sponsorVaultRelayerFee: BigInt
 
   # Executed Transaction
   executedCaller: Bytes
