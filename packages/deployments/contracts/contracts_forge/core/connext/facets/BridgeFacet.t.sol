@@ -31,13 +31,25 @@ import "forge-std/console.sol";
 
 contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ Libs ============
+
   using TypedMemView for bytes29;
   using TypedMemView for bytes;
+
+  // ============ Structs ============
+
+  struct XCallBalances {
+    uint256 contractEth;
+    uint256 contractAsset;
+    uint256 callerEth;
+    uint256 callerAsset;
+  }
+
   // ============ Constants ============
 
   bytes32 constant TEST_MESSAGE = bytes32("test message");
 
   // ============ Storage ============
+
   // diamond storage contract owner
   address _ds_owner = address(987654321);
 
@@ -351,29 +363,29 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // console.log("bridgedAmt", params.bridgedAmt);
     // console.log("normalizedIn", params.normalizedIn);
 
-    // Deal the user required eth for transfer.
-    vm.deal(params.originSender, 100 ether);
-
-    uint256 initialUserBalance;
-    uint256 initialContractBalance;
+    // Set up and record initial balances.
+    uint256 initialRelayerFees = s.relayerFees[transferId];
+    XCallBalances memory balances;
     {
-      if (asset != address(0)) {
-        TestERC20 tokenIn = TestERC20(asset);
-        TestERC20 localToken = TestERC20(_local);
+      // Deal the user required eth for transfer.
+      vm.deal(params.originSender, 100 ether);
 
-        // Mint the specified amount of tokens for the user.
+      TestERC20 tokenIn = TestERC20(asset != address(0) ? asset : _local);
+
+      if (amount > 0) {
+        // First, mint the specified amount of tokens for the user.
         tokenIn.mint(params.originSender, amount);
 
-        initialUserBalance = tokenIn.balanceOf(params.originSender);
-        initialContractBalance = localToken.balanceOf(address(this));
-
-        // Approve the target contract to spend the specified amount of tokens.
+        // As the user, approve this contract to spend the specified amount of tokens.
         vm.prank(params.originSender);
         tokenIn.approve(address(this), amount);
-      } else {
-        initialUserBalance = address(params.originSender).balance;
-        initialContractBalance = address(this).balance;
       }
+
+      // Record initial balances.
+      balances.callerEth = address(params.originSender).balance;
+      balances.callerAsset = tokenIn.balanceOf(params.originSender);
+      balances.contractEth = address(this).balance;
+      balances.contractAsset = tokenIn.balanceOf(address(this));
     }
 
     if (shouldSwap) {
@@ -385,8 +397,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
     }
 
-    uint256 initialRelayerFees = s.relayerFees[transferId];
-
     if (shouldSucceed) {
       helpers_setupSuccessfulXcallCallAssertions(transferId, params, asset, amount, shouldSwap);
     } else {
@@ -397,34 +407,43 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     if (shouldSucceed) {
       assertEq(ret, transferId);
-      // User should have been debited fees... but also tx cost?
-      // assertEq(payable(_defaultOriginSender).balance, initialUserBalance - fees);
 
-      // Check that the user has been debited the correct amount of tokens.
-      if (asset != address(0)) {
-        assertEq(TestERC20(asset).balanceOf(_defaultOriginSender), initialUserBalance - amount);
-      } else {
-        // User should have been debited fees
-        assertEq(_defaultOriginSender.balance, (initialUserBalance - _relayerFee));
-      }
+      TestERC20 tokenIn = TestERC20(asset != address(0) ? asset : _local);
 
-      // Check that the contract has been credited the correct amount of tokens.
-      // NOTE: Because the tokens are a representational local asset, they are burnt. The contract
+      // Contract should have received relayer fee from user.
+      assertEq(address(this).balance, balances.contractEth + _relayerFee);
+      // User should have been debited relayer fee ETH and tx cost.
+      assertLe(address(params.originSender).balance, balances.callerEth - _relayerFee);
+
+      // Check that the contract has been credited the correct amount of tokens and that the user has
+      // been debited the correct amount of tokens.
+      // NOTE: If the tokens are a representational local asset, they are burnt. The contract
       // should NOT be holding any additional tokens after xcall completes.
       if (asset == address(0)) {
-        // No balance change
-        assertEq(address(this).balance, initialContractBalance + _relayerFee);
+        // No balance changes should have occurred.
+        assertEq(tokenIn.balanceOf(params.originSender), balances.callerAsset);
+        assertEq(tokenIn.balanceOf(address(this)), balances.contractAsset);
       } else if (isCanonical) {
-        // This should be a canonical asset transfer
-        assertEq(TestERC20(_canonical).balanceOf(address(this)), initialContractBalance);
+        // User should have been debited tokens.
+        assertEq(tokenIn.balanceOf(params.originSender), balances.callerAsset - amount);
+        // The contract should have stored the asset in escrow.
+        assertEq(tokenIn.balanceOf(address(this)), balances.contractAsset + amount);
       } else {
         // NOTE: Normally the adopted asset would be swapped into the local asset and then
         // the local asset would be burned. Because the swap increases the contracts balance
         // the prod difference in balance is net 0. However, because the swap here is mocked,
-        // when a swap occurrs no balance increase of local happens (i.e. if swap needed, the
-        // balance will decrease by bridgedAmt / what is burned)
-        uint256 expected = asset == _local ? initialContractBalance : initialContractBalance - params.bridgedAmt;
-        assertEq(TestERC20(_local).balanceOf(address(this)), expected);
+        // when a swap occurs no balance increase of local happens (i.e. if swap needed, the
+        // balance will decrease by bridgedAmt / what is burned).
+        uint256 expectedLocalBalance = asset == _local
+          ? balances.contractAsset
+          : balances.contractAsset - params.bridgedAmt;
+        assertEq(TestERC20(_local).balanceOf(address(this)), expectedLocalBalance);
+
+        // TODO: Cannot test this because the swap is stubbed, but the contract should end up with 0
+        // 0 additional adopted asset in production.
+
+        // Assert user spent input asset.
+        assertEq(tokenIn.balanceOf(params.originSender), balances.callerAsset - amount);
       }
 
       // Should have updated relayer fees mapping.
