@@ -6,6 +6,7 @@ import {Message} from "../../contracts/messaging/libraries/Message.sol";
 
 import {RootManager} from "../../contracts/messaging/RootManager.sol";
 import {SpokeConnector} from "../../contracts/messaging/connectors/SpokeConnector.sol";
+import {ISpokeConnector} from "../../contracts/messaging/interfaces/ISpokeConnector.sol";
 
 import "../utils/ConnectorHelper.sol";
 import "../utils/Mock.sol";
@@ -53,7 +54,7 @@ contract PingPong is ConnectorHelper {
   // ============ Utils ============
   function utils_deployContracts() public {
     // deploy root manager
-    _rootManager = address(new RootManager());
+    _rootManager = address(new RootManager(address(0)));
     // Mock sourceconnector on l2
     _originConnectorL2 = address(
       new MockConnector(
@@ -61,6 +62,7 @@ contract PingPong is ConnectorHelper {
         _mainnetDomain, // uint32 _mirrorDomain
         _originAMB, // address _amb,
         _rootManager, // address _rootManager,
+        address(0), // address merkle root manager
         address(0), // address _mirrorConnector
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
@@ -74,6 +76,7 @@ contract PingPong is ConnectorHelper {
         _originDomain, // uint32 _mirrorDomain,
         _originMainnetAMB, // address _amb,
         _rootManager, // address _rootManager,
+        address(0), // address merkle root manager
         _originConnectorL2, // address _mirrorConnector,
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
@@ -87,6 +90,7 @@ contract PingPong is ConnectorHelper {
         _mainnetDomain, // uint32 _mirrorDomain,
         _destinationAMB, // address _amb,
         _rootManager, // address _rootManager,
+        address(0), // address merkle root manager
         address(0), // address _mirrorConnector,
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
@@ -100,6 +104,7 @@ contract PingPong is ConnectorHelper {
         _destinationDomain, // uint32 _mirrorDomain,
         _destinationMainnetAMB, // address _amb,
         _rootManager, // address _rootManager,
+        address(0), // address merkle root manager
         _destinationConnectorL2, // address _mirrorConnector,
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
@@ -143,7 +148,7 @@ contract PingPong is ConnectorHelper {
     );
     SpokeConnector(_originConnectorL2).dispatch(_destinationDomain, _destinationRouter, body);
     // assert added to outboundRoot
-    assertEq(SpokeConnector(_originConnectorL2).count(), 1);
+    assertEq(SpokeConnector(_originConnectorL2).MERKLE().count(), 1);
     // TODO: actually assert this is the correct root outside of using hardcoded values
     assertEq(
       SpokeConnector(_originConnectorL2).outboundRoot(),
@@ -190,7 +195,10 @@ contract PingPong is ConnectorHelper {
     // TODO: fix proof
     bytes32[32] memory proof;
     // TODO: fix index
-    SpokeConnector(_destinationConnectorL2).proveAndProcess(message, proof, 0);
+    ISpokeConnector.Proof[] memory proofs = new ISpokeConnector.Proof[](1);
+    proofs[0] = ISpokeConnector.Proof(message, proof, 0);
+    SpokeConnector(_destinationConnectorL2).proveAndProcess(proofs, proof, 0);
+
     assertEq(uint256(SpokeConnector(_destinationConnectorL2).messages(keccak256(message))), 2);
     assertEq(MockRelayerFeeRouter(TypeCasts.bytes32ToAddress(_destinationRouter)).handledOrigin(), _originDomain);
     assertEq(MockRelayerFeeRouter(TypeCasts.bytes32ToAddress(_destinationRouter)).handledNonce(), 0);

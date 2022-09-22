@@ -184,7 +184,7 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     );
 
     // should call root manager
-    vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.setOutboundRoot.selector, _l2Domain, _root));
+    vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector, _l2Domain, _root));
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
