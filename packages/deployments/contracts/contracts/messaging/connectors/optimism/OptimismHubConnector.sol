@@ -24,6 +24,13 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
   // ============ Storage ============
   IStateCommitmentChain public stateCommitmentChain;
 
+  // NOTE: This is needed because we need to track the roots we've
+  // already sent across chains. When sending an optimism message, we send calldata
+  // for Connector.processMessage. At any point these messages could be processed
+  // before the timeout using `processFromRoot` or after the timeout using `process`
+  // we track the roots sent here to ensure we process each root once
+  mapping(bytes32 => bool) processed;
+
   // ============ Constructor ============
   constructor(
     uint32 _domain,
@@ -56,12 +63,23 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
 
   /**
    * @notice Processes messages
-   *
-   * @dev Doesn't do anything, in case the message from the SpokeConnector
-   * is eventually processed when the rollup delay is bypassed. Instead, processing of spoke
-   * messages should be done via the `processFromRoot` function
+   * @param _data The message to process (should be an outbound root originating on
+   * spoke)
    */
-  function _processMessage(bytes memory _data) internal override {}
+  function _processMessage(bytes memory _data) internal override {
+    // sanity check root length
+    require(_data.length == 32, "!length");
+
+    // get root from data
+    bytes32 root = bytes32(_data);
+
+    if (!processed[root]) {
+      // set root to processed
+      processed[root] = true;
+      // update the root on the root manager
+      IRootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, root);
+    } // otherwise root was already sent to root manager
+  }
 
   /**
    * @dev modified from: https://github.com/ethereum-optimism/optimism/blob/9973c1da3211e094a180a8a96ba9f8bb1ab1b389/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol#L165
@@ -84,20 +102,21 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
 
     require(_verifyXDomainMessage(xDomainData, _proof), "!proof");
 
-    // Message has been proven within the send root, process the message
-    // data itself. The message data is defined in the spoke connector as:
+    // NOTE: optimism seems to pad the calldata sent in to include more than the expected
+    // 36 bytes, i.e. in this transaction:
+    // https://blockscout.com/optimism/goerli/tx/0x440fda036d28eb547394a8689af90c5342a00a8ca2ab5117f2b85f54d1416ddd/logs
+    // the corresponding _message is:
+    // 0x4ff746f60000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002027ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757
     //
-    // `abi.encodeWithSelector(Connector.processMessage.selector, _data);`
+    // instead of the expected:
+    // 0x4ff746f63237616535626130386437323931633936633863626464636331343862663438
     //
-    // so to get the root data, we need to decode the _calldata. we can do this
-    // by dropping the 4-byte selector, then using the rest as the raw _data.
-    require(_message.length == 36, "!length");
-
-    // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
-    bytes32 _data = _message.ref(0).index(4, 32);
-
-    // update the root on the root manager
-    IRootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, _data);
+    // this means the length check and byte parsing used in the `ArbitrumHubConnector` would
+    // not work here. Instead, process messages using the same method as the L1CrossDomainMessenger
+    // and add a length check in `processMessage`, while preventing duplicate roots from being
+    // processed. This also means we should *not* emit an event here, as it will be emitted in the
+    // `processMessage` function
+    address(this).call(_message);
   }
 
   /**
