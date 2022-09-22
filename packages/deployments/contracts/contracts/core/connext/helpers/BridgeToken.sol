@@ -10,18 +10,6 @@ import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 import {ERC20} from "./OZERC20.sol";
 
 contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
-  // ============ Immutables ============
-
-  // Immutables used in EIP 712 structured data hashing & signing
-  // https://eips.ethereum.org/EIPS/eip-712
-  bytes32 public immutable _PERMIT_TYPEHASH =
-    keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
-  bytes32 private immutable _EIP712_STRUCTURED_DATA_VERSION = keccak256(bytes("1"));
-  uint16 private immutable _EIP712_PREFIX_AND_VERSION = uint16(0x1901);
-
-  // ============ Public Storage ============
-
-  mapping(address => uint256) public nonces;
   /// @dev hash commitment to the name/symbol/decimals
   bytes32 public override detailsHash;
 
@@ -33,6 +21,7 @@ contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
 
   function initialize() public override initializer {
     __Ownable_init();
+    __ERC20_init(token.name, "1");
   }
 
   // ============ Events ============
@@ -104,40 +93,6 @@ contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
     }
   }
 
-  /**
-   * @notice Sets approval from owner to spender to value
-   * as long as deadline has not passed
-   * by submitting a valid signature from owner
-   * Uses EIP 712 structured data hashing & signing
-   * https://eips.ethereum.org/EIPS/eip-712
-   * @param _owner The account setting approval & signing the message
-   * @param _spender The account receiving approval to spend owner's tokens
-   * @param _value The amount to set approval for
-   * @param _deadline The timestamp before which the signature must be submitted
-   * @param _v ECDSA signature v
-   * @param _r ECDSA signature r
-   * @param _s ECDSA signature s
-   */
-  function permit(
-    address _owner,
-    address _spender,
-    uint256 _value,
-    uint256 _deadline,
-    uint8 _v,
-    bytes32 _r,
-    bytes32 _s
-  ) external {
-    require(block.timestamp <= _deadline, "ERC20Permit: expired deadline");
-    require(_owner != address(0), "ERC20Permit: owner zero address");
-    uint256 _nonce = nonces[_owner];
-    bytes32 _hashStruct = keccak256(abi.encode(_PERMIT_TYPEHASH, _owner, _spender, _value, _nonce, _deadline));
-    bytes32 _digest = keccak256(abi.encodePacked(_EIP712_PREFIX_AND_VERSION, domainSeparator(), _hashStruct));
-    address _signer = ecrecover(_digest, _v, _r, _s);
-    require(_signer == _owner, "ERC20Permit: invalid signature");
-    nonces[_owner] = _nonce + 1;
-    _approve(_owner, _spender, _value);
-  }
-
   // ============ Public Functions ============
 
   /**
@@ -175,27 +130,6 @@ contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
    */
   function decimals() public view override returns (uint8) {
     return token.decimals;
-  }
-
-  /**
-   * @dev This is ALWAYS calculated at runtime
-   * because the token name may change
-   */
-  function domainSeparator() public view returns (bytes32) {
-    uint256 _chainId;
-    assembly {
-      _chainId := chainid()
-    }
-    return
-      keccak256(
-        abi.encode(
-          keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-          keccak256(bytes(token.name)),
-          _EIP712_STRUCTURED_DATA_VERSION,
-          _chainId,
-          address(this)
-        )
-      );
   }
 
   // required for solidity inheritance
