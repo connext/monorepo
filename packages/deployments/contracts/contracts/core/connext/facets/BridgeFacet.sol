@@ -47,6 +47,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_invalidSlippage();
+  error BridgeFacet__xcall_canonicalAssetNotReceived();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
   error BridgeFacet__execute_notSupportedSequencer();
@@ -491,11 +492,10 @@ contract BridgeFacet is BaseConnextFacet {
     // 0-value transfer. Otherwise, the local address will be retrieved from the TokenRegistry below.
     address local;
     bytes32 transferId;
-    bytes32 messageHash;
+    TokenId memory canonical;
+    bool isCanonical;
     {
       // Check that the asset is supported -- can be either adopted or local.
-      TokenId memory canonical;
-
       // NOTE: Above we check that you can only have `address(0)` as the input asset if this is a
       // 0-value transfer. Because 0-value transfers short-circuit all checks on mappings keyed on
       // hash(canonicalId, canonicalDomain), this is safe even when the address(0) asset is not
@@ -513,17 +513,23 @@ contract BridgeFacet is BaseConnextFacet {
             // Revert, using a token of local origin that is not registered as adopted.
             revert BridgeFacet__xcall_notSupportedAsset();
           }
-          // The input asset is the local asset.
+          // The input asset is the local/representational asset.
           local = _asset;
 
-          // Get the global Token ID for this token.
+          // Get the global Token ID for this token from the token registry.
           (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_asset);
           canonical = TokenId(canonicalDomain, canonicalId);
         } else {
-          // Input asset is either an adopted asset or the canonical asset.
-          // Retrieve the local asset address. If the input asset is the canonical asset,
-          // this call will just return the input asset address.
+          // Input asset is an adopted asset.
+          // It could be the canonical asset, or it could be a representational asset if the
+          // representational asset is adopted on this domain.
+
+          // Retrieve the local asset address.
           local = s.tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
+          // Determine whether this is the canonical asset. If the TokenRegistry returned the input
+          // asset as the local asset, and we're on the canonical domain, then this must be the
+          // canonical asset.
+          isCanonical = _params.originDomain == canonical.domain && local == _asset;
         }
 
         // Update CallParams to reflect the canonical token information.
@@ -532,10 +538,11 @@ contract BridgeFacet is BaseConnextFacet {
       }
 
       if (_amount > 0) {
-        // Transfer funds of transacting asset to the contract from the user.
+        // Transfer funds of input asset to the contract from the user.
         AssetLogic.transferAssetToContract(_asset, _amount);
 
         // Swap to the local asset from adopted if applicable.
+        // TODO: drop the "IfNeeded", instead just check whether the asset is already local / needs swap here.
         _params.bridgedAmt = AssetLogic.swapToLocalAssetIfNeeded(
           _params.canonicalId,
           _params.canonicalDomain,
@@ -547,25 +554,30 @@ contract BridgeFacet is BaseConnextFacet {
       }
 
       // Get the normalized amount in (amount sent in by user in 18 decimals).
-      uint256 normalized = _asset == address(0)
+      _params.normalizedIn = _asset == address(0)
         ? 0 // we know from assertions above this is the case IFF amount == 0
         : AssetLogic.normalizeDecimals(ERC20(_asset).decimals(), uint8(18), _amount);
-      _params.normalizedIn = normalized;
 
       // Calculate the transfer ID.
       transferId = _calculateTransferId(_params);
       _params.nonce = s.nonce++;
     }
 
-    {
-      // Store the relayer fee.
-      // NOTE: This has to be done *after* transferring in + swapping assets because
-      // the transfer id uses the amount that is bridged (i.e. amount in local asset).
-      s.relayerFees[transferId] += msg.value;
+    // Store the relayer fee.
+    // NOTE: This has to be done *after* transferring in + swapping assets because
+    // the transfer id uses the amount that is bridged (i.e. amount in local asset).
+    s.relayerFees[transferId] += msg.value;
 
-      // Send the crosschain message.
-      messageHash = _sendMessage(local, _params.bridgedAmt, _params.destinationDomain, remoteInstance, transferId);
-    }
+    // Send the crosschain message.
+    bytes32 messageHash = _sendMessage(
+      transferId,
+      _params.destinationDomain,
+      remoteInstance,
+      canonical,
+      local,
+      _params.bridgedAmt,
+      isCanonical
+    );
 
     // emit event
     emit XCalled(transferId, _params.nonce, messageHash, _params, local);
@@ -906,104 +918,60 @@ contract BridgeFacet is BaseConnextFacet {
   // ============ Internal: Send ============
 
   /**
-   * @notice Send transfer message to a remote chain.
-   * @param _token The token address.
-   * @param _amount The token amount.
+   * @notice Format and send transfer message to a remote chain.
+   *
+   * @param _transferId Unique identifier for the transfer.
    * @param _destination The destination domain.
    * @param _connextion The connext instance on the destination domain.
-   * @param _transferId Unique identifier for the transfer.
+   * @param _canonical The canonical token ID/domain info.
+   * @param _local The local token address.
+   * @param _amount The token amount.
+   * @param _isCanonical Whether or not the local token is the canonical asset (i.e. this is the token's
+   * "home" chain).
    */
   function _sendMessage(
-    address _token,
-    uint256 _amount,
+    bytes32 _transferId,
     uint32 _destination,
     bytes32 _connextion,
-    bytes32 _transferId
+    TokenId memory _canonical,
+    address _local,
+    uint256 _amount,
+    bool _isCanonical
   ) private returns (bytes32) {
-    // get the token id
-    (bytes29 _tokenId, bytes32 _detailsHash, bool _isLocal) = _getTokenIdAndDetailsHash(_token);
-    // debit tokens from the sender
-    _takeTokens(_token, _amount, _isLocal);
-    // format Hook transfer message
+    IBridgeToken _token = IBridgeToken(_local);
+
+    // Get the formatted token ID and details hash.
+    bytes29 _tokenId = BridgeMessage.formatTokenId(_canonical.domain, _canonical.id);
+    bytes32 _detailsHash;
+    if (_local != address(0)) {
+      _detailsHash = _isCanonical
+        ? BridgeMessage.getDetailsHash(_token.name(), _token.symbol(), _token.decimals())
+        : _token.detailsHash();
+    }
+
+    // Remove tokens from circulation on this chain if applicable.
+    if (_amount > 0) {
+      if (!_isCanonical) {
+        // If the token originates on a remote chain, burn the representational tokens on this chain.
+        _token.burn(address(this), _amount);
+      }
+      // IFF the token IS the canonical token (i.e. originates on this chain), we lock the input tokens in escrow
+      // in this contract, as an equal amount of representational assets will be minted on the destination chain.
+      // NOTE: The tokens should be in the contract already at this point from xcall.
+    }
+
+    // Format hook action.
     bytes29 _action = BridgeMessage.formatTransfer(_amount, _detailsHash, _transferId);
-    // send message to destination chain bridge router
+    // Send message to destination chain bridge router.
     bytes32 _messageHash = IOutbox(s.xAppConnectionManager.home()).dispatch(
       _destination,
       _connextion,
       BridgeMessage.formatMessage(_tokenId, _action)
     );
-    // emit Send event to record token sender
-    emit Send(_token, msg.sender, _destination, _connextion, _amount, true);
+
+    // Emit Send event to record message details.
+    emit Send(_local, msg.sender, _destination, _connextion, _amount, true);
     return _messageHash;
-  }
-
-  /**
-   * @notice Take tokens from msg.sender for the purpose of bridging them cross-chain.
-   * @dev Locks canonical tokens in escrow here OR burns representational tokens, depending on domain.
-   * @param _token The token to pull from the sender.
-   * @param _amount The amount to pull from the sender.
-   * @param _isLocal Whether or not the token is locally originating.
-   */
-  function _takeTokens(
-    address _token,
-    uint256 _amount,
-    bool _isLocal
-  ) internal {
-    // Exit early if the _amount is 0
-    if (_amount == 0) {
-      return;
-    }
-    // Setup vars used in both if branches
-    IBridgeToken _t = IBridgeToken(_token);
-    // remove tokens from circulation on this chain
-    if (_isLocal) {
-      // if the token originates on this chain,
-      // hold the tokens in escrow in the Router
-      // the tokens should be in the contract already at this point
-      // from xcall
-      require(_t.balanceOf(address(this)) >= _amount, "BridgeFacet: insufficient balance");
-    } else {
-      // if the token originates on a remote chain,
-      // burn the representation tokens on this chain
-      _t.burn(address(this), _amount);
-    }
-  }
-
-  /**
-   * @notice Returns the token id for a given _token
-   * @param _token The token to pull ID for
-   * @return _tokenId the bytes canonical token identifier
-   * @return _detailsHash the hash of the canonical token details (name,
-   *         symbol, decimal)
-   */
-  function _getTokenIdAndDetailsHash(address _token)
-    internal
-    returns (
-      bytes29 _tokenId,
-      bytes32 _detailsHash,
-      bool _isLocal
-    )
-  {
-    // get the tokenID
-    (uint32 _domain, bytes32 _id) = s.tokenRegistry.getTokenId(_token);
-    _tokenId = BridgeMessage.formatTokenId(_domain, _id);
-    // handle the 0-case
-    if (_token == address(0)) {
-      _detailsHash = bytes32(0);
-      _isLocal = false;
-      return (_tokenId, _detailsHash, _isLocal);
-    }
-    // Setup vars used in both if branches
-    IBridgeToken _t = IBridgeToken(_token);
-    // get the details hash
-    if (s.tokenRegistry.isLocalOrigin(_token)) {
-      // query token contract for details and calculate detailsHash
-      _detailsHash = BridgeMessage.getDetailsHash(_t.name(), _t.symbol(), _t.decimals());
-      _isLocal = true;
-    } else {
-      _detailsHash = _t.detailsHash();
-      _isLocal = false;
-    }
   }
 
   /**
