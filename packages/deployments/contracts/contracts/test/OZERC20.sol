@@ -62,6 +62,8 @@ contract ERC20 is IERC20, IERC20Permit, EIP712Upgradeable {
   // https://eips.ethereum.org/EIPS/eip-712
   bytes32 private constant _PERMIT_TYPEHASH =
     keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
+  bytes32 private constant _TYPE_HASH =
+    keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
   /**
    * @dev Initializes the {EIP712} domain separator using the `name` parameter,
@@ -369,7 +371,7 @@ contract ERC20 is IERC20, IERC20Permit, EIP712Upgradeable {
    * This is ALWAYS calculated at runtime because the token name is mutable, not constant.
    */
   function DOMAIN_SEPARATOR() external view override returns (bytes32) {
-    return _buildDomainSeparator(_PERMIT_TYPEHASH, keccak256(abi.encode(token.name)), _EIP712VersionHash());
+    return _buildDomainSeparator(_TYPE_HASH, keccak256(abi.encode(token.name)), _EIP712VersionHash());
   }
 
   /**
