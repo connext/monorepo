@@ -20,6 +20,9 @@ contract BaseConnextFacet {
   error BaseConnextFacet__onlyBridgeRouter_notBridgeRouter();
   error BaseConnextFacet__onlyOwner_notOwner();
   error BaseConnextFacet__onlyProposed_notProposedOwner();
+  error BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter();
+  error BaseConnextFacet__onlyOwnerOrWatcher_notOwnerOrWatcher();
+  error BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin();
   error BaseConnextFacet__whenNotPaused_paused();
   error BaseConnextFacet__nonReentrant_reentrantCall();
   error BaseConnextFacet__getAdoptedAsset_notWhitelisted();
@@ -60,6 +63,24 @@ contract BaseConnextFacet {
    */
   modifier onlyProposed() {
     if (s._proposed != msg.sender) revert BaseConnextFacet__onlyProposed_notProposedOwner();
+    _;
+  }
+
+  modifier onlyOwnerOrRouter() {
+    if (LibDiamond.contractOwner() != msg.sender && !s.routerRole[msg.sender])
+      revert BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter();
+    _;
+  }
+
+  modifier onlyOwnerOrWatcher() {
+    if (LibDiamond.contractOwner() != msg.sender && !s.watcherRole[msg.sender])
+      revert BaseConnextFacet__onlyOwnerOrWatcher_notOwnerOrWatcher();
+    _;
+  }
+
+  modifier onlyOwnerOrAdmin() {
+    if (LibDiamond.contractOwner() != msg.sender && !s.adminRole[msg.sender])
+      revert BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin();
     _;
   }
 
