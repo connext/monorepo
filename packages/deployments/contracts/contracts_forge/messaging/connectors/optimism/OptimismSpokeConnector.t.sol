@@ -5,49 +5,54 @@ import "@openzeppelin/contracts/crosschain/errors.sol";
 
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 
-import {OptimismHubConnector} from "../../../../contracts/messaging/connectors/Optimism/OptimismHubConnector.sol";
-
-import {OptimismAmb} from "../../../../contracts/messaging/interfaces/ambs/OptimismAmb.sol";
+import {OptimismSpokeConnector} from "../../../../contracts/messaging/connectors/optimism/OptimismSpokeConnector.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
 
-contract OptimismHubConnectorTest is ConnectorHelper {
+contract OptimismSpokeConnectorTest is ConnectorHelper {
   // ============ Events ============
   event DefaultGasPriceUpdated(uint256 previous, uint256 current);
 
   // ============ Storage ============
-  uint256 _defaultGasPrice = 10 gwei;
 
+  // ============ Test set up ============
   function setUp() public {
-    _l2Connector = address(3432123);
     // deploy
-    _l1Connector = address(
-      new OptimismHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, _l2Connector, _mirrorGas, _defaultGasPrice)
+    _l1Connector = address(123321123);
+
+    _l2Connector = address(
+      new OptimismSpokeConnector(
+        _l2Domain,
+        _l1Domain,
+        _amb,
+        _rootManager,
+        _l1Connector,
+        _mirrorGas,
+        _processGas,
+        _reserveGas
+      )
     );
   }
 
   // ============ Utils ============
 
-  // ============ OptimismHubConnector.setDefaultGasPrice ============
-  function test_OptimismHubConnector__setDefaultGasPrice_shouldWork() public {}
+  // ============ OptimismSpokeConnector.verifySender ============
+  function test_OptimismSpokeConnector__verifySender_shouldWorkIfTrue() public {}
 
-  // ============ OptimismHubConnector.verifySender ============
-  function test_OptimismHubConnector__verifySender_shouldWorkIfTrue() public {}
+  function test_OptimismSpokeConnector__verifySender_shouldWorkIfFalse() public {}
 
-  function test_OptimismHubConnector__verifySender_shouldWorkIfFalse() public {}
+  function test_OptimismSpokeConnector__verifySender_shouldFailIfCallerNotAmb() public {}
 
-  function test_OptimismHubConnector__verifySender_shouldFailIfCallerNotAmb() public {}
+  // ============ OptimismSpokeConnector.sendMessage ============
+  function test_OptimismSpokeConnector__sendMessage_works() public {}
 
-  // ============ OptimismHubConnector.sendMessage ============
-  function test_OptimismHubConnector__sendMessage_works() public {}
+  // ============ OptimismSpokeConnector.processMessage ============
+  function test_OptimismSpokeConnector__processMessage_works() public {}
 
-  // ============ OptimismHubConnector.processMessage ============
-  function test_OptimismHubConnector__processMessage_works() public {}
+  function test_OptimismSpokeConnector__processMessage_failsIfNotCrosschain() public {}
 
-  function test_OptimismHubConnector__processMessage_failsIfNotSentByBridge() public {}
+  function test_OptimismSpokeConnector__processMessage_failsIfNotMirrorConnector() public {}
 
-  function test_OptimismHubConnector__processMessage_failsIfNotMirrorConnector() public {}
-
-  function test_OptimismHubConnector__processMessage_failsIfNot32Bytes() public {}
+  function test_OptimismSpokeConnector__processMessage_failsIfNot32Bytes() public {}
 }
