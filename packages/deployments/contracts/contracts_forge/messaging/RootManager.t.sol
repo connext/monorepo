@@ -172,17 +172,17 @@ contract RootManagerTest is ForgeHelper {
 
   // ============ RootManager.propagate ============
   // TODO fix when merkle tree implemented
-  function test_RootManager__propagate_shouldSendToAllL2s() public {
-    // uint32[2] memory domains = [domain, 2000];
-    // address[2] memory connectors = [connector, address(301)];
-    // bytes32[2] memory outbounds = [outboundRoot, bytes32("test2")];
-    // // propagate() only aggregates domains[0] right now
-    // bytes memory aggregate = abi.encodePacked(outbounds[domains[0]]);
-    // for (uint8 i; i < domains.length; i++) {
-    //   _rootManager.setOutboundRoot(domains[i], outbounds[i]);
-    //   vm.expectCall(connectors[i], abi.encodeWithSelector(IHubConnector.sendMessage.selector, aggregate));
-    // }
-    // _rootManager.propagate();
+  function test_RootManager__propagate_shouldSendToL2() public {
+    _rootManager.addConnector(domain, connector);
+    vm.prank(connector);
+    _rootManager.setOutboundRoot(domain, outboundRoot);
+
+    // propagate() only aggregates a single outbound right now
+    bytes memory aggregate = abi.encodePacked(_rootManager.outboundRoots(domain));
+
+    vm.mockCall(connector, abi.encodeWithSelector(IHubConnector.sendMessage.selector, aggregate), abi.encode());
+    vm.expectCall(connector, abi.encodeWithSelector(IHubConnector.sendMessage.selector, aggregate));
+    _rootManager.propagate();
   }
 
   // TODO when merkle tree implemented
