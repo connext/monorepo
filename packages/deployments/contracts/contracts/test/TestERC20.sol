@@ -35,7 +35,7 @@ contract TestERC20 is ERC20, IBridgeToken {
     // Does nothing, in practice will update the details to match the hash in message
   }
 
-  function setDetails(string calldata _newName, string calldata _newSymbol) external override {
+  function setDetails(string calldata _newName, string calldata _newSymbol, uint8 _newDecimals) external override {
     // Does nothing, in practice will update the details to match the hash in message
     // not the autodeployed results
   }
