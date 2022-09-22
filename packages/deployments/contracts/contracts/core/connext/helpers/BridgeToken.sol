@@ -5,9 +5,9 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
+import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 
 import {ERC20} from "./OZERC20.sol";
-import {BridgeMessage} from "./BridgeMessage.sol";
 
 contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
   // ============ Immutables ============
