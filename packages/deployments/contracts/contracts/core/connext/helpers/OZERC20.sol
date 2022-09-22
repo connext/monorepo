@@ -371,7 +371,11 @@ contract ERC20 is IERC20, IERC20Permit, EIP712Upgradeable {
    * This is ALWAYS calculated at runtime because the token name is mutable, not constant.
    */
   function DOMAIN_SEPARATOR() external view override returns (bytes32) {
-    return _buildDomainSeparator(_TYPE_HASH, keccak256(abi.encode(token.name)), _EIP712VersionHash());
+    // See {EIP712Upgradeable._buildDomainSeparator}
+    return
+      keccak256(
+        abi.encode(_TYPE_HASH, keccak256(abi.encode(token.name)), _EIP712VersionHash(), block.chainid, address(this))
+      );
   }
 
   /**
@@ -381,18 +385,5 @@ contract ERC20 is IERC20, IERC20Permit, EIP712Upgradeable {
     Counters.Counter storage nonce = _nonces[_owner];
     current = nonce.current();
     nonce.increment();
-  }
-
-  /**
-   * @dev See {EIP712Upgradeable._buildDomainSeparator}
-   * @dev Custom implementation for building the domain separator as we need to do so locally because,
-   * unlike EIP712Upgradeable, the token name is mutable.
-   */
-  function _buildDomainSeparator(
-    bytes32 typeHash,
-    bytes32 nameHash,
-    bytes32 versionHash
-  ) private view override returns (bytes32) {
-    return keccak256(abi.encode(typeHash, nameHash, versionHash, block.chainid, address(this)));
   }
 }
