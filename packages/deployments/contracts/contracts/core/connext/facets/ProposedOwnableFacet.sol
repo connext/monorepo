@@ -56,11 +56,11 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
   event AssetWhitelistRemoved(bool renounced);
 
-  event AssignRouterRole(address router, address caller);
+  event AssignRouterRole(address router);
 
-  event AssignWatcherRole(address watcher, address caller);
+  event AssignWatcherRole(address watcher);
 
-  event AssignAdminRole(address watcher, address caller);
+  event AssignAdminRole(address admin);
 
   event Paused();
 
@@ -267,7 +267,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     if (s.routerRole[_routerRole]) revert ProposedOwnableFacet__assignRouterRole_alreadyAdded();
 
     s.routerRole[_routerRole] = true;
-    emit AssignRouterRole(_routerRole, msg.sender);
+    emit AssignRouterRole(_routerRole);
   }
 
   /**
@@ -283,7 +283,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     if (s.watcherRole[_watcherRole]) revert ProposedOwnableFacet__assignWatcherRole_alreadyAdded();
 
     s.watcherRole[_watcherRole] = true;
-    emit AssignWatcherRole(_watcherRole, msg.sender);
+    emit AssignWatcherRole(_watcherRole);
   }
 
   /**
@@ -299,7 +299,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     if (s.adminRole[_adminRole]) revert ProposedOwnableFacet__assignAdminRole_alreadyAdded();
 
     s.adminRole[_adminRole] = true;
-    emit AssignAdminRole(_adminRole, msg.sender);
+    emit AssignAdminRole(_adminRole);
   }
 
   function pause() public onlyOwnerOrWatcher {
