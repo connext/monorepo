@@ -155,7 +155,7 @@ contract OptimismHubConnectorTest is ConnectorHelper {
 
     vm.mockCall(
       _l1Connector,
-      abi.encodeCall(OptimismHubConnector.verifyXDomainMessage, (xDomainData, _proof)),
+      abi.encodeWithSelector(OptimismHubConnector.verifyXDomainMessage.selector),
       abi.encode(true)
     );
 
