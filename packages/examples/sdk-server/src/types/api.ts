@@ -139,3 +139,16 @@ export const getTransfersByStatusSchema = Type.Object({
     ),
   }),
 });
+
+export const getTransfersByRouterSchema = Type.Object({
+  params: Type.Object({
+    routerAddress: Type.String(),
+    status: Type.Optional(Type.Enum(XTransferStatus)),
+    range: Type.Optional(
+      Type.Object({
+        limit: Type.Optional(Type.Number()),
+        offset: Type.Optional(Type.Number()),
+      }),
+    ),
+  }),
+});

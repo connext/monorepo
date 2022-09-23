@@ -213,3 +213,14 @@ Content-Type: application/json
     "status": "XCalled"
   }
 }
+
+##############
+### POST getTransfersByRouter 
+POST {{baseUrl}}/getTransfersByRouter
+Content-Type: application/json
+
+{
+  "params": {
+    "routerAddress": "0xd2ad711861ab345977b7379c81165708c8717ff1"
+  }
+}
