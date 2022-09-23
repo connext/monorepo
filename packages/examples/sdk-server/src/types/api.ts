@@ -127,3 +127,15 @@ export const getTransfersByUserSchema = Type.Object({
     ),
   }),
 });
+
+export const getTransfersByStatusSchema = Type.Object({
+  params: Type.Object({
+    status: Type.Enum(XTransferStatus),
+    range: Type.Optional(
+      Type.Object({
+        limit: Type.Optional(Type.Number()),
+        offset: Type.Optional(Type.Number()),
+      }),
+    ),
+  }),
+});

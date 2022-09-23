@@ -199,6 +199,17 @@ Content-Type: application/json
 
 {
   "params": {
-  "userAddress": "{{yourAddress}}"
+    "userAddress": "{{yourAddress}}"
+  }
+}
+
+##############
+### POST getTransfersByStatus 
+POST {{baseUrl}}/getTransfersByStatus
+Content-Type: application/json
+
+{
+  "params": {
+    "status": "XCalled"
   }
 }
