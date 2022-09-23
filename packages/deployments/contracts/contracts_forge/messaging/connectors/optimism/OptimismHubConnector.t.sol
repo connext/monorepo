@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/crosschain/errors.sol";
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 
 import {OptimismHubConnector} from "../../../../contracts/messaging/connectors/optimism/OptimismHubConnector.sol";
+import {L2MessageInclusionProof} from "../../../../contracts/messaging/interfaces/ambs/optimism/IStateCommitmentChain.sol";
 import {OptimismAmb} from "../../../../contracts/messaging/interfaces/ambs/optimism/OptimismAMB.sol";
 
 import "../../../utils/ConnectorHelper.sol";
@@ -92,8 +93,16 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     );
 
     vm.prank(_rootManager);
-    // TODO: Right data
     OptimismHubConnector(_l1Connector).sendMessage(_data);
+  }
+
+  // ============ OptimismHubConnector.processMessage ============
+  function test_OptimismHubConnector__processMessage_works() public {
+    utils_setHubConnectorProcessMocks(_l2Connector);
+    bytes memory _data = abi.encode(bytes32(bytes("test")));
+
+    vm.prank(_amb);
+    OptimismHubConnector(_l1Connector).processMessage(_data);
   }
 
   function test_OptimismHubConnector__processMessage_failsIfNot32Bytes() public {
@@ -107,7 +116,54 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     OptimismHubConnector(_l1Connector).processMessage(_data);
   }
 
+  // ============ OptimismHubConnector.processMessageFromRoot ============
   function test_OptimismHubConnector_processMessageFromRoot_works() public {
     // TODO: Working case
+  }
+
+  function test_OptimismHubConnector_processMessageFromRoot_failsIfNotMirrorConnector() public {
+    utils_setHubConnectorVerifyMocks(_l2Connector);
+
+    vm.expectRevert(bytes("!mirrorConnector"));
+
+    vm.prank(_amb);
+
+    // Invalid Arguments
+    address _target = address(2121);
+    address _sender;
+    bytes memory _message;
+    uint256 _messageNonce;
+    L2MessageInclusionProof memory _proof;
+    OptimismHubConnector(_l1Connector).processMessageFromRoot(_target, _sender, _message, _messageNonce, _proof);
+  }
+
+  function test_OptimismHubConnector_processMessageFromRoot_failsIfNotTarget() public {
+    utils_setHubConnectorVerifyMocks(_l2Connector);
+
+    vm.expectRevert(bytes("!this"));
+
+    vm.prank(_amb);
+    address _target;
+    address _sender = _l2Connector;
+    bytes memory _message;
+    uint256 _messageNonce;
+    L2MessageInclusionProof memory _proof;
+    OptimismHubConnector(_l1Connector).processMessageFromRoot(_target, _sender, _message, _messageNonce, _proof);
+  }
+
+  function test_OptimismHubConnector_processMessageFromRoot_failsverifyXDomainMessage() public {
+    utils_setHubConnectorVerifyMocks(_l2Connector);
+
+    vm.expectRevert();
+
+    vm.prank(_amb);
+
+    address _target = _l1Connector;
+    address _sender = _l2Connector;
+    bytes memory _message;
+    uint256 _messageNonce;
+    L2MessageInclusionProof memory _proof;
+
+    OptimismHubConnector(_l1Connector).processMessageFromRoot(_target, _sender, _message, _messageNonce, _proof);
   }
 }
