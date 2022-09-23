@@ -36,7 +36,14 @@ contract MerkleTreeManager {
   // ============ Getters ============
 
   /**
-   * @notice Returns the current root.
+   * @notice Returns the current branch.
+   */
+  function branch() public view returns (bytes32[32] memory) {
+    return tree.branch;
+  }
+
+  /**
+   * @notice Calculates and returns the current root.
    */
   function root() public view returns (bytes32) {
     MerkleLib.Tree memory _tree = tree;

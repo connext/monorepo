@@ -44,8 +44,6 @@ contract RootManager is ProposedOwnable, IRootManager {
 
   mapping(uint32 => address) public connectors;
 
-  mapping(uint32 => bytes32) public outboundRoots;
-
   uint32[] public domains;
 
   mapping(address => bool) public watchers;

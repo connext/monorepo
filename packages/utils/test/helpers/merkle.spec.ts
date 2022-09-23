@@ -1,9 +1,11 @@
-import { expect, mock } from "@connext/nxtp-utils";
-import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
-import { MerleProofVerificationFailed } from "../../../../src/errors/merkle";
-import { getMerkleProof } from "../../../../src/tasks/prover/operations";
+import { utils } from "ethers";
+import { expect } from "@connext/nxtp-utils";
 
-describe("Operations: Helpers", () => {
+import { MerkleProofVerificationFailed, getMerkleProof } from "../../src/helpers/merkle";
+
+const { keccak256, toUtf8Bytes } = utils;
+
+describe("Helpers: Merkle", () => {
   describe("#getMerkleProof", () => {
     let leaves;
     let leaf;
@@ -14,7 +16,7 @@ describe("Operations: Helpers", () => {
 
     it("should error if badLeaf", async () => {
       const _leaf = keccak256(toUtf8Bytes("d"));
-      await expect(getMerkleProof({ leaf: _leaf, leaves })).to.be.rejectedWith(MerleProofVerificationFailed);
+      await expect(getMerkleProof({ leaf: _leaf, leaves })).to.be.rejectedWith(MerkleProofVerificationFailed);
     });
 
     it("should return proof", async () => {
