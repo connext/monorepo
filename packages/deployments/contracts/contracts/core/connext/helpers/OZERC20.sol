@@ -71,8 +71,16 @@ contract ERC20 is IERC20, IERC20Permit, EIP712Upgradeable {
    *
    * It's a good idea to use the same `name` that is defined as the ERC20 token name.
    */
-  function __ERC20_init(string memory name, string memory version) internal onlyInitializing {
-    __EIP712_init(name, version);
+  function __ERC20_init(
+    uint8 _decimals,
+    string memory _name,
+    string memory _symbol,
+    string memory _version
+  ) internal onlyInitializing {
+    __EIP712_init(_name, _version);
+    token.name = _name;
+    token.decimals = _decimals;
+    token.symbol = _symbol;
   }
 
   struct Token {

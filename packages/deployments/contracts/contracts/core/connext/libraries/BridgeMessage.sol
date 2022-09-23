@@ -173,15 +173,10 @@ library BridgeMessage {
    *      decimals - 1 byte
    * @param _name The name
    * @param _symbol The symbol
-   * @param _decimals The decimals
    * @return The Details message
    */
-  function getDetailsHash(
-    string memory _name,
-    string memory _symbol,
-    uint8 _decimals
-  ) internal pure returns (bytes32) {
-    return keccak256(abi.encodePacked(bytes(_name).length, _name, bytes(_symbol).length, _symbol, _decimals));
+  function getDetailsHash(string memory _name, string memory _symbol) internal pure returns (bytes32) {
+    return keccak256(abi.encodePacked(bytes(_name).length, _name, bytes(_symbol).length, _symbol));
   }
 
   /**

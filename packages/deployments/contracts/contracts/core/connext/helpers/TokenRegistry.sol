@@ -305,11 +305,10 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
   ) internal returns (address _token) {
     // deploy and initialize the token contract
     _token = address(new UpgradeBeaconProxy(tokenBeacon, ""));
-    // initialize the token separately from the
-    IBridgeToken(_token).initialize();
     // set the default token name & symbol
     (string memory _name, string memory _symbol) = _defaultDetails(_domain, _id);
-    IBridgeToken(_token).setDetails(_name, _symbol, _decimals);
+    // initialize the token with decimals and default name
+    IBridgeToken(_token).initialize(_decimals, _name, _symbol);
     // transfer ownership to bridgeRouter
     IBridgeToken(_token).transferOwnership(owner());
     // store token in mappings
