@@ -233,3 +233,12 @@ Content-Type: application/json
 {
   "transferId": "0x6a0f389957407ee08acd911577cee33c608ba02b5c6879400bf66a98a6c86d82"
 }
+
+##############
+### POST getTransferByTransactionHash
+POST {{baseUrl}}/getTransferByTransactionHash
+Content-Type: application/json
+
+{
+  "transactionHash": "0xb51cd9fbd5939ebf51b49970d2b2766738a7cc3fdb698c947d95751efb32caee"
+}

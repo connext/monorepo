@@ -156,3 +156,7 @@ export const getTransfersByRouterSchema = Type.Object({
 export const getTransfersByIdSchema = Type.Object({
   transferId: Type.String(),
 });
+
+export const getTransfersByTransactionHashSchema = Type.Object({
+  transactionHash: Type.String(),
+});
