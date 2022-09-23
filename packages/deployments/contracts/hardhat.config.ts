@@ -283,6 +283,20 @@ const config: HardhatUserConfig = {
         },
       },
     },
+    "gnosis-testnet": {
+      accounts: { mnemonic },
+      chainId: 100100,
+      url: urlOverride || process.env.GNOSIS_TESTNET_PROVIDER_URL || "https://rpc-chiado.gnosistestnet.com",
+      companionNetworks: {
+        hub: "goerli",
+      },
+      verify: {
+        etherscan: {
+          apiKey: process.env.ETHERSCAN_API_KEY!,
+          apiUrl: "https://blockscout-chiado.gnosistestnet.com",
+        },
+      },
+    },
   },
   etherscan: {
     apiKey: {
@@ -292,6 +306,7 @@ const config: HardhatUserConfig = {
       ropsten: process.env.ETHERSCAN_API_KEY!,
       goerli: process.env.ETHERSCAN_API_KEY!,
       "optimism-goerli": process.env.ETHERSCAN_API_KEY!,
+      "gnosis-testnet": process.env.ETHERSCAN_API_KEY!,
       mumbai: process.env.POLYGONSCAN_API_KEY!,
     },
     customChains: [
