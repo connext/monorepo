@@ -152,3 +152,7 @@ export const getTransfersByRouterSchema = Type.Object({
     ),
   }),
 });
+
+export const getTransfersByIdSchema = Type.Object({
+  transferId: Type.String(),
+});

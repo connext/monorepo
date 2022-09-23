@@ -224,3 +224,12 @@ Content-Type: application/json
     "routerAddress": "0xd2ad711861ab345977b7379c81165708c8717ff1"
   }
 }
+
+##############
+### POST getTransferById
+POST {{baseUrl}}/getTransferById
+Content-Type: application/json
+
+{
+  "transferId": "0x6a0f389957407ee08acd911577cee33c608ba02b5c6879400bf66a98a6c86d82"
+}
