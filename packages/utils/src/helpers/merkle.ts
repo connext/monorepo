@@ -5,7 +5,7 @@ import { NxtpError } from "../types";
 
 export class MerkleRootInvalid extends NxtpError {
   constructor(context: any = {}) {
-    super("Bad root or leaves.", context, MerkleRootInvalid.name);
+    super("Bad root or branch.", context, MerkleRootInvalid.name);
   }
 }
 
@@ -17,11 +17,11 @@ export class MerkleProofVerificationFailed extends NxtpError {
 
 export const getMerkleProof = async (params: {
   leaf: string;
-  leaves: string[]; // bytes32[32]
+  branch: string[]; // bytes32[32]
 }): Promise<string[]> => {
-  const { leaf, leaves } = params;
+  const { leaf, branch } = params;
 
-  const tree = new MerkleTree(leaves, utils.keccak256);
+  const tree = new MerkleTree(branch, utils.keccak256);
   const root = tree.getRoot().toString("hex");
   const proof = tree.getProof(leaf);
 

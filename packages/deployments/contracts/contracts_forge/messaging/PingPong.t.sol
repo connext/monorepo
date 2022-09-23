@@ -6,12 +6,12 @@ import {Message} from "../../contracts/messaging/libraries/Message.sol";
 
 import {RootManager} from "../../contracts/messaging/RootManager.sol";
 import {MerkleTreeManager} from "../../contracts/messaging/Merkle.sol";
+import {MerkleLib} from "../../contracts/messaging/libraries/Merkle.sol";
 import {Connector} from "../../contracts/messaging/connectors/Connector.sol";
 import {SpokeConnector} from "../../contracts/messaging/connectors/SpokeConnector.sol";
 import {ISpokeConnector} from "../../contracts/messaging/interfaces/ISpokeConnector.sol";
 
 import "../utils/ConnectorHelper.sol";
-import "../utils/MerkleHelper.sol";
 import "../utils/Mock.sol";
 
 import "forge-std/console.sol";
@@ -20,7 +20,7 @@ import "forge-std/console.sol";
  * @notice This contract is designed to test the full messaging flow using
  * mocked mainnet and l2 connectors
  */
-contract PingPong is ConnectorHelper, MerkleHelper {
+contract PingPong is ConnectorHelper {
   // ============ Storage ============
 
   // ============ constants
@@ -158,9 +158,9 @@ contract PingPong is ConnectorHelper, MerkleHelper {
   }
 
   // Helper to `dispatch` a message on origin, update the reference tree, and ensure behavior was correct.
-  function utils_dispatchAndAssert(bytes memory body) public returns (bytes32 messageHash) {
+  function utils_dispatchAndAssert(bytes memory body) public returns (bytes memory message, bytes32 messageHash) {
     // Format the expected message and get the hash (leaf).
-    bytes memory message = Message.formatMessage(
+    message = Message.formatMessage(
       _originDomain,
       bytes32(uint256(uint160(address(this)))), // TODO necessary?
       0,
@@ -230,7 +230,7 @@ contract PingPong is ConnectorHelper, MerkleHelper {
 
   // Propagate aggregateRoot on all connectors.
   function utils_propagateAndAssert() public returns (bytes32 aggregateRoot) {
-    bytes32 aggregateRoot = RootManager(_rootManager).MERKLE().root();
+    aggregateRoot = RootManager(_rootManager).MERKLE().root();
 
     // Propagate the aggregate root.
     RootManager(_rootManager).propagate();
@@ -277,40 +277,44 @@ contract PingPong is ConnectorHelper, MerkleHelper {
     bytes memory body = abi.encode(_destinationDomain * _originDomain);
 
     // Dispatch.
-    bytes32 messageHash = utils_dispatchAndAssert(body);
+    (bytes memory message, bytes32 messageHash) = utils_dispatchAndAssert(body);
 
     // 2. Send outboundRoot through Connector to hub.
-    bytes32 root = utils_sendOutboundRootAndAssert();
+    bytes32 outboundRoot = utils_sendOutboundRootAndAssert();
 
     // 3. Aggregate inbound root on the hub.
-    utils_aggregateAndAssert(root);
+    utils_aggregateAndAssert(outboundRoot);
 
     // 4. Propagate roots to both connectors.
-    root = utils_propagateAndAssert();
+    bytes32 aggregateRoot = utils_propagateAndAssert();
 
     // 5. Process aggregateRoot on destination spoke, as well as origin spoke (should be broadcasted to both).
-    utils_processAggregateRootAndAssert(_destinationConnectors.spoke, _destinationAMB, root);
-    utils_processAggregateRootAndAssert(_originConnectors.spoke, _originAMB, root);
+    utils_processAggregateRootAndAssert(_destinationConnectors.spoke, _destinationAMB, aggregateRoot);
+    utils_processAggregateRootAndAssert(_originConnectors.spoke, _originAMB, aggregateRoot);
 
     // 6. Process original message.
-    bytes32[32] memory branch = referenceSpokeTree.branch();
+    // bytes32[32] memory branch = referenceAggregateTree.branch();
 
-    console.log("Need a proof for leaf:");
-    console.logBytes32(messageHash);
-    console.log("At index:");
-    console.log(referenceSpokeTree.count());
-    console.log("In tree:");
-    for (uint256 i; i < branch.length; i++) {
-      console.logBytes32(branch[i]);
-    }
-    console.log("");
-    // TODO: Fix proof: is there a way to not do hardcoded?
-    // bytes32[32] memory proof;
+    // console.log("Need a proof for leaf:");
+    // console.logBytes32(outboundRoot);
+    // console.log("At index:");
+    // console.log(referenceAggregateTree.count());
+    // console.log("In tree:");
+    // for (uint256 i; i < branch.length; i++) {
+    //   console.logBytes32(branch[i]);
+    // }
 
-    // // TODO: fix index
-    // ISpokeConnector.Proof[] memory proofs = new ISpokeConnector.Proof[](1);
-    // proofs[0] = ISpokeConnector.Proof(message, proof, 0);
-    // SpokeConnector(_destinationConnectors.spoke).proveAndProcess(proofs, proof, 0);
+    // console.logBytes32(messageHash);
+    // console.logBytes32(outboundRoot);
+    // console.logBytes32(aggregateRoot);
+
+    // If the root == target leaf (i.e. the leaf is in the first index), then the proof == zeroHashes.
+    bytes32[32] memory messageProof = MerkleLib.zeroHashes();
+    bytes32[32] memory aggregateProof = MerkleLib.zeroHashes();
+
+    ISpokeConnector.Proof[] memory proofs = new ISpokeConnector.Proof[](1);
+    proofs[0] = ISpokeConnector.Proof(message, messageProof, 0);
+    SpokeConnector(_destinationConnectors.spoke).proveAndProcess(proofs, aggregateProof, 0);
 
     // assertEq(uint256(SpokeConnector(_destinationConnectors.spoke).messages(keccak256(message))), 2);
     // assertEq(MockRelayerFeeRouter(TypeCasts.bytes32ToAddress(_destinationRouter)).handledOrigin(), _originDomain);
