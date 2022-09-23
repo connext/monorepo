@@ -6,6 +6,7 @@ import {Message} from "../../contracts/messaging/libraries/Message.sol";
 
 import {RootManager} from "../../contracts/messaging/RootManager.sol";
 import {MerkleTreeManager} from "../../contracts/messaging/Merkle.sol";
+import {Connector} from "../../contracts/messaging/connectors/Connector.sol";
 import {SpokeConnector} from "../../contracts/messaging/connectors/SpokeConnector.sol";
 import {ISpokeConnector} from "../../contracts/messaging/interfaces/ISpokeConnector.sol";
 
@@ -80,6 +81,7 @@ contract PingPong is ConnectorHelper, MerkleHelper {
         RESERVE_GAS // uint256 _reserveGas
       )
     );
+    MockConnector(_originConnectors.spoke).setUpdatesAggregate(true);
     // Mock sourceconnector on l1
     _originConnectors.hub = address(
       new MockConnector(
@@ -108,6 +110,7 @@ contract PingPong is ConnectorHelper, MerkleHelper {
         RESERVE_GAS // uint256 _reserveGas
       )
     );
+    MockConnector(_destinationConnectors.spoke).setUpdatesAggregate(true);
     // Mock dest connector on l1
     _destinationConnectors.hub = address(
       new MockConnector(
@@ -155,19 +158,31 @@ contract PingPong is ConnectorHelper, MerkleHelper {
   }
 
   // Helper to `dispatch` a message on origin, update the reference tree, and ensure behavior was correct.
-  function utils_dispatchAndAssert(bytes memory message) public {
-    bytes32 messageHash = keccak256(message);
+  function utils_dispatchAndAssert(bytes memory body) public returns (bytes32 messageHash) {
+    // Format the expected message and get the hash (leaf).
+    bytes memory message = Message.formatMessage(
+      _originDomain,
+      bytes32(uint256(uint160(address(this)))), // TODO necessary?
+      0,
+      _destinationDomain,
+      _destinationRouter,
+      body
+    );
+    messageHash = keccak256(message);
 
     // Sanity: reference trees init'd.
     require(address(referenceSpokeTree) != address(0), "Reference trees were not initialized!");
 
-    uint256 initialCount = SpokeConnector(_originConnectors.spoke).MERKLE().count();
-
-    // Call `dispatch`: will add the message hash to the current tree.
-    SpokeConnector(_originConnectors.spoke).dispatch(_destinationDomain, _destinationRouter, message);
-
     // Insert the node into the reference tree and get the expected new root.
     (bytes32 expectedRoot, uint256 expectedCount) = referenceSpokeTree.insert(messageHash);
+    // Get initial count.
+    uint256 initialCount = SpokeConnector(_originConnectors.spoke).MERKLE().count();
+    vm.expectEmit(true, true, true, true);
+    emit Dispatch(messageHash, initialCount, expectedRoot, message);
+
+    // Call `dispatch`: will add the message hash to the current tree.
+    SpokeConnector(_originConnectors.spoke).dispatch(_destinationDomain, _destinationRouter, body);
+
     assertEq(SpokeConnector(_originConnectors.spoke).outboundRoot(), expectedRoot);
     // Assert index increased by 1.
     uint256 updatedCount = SpokeConnector(_originConnectors.spoke).MERKLE().count();
@@ -199,7 +214,7 @@ contract PingPong is ConnectorHelper, MerkleHelper {
 
     // The AMB would normally deliver to the HubConnector the inboundRoot.
     vm.prank(_originMainnetAMB);
-    MockConnector(_originConnectors.hub).processMessage(abi.encode(inboundRoot));
+    Connector(_originConnectors.hub).processMessage(abi.encode(inboundRoot));
 
     // Make sure inboundRoot was received.
     assertEq(MockConnector(_originConnectors.hub).lastReceived(), keccak256(abi.encode(inboundRoot)));
@@ -236,7 +251,7 @@ contract PingPong is ConnectorHelper, MerkleHelper {
     emit MessageProcessed(abi.encode(aggregateRoot), amb);
 
     vm.prank(amb);
-    MockConnector(connector).processMessage(abi.encode(aggregateRoot));
+    Connector(connector).processMessage(abi.encode(aggregateRoot));
 
     // Make sure aggregateRoot was received.
     assertEq(MockConnector(connector).lastReceived(), keccak256(abi.encode(aggregateRoot)));
@@ -260,17 +275,9 @@ contract PingPong is ConnectorHelper, MerkleHelper {
     /// 1. Send message through Messaging contract.
     // Generate a message body.
     bytes memory body = abi.encode(_destinationDomain * _originDomain);
-    bytes memory message = Message.formatMessage(
-      _originDomain,
-      bytes32(uint256(uint160(address(this)))), // TODO necessary?
-      0,
-      _destinationDomain,
-      _destinationRouter,
-      body
-    );
+
     // Dispatch.
-    // TODO: Should we dispatch body or message??
-    utils_dispatchAndAssert(message);
+    bytes32 messageHash = utils_dispatchAndAssert(body);
 
     // 2. Send outboundRoot through Connector to hub.
     bytes32 root = utils_sendOutboundRootAndAssert();
@@ -289,7 +296,7 @@ contract PingPong is ConnectorHelper, MerkleHelper {
     bytes32[32] memory branch = referenceSpokeTree.branch();
 
     console.log("Need a proof for leaf:");
-    console.logBytes32(keccak256(message));
+    console.logBytes32(messageHash);
     console.log("At index:");
     console.log(referenceSpokeTree.count());
     console.log("In tree:");

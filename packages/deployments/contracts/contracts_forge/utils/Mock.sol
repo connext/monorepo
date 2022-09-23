@@ -421,7 +421,6 @@ contract MockConnector is SpokeConnector, IHubConnector {
 
   function sendMessage(bytes memory _data) external onlyRootManager {
     _sendMessage(_data);
-    emit MessageSent(_data, msg.sender);
   }
 
   function _sendMessage(bytes memory _data) internal override {
@@ -437,7 +436,6 @@ contract MockConnector is SpokeConnector, IHubConnector {
     } else {
       RootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
     }
-    emit MessageProcessed(_data, msg.sender);
   }
 
   function _verifySender(address _expected) internal override returns (bool) {
