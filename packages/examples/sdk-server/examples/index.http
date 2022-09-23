@@ -251,3 +251,7 @@ Content-Type: application/json
 {
   "params": {}
 }
+
+##############
+### GET getRoutersData
+GET {{baseUrl}}/getRoutersData
