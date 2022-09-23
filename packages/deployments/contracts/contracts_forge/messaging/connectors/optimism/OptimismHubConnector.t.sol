@@ -3,9 +3,8 @@ pragma solidity 0.8.15;
 
 import "@openzeppelin/contracts/crosschain/errors.sol";
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
-
 import {OptimismHubConnector} from "../../../../contracts/messaging/connectors/optimism/OptimismHubConnector.sol";
-import {L2MessageInclusionProof} from "../../../../contracts/messaging/interfaces/ambs/optimism/IStateCommitmentChain.sol";
+import {IStateCommitmentChain, L2MessageInclusionProof, ChainBatchHeader, ChainInclusionProof} from "../../../../contracts/messaging/interfaces/ambs/optimism/IStateCommitmentChain.sol";
 import {OptimismAmb} from "../../../../contracts/messaging/interfaces/ambs/optimism/OptimismAMB.sol";
 
 import "../../../utils/ConnectorHelper.sol";
@@ -118,7 +117,53 @@ contract OptimismHubConnectorTest is ConnectorHelper {
 
   // ============ OptimismHubConnector.processMessageFromRoot ============
   function test_OptimismHubConnector_processMessageFromRoot_works() public {
-    // TODO: Working case
+    address _target = _l1Connector;
+    address _sender = _l2Connector;
+    bytes memory _message = abi.encodePacked(bytes32(bytes("message")));
+    uint256 _messageNonce = 1;
+    bytes32[] memory mockSiblings = new bytes32[](2);
+    mockSiblings[0] = bytes32(bytes("mockSibling1"));
+    mockSiblings[1] = bytes32(bytes("mockSibling2"));
+
+    L2MessageInclusionProof memory _proof = L2MessageInclusionProof({
+      stateRoot: bytes32(bytes("mockStateRoot")),
+      stateRootBatchHeader: ChainBatchHeader({
+        batchIndex: 0,
+        batchRoot: bytes32(bytes("batchRoot")),
+        batchSize: 1,
+        prevTotalElements: 1,
+        extraData: bytes("extraData")
+      }),
+      stateRootProof: ChainInclusionProof({index: 0, siblings: mockSiblings}),
+      stateTrieWitness: bytes("mockStateTrieWitness1"),
+      storageTrieWitness: bytes("mockStorageTrieWitness")
+    });
+
+    bytes memory xDomainData = abi.encodeWithSignature(
+      "relayMessage(address,address,bytes,uint256)",
+      _target,
+      _sender,
+      _message,
+      _messageNonce
+    );
+
+    // vm.mockCall(
+    //   _stateCommitmentChain,
+    //   abi.encodeWithSelector(IStateCommitmentChain.verifyStateCommitment.selector),
+    //   abi.encode(true)
+    // );
+
+    vm.mockCall(
+      _l1Connector,
+      abi.encodeCall(OptimismHubConnector.verifyXDomainMessage, (xDomainData, _proof)),
+      abi.encode(true)
+    );
+
+    bytes memory _calldata = abi.encodeWithSignature("call(bytes)", _message);
+
+    vm.expectCall(_l1Connector, _calldata);
+
+    OptimismHubConnector(_l1Connector).processMessageFromRoot(_target, _sender, _message, _messageNonce, _proof);
   }
 
   function test_OptimismHubConnector_processMessageFromRoot_failsIfNotMirrorConnector() public {

@@ -3,5 +3,8 @@
 /* eslint-disable */
 export * as arbitrum from "./arbitrum";
 export * as optimism from "./optimism";
+export { ArbitrumL1Amb__factory } from "./ArbitrumL1Amb__factory";
+export { ArbitrumL2Amb__factory } from "./ArbitrumL2Amb__factory";
 export { GnosisAmb__factory } from "./GnosisAmb__factory";
 export { Multichain__factory } from "./Multichain__factory";
+export { OptimismAmb__factory } from "./OptimismAmb__factory";

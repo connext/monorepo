@@ -100,7 +100,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     // Get the encoded data
     bytes memory xDomainData = _encodeXDomainCalldata(_target, _sender, _message, _messageNonce);
 
-    require(_verifyXDomainMessage(xDomainData, _proof), "!proof");
+    require(verifyXDomainMessage(xDomainData, _proof), "!proof");
 
     // NOTE: optimism seems to pad the calldata sent in to include more than the expected
     // 36 bytes, i.e. in this transaction:
@@ -126,8 +126,8 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
    * @param _proof Inclusion proof for the message.
    * @return Whether or not the provided message is valid.
    */
-  function _verifyXDomainMessage(bytes memory _xDomainCalldata, L2MessageInclusionProof memory _proof)
-    internal
+  function verifyXDomainMessage(bytes memory _xDomainCalldata, L2MessageInclusionProof memory _proof)
+    public
     view
     returns (bool)
   {
