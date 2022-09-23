@@ -24,8 +24,8 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     // deploy
     _l1Connector = address(
       new OptimismHubConnector(
-        _l2Domain,
         _l1Domain,
+        _l2Domain,
         _amb,
         _rootManager,
         _l2Connector,
