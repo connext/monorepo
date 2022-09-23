@@ -8,6 +8,7 @@ import {
   getTransfersByRouterSchema,
   getTransfersByIdSchema,
   getTransfersByTransactionHashSchema,
+  getTransfersSchema,
 } from "./types/api";
 
 export const utilsRoutes = async (server: FastifyInstance, sdkUtilsInstance: NxtpSdkUtils): Promise<any> => {
@@ -79,6 +80,20 @@ export const utilsRoutes = async (server: FastifyInstance, sdkUtilsInstance: Nxt
     async (request, reply) => {
       const { transactionHash } = request.body;
       const res = await sdkUtilsInstance.getTransferByTransactionHash(transactionHash);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
+    "/getTransfers",
+    {
+      schema: {
+        body: getTransfersSchema,
+      },
+    },
+    async (request, reply) => {
+      const { params } = request.body;
+      const res = await sdkUtilsInstance.getTransfers(params);
       reply.status(200).send(res);
     },
   );

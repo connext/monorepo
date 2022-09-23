@@ -160,3 +160,14 @@ export const getTransfersByIdSchema = Type.Object({
 export const getTransfersByTransactionHashSchema = Type.Object({
   transactionHash: Type.String(),
 });
+
+export const getTransfersSchema = Type.Object({
+  params: Type.Object({
+    range: Type.Optional(
+      Type.Object({
+        limit: Type.Optional(Type.Number()),
+        offset: Type.Optional(Type.Number()),
+      }),
+    ),
+  }),
+});
