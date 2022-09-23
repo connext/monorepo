@@ -293,7 +293,7 @@ const config: HardhatUserConfig = {
       verify: {
         etherscan: {
           apiKey: process.env.ETHERSCAN_API_KEY!,
-          apiUrl: "https://blockscout-chiado.gnosistestnet.com",
+          apiUrl: "https://blockscout-chiado.gnosistestnet.com/api",
         },
       },
     },
@@ -316,6 +316,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://blockscout.com/optimism/goerli/api",
           browserURL: "https://blockscout.com/optimism/goerli",
+        },
+      },
+      {
+        network: "gnosis-testnet",
+        chainId: 100100,
+        urls: {
+          apiURL: "https://blockscout-chiado.gnosistestnet.com/api",
+          browserURL: "https://blockscout-chiado.gnosistestnet.com",
         },
       },
     ],
