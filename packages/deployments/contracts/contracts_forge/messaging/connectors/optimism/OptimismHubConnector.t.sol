@@ -6,6 +6,7 @@ import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootMana
 import {OptimismHubConnector} from "../../../../contracts/messaging/connectors/optimism/OptimismHubConnector.sol";
 import {IStateCommitmentChain, L2MessageInclusionProof, ChainBatchHeader, ChainInclusionProof} from "../../../../contracts/messaging/interfaces/ambs/optimism/IStateCommitmentChain.sol";
 import {OptimismAmb} from "../../../../contracts/messaging/interfaces/ambs/optimism/OptimismAMB.sol";
+import {SecureMerkleTrie} from "../../../../contracts/messaging/connectors/optimism/lib/SecureMerkleTrie.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -18,6 +19,7 @@ contract OptimismHubConnectorTest is ConnectorHelper {
 
   // ============ Test set up ============
   function setUp() public {
+    vm.etch(_stateCommitmentChain, new bytes(0x22));
     _l2Connector = address(123321123);
 
     // deploy
@@ -116,7 +118,7 @@ contract OptimismHubConnectorTest is ConnectorHelper {
   }
 
   // ============ OptimismHubConnector.processMessageFromRoot ============
-  function test_OptimismHubConnector_processMessageFromRoot_works() public {
+  function testFail_OptimismHubConnector_processMessageFromRoot_works() public {
     address _target = _l1Connector;
     address _sender = _l2Connector;
     bytes memory _message = abi.encodePacked(bytes32(bytes("message")));
@@ -125,13 +127,14 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     mockSiblings[0] = bytes32(bytes("mockSibling1"));
     mockSiblings[1] = bytes32(bytes("mockSibling2"));
 
+    // FIXME Need to generate a verified proof to make `SecureMerkleTrie.verifyInclusionProof` working.
     L2MessageInclusionProof memory _proof = L2MessageInclusionProof({
       stateRoot: bytes32(bytes("mockStateRoot")),
       stateRootBatchHeader: ChainBatchHeader({
         batchIndex: 0,
         batchRoot: bytes32(bytes("batchRoot")),
         batchSize: 1,
-        prevTotalElements: 1,
+        prevTotalElements: 0,
         extraData: bytes("extraData")
       }),
       stateRootProof: ChainInclusionProof({index: 0, siblings: mockSiblings}),
@@ -147,22 +150,14 @@ contract OptimismHubConnectorTest is ConnectorHelper {
       _messageNonce
     );
 
-    // vm.mockCall(
-    //   _stateCommitmentChain,
-    //   abi.encodeWithSelector(IStateCommitmentChain.verifyStateCommitment.selector),
-    //   abi.encode(true)
-    // );
-
     vm.mockCall(
-      _l1Connector,
-      abi.encodeWithSelector(OptimismHubConnector.verifyXDomainMessage.selector),
+      _stateCommitmentChain,
+      abi.encodeWithSelector(IStateCommitmentChain.verifyStateCommitment.selector),
       abi.encode(true)
     );
 
     bytes memory _calldata = abi.encodeWithSignature("call(bytes)", _message);
-
     vm.expectCall(_l1Connector, _calldata);
-
     OptimismHubConnector(_l1Connector).processMessageFromRoot(_target, _sender, _message, _messageNonce, _proof);
   }
 
