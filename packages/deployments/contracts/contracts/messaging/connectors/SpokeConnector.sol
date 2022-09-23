@@ -9,6 +9,7 @@ import {MerkleLib} from "../libraries/Merkle.sol";
 import {Message} from "../libraries/Message.sol";
 
 import {MerkleTreeManager} from "../Merkle.sol";
+import {WatcherClient} from "../WatcherClient.sol";
 
 import {Connector} from "./Connector.sol";
 import {ConnectorManager} from "./ConnectorManager.sol";
@@ -25,7 +26,7 @@ import {ConnectorManager} from "./ConnectorManager.sol";
  *
  * TODO: what about the queue manager? see Home.sol for context
  */
-abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManager, ReentrancyGuard {
+abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManager, ReentrancyGuard, WatcherClient {
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
@@ -43,10 +44,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
 
   event Process(bytes32 leaf, bool success, bytes returnData);
-
-  event WatcherAdded(address watcher);
-
-  event WatcherRemoved(address watcher);
 
   // ============ Structs ============
   // Status of Message:
@@ -102,7 +99,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
    */
   mapping(bytes32 => MessageStatus) public messages;
 
-  mapping(address => bool) public watchers;
+  /**
+   * @notice Boolean indicating if the connector has been paused by a watcher.
+   */
+  bool private watcherPaused;
 
   // ============ Modifiers ============
 
@@ -111,8 +111,11 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     _;
   }
 
-  modifier onlyWatcher() {
-    require(watchers[msg.sender], "!watcher");
+  /**
+   * @notice Modifier to check if the connector is paused by a watcher.
+   */
+  modifier onlyUnpaused() {
+    require(!watcherPaused, "!unpaused");
     _;
   }
 
@@ -138,11 +141,13 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
-    uint256 _reserveGas
+    uint256 _reserveGas,
+    address _watcherManager
   )
     ConnectorManager()
     MerkleTreeManager()
     Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
+    WatcherClient(_watcherManager)
   {
     // sanity check constants
     require(_processGas >= 850_000, "!process gas");
@@ -173,24 +178,22 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
   }
 
   /**
-   * @dev Owner can enroll a watcher (who has ability to disconnect connector)
+   * @notice Set the `watcherPaused` boolean
+   * @dev This is only callable by a watcher, as set in the WatcherManager
    */
-  function addWatcher(address _watcher) external onlyOwner {
-    require(!watchers[_watcher], "already watcher");
-    watchers[_watcher] = true;
-    emit WatcherAdded(_watcher);
-  }
-
-  /**
-   * @dev Owner can unenroll a watcher (who has ability to disconnect connector)
-   */
-  function removeWatcher(address _watcher) external onlyOwner {
-    require(watchers[_watcher], "!exist");
-    watchers[_watcher] = false;
-    emit WatcherRemoved(_watcher);
+  function setWatcherPaused(bool paused) public onlyWatcher {
+    require(watcherPaused != paused, "Already set");
+    watcherPaused = paused;
   }
 
   // ============ Public fns ============
+  /**
+   * @notice This is called by the watcher to update the aggregate root
+   */
+  function isPaused() external view returns (bool) {
+    return watcherPaused;
+  }
+
   /**
    * @notice This returns the root of all messages with the origin domain as this domain (i.e.
    * all outbound messages)
@@ -259,7 +262,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     bytes memory _message,
     bytes32[32] calldata _proof,
     uint256 _index
-  ) external {
+  ) external onlyUnpaused {
     // 1. must prove existence of the given outbound root from destination domain
     // 2. must prove the existence of the given message in the destination
     // domain outbound root

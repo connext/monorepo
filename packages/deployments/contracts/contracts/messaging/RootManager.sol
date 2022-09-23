@@ -4,13 +4,14 @@ pragma solidity 0.8.15;
 import {IRootManager} from "./interfaces/IRootManager.sol";
 import {IHubConnector} from "./interfaces/IHubConnector.sol";
 import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
+import {WatcherClient} from "./WatcherClient.sol";
 
 /**
  * @notice This contract exists at cluster hubs, and aggregates all transfer roots from messaging
  * spokes into a single merkle root
  */
 
-contract RootManager is ProposedOwnable, IRootManager {
+contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
   // ============ Events ============
   event RootPropagated(bytes32 aggregate, uint32[] domains);
 
@@ -28,7 +29,7 @@ contract RootManager is ProposedOwnable, IRootManager {
   uint32[] public domains;
 
   // ============ Constructor ============
-  constructor() ProposedOwnable() {
+  constructor(address _watcherManager) ProposedOwnable() WatcherClient(_watcherManager) {
     _setOwner(msg.sender);
   }
 

@@ -28,7 +28,8 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
         _l1Connector,
         _mirrorGas,
         _processGas,
-        _reserveGas
+        _reserveGas,
+        address(1)
       )
     );
   }

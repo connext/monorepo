@@ -39,7 +39,8 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
         _mirrorGas,
         _processGas,
         _reserveGas,
-        _chainIdMainnet
+        _chainIdMainnet,
+        address(1)
       )
     );
   }
