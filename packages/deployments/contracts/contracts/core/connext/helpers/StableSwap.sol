@@ -31,6 +31,9 @@ import {LPToken} from "./LPToken.sol";
 contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
   using SwapUtils for SwapUtils.Swap;
 
+  // ============ Events ============
+  event SwapInitialized(SwapUtils.Swap swap, address caller);
+
   // ============ Upgrade Gap ============
 
   uint256[49] private __GAP; // gap for upgrade safety
@@ -119,6 +122,8 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     // swapStorage.futureATime = 0;
     swapStorage.swapFee = _fee;
     swapStorage.adminFee = _adminFee;
+
+    emit SwapInitialized(swapStorage, msg.sender);
   }
 
   // ============ Modifiers ============
