@@ -11,7 +11,7 @@
   "event RemoveLiquidityImbalance(address indexed,uint256[],uint256[],uint256,uint256)",
   "event RemoveLiquidityOne(address indexed,uint256,uint256,uint256,uint256)",
   "event StopRampA(uint256,uint256)",
-  "event SwapInitialized(tuple(uint256,uint256,uint256,uint256,uint256,uint256,address,address[],uint256[],uint256[],uint256[]))",
+  "event SwapInitialized(tuple(uint256,uint256,uint256,uint256,uint256,uint256,address,address[],uint256[],uint256[],uint256[]),address)",
   "event TokenSwap(address indexed,uint256,uint256,uint128,uint128)",
   "event Unpaused(address)",
   "function addLiquidity(uint256[],uint256,uint256) returns (uint256)",

@@ -439,7 +439,7 @@ export interface StableSwapInterface extends utils.Interface {
     "RemoveLiquidityImbalance(address,uint256[],uint256[],uint256,uint256)": EventFragment;
     "RemoveLiquidityOne(address,uint256,uint256,uint256,uint256)": EventFragment;
     "StopRampA(uint256,uint256)": EventFragment;
-    "SwapInitialized(tuple)": EventFragment;
+    "SwapInitialized(tuple,address)": EventFragment;
     "TokenSwap(address,uint256,uint256,uint128,uint128)": EventFragment;
     "Unpaused(address)": EventFragment;
   };
@@ -593,9 +593,10 @@ export type StopRampAEventFilter = TypedEventFilter<StopRampAEvent>;
 
 export interface SwapInitializedEventObject {
   swap: SwapUtilsExternal.SwapStructOutput;
+  caller: string;
 }
 export type SwapInitializedEvent = TypedEvent<
-  [SwapUtilsExternal.SwapStructOutput],
+  [SwapUtilsExternal.SwapStructOutput, string],
   SwapInitializedEventObject
 >;
 
@@ -1360,8 +1361,11 @@ export interface StableSwap extends BaseContract {
     ): StopRampAEventFilter;
     StopRampA(currentA?: null, time?: null): StopRampAEventFilter;
 
-    "SwapInitialized(tuple)"(swap?: null): SwapInitializedEventFilter;
-    SwapInitialized(swap?: null): SwapInitializedEventFilter;
+    "SwapInitialized(tuple,address)"(
+      swap?: null,
+      caller?: null
+    ): SwapInitializedEventFilter;
+    SwapInitialized(swap?: null, caller?: null): SwapInitializedEventFilter;
 
     "TokenSwap(address,uint256,uint256,uint128,uint128)"(
       buyer?: PromiseOrValue<string> | null,
