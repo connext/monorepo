@@ -66,18 +66,27 @@ contract BaseConnextFacet {
     _;
   }
 
+  /**
+   * @notice Throws if called by any account other than the owner and router role.
+   */
   modifier onlyOwnerOrRouter() {
     if (LibDiamond.contractOwner() != msg.sender && !s.routerRole[msg.sender])
       revert BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter();
     _;
   }
 
+  /**
+   * @notice Throws if called by any account other than the owner and watcher role.
+   */
   modifier onlyOwnerOrWatcher() {
     if (LibDiamond.contractOwner() != msg.sender && !s.watcherRole[msg.sender])
       revert BaseConnextFacet__onlyOwnerOrWatcher_notOwnerOrWatcher();
     _;
   }
 
+  /**
+   * @notice Throws if called by any account other than the owner and admin role.
+   */
   modifier onlyOwnerOrAdmin() {
     if (LibDiamond.contractOwner() != msg.sender && !s.adminRole[msg.sender])
       revert BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin();
