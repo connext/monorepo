@@ -155,7 +155,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   let tokenRegistryAddress = deployConfigs[chainId]?.TokenRegistry;
   if (!tokenRegistryAddress) {
     // Deploy token beacon
-    const tokenDeployment = await deployBeaconProxy("BridgeToken", [], deployer, hre);
+    const tokenDeployment = await deployBeaconProxy("BridgeToken", [18, "Test Bridge Token", "BRGT"], deployer, hre);
     // Deploy token registry
     const tokenRegistryDeployment = await deployBeaconProxy(
       "TokenRegistry",
