@@ -191,3 +191,14 @@ Content-Type: application/json
   "canonicalDomain": "1735353714",
   "canonicalId": "0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6"
 }
+
+##############
+### POST getTransfersByUser 
+POST {{baseUrl}}/getTransfersByUser
+Content-Type: application/json
+
+{
+  "params": {
+  "userAddress": "{{yourAddress}}"
+  }
+}
