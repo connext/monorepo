@@ -203,7 +203,7 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
       .encodePacked(
         BridgeMessage.Types.Invalid,
         uint256(0),
-        BridgeMessage.getDetailsHash("Hello", "WRLD", 18),
+        BridgeMessage.getDetailsHash("Hello", "WRLD"),
         TypeCasts.addressToBytes32(address(123)),
         uint8(18)
       )
