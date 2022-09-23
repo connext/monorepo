@@ -203,8 +203,9 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
       .encodePacked(
         BridgeMessage.Types.Invalid,
         uint256(0),
-        BridgeMessage.getDetailsHash("Hello", "WRLD", 18),
-        TypeCasts.addressToBytes32(address(123))
+        BridgeMessage.getDetailsHash("Hello", "WRLD"),
+        TypeCasts.addressToBytes32(address(123)),
+        uint8(18)
       )
       .ref(uint40(BridgeMessage.Types.Invalid));
     bytes memory message = TypedMemView.join(_views);

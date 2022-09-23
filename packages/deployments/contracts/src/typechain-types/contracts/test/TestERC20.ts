@@ -37,10 +37,10 @@ export interface TestERC20Interface extends utils.Interface {
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "detailsHash()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
-    "initialize()": FunctionFragment;
+    "initialize(uint8,string,string)": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
-    "setDetails(string,string,uint8)": FunctionFragment;
+    "setDetails(string,string)": FunctionFragment;
     "setDetailsHash(bytes32)": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
@@ -102,7 +102,11 @@ export interface TestERC20Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values?: undefined
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "mint",
@@ -111,11 +115,7 @@ export interface TestERC20Interface extends utils.Interface {
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "setDetails",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setDetailsHash",
@@ -283,6 +283,9 @@ export interface TestERC20 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     initialize(
+      _decimals: PromiseOrValue<BigNumberish>,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -297,7 +300,6 @@ export interface TestERC20 extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      _newDecimals: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -369,6 +371,9 @@ export interface TestERC20 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   initialize(
+    _decimals: PromiseOrValue<BigNumberish>,
+    _name: PromiseOrValue<string>,
+    _symbol: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -383,7 +388,6 @@ export interface TestERC20 extends BaseContract {
   setDetails(
     _newName: PromiseOrValue<string>,
     _newSymbol: PromiseOrValue<string>,
-    _newDecimals: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -454,7 +458,12 @@ export interface TestERC20 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    initialize(overrides?: CallOverrides): Promise<void>;
+    initialize(
+      _decimals: PromiseOrValue<BigNumberish>,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     mint(
       account: PromiseOrValue<string>,
@@ -467,7 +476,6 @@ export interface TestERC20 extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      _newDecimals: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -564,6 +572,9 @@ export interface TestERC20 extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
+      _decimals: PromiseOrValue<BigNumberish>,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -578,7 +589,6 @@ export interface TestERC20 extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      _newDecimals: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -651,6 +661,9 @@ export interface TestERC20 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
+      _decimals: PromiseOrValue<BigNumberish>,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -665,7 +678,6 @@ export interface TestERC20 extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      _newDecimals: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -7,7 +7,11 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 interface ITokenRegistry {
   function isLocalOrigin(address _token) external view returns (bool);
 
-  function ensureLocalToken(uint32 _domain, bytes32 _id) external returns (address _local);
+  function ensureLocalToken(
+    uint32 _domain,
+    bytes32 _id,
+    uint8 _decimals
+  ) external returns (address _local);
 
   function mustHaveLocalToken(uint32 _domain, bytes32 _id) external view returns (IERC20);
 

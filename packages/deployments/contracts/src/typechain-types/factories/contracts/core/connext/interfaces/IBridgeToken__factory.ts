@@ -74,7 +74,23 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "uint8",
+        name: "_decimals",
+        type: "uint8",
+      },
+      {
+        internalType: "string",
+        name: "_name",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "_symbol",
+        type: "string",
+      },
+    ],
     name: "initialize",
     outputs: [],
     stateMutability: "nonpayable",
@@ -122,11 +138,6 @@ const _abi = [
         internalType: "string",
         name: "_symbol",
         type: "string",
-      },
-      {
-        internalType: "uint8",
-        name: "_decimals",
-        type: "uint8",
       },
     ],
     name: "setDetails",

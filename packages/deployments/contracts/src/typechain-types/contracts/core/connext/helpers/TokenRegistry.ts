@@ -33,7 +33,7 @@ export interface TokenRegistryInterface extends utils.Interface {
     "canonicalToRepresentation(bytes32)": FunctionFragment;
     "delay()": FunctionFragment;
     "enrollCustom(uint32,bytes32,address)": FunctionFragment;
-    "ensureLocalToken(uint32,bytes32)": FunctionFragment;
+    "ensureLocalToken(uint32,bytes32,uint8)": FunctionFragment;
     "getCanonicalTokenId(address)": FunctionFragment;
     "getLocalAddress(uint32,bytes32)": FunctionFragment;
     "getLocalAddress(uint32,address)": FunctionFragment;
@@ -102,7 +102,11 @@ export interface TokenRegistryInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "ensureLocalToken",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "getCanonicalTokenId",
@@ -354,6 +358,7 @@ export interface TokenRegistry extends BaseContract {
     ensureLocalToken(
       _domain: PromiseOrValue<BigNumberish>,
       _id: PromiseOrValue<BytesLike>,
+      _decimals: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -460,6 +465,7 @@ export interface TokenRegistry extends BaseContract {
   ensureLocalToken(
     _domain: PromiseOrValue<BigNumberish>,
     _id: PromiseOrValue<BytesLike>,
+    _decimals: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -564,6 +570,7 @@ export interface TokenRegistry extends BaseContract {
     ensureLocalToken(
       _domain: PromiseOrValue<BigNumberish>,
       _id: PromiseOrValue<BytesLike>,
+      _decimals: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -701,6 +708,7 @@ export interface TokenRegistry extends BaseContract {
     ensureLocalToken(
       _domain: PromiseOrValue<BigNumberish>,
       _id: PromiseOrValue<BytesLike>,
+      _decimals: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -808,6 +816,7 @@ export interface TokenRegistry extends BaseContract {
     ensureLocalToken(
       _domain: PromiseOrValue<BigNumberish>,
       _id: PromiseOrValue<BytesLike>,
+      _decimals: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

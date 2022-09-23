@@ -15,7 +15,7 @@
   "function canonicalToRepresentation(bytes32) view returns (address)",
   "function delay() view returns (uint256)",
   "function enrollCustom(uint32,bytes32,address)",
-  "function ensureLocalToken(uint32,bytes32) returns (address)",
+  "function ensureLocalToken(uint32,bytes32,uint8) returns (address)",
   "function getCanonicalTokenId(address) view returns (uint32, bytes32)",
   "function getLocalAddress(uint32,bytes32) view returns (address)",
   "function getLocalAddress(uint32,address) view returns (address)",
