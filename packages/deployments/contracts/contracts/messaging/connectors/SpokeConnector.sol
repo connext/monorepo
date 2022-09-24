@@ -203,9 +203,23 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     watcherPaused = paused;
   }
 
+  /**
+   * @notice Set the delayBlocks, in case this needs to be configured later
+   */
   function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
     require(_delayBlocks != delayBlocks, "!delayBlocks");
     delayBlocks = _delayBlocks;
+  }
+
+  /**
+   * @notice Set the aggregateRoots by owner if the contract is paused
+   * @dev This required in case of fraud
+   */
+  function setAggregateRoots(bytes32 _current, bytes32 _pending) public onlyOwner {
+    require(watcherPaused, "!paused");
+    aggregateRootCurrent = _current;
+    aggregateRootPending = _pending;
+    emit AggregateRootsUpdated(_current, _pending);
   }
 
   // ============ Public fns ============
