@@ -39,7 +39,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
 
   event SenderRemoved(address sender);
 
-  event AggregateRootUpdated(bytes32 current, bytes32 previous);
+  event AggregateRootsUpdated(bytes32 current, bytes32 pending);
 
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
 
@@ -69,12 +69,26 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
   uint256 public immutable RESERVE_GAS;
 
   /**
+   * @notice Number of blocks to delay the processing of a message to allow for watchers to verify
+   * the validity and pause if necessary.
+   */
+  uint256 public delayBlocks;
+
+  /**
    * @notice This tracks the root of the tree containing outbound roots from all other supported
-   * domains
+   * domains. The "current" version is the one that is known to be past the delayBlocks time period.
    * @dev This root is the root of the tree that is aggregated on mainnet (composed of all the roots
    * of previous trees)
    */
-  bytes32 public aggregateRoot;
+  bytes32 public aggregateRootCurrent;
+  uint256 public aggregateRootCurrentBlock;
+
+  /**
+   * @notice This is the "pending" aggregate root which is stored to allow a second root to be passing through
+   * the delayBlocks window while the current root is confirmed.
+   */
+  bytes32 public aggregateRootPending;
+  uint256 public aggregateRootPendingBlock;
 
   /**
    * @notice This tracks whether the root has been proven to exist within the given aggregate root
@@ -142,6 +156,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
+    // uint256 _delayBlocks, TODO add this later, don't want to break build
     address _watcherManager
   )
     ConnectorManager()
@@ -156,6 +171,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     //
     PROCESS_GAS = _processGas;
     RESERVE_GAS = _reserveGas;
+
+    delayBlocks = _delayBlocks;
   }
 
   // ============ Admin fns ============
@@ -184,6 +201,11 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
   function setWatcherPaused(bool paused) public onlyWatcher {
     require(watcherPaused != paused, "Already set");
     watcherPaused = paused;
+  }
+
+  function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
+    require(_delayBlocks != delayBlocks, "!delayBlocks");
+    delayBlocks = _delayBlocks;
   }
 
   // ============ Public fns ============
@@ -279,8 +301,11 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
    * these roots.
    */
   function updateAggregateRoot(bytes32 _newRoot) internal {
-    emit AggregateRootUpdated(_newRoot, aggregateRoot);
-    aggregateRoot = _newRoot;
+    require(block.number > aggregateRootPendingBlock + delayBlocks, "!delayBlocks");
+    aggregateRootCurrent = aggregateRootPending;
+    aggregateRootPending = _newRoot;
+    aggregateRootPendingBlock = block.number;
+    emit AggregateRootUpdated(aggregateRootCurrent, aggregateRoot);
   }
 
   /**
@@ -301,6 +326,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     uint256 _index
   ) internal returns (bool) {
     // FIXME: actually implement this later
+
+    // if the updateAggregateRoot function hasnt been called for a while, we might be able
+    // to prove against the pending root which is more recent.
+    // bytes32 rootToUse = block.number > aggregateRootPendingBlock ? aggregateRootPending : aggregateRootCurrent;
     // ensure that message has not been proven or processed
     require(messages[_leaf] == MessageStatus.None, "!MessageStatus.None");
     // // calculate the expected root based on the proof
