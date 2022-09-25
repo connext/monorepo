@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-// work based on eth2 deposit contract, which is used under CC0-1.0
-
 /**
  * @title MerkleLib
  * @author Illusory Systems Inc.
@@ -114,6 +112,32 @@ library MerkleLib {
     }
   }
 
+  /**
+   * @notice Calculates and returns the merkle root for the given leaf
+   * `_item`, a merkle branch, and the index of `_item` in the tree.
+   * @param _item Merkle leaf
+   * @param _branch Merkle proof
+   * @param _index Index of `_item` in tree
+   * @return _current Calculated merkle root
+   **/
+  function branchRoot(
+    bytes32 _item,
+    bytes32[TREE_DEPTH] memory _branch,
+    uint256 _index
+  ) internal pure returns (bytes32 _current) {
+    _current = _item;
+
+    for (uint256 i = 0; i < TREE_DEPTH; i++) {
+      uint256 _ithBit = (_index >> i) & 0x01;
+      bytes32 _next = _branch[i];
+      if (_ithBit == 1) {
+        _current = keccak256(abi.encodePacked(_next, _current));
+      } else {
+        _current = keccak256(abi.encodePacked(_current, _next));
+      }
+    }
+  }
+
   /// @notice Returns array of TREE_DEPTH zero hashes
   /// @return _zeroes Array of TREE_DEPTH zero hashes
   function zeroHashes() internal pure returns (bytes32[TREE_DEPTH] memory _zeroes) {
@@ -149,32 +173,6 @@ library MerkleLib {
     _zeroes[29] = Z_29;
     _zeroes[30] = Z_30;
     _zeroes[31] = Z_31;
-  }
-
-  /**
-   * @notice Calculates and returns the merkle root for the given leaf
-   * `_item`, a merkle branch, and the index of `_item` in the tree.
-   * @param _item Merkle leaf
-   * @param _branch Merkle proof
-   * @param _index Index of `_item` in tree
-   * @return _current Calculated merkle root
-   **/
-  function branchRoot(
-    bytes32 _item,
-    bytes32[TREE_DEPTH] memory _branch,
-    uint256 _index
-  ) internal pure returns (bytes32 _current) {
-    _current = _item;
-
-    for (uint256 i = 0; i < TREE_DEPTH; i++) {
-      uint256 _ithBit = (_index >> i) & 0x01;
-      bytes32 _next = _branch[i];
-      if (_ithBit == 1) {
-        _current = keccak256(abi.encodePacked(_next, _current));
-      } else {
-        _current = keccak256(abi.encodePacked(_current, _next));
-      }
-    }
   }
 
   // keccak256 zero hashes
