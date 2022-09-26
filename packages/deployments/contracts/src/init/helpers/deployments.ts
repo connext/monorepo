@@ -114,7 +114,6 @@ export const getDeployments = (args: {
   return {
     Connext: getContract("ConnextHandler_DiamondProxy"),
     handlers: {
-      // BridgeRouter: getContract("BridgeRouterUpgradeBeaconProxy"),
       RelayerFeeRouter: getContract("RelayerFeeRouterUpgradeBeaconProxy"),
     },
     messaging: isHub

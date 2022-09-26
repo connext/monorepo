@@ -1,7 +1,9 @@
 import * as fs from "fs";
 
-import { getChainData, getChainIdFromDomain, getDomainFromChainId } from "@connext/nxtp-utils";
+import { getChainData, getChainIdFromDomain } from "@connext/nxtp-utils";
 import { constants, providers, Wallet } from "ethers";
+
+import { chainIdToDomain } from "../domain";
 
 import {
   ProtocolStack,
@@ -15,7 +17,6 @@ import {
   getValue,
 } from "./helpers";
 import { setupAsset } from "./helpers/assets";
-import { chainIdToDomain } from "../domain";
 
 /**
  * Call the core `initProtocol` method using a JSON config file provided by the local environment.
