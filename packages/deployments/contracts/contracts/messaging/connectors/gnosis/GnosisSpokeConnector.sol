@@ -16,12 +16,23 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
+    address _merkle,
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas
   )
-    SpokeConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas, _processGas, _reserveGas)
+    SpokeConnector(
+      _domain,
+      _mirrorDomain,
+      _amb,
+      _rootManager,
+      _merkle,
+      _mirrorConnector,
+      _mirrorGas,
+      _processGas,
+      _reserveGas
+    )
     GnosisBase()
   {}
 

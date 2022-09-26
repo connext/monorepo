@@ -21,6 +21,7 @@
   "event SenderRemoved(address)",
   "function AMB() view returns (address)",
   "function DOMAIN() view returns (uint32)",
+  "function MERKLE() view returns (address)",
   "function MIRROR_DOMAIN() view returns (uint32)",
   "function PROCESS_GAS() view returns (uint256)",
   "function RESERVE_GAS() view returns (uint256)",
@@ -28,7 +29,6 @@
   "function acceptProposedOwner()",
   "function addSender(address)",
   "function aggregateRoot() view returns (bytes32)",
-  "function count() view returns (uint256)",
   "function delay() view returns (uint256)",
   "function dispatch(uint32,bytes32,bytes) returns (bytes32)",
   "function home() view returns (address)",
@@ -44,7 +44,7 @@
   "function proposeNewOwner(address)",
   "function proposed() view returns (address)",
   "function proposedTimestamp() view returns (uint256)",
-  "function proveAndProcess(bytes,bytes32[32],uint256)",
+  "function proveAndProcess(tuple(bytes,bytes32[32],uint256)[],bytes32[32],uint256)",
   "function provenRoots(bytes32) view returns (bool)",
   "function removeSender(address)",
   "function renounceOwnership()",
@@ -52,7 +52,6 @@
   "function send()",
   "function setMirrorConnector(address)",
   "function setMirrorGas(uint256)",
-  "function tree() view returns (uint256)",
   "function verifySender(address) returns (bool)",
   "function whitelistedSenders(address) view returns (bool)"
 ]

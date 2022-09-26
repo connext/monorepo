@@ -621,6 +621,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BridgeFacet__xcall_canonicalAssetNotReceived",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BridgeFacet__xcall_emptyTo",
     type: "error",
   },
@@ -986,31 +991,6 @@ const _abi = [
       },
     ],
     name: "SlippageUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "oldSponsorVault",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "newSponsorVault",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "SponsorVaultUpdated",
     type: "event",
   },
   {
