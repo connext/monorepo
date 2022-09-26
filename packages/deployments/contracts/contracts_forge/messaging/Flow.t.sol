@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 import {TypeCasts} from "../../contracts/shared/libraries/TypeCasts.sol";
 import {Message} from "../../contracts/messaging/libraries/Message.sol";
 
+import {WatcherManager} from "../../contracts/messaging/WatcherManager.sol";
 import {RootManager} from "../../contracts/messaging/RootManager.sol";
 import {SpokeConnector} from "../../contracts/messaging/connectors/SpokeConnector.sol";
 
@@ -38,6 +39,7 @@ contract PingPong is ConnectorHelper {
   address _originConnectorL1;
   address _destinationConnectorL2;
   address _destinationConnectorL1;
+  address _watcherManager;
 
   // ============ destination router
   bytes32 _destinationRouter;
@@ -52,8 +54,10 @@ contract PingPong is ConnectorHelper {
 
   // ============ Utils ============
   function utils_deployContracts() public {
+    // deploy watcher manager
+    _watcherManager = address(new WatcherManager());
     // deploy root manager
-    _rootManager = address(new RootManager());
+    _rootManager = address(new RootManager(_watcherManager));
     // Mock sourceconnector on l2
     _originConnectorL2 = address(
       new MockConnector(
@@ -64,7 +68,9 @@ contract PingPong is ConnectorHelper {
         address(0), // address _mirrorConnector
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS // uint256 _reserveGas
+        RESERVE_GAS, // uint256 _reserveGas
+        0, // uint256 _delayBlocks
+        _watcherManager
       )
     );
     // Mock sourceconnector on l1
@@ -77,7 +83,9 @@ contract PingPong is ConnectorHelper {
         _originConnectorL2, // address _mirrorConnector,
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS // uint256 _reserveGas
+        RESERVE_GAS, // uint256 _reserveGas
+        0, // uint256 _delayBlocks
+        _watcherManager
       )
     );
     // Mock dest connector on l2
@@ -90,7 +98,9 @@ contract PingPong is ConnectorHelper {
         address(0), // address _mirrorConnector,
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS // uint256 _reserveGas
+        RESERVE_GAS, // uint256 _reserveGas
+        0, // uint256 _delayBlocks
+        _watcherManager
       )
     );
     // Mock dest connector on l1
@@ -103,7 +113,9 @@ contract PingPong is ConnectorHelper {
         _destinationConnectorL2, // address _mirrorConnector,
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS // uint256 _reserveGas
+        RESERVE_GAS, // uint256 _reserveGas
+        0, // uint256 _delayBlocks
+        _watcherManager
       )
     );
     _destinationRouter = TypeCasts.addressToBytes32(address(new MockRelayerFeeRouter()));
@@ -147,7 +159,7 @@ contract PingPong is ConnectorHelper {
     // TODO: actually assert this is the correct root outside of using hardcoded values
     assertEq(
       SpokeConnector(_originConnectorL2).outboundRoot(),
-      bytes32(0x86fa2992f68fd0ba27a6303c3704838c670c809d4f602481f9bcdefc5687aa23)
+      bytes32(0x1a2a0e3161619f890bf5ac174d13bbf8c68d38a4c0c51df1c7591b2a9bb89670)
     );
 
     // 2. Send outboundRoot through Connector to mainnet
@@ -176,7 +188,7 @@ contract PingPong is ConnectorHelper {
     emit MessageProcessed(expectedAggregate, _destinationAMB);
     vm.prank(_destinationAMB);
     MockConnector(_destinationConnectorL2).processMessage(expectedAggregate);
-    assertEq(SpokeConnector(_destinationConnectorL2).aggregateRoot(), outboundRoot);
+    assertEq(SpokeConnector(_destinationConnectorL2).aggregateRootCurrent(), outboundRoot);
 
     // 6. Process original message
     bytes memory message = Message.formatMessage(

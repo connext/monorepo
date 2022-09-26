@@ -37,7 +37,9 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
         _l1Connector,
         _mirrorGas,
         _processGas,
-        _reserveGas
+        _reserveGas,
+        0, // uint256 _delayBlocks
+        address(1)
       )
     );
   }
@@ -129,7 +131,7 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     ArbitrumSpokeConnector(_l2Connector).processMessage(_data);
 
     // assert update
-    assertEq(bytes32(_data), ArbitrumSpokeConnector(_l2Connector).aggregateRoot());
+    assertEq(bytes32(_data), ArbitrumSpokeConnector(_l2Connector).aggregateRootPending());
   }
 
   function test_ArbitrumSpokeConnector__processMessage_failsIfNotCrosschain() public {
