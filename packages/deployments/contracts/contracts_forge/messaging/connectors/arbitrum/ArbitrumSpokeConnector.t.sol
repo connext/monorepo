@@ -132,6 +132,24 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     assertEq(bytes32(_data), ArbitrumSpokeConnector(_l2Connector).aggregateRoot());
   }
 
+  function test_ArbitrumSpokeConnector__processMessage_works_fuzz(bytes32 data) public {
+    utils_setSpokeConnectorVerifyMocks(_l1Connector, true);
+
+    // get outbound data
+    bytes memory _data = abi.encode(data);
+
+    // should emit an event
+    vm.expectEmit(true, true, true, true);
+    emit MessageProcessed(_data, _amb);
+
+    // make call
+    vm.prank(_amb);
+    ArbitrumSpokeConnector(_l2Connector).processMessage(_data);
+
+    // assert update
+    assertEq(bytes32(_data), ArbitrumSpokeConnector(_l2Connector).aggregateRoot());
+  }
+
   function test_ArbitrumSpokeConnector__processMessage_failsIfNotCrosschain() public {
     utils_setSpokeConnectorVerifyMocks(_l1Connector, false);
 

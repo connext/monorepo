@@ -97,10 +97,40 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     OptimismHubConnector(_l1Connector).sendMessage(_data);
   }
 
+  function test_OptimismHubConnector__sendMessage_works_fuzz(bytes32 data) public {
+    bytes memory _data = abi.encode(data);
+
+    vm.mockCall(_amb, abi.encodeWithSelector(OptimismAmb.sendMessage.selector), abi.encode());
+
+    vm.expectEmit(true, true, true, true);
+    emit MessageSent(_data, _rootManager);
+
+    vm.expectCall(
+      _amb,
+      abi.encodeWithSelector(
+        OptimismAmb.sendMessage.selector,
+        _l2Connector,
+        abi.encodeWithSelector(Connector.processMessage.selector, _data),
+        _mirrorGas
+      )
+    );
+
+    vm.prank(_rootManager);
+    OptimismHubConnector(_l1Connector).sendMessage(_data);
+  }
+
   // ============ OptimismHubConnector.processMessage ============
   function test_OptimismHubConnector__processMessage_works() public {
     utils_setHubConnectorProcessMocks(_l2Connector);
     bytes memory _data = abi.encode(bytes32(bytes("test")));
+
+    vm.prank(_amb);
+    OptimismHubConnector(_l1Connector).processMessage(_data);
+  }
+
+  function test_OptimismHubConnector__processMessage_works_fuzz(bytes32 data) public {
+    utils_setHubConnectorProcessMocks(_l2Connector);
+    bytes memory _data = abi.encode(data);
 
     vm.prank(_amb);
     OptimismHubConnector(_l1Connector).processMessage(_data);
@@ -122,6 +152,49 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     address _target = _l1Connector;
     address _sender = _l2Connector;
     bytes memory _message = abi.encodePacked(bytes32(bytes("message")));
+    uint256 _messageNonce = 1;
+    bytes32[] memory mockSiblings = new bytes32[](2);
+    mockSiblings[0] = bytes32(bytes("mockSibling1"));
+    mockSiblings[1] = bytes32(bytes("mockSibling2"));
+
+    // FIXME Need to generate a verified proof to make `SecureMerkleTrie.verifyInclusionProof` working.
+    L2MessageInclusionProof memory _proof = L2MessageInclusionProof({
+      stateRoot: bytes32(bytes("mockStateRoot")),
+      stateRootBatchHeader: ChainBatchHeader({
+        batchIndex: 0,
+        batchRoot: bytes32(bytes("batchRoot")),
+        batchSize: 1,
+        prevTotalElements: 0,
+        extraData: bytes("extraData")
+      }),
+      stateRootProof: ChainInclusionProof({index: 0, siblings: mockSiblings}),
+      stateTrieWitness: bytes("mockStateTrieWitness1"),
+      storageTrieWitness: bytes("mockStorageTrieWitness")
+    });
+
+    bytes memory xDomainData = abi.encodeWithSignature(
+      "relayMessage(address,address,bytes,uint256)",
+      _target,
+      _sender,
+      _message,
+      _messageNonce
+    );
+
+    vm.mockCall(
+      _stateCommitmentChain,
+      abi.encodeWithSelector(IStateCommitmentChain.verifyStateCommitment.selector),
+      abi.encode(true)
+    );
+
+    bytes memory _calldata = abi.encodeWithSignature("call(bytes)", _message);
+    vm.expectCall(_l1Connector, _calldata);
+    OptimismHubConnector(_l1Connector).processMessageFromRoot(_target, _sender, _message, _messageNonce, _proof);
+  }
+
+  function testFail_OptimismHubConnector_processMessageFromRoot_works_fuzz(bytes32 message) public {
+    address _target = _l1Connector;
+    address _sender = _l2Connector;
+    bytes memory _message = abi.encodePacked(message);
     uint256 _messageNonce = 1;
     bytes32[] memory mockSiblings = new bytes32[](2);
     mockSiblings[0] = bytes32(bytes("mockSibling1"));

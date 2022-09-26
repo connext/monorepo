@@ -126,4 +126,19 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     OptimismSpokeConnector(_l2Connector).processMessage(_data);
   }
+
+  // ============ Fuzz Tests ============
+  function test_OptimismSpokeConnector__processMessage_works_fuzz(bytes32 data) public {
+    utils_setSpokeConnectorVerifyMocks(_l1Connector);
+
+    bytes memory _data = abi.encode(data);
+
+    vm.expectEmit(true, true, true, true);
+    emit MessageProcessed(_data, _amb);
+
+    vm.prank(_amb);
+    OptimismSpokeConnector(_l2Connector).processMessage(_data);
+
+    assertEq(bytes32(_data), OptimismSpokeConnector(_l2Connector).aggregateRoot());
+  }
 }
