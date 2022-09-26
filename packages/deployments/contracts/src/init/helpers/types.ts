@@ -57,7 +57,6 @@ export type DomainDeployments = {
   Connext: Deployment;
   // Handlers.
   handlers: {
-    // BridgeRouter: Deployment; // TODO/NOTE: Will likely be combined with Connext in the future.
     RelayerFeeRouter: Deployment;
   };
   // Registry.
