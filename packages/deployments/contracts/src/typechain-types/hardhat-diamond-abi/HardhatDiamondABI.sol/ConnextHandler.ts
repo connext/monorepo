@@ -209,6 +209,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
+    "xAppConnectionManager()": FunctionFragment;
     "xcall(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
     "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -334,6 +335,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "removeSequencer"
       | "routedTransfers"
       | "setXAppConnectionManager"
+      | "xAppConnectionManager"
       | "xcall"
       | "xcallIntoLocal"
       | "diamondCut"
@@ -544,6 +546,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setXAppConnectionManager",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "xAppConnectionManager",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "xcall",
@@ -1114,6 +1120,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setXAppConnectionManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "xAppConnectionManager",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
@@ -2262,6 +2272,8 @@ export interface ConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    xAppConnectionManager(overrides?: CallOverrides): Promise<[string]>;
+
     xcall(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
@@ -2895,6 +2907,8 @@ export interface ConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
+
   xcall(
     _destination: PromiseOrValue<BigNumberish>,
     _to: PromiseOrValue<string>,
@@ -3519,6 +3533,8 @@ export interface ConnextHandler extends BaseContract {
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
 
     xcall(
       _destination: PromiseOrValue<BigNumberish>,
@@ -4608,6 +4624,8 @@ export interface ConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    xAppConnectionManager(overrides?: CallOverrides): Promise<BigNumber>;
+
     xcall(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
@@ -5234,6 +5252,10 @@ export interface ConnextHandler extends BaseContract {
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    xAppConnectionManager(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     xcall(

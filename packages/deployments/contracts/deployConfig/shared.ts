@@ -238,45 +238,56 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
       //   processGas: DEFAULT_PROCESS_GAS,
       //   reserveGas: DEFAULT_RESERVE_GAS,
       // },
-      // // Arbitrum nitro goerli testnet:
-      // // https://developer.offchainlabs.com/docs/Useful_Addresses
-      // 421613: {
-      //   prefix: "Arbitrum",
-      //   ambs: {
-      //     // https://goerli.etherscan.io/address/0x6BEbC4925716945D46F0Ec336D5C2564F419682C
-      //     hub: "0x6BEbC4925716945D46F0Ec336D5C2564F419682C",
-      //     // https://goerli-rollup-explorer.arbitrum.io/address/0x0000000000000000000000000000000000000064
-      //     spoke: "0x0000000000000000000000000000000000000064",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   custom: {
-      //     hub: {
-      //       defaultGasPrice: DEFAULT_RESERVE_GAS,
-      //       // https://goerli.etherscan.io/address/0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049
-      //       outbox: "0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049",
-      //     },
-      //   },
-      // },
-      // 80001: {
-      //   prefix: "Polygon",
-      //   ambs: {
-      //     // FxRoot on goerli
-      //     // https://goerli.etherscan.io/address/0x3d1d3E34f7fB6D26245E6640E1c50710eFFf15bA
-      //     hub: "0x3d1d3E34f7fB6D26245E6640E1c50710eFFf15bA",
-      //     // FxChild on mumbai
-      //     // https://mumbai.polygonscan.com/address/0xCf73231F28B7331BBe3124B907840A94851f9f11
-      //     spoke: "0xCf73231F28B7331BBe3124B907840A94851f9f11",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   custom: {
-      //     hub: {
-      //       // https://goerli.etherscan.io/address/0x2890ba17efe978480615e330ecb65333b880928e
-      //       checkpointManager: "0x2890bA17EfE978480615e330ecB65333b880928e",
-      //     },
-      //   },
-      // },
+      // Gnosis Chiado chain
+      100100: {
+        prefix: "Gnosis",
+        ambs: {
+          // https://docs.gnosischain.com/about/networks/chiado
+          hub: "0x5816D9EdC3D30F501A098bC26A313Ae8BeB7B8ad",
+          spoke: "0x2f018c1118B0DC28E395d054e80fE44c61904892",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+      },
+      // Arbitrum nitro goerli testnet:
+      // https://developer.offchainlabs.com/docs/Useful_Addresses
+      421613: {
+        prefix: "Arbitrum",
+        ambs: {
+          // https://goerli.etherscan.io/address/0x6BEbC4925716945D46F0Ec336D5C2564F419682C
+          hub: "0x6BEbC4925716945D46F0Ec336D5C2564F419682C",
+          // https://goerli-rollup-explorer.arbitrum.io/address/0x0000000000000000000000000000000000000064
+          spoke: "0x0000000000000000000000000000000000000064",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {
+          hub: {
+            defaultGasPrice: DEFAULT_RESERVE_GAS,
+            // https://goerli.etherscan.io/address/0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049
+            outbox: "0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049",
+          },
+        },
+      },
+      80001: {
+        prefix: "Polygon",
+        ambs: {
+          // FxRoot on goerli
+          // https://goerli.etherscan.io/address/0x3d1d3E34f7fB6D26245E6640E1c50710eFFf15bA
+          hub: "0x3d1d3E34f7fB6D26245E6640E1c50710eFFf15bA",
+          // FxChild on mumbai
+          // https://mumbai.polygonscan.com/address/0xCf73231F28B7331BBe3124B907840A94851f9f11
+          spoke: "0xCf73231F28B7331BBe3124B907840A94851f9f11",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {
+          hub: {
+            // https://goerli.etherscan.io/address/0x2890ba17efe978480615e330ecb65333b880928e
+            checkpointManager: "0x2890bA17EfE978480615e330ecB65333b880928e",
+          },
+        },
+      },
       5: {
         prefix: "Mainnet",
         ambs: {

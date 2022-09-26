@@ -234,6 +234,10 @@ contract BridgeFacet is BaseConnextFacet {
     return s.approvedSequencers[_sequencer];
   }
 
+  function xAppConnectionManager() public view returns (address) {
+    return address(s.xAppConnectionManager);
+  }
+
   // ============ Admin Functions ==============
 
   /**
