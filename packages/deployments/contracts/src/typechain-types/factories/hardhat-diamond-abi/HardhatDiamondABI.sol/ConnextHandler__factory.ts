@@ -1561,6 +1561,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "xAppConnectionManager",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "uint32",
@@ -2049,163 +2062,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "NomadFacet__reconcile_alreadyReconciled",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "NomadFacet__reconcile_noPortalRouter",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "NomadFacet__reconcile_notConnext",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "NomadFacet__setBridgeRouter_invalidBridge",
-    type: "error",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "oldBridgeRouter",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "newBridgeRouter",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "BridgeRouterUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "transferId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "uint32",
-        name: "originDomain",
-        type: "uint32",
-      },
-      {
-        indexed: false,
-        internalType: "address[]",
-        name: "routers",
-        type: "address[]",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "asset",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "Reconciled",
-    type: "event",
-  },
-  {
-    inputs: [],
-    name: "bridgeRouter",
-    outputs: [
-      {
-        internalType: "contract IBridgeRouter",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "_origin",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes32",
-        name: "_sender",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint32",
-        name: "_tokenDomain",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes32",
-        name: "_tokenAddress",
-        type: "bytes32",
-      },
-      {
-        internalType: "address",
-        name: "_localToken",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes",
-        name: "_extraData",
-        type: "bytes",
-      },
-    ],
-    name: "onReceive",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_bridgeRouter",
-        type: "address",
-      },
-    ],
-    name: "setBridgeRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {

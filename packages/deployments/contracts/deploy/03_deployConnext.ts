@@ -243,7 +243,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const facets: FacetOptions[] = [
     { name: getDeploymentName("AssetFacet"), contract: "AssetFacet", args: [] },
     { name: getDeploymentName("BridgeFacet"), contract: "BridgeFacet", args: [] },
-    { name: getDeploymentName("NomadFacet"), contract: "NomadFacet", args: [] },
+    { name: getDeploymentName("InboxFacet"), contract: "InboxFacet", args: [] },
     { name: getDeploymentName("ProposedOwnableFacet"), contract: "ProposedOwnableFacet", args: [] },
     { name: getDeploymentName("RelayerFacet"), contract: "RelayerFacet", args: [] },
     { name: getDeploymentName("RoutersFacet"), contract: "RoutersFacet", args: [] },
@@ -307,7 +307,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         : {
             contract: "DiamondInit",
             methodName: "init",
-            args: [domain, tokenRegistry.address, relayerFeeRouter.address, acceptanceDelay, ownershipDelay],
+            args: [
+              domain,
+              tokenRegistry.address,
+              relayerFeeRouter.address,
+              connectorManagerDeployment.address,
+              acceptanceDelay,
+              ownershipDelay,
+            ],
           },
     });
   }

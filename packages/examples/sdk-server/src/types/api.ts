@@ -1,4 +1,5 @@
 import { Type } from "@sinclair/typebox";
+import { XTransferStatus } from "@connext/nxtp-utils";
 
 export const getCanonicalFromLocalSchema = Type.Object({
   domainId: Type.String(),
@@ -112,4 +113,61 @@ export const approveIfNeededSchema = Type.Object({
 export const calculateCanonicalHashSchema = Type.Object({
   canonicalDomain: Type.String(),
   canonicalId: Type.String(),
+});
+
+export const getTransfersByUserSchema = Type.Object({
+  params: Type.Object({
+    userAddress: Type.String(),
+    status: Type.Optional(Type.Enum(XTransferStatus)),
+    range: Type.Optional(
+      Type.Object({
+        limit: Type.Optional(Type.Number()),
+        offset: Type.Optional(Type.Number()),
+      }),
+    ),
+  }),
+});
+
+export const getTransfersByStatusSchema = Type.Object({
+  params: Type.Object({
+    status: Type.Enum(XTransferStatus),
+    range: Type.Optional(
+      Type.Object({
+        limit: Type.Optional(Type.Number()),
+        offset: Type.Optional(Type.Number()),
+      }),
+    ),
+  }),
+});
+
+export const getTransfersByRouterSchema = Type.Object({
+  params: Type.Object({
+    routerAddress: Type.String(),
+    status: Type.Optional(Type.Enum(XTransferStatus)),
+    range: Type.Optional(
+      Type.Object({
+        limit: Type.Optional(Type.Number()),
+        offset: Type.Optional(Type.Number()),
+      }),
+    ),
+  }),
+});
+
+export const getTransfersByIdSchema = Type.Object({
+  transferId: Type.String(),
+});
+
+export const getTransfersByTransactionHashSchema = Type.Object({
+  transactionHash: Type.String(),
+});
+
+export const getTransfersSchema = Type.Object({
+  params: Type.Object({
+    range: Type.Optional(
+      Type.Object({
+        limit: Type.Optional(Type.Number()),
+        offset: Type.Optional(Type.Number()),
+      }),
+    ),
+  }),
 });

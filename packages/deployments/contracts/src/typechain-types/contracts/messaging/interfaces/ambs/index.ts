@@ -3,8 +3,6 @@
 /* eslint-disable */
 import type * as arbitrum from "./arbitrum";
 export type { arbitrum };
-export type { ArbitrumL1Amb } from "./ArbitrumL1Amb";
-export type { ArbitrumL2Amb } from "./ArbitrumL2Amb";
 export type { GnosisAmb } from "./GnosisAmb";
 export type { Multichain } from "./Multichain";
 export type { OptimismAmb } from "./OptimismAmb";

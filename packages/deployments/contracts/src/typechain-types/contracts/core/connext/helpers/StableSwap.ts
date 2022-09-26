@@ -28,6 +28,48 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
+export declare namespace SwapUtilsExternal {
+  export type SwapStruct = {
+    initialA: PromiseOrValue<BigNumberish>;
+    futureA: PromiseOrValue<BigNumberish>;
+    initialATime: PromiseOrValue<BigNumberish>;
+    futureATime: PromiseOrValue<BigNumberish>;
+    swapFee: PromiseOrValue<BigNumberish>;
+    adminFee: PromiseOrValue<BigNumberish>;
+    lpToken: PromiseOrValue<string>;
+    pooledTokens: PromiseOrValue<string>[];
+    tokenPrecisionMultipliers: PromiseOrValue<BigNumberish>[];
+    balances: PromiseOrValue<BigNumberish>[];
+    adminFees: PromiseOrValue<BigNumberish>[];
+  };
+
+  export type SwapStructOutput = [
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    string,
+    string[],
+    BigNumber[],
+    BigNumber[],
+    BigNumber[]
+  ] & {
+    initialA: BigNumber;
+    futureA: BigNumber;
+    initialATime: BigNumber;
+    futureATime: BigNumber;
+    swapFee: BigNumber;
+    adminFee: BigNumber;
+    lpToken: string;
+    pooledTokens: string[];
+    tokenPrecisionMultipliers: BigNumber[];
+    balances: BigNumber[];
+    adminFees: BigNumber[];
+  };
+}
+
 export interface StableSwapInterface extends utils.Interface {
   functions: {
     "addLiquidity(uint256[],uint256,uint256)": FunctionFragment;
@@ -397,6 +439,7 @@ export interface StableSwapInterface extends utils.Interface {
     "RemoveLiquidityImbalance(address,uint256[],uint256[],uint256,uint256)": EventFragment;
     "RemoveLiquidityOne(address,uint256,uint256,uint256,uint256)": EventFragment;
     "StopRampA(uint256,uint256)": EventFragment;
+    "SwapInitialized(tuple,address)": EventFragment;
     "TokenSwap(address,uint256,uint256,uint128,uint128)": EventFragment;
     "Unpaused(address)": EventFragment;
   };
@@ -413,6 +456,7 @@ export interface StableSwapInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "RemoveLiquidityImbalance"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RemoveLiquidityOne"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StopRampA"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SwapInitialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenSwap"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
 }
@@ -546,6 +590,17 @@ export type StopRampAEvent = TypedEvent<
 >;
 
 export type StopRampAEventFilter = TypedEventFilter<StopRampAEvent>;
+
+export interface SwapInitializedEventObject {
+  swap: SwapUtilsExternal.SwapStructOutput;
+  caller: string;
+}
+export type SwapInitializedEvent = TypedEvent<
+  [SwapUtilsExternal.SwapStructOutput, string],
+  SwapInitializedEventObject
+>;
+
+export type SwapInitializedEventFilter = TypedEventFilter<SwapInitializedEvent>;
 
 export interface TokenSwapEventObject {
   buyer: string;
@@ -1305,6 +1360,12 @@ export interface StableSwap extends BaseContract {
       time?: null
     ): StopRampAEventFilter;
     StopRampA(currentA?: null, time?: null): StopRampAEventFilter;
+
+    "SwapInitialized(tuple,address)"(
+      swap?: null,
+      caller?: null
+    ): SwapInitializedEventFilter;
+    SwapInitialized(swap?: null, caller?: null): SwapInitializedEventFilter;
 
     "TokenSwap(address,uint256,uint256,uint128,uint128)"(
       buyer?: PromiseOrValue<string> | null,

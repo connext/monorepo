@@ -61,6 +61,7 @@
   "function removeSequencer(address)",
   "function routedTransfers(bytes32) view returns (address[])",
   "function setXAppConnectionManager(address)",
+  "function xAppConnectionManager() view returns (address)",
   "function xcall(uint32,address,address,address,uint256,uint256,bytes) payable returns (bytes32)",
   "function xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes) payable returns (bytes32)"
 ]
