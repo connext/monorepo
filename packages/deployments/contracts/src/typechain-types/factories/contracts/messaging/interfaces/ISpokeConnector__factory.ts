@@ -156,32 +156,6 @@ const _abi = [
     type: "event",
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-    ],
-    name: "SenderAdded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-    ],
-    name: "SenderRemoved",
-    type: "event",
-  },
-  {
     inputs: [],
     name: "acceptProposedOwner",
     outputs: [],
@@ -207,13 +181,7 @@ const _abi = [
       },
     ],
     name: "dispatch",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -285,35 +253,18 @@ const _abi = [
   {
     inputs: [
       {
-        components: [
-          {
-            internalType: "bytes",
-            name: "message",
-            type: "bytes",
-          },
-          {
-            internalType: "bytes32[32]",
-            name: "path",
-            type: "bytes32[32]",
-          },
-          {
-            internalType: "uint256",
-            name: "index",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct ISpokeConnector.Proof[]",
-        name: "_proofs",
-        type: "tuple[]",
+        internalType: "bytes",
+        name: "_message",
+        type: "bytes",
       },
       {
         internalType: "bytes32[32]",
-        name: "_aggregatorPath",
+        name: "_proof",
         type: "bytes32[32]",
       },
       {
         internalType: "uint256",
-        name: "_aggregatorIndex",
+        name: "_index",
         type: "uint256",
       },
     ],

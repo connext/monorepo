@@ -27,20 +27,6 @@ import type {
   PromiseOrValue,
 } from "../../../common";
 
-export declare namespace ISpokeConnector {
-  export type ProofStruct = {
-    message: PromiseOrValue<BytesLike>;
-    path: PromiseOrValue<BytesLike>[];
-    index: PromiseOrValue<BigNumberish>;
-  };
-
-  export type ProofStructOutput = [string, string[], BigNumber] & {
-    message: string;
-    path: string[];
-    index: BigNumber;
-  };
-}
-
 export interface ISpokeConnectorInterface extends utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
@@ -50,7 +36,7 @@ export interface ISpokeConnectorInterface extends utils.Interface {
     "processMessage(bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
-    "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32[32],uint256)": FunctionFragment;
+    "proveAndProcess(bytes,bytes32[32],uint256)": FunctionFragment;
     "send()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
   };
@@ -98,7 +84,7 @@ export interface ISpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "proveAndProcess",
     values: [
-      ISpokeConnector.ProofStruct[],
+      PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>[],
       PromiseOrValue<BigNumberish>
     ]
@@ -146,8 +132,6 @@ export interface ISpokeConnectorInterface extends utils.Interface {
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Process(bytes32,bool,bytes)": EventFragment;
-    "SenderAdded(address)": EventFragment;
-    "SenderRemoved(address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AggregateRootUpdated"): EventFragment;
@@ -157,8 +141,6 @@ export interface ISpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Process"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SenderAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SenderRemoved"): EventFragment;
 }
 
 export interface AggregateRootUpdatedEventObject {
@@ -244,20 +226,6 @@ export type ProcessEvent = TypedEvent<
 
 export type ProcessEventFilter = TypedEventFilter<ProcessEvent>;
 
-export interface SenderAddedEventObject {
-  sender: string;
-}
-export type SenderAddedEvent = TypedEvent<[string], SenderAddedEventObject>;
-
-export type SenderAddedEventFilter = TypedEventFilter<SenderAddedEvent>;
-
-export interface SenderRemovedEventObject {
-  sender: string;
-}
-export type SenderRemovedEvent = TypedEvent<[string], SenderRemovedEventObject>;
-
-export type SenderRemovedEventFilter = TypedEventFilter<SenderRemovedEvent>;
-
 export interface ISpokeConnector extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -315,9 +283,9 @@ export interface ISpokeConnector extends BaseContract {
     ): Promise<[string] & { proposed_: string }>;
 
     proveAndProcess(
-      _proofs: ISpokeConnector.ProofStruct[],
-      _aggregatorPath: PromiseOrValue<BytesLike>[],
-      _aggregatorIndex: PromiseOrValue<BigNumberish>,
+      _message: PromiseOrValue<BytesLike>,
+      _proof: PromiseOrValue<BytesLike>[],
+      _index: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -359,9 +327,9 @@ export interface ISpokeConnector extends BaseContract {
   proposed(overrides?: CallOverrides): Promise<string>;
 
   proveAndProcess(
-    _proofs: ISpokeConnector.ProofStruct[],
-    _aggregatorPath: PromiseOrValue<BytesLike>[],
-    _aggregatorIndex: PromiseOrValue<BigNumberish>,
+    _message: PromiseOrValue<BytesLike>,
+    _proof: PromiseOrValue<BytesLike>[],
+    _index: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -382,7 +350,7 @@ export interface ISpokeConnector extends BaseContract {
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<void>;
 
     outboundRoot(overrides?: CallOverrides): Promise<string>;
 
@@ -401,9 +369,9 @@ export interface ISpokeConnector extends BaseContract {
     proposed(overrides?: CallOverrides): Promise<string>;
 
     proveAndProcess(
-      _proofs: ISpokeConnector.ProofStruct[],
-      _aggregatorPath: PromiseOrValue<BytesLike>[],
-      _aggregatorIndex: PromiseOrValue<BigNumberish>,
+      _message: PromiseOrValue<BytesLike>,
+      _proof: PromiseOrValue<BytesLike>[],
+      _index: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -472,12 +440,6 @@ export interface ISpokeConnector extends BaseContract {
       returnData?: null
     ): ProcessEventFilter;
     Process(leaf?: null, success?: null, returnData?: null): ProcessEventFilter;
-
-    "SenderAdded(address)"(sender?: null): SenderAddedEventFilter;
-    SenderAdded(sender?: null): SenderAddedEventFilter;
-
-    "SenderRemoved(address)"(sender?: null): SenderRemovedEventFilter;
-    SenderRemoved(sender?: null): SenderRemovedEventFilter;
   };
 
   estimateGas: {
@@ -509,9 +471,9 @@ export interface ISpokeConnector extends BaseContract {
     proposed(overrides?: CallOverrides): Promise<BigNumber>;
 
     proveAndProcess(
-      _proofs: ISpokeConnector.ProofStruct[],
-      _aggregatorPath: PromiseOrValue<BytesLike>[],
-      _aggregatorIndex: PromiseOrValue<BigNumberish>,
+      _message: PromiseOrValue<BytesLike>,
+      _proof: PromiseOrValue<BytesLike>[],
+      _index: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -554,9 +516,9 @@ export interface ISpokeConnector extends BaseContract {
     proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proveAndProcess(
-      _proofs: ISpokeConnector.ProofStruct[],
-      _aggregatorPath: PromiseOrValue<BytesLike>[],
-      _aggregatorIndex: PromiseOrValue<BigNumberish>,
+      _message: PromiseOrValue<BytesLike>,
+      _proof: PromiseOrValue<BytesLike>[],
+      _index: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

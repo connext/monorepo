@@ -7,9 +7,9 @@ import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
 
 import {MerkleLib} from "../libraries/Merkle.sol";
 import {Message} from "../libraries/Message.sol";
-import {ISpokeConnector} from "../interfaces/ISpokeConnector.sol";
 
 import {MerkleTreeManager} from "../Merkle.sol";
+import {WatcherClient} from "../WatcherClient.sol";
 
 import {Connector} from "./Connector.sol";
 import {ConnectorManager} from "./ConnectorManager.sol";
@@ -26,13 +26,25 @@ import {ConnectorManager} from "./ConnectorManager.sol";
  *
  * TODO: what about the queue manager? see Home.sol for context
  */
-abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager, ReentrancyGuard {
+abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, ReentrancyGuard {
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
   using Message for bytes29;
+
+  // ============ Events ============
+
+  event SenderAdded(address sender);
+
+  event SenderRemoved(address sender);
+
+  event AggregateRootsUpdated(bytes32 current, bytes32 pending);
+
+  event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
+
+  event Process(bytes32 leaf, bool success, bytes returnData);
 
   // ============ Structs ============
 
@@ -44,6 +56,18 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
     None,
     Proven,
     Processed
+  }
+
+  /**
+   * Struct for submitting a proof for a given message. Used in `proveAndProcess` below.
+   * @param message Bytes of message to be processed. The hash of this message is considered the leaf.
+   * @param proof Merkle proof of inclusion for given leaf.
+   * @param index Index of leaf in home's merkle tree.
+   */
+  struct Proof {
+    bytes message;
+    bytes32[32] path;
+    uint256 index;
   }
 
   // ============ Public Storage ============
@@ -65,12 +89,30 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
   uint256 public immutable RESERVE_GAS;
 
   /**
+   * @notice Number of blocks to delay the processing of a message to allow for watchers to verify
+   * the validity and pause if necessary.
+   */
+  uint256 public delayBlocks;
+
+  /**
    * @notice This tracks the root of the tree containing outbound roots from all other supported
-   * domains
+   * domains. The "current" version is the one that is known to be past the delayBlocks time period.
    * @dev This root is the root of the tree that is aggregated on mainnet (composed of all the roots
    * of previous trees)
    */
-  bytes32 public aggregateRoot;
+  bytes32 public aggregateRootCurrent;
+
+  /**
+   * @notice This is the "pending" aggregate root which is stored to allow a second root to be passing through
+   * the delayBlocks window while the current root is confirmed.
+   */
+  bytes32 public aggregateRootPending;
+
+  /**
+   * @notice This is the block number at which the pending aggregate root was set.
+   * @dev This is used to determine when the pending aggregate root can be confirmed.
+   */
+  uint256 public aggregateRootPendingBlock;
 
   /**
    * @notice This tracks whether the root has been proven to exist within the given aggregate root
@@ -95,10 +137,23 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
    */
   mapping(bytes32 => MessageStatus) public messages;
 
+  /**
+   * @notice Boolean indicating if the connector has been paused by a watcher.
+   */
+  bool private watcherPaused;
+
   // ============ Modifiers ============
 
   modifier onlyWhitelistedSender() {
     require(whitelistedSenders[msg.sender], "!whitelisted");
+    _;
+  }
+
+  /**
+   * @notice Modifier to check if the connector is paused by a watcher.
+   */
+  modifier onlyUnpaused() {
+    require(!watcherPaused, "!unpaused");
     _;
   }
 
@@ -126,8 +181,14 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
-    uint256 _reserveGas
-  ) ConnectorManager() Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) {
+    uint256 _reserveGas,
+    uint256 _delayBlocks,
+    address _watcherManager
+  )
+    ConnectorManager()
+    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
+    WatcherClient(_watcherManager)
+  {
     // Sanity check: constants are reasonable.
     require(_processGas >= 850_000, "!process gas");
     require(_reserveGas >= 15_000, "!reserve gas");
@@ -136,6 +197,8 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
 
     // If no MerkleTreeManager instance is specified, create a new one.
     MERKLE = _merkle == address(0) ? new MerkleTreeManager() : MerkleTreeManager(_merkle);
+
+    delayBlocks = _delayBlocks;
   }
 
   // ============ Admin Functions ============
@@ -158,7 +221,42 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
     emit SenderRemoved(_sender);
   }
 
+  /**
+   * @notice Set the `watcherPaused` boolean
+   * @dev This is only callable by a watcher, as set in the WatcherManager
+   */
+  function setWatcherPaused(bool paused) public onlyWatcher {
+    require(watcherPaused != paused, "Already set");
+    watcherPaused = paused;
+  }
+
+  /**
+   * @notice Set the delayBlocks, in case this needs to be configured later
+   */
+  function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
+    require(_delayBlocks != delayBlocks, "!delayBlocks");
+    delayBlocks = _delayBlocks;
+  }
+
+  /**
+   * @notice Set the aggregateRoots by owner if the contract is paused
+   * @dev This required in case of fraud
+   */
+  function setAggregateRoots(bytes32 _current, bytes32 _pending) public onlyOwner {
+    require(watcherPaused, "!paused");
+    aggregateRootCurrent = _current;
+    aggregateRootPending = _pending;
+    emit AggregateRootsUpdated(_current, _pending);
+  }
+
   // ============ Public Functions ============
+
+  /**
+   * @notice This is called by the watcher to update the aggregate root
+   */
+  function isPaused() external view returns (bool) {
+    return watcherPaused;
+  }
 
   /**
    * @notice This returns the root of all messages with the origin domain as this domain (i.e.
@@ -247,10 +345,10 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
    * @param _aggregatorIndex Index of the inbound root in the aggregator's merkle tree in the hub.
    */
   function proveAndProcess(
-    ISpokeConnector.Proof[] calldata _proofs,
+    Proof[] calldata _proofs,
     bytes32[32] calldata _aggregatorPath,
     uint256 _aggregatorIndex
-  ) external {
+  ) external onlyUnpaused {
     // Sanity check: proofs are included.
     require(_proofs.length > 0, "!proofs");
 
@@ -260,16 +358,24 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
     bytes32 _messageHash = keccak256(_proofs[0].message);
     // TODO: Could use an array of sharedRoots so you can submit a message batch of messages with
     // different origins.
-    bytes32 _sharedRoot = calculateMessageRoot(_messageHash, _proofs[0].path, _proofs[0].index);
+    bytes32 _inboundRoot = calculateMessageRoot(_messageHash, _proofs[0].path, _proofs[0].index);
 
     // Check to see if the root for this batch has already been proven.
-    if (!provenRoots[_sharedRoot]) {
+    if (!provenRoots[_inboundRoot]) {
+      // TODO: If the updateAggregateRoot function hasnt been called for a while, we might be able
+      // to prove against the pending root which is more recent.
+      // TODO: Shouldn't we go ahead and move the pending aggregate root into current, in this case?
+      // TODO: Optimization: allow caller to specify whether to try using the pending root (if enough time has elapsed)
+      // or ignore this check! We really can't just pick which one to use willy-nilly - the given proof (aggregatorPath)
+      // will only work with *one* root in particular.
+      bytes32 _aggregateRoot = block.number > aggregateRootPendingBlock ? aggregateRootPending : aggregateRootCurrent;
+
       // Calculate an aggregate root, given this inbound root, and make sure it matches the current
       // aggregate root we have stored.
-      bytes32 _calculatedAggregateRoot = MerkleLib.branchRoot(_sharedRoot, _aggregatorPath, _aggregatorIndex);
-      require(_calculatedAggregateRoot == aggregateRoot, "!aggregateRoot");
+      bytes32 _calculatedAggregateRoot = MerkleLib.branchRoot(_inboundRoot, _aggregatorPath, _aggregatorIndex);
+      require(_calculatedAggregateRoot == _aggregateRoot, "!aggregateRoot");
       // This inbound root has been proven. We should specify that to optimize future calls.
-      provenRoots[_sharedRoot] = true;
+      provenRoots[_inboundRoot] = true;
     }
 
     // Assuming the inbound root was proven, the first message is now proven.
@@ -281,7 +387,7 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
       _messageHash = keccak256(_proofs[i].message);
       bytes32 _calculatedRoot = calculateMessageRoot(_messageHash, _proofs[i].path, _proofs[i].index);
       // Make sure this root matches the validated inbound root.
-      require(_calculatedRoot == _sharedRoot, "!sharedRoot");
+      require(_calculatedRoot == _inboundRoot, "!sharedRoot");
       // Message is proven!
       messages[_messageHash] = MessageStatus.Proven;
 
@@ -301,7 +407,8 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
     }
   }
 
-  // ============ Private fns ============
+  // ============ Private Functions ============
+
   /**
    * @notice This is either called by the Connector (AKA `this`) on the spoke (L2) chain after retrieving
    * latest `aggregateRoot` from the AMB (sourced from mainnet) OR called by the AMB directly.
@@ -309,8 +416,11 @@ abstract contract SpokeConnector is ISpokeConnector, Connector, ConnectorManager
    * these roots.
    */
   function updateAggregateRoot(bytes32 _newRoot) internal {
-    emit AggregateRootUpdated(_newRoot, aggregateRoot);
-    aggregateRoot = _newRoot;
+    require(block.number > aggregateRootPendingBlock + delayBlocks, "!delayBlocks");
+    aggregateRootCurrent = aggregateRootPending;
+    aggregateRootPending = _newRoot;
+    aggregateRootPendingBlock = block.number;
+    emit AggregateRootsUpdated(aggregateRootCurrent, aggregateRootPending);
   }
 
   /**

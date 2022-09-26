@@ -1,5 +1,5 @@
 [
-  "constructor(address)",
+  "constructor(address,address)",
   "error ProposedOwnable__acceptProposedOwner_delayNotElapsed()",
   "error ProposedOwnable__onlyOwner_notOwner()",
   "error ProposedOwnable__onlyProposed_notProposedOwner()",
@@ -14,12 +14,10 @@
   "event OwnershipTransferred(address indexed,address indexed)",
   "event RootAggregated(uint32,bytes32,uint256)",
   "event RootPropagated(bytes32,uint32[])",
-  "event WatcherAdded(address)",
-  "event WatcherRemoved(address)",
+  "event WatcherManagerChanged(address)",
   "function MERKLE() view returns (address)",
   "function acceptProposedOwner()",
   "function addConnector(uint32,address)",
-  "function addWatcher(address)",
   "function aggregate(uint32,bytes32)",
   "function connectors(uint32) view returns (address)",
   "function delay() view returns (uint256)",
@@ -30,8 +28,7 @@
   "function proposed() view returns (address)",
   "function proposedTimestamp() view returns (uint256)",
   "function removeConnector(uint32)",
-  "function removeWatcher(address)",
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
-  "function watchers(address) view returns (bool)"
+  "function setWatcherManager(address)"
 ]

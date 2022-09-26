@@ -10,3 +10,5 @@ export type { connectors };
 import type * as interfaces from "./interfaces";
 export type { interfaces };
 export type { RootManager } from "./RootManager";
+export type { WatcherClient } from "./WatcherClient";
+export type { WatcherManager } from "./WatcherManager";

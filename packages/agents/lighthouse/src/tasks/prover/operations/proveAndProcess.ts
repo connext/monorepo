@@ -35,11 +35,26 @@ export const processMessage = async (message: XMessage) => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("processUnprocessedMessage");
 
+  const proof = {
+    message: message.origin.message, // Message bytes.
+    // TODO: Get real path from utility.
+    path: Array(32).fill(constants.HashZero) as string[], // bytes32[32] proof path.
+    index: message.origin.index, // Index of message leaf node.
+  };
+
+  // TODO: Proof path for proving inclusion of outboundRoot in aggregateRoot.
+  // Will need to get the currentAggregateRoot from on-chain state (or pending, if the validation period
+  // has elapsed!) to determine which tree snapshot we should be generating the proof from.
+  const aggregatorProof = Array(32).fill(constants.HashZero) as string[];
+  // TODO: Index of outboundRoot leaf node in aggregate tree.
+  const aggregatorIndex = 0;
+
   const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
-    message.origin.message,
-    Array(32).fill(constants.HashZero) as string[],
-    message.origin.index,
+    [proof],
+    aggregatorProof,
+    aggregatorIndex,
   ]);
+
   const destinationSpokeConnector = config.chains[message.destinationDomain]?.deployments.spokeConnector;
   if (!destinationSpokeConnector) {
     throw new NoDestinationDomainForProof(message.destinationDomain);

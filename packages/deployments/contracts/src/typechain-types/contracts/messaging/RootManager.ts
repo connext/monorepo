@@ -32,7 +32,6 @@ export interface RootManagerInterface extends utils.Interface {
     "MERKLE()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "addConnector(uint32,address)": FunctionFragment;
-    "addWatcher(address)": FunctionFragment;
     "aggregate(uint32,bytes32)": FunctionFragment;
     "connectors(uint32)": FunctionFragment;
     "delay()": FunctionFragment;
@@ -43,10 +42,9 @@ export interface RootManagerInterface extends utils.Interface {
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "removeConnector(uint32)": FunctionFragment;
-    "removeWatcher(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "watchers(address)": FunctionFragment;
+    "setWatcherManager(address)": FunctionFragment;
   };
 
   getFunction(
@@ -54,7 +52,6 @@ export interface RootManagerInterface extends utils.Interface {
       | "MERKLE"
       | "acceptProposedOwner"
       | "addConnector"
-      | "addWatcher"
       | "aggregate"
       | "connectors"
       | "delay"
@@ -65,10 +62,9 @@ export interface RootManagerInterface extends utils.Interface {
       | "proposed"
       | "proposedTimestamp"
       | "removeConnector"
-      | "removeWatcher"
       | "renounceOwnership"
       | "renounced"
-      | "watchers"
+      | "setWatcherManager"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "MERKLE", values?: undefined): string;
@@ -79,10 +75,6 @@ export interface RootManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "addConnector",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addWatcher",
-    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "aggregate",
@@ -113,16 +105,12 @@ export interface RootManagerInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeWatcher",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "watchers",
+    functionFragment: "setWatcherManager",
     values: [PromiseOrValue<string>]
   ): string;
 
@@ -135,7 +123,6 @@ export interface RootManagerInterface extends utils.Interface {
     functionFragment: "addConnector",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "addWatcher", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "aggregate", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "connectors", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
@@ -156,15 +143,14 @@ export interface RootManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "removeWatcher",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "watchers", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setWatcherManager",
+    data: BytesLike
+  ): Result;
 
   events: {
     "ConnectorAdded(uint32,address)": EventFragment;
@@ -173,8 +159,7 @@ export interface RootManagerInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "RootAggregated(uint32,bytes32,uint256)": EventFragment;
     "RootPropagated(bytes32,uint32[])": EventFragment;
-    "WatcherAdded(address)": EventFragment;
-    "WatcherRemoved(address)": EventFragment;
+    "WatcherManagerChanged(address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "ConnectorAdded"): EventFragment;
@@ -183,8 +168,7 @@ export interface RootManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootAggregated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootPropagated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "WatcherAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "WatcherRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "WatcherManagerChanged"): EventFragment;
 }
 
 export interface ConnectorAddedEventObject {
@@ -256,22 +240,16 @@ export type RootPropagatedEvent = TypedEvent<
 
 export type RootPropagatedEventFilter = TypedEventFilter<RootPropagatedEvent>;
 
-export interface WatcherAddedEventObject {
-  watcher: string;
+export interface WatcherManagerChangedEventObject {
+  watcherManager: string;
 }
-export type WatcherAddedEvent = TypedEvent<[string], WatcherAddedEventObject>;
-
-export type WatcherAddedEventFilter = TypedEventFilter<WatcherAddedEvent>;
-
-export interface WatcherRemovedEventObject {
-  watcher: string;
-}
-export type WatcherRemovedEvent = TypedEvent<
+export type WatcherManagerChangedEvent = TypedEvent<
   [string],
-  WatcherRemovedEventObject
+  WatcherManagerChangedEventObject
 >;
 
-export type WatcherRemovedEventFilter = TypedEventFilter<WatcherRemovedEvent>;
+export type WatcherManagerChangedEventFilter =
+  TypedEventFilter<WatcherManagerChangedEvent>;
 
 export interface RootManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -309,11 +287,6 @@ export interface RootManager extends BaseContract {
     addConnector(
       _domain: PromiseOrValue<BigNumberish>,
       _connector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    addWatcher(
-      _watcher: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -355,21 +328,16 @@ export interface RootManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    removeWatcher(
-      _watcher: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
-    watchers(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    setWatcherManager(
+      _watcherManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   MERKLE(overrides?: CallOverrides): Promise<string>;
@@ -381,11 +349,6 @@ export interface RootManager extends BaseContract {
   addConnector(
     _domain: PromiseOrValue<BigNumberish>,
     _connector: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  addWatcher(
-    _watcher: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -427,21 +390,16 @@ export interface RootManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  removeWatcher(
-    _watcher: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   renounceOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
-  watchers(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  setWatcherManager(
+    _watcherManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
     MERKLE(overrides?: CallOverrides): Promise<string>;
@@ -451,11 +409,6 @@ export interface RootManager extends BaseContract {
     addConnector(
       _domain: PromiseOrValue<BigNumberish>,
       _connector: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    addWatcher(
-      _watcher: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -495,19 +448,14 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    removeWatcher(
-      _watcher: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
-    watchers(
-      arg0: PromiseOrValue<string>,
+    setWatcherManager(
+      _watcherManager: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<void>;
   };
 
   filters: {
@@ -559,11 +507,12 @@ export interface RootManager extends BaseContract {
     ): RootPropagatedEventFilter;
     RootPropagated(aggregate?: null, domains?: null): RootPropagatedEventFilter;
 
-    "WatcherAdded(address)"(watcher?: null): WatcherAddedEventFilter;
-    WatcherAdded(watcher?: null): WatcherAddedEventFilter;
-
-    "WatcherRemoved(address)"(watcher?: null): WatcherRemovedEventFilter;
-    WatcherRemoved(watcher?: null): WatcherRemovedEventFilter;
+    "WatcherManagerChanged(address)"(
+      watcherManager?: null
+    ): WatcherManagerChangedEventFilter;
+    WatcherManagerChanged(
+      watcherManager?: null
+    ): WatcherManagerChangedEventFilter;
   };
 
   estimateGas: {
@@ -576,11 +525,6 @@ export interface RootManager extends BaseContract {
     addConnector(
       _domain: PromiseOrValue<BigNumberish>,
       _connector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    addWatcher(
-      _watcher: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -622,20 +566,15 @@ export interface RootManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    removeWatcher(
-      _watcher: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
-    watchers(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
+    setWatcherManager(
+      _watcherManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -649,11 +588,6 @@ export interface RootManager extends BaseContract {
     addConnector(
       _domain: PromiseOrValue<BigNumberish>,
       _connector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    addWatcher(
-      _watcher: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -695,20 +629,15 @@ export interface RootManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    removeWatcher(
-      _watcher: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    watchers(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
+    setWatcherManager(
+      _watcherManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

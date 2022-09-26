@@ -17,7 +17,9 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
-    uint256 _reserveGas
+    uint256 _reserveGas,
+    uint256 _delayBlocks,
+    address _watcherManager
   )
     SpokeConnector(
       _domain,
@@ -28,7 +30,9 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
       _mirrorConnector,
       _mirrorGas,
       _processGas,
-      _reserveGas
+      _reserveGas,
+      _delayBlocks,
+      _watcherManager
     )
   {}
 

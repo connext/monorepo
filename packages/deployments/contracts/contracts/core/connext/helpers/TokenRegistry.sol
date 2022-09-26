@@ -102,9 +102,14 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
    * if the token is remote and no local representation exists, deploy the representation contract
    * @param _domain the token's native domain
    * @param _id the token's id on its native domain
+   * @param _decimals the token's decimals
    * @return _token the address of the local token contract
    */
-  function ensureLocalToken(uint32 _domain, bytes32 _id) external override returns (address _token) {
+  function ensureLocalToken(
+    uint32 _domain,
+    bytes32 _id,
+    uint8 _decimals
+  ) external override returns (address _token) {
     // IF the domain and id are empty then the _token should be address(0)
     if (_domain == 0 && _id == bytes32(0)) {
       return address(0);
@@ -113,7 +118,7 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
     if (_token == address(0)) {
       // Representation does not exist yet;
       // deploy representation contract
-      _token = _deployToken(_domain, _id);
+      _token = _deployToken(_domain, _id, _decimals);
     }
   }
 
@@ -293,14 +298,17 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
    * points to the token upgrade beacon
    * @return _token the address of the token contract
    */
-  function _deployToken(uint32 _domain, bytes32 _id) internal returns (address _token) {
+  function _deployToken(
+    uint32 _domain,
+    bytes32 _id,
+    uint8 _decimals
+  ) internal returns (address _token) {
     // deploy and initialize the token contract
     _token = address(new UpgradeBeaconProxy(tokenBeacon, ""));
-    // initialize the token separately from the
-    IBridgeToken(_token).initialize();
     // set the default token name & symbol
     (string memory _name, string memory _symbol) = _defaultDetails(_domain, _id);
-    IBridgeToken(_token).setDetails(_name, _symbol, 18);
+    // initialize the token with decimals and default name
+    IBridgeToken(_token).initialize(_decimals, _name, _symbol);
     // transfer ownership to bridgeRouter
     IBridgeToken(_token).transferOwnership(owner());
     // store token in mappings

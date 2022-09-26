@@ -9,7 +9,6 @@ import {MerkleTreeManager} from "../../contracts/messaging/Merkle.sol";
 import {MerkleLib} from "../../contracts/messaging/libraries/Merkle.sol";
 import {Connector} from "../../contracts/messaging/connectors/Connector.sol";
 import {SpokeConnector} from "../../contracts/messaging/connectors/SpokeConnector.sol";
-import {ISpokeConnector} from "../../contracts/messaging/interfaces/ISpokeConnector.sol";
 
 import "../utils/ConnectorHelper.sol";
 import "../utils/Mock.sol";
@@ -43,6 +42,8 @@ contract PingPong is ConnectorHelper {
   MerkleTreeManager referenceSpokeTree;
   MerkleTreeManager referenceAggregateTree;
 
+  address _watcherManager;
+
   // ============ connectors
   struct ConnectorPair {
     address spoke;
@@ -65,8 +66,10 @@ contract PingPong is ConnectorHelper {
 
   // ============ Utils ============
   function utils_deployContracts() public {
+    // deploy watcher manager
+    _watcherManager = address(new WatcherManager());
     // deploy root manager
-    _rootManager = address(new RootManager(address(0)));
+    _rootManager = address(new RootManager(address(0), _watcherManager));
     // Mock sourceconnector on l2
     _originConnectors.spoke = address(
       new MockConnector(
@@ -78,7 +81,9 @@ contract PingPong is ConnectorHelper {
         address(0), // address _mirrorConnector
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS // uint256 _reserveGas
+        RESERVE_GAS, // uint256 _reserveGas
+        0, // uint256 _delayBlocks
+        _watcherManager
       )
     );
     MockConnector(_originConnectors.spoke).setUpdatesAggregate(true);
@@ -93,7 +98,9 @@ contract PingPong is ConnectorHelper {
         _originConnectors.spoke, // address _mirrorConnector,
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS // uint256 _reserveGas
+        RESERVE_GAS, // uint256 _reserveGas
+        0, // uint256 _delayBlocks
+        _watcherManager
       )
     );
     // Mock dest connector on l2
@@ -107,7 +114,9 @@ contract PingPong is ConnectorHelper {
         address(0), // address _mirrorConnector,
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS // uint256 _reserveGas
+        RESERVE_GAS, // uint256 _reserveGas
+        0, // uint256 _delayBlocks
+        _watcherManager
       )
     );
     MockConnector(_destinationConnectors.spoke).setUpdatesAggregate(true);
@@ -122,7 +131,9 @@ contract PingPong is ConnectorHelper {
         _destinationConnectors.spoke, // address _mirrorConnector,
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS // uint256 _reserveGas
+        RESERVE_GAS, // uint256 _reserveGas
+        0, // uint256 _delayBlocks
+        _watcherManager
       )
     );
     _destinationRouter = TypeCasts.addressToBytes32(address(new MockRelayerFeeRouter()));
@@ -257,7 +268,7 @@ contract PingPong is ConnectorHelper {
     assertEq(MockConnector(connector).lastReceived(), keccak256(abi.encode(aggregateRoot)));
 
     // Aggregate root should be updated.
-    assertEq(SpokeConnector(connector).aggregateRoot(), aggregateRoot);
+    assertEq(SpokeConnector(connector).aggregateRootCurrent(), aggregateRoot);
   }
 
   // Get the proof/path for a given message in the reference spoke tree.
@@ -312,8 +323,8 @@ contract PingPong is ConnectorHelper {
     bytes32[32] memory messageProof = MerkleLib.zeroHashes();
     bytes32[32] memory aggregateProof = MerkleLib.zeroHashes();
 
-    ISpokeConnector.Proof[] memory proofs = new ISpokeConnector.Proof[](1);
-    proofs[0] = ISpokeConnector.Proof(message, messageProof, 0);
+    SpokeConnector.Proof[] memory proofs = new SpokeConnector.Proof[](1);
+    proofs[0] = SpokeConnector.Proof(message, messageProof, 0);
     SpokeConnector(_destinationConnectors.spoke).proveAndProcess(proofs, aggregateProof, 0);
 
     // assertEq(uint256(SpokeConnector(_destinationConnectors.spoke).messages(keccak256(message))), 2);

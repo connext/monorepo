@@ -191,3 +191,67 @@ Content-Type: application/json
   "canonicalDomain": "1735353714",
   "canonicalId": "0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6"
 }
+
+##############
+### POST getTransfersByUser 
+POST {{baseUrl}}/getTransfersByUser
+Content-Type: application/json
+
+{
+  "params": {
+    "userAddress": "{{yourAddress}}"
+  }
+}
+
+##############
+### POST getTransfersByStatus 
+POST {{baseUrl}}/getTransfersByStatus
+Content-Type: application/json
+
+{
+  "params": {
+    "status": "XCalled"
+  }
+}
+
+##############
+### POST getTransfersByRouter 
+POST {{baseUrl}}/getTransfersByRouter
+Content-Type: application/json
+
+{
+  "params": {
+    "routerAddress": "0xd2ad711861ab345977b7379c81165708c8717ff1"
+  }
+}
+
+##############
+### POST getTransferById
+POST {{baseUrl}}/getTransferById
+Content-Type: application/json
+
+{
+  "transferId": "0x6a0f389957407ee08acd911577cee33c608ba02b5c6879400bf66a98a6c86d82"
+}
+
+##############
+### POST getTransferByTransactionHash
+POST {{baseUrl}}/getTransferByTransactionHash
+Content-Type: application/json
+
+{
+  "transactionHash": "0xb51cd9fbd5939ebf51b49970d2b2766738a7cc3fdb698c947d95751efb32caee"
+}
+
+##############
+### POST getTransfers
+POST {{baseUrl}}/getTransfers
+Content-Type: application/json
+
+{
+  "params": {}
+}
+
+##############
+### GET getRoutersData
+GET {{baseUrl}}/getRoutersData

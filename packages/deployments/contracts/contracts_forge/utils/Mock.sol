@@ -302,7 +302,11 @@ contract MockTokenRegistry is ITokenRegistry {
     return true;
   }
 
-  function ensureLocalToken(uint32 _domain, bytes32 _id) external pure returns (address _local) {
+  function ensureLocalToken(
+    uint32 _domain,
+    bytes32 _id,
+    uint8 _decimals
+  ) external pure returns (address _local) {
     return address(42);
   }
 
@@ -391,7 +395,9 @@ contract MockConnector is SpokeConnector, IHubConnector {
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
-    uint256 _reserveGas
+    uint256 _reserveGas,
+    uint256 _delayBlocks,
+    address _watcherManager
   )
     ProposedOwnable()
     SpokeConnector(
@@ -403,7 +409,9 @@ contract MockConnector is SpokeConnector, IHubConnector {
       _mirrorConnector,
       _mirrorGas,
       _processGas,
-      _reserveGas
+      _reserveGas,
+      _delayBlocks,
+      _watcherManager
     )
   {
     _setOwner(msg.sender);
@@ -432,7 +440,8 @@ contract MockConnector is SpokeConnector, IHubConnector {
     lastReceived = keccak256(_data);
     if (updatesAggregate) {
       // FIXME: when using this.update it sets caller to address(this) not AMB
-      aggregateRoot = bytes32(_data);
+      aggregateRootCurrent = bytes32(_data);
+      aggregateRootPending = bytes32(_data);
     } else {
       RootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
     }

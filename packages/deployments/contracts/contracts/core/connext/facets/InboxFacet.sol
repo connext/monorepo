@@ -235,7 +235,7 @@ contract InboxFacet is BaseConnextFacet {
     // Get the token contract for the given tokenId on this chain.
     // NOTE: If the token is of remote origin and there is no existing representation token contract,
     // the TokenRegistry will deploy a new contract!
-    address _token = s.tokenRegistry.ensureLocalToken(_tokenId.domain(), _tokenId.id());
+    address _token = s.tokenRegistry.ensureLocalToken(_tokenId.domain(), _tokenId.id(), _action.decimals());
 
     // Load amount once.
     uint256 _amount = _action.amnt();

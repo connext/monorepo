@@ -26,7 +26,7 @@ import type {
 export interface ITokenRegistryInterface extends utils.Interface {
   functions: {
     "enrollCustom(uint32,bytes32,address)": FunctionFragment;
-    "ensureLocalToken(uint32,bytes32)": FunctionFragment;
+    "ensureLocalToken(uint32,bytes32,uint8)": FunctionFragment;
     "getLocalAddress(uint32,bytes32)": FunctionFragment;
     "getTokenId(address)": FunctionFragment;
     "isLocalOrigin(address)": FunctionFragment;
@@ -55,7 +55,11 @@ export interface ITokenRegistryInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "ensureLocalToken",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "getLocalAddress",
@@ -144,6 +148,7 @@ export interface ITokenRegistry extends BaseContract {
     ensureLocalToken(
       _domain: PromiseOrValue<BigNumberish>,
       _id: PromiseOrValue<BytesLike>,
+      _decimals: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -185,6 +190,7 @@ export interface ITokenRegistry extends BaseContract {
   ensureLocalToken(
     _domain: PromiseOrValue<BigNumberish>,
     _id: PromiseOrValue<BytesLike>,
+    _decimals: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -226,6 +232,7 @@ export interface ITokenRegistry extends BaseContract {
     ensureLocalToken(
       _domain: PromiseOrValue<BigNumberish>,
       _id: PromiseOrValue<BytesLike>,
+      _decimals: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -270,6 +277,7 @@ export interface ITokenRegistry extends BaseContract {
     ensureLocalToken(
       _domain: PromiseOrValue<BigNumberish>,
       _id: PromiseOrValue<BytesLike>,
+      _decimals: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -312,6 +320,7 @@ export interface ITokenRegistry extends BaseContract {
     ensureLocalToken(
       _domain: PromiseOrValue<BigNumberish>,
       _id: PromiseOrValue<BytesLike>,
+      _decimals: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
