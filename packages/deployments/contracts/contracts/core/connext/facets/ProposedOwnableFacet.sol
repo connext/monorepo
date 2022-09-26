@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
+import {Role} from "../libraries/LibConnextStorage.sol";
 import {IProposedOwnable} from "../../../shared/interfaces/IProposedOwnable.sol";
 
 /**
@@ -42,9 +43,9 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   error ProposedOwnableFacet__renounceOwnership_invalidProposal();
   error ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
   error ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed();
-  error ProposedOwnableFacet__assignRouterRole_alreadyAdded();
-  error ProposedOwnableFacet__assignWatcherRole_alreadyAdded();
-  error ProposedOwnableFacet__assignAdminRole_alreadyAdded();
+  error ProposedOwnableFacet__assignRoleRouter_alreadyAdded();
+  error ProposedOwnableFacet__assignRoleWatcher_alreadyAdded();
+  error ProposedOwnableFacet__assignRoleAdmin_alreadyAdded();
 
   // ============ Events ============
 
@@ -122,6 +123,15 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    */
   function delay() public view returns (uint256) {
     return s._ownershipDelay;
+  }
+
+  /**
+   * @notice Returns the Role of the address
+   * @dev returns uint value of representing enum value of Role
+   * @param _role The address for which Role need to be queried
+   */
+  function queryRole(address _role) public view returns (Role) {
+    return s.roles[_role];
   }
 
   // ============ External ============
@@ -255,51 +265,52 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   }
 
   /**
-   * @notice Use to add address for router role
-   * Address with routerRole has permission to add new router & routerRole
-   * Can only be called by Owner or RouterRole
-   * @dev requested address will be whitelisted under routerRole mapping
-   * @param _routerRole - The address to be added for router role
+   * @notice Use to assign an address Router role
+   * Address with Router has permission to add new router
+   * and assign addresses as Role.Router
+   * Can only be called by Owner or Role.Router
+   * @dev requested address will be whitelisted as Role.Router under roles mapping
+   * @param _router - The address to be assigned as Role.Router under roles
    */
-  function assignRouterRole(address _routerRole) public onlyOwnerOrRouter {
+  function assignRoleRouter(address _router) public onlyOwnerOrRouter {
     // Use contract as source of truth
     // Will fail if candidate is already added
-    if (s.routerRole[_routerRole]) revert ProposedOwnableFacet__assignRouterRole_alreadyAdded();
+    if (s.roles[_router] == Role.Router) revert ProposedOwnableFacet__assignRoleRouter_alreadyAdded();
 
-    s.routerRole[_routerRole] = true;
-    emit AssignRouterRole(_routerRole);
+    s.roles[_router] = Role.Router;
+    emit AssignRouterRole(_router);
   }
 
   /**
-   * @notice Use to add address for watcher role
-   * Address with watcher role has permission to pause
-   * Can only be called by Owner or Admin
-   * @dev requested address will be whitelisted under watcherRole mapping
-   * @param _watcherRole - The address to be added for watcher role
+   * @notice Use to assign an address Watcher role
+   * Address with Watcher role has permission to pause
+   * Can only be called by Owner or Role.Admin
+   * @dev requested address will be whitelisted as Role.Watcher under roles mapping
+   * @param _watcher - The address to be assigned as Role.Watcher under roles
    */
-  function assignWatcherRole(address _watcherRole) public onlyOwnerOrAdmin {
+  function assignRoleWatcher(address _watcher) public onlyOwnerOrAdmin {
     // Use contract as source of truth
     // Will fail if candidate is already added
-    if (s.watcherRole[_watcherRole]) revert ProposedOwnableFacet__assignWatcherRole_alreadyAdded();
+    if (s.roles[_watcher] == Role.Watcher) revert ProposedOwnableFacet__assignRoleWatcher_alreadyAdded();
 
-    s.watcherRole[_watcherRole] = true;
-    emit AssignWatcherRole(_watcherRole);
+    s.roles[_watcher] = Role.Watcher;
+    emit AssignWatcherRole(_watcher);
   }
 
   /**
-   * @notice Use to add address for watcher role
-   * Address with admin role has permission to all else of router & watcher role
-   * Can only be called by Owner or Admin
-   * @dev requested address will be whitelisted under watcherRole mapping
-   * @param _adminRole - The address to be added for admin role
+   * @notice Use to assign an address Admin role
+   * Address with Admin role has permission to all else of Router & Watcher role
+   * Can only be called by Owner or Role.Admin
+   * @dev requested address will be whitelisted as Role.Admin under roles mapping
+   * @param _admin - The address to beassigned as Role.Admin under roles
    */
-  function assignAdminRole(address _adminRole) public onlyOwnerOrAdmin {
+  function assignRoleAdmin(address _admin) public onlyOwnerOrAdmin {
     // Use contract as source of truth
     // Will fail if candidate is already added
-    if (s.adminRole[_adminRole]) revert ProposedOwnableFacet__assignAdminRole_alreadyAdded();
+    if (s.roles[_admin] == Role.Admin) revert ProposedOwnableFacet__assignRoleAdmin_alreadyAdded();
 
-    s.adminRole[_adminRole] = true;
-    emit AssignAdminRole(_adminRole);
+    s.roles[_admin] = Role.Admin;
+    emit AssignAdminRole(_admin);
   }
 
   function pause() public onlyOwnerOrWatcher {
