@@ -137,8 +137,8 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // ============ Admin methods ==============
 
-  function test_RoutersFacet__setupRouter_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+  function test_RoutersFacet__setupRouter_failsIfNotOwnerOrRouter() public {
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter.selector);
     vm.prank(address(123456123));
     this.setupRouter(address(0), _routerOwner0, _routerRecipient0);
   }
@@ -240,8 +240,8 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     assertEq(s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0], false);
   }
 
-  function test_RoutersFacet__removeRouter_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+  function test_RoutersFacet__removeRouter_failsIfNotOwnerOrAdmin() public {
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     vm.prank(address(123456123));
     this.removeRouter(address(0));
   }
