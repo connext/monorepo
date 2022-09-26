@@ -68,33 +68,24 @@ export class SparseMerkleTree {
     return 2 ** this.height / 2;
   }
 
-  // TODO: Is this right? Or do we have to add the two values together?
   // Hash function used.
   private hash = (a: string, b: string) => {
-    // TODO: Buffer not working: seems to get different values than what we get on-chain?
-    // const x = Buffer.alloc(64);
-    // x.fill(a, 0, 32);
-    // x.fill(b, 32, 64);
-    // return utils.solidityKeccak256(["bytes"], [x]);
     return utils.solidityKeccak256(["bytes32", "bytes32"], [a, b]);
   };
 
-  constructor(private db: DBImpl, private height: number = 32) {}
+  constructor(private db: DBImpl, private height: number = 32, private _debugLog = false) {}
 
   // Get the tree's current root.
   public async getRoot(): Promise<string> {
     // TODO: Naive and brute-force implementation: just grabs all nodes to calculate root
     // without using any caching... implement caching of subtrees and recursively try
-    // to grab subtrees here to leverage that caching capability.
+    // to grab subtrees here to leverage that caching capability!
     const count = await this.db.getCount();
     const depth = await this.getStartingDepth(count);
-
-    // TODO: Get the split index: where the tree splits at this depth:
     const nodes = await this.db.getNodes(0, count);
 
-    const zeroHashes = ZERO_HASHES();
-
     // Hash our way back up to the surface using zero hashes, starting with the current active branch root.
+    const zeroHashes = ZERO_HASHES();
     let current = this.getSubtreeRoot(depth, nodes);
     for (let i = depth - 1; i >= 0; i--) {
       current = this.hash(current, zeroHashes[i]);
@@ -111,13 +102,15 @@ export class SparseMerkleTree {
   ): { calculated: string; verified: boolean } {
     // Reverse the path, as we'll be climbing *up* the proof to get the root.
     const path = this.indexToPath(index).split("").reverse().join("");
-    console.log("\n*** VERIFYING", path);
     let current = leaf;
     for (let i = 0; i < proof.length; i++) {
+      // Must be hashed in order (left node, right node).
       const isLeft = path[i] === "0";
       const args = isLeft ? [current, proof[i]] : [proof[i], current];
       current = this.hash(args[0], args[1]);
-      console.log(path[i], ": Hashed", args[0], "with", args[1], "to get", current);
+      if (this._debugLog) {
+        console.log(path[i], ": Hashed", args[0], "with", args[1], "to get", current);
+      }
     }
     return {
       calculated: current,
@@ -125,7 +118,7 @@ export class SparseMerkleTree {
     };
   }
 
-  public async getProof(index: number, _debugExpectedRoot: string): Promise<string[]> {
+  public async getProof(index: number): Promise<string[]> {
     const pathToTarget = this.indexToPath(index);
 
     // Iterating down tree for sibling nodes:
@@ -147,10 +140,12 @@ export class SparseMerkleTree {
       // Extend the path to get the sibling path at this layer.
       const siblingPath = prefix + (p === "1" ? "0" : "1");
 
-      console.log("DESCENDED TO:    ", depth);
-      console.log("FULL TARGET PATH:", pathToTarget);
-      console.log("TARGET PATH:     ", prefix + p);
-      console.log("SIBLING PATH:    ", siblingPath);
+      if (this._debugLog) {
+        console.log("DESCENDED TO:    ", depth);
+        console.log("FULL TARGET PATH:", pathToTarget);
+        console.log("TARGET PATH:     ", prefix + p);
+        console.log("SIBLING PATH:    ", siblingPath);
+      }
 
       // Extend the current prefix down the target branch.
       prefix += p;
@@ -179,18 +174,6 @@ export class SparseMerkleTree {
 
       // The sibling at this depth will be the root of that subtree.
       siblings[depth] = this.getSubtreeRoot(depth + 1, nodes);
-
-      // DEBUG::Go back up the tree to verify that what we have so far *would* get the current root.
-      // {
-      //   let current = siblings[depth];
-      //   for (let i = depth; i >= 0; i--) {
-      //     current = this.hash(current, siblings[i]);
-      //   }
-      //   console.log("root calculated with WIP proof", current);
-      //   if (current !== _debugExpectedRoot) {
-      //     throw new Error("sad, i kri : '''''''(");
-      //   }
-      // }
     }
 
     // Reverse the siblings, since hashing to get the root will go the other way.
@@ -199,70 +182,76 @@ export class SparseMerkleTree {
 
   private async getSubtreeNodes(depth: number, pathPrefix: string): Promise<string[]> {
     const layer = this.height - depth;
-    // const pathPrefix = _pathPrefix.padStart(depth - 1, "0");
 
     // Starting with the prefix path that gets us TO the subtree, build out the path for the lower and upper bound
     // nodes, then convert that to an index.
     // Lower bound will be the left-most node in the subtree, upper bound will be the right-most node in the subtree.
-    // const lowerBound = parseInt(pathPrefix + (isLeft ? "0" : "1").padEnd(layer - 1, "0"), 2);
-    // const upperBound = parseInt(pathPrefix + (isLeft ? "0" : "1").padEnd(layer - 1, "1"), 2);
     const lowerBoundPath = pathPrefix + "".padEnd(layer - 1, "0");
     const upperBoundPath = pathPrefix + "".padEnd(layer - 1, "1");
     const lowerBound = parseInt(lowerBoundPath, 2);
     const upperBound = parseInt(upperBoundPath, 2);
-    const t = 1 + upperBound - lowerBound; // Diff; add 1 because boundaries are upper and lower inclusive.
 
-    console.log(
-      "Getting subtree nodes for",
-      pathPrefix[pathPrefix.length - 1] === "0" ? "left" : "right",
-      "path at depth",
-      depth,
-      ": (",
-      lowerBound,
-      "-",
-      upperBound,
-      ") :",
-      t,
-    );
-    console.log("Sibling prefix:", pathPrefix);
-    console.log("Lower bound:   ", lowerBoundPath + "0", ";", lowerBound);
-    console.log("Upper bound:   ", upperBoundPath + "0", ";", upperBound);
+    if (this._debugLog) {
+      // Diff; add 1 because boundaries are upper and lower inclusive.
+      const t = 1 + upperBound - lowerBound;
+      console.log(
+        "Getting subtree nodes for",
+        pathPrefix[pathPrefix.length - 1] === "0" ? "left" : "right",
+        "path at depth",
+        depth,
+        ": (",
+        lowerBound,
+        "-",
+        upperBound,
+        ") :",
+        t,
+      );
+      console.log("Sibling prefix:", pathPrefix);
+      console.log("Lower bound:   ", lowerBoundPath + "0", ";", lowerBound);
+      console.log("Upper bound:   ", upperBoundPath + "0", ";", upperBound);
+    }
 
+    // Sanity check: the boundary path should be the same length as the tree height.
     if (lowerBoundPath.length + 1 !== this.height) {
       throw new Error("whut");
     }
 
-    const nodes = await this.db.getNodes(lowerBound, upperBound);
-    console.log("Found", nodes.length, "nodes in DB.");
-
-    return nodes;
+    return await this.db.getNodes(lowerBound, upperBound);
   }
 
-  // get root from (sub)array of base layer nodes
+  // Get root from (sub)array of base layer nodes
   private getSubtreeRoot(depth: number, nodes: string[]): string {
     // TODO: Check to see if we have the given subtree cached!
     // const cached = await this.db.getSubtreeRoot()
 
     let roots: string[] = [];
-    console.log("Filling in zero hash nodes at base layer.");
     for (let i = 0; i < nodes.length; i++) {
-      // Shortcut: hash the base layer nodes with 0x0.
+      // TODO: Shortcut: hash the base layer nodes with 0x0?
       // roots.push(this.hash(nodes[i], ZERO_BYTES));
+      // At the base layer, left node is the value, right node is the null node.
       roots.push(nodes[i], ZERO_BYTES);
     }
 
-    // TODO: There's probably a faster way to fill out empty subtrees...
+    // TODO: There's probably a faster way to fill out empty subtrees... i.e. using KNOWN zero hashes.
     // Determine the expected number of nodes in this subtree given the current depth.
     // At a depth of 0, this should be the whole tree (e.g. for a tree of 16-depth: 65,536 nodes).
     const expectedNodeCount = 2 ** (this.height - depth);
-    // const hashedBaseLayer = ZERO_HASH_AT_DEPTH(this.height - 2);
     roots = roots.concat(new Array(expectedNodeCount - roots.length).fill(ZERO_BYTES)); //hashedBaseLayer));
 
-    console.log("GETTING ROOT FOR SUBTREE AT DEPTH", depth, expectedNodeCount);
-    // Depth starts at (height - 1) because we've already hashed the base layer.
+    if (this._debugLog) {
+      console.log("GETTING ROOT FOR SUBTREE AT DEPTH", depth, expectedNodeCount);
+      console.log("STARTING LEAVES ( x", roots.length, "):", roots);
+    }
+
     let currentDepth = this.height; //- 1;
-    console.log("STARTING LEAVES AT DEPTH", currentDepth, "( x", roots.length, "):", roots);
     while (roots.length > 1) {
+      // Sanity check: no leftover nodes.
+      if (roots.length % 2) {
+        // If there's an odd number of nodes, something's wrong - we should have started with
+        // a square of 2 (e.g. set of numbers that are 2^n).
+        throw new Error("Leftover node was found when calculating subtree root!");
+      }
+
       // Increment depth.
       currentDepth--;
 
@@ -274,27 +263,18 @@ export class SparseMerkleTree {
         // A will be the left node index, B will be the right node index.
         const a = i * 2;
         const b = a + 1;
-        const result = this.hash(roots[a], roots[b]);
-        console.log("Hashed", a, roots[a], "with", b, roots[b], "to get", result);
-        roots[i] = result;
-      }
 
-      if (roots.length % 2) {
-        // If there's an odd number of nodes, the last one will just need to be hashed
-        // with the zero hash for this layer.
-        // roots[i] = this.hash(roots[i * 2], ZERO_HASH_AT_DEPTH(currentDepth - 1));
-        // i += 1;
-        throw new Error("nope");
+        // TODO: Check if the two roots are both the same zero hash, could skip hashing since
+        // result would be known...
+        roots[i] = this.hash(roots[a], roots[b]);
       }
 
       roots = roots.slice(0, i);
-      console.log("ROOTS AT DEPTH", currentDepth, "( x", roots.length, "):", roots);
+      if (this._debugLog) {
+        console.log("ROOTS AT DEPTH", currentDepth, "( x", roots.length, "):", roots);
+      }
     }
 
-    console.log("calculated root:", roots[0]);
-    if (!roots[0]) {
-      throw new Error("yyyyy");
-    }
     return roots[0];
     // TODO: Cache the subtree in the DB once we have solved for root.
   }
@@ -315,22 +295,22 @@ export class SparseMerkleTree {
 
 // Zero hashes indexed by layer.
 const _ZERO_HASHES = [
-  // "0x8448818bb4ae4562849e949e17ac16e0be16688e156b5cf15e098c627c0056a9",
-  // "0x93237c50ba75ee485f4c22adf2f741400bdf8d6a9cc7df7ecae576221665d735",
-  // "0x388ab20e2573d171a88108e79d820e98f26c0b84aa8b2f4aa4968dbb818ea322",
-  // "0x662ee4dd2dd7b2bc707961b1e646c4047669dcb6584f0d8d770daf5d7e7deb2e",
-  // "0x838c5655cb21c6cb83313b5a631175dff4963772cce9108188b34ac87c81c41e",
-  // "0xb8cd74046ff337f0a7bf2c8e03e10f642c1886798d71806ab1e888d9e5ee87d0",
-  // "0x0abf5ac974a1ed57f4050aa510dd9c74f508277b39d7973bb2dfccc5eeb0618d",
-  // "0xcdc72595f74c7b1043d0e1ffbab734648c838dfb0527d971b602bc216c9619ef",
-  // "0x4df84f40ae0c8229d0d6069e5c8f39a7c299677a09d367fc7b05e3bc380ee652",
-  // "0x5a9c16dc00d6ef18b7933a6f8dc65ccb55667138776f7dea101070dc8796e377",
-  // "0xf4418588ed35a2458cffeb39b93d26f18d2ab13bdce6aee58e7b99359ec2dfd9",
-  // "0xc65e9645644786b620e2dd2ad648ddfcbf4a7e5b1a3a4ecfe7f64667a3f0b7e2",
-  // "0xb46a28b6f55540f89444f63de0378e3d121be09e06cc9ded1c20e65876d36aa0",
-  // "0x5a2dce0a8a7f68bb74560f8f71837c2c2ebbcbf7fffb42ae1896f13f7c7479a0",
-  // "0xe1d3b5c807b281e4683cc6d6315cf95b9ade8641defcb32372f1c126e398ef7a",
-  // "0x2733e50f526ec2fa19a22b31e8ed50f23cd1fdf94c9154ed3a7609a2f1ff981f",
+  "0x8448818bb4ae4562849e949e17ac16e0be16688e156b5cf15e098c627c0056a9",
+  "0x93237c50ba75ee485f4c22adf2f741400bdf8d6a9cc7df7ecae576221665d735",
+  "0x388ab20e2573d171a88108e79d820e98f26c0b84aa8b2f4aa4968dbb818ea322",
+  "0x662ee4dd2dd7b2bc707961b1e646c4047669dcb6584f0d8d770daf5d7e7deb2e",
+  "0x838c5655cb21c6cb83313b5a631175dff4963772cce9108188b34ac87c81c41e",
+  "0xb8cd74046ff337f0a7bf2c8e03e10f642c1886798d71806ab1e888d9e5ee87d0",
+  "0x0abf5ac974a1ed57f4050aa510dd9c74f508277b39d7973bb2dfccc5eeb0618d",
+  "0xcdc72595f74c7b1043d0e1ffbab734648c838dfb0527d971b602bc216c9619ef",
+  "0x4df84f40ae0c8229d0d6069e5c8f39a7c299677a09d367fc7b05e3bc380ee652",
+  "0x5a9c16dc00d6ef18b7933a6f8dc65ccb55667138776f7dea101070dc8796e377",
+  "0xf4418588ed35a2458cffeb39b93d26f18d2ab13bdce6aee58e7b99359ec2dfd9",
+  "0xc65e9645644786b620e2dd2ad648ddfcbf4a7e5b1a3a4ecfe7f64667a3f0b7e2",
+  "0xb46a28b6f55540f89444f63de0378e3d121be09e06cc9ded1c20e65876d36aa0",
+  "0x5a2dce0a8a7f68bb74560f8f71837c2c2ebbcbf7fffb42ae1896f13f7c7479a0",
+  "0xe1d3b5c807b281e4683cc6d6315cf95b9ade8641defcb32372f1c126e398ef7a",
+  "0x2733e50f526ec2fa19a22b31e8ed50f23cd1fdf94c9154ed3a7609a2f1ff981f",
   "0xda7bce9f4e8618b6bd2f4132ce798cdc7a60e7e1460a7299e3c6342a579626d2",
   "0x5c67add7c6caf302256adedf7ab114da0acfe870d449a3a489f781d659e8becc",
   "0xc1df82d9c4b87413eae2ef048f94b4d3554cea73d92b0f7af96e0271c691e2bb",
