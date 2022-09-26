@@ -336,14 +336,6 @@ export const initProtocol = async (protocol: ProtocolStack) => {
             write: { method: "addSender", args: [handler.address] },
           });
         }
-        for (const handler of Object.values(hub.deployments.handlers)) {
-          await updateIfNeeded({
-            deployment: HubConnector,
-            desired: true,
-            read: { method: "whitelistedSenders", args: [handler.address] },
-            write: { method: "addSender", args: [handler.address] },
-          });
-        }
       }
     }
 
