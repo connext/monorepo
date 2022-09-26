@@ -45,6 +45,11 @@ const _abi = [
         name: "_id",
         type: "bytes32",
       },
+      {
+        internalType: "uint8",
+        name: "_decimals",
+        type: "uint8",
+      },
     ],
     name: "ensureLocalToken",
     outputs: [
