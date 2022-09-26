@@ -78,8 +78,6 @@ export type { DiamondLoupeFacet } from "./contracts/core/connext/facets/DiamondL
 export { DiamondLoupeFacet__factory } from "./factories/contracts/core/connext/facets/DiamondLoupeFacet__factory";
 export type { InboxFacet } from "./contracts/core/connext/facets/InboxFacet";
 export { InboxFacet__factory } from "./factories/contracts/core/connext/facets/InboxFacet__factory";
-export type { NomadFacet } from "./contracts/core/connext/facets/NomadFacet";
-export { NomadFacet__factory } from "./factories/contracts/core/connext/facets/NomadFacet__factory";
 export type { PortalFacet } from "./contracts/core/connext/facets/PortalFacet";
 export { PortalFacet__factory } from "./factories/contracts/core/connext/facets/PortalFacet__factory";
 export type { ProposedOwnableFacet } from "./contracts/core/connext/facets/ProposedOwnableFacet";
@@ -220,8 +218,6 @@ export type { IArbitrumOutbox } from "./contracts/messaging/interfaces/ambs/arbi
 export { IArbitrumOutbox__factory } from "./factories/contracts/messaging/interfaces/ambs/arbitrum/IArbitrumOutbox__factory";
 export type { IArbitrumRollup } from "./contracts/messaging/interfaces/ambs/arbitrum/IArbitrumRollup";
 export { IArbitrumRollup__factory } from "./factories/contracts/messaging/interfaces/ambs/arbitrum/IArbitrumRollup__factory";
-export type { ArbitrumL1Amb } from "./contracts/messaging/interfaces/ambs/ArbitrumL1Amb";
-export { ArbitrumL1Amb__factory } from "./factories/contracts/messaging/interfaces/ambs/ArbitrumL1Amb__factory";
 export type { GnosisAmb } from "./contracts/messaging/interfaces/ambs/GnosisAmb";
 export { GnosisAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/GnosisAmb__factory";
 export type { Multichain } from "./contracts/messaging/interfaces/ambs/Multichain";
@@ -264,8 +260,6 @@ export type { UpgradeBeaconController } from "./contracts/shared/upgrade/Upgrade
 export { UpgradeBeaconController__factory } from "./factories/contracts/shared/upgrade/UpgradeBeaconController__factory";
 export type { UpgradeBeaconProxy } from "./contracts/shared/upgrade/UpgradeBeaconProxy";
 export { UpgradeBeaconProxy__factory } from "./factories/contracts/shared/upgrade/UpgradeBeaconProxy__factory";
-export type { BridgeRouter } from "./contracts/test/BridgeRouter";
-export { BridgeRouter__factory } from "./factories/contracts/test/BridgeRouter__factory";
 export type { TestAavePool } from "./contracts/test/TestAavePool";
 export { TestAavePool__factory } from "./factories/contracts/test/TestAavePool__factory";
 export type { TestAggregator } from "./contracts/test/TestAggregator";

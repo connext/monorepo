@@ -104,7 +104,6 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     "setMirrorGas(uint256)": FunctionFragment;
     "stateCommitmentChain()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
-    "verifyXDomainMessage(bytes,(bytes32,(uint256,bytes32,uint256,uint256,bytes),(uint256,bytes32[]),bytes,bytes))": FunctionFragment;
   };
 
   getFunction(
@@ -130,7 +129,6 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
       | "setMirrorGas"
       | "stateCommitmentChain"
       | "verifySender"
-      | "verifyXDomainMessage"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
@@ -202,10 +200,6 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     functionFragment: "verifySender",
     values: [PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "verifyXDomainMessage",
-    values: [PromiseOrValue<BytesLike>, L2MessageInclusionProofStruct]
-  ): string;
 
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
@@ -268,10 +262,6 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "verifySender",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "verifyXDomainMessage",
     data: BytesLike
   ): Result;
 
@@ -475,12 +465,6 @@ export interface OptimismHubConnector extends BaseContract {
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    verifyXDomainMessage(
-      _xDomainCalldata: PromiseOrValue<BytesLike>,
-      _proof: L2MessageInclusionProofStruct,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
   };
 
   AMB(overrides?: CallOverrides): Promise<string>;
@@ -554,12 +538,6 @@ export interface OptimismHubConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  verifyXDomainMessage(
-    _xDomainCalldata: PromiseOrValue<BytesLike>,
-    _proof: L2MessageInclusionProofStruct,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   callStatic: {
     AMB(overrides?: CallOverrides): Promise<string>;
 
@@ -625,12 +603,6 @@ export interface OptimismHubConnector extends BaseContract {
 
     verifySender(
       _expected: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    verifyXDomainMessage(
-      _xDomainCalldata: PromiseOrValue<BytesLike>,
-      _proof: L2MessageInclusionProofStruct,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
@@ -769,12 +741,6 @@ export interface OptimismHubConnector extends BaseContract {
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    verifyXDomainMessage(
-      _xDomainCalldata: PromiseOrValue<BytesLike>,
-      _proof: L2MessageInclusionProofStruct,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -849,12 +815,6 @@ export interface OptimismHubConnector extends BaseContract {
     verifySender(
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    verifyXDomainMessage(
-      _xDomainCalldata: PromiseOrValue<BytesLike>,
-      _proof: L2MessageInclusionProofStruct,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

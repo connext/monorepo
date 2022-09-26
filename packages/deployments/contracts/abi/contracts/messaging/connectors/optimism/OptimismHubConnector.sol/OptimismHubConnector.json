@@ -35,6 +35,5 @@
   "function setMirrorConnector(address)",
   "function setMirrorGas(uint256)",
   "function stateCommitmentChain() view returns (address)",
-  "function verifySender(address) returns (bool)",
-  "function verifyXDomainMessage(bytes,tuple(bytes32,tuple(uint256,bytes32,uint256,uint256,bytes),tuple(uint256,bytes32[]),bytes,bytes)) view returns (bool)"
+  "function verifySender(address) returns (bool)"
 ]
