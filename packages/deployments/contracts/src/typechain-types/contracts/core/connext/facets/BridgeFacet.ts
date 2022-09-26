@@ -115,6 +115,7 @@ export interface BridgeFacetInterface extends utils.Interface {
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
+    "xAppConnectionManager()": FunctionFragment;
     "xcall(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
     "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
   };
@@ -138,6 +139,7 @@ export interface BridgeFacetInterface extends utils.Interface {
       | "removeSequencer"
       | "routedTransfers"
       | "setXAppConnectionManager"
+      | "xAppConnectionManager"
       | "xcall"
       | "xcallIntoLocal"
   ): FunctionFragment;
@@ -207,6 +209,10 @@ export interface BridgeFacetInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setXAppConnectionManager",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "xAppConnectionManager",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "xcall",
@@ -287,6 +293,10 @@ export interface BridgeFacetInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setXAppConnectionManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "xAppConnectionManager",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
@@ -569,6 +579,8 @@ export interface BridgeFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    xAppConnectionManager(overrides?: CallOverrides): Promise<[string]>;
+
     xcall(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
@@ -669,6 +681,8 @@ export interface BridgeFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
+
   xcall(
     _destination: PromiseOrValue<BigNumberish>,
     _to: PromiseOrValue<string>,
@@ -768,6 +782,8 @@ export interface BridgeFacet extends BaseContract {
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
 
     xcall(
       _destination: PromiseOrValue<BigNumberish>,
@@ -1004,6 +1020,8 @@ export interface BridgeFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    xAppConnectionManager(overrides?: CallOverrides): Promise<BigNumber>;
+
     xcall(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
@@ -1105,6 +1123,10 @@ export interface BridgeFacet extends BaseContract {
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    xAppConnectionManager(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     xcall(

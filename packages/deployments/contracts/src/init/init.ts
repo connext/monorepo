@@ -15,6 +15,7 @@ import {
   getValue,
 } from "./helpers";
 import { setupAsset } from "./helpers/assets";
+import { chainIdToDomain } from "../domain";
 
 /**
  * Call the core `initProtocol` method using a JSON config file provided by the local environment.
@@ -105,7 +106,8 @@ export const sanitizeAndInit = async (config: any) => {
       // Make sure chain is saved as a string.
       network.chain = chain;
       // Make sure domain is specified.
-      network.domain = await getDomainFromChainId(parseInt(chain, 10));
+      // network.domain = await getDomainFromChainId(parseInt(chain, 10));
+      network.domain = chainIdToDomain(parseInt(chain, 10)).toString();
     }
 
     // RPC provider is required.
@@ -142,6 +144,7 @@ export const sanitizeAndInit = async (config: any) => {
   /// MARK - Hub
   // Hub domain should be a domain ID and be included in the list of supported domains.
   const supportedDomains = config.networks.map((d: any) => d.domain);
+  console.log({ supportedDomains });
   if (!supportedDomains.includes(hub)) {
     const supportedChains = config.networks.map((d: any) => d.chain);
     throw new Error(
@@ -153,9 +156,11 @@ export const sanitizeAndInit = async (config: any) => {
   /// MARK - Assets
   // If assets are not specified, just set an empty array.
   const assets = config.assets ?? [];
+  console.log({ assets });
   // All domains specified in AssetStack(s) must be included in domains.
   for (const asset of assets) {
     const domains = [asset.canonical.domain].concat(Object.keys(asset.representations as { [domain: string]: any }));
+    console.log({ domains });
     for (const domain of domains) {
       if (!supportedDomains.includes(domain)) {
         throw new Error(
@@ -247,7 +252,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     const mirrorDomain = (
       await getValue<number>({
         deployment: HubConnector,
-        read: "mirrorDomain",
+        read: "MIRROR_DOMAIN",
       })
     ).toString();
 
@@ -326,14 +331,6 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         for (const handler of Object.values(spoke.deployments.handlers)) {
           await updateIfNeeded({
             deployment: SpokeConnector,
-            desired: true,
-            read: { method: "whitelistedSenders", args: [handler.address] },
-            write: { method: "addSender", args: [handler.address] },
-          });
-        }
-        for (const handler of Object.values(hub.deployments.handlers)) {
-          await updateIfNeeded({
-            deployment: HubConnector,
             desired: true,
             read: { method: "whitelistedSenders", args: [handler.address] },
             write: { method: "addSender", args: [handler.address] },

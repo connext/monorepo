@@ -165,7 +165,10 @@ const handleDeploySpoke = async (
 
   // Deploy the Connector contract for this Spoke chain.
   const contract = getConnectorName(protocol, deploymentChainId);
-  if ((!contract.includes("Optimism") && !contract.includes("Polygon")) || contract.includes("Mainnet")) {
+  if (
+    (!contract.includes("Optimism") && !contract.includes("Polygon") && !contract.includes("Gnosis")) ||
+    contract.includes("Mainnet")
+  ) {
     return;
   }
   console.log(`Deploying ${contract}...`);
