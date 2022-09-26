@@ -252,7 +252,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     const mirrorDomain = (
       await getValue<number>({
         deployment: HubConnector,
-        read: "mirrorDomain",
+        read: "MIRROR_DOMAIN",
       })
     ).toString();
 
