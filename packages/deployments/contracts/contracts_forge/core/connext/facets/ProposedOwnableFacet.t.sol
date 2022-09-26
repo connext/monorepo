@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {ProposedOwnableFacet} from "../../../../contracts/core/connext/facets/ProposedOwnableFacet.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
+import {Role} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
@@ -145,6 +146,12 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     emit AssignRouterRole(routerAgent);
     vm.prank(caller);
     this.assignRoleRouter(routerAgent);
+
+    if (this.queryRole(routerAgent) == Role.Router) {
+      assertTrue(true);
+    } else {
+      assertTrue(false);
+    }
   }
 
   function utils_assignRoleWatcher(address watcherAgent, address caller) public {
@@ -152,6 +159,12 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     emit AssignWatcherRole(watcherAgent);
     vm.prank(caller);
     this.assignRoleWatcher(watcherAgent);
+
+    if (this.queryRole(watcherAgent) == Role.Watcher) {
+      assertTrue(true);
+    } else {
+      assertTrue(false);
+    }
   }
 
   function utils_assignRoleAdmin(address adminAgent, address caller) public {
@@ -159,6 +172,12 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     emit AssignAdminRole(adminAgent);
     vm.prank(caller);
     this.assignRoleAdmin(adminAgent);
+
+    if (this.queryRole(adminAgent) == Role.Admin) {
+      assertTrue(true);
+    } else {
+      assertTrue(false);
+    }
   }
 
   // ============ owner ============
@@ -180,6 +199,9 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
   // tested in assertion functions
 
   // ============ assetWhitelistTimestamp ============
+  // tested in assertion functions
+
+  // ============ queryRole ============
   // tested in assertion functions
 
   // ============ delay ============
