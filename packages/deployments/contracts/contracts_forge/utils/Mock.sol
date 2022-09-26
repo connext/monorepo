@@ -391,6 +391,7 @@ contract MockConnector is SpokeConnector, IHubConnector {
     uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
+    uint256 _delayBlocks,
     address _watcherManager
   )
     ProposedOwnable()
@@ -403,6 +404,7 @@ contract MockConnector is SpokeConnector, IHubConnector {
       _mirrorGas,
       _processGas,
       _reserveGas,
+      _delayBlocks,
       _watcherManager
     )
   {
@@ -433,7 +435,8 @@ contract MockConnector is SpokeConnector, IHubConnector {
     lastReceived = keccak256(_data);
     if (updatesAggregate) {
       // FIXME: when using this.update it sets caller to address(this) not AMB
-      aggregateRoot = bytes32(_data);
+      aggregateRootCurrent = bytes32(_data);
+      aggregateRootPending = bytes32(_data);
     } else {
       RootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, bytes32(_data));
     }

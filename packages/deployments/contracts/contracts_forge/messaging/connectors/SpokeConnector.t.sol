@@ -45,6 +45,7 @@ contract SpokeConnectorTest is ForgeHelper {
       PROCESS_GAS, // uint256 _mirrorGas
       PROCESS_GAS, // uint256 _processGas,
       RESERVE_GAS, // uint256 _reserveGas
+      0, // uint256 _delayBlocks
       _watcherManager
     );
   }

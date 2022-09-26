@@ -81,13 +81,17 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
    * of previous trees)
    */
   bytes32 public aggregateRootCurrent;
-  uint256 public aggregateRootCurrentBlock;
 
   /**
    * @notice This is the "pending" aggregate root which is stored to allow a second root to be passing through
    * the delayBlocks window while the current root is confirmed.
    */
   bytes32 public aggregateRootPending;
+
+  /**
+   * @notice This is the block number at which the pending aggregate root was set.
+   * @dev This is used to determine when the pending aggregate root can be confirmed.
+   */
   uint256 public aggregateRootPendingBlock;
 
   /**
@@ -156,7 +160,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
-    // uint256 _delayBlocks, TODO add this later, don't want to break build
+    uint256 _delayBlocks,
     address _watcherManager
   )
     ConnectorManager()
@@ -319,7 +323,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     aggregateRootCurrent = aggregateRootPending;
     aggregateRootPending = _newRoot;
     aggregateRootPendingBlock = block.number;
-    emit AggregateRootUpdated(aggregateRootCurrent, aggregateRoot);
+    emit AggregateRootsUpdated(aggregateRootCurrent, aggregateRootPending);
   }
 
   /**

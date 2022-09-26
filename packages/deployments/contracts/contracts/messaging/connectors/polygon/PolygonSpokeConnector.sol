@@ -26,6 +26,7 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
     uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
+    uint256 _delayBlocks,
     address _watcherManager
   )
     SpokeConnector(
@@ -37,6 +38,7 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
       _mirrorGas,
       _processGas,
       _reserveGas,
+      _delayBlocks,
       _watcherManager
     )
     FxBaseChildTunnel(_amb)

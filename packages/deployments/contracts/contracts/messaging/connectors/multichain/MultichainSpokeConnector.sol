@@ -19,6 +19,7 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
     uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
+    uint256 _delayBlocks,
     uint256 _mirrorChainId,
     address _watcherManager
   )
@@ -31,6 +32,7 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
       _mirrorGas,
       _processGas,
       _reserveGas,
+      _delayBlocks,
       _watcherManager
     )
     BaseMultichain(_amb, _mirrorChainId)

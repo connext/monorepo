@@ -39,6 +39,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
         _mirrorGas,
         _processGas,
         _reserveGas,
+        0, // uint256 _delayBlocks
         _chainIdMainnet,
         address(1)
       )
@@ -93,7 +94,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     MultichainSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
 
     // Check: root is updated
-    assertEq(MultichainSpokeConnector(_l2Connector).aggregateRoot(), bytes32(_data));
+    assertEq(MultichainSpokeConnector(_l2Connector).aggregateRootPending(), bytes32(_data));
   }
 
   // msg.sender is not the bridge on L2
