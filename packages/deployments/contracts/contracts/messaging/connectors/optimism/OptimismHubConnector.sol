@@ -29,7 +29,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
   // for Connector.processMessage. At any point these messages could be processed
   // before the timeout using `processFromRoot` or after the timeout using `process`
   // we track the roots sent here to ensure we process each root once
-  mapping(bytes32 => bool) processed;
+  mapping(bytes32 => bool) public processed;
 
   // ============ Constructor ============
   constructor(
@@ -108,15 +108,15 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     // the corresponding _message is:
     // 0x4ff746f60000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002027ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757
     //
-    // instead of the expected:
-    // 0x4ff746f63237616535626130386437323931633936633863626464636331343862663438
-    //
     // this means the length check and byte parsing used in the `ArbitrumHubConnector` would
-    // not work here. Instead, process messages using the same method as the L1CrossDomainMessenger
-    // and add a length check in `processMessage`, while preventing duplicate roots from being
-    // processed. This also means we should *not* emit an event here, as it will be emitted in the
-    // `processMessage` function
-    address(this).call(_message);
+    // not work here. Instead, take the back 32 bytes of the string, regardless of the length. The length
+    // can be validated in _processMessage
+
+    // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
+    bytes29 _view = _message.ref(0);
+    bytes32 _data = _view.index(_view.len() - 32, 32);
+
+    _processMessage(abi.encode(_data));
   }
 
   /**
