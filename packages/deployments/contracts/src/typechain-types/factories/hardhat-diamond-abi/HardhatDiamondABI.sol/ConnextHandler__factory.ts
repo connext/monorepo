@@ -491,6 +491,21 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrWatcher_notOwnerOrWatcher",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BaseConnextFacet__onlyOwner_notOwner",
     type: "error",
   },
@@ -2423,6 +2438,21 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "ProposedOwnableFacet__assignRoleAdmin_alreadyAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableFacet__assignRoleRouter_alreadyAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableFacet__assignRoleWatcher_alreadyAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ProposedOwnableFacet__proposeAssetWhitelistRemoval_noOwnershipChange",
     type: "error",
   },
@@ -2510,6 +2540,45 @@ const _abi = [
       },
     ],
     name: "AssetWhitelistRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "admin",
+        type: "address",
+      },
+    ],
+    name: "AssignAdminRole",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "AssignRouterRole",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "watcher",
+        type: "address",
+      },
+    ],
+    name: "AssignWatcherRole",
     type: "event",
   },
   {
@@ -2616,6 +2685,45 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_admin",
+        type: "address",
+      },
+    ],
+    name: "assignRoleAdmin",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_router",
+        type: "address",
+      },
+    ],
+    name: "assignRoleRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_watcher",
+        type: "address",
+      },
+    ],
+    name: "assignRoleWatcher",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "delay",
     outputs: [
@@ -2696,6 +2804,25 @@ const _abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_role",
+        type: "address",
+      },
+    ],
+    name: "queryRole",
+    outputs: [
+      {
+        internalType: "enum Role",
+        name: "",
+        type: "uint8",
       },
     ],
     stateMutability: "view",

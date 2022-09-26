@@ -31,6 +31,9 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     "acceptProposedOwner()": FunctionFragment;
     "assetWhitelistRemoved()": FunctionFragment;
     "assetWhitelistTimestamp()": FunctionFragment;
+    "assignRoleAdmin(address)": FunctionFragment;
+    "assignRoleRouter(address)": FunctionFragment;
+    "assignRoleWatcher(address)": FunctionFragment;
     "delay()": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
@@ -39,6 +42,7 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     "proposeRouterWhitelistRemoval()": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
+    "queryRole(address)": FunctionFragment;
     "removeAssetWhitelist()": FunctionFragment;
     "removeRouterWhitelist()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -53,6 +57,9 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
       | "acceptProposedOwner"
       | "assetWhitelistRemoved"
       | "assetWhitelistTimestamp"
+      | "assignRoleAdmin"
+      | "assignRoleRouter"
+      | "assignRoleWatcher"
       | "delay"
       | "owner"
       | "pause"
@@ -61,6 +68,7 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
       | "proposeRouterWhitelistRemoval"
       | "proposed"
       | "proposedTimestamp"
+      | "queryRole"
       | "removeAssetWhitelist"
       | "removeRouterWhitelist"
       | "renounceOwnership"
@@ -82,6 +90,18 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     functionFragment: "assetWhitelistTimestamp",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "assignRoleAdmin",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "assignRoleRouter",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "assignRoleWatcher",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
@@ -101,6 +121,10 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "proposedTimestamp",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "queryRole",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "removeAssetWhitelist",
@@ -137,6 +161,18 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     functionFragment: "assetWhitelistTimestamp",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "assignRoleAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "assignRoleRouter",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "assignRoleWatcher",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
@@ -157,6 +193,7 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     functionFragment: "proposedTimestamp",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "queryRole", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeAssetWhitelist",
     data: BytesLike
@@ -183,6 +220,9 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
   events: {
     "AssetWhitelistRemovalProposed(uint256)": EventFragment;
     "AssetWhitelistRemoved(bool)": EventFragment;
+    "AssignAdminRole(address)": EventFragment;
+    "AssignRouterRole(address)": EventFragment;
+    "AssignWatcherRole(address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused()": EventFragment;
@@ -195,6 +235,9 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     nameOrSignatureOrTopic: "AssetWhitelistRemovalProposed"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetWhitelistRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AssignAdminRole"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AssignRouterRole"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AssignWatcherRole"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
@@ -226,6 +269,38 @@ export type AssetWhitelistRemovedEvent = TypedEvent<
 
 export type AssetWhitelistRemovedEventFilter =
   TypedEventFilter<AssetWhitelistRemovedEvent>;
+
+export interface AssignAdminRoleEventObject {
+  admin: string;
+}
+export type AssignAdminRoleEvent = TypedEvent<
+  [string],
+  AssignAdminRoleEventObject
+>;
+
+export type AssignAdminRoleEventFilter = TypedEventFilter<AssignAdminRoleEvent>;
+
+export interface AssignRouterRoleEventObject {
+  router: string;
+}
+export type AssignRouterRoleEvent = TypedEvent<
+  [string],
+  AssignRouterRoleEventObject
+>;
+
+export type AssignRouterRoleEventFilter =
+  TypedEventFilter<AssignRouterRoleEvent>;
+
+export interface AssignWatcherRoleEventObject {
+  watcher: string;
+}
+export type AssignWatcherRoleEvent = TypedEvent<
+  [string],
+  AssignWatcherRoleEventObject
+>;
+
+export type AssignWatcherRoleEventFilter =
+  TypedEventFilter<AssignWatcherRoleEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -317,6 +392,21 @@ export interface ProposedOwnableFacet extends BaseContract {
 
     assetWhitelistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    assignRoleAdmin(
+      _admin: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    assignRoleRouter(
+      _router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    assignRoleWatcher(
+      _watcher: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
@@ -341,6 +431,11 @@ export interface ProposedOwnableFacet extends BaseContract {
     proposed(overrides?: CallOverrides): Promise<[string]>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    queryRole(
+      _role: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[number]>;
 
     removeAssetWhitelist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -373,6 +468,21 @@ export interface ProposedOwnableFacet extends BaseContract {
 
   assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+  assignRoleAdmin(
+    _admin: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  assignRoleRouter(
+    _router: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  assignRoleWatcher(
+    _watcher: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
@@ -397,6 +507,11 @@ export interface ProposedOwnableFacet extends BaseContract {
   proposed(overrides?: CallOverrides): Promise<string>;
 
   proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+  queryRole(
+    _role: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<number>;
 
   removeAssetWhitelist(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -427,6 +542,21 @@ export interface ProposedOwnableFacet extends BaseContract {
 
     assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+    assignRoleAdmin(
+      _admin: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    assignRoleRouter(
+      _router: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    assignRoleWatcher(
+      _watcher: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
@@ -445,6 +575,11 @@ export interface ProposedOwnableFacet extends BaseContract {
     proposed(overrides?: CallOverrides): Promise<string>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    queryRole(
+      _role: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<number>;
 
     removeAssetWhitelist(overrides?: CallOverrides): Promise<void>;
 
@@ -473,6 +608,15 @@ export interface ProposedOwnableFacet extends BaseContract {
       renounced?: null
     ): AssetWhitelistRemovedEventFilter;
     AssetWhitelistRemoved(renounced?: null): AssetWhitelistRemovedEventFilter;
+
+    "AssignAdminRole(address)"(admin?: null): AssignAdminRoleEventFilter;
+    AssignAdminRole(admin?: null): AssignAdminRoleEventFilter;
+
+    "AssignRouterRole(address)"(router?: null): AssignRouterRoleEventFilter;
+    AssignRouterRole(router?: null): AssignRouterRoleEventFilter;
+
+    "AssignWatcherRole(address)"(watcher?: null): AssignWatcherRoleEventFilter;
+    AssignWatcherRole(watcher?: null): AssignWatcherRoleEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
@@ -518,6 +662,21 @@ export interface ProposedOwnableFacet extends BaseContract {
 
     assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+    assignRoleAdmin(
+      _admin: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    assignRoleRouter(
+      _router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    assignRoleWatcher(
+      _watcher: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -542,6 +701,11 @@ export interface ProposedOwnableFacet extends BaseContract {
     proposed(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    queryRole(
+      _role: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     removeAssetWhitelist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -579,6 +743,21 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    assignRoleAdmin(
+      _admin: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    assignRoleRouter(
+      _router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    assignRoleWatcher(
+      _watcher: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -603,6 +782,11 @@ export interface ProposedOwnableFacet extends BaseContract {
     proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    queryRole(
+      _role: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     removeAssetWhitelist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
