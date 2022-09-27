@@ -246,6 +246,10 @@ export type { QueueManager } from "./contracts/messaging/Queue.sol/QueueManager"
 export { QueueManager__factory } from "./factories/contracts/messaging/Queue.sol/QueueManager__factory";
 export type { RootManager } from "./contracts/messaging/RootManager";
 export { RootManager__factory } from "./factories/contracts/messaging/RootManager__factory";
+export type { WatcherClient } from "./contracts/messaging/WatcherClient";
+export { WatcherClient__factory } from "./factories/contracts/messaging/WatcherClient__factory";
+export type { WatcherManager } from "./contracts/messaging/WatcherManager";
+export { WatcherManager__factory } from "./factories/contracts/messaging/WatcherManager__factory";
 export type { IProposedOwnable } from "./contracts/shared/interfaces/IProposedOwnable";
 export { IProposedOwnable__factory } from "./factories/contracts/shared/interfaces/IProposedOwnable__factory";
 export type { TypedMemView } from "./contracts/shared/libraries/TypedMemView";
