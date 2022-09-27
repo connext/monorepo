@@ -139,8 +139,6 @@ export const ROOT_MESSAGE_SENT_ENTITY = `
 `;
 export const ROOT_MESSAGE_PROCESSED_ENTITY = `
       id
-      spokeDomain
-      hubDomain
       root
       caller
       transactionHash
@@ -563,9 +561,21 @@ const destinationTransfersByIdsQueryString = (
   maxBlockNumber?: number,
   status?: XTransferStatus,
 ) => {
-  return `${prefix}_destinationTransfers ( where: { transferId_in: [${transferIds}] ${
-    maxBlockNumber ? `, executedBlockNumber_lte: ${maxBlockNumber}, reconciledBlockNumber_lte: ${maxBlockNumber}` : ""
-  } ${status ? `, status: ${status}` : ""}}, orderBy: nonce, orderDirection: desc) {${DESTINATION_TRANSFER_ENTITY}}`;
+  return `
+  ${prefix}_destinationTransfers ( 
+    where: { 
+      transferId_in: [${transferIds}] 
+      ${
+        maxBlockNumber
+          ? `, executedBlockNumber_lte: ${maxBlockNumber}, reconciledBlockNumber_lte: ${maxBlockNumber}`
+          : ""
+      } 
+      ${status ? `, status: ${status}` : ""}
+    }, 
+    orderBy: nonce, 
+    orderDirection: desc) {
+      ${DESTINATION_TRANSFER_ENTITY}
+    }`;
 };
 
 export const getDestinationTransfersByIdsQuery = (prefix: string, transferIds: string[]): string => {
@@ -599,7 +609,19 @@ export const getOriginMessagesByDomainAndIndexQuery = (
   let combinedQuery = "";
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
-    combinedQuery += `${prefix}_originMessages ( first: ${param.limit}, where: { index_gte: ${param.offset}, transferId_not: null, destinationDomain_not: null}) {${ORIGIN_MESSAGE_ENTITY}} orderBy: index, orderDirection: asc`;
+    combinedQuery += `
+    ${prefix}_originMessages (
+      first: ${param.limit}, 
+      where: { 
+        index_gte: ${param.offset}, 
+        transferId_not: null, 
+        destinationDomain_not: null
+      }
+    ) {
+      ${ORIGIN_MESSAGE_ENTITY}
+    } 
+    orderBy: index, 
+    orderDirection: asc`;
   }
 
   return gql`
@@ -615,7 +637,14 @@ export const getDestinationMessagesByDomainAndLeafQuery = (params: Map<string, s
   for (const domain of params.keys()) {
     const prefix = config.sources[domain].prefix;
     const leafs = [...params.get(domain)!.map((leaf) => `"${leaf}"`)];
-    combinedQuery += `${prefix}_destinationMessages ( where: { leaf_in: [${leafs}] }) {${DESTINATION_MESSAGE_ENTITY}}`;
+    combinedQuery += `
+    ${prefix}_destinationMessages ( 
+      where: { 
+        leaf_in: [${leafs}] 
+      }
+    ) {
+      ${DESTINATION_MESSAGE_ENTITY}
+    }`;
   }
 
   return gql`
@@ -632,7 +661,15 @@ export const getSentRootMessagesByDomainAndBlockQuery = (
   let combinedQuery = "";
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
-    combinedQuery += `${prefix}_rootMessageSent ( first: ${param.limit}, where: { blockNumber_gt: ${param.offset} }) {${ROOT_MESSAGE_SENT_ENTITY}}`;
+    combinedQuery += `
+    ${prefix}_rootMessageSents (
+      first: ${param.limit}, 
+      where: { 
+        blockNumber_gt: ${param.offset} 
+      }
+    ) {
+      ${ROOT_MESSAGE_SENT_ENTITY}
+    }`;
   }
 
   return gql`
@@ -649,7 +686,15 @@ export const getProcessedRootMessagesByDomainAndBlockQuery = (
   let combinedQuery = "";
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
-    combinedQuery += `${prefix}_rootMessageProcessed ( first: ${param.limit}, where: { blockNumber_gt: ${param.offset} }) {${ROOT_MESSAGE_PROCESSED_ENTITY}}`;
+    combinedQuery += `
+    ${prefix}_rootMessageProcesseds ( 
+      first: ${param.limit}, 
+      where: { 
+        blockNumber_gt: ${param.offset} 
+      }
+    ) {
+      ${ROOT_MESSAGE_PROCESSED_ENTITY}
+    }`;
   }
 
   return gql`

@@ -282,18 +282,7 @@ export const rootMessage = (entity: any): RootMessage => {
   if (!entity) {
     throw new NxtpError("Subgraph `RootMessage` entity parser: RootMessage, entity is `undefined`.");
   }
-  for (const field of [
-    "id",
-    "spokeDomain",
-    "hubDomain",
-    "root",
-    "caller",
-    "transactionHash",
-    "timestamp",
-    "gasPrice",
-    "gasLimit",
-    "blockNumber",
-  ]) {
+  for (const field of ["id", "root", "caller", "transactionHash", "timestamp", "gasPrice", "gasLimit", "blockNumber"]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `RootMessage` entity parser: Message entity missing required field", {
         missingField: field,
