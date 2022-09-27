@@ -5,7 +5,7 @@ import {
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
 } from "@connext/nxtp-utils";
-import { Checkpoints, db, pool } from "../../adapters/database";
+import { db, pool } from "../../adapters/database";
 
 import { getContext } from "../../shared";
 
