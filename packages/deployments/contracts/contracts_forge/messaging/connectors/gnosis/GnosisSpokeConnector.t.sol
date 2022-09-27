@@ -22,7 +22,9 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
         _l1Connector,
         _mirrorGas,
         _processGas,
-        _reserveGas
+        _reserveGas,
+        0, // uint256 _delayBlocks
+        address(1) // watcher manager
       )
     );
   }

@@ -39,7 +39,7 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
         _processGas,
         _reserveGas,
         0, // uint256 _delayBlocks
-        address(1)
+        address(1) // watcher manager
       )
     );
   }
