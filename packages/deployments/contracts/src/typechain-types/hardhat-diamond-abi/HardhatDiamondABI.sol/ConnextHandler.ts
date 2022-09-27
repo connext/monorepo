@@ -248,6 +248,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "removeRouterWhitelist()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
+    "revokeRole(address)": FunctionFragment;
     "routerWhitelistRemoved()": FunctionFragment;
     "routerWhitelistTimestamp()": FunctionFragment;
     "unpause()": FunctionFragment;
@@ -375,6 +376,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "removeRouterWhitelist"
       | "renounceOwnership"
       | "renounced"
+      | "revokeRole"
       | "routerWhitelistRemoved"
       | "routerWhitelistTimestamp"
       | "unpause"
@@ -725,6 +727,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "revokeRole",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "routerWhitelistRemoved",
     values?: undefined
@@ -1246,6 +1252,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "routerWhitelistRemoved",
     data: BytesLike
@@ -1467,12 +1474,13 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "AavePortalRepayment(bytes32,address,uint256,uint256,address)": EventFragment;
     "AssetWhitelistRemovalProposed(uint256)": EventFragment;
     "AssetWhitelistRemoved(bool)": EventFragment;
-    "AssignAdminRole(address)": EventFragment;
-    "AssignRouterRole(address)": EventFragment;
-    "AssignWatcherRole(address)": EventFragment;
+    "AssignRoleAdmin(address)": EventFragment;
+    "AssignRoleRouter(address)": EventFragment;
+    "AssignRoleWatcher(address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused()": EventFragment;
+    "RevokeRole(address,uint8)": EventFragment;
     "RouterWhitelistRemovalProposed(uint256)": EventFragment;
     "RouterWhitelistRemoved(bool)": EventFragment;
     "Unpaused()": EventFragment;
@@ -1517,12 +1525,13 @@ export interface ConnextHandlerInterface extends utils.Interface {
     nameOrSignatureOrTopic: "AssetWhitelistRemovalProposed"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetWhitelistRemoved"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AssignAdminRole"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AssignRouterRole"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AssignWatcherRole"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AssignRoleAdmin"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AssignRoleRouter"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AssignRoleWatcher"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RevokeRole"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "RouterWhitelistRemovalProposed"
   ): EventFragment;
@@ -1822,37 +1831,37 @@ export type AssetWhitelistRemovedEvent = TypedEvent<
 export type AssetWhitelistRemovedEventFilter =
   TypedEventFilter<AssetWhitelistRemovedEvent>;
 
-export interface AssignAdminRoleEventObject {
+export interface AssignRoleAdminEventObject {
   admin: string;
 }
-export type AssignAdminRoleEvent = TypedEvent<
+export type AssignRoleAdminEvent = TypedEvent<
   [string],
-  AssignAdminRoleEventObject
+  AssignRoleAdminEventObject
 >;
 
-export type AssignAdminRoleEventFilter = TypedEventFilter<AssignAdminRoleEvent>;
+export type AssignRoleAdminEventFilter = TypedEventFilter<AssignRoleAdminEvent>;
 
-export interface AssignRouterRoleEventObject {
+export interface AssignRoleRouterEventObject {
   router: string;
 }
-export type AssignRouterRoleEvent = TypedEvent<
+export type AssignRoleRouterEvent = TypedEvent<
   [string],
-  AssignRouterRoleEventObject
+  AssignRoleRouterEventObject
 >;
 
-export type AssignRouterRoleEventFilter =
-  TypedEventFilter<AssignRouterRoleEvent>;
+export type AssignRoleRouterEventFilter =
+  TypedEventFilter<AssignRoleRouterEvent>;
 
-export interface AssignWatcherRoleEventObject {
+export interface AssignRoleWatcherEventObject {
   watcher: string;
 }
-export type AssignWatcherRoleEvent = TypedEvent<
+export type AssignRoleWatcherEvent = TypedEvent<
   [string],
-  AssignWatcherRoleEventObject
+  AssignRoleWatcherEventObject
 >;
 
-export type AssignWatcherRoleEventFilter =
-  TypedEventFilter<AssignWatcherRoleEvent>;
+export type AssignRoleWatcherEventFilter =
+  TypedEventFilter<AssignRoleWatcherEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -1881,6 +1890,17 @@ export interface PausedEventObject {}
 export type PausedEvent = TypedEvent<[], PausedEventObject>;
 
 export type PausedEventFilter = TypedEventFilter<PausedEvent>;
+
+export interface RevokeRoleEventObject {
+  revokedAddress: string;
+  revokedRole: number;
+}
+export type RevokeRoleEvent = TypedEvent<
+  [string, number],
+  RevokeRoleEventObject
+>;
+
+export type RevokeRoleEventFilter = TypedEventFilter<RevokeRoleEvent>;
 
 export interface RouterWhitelistRemovalProposedEventObject {
   timestamp: BigNumber;
@@ -2464,6 +2484,11 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<ContractTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
+
+    revokeRole(
+      _revoke: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     routerWhitelistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -3094,6 +3119,11 @@ export interface ConnextHandler extends BaseContract {
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
+  revokeRole(
+    _revoke: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   routerWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
 
   routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
@@ -3711,6 +3741,11 @@ export interface ConnextHandler extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
+    revokeRole(
+      _revoke: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     routerWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
 
     routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
@@ -4264,14 +4299,14 @@ export interface ConnextHandler extends BaseContract {
     ): AssetWhitelistRemovedEventFilter;
     AssetWhitelistRemoved(renounced?: null): AssetWhitelistRemovedEventFilter;
 
-    "AssignAdminRole(address)"(admin?: null): AssignAdminRoleEventFilter;
-    AssignAdminRole(admin?: null): AssignAdminRoleEventFilter;
+    "AssignRoleAdmin(address)"(admin?: null): AssignRoleAdminEventFilter;
+    AssignRoleAdmin(admin?: null): AssignRoleAdminEventFilter;
 
-    "AssignRouterRole(address)"(router?: null): AssignRouterRoleEventFilter;
-    AssignRouterRole(router?: null): AssignRouterRoleEventFilter;
+    "AssignRoleRouter(address)"(router?: null): AssignRoleRouterEventFilter;
+    AssignRoleRouter(router?: null): AssignRoleRouterEventFilter;
 
-    "AssignWatcherRole(address)"(watcher?: null): AssignWatcherRoleEventFilter;
-    AssignWatcherRole(watcher?: null): AssignWatcherRoleEventFilter;
+    "AssignRoleWatcher(address)"(watcher?: null): AssignRoleWatcherEventFilter;
+    AssignRoleWatcher(watcher?: null): AssignRoleWatcherEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
@@ -4291,6 +4326,15 @@ export interface ConnextHandler extends BaseContract {
 
     "Paused()"(): PausedEventFilter;
     Paused(): PausedEventFilter;
+
+    "RevokeRole(address,uint8)"(
+      revokedAddress?: null,
+      revokedRole?: null
+    ): RevokeRoleEventFilter;
+    RevokeRole(
+      revokedAddress?: null,
+      revokedRole?: null
+    ): RevokeRoleEventFilter;
 
     "RouterWhitelistRemovalProposed(uint256)"(
       timestamp?: null
@@ -4795,6 +4839,11 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<BigNumber>;
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
+
+    revokeRole(
+      _revoke: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     routerWhitelistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -5433,6 +5482,11 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    revokeRole(
+      _revoke: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     routerWhitelistRemoved(
       overrides?: CallOverrides

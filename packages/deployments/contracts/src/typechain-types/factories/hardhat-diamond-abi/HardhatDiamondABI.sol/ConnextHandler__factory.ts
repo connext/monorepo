@@ -2438,17 +2438,17 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__assignRoleAdmin_alreadyAdded",
+    name: "ProposedOwnableFacet__assignRoleAdmin_invalidInput",
     type: "error",
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__assignRoleRouter_alreadyAdded",
+    name: "ProposedOwnableFacet__assignRoleRouter_invalidInput",
     type: "error",
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__assignRoleWatcher_alreadyAdded",
+    name: "ProposedOwnableFacet__assignRoleWatcher_invalidInput",
     type: "error",
   },
   {
@@ -2517,6 +2517,11 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "ProposedOwnableFacet__revokeRole_invalidInput",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -2552,7 +2557,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "AssignAdminRole",
+    name: "AssignRoleAdmin",
     type: "event",
   },
   {
@@ -2565,7 +2570,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "AssignRouterRole",
+    name: "AssignRoleRouter",
     type: "event",
   },
   {
@@ -2578,7 +2583,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "AssignWatcherRole",
+    name: "AssignRoleWatcher",
     type: "event",
   },
   {
@@ -2617,6 +2622,25 @@ const _abi = [
     anonymous: false,
     inputs: [],
     name: "Paused",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "revokedAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "enum Role",
+        name: "revokedRole",
+        type: "uint8",
+      },
+    ],
+    name: "RevokeRole",
     type: "event",
   },
   {
@@ -2860,6 +2884,19 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_revoke",
+        type: "address",
+      },
+    ],
+    name: "revokeRole",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
