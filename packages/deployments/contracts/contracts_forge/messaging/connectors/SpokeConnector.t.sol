@@ -5,6 +5,7 @@ import "../../utils/ForgeHelper.sol";
 import {MockConnector} from "../../utils/Mock.sol";
 import {SpokeConnector} from "../../../contracts/messaging/connectors/SpokeConnector.sol";
 import {WatcherManager} from "../../../contracts/messaging/WatcherManager.sol";
+import {MerkleTreeManager} from "../../../contracts/messaging/Merkle.sol";
 import {Message} from "../../../contracts/messaging/libraries/Message.sol";
 
 contract SpokeConnectorTest is ForgeHelper {
@@ -24,6 +25,7 @@ contract SpokeConnectorTest is ForgeHelper {
   address _originMainnetAMB = address(123123);
   address _rootManager = address(121212);
   address _watcherManager = address(new WatcherManager());
+  address _merkle = address(new MerkleTreeManager());
 
   uint256 PROCESS_GAS = 850_000;
   uint256 RESERVE_GAS = 15_000;
@@ -41,6 +43,7 @@ contract SpokeConnectorTest is ForgeHelper {
       _mainnetDomain, // uint32 _mirrorDomain
       _originAMB, // address _amb,
       _rootManager, // address _rootManager,
+      _merkle, // address _merkle
       address(0), // address _mirrorConnector
       PROCESS_GAS, // uint256 _mirrorGas
       PROCESS_GAS, // uint256 _processGas,
@@ -87,6 +90,8 @@ contract SpokeConnectorTest is ForgeHelper {
       body
     );
     vm.expectRevert("!unpaused");
-    spokeConnector.proveAndProcess(message, proof, 0);
+    SpokeConnector.Proof[] memory proofs = new SpokeConnector.Proof[](1);
+    proofs[0] = SpokeConnector.Proof(message, proof, 0);
+    spokeConnector.proveAndProcess(proofs, proof, 0);
   }
 }

@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {GnosisSpokeConnector} from "../../../../contracts/messaging/connectors/gnosis/GnosisSpokeConnector.sol";
 import {GnosisAmb} from "../../../../contracts/messaging/interfaces/ambs/GnosisAmb.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -12,6 +13,8 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     // Allow future contract mock
     vm.etch(_amb, new bytes(0x42));
 
+    _merkle = address(new MerkleTreeManager());
+
     _l1Connector = address(123123);
     _l2Connector = address(
       new GnosisSpokeConnector(
@@ -19,6 +22,7 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
         _l1Domain,
         _amb,
         _rootManager,
+        _merkle,
         _l1Connector,
         _mirrorGas,
         _processGas,
@@ -94,6 +98,28 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
 
     // data
     bytes memory _data = abi.encodePacked(bytes32(bytes("test")));
+
+    uint256 chainId = 1337;
+    vm.chainId(chainId);
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
+
+    // Resize fuzzed bytes to 32 bytes long
+    bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
+    vm.expectEmit(true, true, true, true);
+    emit MessageProcessed(_dataCorrectSize, _amb);
+
+    vm.prank(_amb);
+    GnosisSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
+
+    // Check: root is updated
+    assertEq(GnosisSpokeConnector(_l2Connector).aggregateRootPending(), bytes32(_data));
+  }
+
+  function test_GnosisSpokeConnector__processMessage_shouldUpdateAggregateRoot_fuzz(bytes32 data) public {
+    utils_setSpokeConnectorVerifyMocks(_l1Connector);
+
+    // data
+    bytes memory _data = abi.encodePacked(data);
 
     uint256 chainId = 1337;
     vm.chainId(chainId);
