@@ -143,7 +143,7 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
 
   function utils_assignRoleRouter(address routerAgent, address caller) public {
     vm.expectEmit(true, true, true, true);
-    emit AssignRouterRole(routerAgent);
+    emit AssignRoleRouter(routerAgent);
     vm.prank(caller);
     this.assignRoleRouter(routerAgent);
 
@@ -156,7 +156,7 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
 
   function utils_assignRoleWatcher(address watcherAgent, address caller) public {
     vm.expectEmit(true, true, true, true);
-    emit AssignWatcherRole(watcherAgent);
+    emit AssignRoleWatcher(watcherAgent);
     vm.prank(caller);
     this.assignRoleWatcher(watcherAgent);
 
@@ -169,7 +169,7 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
 
   function utils_assignRoleAdmin(address adminAgent, address caller) public {
     vm.expectEmit(true, true, true, true);
-    emit AssignAdminRole(adminAgent);
+    emit AssignRoleAdmin(adminAgent);
     vm.prank(caller);
     this.assignRoleAdmin(adminAgent);
 
@@ -459,30 +459,34 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
   }
 
   // ============ assignRoleRouter ============
-  function test_ProposedOwnableFacet__assignRoleRouter_failsIfNotOwnerOrRouter() public {
+  function test_ProposedOwnableFacet__assignRoleRouter_failsIfNotOwnerOrAdmin() public {
     vm.prank(_routerAgent2);
-    vm.expectRevert(BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter.selector);
+    vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     this.assignRoleRouter(_routerAgent1);
   }
 
   function test_ProposedOwnableFacet__assignRoleRouter_failsIfAlreadyAdded() public {
-    vm.prank(_owner);
-    this.assignRoleRouter(_routerAgent1);
-    // assign routerAgent1 for router role
+    utils_assignRoleRouter(_routerAgent1, _owner);
 
     vm.prank(_owner);
-    vm.expectRevert(ProposedOwnableFacet__assignRoleRouter_alreadyAdded.selector);
+    vm.expectRevert(ProposedOwnableFacet__assignRoleRouter_invalidInput.selector);
     this.assignRoleRouter(_routerAgent1);
+  }
+
+  function test_ProposedOwnableFacet__assignRoleRouter_failsIfInputAddressZero() public {
+    vm.prank(_owner);
+    vm.expectRevert(ProposedOwnableFacet__assignRoleRouter_invalidInput.selector);
+    this.assignRoleRouter(address(0));
   }
 
   function test_ProposedOwnableFacet__assignRoleRouter_worksIfCallerIsOwner() public {
     utils_assignRoleRouter(_routerAgent1, _owner);
   }
 
-  function test_ProposedOwnableFacet__assignRoleRouter_worksIfCallerIsRouter() public {
-    utils_assignRoleRouter(_routerAgent1, _owner);
+  function test_ProposedOwnableFacet__assignRoleRouter_worksIfCallerIsAdmin() public {
+    utils_assignRoleAdmin(_adminAgent1, _owner);
 
-    utils_assignRoleRouter(_routerAgent2, _routerAgent1);
+    utils_assignRoleRouter(_routerAgent2, _adminAgent1);
   }
 
   // ============ assignRoleWatcher ============
@@ -496,8 +500,16 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     utils_assignRoleWatcher(_watcherAgent1, _owner);
 
     vm.prank(_owner);
-    vm.expectRevert(ProposedOwnableFacet__assignRoleWatcher_alreadyAdded.selector);
+    vm.expectRevert(ProposedOwnableFacet__assignRoleWatcher_invalidInput.selector);
     this.assignRoleWatcher(_watcherAgent1);
+  }
+
+  function test_ProposedOwnableFacet__assignRoleWatcher_failsIfInputAddressZero() public {
+    utils_assignRoleWatcher(_watcherAgent1, _owner);
+
+    vm.prank(_owner);
+    vm.expectRevert(ProposedOwnableFacet__assignRoleWatcher_invalidInput.selector);
+    this.assignRoleWatcher(address(0));
   }
 
   function test_ProposedOwnableFacet__assignRoleWatcher_worksIfCallerIsOwner() public {
@@ -521,8 +533,16 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     utils_assignRoleAdmin(_adminAgent1, _owner);
 
     vm.prank(_owner);
-    vm.expectRevert(ProposedOwnableFacet__assignRoleAdmin_alreadyAdded.selector);
+    vm.expectRevert(ProposedOwnableFacet__assignRoleAdmin_invalidInput.selector);
     this.assignRoleAdmin(_adminAgent1);
+  }
+
+  function test_ProposedOwnableFacet__assignRoleAdmin_failsIfInputAddressZero() public {
+    utils_assignRoleAdmin(_adminAgent1, _owner);
+
+    vm.prank(_owner);
+    vm.expectRevert(ProposedOwnableFacet__assignRoleAdmin_invalidInput.selector);
+    this.assignRoleAdmin(address(0));
   }
 
   function test_ProposedOwnableFacet__assignRoleAdmin_worksIfCallerIsOwner() public {
