@@ -31,4 +31,5 @@ contract ConnectorHelper is ForgeHelper {
 
   address _l1Connector;
   address _l2Connector;
+  address _merkle;
 }

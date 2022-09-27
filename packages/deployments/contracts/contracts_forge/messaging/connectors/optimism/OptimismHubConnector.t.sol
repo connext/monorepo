@@ -49,7 +49,7 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     utils_setHubConnectorVerifyMocks(_sender);
 
     // call to root manager
-    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.setOutboundRoot.selector), abi.encode(true));
+    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector), abi.encode(true));
   }
 
   // ============ OptimismHubConnector.verifySender ============
@@ -229,10 +229,10 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     });
 
     // Ensure the call to root manager succeeds
-    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.setOutboundRoot.selector), abi.encode(true));
+    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector), abi.encode(true));
 
     // Check the call succeeds
-    vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.setOutboundRoot.selector, _l2Domain, _root));
+    vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector, _l2Domain, _root));
 
     OptimismHubConnector(_target).processMessageFromRoot(_target, _sender, _message, _messageNonce, _proof);
     assertTrue(OptimismHubConnector(_target).processed(_root));

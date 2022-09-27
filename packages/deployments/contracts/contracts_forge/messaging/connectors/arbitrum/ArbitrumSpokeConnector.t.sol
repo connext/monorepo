@@ -7,6 +7,7 @@ import {IArbSys as ArbitrumL2_Bridge} from "@openzeppelin/contracts/vendor/arbit
 import "@openzeppelin/contracts/crosschain/errors.sol";
 
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
 
 import {ArbitrumSpokeConnector} from "../../../../contracts/messaging/connectors/arbitrum/ArbitrumSpokeConnector.sol";
 
@@ -28,13 +29,15 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     // deploy
     _l1Connector = address(123321123);
 
+    _merkle = address(new MerkleTreeManager());
+
     _l2Connector = address(
       new ArbitrumSpokeConnector(
         _l2Domain,
         _l1Domain,
         _amb,
         _rootManager,
-        address(0),
+        _merkle,
         _l1Connector,
         _mirrorGas,
         _processGas,

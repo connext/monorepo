@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {GnosisSpokeConnector} from "../../../../contracts/messaging/connectors/gnosis/GnosisSpokeConnector.sol";
 import {GnosisAmb} from "../../../../contracts/messaging/interfaces/ambs/GnosisAmb.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -12,6 +13,8 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     // Allow future contract mock
     vm.etch(_amb, new bytes(0x42));
 
+    _merkle = address(new MerkleTreeManager());
+
     _l1Connector = address(123123);
     _l2Connector = address(
       new GnosisSpokeConnector(
@@ -19,6 +22,7 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
         _l1Domain,
         _amb,
         _rootManager,
+        _merkle,
         _l1Connector,
         _mirrorGas,
         _processGas,

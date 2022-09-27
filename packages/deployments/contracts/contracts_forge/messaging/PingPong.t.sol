@@ -6,6 +6,7 @@ import {Message} from "../../contracts/messaging/libraries/Message.sol";
 
 import {RootManager} from "../../contracts/messaging/RootManager.sol";
 import {MerkleTreeManager} from "../../contracts/messaging/Merkle.sol";
+import {WatcherManager} from "../../contracts/messaging/WatcherManager.sol";
 import {MerkleLib} from "../../contracts/messaging/libraries/Merkle.sol";
 import {Connector} from "../../contracts/messaging/connectors/Connector.sol";
 import {SpokeConnector} from "../../contracts/messaging/connectors/SpokeConnector.sol";

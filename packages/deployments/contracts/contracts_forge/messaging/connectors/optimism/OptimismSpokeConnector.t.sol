@@ -6,6 +6,7 @@ import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootMana
 
 import {OptimismSpokeConnector} from "../../../../contracts/messaging/connectors/optimism/OptimismSpokeConnector.sol";
 import {OptimismAmb} from "../../../../contracts/messaging/interfaces/ambs/optimism/OptimismAMB.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -20,6 +21,8 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
   function setUp() public {
     _l1Connector = address(123321123);
 
+    _merkle = address(new MerkleTreeManager());
+
     // deploy
     _l2Connector = address(
       new OptimismSpokeConnector(
@@ -27,6 +30,7 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
         _l1Domain,
         _amb,
         _rootManager,
+        _merkle,
         _l1Connector,
         _mirrorGas,
         _processGas,
