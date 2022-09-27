@@ -43,9 +43,10 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   error ProposedOwnableFacet__renounceOwnership_invalidProposal();
   error ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
   error ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed();
-  error ProposedOwnableFacet__assignRoleRouter_alreadyAdded();
-  error ProposedOwnableFacet__assignRoleWatcher_alreadyAdded();
-  error ProposedOwnableFacet__assignRoleAdmin_alreadyAdded();
+  error ProposedOwnableFacet__revokeRole_invalidInput();
+  error ProposedOwnableFacet__assignRoleRouter_invalidInput();
+  error ProposedOwnableFacet__assignRoleWatcher_invalidInput();
+  error ProposedOwnableFacet__assignRoleAdmin_invalidInput();
 
   // ============ Events ============
 
@@ -57,11 +58,13 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
   event AssetWhitelistRemoved(bool renounced);
 
-  event AssignRouterRole(address router);
+  event RevokeRole(address revokedAddress, Role revokedRole);
 
-  event AssignWatcherRole(address watcher);
+  event AssignRoleRouter(address router);
 
-  event AssignAdminRole(address admin);
+  event AssignRoleWatcher(address watcher);
+
+  event AssignRoleAdmin(address admin);
 
   event Paused();
 
@@ -265,52 +268,71 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   }
 
   /**
+   * @notice Use to revoke the Role of an address to None
+   * Can only be called by Owner or Role.Admin
+   * @dev input address will be assingned default value i.e Role.None under mapping roles
+   * @param _revoke - The address to be revoked from it's Role
+   */
+  function revokeRole(address _revoke) public onlyOwnerOrAdmin {
+    // Use contract as source of truth
+    // Will fail if candidate isn't assinged any Role OR input address is addressZero
+    if (s.roles[_revoke] == Role.None || _revoke == address(0)) revert ProposedOwnableFacet__revokeRole_invalidInput();
+
+    Role revokedRole = s.roles[_revoke];
+
+    s.roles[_revoke] = Role.None;
+    emit RevokeRole(_revoke, revokedRole);
+  }
+
+  /**
    * @notice Use to assign an address Router role
    * Address with Router has permission to add new router
-   * and assign addresses as Role.Router
    * Can only be called by Owner or Role.Router
-   * @dev requested address will be whitelisted as Role.Router under roles mapping
+   * @dev requested address will be whitelisted as Role.Router under mapping roles
    * @param _router - The address to be assigned as Role.Router under roles
    */
-  function assignRoleRouter(address _router) public onlyOwnerOrRouter {
+  function assignRoleRouter(address _router) public onlyOwnerOrAdmin {
     // Use contract as source of truth
-    // Will fail if candidate is already added
-    if (s.roles[_router] == Role.Router) revert ProposedOwnableFacet__assignRoleRouter_alreadyAdded();
+    // Will fail if candidate is already added OR input address is addressZero
+    if (s.roles[_router] != Role.None || _router == address(0))
+      revert ProposedOwnableFacet__assignRoleRouter_invalidInput();
 
     s.roles[_router] = Role.Router;
-    emit AssignRouterRole(_router);
+    emit AssignRoleRouter(_router);
   }
 
   /**
    * @notice Use to assign an address Watcher role
    * Address with Watcher role has permission to pause
    * Can only be called by Owner or Role.Admin
-   * @dev requested address will be whitelisted as Role.Watcher under roles mapping
+   * @dev requested address will be whitelisted as Role.Watcher under mapping roles
    * @param _watcher - The address to be assigned as Role.Watcher under roles
    */
   function assignRoleWatcher(address _watcher) public onlyOwnerOrAdmin {
     // Use contract as source of truth
-    // Will fail if candidate is already added
-    if (s.roles[_watcher] == Role.Watcher) revert ProposedOwnableFacet__assignRoleWatcher_alreadyAdded();
+    // Will fail if candidate is already added OR input address is addressZero
+    if (s.roles[_watcher] != Role.None || _watcher == address(0))
+      revert ProposedOwnableFacet__assignRoleWatcher_invalidInput();
 
     s.roles[_watcher] = Role.Watcher;
-    emit AssignWatcherRole(_watcher);
+    emit AssignRoleWatcher(_watcher);
   }
 
   /**
    * @notice Use to assign an address Admin role
    * Address with Admin role has permission to all else of Router & Watcher role
    * Can only be called by Owner or Role.Admin
-   * @dev requested address will be whitelisted as Role.Admin under roles mapping
+   * @dev requested address will be whitelisted as Role.Admin under mapping roles
    * @param _admin - The address to beassigned as Role.Admin under roles
    */
   function assignRoleAdmin(address _admin) public onlyOwnerOrAdmin {
     // Use contract as source of truth
-    // Will fail if candidate is already added
-    if (s.roles[_admin] == Role.Admin) revert ProposedOwnableFacet__assignRoleAdmin_alreadyAdded();
+    // Will fail if candidate is already added OR input address is addressZero
+    if (s.roles[_admin] != Role.None || _admin == address(0))
+      revert ProposedOwnableFacet__assignRoleAdmin_invalidInput();
 
     s.roles[_admin] = Role.Admin;
-    emit AssignAdminRole(_admin);
+    emit AssignRoleAdmin(_admin);
   }
 
   function pause() public onlyOwnerOrWatcher {
