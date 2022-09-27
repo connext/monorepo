@@ -25,6 +25,7 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
         _l1Domain,
         _amb,
         _rootManager,
+        address(0),
         _l1Connector,
         _mirrorGas,
         _processGas,
@@ -90,6 +91,26 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
 
     // get outbound data
     bytes memory _data = abi.encode(bytes32("test"));
+    uint256 stateId = 1;
+    address rootSender = _l1Connector;
+
+    // should emit an event
+    vm.expectEmit(true, true, true, true);
+    emit MessageProcessed(_data, _amb);
+
+    // make call
+    vm.prank(_amb);
+    PolygonSpokeConnector(_l2Connector).processMessageFromRoot(stateId, rootSender, _data);
+
+    // assert update
+    assertEq(bytes32(_data), PolygonSpokeConnector(_l2Connector).aggregateRootPending());
+  }
+
+  function test_PolygonSpokeConnector__processMessage_works_fuzz(bytes32 data) public {
+    PolygonSpokeConnector(_l2Connector).setFxRootTunnel(_l1Connector);
+
+    // get outbound data
+    bytes memory _data = abi.encode(data);
     uint256 stateId = 1;
     address rootSender = _l1Connector;
 

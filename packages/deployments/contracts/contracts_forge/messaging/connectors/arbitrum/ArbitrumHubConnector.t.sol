@@ -142,7 +142,7 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     MockArbitrumOutbox(_outbox).setMerkleRoot(_sendRoot);
 
     // 3. call to root manager
-    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.setOutboundRoot.selector), abi.encode(true));
+    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector), abi.encode(true));
   }
 
   function utils_setHubConnectorProcessAssertAndCall() public {
@@ -184,7 +184,7 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     );
 
     // should call root manager
-    vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.setOutboundRoot.selector, _l2Domain, _root));
+    vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector, _l2Domain, _root));
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
@@ -247,6 +247,34 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
 
     // data
     bytes memory _data = abi.encodePacked(bytes32(bytes("test")));
+
+    // should emit an event
+    vm.expectEmit(true, true, true, true);
+    emit MessageSent(_data, _rootManager);
+
+    // should call send contract transaction
+    vm.expectCall(
+      _amb,
+      abi.encodeWithSelector(
+        IArbitrumInbox.sendContractTransaction.selector,
+        _mirrorGas,
+        _defaultGasPrice,
+        _l2Connector,
+        0,
+        abi.encodeWithSelector(Connector.processMessage.selector, _data)
+      )
+    );
+
+    vm.prank(_rootManager);
+    ArbitrumHubConnector(_l1Connector).sendMessage(_data);
+  }
+
+  function test_ArbitrumHubConnector__sendMessage_works_fuzz(bytes32 data) public {
+    // setup mock
+    vm.mockCall(_amb, abi.encodeWithSelector(IArbitrumInbox.sendContractTransaction.selector), abi.encode(123));
+
+    // data
+    bytes memory _data = abi.encodePacked(data);
 
     // should emit an event
     vm.expectEmit(true, true, true, true);

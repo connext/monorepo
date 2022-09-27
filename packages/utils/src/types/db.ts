@@ -37,7 +37,6 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       ? {
           chain: transfer.origin_chain,
           messageHash: transfer.message_hash,
-          originMinOut: BigNumber.from(BigInt((transfer.origin_min_out as string) ?? "0")).toString(),
           assets: {
             transacting: {
               amount: BigNumber.from(BigInt((transfer.origin_transacting_amount as string) ?? "0")).toString(),

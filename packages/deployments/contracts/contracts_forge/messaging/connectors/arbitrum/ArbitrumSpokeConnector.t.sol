@@ -7,6 +7,7 @@ import {IArbSys as ArbitrumL2_Bridge} from "@openzeppelin/contracts/vendor/arbit
 import "@openzeppelin/contracts/crosschain/errors.sol";
 
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
 
 import {ArbitrumSpokeConnector} from "../../../../contracts/messaging/connectors/arbitrum/ArbitrumSpokeConnector.sol";
 
@@ -28,12 +29,15 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     // deploy
     _l1Connector = address(123321123);
 
+    _merkle = address(new MerkleTreeManager());
+
     _l2Connector = address(
       new ArbitrumSpokeConnector(
         _l2Domain,
         _l1Domain,
         _amb,
         _rootManager,
+        _merkle,
         _l1Connector,
         _mirrorGas,
         _processGas,
@@ -121,6 +125,24 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
 
     // get outbound data
     bytes memory _data = abi.encode(bytes32("test"));
+
+    // should emit an event
+    vm.expectEmit(true, true, true, true);
+    emit MessageProcessed(_data, _amb);
+
+    // make call
+    vm.prank(_amb);
+    ArbitrumSpokeConnector(_l2Connector).processMessage(_data);
+
+    // assert update
+    assertEq(bytes32(_data), ArbitrumSpokeConnector(_l2Connector).aggregateRootPending());
+  }
+
+  function test_ArbitrumSpokeConnector__processMessage_works_fuzz(bytes32 data) public {
+    utils_setSpokeConnectorVerifyMocks(_l1Connector, true);
+
+    // get outbound data
+    bytes memory _data = abi.encode(data);
 
     // should emit an event
     vm.expectEmit(true, true, true, true);

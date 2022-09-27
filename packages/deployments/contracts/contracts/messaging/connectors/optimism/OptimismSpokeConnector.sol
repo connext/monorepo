@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
-import {OptimismAmb} from "../../interfaces/ambs/OptimismAmb.sol";
+import {OptimismAmb} from "../../interfaces/ambs/optimism/OptimismAmb.sol";
 
 import {SpokeConnector} from "../SpokeConnector.sol";
 import {Connector} from "../Connector.sol";
@@ -16,6 +16,7 @@ contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
+    address _merkle,
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
@@ -28,6 +29,7 @@ contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
       _mirrorDomain,
       _amb,
       _rootManager,
+      _merkle,
       _mirrorConnector,
       _mirrorGas,
       _processGas,

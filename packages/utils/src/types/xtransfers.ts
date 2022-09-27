@@ -26,7 +26,6 @@ export const XTransferOriginSchema = Type.Object({
 
   // Event Data
   messageHash: Type.String(),
-  originMinOut: TIntegerString,
 
   // Assets
   assets: Type.Object({

@@ -1,4 +1,4 @@
 [
-  "function propagate()",
-  "function setOutboundRoot(uint32,bytes32)"
+  "function aggregate(uint32,bytes32)",
+  "function propagate()"
 ]
