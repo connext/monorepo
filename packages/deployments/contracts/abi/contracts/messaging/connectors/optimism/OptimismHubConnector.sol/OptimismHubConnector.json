@@ -26,6 +26,7 @@
   "function owner() view returns (address)",
   "function processMessage(bytes)",
   "function processMessageFromRoot(address,address,bytes,uint256,tuple(bytes32,tuple(uint256,bytes32,uint256,uint256,bytes),tuple(uint256,bytes32[]),bytes,bytes))",
+  "function processed(bytes32) view returns (bool)",
   "function proposeNewOwner(address)",
   "function proposed() view returns (address)",
   "function proposedTimestamp() view returns (uint256)",

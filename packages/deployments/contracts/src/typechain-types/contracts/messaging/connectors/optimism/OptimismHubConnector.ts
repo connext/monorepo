@@ -94,6 +94,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "processMessageFromRoot(address,address,bytes,uint256,(bytes32,(uint256,bytes32,uint256,uint256,bytes),(uint256,bytes32[]),bytes,bytes))": FunctionFragment;
+    "processed(bytes32)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
@@ -119,6 +120,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
       | "owner"
       | "processMessage"
       | "processMessageFromRoot"
+      | "processed"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
@@ -165,6 +167,10 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       L2MessageInclusionProofStruct
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "processed",
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
@@ -230,6 +236,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     functionFragment: "processMessageFromRoot",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "processed", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
@@ -429,6 +436,11 @@ export interface OptimismHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    processed(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -501,6 +513,11 @@ export interface OptimismHubConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  processed(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -570,6 +587,11 @@ export interface OptimismHubConnector extends BaseContract {
       _proof: L2MessageInclusionProofStruct,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    processed(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -705,6 +727,11 @@ export interface OptimismHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    processed(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -776,6 +803,11 @@ export interface OptimismHubConnector extends BaseContract {
       _messageNonce: PromiseOrValue<BigNumberish>,
       _proof: L2MessageInclusionProofStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    processed(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
