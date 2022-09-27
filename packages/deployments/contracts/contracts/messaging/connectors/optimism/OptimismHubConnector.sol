@@ -77,7 +77,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
       // set root to processed
       processed[root] = true;
       // update the root on the root manager
-      IRootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, root);
+      IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, root);
     } // otherwise root was already sent to root manager
   }
 

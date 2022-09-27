@@ -142,7 +142,7 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     MockArbitrumOutbox(_outbox).setMerkleRoot(_sendRoot);
 
     // 3. call to root manager
-    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.setOutboundRoot.selector), abi.encode(true));
+    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector), abi.encode(true));
   }
 
   function utils_setHubConnectorProcessAssertAndCall() public {
@@ -184,7 +184,7 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     );
 
     // should call root manager
-    vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.setOutboundRoot.selector, _l2Domain, _root));
+    vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector, _l2Domain, _root));
 
     // should emit an event
     vm.expectEmit(true, true, true, true);

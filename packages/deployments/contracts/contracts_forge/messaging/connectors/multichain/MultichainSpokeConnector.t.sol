@@ -35,6 +35,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
         _l1Domain,
         _amb,
         _rootManager,
+        address(0),
         _l1Connector,
         _mirrorGas,
         _processGas,

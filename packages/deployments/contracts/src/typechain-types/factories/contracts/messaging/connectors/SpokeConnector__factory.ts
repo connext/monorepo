@@ -337,6 +337,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "MERKLE",
+    outputs: [
+      {
+        internalType: "contract MerkleTreeManager",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "MIRROR_DOMAIN",
     outputs: [
       {
@@ -436,19 +449,6 @@ const _abi = [
   {
     inputs: [],
     name: "aggregateRootPendingBlock",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "count",
     outputs: [
       {
         internalType: "uint256",
@@ -717,18 +717,35 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes",
-        name: "_message",
-        type: "bytes",
+        components: [
+          {
+            internalType: "bytes",
+            name: "message",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes32[32]",
+            name: "path",
+            type: "bytes32[32]",
+          },
+          {
+            internalType: "uint256",
+            name: "index",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct SpokeConnector.Proof[]",
+        name: "_proofs",
+        type: "tuple[]",
       },
       {
         internalType: "bytes32[32]",
-        name: "_proof",
+        name: "_aggregatorPath",
         type: "bytes32[32]",
       },
       {
         internalType: "uint256",
-        name: "_index",
+        name: "_aggregatorIndex",
         type: "uint256",
       },
     ],
@@ -877,19 +894,6 @@ const _abi = [
     name: "setWatcherPaused",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "tree",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "count",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {

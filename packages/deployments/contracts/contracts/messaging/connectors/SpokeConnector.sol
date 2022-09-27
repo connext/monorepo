@@ -26,7 +26,7 @@ import {ConnectorManager} from "./ConnectorManager.sol";
  *
  * TODO: what about the queue manager? see Home.sol for context
  */
-abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManager, ReentrancyGuard, WatcherClient {
+abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, ReentrancyGuard {
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
@@ -35,6 +35,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
   using Message for bytes29;
 
   // ============ Events ============
+
   event SenderAdded(address sender);
 
   event SenderRemoved(address sender);
@@ -46,6 +47,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
   event Process(bytes32 leaf, bool success, bytes returnData);
 
   // ============ Structs ============
+
   // Status of Message:
   //   0 - None - message has not been proven or processed
   //   1 - Proven - message inclusion proof has been validated
@@ -56,7 +58,25 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     Processed
   }
 
-  // ============ Public storage ============
+  /**
+   * Struct for submitting a proof for a given message. Used in `proveAndProcess` below.
+   * @param message Bytes of message to be processed. The hash of this message is considered the leaf.
+   * @param proof Merkle proof of inclusion for given leaf.
+   * @param index Index of leaf in home's merkle tree.
+   */
+  struct Proof {
+    bytes message;
+    bytes32[32] path;
+    uint256 index;
+  }
+
+  // ============ Public Storage ============
+
+  /**
+   * @notice MerkleTreeManager contract instance. Will hold the active tree of message hashes, whose root
+   * will be sent crosschain to the hub for aggregation and redistribution.
+   */
+  MerkleTreeManager public immutable MERKLE;
 
   /**
    * @notice Minimum gas for processing a received message (reserved for handle)
@@ -140,22 +160,24 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
   // ============ Constructor ============
 
   /**
-   * @notice Creates a new SpokeConnector instance
-   * @param _domain The domain this connector lives on
-   * @param _mirrorDomain The spoke domain
-   * @param _amb The address of the amb on the domain this connector lives on
-   * @param _rootManager The address of the RootManager on mainnet
-   * @param _mirrorConnector The address of the spoke connector
-   * @param _mirrorGas The gas costs required to process a message on mirror
+   * @notice Creates a new SpokeConnector instance.
+   * @param _domain The domain this connector lives on.
+   * @param _mirrorDomain The hub domain.
+   * @param _amb The address of the AMB on the spoke domain this connector lives on.
+   * @param _rootManager The address of the RootManager on the hub.
+   * @param _merkle The address of the MerkleTreeManager on this spoke domain.
+   * @param _mirrorConnector The address of the spoke connector.
+   * @param _mirrorGas The gas costs required to process a message on mirror.
    * @param _processGas The gas costs used in `handle` to ensure meaningful state changes can occur (minimum gas needed
-   * to handle transaction)
-   * @param _reserveGas The gas costs reserved when `handle` is called to ensure failures are handled
+   * to handle transaction).
+   * @param _reserveGas The gas costs reserved when `handle` is called to ensure failures are handled.
    */
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
+    address _merkle,
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
@@ -164,22 +186,23 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     address _watcherManager
   )
     ConnectorManager()
-    MerkleTreeManager()
     Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
     WatcherClient(_watcherManager)
   {
-    // sanity check constants
+    // Sanity check: constants are reasonable.
     require(_processGas >= 850_000, "!process gas");
     require(_reserveGas >= 15_000, "!reserve gas");
-
-    //
     PROCESS_GAS = _processGas;
     RESERVE_GAS = _reserveGas;
+
+    // If no MerkleTreeManager instance is specified, create a new one.
+    MERKLE = _merkle == address(0) ? new MerkleTreeManager() : MerkleTreeManager(_merkle);
 
     delayBlocks = _delayBlocks;
   }
 
-  // ============ Admin fns ============
+  // ============ Admin Functions ============
+
   /**
    * @notice Adds a sender to the whitelist
    * @dev Only whitelisted routers can call `dispatch`
@@ -226,7 +249,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     emit AggregateRootsUpdated(_current, _pending);
   }
 
-  // ============ Public fns ============
+  // ============ Public Functions ============
+
   /**
    * @notice This is called by the watcher to update the aggregate root
    */
@@ -239,7 +263,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
    * all outbound messages)
    */
   function outboundRoot() external view returns (bytes32) {
-    return tree.root();
+    return MERKLE.root();
   }
 
   /**
@@ -255,7 +279,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
    * all outbound messages)
    */
   function send() external {
-    bytes memory _data = abi.encodePacked(tree.root());
+    bytes memory _data = abi.encodePacked(MERKLE.root());
     _sendMessage(_data);
     emit MessageSent(_data, msg.sender);
   }
@@ -271,10 +295,11 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     bytes32 _recipientAddress,
     bytes memory _messageBody
   ) external onlyWhitelistedSender returns (bytes32) {
-    // get the next nonce for the destination domain, then increment it
+    // Get the next nonce for the destination domain, then increment it.
     uint32 _nonce = nonces[_destinationDomain];
     nonces[_destinationDomain] = _nonce + 1;
-    // format the message into packed bytes
+
+    // Format the message into packed bytes.
     bytes memory _message = Message.formatMessage(
       DOMAIN,
       bytes32(uint256(uint160(msg.sender))), // TODO necessary?
@@ -283,35 +308,107 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
       _recipientAddress,
       _messageBody
     );
-    // insert the hashed message into the Merkle tree
+
+    // Insert the hashed message into the Merkle tree.
     bytes32 _messageHash = keccak256(_message);
-    tree.insert(_messageHash);
+    (bytes32 _root, uint256 _count) = MERKLE.insert(_messageHash);
+
     // TODO: see comment on queue manager at the top
-    // Emit Dispatch event with message information
-    // note: leafIndex is count() - 1 since new leaf has already been inserted
-    emit Dispatch(_messageHash, count() - 1, tree.root(), _message);
+    // Emit Dispatch event with message information.
+    // NOTE: Current leaf index is count - 1 since new leaf has already been inserted.
+    emit Dispatch(_messageHash, _count - 1, _root, _message);
     return _messageHash;
   }
 
   /**
    * @notice Must be able to call the `handle` function on the BridgeRouter contract. This is called
    * on the destination domain to handle incoming messages.
+   *
+   * Proving:
+   * Calculates the expected inbound root from an origin chain given a leaf (message hash),
+   * the index of the leaf, and the merkle proof of inclusion (path). Next, we check to ensure that this
+   * calculated inbound root is included in the current aggregateRoot, given its index in the aggregator
+   * tree and the proof of inclusion.
+   *
+   * Processing:
+   * After all messages have been proven, we dispatch each message to Connext (BridgeRouter) for
+   * execution.
+   *
+   * @dev Currently, ALL messages in a given batch must path to the same shared inboundRoot, meaning they
+   * must all share an origin. See open TODO below for a potential solution to enable multi-origin batches.
    * @dev Intended to be called by the relayer at specific intervals during runtime.
+   * @dev Will record a calculated root as having been proven if we've already proven that it was included
+   * in the aggregateRoot.
+   *
+   * @param _proofs Batch of Proofs containing messages for proving/processing.
+   * @param _aggregatorPath Merkle path of inclusion for the inbound root.
+   * @param _aggregatorIndex Index of the inbound root in the aggregator's merkle tree in the hub.
    */
   function proveAndProcess(
-    bytes memory _message,
-    bytes32[32] calldata _proof,
-    uint256 _index
+    Proof[] calldata _proofs,
+    bytes32[32] calldata _aggregatorPath,
+    uint256 _aggregatorIndex
   ) external onlyUnpaused {
-    // 1. must prove existence of the given outbound root from destination domain
-    // 2. must prove the existence of the given message in the destination
-    // domain outbound root
-    require(prove(keccak256(_message), _proof, _index), "!prove");
-    // FIXME: implement proofs above before processing the message
-    process(_message);
+    // Sanity check: proofs are included.
+    require(_proofs.length > 0, "!proofs");
+
+    // Optimization: calculate the inbound root for the first message in the batch and validate that
+    // it's included in the aggregator tree. We can use this as a reference for every calculation
+    // below to minimize storage access calls.
+    bytes32 _messageHash = keccak256(_proofs[0].message);
+    // TODO: Could use an array of sharedRoots so you can submit a message batch of messages with
+    // different origins.
+    bytes32 _inboundRoot = calculateMessageRoot(_messageHash, _proofs[0].path, _proofs[0].index);
+
+    // Check to see if the root for this batch has already been proven.
+    if (!provenRoots[_inboundRoot]) {
+      // TODO: If the updateAggregateRoot function hasnt been called for a while, we might be able
+      // to prove against the pending root which is more recent.
+      // TODO: Shouldn't we go ahead and move the pending aggregate root into current, in this case?
+      // TODO: Optimization: allow caller to specify whether to try using the pending root (if enough time has elapsed)
+      // or ignore this check! We really can't just pick which one to use willy-nilly - the given proof (aggregatorPath)
+      // will only work with *one* root in particular.
+      bytes32 _aggregateRoot = block.number > aggregateRootPendingBlock ? aggregateRootPending : aggregateRootCurrent;
+
+      // Calculate an aggregate root, given this inbound root, and make sure it matches the current
+      // aggregate root we have stored.
+      bytes32 _calculatedAggregateRoot = MerkleLib.branchRoot(_inboundRoot, _aggregatorPath, _aggregatorIndex);
+      require(_calculatedAggregateRoot == _aggregateRoot, "!aggregateRoot");
+      // This inbound root has been proven. We should specify that to optimize future calls.
+      provenRoots[_inboundRoot] = true;
+    }
+
+    // Assuming the inbound root was proven, the first message is now proven.
+    messages[_messageHash] = MessageStatus.Proven;
+
+    // Now we handle proving all remaining messages in the batch - they should all share the same
+    // inbound root!
+    for (uint32 i = 1; i < _proofs.length; ) {
+      _messageHash = keccak256(_proofs[i].message);
+      bytes32 _calculatedRoot = calculateMessageRoot(_messageHash, _proofs[i].path, _proofs[i].index);
+      // Make sure this root matches the validated inbound root.
+      require(_calculatedRoot == _inboundRoot, "!sharedRoot");
+      // Message is proven!
+      messages[_messageHash] = MessageStatus.Proven;
+
+      unchecked {
+        ++i;
+      }
+    }
+
+    // All messages have been proven. We iterate separately here to process each message in the batch.
+    // NOTE: Going through the proving phase for all messages in the batch before processing ensures
+    // we hit reverts before we consume gas from `process` calls.
+    for (uint32 i = 0; i < _proofs.length; ) {
+      process(_proofs[i].message);
+      unchecked {
+        ++i;
+      }
+    }
   }
 
-  // ============ Private fns ============
+  // ============ Private Functions ============
+
   /**
    * @notice This is either called by the Connector (AKA `this`) on the spoke (L2) chain after retrieving
    * latest `aggregateRoot` from the AMB (sourced from mainnet) OR called by the AMB directly.
@@ -327,45 +424,31 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
   }
 
   /**
-   * @notice Attempts to prove the validity of message given its leaf, the
-   * merkle proof of inclusion for the leaf, and the index of the leaf.
-   * @dev Reverts if message's MessageStatus != None (i.e. if message was
-   * already proven or processed)
-   * @dev For convenience, we allow proving against any previous root.
-   * This means that witnesses never need to be updated for the new root
-   * @param _leaf Leaf of message to prove
-   * @param _proof Merkle proof of inclusion for leaf
-   * @param _index Index of leaf in home's merkle tree
-   * @return Returns true if proof was valid and `prove` call succeeded
+   * @notice Checks whether a given message is valid. If so, calculates the expected inbound root from an
+   * origin chain given a leaf (message hash), the index of the leaf, and the merkle proof of inclusion.
+   * @dev Reverts if message's MessageStatus != None (i.e. if message was already proven or processed).
+   *
+   * @param _messageHash Leaf (message hash) that requires proving.
+   * @param _messagePath Merkle path of inclusion for the leaf.
+   * @param _messageIndex Index of leaf in the merkle tree on the origin chain of the message.
+   * @return bytes32 Calculated root.
    **/
-  function prove(
-    bytes32 _leaf,
-    bytes32[32] calldata _proof,
-    uint256 _index
-  ) internal returns (bool) {
-    // FIXME: actually implement this later
-
-    // if the updateAggregateRoot function hasnt been called for a while, we might be able
-    // to prove against the pending root which is more recent.
-    // bytes32 rootToUse = block.number > aggregateRootPendingBlock ? aggregateRootPending : aggregateRootCurrent;
-    // ensure that message has not been proven or processed
-    require(messages[_leaf] == MessageStatus.None, "!MessageStatus.None");
-    // // calculate the expected root based on the proof
-    // bytes32 _calculatedRoot = MerkleLib.branchRoot(_leaf, _proof, _index);
-    // // if the root is valid, change status to Proven
-    // if (acceptableRoot(_calculatedRoot)) {
-    //   messages[_leaf] = MessageStatus.Proven;
-    //   return true;
-    // }
-    // return false;
-
-    messages[_leaf] = MessageStatus.Proven;
-    return true;
+  function calculateMessageRoot(
+    bytes32 _messageHash,
+    bytes32[32] calldata _messagePath,
+    uint256 _messageIndex
+  ) internal view returns (bytes32) {
+    // Ensure that the given message has not already been proven and processed.
+    require(messages[_messageHash] == MessageStatus.None, "!MessageStatus.None");
+    // Calculate the expected inbound root from the message origin based on the proof.
+    // NOTE: Assuming a valid message was submitted with correct path/index, this should be an inbound root
+    // that the hub has received. If the message were invalid, the root calculated here would not exist in the
+    // aggregate root.
+    return MerkleLib.branchRoot(_messageHash, _messagePath, _messageIndex);
   }
 
   /**
-   * @notice Given formatted message, attempts to dispatch
-   * message payload to end recipient.
+   * @notice Given formatted message, attempts to dispatch message payload to end recipient.
    * @dev Recipient must implement a `handle` method (refer to IMessageRecipient.sol)
    * Reverts if formatted message's destination domain is not the Replica's domain,
    * if message has not been proven,

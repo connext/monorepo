@@ -25,25 +25,22 @@ import type {
 
 export interface IRootManagerInterface extends utils.Interface {
   functions: {
+    "aggregate(uint32,bytes32)": FunctionFragment;
     "propagate()": FunctionFragment;
-    "setOutboundRoot(uint32,bytes32)": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "propagate" | "setOutboundRoot"
+    nameOrSignatureOrTopic: "aggregate" | "propagate"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "propagate", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "setOutboundRoot",
+    functionFragment: "aggregate",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
   ): string;
+  encodeFunctionData(functionFragment: "propagate", values?: undefined): string;
 
+  decodeFunctionResult(functionFragment: "aggregate", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "propagate", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setOutboundRoot",
-    data: BytesLike
-  ): Result;
 
   events: {};
 }
@@ -75,59 +72,59 @@ export interface IRootManager extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    propagate(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setOutboundRoot(
+    aggregate(
       _domain: PromiseOrValue<BigNumberish>,
       _outbound: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    propagate(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
-  propagate(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setOutboundRoot(
+  aggregate(
     _domain: PromiseOrValue<BigNumberish>,
     _outbound: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  callStatic: {
-    propagate(overrides?: CallOverrides): Promise<void>;
+  propagate(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-    setOutboundRoot(
+  callStatic: {
+    aggregate(
       _domain: PromiseOrValue<BigNumberish>,
       _outbound: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    propagate(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {};
 
   estimateGas: {
-    propagate(
+    aggregate(
+      _domain: PromiseOrValue<BigNumberish>,
+      _outbound: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setOutboundRoot(
-      _domain: PromiseOrValue<BigNumberish>,
-      _outbound: PromiseOrValue<BytesLike>,
+    propagate(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    propagate(
+    aggregate(
+      _domain: PromiseOrValue<BigNumberish>,
+      _outbound: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setOutboundRoot(
-      _domain: PromiseOrValue<BigNumberish>,
-      _outbound: PromiseOrValue<BytesLike>,
+    propagate(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

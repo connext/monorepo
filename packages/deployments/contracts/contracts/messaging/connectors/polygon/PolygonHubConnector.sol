@@ -37,7 +37,7 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
     // get the data (should be the aggregate root)
     require(message.length == 32, "!length");
     // update the root on the root manager
-    IRootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, bytes32(message));
+    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(message));
 
     emit MessageProcessed(message, msg.sender);
   }

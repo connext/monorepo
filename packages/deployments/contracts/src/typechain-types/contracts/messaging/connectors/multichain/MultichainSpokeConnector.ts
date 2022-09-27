@@ -27,10 +27,25 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
+export declare namespace SpokeConnector {
+  export type ProofStruct = {
+    message: PromiseOrValue<BytesLike>;
+    path: PromiseOrValue<BytesLike>[];
+    index: PromiseOrValue<BigNumberish>;
+  };
+
+  export type ProofStructOutput = [string, string[], BigNumber] & {
+    message: string;
+    path: string[];
+    index: BigNumber;
+  };
+}
+
 export interface MultichainSpokeConnectorInterface extends utils.Interface {
   functions: {
     "AMB()": FunctionFragment;
     "DOMAIN()": FunctionFragment;
+    "MERKLE()": FunctionFragment;
     "MIRROR_DOMAIN()": FunctionFragment;
     "PROCESS_GAS()": FunctionFragment;
     "RESERVE_GAS()": FunctionFragment;
@@ -41,7 +56,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     "aggregateRootPending()": FunctionFragment;
     "aggregateRootPendingBlock()": FunctionFragment;
     "anyExecute(bytes)": FunctionFragment;
-    "count()": FunctionFragment;
     "delay()": FunctionFragment;
     "delayBlocks()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
@@ -59,7 +73,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
-    "proveAndProcess(bytes,bytes32[32],uint256)": FunctionFragment;
+    "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32[32],uint256)": FunctionFragment;
     "provenRoots(bytes32)": FunctionFragment;
     "removeSender(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -71,7 +85,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     "setMirrorGas(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
     "setWatcherPaused(bool)": FunctionFragment;
-    "tree()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
     "whitelistedSenders(address)": FunctionFragment;
   };
@@ -80,6 +93,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "AMB"
       | "DOMAIN"
+      | "MERKLE"
       | "MIRROR_DOMAIN"
       | "PROCESS_GAS"
       | "RESERVE_GAS"
@@ -90,7 +104,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
       | "aggregateRootPending"
       | "aggregateRootPendingBlock"
       | "anyExecute"
-      | "count"
       | "delay"
       | "delayBlocks"
       | "dispatch"
@@ -120,13 +133,13 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
       | "setMirrorGas"
       | "setWatcherManager"
       | "setWatcherPaused"
-      | "tree"
       | "verifySender"
       | "whitelistedSenders"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
   encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
+  encodeFunctionData(functionFragment: "MERKLE", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "MIRROR_DOMAIN",
     values?: undefined
@@ -167,7 +180,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     functionFragment: "anyExecute",
     values: [PromiseOrValue<BytesLike>]
   ): string;
-  encodeFunctionData(functionFragment: "count", values?: undefined): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "delayBlocks",
@@ -225,7 +237,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "proveAndProcess",
     values: [
-      PromiseOrValue<BytesLike>,
+      SpokeConnector.ProofStruct[],
       PromiseOrValue<BytesLike>[],
       PromiseOrValue<BigNumberish>
     ]
@@ -268,7 +280,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     functionFragment: "setWatcherPaused",
     values: [PromiseOrValue<boolean>]
   ): string;
-  encodeFunctionData(functionFragment: "tree", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "verifySender",
     values: [PromiseOrValue<string>]
@@ -280,6 +291,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
 
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "MERKLE", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "MIRROR_DOMAIN",
     data: BytesLike
@@ -314,7 +326,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "anyExecute", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "delayBlocks",
@@ -395,7 +406,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     functionFragment: "setWatcherPaused",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "tree", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "verifySender",
     data: BytesLike
@@ -613,6 +623,8 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<[number]>;
 
+    MERKLE(overrides?: CallOverrides): Promise<[string]>;
+
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<[number]>;
 
     PROCESS_GAS(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -640,8 +652,6 @@ export interface MultichainSpokeConnector extends BaseContract {
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    count(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -698,9 +708,9 @@ export interface MultichainSpokeConnector extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     proveAndProcess(
-      _message: PromiseOrValue<BytesLike>,
-      _proof: PromiseOrValue<BytesLike>[],
-      _index: PromiseOrValue<BigNumberish>,
+      _proofs: SpokeConnector.ProofStruct[],
+      _aggregatorPath: PromiseOrValue<BytesLike>[],
+      _aggregatorIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -755,10 +765,6 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    tree(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { count: BigNumber }>;
-
     verifySender(
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -773,6 +779,8 @@ export interface MultichainSpokeConnector extends BaseContract {
   AMB(overrides?: CallOverrides): Promise<string>;
 
   DOMAIN(overrides?: CallOverrides): Promise<number>;
+
+  MERKLE(overrides?: CallOverrides): Promise<string>;
 
   MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
 
@@ -801,8 +809,6 @@ export interface MultichainSpokeConnector extends BaseContract {
     _data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  count(overrides?: CallOverrides): Promise<BigNumber>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -859,9 +865,9 @@ export interface MultichainSpokeConnector extends BaseContract {
   proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   proveAndProcess(
-    _message: PromiseOrValue<BytesLike>,
-    _proof: PromiseOrValue<BytesLike>[],
-    _index: PromiseOrValue<BigNumberish>,
+    _proofs: SpokeConnector.ProofStruct[],
+    _aggregatorPath: PromiseOrValue<BytesLike>[],
+    _aggregatorIndex: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -916,8 +922,6 @@ export interface MultichainSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  tree(overrides?: CallOverrides): Promise<BigNumber>;
-
   verifySender(
     _expected: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -932,6 +936,8 @@ export interface MultichainSpokeConnector extends BaseContract {
     AMB(overrides?: CallOverrides): Promise<string>;
 
     DOMAIN(overrides?: CallOverrides): Promise<number>;
+
+    MERKLE(overrides?: CallOverrides): Promise<string>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
 
@@ -958,8 +964,6 @@ export interface MultichainSpokeConnector extends BaseContract {
       _data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean, string] & { success: boolean; result: string }>;
-
-    count(overrides?: CallOverrides): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1016,9 +1020,9 @@ export interface MultichainSpokeConnector extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     proveAndProcess(
-      _message: PromiseOrValue<BytesLike>,
-      _proof: PromiseOrValue<BytesLike>[],
-      _index: PromiseOrValue<BigNumberish>,
+      _proofs: SpokeConnector.ProofStruct[],
+      _aggregatorPath: PromiseOrValue<BytesLike>[],
+      _aggregatorIndex: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1068,8 +1072,6 @@ export interface MultichainSpokeConnector extends BaseContract {
       paused: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    tree(overrides?: CallOverrides): Promise<BigNumber>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
@@ -1192,6 +1194,8 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
 
+    MERKLE(overrides?: CallOverrides): Promise<BigNumber>;
+
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
 
     PROCESS_GAS(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1219,8 +1223,6 @@ export interface MultichainSpokeConnector extends BaseContract {
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    count(overrides?: CallOverrides): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1277,9 +1279,9 @@ export interface MultichainSpokeConnector extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     proveAndProcess(
-      _message: PromiseOrValue<BytesLike>,
-      _proof: PromiseOrValue<BytesLike>[],
-      _index: PromiseOrValue<BigNumberish>,
+      _proofs: SpokeConnector.ProofStruct[],
+      _aggregatorPath: PromiseOrValue<BytesLike>[],
+      _aggregatorIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1334,8 +1336,6 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    tree(overrides?: CallOverrides): Promise<BigNumber>;
-
     verifySender(
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1351,6 +1351,8 @@ export interface MultichainSpokeConnector extends BaseContract {
     AMB(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    MERKLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1385,8 +1387,6 @@ export interface MultichainSpokeConnector extends BaseContract {
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    count(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1443,9 +1443,9 @@ export interface MultichainSpokeConnector extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proveAndProcess(
-      _message: PromiseOrValue<BytesLike>,
-      _proof: PromiseOrValue<BytesLike>[],
-      _index: PromiseOrValue<BigNumberish>,
+      _proofs: SpokeConnector.ProofStruct[],
+      _aggregatorPath: PromiseOrValue<BytesLike>[],
+      _aggregatorIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1499,8 +1499,6 @@ export interface MultichainSpokeConnector extends BaseContract {
       paused: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    tree(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     verifySender(
       _expected: PromiseOrValue<string>,

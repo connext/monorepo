@@ -391,6 +391,7 @@ contract MockConnector is SpokeConnector, IHubConnector {
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
+    address _merkle,
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
@@ -404,6 +405,7 @@ contract MockConnector is SpokeConnector, IHubConnector {
       _mirrorDomain,
       _amb,
       _rootManager,
+      _merkle,
       _mirrorConnector,
       _mirrorGas,
       _processGas,
@@ -427,7 +429,6 @@ contract MockConnector is SpokeConnector, IHubConnector {
 
   function sendMessage(bytes memory _data) external onlyRootManager {
     _sendMessage(_data);
-    emit MessageSent(_data, msg.sender);
   }
 
   function _sendMessage(bytes memory _data) internal override {
@@ -442,9 +443,8 @@ contract MockConnector is SpokeConnector, IHubConnector {
       aggregateRootCurrent = bytes32(_data);
       aggregateRootPending = bytes32(_data);
     } else {
-      RootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, bytes32(_data));
+      RootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
     }
-    emit MessageProcessed(_data, msg.sender);
   }
 
   function _verifySender(address _expected) internal override returns (bool) {

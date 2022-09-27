@@ -13,6 +13,7 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
+    address _merkle,
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
@@ -25,6 +26,7 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
       _mirrorDomain,
       _amb,
       _rootManager,
+      _merkle,
       _mirrorConnector,
       _mirrorGas,
       _processGas,
@@ -68,7 +70,7 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
       return;
     }
     // otherwise is relayer, update the outbound root on the root manager
-    IRootManager(ROOT_MANAGER).setOutboundRoot(DOMAIN, bytes32(_data));
+    IRootManager(ROOT_MANAGER).aggregate(DOMAIN, bytes32(_data));
   }
 
   /**
