@@ -14,4 +14,5 @@ export { RelayerFacet__factory } from "./RelayerFacet__factory";
 export { RoutersFacet__factory } from "./RoutersFacet__factory";
 export { StableSwapFacet__factory } from "./StableSwapFacet__factory";
 export { SwapAdminFacet__factory } from "./SwapAdminFacet__factory";
+export { TokenFacet__factory } from "./TokenFacet__factory";
 export { VersionFacet__factory } from "./VersionFacet__factory";

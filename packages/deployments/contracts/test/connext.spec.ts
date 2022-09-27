@@ -15,7 +15,7 @@ import {
   TestSponsorVault,
   DiamondCutFacet,
   DiamondLoupeFacet,
-  AssetFacet,
+  TokenFacet,
   BridgeFacet,
   NomadFacet,
   ProposedOwnableFacet,
@@ -104,7 +104,7 @@ describe("Connext", () => {
   let weth: WETH;
   let bridgeFacet: BridgeFacet;
   let nomadFacet: NomadFacet;
-  let assetFacet: AssetFacet;
+  let tokenFacet: TokenFacet;
   let routersFacet: RoutersFacet;
   let portalFacet: PortalFacet;
   let originBridge: ConnextHandler;
@@ -164,7 +164,7 @@ describe("Connext", () => {
     const diamondCutFacet = await deployContract<DiamondCutFacet>("DiamondCutFacet");
     const diamondLoupeFacet = await deployContract<DiamondLoupeFacet>("DiamondLoupeFacet");
 
-    assetFacet = await deployContract<AssetFacet>("AssetFacet");
+    tokenFacet = await deployContract<TokenFacet>("TokenFacet");
     bridgeFacet = await deployContract<BridgeFacet>("BridgeFacet");
     routersFacet = await deployContract<RoutersFacet>("RoutersFacet");
     portalFacet = await deployContract<PortalFacet>("PortalFacet");
@@ -181,7 +181,7 @@ describe("Connext", () => {
       [
         diamondCutFacet,
         diamondLoupeFacet,
-        assetFacet,
+        tokenFacet,
         bridgeFacet,
         nomadFacet,
         proposedOwnableFacet,
@@ -208,7 +208,7 @@ describe("Connext", () => {
       [
         diamondCutFacet,
         diamondLoupeFacet,
-        assetFacet,
+        tokenFacet,
         bridgeFacet,
         nomadFacet,
         proposedOwnableFacet,
@@ -510,7 +510,7 @@ describe("Connext", () => {
 
       const receipt = await tx.wait();
 
-      const stableSwapAddedEvent = assetFacet.interface.parseLog(receipt.logs[0]);
+      const stableSwapAddedEvent = tokenFacet.interface.parseLog(receipt.logs[0]);
       expect(stableSwapAddedEvent.args.caller).to.eq(admin.address);
       expect(stableSwapAddedEvent.args.canonicalId).to.eq(addressToBytes32(canonical.address).toLowerCase());
       expect(stableSwapAddedEvent.args.domain).to.eq(originDomain);
@@ -555,7 +555,7 @@ describe("Connext", () => {
           originAdopted.address,
           stableSwap.address,
         ),
-      ).to.be.revertedWith("AssetFacet__addAssetId_alreadyAdded");
+      ).to.be.revertedWith("TokenFacet__addAssetId_alreadyAdded");
     });
 
     it("should work", async () => {
@@ -568,7 +568,7 @@ describe("Connext", () => {
       const receipt = await tx.wait();
       const supported = originAdopted.address == ZERO_ADDRESS ? weth.address : originAdopted.address;
 
-      const assetAddedEvent = assetFacet.interface.parseLog(receipt.logs[0]);
+      const assetAddedEvent = tokenFacet.interface.parseLog(receipt.logs[0]);
       expect(assetAddedEvent.args.caller).to.eq(admin.address);
       expect(assetAddedEvent.args.canonicalId).to.eq(addressToBytes32(toAdd).toLowerCase());
       expect(assetAddedEvent.args.domain).to.eq(originDomain);
@@ -588,7 +588,7 @@ describe("Connext", () => {
     it("should fail if it is not approved canonical", async () => {
       const toRemove = Wallet.createRandom().address;
       await expect(originBridge.removeAssetId(addressToBytes32(toRemove), originAdopted.address)).to.be.revertedWith(
-        "AssetFacet__removeAssetId_notAdded",
+        "TokenFacet__removeAssetId_notAdded",
       );
     });
 
@@ -604,7 +604,7 @@ describe("Connext", () => {
       const tx = await originBridge.removeAssetId(addressToBytes32(toRemove), originAdopted.address);
       const receipt = await tx.wait();
 
-      const assetRemovedEvent = assetFacet.interface.parseLog(receipt.logs[0]);
+      const assetRemovedEvent = tokenFacet.interface.parseLog(receipt.logs[0]);
       expect(assetRemovedEvent.args.caller).to.eq(admin.address);
       expect(assetRemovedEvent.args.canonicalId).to.eq(
         addressToBytes32(addressToBytes32(toRemove).toLowerCase()).toLowerCase(),

@@ -90,6 +90,8 @@ export type { StableSwapFacet } from "./contracts/core/connext/facets/StableSwap
 export { StableSwapFacet__factory } from "./factories/contracts/core/connext/facets/StableSwapFacet__factory";
 export type { SwapAdminFacet } from "./contracts/core/connext/facets/SwapAdminFacet";
 export { SwapAdminFacet__factory } from "./factories/contracts/core/connext/facets/SwapAdminFacet__factory";
+export type { TokenFacet } from "./contracts/core/connext/facets/TokenFacet";
+export { TokenFacet__factory } from "./factories/contracts/core/connext/facets/TokenFacet__factory";
 export type { DiamondInit } from "./contracts/core/connext/facets/upgrade-initializers/DiamondInit";
 export { DiamondInit__factory } from "./factories/contracts/core/connext/facets/upgrade-initializers/DiamondInit__factory";
 export type { VersionFacet } from "./contracts/core/connext/facets/VersionFacet";

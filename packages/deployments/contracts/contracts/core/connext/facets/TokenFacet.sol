@@ -9,12 +9,12 @@ import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IWeth} from "../interfaces/IWeth.sol";
 import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 
-contract AssetFacet is BaseConnextFacet {
+contract TokenFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
-  error AssetFacet__setTokenRegistry_invalidTokenRegistry();
-  error AssetFacet__addAssetId_nativeAsset();
-  error AssetFacet__addAssetId_alreadyAdded();
-  error AssetFacet__removeAssetId_notAdded();
+  error TokenFacet__setTokenRegistry_invalidTokenRegistry();
+  error TokenFacet__addAssetId_nativeAsset();
+  error TokenFacet__addAssetId_alreadyAdded();
+  error TokenFacet__removeAssetId_notAdded();
 
   // ============ Events ============
 
@@ -111,7 +111,7 @@ contract AssetFacet is BaseConnextFacet {
   function setTokenRegistry(address _tokenRegistry) external onlyOwner {
     address old = address(s.tokenRegistry);
     if (old == _tokenRegistry || !Address.isContract(_tokenRegistry))
-      revert AssetFacet__setTokenRegistry_invalidTokenRegistry();
+      revert TokenFacet__setTokenRegistry_invalidTokenRegistry();
 
     s.tokenRegistry = ITokenRegistry(_tokenRegistry);
     emit TokenRegistryUpdated(old, _tokenRegistry, msg.sender);
@@ -137,13 +137,13 @@ contract AssetFacet is BaseConnextFacet {
     address _stableSwapPool
   ) external onlyOwner {
     // Native asset support does not exist in this contract
-    if (_adoptedAssetId == address(0)) revert AssetFacet__addAssetId_nativeAsset();
+    if (_adoptedAssetId == address(0)) revert TokenFacet__addAssetId_nativeAsset();
 
     // Get the key
     bytes32 key = _calculateCanonicalHash(_canonical);
 
     // Sanity check: needs approval
-    if (s.approvedAssets[key]) revert AssetFacet__addAssetId_alreadyAdded();
+    if (s.approvedAssets[key]) revert TokenFacet__addAssetId_alreadyAdded();
 
     // Update approved assets mapping
     s.approvedAssets[key] = true;
@@ -218,7 +218,7 @@ contract AssetFacet is BaseConnextFacet {
    */
   function _removeAssetId(bytes32 _key, address _adoptedAssetId) internal {
     // Sanity check: already approval
-    if (!s.approvedAssets[_key]) revert AssetFacet__removeAssetId_notAdded();
+    if (!s.approvedAssets[_key]) revert TokenFacet__removeAssetId_notAdded();
 
     // Delete from approved assets mapping
     delete s.approvedAssets[_key];

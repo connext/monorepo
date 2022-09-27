@@ -337,7 +337,7 @@ const config: HardhatUserConfig = {
     // (optional) An array of strings, matched against fully qualified contract names, to
     // determine which contracts are included in your Diamond ABI.
     include: [
-      "AssetFacet",
+      "TokenFacet",
       "BaseConnextFacet",
       "BridgeFacet",
       "DiamondCutFacet",

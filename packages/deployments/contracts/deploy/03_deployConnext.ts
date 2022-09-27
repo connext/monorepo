@@ -241,7 +241,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const isDiamondUpgrade = !!(await hre.deployments.getOrNull(getDeploymentName("ConnextHandler")));
 
   const facets: FacetOptions[] = [
-    { name: getDeploymentName("AssetFacet"), contract: "AssetFacet", args: [] },
+    { name: getDeploymentName("TokenFacet"), contract: "TokenFacet", args: [] },
     { name: getDeploymentName("BridgeFacet"), contract: "BridgeFacet", args: [] },
     { name: getDeploymentName("InboxFacet"), contract: "InboxFacet", args: [] },
     { name: getDeploymentName("ProposedOwnableFacet"), contract: "ProposedOwnableFacet", args: [] },

@@ -18,7 +18,7 @@ import {IDiamondCut} from "./IDiamondCut.sol";
 import {IDiamondLoupe} from "./IDiamondLoupe.sol";
 
 interface IConnextHandler is IDiamondLoupe, IDiamondCut {
-  // AssetFacet
+  // TokenFacet
   function canonicalToAdopted(bytes32 _key) external view returns (address);
 
   function canonicalToAdopted(TokenId calldata _canonical) external view returns (address);
