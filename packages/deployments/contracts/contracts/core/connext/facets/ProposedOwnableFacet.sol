@@ -275,7 +275,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   function assignRoleRouter(address _router) public onlyOwnerOrRouter {
     // Use contract as source of truth
     // Will fail if candidate is already added
-    if (s.roles[_router] == Role.Router) revert ProposedOwnableFacet__assignRoleRouter_alreadyAdded();
+    if (s.roles[_router] != Role.None) revert ProposedOwnableFacet__assignRoleRouter_alreadyAdded();
 
     s.roles[_router] = Role.Router;
     emit AssignRouterRole(_router);
@@ -291,7 +291,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   function assignRoleWatcher(address _watcher) public onlyOwnerOrAdmin {
     // Use contract as source of truth
     // Will fail if candidate is already added
-    if (s.roles[_watcher] == Role.Watcher) revert ProposedOwnableFacet__assignRoleWatcher_alreadyAdded();
+    if (s.roles[_watcher] != Role.None) revert ProposedOwnableFacet__assignRoleWatcher_alreadyAdded();
 
     s.roles[_watcher] = Role.Watcher;
     emit AssignWatcherRole(_watcher);
@@ -307,7 +307,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   function assignRoleAdmin(address _admin) public onlyOwnerOrAdmin {
     // Use contract as source of truth
     // Will fail if candidate is already added
-    if (s.roles[_admin] == Role.Admin) revert ProposedOwnableFacet__assignRoleAdmin_alreadyAdded();
+    if (s.roles[_admin] != Role.None) revert ProposedOwnableFacet__assignRoleAdmin_alreadyAdded();
 
     s.roles[_admin] = Role.Admin;
     emit AssignAdminRole(_admin);
