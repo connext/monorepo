@@ -10,80 +10,95 @@ import { getContext } from "../../reader";
 
 export const ORIGIN_TRANSFER_ENTITY = `
       id
-      # Meta Data
       chainId
       transferId
       nonce
-
-      # call params
-      to
-      callData
+      status
+      messageHash
+    
+      # CallParams
       originDomain
       destinationDomain
+      canonicalDomain
+      to
+      delegate
       receiveLocal
-      recovery
-      agent
-      callback
-      callbackFee
-      relayerFee
-      slippageTol
-      destinationMinOut
-      
-      # Asset Data
-      asset
-      amount
-      originMinOut
-      bridgedAsset
-      bridgedAmount
+      callData
+      slippage
+      originSender
+      bridgedAmt
+      normalizedIn
+      canonicalId
+    
+      # Asset
+      asset {
+        id
+        key
+        canonicalId
+        canonicalDomain
+        adoptedAsset
+        blockNumber
+      }
 
-      # Event Data
-      message
+      # Message
+      message {
+        id: ID!
 
+        # origin transfer data
+        transferId
+        destinationDomain
+        # Dispatch Transaction
+        leaf
+        index
+        root
+        message
+        transactionHash
+      }
+    
       # XCalled Transaction
-      caller
+      caller: Bytes
       transactionHash
-      timestamp
-      gasPrice
-      gasLimit
-      blockNumber
+      timestamp: BigInt
+      gasPrice: BigInt
+      gasLimit: BigInt
+      blockNumber: BigInt
 `;
 
 export const DESTINATION_TRANSFER_ENTITY = `
       id
 
-      # Meta Data
+      # Meta
       chainId
       transferId
       nonce
-
-      # call params
-      to
-      callData
-      originDomain
-      destinationDomain
-      receiveLocal
-      recovery
-      agent
-      callback
-      callbackFee
-      relayerFee
-      slippageTol
-      destinationMinOut
-
-      # Asset Data
-      localAsset
-      localAmount
-      originMinOut
-      asset
-      amount
-      sponsorVaultRelayerFee
-
-      # Executed event Data
       status
       routers {
         id
       }
+
+      # CallParams
+      originDomain
+      destinationDomain
+      canonicalDomain
+      to
+      delegate
+      receiveLocal
+      callData
+      slippage
       originSender
+      bridgedAmt
+      normalizedIn
+      canonicalId
+
+      # Asset
+      asset {
+        id
+        key
+        canonicalId
+        canonicalDomain
+        adoptedAsset
+        blockNumber
+      }
 
       # Executed Transaction
       executedCaller
