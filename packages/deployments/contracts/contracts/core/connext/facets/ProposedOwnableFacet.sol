@@ -43,9 +43,9 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   error ProposedOwnableFacet__renounceOwnership_invalidProposal();
   error ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
   error ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed();
-  error ProposedOwnableFacet__assignRoleRouter_alreadyAdded();
-  error ProposedOwnableFacet__assignRoleWatcher_alreadyAdded();
-  error ProposedOwnableFacet__assignRoleAdmin_alreadyAdded();
+  error ProposedOwnableFacet__assignRoleRouter_invalidInput();
+  error ProposedOwnableFacet__assignRoleWatcher_invalidInput();
+  error ProposedOwnableFacet__assignRoleAdmin_invalidInput();
 
   // ============ Events ============
 
@@ -273,8 +273,9 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    */
   function assignRoleRouter(address _router) public onlyOwnerOrAdmin {
     // Use contract as source of truth
-    // Will fail if candidate is already added
-    if (s.roles[_router] != Role.None) revert ProposedOwnableFacet__assignRoleRouter_alreadyAdded();
+    // Will fail if candidate is already added OR input address is addressZero
+    if (s.roles[_router] != Role.None || _router == address(0))
+      revert ProposedOwnableFacet__assignRoleRouter_invalidInput();
 
     s.roles[_router] = Role.Router;
     emit AssignRouterRole(_router);
@@ -289,8 +290,9 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    */
   function assignRoleWatcher(address _watcher) public onlyOwnerOrAdmin {
     // Use contract as source of truth
-    // Will fail if candidate is already added
-    if (s.roles[_watcher] != Role.None) revert ProposedOwnableFacet__assignRoleWatcher_alreadyAdded();
+    // Will fail if candidate is already added OR input address is addressZero
+    if (s.roles[_watcher] != Role.None || _watcher == address(0))
+      revert ProposedOwnableFacet__assignRoleWatcher_invalidInput();
 
     s.roles[_watcher] = Role.Watcher;
     emit AssignWatcherRole(_watcher);
@@ -305,8 +307,9 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    */
   function assignRoleAdmin(address _admin) public onlyOwnerOrAdmin {
     // Use contract as source of truth
-    // Will fail if candidate is already added
-    if (s.roles[_admin] != Role.None) revert ProposedOwnableFacet__assignRoleAdmin_alreadyAdded();
+    // Will fail if candidate is already added OR input address is addressZero
+    if (s.roles[_admin] != Role.None || _admin == address(0))
+      revert ProposedOwnableFacet__assignRoleAdmin_invalidInput();
 
     s.roles[_admin] = Role.Admin;
     emit AssignAdminRole(_admin);
