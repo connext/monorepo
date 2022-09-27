@@ -53,6 +53,6 @@ contract GnosisHubConnector is HubConnector, GnosisBase {
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
     // update the root on the root manager
-    IRootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, bytes32(_data));
+    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
   }
 }

@@ -13,12 +13,27 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
+    address _merkle,
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
-    uint256 _reserveGas
+    uint256 _reserveGas,
+    uint256 _delayBlocks,
+    address _watcherManager
   )
-    SpokeConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas, _processGas, _reserveGas)
+    SpokeConnector(
+      _domain,
+      _mirrorDomain,
+      _amb,
+      _rootManager,
+      _merkle,
+      _mirrorConnector,
+      _mirrorGas,
+      _processGas,
+      _reserveGas,
+      _delayBlocks,
+      _watcherManager
+    )
   {}
 
   // ============ Public fns ============
@@ -55,7 +70,7 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
       return;
     }
     // otherwise is relayer, update the outbound root on the root manager
-    IRootManager(ROOT_MANAGER).setOutboundRoot(DOMAIN, bytes32(_data));
+    IRootManager(ROOT_MANAGER).aggregate(DOMAIN, bytes32(_data));
   }
 
   /**

@@ -63,6 +63,7 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
 
     // Enroll custom local token.
     const TokenRegistry = network.deployments.TokenRegistry;
+    console.log(TokenRegistry.contract);
     await updateIfNeeded({
       deployment: TokenRegistry,
       desired: representation.local,

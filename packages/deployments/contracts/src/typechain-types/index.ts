@@ -222,8 +222,10 @@ export type { GnosisAmb } from "./contracts/messaging/interfaces/ambs/GnosisAmb"
 export { GnosisAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/GnosisAmb__factory";
 export type { Multichain } from "./contracts/messaging/interfaces/ambs/Multichain";
 export { Multichain__factory } from "./factories/contracts/messaging/interfaces/ambs/Multichain__factory";
-export type { OptimismAmb } from "./contracts/messaging/interfaces/ambs/OptimismAmb";
-export { OptimismAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/OptimismAmb__factory";
+export type { IStateCommitmentChain } from "./contracts/messaging/interfaces/ambs/optimism/IStateCommitmentChain";
+export { IStateCommitmentChain__factory } from "./factories/contracts/messaging/interfaces/ambs/optimism/IStateCommitmentChain__factory";
+export type { OptimismAmb } from "./contracts/messaging/interfaces/ambs/optimism/OptimismAmb";
+export { OptimismAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/optimism/OptimismAmb__factory";
 export type { IConnector } from "./contracts/messaging/interfaces/IConnector";
 export { IConnector__factory } from "./factories/contracts/messaging/interfaces/IConnector__factory";
 export type { IConnectorManager } from "./contracts/messaging/interfaces/IConnectorManager";
@@ -244,6 +246,10 @@ export type { QueueManager } from "./contracts/messaging/Queue.sol/QueueManager"
 export { QueueManager__factory } from "./factories/contracts/messaging/Queue.sol/QueueManager__factory";
 export type { RootManager } from "./contracts/messaging/RootManager";
 export { RootManager__factory } from "./factories/contracts/messaging/RootManager__factory";
+export type { WatcherClient } from "./contracts/messaging/WatcherClient";
+export { WatcherClient__factory } from "./factories/contracts/messaging/WatcherClient__factory";
+export type { WatcherManager } from "./contracts/messaging/WatcherManager";
+export { WatcherManager__factory } from "./factories/contracts/messaging/WatcherManager__factory";
 export type { IProposedOwnable } from "./contracts/shared/interfaces/IProposedOwnable";
 export { IProposedOwnable__factory } from "./factories/contracts/shared/interfaces/IProposedOwnable__factory";
 export type { TypedMemView } from "./contracts/shared/libraries/TypedMemView";

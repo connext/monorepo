@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-// work based on eth2 deposit contract, which is used under CC0-1.0
-
 /**
  * @title MerkleLib
  * @author Illusory Systems Inc.
@@ -21,22 +19,24 @@ library MerkleLib {
     uint256 count;
   }
 
-  /**
-   * @notice Inserts `_node` into merkle tree
-   * @dev Reverts if tree is full
-   * @param _node Element to insert into tree
-   **/
-  function insert(Tree storage _tree, bytes32 _node) internal {
-    require(_tree.count < MAX_LEAVES, "merkle tree full");
+  // ========= Storage Methods =========
 
-    _tree.count += 1;
-    uint256 size = _tree.count;
+  /**
+   * @notice Inserts a given node (leaf) into merkle tree.
+   * @dev Reverts if the tree is already full.
+   * @param node Element to insert into tree.
+   **/
+  function insert(Tree storage tree, bytes32 node) internal {
+    require(tree.count < MAX_LEAVES, "merkle tree full");
+
+    tree.count += 1;
+    uint256 size = tree.count;
     for (uint256 i = 0; i < TREE_DEPTH; i++) {
       if ((size & 1) == 1) {
-        _tree.branch[i] = _node;
+        tree.branch[i] = node;
         return;
       }
-      _node = keccak256(abi.encodePacked(_tree.branch[i], _node));
+      node = keccak256(abi.encodePacked(tree.branch[i], node));
       size /= 2;
     }
     // As the loop should always end prematurely with the `return` statement,
@@ -45,21 +45,65 @@ library MerkleLib {
   }
 
   /**
-   * @notice Calculates and returns`_tree`'s current root given array of zero
-   * hashes
-   * @param _zeroes Array of zero hashes
-   * @return _current Calculated root of `_tree`
+   * @notice Calculates and returns tree's current root.
+   * @return bytes32 root.
    **/
-  function rootWithCtx(Tree storage _tree, bytes32[TREE_DEPTH] memory _zeroes)
-    internal
-    view
-    returns (bytes32 _current)
-  {
-    uint256 _index = _tree.count;
+  function root(Tree storage tree) internal pure returns (bytes32) {
+    Tree memory _tree = tree;
+    return rootWithCtx(_tree, zeroHashes());
+  }
+
+  // ========= In-Memory Methods =========
+
+  /**
+   * @notice Inserts a given node (leaf) into merkle tree, operating on a tree in memory to minimize
+   * storage operations.
+   * @dev Reverts if the tree is already full.
+   * @param node Element to insert into tree.
+   * @return Tree with the leaf inserted.
+   **/
+  function insert(Tree memory tree, bytes32 node) internal pure returns (Tree memory) {
+    require(tree.count < MAX_LEAVES, "merkle tree full");
+
+    tree.count += 1;
+    uint256 size = tree.count;
+    for (uint256 i = 0; i < TREE_DEPTH; i++) {
+      if ((size & 1) == 1) {
+        tree.branch[i] = node;
+        return tree;
+      }
+      node = keccak256(abi.encodePacked(tree.branch[i], node));
+      size /= 2;
+    }
+    // As the loop should always end prematurely with the `return` statement,
+    // this code should be unreachable. We assert `false` just to be safe.
+    assert(false);
+    return tree;
+  }
+
+  /**
+   * @notice Calculates and returns tree's current root. Operates on a tree given in memory for
+   * storage operation minimization.
+   * @return bytes32 root.
+   **/
+  function root(Tree memory tree) internal pure returns (bytes32) {
+    return rootWithCtx(tree, zeroHashes());
+  }
+
+  // ========= Helper Methods =========
+
+  /**
+   * @notice Calculates and returns tree's current root given array of zero hashes. Operates on
+   * a tree given in memory for storage operation minimization.
+   * @param _zeroes Array of zero hashes.
+   * @return _current Calculated root of tree.
+   **/
+  function rootWithCtx(Tree memory tree, bytes32[TREE_DEPTH] memory _zeroes) internal pure returns (bytes32 _current) {
+    uint256 _index = tree.count;
 
     for (uint256 i = 0; i < TREE_DEPTH; i++) {
       uint256 _ithBit = (_index >> i) & 0x01;
-      bytes32 _next = _tree.branch[i];
+      bytes32 _next = tree.branch[i];
       if (_ithBit == 1) {
         _current = keccak256(abi.encodePacked(_next, _current));
       } else {
@@ -68,9 +112,30 @@ library MerkleLib {
     }
   }
 
-  /// @notice Calculates and returns`_tree`'s current root
-  function root(Tree storage _tree) internal view returns (bytes32) {
-    return rootWithCtx(_tree, zeroHashes());
+  /**
+   * @notice Calculates and returns the merkle root for the given leaf
+   * `_item`, a merkle branch, and the index of `_item` in the tree.
+   * @param _item Merkle leaf
+   * @param _branch Merkle proof
+   * @param _index Index of `_item` in tree
+   * @return _current Calculated merkle root
+   **/
+  function branchRoot(
+    bytes32 _item,
+    bytes32[TREE_DEPTH] memory _branch,
+    uint256 _index
+  ) internal pure returns (bytes32 _current) {
+    _current = _item;
+
+    for (uint256 i = 0; i < TREE_DEPTH; i++) {
+      uint256 _ithBit = (_index >> i) & 0x01;
+      bytes32 _next = _branch[i];
+      if (_ithBit == 1) {
+        _current = keccak256(abi.encodePacked(_next, _current));
+      } else {
+        _current = keccak256(abi.encodePacked(_current, _next));
+      }
+    }
   }
 
   /// @notice Returns array of TREE_DEPTH zero hashes
@@ -108,32 +173,6 @@ library MerkleLib {
     _zeroes[29] = Z_29;
     _zeroes[30] = Z_30;
     _zeroes[31] = Z_31;
-  }
-
-  /**
-   * @notice Calculates and returns the merkle root for the given leaf
-   * `_item`, a merkle branch, and the index of `_item` in the tree.
-   * @param _item Merkle leaf
-   * @param _branch Merkle proof
-   * @param _index Index of `_item` in tree
-   * @return _current Calculated merkle root
-   **/
-  function branchRoot(
-    bytes32 _item,
-    bytes32[TREE_DEPTH] memory _branch,
-    uint256 _index
-  ) internal pure returns (bytes32 _current) {
-    _current = _item;
-
-    for (uint256 i = 0; i < TREE_DEPTH; i++) {
-      uint256 _ithBit = (_index >> i) & 0x01;
-      bytes32 _next = _branch[i];
-      if (_ithBit == 1) {
-        _current = keccak256(abi.encodePacked(_next, _current));
-      } else {
-        _current = keccak256(abi.encodePacked(_current, _next));
-      }
-    }
   }
 
   // keccak256 zero hashes

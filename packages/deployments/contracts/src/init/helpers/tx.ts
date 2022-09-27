@@ -84,8 +84,13 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
   const network = await contract.provider.getNetwork();
   const chain = network.chainId;
 
-  const value = await readCall();
-  const valid = value === desired;
+  let value;
+  let valid = false;
+  try {
+    value = await readCall();
+    valid = value === desired;
+  } catch {}
+
   log.info.value({ chain, deployment, call: read, value, valid });
   if (!valid) {
     const tx = await writeCall();

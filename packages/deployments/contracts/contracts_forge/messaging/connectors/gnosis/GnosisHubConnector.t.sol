@@ -75,6 +75,32 @@ contract GnosisHubConnectorTest is ConnectorHelper {
     GnosisHubConnector(_l1Connector).sendMessage(_data);
   }
 
+  function test_GnosisHubConnector__sendMessage_shouldWork_fuzz(bytes32 data) public {
+    // setup mock
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.requireToPassMessage.selector), abi.encode(123));
+
+    // data
+    bytes memory _data = abi.encodePacked(data);
+
+    // should emit an event
+    vm.expectEmit(true, true, true, true);
+    emit MessageSent(_data, _rootManager);
+
+    // should call the requireToPassMessage function of GnosisAMB
+    vm.expectCall(
+      _amb,
+      abi.encodeWithSelector(
+        GnosisAmb.requireToPassMessage.selector,
+        _l2Connector,
+        abi.encodeWithSelector(Connector.processMessage.selector, _data),
+        _mirrorGas
+      )
+    );
+
+    vm.prank(_rootManager);
+    GnosisHubConnector(_l1Connector).sendMessage(_data);
+  }
+
   // ============ GnosisHubConnector._processMessage ============
   function test_GnosisHubConnector__processMessage_shouldWork() public {
     utils_setHubConnectorVerifyMocks(_l2Connector);
@@ -87,18 +113,37 @@ contract GnosisHubConnectorTest is ConnectorHelper {
     vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
 
     uint32 _mirrorDomain = GnosisHubConnector(_l1Connector).MIRROR_DOMAIN();
-    vm.mockCall(
-      _rootManager,
-      abi.encodeCall(IRootManager.setOutboundRoot, (_mirrorDomain, bytes32(_data))),
-      abi.encode()
-    );
+    vm.mockCall(_rootManager, abi.encodeCall(IRootManager.aggregate, (_mirrorDomain, bytes32(_data))), abi.encode());
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
     vm.expectEmit(true, true, true, true);
     emit MessageProcessed(_dataCorrectSize, _amb);
 
-    vm.expectCall(_rootManager, abi.encodeCall(IRootManager.setOutboundRoot, (_mirrorDomain, bytes32(_data))));
+    vm.expectCall(_rootManager, abi.encodeCall(IRootManager.aggregate, (_mirrorDomain, bytes32(_data))));
+    vm.prank(_amb);
+    GnosisHubConnector(_l1Connector).processMessage(_data);
+  }
+
+  function test_GnosisHubConnector__processMessage_shouldWork_fuzz(bytes32 data) public {
+    utils_setHubConnectorVerifyMocks(_l2Connector);
+
+    // data
+    bytes memory _data = abi.encodePacked(data);
+
+    uint256 chainId = 1337;
+    vm.chainId(chainId);
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
+
+    uint32 _mirrorDomain = GnosisHubConnector(_l1Connector).MIRROR_DOMAIN();
+    vm.mockCall(_rootManager, abi.encodeCall(IRootManager.aggregate, (_mirrorDomain, bytes32(_data))), abi.encode());
+
+    // Resize fuzzed bytes to 32 bytes long
+    bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
+    vm.expectEmit(true, true, true, true);
+    emit MessageProcessed(_dataCorrectSize, _amb);
+
+    vm.expectCall(_rootManager, abi.encodeCall(IRootManager.aggregate, (_mirrorDomain, bytes32(_data))));
     vm.prank(_amb);
     GnosisHubConnector(_l1Connector).processMessage(_data);
   }
@@ -114,11 +159,7 @@ contract GnosisHubConnectorTest is ConnectorHelper {
     vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
 
     uint32 _mirrorDomain = GnosisHubConnector(_l1Connector).MIRROR_DOMAIN();
-    vm.mockCall(
-      _rootManager,
-      abi.encodeCall(IRootManager.setOutboundRoot, (_mirrorDomain, bytes32(_data))),
-      abi.encode()
-    );
+    vm.mockCall(_rootManager, abi.encodeCall(IRootManager.aggregate, (_mirrorDomain, bytes32(_data))), abi.encode());
 
     vm.prank(_amb);
     vm.expectRevert(abi.encodePacked("!l2Connector"));
@@ -136,11 +177,7 @@ contract GnosisHubConnectorTest is ConnectorHelper {
     vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
 
     uint32 _mirrorDomain = GnosisHubConnector(_l1Connector).MIRROR_DOMAIN();
-    vm.mockCall(
-      _rootManager,
-      abi.encodeCall(IRootManager.setOutboundRoot, (_mirrorDomain, bytes32(_data))),
-      abi.encode()
-    );
+    vm.mockCall(_rootManager, abi.encodeCall(IRootManager.aggregate, (_mirrorDomain, bytes32(_data))), abi.encode());
 
     vm.prank(_amb);
     vm.expectRevert(abi.encodePacked("!destinationChain"));

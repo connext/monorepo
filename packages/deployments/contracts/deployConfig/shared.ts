@@ -219,6 +219,12 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {
+          hub: {
+            // https://goerli.etherscan.io/address/0x9c945aC97Baf48cB784AbBB61399beB71aF7A378
+            stateCommitmentChain: "0x9c945aC97Baf48cB784AbBB61399beB71aF7A378",
+          },
+        },
       },
       // // Sokol testnet (for Gnosis):
       // 77: {
@@ -232,6 +238,17 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
       //   processGas: DEFAULT_PROCESS_GAS,
       //   reserveGas: DEFAULT_RESERVE_GAS,
       // },
+      // Gnosis Chiado chain
+      100100: {
+        prefix: "Gnosis",
+        ambs: {
+          // https://docs.gnosischain.com/about/networks/chiado
+          hub: "0x5816D9EdC3D30F501A098bC26A313Ae8BeB7B8ad",
+          spoke: "0x2f018c1118B0DC28E395d054e80fE44c61904892",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+      },
       // Arbitrum nitro goerli testnet:
       // https://developer.offchainlabs.com/docs/Useful_Addresses
       421613: {
