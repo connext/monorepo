@@ -108,7 +108,7 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     GnosisSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
 
     // Check: root is updated
-    assertEq(GnosisSpokeConnector(_l2Connector).aggregateRoot(), bytes32(_data));
+    assertEq(GnosisSpokeConnector(_l2Connector).aggregateRootPending(), bytes32(_data));
   }
 
   function test_GnosisSpokeConnector__processMessage_shouldFailIfSenderNotVerified() public {
