@@ -329,7 +329,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to
         // call `dispatch`.
         console.log("\tVerifying senders (handlers) are whitelisted.");
-        for (const handler of Object.values(spoke.deployments.handlers)) {
+        for (const handler of [...Object.values(spoke.deployments.handlers), hub.deployments.Connext]) {
           await updateIfNeeded({
             deployment: SpokeConnector,
             desired: true,
@@ -388,7 +388,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     write: { method: "addConnector", args: [hub.domain, MainnetConnector.address] },
   });
 
-  for (const handler of Object.values(hub.deployments.handlers)) {
+  for (const handler of [...Object.values(hub.deployments.handlers), hub.deployments.Connext]) {
     await updateIfNeeded({
       deployment: MainnetConnector,
       desired: true,
