@@ -50,28 +50,11 @@ export const createTask = async (
       throw new Error("Decoded data is null");
     }
     args = {
-      params: {
-        originDomain: decoded.params.originDomain.toString(),
-        destinationDomain: decoded.params.destinationDomain.toString(),
-        to: decoded.params.to,
-        callData: decoded.params.callData,
-        callback: decoded.params.callback,
-        callbackFee: decoded.params.callbackFee.toString(),
-        forceSlow: decoded.params.forceSlow,
-        receiveLocal: decoded.params.receiveLocal,
-        recovery: decoded.params.recovery,
-        agent: decoded.params.agent,
-        relayerFee: decoded.params.relayerFee.toString(),
-        destinationMinOut: decoded.params.destinationMinOut.toString(),
-      },
-      local: decoded.local,
+      params: decoded.params,
       routers: decoded.routers,
       routerSignatures: decoded.routerSignatures,
       sequencer: decoded.sequencer,
       sequencerSignature: decoded.sequencerSignature,
-      amount: decoded.amount.toString(),
-      nonce: (decoded.nonce as BigNumber).toNumber(),
-      originSender: decoded.originSender,
     };
     logger.debug("Parsed execute arguments", requestContext, methodContext, { args });
   } catch (error: unknown) {

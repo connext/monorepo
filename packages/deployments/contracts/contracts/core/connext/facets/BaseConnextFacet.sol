@@ -22,6 +22,7 @@ contract BaseConnextFacet {
   error BaseConnextFacet__onlyProposed_notProposedOwner();
   error BaseConnextFacet__whenNotPaused_paused();
   error BaseConnextFacet__nonReentrant_reentrantCall();
+  error BaseConnextFacet__getAdoptedAsset_notWhitelisted();
 
   // ============ Modifiers ============
 
@@ -44,14 +45,6 @@ contract BaseConnextFacet {
     // By storing the original value once again, a refund is triggered (see
     // https://eips.ethereum.org/EIPS/eip-2200)
     s._status = _NOT_ENTERED;
-  }
-
-  /**
-   * @notice Throws if called by any account other than the proposed owner.
-   */
-  modifier onlyBridgeRouter() {
-    if (address(s.bridgeRouter) != msg.sender) revert BaseConnextFacet__onlyBridgeRouter_notBridgeRouter();
-    _;
   }
 
   /**
@@ -94,17 +87,28 @@ contract BaseConnextFacet {
   }
 
   /**
+   * @notice Returns the adopted assets for given canonical information
+   */
+  function _getAdoptedAsset(bytes32 _canonicalId, uint32 _canonicalDomain) internal view returns (address) {
+    return _getAdoptedAsset(_calculateCanonicalHash(_canonicalId, _canonicalDomain));
+  }
+
+  /**
+   * @notice Returns the adopted assets for given canonical information
+   */
+  function _getAdoptedAsset(bytes32 _key) internal view returns (address) {
+    address adopted = s.canonicalToAdopted[_key];
+    if (adopted == address(0)) {
+      revert BaseConnextFacet__getAdoptedAsset_notWhitelisted();
+    }
+    return adopted;
+  }
+
+  /**
    * @notice Calculates a transferId
    */
-  function _calculateTransferId(
-    CallParams memory _params,
-    uint256 _amount,
-    uint256 _nonce,
-    bytes32 _canonicalId,
-    uint32 _canonicalDomain,
-    address _originSender
-  ) internal pure returns (bytes32) {
-    return keccak256(abi.encode(_nonce, _params, _originSender, _canonicalId, _canonicalDomain, _amount));
+  function _calculateTransferId(CallParams memory _params) internal pure returns (bytes32) {
+    return keccak256(abi.encode(_params));
   }
 
   /**
@@ -121,5 +125,17 @@ contract BaseConnextFacet {
    */
   function _calculateCanonicalHash(TokenId calldata _canonical) internal pure returns (bytes32) {
     return _calculateCanonicalHash(_canonical.id, _canonical.domain);
+  }
+
+  /**
+   * @notice Internal utility function that combines
+   *         `_origin` and `_nonce`.
+   * @dev Both origin and nonce should be less than 2^32 - 1
+   * @param _origin Domain of chain where the transfer originated
+   * @param _nonce The unique identifier for the message from origin to destination
+   * @return Returns (`_origin` << 32) & `_nonce`
+   */
+  function _originAndNonce(uint32 _origin, uint32 _nonce) internal pure returns (uint64) {
+    return (uint64(_origin) << 32) | _nonce;
   }
 }

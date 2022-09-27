@@ -13,7 +13,7 @@ import {
 } from "@connext/nxtp-utils";
 import { compare } from "compare-versions";
 
-import { AuctionExpired, MissingXCall, ParamsInvalid, BidVersionInvalid } from "../../errors";
+import { AuctionExpired, MissingXCall, ParamsInvalid, RouterVersionInvalid } from "../../errors";
 import { getContext } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
 import { Message, MessageType } from "../../entities";
@@ -44,7 +44,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
   // check if bid router version is compatible with hosted sequencer
   const checkVersion = compare(bid.routerVersion, config.supportedVersion!, "<");
   if (checkVersion) {
-    throw new BidVersionInvalid({
+    throw new RouterVersionInvalid({
       supportedVersion: config.supportedVersion,
       bid,
     });

@@ -35,7 +35,6 @@ export default task("set-xapp-manager", "Updates the xapp connection manager")
 
     const names = [
       "BridgeRouterUpgradeBeaconProxy",
-      "PromiseRouterUpgradeBeaconProxy",
       "RelayerFeeRouterUpgradeBeaconProxy",
     ]
       .filter((name) => {

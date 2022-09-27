@@ -6,7 +6,7 @@ import {DiamondLoupeFacet} from "../../contracts/core/connext/facets/DiamondLoup
 import {DiamondInit} from "../../contracts/core/connext/facets/upgrade-initializers/DiamondInit.sol";
 import {AssetFacet} from "../../contracts/core/connext/facets/AssetFacet.sol";
 import {BridgeFacet} from "../../contracts/core/connext/facets/BridgeFacet.sol";
-import {NomadFacet} from "../../contracts/core/connext/facets/NomadFacet.sol";
+import {InboxFacet} from "../../contracts/core/connext/facets/InboxFacet.sol";
 import {ProposedOwnableFacet} from "../../contracts/core/connext/facets/ProposedOwnableFacet.sol";
 import {RelayerFacet} from "../../contracts/core/connext/facets/RelayerFacet.sol";
 import {RoutersFacet} from "../../contracts/core/connext/facets/RoutersFacet.sol";
@@ -14,7 +14,7 @@ import {StableSwapFacet} from "../../contracts/core/connext/facets/StableSwapFac
 import {SwapAdminFacet} from "../../contracts/core/connext/facets/SwapAdminFacet.sol";
 import {PortalFacet} from "../../contracts/core/connext/facets/PortalFacet.sol";
 import {VersionFacet} from "../../contracts/core/connext/facets/VersionFacet.sol";
-import {XCallArgs, CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
 
 import {Connext} from "./Connext.sol";
@@ -27,7 +27,7 @@ contract Deployer {
   DiamondInit diamondInit;
   AssetFacet assetFacet;
   BridgeFacet bridgeFacet;
-  NomadFacet nomadFacet;
+  InboxFacet inboxFacet;
   ProposedOwnableFacet proposedOwnableFacet;
   RelayerFacet relayerFacet;
   RoutersFacet routersFacet;
@@ -91,29 +91,30 @@ contract Deployer {
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](19);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](17);
     // getters
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
     bridgeFacetSelectors[1] = BridgeFacet.routedTransfers.selector;
     bridgeFacetSelectors[2] = BridgeFacet.reconciledTransfers.selector;
-    bridgeFacetSelectors[3] = BridgeFacet.connextion.selector;
+    bridgeFacetSelectors[3] = BridgeFacet.remote.selector;
     bridgeFacetSelectors[4] = BridgeFacet.domain.selector;
-    bridgeFacetSelectors[5] = BridgeFacet.executor.selector;
-    bridgeFacetSelectors[6] = BridgeFacet.nonce.selector;
-    bridgeFacetSelectors[7] = BridgeFacet.sponsorVault.selector;
-    bridgeFacetSelectors[8] = BridgeFacet.promiseRouter.selector;
+    bridgeFacetSelectors[5] = BridgeFacet.nonce.selector;
+    bridgeFacetSelectors[6] = BridgeFacet.approvedSequencers.selector;
+
     // admin
-    bridgeFacetSelectors[9] = BridgeFacet.setPromiseRouter.selector;
-    bridgeFacetSelectors[10] = BridgeFacet.setExecutor.selector;
-    bridgeFacetSelectors[11] = BridgeFacet.setSponsorVault.selector;
-    bridgeFacetSelectors[12] = BridgeFacet.addConnextion.selector;
-    bridgeFacetSelectors[13] = BridgeFacet.addSequencer.selector;
-    bridgeFacetSelectors[14] = BridgeFacet.removeSequencer.selector;
-    // public
-    bridgeFacetSelectors[15] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[16] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[17] = BridgeFacet.bumpTransfer.selector;
-    bridgeFacetSelectors[18] = BridgeFacet.forceReceiveLocal.selector;
+    bridgeFacetSelectors[7] = BridgeFacet.addSequencer.selector;
+    bridgeFacetSelectors[8] = BridgeFacet.removeSequencer.selector;
+    bridgeFacetSelectors[9] = BridgeFacet.setXAppConnectionManager.selector;
+    bridgeFacetSelectors[10] = BridgeFacet.enrollRemoteRouter.selector;
+    bridgeFacetSelectors[11] = BridgeFacet.enrollCustom.selector;
+
+    // public:bridge
+    bridgeFacetSelectors[12] = BridgeFacet.xcall.selector;
+    bridgeFacetSelectors[13] = BridgeFacet.xcallIntoLocal.selector;
+    bridgeFacetSelectors[14] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[15] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[16] = BridgeFacet.forceUpdateSlippage.selector;
+
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,
@@ -122,16 +123,14 @@ contract Deployer {
       });
   }
 
-  function getNomadFacetCut(address _nomadFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory nomadFacetSelectors = new bytes4[](3);
-    nomadFacetSelectors[0] = NomadFacet.bridgeRouter.selector;
-    nomadFacetSelectors[1] = NomadFacet.setBridgeRouter.selector;
-    nomadFacetSelectors[2] = NomadFacet.onReceive.selector;
+  function getInboxFacetCut(address _inboxFacet) internal pure returns (IDiamondCut.FacetCut memory) {
+    bytes4[] memory inboxFacetSelectors = new bytes4[](1);
+    inboxFacetSelectors[0] = InboxFacet.handle.selector;
     return
       IDiamondCut.FacetCut({
-        facetAddress: _nomadFacet,
+        facetAddress: _inboxFacet,
         action: IDiamondCut.FacetCutAction.Add,
-        functionSelectors: nomadFacetSelectors
+        functionSelectors: inboxFacetSelectors
       });
   }
 
@@ -295,18 +294,17 @@ contract Deployer {
   }
 
   function getTestSetterFacetCut(address _testSetterFacetFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory testSetterFacetSelectors = new bytes4[](11);
+    bytes4[] memory testSetterFacetSelectors = new bytes4[](10);
     testSetterFacetSelectors[0] = TestSetterFacet.setTestRelayerFees.selector;
     testSetterFacetSelectors[1] = TestSetterFacet.setTestTransferRelayer.selector;
     testSetterFacetSelectors[2] = TestSetterFacet.setTestApproveRouterForPortal.selector;
-    testSetterFacetSelectors[3] = TestSetterFacet.setTestSponsorVault.selector;
-    testSetterFacetSelectors[4] = TestSetterFacet.setTestApprovedRelayer.selector;
-    testSetterFacetSelectors[5] = TestSetterFacet.setTestRouterBalances.selector;
-    testSetterFacetSelectors[6] = TestSetterFacet.setTestApprovedRouter.selector;
-    testSetterFacetSelectors[7] = TestSetterFacet.setTestCanonicalToAdopted.selector;
-    testSetterFacetSelectors[8] = TestSetterFacet.setTestAavePortalDebt.selector;
-    testSetterFacetSelectors[9] = TestSetterFacet.setTestAavePortalFeeDebt.selector;
-    testSetterFacetSelectors[10] = TestSetterFacet.setTestRoutedTransfers.selector;
+    testSetterFacetSelectors[3] = TestSetterFacet.setTestApprovedRelayer.selector;
+    testSetterFacetSelectors[4] = TestSetterFacet.setTestRouterBalances.selector;
+    testSetterFacetSelectors[5] = TestSetterFacet.setTestApprovedRouter.selector;
+    testSetterFacetSelectors[6] = TestSetterFacet.setTestCanonicalToAdopted.selector;
+    testSetterFacetSelectors[7] = TestSetterFacet.setTestAavePortalDebt.selector;
+    testSetterFacetSelectors[8] = TestSetterFacet.setTestAavePortalFeeDebt.selector;
+    testSetterFacetSelectors[9] = TestSetterFacet.setTestRoutedTransfers.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _testSetterFacetFacet,
@@ -321,7 +319,7 @@ contract Deployer {
     diamondInit = new DiamondInit();
     assetFacet = new AssetFacet();
     bridgeFacet = new BridgeFacet();
-    nomadFacet = new NomadFacet();
+    inboxFacet = new InboxFacet();
     proposedOwnableFacet = new ProposedOwnableFacet();
     relayerFacet = new RelayerFacet();
     routersFacet = new RoutersFacet();
@@ -339,7 +337,7 @@ contract Deployer {
     facetCuts[2] = getDiamondLoupeFacetCut(address(diamondLoupeFacet));
     facetCuts[3] = getAssetFacetCut(address(assetFacet));
     facetCuts[4] = getBridgeFacetCut(address(bridgeFacet));
-    facetCuts[5] = getNomadFacetCut(address(nomadFacet));
+    facetCuts[5] = getInboxFacetCut(address(inboxFacet));
     facetCuts[6] = getProposedOwnableFacetCut(address(proposedOwnableFacet));
     facetCuts[7] = getRelayerFacetCut(address(relayerFacet));
     facetCuts[8] = getRoutersFacetCut(address(routersFacet));
@@ -353,19 +351,20 @@ contract Deployer {
 
   function deployConnext(
     uint256 domain,
-    address xAppConnectionManager,
     address tokenRegistry,
     address relayerFeeRouter,
-    address payable promiseRouter,
-    uint256 acceptanceDelay
+    address xAppConnectionManager,
+    uint256 acceptanceDelay,
+    uint256 ownershipDelay
   ) internal returns (address) {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       domain,
       tokenRegistry,
       relayerFeeRouter,
-      promiseRouter,
-      acceptanceDelay
+      xAppConnectionManager,
+      acceptanceDelay,
+      ownershipDelay
     );
 
     deployFacets();

@@ -45,8 +45,6 @@ import "./tasks/stableswap/setSwapFees";
 import "./tasks/connector/send";
 import "./tasks/rootmanager/propagate";
 import "./tasks/setMirrorConnectors";
-import "./tasks/addConnextions";
-import "./tasks/setBridgeRouter";
 import "./tasks/addSequencer";
 import "./tasks/setXAppConnectionManager";
 import "./tasks/queryRoots";
@@ -54,6 +52,7 @@ import "./tasks/submitExitProof";
 import "./tasks/addConnectors";
 import "./tasks/connector/proveAndProcess";
 import "./tasks/addSender";
+import "./tasks/connector/processFromRoot";
 
 envConfig();
 const urlOverride = process.env.ETH_PROVIDER_URL;
@@ -267,6 +266,37 @@ const config: HardhatUserConfig = {
       chainId: 421611,
       url: urlOverride || process.env.ARB_RINK_ETH_PROVIDER_URL || "https://rinkeby.arbitrum.io/rpc",
     },
+    "arbitrum-goerli": {
+      accounts: { mnemonic },
+      chainId: 421613,
+      url:
+        urlOverride ||
+        process.env.OPTI_GOERLI_ETH_PROVIDER_URL ||
+        "https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+      companionNetworks: {
+        hub: "goerli",
+      },
+      verify: {
+        etherscan: {
+          apiKey: process.env.ETHERSCAN_API_KEY!,
+          apiUrl: "https://goerli-rollup-explorer.arbitrum.io",
+        },
+      },
+    },
+    "gnosis-testnet": {
+      accounts: { mnemonic },
+      chainId: 100100,
+      url: urlOverride || process.env.GNOSIS_TESTNET_PROVIDER_URL || "https://rpc-chiado.gnosistestnet.com",
+      companionNetworks: {
+        hub: "goerli",
+      },
+      verify: {
+        etherscan: {
+          apiKey: process.env.ETHERSCAN_API_KEY!,
+          apiUrl: "https://blockscout-chiado.gnosistestnet.com/api",
+        },
+      },
+    },
   },
   etherscan: {
     apiKey: {
@@ -276,6 +306,7 @@ const config: HardhatUserConfig = {
       ropsten: process.env.ETHERSCAN_API_KEY!,
       goerli: process.env.ETHERSCAN_API_KEY!,
       "optimism-goerli": process.env.ETHERSCAN_API_KEY!,
+      "gnosis-testnet": process.env.ETHERSCAN_API_KEY!,
       mumbai: process.env.POLYGONSCAN_API_KEY!,
     },
     customChains: [
@@ -285,6 +316,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://blockscout.com/optimism/goerli/api",
           browserURL: "https://blockscout.com/optimism/goerli",
+        },
+      },
+      {
+        network: "gnosis-testnet",
+        chainId: 100100,
+        urls: {
+          apiURL: "https://blockscout-chiado.gnosistestnet.com/api",
+          browserURL: "https://blockscout-chiado.gnosistestnet.com",
         },
       },
     ],

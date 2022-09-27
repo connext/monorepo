@@ -43,7 +43,6 @@ import { ConnextHandlerInterface } from "@connext/nxtp-contracts";
 import { pollSomething } from "./helpers/shared";
 import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
 import { DEPLOYER_WALLET, PARAMETERS as _PARAMETERS, SUBG_POLL_PARITY, USER_WALLET } from "./constants/local";
-import { addConnextions } from "./helpers/local/addConnextions";
 import { addSequencer } from "./helpers/local/addSequencer";
 
 export const logger = new Logger({ name: "e2e" });
@@ -141,7 +140,7 @@ const sendXCall = async (
   xcallData: XCallArgs;
 }> => {
   logger.info("Formatting XCall.");
-  const { transactingAsset, transactingAmount, ...callParams } = xparams;
+  const { asset, amount, ...callParams } = xparams;
   const xcallData: XCallArgs = {
     params: {
       to: PARAMETERS.AGENTS.USER.address,
@@ -151,7 +150,6 @@ const sendXCall = async (
       agent: PARAMETERS.AGENTS.USER.address,
       callbackFee: "0",
       callData: "0x",
-      forceSlow: false,
       // TODO: Will need option to override `receiveLocal` when we do AMM-related tests.
       receiveLocal: true,
       recovery: PARAMETERS.AGENTS.USER.address,
@@ -159,8 +157,8 @@ const sendXCall = async (
       destinationMinOut: "0",
       ...callParams,
     },
-    transactingAsset: transactingAsset ?? PARAMETERS.A.DEPLOYMENTS.TestERC20,
-    transactingAmount: transactingAmount ?? "1000",
+    asset: asset ?? PARAMETERS.A.DEPLOYMENTS.TestERC20,
+    amount: amount ?? "1000",
     originMinOut: "0",
   };
   const tx = await sdkBase.xcall(xcallData);
@@ -329,25 +327,6 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
   // TODO: Mirror connectors set up for messaging
   // TODO: Whitelist messaging routers as callers of dispatch?
   // TODO: Approve relayers as caller for connectors and root manager?
-
-  logger.info("Adding connextions...");
-  await addConnextions(
-    [
-      {
-        chain: PARAMETERS.A.CHAIN,
-        domain: PARAMETERS.A.DOMAIN,
-        ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
-      },
-      {
-        chain: PARAMETERS.B.CHAIN,
-        domain: PARAMETERS.B.DOMAIN,
-        ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
-      },
-    ],
-    deployerTxService,
-    logger,
-  );
-  logger.info("Added connextions.");
 
   logger.info("Enrolling handlers...");
   await enrollHandlers(
@@ -602,7 +581,7 @@ describe("LOCAL:E2E", () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
       sdkBase,
-      { forceSlow: false },
+      undefined,
       PARAMETERS.AGENTS.USER.signer.connect(originProvider),
     );
     const originTransfer = await getTransferByTransactionHash(sdkUtils, PARAMETERS.A.DOMAIN, receipt.transactionHash);
@@ -745,7 +724,7 @@ describe("LOCAL:E2E", () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
       sdkBase,
-      { forceSlow: true },
+      undefined,
       PARAMETERS.AGENTS.USER.signer.connect(originProvider),
     );
 

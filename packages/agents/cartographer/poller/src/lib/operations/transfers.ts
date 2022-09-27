@@ -10,7 +10,7 @@ import { Checkpoints, db, pool } from "../../adapters/database";
 import { getContext } from "../../shared";
 
 const getMaxNonce = (transfers: XTransfer[]): number => {
-  return transfers.length == 0 ? 0 : Math.max(...transfers.map((transfer) => transfer.nonce ?? 0)) ?? 0;
+  return transfers.length == 0 ? 0 : Math.max(...transfers.map((transfer) => transfer.xparams.nonce ?? 0)) ?? 0;
 };
 
 const getMaxReconcileTimestamp = (transfers: XTransfer[]): number => {

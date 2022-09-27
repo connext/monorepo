@@ -1,7 +1,9 @@
 import * as fs from "fs";
 
-import { getChainData, getChainIdFromDomain, getDomainFromChainId } from "@connext/nxtp-utils";
+import { getChainData, getChainIdFromDomain } from "@connext/nxtp-utils";
 import { constants, providers, Wallet } from "ethers";
+
+import { chainIdToDomain } from "../domain";
 
 import {
   ProtocolStack,
@@ -105,7 +107,8 @@ export const sanitizeAndInit = async (config: any) => {
       // Make sure chain is saved as a string.
       network.chain = chain;
       // Make sure domain is specified.
-      network.domain = await getDomainFromChainId(parseInt(chain, 10));
+      // network.domain = await getDomainFromChainId(parseInt(chain, 10));
+      network.domain = chainIdToDomain(parseInt(chain, 10)).toString();
     }
 
     // RPC provider is required.
@@ -142,6 +145,7 @@ export const sanitizeAndInit = async (config: any) => {
   /// MARK - Hub
   // Hub domain should be a domain ID and be included in the list of supported domains.
   const supportedDomains = config.networks.map((d: any) => d.domain);
+  console.log({ supportedDomains });
   if (!supportedDomains.includes(hub)) {
     const supportedChains = config.networks.map((d: any) => d.chain);
     throw new Error(
@@ -153,9 +157,11 @@ export const sanitizeAndInit = async (config: any) => {
   /// MARK - Assets
   // If assets are not specified, just set an empty array.
   const assets = config.assets ?? [];
+  console.log({ assets });
   // All domains specified in AssetStack(s) must be included in domains.
   for (const asset of assets) {
     const domains = [asset.canonical.domain].concat(Object.keys(asset.representations as { [domain: string]: any }));
+    console.log({ domains });
     for (const domain of domains) {
       if (!supportedDomains.includes(domain)) {
         throw new Error(
@@ -247,7 +253,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     const mirrorDomain = (
       await getValue<number>({
         deployment: HubConnector,
-        read: "mirrorDomain",
+        read: "MIRROR_DOMAIN",
       })
     ).toString();
 
@@ -331,14 +337,6 @@ export const initProtocol = async (protocol: ProtocolStack) => {
             write: { method: "addSender", args: [handler.address] },
           });
         }
-        for (const handler of Object.values(hub.deployments.handlers)) {
-          await updateIfNeeded({
-            deployment: HubConnector,
-            desired: true,
-            read: { method: "whitelistedSenders", args: [handler.address] },
-            write: { method: "addSender", args: [handler.address] },
-          });
-        }
       }
     }
 
@@ -411,21 +409,21 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// MARK - Init
   // Check to make sure Diamond Proxy is initialized.
   /// MARK - Connextions
-  console.log("\n\nSET CONNEXTIONS");
-  // TODO/NOTE: Will likely be removing 'connextions' once we combine Connext+BridgeRouter.
-  for (let i = 0; i < protocol.networks.length; i++) {
-    const targetNetwork = protocol.networks[i];
-    const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
-    for (const remoteNetwork of remoteNetworks) {
-      const desiredConnextion = remoteNetwork.deployments.Connext.address;
-      await updateIfNeeded({
-        deployment: targetNetwork.deployments.Connext,
-        desired: desiredConnextion,
-        read: { method: "connextion", args: [remoteNetwork.domain] },
-        write: { method: "addConnextion", args: [remoteNetwork.domain, desiredConnextion] },
-      });
-    }
-  }
+  // console.log("\n\nSET CONNEXTIONS");
+  // // TODO/NOTE: Will likely be removing 'connextions' once we combine Connext+BridgeRouter.
+  // for (let i = 0; i < protocol.networks.length; i++) {
+  //   const targetNetwork = protocol.networks[i];
+  //   const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
+  //   for (const remoteNetwork of remoteNetworks) {
+  //     const desiredConnextion = remoteNetwork.deployments.Connext.address;
+  //     await updateIfNeeded({
+  //       deployment: targetNetwork.deployments.Connext,
+  //       desired: desiredConnextion,
+  //       read: { method: "connextion", args: [remoteNetwork.domain] },
+  //       write: { method: "addConnextion", args: [remoteNetwork.domain, desiredConnextion] },
+  //     });
+  //   }
+  // }
 
   /// ********************* ASSETS **********************
   /// MARK - Register Assets

@@ -6,3 +6,5 @@ export * as queueSol from "./Queue.sol";
 export * as connectors from "./connectors";
 export * as interfaces from "./interfaces";
 export { RootManager__factory } from "./RootManager__factory";
+export { WatcherClient__factory } from "./WatcherClient__factory";
+export { WatcherManager__factory } from "./WatcherManager__factory";

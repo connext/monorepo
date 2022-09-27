@@ -1,77 +1,101 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
+import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
+
 import {IRootManager} from "./interfaces/IRootManager.sol";
 import {IHubConnector} from "./interfaces/IHubConnector.sol";
-import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
+import {Message} from "./libraries/Message.sol";
+
+import {MerkleTreeManager} from "./Merkle.sol";
+import {WatcherClient} from "./WatcherClient.sol";
 
 /**
  * @notice This contract exists at cluster hubs, and aggregates all transfer roots from messaging
  * spokes into a single merkle root
  */
 
-contract RootManager is ProposedOwnable, IRootManager {
+contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
   // ============ Events ============
-  event RootPropagated(bytes32 aggregate, uint32[] domains);
 
-  event OutboundRootUpdated(uint32 domain, bytes32 outboundRoot);
+  event RootAggregated(uint32 domain, bytes32 receivedRoot, uint256 index);
+
+  event RootPropagated(bytes32 aggregate, uint32[] domains);
 
   event ConnectorAdded(uint32 domain, address connector);
 
   event ConnectorRemoved(uint32 domain, address connector);
 
-  event WatcherAdded(address watcher);
-
-  event WatcherRemoved(address watcher);
-
   // ============ Properties ============
-  mapping(uint32 => address) public connectors;
 
-  mapping(uint32 => bytes32) public outboundRoots;
+  /**
+   * @notice MerkleTreeManager contract instance. Will hold the active tree of aggregated inbound roots.
+   * The root of this tree will be distributed crosschain to all spoke domains.
+   */
+  MerkleTreeManager public immutable MERKLE;
+
+  mapping(uint32 => address) public connectors;
 
   uint32[] public domains;
 
-  mapping(address => bool) public watchers;
-
-  // ============ Constructor ============
-  constructor() ProposedOwnable() {
-    _setOwner(msg.sender);
-  }
-
   // ============ Modifiers ============
-  modifier onlyWatcher() {
-    require(watchers[msg.sender], "!watcher");
-    _;
-  }
 
   modifier onlyConnector(uint32 _domain) {
     require(connectors[_domain] == msg.sender, "!connector");
     _;
   }
 
-  // ============ Public fns ============
+  // ============ Constructor ============
 
   /**
-   * @notice This is called by relayers to generate + send the mixed root from mainnet via AMB to spoke domains
-   * @dev This must read information for the root from the registered AMBs
-   * TODO should we input domains or store them? (relayer can alter input domains)
-   * FIXME proper merkle tree implementation
+   * @notice Creates a new RootManager instance.
+   * @param _merkle The address of the MerkleTreeManager on this domain.
+   * @param _watcherManager The address of the WatcherManager on this domain.
+   */
+  constructor(address _merkle, address _watcherManager) ProposedOwnable() WatcherClient(_watcherManager) {
+    _setOwner(msg.sender);
+
+    // If no MerkleTreeManager instance is specified, create a new one.
+    MERKLE = _merkle == address(0) ? new MerkleTreeManager() : MerkleTreeManager(_merkle);
+  }
+
+  // ============ Public Functions ============
+
+  /**
+   * @notice This is called by relayers to take the current aggregate tree root and propagate it to all
+   * spoke domains.
+   * @dev Should be called by relayers at a regular interval.
    */
   function propagate() external override {
-    bytes memory aggregate = abi.encodePacked(outboundRoots[domains[0]]);
-    for (uint8 i; i < domains.length; i++) {
-      address connector = connectors[domains[i]];
-      IHubConnector(connector).sendMessage(aggregate);
+    bytes32 _aggregated = MERKLE.root();
+
+    uint256 _numDomains = domains.length;
+    for (uint32 i; i < _numDomains; ) {
+      address _connector = connectors[domains[i]];
+      IHubConnector(_connector).sendMessage(abi.encodePacked(_aggregated));
+
+      unchecked {
+        ++i;
+      }
     }
-    emit RootPropagated(outboundRoots[domains[0]], domains);
+    emit RootPropagated(_aggregated, domains);
   }
 
-  function setOutboundRoot(uint32 _domain, bytes32 _outbound) external override onlyConnector(_domain) {
-    outboundRoots[_domain] = _outbound;
-    emit OutboundRootUpdated(_domain, _outbound);
+  /**
+   * @notice Accept an inbound root coming from a given domain's hub connector, inserting this incoming
+   * root into the current aggregate tree.
+   * @dev The aggregate tree's root, which will include this inbound root, will be propagated to all spoke
+   * domains on a regular basis.
+   *
+   * @param _domain The source domain of the given root.
+   * @param _inbound The inbound root coming from the given domain.
+   */
+  function aggregate(uint32 _domain, bytes32 _inbound) external override onlyConnector(_domain) {
+    (, uint256 count) = MERKLE.insert(_inbound);
+    emit RootAggregated(_domain, _inbound, count - 1);
   }
 
-  // ============ Admin fns ============
+  // ============ Admin Functions ============
 
   /**
    * @dev Owner can add a new connector. Address should be the connector on l1
@@ -107,23 +131,5 @@ contract RootManager is ProposedOwnable, IRootManager {
     }
     domains.pop();
     emit ConnectorRemoved(_domain, connector);
-  }
-
-  /**
-   * @dev Owner can enroll a watcher (who has ability to disconnect connector)
-   */
-  function addWatcher(address _watcher) external onlyOwner {
-    require(!watchers[_watcher], "already watcher");
-    watchers[_watcher] = true;
-    emit WatcherAdded(_watcher);
-  }
-
-  /**
-   * @dev Owner can unenroll a watcher (who has ability to disconnect connector)
-   */
-  function removeWatcher(address _watcher) external onlyOwner {
-    require(watchers[_watcher], "!exist");
-    watchers[_watcher] = false;
-    emit WatcherRemoved(_watcher);
   }
 }

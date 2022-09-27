@@ -4,6 +4,8 @@ pragma solidity 0.8.15;
 import {MultichainSpokeConnector} from "../../../../contracts/messaging/connectors/multichain/MultichainSpokeConnector.sol";
 import {Multichain} from "../../../../contracts/messaging/interfaces/ambs/Multichain.sol";
 
+import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
+
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
 
@@ -27,6 +29,8 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     // Get the n+1 deployment address
     _l1Connector = address(123123123123);
 
+    _merkle = address(new MerkleTreeManager());
+
     // Deploy
     vm.prank(_owner);
     _l2Connector = address(
@@ -35,10 +39,13 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
         _l1Domain,
         _amb,
         _rootManager,
+        _merkle,
         _l1Connector,
         _mirrorGas,
         _processGas,
         _reserveGas,
+        0, // uint256 _delayBlocks
+        address(1), // watcher manager
         _chainIdMainnet
       )
     );
@@ -92,7 +99,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     MultichainSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
 
     // Check: root is updated
-    assertEq(MultichainSpokeConnector(_l2Connector).aggregateRoot(), bytes32(_data));
+    assertEq(MultichainSpokeConnector(_l2Connector).aggregateRootPending(), bytes32(_data));
   }
 
   // msg.sender is not the bridge on L2

@@ -33,7 +33,7 @@ contract MultichainHubConnector is HubConnector, BaseMultichain {
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
     // set the outbound root for BSC domain
-    IRootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, bytes32(_data));
+    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
   }
 
   function _sendMessage(bytes memory _data) internal override {

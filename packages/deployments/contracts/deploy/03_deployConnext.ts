@@ -3,16 +3,14 @@ import { DeployFunction, Facet } from "hardhat-deploy/types";
 import { constants, Contract, providers, Wallet } from "ethers";
 import { ethers } from "hardhat";
 import { FunctionFragment, Interface } from "ethers/lib/utils";
-import { FacetCut, FacetCutAction } from "hardhat-deploy/dist/types";
+import { FacetCut, FacetCutAction, ExtendedArtifact, DeploymentSubmission } from "hardhat-deploy/dist/types";
+import { mergeABIs } from "hardhat-deploy/dist/src/utils";
 
 import { SKIP_SETUP } from "../src/constants";
 import { getConnectorName, getDeploymentName, getProtocolNetwork } from "../src/utils";
 import { chainIdToDomain } from "../src";
 import { deployConfigs } from "../deployConfig";
 import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
-import { ExtendedArtifact } from "hardhat-deploy/dist/types";
-import { mergeABIs } from "hardhat-deploy/dist/src/utils";
-import { DeploymentSubmission } from "hardhat-deploy/dist/types";
 
 function sigsFromABI(abi: any[]): string[] {
   return abi
@@ -41,7 +39,7 @@ const proposeDiamondUpgrade = async (
     }
   }
 
-  let diamondArtifact: ExtendedArtifact = await hre.deployments.getExtendedArtifact("Diamond");
+  const diamondArtifact: ExtendedArtifact = await hre.deployments.getExtendedArtifact("Diamond");
   let abi: any[] = diamondArtifact.abi.concat([]);
 
   // Add DiamondLoupeFacet
@@ -160,6 +158,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const chainId = await hre.getChainId();
 
   const acceptanceDelay = 0; // 604800 = 7 days
+  const ownershipDelay = 0; // 604800 = 7 days
 
   let _deployer: any;
   ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
@@ -181,12 +180,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("balance: ", balance.toString());
 
   // Retrieve Router deployments, format into ethers.Contract objects:
-  const promiseRouterDeployment = await hre.deployments.getOrNull(getDeploymentName("PromiseRouterUpgradeBeaconProxy"));
-  if (!promiseRouterDeployment) {
-    throw new Error("PromiseRouterUpgradeBeaconProxy deployment not found!");
-  }
-  const promiseRouter = await hre.ethers.getContractAt("PromiseRouter", promiseRouterDeployment.address, deployer);
-
   const relayerFeeRouterDeployment = await hre.deployments.getOrNull(
     getDeploymentName("RelayerFeeRouterUpgradeBeaconProxy"),
   );
@@ -250,7 +243,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const facets: FacetOptions[] = [
     { name: getDeploymentName("AssetFacet"), contract: "AssetFacet", args: [] },
     { name: getDeploymentName("BridgeFacet"), contract: "BridgeFacet", args: [] },
-    { name: getDeploymentName("NomadFacet"), contract: "NomadFacet", args: [] },
+    { name: getDeploymentName("InboxFacet"), contract: "InboxFacet", args: [] },
     { name: getDeploymentName("ProposedOwnableFacet"), contract: "ProposedOwnableFacet", args: [] },
     { name: getDeploymentName("RelayerFacet"), contract: "RelayerFacet", args: [] },
     { name: getDeploymentName("RoutersFacet"), contract: "RoutersFacet", args: [] },
@@ -314,7 +307,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         : {
             contract: "DiamondInit",
             methodName: "init",
-            args: [domain, tokenRegistry.address, relayerFeeRouter.address, promiseRouter.address, acceptanceDelay],
+            args: [
+              domain,
+              tokenRegistry.address,
+              relayerFeeRouter.address,
+              connectorManagerDeployment.address,
+              acceptanceDelay,
+              ownershipDelay,
+            ],
           },
     });
   }
@@ -340,15 +340,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     await addTm.wait();
   } else {
     console.log("relayer fee router connext set");
-  }
-
-  // Add connext to promise router
-  if ((await promiseRouter.connext()) !== connextAddress) {
-    console.log("setting connext on promiseRouter router");
-    const addTm = await promiseRouter.connect(deployer).setConnext(connextAddress);
-    await addTm.wait();
-  } else {
-    console.log("promise router connext set");
   }
 
   console.log("Deploying multicall...");

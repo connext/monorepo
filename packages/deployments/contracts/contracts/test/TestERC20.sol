@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-import {IBridgeToken} from "./IBridgeToken.sol";
+import {IBridgeToken} from "../core/connext/interfaces/IBridgeToken.sol";
 
 /**
  * @notice This token is ONLY useful for testing
@@ -16,30 +16,22 @@ contract TestERC20 is ERC20, IBridgeToken {
   }
 
   // ============ Bridge functions ===============
-  function initialize() external override {}
+  function initialize(
+    uint8 _decimals,
+    string memory _name,
+    string memory _symbol
+  ) external override {}
 
   function detailsHash() external view override returns (bytes32) {
     return
-      keccak256(
-        abi.encodePacked(
-          bytes(this.name()).length,
-          this.name(),
-          bytes(this.symbol()).length,
-          this.symbol(),
-          this.decimals()
-        )
-      );
+      keccak256(abi.encodePacked(bytes(this.name()).length, this.name(), bytes(this.symbol()).length, this.symbol()));
   }
 
   function setDetailsHash(bytes32 _detailsHash) external override {
     // Does nothing, in practice will update the details to match the hash in message
   }
 
-  function setDetails(
-    string calldata _newName,
-    string calldata _newSymbol,
-    uint8 _newDecimals
-  ) external override {
+  function setDetails(string calldata _newName, string calldata _newSymbol) external override {
     // Does nothing, in practice will update the details to match the hash in message
     // not the autodeployed results
   }

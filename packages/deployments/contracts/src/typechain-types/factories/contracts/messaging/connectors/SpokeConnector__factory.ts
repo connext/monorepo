@@ -62,11 +62,11 @@ const _abi = [
       {
         indexed: false,
         internalType: "bytes32",
-        name: "previous",
+        name: "pending",
         type: "bytes32",
       },
     ],
-    name: "AggregateRootUpdated",
+    name: "AggregateRootsUpdated",
     type: "event",
   },
   {
@@ -297,6 +297,19 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "watcherManager",
+        type: "address",
+      },
+    ],
+    name: "WatcherManagerChanged",
+    type: "event",
+  },
+  {
     inputs: [],
     name: "AMB",
     outputs: [
@@ -317,6 +330,19 @@ const _abi = [
         internalType: "uint32",
         name: "",
         type: "uint32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "MERKLE",
+    outputs: [
+      {
+        internalType: "contract MerkleTreeManager",
+        name: "",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -396,7 +422,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "aggregateRoot",
+    name: "aggregateRootCurrent",
     outputs: [
       {
         internalType: "bytes32",
@@ -409,7 +435,20 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "count",
+    name: "aggregateRootPending",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "aggregateRootPendingBlock",
     outputs: [
       {
         internalType: "uint256",
@@ -423,6 +462,19 @@ const _abi = [
   {
     inputs: [],
     name: "delay",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "delayBlocks",
     outputs: [
       {
         internalType: "uint256",
@@ -470,6 +522,19 @@ const _abi = [
         internalType: "contract IOutbox",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "isPaused",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -652,18 +717,35 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes",
-        name: "_message",
-        type: "bytes",
+        components: [
+          {
+            internalType: "bytes",
+            name: "message",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes32[32]",
+            name: "path",
+            type: "bytes32[32]",
+          },
+          {
+            internalType: "uint256",
+            name: "index",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct SpokeConnector.Proof[]",
+        name: "_proofs",
+        type: "tuple[]",
       },
       {
         internalType: "bytes32[32]",
-        name: "_proof",
+        name: "_aggregatorPath",
         type: "bytes32[32]",
       },
       {
         internalType: "uint256",
-        name: "_index",
+        name: "_aggregatorIndex",
         type: "uint256",
       },
     ],
@@ -734,6 +816,37 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "_current",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "_pending",
+        type: "bytes32",
+      },
+    ],
+    name: "setAggregateRoots",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_delayBlocks",
+        type: "uint256",
+      },
+    ],
+    name: "setDelayBlocks",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "_mirrorConnector",
         type: "address",
@@ -758,16 +871,29 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "tree",
-    outputs: [
+    inputs: [
       {
-        internalType: "uint256",
-        name: "count",
-        type: "uint256",
+        internalType: "address",
+        name: "_watcherManager",
+        type: "address",
       },
     ],
-    stateMutability: "view",
+    name: "setWatcherManager",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "paused",
+        type: "bool",
+      },
+    ],
+    name: "setWatcherPaused",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

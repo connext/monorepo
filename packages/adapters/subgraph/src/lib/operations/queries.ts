@@ -10,82 +10,95 @@ import { getContext } from "../../reader";
 
 export const ORIGIN_TRANSFER_ENTITY = `
       id
-      # Meta Data
       chainId
       transferId
       nonce
-
-      # call params
-      to
-      callData
+      status
+      messageHash
+    
+      # CallParams
       originDomain
       destinationDomain
-      forceSlow
+      canonicalDomain
+      to
+      delegate
       receiveLocal
-      recovery
-      agent
-      callback
-      callbackFee
-      relayerFee
-      slippageTol
-      destinationMinOut
-      
-      # Asset Data
-      transactingAsset
-      transactingAmount
-      originMinOut
-      bridgedAsset
-      bridgedAmount
+      callData
+      slippage
+      originSender
+      bridgedAmt
+      normalizedIn
+      canonicalId
+    
+      # Asset
+      asset {
+        id
+        key
+        canonicalId
+        canonicalDomain
+        adoptedAsset
+        blockNumber
+      }
 
-      # Event Data
-      message
+      # Message
+      message {
+        id: ID!
 
+        # origin transfer data
+        transferId
+        destinationDomain
+        # Dispatch Transaction
+        leaf
+        index
+        root
+        message
+        transactionHash
+      }
+    
       # XCalled Transaction
-      caller
+      caller: Bytes
       transactionHash
-      timestamp
-      gasPrice
-      gasLimit
-      blockNumber
+      timestamp: BigInt
+      gasPrice: BigInt
+      gasLimit: BigInt
+      blockNumber: BigInt
 `;
 
 export const DESTINATION_TRANSFER_ENTITY = `
       id
 
-      # Meta Data
+      # Meta
       chainId
       transferId
       nonce
-
-      # call params
-      to
-      callData
-      originDomain
-      destinationDomain
-      forceSlow
-      receiveLocal
-      recovery
-      agent
-      callback
-      callbackFee
-      relayerFee
-      slippageTol
-      destinationMinOut
-
-      # Asset Data
-      localAsset
-      localAmount
-      originMinOut
-      transactingAsset
-      transactingAmount
-      sponsorVaultRelayerFee
-
-      # Executed event Data
       status
       routers {
         id
       }
+
+      # CallParams
+      originDomain
+      destinationDomain
+      canonicalDomain
+      to
+      delegate
+      receiveLocal
+      callData
+      slippage
       originSender
+      bridgedAmt
+      normalizedIn
+      canonicalId
+
+      # Asset
+      asset {
+        id
+        key
+        canonicalId
+        canonicalDomain
+        adoptedAsset
+        blockNumber
+      }
 
       # Executed Transaction
       executedCaller
@@ -326,13 +339,11 @@ const originTransferQueryString = (
   originDomain: string,
   fromNonce: number,
   destinationDomains: string[],
-  forceSlow: boolean,
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "desc",
 ) => {
   return `${prefix}_originTransfers(
     where: {
-      forceSlow: ${forceSlow},
       originDomain: ${originDomain},
       nonce_gte: ${fromNonce},
       destinationDomain_in: [${destinationDomains}]
@@ -356,7 +367,6 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
         domain,
         agents.get(domain)!.latestNonce,
         domains,
-        agents.get(domain)?.forceSlow ?? false,
         agents.get(domain)!.maxBlockNumber,
         agents.get(domain)!.orderDirection,
       );

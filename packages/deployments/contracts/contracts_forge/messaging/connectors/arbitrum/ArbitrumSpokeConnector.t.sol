@@ -7,11 +7,12 @@ import {IArbSys as ArbitrumL2_Bridge} from "@openzeppelin/contracts/vendor/arbit
 import "@openzeppelin/contracts/crosschain/errors.sol";
 
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
 
 import {ArbitrumSpokeConnector} from "../../../../contracts/messaging/connectors/arbitrum/ArbitrumSpokeConnector.sol";
 
-import {ArbitrumL1Amb} from "../../../../contracts/messaging/interfaces/ambs/ArbitrumL1Amb.sol";
-import {ArbitrumL2Amb} from "../../../../contracts/messaging/interfaces/ambs/ArbitrumL2Amb.sol";
+import {IArbitrumInbox} from "../../../../contracts/messaging/interfaces/ambs/arbitrum/IArbitrumInbox.sol";
+import {ArbitrumL2Amb} from "../../../../contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -28,16 +29,21 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     // deploy
     _l1Connector = address(123321123);
 
+    _merkle = address(new MerkleTreeManager());
+
     _l2Connector = address(
       new ArbitrumSpokeConnector(
         _l2Domain,
         _l1Domain,
         _amb,
         _rootManager,
+        _merkle,
         _l1Connector,
         _mirrorGas,
         _processGas,
-        _reserveGas
+        _reserveGas,
+        0, // uint256 _delayBlocks
+        address(1) // watcher manager
       )
     );
   }
@@ -100,7 +106,14 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     emit MessageSent(_data, _rootManager);
 
     // should call send contract transaction
-    vm.expectCall(_amb, abi.encodeWithSelector(ArbitrumL2Amb.sendTxToL1.selector, _l1Connector, _data));
+    vm.expectCall(
+      _amb,
+      abi.encodeWithSelector(
+        ArbitrumL2Amb.sendTxToL1.selector,
+        _l1Connector,
+        abi.encodeWithSelector(Connector.processMessage.selector, _data)
+      )
+    );
 
     vm.prank(_rootManager);
     ArbitrumSpokeConnector(_l2Connector).send();
@@ -122,7 +135,25 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     ArbitrumSpokeConnector(_l2Connector).processMessage(_data);
 
     // assert update
-    assertEq(bytes32(_data), ArbitrumSpokeConnector(_l2Connector).aggregateRoot());
+    assertEq(bytes32(_data), ArbitrumSpokeConnector(_l2Connector).aggregateRootPending());
+  }
+
+  function test_ArbitrumSpokeConnector__processMessage_works_fuzz(bytes32 data) public {
+    utils_setSpokeConnectorVerifyMocks(_l1Connector, true);
+
+    // get outbound data
+    bytes memory _data = abi.encode(data);
+
+    // should emit an event
+    vm.expectEmit(true, true, true, true);
+    emit MessageProcessed(_data, _amb);
+
+    // make call
+    vm.prank(_amb);
+    ArbitrumSpokeConnector(_l2Connector).processMessage(_data);
+
+    // assert update
+    assertEq(bytes32(_data), ArbitrumSpokeConnector(_l2Connector).aggregateRootPending());
   }
 
   function test_ArbitrumSpokeConnector__processMessage_failsIfNotCrosschain() public {

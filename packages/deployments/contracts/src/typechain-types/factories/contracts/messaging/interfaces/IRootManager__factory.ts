@@ -11,13 +11,6 @@ import type {
 
 const _abi = [
   {
-    inputs: [],
-    name: "propagate",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "uint32",
@@ -30,7 +23,14 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "setOutboundRoot",
+    name: "aggregate",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "propagate",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

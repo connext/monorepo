@@ -41,3 +41,13 @@ export class ParseConnextLogFailed extends NxtpError {
     super("Parsing logs failed", context, ParseConnextLogFailed.name);
   }
 }
+
+export class PoolDoesNotExist extends NxtpError {
+  constructor(domainId: string, tokenAddress: string, context: any = {}) {
+    super(
+      "Pool doesn't exist for the token on this domain.",
+      { ...context, domainId, tokenAddress },
+      PoolDoesNotExist.name,
+    );
+  }
+}

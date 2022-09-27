@@ -2,16 +2,13 @@
 pragma solidity 0.8.15;
 
 import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
-import {PromiseRouter} from "../../promise/PromiseRouter.sol";
 
 import {IWeth} from "../interfaces/IWeth.sol";
 import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 
 import {IBridgeRouter} from "../interfaces/IBridgeRouter.sol";
-import {IExecutor} from "../interfaces/IExecutor.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
-import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
-
+import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager.sol";
 import {SwapUtils} from "./SwapUtils.sol";
 
 // ============= Structs =============
@@ -22,91 +19,58 @@ struct TokenId {
 }
 
 /**
- * @notice Contains all information needed to calculate transfer id within the
- * `onReceive` hook from nomad.
- * @dev This excludes information that is included within that interface
- */
-struct TransferIdInformation {
-  CallParams params;
-  uint256 nonce;
-  address originSender;
-}
-
-/**
  * @notice These are the call parameters that will remain constant between the
  * two chains. They are supplied on `xcall` and should be asserted on `execute`
  * @property to - The account that receives funds, in the event of a crosschain call,
  * will receive funds if the call fails.
  *
- * @param to - The address you are sending funds (and potentially data) to
- * @param callData - The data to execute on the receiving chain. If no crosschain call is needed, then leave empty.
  * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
  * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
- * @param agent - An address who can execute txs on behalf of `to`, in addition to allowing relayers
- * @param recovery - The address to send funds to if your `Executor.execute call` fails
- * @param callback - The address on the origin domain of the callback contract
- * @param callbackFee - The relayer fee to execute the callback
- * @param forceSlow - If true, will take slow liquidity path even if it is not a permissioned call
+ * @param canonicalDomain - The canonical domain of the asset you are bridging
+ * @param to - The address you are sending funds (and potentially data) to
+ * @param delegate - An address who can execute txs on behalf of `to`, in addition to allowing relayers
  * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
- * @param relayerFee - The amount of relayer fee the tx called xcall with
- * @param destinationMinOut - Minimum amount received on swaps for local <> adopted on destination chain.
+ * @param callData - The data to execute on the receiving chain. If no crosschain call is needed, then leave empty.
+ * @param slippage - Slippage user is willing to accept from original amount in expressed in BPS (i.e. if
+ * a user takes 1% slippage, this is expressed as 1_000)
+ * @param originSender - The msg.sender of the xcall
+ * @param bridgedAmt - The amount sent over the bridge (after potential AMM on xcall)
+ * @param normalizedIn - The amount sent to `xcall`, normalized to 18 decimals
+ * @param nonce - The nonce on the origin domain used to ensure the transferIds are unique
+ * @param canonicalId - The unique identifier of the canonical token corresponding to bridge assets
  */
 struct CallParams {
-  address to;
-  bytes callData;
   uint32 originDomain;
   uint32 destinationDomain;
-  address agent;
-  address recovery;
-  bool forceSlow;
+  uint32 canonicalDomain;
+  address to;
+  address delegate;
   bool receiveLocal;
-  address callback;
-  uint256 callbackFee;
-  uint256 relayerFee;
-  uint256 destinationMinOut;
-}
-
-/**
- * @notice The arguments you supply to the `xcall` function called by user on origin domain
- * @param params - The CallParams. These are consistent across sending and receiving chains
- * @param transactingAsset - The asset the caller sent with the transfer. Can be the adopted, canonical,
- * or the representational asset.
- * @param transactingAmount - The amount of transferring asset supplied by the user in the `xcall`.
- * @param originMinOut - Minimum amount received on swaps for adopted <> local on origin chain
- */
-struct XCallArgs {
-  CallParams params;
-  address transactingAsset; // Could be adopted, local, or canonical.
-  uint256 transactingAmount;
-  uint256 originMinOut;
+  bytes callData;
+  uint256 slippage;
+  address originSender;
+  uint256 bridgedAmt;
+  uint256 normalizedIn;
+  uint256 nonce;
+  bytes32 canonicalId;
 }
 
 /**
  * @notice
  * @param params - The CallParams. These are consistent across sending and receiving chains.
- * @param local - The local asset for the transfer, will be swapped to the adopted asset if
- * appropriate.
  * @param routers - The routers who you are sending the funds on behalf of.
  * @param routerSignatures - Signatures belonging to the routers indicating permission to use funds
  * for the signed transfer ID.
  * @param sequencer - The sequencer who assigned the router path to this transfer.
  * @param sequencerSignature - Signature produced by the sequencer for path assignment accountability
  * for the path that was signed.
- * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
- * whether fast liquidity was used.
- * @param nonce - The nonce used to generate transfer ID.
- * @param originSender - The msg.sender of the xcall on origin domain.
  */
 struct ExecuteArgs {
   CallParams params;
-  address local; // local representation of canonical token
   address[] routers;
   bytes[] routerSignatures;
   address sequencer;
   bytes sequencerSignature;
-  uint256 amount;
-  uint256 nonce;
-  address originSender;
 }
 
 /**
@@ -140,148 +104,139 @@ struct AppStorage {
   //
   // 1
   uint256 LIQUIDITY_FEE_NUMERATOR;
-  // The local nomad relayer fee router
+  /**
+   * @notice The local nomad relayer fee router.
+   */
   // 2
   RelayerFeeRouter relayerFeeRouter;
-  // The local nomad promise callback router
-  // 3
-  PromiseRouter promiseRouter;
   /**
    * @notice Nonce for the contract, used to keep unique transfer ids.
-   * @dev Assigned at first interaction (xcall on origin domain);
+   * @dev Assigned at first interaction (xcall on origin domain).
    */
-  // 4
+  // 3
   uint256 nonce;
   /**
-   * @notice The external contract that will execute crosschain calldata
+   * @notice The domain this contract exists on.
+   * @dev Must match the nomad domain, which is distinct from the "chainId".
    */
-  // 5
-  IExecutor executor;
-  /**
-   * @notice The domain this contract exists on
-   * @dev Must match the nomad domain, which is distinct from the "chainId"
-   */
-  // 6
+  // 4
   uint32 domain;
   /**
-   * @notice The local nomad token registry
+   * @notice The local nomad token registry.
    */
-  // 7
+  // 5
   ITokenRegistry tokenRegistry;
   /**
-   * @notice Mapping holding the AMMs for swapping in and out of local assets
+   * @notice Mapping holding the AMMs for swapping in and out of local assets.
    * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon).
-   * This mapping is keyed on the hash of the canonical id + domain for local asset
+   * This mapping is keyed on the hash of the canonical id + domain for local asset.
    */
-  // 8
+  // 6
   mapping(bytes32 => IStableSwap) adoptedToLocalPools;
   /**
-   * @notice Mapping of whitelisted assets on same domain as contract
+   * @notice Mapping of whitelisted assets on same domain as contract.
    * @dev Mapping is keyed on the hash of the canonical id and domain taken from the
-   * token registry
+   * token registry.
    */
-  // 9
+  // 7
   mapping(bytes32 => bool) approvedAssets;
   /**
-   * @notice Mapping of adopted to canonical asset information
+   * @notice Mapping of adopted to canonical asset information.
    * @dev If the adopted asset is the native asset, the keyed address will
-   * be the wrapped asset address
+   * be the wrapped asset address.
    */
-  // 10
+  // 8
   mapping(address => TokenId) adoptedToCanonical;
   /**
-   * @notice Mapping of hash(canonicalId, canonicalDomain) to adopted asset on this domain
+   * @notice Mapping of hash(canonicalId, canonicalDomain) to adopted asset on this domain.
    * @dev If the adopted asset is the native asset, the stored address will be the
-   * wrapped asset address
+   * wrapped asset address.
    */
-  // 11
+  // 9
   mapping(bytes32 => address) canonicalToAdopted;
   /**
-   * @notice Mapping to determine if transfer is reconciled
+   * @notice Mapping to determine if transfer is reconciled.
    */
-  // 12
+  // 10
   mapping(bytes32 => bool) reconciledTransfers;
   /**
-   * @notice Mapping holding router address that provided fast liquidity
+   * @notice Mapping holding router address that provided fast liquidity.
    */
-  // 13
+  // 11
   mapping(bytes32 => address[]) routedTransfers;
   /**
-   * @notice Mapping of router to available balance of an asset
+   * @notice Mapping of router to available balance of an asset.
    * @dev Routers should always store liquidity that they can expect to receive via the bridge on
-   * this domain (the nomad local asset)
+   * this domain (the nomad local asset).
    */
-  // 14
+  // 12
   mapping(address => mapping(address => uint256)) routerBalances;
   /**
    * @notice Mapping of approved relayers
-   * @dev Send relayer fee if msg.sender is approvedRelayer. otherwise revert()
+   * @dev Send relayer fee if msg.sender is approvedRelayer; otherwise revert.
    */
-  // 15
+  // 13
   mapping(address => bool) approvedRelayers;
   /**
-   * @notice Stores the relayer fee for a transfer. Updated on origin domain when a user calls xcall or bump
-   * @dev This will track all of the relayer fees assigned to a transfer by id, including any bumps made by the relayer
+   * @notice Stores the relayer fee for a transfer. Updated on origin domain when a user calls xcall or bump.
+   * @dev This will track all of the relayer fees assigned to a transfer by id, including any bumps made by the relayer.
    */
-  // 16
+  // 14
   mapping(bytes32 => uint256) relayerFees;
   /**
    * @notice Stores the relayer of a transfer. Updated on the destination domain when a relayer calls execute
-   * for transfer
-   * @dev When relayer claims, must check that the msg.sender has forwarded transfer
+   * for transfer.
+   * @dev When relayer claims, must check that the msg.sender has forwarded transfer.
    */
-  // 17
+  // 15
   mapping(bytes32 => address) transferRelayer;
   /**
-   * @notice The max amount of routers a payment can be routed through
+   * @notice The max amount of routers a payment can be routed through.
    */
-  // 18
+  // 16
   uint256 maxRoutersPerTransfer;
   /**
-   * @notice The Vault used for sponsoring fees
+   * @notice The address of the nomad bridge router for this chain.
    */
-  // 19
-  ISponsorVault sponsorVault;
-  /**
-   * @notice The address of the nomad bridge router for this chain
-   */
-  // 20
+  // 17
   IBridgeRouter bridgeRouter;
   /**
-   * @notice Stores whether a transfer has had `receiveLocal` overrides forced
+   * @notice Stores a mapping of transfer id to slippage overrides.
    */
-  // 21
-  mapping(bytes32 => bool) receiveLocalOverrides;
+  // 18
+  mapping(bytes32 => uint256) slippage;
   /**
-   * @notice Stores a mapping of connext addresses keyed on domains
-   * @dev Addresses are cast to bytes32
+   * @notice Stores a mapping of remote routers keyed on domains.
+   * @dev Addresses are cast to bytes32.
+   * This mapping is required because the ConnextHandler now contains the BridgeRouter and must implement
+   * the remotes interface.
    */
-  // 22
-  mapping(uint32 => bytes32) connextions;
+  // 19
+  mapping(uint32 => bytes32) remotes;
   //
   // ProposedOwnable
   //
-  // 23
+  // 20
   address _proposed;
-  // 24
+  // 21
   uint256 _proposedOwnershipTimestamp;
-  // 25
+  // 22
   bool _routerWhitelistRemoved;
-  // 26
+  // 23
   uint256 _routerWhitelistTimestamp;
-  // 27
+  // 24
   bool _assetWhitelistRemoved;
-  // 28
+  // 25
   uint256 _assetWhitelistTimestamp;
   //
   // RouterFacet
   //
-  // 29
+  // 26
   RouterPermissionsManagerInfo routerPermissionInfo;
   //
   // ReentrancyGuard
   //
-  // 30
+  // 27
   uint256 _status;
   //
   // StableSwap
@@ -290,52 +245,62 @@ struct AppStorage {
    * @notice Mapping holding the AMM storages for swapping in and out of local assets
    * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon)
    * Struct storing data responsible for automatic market maker functionalities. In order to
-   * access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol
+   * access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol.
    */
-  // 31
+  // 28
   mapping(bytes32 => SwapUtils.Swap) swapStorages;
   /**
    * @notice Maps token address to an index in the pool. Used to prevent duplicate tokens in the pool.
    * @dev getTokenIndex function also relies on this mapping to retrieve token index.
    */
-  // 32
+  // 29
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
   /**
-   * @notice Stores whether or not bribing, AMMs, have been paused
+   * @notice Stores whether or not bribing, AMMs, have been paused.
    */
-  // 33
+  // 30
   bool _paused;
   //
   // AavePortals
   //
   /**
-   * @notice Address of Aave Pool contract
+   * @notice Address of Aave Pool contract.
    */
-  // 34
+  // 31
   address aavePool;
   /**
-   * @notice Fee percentage numerator for using Portal liquidity
-   * @dev Assumes the same basis points as the liquidity fee
+   * @notice Fee percentage numerator for using Portal liquidity.
+   * @dev Assumes the same basis points as the liquidity fee.
    */
-  // 35
+  // 32
   uint256 aavePortalFeeNumerator;
   /**
-   * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
+   * @notice Mapping to store the transfer liquidity amount provided by Aave Portals.
    */
-  // 36
+  // 33
   mapping(bytes32 => uint256) portalDebt;
   /**
-   * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
+   * @notice Mapping to store the transfer liquidity amount provided by Aave Portals.
    */
-  // 37
+  // 34
   mapping(bytes32 => uint256) portalFeeDebt;
   /**
    * @notice Mapping of approved sequencers
    * @dev Sequencer address provided must belong to an approved sequencer in order to call `execute`
    * for the fast liquidity route.
    */
-  // 38
+  // 35
   mapping(address => bool) approvedSequencers;
+  /**
+   * @notice Remote connection manager for xapp.
+   */
+  // 36
+  IConnectorManager xAppConnectionManager;
+  /**
+   * @notice Ownership delay for transferring ownership.
+   */
+  // 37
+  uint256 _ownershipDelay;
 }
 
 library LibConnextStorage {
