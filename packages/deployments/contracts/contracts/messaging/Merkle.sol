@@ -7,6 +7,7 @@ import {MerkleLib} from "./libraries/Merkle.sol";
  * @title MerkleTreeManager
  * @notice Contains a Merkle tree instance and exposes read/write functions for the tree.
  */
+// TODO: Make this upgradeable (preserve tree state across upgrades).
 contract MerkleTreeManager {
   // ============ Libraries ============
 
