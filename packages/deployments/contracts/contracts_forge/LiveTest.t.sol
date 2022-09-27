@@ -87,6 +87,39 @@ contract LiveTest is ForgeHelper {
     );
   }
 
+  function test_execute_slow() public {
+    address[] memory routers = new address[](0);
+    bytes[] memory routerSignatures = new bytes[](0);
+
+    vm.prank(0xaB0A8DCb1590C4565C35cC785dc25A0590398054);
+    connext.execute(
+      ExecuteArgs(
+        CallParams(
+          0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94, // to
+          bytes(""), // callData
+          1735353714, // origin domain
+          1735356532, // dest domain
+          0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94, // agent
+          0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94, // recovery
+          false, // forceSlow
+          false, // receiveLocal
+          address(0), // callback
+          0, // callbackFee
+          4483608970750800, // relayerFee
+          9700000000000000000 // destinationMinOut
+        ), // CallParams
+        0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E, // local asset
+        routers, // routers
+        routerSignatures, // router signatures
+        0x0000000000000000000000000000000000000000, // sequencer
+        bytes(""), // sequencer signatures
+        100000000000000000, // amount
+        72, // nonce
+        0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94 // originSender
+      )
+    );
+  }
+
   function test_xcall() public {
     address transactingAsset = 0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF;
     vm.startPrank(0x54BAA998771639628ffC0206c3b916c466b79c89);
