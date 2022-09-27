@@ -238,8 +238,6 @@ export type { IResolver } from "./contracts/messaging/interfaces/IResolver";
 export { IResolver__factory } from "./factories/contracts/messaging/interfaces/IResolver__factory";
 export type { IRootManager } from "./contracts/messaging/interfaces/IRootManager";
 export { IRootManager__factory } from "./factories/contracts/messaging/interfaces/IRootManager__factory";
-export type { ISpokeConnector } from "./contracts/messaging/interfaces/ISpokeConnector";
-export { ISpokeConnector__factory } from "./factories/contracts/messaging/interfaces/ISpokeConnector__factory";
 export type { MerkleTreeManager } from "./contracts/messaging/Merkle.sol/MerkleTreeManager";
 export { MerkleTreeManager__factory } from "./factories/contracts/messaging/Merkle.sol/MerkleTreeManager__factory";
 export type { QueueManager } from "./contracts/messaging/Queue.sol/QueueManager";
