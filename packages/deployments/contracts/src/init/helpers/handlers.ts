@@ -29,7 +29,7 @@ export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
         const canonized = utils.hexlify(canonizeId(remoteHandler.deployment.address as BytesLike));
         await updateIfNeeded({
           deployment: targetHandler.deployment,
-          desired: canonized,
+          desired: remoteHandler.deployment.address,
           read: { method: "remote", args: [remoteHandler.network.domain] },
           write: { method: "enrollRemoteRouter", args: [remoteHandler.network.domain, canonized] },
         });
