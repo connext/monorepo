@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
-import {OptimismAmb} from "../../interfaces/ambs/OptimismAmb.sol";
+import {OptimismAmb} from "../../interfaces/ambs/optimism/OptimismAmb.sol";
 
 import {SpokeConnector} from "../SpokeConnector.sol";
 import {Connector} from "../Connector.sol";

@@ -108,7 +108,29 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     GnosisSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
 
     // Check: root is updated
-    assertEq(GnosisSpokeConnector(_l2Connector).aggregateRoot(), bytes32(_data));
+    assertEq(GnosisSpokeConnector(_l2Connector).aggregateRootPending(), bytes32(_data));
+  }
+
+  function test_GnosisSpokeConnector__processMessage_shouldUpdateAggregateRoot_fuzz(bytes32 data) public {
+    utils_setSpokeConnectorVerifyMocks(_l1Connector);
+
+    // data
+    bytes memory _data = abi.encodePacked(data);
+
+    uint256 chainId = 1337;
+    vm.chainId(chainId);
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
+
+    // Resize fuzzed bytes to 32 bytes long
+    bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
+    vm.expectEmit(true, true, true, true);
+    emit MessageProcessed(_dataCorrectSize, _amb);
+
+    vm.prank(_amb);
+    GnosisSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
+
+    // Check: root is updated
+    assertEq(GnosisSpokeConnector(_l2Connector).aggregateRootPending(), bytes32(_data));
   }
 
   function test_GnosisSpokeConnector__processMessage_shouldFailIfSenderNotVerified() public {
