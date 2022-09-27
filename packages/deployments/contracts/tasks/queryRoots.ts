@@ -47,8 +47,10 @@ export default task("query-roots", "Read balances of accounts")
         const connector = new Contract(address, abi, provider);
         console.log(`--------- ${name} ---------`);
         console.log("- address:", address);
-        console.log("- outboundRoot:", await connector.outboundRoot());
-        console.log("- aggregateRoot:", await connector.aggregateRoot());
+        if (name.includes("SpokeConnector")) {
+          console.log("- outboundRoot:", await connector.outboundRoot());
+          console.log("- aggregateRoot:", await connector.aggregateRoot());
+        }
 
         if (!hash) {
           return;
