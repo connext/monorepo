@@ -60,11 +60,11 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
   event RevokeRole(address revokedAddress, Role revokedRole);
 
-  event AssignRouterRole(address router);
+  event AssignRoleRouter(address router);
 
-  event AssignWatcherRole(address watcher);
+  event AssignRoleWatcher(address watcher);
 
-  event AssignAdminRole(address admin);
+  event AssignRoleAdmin(address admin);
 
   event Paused();
 
@@ -298,7 +298,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
       revert ProposedOwnableFacet__assignRoleRouter_invalidInput();
 
     s.roles[_router] = Role.Router;
-    emit AssignRouterRole(_router);
+    emit AssignRoleRouter(_router);
   }
 
   /**
@@ -315,7 +315,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
       revert ProposedOwnableFacet__assignRoleWatcher_invalidInput();
 
     s.roles[_watcher] = Role.Watcher;
-    emit AssignWatcherRole(_watcher);
+    emit AssignRoleWatcher(_watcher);
   }
 
   /**
@@ -332,7 +332,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
       revert ProposedOwnableFacet__assignRoleAdmin_invalidInput();
 
     s.roles[_admin] = Role.Admin;
-    emit AssignAdminRole(_admin);
+    emit AssignRoleAdmin(_admin);
   }
 
   function pause() public onlyOwnerOrWatcher {
