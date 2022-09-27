@@ -4,7 +4,6 @@
 import type {
   BaseContract,
   BigNumber,
-  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -27,43 +26,29 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
-export interface RootManagerInterface extends utils.Interface {
+export interface WatcherClientInterface extends utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
-    "addConnector(uint32,address)": FunctionFragment;
-    "connectors(uint32)": FunctionFragment;
     "delay()": FunctionFragment;
-    "domains(uint256)": FunctionFragment;
-    "outboundRoots(uint32)": FunctionFragment;
     "owner()": FunctionFragment;
-    "propagate()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
-    "removeConnector(uint32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "setOutboundRoot(uint32,bytes32)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "acceptProposedOwner"
-      | "addConnector"
-      | "connectors"
       | "delay"
-      | "domains"
-      | "outboundRoots"
       | "owner"
-      | "propagate"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
-      | "removeConnector"
       | "renounceOwnership"
       | "renounced"
-      | "setOutboundRoot"
       | "setWatcherManager"
   ): FunctionFragment;
 
@@ -71,25 +56,8 @@ export interface RootManagerInterface extends utils.Interface {
     functionFragment: "acceptProposedOwner",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "addConnector",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "connectors",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "domains",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "outboundRoots",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(functionFragment: "propagate", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
     values: [PromiseOrValue<string>]
@@ -100,18 +68,10 @@ export interface RootManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "removeConnector",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "setOutboundRoot",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
-  ): string;
   encodeFunctionData(
     functionFragment: "setWatcherManager",
     values: [PromiseOrValue<string>]
@@ -121,19 +81,8 @@ export interface RootManagerInterface extends utils.Interface {
     functionFragment: "acceptProposedOwner",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "addConnector",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "connectors", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "domains", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "outboundRoots",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "propagate", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
@@ -144,76 +93,25 @@ export interface RootManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "removeConnector",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setOutboundRoot",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "setWatcherManager",
     data: BytesLike
   ): Result;
 
   events: {
-    "ConnectorAdded(uint32,address)": EventFragment;
-    "ConnectorRemoved(uint32,address)": EventFragment;
-    "OutboundRootUpdated(uint32,bytes32)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "RootPropagated(bytes32,uint32[])": EventFragment;
     "WatcherManagerChanged(address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "ConnectorAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ConnectorRemoved"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OutboundRootUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RootPropagated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "WatcherManagerChanged"): EventFragment;
 }
-
-export interface ConnectorAddedEventObject {
-  domain: number;
-  connector: string;
-}
-export type ConnectorAddedEvent = TypedEvent<
-  [number, string],
-  ConnectorAddedEventObject
->;
-
-export type ConnectorAddedEventFilter = TypedEventFilter<ConnectorAddedEvent>;
-
-export interface ConnectorRemovedEventObject {
-  domain: number;
-  connector: string;
-}
-export type ConnectorRemovedEvent = TypedEvent<
-  [number, string],
-  ConnectorRemovedEventObject
->;
-
-export type ConnectorRemovedEventFilter =
-  TypedEventFilter<ConnectorRemovedEvent>;
-
-export interface OutboundRootUpdatedEventObject {
-  domain: number;
-  outboundRoot: string;
-}
-export type OutboundRootUpdatedEvent = TypedEvent<
-  [number, string],
-  OutboundRootUpdatedEventObject
->;
-
-export type OutboundRootUpdatedEventFilter =
-  TypedEventFilter<OutboundRootUpdatedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -238,17 +136,6 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
-export interface RootPropagatedEventObject {
-  aggregate: string;
-  domains: number[];
-}
-export type RootPropagatedEvent = TypedEvent<
-  [string, number[]],
-  RootPropagatedEventObject
->;
-
-export type RootPropagatedEventFilter = TypedEventFilter<RootPropagatedEvent>;
-
 export interface WatcherManagerChangedEventObject {
   watcherManager: string;
 }
@@ -260,12 +147,12 @@ export type WatcherManagerChangedEvent = TypedEvent<
 export type WatcherManagerChangedEventFilter =
   TypedEventFilter<WatcherManagerChangedEvent>;
 
-export interface RootManager extends BaseContract {
+export interface WatcherClient extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: RootManagerInterface;
+  interface: WatcherClientInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -291,34 +178,9 @@ export interface RootManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    addConnector(
-      _domain: PromiseOrValue<BigNumberish>,
-      _connector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    connectors(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    domains(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
-
-    outboundRoots(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     owner(overrides?: CallOverrides): Promise<[string]>;
-
-    propagate(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -329,22 +191,11 @@ export interface RootManager extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    removeConnector(
-      _domain: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
-
-    setOutboundRoot(
-      _domain: PromiseOrValue<BigNumberish>,
-      _outbound: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
@@ -356,34 +207,9 @@ export interface RootManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  addConnector(
-    _domain: PromiseOrValue<BigNumberish>,
-    _connector: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  connectors(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-  domains(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<number>;
-
-  outboundRoots(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
   owner(overrides?: CallOverrides): Promise<string>;
-
-  propagate(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
@@ -394,22 +220,11 @@ export interface RootManager extends BaseContract {
 
   proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-  removeConnector(
-    _domain: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   renounceOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
-
-  setOutboundRoot(
-    _domain: PromiseOrValue<BigNumberish>,
-    _outbound: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   setWatcherManager(
     _watcherManager: PromiseOrValue<string>,
@@ -419,32 +234,9 @@ export interface RootManager extends BaseContract {
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
-    addConnector(
-      _domain: PromiseOrValue<BigNumberish>,
-      _connector: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    connectors(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-    domains(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<number>;
-
-    outboundRoots(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     owner(overrides?: CallOverrides): Promise<string>;
-
-    propagate(overrides?: CallOverrides): Promise<void>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -455,20 +247,9 @@ export interface RootManager extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    removeConnector(
-      _domain: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
-
-    setOutboundRoot(
-      _domain: PromiseOrValue<BigNumberish>,
-      _outbound: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
@@ -477,30 +258,6 @@ export interface RootManager extends BaseContract {
   };
 
   filters: {
-    "ConnectorAdded(uint32,address)"(
-      domain?: null,
-      connector?: null
-    ): ConnectorAddedEventFilter;
-    ConnectorAdded(domain?: null, connector?: null): ConnectorAddedEventFilter;
-
-    "ConnectorRemoved(uint32,address)"(
-      domain?: null,
-      connector?: null
-    ): ConnectorRemovedEventFilter;
-    ConnectorRemoved(
-      domain?: null,
-      connector?: null
-    ): ConnectorRemovedEventFilter;
-
-    "OutboundRootUpdated(uint32,bytes32)"(
-      domain?: null,
-      outboundRoot?: null
-    ): OutboundRootUpdatedEventFilter;
-    OutboundRootUpdated(
-      domain?: null,
-      outboundRoot?: null
-    ): OutboundRootUpdatedEventFilter;
-
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
     ): OwnershipProposedEventFilter;
@@ -517,12 +274,6 @@ export interface RootManager extends BaseContract {
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
 
-    "RootPropagated(bytes32,uint32[])"(
-      aggregate?: null,
-      domains?: null
-    ): RootPropagatedEventFilter;
-    RootPropagated(aggregate?: null, domains?: null): RootPropagatedEventFilter;
-
     "WatcherManagerChanged(address)"(
       watcherManager?: null
     ): WatcherManagerChangedEventFilter;
@@ -536,34 +287,9 @@ export interface RootManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    addConnector(
-      _domain: PromiseOrValue<BigNumberish>,
-      _connector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    connectors(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-    domains(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    outboundRoots(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    propagate(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -574,22 +300,11 @@ export interface RootManager extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    removeConnector(
-      _domain: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
-
-    setOutboundRoot(
-      _domain: PromiseOrValue<BigNumberish>,
-      _outbound: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
 
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
@@ -602,34 +317,9 @@ export interface RootManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    addConnector(
-      _domain: PromiseOrValue<BigNumberish>,
-      _connector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    connectors(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    domains(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    outboundRoots(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    propagate(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -640,22 +330,11 @@ export interface RootManager extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    removeConnector(
-      _domain: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    setOutboundRoot(
-      _domain: PromiseOrValue<BigNumberish>,
-      _outbound: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
 
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,

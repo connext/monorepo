@@ -4,13 +4,14 @@ pragma solidity 0.8.15;
 import {IRootManager} from "./interfaces/IRootManager.sol";
 import {IHubConnector} from "./interfaces/IHubConnector.sol";
 import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
+import {WatcherClient} from "./WatcherClient.sol";
 
 /**
  * @notice This contract exists at cluster hubs, and aggregates all transfer roots from messaging
  * spokes into a single merkle root
  */
 
-contract RootManager is ProposedOwnable, IRootManager {
+contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
   // ============ Events ============
   event RootPropagated(bytes32 aggregate, uint32[] domains);
 
@@ -20,10 +21,6 @@ contract RootManager is ProposedOwnable, IRootManager {
 
   event ConnectorRemoved(uint32 domain, address connector);
 
-  event WatcherAdded(address watcher);
-
-  event WatcherRemoved(address watcher);
-
   // ============ Properties ============
   mapping(uint32 => address) public connectors;
 
@@ -31,18 +28,12 @@ contract RootManager is ProposedOwnable, IRootManager {
 
   uint32[] public domains;
 
-  mapping(address => bool) public watchers;
-
   // ============ Constructor ============
-  constructor() ProposedOwnable() {
+  constructor(address _watcherManager) ProposedOwnable() WatcherClient(_watcherManager) {
     _setOwner(msg.sender);
   }
 
   // ============ Modifiers ============
-  modifier onlyWatcher() {
-    require(watchers[msg.sender], "!watcher");
-    _;
-  }
 
   modifier onlyConnector(uint32 _domain) {
     require(connectors[_domain] == msg.sender, "!connector");
@@ -107,23 +98,5 @@ contract RootManager is ProposedOwnable, IRootManager {
     }
     domains.pop();
     emit ConnectorRemoved(_domain, connector);
-  }
-
-  /**
-   * @dev Owner can enroll a watcher (who has ability to disconnect connector)
-   */
-  function addWatcher(address _watcher) external onlyOwner {
-    require(!watchers[_watcher], "already watcher");
-    watchers[_watcher] = true;
-    emit WatcherAdded(_watcher);
-  }
-
-  /**
-   * @dev Owner can unenroll a watcher (who has ability to disconnect connector)
-   */
-  function removeWatcher(address _watcher) external onlyOwner {
-    require(watchers[_watcher], "!exist");
-    watchers[_watcher] = false;
-    emit WatcherRemoved(_watcher);
   }
 }
