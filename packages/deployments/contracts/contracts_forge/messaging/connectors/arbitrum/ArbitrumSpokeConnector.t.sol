@@ -149,7 +149,7 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     ArbitrumSpokeConnector(_l2Connector).processMessage(_data);
 
     // assert update
-    assertEq(bytes32(_data), ArbitrumSpokeConnector(_l2Connector).aggregateRoot());
+    assertEq(bytes32(_data), ArbitrumSpokeConnector(_l2Connector).aggregateRootPending());
   }
 
   function test_ArbitrumSpokeConnector__processMessage_failsIfNotCrosschain() public {

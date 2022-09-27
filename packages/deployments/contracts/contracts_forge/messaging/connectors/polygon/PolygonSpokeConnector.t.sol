@@ -122,7 +122,7 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
     PolygonSpokeConnector(_l2Connector).processMessageFromRoot(stateId, rootSender, _data);
 
     // assert update
-    assertEq(bytes32(_data), PolygonSpokeConnector(_l2Connector).aggregateRoot());
+    assertEq(bytes32(_data), PolygonSpokeConnector(_l2Connector).aggregateRootPending());
   }
 
   function test_PolygonSpokeConnector__processMessage_failsIfNotAmb() public {

@@ -30,7 +30,9 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
         _l1Connector,
         _mirrorGas,
         _processGas,
-        _reserveGas
+        _reserveGas,
+        0, // delay blocks
+        address(0) // watcher manager
       )
     );
   }
@@ -102,7 +104,7 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     OptimismSpokeConnector(_l2Connector).processMessage(_data);
 
-    assertEq(bytes32(_data), OptimismSpokeConnector(_l2Connector).aggregateRoot());
+    assertEq(bytes32(_data), OptimismSpokeConnector(_l2Connector).aggregateRootPending());
   }
 
   function test_OptimismSpokeConnector__processMessage_failsIfNotMirrorConnector() public {
@@ -139,6 +141,6 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     OptimismSpokeConnector(_l2Connector).processMessage(_data);
 
-    assertEq(bytes32(_data), OptimismSpokeConnector(_l2Connector).aggregateRoot());
+    assertEq(bytes32(_data), OptimismSpokeConnector(_l2Connector).aggregateRootPending());
   }
 }
