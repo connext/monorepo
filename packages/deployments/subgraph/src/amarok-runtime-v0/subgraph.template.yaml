@@ -42,7 +42,7 @@ dataSources:
         - event: Executed(indexed bytes32,indexed address,indexed address,((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes),address,uint256,address)
           handler: handleExecuted
           # Reconciled: transferId, origin, routers, asset, amount, caller
-        - event: Reconciled(indexed bytes32,uint32,address[],address,uint256,address)
+        - event: Reconciled(indexed bytes32,indexed uint32,indexed address,address[],uint256,address)
           handler: handleReconciled
           # StableSwapAdded: bytes32 canonicalId, bytes32 domain, address swapPool, address caller
         - event: StableSwapAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address)
@@ -75,13 +75,13 @@ dataSources:
         # - event: NewSwapFee(indexed bytes32,uint256)
         #   handler: handleAmmNewSwapFee
       file: ./src/amarok-runtime-v0/mapping.ts
-  # Connector.sol events
+  # SpokeConnector.sol events
   - kind: ethereum/contract
-    name: Connector
+    name: SpokeConnector
     network: "{{network}}"
     source:
       address: "{{address}}"
-      abi: Connector
+      abi: SpokeConnector
       # prettier-ignore
       startBlock: {{startBlock}}
     mapping:
@@ -94,8 +94,8 @@ dataSources:
         - Router
         - Transfer
       abis:
-        - name: Connector
-          file: ./src/amarok-runtime-v0/abis/Connector.json
+        - name: SpokeConnector
+          file: ./src/amarok-runtime-v0/abis/SpokeConnector.json
       eventHandlers:
         #AggregateRootUpdated(bytes32 current, bytes32 previous);
         - event: AggregateRootUpdated(bytes32,bytes32)
@@ -104,8 +104,8 @@ dataSources:
         - event: Dispatch(bytes32,uint256,bytes32,bytes)
           handler: handleDispatch
         # Process(bytes32 leaf, bool success, bytes returnData);
-        # - event: Process(bytes32,bool,bytes)
-        #   handler: handleProcess
+        - event: Process(bytes32,bool,bytes)
+          handler: handleProcess
         - event: MessageSent(bytes,address)
           handler: handleMessageSent
         - event: MessageProcessed(bytes,address)
