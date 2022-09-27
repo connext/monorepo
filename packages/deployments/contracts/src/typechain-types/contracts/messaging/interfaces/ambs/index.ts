@@ -7,3 +7,4 @@ import type * as optimism from "./optimism";
 export type { optimism };
 export type { GnosisAmb } from "./GnosisAmb";
 export type { Multichain } from "./Multichain";
+export type { OptimismAmb } from "./OptimismAmb";

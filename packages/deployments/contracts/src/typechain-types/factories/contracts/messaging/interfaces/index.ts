@@ -9,3 +9,4 @@ export { IMessageRecipient__factory } from "./IMessageRecipient__factory";
 export { IOutbox__factory } from "./IOutbox__factory";
 export { IResolver__factory } from "./IResolver__factory";
 export { IRootManager__factory } from "./IRootManager__factory";
+export { ISpokeConnector__factory } from "./ISpokeConnector__factory";
