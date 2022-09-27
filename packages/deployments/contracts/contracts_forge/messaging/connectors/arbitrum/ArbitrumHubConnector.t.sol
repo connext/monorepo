@@ -269,6 +269,34 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     ArbitrumHubConnector(_l1Connector).sendMessage(_data);
   }
 
+  function test_ArbitrumHubConnector__sendMessage_works_fuzz(bytes32 data) public {
+    // setup mock
+    vm.mockCall(_amb, abi.encodeWithSelector(IArbitrumInbox.sendContractTransaction.selector), abi.encode(123));
+
+    // data
+    bytes memory _data = abi.encodePacked(data);
+
+    // should emit an event
+    vm.expectEmit(true, true, true, true);
+    emit MessageSent(_data, _rootManager);
+
+    // should call send contract transaction
+    vm.expectCall(
+      _amb,
+      abi.encodeWithSelector(
+        IArbitrumInbox.sendContractTransaction.selector,
+        _mirrorGas,
+        _defaultGasPrice,
+        _l2Connector,
+        0,
+        abi.encodeWithSelector(Connector.processMessage.selector, _data)
+      )
+    );
+
+    vm.prank(_rootManager);
+    ArbitrumHubConnector(_l1Connector).sendMessage(_data);
+  }
+
   // ============ ArbitrumHubConnector.processMessageFromRootFromRoot ============
   function test_ArbitrumHubConnector__processMessageFromRoot_works() public {
     utils_setHubConnectorProcessMocks(_l2Connector);

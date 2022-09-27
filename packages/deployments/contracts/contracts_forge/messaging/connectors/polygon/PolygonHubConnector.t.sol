@@ -67,5 +67,25 @@ contract PolygonHubConnectorTest is ConnectorHelper {
     PolygonHubConnector(_l1Connector).sendMessage(_data);
   }
 
+  function test_PolygonHubConnector__sendMessage_works_fuzz(bytes32 data) public {
+    PolygonHubConnector(_l1Connector).setFxChildTunnel(_l2Connector);
+
+    // setup mock
+    vm.mockCall(_amb, abi.encodeWithSelector(IFxStateSender.sendMessageToChild.selector), abi.encode(123));
+
+    // data
+    bytes memory _data = abi.encode(data);
+
+    // should emit an event
+    vm.expectEmit(true, true, true, true);
+    emit MessageSent(_data, _rootManager);
+
+    // should call send contract transaction
+    vm.expectCall(_amb, abi.encodeWithSelector(IFxStateSender.sendMessageToChild.selector, _l2Connector, _data));
+
+    vm.prank(_rootManager);
+    PolygonHubConnector(_l1Connector).sendMessage(_data);
+  }
+
   // ============ PolygonHubConnector.processMessage ============
 }

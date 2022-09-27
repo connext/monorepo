@@ -32,6 +32,11 @@
           "internalType": "uint256",
           "name": "_mirrorGas",
           "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_stateCommitmentChain",
+          "type": "address"
         }
       ],
       "stateMutability": "nonpayable",
@@ -350,6 +355,105 @@
       "inputs": [
         {
           "internalType": "address",
+          "name": "_target",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_sender",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_message",
+          "type": "bytes"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_messageNonce",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "stateRoot",
+              "type": "bytes32"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "batchIndex",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "batchRoot",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "batchSize",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "prevTotalElements",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "extraData",
+                  "type": "bytes"
+                }
+              ],
+              "internalType": "struct ChainBatchHeader",
+              "name": "stateRootBatchHeader",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "index",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes32[]",
+                  "name": "siblings",
+                  "type": "bytes32[]"
+                }
+              ],
+              "internalType": "struct ChainInclusionProof",
+              "name": "stateRootProof",
+              "type": "tuple"
+            },
+            {
+              "internalType": "bytes",
+              "name": "stateTrieWitness",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes",
+              "name": "storageTrieWitness",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct L2MessageInclusionProof",
+          "name": "_proof",
+          "type": "tuple"
+        }
+      ],
+      "name": "processMessageFromRoot",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
           "name": "newlyProposed",
           "type": "address"
         }
@@ -445,6 +549,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "stateCommitmentChain",
+      "outputs": [
+        {
+          "internalType": "contract IStateCommitmentChain",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -494,9 +611,7 @@
         "blockNumber": 7663268,
         "transactionHash": "0x7edb740666413d6ed2415c383b33b609673ae9f8486965095e6b310cc64715e3",
         "address": "0x3248EC84b8BD1c01604d18cbD8FE24ac02c9a608",
-        "topics": [
-          "0x34b09b90f4cfa8747776f5cffd7d53ce7863a9b1f1fc8121903d22543a256511"
-        ],
+        "topics": ["0x34b09b90f4cfa8747776f5cffd7d53ce7863a9b1f1fc8121903d22543a256511"],
         "data": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000cf850",
         "logIndex": 82,
         "blockHash": "0xf1ed0fb3d2d9cf246c34a31cbd4a7204aabe0828248dfa79fcbf0d045d5d8eee"
@@ -527,7 +642,8 @@
     "0x5086d1eEF304eb5284A0f6720f79403b4e9bE294",
     "0x0368F3cC7D1d76d4B86d2db04b4E49CeA4cBAe37",
     "0x0000000000000000000000000000000000000000",
-    "850000"
+    "850000",
+    "0x9c945aC97Baf48cB784AbBB61399beB71aF7A378"
   ],
   "numDeployments": 1,
   "solcInputHash": "7b2835bf00dcdfb89d60613d88a0e8f0",
@@ -539,6 +655,9 @@
     "methods": {
       "processMessage(bytes)": {
         "details": "This is called by AMBs to process messages originating from mirror connector"
+      },
+      "processMessageFromRoot(address,address,bytes,uint256,(bytes32,(uint256,bytes32,uint256,uint256,bytes),(uint256,bytes32[]),bytes,bytes))": {
+        "details": "modified from: https://github.com/ethereum-optimism/optimism/blob/9973c1da3211e094a180a8a96ba9f8bb1ab1b389/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol#L165"
       },
       "sendMessage(bytes)": {
         "details": "This is called by the root manager *only* on mainnet to propagate the aggregate root"
@@ -658,6 +777,22 @@
         "offset": 0,
         "slot": "4",
         "type": "t_uint256"
+      },
+      {
+        "astId": 32819,
+        "contract": "contracts/messaging/connectors/optimism/OptimismHubConnector.sol:OptimismHubConnector",
+        "label": "stateCommitmentChain",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_contract(IStateCommitmentChain)38385"
+      },
+      {
+        "astId": 32823,
+        "contract": "contracts/messaging/connectors/optimism/OptimismHubConnector.sol:OptimismHubConnector",
+        "label": "processed",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_mapping(t_bytes32,t_bool)"
       }
     ],
     "types": {
@@ -665,6 +800,28 @@
         "encoding": "inplace",
         "label": "address",
         "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_contract(IStateCommitmentChain)38385": {
+        "encoding": "inplace",
+        "label": "contract IStateCommitmentChain",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_bytes32,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
       },
       "t_uint256": {
         "encoding": "inplace",

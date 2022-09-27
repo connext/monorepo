@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-import {OptimismAmb} from "../../interfaces/ambs/OptimismAmb.sol";
+import {OptimismAmb} from "../../interfaces/ambs/optimism/OptimismAmb.sol";
 
 abstract contract BaseOptimism {
   // ============ Constructor ============
