@@ -453,19 +453,19 @@ export function handleDispatch(event: Dispatch): void {
   message.save();
 }
 
-// export function handleProcess(event: Process): void {
-//   let message = DestinationMessage.load(event.params.leaf.toHexString());
-//   if (message == null) {
-//     message = new DestinationMessage(event.params.leaf.toHexString());
-//   }
+export function handleProcess(event: Process): void {
+  let message = DestinationMessage.load(event.params.leaf.toHexString());
+  if (message == null) {
+    message = new DestinationMessage(event.params.leaf.toHexString());
+  }
 
-//   message.leaf = event.params.leaf;
-//   message.processed = event.params.success;
-//   message.returnData = event.params.returnData;
-//   message.transactionHash = event.transaction.hash;
+  message.leaf = event.params.leaf;
+  message.processed = event.params.success;
+  message.returnData = event.params.returnData;
+  message.transactionHash = event.transaction.hash;
 
-//   message.save();
-// }
+  message.save();
+}
 
 export function handleAggregateRootUpdated(event: AggregateRootUpdated): void {
   let aggregateRoot = AggregateRoot.load(event.params.current.toHexString());
