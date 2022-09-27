@@ -315,6 +315,7 @@ export function handleExecuted(event: Executed): void {
   transfer.chainId = getChainId();
   transfer.transferId = event.params.transferId;
   transfer.nonce = event.params.args.params.nonce;
+  transfer.amountOut = event.params.amount;
 
   // Call Params
   transfer.originDomain = event.params.args.params.originDomain;
@@ -325,12 +326,12 @@ export function handleExecuted(event: Executed): void {
   transfer.callData = event.params.args.params.callData;
   transfer.slippage = event.params.args.params.slippage;
   transfer.originSender = event.params.args.params.originSender;
-
-  // Assets
   transfer.bridgedAmt = event.params.args.params.bridgedAmt;
   transfer.normalizedIn = event.params.args.params.normalizedIn;
   transfer.canonicalId = event.params.args.params.canonicalId;
   transfer.canonicalDomain = event.params.args.params.canonicalDomain;
+
+  // Assets
   transfer.asset = getOrCreateAsset(event.params.local).id;
 
   // Event Data
@@ -375,7 +376,7 @@ export function handleReconciled(event: Reconciled): void {
       routers.push(router);
 
       // Update router's liquidity
-      const assetBalance = getOrCreateAssetBalance(event.params.asset, Address.fromString(router));
+      const assetBalance = getOrCreateAssetBalance(event.params.local, Address.fromString(router));
       assetBalance.amount = assetBalance.amount.plus(amount.div(BigInt.fromI32(n)));
       assetBalance.save();
     }
@@ -389,7 +390,7 @@ export function handleReconciled(event: Reconciled): void {
   transfer.originDomain = event.params.originDomain;
 
   // Assets
-  transfer.asset = getOrCreateAsset(event.params.asset).id;
+  transfer.asset = getOrCreateAsset(event.params.local).id;
 
   // Event Data
   if (transfer.status == "Executed") {
