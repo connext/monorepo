@@ -141,6 +141,21 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     utils_acceptNewOwnerAndAssert(_proposed);
   }
 
+  function utils_revokeRole(address agent, address caller) public {
+    Role revokedRole = this.queryRole(agent);
+
+    vm.expectEmit(true, true, true, true);
+    emit RevokeRole(agent, revokedRole);
+    vm.prank(caller);
+    this.revokeRole(agent);
+
+    if (this.queryRole(agent) == Role.None) {
+      assertTrue(true);
+    } else {
+      assertTrue(false);
+    }
+  }
+
   function utils_assignRoleRouter(address routerAgent, address caller) public {
     vm.expectEmit(true, true, true, true);
     emit AssignRoleRouter(routerAgent);
@@ -456,6 +471,40 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
 
   function test_ProposedOwnableFacet__acceptProposedOwner_works() public {
     utils_transferOwnership(address(12));
+  }
+
+  // ============ revokeRole ============
+  function test_ProposedOwnableFacet__revokeRole_failsIfNotOwnerOrAdmin() public {
+    vm.prank(_routerAgent2);
+    vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
+    this.revokeRole(_routerAgent1);
+  }
+
+  function test_ProposedOwnableFacet__revokeRole_failsIfAlreadyRevoked() public {
+    utils_assignRoleRouter(_routerAgent1, _owner);
+    utils_revokeRole(_routerAgent1, _owner);
+
+    vm.prank(_owner);
+    vm.expectRevert(ProposedOwnableFacet__revokeRole_invalidInput.selector);
+    this.revokeRole(_routerAgent1);
+  }
+
+  function test_ProposedOwnableFacet__revokeRole_failsIfInputAddressZero() public {
+    vm.prank(_owner);
+    vm.expectRevert(ProposedOwnableFacet__revokeRole_invalidInput.selector);
+    this.revokeRole(address(0));
+  }
+
+  function test_ProposedOwnableFacet__revokeRole_worksIfCallerIsOwner() public {
+    utils_assignRoleRouter(_routerAgent1, _owner);
+    utils_revokeRole(_routerAgent1, _owner);
+  }
+
+  function test_ProposedOwnableFacet__revokeRole_worksIfCallerIsAdmin() public {
+    utils_assignRoleRouter(_routerAgent1, _owner);
+    utils_assignRoleAdmin(_adminAgent1, _owner);
+
+    utils_revokeRole(_routerAgent1, _adminAgent1);
   }
 
   // ============ assignRoleRouter ============
