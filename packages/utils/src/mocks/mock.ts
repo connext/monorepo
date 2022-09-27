@@ -213,7 +213,6 @@ export const mock = {
               chain: originChain,
 
               messageHash,
-              originMinOut: "0",
 
               // Assets
               assets: {

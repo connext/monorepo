@@ -67,17 +67,16 @@ export const originTransfer = (entity: any): OriginTransfer => {
 
       // Event Data
       messageHash: entity.messageHash,
-      originMinOut: entity.originMinOut,
 
       // Assets
       assets: {
         transacting: {
-          asset: entity.asset,
-          amount: entity.amount,
+          asset: entity.asset.adoptedAsset,
+          amount: entity.normalizedIn,
         },
         bridged: {
-          asset: entity.bridgedAsset,
-          amount: entity.bridgedAmount,
+          asset: entity.asset.local,
+          amount: entity.bridgedAmt,
         },
       },
 
@@ -111,8 +110,6 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
     ...SHARED_TRANSFER_ENTITY_REQUIREMENTS,
     "destinationDomain",
     "originDomain",
-    "localAmount",
-    "localAsset",
     "status",
     "routers",
   ]) {
@@ -159,15 +156,15 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
       // Assets
       assets: {
         transacting:
-          entity.amount && entity.asset
+          entity.amountOut && entity.asset
             ? {
-                asset: entity.asset,
-                amount: entity.amount,
+                asset: entity.asset.adoptedAsset,
+                amount: entity.amountOut,
               }
             : undefined,
         local: {
-          asset: entity.localAsset,
-          amount: entity.localAmount,
+          asset: entity.asset.local,
+          amount: entity.bridgedAmt,
         },
       },
 
