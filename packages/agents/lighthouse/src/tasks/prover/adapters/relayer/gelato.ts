@@ -1,9 +1,12 @@
 import { createLoggingContext } from "@connext/nxtp-utils";
-import { AxiosError } from "axios";
+import { GelatoRelaySDK } from "@gelatonetwork/relay-sdk";
 
 import { RelayerSendFailed } from "../../../../errors";
-import { getGelatoRelayerAddress, isChainSupportedByGelato, gelatoSend } from "../../../../mockable";
+import { getGelatoRelayerAddress, isChainSupportedByGelato } from "../../../../mockable";
 import { getContext } from "../../prover";
+
+// TODO: Use secret
+const sponsorApiKey = "xxx";
 
 export const getRelayerAddress = async (chainId: number): Promise<string> => {
   const { logger } = getContext();
@@ -20,29 +23,21 @@ export const send = async (chainId: number, destinationAddress: string, encodedD
     throw new Error("Chain not supported by gelato.");
   }
 
-  logger.info("Sending to Gelato network", requestContext, methodContext, {
-    encodedData,
-    destinationAddress,
-    chainId,
-  });
-
-  const result = await gelatoSend(chainId, {
-    dest: destinationAddress,
+  const request = {
+    chainId: chainId,
+    target: destinationAddress,
     data: encodedData,
-    token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-    relayerFee: "0",
-  });
+  };
 
-  if ((result as AxiosError).isAxiosError) {
-    throw new RelayerSendFailed({ result });
+  logger.info("Sending to Gelato network", requestContext, methodContext, request);
+
+  const response = await GelatoRelaySDK.relayWithSponsoredCall(request, sponsorApiKey);
+
+  if (!response) {
+    throw new RelayerSendFailed({ response: response });
   } else {
-    const { taskId } = result;
-    logger.info("Sent to Gelato network", requestContext, methodContext, {
-      result,
-      taskId,
-      // response: response.data,
-    });
+    logger.info("Sent to Gelato network", requestContext, methodContext, response);
     // TODO: replace this with transactionHash eventually
-    return taskId;
+    return response.taskId;
   }
 };
