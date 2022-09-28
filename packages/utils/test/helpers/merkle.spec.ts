@@ -8,7 +8,7 @@ const { keccak256, toUtf8Bytes } = utils;
 const TREE_HEIGHT = 32;
 const SAMPLE_HASH_COUNT = 123;
 
-describe.only("Helpers: Merkle", () => {
+describe("Helpers: Merkle", () => {
   let db: DBImpl;
   let merkle: SparseMerkleTree;
 
