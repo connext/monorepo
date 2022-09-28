@@ -237,7 +237,8 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
   /// MARK - Contracts
   // Convenience setup for contracts.
-  const { RootManager, MainnetConnector, HubConnectors } = hub.deployments.messaging as HubMessagingDeployments;
+  const { RootManager, MainnetConnector, HubConnectors, WatcherManager } = hub.deployments
+    .messaging as HubMessagingDeployments;
 
   /// ******************** MESSAGING ********************
   /// MARK - Init
@@ -452,9 +453,9 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         // Whitelist watchers in RootManager.
         for (const watcher of protocol.agents.watchers.whitelist) {
           await updateIfNeeded({
-            deployment: RootManager,
+            deployment: WatcherManager,
             desired: true,
-            read: { method: "watchers", args: [watcher] },
+            read: { method: "isWatcher", args: [watcher] },
             write: { method: "addWatcher", args: [watcher] },
           });
         }
