@@ -84,7 +84,7 @@ export const mock = {
       delegate: mkAddress("0xbbb"),
       receiveLocal: false,
       callData: "0x",
-      slippage: "1_000",
+      slippage: "1000",
       originSender: mkAddress("0x111"),
       bridgedAmt: "100",
       normalizedIn: "100",
@@ -98,7 +98,7 @@ export const mock = {
       asset: mock.asset.A.address,
       delegate: mkAddress(),
       amount: utils.parseEther("1").toString(),
-      slippage: "1_000",
+      slippage: "1000",
       callData: "0x",
       ...overrides,
     }),
@@ -170,7 +170,7 @@ export const mock = {
       const canonicalDomain: string = overrides.canonicalDomain ?? mock.domain.A;
       const canonicalId: string = overrides.canonicalId ?? "0";
       const delegate: string = overrides.delegate ?? mkAddress("0x222");
-      const slippage: string = overrides.slippage ?? "1_000";
+      const slippage: string = overrides.slippage ?? "1000";
       const originSender: string = overrides.originSender ?? mkAddress("0xaaa");
       const bridgedAmt: string = overrides.bridgedAmt ?? "100";
       const normalizedIn: string = overrides.normalizedIn ?? "100";
