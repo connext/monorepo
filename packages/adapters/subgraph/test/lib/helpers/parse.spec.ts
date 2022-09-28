@@ -70,16 +70,9 @@ describe("Helpers:parse", () => {
         origin: {
           chain: 4,
           messageHash: undefined,
-          originMinOut: "123",
           assets: {
-            bridged: {
-              amount: "100",
-              asset: "0x1200000000000000000000000000000000000000",
-            },
-            transacting: {
-              amount: "100",
-              asset: "0x1100000000000000000000000000000000000000",
-            },
+            transacting: { asset: undefined, amount: undefined },
+            bridged: { asset: undefined, amount: undefined }
           },
           xcall: {
             caller: "0x2000000000000000000000000000000000000000",
@@ -116,16 +109,9 @@ describe("Helpers:parse", () => {
         origin: {
           chain: 4,
           messageHash: undefined,
-          originMinOut: "123",
           assets: {
-            bridged: {
-              amount: "100",
-              asset: "0x1200000000000000000000000000000000000000",
-            },
-            transacting: {
-              amount: "100",
-              asset: "0x1100000000000000000000000000000000000000",
-            },
+            transacting: { asset: undefined, amount: undefined },
+            bridged: { asset: undefined, amount: undefined }
           },
           xcall: {
             caller: "0x2000000000000000000000000000000000000000",
@@ -195,14 +181,8 @@ describe("Helpers:parse", () => {
           status: "Executed",
           routers: ["0x1110000000000000000000000000000000000000", "0x1120000000000000000000000000000000000000"],
           assets: {
-            local: {
-              amount: "100",
-              asset: "0x1200000000000000000000000000000000000000",
-            },
-            transacting: {
-              amount: "100",
-              asset: "0x1100000000000000000000000000000000000000",
-            },
+            transacting: undefined,
+            local: { asset: undefined, amount: undefined }
           },
           execute: {
             originSender: "0x1300000000000000000000000000000000000000",
@@ -259,11 +239,8 @@ describe("Helpers:parse", () => {
           status: "Executed",
           routers: ["0x1110000000000000000000000000000000000000", "0x1120000000000000000000000000000000000000"],
           assets: {
-            local: {
-              amount: "100",
-              asset: "0x1200000000000000000000000000000000000000",
-            },
-            transacting: undefined,
+              transacting: undefined,
+              local: { asset: undefined, amount: undefined }
           },
           execute: {
             originSender: "0x1300000000000000000000000000000000000000",
