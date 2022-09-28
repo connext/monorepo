@@ -28,16 +28,6 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
-export type TokenIdStruct = {
-  domain: PromiseOrValue<BigNumberish>;
-  id: PromiseOrValue<BytesLike>;
-};
-
-export type TokenIdStructOutput = [number, string] & {
-  domain: number;
-  id: string;
-};
-
 export type CallParamsStruct = {
   originDomain: PromiseOrValue<BigNumberish>;
   destinationDomain: PromiseOrValue<BigNumberish>;
@@ -104,6 +94,16 @@ export type ExecuteArgsStructOutput = [
   routerSignatures: string[];
   sequencer: string;
   sequencerSignature: string;
+};
+
+export type TokenIdStruct = {
+  domain: PromiseOrValue<BigNumberish>;
+  id: PromiseOrValue<BytesLike>;
+};
+
+export type TokenIdStructOutput = [number, string] & {
+  domain: number;
+  id: string;
 };
 
 export declare namespace IDiamondCut {
@@ -179,26 +179,12 @@ export declare namespace SwapUtils {
 
 export interface ConnextHandlerInterface extends utils.Interface {
   functions: {
-    "addStableSwapPool((uint32,bytes32),address)": FunctionFragment;
-    "adoptedToCanonical(address)": FunctionFragment;
-    "adoptedToLocalPools(bytes32)": FunctionFragment;
-    "adoptedToLocalPools((uint32,bytes32))": FunctionFragment;
-    "approvedAssets(bytes32)": FunctionFragment;
-    "approvedAssets((uint32,bytes32))": FunctionFragment;
-    "canonicalToAdopted(bytes32)": FunctionFragment;
-    "canonicalToAdopted((uint32,bytes32))": FunctionFragment;
-    "removeAssetId((uint32,bytes32),address)": FunctionFragment;
-    "removeAssetId(bytes32,address)": FunctionFragment;
-    "setTokenRegistry(address)": FunctionFragment;
-    "setupAsset((uint32,bytes32),address,address)": FunctionFragment;
-    "tokenRegistry()": FunctionFragment;
     "AAVE_REFERRAL_CODE()": FunctionFragment;
     "DUST_AMOUNT()": FunctionFragment;
     "addSequencer(address)": FunctionFragment;
     "approvedSequencers(address)": FunctionFragment;
     "bumpTransfer(bytes32)": FunctionFragment;
     "domain()": FunctionFragment;
-    "enrollCustom(uint32,bytes32,address)": FunctionFragment;
     "enrollRemoteRouter(uint32,bytes32)": FunctionFragment;
     "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes))": FunctionFragment;
     "forceUpdateSlippage((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256)": FunctionFragment;
@@ -303,30 +289,31 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "swap(bytes32,uint8,uint8,uint256,uint256,uint256)": FunctionFragment;
     "swapExact(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
     "swapExactOut(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
+    "addStableSwapPool((uint32,bytes32),address)": FunctionFragment;
+    "adoptedToCanonical(address)": FunctionFragment;
+    "adoptedToLocalPools(bytes32)": FunctionFragment;
+    "adoptedToLocalPools((uint32,bytes32))": FunctionFragment;
+    "approvedAssets(bytes32)": FunctionFragment;
+    "approvedAssets((uint32,bytes32))": FunctionFragment;
+    "canonicalToAdopted(bytes32)": FunctionFragment;
+    "canonicalToAdopted((uint32,bytes32))": FunctionFragment;
+    "canonicalToRepresentation(bytes32)": FunctionFragment;
+    "canonicalToRepresentation((uint32,bytes32))": FunctionFragment;
+    "getLocalAndAdoptedToken(bytes32,uint32)": FunctionFragment;
+    "removeAssetId((uint32,bytes32),address)": FunctionFragment;
+    "removeAssetId(bytes32,address)": FunctionFragment;
+    "representationToCanonical(address)": FunctionFragment;
+    "setupAsset((uint32,bytes32),uint8,address,address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "addStableSwapPool"
-      | "adoptedToCanonical"
-      | "adoptedToLocalPools(bytes32)"
-      | "adoptedToLocalPools((uint32,bytes32))"
-      | "approvedAssets(bytes32)"
-      | "approvedAssets((uint32,bytes32))"
-      | "canonicalToAdopted(bytes32)"
-      | "canonicalToAdopted((uint32,bytes32))"
-      | "removeAssetId((uint32,bytes32),address)"
-      | "removeAssetId(bytes32,address)"
-      | "setTokenRegistry"
-      | "setupAsset"
-      | "tokenRegistry"
       | "AAVE_REFERRAL_CODE"
       | "DUST_AMOUNT"
       | "addSequencer"
       | "approvedSequencers"
       | "bumpTransfer"
       | "domain"
-      | "enrollCustom"
       | "enrollRemoteRouter"
       | "execute"
       | "forceUpdateSlippage"
@@ -431,60 +418,23 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "swap"
       | "swapExact"
       | "swapExactOut"
+      | "addStableSwapPool"
+      | "adoptedToCanonical"
+      | "adoptedToLocalPools(bytes32)"
+      | "adoptedToLocalPools((uint32,bytes32))"
+      | "approvedAssets(bytes32)"
+      | "approvedAssets((uint32,bytes32))"
+      | "canonicalToAdopted(bytes32)"
+      | "canonicalToAdopted((uint32,bytes32))"
+      | "canonicalToRepresentation(bytes32)"
+      | "canonicalToRepresentation((uint32,bytes32))"
+      | "getLocalAndAdoptedToken"
+      | "removeAssetId((uint32,bytes32),address)"
+      | "removeAssetId(bytes32,address)"
+      | "representationToCanonical"
+      | "setupAsset"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "addStableSwapPool",
-    values: [TokenIdStruct, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "adoptedToCanonical",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "adoptedToLocalPools(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "adoptedToLocalPools((uint32,bytes32))",
-    values: [TokenIdStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "approvedAssets(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "approvedAssets((uint32,bytes32))",
-    values: [TokenIdStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "canonicalToAdopted(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "canonicalToAdopted((uint32,bytes32))",
-    values: [TokenIdStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeAssetId((uint32,bytes32),address)",
-    values: [TokenIdStruct, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeAssetId(bytes32,address)",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setTokenRegistry",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setupAsset",
-    values: [TokenIdStruct, PromiseOrValue<string>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenRegistry",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "AAVE_REFERRAL_CODE",
     values?: undefined
@@ -506,14 +456,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(functionFragment: "domain", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "enrollCustom",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<string>
-    ]
-  ): string;
   encodeFunctionData(
     functionFragment: "enrollRemoteRouter",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
@@ -1020,56 +962,72 @@ export interface ConnextHandlerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
-
-  decodeFunctionResult(
+  encodeFunctionData(
     functionFragment: "addStableSwapPool",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
+    values: [TokenIdStruct, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "adoptedToCanonical",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "adoptedToLocalPools(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "adoptedToLocalPools((uint32,bytes32))",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
+    values: [TokenIdStruct]
+  ): string;
+  encodeFunctionData(
     functionFragment: "approvedAssets(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "approvedAssets((uint32,bytes32))",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
+    values: [TokenIdStruct]
+  ): string;
+  encodeFunctionData(
     functionFragment: "canonicalToAdopted(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "canonicalToAdopted((uint32,bytes32))",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
+    values: [TokenIdStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "canonicalToRepresentation(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "canonicalToRepresentation((uint32,bytes32))",
+    values: [TokenIdStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLocalAndAdoptedToken",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "removeAssetId((uint32,bytes32),address)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
+    values: [TokenIdStruct, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "removeAssetId(bytes32,address)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setTokenRegistry",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "setupAsset", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenRegistry",
-    data: BytesLike
-  ): Result;
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "representationToCanonical",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setupAsset",
+    values: [
+      TokenIdStruct,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+
   decodeFunctionResult(
     functionFragment: "AAVE_REFERRAL_CODE",
     data: BytesLike
@@ -1091,10 +1049,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "enrollCustom",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "enrollRemoteRouter",
     data: BytesLike
@@ -1451,12 +1405,65 @@ export interface ConnextHandlerInterface extends utils.Interface {
     functionFragment: "swapExactOut",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "addStableSwapPool",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "adoptedToCanonical",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "adoptedToLocalPools(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "adoptedToLocalPools((uint32,bytes32))",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "approvedAssets(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "approvedAssets((uint32,bytes32))",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "canonicalToAdopted(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "canonicalToAdopted((uint32,bytes32))",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "canonicalToRepresentation(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "canonicalToRepresentation((uint32,bytes32))",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLocalAndAdoptedToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeAssetId((uint32,bytes32),address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeAssetId(bytes32,address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "representationToCanonical",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "setupAsset", data: BytesLike): Result;
 
   events: {
-    "AssetAdded(bytes32,bytes32,uint32,address,address,address)": EventFragment;
-    "AssetRemoved(bytes32,address)": EventFragment;
-    "StableSwapAdded(bytes32,bytes32,uint32,address,address)": EventFragment;
-    "TokenRegistryUpdated(address,address,address)": EventFragment;
     "AavePortalMintUnbacked(bytes32,address,address,uint256)": EventFragment;
     "Executed(bytes32,address,address,tuple,address,uint256,address)": EventFragment;
     "ExecutorUpdated(address,address,address)": EventFragment;
@@ -1500,12 +1507,12 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "RouterRecipientSet(address,address,address)": EventFragment;
     "RouterRemoved(address,address)": EventFragment;
     "RouterUnapprovedForPortal(address,address)": EventFragment;
+    "AssetAdded(bytes32,bytes32,uint32,address,address,address)": EventFragment;
+    "AssetRemoved(bytes32,address)": EventFragment;
+    "StableSwapAdded(bytes32,bytes32,uint32,address,address)": EventFragment;
+    "TokenDeployed(uint32,bytes32,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AssetRemoved"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "StableSwapAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TokenRegistryUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AavePortalMintUnbacked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ExecutorUpdated"): EventFragment;
@@ -1557,60 +1564,11 @@ export interface ConnextHandlerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "RouterRecipientSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterUnapprovedForPortal"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AssetRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "StableSwapAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenDeployed"): EventFragment;
 }
-
-export interface AssetAddedEventObject {
-  key: string;
-  canonicalId: string;
-  domain: number;
-  adoptedAsset: string;
-  localAsset: string;
-  caller: string;
-}
-export type AssetAddedEvent = TypedEvent<
-  [string, string, number, string, string, string],
-  AssetAddedEventObject
->;
-
-export type AssetAddedEventFilter = TypedEventFilter<AssetAddedEvent>;
-
-export interface AssetRemovedEventObject {
-  key: string;
-  caller: string;
-}
-export type AssetRemovedEvent = TypedEvent<
-  [string, string],
-  AssetRemovedEventObject
->;
-
-export type AssetRemovedEventFilter = TypedEventFilter<AssetRemovedEvent>;
-
-export interface StableSwapAddedEventObject {
-  key: string;
-  canonicalId: string;
-  domain: number;
-  swapPool: string;
-  caller: string;
-}
-export type StableSwapAddedEvent = TypedEvent<
-  [string, string, number, string, string],
-  StableSwapAddedEventObject
->;
-
-export type StableSwapAddedEventFilter = TypedEventFilter<StableSwapAddedEvent>;
-
-export interface TokenRegistryUpdatedEventObject {
-  oldTokenRegistry: string;
-  newTokenRegistry: string;
-  caller: string;
-}
-export type TokenRegistryUpdatedEvent = TypedEvent<
-  [string, string, string],
-  TokenRegistryUpdatedEventObject
->;
-
-export type TokenRegistryUpdatedEventFilter =
-  TypedEventFilter<TokenRegistryUpdatedEvent>;
 
 export interface AavePortalMintUnbackedEventObject {
   transferId: string;
@@ -2129,6 +2087,58 @@ export type RouterUnapprovedForPortalEvent = TypedEvent<
 export type RouterUnapprovedForPortalEventFilter =
   TypedEventFilter<RouterUnapprovedForPortalEvent>;
 
+export interface AssetAddedEventObject {
+  key: string;
+  canonicalId: string;
+  domain: number;
+  adoptedAsset: string;
+  localAsset: string;
+  caller: string;
+}
+export type AssetAddedEvent = TypedEvent<
+  [string, string, number, string, string, string],
+  AssetAddedEventObject
+>;
+
+export type AssetAddedEventFilter = TypedEventFilter<AssetAddedEvent>;
+
+export interface AssetRemovedEventObject {
+  key: string;
+  caller: string;
+}
+export type AssetRemovedEvent = TypedEvent<
+  [string, string],
+  AssetRemovedEventObject
+>;
+
+export type AssetRemovedEventFilter = TypedEventFilter<AssetRemovedEvent>;
+
+export interface StableSwapAddedEventObject {
+  key: string;
+  canonicalId: string;
+  domain: number;
+  swapPool: string;
+  caller: string;
+}
+export type StableSwapAddedEvent = TypedEvent<
+  [string, string, number, string, string],
+  StableSwapAddedEventObject
+>;
+
+export type StableSwapAddedEventFilter = TypedEventFilter<StableSwapAddedEvent>;
+
+export interface TokenDeployedEventObject {
+  domain: number;
+  id: string;
+  representation: string;
+}
+export type TokenDeployedEvent = TypedEvent<
+  [number, string, string],
+  TokenDeployedEventObject
+>;
+
+export type TokenDeployedEventFilter = TypedEventFilter<TokenDeployedEvent>;
+
 export interface ConnextHandler extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -2156,73 +2166,6 @@ export interface ConnextHandler extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    addStableSwapPool(
-      _canonical: TokenIdStruct,
-      _stableSwapPool: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    adoptedToCanonical(
-      _adopted: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[TokenIdStructOutput]>;
-
-    "adoptedToLocalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "adoptedToLocalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "approvedAssets(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "approvedAssets((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "canonicalToAdopted(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "canonicalToAdopted((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "removeAssetId((uint32,bytes32),address)"(
-      _canonical: TokenIdStruct,
-      _adoptedAssetId: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "removeAssetId(bytes32,address)"(
-      _key: PromiseOrValue<BytesLike>,
-      _adoptedAssetId: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setupAsset(
-      _canonical: TokenIdStruct,
-      _adoptedAssetId: PromiseOrValue<string>,
-      _stableSwapPool: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    tokenRegistry(overrides?: CallOverrides): Promise<[string]>;
-
     AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<[number]>;
 
     DUST_AMOUNT(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -2243,13 +2186,6 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<ContractTransaction>;
 
     domain(overrides?: CallOverrides): Promise<[number]>;
-
-    enrollCustom(
-      _domain: PromiseOrValue<BigNumberish>,
-      _id: PromiseOrValue<BytesLike>,
-      _custom: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     enrollRemoteRouter(
       _domain: PromiseOrValue<BigNumberish>,
@@ -2796,74 +2732,89 @@ export interface ConnextHandler extends BaseContract {
       deadline: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    addStableSwapPool(
+      _canonical: TokenIdStruct,
+      _stableSwapPool: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    adoptedToCanonical(
+      _adopted: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[TokenIdStructOutput]>;
+
+    "adoptedToLocalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "adoptedToLocalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "approvedAssets(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "approvedAssets((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "canonicalToAdopted(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "canonicalToAdopted((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string, string]>;
+
+    "removeAssetId((uint32,bytes32),address)"(
+      _canonical: TokenIdStruct,
+      _adoptedAssetId: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "removeAssetId(bytes32,address)"(
+      _key: PromiseOrValue<BytesLike>,
+      _adoptedAssetId: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    representationToCanonical(
+      _representation: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[TokenIdStructOutput]>;
+
+    setupAsset(
+      _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
+      _adoptedAssetId: PromiseOrValue<string>,
+      _stableSwapPool: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
-
-  addStableSwapPool(
-    _canonical: TokenIdStruct,
-    _stableSwapPool: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  adoptedToCanonical(
-    _adopted: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<TokenIdStructOutput>;
-
-  "adoptedToLocalPools(bytes32)"(
-    _key: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  "adoptedToLocalPools((uint32,bytes32))"(
-    _canonical: TokenIdStruct,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  "approvedAssets(bytes32)"(
-    _key: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "approvedAssets((uint32,bytes32))"(
-    _canonical: TokenIdStruct,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "canonicalToAdopted(bytes32)"(
-    _key: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  "canonicalToAdopted((uint32,bytes32))"(
-    _canonical: TokenIdStruct,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  "removeAssetId((uint32,bytes32),address)"(
-    _canonical: TokenIdStruct,
-    _adoptedAssetId: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "removeAssetId(bytes32,address)"(
-    _key: PromiseOrValue<BytesLike>,
-    _adoptedAssetId: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setTokenRegistry(
-    _tokenRegistry: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setupAsset(
-    _canonical: TokenIdStruct,
-    _adoptedAssetId: PromiseOrValue<string>,
-    _stableSwapPool: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  tokenRegistry(overrides?: CallOverrides): Promise<string>;
 
   AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
 
@@ -2885,13 +2836,6 @@ export interface ConnextHandler extends BaseContract {
   ): Promise<ContractTransaction>;
 
   domain(overrides?: CallOverrides): Promise<number>;
-
-  enrollCustom(
-    _domain: PromiseOrValue<BigNumberish>,
-    _id: PromiseOrValue<BytesLike>,
-    _custom: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   enrollRemoteRouter(
     _domain: PromiseOrValue<BigNumberish>,
@@ -3431,74 +3375,89 @@ export interface ConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  addStableSwapPool(
+    _canonical: TokenIdStruct,
+    _stableSwapPool: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  adoptedToCanonical(
+    _adopted: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<TokenIdStructOutput>;
+
+  "adoptedToLocalPools(bytes32)"(
+    _key: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "adoptedToLocalPools((uint32,bytes32))"(
+    _canonical: TokenIdStruct,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "approvedAssets(bytes32)"(
+    _key: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "approvedAssets((uint32,bytes32))"(
+    _canonical: TokenIdStruct,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "canonicalToAdopted(bytes32)"(
+    _key: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "canonicalToAdopted((uint32,bytes32))"(
+    _canonical: TokenIdStruct,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "canonicalToRepresentation(bytes32)"(
+    _key: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "canonicalToRepresentation((uint32,bytes32))"(
+    _canonical: TokenIdStruct,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  getLocalAndAdoptedToken(
+    _id: PromiseOrValue<BytesLike>,
+    _domain: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<[string, string]>;
+
+  "removeAssetId((uint32,bytes32),address)"(
+    _canonical: TokenIdStruct,
+    _adoptedAssetId: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "removeAssetId(bytes32,address)"(
+    _key: PromiseOrValue<BytesLike>,
+    _adoptedAssetId: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  representationToCanonical(
+    _representation: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<TokenIdStructOutput>;
+
+  setupAsset(
+    _canonical: TokenIdStruct,
+    _canonicalDecimals: PromiseOrValue<BigNumberish>,
+    _adoptedAssetId: PromiseOrValue<string>,
+    _stableSwapPool: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
-    addStableSwapPool(
-      _canonical: TokenIdStruct,
-      _stableSwapPool: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    adoptedToCanonical(
-      _adopted: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<TokenIdStructOutput>;
-
-    "adoptedToLocalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "adoptedToLocalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "approvedAssets(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "approvedAssets((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "canonicalToAdopted(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "canonicalToAdopted((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "removeAssetId((uint32,bytes32),address)"(
-      _canonical: TokenIdStruct,
-      _adoptedAssetId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "removeAssetId(bytes32,address)"(
-      _key: PromiseOrValue<BytesLike>,
-      _adoptedAssetId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setupAsset(
-      _canonical: TokenIdStruct,
-      _adoptedAssetId: PromiseOrValue<string>,
-      _stableSwapPool: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    tokenRegistry(overrides?: CallOverrides): Promise<string>;
-
     AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
 
     DUST_AMOUNT(overrides?: CallOverrides): Promise<BigNumber>;
@@ -3519,13 +3478,6 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<void>;
 
     domain(overrides?: CallOverrides): Promise<number>;
-
-    enrollCustom(
-      _domain: PromiseOrValue<BigNumberish>,
-      _id: PromiseOrValue<BytesLike>,
-      _custom: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     enrollRemoteRouter(
       _domain: PromiseOrValue<BigNumberish>,
@@ -4050,61 +4002,91 @@ export interface ConnextHandler extends BaseContract {
       deadline: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    addStableSwapPool(
+      _canonical: TokenIdStruct,
+      _stableSwapPool: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    adoptedToCanonical(
+      _adopted: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<TokenIdStructOutput>;
+
+    "adoptedToLocalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "adoptedToLocalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "approvedAssets(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "approvedAssets((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "canonicalToAdopted(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "canonicalToAdopted((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string, string]>;
+
+    "removeAssetId((uint32,bytes32),address)"(
+      _canonical: TokenIdStruct,
+      _adoptedAssetId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "removeAssetId(bytes32,address)"(
+      _key: PromiseOrValue<BytesLike>,
+      _adoptedAssetId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    representationToCanonical(
+      _representation: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<TokenIdStructOutput>;
+
+    setupAsset(
+      _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
+      _adoptedAssetId: PromiseOrValue<string>,
+      _stableSwapPool: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
-    "AssetAdded(bytes32,bytes32,uint32,address,address,address)"(
-      key?: PromiseOrValue<BytesLike> | null,
-      canonicalId?: PromiseOrValue<BytesLike> | null,
-      domain?: PromiseOrValue<BigNumberish> | null,
-      adoptedAsset?: null,
-      localAsset?: null,
-      caller?: null
-    ): AssetAddedEventFilter;
-    AssetAdded(
-      key?: PromiseOrValue<BytesLike> | null,
-      canonicalId?: PromiseOrValue<BytesLike> | null,
-      domain?: PromiseOrValue<BigNumberish> | null,
-      adoptedAsset?: null,
-      localAsset?: null,
-      caller?: null
-    ): AssetAddedEventFilter;
-
-    "AssetRemoved(bytes32,address)"(
-      key?: PromiseOrValue<BytesLike> | null,
-      caller?: null
-    ): AssetRemovedEventFilter;
-    AssetRemoved(
-      key?: PromiseOrValue<BytesLike> | null,
-      caller?: null
-    ): AssetRemovedEventFilter;
-
-    "StableSwapAdded(bytes32,bytes32,uint32,address,address)"(
-      key?: PromiseOrValue<BytesLike> | null,
-      canonicalId?: PromiseOrValue<BytesLike> | null,
-      domain?: PromiseOrValue<BigNumberish> | null,
-      swapPool?: null,
-      caller?: null
-    ): StableSwapAddedEventFilter;
-    StableSwapAdded(
-      key?: PromiseOrValue<BytesLike> | null,
-      canonicalId?: PromiseOrValue<BytesLike> | null,
-      domain?: PromiseOrValue<BigNumberish> | null,
-      swapPool?: null,
-      caller?: null
-    ): StableSwapAddedEventFilter;
-
-    "TokenRegistryUpdated(address,address,address)"(
-      oldTokenRegistry?: null,
-      newTokenRegistry?: null,
-      caller?: null
-    ): TokenRegistryUpdatedEventFilter;
-    TokenRegistryUpdated(
-      oldTokenRegistry?: null,
-      newTokenRegistry?: null,
-      caller?: null
-    ): TokenRegistryUpdatedEventFilter;
-
     "AavePortalMintUnbacked(bytes32,address,address,uint256)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       router?: PromiseOrValue<string> | null,
@@ -4516,76 +4498,61 @@ export interface ConnextHandler extends BaseContract {
       router?: null,
       caller?: null
     ): RouterUnapprovedForPortalEventFilter;
+
+    "AssetAdded(bytes32,bytes32,uint32,address,address,address)"(
+      key?: PromiseOrValue<BytesLike> | null,
+      canonicalId?: PromiseOrValue<BytesLike> | null,
+      domain?: PromiseOrValue<BigNumberish> | null,
+      adoptedAsset?: null,
+      localAsset?: null,
+      caller?: null
+    ): AssetAddedEventFilter;
+    AssetAdded(
+      key?: PromiseOrValue<BytesLike> | null,
+      canonicalId?: PromiseOrValue<BytesLike> | null,
+      domain?: PromiseOrValue<BigNumberish> | null,
+      adoptedAsset?: null,
+      localAsset?: null,
+      caller?: null
+    ): AssetAddedEventFilter;
+
+    "AssetRemoved(bytes32,address)"(
+      key?: PromiseOrValue<BytesLike> | null,
+      caller?: null
+    ): AssetRemovedEventFilter;
+    AssetRemoved(
+      key?: PromiseOrValue<BytesLike> | null,
+      caller?: null
+    ): AssetRemovedEventFilter;
+
+    "StableSwapAdded(bytes32,bytes32,uint32,address,address)"(
+      key?: PromiseOrValue<BytesLike> | null,
+      canonicalId?: PromiseOrValue<BytesLike> | null,
+      domain?: PromiseOrValue<BigNumberish> | null,
+      swapPool?: null,
+      caller?: null
+    ): StableSwapAddedEventFilter;
+    StableSwapAdded(
+      key?: PromiseOrValue<BytesLike> | null,
+      canonicalId?: PromiseOrValue<BytesLike> | null,
+      domain?: PromiseOrValue<BigNumberish> | null,
+      swapPool?: null,
+      caller?: null
+    ): StableSwapAddedEventFilter;
+
+    "TokenDeployed(uint32,bytes32,address)"(
+      domain?: PromiseOrValue<BigNumberish> | null,
+      id?: PromiseOrValue<BytesLike> | null,
+      representation?: PromiseOrValue<string> | null
+    ): TokenDeployedEventFilter;
+    TokenDeployed(
+      domain?: PromiseOrValue<BigNumberish> | null,
+      id?: PromiseOrValue<BytesLike> | null,
+      representation?: PromiseOrValue<string> | null
+    ): TokenDeployedEventFilter;
   };
 
   estimateGas: {
-    addStableSwapPool(
-      _canonical: TokenIdStruct,
-      _stableSwapPool: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    adoptedToCanonical(
-      _adopted: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "adoptedToLocalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "adoptedToLocalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "approvedAssets(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "approvedAssets((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "canonicalToAdopted(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "canonicalToAdopted((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "removeAssetId((uint32,bytes32),address)"(
-      _canonical: TokenIdStruct,
-      _adoptedAssetId: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "removeAssetId(bytes32,address)"(
-      _key: PromiseOrValue<BytesLike>,
-      _adoptedAssetId: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setupAsset(
-      _canonical: TokenIdStruct,
-      _adoptedAssetId: PromiseOrValue<string>,
-      _stableSwapPool: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    tokenRegistry(overrides?: CallOverrides): Promise<BigNumber>;
-
     AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<BigNumber>;
 
     DUST_AMOUNT(overrides?: CallOverrides): Promise<BigNumber>;
@@ -4606,13 +4573,6 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<BigNumber>;
 
     domain(overrides?: CallOverrides): Promise<BigNumber>;
-
-    enrollCustom(
-      _domain: PromiseOrValue<BigNumberish>,
-      _id: PromiseOrValue<BytesLike>,
-      _custom: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
 
     enrollRemoteRouter(
       _domain: PromiseOrValue<BigNumberish>,
@@ -5151,76 +5111,91 @@ export interface ConnextHandler extends BaseContract {
       deadline: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-  };
 
-  populateTransaction: {
     addStableSwapPool(
       _canonical: TokenIdStruct,
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    ): Promise<BigNumber>;
 
     adoptedToCanonical(
       _adopted: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    ): Promise<BigNumber>;
 
     "adoptedToLocalPools(bytes32)"(
       _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    ): Promise<BigNumber>;
 
     "adoptedToLocalPools((uint32,bytes32))"(
       _canonical: TokenIdStruct,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    ): Promise<BigNumber>;
 
     "approvedAssets(bytes32)"(
       _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    ): Promise<BigNumber>;
 
     "approvedAssets((uint32,bytes32))"(
       _canonical: TokenIdStruct,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    ): Promise<BigNumber>;
 
     "canonicalToAdopted(bytes32)"(
       _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    ): Promise<BigNumber>;
 
     "canonicalToAdopted((uint32,bytes32))"(
       _canonical: TokenIdStruct,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    ): Promise<BigNumber>;
+
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     "removeAssetId((uint32,bytes32),address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    ): Promise<BigNumber>;
 
     "removeAssetId(bytes32,address)"(
       _key: PromiseOrValue<BytesLike>,
       _adoptedAssetId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    ): Promise<BigNumber>;
 
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    representationToCanonical(
+      _representation: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     setupAsset(
       _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    ): Promise<BigNumber>;
+  };
 
-    tokenRegistry(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
+  populateTransaction: {
     AAVE_REFERRAL_CODE(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -5243,13 +5218,6 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    enrollCustom(
-      _domain: PromiseOrValue<BigNumberish>,
-      _id: PromiseOrValue<BytesLike>,
-      _custom: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
 
     enrollRemoteRouter(
       _domain: PromiseOrValue<BigNumberish>,
@@ -5802,6 +5770,88 @@ export interface ConnextHandler extends BaseContract {
       assetOut: PromiseOrValue<string>,
       maxAmountIn: PromiseOrValue<BigNumberish>,
       deadline: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addStableSwapPool(
+      _canonical: TokenIdStruct,
+      _stableSwapPool: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    adoptedToCanonical(
+      _adopted: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "adoptedToLocalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "adoptedToLocalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "approvedAssets(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "approvedAssets((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "canonicalToAdopted(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "canonicalToAdopted((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "removeAssetId((uint32,bytes32),address)"(
+      _canonical: TokenIdStruct,
+      _adoptedAssetId: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "removeAssetId(bytes32,address)"(
+      _key: PromiseOrValue<BytesLike>,
+      _adoptedAssetId: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    representationToCanonical(
+      _representation: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    setupAsset(
+      _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
+      _adoptedAssetId: PromiseOrValue<string>,
+      _stableSwapPool: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

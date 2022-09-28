@@ -2617,19 +2617,6 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "_tokenRegistry",
-        type: "address",
-      },
-    ],
-    name: "setTokenRegistry",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
         name: "_xAppConnectionManager",
         type: "address",
       },
@@ -2840,19 +2827,6 @@ const _abi = [
       },
     ],
     stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "tokenRegistry",
-    outputs: [
-      {
-        internalType: "contract ITokenRegistry",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {

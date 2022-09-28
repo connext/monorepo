@@ -287,7 +287,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "setRouterRecipient(address,address)": FunctionFragment;
     "setSwapAdminFee(bytes32,uint256)": FunctionFragment;
     "setSwapFee(bytes32,uint256)": FunctionFragment;
-    "setTokenRegistry(address)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
     "setupAsset((uint32,bytes32),address,address)": FunctionFragment;
     "setupRouter(address,address,address)": FunctionFragment;
@@ -295,7 +294,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "swap(bytes32,uint8,uint8,uint256,uint256,uint256)": FunctionFragment;
     "swapExact(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
     "swapExactOut(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
-    "tokenRegistry()": FunctionFragment;
     "transferRelayer(bytes32)": FunctionFragment;
     "unapproveRouterForPortal(address)": FunctionFragment;
     "unpause()": FunctionFragment;
@@ -414,7 +412,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "setRouterRecipient"
       | "setSwapAdminFee"
       | "setSwapFee"
-      | "setTokenRegistry"
       | "setXAppConnectionManager"
       | "setupAsset"
       | "setupRouter"
@@ -422,7 +419,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "swap"
       | "swapExact"
       | "swapExactOut"
-      | "tokenRegistry"
       | "transferRelayer"
       | "unapproveRouterForPortal"
       | "unpause"
@@ -929,10 +925,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setTokenRegistry",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setXAppConnectionManager",
     values: [PromiseOrValue<string>]
   ): string;
@@ -984,10 +976,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenRegistry",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "transferRelayer",
@@ -1403,10 +1391,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "setSwapFee", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setTokenRegistry",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setXAppConnectionManager",
     data: BytesLike
   ): Result;
@@ -1420,10 +1404,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "swapExact", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "swapExactOut",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenRegistry",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -2078,11 +2058,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2136,8 +2111,6 @@ export interface IConnextHandler extends BaseContract {
       deadline: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    tokenRegistry(overrides?: CallOverrides): Promise<[string]>;
 
     transferRelayer(
       _transferId: PromiseOrValue<BytesLike>,
@@ -2729,11 +2702,6 @@ export interface IConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setTokenRegistry(
-    _tokenRegistry: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setXAppConnectionManager(
     _xAppConnectionManager: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2787,8 +2755,6 @@ export interface IConnextHandler extends BaseContract {
     deadline: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  tokenRegistry(overrides?: CallOverrides): Promise<string>;
 
   transferRelayer(
     _transferId: PromiseOrValue<BytesLike>,
@@ -3366,11 +3332,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -3424,8 +3385,6 @@ export interface IConnextHandler extends BaseContract {
       deadline: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    tokenRegistry(overrides?: CallOverrides): Promise<string>;
 
     transferRelayer(
       _transferId: PromiseOrValue<BytesLike>,
@@ -4053,11 +4012,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4111,8 +4065,6 @@ export interface IConnextHandler extends BaseContract {
       deadline: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    tokenRegistry(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferRelayer(
       _transferId: PromiseOrValue<BytesLike>,
@@ -4719,11 +4671,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4777,8 +4724,6 @@ export interface IConnextHandler extends BaseContract {
       deadline: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    tokenRegistry(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transferRelayer(
       _transferId: PromiseOrValue<BytesLike>,

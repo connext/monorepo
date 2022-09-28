@@ -1,5 +1,6 @@
 [
   "error BaseConnextFacet__getAdoptedAsset_notWhitelisted()",
+  "error BaseConnextFacet__getApprovedCanonicalId_notWhitelisted()",
   "error BaseConnextFacet__nonReentrant_reentrantCall()",
   "error BaseConnextFacet__onlyBridgeRouter_notBridgeRouter()",
   "error BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin()",
@@ -11,11 +12,10 @@
   "error TokenFacet__addAssetId_alreadyAdded()",
   "error TokenFacet__addAssetId_nativeAsset()",
   "error TokenFacet__removeAssetId_notAdded()",
-  "error TokenFacet__setTokenRegistry_invalidTokenRegistry()",
   "event AssetAdded(bytes32 indexed,bytes32 indexed,uint32 indexed,address,address,address)",
   "event AssetRemoved(bytes32 indexed,address)",
   "event StableSwapAdded(bytes32 indexed,bytes32 indexed,uint32 indexed,address,address)",
-  "event TokenRegistryUpdated(address,address,address)",
+  "event TokenDeployed(uint32 indexed,bytes32 indexed,address indexed)",
   "function addStableSwapPool(tuple(uint32,bytes32),address)",
   "function adoptedToCanonical(address) view returns (tuple(uint32,bytes32))",
   "function adoptedToLocalPools(bytes32) view returns (address)",
@@ -24,9 +24,11 @@
   "function approvedAssets(tuple(uint32,bytes32)) view returns (bool)",
   "function canonicalToAdopted(bytes32) view returns (address)",
   "function canonicalToAdopted(tuple(uint32,bytes32)) view returns (address)",
+  "function canonicalToRepresentation(bytes32) view returns (address)",
+  "function canonicalToRepresentation(tuple(uint32,bytes32)) view returns (address)",
+  "function getLocalAndAdoptedToken(bytes32,uint32) view returns (address, address)",
   "function removeAssetId(tuple(uint32,bytes32),address)",
   "function removeAssetId(bytes32,address)",
-  "function setTokenRegistry(address)",
-  "function setupAsset(tuple(uint32,bytes32),address,address)",
-  "function tokenRegistry() view returns (address)"
+  "function representationToCanonical(address) view returns (tuple(uint32,bytes32))",
+  "function setupAsset(tuple(uint32,bytes32),uint8,address,address)"
 ]

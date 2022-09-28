@@ -47,11 +47,13 @@ export interface TokenFacetInterface extends utils.Interface {
     "approvedAssets((uint32,bytes32))": FunctionFragment;
     "canonicalToAdopted(bytes32)": FunctionFragment;
     "canonicalToAdopted((uint32,bytes32))": FunctionFragment;
+    "canonicalToRepresentation(bytes32)": FunctionFragment;
+    "canonicalToRepresentation((uint32,bytes32))": FunctionFragment;
+    "getLocalAndAdoptedToken(bytes32,uint32)": FunctionFragment;
     "removeAssetId((uint32,bytes32),address)": FunctionFragment;
     "removeAssetId(bytes32,address)": FunctionFragment;
-    "setTokenRegistry(address)": FunctionFragment;
-    "setupAsset((uint32,bytes32),address,address)": FunctionFragment;
-    "tokenRegistry()": FunctionFragment;
+    "representationToCanonical(address)": FunctionFragment;
+    "setupAsset((uint32,bytes32),uint8,address,address)": FunctionFragment;
   };
 
   getFunction(
@@ -64,11 +66,13 @@ export interface TokenFacetInterface extends utils.Interface {
       | "approvedAssets((uint32,bytes32))"
       | "canonicalToAdopted(bytes32)"
       | "canonicalToAdopted((uint32,bytes32))"
+      | "canonicalToRepresentation(bytes32)"
+      | "canonicalToRepresentation((uint32,bytes32))"
+      | "getLocalAndAdoptedToken"
       | "removeAssetId((uint32,bytes32),address)"
       | "removeAssetId(bytes32,address)"
-      | "setTokenRegistry"
+      | "representationToCanonical"
       | "setupAsset"
-      | "tokenRegistry"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -104,6 +108,18 @@ export interface TokenFacetInterface extends utils.Interface {
     values: [TokenIdStruct]
   ): string;
   encodeFunctionData(
+    functionFragment: "canonicalToRepresentation(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "canonicalToRepresentation((uint32,bytes32))",
+    values: [TokenIdStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLocalAndAdoptedToken",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "removeAssetId((uint32,bytes32),address)",
     values: [TokenIdStruct, PromiseOrValue<string>]
   ): string;
@@ -112,16 +128,17 @@ export interface TokenFacetInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setTokenRegistry",
+    functionFragment: "representationToCanonical",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setupAsset",
-    values: [TokenIdStruct, PromiseOrValue<string>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenRegistry",
-    values?: undefined
+    values: [
+      TokenIdStruct,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
 
   decodeFunctionResult(
@@ -157,6 +174,18 @@ export interface TokenFacetInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "canonicalToRepresentation(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "canonicalToRepresentation((uint32,bytes32))",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLocalAndAdoptedToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "removeAssetId((uint32,bytes32),address)",
     data: BytesLike
   ): Result;
@@ -165,26 +194,22 @@ export interface TokenFacetInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setTokenRegistry",
+    functionFragment: "representationToCanonical",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setupAsset", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenRegistry",
-    data: BytesLike
-  ): Result;
 
   events: {
     "AssetAdded(bytes32,bytes32,uint32,address,address,address)": EventFragment;
     "AssetRemoved(bytes32,address)": EventFragment;
     "StableSwapAdded(bytes32,bytes32,uint32,address,address)": EventFragment;
-    "TokenRegistryUpdated(address,address,address)": EventFragment;
+    "TokenDeployed(uint32,bytes32,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StableSwapAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TokenRegistryUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenDeployed"): EventFragment;
 }
 
 export interface AssetAddedEventObject {
@@ -227,18 +252,17 @@ export type StableSwapAddedEvent = TypedEvent<
 
 export type StableSwapAddedEventFilter = TypedEventFilter<StableSwapAddedEvent>;
 
-export interface TokenRegistryUpdatedEventObject {
-  oldTokenRegistry: string;
-  newTokenRegistry: string;
-  caller: string;
+export interface TokenDeployedEventObject {
+  domain: number;
+  id: string;
+  representation: string;
 }
-export type TokenRegistryUpdatedEvent = TypedEvent<
-  [string, string, string],
-  TokenRegistryUpdatedEventObject
+export type TokenDeployedEvent = TypedEvent<
+  [number, string, string],
+  TokenDeployedEventObject
 >;
 
-export type TokenRegistryUpdatedEventFilter =
-  TypedEventFilter<TokenRegistryUpdatedEvent>;
+export type TokenDeployedEventFilter = TypedEventFilter<TokenDeployedEvent>;
 
 export interface TokenFacet extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -308,6 +332,22 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string, string]>;
+
     "removeAssetId((uint32,bytes32),address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
@@ -320,19 +360,18 @@ export interface TokenFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    representationToCanonical(
+      _representation: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[TokenIdStructOutput]>;
 
     setupAsset(
       _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    tokenRegistry(overrides?: CallOverrides): Promise<[string]>;
   };
 
   addStableSwapPool(
@@ -376,6 +415,22 @@ export interface TokenFacet extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  "canonicalToRepresentation(bytes32)"(
+    _key: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "canonicalToRepresentation((uint32,bytes32))"(
+    _canonical: TokenIdStruct,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  getLocalAndAdoptedToken(
+    _id: PromiseOrValue<BytesLike>,
+    _domain: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<[string, string]>;
+
   "removeAssetId((uint32,bytes32),address)"(
     _canonical: TokenIdStruct,
     _adoptedAssetId: PromiseOrValue<string>,
@@ -388,19 +443,18 @@ export interface TokenFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setTokenRegistry(
-    _tokenRegistry: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  representationToCanonical(
+    _representation: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<TokenIdStructOutput>;
 
   setupAsset(
     _canonical: TokenIdStruct,
+    _canonicalDecimals: PromiseOrValue<BigNumberish>,
     _adoptedAssetId: PromiseOrValue<string>,
     _stableSwapPool: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  tokenRegistry(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     addStableSwapPool(
@@ -444,6 +498,22 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string, string]>;
+
     "removeAssetId((uint32,bytes32),address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
@@ -456,19 +526,18 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
+    representationToCanonical(
+      _representation: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<TokenIdStructOutput>;
 
     setupAsset(
       _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    tokenRegistry(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
@@ -513,16 +582,16 @@ export interface TokenFacet extends BaseContract {
       caller?: null
     ): StableSwapAddedEventFilter;
 
-    "TokenRegistryUpdated(address,address,address)"(
-      oldTokenRegistry?: null,
-      newTokenRegistry?: null,
-      caller?: null
-    ): TokenRegistryUpdatedEventFilter;
-    TokenRegistryUpdated(
-      oldTokenRegistry?: null,
-      newTokenRegistry?: null,
-      caller?: null
-    ): TokenRegistryUpdatedEventFilter;
+    "TokenDeployed(uint32,bytes32,address)"(
+      domain?: PromiseOrValue<BigNumberish> | null,
+      id?: PromiseOrValue<BytesLike> | null,
+      representation?: PromiseOrValue<string> | null
+    ): TokenDeployedEventFilter;
+    TokenDeployed(
+      domain?: PromiseOrValue<BigNumberish> | null,
+      id?: PromiseOrValue<BytesLike> | null,
+      representation?: PromiseOrValue<string> | null
+    ): TokenDeployedEventFilter;
   };
 
   estimateGas: {
@@ -567,6 +636,22 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     "removeAssetId((uint32,bytes32),address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
@@ -579,19 +664,18 @@ export interface TokenFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    representationToCanonical(
+      _representation: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     setupAsset(
       _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    tokenRegistry(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -636,6 +720,22 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     "removeAssetId((uint32,bytes32),address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
@@ -648,18 +748,17 @@ export interface TokenFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    representationToCanonical(
+      _representation: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     setupAsset(
       _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    tokenRegistry(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

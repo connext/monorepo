@@ -1,7 +1,6 @@
 import { utils } from "ethers";
 
-import { ConnextHandlerAbi, TokenRegistryAbi, TokenFacetAbi, BridgeFacetAbi, InboxFacetAbi } from "./abi";
-import { ITokenRegistryInterface as TTokenRegistryInterface } from "./typechain-types/contracts/core/connext/interfaces/ITokenRegistry";
+import { ConnextHandlerAbi, TokenFacetAbi, BridgeFacetAbi, InboxFacetAbi } from "./abi";
 import { ConnextHandlerInterface as TConnextHandlerInterface } from "./typechain-types/hardhat-diamond-abi/HardhatDiamondABI.sol/ConnextHandler";
 
 const connextAbi = ConnextHandlerAbi.concat(
@@ -10,4 +9,3 @@ const connextAbi = ConnextHandlerAbi.concat(
     .concat(InboxFacetAbi.filter((k) => k.includes("event"))),
 );
 export const ConnextHandlerInterface = new utils.Interface(connextAbi) as TConnextHandlerInterface;
-export const TokenRegistryInterface = new utils.Interface(TokenRegistryAbi) as TTokenRegistryInterface;

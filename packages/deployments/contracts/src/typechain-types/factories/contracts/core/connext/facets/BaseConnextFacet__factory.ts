@@ -17,6 +17,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BaseConnextFacet__getApprovedCanonicalId_notWhitelisted",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BaseConnextFacet__nonReentrant_reentrantCall",
     type: "error",
   },
@@ -58,7 +63,7 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220b47fddf0710e3164bb4e01e4b84e35db8a2a6e46a5725874269abdad7bb05d1764736f6c634300080f0033";
+  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220573dfffad50c437c7cb6d856bbf233eff12d909acf3a2482440b0df1998ef61f64736f6c634300080f0033";
 
 type BaseConnextFacetConstructorParams =
   | [signer?: Signer]

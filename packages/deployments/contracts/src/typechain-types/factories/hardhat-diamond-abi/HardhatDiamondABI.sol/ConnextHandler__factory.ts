@@ -12,471 +12,12 @@ import type {
 const _abi = [
   {
     inputs: [],
-    name: "AssetFacet__addAssetId_alreadyAdded",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetFacet__addAssetId_nativeAsset",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetFacet__removeAssetId_notAdded",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetFacet__setTokenRegistry_invalidTokenRegistry",
-    type: "error",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "key",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "canonicalId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "uint32",
-        name: "domain",
-        type: "uint32",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "adoptedAsset",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "localAsset",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "AssetAdded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "key",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "AssetRemoved",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "key",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "canonicalId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "uint32",
-        name: "domain",
-        type: "uint32",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "swapPool",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "StableSwapAdded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "oldTokenRegistry",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "newTokenRegistry",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "TokenRegistryUpdated",
-    type: "event",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "uint32",
-            name: "domain",
-            type: "uint32",
-          },
-          {
-            internalType: "bytes32",
-            name: "id",
-            type: "bytes32",
-          },
-        ],
-        internalType: "struct TokenId",
-        name: "_canonical",
-        type: "tuple",
-      },
-      {
-        internalType: "address",
-        name: "_stableSwapPool",
-        type: "address",
-      },
-    ],
-    name: "addStableSwapPool",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_adopted",
-        type: "address",
-      },
-    ],
-    name: "adoptedToCanonical",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "uint32",
-            name: "domain",
-            type: "uint32",
-          },
-          {
-            internalType: "bytes32",
-            name: "id",
-            type: "bytes32",
-          },
-        ],
-        internalType: "struct TokenId",
-        name: "",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_key",
-        type: "bytes32",
-      },
-    ],
-    name: "adoptedToLocalPools",
-    outputs: [
-      {
-        internalType: "contract IStableSwap",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "uint32",
-            name: "domain",
-            type: "uint32",
-          },
-          {
-            internalType: "bytes32",
-            name: "id",
-            type: "bytes32",
-          },
-        ],
-        internalType: "struct TokenId",
-        name: "_canonical",
-        type: "tuple",
-      },
-    ],
-    name: "adoptedToLocalPools",
-    outputs: [
-      {
-        internalType: "contract IStableSwap",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_key",
-        type: "bytes32",
-      },
-    ],
-    name: "approvedAssets",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "uint32",
-            name: "domain",
-            type: "uint32",
-          },
-          {
-            internalType: "bytes32",
-            name: "id",
-            type: "bytes32",
-          },
-        ],
-        internalType: "struct TokenId",
-        name: "_canonical",
-        type: "tuple",
-      },
-    ],
-    name: "approvedAssets",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_key",
-        type: "bytes32",
-      },
-    ],
-    name: "canonicalToAdopted",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "uint32",
-            name: "domain",
-            type: "uint32",
-          },
-          {
-            internalType: "bytes32",
-            name: "id",
-            type: "bytes32",
-          },
-        ],
-        internalType: "struct TokenId",
-        name: "_canonical",
-        type: "tuple",
-      },
-    ],
-    name: "canonicalToAdopted",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "uint32",
-            name: "domain",
-            type: "uint32",
-          },
-          {
-            internalType: "bytes32",
-            name: "id",
-            type: "bytes32",
-          },
-        ],
-        internalType: "struct TokenId",
-        name: "_canonical",
-        type: "tuple",
-      },
-      {
-        internalType: "address",
-        name: "_adoptedAssetId",
-        type: "address",
-      },
-    ],
-    name: "removeAssetId",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_key",
-        type: "bytes32",
-      },
-      {
-        internalType: "address",
-        name: "_adoptedAssetId",
-        type: "address",
-      },
-    ],
-    name: "removeAssetId",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_tokenRegistry",
-        type: "address",
-      },
-    ],
-    name: "setTokenRegistry",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "uint32",
-            name: "domain",
-            type: "uint32",
-          },
-          {
-            internalType: "bytes32",
-            name: "id",
-            type: "bytes32",
-          },
-        ],
-        internalType: "struct TokenId",
-        name: "_canonical",
-        type: "tuple",
-      },
-      {
-        internalType: "address",
-        name: "_adoptedAssetId",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_stableSwapPool",
-        type: "address",
-      },
-    ],
-    name: "setupAsset",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "tokenRegistry",
-    outputs: [
-      {
-        internalType: "contract ITokenRegistry",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "BaseConnextFacet__getAdoptedAsset_notWhitelisted",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__getApprovedCanonicalId_notWhitelisted",
     type: "error",
   },
   {
@@ -1219,29 +760,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "_domain",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes32",
-        name: "_id",
-        type: "bytes32",
-      },
-      {
-        internalType: "address",
-        name: "_custom",
-        type: "address",
-      },
-    ],
-    name: "enrollCustom",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -4692,6 +4210,554 @@ const _abi = [
         type: "uint256",
       },
     ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__addAssetId_alreadyAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__addAssetId_nativeAsset",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__removeAssetId_notAdded",
+    type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "key",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "canonicalId",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "uint32",
+        name: "domain",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "adoptedAsset",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "localAsset",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "AssetAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "key",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "AssetRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "key",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "canonicalId",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "uint32",
+        name: "domain",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "swapPool",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "StableSwapAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint32",
+        name: "domain",
+        type: "uint32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "id",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "representation",
+        type: "address",
+      },
+    ],
+    name: "TokenDeployed",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
+        internalType: "address",
+        name: "_stableSwapPool",
+        type: "address",
+      },
+    ],
+    name: "addStableSwapPool",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_adopted",
+        type: "address",
+      },
+    ],
+    name: "adoptedToCanonical",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_key",
+        type: "bytes32",
+      },
+    ],
+    name: "adoptedToLocalPools",
+    outputs: [
+      {
+        internalType: "contract IStableSwap",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+    ],
+    name: "adoptedToLocalPools",
+    outputs: [
+      {
+        internalType: "contract IStableSwap",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_key",
+        type: "bytes32",
+      },
+    ],
+    name: "approvedAssets",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+    ],
+    name: "approvedAssets",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_key",
+        type: "bytes32",
+      },
+    ],
+    name: "canonicalToAdopted",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+    ],
+    name: "canonicalToAdopted",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_key",
+        type: "bytes32",
+      },
+    ],
+    name: "canonicalToRepresentation",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+    ],
+    name: "canonicalToRepresentation",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_id",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint32",
+        name: "_domain",
+        type: "uint32",
+      },
+    ],
+    name: "getLocalAndAdoptedToken",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
+        internalType: "address",
+        name: "_adoptedAssetId",
+        type: "address",
+      },
+    ],
+    name: "removeAssetId",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_key",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "_adoptedAssetId",
+        type: "address",
+      },
+    ],
+    name: "removeAssetId",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_representation",
+        type: "address",
+      },
+    ],
+    name: "representationToCanonical",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
+        internalType: "uint8",
+        name: "_canonicalDecimals",
+        type: "uint8",
+      },
+      {
+        internalType: "address",
+        name: "_adoptedAssetId",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_stableSwapPool",
+        type: "address",
+      },
+    ],
+    name: "setupAsset",
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
