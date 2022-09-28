@@ -1,3 +1,5 @@
+import { X509Certificate } from "crypto";
+
 import { NxtpSdkUtils } from "@connext/nxtp-sdk";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
@@ -10,7 +12,6 @@ import {
   getTransfersByTransactionHashSchema,
   getTransfersSchema,
 } from "./types/api";
-import { X509Certificate } from "crypto";
 
 export const utilsRoutes = async (server: FastifyInstance, sdkUtilsInstance: NxtpSdkUtils): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
