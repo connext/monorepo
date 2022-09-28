@@ -4,6 +4,7 @@ import { BigNumber, constants, Wallet } from "ethers";
 
 import { chainIdToDomain, getConnectorName, getDeploymentName, getProtocolNetwork } from "../src";
 import { MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
+import { deployBeaconProxy } from "./02_deployRouters";
 
 // Format the arguments for Connector contract constructor.
 const formatConnectorArgs = (
@@ -61,12 +62,26 @@ const handleDeployHub = async (
   deployer: Wallet,
   protocol: MessagingProtocolConfig,
 ): Promise<void> => {
+  // Deploy WatcherManager.
+  console.log("Deploying WatcherManager...");
+  const watcherManager = await hre.deployments.deploy(getDeploymentName("WatcherManager"), {
+    contract: "WatcherManager",
+    from: deployer.address,
+    args: [],
+    skipIfAlreadyDeployed: true,
+    log: true,
+  });
+  console.log(`WatcherManager deployed to ${watcherManager.address}`);
+
+  // Deploy MerkleTreeManager(beacon proxy)
+  const merkle = await deployBeaconProxy("MerkleTreeManager", [], deployer, hre);
+
   // Deploy RootManager.
   console.log("Deploying RootManager...");
   const rootManager = await hre.deployments.deploy(getDeploymentName("RootManager"), {
     contract: "RootManager",
     from: deployer.address,
-    args: [],
+    args: [merkle.address, watcherManager.address],
     skipIfAlreadyDeployed: true,
     log: true,
   });
