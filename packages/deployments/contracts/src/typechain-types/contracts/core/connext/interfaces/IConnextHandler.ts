@@ -292,7 +292,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "setSwapAdminFee(bytes32,uint256)": FunctionFragment;
     "setSwapFee(bytes32,uint256)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
-    "setupAsset((uint32,bytes32),address,address)": FunctionFragment;
+    "setupAsset((uint32,bytes32),uint8,address,address)": FunctionFragment;
     "setupRouter(address,address,address)": FunctionFragment;
     "stopRampA(bytes32)": FunctionFragment;
     "swap(bytes32,uint8,uint8,uint256,uint256,uint256)": FunctionFragment;
@@ -954,7 +954,12 @@ export interface IConnextHandlerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setupAsset",
-    values: [TokenIdStruct, PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [
+      TokenIdStruct,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "setupRouter",
@@ -2126,6 +2131,7 @@ export interface IConnextHandler extends BaseContract {
 
     setupAsset(
       _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2791,6 +2797,7 @@ export interface IConnextHandler extends BaseContract {
 
   setupAsset(
     _canonical: TokenIdStruct,
+    _canonicalDecimals: PromiseOrValue<BigNumberish>,
     _adoptedAssetId: PromiseOrValue<string>,
     _stableSwapPool: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -3442,6 +3449,7 @@ export interface IConnextHandler extends BaseContract {
 
     setupAsset(
       _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -4143,6 +4151,7 @@ export interface IConnextHandler extends BaseContract {
 
     setupAsset(
       _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4823,6 +4832,7 @@ export interface IConnextHandler extends BaseContract {
 
     setupAsset(
       _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }

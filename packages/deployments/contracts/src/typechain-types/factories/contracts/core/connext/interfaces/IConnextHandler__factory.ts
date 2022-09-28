@@ -2756,6 +2756,11 @@ const _abi = [
         type: "tuple",
       },
       {
+        internalType: "uint8",
+        name: "_canonicalDecimals",
+        type: "uint8",
+      },
+      {
         internalType: "address",
         name: "_adoptedAssetId",
         type: "address",
