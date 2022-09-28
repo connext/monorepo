@@ -5,9 +5,6 @@ import { RelayerSendFailed } from "../../../../errors";
 import { getGelatoRelayerAddress, isChainSupportedByGelato } from "../../../../mockable";
 import { getContext } from "../../prover";
 
-// TODO: Use secret
-const sponsorApiKey = "xxx";
-
 export const getRelayerAddress = async (chainId: number): Promise<string> => {
   const { logger } = getContext();
   const relayerAddress = await getGelatoRelayerAddress(chainId, logger);
@@ -15,7 +12,7 @@ export const getRelayerAddress = async (chainId: number): Promise<string> => {
 };
 
 export const send = async (chainId: number, destinationAddress: string, encodedData: string): Promise<string> => {
-  const { logger } = getContext();
+  const { logger, config } = getContext();
   const { requestContext, methodContext } = createLoggingContext(send.name);
 
   const isSupportedByGelato = await isChainSupportedByGelato(chainId);
@@ -31,7 +28,7 @@ export const send = async (chainId: number, destinationAddress: string, encodedD
 
   logger.info("Sending to Gelato network", requestContext, methodContext, request);
 
-  const response = await GelatoRelaySDK.relayWithSponsoredCall(request, sponsorApiKey);
+  const response = await GelatoRelaySDK.relayWithSponsoredCall(request, config.gelatoApiKey);
 
   if (!response) {
     throw new RelayerSendFailed({ response: response });
