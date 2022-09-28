@@ -93,6 +93,15 @@ const handleDeployHub = async (
   });
   console.log(`RootManager deployed to ${rootManager.address}`);
 
+  // setArborist to Merkle
+  const merkleContract = await hre.ethers.getContractAt("MerkleTreeManager", merkleTreeManager.address, deployer);
+
+  if ((await merkleContract.arborist()).toLowerCase() !== rootManager.address.toLowerCase()) {
+    const tx = await merkleContract.setArborist(rootManager.address);
+    console.log(`setArborist tx submitted:`, tx.hash);
+    await tx.wait();
+  }
+
   // Deploy MainnetSpokeConnector.
   const connectorName = getConnectorName(protocol, protocol.hub);
   console.log(`Deploying ${connectorName}...`);
@@ -229,6 +238,15 @@ const handleDeploySpoke = async (
     log: true,
   });
   console.log(`${contract} deployed to ${deployment.address}`);
+
+  // setArborist to Merkle
+  const merkleContract = await hre.ethers.getContractAt("MerkleTreeManager", merkleTreeManager.address, deployer);
+
+  if ((await merkleContract.arborist()).toLowerCase() !== deployment.address.toLowerCase()) {
+    const tx = await merkleContract.setArborist(deployment.address);
+    console.log(`setArborist tx submitted:`, tx.hash);
+    await tx.wait();
+  }
 
   console.log(`Deploying ${contract} SendOutboundRootResolver...`);
   const resolverDeployment = await hre.deployments.deploy(getDeploymentName(`${contract}SendOutboundRootResolver`), {
