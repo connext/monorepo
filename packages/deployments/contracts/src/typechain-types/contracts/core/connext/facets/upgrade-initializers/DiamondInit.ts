@@ -25,7 +25,7 @@ import type {
 
 export interface DiamondInitInterface extends utils.Interface {
   functions: {
-    "init(uint32,address,address,address,uint256,uint256)": FunctionFragment;
+    "init(uint32,address,address,uint256,uint256)": FunctionFragment;
   };
 
   getFunction(nameOrSignatureOrTopic: "init"): FunctionFragment;
@@ -34,7 +34,6 @@ export interface DiamondInitInterface extends utils.Interface {
     functionFragment: "init",
     values: [
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
@@ -76,7 +75,6 @@ export interface DiamondInit extends BaseContract {
   functions: {
     init(
       _domain: PromiseOrValue<BigNumberish>,
-      _tokenRegistry: PromiseOrValue<string>,
       _relayerFeeRouter: PromiseOrValue<string>,
       _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
@@ -87,7 +85,6 @@ export interface DiamondInit extends BaseContract {
 
   init(
     _domain: PromiseOrValue<BigNumberish>,
-    _tokenRegistry: PromiseOrValue<string>,
     _relayerFeeRouter: PromiseOrValue<string>,
     _xAppConnectionManager: PromiseOrValue<string>,
     _acceptanceDelay: PromiseOrValue<BigNumberish>,
@@ -98,7 +95,6 @@ export interface DiamondInit extends BaseContract {
   callStatic: {
     init(
       _domain: PromiseOrValue<BigNumberish>,
-      _tokenRegistry: PromiseOrValue<string>,
       _relayerFeeRouter: PromiseOrValue<string>,
       _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
@@ -112,7 +108,6 @@ export interface DiamondInit extends BaseContract {
   estimateGas: {
     init(
       _domain: PromiseOrValue<BigNumberish>,
-      _tokenRegistry: PromiseOrValue<string>,
       _relayerFeeRouter: PromiseOrValue<string>,
       _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
@@ -124,7 +119,6 @@ export interface DiamondInit extends BaseContract {
   populateTransaction: {
     init(
       _domain: PromiseOrValue<BigNumberish>,
-      _tokenRegistry: PromiseOrValue<string>,
       _relayerFeeRouter: PromiseOrValue<string>,
       _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,

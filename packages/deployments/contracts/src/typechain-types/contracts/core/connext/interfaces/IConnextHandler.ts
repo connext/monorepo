@@ -210,6 +210,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "calculateSwapTokenAmount(bytes32,uint256[],bool)": FunctionFragment;
     "canonicalToAdopted(bytes32)": FunctionFragment;
     "canonicalToAdopted((uint32,bytes32))": FunctionFragment;
+    "canonicalToRepresentation(bytes32)": FunctionFragment;
+    "canonicalToRepresentation((uint32,bytes32))": FunctionFragment;
     "claim(address,bytes32[])": FunctionFragment;
     "delay()": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -224,6 +226,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "forceUpdateSlippage((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256)": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
+    "getLocalAndAdoptedToken(bytes32,uint32)": FunctionFragment;
     "getProposedRouterOwner(address)": FunctionFragment;
     "getProposedRouterOwnerTimestamp(address)": FunctionFragment;
     "getRouterApproval(address)": FunctionFragment;
@@ -274,6 +277,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "renounced()": FunctionFragment;
     "repayAavePortal((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256,uint256)": FunctionFragment;
     "repayAavePortalFor((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256)": FunctionFragment;
+    "representationToCanonical(address)": FunctionFragment;
     "rescindDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
@@ -335,6 +339,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "calculateSwapTokenAmount"
       | "canonicalToAdopted(bytes32)"
       | "canonicalToAdopted((uint32,bytes32))"
+      | "canonicalToRepresentation(bytes32)"
+      | "canonicalToRepresentation((uint32,bytes32))"
       | "claim"
       | "delay"
       | "diamondCut"
@@ -349,6 +355,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "forceUpdateSlippage"
       | "getAavePortalDebt"
       | "getAavePortalFeeDebt"
+      | "getLocalAndAdoptedToken"
       | "getProposedRouterOwner"
       | "getProposedRouterOwnerTimestamp"
       | "getRouterApproval"
@@ -399,6 +406,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "renounced"
       | "repayAavePortal"
       | "repayAavePortalFor"
+      | "representationToCanonical"
       | "rescindDiamondCut"
       | "routedTransfers"
       | "routerBalances"
@@ -568,6 +576,14 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values: [TokenIdStruct]
   ): string;
   encodeFunctionData(
+    functionFragment: "canonicalToRepresentation(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "canonicalToRepresentation((uint32,bytes32))",
+    values: [TokenIdStruct]
+  ): string;
+  encodeFunctionData(
     functionFragment: "claim",
     values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>[]]
   ): string;
@@ -621,6 +637,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getAavePortalFeeDebt",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLocalAndAdoptedToken",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "getProposedRouterOwner",
@@ -867,6 +887,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "representationToCanonical",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "rescindDiamondCut",
@@ -1130,6 +1154,14 @@ export interface IConnextHandlerInterface extends utils.Interface {
     functionFragment: "canonicalToAdopted((uint32,bytes32))",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "canonicalToRepresentation(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "canonicalToRepresentation((uint32,bytes32))",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "claim", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "diamondCut", data: BytesLike): Result;
@@ -1166,6 +1198,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getAavePortalFeeDebt",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLocalAndAdoptedToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1339,6 +1375,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "repayAavePortalFor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "representationToCanonical",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1653,6 +1693,16 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     claim(
       _recipient: PromiseOrValue<string>,
       _transferIds: PromiseOrValue<BytesLike>[],
@@ -1725,6 +1775,12 @@ export interface IConnextHandler extends BaseContract {
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string, string]>;
 
     getProposedRouterOwner(
       _router: PromiseOrValue<string>,
@@ -1992,6 +2048,11 @@ export interface IConnextHandler extends BaseContract {
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    representationToCanonical(
+      _adopted: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[TokenIdStructOutput]>;
 
     rescindDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
@@ -2305,6 +2366,16 @@ export interface IConnextHandler extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  "canonicalToRepresentation(bytes32)"(
+    _key: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "canonicalToRepresentation((uint32,bytes32))"(
+    _canonical: TokenIdStruct,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   claim(
     _recipient: PromiseOrValue<string>,
     _transferIds: PromiseOrValue<BytesLike>[],
@@ -2369,6 +2440,12 @@ export interface IConnextHandler extends BaseContract {
     _transferId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  getLocalAndAdoptedToken(
+    _id: PromiseOrValue<BytesLike>,
+    _domain: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<[string, string]>;
 
   getProposedRouterOwner(
     _router: PromiseOrValue<string>,
@@ -2636,6 +2713,11 @@ export interface IConnextHandler extends BaseContract {
     _feeAmount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  representationToCanonical(
+    _adopted: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<TokenIdStructOutput>;
 
   rescindDiamondCut(
     _diamondCut: IDiamondCut.FacetCutStruct[],
@@ -2945,6 +3027,16 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     claim(
       _recipient: PromiseOrValue<string>,
       _transferIds: PromiseOrValue<BytesLike>[],
@@ -3011,6 +3103,12 @@ export interface IConnextHandler extends BaseContract {
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string, string]>;
 
     getProposedRouterOwner(
       _router: PromiseOrValue<string>,
@@ -3266,6 +3364,11 @@ export interface IConnextHandler extends BaseContract {
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    representationToCanonical(
+      _adopted: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<TokenIdStructOutput>;
 
     rescindDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
@@ -3615,6 +3718,16 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     claim(
       _recipient: PromiseOrValue<string>,
       _transferIds: PromiseOrValue<BytesLike>[],
@@ -3677,6 +3790,12 @@ export interface IConnextHandler extends BaseContract {
 
     getAavePortalFeeDebt(
       _transferId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -3945,6 +4064,11 @@ export interface IConnextHandler extends BaseContract {
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    representationToCanonical(
+      _adopted: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     rescindDiamondCut(
@@ -4268,6 +4392,16 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     claim(
       _recipient: PromiseOrValue<string>,
       _transferIds: PromiseOrValue<BytesLike>[],
@@ -4330,6 +4464,12 @@ export interface IConnextHandler extends BaseContract {
 
     getAavePortalFeeDebt(
       _transferId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -4600,6 +4740,11 @@ export interface IConnextHandler extends BaseContract {
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    representationToCanonical(
+      _adopted: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     rescindDiamondCut(

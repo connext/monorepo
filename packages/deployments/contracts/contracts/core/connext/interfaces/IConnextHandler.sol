@@ -24,6 +24,14 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function adoptedToCanonical(address _adopted) external view returns (TokenId memory);
 
+  function canonicalToRepresentation(bytes32 _key) external view returns (address);
+
+  function canonicalToRepresentation(TokenId calldata _canonical) external view returns (address);
+
+  function representationToCanonical(address _adopted) external view returns (TokenId memory);
+
+  function getLocalAndAdoptedToken(bytes32 _id, uint32 _domain) external view returns (address, address);
+
   function approvedAssets(bytes32 _key) external view returns (bool);
 
   function approvedAssets(TokenId calldata _canonical) external view returns (bool);
@@ -34,6 +42,7 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function setupAsset(
     TokenId calldata _canonical,
+    uint8 _canonicalDecimals,
     address _adoptedAssetId,
     address _stableSwapPool
   ) external;
