@@ -460,7 +460,8 @@ export function handleProcess(event: Process): void {
   }
 
   message.leaf = event.params.leaf;
-  message.processed = event.params.success;
+  // message.processed = event.params.success;
+  message.processed = true;
   message.returnData = event.params.returnData;
   message.transactionHash = event.transaction.hash;
 
