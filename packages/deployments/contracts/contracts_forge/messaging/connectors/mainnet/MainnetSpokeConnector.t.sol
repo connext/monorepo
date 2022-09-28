@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 import {MainnetSpokeConnector} from "../../../../contracts/messaging/connectors/mainnet/MainnetSpokeConnector.sol";
 import {SpokeConnector} from "../../../../contracts/messaging/connectors/SpokeConnector.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 
@@ -15,6 +16,8 @@ contract MainnetSpokeConnectorTest is ConnectorHelper {
 
   // ============ Test set up ============
   function setUp() public {
+    _merkle = address(new MerkleTreeManager());
+
     _l2Connector = address(123321123);
 
     // deploy
@@ -27,7 +30,10 @@ contract MainnetSpokeConnectorTest is ConnectorHelper {
         _l2Connector,
         _mirrorGas,
         _processGas,
-        _reserveGas
+        _reserveGas,
+        0, // delay blocks
+        _merkle,
+        address(0) // watcher manager
       )
     );
   }
@@ -49,14 +55,13 @@ contract MainnetSpokeConnectorTest is ConnectorHelper {
 
   // ============ MainnetSpokeConnector.sendMessage ============
   function test_MainnetSpokeConnector__sendMessage_fromRootManagerWorks() public {
-    // bytes memory _data = abi.encode(MainnetSpokeConnector(_l1Connector).outboundRoot());
-    // // should emit an event
-    // vm.expectEmit(true, true, true, true);
-    // emit MessageSent(_data, _rootManager);
-    // // should call updateAggregateRoot
-    // vm.expectCall(_l1Connector, abi.encodeWithSelector(_l1Connector.updateAggregateRoot.selector, bytes32(_data)));
-    // vm.prank(_rootManager);
-    // MainnetSpokeConnector(_l1Connector).sendMessage(_data);
+    bytes memory _data = abi.encode(MainnetSpokeConnector(_l1Connector).outboundRoot());
+
+    vm.expectEmit(true, true, true, true);
+    emit MessageSent(_data, _rootManager);
+
+    vm.prank(_rootManager);
+    MainnetSpokeConnector(_l1Connector).sendMessage(_data);
   }
 
   function test_MainnetSpokeConnector__sendMessage_failsIfCallerNotRootManager() public {
