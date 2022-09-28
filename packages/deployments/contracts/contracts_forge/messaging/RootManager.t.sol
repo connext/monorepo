@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {RootManager} from "../../contracts/messaging/RootManager.sol";
 import {IHubConnector} from "../../contracts/messaging/interfaces/IHubConnector.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
 
 import "../utils/ConnectorHelper.sol";
 
@@ -11,84 +12,34 @@ contract RootManagerTest is ForgeHelper {
   error ProposedOwnable__onlyOwner_notOwner();
 
   // ============ Events ============
-  event RootPropagated(bytes32 aggregate, uint32[] domains);
+  event RootAggregated(uint32 domain, bytes32 receivedRoot, uint256 index);
 
-  event OutboundRootUpdated(uint32 domain, bytes32 outboundRoot);
+  event RootPropagated(bytes32 aggregate, uint32[] domains);
 
   event ConnectorAdded(uint32 domain, address connector);
 
   event ConnectorRemoved(uint32 domain, address connector);
 
-  event WatcherAdded(address watcher);
-
-  event WatcherRemoved(address watcher);
-
   // ============ Storage ============
   RootManager _rootManager;
+  address _merkle;
   uint32 domain = 1000;
+  uint32 anotherDomain = 1001;
   address notOwner = address(100);
-  address watcher = address(200);
+  address watcherManager = address(200);
+  address watcher = address(201);
   address connector = address(300);
+  address anotherConnector = address(301);
   bytes32 outboundRoot = bytes32("test");
 
   function setUp() public {
-    _rootManager = new RootManager();
+    _merkle = address(new MerkleTreeManager());
+    MerkleTreeManager(_merkle).initialize();
+    _rootManager = new RootManager(_merkle, watcherManager);
+    MerkleTreeManager(_merkle).setArborist(address(_rootManager));
   }
 
   // ============ Utils ============
-
-  // ============ RootManager.addWatcher ============
-  function test_RootManager__addWatcher_shouldWork() public {
-    vm.expectEmit(true, true, true, true);
-    emit WatcherAdded(watcher);
-
-    _rootManager.addWatcher(watcher);
-
-    assertEq(_rootManager.watchers(watcher), true);
-  }
-
-  function test_RootManager__addWatcher_shouldFailIfCallerNotOwner() public {
-    vm.expectRevert(ProposedOwnable__onlyOwner_notOwner.selector);
-
-    vm.prank(notOwner);
-
-    _rootManager.addWatcher(watcher);
-  }
-
-  function test_RootManager__addWatcher_shouldFailIfAlreadyAdded() public {
-    _rootManager.addWatcher(watcher);
-
-    vm.expectRevert(bytes("already watcher"));
-
-    _rootManager.addWatcher(watcher);
-  }
-
-  // ============ RootManager.removeWatcher ============
-  function test_RootManager__removeWatcher_shouldWork() public {
-    _rootManager.addWatcher(watcher);
-
-    vm.expectEmit(true, true, true, true);
-    emit WatcherRemoved(watcher);
-
-    _rootManager.removeWatcher(watcher);
-
-    assertEq(_rootManager.watchers(watcher), false);
-  }
-
-  function test_RootManager__removeWatcher_shouldFailIfCallerNotOwner() public {
-    _rootManager.addWatcher(watcher);
-
-    vm.expectRevert(ProposedOwnable__onlyOwner_notOwner.selector);
-
-    vm.prank(notOwner);
-    _rootManager.removeWatcher(watcher);
-  }
-
-  function test_RootManager__removeWatcher_shouldFailIfNotAdded() public {
-    vm.expectRevert(bytes("!exist"));
-
-    _rootManager.removeWatcher(watcher);
-  }
 
   // ============ RootManager.addConnector ============
   function test_RootManager__addConnector_shouldWork() public {
@@ -124,7 +75,6 @@ contract RootManagerTest is ForgeHelper {
   // ============ RootManager.removeConnector ============
   function test_RootManager__removeConnector_shouldWork() public {
     _rootManager.addConnector(domain, connector);
-    _rootManager.addWatcher(watcher);
 
     vm.expectEmit(true, true, true, true);
     emit ConnectorRemoved(domain, connector);
@@ -143,51 +93,40 @@ contract RootManagerTest is ForgeHelper {
   }
 
   function test_RootManager__removeConnector_shouldFailIfNotAdded() public {
-    _rootManager.addWatcher(watcher);
-
     vm.expectRevert(bytes("!exists"));
 
     vm.prank(watcher);
     _rootManager.removeConnector(domain);
   }
 
-  // ============ RootManager.setOutboundRoot ============
-  function test_RootManager__setOutboundRoot_shouldWork() public {
+  // ============ RootManager.aggregate ============
+  function test_RootManager__aggregate_shouldWork(bytes32 inbound) public {
     _rootManager.addConnector(domain, connector);
 
     vm.expectEmit(true, true, true, true);
-    emit OutboundRootUpdated(domain, outboundRoot);
+    emit RootAggregated(domain, inbound, 0);
 
     vm.prank(connector);
-    _rootManager.setOutboundRoot(domain, outboundRoot);
-
-    assertEq(_rootManager.outboundRoots(domain), outboundRoot);
+    _rootManager.aggregate(domain, inbound);
   }
 
-  function test_RootManager__setOutboundRoot_shouldFailIfCallerNotConnector() public {
+  function test_RootManager__aggregate_shouldFailIfCallerNotConnector(bytes32 inbound) public {
     vm.expectRevert(bytes("!connector"));
 
-    _rootManager.setOutboundRoot(domain, outboundRoot);
+    _rootManager.aggregate(domain, inbound);
   }
 
   // ============ RootManager.propagate ============
-  // TODO fix when merkle tree implemented
-  function test_RootManager__propagate_shouldSendToL2() public {
+  function test_RootManager__propagate_shouldSendToL2(bytes32 inbound) public {
     _rootManager.addConnector(domain, connector);
+
+    // TODO: this doesn't work
+    vm.mockCall(_merkle, abi.encodeWithSelector(MerkleTreeManager.root.selector), abi.encodePacked("test"));
+    vm.expectCall(connector, abi.encodeWithSelector(IHubConnector.sendMessage.selector, abi.encodePacked("test")));
+
     vm.prank(connector);
-    _rootManager.setOutboundRoot(domain, outboundRoot);
+    _rootManager.aggregate(domain, inbound);
 
-    // propagate() only aggregates a single outbound right now
-    bytes memory aggregate = abi.encodePacked(_rootManager.outboundRoots(domain));
-
-    vm.mockCall(connector, abi.encodeWithSelector(IHubConnector.sendMessage.selector, aggregate), abi.encode());
-    vm.expectCall(connector, abi.encodeWithSelector(IHubConnector.sendMessage.selector, aggregate));
     _rootManager.propagate();
   }
-
-  // TODO when merkle tree implemented
-  function test_RootManager__propagate_shouldReadMerkleRootsFromAllDomains() public {}
-
-  // TODO when merkle tree implemented
-  function test_RootManager__propagate_shouldAggregateMerkleRootsCorrectly() public {}
 }
