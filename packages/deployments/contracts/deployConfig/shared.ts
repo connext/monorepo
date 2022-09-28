@@ -1,9 +1,5 @@
 import { BigNumber, constants } from "ethers";
 
-export type DeployConfig = {
-  XAppConnectionManager: string;
-};
-
 /**
  * AMB information contained below is used for setting up the testbed environment in deployment step
  * 00_testDeployFork.ts in lieu of forking chains.
