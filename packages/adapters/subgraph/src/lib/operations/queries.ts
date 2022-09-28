@@ -1,7 +1,6 @@
 import { gql } from "graphql-request";
 import {
   SubgraphQueryMetaParams,
-  XTransferStatus,
   SubgraphQueryByTransferIDsMetaParams,
   SubgraphQueryByTimestampMetaParams,
 } from "@connext/nxtp-utils";
