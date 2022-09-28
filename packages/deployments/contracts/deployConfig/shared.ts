@@ -2,7 +2,6 @@ import { BigNumber, constants } from "ethers";
 
 export type DeployConfig = {
   XAppConnectionManager: string;
-  TokenRegistry: string;
 };
 
 /**
