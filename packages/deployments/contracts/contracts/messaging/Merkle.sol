@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
 import {MerkleLib} from "./libraries/Merkle.sol";
 
 /**
  * @title MerkleTreeManager
  * @notice Contains a Merkle tree instance and exposes read/write functions for the tree.
  */
-// TODO: Make this upgradeable (preserve tree state across upgrades).
-contract MerkleTreeManager {
+contract MerkleTreeManager is Initializable {
+  // ========== Custom Errors ===========
+
+  error MerkleTreeManager__setArborist_zeroAddress();
+
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
@@ -26,6 +31,10 @@ contract MerkleTreeManager {
    * @dev This could be the root manager contract or a spoke connector contract, for example.
    */
   address public arborist;
+
+  // ============ Upgrade Gap ============
+
+  uint256[49] private __GAP; // gap for upgrade safety
 
   // ============ Modifiers ============
 
@@ -58,13 +67,14 @@ contract MerkleTreeManager {
     return tree.count;
   }
 
-  // ============ Constructor ============
-
   /**
-   * @notice Creates a new MerkleTreeManager instance. Sets the msg.sender as the initial permissioned
-   * arborist contract.
+   * @dev Initializes MerkleTreeManager instance. Sets the msg.sender as the initial permissioned
    */
-  constructor() {
+  function __MerkleTreeManager_init() internal onlyInitializing {
+    __MerkleTreeManager_init_unchained();
+  }
+
+  function __MerkleTreeManager_init_unchained() internal onlyInitializing {
     arborist = msg.sender;
   }
 
@@ -75,6 +85,7 @@ contract MerkleTreeManager {
    * @param newArborist The new address to set as the current arborist.
    */
   function setArborist(address newArborist) public onlyArborist {
+    if (newArborist == address(0)) revert MerkleTreeManager__setArborist_zeroAddress();
     arborist = newArborist;
   }
 
