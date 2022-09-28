@@ -177,12 +177,12 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    address _merkle,
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
+    address _merkle,
     address _watcherManager
   )
     ConnectorManager()
@@ -195,8 +195,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     PROCESS_GAS = _processGas;
     RESERVE_GAS = _reserveGas;
 
-    // If no MerkleTreeManager instance is specified, create a new one.
-    MERKLE = _merkle == address(0) ? new MerkleTreeManager() : MerkleTreeManager(_merkle);
+    require(_merkle != address(0), "!zero merkle");
+    MERKLE = MerkleTreeManager(_merkle);
 
     delayBlocks = _delayBlocks;
   }
