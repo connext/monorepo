@@ -4,7 +4,6 @@ import { BigNumber, Contract, Signer, Wallet } from "ethers";
 
 import { getConnectorName, getDeploymentName, getProtocolNetwork } from "../src/utils";
 import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
-import { deployConfigs } from "../deployConfig";
 
 export const deployBeaconProxy = async <T extends Contract = Contract>(
   name: string,
@@ -151,32 +150,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     throw new Error(`No connector manager deployed to this chain (looking for: ${connectorName})`);
   }
 
-  // Find the token registry (and deploy if needed)
-  let tokenRegistryAddress = deployConfigs[chainId]?.TokenRegistry;
-  if (!tokenRegistryAddress) {
-    // Deploy token beacon
-    const tokenDeployment = await deployBeaconProxy("BridgeToken", [18, "Test Bridge Token", "BRGT"], deployer, hre);
-    // Deploy token registry
-    const tokenRegistryDeployment = await deployBeaconProxy(
-      "TokenRegistry",
-      [tokenDeployment.address, connector.address],
-      deployer,
-      hre,
-    );
-    tokenRegistryAddress = tokenRegistryDeployment.address;
-  }
-
   for (const router of ROUTERS) {
     // NOTE: the connector manager address will *NOT* be known until the connectors are deployed
     console.log(`Deploying ${router}`);
-    const deployment = (
-      await deployBeaconProxy(
-        router,
-        router.includes("Bridge") ? [tokenRegistryAddress, connector.address] : [connector.address],
-        deployer,
-        hre,
-      )
-    ).connect(deployer);
+    const deployment = (await deployBeaconProxy(router, [connector.address], deployer, hre)).connect(deployer);
     // const deployment = await hre.deployments.getOrNull(getDeploymentName(`${router}UpgradeBeaconProxy`));
     if (!deployment) {
       throw new Error(`No deployment (looking for: ${getDeploymentName(`${router}UpgradeBeaconProxy`)})`);
