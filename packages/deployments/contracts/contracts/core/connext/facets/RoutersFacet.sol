@@ -262,7 +262,7 @@ contract RoutersFacet is BaseConnextFacet {
     address router,
     address owner,
     address recipient
-  ) external onlyOwner {
+  ) external onlyOwnerOrRouter {
     // Sanity check: not empty
     if (router == address(0)) revert RoutersFacet__setupRouter_routerEmpty();
 
@@ -292,7 +292,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Used to remove routers that can transact crosschain
    * @param router Router address to remove
    */
-  function removeRouter(address router) external onlyOwner {
+  function removeRouter(address router) external onlyOwnerOrAdmin {
     // Sanity check: not empty
     if (router == address(0)) revert RoutersFacet__removeRouter_routerEmpty();
 

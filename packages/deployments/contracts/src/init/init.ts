@@ -237,7 +237,8 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
   /// MARK - Contracts
   // Convenience setup for contracts.
-  const { RootManager, MainnetConnector, HubConnectors } = hub.deployments.messaging as HubMessagingDeployments;
+  const { RootManager, MainnetConnector, HubConnectors, WatcherManager } = hub.deployments
+    .messaging as HubMessagingDeployments;
 
   /// ******************** MESSAGING ********************
   /// MARK - Init
@@ -329,7 +330,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to
         // call `dispatch`.
         console.log("\tVerifying senders (handlers) are whitelisted.");
-        for (const handler of Object.values(spoke.deployments.handlers)) {
+        for (const handler of [...Object.values(spoke.deployments.handlers), hub.deployments.Connext]) {
           await updateIfNeeded({
             deployment: SpokeConnector,
             desired: true,
@@ -388,7 +389,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     write: { method: "addConnector", args: [hub.domain, MainnetConnector.address] },
   });
 
-  for (const handler of Object.values(hub.deployments.handlers)) {
+  for (const handler of [...Object.values(hub.deployments.handlers), hub.deployments.Connext]) {
     await updateIfNeeded({
       deployment: MainnetConnector,
       desired: true,
@@ -452,9 +453,9 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         // Whitelist watchers in RootManager.
         for (const watcher of protocol.agents.watchers.whitelist) {
           await updateIfNeeded({
-            deployment: RootManager,
+            deployment: WatcherManager,
             desired: true,
-            read: { method: "watchers", args: [watcher] },
+            read: { method: "isWatcher", args: [watcher] },
             write: { method: "addWatcher", args: [watcher] },
           });
         }

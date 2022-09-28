@@ -27,6 +27,21 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrWatcher_notOwnerOrWatcher",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BaseConnextFacet__onlyOwner_notOwner",
     type: "error",
   },
@@ -43,7 +58,7 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122035f7cbe3eaa54903a909c40a560192441d15cb557f89c331fae4ed5fdc2975d864736f6c634300080f0033";
+  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220ebdf8f28b55992a5560862fa9f5147b2c12d9ab6372e4f0c89f8a0522a32819964736f6c634300080f0033";
 
 type BaseConnextFacetConstructorParams =
   | [signer?: Signer]

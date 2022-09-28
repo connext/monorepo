@@ -491,6 +491,21 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrWatcher_notOwnerOrWatcher",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BaseConnextFacet__onlyOwner_notOwner",
     type: "error",
   },
@@ -2423,6 +2438,21 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "ProposedOwnableFacet__assignRoleAdmin_invalidInput",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableFacet__assignRoleRouter_invalidInput",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableFacet__assignRoleWatcher_invalidInput",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ProposedOwnableFacet__proposeAssetWhitelistRemoval_noOwnershipChange",
     type: "error",
   },
@@ -2487,6 +2517,11 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "ProposedOwnableFacet__revokeRole_invalidInput",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -2510,6 +2545,45 @@ const _abi = [
       },
     ],
     name: "AssetWhitelistRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "admin",
+        type: "address",
+      },
+    ],
+    name: "AssignRoleAdmin",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "AssignRoleRouter",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "watcher",
+        type: "address",
+      },
+    ],
+    name: "AssignRoleWatcher",
     type: "event",
   },
   {
@@ -2548,6 +2622,25 @@ const _abi = [
     anonymous: false,
     inputs: [],
     name: "Paused",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "revokedAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "enum Role",
+        name: "revokedRole",
+        type: "uint8",
+      },
+    ],
+    name: "RevokeRole",
     type: "event",
   },
   {
@@ -2613,6 +2706,45 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_admin",
+        type: "address",
+      },
+    ],
+    name: "assignRoleAdmin",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_router",
+        type: "address",
+      },
+    ],
+    name: "assignRoleRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_watcher",
+        type: "address",
+      },
+    ],
+    name: "assignRoleWatcher",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -2702,6 +2834,25 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_role",
+        type: "address",
+      },
+    ],
+    name: "queryRole",
+    outputs: [
+      {
+        internalType: "enum Role",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "removeAssetWhitelist",
     outputs: [],
@@ -2733,6 +2884,19 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_revoke",
+        type: "address",
+      },
+    ],
+    name: "revokeRole",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

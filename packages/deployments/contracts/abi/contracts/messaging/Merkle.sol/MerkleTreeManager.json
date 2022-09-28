@@ -1,8 +1,10 @@
 [
-  "constructor()",
+  "error MerkleTreeManager__setArborist_zeroAddress()",
+  "event Initialized(uint8)",
   "function arborist() view returns (address)",
   "function branch() view returns (bytes32[32])",
   "function count() view returns (uint256)",
+  "function initialize()",
   "function insert(bytes32) returns (bytes32, uint256)",
   "function root() view returns (bytes32)",
   "function setArborist(address)",

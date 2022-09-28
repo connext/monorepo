@@ -11,6 +11,21 @@ import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager.sol";
 import {SwapUtils} from "./SwapUtils.sol";
 
+// ============= Enum =============
+
+/// @notice Enum representing address role
+// Returns uint
+// None     - 0
+// Router   - 1
+// Watcher  - 2
+// Admin    - 3
+enum Role {
+  None,
+  Router,
+  Watcher,
+  Admin
+}
+
 // ============= Structs =============
 
 struct TokenId {
@@ -228,15 +243,21 @@ struct AppStorage {
   bool _assetWhitelistRemoved;
   // 25
   uint256 _assetWhitelistTimestamp;
+  /**
+   * @notice Stores a mapping of address to Roles
+   * @dev returns uint representing the enum Role value
+   */
+  // 26
+  mapping(address => Role) roles;
   //
   // RouterFacet
   //
-  // 26
+  // 27
   RouterPermissionsManagerInfo routerPermissionInfo;
   //
   // ReentrancyGuard
   //
-  // 27
+  // 28
   uint256 _status;
   //
   // StableSwap
@@ -247,18 +268,18 @@ struct AppStorage {
    * Struct storing data responsible for automatic market maker functionalities. In order to
    * access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol.
    */
-  // 28
+  // 29
   mapping(bytes32 => SwapUtils.Swap) swapStorages;
   /**
    * @notice Maps token address to an index in the pool. Used to prevent duplicate tokens in the pool.
    * @dev getTokenIndex function also relies on this mapping to retrieve token index.
    */
-  // 29
+  // 30
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
   /**
    * @notice Stores whether or not bribing, AMMs, have been paused.
    */
-  // 30
+  // 31
   bool _paused;
   //
   // AavePortals
@@ -266,40 +287,40 @@ struct AppStorage {
   /**
    * @notice Address of Aave Pool contract.
    */
-  // 31
+  // 32
   address aavePool;
   /**
    * @notice Fee percentage numerator for using Portal liquidity.
    * @dev Assumes the same basis points as the liquidity fee.
    */
-  // 32
+  // 33
   uint256 aavePortalFeeNumerator;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals.
    */
-  // 33
+  // 34
   mapping(bytes32 => uint256) portalDebt;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals.
    */
-  // 34
+  // 35
   mapping(bytes32 => uint256) portalFeeDebt;
   /**
    * @notice Mapping of approved sequencers
    * @dev Sequencer address provided must belong to an approved sequencer in order to call `execute`
    * for the fast liquidity route.
    */
-  // 35
+  // 36
   mapping(address => bool) approvedSequencers;
   /**
    * @notice Remote connection manager for xapp.
    */
-  // 36
+  // 37
   IConnectorManager xAppConnectionManager;
   /**
    * @notice Ownership delay for transferring ownership.
    */
-  // 37
+  // 38
   uint256 _ownershipDelay;
 }
 

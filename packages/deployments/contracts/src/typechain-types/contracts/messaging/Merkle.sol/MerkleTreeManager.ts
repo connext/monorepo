@@ -12,7 +12,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -27,6 +31,7 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
     "arborist()": FunctionFragment;
     "branch()": FunctionFragment;
     "count()": FunctionFragment;
+    "initialize()": FunctionFragment;
     "insert(bytes32)": FunctionFragment;
     "root()": FunctionFragment;
     "setArborist(address)": FunctionFragment;
@@ -38,6 +43,7 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
       | "arborist"
       | "branch"
       | "count"
+      | "initialize"
       | "insert"
       | "root"
       | "setArborist"
@@ -47,6 +53,10 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "arborist", values?: undefined): string;
   encodeFunctionData(functionFragment: "branch", values?: undefined): string;
   encodeFunctionData(functionFragment: "count", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "insert",
     values: [PromiseOrValue<BytesLike>]
@@ -61,6 +71,7 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "arborist", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "branch", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "insert", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "root", data: BytesLike): Result;
   decodeFunctionResult(
@@ -69,8 +80,19 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "tree", data: BytesLike): Result;
 
-  events: {};
+  events: {
+    "Initialized(uint8)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
 }
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface MerkleTreeManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -105,6 +127,10 @@ export interface MerkleTreeManager extends BaseContract {
 
     count(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    initialize(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     insert(
       leaf: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -128,6 +154,10 @@ export interface MerkleTreeManager extends BaseContract {
 
   count(overrides?: CallOverrides): Promise<BigNumber>;
 
+  initialize(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   insert(
     leaf: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -149,6 +179,8 @@ export interface MerkleTreeManager extends BaseContract {
 
     count(overrides?: CallOverrides): Promise<BigNumber>;
 
+    initialize(overrides?: CallOverrides): Promise<void>;
+
     insert(
       leaf: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -164,7 +196,10 @@ export interface MerkleTreeManager extends BaseContract {
     tree(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
-  filters: {};
+  filters: {
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+  };
 
   estimateGas: {
     arborist(overrides?: CallOverrides): Promise<BigNumber>;
@@ -172,6 +207,10 @@ export interface MerkleTreeManager extends BaseContract {
     branch(overrides?: CallOverrides): Promise<BigNumber>;
 
     count(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     insert(
       leaf: PromiseOrValue<BytesLike>,
@@ -194,6 +233,10 @@ export interface MerkleTreeManager extends BaseContract {
     branch(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     count(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initialize(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     insert(
       leaf: PromiseOrValue<BytesLike>,
