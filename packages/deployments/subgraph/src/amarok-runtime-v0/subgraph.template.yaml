@@ -59,22 +59,7 @@ dataSources:
           handler: handleRouterOwnerAccepted
         - event: MaxRoutersPerTransferUpdated(uint256,address)
           handler: handleMaxRoutersPerTransferUpdated
-          # Swap utils events:
-        # - event: TokenSwap(indexed bytes32,indexed address,uint256,uint256,uint128,uint128)
-        #   handler: handleAmmTokenSwap
-        # - event: AddLiquidity(indexed bytes32,indexed address,uint256[],uint256[],uint256,uint256)
-        #   handler: handleAmmAddLiquidity
-        # - event: RemoveLiquidity(indexed bytes32,indexed address,uint256[],uint256)
-        #   handler: handleAmmRemoveLiquidity
-        # - event: RemoveLiquidityOne(indexed bytes32,indexed address,uint256,uint256,uint256,uint256)
-        #   handler: handleAmmRemoveLiquidityOne
-        # - event: RemoveLiquidityImbalance(indexed bytes32,indexed address,uint256[],uint256[],uint256,uint256)
-        #   handler: handleAmmRemoveLiquidityImbalance
-        # - event: NewAdminFee(indexed bytes32,uint256)
-        #   handler: handleAmmNewAdminFee
-        # - event: NewSwapFee(indexed bytes32,uint256)
-        #   handler: handleAmmNewSwapFee
-      file: ./src/amarok-runtime-v0/mapping.ts
+      file: ./src/amarok-runtime-v0/mapping/index.ts
   # SpokeConnector.sol events
   - kind: ethereum/contract
     name: SpokeConnector
@@ -97,9 +82,9 @@ dataSources:
         - name: SpokeConnector
           file: ./src/amarok-runtime-v0/abis/SpokeConnector.json
       eventHandlers:
-        #AggregateRootUpdated(bytes32 current, bytes32 previous);
-        - event: AggregateRootUpdated(bytes32,bytes32)
-          handler: handleAggregateRootUpdated
+        #AggregateRootsUpdated(bytes32 current, bytes32 previous);
+        - event: AggregateRootsUpdated(bytes32,bytes32)
+          handler: handleAggregateRootsUpdated
         # Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
         - event: Dispatch(bytes32,uint256,bytes32,bytes)
           handler: handleDispatch
@@ -112,4 +97,4 @@ dataSources:
           handler: handleMessageProcessed
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleNewConnector
-      file: ./src/amarok-runtime-v0/mapping.ts
+      file: ./src/amarok-runtime-v0/mapping/index.ts
