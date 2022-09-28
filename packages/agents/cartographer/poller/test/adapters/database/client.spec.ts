@@ -1,4 +1,5 @@
 import { restore, reset } from "sinon";
+import { readFileSync } from "fs";
 import {
   expect,
   mkAddress,
@@ -37,50 +38,38 @@ describe("Database client", () => {
     const db = newDb();
     const { Pool } = db.adapters.createPg();
     pool = new Pool();
-    await pool.query(`
 
-    CREATE TYPE public.transfer_status AS ENUM (
-      'XCalled',
-      'Executed',
-      'Reconciled',
-      'CompletedSlow',
-      'CompletedFast'
-    );
-    CREATE TABLE public.asset_balances (
-        asset_canonical_id character(66) NOT NULL,
-        asset_domain character varying(255) NOT NULL,
-        router_address character(42) NOT NULL,
-        balance numeric DEFAULT 0 NOT NULL
-    );
-    CREATE TABLE public.assets (
-        local character(42) NOT NULL,
-        adopted character(42) NOT NULL,
-        canonical_id character(66) NOT NULL,
-        canonical_domain character varying(255) NOT NULL,
-        domain character varying(255) NOT NULL
-    );
-    CREATE TABLE public.checkpoints (
-        check_name character varying(255) NOT NULL,
-        check_point numeric DEFAULT 0 NOT NULL
-    );
-    CREATE TABLE public.routers (
-        address character(42) NOT NULL
-    );
-    CREATE VIEW public.routers_with_balances AS
-    SELECT routers.address,
-        asset_balances.asset_canonical_id,
-        asset_balances.asset_domain,
-        asset_balances.router_address,
-        asset_balances.balance,
-        assets.local,
-        assets.adopted,
-        assets.canonical_id,
-        assets.canonical_domain,
-        assets.domain
-      FROM ((public.routers
-        JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
-        JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
-    CREATE TABLE public.transfers (
+    // const schema = readFileSync(`./db/schema.sql`, "utf8");
+    await pool.query(
+      `
+      CREATE TYPE public.transfer_status AS ENUM (
+          'XCalled',
+          'Executed',
+          'Reconciled',
+          'CompletedSlow',
+          'CompletedFast'
+      );
+      CREATE TABLE public.asset_balances (
+          asset_canonical_id character(66) NOT NULL,
+          asset_domain character varying(255) NOT NULL,
+          router_address character(42) NOT NULL,
+          balance numeric DEFAULT 0 NOT NULL
+      );
+      CREATE TABLE public.assets (
+          local character(42) NOT NULL,
+          adopted character(42) NOT NULL,
+          canonical_id character(66) NOT NULL,
+          canonical_domain character varying(255) NOT NULL,
+          domain character varying(255) NOT NULL
+      );
+      CREATE TABLE public.checkpoints (
+          check_name character varying(255) NOT NULL,
+          check_point numeric DEFAULT 0 NOT NULL
+      );
+      CREATE TABLE public.routers (
+          address character(42) NOT NULL
+      );
+      CREATE TABLE public.transfers (
         transfer_id character(66) NOT NULL,
         nonce bigint,
         "to" character(42),
@@ -125,66 +114,98 @@ describe("Database client", () => {
         reconcile_gas_limit numeric,
         reconcile_block_number integer,
         update_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        agent character(42),
-        destination_min_out numeric,
+        delegate character(42),
         transfer_status_update_by_agent character(42),
-        transfer_status_message_by_agent character(42)
+        transfer_status_message_by_agent character(42),
+        message_hash character(66),
+        canonical_domain character varying(255),
+        slippage numeric,
+        origin_sender character(42),
+        bridged_amt numeric,
+        normalized_in numeric,
+        canonical_id character(42)
+      );    
+      CREATE TABLE public.messages (
+          leaf character(66) NOT NULL,
+          origin_domain character varying(255) NOT NULL,
+          destination_domain character varying(255),
+          index numeric,
+          root character(66),
+          message character varying,
+          processed boolean DEFAULT false,
+          return_data character varying(255)
+      );
+      CREATE TABLE public.processed_root_messages (
+          id character(66) NOT NULL,
+          spoke_domain character varying(255),
+          hub_domain character varying(255),
+          root character(66),
+          caller character(42),
+          transaction_hash character(66),
+          processed_timestamp integer,
+          gas_price numeric,
+          gas_limit numeric,
+          block_number integer
+      );
+      CREATE TABLE public.schema_migrations (
+          version character varying(255) NOT NULL
+      );
+      CREATE TABLE public.sent_root_messages (
+          id character(66) NOT NULL,
+          spoke_domain character varying(255),
+          hub_domain character varying(255),
+          root character(66),
+          caller character(42),
+          transaction_hash character(66),
+          sent_timestamp integer,
+          gas_price numeric,
+          gas_limit numeric,
+          block_number integer
+      );
+      CREATE VIEW public.routers_with_balances AS
+      SELECT routers.address,
+        asset_balances.asset_canonical_id,
+        asset_balances.asset_domain,
+        asset_balances.router_address,
+        asset_balances.balance,
+        assets.local,
+        assets.adopted,
+        assets.canonical_id,
+        assets.canonical_domain,
+        assets.domain
+        FROM ((public.routers
+          JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
+          JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
+      ALTER TABLE ONLY public.asset_balances
+          ADD CONSTRAINT asset_balances_pkey PRIMARY KEY (asset_canonical_id, asset_domain, router_address);
+
+      ALTER TABLE ONLY public.assets
+          ADD CONSTRAINT assets_pkey PRIMARY KEY (canonical_id, domain);
+      
+      ALTER TABLE ONLY public.checkpoints
+          ADD CONSTRAINT checkpoints_pkey PRIMARY KEY (check_name);
+      ALTER TABLE ONLY public.messages
+          ADD CONSTRAINT messages_pkey PRIMARY KEY (leaf);      
+      ALTER TABLE ONLY public.processed_root_messages
+          ADD CONSTRAINT processed_root_messages_pkey PRIMARY KEY (id);
+      ALTER TABLE ONLY public.routers
+          ADD CONSTRAINT routers_pkey PRIMARY KEY (address);
+      ALTER TABLE ONLY public.schema_migrations
+          ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+      ALTER TABLE ONLY public.sent_root_messages
+          ADD CONSTRAINT sent_root_messages_pkey PRIMARY KEY (id);
+      ALTER TABLE ONLY public.transfers
+          ADD CONSTRAINT transfers_pkey PRIMARY KEY (transfer_id);      
+      CREATE INDEX messages_processed_index_idx ON public.messages USING btree (processed, index);
+      CREATE INDEX transfers_destination_domain_update_time_idx ON public.transfers USING btree (destination_domain, update_time);
+      CREATE INDEX transfers_origin_domain_xcall_timestamp_idx ON public.transfers USING btree (origin_domain, xcall_timestamp);
+      CREATE INDEX transfers_status_xcall_timestamp_idx ON public.transfers USING btree (status, xcall_timestamp);
+      ALTER TABLE ONLY public.asset_balances
+          ADD CONSTRAINT fk_asset FOREIGN KEY (asset_canonical_id, asset_domain) REFERENCES public.assets(canonical_id, domain);
+      ALTER TABLE ONLY public.asset_balances
+          ADD CONSTRAINT fk_router FOREIGN KEY (router_address) REFERENCES public.routers(address);
+      `,
     );
-    CREATE TABLE public.messages (
-        leaf character(66) NOT NULL,
-        origin_domain character varying(255) NOT NULL,
-        destination_domain character varying(255),
-        index numeric,
-        root character(66),
-        message character varying,
-        processed boolean DEFAULT false,
-        return_data character varying(255)
-    );
-    CREATE TABLE public.processed_root_messages (
-        id character(66) NOT NULL,
-        spoke_domain character varying(255),
-        hub_domain character varying(255),
-        root character(66),
-        caller character(42),
-        transaction_hash character(66),
-        processed_timestamp integer,
-        gas_price numeric,
-        gas_limit numeric,
-        block_number integer
-    );
-    CREATE TABLE public.sent_root_messages (
-        id character(66) NOT NULL,
-        spoke_domain character varying(255),
-        hub_domain character varying(255),
-        root character(66),
-        caller character(42),
-        transaction_hash character(66),
-        sent_timestamp integer,
-        gas_price numeric,
-        gas_limit numeric,
-        block_number integer
-    );
-    ALTER TABLE ONLY public.asset_balances
-        ADD CONSTRAINT asset_balances_pkey PRIMARY KEY (asset_canonical_id, asset_domain, router_address);
-    ALTER TABLE ONLY public.assets
-        ADD CONSTRAINT assets_pkey PRIMARY KEY (canonical_id, domain);
-    ALTER TABLE ONLY public.checkpoints
-        ADD CONSTRAINT checkpoints_pkey PRIMARY KEY (check_name);
-    ALTER TABLE ONLY public.messages
-        ADD CONSTRAINT messages_pkey PRIMARY KEY (leaf);
-    ALTER TABLE ONLY public.processed_root_messages
-        ADD CONSTRAINT processed_root_messages_pkey PRIMARY KEY (id);
-    ALTER TABLE ONLY public.routers
-        ADD CONSTRAINT routers_pkey PRIMARY KEY (address);
-    ALTER TABLE ONLY public.sent_root_messages
-        ADD CONSTRAINT sent_root_messages_pkey PRIMARY KEY (id);
-    ALTER TABLE ONLY public.transfers
-        ADD CONSTRAINT transfers_pkey PRIMARY KEY (transfer_id);
-    ALTER TABLE ONLY public.asset_balances
-        ADD CONSTRAINT fk_asset FOREIGN KEY (asset_canonical_id, asset_domain) REFERENCES public.assets(canonical_id, domain);
-    ALTER TABLE ONLY public.asset_balances
-        ADD CONSTRAINT fk_router FOREIGN KEY (router_address) REFERENCES public.routers(address);
-    `);
   });
 
   afterEach(() => {
@@ -295,13 +316,13 @@ describe("Database client", () => {
       .fill(0)
       .map((_a, index) => {
         const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-        t.nonce = index + 1;
+        t.xparams.nonce = index + 1;
         t.origin!.xcall.timestamp = index + 1;
         return t;
       });
     await saveTransfers(transfers, pool);
     const set1 = await getTransfersByStatus(XTransferStatus.Executed, 4, 0, "ASC", pool);
-    expect(set1[0].nonce).to.eq(1);
+    expect(set1[0].xparams.nonce).to.eq(1);
   });
 
   it("should get transfer by status with limit and descending order", async () => {
@@ -309,13 +330,13 @@ describe("Database client", () => {
       .fill(0)
       .map((_a, index) => {
         const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-        t.nonce = index + 1;
+        t.xparams.nonce = index + 1;
         t.origin!.xcall.timestamp = index + 1;
         return t;
       });
     await saveTransfers(transfers, pool);
     const set1 = await getTransfersByStatus(XTransferStatus.Executed, 4, 0, "DESC", pool);
-    expect(set1[0].nonce).to.eq(10);
+    expect(set1[0].xparams.nonce).to.eq(10);
   });
 
   it("should get transfer by status with limit", async () => {
@@ -323,7 +344,7 @@ describe("Database client", () => {
       .fill(0)
       .map((_a, index) => {
         const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-        t.nonce = index + 1;
+        t.xparams.nonce = index + 1;
         t.origin!.xcall.timestamp = index + 1;
         return t;
       });
@@ -337,14 +358,14 @@ describe("Database client", () => {
       .fill(0)
       .map((_a, index) => {
         const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-        t.nonce = index + 1;
+        t.xparams.nonce = index + 1;
         t.origin!.xcall.timestamp = index + 1;
         return t;
       });
     await saveTransfers(transfers, pool);
     const set1 = await getTransfersByStatus(XTransferStatus.Executed, 1, 9, "DESC", pool);
     expect(set1.length).to.eq(1);
-    expect(set1[0].nonce).to.eq(1);
+    expect(set1[0].xparams.nonce).to.eq(1);
   });
 
   it("should save valid boolean fields", async () => {

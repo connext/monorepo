@@ -41,7 +41,7 @@ describe("TransfersCache", () => {
     it("should get domain's latest nonce according to the cache", async () => {
       await transfersCache.storeTransfers([fakeTxs[1]]);
       const latestNonce = await transfersCache.getLatestNonce("3000");
-      expect(latestNonce).to.be.equal(fakeTxs[1].nonce);
+      expect(latestNonce).to.be.equal(fakeTxs[1].xparams.nonce);
     });
   });
 

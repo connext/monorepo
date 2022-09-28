@@ -100,7 +100,6 @@ type DestinationTransfer @entity {
   nonce: BigInt
   status: TransferStatus
   routers: [Router!]
-  amountOut: BigInt
 
   # CallParams
   originDomain: BigInt

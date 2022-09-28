@@ -35,21 +35,18 @@ dataSources:
           handler: handleRelayerRemoved
         - event: RouterLiquidityAdded(indexed address,address,bytes32,uint256,address)
           handler: handleRouterLiquidityAdded
-        - event: RouterLiquidityRemoved(indexed address,address,address,uint256,address)
+        - event: RouterLiquidityRemoved(indexed address,address,address,bytes32,uint256,address)
           handler: handleRouterLiquidityRemoved
         - event: XCalled(indexed bytes32,indexed uint256,indexed bytes32,(uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address)
           handler: handleXCalled
         - event: Executed(indexed bytes32,indexed address,indexed address,((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes),address,uint256,address)
           handler: handleExecuted
           # Reconciled: transferId, origin, routers, asset, amount, caller
-        - event: Reconciled(indexed bytes32,uint32,address[],address,uint256,address)
+        - event: Reconciled(indexed bytes32,indexed uint32,indexed address,address[],uint256,address)
           handler: handleReconciled
           # StableSwapAdded: bytes32 canonicalId, bytes32 domain, address swapPool, address caller
         - event: StableSwapAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address)
           handler: handleStableSwapAdded
-          # SponsorVaultUpdated: address oldSponsorVault, address newSponsorVault, address caller
-        - event: SponsorVaultUpdated(address,address,address)
-          handler: handleSponsorVaultUpdated
         - event: RouterAdded(indexed address,address)
           handler: handleRouterAdded
         - event: RouterRemoved(indexed address,address)
@@ -62,29 +59,14 @@ dataSources:
           handler: handleRouterOwnerAccepted
         - event: MaxRoutersPerTransferUpdated(uint256,address)
           handler: handleMaxRoutersPerTransferUpdated
-          # Swap utils events:
-        # - event: TokenSwap(indexed bytes32,indexed address,uint256,uint256,uint128,uint128)
-        #   handler: handleAmmTokenSwap
-        # - event: AddLiquidity(indexed bytes32,indexed address,uint256[],uint256[],uint256,uint256)
-        #   handler: handleAmmAddLiquidity
-        # - event: RemoveLiquidity(indexed bytes32,indexed address,uint256[],uint256)
-        #   handler: handleAmmRemoveLiquidity
-        # - event: RemoveLiquidityOne(indexed bytes32,indexed address,uint256,uint256,uint256,uint256)
-        #   handler: handleAmmRemoveLiquidityOne
-        # - event: RemoveLiquidityImbalance(indexed bytes32,indexed address,uint256[],uint256[],uint256,uint256)
-        #   handler: handleAmmRemoveLiquidityImbalance
-        # - event: NewAdminFee(indexed bytes32,uint256)
-        #   handler: handleAmmNewAdminFee
-        # - event: NewSwapFee(indexed bytes32,uint256)
-        #   handler: handleAmmNewSwapFee
-      file: ./src/amarok-runtime-staging/mapping.ts
-  # Connector.sol events
+      file: ./src/amarok-runtime-staging/mapping/index.ts
+  # SpokeConnector.sol events
   - kind: ethereum/contract
-    name: Connector
+    name: SpokeConnector
     network: "{{network}}"
     source:
       address: "{{address}}"
-      abi: Connector
+      abi: SpokeConnector
       # prettier-ignore
       startBlock: {{startBlock}}
     mapping:
@@ -97,22 +79,22 @@ dataSources:
         - Router
         - Transfer
       abis:
-        - name: Connector
-          file: ./src/amarok-runtime-staging/abis/Connector.json
+        - name: SpokeConnector
+          file: ./src/amarok-runtime-staging/abis/SpokeConnector.json
       eventHandlers:
-        #AggregateRootUpdated(bytes32 current, bytes32 previous);
-        - event: AggregateRootUpdated(bytes32,bytes32)
-          handler: handleAggregateRootUpdated
+        #AggregateRootsUpdated(bytes32 current, bytes32 previous);
+        - event: AggregateRootsUpdated(bytes32,bytes32)
+          handler: handleAggregateRootsUpdated
         # Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
         - event: Dispatch(bytes32,uint256,bytes32,bytes)
           handler: handleDispatch
-        # # Process(bytes32 leaf, bool success, bytes returnData);
-        # - event: Process(bytes32,bool,bytes)
-        #   handler: handleProcess
+        # Process(bytes32 leaf, bool success, bytes returnData);
+        - event: Process(bytes32,bool,bytes)
+          handler: handleProcess
         - event: MessageSent(bytes,address)
           handler: handleMessageSent
         - event: MessageProcessed(bytes,address)
           handler: handleMessageProcessed
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleNewConnector
-      file: ./src/amarok-runtime-staging/mapping.ts
+      file: ./src/amarok-runtime-staging/mapping/index.ts

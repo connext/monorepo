@@ -153,10 +153,16 @@ CREATE TABLE public.transfers (
     reconcile_gas_limit numeric,
     reconcile_block_number integer,
     update_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    agent character(42),
-    destination_min_out numeric,
+    delegate character(42),
     transfer_status_update_by_agent character(42),
-    transfer_status_message_by_agent character(42)
+    transfer_status_message_by_agent character(42),
+    message_hash character(66),
+    canonical_domain character varying(255),
+    slippage numeric,
+    origin_sender character(42),
+    bridged_amt numeric,
+    normalized_in numeric,
+    canonical_id character(42)
 );
 
 
@@ -468,62 +474,6 @@ CREATE VIEW public.transfer_volume AS
 
 
 --
--- Name: transfers_with_ttr_ttv; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.transfers_with_ttr_ttv AS
- SELECT tf.transfer_id,
-    tf.nonce,
-    tf."to",
-    tf.call_data,
-    tf.origin_domain,
-    tf.destination_domain,
-    tf.recovery,
-    tf.force_slow,
-    tf.receive_local,
-    tf.callback,
-    tf.callback_fee,
-    tf.relayer_fee,
-    tf.origin_chain,
-    tf.origin_transacting_asset,
-    tf.origin_transacting_amount,
-    tf.origin_bridged_asset,
-    tf.origin_bridged_amount,
-    tf.xcall_caller,
-    tf.xcall_transaction_hash,
-    tf.xcall_timestamp,
-    tf.xcall_gas_price,
-    tf.xcall_gas_limit,
-    tf.xcall_block_number,
-    tf.destination_chain,
-    tf.status,
-    tf.routers,
-    tf.destination_transacting_asset,
-    tf.destination_transacting_amount,
-    tf.destination_local_asset,
-    tf.destination_local_amount,
-    tf.execute_caller,
-    tf.execute_transaction_hash,
-    tf.execute_timestamp,
-    tf.execute_gas_price,
-    tf.execute_gas_limit,
-    tf.execute_block_number,
-    tf.execute_origin_sender,
-    tf.reconcile_caller,
-    tf.reconcile_transaction_hash,
-    tf.reconcile_timestamp,
-    tf.reconcile_gas_price,
-    tf.reconcile_gas_limit,
-    tf.reconcile_block_number,
-    tf.update_time,
-    tf.agent,
-    tf.destination_min_out,
-    (tf.execute_timestamp - tf.xcall_timestamp) AS ttr,
-    (tf.reconcile_timestamp - tf.xcall_timestamp) AS ttv
-   FROM public.transfers tf;
-
-
---
 -- Name: asset_balances asset_balances_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -668,4 +618,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20220907212007'),
     ('20220914215736'),
     ('20220914230120'),
-    ('20220920101730');
+    ('20220920101730'),
+    ('20220921065611');
