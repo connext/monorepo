@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 import "@openzeppelin/contracts/crosschain/errors.sol";
 
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
 
 import {PolygonSpokeConnector} from "../../../../contracts/messaging/connectors/polygon/PolygonSpokeConnector.sol";
 
@@ -19,6 +20,8 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
     // deploy
     _l1Connector = address(123321123);
 
+    _merkle = address(new MerkleTreeManager());
+
     _l2Connector = address(
       new PolygonSpokeConnector(
         _l2Domain,
@@ -30,7 +33,7 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
         _processGas,
         _reserveGas,
         0, // uint256 _delayBlocks
-        address(0),
+        _merkle,
         address(1) // watcher manager
       )
     );
