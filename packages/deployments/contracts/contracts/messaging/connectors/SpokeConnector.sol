@@ -195,8 +195,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     PROCESS_GAS = _processGas;
     RESERVE_GAS = _reserveGas;
 
-    // If no MerkleTreeManager instance is specified, create a new one.
-    MERKLE = _merkle == address(0) ? new MerkleTreeManager() : MerkleTreeManager(_merkle);
+    require(_merkle != address(0), "!zero merkle");
+    MERKLE = MerkleTreeManager(_merkle);
 
     delayBlocks = _delayBlocks;
   }
