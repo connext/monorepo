@@ -162,6 +162,20 @@ describe("Database client", () => {
           gas_limit numeric,
           block_number integer
       );
+      CREATE VIEW public.routers_with_balances AS
+      SELECT routers.address,
+        asset_balances.asset_canonical_id,
+        asset_balances.asset_domain,
+        asset_balances.router_address,
+        asset_balances.balance,
+        assets.local,
+        assets.adopted,
+        assets.canonical_id,
+        assets.canonical_domain,
+        assets.domain
+        FROM ((public.routers
+          JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
+          JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
       ALTER TABLE ONLY public.asset_balances
           ADD CONSTRAINT asset_balances_pkey PRIMARY KEY (asset_canonical_id, asset_domain, router_address);
 
