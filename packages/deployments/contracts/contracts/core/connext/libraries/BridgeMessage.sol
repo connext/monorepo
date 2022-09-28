@@ -45,7 +45,7 @@ library BridgeMessage {
 
   uint256 private constant TOKEN_ID_LEN = 36; // 4 bytes domain + 32 bytes id
   uint256 private constant IDENTIFIER_LEN = 1;
-  uint256 private constant TRANSFER_LEN = 98; // 1 byte identifier + 32 bytes amount + 32 bytes detailsHash + 32 bytes transfer id + 1 byte decimals
+  uint256 private constant TRANSFER_LEN = 97; // 1 byte identifier + 32 bytes amount + 32 bytes detailsHash + 32 bytes transfer id
 
   // ============ Modifiers ============
 
@@ -132,16 +132,14 @@ library BridgeMessage {
    * @param _amnt The transfer amount
    * @param _detailsHash The hash of the token name, symbol, and decimals
    * @param _transferId The unique identifier of the transfer
-   * @param _decimals The decimals
    * @return
    */
   function formatTransfer(
     uint256 _amnt,
     bytes32 _detailsHash,
-    bytes32 _transferId,
-    uint8 _decimals
+    bytes32 _transferId
   ) internal pure returns (bytes29) {
-    return abi.encodePacked(Types.Transfer, _amnt, _detailsHash, _transferId, _decimals).ref(uint40(Types.Transfer));
+    return abi.encodePacked(Types.Transfer, _amnt, _detailsHash, _transferId).ref(uint40(Types.Transfer));
   }
 
   /**
@@ -254,16 +252,6 @@ library BridgeMessage {
   function transferId(bytes29 _transferAction) internal pure returns (bytes32) {
     // before = 1 byte identifier + 32 bytes amount + 32 bytes details = 65 bytes
     return _transferAction.index(65, 32);
-  }
-
-  /**
-   * @notice Retrieves the decimals from a Transfer
-   * @param _transferAction The message
-   * @return The decimals
-   */
-  function decimals(bytes29 _transferAction) internal pure returns (uint8) {
-    // before = 1 byte identifier + 32 bytes amount + 32 bytes details + 32 bytes transferId = 97 bytes
-    return uint8(_transferAction.indexUint(97, 1));
   }
 
   /**

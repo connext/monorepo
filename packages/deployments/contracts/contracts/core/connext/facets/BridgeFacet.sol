@@ -902,12 +902,10 @@ contract BridgeFacet is BaseConnextFacet {
   ) private returns (bytes32) {
     IBridgeToken _token = IBridgeToken(_local);
 
-    uint8 decimals = 18;
     // Get the formatted token ID and details hash.
     bytes29 _tokenId = BridgeMessage.formatTokenId(_canonical.domain, _canonical.id);
     bytes32 _detailsHash;
     if (_local != address(0)) {
-      decimals = _token.decimals();
       _detailsHash = _isCanonical ? BridgeMessage.getDetailsHash(_token.name(), _token.symbol()) : _token.detailsHash();
     }
 
@@ -923,7 +921,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // Format hook action.
-    bytes29 _action = BridgeMessage.formatTransfer(_amount, _detailsHash, _transferId, decimals);
+    bytes29 _action = BridgeMessage.formatTransfer(_amount, _detailsHash, _transferId);
     // Send message to destination chain bridge router.
     bytes32 _messageHash = IOutbox(s.xAppConnectionManager.home()).dispatch(
       _destination,
