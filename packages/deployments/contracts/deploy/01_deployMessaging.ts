@@ -253,7 +253,7 @@ const handleDeploySpoke = async (
 
   // Deploy MerkleTreeManager(beacon proxy)
   console.log("Deploying MerkleTreeManager proxy...");
-  const merkleTreeManager = await deployBeaconProxy("MerkleTreeManager", [], deployer, hre);
+  const merkleTreeManager = await deployBeaconProxy("MerkleTreeManager", [constants.AddressZero], deployer, hre);
 
   console.log(`Deploying ${contract}...`);
   const deployment = await hre.deployments.deploy(getDeploymentName(contract), {
