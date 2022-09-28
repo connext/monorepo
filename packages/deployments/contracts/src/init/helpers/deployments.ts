@@ -83,8 +83,10 @@ export const getDeployments = (args: {
     const implementation = contract.includes("UpgradeBeaconProxy")
       ? contract.replace("UpgradeBeaconProxy", "")
       : undefined;
+
     if (implementation) {
-      const found = contracts[implementation];
+      const implementation_with_env = useStaging ? implementation?.concat("Staging") : implementation;
+      const found = contracts[implementation_with_env];
       if (found && found.abi) {
         abi = found.abi as any[];
       }
@@ -112,13 +114,13 @@ export const getDeployments = (args: {
   return {
     Connext: getContract("ConnextHandler_DiamondProxy"),
     handlers: {
-      BridgeRouter: getContract("BridgeRouterUpgradeBeaconProxy"),
       RelayerFeeRouter: getContract("RelayerFeeRouterUpgradeBeaconProxy"),
     },
     messaging: isHub
       ? {
           RootManager: getContract("RootManager"),
           MainnetConnector: getContract("MainnetSpokeConnector"),
+          WatcherManager: getContract("WatcherManager"),
           HubConnectors: connectors,
         }
       : {

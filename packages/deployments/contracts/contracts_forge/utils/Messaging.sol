@@ -16,12 +16,10 @@ library MessagingUtils {
 
     bytes32 detailsHash;
     if (local != address(0)) {
-      detailsHash = isCanonical
-        ? BridgeMessage.getDetailsHash(token.name(), token.symbol(), token.decimals())
-        : token.detailsHash();
+      detailsHash = isCanonical ? BridgeMessage.getDetailsHash(token.name(), token.symbol()) : token.detailsHash();
     }
 
-    bytes29 action = BridgeMessage.formatTransfer(params.bridgedAmt, detailsHash, transferId);
+    bytes29 action = BridgeMessage.formatTransfer(params.bridgedAmt, detailsHash, transferId, token.decimals());
 
     return BridgeMessage.formatMessage(tokenId, action);
   }

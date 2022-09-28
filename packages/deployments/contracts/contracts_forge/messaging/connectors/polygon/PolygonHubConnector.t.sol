@@ -25,7 +25,7 @@ contract PolygonHubConnectorTest is ConnectorHelper {
   // ============ Utils ============
   function utils_setHubConnectorProcessMocks(address _sender) public {
     // 3. call to root manager
-    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.setOutboundRoot.selector), abi.encode(true));
+    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector), abi.encode(true));
   }
 
   // ============ PolygonHubConnector.setFxChildTunnel ============
@@ -55,6 +55,26 @@ contract PolygonHubConnectorTest is ConnectorHelper {
 
     // data
     bytes memory _data = abi.encode(123123123);
+
+    // should emit an event
+    vm.expectEmit(true, true, true, true);
+    emit MessageSent(_data, _rootManager);
+
+    // should call send contract transaction
+    vm.expectCall(_amb, abi.encodeWithSelector(IFxStateSender.sendMessageToChild.selector, _l2Connector, _data));
+
+    vm.prank(_rootManager);
+    PolygonHubConnector(_l1Connector).sendMessage(_data);
+  }
+
+  function test_PolygonHubConnector__sendMessage_works_fuzz(bytes32 data) public {
+    PolygonHubConnector(_l1Connector).setFxChildTunnel(_l2Connector);
+
+    // setup mock
+    vm.mockCall(_amb, abi.encodeWithSelector(IFxStateSender.sendMessageToChild.selector), abi.encode(123));
+
+    // data
+    bytes memory _data = abi.encode(data);
 
     // should emit an event
     vm.expectEmit(true, true, true, true);

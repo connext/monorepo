@@ -5,7 +5,8 @@ import "@openzeppelin/contracts/crosschain/errors.sol";
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 
 import {OptimismSpokeConnector} from "../../../../contracts/messaging/connectors/optimism/OptimismSpokeConnector.sol";
-import {OptimismAmb} from "../../../../contracts/messaging/interfaces/ambs/OptimismAMB.sol";
+import {OptimismAmb} from "../../../../contracts/messaging/interfaces/ambs/optimism/OptimismAMB.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -20,6 +21,8 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
   function setUp() public {
     _l1Connector = address(123321123);
 
+    _merkle = address(new MerkleTreeManager());
+
     // deploy
     _l2Connector = address(
       new OptimismSpokeConnector(
@@ -30,7 +33,10 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
         _l1Connector,
         _mirrorGas,
         _processGas,
-        _reserveGas
+        _reserveGas,
+        0, // delay blocks
+        _merkle,
+        address(0) // watcher manager
       )
     );
   }
@@ -102,7 +108,7 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     OptimismSpokeConnector(_l2Connector).processMessage(_data);
 
-    assertEq(bytes32(_data), OptimismSpokeConnector(_l2Connector).aggregateRoot());
+    assertEq(bytes32(_data), OptimismSpokeConnector(_l2Connector).aggregateRootPending());
   }
 
   function test_OptimismSpokeConnector__processMessage_failsIfNotMirrorConnector() public {
@@ -110,7 +116,7 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
 
     bytes memory _data = abi.encode(bytes32("test"));
 
-    vm.expectRevert(bytes("!mirrorConnector"));
+    vm.expectRevert(bytes("!l1Connector"));
 
     vm.prank(_amb);
     OptimismSpokeConnector(_l2Connector).processMessage(_data);
@@ -125,5 +131,20 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
 
     vm.prank(_amb);
     OptimismSpokeConnector(_l2Connector).processMessage(_data);
+  }
+
+  // ============ Fuzz Tests ============
+  function test_OptimismSpokeConnector__processMessage_works_fuzz(bytes32 data) public {
+    utils_setSpokeConnectorVerifyMocks(_l1Connector);
+
+    bytes memory _data = abi.encode(data);
+
+    vm.expectEmit(true, true, true, true);
+    emit MessageProcessed(_data, _amb);
+
+    vm.prank(_amb);
+    OptimismSpokeConnector(_l2Connector).processMessage(_data);
+
+    assertEq(bytes32(_data), OptimismSpokeConnector(_l2Connector).aggregateRootPending());
   }
 }

@@ -150,6 +150,7 @@ export const SPOKE_PREFIX = "Spoke";
 
 const DEFAULT_PROCESS_GAS = BigNumber.from("850000");
 const DEFAULT_RESERVE_GAS = BigNumber.from("15000");
+const DEFAULT_DELAY_BLOCKS = 10;
 
 export type MessagingProtocolConfig = {
   // The chain ID of the hub. For production environment, should be Ethereum Mainnet (1).
@@ -165,6 +166,7 @@ export type MessagingProtocolConfig = {
       };
       processGas: BigNumber;
       reserveGas: BigNumber;
+      delayBlocks: number;
       custom?: {
         hub?: { [key: string]: string | BigNumber };
         spoke?: { [key: string]: string | BigNumber };
@@ -189,6 +191,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
       1338: {
         prefix: "Optimism",
@@ -198,6 +201,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
     },
   },
@@ -219,6 +223,13 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        custom: {
+          hub: {
+            // https://goerli.etherscan.io/address/0x9c945aC97Baf48cB784AbBB61399beB71aF7A378
+            stateCommitmentChain: "0x9c945aC97Baf48cB784AbBB61399beB71aF7A378",
+          },
+        },
       },
       // // Sokol testnet (for Gnosis):
       // 77: {
@@ -232,6 +243,18 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
       //   processGas: DEFAULT_PROCESS_GAS,
       //   reserveGas: DEFAULT_RESERVE_GAS,
       // },
+      // Gnosis Chiado chain
+      100100: {
+        prefix: "Gnosis",
+        ambs: {
+          // https://docs.gnosischain.com/about/networks/chiado
+          hub: "0x5816D9EdC3D30F501A098bC26A313Ae8BeB7B8ad",
+          spoke: "0x2f018c1118B0DC28E395d054e80fE44c61904892",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+      },
       // Arbitrum nitro goerli testnet:
       // https://developer.offchainlabs.com/docs/Useful_Addresses
       421613: {
@@ -244,6 +267,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
         custom: {
           hub: {
             defaultGasPrice: DEFAULT_RESERVE_GAS,
@@ -264,6 +288,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
         custom: {
           hub: {
             // https://goerli.etherscan.io/address/0x2890ba17efe978480615e330ecb65333b880928e
@@ -279,6 +304,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
     },
   },
@@ -293,6 +319,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
       10: {
         prefix: "Optimism",
@@ -307,6 +334,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         // TODO: 2mil gas for opti (going L1 => L2)? Is that correct?
         processGas: BigNumber.from("2000000"),
         reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
       100: {
         prefix: "Gnosis",
@@ -318,6 +346,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
       // Arbitrum one: TODO: nitro??????
       // https://developer.offchainlabs.com/docs/Useful_Addresses
@@ -331,6 +360,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
     },
   },

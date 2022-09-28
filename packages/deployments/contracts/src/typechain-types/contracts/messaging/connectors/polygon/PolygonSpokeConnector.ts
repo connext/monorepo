@@ -27,23 +27,41 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
+export declare namespace SpokeConnector {
+  export type ProofStruct = {
+    message: PromiseOrValue<BytesLike>;
+    path: PromiseOrValue<BytesLike>[];
+    index: PromiseOrValue<BigNumberish>;
+  };
+
+  export type ProofStructOutput = [string, string[], BigNumber] & {
+    message: string;
+    path: string[];
+    index: BigNumber;
+  };
+}
+
 export interface PolygonSpokeConnectorInterface extends utils.Interface {
   functions: {
     "AMB()": FunctionFragment;
     "DOMAIN()": FunctionFragment;
+    "MERKLE()": FunctionFragment;
     "MIRROR_DOMAIN()": FunctionFragment;
     "PROCESS_GAS()": FunctionFragment;
     "RESERVE_GAS()": FunctionFragment;
     "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "addSender(address)": FunctionFragment;
-    "aggregateRoot()": FunctionFragment;
-    "count()": FunctionFragment;
+    "aggregateRootCurrent()": FunctionFragment;
+    "aggregateRootPending()": FunctionFragment;
+    "aggregateRootPendingBlock()": FunctionFragment;
     "delay()": FunctionFragment;
+    "delayBlocks()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
     "fxChild()": FunctionFragment;
     "fxRootTunnel()": FunctionFragment;
     "home()": FunctionFragment;
+    "isPaused()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
     "localDomain()": FunctionFragment;
     "messages(bytes32)": FunctionFragment;
@@ -57,16 +75,19 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
-    "proveAndProcess(bytes,bytes32[32],uint256)": FunctionFragment;
+    "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32[32],uint256)": FunctionFragment;
     "provenRoots(bytes32)": FunctionFragment;
     "removeSender(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "send()": FunctionFragment;
+    "setAggregateRoots(bytes32,bytes32)": FunctionFragment;
+    "setDelayBlocks(uint256)": FunctionFragment;
     "setFxRootTunnel(address)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setMirrorGas(uint256)": FunctionFragment;
-    "tree()": FunctionFragment;
+    "setWatcherManager(address)": FunctionFragment;
+    "setWatcherPaused(bool)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
     "whitelistedSenders(address)": FunctionFragment;
   };
@@ -75,19 +96,23 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "AMB"
       | "DOMAIN"
+      | "MERKLE"
       | "MIRROR_DOMAIN"
       | "PROCESS_GAS"
       | "RESERVE_GAS"
       | "ROOT_MANAGER"
       | "acceptProposedOwner"
       | "addSender"
-      | "aggregateRoot"
-      | "count"
+      | "aggregateRootCurrent"
+      | "aggregateRootPending"
+      | "aggregateRootPendingBlock"
       | "delay"
+      | "delayBlocks"
       | "dispatch"
       | "fxChild"
       | "fxRootTunnel"
       | "home"
+      | "isPaused"
       | "isReplica"
       | "localDomain"
       | "messages"
@@ -107,16 +132,20 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "renounceOwnership"
       | "renounced"
       | "send"
+      | "setAggregateRoots"
+      | "setDelayBlocks"
       | "setFxRootTunnel"
       | "setMirrorConnector"
       | "setMirrorGas"
-      | "tree"
+      | "setWatcherManager"
+      | "setWatcherPaused"
       | "verifySender"
       | "whitelistedSenders"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
   encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
+  encodeFunctionData(functionFragment: "MERKLE", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "MIRROR_DOMAIN",
     values?: undefined
@@ -142,11 +171,22 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "aggregateRoot",
+    functionFragment: "aggregateRootCurrent",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "count", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "aggregateRootPending",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "aggregateRootPendingBlock",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "delayBlocks",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "dispatch",
     values: [
@@ -161,6 +201,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
+  encodeFunctionData(functionFragment: "isPaused", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isReplica",
     values: [PromiseOrValue<string>]
@@ -211,7 +252,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "proveAndProcess",
     values: [
-      PromiseOrValue<BytesLike>,
+      SpokeConnector.ProofStruct[],
       PromiseOrValue<BytesLike>[],
       PromiseOrValue<BigNumberish>
     ]
@@ -231,6 +272,14 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(functionFragment: "send", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "setAggregateRoots",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setDelayBlocks",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setFxRootTunnel",
     values: [PromiseOrValue<string>]
   ): string;
@@ -242,7 +291,14 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     functionFragment: "setMirrorGas",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(functionFragment: "tree", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "setWatcherManager",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setWatcherPaused",
+    values: [PromiseOrValue<boolean>]
+  ): string;
   encodeFunctionData(
     functionFragment: "verifySender",
     values: [PromiseOrValue<string>]
@@ -254,6 +310,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
 
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "MERKLE", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "MIRROR_DOMAIN",
     data: BytesLike
@@ -276,11 +333,22 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "addSender", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "aggregateRoot",
+    functionFragment: "aggregateRootCurrent",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "aggregateRootPending",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "aggregateRootPendingBlock",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "delayBlocks",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fxChild", data: BytesLike): Result;
   decodeFunctionResult(
@@ -288,6 +356,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isPaused", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isReplica", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "localDomain",
@@ -341,6 +410,14 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "setAggregateRoots",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setDelayBlocks",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setFxRootTunnel",
     data: BytesLike
   ): Result;
@@ -352,7 +429,14 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     functionFragment: "setMirrorGas",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "tree", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setWatcherManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setWatcherPaused",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "verifySender",
     data: BytesLike
@@ -363,7 +447,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "AggregateRootUpdated(bytes32,bytes32)": EventFragment;
+    "AggregateRootsUpdated(bytes32,bytes32)": EventFragment;
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes)": EventFragment;
@@ -376,9 +460,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "Process(bytes32,bool,bytes)": EventFragment;
     "SenderAdded(address)": EventFragment;
     "SenderRemoved(address)": EventFragment;
+    "WatcherManagerChanged(address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AggregateRootUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AggregateRootsUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Dispatch"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent(bytes)"): EventFragment;
@@ -391,19 +476,20 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Process"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "WatcherManagerChanged"): EventFragment;
 }
 
-export interface AggregateRootUpdatedEventObject {
+export interface AggregateRootsUpdatedEventObject {
   current: string;
-  previous: string;
+  pending: string;
 }
-export type AggregateRootUpdatedEvent = TypedEvent<
+export type AggregateRootsUpdatedEvent = TypedEvent<
   [string, string],
-  AggregateRootUpdatedEventObject
+  AggregateRootsUpdatedEventObject
 >;
 
-export type AggregateRootUpdatedEventFilter =
-  TypedEventFilter<AggregateRootUpdatedEvent>;
+export type AggregateRootsUpdatedEventFilter =
+  TypedEventFilter<AggregateRootsUpdatedEvent>;
 
 export interface DispatchEventObject {
   leaf: string;
@@ -540,6 +626,17 @@ export type SenderRemovedEvent = TypedEvent<[string], SenderRemovedEventObject>;
 
 export type SenderRemovedEventFilter = TypedEventFilter<SenderRemovedEvent>;
 
+export interface WatcherManagerChangedEventObject {
+  watcherManager: string;
+}
+export type WatcherManagerChangedEvent = TypedEvent<
+  [string],
+  WatcherManagerChangedEventObject
+>;
+
+export type WatcherManagerChangedEventFilter =
+  TypedEventFilter<WatcherManagerChangedEvent>;
+
 export interface PolygonSpokeConnector extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -571,6 +668,8 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<[number]>;
 
+    MERKLE(overrides?: CallOverrides): Promise<[string]>;
+
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<[number]>;
 
     PROCESS_GAS(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -588,11 +687,15 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    aggregateRoot(overrides?: CallOverrides): Promise<[string]>;
+    aggregateRootCurrent(overrides?: CallOverrides): Promise<[string]>;
 
-    count(overrides?: CallOverrides): Promise<[BigNumber]>;
+    aggregateRootPending(overrides?: CallOverrides): Promise<[string]>;
+
+    aggregateRootPendingBlock(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    delayBlocks(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     dispatch(
       _destinationDomain: PromiseOrValue<BigNumberish>,
@@ -606,6 +709,8 @@ export interface PolygonSpokeConnector extends BaseContract {
     fxRootTunnel(overrides?: CallOverrides): Promise<[string]>;
 
     home(overrides?: CallOverrides): Promise<[string]>;
+
+    isPaused(overrides?: CallOverrides): Promise<[boolean]>;
 
     isReplica(
       _potentialReplica: PromiseOrValue<string>,
@@ -654,9 +759,9 @@ export interface PolygonSpokeConnector extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     proveAndProcess(
-      _message: PromiseOrValue<BytesLike>,
-      _proof: PromiseOrValue<BytesLike>[],
-      _index: PromiseOrValue<BigNumberish>,
+      _proofs: SpokeConnector.ProofStruct[],
+      _aggregatorPath: PromiseOrValue<BytesLike>[],
+      _aggregatorIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -680,6 +785,17 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setAggregateRoots(
+      _current: PromiseOrValue<BytesLike>,
+      _pending: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setDelayBlocks(
+      _delayBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setFxRootTunnel(
       _fxRootTunnel: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -695,9 +811,15 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    tree(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { count: BigNumber }>;
+    setWatcherManager(
+      _watcherManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setWatcherPaused(
+      paused: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
@@ -713,6 +835,8 @@ export interface PolygonSpokeConnector extends BaseContract {
   AMB(overrides?: CallOverrides): Promise<string>;
 
   DOMAIN(overrides?: CallOverrides): Promise<number>;
+
+  MERKLE(overrides?: CallOverrides): Promise<string>;
 
   MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
 
@@ -731,11 +855,15 @@ export interface PolygonSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  aggregateRoot(overrides?: CallOverrides): Promise<string>;
+  aggregateRootCurrent(overrides?: CallOverrides): Promise<string>;
 
-  count(overrides?: CallOverrides): Promise<BigNumber>;
+  aggregateRootPending(overrides?: CallOverrides): Promise<string>;
+
+  aggregateRootPendingBlock(overrides?: CallOverrides): Promise<BigNumber>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+  delayBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
   dispatch(
     _destinationDomain: PromiseOrValue<BigNumberish>,
@@ -749,6 +877,8 @@ export interface PolygonSpokeConnector extends BaseContract {
   fxRootTunnel(overrides?: CallOverrides): Promise<string>;
 
   home(overrides?: CallOverrides): Promise<string>;
+
+  isPaused(overrides?: CallOverrides): Promise<boolean>;
 
   isReplica(
     _potentialReplica: PromiseOrValue<string>,
@@ -797,9 +927,9 @@ export interface PolygonSpokeConnector extends BaseContract {
   proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   proveAndProcess(
-    _message: PromiseOrValue<BytesLike>,
-    _proof: PromiseOrValue<BytesLike>[],
-    _index: PromiseOrValue<BigNumberish>,
+    _proofs: SpokeConnector.ProofStruct[],
+    _aggregatorPath: PromiseOrValue<BytesLike>[],
+    _aggregatorIndex: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -823,6 +953,17 @@ export interface PolygonSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setAggregateRoots(
+    _current: PromiseOrValue<BytesLike>,
+    _pending: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setDelayBlocks(
+    _delayBlocks: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setFxRootTunnel(
     _fxRootTunnel: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -838,7 +979,15 @@ export interface PolygonSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  tree(overrides?: CallOverrides): Promise<BigNumber>;
+  setWatcherManager(
+    _watcherManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setWatcherPaused(
+    paused: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   verifySender(
     _expected: PromiseOrValue<string>,
@@ -855,6 +1004,8 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<number>;
 
+    MERKLE(overrides?: CallOverrides): Promise<string>;
+
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
 
     PROCESS_GAS(overrides?: CallOverrides): Promise<BigNumber>;
@@ -870,11 +1021,15 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    aggregateRoot(overrides?: CallOverrides): Promise<string>;
+    aggregateRootCurrent(overrides?: CallOverrides): Promise<string>;
 
-    count(overrides?: CallOverrides): Promise<BigNumber>;
+    aggregateRootPending(overrides?: CallOverrides): Promise<string>;
+
+    aggregateRootPendingBlock(overrides?: CallOverrides): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    delayBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
     dispatch(
       _destinationDomain: PromiseOrValue<BigNumberish>,
@@ -888,6 +1043,8 @@ export interface PolygonSpokeConnector extends BaseContract {
     fxRootTunnel(overrides?: CallOverrides): Promise<string>;
 
     home(overrides?: CallOverrides): Promise<string>;
+
+    isPaused(overrides?: CallOverrides): Promise<boolean>;
 
     isReplica(
       _potentialReplica: PromiseOrValue<string>,
@@ -936,9 +1093,9 @@ export interface PolygonSpokeConnector extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     proveAndProcess(
-      _message: PromiseOrValue<BytesLike>,
-      _proof: PromiseOrValue<BytesLike>[],
-      _index: PromiseOrValue<BigNumberish>,
+      _proofs: SpokeConnector.ProofStruct[],
+      _aggregatorPath: PromiseOrValue<BytesLike>[],
+      _aggregatorIndex: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -958,6 +1115,17 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     send(overrides?: CallOverrides): Promise<void>;
 
+    setAggregateRoots(
+      _current: PromiseOrValue<BytesLike>,
+      _pending: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setDelayBlocks(
+      _delayBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setFxRootTunnel(
       _fxRootTunnel: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -973,7 +1141,15 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    tree(overrides?: CallOverrides): Promise<BigNumber>;
+    setWatcherManager(
+      _watcherManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setWatcherPaused(
+      paused: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
@@ -987,14 +1163,14 @@ export interface PolygonSpokeConnector extends BaseContract {
   };
 
   filters: {
-    "AggregateRootUpdated(bytes32,bytes32)"(
+    "AggregateRootsUpdated(bytes32,bytes32)"(
       current?: null,
-      previous?: null
-    ): AggregateRootUpdatedEventFilter;
-    AggregateRootUpdated(
+      pending?: null
+    ): AggregateRootsUpdatedEventFilter;
+    AggregateRootsUpdated(
       current?: null,
-      previous?: null
-    ): AggregateRootUpdatedEventFilter;
+      pending?: null
+    ): AggregateRootsUpdatedEventFilter;
 
     "Dispatch(bytes32,uint256,bytes32,bytes)"(
       leaf?: null,
@@ -1082,12 +1258,21 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     "SenderRemoved(address)"(sender?: null): SenderRemovedEventFilter;
     SenderRemoved(sender?: null): SenderRemovedEventFilter;
+
+    "WatcherManagerChanged(address)"(
+      watcherManager?: null
+    ): WatcherManagerChangedEventFilter;
+    WatcherManagerChanged(
+      watcherManager?: null
+    ): WatcherManagerChangedEventFilter;
   };
 
   estimateGas: {
     AMB(overrides?: CallOverrides): Promise<BigNumber>;
 
     DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
+
+    MERKLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1106,11 +1291,15 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    aggregateRoot(overrides?: CallOverrides): Promise<BigNumber>;
+    aggregateRootCurrent(overrides?: CallOverrides): Promise<BigNumber>;
 
-    count(overrides?: CallOverrides): Promise<BigNumber>;
+    aggregateRootPending(overrides?: CallOverrides): Promise<BigNumber>;
+
+    aggregateRootPendingBlock(overrides?: CallOverrides): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    delayBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
     dispatch(
       _destinationDomain: PromiseOrValue<BigNumberish>,
@@ -1124,6 +1313,8 @@ export interface PolygonSpokeConnector extends BaseContract {
     fxRootTunnel(overrides?: CallOverrides): Promise<BigNumber>;
 
     home(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isPaused(overrides?: CallOverrides): Promise<BigNumber>;
 
     isReplica(
       _potentialReplica: PromiseOrValue<string>,
@@ -1172,9 +1363,9 @@ export interface PolygonSpokeConnector extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     proveAndProcess(
-      _message: PromiseOrValue<BytesLike>,
-      _proof: PromiseOrValue<BytesLike>[],
-      _index: PromiseOrValue<BigNumberish>,
+      _proofs: SpokeConnector.ProofStruct[],
+      _aggregatorPath: PromiseOrValue<BytesLike>[],
+      _aggregatorIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1198,6 +1389,17 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setAggregateRoots(
+      _current: PromiseOrValue<BytesLike>,
+      _pending: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setDelayBlocks(
+      _delayBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setFxRootTunnel(
       _fxRootTunnel: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1213,7 +1415,15 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    tree(overrides?: CallOverrides): Promise<BigNumber>;
+    setWatcherManager(
+      _watcherManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setWatcherPaused(
+      paused: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
@@ -1230,6 +1440,8 @@ export interface PolygonSpokeConnector extends BaseContract {
     AMB(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    MERKLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1248,11 +1460,21 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    aggregateRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    aggregateRootCurrent(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    count(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    aggregateRootPending(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    aggregateRootPendingBlock(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    delayBlocks(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     dispatch(
       _destinationDomain: PromiseOrValue<BigNumberish>,
@@ -1266,6 +1488,8 @@ export interface PolygonSpokeConnector extends BaseContract {
     fxRootTunnel(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     home(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isPaused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isReplica(
       _potentialReplica: PromiseOrValue<string>,
@@ -1314,9 +1538,9 @@ export interface PolygonSpokeConnector extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proveAndProcess(
-      _message: PromiseOrValue<BytesLike>,
-      _proof: PromiseOrValue<BytesLike>[],
-      _index: PromiseOrValue<BigNumberish>,
+      _proofs: SpokeConnector.ProofStruct[],
+      _aggregatorPath: PromiseOrValue<BytesLike>[],
+      _aggregatorIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1340,6 +1564,17 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    setAggregateRoots(
+      _current: PromiseOrValue<BytesLike>,
+      _pending: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setDelayBlocks(
+      _delayBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setFxRootTunnel(
       _fxRootTunnel: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1355,7 +1590,15 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    tree(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    setWatcherManager(
+      _watcherManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setWatcherPaused(
+      paused: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     verifySender(
       _expected: PromiseOrValue<string>,

@@ -115,6 +115,7 @@ export interface BridgeFacetInterface extends utils.Interface {
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
+    "xAppConnectionManager()": FunctionFragment;
     "xcall(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
     "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
   };
@@ -138,6 +139,7 @@ export interface BridgeFacetInterface extends utils.Interface {
       | "removeSequencer"
       | "routedTransfers"
       | "setXAppConnectionManager"
+      | "xAppConnectionManager"
       | "xcall"
       | "xcallIntoLocal"
   ): FunctionFragment;
@@ -207,6 +209,10 @@ export interface BridgeFacetInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setXAppConnectionManager",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "xAppConnectionManager",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "xcall",
@@ -289,6 +295,10 @@ export interface BridgeFacetInterface extends utils.Interface {
     functionFragment: "setXAppConnectionManager",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "xAppConnectionManager",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "xcallIntoLocal",
@@ -305,7 +315,6 @@ export interface BridgeFacetInterface extends utils.Interface {
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
     "SlippageUpdated(bytes32,uint256)": EventFragment;
-    "SponsorVaultUpdated(address,address,address)": EventFragment;
     "TransferRelayerFeesUpdated(bytes32,uint256,address)": EventFragment;
     "XCalled(bytes32,uint256,bytes32,tuple,address)": EventFragment;
   };
@@ -319,7 +328,6 @@ export interface BridgeFacetInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "SequencerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SlippageUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SponsorVaultUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferRelayerFeesUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
 }
@@ -439,19 +447,6 @@ export type SlippageUpdatedEvent = TypedEvent<
 >;
 
 export type SlippageUpdatedEventFilter = TypedEventFilter<SlippageUpdatedEvent>;
-
-export interface SponsorVaultUpdatedEventObject {
-  oldSponsorVault: string;
-  newSponsorVault: string;
-  caller: string;
-}
-export type SponsorVaultUpdatedEvent = TypedEvent<
-  [string, string, string],
-  SponsorVaultUpdatedEventObject
->;
-
-export type SponsorVaultUpdatedEventFilter =
-  TypedEventFilter<SponsorVaultUpdatedEvent>;
 
 export interface TransferRelayerFeesUpdatedEventObject {
   transferId: string;
@@ -584,6 +579,8 @@ export interface BridgeFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    xAppConnectionManager(overrides?: CallOverrides): Promise<[string]>;
+
     xcall(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
@@ -684,6 +681,8 @@ export interface BridgeFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
+
   xcall(
     _destination: PromiseOrValue<BigNumberish>,
     _to: PromiseOrValue<string>,
@@ -783,6 +782,8 @@ export interface BridgeFacet extends BaseContract {
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
 
     xcall(
       _destination: PromiseOrValue<BigNumberish>,
@@ -914,17 +915,6 @@ export interface BridgeFacet extends BaseContract {
       slippage?: null
     ): SlippageUpdatedEventFilter;
 
-    "SponsorVaultUpdated(address,address,address)"(
-      oldSponsorVault?: null,
-      newSponsorVault?: null,
-      caller?: null
-    ): SponsorVaultUpdatedEventFilter;
-    SponsorVaultUpdated(
-      oldSponsorVault?: null,
-      newSponsorVault?: null,
-      caller?: null
-    ): SponsorVaultUpdatedEventFilter;
-
     "TransferRelayerFeesUpdated(bytes32,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       relayerFee?: null,
@@ -1030,6 +1020,8 @@ export interface BridgeFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    xAppConnectionManager(overrides?: CallOverrides): Promise<BigNumber>;
+
     xcall(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
@@ -1131,6 +1123,10 @@ export interface BridgeFacet extends BaseContract {
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    xAppConnectionManager(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     xcall(

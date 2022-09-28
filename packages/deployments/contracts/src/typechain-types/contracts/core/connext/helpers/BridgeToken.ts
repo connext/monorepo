@@ -38,14 +38,14 @@ export interface BridgeTokenInterface extends utils.Interface {
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "detailsHash()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
-    "initialize()": FunctionFragment;
+    "initialize(uint8,string,string)": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
     "owner()": FunctionFragment;
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
-    "setDetails(string,string,uint8)": FunctionFragment;
+    "setDetails(string,string)": FunctionFragment;
     "setDetailsHash(bytes32)": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
@@ -116,7 +116,11 @@ export interface BridgeTokenInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values?: undefined
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "mint",
@@ -146,11 +150,7 @@ export interface BridgeTokenInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setDetails",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setDetailsHash",
@@ -234,7 +234,7 @@ export interface BridgeTokenInterface extends utils.Interface {
     "Initialized(uint8)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
-    "UpdateDetails(string,string,uint8)": EventFragment;
+    "UpdateDetails(string,string)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
@@ -290,10 +290,9 @@ export type TransferEventFilter = TypedEventFilter<TransferEvent>;
 export interface UpdateDetailsEventObject {
   name: string;
   symbol: string;
-  decimals: number;
 }
 export type UpdateDetailsEvent = TypedEvent<
-  [string, string, number],
+  [string, string],
   UpdateDetailsEventObject
 >;
 
@@ -368,6 +367,9 @@ export interface BridgeToken extends BaseContract {
     ): Promise<ContractTransaction>;
 
     initialize(
+      _decimals: PromiseOrValue<BigNumberish>,
+      _defaultName: PromiseOrValue<string>,
+      _defaultSymbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -404,7 +406,6 @@ export interface BridgeToken extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      _newDecimals: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -478,6 +479,9 @@ export interface BridgeToken extends BaseContract {
   ): Promise<ContractTransaction>;
 
   initialize(
+    _decimals: PromiseOrValue<BigNumberish>,
+    _defaultName: PromiseOrValue<string>,
+    _defaultSymbol: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -514,7 +518,6 @@ export interface BridgeToken extends BaseContract {
   setDetails(
     _newName: PromiseOrValue<string>,
     _newSymbol: PromiseOrValue<string>,
-    _newDecimals: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -587,7 +590,12 @@ export interface BridgeToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    initialize(overrides?: CallOverrides): Promise<void>;
+    initialize(
+      _decimals: PromiseOrValue<BigNumberish>,
+      _defaultName: PromiseOrValue<string>,
+      _defaultSymbol: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     mint(
       _to: PromiseOrValue<string>,
@@ -620,7 +628,6 @@ export interface BridgeToken extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      _newDecimals: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -687,15 +694,13 @@ export interface BridgeToken extends BaseContract {
       value?: null
     ): TransferEventFilter;
 
-    "UpdateDetails(string,string,uint8)"(
+    "UpdateDetails(string,string)"(
       name?: PromiseOrValue<string> | null,
-      symbol?: PromiseOrValue<string> | null,
-      decimals?: PromiseOrValue<BigNumberish> | null
+      symbol?: PromiseOrValue<string> | null
     ): UpdateDetailsEventFilter;
     UpdateDetails(
       name?: PromiseOrValue<string> | null,
-      symbol?: PromiseOrValue<string> | null,
-      decimals?: PromiseOrValue<BigNumberish> | null
+      symbol?: PromiseOrValue<string> | null
     ): UpdateDetailsEventFilter;
   };
 
@@ -742,6 +747,9 @@ export interface BridgeToken extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
+      _decimals: PromiseOrValue<BigNumberish>,
+      _defaultName: PromiseOrValue<string>,
+      _defaultSymbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -778,7 +786,6 @@ export interface BridgeToken extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      _newDecimals: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -853,6 +860,9 @@ export interface BridgeToken extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
+      _decimals: PromiseOrValue<BigNumberish>,
+      _defaultName: PromiseOrValue<string>,
+      _defaultSymbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -889,7 +899,6 @@ export interface BridgeToken extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      _newDecimals: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

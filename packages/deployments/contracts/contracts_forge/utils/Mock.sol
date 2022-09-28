@@ -302,7 +302,11 @@ contract MockTokenRegistry is ITokenRegistry {
     return true;
   }
 
-  function ensureLocalToken(uint32 _domain, bytes32 _id) external pure returns (address _local) {
+  function ensureLocalToken(
+    uint32 _domain,
+    bytes32 _id,
+    uint8 _decimals
+  ) external pure returns (address _local) {
     return address(42);
   }
 
@@ -387,13 +391,28 @@ contract MockConnector is SpokeConnector, IHubConnector {
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
+    address _merkle,
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
-    uint256 _reserveGas
+    uint256 _reserveGas,
+    uint256 _delayBlocks,
+    address _watcherManager
   )
     ProposedOwnable()
-    SpokeConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas, _processGas, _reserveGas)
+    SpokeConnector(
+      _domain,
+      _mirrorDomain,
+      _amb,
+      _rootManager,
+      _mirrorConnector,
+      _mirrorGas,
+      _processGas,
+      _reserveGas,
+      _delayBlocks,
+      _merkle,
+      _watcherManager
+    )
   {
     _setOwner(msg.sender);
     verified = true;
@@ -410,7 +429,6 @@ contract MockConnector is SpokeConnector, IHubConnector {
 
   function sendMessage(bytes memory _data) external onlyRootManager {
     _sendMessage(_data);
-    emit MessageSent(_data, msg.sender);
   }
 
   function _sendMessage(bytes memory _data) internal override {
@@ -422,11 +440,11 @@ contract MockConnector is SpokeConnector, IHubConnector {
     lastReceived = keccak256(_data);
     if (updatesAggregate) {
       // FIXME: when using this.update it sets caller to address(this) not AMB
-      aggregateRoot = bytes32(_data);
+      aggregateRootCurrent = bytes32(_data);
+      aggregateRootPending = bytes32(_data);
     } else {
-      RootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, bytes32(_data));
+      RootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
     }
-    emit MessageProcessed(_data, msg.sender);
   }
 
   function _verifySender(address _expected) internal override returns (bool) {

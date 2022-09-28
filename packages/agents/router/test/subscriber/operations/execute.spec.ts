@@ -258,12 +258,6 @@ describe("Operations:Execute", () => {
       expect(mockSendBid).to.not.be.called;
     });
 
-    it("should return early if slow path", async () => {
-      await execute({ ...mockXTransfer, xparams: { ...mockXTransfer.xparams } }, requestContext);
-      expect(mockSubContext.adapters.subgraph.getAssetBalance).to.not.be.called;
-      expect(mockSendBid).to.not.be.called;
-    });
-
     it("should not sendBid if no liquidity", async () => {
       (mockSubContext.adapters.subgraph.getAssetBalance as SinonStub).resolves(constants.Zero);
 

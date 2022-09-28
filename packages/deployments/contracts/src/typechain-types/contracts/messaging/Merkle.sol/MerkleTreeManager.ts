@@ -6,11 +6,17 @@ import type {
   BigNumber,
   BytesLike,
   CallOverrides,
+  ContractTransaction,
+  Overrides,
   PopulatedTransaction,
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -22,20 +28,71 @@ import type {
 
 export interface MerkleTreeManagerInterface extends utils.Interface {
   functions: {
+    "arborist()": FunctionFragment;
+    "branch()": FunctionFragment;
     "count()": FunctionFragment;
+    "initialize()": FunctionFragment;
+    "insert(bytes32)": FunctionFragment;
+    "root()": FunctionFragment;
+    "setArborist(address)": FunctionFragment;
     "tree()": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "count" | "tree"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic:
+      | "arborist"
+      | "branch"
+      | "count"
+      | "initialize"
+      | "insert"
+      | "root"
+      | "setArborist"
+      | "tree"
+  ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: "arborist", values?: undefined): string;
+  encodeFunctionData(functionFragment: "branch", values?: undefined): string;
   encodeFunctionData(functionFragment: "count", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "insert",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(functionFragment: "root", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "setArborist",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(functionFragment: "tree", values?: undefined): string;
 
+  decodeFunctionResult(functionFragment: "arborist", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "branch", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "insert", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "root", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setArborist",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "tree", data: BytesLike): Result;
 
-  events: {};
+  events: {
+    "Initialized(uint8)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
 }
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface MerkleTreeManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -64,33 +121,134 @@ export interface MerkleTreeManager extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    arborist(overrides?: CallOverrides): Promise<[string]>;
+
+    branch(overrides?: CallOverrides): Promise<[string[]]>;
+
     count(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    initialize(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    insert(
+      leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    root(overrides?: CallOverrides): Promise<[string]>;
+
+    setArborist(
+      newArborist: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     tree(
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { count: BigNumber }>;
   };
 
+  arborist(overrides?: CallOverrides): Promise<string>;
+
+  branch(overrides?: CallOverrides): Promise<string[]>;
+
   count(overrides?: CallOverrides): Promise<BigNumber>;
+
+  initialize(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  insert(
+    leaf: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  root(overrides?: CallOverrides): Promise<string>;
+
+  setArborist(
+    newArborist: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   tree(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
+    arborist(overrides?: CallOverrides): Promise<string>;
+
+    branch(overrides?: CallOverrides): Promise<string[]>;
+
     count(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(overrides?: CallOverrides): Promise<void>;
+
+    insert(
+      leaf: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string, BigNumber] & { _root: string; _count: BigNumber }>;
+
+    root(overrides?: CallOverrides): Promise<string>;
+
+    setArborist(
+      newArborist: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     tree(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
-  filters: {};
+  filters: {
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+  };
 
   estimateGas: {
+    arborist(overrides?: CallOverrides): Promise<BigNumber>;
+
+    branch(overrides?: CallOverrides): Promise<BigNumber>;
+
     count(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    insert(
+      leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    root(overrides?: CallOverrides): Promise<BigNumber>;
+
+    setArborist(
+      newArborist: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     tree(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    arborist(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    branch(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     count(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initialize(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    insert(
+      leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    root(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    setArborist(
+      newArborist: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     tree(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };

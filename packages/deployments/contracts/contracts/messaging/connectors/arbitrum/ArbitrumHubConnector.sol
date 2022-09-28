@@ -110,7 +110,7 @@ contract ArbitrumHubConnector is HubConnector {
     bytes32 _data = _message.callData.ref(0).index(4, 32);
 
     // Update root manager
-    IRootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, _data);
+    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _data);
 
     // Emit event
     emit MessageProcessed(_message.callData, msg.sender);

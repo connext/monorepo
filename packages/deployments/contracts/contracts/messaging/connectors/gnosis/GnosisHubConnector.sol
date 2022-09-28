@@ -37,7 +37,7 @@ contract GnosisHubConnector is HubConnector, GnosisBase {
     // send message via AMB, should call "processMessage" which will update aggregate root
     GnosisAmb(AMB).requireToPassMessage(
       mirrorConnector,
-      abi.encodeWithSelector(Connector.processMessage.selector, address(this), _data),
+      abi.encodeWithSelector(Connector.processMessage.selector, _data),
       mirrorGas
     );
   }
@@ -50,11 +50,9 @@ contract GnosisHubConnector is HubConnector, GnosisBase {
     require(_verifySender(mirrorConnector), "!l2Connector");
     // ensure it is headed to this domain
     require(GnosisAmb(AMB).destinationChainId() == block.chainid, "!destinationChain");
-    // ensure it came from mainnet
-    require(GnosisAmb(AMB).sourceChainId() == 100, "!sourceChainId");
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
     // update the root on the root manager
-    IRootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, bytes32(_data));
+    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
   }
 }

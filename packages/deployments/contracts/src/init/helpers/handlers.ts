@@ -7,9 +7,9 @@ import { updateIfNeeded } from "./tx";
 
 export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
   const { protocol } = args;
-  // Each handler will need to have enrolled the handlers of all other domains.
-  // For example, each BridgeRouter should have enrolled the BridgeRouter of every other domain.
-  for (const handlerName of ["BridgeRouter", "RelayerFeeRouter"]) {
+  // Each Connext will need to have enrolled other connext instances of all other domains.
+
+  for (const handlerName of ["RelayerFeeRouter"]) {
     // Round up the specific Handler type we're concerned with for each domain.
     // e.g. Get every BridgeRouter for every domain.
     const handlers: { deployment: Deployment; network: NetworkStack }[] = [];
@@ -35,6 +35,32 @@ export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
           write: { method: "enrollRemoteRouter", args: [remoteHandler.network.domain, canonized] },
         });
       }
+    }
+  }
+
+  // enrollRemoteRouter of Connext
+  const connextHandlers: { deployment: Deployment; network: NetworkStack }[] = [];
+  for (const network of protocol.networks) {
+    connextHandlers.push({
+      deployment: network.deployments.Connext,
+      network,
+    });
+  }
+
+  // For every Handler contract in the list, enroll every other Handler.
+  for (let i = 0; i < connextHandlers.length; i++) {
+    const targetHandler = connextHandlers[i];
+    const remoteHandlers = connextHandlers.filter((_, j) => j !== i);
+
+    for (const remoteHandler of remoteHandlers) {
+      // Get the canonized address of the Handler we want to enroll (will be padded with 0-bytes).
+      const canonized = utils.hexlify(canonizeId(remoteHandler.deployment.address as BytesLike));
+      await updateIfNeeded({
+        deployment: targetHandler.deployment,
+        desired: remoteHandler.deployment.address,
+        read: { method: "remote", args: [remoteHandler.network.domain] },
+        write: { method: "enrollRemoteRouter", args: [remoteHandler.network.domain, canonized] },
+      });
     }
   }
 };

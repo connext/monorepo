@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {CallParams, AppStorage, TokenId} from "../libraries/LibConnextStorage.sol";
+import {CallParams, AppStorage, TokenId, Role} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 
 contract BaseConnextFacet {
@@ -20,6 +20,9 @@ contract BaseConnextFacet {
   error BaseConnextFacet__onlyBridgeRouter_notBridgeRouter();
   error BaseConnextFacet__onlyOwner_notOwner();
   error BaseConnextFacet__onlyProposed_notProposedOwner();
+  error BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter();
+  error BaseConnextFacet__onlyOwnerOrWatcher_notOwnerOrWatcher();
+  error BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin();
   error BaseConnextFacet__whenNotPaused_paused();
   error BaseConnextFacet__nonReentrant_reentrantCall();
   error BaseConnextFacet__getAdoptedAsset_notWhitelisted();
@@ -60,6 +63,33 @@ contract BaseConnextFacet {
    */
   modifier onlyProposed() {
     if (s._proposed != msg.sender) revert BaseConnextFacet__onlyProposed_notProposedOwner();
+    _;
+  }
+
+  /**
+   * @notice Throws if called by any account other than the owner and router role.
+   */
+  modifier onlyOwnerOrRouter() {
+    if (LibDiamond.contractOwner() != msg.sender && s.roles[msg.sender] != Role.Router)
+      revert BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter();
+    _;
+  }
+
+  /**
+   * @notice Throws if called by any account other than the owner and watcher role.
+   */
+  modifier onlyOwnerOrWatcher() {
+    if (LibDiamond.contractOwner() != msg.sender && s.roles[msg.sender] != Role.Watcher)
+      revert BaseConnextFacet__onlyOwnerOrWatcher_notOwnerOrWatcher();
+    _;
+  }
+
+  /**
+   * @notice Throws if called by any account other than the owner and admin role.
+   */
+  modifier onlyOwnerOrAdmin() {
+    if (LibDiamond.contractOwner() != msg.sender && s.roles[msg.sender] != Role.Admin)
+      revert BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin();
     _;
   }
 

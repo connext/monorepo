@@ -234,6 +234,10 @@ contract BridgeFacet is BaseConnextFacet {
     return s.approvedSequencers[_sequencer];
   }
 
+  function xAppConnectionManager() public view returns (address) {
+    return address(s.xAppConnectionManager);
+  }
+
   // ============ Admin Functions ==============
 
   /**
@@ -940,13 +944,13 @@ contract BridgeFacet is BaseConnextFacet {
   ) private returns (bytes32) {
     IBridgeToken _token = IBridgeToken(_local);
 
+    uint8 decimals = 18;
     // Get the formatted token ID and details hash.
     bytes29 _tokenId = BridgeMessage.formatTokenId(_canonical.domain, _canonical.id);
     bytes32 _detailsHash;
     if (_local != address(0)) {
-      _detailsHash = _isCanonical
-        ? BridgeMessage.getDetailsHash(_token.name(), _token.symbol(), _token.decimals())
-        : _token.detailsHash();
+      decimals = _token.decimals();
+      _detailsHash = _isCanonical ? BridgeMessage.getDetailsHash(_token.name(), _token.symbol()) : _token.detailsHash();
     }
 
     // Remove tokens from circulation on this chain if applicable.
@@ -961,7 +965,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // Format hook action.
-    bytes29 _action = BridgeMessage.formatTransfer(_amount, _detailsHash, _transferId);
+    bytes29 _action = BridgeMessage.formatTransfer(_amount, _detailsHash, _transferId, decimals);
     // Send message to destination chain bridge router.
     bytes32 _messageHash = IOutbox(s.xAppConnectionManager.home()).dispatch(
       _destination,

@@ -46,6 +46,7 @@ export type HubMessagingDeployments = {
   RootManager: Deployment;
   MainnetConnector: Deployment;
   HubConnectors: Deployment[];
+  WatcherManager: Deployment;
 };
 
 export type SpokeMessagingDeployments = {
@@ -57,7 +58,6 @@ export type DomainDeployments = {
   Connext: Deployment;
   // Handlers.
   handlers: {
-    BridgeRouter: Deployment; // TODO/NOTE: Will likely be combined with Connext in the future.
     RelayerFeeRouter: Deployment;
   };
   // Registry.
