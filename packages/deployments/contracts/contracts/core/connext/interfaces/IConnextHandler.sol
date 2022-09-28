@@ -11,7 +11,6 @@ import {SwapUtils} from "../libraries/SwapUtils.sol";
 
 import {IStableSwap} from "./IStableSwap.sol";
 import {IWeth} from "./IWeth.sol";
-import {ITokenRegistry} from "./ITokenRegistry.sol";
 import {IBridgeRouter} from "./IBridgeRouter.sol";
 
 import {IDiamondCut} from "./IDiamondCut.sol";
@@ -32,10 +31,6 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
   function adoptedToLocalPools(bytes32 _key) external view returns (IStableSwap);
 
   function adoptedToLocalPools(TokenId calldata _canonical) external view returns (IStableSwap);
-
-  function tokenRegistry() external view returns (ITokenRegistry);
-
-  function setTokenRegistry(address _tokenRegistry) external;
 
   function setupAsset(
     TokenId calldata _canonical,

@@ -3,15 +3,21 @@ pragma solidity 0.8.15;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
-import {BaseConnextFacet} from "./BaseConnextFacet.sol";
+import {UpgradeBeaconProxy} from "../../../shared/upgrade/UpgradeBeaconProxy.sol";
+import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
+
 import {TokenId} from "../libraries/LibConnextStorage.sol";
+import {Encoding} from "../libraries/Encoding.sol";
+import {AssetLogic} from "../libraries/AssetLogic.sol";
+
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IWeth} from "../interfaces/IWeth.sol";
-import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
+import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
+
+import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 contract TokenFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
-  error TokenFacet__setTokenRegistry_invalidTokenRegistry();
   error TokenFacet__addAssetId_nativeAsset();
   error TokenFacet__addAssetId_alreadyAdded();
   error TokenFacet__removeAssetId_notAdded();
@@ -19,12 +25,12 @@ contract TokenFacet is BaseConnextFacet {
   // ============ Events ============
 
   /**
-   * @notice Emitted when the tokenRegistry variable is updated
-   * @param oldTokenRegistry - The tokenRegistry old value
-   * @param newTokenRegistry - The tokenRegistry new value
-   * @param caller - The account that called the function
+   * @notice emitted when a representation token contract is deployed
+   * @param domain the domain of the chain where the canonical asset is deployed
+   * @param id the bytes32 address of the canonical token contract
+   * @param representation the address of the newly locally deployed representation contract
    */
-  event TokenRegistryUpdated(address oldTokenRegistry, address newTokenRegistry, address caller);
+  event TokenDeployed(uint32 indexed domain, bytes32 indexed id, address indexed representation);
 
   /**
    * @notice Emitted when a new stable-swap AMM is added for the local <> adopted token
@@ -82,12 +88,32 @@ contract TokenFacet is BaseConnextFacet {
     return canonical;
   }
 
+  function canonicalToRepresentation(bytes32 _key) public view returns (address) {
+    return _getRepresentationAsset(_key);
+  }
+
+  function canonicalToRepresentation(TokenId calldata _canonical) public view returns (address) {
+    return _getRepresentationAsset(_canonical.id, _canonical.domain);
+  }
+
+  function representationToCanonical(address _representation) public view returns (TokenId memory) {
+    TokenId memory canonical = TokenId(
+      s.representationToCanonical[_representation].domain,
+      s.representationToCanonical[_representation].id
+    );
+    return canonical;
+  }
+
+  function getLocalAndAdoptedToken(bytes32 _id, uint32 _domain) public view returns (address, address) {
+    return _getLocalAndAdoptedToken(_id, _domain);
+  }
+
   function approvedAssets(bytes32 _key) public view returns (bool) {
     return s.approvedAssets[_key];
   }
 
   function approvedAssets(TokenId calldata _canonical) public view returns (bool) {
-    return approvedAssets(_calculateCanonicalHash(_canonical));
+    return approvedAssets(AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain));
   }
 
   function adoptedToLocalPools(bytes32 _key) public view returns (IStableSwap) {
@@ -95,27 +121,10 @@ contract TokenFacet is BaseConnextFacet {
   }
 
   function adoptedToLocalPools(TokenId calldata _canonical) public view returns (IStableSwap) {
-    return adoptedToLocalPools(_calculateCanonicalHash(_canonical));
-  }
-
-  function tokenRegistry() public view returns (ITokenRegistry) {
-    return s.tokenRegistry;
+    return adoptedToLocalPools(AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain));
   }
 
   // ============ Admin functions ============
-
-  /**
-   * @notice Updates the token registry
-   * @param _tokenRegistry The new token registry address
-   */
-  function setTokenRegistry(address _tokenRegistry) external onlyOwner {
-    address old = address(s.tokenRegistry);
-    if (old == _tokenRegistry || !Address.isContract(_tokenRegistry))
-      revert TokenFacet__setTokenRegistry_invalidTokenRegistry();
-
-    s.tokenRegistry = ITokenRegistry(_tokenRegistry);
-    emit TokenRegistryUpdated(old, _tokenRegistry, msg.sender);
-  }
 
   /**
    * @notice Used to add supported assets. This is an admin only function
@@ -133,6 +142,7 @@ contract TokenFacet is BaseConnextFacet {
    */
   function setupAsset(
     TokenId calldata _canonical,
+    uint8 _canonicalDecimals,
     address _adoptedAssetId,
     address _stableSwapPool
   ) external onlyOwner {
@@ -140,7 +150,7 @@ contract TokenFacet is BaseConnextFacet {
     if (_adoptedAssetId == address(0)) revert TokenFacet__addAssetId_nativeAsset();
 
     // Get the key
-    bytes32 key = _calculateCanonicalHash(_canonical);
+    bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
 
     // Sanity check: needs approval
     if (s.approvedAssets[key]) revert TokenFacet__addAssetId_alreadyAdded();
@@ -152,10 +162,16 @@ contract TokenFacet is BaseConnextFacet {
     s.adoptedToCanonical[_adoptedAssetId].domain = _canonical.domain;
     s.adoptedToCanonical[_adoptedAssetId].id = _canonical.id;
 
+    // Deploy the representation token if on a remote domain
+    address local;
+    if (_canonical.domain != s.domain) {
+      local = _ensureRepresentationDeployed(key, _canonical.id, _canonical.domain, _canonicalDecimals);
+    } else {
+      local = TypeCasts.bytes32ToAddress(_canonical.id);
+    }
+
     // Update the canonical mapping
     s.canonicalToAdopted[key] = _adoptedAssetId;
-
-    address local = s.tokenRegistry.getLocalAddress(_canonical.domain, _canonical.id);
 
     // Emit event
     emit AssetAdded(key, _canonical.id, _canonical.domain, _adoptedAssetId, local, msg.sender);
@@ -169,7 +185,7 @@ contract TokenFacet is BaseConnextFacet {
    * @dev Must pass in the _canonical information so it can be emitted in event
    */
   function addStableSwapPool(TokenId calldata _canonical, address _stableSwapPool) external onlyOwner {
-    bytes32 key = _calculateCanonicalHash(_canonical);
+    bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
     _addStableSwapPool(_canonical, _stableSwapPool, key);
   }
 
@@ -188,7 +204,7 @@ contract TokenFacet is BaseConnextFacet {
    * @param _adoptedAssetId - Corresponding adopted asset to remove
    */
   function removeAssetId(TokenId calldata _canonical, address _adoptedAssetId) external onlyOwner {
-    bytes32 key = _calculateCanonicalHash(_canonical);
+    bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
     _removeAssetId(key, _adoptedAssetId);
   }
 
@@ -234,5 +250,92 @@ contract TokenFacet is BaseConnextFacet {
 
     // Emit event
     emit AssetRemoved(_key, msg.sender);
+  }
+
+  /**
+   * @notice Deploy and initialize a new token contract
+   * @dev Each token contract is a proxy which
+   * points to the token upgrade beacon
+   * @return _token the address of the token contract
+   */
+  function _ensureRepresentationDeployed(
+    bytes32 _key,
+    bytes32 _id,
+    uint32 _domain,
+    uint8 _decimals
+  ) internal returns (address _token) {
+    // if there is already a token deployed, do nothing
+    _token = s.canonicalToRepresentation[_key];
+    if (_token == address(0)) {
+      // deploy and initialize the token contract
+      _token = address(new UpgradeBeaconProxy(s.tokenBeacon, ""));
+      // set the default token name & symbol
+      (string memory _name, string memory _symbol) = _defaultDetails(_domain, _id);
+      // initialize the token with decimals and default name
+      IBridgeToken(_token).initialize(_decimals, _name, _symbol);
+      // store token in mappings
+      _setCanonicalToRepresentation(_domain, _id, _token);
+      _setRepresentationToCanonical(_domain, _id, _token);
+      // emit event upon deploying new token
+      emit TokenDeployed(_domain, _id, _token);
+    }
+  }
+
+  /**
+   * @notice Get default name and details for a token
+   * Sets name to "nomad.[domain].[id]"
+   * and symbol to
+   * @param _domain the domain of the canonical token
+   * @param _id the bytes32 ID pf the canonical of the token
+   */
+  function _defaultDetails(uint32 _domain, bytes32 _id)
+    internal
+    pure
+    returns (string memory _name, string memory _symbol)
+  {
+    // get the first and second half of the token ID
+    (, uint256 _secondHalfId) = Encoding.encodeHex(uint256(_id));
+    // encode the default token name: "[decimal domain].[hex 4 bytes of ID]"
+    _name = string(
+      abi.encodePacked(
+        Encoding.decimalUint32(_domain), // 10
+        ".", // 1
+        uint32(_secondHalfId) // 4
+      )
+    );
+    // allocate the memory for a new 32-byte string
+    _symbol = new string(10 + 1 + 4);
+    assembly {
+      mstore(add(_symbol, 0x20), mload(add(_name, 0x20)))
+    }
+  }
+
+  /**
+   * @notice Set the primary representation for a given canonical
+   * @param _domain the domain of the canonical token
+   * @param _id the bytes32 ID pf the canonical of the token
+   * @param _representation the address of the representation token
+   */
+  function _setRepresentationToCanonical(
+    uint32 _domain,
+    bytes32 _id,
+    address _representation
+  ) internal {
+    s.representationToCanonical[_representation].domain = _domain;
+    s.representationToCanonical[_representation].id = _id;
+  }
+
+  /**
+   * @notice Set the canonical token for a given representation
+   * @param _domain the domain of the canonical token
+   * @param _id the bytes32 ID pf the canonical of the token
+   * @param _representation the address of the representation token
+   */
+  function _setCanonicalToRepresentation(
+    uint32 _domain,
+    bytes32 _id,
+    address _representation
+  ) internal {
+    s.canonicalToRepresentation[AssetLogic.calculateCanonicalHash(_id, _domain)] = _representation;
   }
 }

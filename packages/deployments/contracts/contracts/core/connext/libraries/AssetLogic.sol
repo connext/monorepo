@@ -5,10 +5,11 @@ import {SafeERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/Safe
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
+
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 
 import {IWeth} from "../interfaces/IWeth.sol";
-import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 
 import {LibConnextStorage, AppStorage, TokenId} from "./LibConnextStorage.sol";
 import {SwapUtils} from "./SwapUtils.sol";
@@ -196,7 +197,7 @@ library AssetLogic {
     }
 
     // Swap the asset to the proper local asset.
-    bytes32 key = keccak256(abi.encode(_canonicalId, _canonicalDomain));
+    bytes32 key = calculateCanonicalHash(_canonicalId, _canonicalDomain);
     (uint256 out, ) = _swapAsset(
       key,
       _asset,
@@ -448,14 +449,15 @@ library AssetLogic {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // Get the token id
-    (uint32 domain, bytes32 id) = s.tokenRegistry.getTokenId(_asset);
-    address local = s.tokenRegistry.getLocalAddress(domain, id);
+    TokenId memory canonical = getCanonicalTokenId(_asset, s);
+    // Get local asset
+    address local = getLocalAsset(canonical.id, canonical.domain, s);
 
     // If the asset is the local asset, no swap needed
     if (_asset == local) {
       return (_amount, _asset);
     }
-    bytes32 key = keccak256(abi.encode(id, domain));
+    bytes32 key = calculateCanonicalHash(canonical.id, canonical.domain);
 
     // Otherwise, calculate swap the asset to the proper local asset
     if (stableSwapPoolExist(key)) {
@@ -468,5 +470,83 @@ library AssetLogic {
 
       return (pool.calculateSwapFromAddress(_asset, local, _amount), local);
     }
+  }
+
+  /**
+   * @notice Gets the canonical information for a given candidate.
+   * @dev First checks the `address(0)` convention, then checks if the asset given is the
+   * adopted asset, then calculates the local address
+   */
+  function getCanonicalTokenId(address _candidate, AppStorage storage s)
+    internal
+    view
+    returns (TokenId memory _canonical)
+  {
+    // if candidate is address(0), then the _canonical is empty
+    if (_candidate == address(0)) {
+      return _canonical;
+    }
+    // candidate could be adopted
+    _canonical = s.adoptedToCanonical[_candidate];
+    if (_canonical.domain != 0) {
+      // candidate is adopted, return canonical
+      return _canonical;
+    }
+    // candidate was not adopted, could be the local address.
+    // if this domain is the canonical domain, then the local == canonical
+    // otherwise, it will be the representation asset
+    if (isLocalOrigin(_candidate, s)) {
+      // the token originates on this domain, canonical information is the information
+      // of the candidate
+      _canonical.domain = s.domain;
+      _canonical.id = TypeCasts.addressToBytes32(_candidate);
+    } else {
+      // on a remote domain, return the representation
+      _canonical = s.representationToCanonical[_candidate];
+    }
+  }
+
+  /**
+   * @notice Determine if token is of local origin
+   * @return TRUE if token is locally originating
+   */
+  function isLocalOrigin(address _token, AppStorage storage s) internal view returns (bool) {
+    // If the contract WAS deployed by the TokenRegistry,
+    // it will be stored in this mapping.
+    // If so, it IS NOT of local origin
+    if (s.representationToCanonical[_token].domain != 0) {
+      return false;
+    }
+    // If the contract WAS NOT deployed by the TokenRegistry,
+    // and the contract exists, then it IS of local origin
+    // Return true if code exists at _addr
+    uint256 _codeSize;
+    // solhint-disable-next-line no-inline-assembly
+    assembly {
+      _codeSize := extcodesize(_token)
+    }
+    return _codeSize != 0;
+  }
+
+  function getLocalAsset(
+    bytes32 _id,
+    uint32 _domain,
+    AppStorage storage s
+  ) internal view returns (address _token) {
+    if (_domain == s.domain) {
+      // Token is of local origin
+      _token = TypeCasts.bytes32ToAddress(_id);
+    } else {
+      // Token is a representation of a token of remote origin
+      _token = s.canonicalToRepresentation[calculateCanonicalHash(_id, _domain)];
+    }
+  }
+
+  /**
+   * @notice Calculates the hash of canonical id and domain
+   * @dev This hash is used as the key for many asset-related mappings
+   */
+  function calculateCanonicalHash(bytes32 _id, uint32 _domain) internal pure returns (bytes32) {
+    return keccak256(abi.encode(_id, _domain));
   }
 }

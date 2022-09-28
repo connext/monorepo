@@ -24,7 +24,6 @@ import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 import {Router} from "../../Router.sol";
 
 import {IWeth} from "../interfaces/IWeth.sol";
-import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 import {IXReceiver} from "../interfaces/IXReceiver.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
 import {IBridgeHook} from "../interfaces/IBridgeHook.sol";
@@ -284,25 +283,6 @@ contract BridgeFacet is BaseConnextFacet {
     emit RemoteAdded(_domain, TypeCasts.bytes32ToAddress(_router), msg.sender);
   }
 
-  /**
-   * @notice Enroll a custom token. This allows projects to work with
-   *         governance to specify a custom representation.
-   * @param _domain the domain of the canonical Token to enroll
-   * @param _id the bytes32 ID of the canonical of the Token to enroll
-   * @param _custom the address of the custom implementation to use.
-   */
-  function enrollCustom(
-    uint32 _domain,
-    bytes32 _id,
-    address _custom
-  ) external onlyOwner {
-    // Sanity check. Ensures that human error doesn't cause an
-    // unpermissioned contract to be enrolled.
-    IBridgeToken(_custom).mint(address(this), 1);
-    IBridgeToken(_custom).burn(address(this), 1);
-    s.tokenRegistry.enrollCustom(_domain, _id, _custom);
-  }
-
   // ============ Public Functions: Bridge ==============
 
   function xcall(
@@ -391,7 +371,7 @@ contract BridgeFacet is BaseConnextFacet {
     // NOTE: Asset will be adopted unless specified to `receiveLocal` in params.
     (uint256 amountOut, address asset, address local) = _handleExecuteLiquidity(
       transferId,
-      _calculateCanonicalHash(_args.params.canonicalId, _args.params.canonicalDomain),
+      AssetLogic.calculateCanonicalHash(_args.params.canonicalId, _args.params.canonicalDomain),
       !reconciled,
       _args
     );
@@ -506,35 +486,13 @@ contract BridgeFacet is BaseConnextFacet {
       // whitelisted.
       if (_asset != address(0)) {
         // Retrieve the canonical token information.
-        canonical = s.adoptedToCanonical[_asset];
+        canonical = _getApprovedCanonicalId(_asset);
 
-        if (canonical.id == bytes32(0)) {
-          // Here, the asset is *not* the adopted asset. The only other valid option
-          // is for this asset to be the local asset (e.g. transferring madEth on optimism).
-          // NOTE: It *cannot* be the canonical asset; the canonical asset is only used on
-          // the canonical domain, where it is *also* the adopted asset.
-          if (s.tokenRegistry.isLocalOrigin(_asset)) {
-            // Revert, using a token of local origin that is not registered as adopted.
-            revert BridgeFacet__xcall_notSupportedAsset();
-          }
-          // The input asset is the local/representational asset.
-          local = _asset;
+        // Get the local address
+        local = _getLocalAsset(canonical.id, canonical.domain);
 
-          // Get the global Token ID for this token from the token registry.
-          (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_asset);
-          canonical = TokenId(canonicalDomain, canonicalId);
-        } else {
-          // Input asset is an adopted asset.
-          // It could be the canonical asset, or it could be a representational asset if the
-          // representational asset is adopted on this domain.
-
-          // Retrieve the local asset address.
-          local = s.tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
-          // Determine whether this is the canonical asset. If the TokenRegistry returned the input
-          // asset as the local asset, and we're on the canonical domain, then this must be the
-          // canonical asset.
-          isCanonical = _params.originDomain == canonical.domain && local == _asset;
-        }
+        // Set boolean flag
+        isCanonical = _params.originDomain == canonical.domain && local == _asset;
 
         // Update CallParams to reflect the canonical token information.
         _params.canonicalDomain = canonical.domain;
@@ -723,7 +681,7 @@ contract BridgeFacet is BaseConnextFacet {
     s.routedTransfers[_transferId] = _args.routers;
 
     // Get the local asset contract address.
-    address local = s.tokenRegistry.getLocalAddress(_args.params.canonicalDomain, _args.params.canonicalId);
+    address local = _getLocalAsset(_args.params.canonicalId, _args.params.canonicalDomain);
 
     // If this is a zero-value transfer, short-circuit remaining logic.
     if (_args.params.bridgedAmt == 0) {

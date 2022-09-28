@@ -233,9 +233,7 @@ contract InboxFacet is BaseConnextFacet {
     bytes29 _action
   ) internal returns (address, uint256) {
     // Get the token contract for the given tokenId on this chain.
-    // NOTE: If the token is of remote origin and there is no existing representation token contract,
-    // the TokenRegistry will deploy a new contract!
-    address _token = s.tokenRegistry.ensureLocalToken(_tokenId.domain(), _tokenId.id(), _action.decimals());
+    address _token = _getLocalAsset(_tokenId.id(), _tokenId.domain());
 
     // Load amount once.
     uint256 _amount = _action.amnt();
@@ -246,7 +244,7 @@ contract InboxFacet is BaseConnextFacet {
     }
 
     // Mint the tokens into circulation on this chain.
-    if (!s.tokenRegistry.isLocalOrigin(_token)) {
+    if (!_isLocalOrigin(_token)) {
       // If the token is of remote origin, mint the representational asset into circulation here.
       // NOTE: The bridge tokens should be distributed to their intended recipient outside
       IBridgeToken(_token).mint(address(this), _amount);

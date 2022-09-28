@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {CallParams, AppStorage, TokenId, Role} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
+import {AssetLogic} from "../libraries/AssetLogic.sol";
 
 contract BaseConnextFacet {
   AppStorage internal s;
@@ -26,6 +27,7 @@ contract BaseConnextFacet {
   error BaseConnextFacet__whenNotPaused_paused();
   error BaseConnextFacet__nonReentrant_reentrantCall();
   error BaseConnextFacet__getAdoptedAsset_notWhitelisted();
+  error BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
 
   // ============ Modifiers ============
 
@@ -120,7 +122,7 @@ contract BaseConnextFacet {
    * @notice Returns the adopted assets for given canonical information
    */
   function _getAdoptedAsset(bytes32 _canonicalId, uint32 _canonicalDomain) internal view returns (address) {
-    return _getAdoptedAsset(_calculateCanonicalHash(_canonicalId, _canonicalDomain));
+    return _getAdoptedAsset(AssetLogic.calculateCanonicalHash(_canonicalId, _canonicalDomain));
   }
 
   /**
@@ -135,26 +137,27 @@ contract BaseConnextFacet {
   }
 
   /**
+   * @notice Returns the adopted assets for given canonical information
+   */
+  function _getRepresentationAsset(bytes32 _canonicalId, uint32 _canonicalDomain) internal view returns (address) {
+    return _getRepresentationAsset(AssetLogic.calculateCanonicalHash(_canonicalId, _canonicalDomain));
+  }
+
+  /**
+   * @notice Returns the adopted assets for given canonical information
+   */
+  function _getRepresentationAsset(bytes32 _key) internal view returns (address) {
+    address representation = s.canonicalToRepresentation[_key];
+    // If this is address(0), then there is no mintable token for this asset on this
+    // domain
+    return representation;
+  }
+
+  /**
    * @notice Calculates a transferId
    */
   function _calculateTransferId(CallParams memory _params) internal pure returns (bytes32) {
     return keccak256(abi.encode(_params));
-  }
-
-  /**
-   * @notice Calculates the hash of canonical id and domain
-   * @dev This hash is used as the key for many asset-related mappings
-   */
-  function _calculateCanonicalHash(bytes32 _id, uint32 _domain) internal pure returns (bytes32) {
-    return keccak256(abi.encode(_id, _domain));
-  }
-
-  /**
-   * @notice Calculates the hash of canonical id and domain
-   * @dev This is an alias to allow usage of `TokenId` struct directly
-   */
-  function _calculateCanonicalHash(TokenId calldata _canonical) internal pure returns (bytes32) {
-    return _calculateCanonicalHash(_canonical.id, _canonical.domain);
   }
 
   /**
@@ -167,5 +170,36 @@ contract BaseConnextFacet {
    */
   function _originAndNonce(uint32 _origin, uint32 _nonce) internal pure returns (uint64) {
     return (uint64(_origin) << 32) | _nonce;
+  }
+
+  function _getLocalAsset(bytes32 _id, uint32 _domain) internal view returns (address _token) {
+    _token = AssetLogic.getLocalAsset(_id, _domain, s);
+  }
+
+  function _getCanonicalTokenId(address _candidate) internal view returns (TokenId memory) {
+    return AssetLogic.getCanonicalTokenId(_candidate, s);
+  }
+
+  function _getLocalAndAdoptedToken(bytes32 _id, uint32 _domain)
+    internal
+    view
+    returns (address _local, address _adopted)
+  {
+    _local = AssetLogic.getLocalAsset(_id, _domain, s);
+    _adopted = _getAdoptedAsset(_id, _domain);
+  }
+
+  function _isLocalOrigin(address _token) internal view returns (bool) {
+    return AssetLogic.isLocalOrigin(_token, s);
+  }
+
+  function _getApprovedCanonicalId(address _candidate) internal view returns (TokenId memory _canonical) {
+    _canonical = _getCanonicalTokenId(_candidate);
+    if (
+      !_isAssetWhitelistRemoved() &&
+      !s.approvedAssets[AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain)]
+    ) {
+      revert BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
+    }
   }
 }
