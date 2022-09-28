@@ -46,6 +46,7 @@ export type HubMessagingDeployments = {
   RootManager: Deployment;
   MainnetConnector: Deployment;
   HubConnectors: Deployment[];
+  WatcherManager: Deployment;
 };
 
 export type SpokeMessagingDeployments = {
