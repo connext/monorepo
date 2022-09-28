@@ -30,12 +30,12 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
         _l1Domain,
         _amb,
         _rootManager,
-        _merkle,
         _l1Connector,
         _mirrorGas,
         _processGas,
         _reserveGas,
         0, // delay blocks
+        _merkle,
         address(0) // watcher manager
       )
     );

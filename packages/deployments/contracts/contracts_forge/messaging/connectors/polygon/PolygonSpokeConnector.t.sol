@@ -25,12 +25,12 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
         _l1Domain,
         _amb,
         _rootManager,
-        address(0),
         _l1Connector,
         _mirrorGas,
         _processGas,
         _reserveGas,
         0, // uint256 _delayBlocks
+        address(0),
         address(1) // watcher manager
       )
     );
