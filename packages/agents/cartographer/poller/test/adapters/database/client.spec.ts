@@ -302,13 +302,13 @@ describe("Database client", () => {
       .fill(0)
       .map((_a, index) => {
         const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-        t.nonce = index + 1;
+        t.xparams.nonce = index + 1;
         t.origin!.xcall.timestamp = index + 1;
         return t;
       });
     await saveTransfers(transfers, pool);
     const set1 = await getTransfersByStatus(XTransferStatus.Executed, 4, 0, "ASC", pool);
-    expect(set1[0].nonce).to.eq(1);
+    expect(set1[0].xparams.nonce).to.eq(1);
   });
 
   it("should get transfer by status with limit and descending order", async () => {
@@ -316,13 +316,13 @@ describe("Database client", () => {
       .fill(0)
       .map((_a, index) => {
         const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-        t.nonce = index + 1;
+        t.xparams.nonce = index + 1;
         t.origin!.xcall.timestamp = index + 1;
         return t;
       });
     await saveTransfers(transfers, pool);
     const set1 = await getTransfersByStatus(XTransferStatus.Executed, 4, 0, "DESC", pool);
-    expect(set1[0].nonce).to.eq(10);
+    expect(set1[0].xparams.nonce).to.eq(10);
   });
 
   it("should get transfer by status with limit", async () => {
@@ -330,7 +330,7 @@ describe("Database client", () => {
       .fill(0)
       .map((_a, index) => {
         const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-        t.nonce = index + 1;
+        t.xparams.nonce = index + 1;
         t.origin!.xcall.timestamp = index + 1;
         return t;
       });
@@ -344,14 +344,14 @@ describe("Database client", () => {
       .fill(0)
       .map((_a, index) => {
         const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-        t.nonce = index + 1;
+        t.xparams.nonce = index + 1;
         t.origin!.xcall.timestamp = index + 1;
         return t;
       });
     await saveTransfers(transfers, pool);
     const set1 = await getTransfersByStatus(XTransferStatus.Executed, 1, 9, "DESC", pool);
     expect(set1.length).to.eq(1);
-    expect(set1[0].nonce).to.eq(1);
+    expect(set1[0].xparams.nonce).to.eq(1);
   });
 
   it("should save valid boolean fields", async () => {
