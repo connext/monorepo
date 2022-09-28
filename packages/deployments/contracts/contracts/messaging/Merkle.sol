@@ -67,6 +67,11 @@ contract MerkleTreeManager is Initializable {
     return tree.count;
   }
 
+  // ======== Initializer =========
+  function initialize() public initializer {
+    __MerkleTreeManager_init();
+  }
+
   /**
    * @dev Initializes MerkleTreeManager instance. Sets the msg.sender as the initial permissioned
    */
