@@ -3,7 +3,6 @@ pragma solidity 0.8.15;
 
 import {SendOutboundRootResolver} from "../../../contracts/messaging/connectors/SendOutboundRootResolver.sol";
 import {SpokeConnector} from "../../../contracts/messaging/connectors/SpokeConnector.sol";
-import {ISpokeConnector} from "../../../contracts/messaging/interfaces/ISpokeConnector.sol";
 import {IResolver} from "../../../contracts/messaging/interfaces/IResolver.sol";
 
 import "../../utils/ConnectorHelper.sol";
@@ -32,7 +31,7 @@ contract SendOutboundRootResolverTest is ForgeHelper {
     uint256 execute_timestamp = block.timestamp + 1000;
     vm.warp(execute_timestamp);
 
-    vm.mockCall(connector, abi.encodeWithSelector(ISpokeConnector.outboundRoot.selector), abi.encode(outboundRoot));
+    vm.mockCall(connector, abi.encodeWithSelector(SpokeConnector.outboundRoot.selector), abi.encode(outboundRoot));
     _resolver.sendMessage();
 
     assertEq(_resolver.lastRootSent(), outboundRoot);
@@ -64,14 +63,14 @@ contract SendOutboundRootResolverTest is ForgeHelper {
     uint256 execute_timestamp = block.timestamp + 1000;
     vm.warp(execute_timestamp);
 
-    vm.mockCall(connector, abi.encodeWithSelector(ISpokeConnector.outboundRoot.selector), abi.encode(outboundRoot));
+    vm.mockCall(connector, abi.encodeWithSelector(SpokeConnector.outboundRoot.selector), abi.encode(outboundRoot));
     _resolver.sendMessage();
 
     uint256 good_interval = execution_interval + 1;
     vm.warp(execute_timestamp + good_interval);
 
     bytes32 newOutboundRoot = bytes32("test2");
-    vm.mockCall(connector, abi.encodeWithSelector(ISpokeConnector.outboundRoot.selector), abi.encode(newOutboundRoot));
+    vm.mockCall(connector, abi.encodeWithSelector(SpokeConnector.outboundRoot.selector), abi.encode(newOutboundRoot));
     (bool canExec, bytes memory execPayload) = _resolver.checker();
 
     assertEq(canExec, true);
@@ -82,7 +81,7 @@ contract SendOutboundRootResolverTest is ForgeHelper {
     uint256 execute_timestamp = block.timestamp + 1000;
     vm.warp(execute_timestamp);
 
-    vm.mockCall(connector, abi.encodeWithSelector(ISpokeConnector.outboundRoot.selector), abi.encode(outboundRoot));
+    vm.mockCall(connector, abi.encodeWithSelector(SpokeConnector.outboundRoot.selector), abi.encode(outboundRoot));
     _resolver.sendMessage();
 
     uint256 bad_interval = execution_interval - 1;
@@ -98,7 +97,7 @@ contract SendOutboundRootResolverTest is ForgeHelper {
     uint256 execute_timestamp = block.timestamp + 1000;
     vm.warp(execute_timestamp);
 
-    vm.mockCall(connector, abi.encodeWithSelector(ISpokeConnector.outboundRoot.selector), abi.encode(outboundRoot));
+    vm.mockCall(connector, abi.encodeWithSelector(SpokeConnector.outboundRoot.selector), abi.encode(outboundRoot));
     _resolver.sendMessage();
 
     uint256 good_interval = execution_interval + 1;
