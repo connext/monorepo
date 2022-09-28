@@ -133,9 +133,9 @@ export class NxtpSdkBase {
    * @param args - XCall arguments. Some fields in args.params are optional and have default values provided.
    * @returns providers.TransactionRequest object.
    */
+
   public async xcall(
-    // All XCallArgs must be defined except for params.
-    args: Omit<Partial<XCallArgs>, "callData" | "delegate">,
+    args: Omit<XCallArgs, "callData" | "delegate"> & Partial<XCallArgs>,
     relayerFee?: string,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
