@@ -300,8 +300,8 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "canonicalToRepresentation(bytes32)": FunctionFragment;
     "canonicalToRepresentation((uint32,bytes32))": FunctionFragment;
     "getLocalAndAdoptedToken(bytes32,uint32)": FunctionFragment;
-    "removeAssetId((uint32,bytes32),address)": FunctionFragment;
-    "removeAssetId(bytes32,address)": FunctionFragment;
+    "removeAssetId((uint32,bytes32),address,address)": FunctionFragment;
+    "removeAssetId(bytes32,address,address)": FunctionFragment;
     "representationToCanonical(address)": FunctionFragment;
     "setupAsset((uint32,bytes32),uint8,string,string,address,address)": FunctionFragment;
     "setupAsset((uint32,bytes32),address,address,address)": FunctionFragment;
@@ -431,8 +431,8 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "canonicalToRepresentation(bytes32)"
       | "canonicalToRepresentation((uint32,bytes32))"
       | "getLocalAndAdoptedToken"
-      | "removeAssetId((uint32,bytes32),address)"
-      | "removeAssetId(bytes32,address)"
+      | "removeAssetId((uint32,bytes32),address,address)"
+      | "removeAssetId(bytes32,address,address)"
       | "representationToCanonical"
       | "setupAsset((uint32,bytes32),uint8,string,string,address,address)"
       | "setupAsset((uint32,bytes32),address,address,address)"
@@ -1011,12 +1011,16 @@ export interface ConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeAssetId((uint32,bytes32),address)",
-    values: [TokenIdStruct, PromiseOrValue<string>]
+    functionFragment: "removeAssetId((uint32,bytes32),address,address)",
+    values: [TokenIdStruct, PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeAssetId(bytes32,address)",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
+    functionFragment: "removeAssetId(bytes32,address,address)",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "representationToCanonical",
@@ -1469,11 +1473,11 @@ export interface ConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "removeAssetId((uint32,bytes32),address)",
+    functionFragment: "removeAssetId((uint32,bytes32),address,address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "removeAssetId(bytes32,address)",
+    functionFragment: "removeAssetId(bytes32,address,address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -2820,15 +2824,17 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string, string]>;
 
-    "removeAssetId((uint32,bytes32),address)"(
+    "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "removeAssetId(bytes32,address)"(
+    "removeAssetId(bytes32,address,address)"(
       _key: PromiseOrValue<BytesLike>,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -3479,15 +3485,17 @@ export interface ConnextHandler extends BaseContract {
     overrides?: CallOverrides
   ): Promise<[string, string]>;
 
-  "removeAssetId((uint32,bytes32),address)"(
+  "removeAssetId((uint32,bytes32),address,address)"(
     _canonical: TokenIdStruct,
     _adoptedAssetId: PromiseOrValue<string>,
+    _representation: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "removeAssetId(bytes32,address)"(
+  "removeAssetId(bytes32,address,address)"(
     _key: PromiseOrValue<BytesLike>,
     _adoptedAssetId: PromiseOrValue<string>,
+    _representation: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -4124,15 +4132,17 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string, string]>;
 
-    "removeAssetId((uint32,bytes32),address)"(
+    "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "removeAssetId(bytes32,address)"(
+    "removeAssetId(bytes32,address,address)"(
       _key: PromiseOrValue<BytesLike>,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -5250,15 +5260,17 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "removeAssetId((uint32,bytes32),address)"(
+    "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "removeAssetId(bytes32,address)"(
+    "removeAssetId(bytes32,address,address)"(
       _key: PromiseOrValue<BytesLike>,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -5928,15 +5940,17 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "removeAssetId((uint32,bytes32),address)"(
+    "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "removeAssetId(bytes32,address)"(
+    "removeAssetId(bytes32,address,address)"(
       _key: PromiseOrValue<BytesLike>,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

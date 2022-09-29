@@ -22,6 +22,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BaseConnextFacet__mustGetLocalAsset_noLocalAssetFound",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BaseConnextFacet__nonReentrant_reentrantCall",
     type: "error",
   },
@@ -4671,6 +4676,11 @@ const _abi = [
         name: "_adoptedAssetId",
         type: "address",
       },
+      {
+        internalType: "address",
+        name: "_representation",
+        type: "address",
+      },
     ],
     name: "removeAssetId",
     outputs: [],
@@ -4687,6 +4697,11 @@ const _abi = [
       {
         internalType: "address",
         name: "_adoptedAssetId",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_representation",
         type: "address",
       },
     ],
@@ -4821,7 +4836,7 @@ const _abi = [
     outputs: [
       {
         internalType: "address",
-        name: "_local",
+        name: "",
         type: "address",
       },
     ],
