@@ -149,13 +149,9 @@ contract TokenFacet is BaseConnextFacet {
     address _adoptedAssetId,
     address _stableSwapPool
   ) external onlyOwner returns (address _local) {
-    // Get the key
-    bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
-
     // Deploy the representation token if on a remote domain
     if (_canonical.domain != s.domain) {
-      _local = _ensureRepresentationDeployed(
-        key,
+      _local = _deployRepresentation(
         _canonical.id,
         _canonical.domain,
         _canonicalDecimals,
@@ -166,14 +162,7 @@ contract TokenFacet is BaseConnextFacet {
       _local = TypeCasts.bytes32ToAddress(_canonical.id);
     }
 
-    address adopted = _adoptedAssetId == address(0) ? _local : _adoptedAssetId;
-    _enrollAdoptedAndLocalAssets(key, adopted, _local, _canonical);
-
-    // Emit event
-    emit AssetAdded(key, _canonical.id, _canonical.domain, adopted, _local, msg.sender);
-
-    // Add the swap pool
-    _addStableSwapPool(_canonical, _stableSwapPool, key);
+    _enrollAdoptedAndLocalAssets(_adoptedAssetId, _local, _stableSwapPool, _canonical);
   }
 
   function setupAsset(
@@ -181,18 +170,9 @@ contract TokenFacet is BaseConnextFacet {
     address _representation,
     address _adoptedAssetId,
     address _stableSwapPool
-  ) external onlyOwner returns (address _local) {
-    // Get the key
-    bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
-
-    address adopted = _adoptedAssetId == address(0) ? _local : _adoptedAssetId;
-    _enrollAdoptedAndLocalAssets(key, adopted, _representation, _canonical);
-
-    // Emit event
-    emit AssetAdded(key, _canonical.id, _canonical.domain, adopted, _local, msg.sender);
-
-    // Add the swap pool
-    _addStableSwapPool(_canonical, _stableSwapPool, key);
+  ) external onlyOwner returns (address) {
+    _enrollAdoptedAndLocalAssets(_adoptedAssetId, _representation, _stableSwapPool, _canonical);
+    return _representation;
   }
 
   /**
@@ -253,11 +233,17 @@ contract TokenFacet is BaseConnextFacet {
   // ============ Private Functions ============
 
   function _enrollAdoptedAndLocalAssets(
-    bytes32 _key,
     address _adopted,
     address _local,
-    TokenId memory _canonical
-  ) internal {
+    address _stableSwapPool,
+    TokenId calldata _canonical
+  ) internal returns (bytes32 _key) {
+    // Get the key
+    _key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
+
+    // Get true adopted
+    address adopted = _adopted == address(0) ? _local : _adopted;
+
     // Sanity check: needs approval
     if (s.approvedAssets[_key]) revert TokenFacet__addAssetId_alreadyAdded();
 
@@ -265,24 +251,26 @@ contract TokenFacet is BaseConnextFacet {
     s.approvedAssets[_key] = true;
 
     // Update the adopted mapping using convention of local == adopted iff (_adooted == address(0))
-    s.adoptedToCanonical[_adopted].domain = _canonical.domain;
-    s.adoptedToCanonical[_adopted].id = _canonical.id;
+    s.adoptedToCanonical[adopted].domain = _canonical.domain;
+    s.adoptedToCanonical[adopted].id = _canonical.id;
 
     // Update the canonical mapping
-    s.canonicalToAdopted[_key] = _adopted;
+    s.canonicalToAdopted[_key] = adopted;
 
-    if (s.domain == _canonical.domain) {
-      // on the canonical domain, there is no representation
-      return;
-    }
+    // representations only exist on non-canonical domains
+    if (s.domain != _canonical.domain) {
+      // Update the local <> canonical
+      s.representationToCanonical[_local].domain = _canonical.domain;
+      s.representationToCanonical[_local].id = _canonical.id;
 
-    // Update the local <> canonical
-    s.representationToCanonical[_local].domain = _canonical.domain;
-    s.representationToCanonical[_local].id = _canonical.id;
+      // Update the canonical <> local
+      s.canonicalToRepresentation[_key] = _local;
+      // Add the swap pool
+      _addStableSwapPool(_canonical, _stableSwapPool, _key);
+    } // on the canonical domain, there is no representation (no pool either)
 
-    // Update the canonical <> local
-    s.canonicalToRepresentation[_key] = _local;
-    return;
+    // Emit event
+    emit AssetAdded(_key, _canonical.id, _canonical.domain, adopted, _local, msg.sender);
   }
 
   /**
@@ -341,23 +329,18 @@ contract TokenFacet is BaseConnextFacet {
    * points to the token upgrade beacon
    * @return _token the address of the token contract
    */
-  function _ensureRepresentationDeployed(
-    bytes32 _key,
+  function _deployRepresentation(
     bytes32 _id,
     uint32 _domain,
     uint8 _decimals,
     string memory _name,
     string memory _symbol
   ) internal returns (address _token) {
-    // if there is already a token deployed, do nothing
-    _token = s.canonicalToRepresentation[_key];
-    if (_token == address(0)) {
-      // deploy and initialize the token contract
-      _token = address(new UpgradeBeaconProxy(s.tokenBeacon, ""));
-      // initialize the token with decimals and default name
-      IBridgeToken(_token).initialize(_decimals, _name, _symbol);
-      // emit event upon deploying new token
-      emit TokenDeployed(_domain, _id, _token);
-    }
+    // deploy and initialize the token contract
+    _token = address(new UpgradeBeaconProxy(s.tokenBeacon, ""));
+    // initialize the token with decimals and default name
+    IBridgeToken(_token).initialize(_decimals, _name, _symbol);
+    // emit event upon deploying new token
+    emit TokenDeployed(_domain, _id, _token);
   }
 }
