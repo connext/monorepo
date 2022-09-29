@@ -2761,6 +2761,62 @@ const _abi = [
         type: "uint8",
       },
       {
+        internalType: "string",
+        name: "_representationName",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "_representationSymbol",
+        type: "string",
+      },
+      {
+        internalType: "address",
+        name: "_adoptedAssetId",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_stableSwapPool",
+        type: "address",
+      },
+    ],
+    name: "setupAsset",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
+        internalType: "address",
+        name: "_representation",
+        type: "address",
+      },
+      {
         internalType: "address",
         name: "_adoptedAssetId",
         type: "address",
