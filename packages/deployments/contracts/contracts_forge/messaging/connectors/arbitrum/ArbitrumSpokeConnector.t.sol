@@ -182,7 +182,7 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     // get outbound data
     bytes memory _data = abi.encode(bytes32("test"), 123123123);
 
-    // should revert because not bridge
+    // should revert because not 32 bytes
     vm.expectRevert(bytes("!length"));
 
     // make call
