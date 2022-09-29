@@ -45,7 +45,7 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
     uint8 _canonicalDecimals,
     address _adoptedAssetId,
     address _stableSwapPool
-  ) external;
+  ) external returns (address);
 
   function addStableSwapPool(TokenId calldata _canonical, address _stableSwapPool) external;
 

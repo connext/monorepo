@@ -145,10 +145,7 @@ contract TokenFacet is BaseConnextFacet {
     uint8 _canonicalDecimals,
     address _adoptedAssetId,
     address _stableSwapPool
-  ) external onlyOwner {
-    // Native asset support does not exist in this contract
-    if (_adoptedAssetId == address(0)) revert TokenFacet__addAssetId_nativeAsset();
-
+  ) external onlyOwner returns (address _local) {
     // Get the key
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
 
@@ -158,23 +155,23 @@ contract TokenFacet is BaseConnextFacet {
     // Update approved assets mapping
     s.approvedAssets[key] = true;
 
-    // Update the adopted mapping
-    s.adoptedToCanonical[_adoptedAssetId].domain = _canonical.domain;
-    s.adoptedToCanonical[_adoptedAssetId].id = _canonical.id;
-
     // Deploy the representation token if on a remote domain
-    address local;
     if (_canonical.domain != s.domain) {
-      local = _ensureRepresentationDeployed(key, _canonical.id, _canonical.domain, _canonicalDecimals);
+      _local = _ensureRepresentationDeployed(key, _canonical.id, _canonical.domain, _canonicalDecimals);
     } else {
-      local = TypeCasts.bytes32ToAddress(_canonical.id);
+      _local = TypeCasts.bytes32ToAddress(_canonical.id);
     }
 
+    // Update the adopted mapping using convention of local == adopted iff (_adooted == address(0))
+    address adopted = _adoptedAssetId == address(0) ? _local : _adoptedAssetId;
+    s.adoptedToCanonical[adopted].domain = _canonical.domain;
+    s.adoptedToCanonical[adopted].id = _canonical.id;
+
     // Update the canonical mapping
-    s.canonicalToAdopted[key] = _adoptedAssetId;
+    s.canonicalToAdopted[key] = adopted;
 
     // Emit event
-    emit AssetAdded(key, _canonical.id, _canonical.domain, _adoptedAssetId, local, msg.sender);
+    emit AssetAdded(key, _canonical.id, _canonical.domain, adopted, _local, msg.sender);
 
     // Add the swap pool
     _addStableSwapPool(_canonical, _stableSwapPool, key);
