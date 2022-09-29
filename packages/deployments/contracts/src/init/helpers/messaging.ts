@@ -10,7 +10,8 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
 
   /// MARK - Contracts
   // Convenience setup for contracts.
-  const { RootManager, MainnetConnector, HubConnectors } = hub.deployments.messaging as HubMessagingDeployments;
+  const { RootManager, MainnetConnector, HubConnectors, MerkleTreeManagerForRoot, MerkleTreeManagerForSpoke } = hub
+    .deployments.messaging as HubMessagingDeployments;
 
   /// ******************** MESSAGING ********************
   /// MARK - Init
@@ -38,7 +39,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
           throw new Error("Mirror domain was hub? Bruh");
         }
         foundMirror = true;
-        const SpokeConnector = (spoke.deployments.messaging as SpokeMessagingDeployments).SpokeConnector;
+        const { SpokeConnector, MerkleTreeManager } = spoke.deployments.messaging as SpokeMessagingDeployments;
 
         console.log(`\tVerifying connection: ${hub.chain}<>${spoke.chain}:`);
 
@@ -96,6 +97,15 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
           desired: HubConnector.address,
           read: { method: "mirrorConnector", args: [] },
           write: { method: "setMirrorConnector", args: [HubConnector.address] },
+        });
+
+        /// MARK - MerkleTreeManager
+        console.log("\tVerifying merkle tree managers are set correctly.");
+        await updateIfNeeded({
+          deployment: MerkleTreeManager,
+          desired: SpokeConnector.address,
+          read: { method: "arborist", args: [] },
+          write: { method: "setArborist", args: [SpokeConnector.address] },
         });
 
         /// MARK - Connectors: Whitelist Senders
@@ -159,6 +169,20 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
     desired: MainnetConnector.address,
     read: { method: "connectors", args: [hub.domain] },
     write: { method: "addConnector", args: [hub.domain, MainnetConnector.address] },
+  });
+
+  await updateIfNeeded({
+    deployment: MerkleTreeManagerForRoot,
+    desired: RootManager.address,
+    read: { method: "arborist", args: [] },
+    write: { method: "setArborist", args: [RootManager.address] },
+  });
+
+  await updateIfNeeded({
+    deployment: MerkleTreeManagerForSpoke,
+    desired: MainnetConnector.address,
+    read: { method: "arborist", args: [] },
+    write: { method: "setArborist", args: [MainnetConnector.address] },
   });
 
   for (const handler of [...Object.values(hub.deployments.handlers), hub.deployments.Connext]) {
