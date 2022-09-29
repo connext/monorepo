@@ -125,6 +125,5 @@ export const getDeployments = (args: {
       : {
           SpokeConnector: connectors[0],
         },
-    TokenRegistry: getContract("TokenRegistryUpgradeBeaconProxy"),
   };
 };
