@@ -43,6 +43,15 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
   function setupAsset(
     TokenId calldata _canonical,
     uint8 _canonicalDecimals,
+    string memory _representationName,
+    string memory _representationSymbol,
+    address _adoptedAssetId,
+    address _stableSwapPool
+  ) external returns (address);
+
+  function setupAsset(
+    TokenId calldata _canonical,
+    address _representation,
     address _adoptedAssetId,
     address _stableSwapPool
   ) external returns (address);

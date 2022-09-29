@@ -152,12 +152,6 @@ contract TokenFacet is BaseConnextFacet {
     // Get the key
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
 
-    // Sanity check: needs approval
-    if (s.approvedAssets[key]) revert TokenFacet__addAssetId_alreadyAdded();
-
-    // Update approved assets mapping
-    s.approvedAssets[key] = true;
-
     // Deploy the representation token if on a remote domain
     if (_canonical.domain != s.domain) {
       _local = _ensureRepresentationDeployed(
@@ -172,13 +166,27 @@ contract TokenFacet is BaseConnextFacet {
       _local = TypeCasts.bytes32ToAddress(_canonical.id);
     }
 
-    // Update the adopted mapping using convention of local == adopted iff (_adooted == address(0))
     address adopted = _adoptedAssetId == address(0) ? _local : _adoptedAssetId;
-    s.adoptedToCanonical[adopted].domain = _canonical.domain;
-    s.adoptedToCanonical[adopted].id = _canonical.id;
+    _enrollAdoptedAndLocalAssets(key, adopted, _local, _canonical);
 
-    // Update the canonical mapping
-    s.canonicalToAdopted[key] = adopted;
+    // Emit event
+    emit AssetAdded(key, _canonical.id, _canonical.domain, adopted, _local, msg.sender);
+
+    // Add the swap pool
+    _addStableSwapPool(_canonical, _stableSwapPool, key);
+  }
+
+  function setupAsset(
+    TokenId calldata _canonical,
+    address _representation,
+    address _adoptedAssetId,
+    address _stableSwapPool
+  ) external onlyOwner returns (address _local) {
+    // Get the key
+    bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
+
+    address adopted = _adoptedAssetId == address(0) ? _local : _adoptedAssetId;
+    _enrollAdoptedAndLocalAssets(key, adopted, _representation, _canonical);
 
     // Emit event
     emit AssetAdded(key, _canonical.id, _canonical.domain, adopted, _local, msg.sender);
@@ -201,8 +209,12 @@ contract TokenFacet is BaseConnextFacet {
    * @param _key - The hash of the canonical id and domain to remove (mapping key)
    * @param _adoptedAssetId - Corresponding adopted asset to remove
    */
-  function removeAssetId(bytes32 _key, address _adoptedAssetId) external onlyOwner {
-    _removeAssetId(_key, _adoptedAssetId);
+  function removeAssetId(
+    bytes32 _key,
+    address _adoptedAssetId,
+    address _representation
+  ) external onlyOwner {
+    _removeAssetId(_key, _adoptedAssetId, _representation);
   }
 
   /**
@@ -210,9 +222,13 @@ contract TokenFacet is BaseConnextFacet {
    * @param _canonical - The canonical id and domain to remove
    * @param _adoptedAssetId - Corresponding adopted asset to remove
    */
-  function removeAssetId(TokenId calldata _canonical, address _adoptedAssetId) external onlyOwner {
+  function removeAssetId(
+    TokenId calldata _canonical,
+    address _adoptedAssetId,
+    address _representation
+  ) external onlyOwner {
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
-    _removeAssetId(key, _adoptedAssetId);
+    _removeAssetId(key, _adoptedAssetId, _representation);
   }
 
   /**
@@ -236,6 +252,39 @@ contract TokenFacet is BaseConnextFacet {
 
   // ============ Private Functions ============
 
+  function _enrollAdoptedAndLocalAssets(
+    bytes32 _key,
+    address _adopted,
+    address _local,
+    TokenId memory _canonical
+  ) internal {
+    // Sanity check: needs approval
+    if (s.approvedAssets[_key]) revert TokenFacet__addAssetId_alreadyAdded();
+
+    // Update approved assets mapping
+    s.approvedAssets[_key] = true;
+
+    // Update the adopted mapping using convention of local == adopted iff (_adooted == address(0))
+    s.adoptedToCanonical[_adopted].domain = _canonical.domain;
+    s.adoptedToCanonical[_adopted].id = _canonical.id;
+
+    // Update the canonical mapping
+    s.canonicalToAdopted[_key] = _adopted;
+
+    if (s.domain == _canonical.domain) {
+      // on the canonical domain, there is no representation
+      return;
+    }
+
+    // Update the local <> canonical
+    s.representationToCanonical[_local].domain = _canonical.domain;
+    s.representationToCanonical[_local].id = _canonical.id;
+
+    // Update the canonical <> local
+    s.canonicalToRepresentation[_key] = _local;
+    return;
+  }
+
   /**
    * @notice Used to add an AMM for adopted <> local assets
    * @param _canonical - The canonical TokenId to add (domain and id)
@@ -258,7 +307,11 @@ contract TokenFacet is BaseConnextFacet {
    * @param _key - The hash of the canonical id and domain to remove (mapping key)
    * @param _adoptedAssetId - Corresponding adopted asset to remove
    */
-  function _removeAssetId(bytes32 _key, address _adoptedAssetId) internal {
+  function _removeAssetId(
+    bytes32 _key,
+    address _adoptedAssetId,
+    address _representation
+  ) internal {
     // Sanity check: already approval
     if (!s.approvedAssets[_key]) revert TokenFacet__removeAssetId_notAdded();
 
@@ -271,8 +324,12 @@ contract TokenFacet is BaseConnextFacet {
     // Delete from adopted mapping
     delete s.adoptedToCanonical[_adoptedAssetId];
 
+    // Delete from representation mapping
+    delete s.representationToCanonical[_representation];
+
     // Delete from canonical mapping
     delete s.canonicalToAdopted[_key];
+    delete s.canonicalToRepresentation[_key];
 
     // Emit event
     emit AssetRemoved(_key, msg.sender);
@@ -299,40 +356,8 @@ contract TokenFacet is BaseConnextFacet {
       _token = address(new UpgradeBeaconProxy(s.tokenBeacon, ""));
       // initialize the token with decimals and default name
       IBridgeToken(_token).initialize(_decimals, _name, _symbol);
-      // store token in mappings
-      _setCanonicalToRepresentation(_domain, _id, _token);
-      _setRepresentationToCanonical(_domain, _id, _token);
       // emit event upon deploying new token
       emit TokenDeployed(_domain, _id, _token);
     }
-  }
-
-  /**
-   * @notice Set the primary representation for a given canonical
-   * @param _domain the domain of the canonical token
-   * @param _id the bytes32 ID pf the canonical of the token
-   * @param _representation the address of the representation token
-   */
-  function _setRepresentationToCanonical(
-    uint32 _domain,
-    bytes32 _id,
-    address _representation
-  ) internal {
-    s.representationToCanonical[_representation].domain = _domain;
-    s.representationToCanonical[_representation].id = _id;
-  }
-
-  /**
-   * @notice Set the canonical token for a given representation
-   * @param _domain the domain of the canonical token
-   * @param _id the bytes32 ID pf the canonical of the token
-   * @param _representation the address of the representation token
-   */
-  function _setCanonicalToRepresentation(
-    uint32 _domain,
-    bytes32 _id,
-    address _representation
-  ) internal {
-    s.canonicalToRepresentation[AssetLogic.calculateCanonicalHash(_id, _domain)] = _representation;
   }
 }
