@@ -301,6 +301,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "transferRelayer(bytes32)": FunctionFragment;
     "unapproveRouterForPortal(address)": FunctionFragment;
     "unpause()": FunctionFragment;
+    "updateDetails((uint32,bytes32),string,string)": FunctionFragment;
     "withdrawSwapAdminFees(bytes32)": FunctionFragment;
     "xcall(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
     "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
@@ -430,6 +431,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "transferRelayer"
       | "unapproveRouterForPortal"
       | "unpause"
+      | "updateDetails"
       | "withdrawSwapAdminFees"
       | "xcall"
       | "xcallIntoLocal"
@@ -1016,6 +1018,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "updateDetails",
+    values: [TokenIdStruct, PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "withdrawSwapAdminFees",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -1460,6 +1466,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "updateDetails",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "withdrawSwapAdminFees",
     data: BytesLike
@@ -2193,6 +2203,13 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    updateDetails(
+      _canonical: TokenIdStruct,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     withdrawSwapAdminFees(
       canonicalId: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2859,6 +2876,13 @@ export interface IConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  updateDetails(
+    _canonical: TokenIdStruct,
+    _name: PromiseOrValue<string>,
+    _symbol: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   withdrawSwapAdminFees(
     canonicalId: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -3453,7 +3477,7 @@ export interface IConnextHandler extends BaseContract {
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
 
     setupRouter(
       router: PromiseOrValue<string>,
@@ -3508,6 +3532,13 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<void>;
 
     unpause(overrides?: CallOverrides): Promise<void>;
+
+    updateDetails(
+      _canonical: TokenIdStruct,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     withdrawSwapAdminFees(
       canonicalId: PromiseOrValue<BytesLike>,
@@ -4213,6 +4244,13 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    updateDetails(
+      _canonical: TokenIdStruct,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     withdrawSwapAdminFees(
       canonicalId: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4891,6 +4929,13 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     unpause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateDetails(
+      _canonical: TokenIdStruct,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -4229,6 +4229,11 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "TokenFacet__updateDetails_localNotFound",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -4746,6 +4751,16 @@ const _abi = [
         type: "uint8",
       },
       {
+        internalType: "string",
+        name: "_representationName",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "_representationSymbol",
+        type: "string",
+      },
+      {
         internalType: "address",
         name: "_adoptedAssetId",
         type: "address",
@@ -4757,6 +4772,47 @@ const _abi = [
       },
     ],
     name: "setupAsset",
+    outputs: [
+      {
+        internalType: "address",
+        name: "_local",
+        type: "address",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
+        internalType: "string",
+        name: "_name",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "_symbol",
+        type: "string",
+      },
+    ],
+    name: "updateDetails",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

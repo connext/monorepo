@@ -2772,7 +2772,13 @@ const _abi = [
       },
     ],
     name: "setupAsset",
-    outputs: [],
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -2979,6 +2985,41 @@ const _abi = [
   {
     inputs: [],
     name: "unpause",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
+        internalType: "string",
+        name: "_name",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "_symbol",
+        type: "string",
+      },
+    ],
+    name: "updateDetails",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

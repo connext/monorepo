@@ -115,7 +115,7 @@
   "function setSwapAdminFee(bytes32,uint256)",
   "function setSwapFee(bytes32,uint256)",
   "function setXAppConnectionManager(address)",
-  "function setupAsset(tuple(uint32,bytes32),uint8,address,address)",
+  "function setupAsset(tuple(uint32,bytes32),uint8,address,address) returns (address)",
   "function setupRouter(address,address,address)",
   "function stopRampA(bytes32)",
   "function swap(bytes32,uint8,uint8,uint256,uint256,uint256) returns (uint256)",
@@ -124,6 +124,7 @@
   "function transferRelayer(bytes32) view returns (address)",
   "function unapproveRouterForPortal(address)",
   "function unpause()",
+  "function updateDetails(tuple(uint32,bytes32),string,string)",
   "function withdrawSwapAdminFees(bytes32)",
   "function xcall(uint32,address,address,address,uint256,uint256,bytes) payable returns (bytes32)",
   "function xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes) payable returns (bytes32)"

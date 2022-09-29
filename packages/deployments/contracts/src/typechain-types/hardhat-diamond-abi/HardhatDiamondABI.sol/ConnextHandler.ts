@@ -303,7 +303,8 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "removeAssetId((uint32,bytes32),address)": FunctionFragment;
     "removeAssetId(bytes32,address)": FunctionFragment;
     "representationToCanonical(address)": FunctionFragment;
-    "setupAsset((uint32,bytes32),uint8,address,address)": FunctionFragment;
+    "setupAsset((uint32,bytes32),uint8,string,string,address,address)": FunctionFragment;
+    "updateDetails((uint32,bytes32),string,string)": FunctionFragment;
   };
 
   getFunction(
@@ -433,6 +434,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "removeAssetId(bytes32,address)"
       | "representationToCanonical"
       | "setupAsset"
+      | "updateDetails"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -1024,8 +1026,14 @@ export interface ConnextHandlerInterface extends utils.Interface {
       TokenIdStruct,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
       PromiseOrValue<string>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateDetails",
+    values: [TokenIdStruct, PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
 
   decodeFunctionResult(
@@ -1462,6 +1470,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setupAsset", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "updateDetails",
+    data: BytesLike
+  ): Result;
 
   events: {
     "AavePortalMintUnbacked(bytes32,address,address,uint256)": EventFragment;
@@ -2810,8 +2822,17 @@ export interface ConnextHandler extends BaseContract {
     setupAsset(
       _canonical: TokenIdStruct,
       _canonicalDecimals: PromiseOrValue<BigNumberish>,
+      _representationName: PromiseOrValue<string>,
+      _representationSymbol: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    updateDetails(
+      _canonical: TokenIdStruct,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -3452,8 +3473,17 @@ export interface ConnextHandler extends BaseContract {
   setupAsset(
     _canonical: TokenIdStruct,
     _canonicalDecimals: PromiseOrValue<BigNumberish>,
+    _representationName: PromiseOrValue<string>,
+    _representationSymbol: PromiseOrValue<string>,
     _adoptedAssetId: PromiseOrValue<string>,
     _stableSwapPool: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  updateDetails(
+    _canonical: TokenIdStruct,
+    _name: PromiseOrValue<string>,
+    _symbol: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -4080,8 +4110,17 @@ export interface ConnextHandler extends BaseContract {
     setupAsset(
       _canonical: TokenIdStruct,
       _canonicalDecimals: PromiseOrValue<BigNumberish>,
+      _representationName: PromiseOrValue<string>,
+      _representationSymbol: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    updateDetails(
+      _canonical: TokenIdStruct,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -5189,8 +5228,17 @@ export interface ConnextHandler extends BaseContract {
     setupAsset(
       _canonical: TokenIdStruct,
       _canonicalDecimals: PromiseOrValue<BigNumberish>,
+      _representationName: PromiseOrValue<string>,
+      _representationSymbol: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    updateDetails(
+      _canonical: TokenIdStruct,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -5850,8 +5898,17 @@ export interface ConnextHandler extends BaseContract {
     setupAsset(
       _canonical: TokenIdStruct,
       _canonicalDecimals: PromiseOrValue<BigNumberish>,
+      _representationName: PromiseOrValue<string>,
+      _representationSymbol: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateDetails(
+      _canonical: TokenIdStruct,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
