@@ -93,10 +93,15 @@ contract RootManagerTest is ForgeHelper {
   }
 
   function test_RootManager__removeConnector_shouldFailIfCallerNotWatcher() public {
-    vm.expectRevert(ProposedOwnable__onlyOwner_notOwner.selector);
+    vm.mockCall(
+      watcherManager,
+      abi.encodeWithSelector(WatcherManager(watcherManager).isWatcher.selector),
+      abi.encode(false)
+    );
 
-    vm.prank(notOwner);
-    _rootManager.addConnector(_domains[0], _connectors[0]);
+    vm.expectRevert(bytes("!watcher"));
+
+    _rootManager.removeConnector(_domains[0]);
   }
 
   function test_RootManager__removeConnector_shouldFailIfNotAdded() public {
