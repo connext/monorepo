@@ -217,8 +217,6 @@ contract InboxFacet is BaseConnextFacet {
    * @dev IFF the asset is representational (i.e. originates from a remote chain), tokens will be minted.
    * Otherwise, the token must be canonical (i.e. we are on the token's home chain), and the corresponding
    * amount will already be available in escrow in this contract.
-   * @dev This method will have the TokenRegistry deploy a new representational asset contract if no
-   * representational asset currently exists.
    *
    * @param _origin The domain of the chain from which the transfer originated.
    * @param _nonce The unique identifier for the message from origin to destination.

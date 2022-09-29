@@ -452,7 +452,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Not native asset.
       // NOTE: We support using address(0) as an intuitive default if you are sending a 0-value
       // transfer. In that edge case, address(0) will not be registered as a supported asset, but should
-      // pass the `isLocalOrigin` check on the TokenRegistry.
+      // pass the `isLocalOrigin` check
       if (_asset == address(0) && _amount != 0) {
         revert BridgeFacet__xcall_nativeAssetNotSupported();
       }
@@ -473,7 +473,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // NOTE: The local asset will stay address(0) if input asset is address(0) in the event of a
-    // 0-value transfer. Otherwise, the local address will be retrieved from the TokenRegistry below.
+    // 0-value transfer. Otherwise, the local address will be retrieved below
     address local;
     bytes32 transferId;
     TokenId memory canonical;

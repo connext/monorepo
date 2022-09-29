@@ -511,13 +511,13 @@ library AssetLogic {
    * @return TRUE if token is locally originating
    */
   function isLocalOrigin(address _token, AppStorage storage s) internal view returns (bool) {
-    // If the contract WAS deployed by the TokenRegistry,
+    // If the contract WAS deployed
     // it will be stored in this mapping.
     // If so, it IS NOT of local origin
     if (s.representationToCanonical[_token].domain != 0) {
       return false;
     }
-    // If the contract WAS NOT deployed by the TokenRegistry,
+    // If the contract WAS NOT deployed,
     // and the contract exists, then it IS of local origin
     // Return true if code exists at _addr
     uint256 _codeSize;
