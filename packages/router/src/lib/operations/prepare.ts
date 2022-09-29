@@ -30,7 +30,7 @@ import {
   signRouterPrepareTransactionPayload,
 } from "../helpers";
 
-const { AddressZero, HashZero } = constants;
+const { AddressZero } = constants;
 
 export const prepare = async (
   invariantData: InvariantTransactionData,
