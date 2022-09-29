@@ -27,7 +27,7 @@ contract RootManagerTest is ForgeHelper {
   uint32[] _domains;
   address[] _connectors;
 
-  address notOwner = address(1);
+  address owner = address(1);
   address watcherManager = address(2);
   address watcher = address(3);
 
@@ -37,6 +37,8 @@ contract RootManagerTest is ForgeHelper {
 
     _merkle = address(new MerkleTreeManager());
     MerkleTreeManager(_merkle).initialize();
+
+    vm.prank(owner);
     _rootManager = new RootManager(_merkle, watcherManager);
     MerkleTreeManager(_merkle).setArborist(address(_rootManager));
   }
@@ -48,34 +50,44 @@ contract RootManagerTest is ForgeHelper {
     vm.expectEmit(true, true, true, true);
     emit ConnectorAdded(_domains[0], _connectors[0]);
 
+    vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
 
     assertEq(_rootManager.connectors(_domains[0]), _connectors[0]);
   }
 
-  function test_RootManager__addConnector_shouldFailIfCallerNotOwner() public {
+  function test_RootManager__addConnector_shouldFailIfCallerNotOwner(address caller) public {
+    if (caller == owner) {
+      // fuzz test, return if owner
+      return;
+    }
+
     vm.expectRevert(ProposedOwnable__onlyOwner_notOwner.selector);
 
-    vm.prank(notOwner);
+    vm.prank(caller);
     _rootManager.addConnector(_domains[0], _connectors[0]);
   }
 
   function test_RootManager__addConnector_shouldFailIfAlreadyAdded() public {
+    vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
 
     vm.expectRevert(bytes("exists"));
 
+    vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
   }
 
   function test_RootManager__addConnector_shouldFailIfAddressZero() public {
     vm.expectRevert(bytes("!connector"));
 
+    vm.prank(owner);
     _rootManager.addConnector(_domains[0], address(0));
   }
 
   // ============ RootManager.removeConnector ============
   function test_RootManager__removeConnector_shouldWork() public {
+    vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
 
     vm.expectEmit(true, true, true, true);
@@ -118,6 +130,7 @@ contract RootManagerTest is ForgeHelper {
 
   // ============ RootManager.aggregate ============
   function test_RootManager__aggregate_shouldWork(bytes32 inbound) public {
+    vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
 
     vm.expectEmit(true, true, true, true);
@@ -135,6 +148,7 @@ contract RootManagerTest is ForgeHelper {
 
   // ============ RootManager.propagate ============
   function test_RootManager__propagate_shouldSendToL2(bytes32 inbound) public {
+    vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
 
     vm.prank(_connectors[0]);
@@ -152,6 +166,7 @@ contract RootManagerTest is ForgeHelper {
     _connectors.push(address(1001));
 
     for (uint32 i; i < _domains.length; i++) {
+      vm.prank(owner);
       _rootManager.addConnector(_domains[i], _connectors[i]);
       vm.expectCall(_connectors[i], abi.encodeWithSelector(IHubConnector.sendMessage.selector));
       vm.mockCall(_connectors[i], abi.encodeWithSelector(IHubConnector.sendMessage.selector), abi.encode());
