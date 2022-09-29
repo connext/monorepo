@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 import {RootManager} from "../../contracts/messaging/RootManager.sol";
 import {IHubConnector} from "../../contracts/messaging/interfaces/IHubConnector.sol";
 import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
+import {WatcherManager} from "../../../../contracts/messaging/WatcherManager.sol";
 
 import "../utils/ConnectorHelper.sol";
 
@@ -79,7 +80,12 @@ contract RootManagerTest is ForgeHelper {
     vm.expectEmit(true, true, true, true);
     emit ConnectorRemoved(domain, connector);
 
-    vm.prank(watcher);
+    vm.mockCall(
+      watcherManager,
+      abi.encodeWithSelector(WatcherManager(watcherManager).isWatcher.selector),
+      abi.encode(true)
+    );
+
     _rootManager.removeConnector(domain);
 
     assertEq(_rootManager.connectors(domain), address(0));
@@ -95,7 +101,12 @@ contract RootManagerTest is ForgeHelper {
   function test_RootManager__removeConnector_shouldFailIfNotAdded() public {
     vm.expectRevert(bytes("!exists"));
 
-    vm.prank(watcher);
+    vm.mockCall(
+      watcherManager,
+      abi.encodeWithSelector(WatcherManager(watcherManager).isWatcher.selector),
+      abi.encode(true)
+    );
+
     _rootManager.removeConnector(domain);
   }
 
@@ -120,12 +131,11 @@ contract RootManagerTest is ForgeHelper {
   function test_RootManager__propagate_shouldSendToL2(bytes32 inbound) public {
     _rootManager.addConnector(domain, connector);
 
-    // TODO: this doesn't work
-    vm.mockCall(_merkle, abi.encodeWithSelector(MerkleTreeManager.root.selector), abi.encodePacked("test"));
-    vm.expectCall(connector, abi.encodeWithSelector(IHubConnector.sendMessage.selector, abi.encodePacked("test")));
-
     vm.prank(connector);
     _rootManager.aggregate(domain, inbound);
+
+    vm.mockCall(connector, abi.encodeWithSelector(IHubConnector.sendMessage.selector), abi.encode());
+    vm.expectCall(connector, abi.encodeWithSelector(IHubConnector.sendMessage.selector));
 
     _rootManager.propagate();
   }
