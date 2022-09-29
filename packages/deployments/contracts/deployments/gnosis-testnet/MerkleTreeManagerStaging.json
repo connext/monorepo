@@ -1,0 +1,314 @@
+{
+  "address": "0xA3d86B750312dd82F0fCC564493fb26c41A901bB",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "MerkleTreeManager__setArborist_zeroAddress",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "version",
+          "type": "uint8"
+        }
+      ],
+      "name": "Initialized",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "arborist",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "branch",
+      "outputs": [
+        {
+          "internalType": "bytes32[32]",
+          "name": "",
+          "type": "bytes32[32]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "count",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "leaf",
+          "type": "bytes32"
+        }
+      ],
+      "name": "insert",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_root",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_count",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "root",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newArborist",
+          "type": "address"
+        }
+      ],
+      "name": "setArborist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "tree",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "count",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x84c496ab914227d7d8999bbbdef27ab483183fc2e92f5c1ecb26b613132e6be1",
+  "receipt": {
+    "to": null,
+    "from": "0x54BAA998771639628ffC0206c3b916c466b79c89",
+    "contractAddress": "0xA3d86B750312dd82F0fCC564493fb26c41A901bB",
+    "transactionIndex": 0,
+    "gasUsed": "869752",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xb2c83c4d035afad2657555130cb985ef8e24cd5af8184fad80b3cb5b32a9c594",
+    "transactionHash": "0x84c496ab914227d7d8999bbbdef27ab483183fc2e92f5c1ecb26b613132e6be1",
+    "logs": [],
+    "blockNumber": 653734,
+    "cumulativeGasUsed": "869752",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "fef707534d1b68440ee7e27c681e8a5e",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.15+commit.e14f2714\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"MerkleTreeManager__setArborist_zeroAddress\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"version\",\"type\":\"uint8\"}],\"name\":\"Initialized\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"arborist\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"branch\",\"outputs\":[{\"internalType\":\"bytes32[32]\",\"name\":\"\",\"type\":\"bytes32[32]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"count\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"leaf\",\"type\":\"bytes32\"}],\"name\":\"insert\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"_root\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"_count\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"root\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newArborist\",\"type\":\"address\"}],\"name\":\"setArborist\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"tree\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"count\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"insert(bytes32)\":{\"params\":{\"leaf\":\"The leaf to be inserted into the tree.\"},\"returns\":{\"_count\":\"Current node count (i.e. number of indices) AFTER the insertion of the new leaf, provided for convenience.\",\"_root\":\"Current root for convenience.\"}},\"setArborist(address)\":{\"params\":{\"newArborist\":\"The new address to set as the current arborist.\"}}},\"stateVariables\":{\"arborist\":{\"details\":\"This could be the root manager contract or a spoke connector contract, for example.\"}},\"title\":\"MerkleTreeManager\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"arborist()\":{\"notice\":\"The arborist contract that has permission to write to this tree.\"},\"branch()\":{\"notice\":\"Returns the current branch.\"},\"count()\":{\"notice\":\"Returns the number of inserted leaves in the tree (current index).\"},\"insert(bytes32)\":{\"notice\":\"Inserts the given leaf into the tree.\"},\"root()\":{\"notice\":\"Calculates and returns the current root.\"},\"setArborist(address)\":{\"notice\":\"Method for the current arborist to assign write permissions to a new arborist.\"},\"tree()\":{\"notice\":\"Core data structure with which this contract is tasked with keeping custody. Writable only by the designated arborist.\"}},\"notice\":\"Contains a Merkle tree instance and exposes read/write functions for the tree.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/messaging/Merkle.sol\":\"MerkleTreeManager\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.7.0) (proxy/utils/Initializable.sol)\\n\\npragma solidity ^0.8.2;\\n\\nimport \\\"../../utils/AddressUpgradeable.sol\\\";\\n\\n/**\\n * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed\\n * behind a proxy. Since proxied contracts do not make use of a constructor, it's common to move constructor logic to an\\n * external initializer function, usually called `initialize`. It then becomes necessary to protect this initializer\\n * function so it can only be called once. The {initializer} modifier provided by this contract will have this effect.\\n *\\n * The initialization functions use a version number. Once a version number is used, it is consumed and cannot be\\n * reused. This mechanism prevents re-execution of each \\\"step\\\" but allows the creation of new initialization steps in\\n * case an upgrade adds a module that needs to be initialized.\\n *\\n * For example:\\n *\\n * [.hljs-theme-light.nopadding]\\n * ```\\n * contract MyToken is ERC20Upgradeable {\\n *     function initialize() initializer public {\\n *         __ERC20_init(\\\"MyToken\\\", \\\"MTK\\\");\\n *     }\\n * }\\n * contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {\\n *     function initializeV2() reinitializer(2) public {\\n *         __ERC20Permit_init(\\\"MyToken\\\");\\n *     }\\n * }\\n * ```\\n *\\n * TIP: To avoid leaving the proxy in an uninitialized state, the initializer function should be called as early as\\n * possible by providing the encoded function call as the `_data` argument to {ERC1967Proxy-constructor}.\\n *\\n * CAUTION: When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure\\n * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.\\n *\\n * [CAUTION]\\n * ====\\n * Avoid leaving a contract uninitialized.\\n *\\n * An uninitialized contract can be taken over by an attacker. This applies to both a proxy and its implementation\\n * contract, which may impact the proxy. To prevent the implementation contract from being used, you should invoke\\n * the {_disableInitializers} function in the constructor to automatically lock it when it is deployed:\\n *\\n * [.hljs-theme-light.nopadding]\\n * ```\\n * /// @custom:oz-upgrades-unsafe-allow constructor\\n * constructor() {\\n *     _disableInitializers();\\n * }\\n * ```\\n * ====\\n */\\nabstract contract Initializable {\\n    /**\\n     * @dev Indicates that the contract has been initialized.\\n     * @custom:oz-retyped-from bool\\n     */\\n    uint8 private _initialized;\\n\\n    /**\\n     * @dev Indicates that the contract is in the process of being initialized.\\n     */\\n    bool private _initializing;\\n\\n    /**\\n     * @dev Triggered when the contract has been initialized or reinitialized.\\n     */\\n    event Initialized(uint8 version);\\n\\n    /**\\n     * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,\\n     * `onlyInitializing` functions can be used to initialize parent contracts. Equivalent to `reinitializer(1)`.\\n     */\\n    modifier initializer() {\\n        bool isTopLevelCall = !_initializing;\\n        require(\\n            (isTopLevelCall && _initialized < 1) || (!AddressUpgradeable.isContract(address(this)) && _initialized == 1),\\n            \\\"Initializable: contract is already initialized\\\"\\n        );\\n        _initialized = 1;\\n        if (isTopLevelCall) {\\n            _initializing = true;\\n        }\\n        _;\\n        if (isTopLevelCall) {\\n            _initializing = false;\\n            emit Initialized(1);\\n        }\\n    }\\n\\n    /**\\n     * @dev A modifier that defines a protected reinitializer function that can be invoked at most once, and only if the\\n     * contract hasn't been initialized to a greater version before. In its scope, `onlyInitializing` functions can be\\n     * used to initialize parent contracts.\\n     *\\n     * `initializer` is equivalent to `reinitializer(1)`, so a reinitializer may be used after the original\\n     * initialization step. This is essential to configure modules that are added through upgrades and that require\\n     * initialization.\\n     *\\n     * Note that versions can jump in increments greater than 1; this implies that if multiple reinitializers coexist in\\n     * a contract, executing them in the right order is up to the developer or operator.\\n     */\\n    modifier reinitializer(uint8 version) {\\n        require(!_initializing && _initialized < version, \\\"Initializable: contract is already initialized\\\");\\n        _initialized = version;\\n        _initializing = true;\\n        _;\\n        _initializing = false;\\n        emit Initialized(version);\\n    }\\n\\n    /**\\n     * @dev Modifier to protect an initialization function so that it can only be invoked by functions with the\\n     * {initializer} and {reinitializer} modifiers, directly or indirectly.\\n     */\\n    modifier onlyInitializing() {\\n        require(_initializing, \\\"Initializable: contract is not initializing\\\");\\n        _;\\n    }\\n\\n    /**\\n     * @dev Locks the contract, preventing any future reinitialization. This cannot be part of an initializer call.\\n     * Calling this in the constructor of a contract will prevent that contract from being initialized or reinitialized\\n     * to any version. It is recommended to use this to lock implementation contracts that are designed to be called\\n     * through proxies.\\n     */\\n    function _disableInitializers() internal virtual {\\n        require(!_initializing, \\\"Initializable: contract is initializing\\\");\\n        if (_initialized < type(uint8).max) {\\n            _initialized = type(uint8).max;\\n            emit Initialized(type(uint8).max);\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x0203dcadc5737d9ef2c211d6fa15d18ebc3b30dfa51903b64870b01a062b0b4e\",\"license\":\"MIT\"},\"@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.7.0) (utils/Address.sol)\\n\\npragma solidity ^0.8.1;\\n\\n/**\\n * @dev Collection of functions related to the address type\\n */\\nlibrary AddressUpgradeable {\\n    /**\\n     * @dev Returns true if `account` is a contract.\\n     *\\n     * [IMPORTANT]\\n     * ====\\n     * It is unsafe to assume that an address for which this function returns\\n     * false is an externally-owned account (EOA) and not a contract.\\n     *\\n     * Among others, `isContract` will return false for the following\\n     * types of addresses:\\n     *\\n     *  - an externally-owned account\\n     *  - a contract in construction\\n     *  - an address where a contract will be created\\n     *  - an address where a contract lived, but was destroyed\\n     * ====\\n     *\\n     * [IMPORTANT]\\n     * ====\\n     * You shouldn't rely on `isContract` to protect against flash loan attacks!\\n     *\\n     * Preventing calls from contracts is highly discouraged. It breaks composability, breaks support for smart wallets\\n     * like Gnosis Safe, and does not provide security since it can be circumvented by calling from a contract\\n     * constructor.\\n     * ====\\n     */\\n    function isContract(address account) internal view returns (bool) {\\n        // This method relies on extcodesize/address.code.length, which returns 0\\n        // for contracts in construction, since the code is only stored at the end\\n        // of the constructor execution.\\n\\n        return account.code.length > 0;\\n    }\\n\\n    /**\\n     * @dev Replacement for Solidity's `transfer`: sends `amount` wei to\\n     * `recipient`, forwarding all available gas and reverting on errors.\\n     *\\n     * https://eips.ethereum.org/EIPS/eip-1884[EIP1884] increases the gas cost\\n     * of certain opcodes, possibly making contracts go over the 2300 gas limit\\n     * imposed by `transfer`, making them unable to receive funds via\\n     * `transfer`. {sendValue} removes this limitation.\\n     *\\n     * https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn more].\\n     *\\n     * IMPORTANT: because control is transferred to `recipient`, care must be\\n     * taken to not create reentrancy vulnerabilities. Consider using\\n     * {ReentrancyGuard} or the\\n     * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].\\n     */\\n    function sendValue(address payable recipient, uint256 amount) internal {\\n        require(address(this).balance >= amount, \\\"Address: insufficient balance\\\");\\n\\n        (bool success, ) = recipient.call{value: amount}(\\\"\\\");\\n        require(success, \\\"Address: unable to send value, recipient may have reverted\\\");\\n    }\\n\\n    /**\\n     * @dev Performs a Solidity function call using a low level `call`. A\\n     * plain `call` is an unsafe replacement for a function call: use this\\n     * function instead.\\n     *\\n     * If `target` reverts with a revert reason, it is bubbled up by this\\n     * function (like regular Solidity function calls).\\n     *\\n     * Returns the raw returned data. To convert to the expected return value,\\n     * use https://solidity.readthedocs.io/en/latest/units-and-global-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].\\n     *\\n     * Requirements:\\n     *\\n     * - `target` must be a contract.\\n     * - calling `target` with `data` must not revert.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCall(address target, bytes memory data) internal returns (bytes memory) {\\n        return functionCall(target, data, \\\"Address: low-level call failed\\\");\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with\\n     * `errorMessage` as a fallback revert reason when `target` reverts.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCall(\\n        address target,\\n        bytes memory data,\\n        string memory errorMessage\\n    ) internal returns (bytes memory) {\\n        return functionCallWithValue(target, data, 0, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],\\n     * but also transferring `value` wei to `target`.\\n     *\\n     * Requirements:\\n     *\\n     * - the calling contract must have an ETH balance of at least `value`.\\n     * - the called Solidity function must be `payable`.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCallWithValue(\\n        address target,\\n        bytes memory data,\\n        uint256 value\\n    ) internal returns (bytes memory) {\\n        return functionCallWithValue(target, data, value, \\\"Address: low-level call with value failed\\\");\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but\\n     * with `errorMessage` as a fallback revert reason when `target` reverts.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCallWithValue(\\n        address target,\\n        bytes memory data,\\n        uint256 value,\\n        string memory errorMessage\\n    ) internal returns (bytes memory) {\\n        require(address(this).balance >= value, \\\"Address: insufficient balance for call\\\");\\n        require(isContract(target), \\\"Address: call to non-contract\\\");\\n\\n        (bool success, bytes memory returndata) = target.call{value: value}(data);\\n        return verifyCallResult(success, returndata, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],\\n     * but performing a static call.\\n     *\\n     * _Available since v3.3._\\n     */\\n    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {\\n        return functionStaticCall(target, data, \\\"Address: low-level static call failed\\\");\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],\\n     * but performing a static call.\\n     *\\n     * _Available since v3.3._\\n     */\\n    function functionStaticCall(\\n        address target,\\n        bytes memory data,\\n        string memory errorMessage\\n    ) internal view returns (bytes memory) {\\n        require(isContract(target), \\\"Address: static call to non-contract\\\");\\n\\n        (bool success, bytes memory returndata) = target.staticcall(data);\\n        return verifyCallResult(success, returndata, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Tool to verifies that a low level call was successful, and revert if it wasn't, either by bubbling the\\n     * revert reason using the provided one.\\n     *\\n     * _Available since v4.3._\\n     */\\n    function verifyCallResult(\\n        bool success,\\n        bytes memory returndata,\\n        string memory errorMessage\\n    ) internal pure returns (bytes memory) {\\n        if (success) {\\n            return returndata;\\n        } else {\\n            // Look for revert reason and bubble it up if present\\n            if (returndata.length > 0) {\\n                // The easiest way to bubble the revert reason is using memory via assembly\\n                /// @solidity memory-safe-assembly\\n                assembly {\\n                    let returndata_size := mload(returndata)\\n                    revert(add(32, returndata), returndata_size)\\n                }\\n            } else {\\n                revert(errorMessage);\\n            }\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x611aa3f23e59cfdd1863c536776407b3e33d695152a266fa7cfb34440a29a8a3\",\"license\":\"MIT\"},\"contracts/messaging/Merkle.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.15;\\n\\nimport {Initializable} from \\\"@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol\\\";\\n\\nimport {MerkleLib} from \\\"./libraries/Merkle.sol\\\";\\n\\n/**\\n * @title MerkleTreeManager\\n * @notice Contains a Merkle tree instance and exposes read/write functions for the tree.\\n */\\ncontract MerkleTreeManager is Initializable {\\n  // ========== Custom Errors ===========\\n\\n  error MerkleTreeManager__setArborist_zeroAddress();\\n\\n  // ============ Libraries ============\\n\\n  using MerkleLib for MerkleLib.Tree;\\n\\n  // ============ Public Storage ============\\n\\n  /**\\n   * @notice Core data structure with which this contract is tasked with keeping custody.\\n   * Writable only by the designated arborist.\\n   */\\n  MerkleLib.Tree public tree;\\n\\n  /**\\n   * @notice The arborist contract that has permission to write to this tree.\\n   * @dev This could be the root manager contract or a spoke connector contract, for example.\\n   */\\n  address public arborist;\\n\\n  // ============ Upgrade Gap ============\\n\\n  uint256[49] private __GAP; // gap for upgrade safety\\n\\n  // ============ Modifiers ============\\n\\n  modifier onlyArborist() {\\n    require(arborist == msg.sender, \\\"!owner\\\");\\n    _;\\n  }\\n\\n  // ============ Getters ============\\n\\n  /**\\n   * @notice Returns the current branch.\\n   */\\n  function branch() public view returns (bytes32[32] memory) {\\n    return tree.branch;\\n  }\\n\\n  /**\\n   * @notice Calculates and returns the current root.\\n   */\\n  function root() public view returns (bytes32) {\\n    MerkleLib.Tree memory _tree = tree;\\n    return _tree.root();\\n  }\\n\\n  /**\\n   * @notice Returns the number of inserted leaves in the tree (current index).\\n   */\\n  function count() public view returns (uint256) {\\n    return tree.count;\\n  }\\n\\n  // ======== Initializer =========\\n  function initialize() public initializer {\\n    __MerkleTreeManager_init();\\n  }\\n\\n  /**\\n   * @dev Initializes MerkleTreeManager instance. Sets the msg.sender as the initial permissioned\\n   */\\n  function __MerkleTreeManager_init() internal onlyInitializing {\\n    __MerkleTreeManager_init_unchained();\\n  }\\n\\n  function __MerkleTreeManager_init_unchained() internal onlyInitializing {\\n    arborist = msg.sender;\\n  }\\n\\n  // ============ Admin Functions ==============\\n\\n  /**\\n   * @notice Method for the current arborist to assign write permissions to a new arborist.\\n   * @param newArborist The new address to set as the current arborist.\\n   */\\n  function setArborist(address newArborist) public onlyArborist {\\n    if (newArborist == address(0)) revert MerkleTreeManager__setArborist_zeroAddress();\\n    arborist = newArborist;\\n  }\\n\\n  // ========= Public Functions =========\\n\\n  /**\\n   * @notice Inserts the given leaf into the tree.\\n   * @param leaf The leaf to be inserted into the tree.\\n   * @return _root Current root for convenience.\\n   * @return _count Current node count (i.e. number of indices) AFTER the insertion of the new leaf,\\n   * provided for convenience.\\n   */\\n  function insert(bytes32 leaf) public onlyArborist returns (bytes32 _root, uint256 _count) {\\n    // NOTE: Considerably more efficient to put this tree into memory, conduct operations,\\n    // then re-assign it to storage.\\n    MerkleLib.Tree memory _tree = tree;\\n\\n    // Insert the new node.\\n    _tree = _tree.insert(leaf);\\n\\n    // Get return details for convenience.\\n    _root = _tree.root();\\n    _count = _tree.count;\\n\\n    // Write the newly updated tree to storage.\\n    tree = _tree;\\n  }\\n}\\n\",\"keccak256\":\"0xccbbb9c71fb70c566216f9d5a5070584283ec3f77a0cc29a7c7092e483e9b762\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/messaging/libraries/Merkle.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.15;\\n\\n/**\\n * @title MerkleLib\\n * @author Illusory Systems Inc.\\n * @notice An incremental merkle tree modeled on the eth2 deposit contract.\\n **/\\nlibrary MerkleLib {\\n  uint256 internal constant TREE_DEPTH = 32;\\n  uint256 internal constant MAX_LEAVES = 2**TREE_DEPTH - 1;\\n\\n  /**\\n   * @notice Struct representing incremental merkle tree. Contains current\\n   * branch and the number of inserted leaves in the tree.\\n   **/\\n  struct Tree {\\n    bytes32[TREE_DEPTH] branch;\\n    uint256 count;\\n  }\\n\\n  // ========= Storage Methods =========\\n\\n  /**\\n   * @notice Inserts a given node (leaf) into merkle tree.\\n   * @dev Reverts if the tree is already full.\\n   * @param node Element to insert into tree.\\n   **/\\n  function insert(Tree storage tree, bytes32 node) internal {\\n    require(tree.count < MAX_LEAVES, \\\"merkle tree full\\\");\\n\\n    tree.count += 1;\\n    uint256 size = tree.count;\\n    for (uint256 i = 0; i < TREE_DEPTH; i++) {\\n      if ((size & 1) == 1) {\\n        tree.branch[i] = node;\\n        return;\\n      }\\n      node = keccak256(abi.encodePacked(tree.branch[i], node));\\n      size /= 2;\\n    }\\n    // As the loop should always end prematurely with the `return` statement,\\n    // this code should be unreachable. We assert `false` just to be safe.\\n    assert(false);\\n  }\\n\\n  /**\\n   * @notice Calculates and returns tree's current root.\\n   * @return bytes32 root.\\n   **/\\n  function root(Tree storage tree) internal pure returns (bytes32) {\\n    Tree memory _tree = tree;\\n    return rootWithCtx(_tree, zeroHashes());\\n  }\\n\\n  // ========= In-Memory Methods =========\\n\\n  /**\\n   * @notice Inserts a given node (leaf) into merkle tree, operating on a tree in memory to minimize\\n   * storage operations.\\n   * @dev Reverts if the tree is already full.\\n   * @param node Element to insert into tree.\\n   * @return Tree with the leaf inserted.\\n   **/\\n  function insert(Tree memory tree, bytes32 node) internal pure returns (Tree memory) {\\n    require(tree.count < MAX_LEAVES, \\\"merkle tree full\\\");\\n\\n    tree.count += 1;\\n    uint256 size = tree.count;\\n    for (uint256 i = 0; i < TREE_DEPTH; i++) {\\n      if ((size & 1) == 1) {\\n        tree.branch[i] = node;\\n        return tree;\\n      }\\n      node = keccak256(abi.encodePacked(tree.branch[i], node));\\n      size /= 2;\\n    }\\n    // As the loop should always end prematurely with the `return` statement,\\n    // this code should be unreachable. We assert `false` just to be safe.\\n    assert(false);\\n    return tree;\\n  }\\n\\n  /**\\n   * @notice Calculates and returns tree's current root. Operates on a tree given in memory for\\n   * storage operation minimization.\\n   * @return bytes32 root.\\n   **/\\n  function root(Tree memory tree) internal pure returns (bytes32) {\\n    return rootWithCtx(tree, zeroHashes());\\n  }\\n\\n  // ========= Helper Methods =========\\n\\n  /**\\n   * @notice Calculates and returns tree's current root given array of zero hashes. Operates on\\n   * a tree given in memory for storage operation minimization.\\n   * @param _zeroes Array of zero hashes.\\n   * @return _current Calculated root of tree.\\n   **/\\n  function rootWithCtx(Tree memory tree, bytes32[TREE_DEPTH] memory _zeroes) internal pure returns (bytes32 _current) {\\n    uint256 _index = tree.count;\\n\\n    for (uint256 i = 0; i < TREE_DEPTH; i++) {\\n      uint256 _ithBit = (_index >> i) & 0x01;\\n      bytes32 _next = tree.branch[i];\\n      if (_ithBit == 1) {\\n        _current = keccak256(abi.encodePacked(_next, _current));\\n      } else {\\n        _current = keccak256(abi.encodePacked(_current, _zeroes[i]));\\n      }\\n    }\\n  }\\n\\n  /**\\n   * @notice Calculates and returns the merkle root for the given leaf\\n   * `_item`, a merkle branch, and the index of `_item` in the tree.\\n   * @param _item Merkle leaf\\n   * @param _branch Merkle proof\\n   * @param _index Index of `_item` in tree\\n   * @return _current Calculated merkle root\\n   **/\\n  function branchRoot(\\n    bytes32 _item,\\n    bytes32[TREE_DEPTH] memory _branch,\\n    uint256 _index\\n  ) internal pure returns (bytes32 _current) {\\n    _current = _item;\\n\\n    for (uint256 i = 0; i < TREE_DEPTH; i++) {\\n      uint256 _ithBit = (_index >> i) & 0x01;\\n      bytes32 _next = _branch[i];\\n      if (_ithBit == 1) {\\n        _current = keccak256(abi.encodePacked(_next, _current));\\n      } else {\\n        _current = keccak256(abi.encodePacked(_current, _next));\\n      }\\n    }\\n  }\\n\\n  /// @notice Returns array of TREE_DEPTH zero hashes\\n  /// @return _zeroes Array of TREE_DEPTH zero hashes\\n  function zeroHashes() internal pure returns (bytes32[TREE_DEPTH] memory _zeroes) {\\n    _zeroes[0] = Z_0;\\n    _zeroes[1] = Z_1;\\n    _zeroes[2] = Z_2;\\n    _zeroes[3] = Z_3;\\n    _zeroes[4] = Z_4;\\n    _zeroes[5] = Z_5;\\n    _zeroes[6] = Z_6;\\n    _zeroes[7] = Z_7;\\n    _zeroes[8] = Z_8;\\n    _zeroes[9] = Z_9;\\n    _zeroes[10] = Z_10;\\n    _zeroes[11] = Z_11;\\n    _zeroes[12] = Z_12;\\n    _zeroes[13] = Z_13;\\n    _zeroes[14] = Z_14;\\n    _zeroes[15] = Z_15;\\n    _zeroes[16] = Z_16;\\n    _zeroes[17] = Z_17;\\n    _zeroes[18] = Z_18;\\n    _zeroes[19] = Z_19;\\n    _zeroes[20] = Z_20;\\n    _zeroes[21] = Z_21;\\n    _zeroes[22] = Z_22;\\n    _zeroes[23] = Z_23;\\n    _zeroes[24] = Z_24;\\n    _zeroes[25] = Z_25;\\n    _zeroes[26] = Z_26;\\n    _zeroes[27] = Z_27;\\n    _zeroes[28] = Z_28;\\n    _zeroes[29] = Z_29;\\n    _zeroes[30] = Z_30;\\n    _zeroes[31] = Z_31;\\n  }\\n\\n  // keccak256 zero hashes\\n  bytes32 internal constant Z_0 = hex\\\"0000000000000000000000000000000000000000000000000000000000000000\\\";\\n  bytes32 internal constant Z_1 = hex\\\"ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5\\\";\\n  bytes32 internal constant Z_2 = hex\\\"b4c11951957c6f8f642c4af61cd6b24640fec6dc7fc607ee8206a99e92410d30\\\";\\n  bytes32 internal constant Z_3 = hex\\\"21ddb9a356815c3fac1026b6dec5df3124afbadb485c9ba5a3e3398a04b7ba85\\\";\\n  bytes32 internal constant Z_4 = hex\\\"e58769b32a1beaf1ea27375a44095a0d1fb664ce2dd358e7fcbfb78c26a19344\\\";\\n  bytes32 internal constant Z_5 = hex\\\"0eb01ebfc9ed27500cd4dfc979272d1f0913cc9f66540d7e8005811109e1cf2d\\\";\\n  bytes32 internal constant Z_6 = hex\\\"887c22bd8750d34016ac3c66b5ff102dacdd73f6b014e710b51e8022af9a1968\\\";\\n  bytes32 internal constant Z_7 = hex\\\"ffd70157e48063fc33c97a050f7f640233bf646cc98d9524c6b92bcf3ab56f83\\\";\\n  bytes32 internal constant Z_8 = hex\\\"9867cc5f7f196b93bae1e27e6320742445d290f2263827498b54fec539f756af\\\";\\n  bytes32 internal constant Z_9 = hex\\\"cefad4e508c098b9a7e1d8feb19955fb02ba9675585078710969d3440f5054e0\\\";\\n  bytes32 internal constant Z_10 = hex\\\"f9dc3e7fe016e050eff260334f18a5d4fe391d82092319f5964f2e2eb7c1c3a5\\\";\\n  bytes32 internal constant Z_11 = hex\\\"f8b13a49e282f609c317a833fb8d976d11517c571d1221a265d25af778ecf892\\\";\\n  bytes32 internal constant Z_12 = hex\\\"3490c6ceeb450aecdc82e28293031d10c7d73bf85e57bf041a97360aa2c5d99c\\\";\\n  bytes32 internal constant Z_13 = hex\\\"c1df82d9c4b87413eae2ef048f94b4d3554cea73d92b0f7af96e0271c691e2bb\\\";\\n  bytes32 internal constant Z_14 = hex\\\"5c67add7c6caf302256adedf7ab114da0acfe870d449a3a489f781d659e8becc\\\";\\n  bytes32 internal constant Z_15 = hex\\\"da7bce9f4e8618b6bd2f4132ce798cdc7a60e7e1460a7299e3c6342a579626d2\\\";\\n  bytes32 internal constant Z_16 = hex\\\"2733e50f526ec2fa19a22b31e8ed50f23cd1fdf94c9154ed3a7609a2f1ff981f\\\";\\n  bytes32 internal constant Z_17 = hex\\\"e1d3b5c807b281e4683cc6d6315cf95b9ade8641defcb32372f1c126e398ef7a\\\";\\n  bytes32 internal constant Z_18 = hex\\\"5a2dce0a8a7f68bb74560f8f71837c2c2ebbcbf7fffb42ae1896f13f7c7479a0\\\";\\n  bytes32 internal constant Z_19 = hex\\\"b46a28b6f55540f89444f63de0378e3d121be09e06cc9ded1c20e65876d36aa0\\\";\\n  bytes32 internal constant Z_20 = hex\\\"c65e9645644786b620e2dd2ad648ddfcbf4a7e5b1a3a4ecfe7f64667a3f0b7e2\\\";\\n  bytes32 internal constant Z_21 = hex\\\"f4418588ed35a2458cffeb39b93d26f18d2ab13bdce6aee58e7b99359ec2dfd9\\\";\\n  bytes32 internal constant Z_22 = hex\\\"5a9c16dc00d6ef18b7933a6f8dc65ccb55667138776f7dea101070dc8796e377\\\";\\n  bytes32 internal constant Z_23 = hex\\\"4df84f40ae0c8229d0d6069e5c8f39a7c299677a09d367fc7b05e3bc380ee652\\\";\\n  bytes32 internal constant Z_24 = hex\\\"cdc72595f74c7b1043d0e1ffbab734648c838dfb0527d971b602bc216c9619ef\\\";\\n  bytes32 internal constant Z_25 = hex\\\"0abf5ac974a1ed57f4050aa510dd9c74f508277b39d7973bb2dfccc5eeb0618d\\\";\\n  bytes32 internal constant Z_26 = hex\\\"b8cd74046ff337f0a7bf2c8e03e10f642c1886798d71806ab1e888d9e5ee87d0\\\";\\n  bytes32 internal constant Z_27 = hex\\\"838c5655cb21c6cb83313b5a631175dff4963772cce9108188b34ac87c81c41e\\\";\\n  bytes32 internal constant Z_28 = hex\\\"662ee4dd2dd7b2bc707961b1e646c4047669dcb6584f0d8d770daf5d7e7deb2e\\\";\\n  bytes32 internal constant Z_29 = hex\\\"388ab20e2573d171a88108e79d820e98f26c0b84aa8b2f4aa4968dbb818ea322\\\";\\n  bytes32 internal constant Z_30 = hex\\\"93237c50ba75ee485f4c22adf2f741400bdf8d6a9cc7df7ecae576221665d735\\\";\\n  bytes32 internal constant Z_31 = hex\\\"8448818bb4ae4562849e949e17ac16e0be16688e156b5cf15e098c627c0056a9\\\";\\n}\\n\",\"keccak256\":\"0xb4c9ba9ffaaab9b16e47ca3d8c85c9cbea372f184caa02a23e0005aabdbeec9d\",\"license\":\"MIT OR Apache-2.0\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610ec4806100206000396000f3fe608060405234801561001057600080fd5b50600436106100885760003560e01c80634b72d0d41161005b5780634b72d0d41461010c5780638129fc1c14610121578063ebf0c71714610129578063fd54b2281461013157600080fd5b806306661abd1461008d5780631b373a98146100a45780632d287e43146100b957806331d0913c146100e1575b600080fd5b6021545b6040519081526020015b60405180910390f35b6100b76100b2366004610c28565b61013b565b005b6100cc6100c7366004610c58565b6101cc565b6040805192835260208301919091520161009b565b6022546100f4906001600160a01b031681565b6040516001600160a01b03909116815260200161009b565b61011461029d565b60405161009b9190610c71565b6100b76102d9565b6100916103ea565b6021546100919081565b6022546001600160a01b031633146101835760405162461bcd60e51b815260206004820152600660248201526510b7bbb732b960d11b60448201526064015b60405180910390fd5b6001600160a01b0381166101aa57604051630c11a52d60e11b815260040160405180910390fd5b602280546001600160a01b0319166001600160a01b0392909216919091179055565b60225460009081906001600160a01b031633146102145760405162461bcd60e51b815260206004820152600660248201526510b7bbb732b960d11b604482015260640161017a565b6040805161044081018083526000926001918391820190839060209082845b81548152602001906001019080831161023357505050918352505060209182015491015290506102638185610442565b905061026e8161057e565b60208083015183519295509350829160019161028b918391610b96565b50602091820151910155509092909150565b6102a5610bd4565b604080516104008101918290529060019060209082845b8154815260200190600101908083116102bc575050505050905090565b600054610100900460ff16158080156102f95750600054600160ff909116105b806103135750303b158015610313575060005460ff166001145b6103765760405162461bcd60e51b815260206004820152602e60248201527f496e697469616c697a61626c653a20636f6e747261637420697320616c72656160448201526d191e481a5b9a5d1a585b1a5e995960921b606482015260840161017a565b6000805460ff191660011790558015610399576000805461ff0019166101001790555b6103a1610591565b80156103e7576000805461ff0019169055604051600181527f7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb38474024989060200160405180910390a15b50565b604080516104408101808352600092839291600191839190820190839060209082845b81548152602001906001019080831161040d575050509183525050602091820154910152905061043c8161057e565b91505090565b61044a610bf3565b600161045860206002610da1565b6104629190610dad565b8360200151106104a75760405162461bcd60e51b815260206004820152601060248201526f1b595c9adb19481d1c995948199d5b1b60821b604482015260640161017a565b6001836020018181516104ba9190610dc4565b905250602083015160005b602081101561056a57816001166001036104fe578451849082602081106104ee576104ee610ddc565b6020020152508391506105789050565b8451816020811061051157610511610ddc565b602002015184604051602001610531929190918252602082015260400190565b6040516020818303038152906040528051906020012093506002826105569190610df2565b91508061056281610e14565b9150506104c5565b50610573610e2d565b839150505b92915050565b60006105788261058c6105c2565b610a83565b600054610100900460ff166105b85760405162461bcd60e51b815260040161017a90610e43565b6105c0610b5b565b565b6105ca610bd4565b600081527fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb560208201527fb4c11951957c6f8f642c4af61cd6b24640fec6dc7fc607ee8206a99e92410d3060408201527f21ddb9a356815c3fac1026b6dec5df3124afbadb485c9ba5a3e3398a04b7ba8560608201527fe58769b32a1beaf1ea27375a44095a0d1fb664ce2dd358e7fcbfb78c26a1934460808201527f0eb01ebfc9ed27500cd4dfc979272d1f0913cc9f66540d7e8005811109e1cf2d60a08201527f887c22bd8750d34016ac3c66b5ff102dacdd73f6b014e710b51e8022af9a196860c08201527fffd70157e48063fc33c97a050f7f640233bf646cc98d9524c6b92bcf3ab56f8360e08201527f9867cc5f7f196b93bae1e27e6320742445d290f2263827498b54fec539f756af6101008201527fcefad4e508c098b9a7e1d8feb19955fb02ba9675585078710969d3440f5054e06101208201527ff9dc3e7fe016e050eff260334f18a5d4fe391d82092319f5964f2e2eb7c1c3a56101408201527ff8b13a49e282f609c317a833fb8d976d11517c571d1221a265d25af778ecf8926101608201527f3490c6ceeb450aecdc82e28293031d10c7d73bf85e57bf041a97360aa2c5d99c6101808201527fc1df82d9c4b87413eae2ef048f94b4d3554cea73d92b0f7af96e0271c691e2bb6101a08201527f5c67add7c6caf302256adedf7ab114da0acfe870d449a3a489f781d659e8becc6101c08201527fda7bce9f4e8618b6bd2f4132ce798cdc7a60e7e1460a7299e3c6342a579626d26101e08201527f2733e50f526ec2fa19a22b31e8ed50f23cd1fdf94c9154ed3a7609a2f1ff981f6102008201527fe1d3b5c807b281e4683cc6d6315cf95b9ade8641defcb32372f1c126e398ef7a6102208201527f5a2dce0a8a7f68bb74560f8f71837c2c2ebbcbf7fffb42ae1896f13f7c7479a06102408201527fb46a28b6f55540f89444f63de0378e3d121be09e06cc9ded1c20e65876d36aa06102608201527fc65e9645644786b620e2dd2ad648ddfcbf4a7e5b1a3a4ecfe7f64667a3f0b7e26102808201527ff4418588ed35a2458cffeb39b93d26f18d2ab13bdce6aee58e7b99359ec2dfd96102a08201527f5a9c16dc00d6ef18b7933a6f8dc65ccb55667138776f7dea101070dc8796e3776102c08201527f4df84f40ae0c8229d0d6069e5c8f39a7c299677a09d367fc7b05e3bc380ee6526102e08201527fcdc72595f74c7b1043d0e1ffbab734648c838dfb0527d971b602bc216c9619ef6103008201527f0abf5ac974a1ed57f4050aa510dd9c74f508277b39d7973bb2dfccc5eeb0618d6103208201527fb8cd74046ff337f0a7bf2c8e03e10f642c1886798d71806ab1e888d9e5ee87d06103408201527f838c5655cb21c6cb83313b5a631175dff4963772cce9108188b34ac87c81c41e6103608201527f662ee4dd2dd7b2bc707961b1e646c4047669dcb6584f0d8d770daf5d7e7deb2e6103808201527f388ab20e2573d171a88108e79d820e98f26c0b84aa8b2f4aa4968dbb818ea3226103a08201527f93237c50ba75ee485f4c22adf2f741400bdf8d6a9cc7df7ecae576221665d7356103c08201527f8448818bb4ae4562849e949e17ac16e0be16688e156b5cf15e098c627c0056a96103e082015290565b6020820151600090815b6020811015610b53578451600183831c16906000908360208110610ab357610ab3610ddc565b6020020151905081600103610af3576040805160208101839052908101869052606001604051602081830303815290604052805190602001209450610b3e565b84868460208110610b0657610b06610ddc565b6020020151604051602001610b25929190918252602082015260400190565b6040516020818303038152906040528051906020012094505b50508080610b4b90610e14565b915050610a8d565b505092915050565b600054610100900460ff16610b825760405162461bcd60e51b815260040161017a90610e43565b602280546001600160a01b03191633179055565b8260208101928215610bc4579160200282015b82811115610bc4578251825591602001919060010190610ba9565b50610bd0929150610c13565b5090565b6040518061040001604052806020906020820280368337509192915050565b6040518060400160405280610c06610bd4565b8152602001600081525090565b5b80821115610bd05760008155600101610c14565b600060208284031215610c3a57600080fd5b81356001600160a01b0381168114610c5157600080fd5b9392505050565b600060208284031215610c6a57600080fd5b5035919050565b6104008101818360005b6020808210610c8a5750610c9e565b825184529283019290910190600101610c7b565b50505092915050565b634e487b7160e01b600052601160045260246000fd5b600181815b80851115610cf8578160001904821115610cde57610cde610ca7565b80851615610ceb57918102915b93841c9390800290610cc2565b509250929050565b600082610d0f57506001610578565b81610d1c57506000610578565b8160018114610d325760028114610d3c57610d58565b6001915050610578565b60ff841115610d4d57610d4d610ca7565b50506001821b610578565b5060208310610133831016604e8410600b8410161715610d7b575081810a610578565b610d858383610cbd565b8060001904821115610d9957610d99610ca7565b029392505050565b6000610c518383610d00565b600082821015610dbf57610dbf610ca7565b500390565b60008219821115610dd757610dd7610ca7565b500190565b634e487b7160e01b600052603260045260246000fd5b600082610e0f57634e487b7160e01b600052601260045260246000fd5b500490565b600060018201610e2657610e26610ca7565b5060010190565b634e487b7160e01b600052600160045260246000fd5b6020808252602b908201527f496e697469616c697a61626c653a20636f6e7472616374206973206e6f74206960408201526a6e697469616c697a696e6760a81b60608201526080019056fea26469706673582212202aaa1a510baeaf526a4ed7306e28a0142dfbc46ed7f0465f33d240b665d1c54864736f6c634300080f0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100885760003560e01c80634b72d0d41161005b5780634b72d0d41461010c5780638129fc1c14610121578063ebf0c71714610129578063fd54b2281461013157600080fd5b806306661abd1461008d5780631b373a98146100a45780632d287e43146100b957806331d0913c146100e1575b600080fd5b6021545b6040519081526020015b60405180910390f35b6100b76100b2366004610c28565b61013b565b005b6100cc6100c7366004610c58565b6101cc565b6040805192835260208301919091520161009b565b6022546100f4906001600160a01b031681565b6040516001600160a01b03909116815260200161009b565b61011461029d565b60405161009b9190610c71565b6100b76102d9565b6100916103ea565b6021546100919081565b6022546001600160a01b031633146101835760405162461bcd60e51b815260206004820152600660248201526510b7bbb732b960d11b60448201526064015b60405180910390fd5b6001600160a01b0381166101aa57604051630c11a52d60e11b815260040160405180910390fd5b602280546001600160a01b0319166001600160a01b0392909216919091179055565b60225460009081906001600160a01b031633146102145760405162461bcd60e51b815260206004820152600660248201526510b7bbb732b960d11b604482015260640161017a565b6040805161044081018083526000926001918391820190839060209082845b81548152602001906001019080831161023357505050918352505060209182015491015290506102638185610442565b905061026e8161057e565b60208083015183519295509350829160019161028b918391610b96565b50602091820151910155509092909150565b6102a5610bd4565b604080516104008101918290529060019060209082845b8154815260200190600101908083116102bc575050505050905090565b600054610100900460ff16158080156102f95750600054600160ff909116105b806103135750303b158015610313575060005460ff166001145b6103765760405162461bcd60e51b815260206004820152602e60248201527f496e697469616c697a61626c653a20636f6e747261637420697320616c72656160448201526d191e481a5b9a5d1a585b1a5e995960921b606482015260840161017a565b6000805460ff191660011790558015610399576000805461ff0019166101001790555b6103a1610591565b80156103e7576000805461ff0019169055604051600181527f7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb38474024989060200160405180910390a15b50565b604080516104408101808352600092839291600191839190820190839060209082845b81548152602001906001019080831161040d575050509183525050602091820154910152905061043c8161057e565b91505090565b61044a610bf3565b600161045860206002610da1565b6104629190610dad565b8360200151106104a75760405162461bcd60e51b815260206004820152601060248201526f1b595c9adb19481d1c995948199d5b1b60821b604482015260640161017a565b6001836020018181516104ba9190610dc4565b905250602083015160005b602081101561056a57816001166001036104fe578451849082602081106104ee576104ee610ddc565b6020020152508391506105789050565b8451816020811061051157610511610ddc565b602002015184604051602001610531929190918252602082015260400190565b6040516020818303038152906040528051906020012093506002826105569190610df2565b91508061056281610e14565b9150506104c5565b50610573610e2d565b839150505b92915050565b60006105788261058c6105c2565b610a83565b600054610100900460ff166105b85760405162461bcd60e51b815260040161017a90610e43565b6105c0610b5b565b565b6105ca610bd4565b600081527fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb560208201527fb4c11951957c6f8f642c4af61cd6b24640fec6dc7fc607ee8206a99e92410d3060408201527f21ddb9a356815c3fac1026b6dec5df3124afbadb485c9ba5a3e3398a04b7ba8560608201527fe58769b32a1beaf1ea27375a44095a0d1fb664ce2dd358e7fcbfb78c26a1934460808201527f0eb01ebfc9ed27500cd4dfc979272d1f0913cc9f66540d7e8005811109e1cf2d60a08201527f887c22bd8750d34016ac3c66b5ff102dacdd73f6b014e710b51e8022af9a196860c08201527fffd70157e48063fc33c97a050f7f640233bf646cc98d9524c6b92bcf3ab56f8360e08201527f9867cc5f7f196b93bae1e27e6320742445d290f2263827498b54fec539f756af6101008201527fcefad4e508c098b9a7e1d8feb19955fb02ba9675585078710969d3440f5054e06101208201527ff9dc3e7fe016e050eff260334f18a5d4fe391d82092319f5964f2e2eb7c1c3a56101408201527ff8b13a49e282f609c317a833fb8d976d11517c571d1221a265d25af778ecf8926101608201527f3490c6ceeb450aecdc82e28293031d10c7d73bf85e57bf041a97360aa2c5d99c6101808201527fc1df82d9c4b87413eae2ef048f94b4d3554cea73d92b0f7af96e0271c691e2bb6101a08201527f5c67add7c6caf302256adedf7ab114da0acfe870d449a3a489f781d659e8becc6101c08201527fda7bce9f4e8618b6bd2f4132ce798cdc7a60e7e1460a7299e3c6342a579626d26101e08201527f2733e50f526ec2fa19a22b31e8ed50f23cd1fdf94c9154ed3a7609a2f1ff981f6102008201527fe1d3b5c807b281e4683cc6d6315cf95b9ade8641defcb32372f1c126e398ef7a6102208201527f5a2dce0a8a7f68bb74560f8f71837c2c2ebbcbf7fffb42ae1896f13f7c7479a06102408201527fb46a28b6f55540f89444f63de0378e3d121be09e06cc9ded1c20e65876d36aa06102608201527fc65e9645644786b620e2dd2ad648ddfcbf4a7e5b1a3a4ecfe7f64667a3f0b7e26102808201527ff4418588ed35a2458cffeb39b93d26f18d2ab13bdce6aee58e7b99359ec2dfd96102a08201527f5a9c16dc00d6ef18b7933a6f8dc65ccb55667138776f7dea101070dc8796e3776102c08201527f4df84f40ae0c8229d0d6069e5c8f39a7c299677a09d367fc7b05e3bc380ee6526102e08201527fcdc72595f74c7b1043d0e1ffbab734648c838dfb0527d971b602bc216c9619ef6103008201527f0abf5ac974a1ed57f4050aa510dd9c74f508277b39d7973bb2dfccc5eeb0618d6103208201527fb8cd74046ff337f0a7bf2c8e03e10f642c1886798d71806ab1e888d9e5ee87d06103408201527f838c5655cb21c6cb83313b5a631175dff4963772cce9108188b34ac87c81c41e6103608201527f662ee4dd2dd7b2bc707961b1e646c4047669dcb6584f0d8d770daf5d7e7deb2e6103808201527f388ab20e2573d171a88108e79d820e98f26c0b84aa8b2f4aa4968dbb818ea3226103a08201527f93237c50ba75ee485f4c22adf2f741400bdf8d6a9cc7df7ecae576221665d7356103c08201527f8448818bb4ae4562849e949e17ac16e0be16688e156b5cf15e098c627c0056a96103e082015290565b6020820151600090815b6020811015610b53578451600183831c16906000908360208110610ab357610ab3610ddc565b6020020151905081600103610af3576040805160208101839052908101869052606001604051602081830303815290604052805190602001209450610b3e565b84868460208110610b0657610b06610ddc565b6020020151604051602001610b25929190918252602082015260400190565b6040516020818303038152906040528051906020012094505b50508080610b4b90610e14565b915050610a8d565b505092915050565b600054610100900460ff16610b825760405162461bcd60e51b815260040161017a90610e43565b602280546001600160a01b03191633179055565b8260208101928215610bc4579160200282015b82811115610bc4578251825591602001919060010190610ba9565b50610bd0929150610c13565b5090565b6040518061040001604052806020906020820280368337509192915050565b6040518060400160405280610c06610bd4565b8152602001600081525090565b5b80821115610bd05760008155600101610c14565b600060208284031215610c3a57600080fd5b81356001600160a01b0381168114610c5157600080fd5b9392505050565b600060208284031215610c6a57600080fd5b5035919050565b6104008101818360005b6020808210610c8a5750610c9e565b825184529283019290910190600101610c7b565b50505092915050565b634e487b7160e01b600052601160045260246000fd5b600181815b80851115610cf8578160001904821115610cde57610cde610ca7565b80851615610ceb57918102915b93841c9390800290610cc2565b509250929050565b600082610d0f57506001610578565b81610d1c57506000610578565b8160018114610d325760028114610d3c57610d58565b6001915050610578565b60ff841115610d4d57610d4d610ca7565b50506001821b610578565b5060208310610133831016604e8410600b8410161715610d7b575081810a610578565b610d858383610cbd565b8060001904821115610d9957610d99610ca7565b029392505050565b6000610c518383610d00565b600082821015610dbf57610dbf610ca7565b500390565b60008219821115610dd757610dd7610ca7565b500190565b634e487b7160e01b600052603260045260246000fd5b600082610e0f57634e487b7160e01b600052601260045260246000fd5b500490565b600060018201610e2657610e26610ca7565b5060010190565b634e487b7160e01b600052600160045260246000fd5b6020808252602b908201527f496e697469616c697a61626c653a20636f6e7472616374206973206e6f74206960408201526a6e697469616c697a696e6760a81b60608201526080019056fea26469706673582212202aaa1a510baeaf526a4ed7306e28a0142dfbc46ed7f0465f33d240b665d1c54864736f6c634300080f0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "insert(bytes32)": {
+        "params": {
+          "leaf": "The leaf to be inserted into the tree."
+        },
+        "returns": {
+          "_count": "Current node count (i.e. number of indices) AFTER the insertion of the new leaf, provided for convenience.",
+          "_root": "Current root for convenience."
+        }
+      },
+      "setArborist(address)": {
+        "params": {
+          "newArborist": "The new address to set as the current arborist."
+        }
+      }
+    },
+    "stateVariables": {
+      "arborist": {
+        "details": "This could be the root manager contract or a spoke connector contract, for example."
+      }
+    },
+    "title": "MerkleTreeManager",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "arborist()": {
+        "notice": "The arborist contract that has permission to write to this tree."
+      },
+      "branch()": {
+        "notice": "Returns the current branch."
+      },
+      "count()": {
+        "notice": "Returns the number of inserted leaves in the tree (current index)."
+      },
+      "insert(bytes32)": {
+        "notice": "Inserts the given leaf into the tree."
+      },
+      "root()": {
+        "notice": "Calculates and returns the current root."
+      },
+      "setArborist(address)": {
+        "notice": "Method for the current arborist to assign write permissions to a new arborist."
+      },
+      "tree()": {
+        "notice": "Core data structure with which this contract is tasked with keeping custody. Writable only by the designated arborist."
+      }
+    },
+    "notice": "Contains a Merkle tree instance and exposes read/write functions for the tree.",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 138,
+        "contract": "contracts/messaging/Merkle.sol:MerkleTreeManager",
+        "label": "_initialized",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_uint8"
+      },
+      {
+        "astId": 141,
+        "contract": "contracts/messaging/Merkle.sol:MerkleTreeManager",
+        "label": "_initializing",
+        "offset": 1,
+        "slot": "0",
+        "type": "t_bool"
+      },
+      {
+        "astId": 30314,
+        "contract": "contracts/messaging/Merkle.sol:MerkleTreeManager",
+        "label": "tree",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_struct(Tree)39354_storage"
+      },
+      {
+        "astId": 30317,
+        "contract": "contracts/messaging/Merkle.sol:MerkleTreeManager",
+        "label": "arborist",
+        "offset": 0,
+        "slot": "34",
+        "type": "t_address"
+      },
+      {
+        "astId": 30321,
+        "contract": "contracts/messaging/Merkle.sol:MerkleTreeManager",
+        "label": "__GAP",
+        "offset": 0,
+        "slot": "35",
+        "type": "t_array(t_uint256)49_storage"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_bytes32)32_storage": {
+        "base": "t_bytes32",
+        "encoding": "inplace",
+        "label": "bytes32[32]",
+        "numberOfBytes": "1024"
+      },
+      "t_array(t_uint256)49_storage": {
+        "base": "t_uint256",
+        "encoding": "inplace",
+        "label": "uint256[49]",
+        "numberOfBytes": "1568"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_struct(Tree)39354_storage": {
+        "encoding": "inplace",
+        "label": "struct MerkleLib.Tree",
+        "members": [
+          {
+            "astId": 39351,
+            "contract": "contracts/messaging/Merkle.sol:MerkleTreeManager",
+            "label": "branch",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_array(t_bytes32)32_storage"
+          },
+          {
+            "astId": 39353,
+            "contract": "contracts/messaging/Merkle.sol:MerkleTreeManager",
+            "label": "count",
+            "offset": 0,
+            "slot": "32",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "1056"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint8": {
+        "encoding": "inplace",
+        "label": "uint8",
+        "numberOfBytes": "1"
+      }
+    }
+  }
+}
