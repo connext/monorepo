@@ -53,6 +53,12 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function removeAssetId(TokenId calldata _canonical, address _adoptedAssetId) external;
 
+  function updateDetails(
+    TokenId calldata _canonical,
+    string memory _name,
+    string memory _symbol
+  ) external;
+
   // BaseConnextFacet
 
   // BridgeFacet

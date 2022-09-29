@@ -45,7 +45,7 @@ library BridgeMessage {
 
   uint256 private constant TOKEN_ID_LEN = 36; // 4 bytes domain + 32 bytes id
   uint256 private constant IDENTIFIER_LEN = 1;
-  uint256 private constant TRANSFER_LEN = 97; // 1 byte identifier + 32 bytes amount + 32 bytes detailsHash + 32 bytes transfer id
+  uint256 private constant TRANSFER_LEN = 65; // 1 byte identifier + 32 bytes amount + 32 bytes transfer id
 
   // ============ Modifiers ============
 
@@ -130,16 +130,11 @@ library BridgeMessage {
   /**
    * @notice Formats Transfer
    * @param _amnt The transfer amount
-   * @param _detailsHash The hash of the token name, symbol, and decimals
    * @param _transferId The unique identifier of the transfer
    * @return
    */
-  function formatTransfer(
-    uint256 _amnt,
-    bytes32 _detailsHash,
-    bytes32 _transferId
-  ) internal pure returns (bytes29) {
-    return abi.encodePacked(Types.Transfer, _amnt, _detailsHash, _transferId).ref(uint40(Types.Transfer));
+  function formatTransfer(uint256 _amnt, bytes32 _transferId) internal pure returns (bytes29) {
+    return abi.encodePacked(Types.Transfer, _amnt, _transferId).ref(uint40(Types.Transfer));
   }
 
   /**
@@ -159,22 +154,6 @@ library BridgeMessage {
    */
   function formatTokenId(uint32 _domain, bytes32 _id) internal pure returns (bytes29) {
     return abi.encodePacked(_domain, _id).ref(uint40(Types.TokenId));
-  }
-
-  /**
-   * @notice Formats the keccak256 hash of the token details
-   * Token Details Format:
-   *      length of name cast to bytes - 32 bytes
-   *      name - x bytes (variable)
-   *      length of symbol cast to bytes - 32 bytes
-   *      symbol - x bytes (variable)
-   *      decimals - 1 byte
-   * @param _name The name
-   * @param _symbol The symbol
-   * @return The Details message
-   */
-  function getDetailsHash(string memory _name, string memory _symbol) internal pure returns (bytes32) {
-    return keccak256(abi.encodePacked(bytes(_name).length, _name, bytes(_symbol).length, _symbol));
   }
 
   /**
@@ -235,23 +214,13 @@ library BridgeMessage {
   }
 
   /**
-   * @notice Retrieves the detailsHash from a Transfer
-   * @param _transferAction The message
-   * @return The detailsHash
-   */
-  function detailsHash(bytes29 _transferAction) internal pure returns (bytes32) {
-    // before = 1 byte identifier + 32 bytes amount = 33 bytes
-    return _transferAction.index(33, 32);
-  }
-
-  /**
    * @notice Retrieves the transfer id from a Transfer
    * @param _transferAction The message
    * @return The id
    */
   function transferId(bytes29 _transferAction) internal pure returns (bytes32) {
-    // before = 1 byte identifier + 32 bytes amount + 32 bytes details = 65 bytes
-    return _transferAction.index(65, 32);
+    // before = 1 byte identifier + 32 bytes amount = 33 bytes
+    return _transferAction.index(33, 32);
   }
 
   /**

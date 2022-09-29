@@ -248,8 +248,6 @@ contract InboxFacet is BaseConnextFacet {
       // If the token is of remote origin, mint the representational asset into circulation here.
       // NOTE: The bridge tokens should be distributed to their intended recipient outside
       IBridgeToken(_token).mint(address(this), _amount);
-      // Tell the token what its detailsHash is
-      IBridgeToken(_token).setDetailsHash(_action.detailsHash());
     }
     // NOTE: If the tokens are locally originating - meaning they are the canonical asset - then they
     // would be held in escrow in this contract. If we're receiving this message, it must mean

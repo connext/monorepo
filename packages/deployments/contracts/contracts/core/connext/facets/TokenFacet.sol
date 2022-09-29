@@ -21,6 +21,7 @@ contract TokenFacet is BaseConnextFacet {
   error TokenFacet__addAssetId_nativeAsset();
   error TokenFacet__addAssetId_alreadyAdded();
   error TokenFacet__removeAssetId_notAdded();
+  error TokenFacet__updateDetails_localNotFound();
 
   // ============ Events ============
 
@@ -143,6 +144,8 @@ contract TokenFacet is BaseConnextFacet {
   function setupAsset(
     TokenId calldata _canonical,
     uint8 _canonicalDecimals,
+    string memory _representationName,
+    string memory _representationSymbol,
     address _adoptedAssetId,
     address _stableSwapPool
   ) external onlyOwner returns (address _local) {
@@ -157,7 +160,14 @@ contract TokenFacet is BaseConnextFacet {
 
     // Deploy the representation token if on a remote domain
     if (_canonical.domain != s.domain) {
-      _local = _ensureRepresentationDeployed(key, _canonical.id, _canonical.domain, _canonicalDecimals);
+      _local = _ensureRepresentationDeployed(
+        key,
+        _canonical.id,
+        _canonical.domain,
+        _canonicalDecimals,
+        _representationName,
+        _representationSymbol
+      );
     } else {
       _local = TypeCasts.bytes32ToAddress(_canonical.id);
     }
@@ -203,6 +213,25 @@ contract TokenFacet is BaseConnextFacet {
   function removeAssetId(TokenId calldata _canonical, address _adoptedAssetId) external onlyOwner {
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
     _removeAssetId(key, _adoptedAssetId);
+  }
+
+  /**
+   * @notice Used to update the name and symbol of a local token
+   * @param _canonical - The canonical id and domain to remove
+   * @param _name - The new name
+   * @param _symbol - The new symbol
+   */
+  function updateDetails(
+    TokenId calldata _canonical,
+    string memory _name,
+    string memory _symbol
+  ) external onlyOwner {
+    bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
+    address local = s.canonicalToRepresentation[key];
+    if (local == address(0)) {
+      revert TokenFacet__updateDetails_localNotFound();
+    }
+    IBridgeToken(local).setDetails(_name, _symbol);
   }
 
   // ============ Private Functions ============
@@ -259,15 +288,15 @@ contract TokenFacet is BaseConnextFacet {
     bytes32 _key,
     bytes32 _id,
     uint32 _domain,
-    uint8 _decimals
+    uint8 _decimals,
+    string memory _name,
+    string memory _symbol
   ) internal returns (address _token) {
     // if there is already a token deployed, do nothing
     _token = s.canonicalToRepresentation[_key];
     if (_token == address(0)) {
       // deploy and initialize the token contract
       _token = address(new UpgradeBeaconProxy(s.tokenBeacon, ""));
-      // set the default token name & symbol
-      (string memory _name, string memory _symbol) = _defaultDetails(_domain, _id);
       // initialize the token with decimals and default name
       IBridgeToken(_token).initialize(_decimals, _name, _symbol);
       // store token in mappings
@@ -275,35 +304,6 @@ contract TokenFacet is BaseConnextFacet {
       _setRepresentationToCanonical(_domain, _id, _token);
       // emit event upon deploying new token
       emit TokenDeployed(_domain, _id, _token);
-    }
-  }
-
-  /**
-   * @notice Get default name and details for a token
-   * Sets name to "nomad.[domain].[id]"
-   * and symbol to
-   * @param _domain the domain of the canonical token
-   * @param _id the bytes32 ID pf the canonical of the token
-   */
-  function _defaultDetails(uint32 _domain, bytes32 _id)
-    internal
-    pure
-    returns (string memory _name, string memory _symbol)
-  {
-    // get the first and second half of the token ID
-    (, uint256 _secondHalfId) = Encoding.encodeHex(uint256(_id));
-    // encode the default token name: "[decimal domain].[hex 4 bytes of ID]"
-    _name = string(
-      abi.encodePacked(
-        Encoding.decimalUint32(_domain), // 10
-        ".", // 1
-        uint32(_secondHalfId) // 4
-      )
-    );
-    // allocate the memory for a new 32-byte string
-    _symbol = new string(10 + 1 + 4);
-    assembly {
-      mstore(add(_symbol, 0x20), mload(add(_name, 0x20)))
     }
   }
 
