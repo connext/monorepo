@@ -24,16 +24,17 @@ contract RootManagerTest is ForgeHelper {
   // ============ Storage ============
   RootManager _rootManager;
   address _merkle;
-  uint32 domain = 1000;
-  uint32 anotherDomain = 1001;
-  address notOwner = address(100);
-  address watcherManager = address(200);
-  address watcher = address(201);
-  address connector = address(300);
-  address anotherConnector = address(301);
-  bytes32 outboundRoot = bytes32("test");
+  uint32[] _domains;
+  address[] _connectors;
+
+  address notOwner = address(1);
+  address watcherManager = address(2);
+  address watcher = address(3);
 
   function setUp() public {
+    _domains.push(1000);
+    _connectors.push(address(1000));
+
     _merkle = address(new MerkleTreeManager());
     MerkleTreeManager(_merkle).initialize();
     _rootManager = new RootManager(_merkle, watcherManager);
@@ -45,40 +46,40 @@ contract RootManagerTest is ForgeHelper {
   // ============ RootManager.addConnector ============
   function test_RootManager__addConnector_shouldWork() public {
     vm.expectEmit(true, true, true, true);
-    emit ConnectorAdded(domain, connector);
+    emit ConnectorAdded(_domains[0], _connectors[0]);
 
-    _rootManager.addConnector(domain, connector);
+    _rootManager.addConnector(_domains[0], _connectors[0]);
 
-    assertEq(_rootManager.connectors(domain), connector);
+    assertEq(_rootManager.connectors(_domains[0]), _connectors[0]);
   }
 
   function test_RootManager__addConnector_shouldFailIfCallerNotOwner() public {
     vm.expectRevert(ProposedOwnable__onlyOwner_notOwner.selector);
 
     vm.prank(notOwner);
-    _rootManager.addConnector(domain, connector);
+    _rootManager.addConnector(_domains[0], _connectors[0]);
   }
 
   function test_RootManager__addConnector_shouldFailIfAlreadyAdded() public {
-    _rootManager.addConnector(domain, connector);
+    _rootManager.addConnector(_domains[0], _connectors[0]);
 
     vm.expectRevert(bytes("exists"));
 
-    _rootManager.addConnector(domain, connector);
+    _rootManager.addConnector(_domains[0], _connectors[0]);
   }
 
   function test_RootManager__addConnector_shouldFailIfAddressZero() public {
     vm.expectRevert(bytes("!connector"));
 
-    _rootManager.addConnector(domain, address(0));
+    _rootManager.addConnector(_domains[0], address(0));
   }
 
   // ============ RootManager.removeConnector ============
   function test_RootManager__removeConnector_shouldWork() public {
-    _rootManager.addConnector(domain, connector);
+    _rootManager.addConnector(_domains[0], _connectors[0]);
 
     vm.expectEmit(true, true, true, true);
-    emit ConnectorRemoved(domain, connector);
+    emit ConnectorRemoved(_domains[0], _connectors[0]);
 
     vm.mockCall(
       watcherManager,
@@ -86,16 +87,16 @@ contract RootManagerTest is ForgeHelper {
       abi.encode(true)
     );
 
-    _rootManager.removeConnector(domain);
+    _rootManager.removeConnector(_domains[0]);
 
-    assertEq(_rootManager.connectors(domain), address(0));
+    assertEq(_rootManager.connectors(_domains[0]), address(0));
   }
 
   function test_RootManager__removeConnector_shouldFailIfCallerNotWatcher() public {
     vm.expectRevert(ProposedOwnable__onlyOwner_notOwner.selector);
 
     vm.prank(notOwner);
-    _rootManager.addConnector(domain, connector);
+    _rootManager.addConnector(_domains[0], _connectors[0]);
   }
 
   function test_RootManager__removeConnector_shouldFailIfNotAdded() public {
@@ -107,35 +108,52 @@ contract RootManagerTest is ForgeHelper {
       abi.encode(true)
     );
 
-    _rootManager.removeConnector(domain);
+    _rootManager.removeConnector(_domains[0]);
   }
 
   // ============ RootManager.aggregate ============
   function test_RootManager__aggregate_shouldWork(bytes32 inbound) public {
-    _rootManager.addConnector(domain, connector);
+    _rootManager.addConnector(_domains[0], _connectors[0]);
 
     vm.expectEmit(true, true, true, true);
-    emit RootAggregated(domain, inbound, 0);
+    emit RootAggregated(_domains[0], inbound, 0);
 
-    vm.prank(connector);
-    _rootManager.aggregate(domain, inbound);
+    vm.prank(_connectors[0]);
+    _rootManager.aggregate(_domains[0], inbound);
   }
 
   function test_RootManager__aggregate_shouldFailIfCallerNotConnector(bytes32 inbound) public {
     vm.expectRevert(bytes("!connector"));
 
-    _rootManager.aggregate(domain, inbound);
+    _rootManager.aggregate(_domains[0], inbound);
   }
 
   // ============ RootManager.propagate ============
   function test_RootManager__propagate_shouldSendToL2(bytes32 inbound) public {
-    _rootManager.addConnector(domain, connector);
+    _rootManager.addConnector(_domains[0], _connectors[0]);
 
-    vm.prank(connector);
-    _rootManager.aggregate(domain, inbound);
+    vm.prank(_connectors[0]);
+    _rootManager.aggregate(_domains[0], inbound);
 
-    vm.mockCall(connector, abi.encodeWithSelector(IHubConnector.sendMessage.selector), abi.encode());
-    vm.expectCall(connector, abi.encodeWithSelector(IHubConnector.sendMessage.selector));
+    vm.mockCall(_connectors[0], abi.encodeWithSelector(IHubConnector.sendMessage.selector), abi.encode());
+    vm.expectCall(_connectors[0], abi.encodeWithSelector(IHubConnector.sendMessage.selector));
+
+    _rootManager.propagate();
+  }
+
+  function test_RootManager__propagate_shouldSendToAllL2s(bytes32 inbound) public {
+    // Add another connector
+    _domains.push(1001);
+    _connectors.push(address(1001));
+
+    for (uint32 i; i < _domains.length; i++) {
+      _rootManager.addConnector(_domains[i], _connectors[i]);
+      vm.expectCall(_connectors[i], abi.encodeWithSelector(IHubConnector.sendMessage.selector));
+      vm.mockCall(_connectors[i], abi.encodeWithSelector(IHubConnector.sendMessage.selector), abi.encode());
+    }
+
+    vm.prank(_connectors[0]);
+    _rootManager.aggregate(_domains[0], inbound);
 
     _rootManager.propagate();
   }
