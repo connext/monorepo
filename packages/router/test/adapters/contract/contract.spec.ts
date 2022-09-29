@@ -105,7 +105,8 @@ describe("Contract Adapter", () => {
       const digest = getInvariantTransactionDigest(txDataMock);
       interfaceMock.encodeFunctionData.returns(digest);
 
-      txServiceMock.readTx.resolves(constants.HashZero);
+      txServiceMock.readTx.onCall(0).resolves(constants.HashZero);
+      txServiceMock.readTx.onCall(1).resolves(getRandomBytes32());
 
       await SharedFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "prepare");
       expect(interfaceMock.encodeFunctionData).to.have.been.calledOnceWithExactly("variantTransactionData", [digest]);
