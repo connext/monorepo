@@ -2908,6 +2908,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "xAppConnectionManager",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "uint32",

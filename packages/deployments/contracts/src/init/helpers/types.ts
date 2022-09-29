@@ -47,10 +47,14 @@ export type HubMessagingDeployments = {
   MainnetConnector: Deployment;
   HubConnectors: Deployment[];
   WatcherManager: Deployment;
+  MerkleTreeManagerForRoot: Deployment;
+  MerkleTreeManagerForSpoke: Deployment;
 };
 
 export type SpokeMessagingDeployments = {
   SpokeConnector: Deployment;
+  MerkleTreeManager: Deployment;
+  WatcherManager: Deployment;
 };
 
 export type DomainDeployments = {
