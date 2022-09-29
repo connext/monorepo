@@ -49,7 +49,7 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
     address _stableSwapPool
   ) external returns (address);
 
-  function setupAsset(
+  function setupAssetWithDeployedRepresentation(
     TokenId calldata _canonical,
     address _representation,
     address _adoptedAssetId,

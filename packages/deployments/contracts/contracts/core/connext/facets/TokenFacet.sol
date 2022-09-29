@@ -165,7 +165,7 @@ contract TokenFacet is BaseConnextFacet {
     _enrollAdoptedAndLocalAssets(_adoptedAssetId, _local, _stableSwapPool, _canonical);
   }
 
-  function setupAsset(
+  function setupAssetWithDeployedRepresentation(
     TokenId calldata _canonical,
     address _representation,
     address _adoptedAssetId,
@@ -265,8 +265,10 @@ contract TokenFacet is BaseConnextFacet {
 
       // Update the canonical <> local
       s.canonicalToRepresentation[_key] = _local;
-      // Add the swap pool
-      _addStableSwapPool(_canonical, _stableSwapPool, _key);
+      // Add the swap pool if specified
+      if (_stableSwapPool != address(0)) {
+        _addStableSwapPool(_canonical, _stableSwapPool, _key);
+      }
     } // on the canonical domain, there is no representation (no pool either)
 
     // Emit event
