@@ -4,8 +4,6 @@ import {
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   RequestContext,
-  getInvariantTransactionDigest,
-  getVariantTransactionDigest,
 } from "@connext/nxtp-utils";
 import { BigNumber, providers, constants, utils } from "ethers";
 
@@ -30,7 +28,6 @@ import {
   validExpiryBuffer,
   sanitationCheck,
   signRouterPrepareTransactionPayload,
-  getTxManagerInterface,
 } from "../helpers";
 
 const { AddressZero, HashZero } = constants;
@@ -86,39 +83,6 @@ export const prepare = async (
   }
 
   const { encryptedCallData, encodedBid, bidSignature, senderAmount, senderExpiry } = input;
-
-  // Validate that the hashed variant transaction data of this xchain transaction exists on the origin.
-  // i.e. confirm that the transaction indeed occurred with the TransactionManager contract.
-  {
-    // 1. hash the invariant transaction data:
-    const encodeVariantTransactionData = getTxManagerInterface().encodeFunctionData("variantTransactionData", [
-      invariantData,
-    ]);
-
-    // 2. encode read tx to check `variantTransactionData` mapping
-    const variantTransactionDigest = await txService.readTx({
-      chainId,
-      to: nxtpContractAddress,
-      data: encodeVariantTransactionData,
-    });
-
-    // 3. Get the expected variant digest.
-    // const expectedVariantDigest = getVariantTransactionDigest({
-    //   amount: senderAmount,
-    //   expiry: senderExpiry,
-    //   preparedBlockNumber: transactionData.preparedBlockNumber,
-    // });
-
-    // 4. Check to make sure the variantTransactionData exists...
-    if (variantTransactionDigest === HashZero) {
-      throw new Error("Variant transaction digest on sender chain is missing!");
-    }
-
-    // ...and matches expected.
-    // TODO:
-    // if (variantTransactionDigest !== expectedVariantDigest) {
-    // }
-  }
 
   // Validate the prepare data
   const bid = decodeAuctionBid(encodedBid);

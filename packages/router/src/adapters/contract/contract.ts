@@ -296,7 +296,7 @@ export const prepareRouterContract = async (
   }
 
   // 1. Prepare tx using relayer if chain is supported by gelato.
-  if (useRelayer && await isChainSupportedByGelato(chainId)) {
+  if (useRelayer && (await isChainSupportedByGelato(chainId))) {
     logger.info("Router contract prepare: sending using Gelato relayer", requestContext, methodContext, {
       prepareParams,
       routerRelayerFeeAsset,

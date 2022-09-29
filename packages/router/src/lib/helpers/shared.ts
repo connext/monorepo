@@ -148,6 +148,23 @@ export const sanitationCheck = async (
         variantTransactionDigest,
       });
     }
+
+    // Validate that the hashed variant transaction data of this xchain transaction exists on the origin.
+    // i.e. confirm that the transaction indeed occurred with the TransactionManager contract.
+    // Check to make sure that the variant tx data matches on sending chain.
+    const sendingVariantTransactionDigest = await txService.readTx({
+      chainId: transactionData.sendingChainId,
+      to: nxtpContractAddress,
+      data: encodeVariantTransactionData,
+    });
+
+    if (sendingVariantTransactionDigest === HashZero) {
+      throw new Error("Variant transaction digest on sender chain is missing!");
+    }
+
+    // TODO: Check to make sure the variantTransactionData matches expected.
+    // if (variantTransactionDigest !== expectedVariantDigest) {
+    // }
   } else {
     const expectedVariantDigest = getVariantTransactionDigest({
       amount: transactionData.amount,
