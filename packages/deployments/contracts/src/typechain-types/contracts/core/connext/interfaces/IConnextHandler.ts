@@ -300,6 +300,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "unapproveRouterForPortal(address)": FunctionFragment;
     "unpause()": FunctionFragment;
     "withdrawSwapAdminFees(bytes32)": FunctionFragment;
+    "xAppConnectionManager()": FunctionFragment;
     "xcall(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
     "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
   };
@@ -427,6 +428,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "unapproveRouterForPortal"
       | "unpause"
       | "withdrawSwapAdminFees"
+      | "xAppConnectionManager"
       | "xcall"
       | "xcallIntoLocal"
   ): FunctionFragment;
@@ -1003,6 +1005,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "xAppConnectionManager",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "xcall",
     values: [
       PromiseOrValue<BigNumberish>,
@@ -1437,6 +1443,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "withdrawSwapAdminFees",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "xAppConnectionManager",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
@@ -2158,6 +2168,8 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    xAppConnectionManager(overrides?: CallOverrides): Promise<[string]>;
+
     xcall(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
@@ -2809,6 +2821,8 @@ export interface IConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
+
   xcall(
     _destination: PromiseOrValue<BigNumberish>,
     _to: PromiseOrValue<string>,
@@ -3443,6 +3457,8 @@ export interface IConnextHandler extends BaseContract {
       canonicalId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
 
     xcall(
       _destination: PromiseOrValue<BigNumberish>,
@@ -4133,6 +4149,8 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    xAppConnectionManager(overrides?: CallOverrides): Promise<BigNumber>;
+
     xcall(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
@@ -4797,6 +4815,10 @@ export interface IConnextHandler extends BaseContract {
     withdrawSwapAdminFees(
       canonicalId: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    xAppConnectionManager(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     xcall(
