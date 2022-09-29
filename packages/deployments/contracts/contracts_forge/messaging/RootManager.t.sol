@@ -36,7 +36,7 @@ contract RootManagerTest is ForgeHelper {
     _connectors.push(address(1000));
 
     _merkle = address(new MerkleTreeManager());
-    MerkleTreeManager(_merkle).initialize();
+    MerkleTreeManager(_merkle).initialize(address(_rootManager));
 
     vm.prank(owner);
     _rootManager = new RootManager(_merkle, watcherManager);
