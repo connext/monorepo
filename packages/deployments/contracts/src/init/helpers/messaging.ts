@@ -108,6 +108,16 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
           write: { method: "setArborist", args: [SpokeConnector.address] },
         });
 
+        /// MARK - xAppManager
+        // setXAppConnectionManager to Connext with SpokeConnector
+        console.log("\tVerifying xappConnectionManager of Connext are set correctly.", spoke.chain);
+        await updateIfNeeded({
+          deployment: spoke.deployments.Connext,
+          desired: SpokeConnector.address,
+          read: { method: "xAppConnectionManager", args: [] },
+          write: { method: "setXAppConnectionManager", args: [SpokeConnector.address] },
+        });
+
         /// MARK - Connectors: Whitelist Senders
         // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to
         // call `dispatch`.
@@ -183,6 +193,13 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
     desired: MainnetConnector.address,
     read: { method: "arborist", args: [] },
     write: { method: "setArborist", args: [MainnetConnector.address] },
+  });
+
+  await updateIfNeeded({
+    deployment: hub.deployments.Connext,
+    desired: MainnetConnector.address,
+    read: { method: "xAppConnectionManager", args: [] },
+    write: { method: "setXAppConnectionManager", args: [MainnetConnector.address] },
   });
 
   for (const handler of [...Object.values(hub.deployments.handlers), hub.deployments.Connext]) {
