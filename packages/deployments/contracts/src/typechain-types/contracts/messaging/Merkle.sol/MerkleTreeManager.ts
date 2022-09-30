@@ -29,7 +29,7 @@ import type {
 export interface MerkleTreeManagerInterface extends utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
-    "arborist()": FunctionFragment;
+    "arborists(address)": FunctionFragment;
     "branch()": FunctionFragment;
     "count()": FunctionFragment;
     "delay()": FunctionFragment;
@@ -49,7 +49,7 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "acceptProposedOwner"
-      | "arborist"
+      | "arborists"
       | "branch"
       | "count"
       | "delay"
@@ -70,7 +70,10 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
     functionFragment: "acceptProposedOwner",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "arborist", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "arborists",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(functionFragment: "branch", values?: undefined): string;
   encodeFunctionData(functionFragment: "count", values?: undefined): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
@@ -108,7 +111,7 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
     functionFragment: "acceptProposedOwner",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "arborist", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "arborists", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "branch", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
@@ -208,7 +211,10 @@ export interface MerkleTreeManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    arborist(overrides?: CallOverrides): Promise<[string]>;
+    arborists(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     branch(overrides?: CallOverrides): Promise<[string[]]>;
 
@@ -259,7 +265,10 @@ export interface MerkleTreeManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  arborist(overrides?: CallOverrides): Promise<string>;
+  arborists(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   branch(overrides?: CallOverrides): Promise<string[]>;
 
@@ -306,7 +315,10 @@ export interface MerkleTreeManager extends BaseContract {
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
-    arborist(overrides?: CallOverrides): Promise<string>;
+    arborists(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     branch(overrides?: CallOverrides): Promise<string[]>;
 
@@ -375,7 +387,10 @@ export interface MerkleTreeManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    arborist(overrides?: CallOverrides): Promise<BigNumber>;
+    arborists(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     branch(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -425,7 +440,10 @@ export interface MerkleTreeManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    arborist(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    arborists(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     branch(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

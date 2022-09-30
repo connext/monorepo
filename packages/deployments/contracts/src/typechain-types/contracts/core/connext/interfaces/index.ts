@@ -14,5 +14,6 @@ export type { IGasTokenOracle } from "./IGasTokenOracle";
 export type { IPriceOracle } from "./IPriceOracle";
 export type { IStableSwap } from "./IStableSwap";
 export type { ITokenExchange } from "./ITokenExchange";
+export type { ITokenRegistry } from "./ITokenRegistry";
 export type { IWeth } from "./IWeth";
 export type { IXReceiver } from "./IXReceiver";
