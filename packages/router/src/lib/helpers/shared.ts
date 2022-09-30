@@ -154,7 +154,7 @@ export const sanitationCheck = async (
     // Check to make sure that the variant tx data matches on sending chain.
     const sendingVariantTransactionDigest = await txService.readTx({
       chainId: transactionData.sendingChainId,
-      to: nxtpContractAddress,
+      to: getContractAddress(transactionData.sendingChainId),
       data: encodeVariantTransactionData,
     });
 
