@@ -128,7 +128,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
-    vm.expectRevert(abi.encodePacked("!l1Connector"));
+    vm.expectRevert(abi.encodePacked("!mirrorConnector"));
     vm.prank(_amb);
     MultichainSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
   }
@@ -145,7 +145,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
-    vm.expectRevert(abi.encodePacked("!l1Connector"));
+    vm.expectRevert(abi.encodePacked("!mirrorConnector"));
     vm.prank(_amb);
     MultichainSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
   }
