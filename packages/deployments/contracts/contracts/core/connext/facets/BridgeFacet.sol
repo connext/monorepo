@@ -484,12 +484,13 @@ contract BridgeFacet is BaseConnextFacet {
       // 0-value transfer. Because 0-value transfers short-circuit all checks on mappings keyed on
       // hash(canonicalId, canonicalDomain), this is safe even when the address(0) asset is not
       // whitelisted.
+      bytes32 key;
       if (_asset != address(0)) {
         // Retrieve the canonical token information.
-        canonical = _getApprovedCanonicalId(_asset);
+        (canonical, key) = _getApprovedCanonicalId(_asset);
 
         // Get the local address
-        local = _getLocalAsset(canonical.id, canonical.domain);
+        local = _getLocalAsset(key, canonical.id, canonical.domain);
 
         // Set boolean flag
         isCanonical = _params.originDomain == canonical.domain && local == _asset;
@@ -505,14 +506,7 @@ contract BridgeFacet is BaseConnextFacet {
 
         // Swap to the local asset from adopted if applicable.
         // TODO: drop the "IfNeeded", instead just check whether the asset is already local / needs swap here.
-        _params.bridgedAmt = AssetLogic.swapToLocalAssetIfNeeded(
-          _params.canonicalId,
-          _params.canonicalDomain,
-          _asset,
-          local,
-          _amount,
-          _params.slippage
-        );
+        _params.bridgedAmt = AssetLogic.swapToLocalAssetIfNeeded(key, _asset, local, _amount, _params.slippage);
       }
 
       // Get the normalized amount in (amount sent in by user in 18 decimals).
@@ -681,7 +675,7 @@ contract BridgeFacet is BaseConnextFacet {
     s.routedTransfers[_transferId] = _args.routers;
 
     // Get the local asset contract address.
-    address local = _getLocalAsset(_args.params.canonicalId, _args.params.canonicalDomain);
+    address local = _getLocalAsset(_key, _args.params.canonicalId, _args.params.canonicalDomain);
 
     // If this is a zero-value transfer, short-circuit remaining logic.
     if (_args.params.bridgedAmt == 0) {

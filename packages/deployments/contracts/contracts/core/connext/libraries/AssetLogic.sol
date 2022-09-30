@@ -171,16 +171,14 @@ library AssetLogic {
   /**
    * @notice Swaps an adopted asset to the local (representation or canonical) nomad asset
    * @dev Will not swap if the asset passed in is the local asset
-   * @param _canonicalId - The canonical token identifier
-   * @param _canonicalDomain - The canonical token domain
+   * @param _key - The hash of canonical id and domain
    * @param _asset - The address of the adopted asset to swap into the local asset
    * @param _amount - The amount of the adopted asset to swap
    * @param _slippage - The minimum amount of slippage user will take on from _amount in BPS
    * @return The amount of local asset received from swap
 4   */
   function swapToLocalAssetIfNeeded(
-    bytes32 _canonicalId,
-    uint32 _canonicalDomain,
+    bytes32 _key,
     address _asset,
     address _local,
     uint256 _amount,
@@ -197,9 +195,8 @@ library AssetLogic {
     }
 
     // Swap the asset to the proper local asset.
-    bytes32 key = calculateCanonicalHash(_canonicalId, _canonicalDomain);
     (uint256 out, ) = _swapAsset(
-      key,
+      _key,
       _asset,
       _local,
       _amount,
@@ -445,30 +442,29 @@ library AssetLogic {
    * @return The amount of local asset received from swap
    * @return The address of asset received post-swap
    */
-  function calculateSwapToLocalAssetIfNeeded(address _asset, uint256 _amount) internal view returns (uint256, address) {
+  function calculateSwapToLocalAssetIfNeeded(
+    bytes32 _key,
+    address _asset,
+    address _local,
+    uint256 _amount
+  ) internal view returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
-    // Get the token id
-    TokenId memory canonical = getCanonicalTokenId(_asset, s);
-    // Get local asset
-    address local = getLocalAsset(canonical.id, canonical.domain, s);
-
     // If the asset is the local asset, no swap needed
-    if (_asset == local) {
+    if (_asset == _local) {
       return (_amount, _asset);
     }
-    bytes32 key = calculateCanonicalHash(canonical.id, canonical.domain);
 
     // Otherwise, calculate swap the asset to the proper local asset
-    if (stableSwapPoolExist(key)) {
+    if (stableSwapPoolExist(_key)) {
       // if internal swap pool exists
-      uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(key, _asset);
-      uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(key, local);
-      return (s.swapStorages[key].calculateSwap(tokenIndexIn, tokenIndexOut, _amount), local);
+      uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(_key, _asset);
+      uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(_key, _local);
+      return (s.swapStorages[_key].calculateSwap(tokenIndexIn, tokenIndexOut, _amount), _local);
     } else {
-      IStableSwap pool = s.adoptedToLocalPools[key];
+      IStableSwap pool = s.adoptedToLocalPools[_key];
 
-      return (pool.calculateSwapFromAddress(_asset, local, _amount), local);
+      return (pool.calculateSwapFromAddress(_asset, _local, _amount), _local);
     }
   }
 
@@ -477,11 +473,8 @@ library AssetLogic {
    * @dev First checks the `address(0)` convention, then checks if the asset given is the
    * adopted asset, then calculates the local address
    */
-  function getCanonicalTokenId(address _candidate, AppStorage storage s)
-    internal
-    view
-    returns (TokenId memory _canonical)
-  {
+  function getCanonicalTokenId(address _candidate, AppStorage storage s) internal view returns (TokenId memory) {
+    TokenId memory _canonical;
     // if candidate is address(0), then the _canonical is empty
     if (_candidate == address(0)) {
       return _canonical;
@@ -504,6 +497,7 @@ library AssetLogic {
       // on a remote domain, return the representation
       _canonical = s.representationToCanonical[_candidate];
     }
+    return _canonical;
   }
 
   /**
@@ -529,6 +523,7 @@ library AssetLogic {
   }
 
   function getLocalAsset(
+    bytes32 _key,
     bytes32 _id,
     uint32 _domain,
     AppStorage storage s
@@ -538,7 +533,7 @@ library AssetLogic {
       return TypeCasts.bytes32ToAddress(_id);
     } else {
       // Token is a representation of a token of remote origin
-      return s.canonicalToRepresentation[calculateCanonicalHash(_id, _domain)];
+      return s.canonicalToRepresentation[_key];
     }
   }
 

@@ -121,26 +121,12 @@ contract BaseConnextFacet {
   /**
    * @notice Returns the adopted assets for given canonical information
    */
-  function _getAdoptedAsset(bytes32 _canonicalId, uint32 _canonicalDomain) internal view returns (address) {
-    return _getAdoptedAsset(AssetLogic.calculateCanonicalHash(_canonicalId, _canonicalDomain));
-  }
-
-  /**
-   * @notice Returns the adopted assets for given canonical information
-   */
   function _getAdoptedAsset(bytes32 _key) internal view returns (address) {
     address adopted = s.canonicalToAdopted[_key];
     if (adopted == address(0)) {
       revert BaseConnextFacet__getAdoptedAsset_notWhitelisted();
     }
     return adopted;
-  }
-
-  /**
-   * @notice Returns the adopted assets for given canonical information
-   */
-  function _getRepresentationAsset(bytes32 _canonicalId, uint32 _canonicalDomain) internal view returns (address) {
-    return _getRepresentationAsset(AssetLogic.calculateCanonicalHash(_canonicalId, _canonicalDomain));
   }
 
   /**
@@ -172,34 +158,38 @@ contract BaseConnextFacet {
     return (uint64(_origin) << 32) | _nonce;
   }
 
-  function _getLocalAsset(bytes32 _id, uint32 _domain) internal view returns (address) {
-    return AssetLogic.getLocalAsset(_id, _domain, s);
+  function _getLocalAsset(
+    bytes32 _key,
+    bytes32 _id,
+    uint32 _domain
+  ) internal view returns (address) {
+    return AssetLogic.getLocalAsset(_key, _id, _domain, s);
   }
 
   function _getCanonicalTokenId(address _candidate) internal view returns (TokenId memory) {
     return AssetLogic.getCanonicalTokenId(_candidate, s);
   }
 
-  function _getLocalAndAdoptedToken(bytes32 _id, uint32 _domain)
-    internal
-    view
-    returns (address _local, address _adopted)
-  {
-    _local = AssetLogic.getLocalAsset(_id, _domain, s);
-    _adopted = _getAdoptedAsset(_id, _domain);
+  function _getLocalAndAdoptedToken(
+    bytes32 _key,
+    bytes32 _id,
+    uint32 _domain
+  ) internal view returns (address, address) {
+    address _local = AssetLogic.getLocalAsset(_key, _id, _domain, s);
+    address _adopted = _getAdoptedAsset(_key);
+    return (_local, _adopted);
   }
 
   function _isLocalOrigin(address _token) internal view returns (bool) {
     return AssetLogic.isLocalOrigin(_token, s);
   }
 
-  function _getApprovedCanonicalId(address _candidate) internal view returns (TokenId memory _canonical) {
-    _canonical = _getCanonicalTokenId(_candidate);
-    if (
-      !_isAssetWhitelistRemoved() &&
-      !s.approvedAssets[AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain)]
-    ) {
+  function _getApprovedCanonicalId(address _candidate) internal view returns (TokenId memory, bytes32) {
+    TokenId memory _canonical = _getCanonicalTokenId(_candidate);
+    bytes32 _key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
+    if (!_isAssetWhitelistRemoved() && !s.approvedAssets[_key]) {
       revert BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
     }
+    return (_canonical, _key);
   }
 }

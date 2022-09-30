@@ -230,8 +230,14 @@ contract InboxFacet is BaseConnextFacet {
     bytes29 _tokenId,
     bytes29 _action
   ) internal returns (address, uint256) {
+    bytes32 _canonicalId = _tokenId.id();
+    uint32 _canonicalDomain = _tokenId.domain();
     // Get the token contract for the given tokenId on this chain.
-    address _token = _getLocalAsset(_tokenId.id(), _tokenId.domain());
+    address _token = _getLocalAsset(
+      AssetLogic.calculateCanonicalHash(_canonicalId, _canonicalDomain),
+      _canonicalId,
+      _canonicalDomain
+    );
 
     // Load amount once.
     uint256 _amount = _action.amnt();

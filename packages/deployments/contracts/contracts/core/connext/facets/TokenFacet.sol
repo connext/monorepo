@@ -81,7 +81,7 @@ contract TokenFacet is BaseConnextFacet {
   }
 
   function canonicalToAdopted(TokenId calldata _canonical) public view returns (address) {
-    return _getAdoptedAsset(_canonical.id, _canonical.domain);
+    return _getAdoptedAsset(AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain));
   }
 
   function adoptedToCanonical(address _adopted) public view returns (TokenId memory) {
@@ -94,7 +94,7 @@ contract TokenFacet is BaseConnextFacet {
   }
 
   function canonicalToRepresentation(TokenId calldata _canonical) public view returns (address) {
-    return _getRepresentationAsset(_canonical.id, _canonical.domain);
+    return _getRepresentationAsset(AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain));
   }
 
   function representationToCanonical(address _representation) public view returns (TokenId memory) {
@@ -106,7 +106,7 @@ contract TokenFacet is BaseConnextFacet {
   }
 
   function getLocalAndAdoptedToken(bytes32 _id, uint32 _domain) public view returns (address, address) {
-    return _getLocalAndAdoptedToken(_id, _domain);
+    return _getLocalAndAdoptedToken(AssetLogic.calculateCanonicalHash(_id, _domain), _id, _domain);
   }
 
   function approvedAssets(bytes32 _key) public view returns (bool) {
