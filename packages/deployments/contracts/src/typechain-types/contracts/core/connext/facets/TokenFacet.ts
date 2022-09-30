@@ -54,7 +54,7 @@ export interface TokenFacetInterface extends utils.Interface {
     "removeAssetId(bytes32,address,address)": FunctionFragment;
     "representationToCanonical(address)": FunctionFragment;
     "setupAsset((uint32,bytes32),uint8,string,string,address,address)": FunctionFragment;
-    "setupAsset((uint32,bytes32),address,address,address)": FunctionFragment;
+    "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address)": FunctionFragment;
     "updateDetails((uint32,bytes32),string,string)": FunctionFragment;
   };
 
@@ -74,8 +74,8 @@ export interface TokenFacetInterface extends utils.Interface {
       | "removeAssetId((uint32,bytes32),address,address)"
       | "removeAssetId(bytes32,address,address)"
       | "representationToCanonical"
-      | "setupAsset((uint32,bytes32),uint8,string,string,address,address)"
-      | "setupAsset((uint32,bytes32),address,address,address)"
+      | "setupAsset"
+      | "setupAssetWithDeployedRepresentation"
       | "updateDetails"
   ): FunctionFragment;
 
@@ -140,7 +140,7 @@ export interface TokenFacetInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setupAsset((uint32,bytes32),uint8,string,string,address,address)",
+    functionFragment: "setupAsset",
     values: [
       TokenIdStruct,
       PromiseOrValue<BigNumberish>,
@@ -151,7 +151,7 @@ export interface TokenFacetInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "setupAsset((uint32,bytes32),address,address,address)",
+    functionFragment: "setupAssetWithDeployedRepresentation",
     values: [
       TokenIdStruct,
       PromiseOrValue<string>,
@@ -220,12 +220,9 @@ export interface TokenFacetInterface extends utils.Interface {
     functionFragment: "representationToCanonical",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setupAsset", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setupAsset((uint32,bytes32),uint8,string,string,address,address)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setupAsset((uint32,bytes32),address,address,address)",
+    functionFragment: "setupAssetWithDeployedRepresentation",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -401,7 +398,7 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[TokenIdStructOutput]>;
 
-    "setupAsset((uint32,bytes32),uint8,string,string,address,address)"(
+    setupAsset(
       _canonical: TokenIdStruct,
       _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _representationName: PromiseOrValue<string>,
@@ -411,7 +408,7 @@ export interface TokenFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setupAsset((uint32,bytes32),address,address,address)"(
+    setupAssetWithDeployedRepresentation(
       _canonical: TokenIdStruct,
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
@@ -503,7 +500,7 @@ export interface TokenFacet extends BaseContract {
     overrides?: CallOverrides
   ): Promise<TokenIdStructOutput>;
 
-  "setupAsset((uint32,bytes32),uint8,string,string,address,address)"(
+  setupAsset(
     _canonical: TokenIdStruct,
     _canonicalDecimals: PromiseOrValue<BigNumberish>,
     _representationName: PromiseOrValue<string>,
@@ -513,7 +510,7 @@ export interface TokenFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setupAsset((uint32,bytes32),address,address,address)"(
+  setupAssetWithDeployedRepresentation(
     _canonical: TokenIdStruct,
     _representation: PromiseOrValue<string>,
     _adoptedAssetId: PromiseOrValue<string>,
@@ -605,7 +602,7 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<TokenIdStructOutput>;
 
-    "setupAsset((uint32,bytes32),uint8,string,string,address,address)"(
+    setupAsset(
       _canonical: TokenIdStruct,
       _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _representationName: PromiseOrValue<string>,
@@ -615,7 +612,7 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "setupAsset((uint32,bytes32),address,address,address)"(
+    setupAssetWithDeployedRepresentation(
       _canonical: TokenIdStruct,
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
@@ -762,7 +759,7 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "setupAsset((uint32,bytes32),uint8,string,string,address,address)"(
+    setupAsset(
       _canonical: TokenIdStruct,
       _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _representationName: PromiseOrValue<string>,
@@ -772,7 +769,7 @@ export interface TokenFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setupAsset((uint32,bytes32),address,address,address)"(
+    setupAssetWithDeployedRepresentation(
       _canonical: TokenIdStruct,
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
@@ -865,7 +862,7 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "setupAsset((uint32,bytes32),uint8,string,string,address,address)"(
+    setupAsset(
       _canonical: TokenIdStruct,
       _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _representationName: PromiseOrValue<string>,
@@ -875,7 +872,7 @@ export interface TokenFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setupAsset((uint32,bytes32),address,address,address)"(
+    setupAssetWithDeployedRepresentation(
       _canonical: TokenIdStruct,
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,

@@ -2827,7 +2827,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "setupAsset",
+    name: "setupAssetWithDeployedRepresentation",
     outputs: [
       {
         internalType: "address",

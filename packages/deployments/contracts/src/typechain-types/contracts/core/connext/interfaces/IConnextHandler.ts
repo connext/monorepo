@@ -293,7 +293,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "setSwapFee(bytes32,uint256)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
     "setupAsset((uint32,bytes32),uint8,string,string,address,address)": FunctionFragment;
-    "setupAsset((uint32,bytes32),address,address,address)": FunctionFragment;
+    "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address)": FunctionFragment;
     "setupRouter(address,address,address)": FunctionFragment;
     "stopRampA(bytes32)": FunctionFragment;
     "swap(bytes32,uint8,uint8,uint256,uint256,uint256)": FunctionFragment;
@@ -424,8 +424,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "setSwapAdminFee"
       | "setSwapFee"
       | "setXAppConnectionManager"
-      | "setupAsset((uint32,bytes32),uint8,string,string,address,address)"
-      | "setupAsset((uint32,bytes32),address,address,address)"
+      | "setupAsset"
+      | "setupAssetWithDeployedRepresentation"
       | "setupRouter"
       | "stopRampA"
       | "swap"
@@ -959,7 +959,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setupAsset((uint32,bytes32),uint8,string,string,address,address)",
+    functionFragment: "setupAsset",
     values: [
       TokenIdStruct,
       PromiseOrValue<BigNumberish>,
@@ -970,7 +970,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "setupAsset((uint32,bytes32),address,address,address)",
+    functionFragment: "setupAssetWithDeployedRepresentation",
     values: [
       TokenIdStruct,
       PromiseOrValue<string>,
@@ -1464,12 +1464,9 @@ export interface IConnextHandlerInterface extends utils.Interface {
     functionFragment: "setXAppConnectionManager",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setupAsset", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setupAsset((uint32,bytes32),uint8,string,string,address,address)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setupAsset((uint32,bytes32),address,address,address)",
+    functionFragment: "setupAssetWithDeployedRepresentation",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -2169,7 +2166,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setupAsset((uint32,bytes32),uint8,string,string,address,address)"(
+    setupAsset(
       _canonical: TokenIdStruct,
       _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _representationName: PromiseOrValue<string>,
@@ -2179,7 +2176,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setupAsset((uint32,bytes32),address,address,address)"(
+    setupAssetWithDeployedRepresentation(
       _canonical: TokenIdStruct,
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
@@ -2854,7 +2851,7 @@ export interface IConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setupAsset((uint32,bytes32),uint8,string,string,address,address)"(
+  setupAsset(
     _canonical: TokenIdStruct,
     _canonicalDecimals: PromiseOrValue<BigNumberish>,
     _representationName: PromiseOrValue<string>,
@@ -2864,7 +2861,7 @@ export interface IConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setupAsset((uint32,bytes32),address,address,address)"(
+  setupAssetWithDeployedRepresentation(
     _canonical: TokenIdStruct,
     _representation: PromiseOrValue<string>,
     _adoptedAssetId: PromiseOrValue<string>,
@@ -3525,7 +3522,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "setupAsset((uint32,bytes32),uint8,string,string,address,address)"(
+    setupAsset(
       _canonical: TokenIdStruct,
       _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _representationName: PromiseOrValue<string>,
@@ -3535,7 +3532,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "setupAsset((uint32,bytes32),address,address,address)"(
+    setupAssetWithDeployedRepresentation(
       _canonical: TokenIdStruct,
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
@@ -4246,7 +4243,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setupAsset((uint32,bytes32),uint8,string,string,address,address)"(
+    setupAsset(
       _canonical: TokenIdStruct,
       _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _representationName: PromiseOrValue<string>,
@@ -4256,7 +4253,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setupAsset((uint32,bytes32),address,address,address)"(
+    setupAssetWithDeployedRepresentation(
       _canonical: TokenIdStruct,
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
@@ -4946,7 +4943,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setupAsset((uint32,bytes32),uint8,string,string,address,address)"(
+    setupAsset(
       _canonical: TokenIdStruct,
       _canonicalDecimals: PromiseOrValue<BigNumberish>,
       _representationName: PromiseOrValue<string>,
@@ -4956,7 +4953,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setupAsset((uint32,bytes32),address,address,address)"(
+    setupAssetWithDeployedRepresentation(
       _canonical: TokenIdStruct,
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,

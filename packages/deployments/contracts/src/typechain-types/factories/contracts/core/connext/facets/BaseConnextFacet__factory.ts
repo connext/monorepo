@@ -22,11 +22,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BaseConnextFacet__mustGetLocalAsset_noLocalAssetFound",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BaseConnextFacet__nonReentrant_reentrantCall",
     type: "error",
   },
@@ -68,12 +63,15 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122084de30b5b853267508b311e718ea68a02d6c1fec7506626092644056305803ad64736f6c634300080f0033";
+  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220949d95618e24f01bf7ba648c2d93b128fad284cc3b44e3c4adc469e68cbda8d564736f6c634300080f0033";
 
-type BaseConnextFacetConstructorParams = [signer?: Signer] | ConstructorParameters<typeof ContractFactory>;
+type BaseConnextFacetConstructorParams =
+  | [signer?: Signer]
+  | ConstructorParameters<typeof ContractFactory>;
 
-const isSuperArgs = (xs: BaseConnextFacetConstructorParams): xs is ConstructorParameters<typeof ContractFactory> =>
-  xs.length > 1;
+const isSuperArgs = (
+  xs: BaseConnextFacetConstructorParams
+): xs is ConstructorParameters<typeof ContractFactory> => xs.length > 1;
 
 export class BaseConnextFacet__factory extends ContractFactory {
   constructor(...args: BaseConnextFacetConstructorParams) {
@@ -84,10 +82,14 @@ export class BaseConnextFacet__factory extends ContractFactory {
     }
   }
 
-  override deploy(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BaseConnextFacet> {
+  override deploy(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<BaseConnextFacet> {
     return super.deploy(overrides || {}) as Promise<BaseConnextFacet>;
   }
-  override getDeployTransaction(overrides?: Overrides & { from?: PromiseOrValue<string> }): TransactionRequest {
+  override getDeployTransaction(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): TransactionRequest {
     return super.getDeployTransaction(overrides || {});
   }
   override attach(address: string): BaseConnextFacet {
@@ -102,7 +104,10 @@ export class BaseConnextFacet__factory extends ContractFactory {
   static createInterface(): BaseConnextFacetInterface {
     return new utils.Interface(_abi) as BaseConnextFacetInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): BaseConnextFacet {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): BaseConnextFacet {
     return new Contract(address, _abi, signerOrProvider) as BaseConnextFacet;
   }
 }

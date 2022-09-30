@@ -22,11 +22,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BaseConnextFacet__mustGetLocalAsset_noLocalAssetFound",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BaseConnextFacet__nonReentrant_reentrantCall",
     type: "error",
   },
@@ -2768,11 +2763,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "RoutersFacet__addLiquidityForRouter_badAsset",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "RoutersFacet__addLiquidityForRouter_badRouter",
     type: "error",
   },
@@ -4832,7 +4822,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "setupAsset",
+    name: "setupAssetWithDeployedRepresentation",
     outputs: [
       {
         internalType: "address",
