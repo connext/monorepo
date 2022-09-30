@@ -12,6 +12,7 @@ import {IConnector} from "../../contracts/messaging/interfaces/IConnector.sol";
 import {IConnectorManager} from "../../contracts/messaging/interfaces/IConnectorManager.sol";
 import {IOutbox} from "../../contracts/messaging/interfaces/IOutbox.sol";
 import {Connector} from "../../contracts/messaging/connectors/Connector.sol";
+import {HubConnector} from "../../contracts/messaging/connectors/HubConnector.sol";
 import {SpokeConnector} from "../../contracts/messaging/connectors/SpokeConnector.sol";
 import {RootManager} from "../../contracts/messaging/RootManager.sol";
 
@@ -375,9 +376,9 @@ contract FeeERC20 is ERC20 {
 /**
  * @notice This class mocks the connector functionality.
  */
-contract MockConnector is SpokeConnector, IHubConnector {
-  bytes32 public lastOutbound;
+contract MockSpokeConnector is SpokeConnector {
   bytes32 public lastReceived;
+  bytes32 public lastOutbound;
 
   bool public verified;
 
@@ -427,13 +428,8 @@ contract MockConnector is SpokeConnector, IHubConnector {
     updatesAggregate = _updatesAggregate;
   }
 
-  function sendMessage(bytes memory _data) external onlyRootManager {
-    _sendMessage(_data);
-  }
-
   function _sendMessage(bytes memory _data) internal override {
     lastOutbound = keccak256(_data);
-    emit MessageSent(_data, msg.sender);
   }
 
   function _processMessage(bytes memory _data) internal override {
@@ -442,12 +438,54 @@ contract MockConnector is SpokeConnector, IHubConnector {
       // FIXME: when using this.update it sets caller to address(this) not AMB
       aggregateRootCurrent = bytes32(_data);
       aggregateRootPending = bytes32(_data);
-    } else {
-      RootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
     }
   }
 
   function _verifySender(address _expected) internal override returns (bool) {
     return verified;
+  }
+}
+
+contract MockHubConnector is HubConnector {
+  address public rootManager;
+  bytes32 public lastOutbound;
+  bytes32 public lastReceived;
+  bool public verified;
+  bool public updatesAggregate;
+
+  constructor(
+    uint32 _domain,
+    uint32 _mirrorDomain,
+    address _amb,
+    address _rootManager,
+    address _mirrorConnector,
+    uint256 _mirrorGas
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) {
+    _setOwner(msg.sender);
+    verified = true;
+  }
+
+  function setSenderVerified(bool _verified) public {
+    verified = _verified;
+  }
+
+  function setUpdatesAggregate(bool _updatesAggregate) public {
+    updatesAggregate = _updatesAggregate;
+  }
+
+  function _verifySender(address _expected) internal override returns (bool) {
+    return verified;
+  }
+
+  function _sendMessage(bytes memory _data) internal override {
+    lastOutbound = keccak256(_data);
+  }
+
+  function _processMessage(bytes memory _data) internal override {
+    lastReceived = keccak256(_data);
+    // hub spokes always update aggregate
+    if (updatesAggregate) {
+      RootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
+    }
   }
 }

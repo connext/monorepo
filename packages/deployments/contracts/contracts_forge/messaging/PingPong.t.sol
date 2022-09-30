@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+
 import {TypeCasts} from "../../contracts/shared/libraries/TypeCasts.sol";
 import {Message} from "../../contracts/messaging/libraries/Message.sol";
 
@@ -44,6 +46,10 @@ contract PingPong is ConnectorHelper {
   MerkleTreeManager referenceSpokeTree;
   MerkleTreeManager referenceAggregateTree;
 
+  MerkleTreeManager destinationSpokeTree;
+  MerkleTreeManager originSpokeTree;
+  MerkleTreeManager aggregateTree;
+
   address _watcherManager;
 
   // ============ connectors
@@ -68,21 +74,22 @@ contract PingPong is ConnectorHelper {
 
   // ============ Utils ============
   function utils_deployContracts() public {
+    // deploy merkle
+    utils_createReferenceTrees();
     // deploy watcher manager
     _watcherManager = address(new WatcherManager());
     // deploy root manager
-    _rootManager = address(new RootManager(address(0), _watcherManager));
-
-    _merkle = address(new MerkleTreeManager());
+    _rootManager = address(new RootManager(address(aggregateTree), _watcherManager));
+    aggregateTree.setArborist(_rootManager);
 
     // Mock sourceconnector on l2
     _originConnectors.spoke = address(
-      new MockConnector(
+      new MockSpokeConnector(
         _originDomain, // uint32 _domain,
         _mainnetDomain, // uint32 _mirrorDomain
         _originAMB, // address _amb,
         _rootManager, // address _rootManager,
-        _merkle, // address merkle root manager
+        address(originSpokeTree), // address merkle root manager
         address(0), // address _mirrorConnector
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
@@ -91,31 +98,30 @@ contract PingPong is ConnectorHelper {
         _watcherManager
       )
     );
-    MockConnector(_originConnectors.spoke).setUpdatesAggregate(true);
+    originSpokeTree.setArborist(_originConnectors.spoke);
+    MockSpokeConnector(_originConnectors.spoke).setUpdatesAggregate(true);
+
     // Mock sourceconnector on l1
     _originConnectors.hub = address(
-      new MockConnector(
+      new MockHubConnector(
         _mainnetDomain, // uint32 _domain,
         _originDomain, // uint32 _mirrorDomain,
         _originMainnetAMB, // address _amb,
         _rootManager, // address _rootManager,
-        _merkle, // address merkle root manager
         _originConnectors.spoke, // address _mirrorConnector,
-        PROCESS_GAS, // uint256 _mirrorGas
-        PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS, // uint256 _reserveGas
-        0, // uint256 _delayBlocks
-        _watcherManager
+        PROCESS_GAS // uint256 _mirrorGas
       )
     );
+    MockHubConnector(_originConnectors.hub).setUpdatesAggregate(true);
+
     // Mock dest connector on l2
     _destinationConnectors.spoke = address(
-      new MockConnector(
+      new MockSpokeConnector(
         _destinationDomain, // uint32 _domain,
         _mainnetDomain, // uint32 _mirrorDomain,
         _destinationAMB, // address _amb,
         _rootManager, // address _rootManager,
-        _merkle, // address merkle root manager
+        address(destinationSpokeTree), // address merkle root manager
         address(0), // address _mirrorConnector,
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
@@ -124,23 +130,21 @@ contract PingPong is ConnectorHelper {
         _watcherManager
       )
     );
-    MockConnector(_destinationConnectors.spoke).setUpdatesAggregate(true);
+    destinationSpokeTree.setArborist(_destinationConnectors.spoke);
+    MockSpokeConnector(_destinationConnectors.spoke).setUpdatesAggregate(true);
+
     // Mock dest connector on l1
     _destinationConnectors.hub = address(
-      new MockConnector(
+      new MockHubConnector(
         _mainnetDomain, // uint32 _domain,
         _destinationDomain, // uint32 _mirrorDomain,
         _destinationMainnetAMB, // address _amb,
         _rootManager, // address _rootManager,
-        _merkle, // address merkle root manager
         _destinationConnectors.spoke, // address _mirrorConnector,
-        PROCESS_GAS, // uint256 _mirrorGas
-        PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS, // uint256 _reserveGas
-        0, // uint256 _delayBlocks
-        _watcherManager
+        PROCESS_GAS
       )
     );
+    MockHubConnector(_destinationConnectors.hub).setUpdatesAggregate(true);
     _destinationRouter = TypeCasts.addressToBytes32(address(new MockRelayerFeeRouter()));
   }
 
@@ -155,7 +159,7 @@ contract PingPong is ConnectorHelper {
     assertEq(SpokeConnector(_destinationConnectors.hub).mirrorConnector(), _destinationConnectors.spoke);
     assertEq(SpokeConnector(_originConnectors.hub).mirrorConnector(), _originConnectors.spoke);
 
-    MockConnector(_destinationConnectors.spoke).setUpdatesAggregate(true);
+    MockSpokeConnector(_destinationConnectors.spoke).setUpdatesAggregate(true);
 
     // configure root manager with connectors
     RootManager(_rootManager).addConnector(_originDomain, _originConnectors.hub);
@@ -169,8 +173,40 @@ contract PingPong is ConnectorHelper {
 
   // Create merkle tree managers we'll use for managing reference trees to ensure correct behavior below.
   function utils_createReferenceTrees() public {
-    referenceSpokeTree = new MerkleTreeManager();
-    referenceAggregateTree = new MerkleTreeManager();
+    // Deploy implementation
+    MerkleTreeManager impl = new MerkleTreeManager();
+
+    // Deploy reference proxies (properly sets the owner)
+    ERC1967Proxy spokeProxy = new ERC1967Proxy(
+      address(impl),
+      abi.encodeWithSelector(MerkleTreeManager.initialize.selector, address(this))
+    );
+    referenceSpokeTree = MerkleTreeManager(address(spokeProxy));
+
+    ERC1967Proxy aggregateProxy = new ERC1967Proxy(
+      address(impl),
+      abi.encodeWithSelector(MerkleTreeManager.initialize.selector, address(this))
+    );
+    referenceAggregateTree = MerkleTreeManager(address(aggregateProxy));
+
+    // Deploy real proxies
+    ERC1967Proxy destProxy = new ERC1967Proxy(
+      address(impl),
+      abi.encodeWithSelector(MerkleTreeManager.initialize.selector, address(this))
+    );
+    destinationSpokeTree = MerkleTreeManager(address(destProxy));
+
+    ERC1967Proxy originProxy = new ERC1967Proxy(
+      address(impl),
+      abi.encodeWithSelector(MerkleTreeManager.initialize.selector, address(this))
+    );
+    originSpokeTree = MerkleTreeManager(address(originProxy));
+
+    ERC1967Proxy rootProxy = new ERC1967Proxy(
+      address(impl),
+      abi.encodeWithSelector(MerkleTreeManager.initialize.selector, address(this))
+    );
+    aggregateTree = MerkleTreeManager(address(rootProxy));
   }
 
   // Helper to `dispatch` a message on origin, update the reference tree, and ensure behavior was correct.
@@ -185,9 +221,6 @@ contract PingPong is ConnectorHelper {
       body
     );
     messageHash = keccak256(message);
-
-    // Sanity: reference trees init'd.
-    require(address(referenceSpokeTree) != address(0), "Reference trees were not initialized!");
 
     // Insert the node into the reference tree and get the expected new root.
     (bytes32 expectedRoot, uint256 expectedCount) = referenceSpokeTree.insert(messageHash);
@@ -217,7 +250,7 @@ contract PingPong is ConnectorHelper {
     SpokeConnector(_originConnectors.spoke).send();
 
     // Make sure correct root was sent.
-    assertEq(MockConnector(_originConnectors.spoke).lastOutbound(), keccak256(abi.encode(outboundRoot)));
+    assertEq(MockSpokeConnector(_originConnectors.spoke).lastOutbound(), keccak256(abi.encode(outboundRoot)));
   }
 
   // Aggregate an inbound root on the hub.
@@ -233,7 +266,7 @@ contract PingPong is ConnectorHelper {
     Connector(_originConnectors.hub).processMessage(abi.encode(inboundRoot));
 
     // Make sure inboundRoot was received.
-    assertEq(MockConnector(_originConnectors.hub).lastReceived(), keccak256(abi.encode(inboundRoot)));
+    assertEq(MockHubConnector(_originConnectors.hub).lastReceived(), keccak256(abi.encode(inboundRoot)));
 
     // Aggregate this inboundRoot into the reference tree.
     (bytes32 expectedAggregateRoot, uint256 expectedAggregateCount) = referenceAggregateTree.insert(inboundRoot);
@@ -252,8 +285,8 @@ contract PingPong is ConnectorHelper {
     RootManager(_rootManager).propagate();
 
     // Assert that the aggregate root was sent on all connectors.
-    assertEq(MockConnector(_originConnectors.hub).lastOutbound(), keccak256(abi.encode(aggregateRoot)));
-    assertEq(MockConnector(_destinationConnectors.hub).lastOutbound(), keccak256(abi.encode(aggregateRoot)));
+    assertEq(MockHubConnector(_originConnectors.hub).lastOutbound(), keccak256(abi.encode(aggregateRoot)));
+    assertEq(MockHubConnector(_destinationConnectors.hub).lastOutbound(), keccak256(abi.encode(aggregateRoot)));
   }
 
   // Process a given aggregateRoot on a given spoke.
@@ -270,7 +303,7 @@ contract PingPong is ConnectorHelper {
     Connector(connector).processMessage(abi.encode(aggregateRoot));
 
     // Make sure aggregateRoot was received.
-    assertEq(MockConnector(connector).lastReceived(), keccak256(abi.encode(aggregateRoot)));
+    assertEq(MockSpokeConnector(connector).lastReceived(), keccak256(abi.encode(aggregateRoot)));
 
     // Aggregate root should be updated.
     assertEq(SpokeConnector(connector).aggregateRootCurrent(), aggregateRoot);
