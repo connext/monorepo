@@ -185,8 +185,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     }
 
     uint256 received = AssetLogic.swapToLocalAssetIfNeeded(
-      _canonicalId,
-      _canonicalDomain,
+      AssetLogic.calculateCanonicalHash(_canonicalId, _canonicalDomain),
       asset,
       _local,
       amount,

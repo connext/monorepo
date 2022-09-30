@@ -8,6 +8,7 @@ import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBrid
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeMessage} from "../../../../contracts/core/connext/libraries/BridgeMessage.sol";
+import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 
 import {InboxFacet} from "../../../../contracts/core/connext/facets/InboxFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
@@ -74,7 +75,11 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
   }
 
   function utils_createMessage(CallParams memory params) public returns (bytes memory) {
-    address local = _getLocalAsset(params.canonicalId, params.canonicalDomain);
+    address local = _getLocalAsset(
+      AssetLogic.calculateCanonicalHash(params.canonicalId, params.canonicalDomain),
+      params.canonicalId,
+      params.canonicalDomain
+    );
     return MessagingUtils.formatMessage(params, local, params.canonicalDomain == s.domain);
   }
 
