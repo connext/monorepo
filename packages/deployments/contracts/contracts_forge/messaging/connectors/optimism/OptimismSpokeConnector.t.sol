@@ -116,7 +116,7 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
 
     bytes memory _data = abi.encode(bytes32("test"));
 
-    vm.expectRevert(bytes("!l1Connector"));
+    vm.expectRevert(bytes("!mirrorConnector"));
 
     vm.prank(_amb);
     OptimismSpokeConnector(_l2Connector).processMessage(_data);

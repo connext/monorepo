@@ -151,7 +151,7 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
     vm.prank(_amb);
-    vm.expectRevert(abi.encodePacked("!l1Connector"));
+    vm.expectRevert(abi.encodePacked("!mirrorConnector"));
     GnosisSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
   }
 
