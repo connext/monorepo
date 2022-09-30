@@ -5,12 +5,10 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
-import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {RoutersFacet, BaseConnextFacet} from "../../../../contracts/core/connext/facets/RoutersFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
-import {MockTokenRegistry} from "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
 
 contract RoutersFacetTest is RoutersFacet, FacetHelper {
@@ -698,9 +696,9 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   function test_RoutersFacet__addLiquidityForRouter_failsIfAssetUnapproved() public {
     s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.approvedAssets[_canonicalId] = false;
+    s.approvedAssets[utils_calculateCanonicalHash()] = false;
     uint256 amount = 10000;
-    vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_badAsset.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notWhitelisted.selector);
     this.addRouterLiquidityFor(amount, _local, _routerAgent0);
   }
 

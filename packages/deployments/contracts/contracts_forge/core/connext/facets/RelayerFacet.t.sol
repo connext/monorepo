@@ -7,7 +7,6 @@ import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamon
 import {RelayerFeeRouter} from "../../../../contracts/core/relayer-fee/RelayerFeeRouter.sol";
 import {RelayerFacet, BaseConnextFacet} from "../../../../contracts/core/connext/facets/RelayerFacet.sol";
 
-import {MockTokenRegistry} from "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
 
 import "forge-std/console.sol";

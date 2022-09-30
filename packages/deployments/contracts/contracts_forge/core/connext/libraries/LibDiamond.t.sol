@@ -20,19 +20,11 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   uint256 ownershipDelay = 6 days;
   address internal xAppConnectionManager = address(1);
   address relayerFeeRouter = address(3);
-  address tokenRegistry = address(5);
 
   // ============ Setup ============
 
   function setUp() public {
-    deployConnext(
-      uint256(domain),
-      xAppConnectionManager,
-      tokenRegistry,
-      address(relayerFeeRouter),
-      acceptanceDelay,
-      ownershipDelay
-    );
+    deployConnext(uint256(domain), xAppConnectionManager, address(relayerFeeRouter), acceptanceDelay, ownershipDelay);
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
   }
@@ -49,13 +41,11 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
     address newRelayerFeeRouter = address(13);
-    address newTokenRegistry = address(15);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
       newXAppConnectionManager,
-      newTokenRegistry,
       newRelayerFeeRouter,
       acceptanceDelay,
       ownershipDelay
@@ -85,13 +75,11 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
     address newRelayerFeeRouter = address(13);
-    address newTokenRegistry = address(15);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
       newXAppConnectionManager,
-      newTokenRegistry,
       newRelayerFeeRouter,
       acceptanceDelay,
       ownershipDelay
@@ -115,20 +103,18 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // Diamond cut after setting 0 acceptance delay should work.
   function test_LibDiamond__initializeDiamondCut_withZeroAcceptanceDelay_works() public {
-    deployConnext(uint256(domain), xAppConnectionManager, tokenRegistry, address(relayerFeeRouter), 0, 0);
+    deployConnext(uint256(domain), xAppConnectionManager, address(relayerFeeRouter), 0, 0);
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
 
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
     address newRelayerFeeRouter = address(13);
-    address newTokenRegistry = address(15);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
       newXAppConnectionManager,
-      newTokenRegistry,
       newRelayerFeeRouter,
       acceptanceDelay,
       ownershipDelay

@@ -18,7 +18,6 @@ import {RootManager} from "../../contracts/messaging/RootManager.sol";
 import {BaseConnextFacet} from "../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {IAavePool} from "../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IXReceiver} from "../../contracts/core/connext/interfaces/IXReceiver.sol";
-import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IBridgeRouter} from "../../contracts/core/connext/interfaces/IBridgeRouter.sol";
 import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
 
@@ -294,42 +293,6 @@ contract MockBridgeRouter is IBridgeRouter {
 
   function getDestination(bytes32 transferId) external returns (uint32) {
     return destinationInputs[transferId];
-  }
-}
-
-contract MockTokenRegistry is ITokenRegistry {
-  function isLocalOrigin(address _token) external pure returns (bool) {
-    return true;
-  }
-
-  function ensureLocalToken(
-    uint32 _domain,
-    bytes32 _id,
-    uint8 _decimals
-  ) external pure returns (address _local) {
-    return address(42);
-  }
-
-  function mustHaveLocalToken(uint32 _domain, bytes32 _id) external pure returns (IERC20) {
-    return IERC20(address(42));
-  }
-
-  function getLocalAddress(uint32 _domain, bytes32 _id) external pure returns (address _local) {
-    return address(42);
-  }
-
-  function getTokenId(address _token) external pure returns (uint32, bytes32) {
-    return (uint32(42), bytes32("A"));
-  }
-
-  function enrollCustom(
-    uint32 _domain,
-    bytes32 _id,
-    address _custom
-  ) external {}
-
-  function oldReprToCurrentRepr(address _oldRepr) external pure returns (address _currentRepr) {
-    return address(42);
   }
 }
 

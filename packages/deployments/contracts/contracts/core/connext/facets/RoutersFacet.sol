@@ -39,7 +39,6 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__addLiquidityForRouter_routerEmpty();
   error RoutersFacet__addLiquidityForRouter_amountIsZero();
   error RoutersFacet__addLiquidityForRouter_badRouter();
-  error RoutersFacet__addLiquidityForRouter_badAsset();
   error RoutersFacet__removeRouterLiquidity_recipientEmpty();
   error RoutersFacet__removeRouterLiquidity_amountIsZero();
   error RoutersFacet__removeRouterLiquidity_insufficientFunds();

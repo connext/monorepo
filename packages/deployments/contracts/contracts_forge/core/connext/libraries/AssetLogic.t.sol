@@ -6,7 +6,6 @@ import "../../../../contracts/core/connext/libraries/SwapUtils.sol";
 import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {LibConnextStorage, AppStorage, TokenId} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
-import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 
 import "../../../utils/FacetHelper.sol";
 import "../../../utils/Mock.sol";
@@ -157,7 +156,8 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
       vm.expectCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector, amount, _local, _adopted));
     }
 
-    (uint32 domain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(asset);
+    uint32 domain = s.representationToCanonical[_local].domain;
+    bytes32 canonicalId = s.representationToCanonical[_local].id;
     bytes32 key = keccak256(abi.encode(canonicalId, domain));
     (uint256 received, address out) = AssetLogic.swapFromLocalAssetIfNeeded(key, asset, amount, slippage, normalizedIn);
     // assert return amount

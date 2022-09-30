@@ -532,13 +532,13 @@ library AssetLogic {
     bytes32 _id,
     uint32 _domain,
     AppStorage storage s
-  ) internal view returns (address _token) {
+  ) internal view returns (address) {
     if (_domain == s.domain) {
       // Token is of local origin
-      _token = TypeCasts.bytes32ToAddress(_id);
+      return TypeCasts.bytes32ToAddress(_id);
     } else {
       // Token is a representation of a token of remote origin
-      _token = s.canonicalToRepresentation[calculateCanonicalHash(_id, _domain)];
+      return s.canonicalToRepresentation[calculateCanonicalHash(_id, _domain)];
     }
   }
 

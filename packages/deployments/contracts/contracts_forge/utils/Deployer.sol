@@ -66,22 +66,26 @@ contract Deployer {
   }
 
   function getTokenFacetCut(address _tokenFacet) internal view returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory tokenFacetSelectors = new bytes4[](13);
+    bytes4[] memory tokenFacetSelectors = new bytes4[](17);
     // NOTE: because you cannot differentiate between overloaded function selectors, you must calculate
     // them manually here.
     tokenFacetSelectors[0] = getSelector("canonicalToAdopted(bytes32)");
     tokenFacetSelectors[1] = getSelector("canonicalToAdopted(tuple(uint32,bytes32))");
     tokenFacetSelectors[2] = TokenFacet.adoptedToCanonical.selector;
-    tokenFacetSelectors[3] = getSelector("approvedAssets(bytes32)");
-    tokenFacetSelectors[4] = getSelector("approvedAssets(tuple(uint32,bytes32))");
-    tokenFacetSelectors[5] = getSelector("adoptedToLocalPools(bytes32)");
-    tokenFacetSelectors[6] = getSelector("adoptedToLocalPools(tuple(uint32,bytes32))");
-    tokenFacetSelectors[7] = TokenFacet.tokenRegistry.selector;
-    tokenFacetSelectors[8] = TokenFacet.setTokenRegistry.selector;
-    tokenFacetSelectors[9] = TokenFacet.setupAsset.selector;
-    tokenFacetSelectors[10] = TokenFacet.addStableSwapPool.selector;
-    tokenFacetSelectors[11] = getSelector("removeAssetId(bytes32,address)");
-    tokenFacetSelectors[12] = getSelector("removeAssetId(tuple(uint32,bytes32),address)");
+    tokenFacetSelectors[3] = getSelector("canonicalToRepresentation(bytes32)");
+    tokenFacetSelectors[4] = getSelector("canonicalToRepresentation(tuple(uint32,bytes32))");
+    tokenFacetSelectors[5] = TokenFacet.representationToCanonical.selector;
+    tokenFacetSelectors[6] = TokenFacet.getLocalAndAdoptedToken.selector;
+    tokenFacetSelectors[7] = getSelector("approvedAssets(bytes32)");
+    tokenFacetSelectors[8] = getSelector("approvedAssets(tuple(uint32,bytes32))");
+    tokenFacetSelectors[9] = getSelector("adoptedToLocalPools(bytes32)");
+    tokenFacetSelectors[10] = getSelector("adoptedToLocalPools(tuple(uint32,bytes32))");
+    tokenFacetSelectors[11] = TokenFacet.setupAsset.selector;
+    tokenFacetSelectors[12] = TokenFacet.setupAssetWithDeployedRepresentation.selector;
+    tokenFacetSelectors[13] = TokenFacet.addStableSwapPool.selector;
+    tokenFacetSelectors[14] = getSelector("removeAssetId(bytes32,address)");
+    tokenFacetSelectors[15] = getSelector("removeAssetId(tuple(uint32,bytes32),address)");
+    tokenFacetSelectors[16] = TokenFacet.updateDetails.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _tokenFacet,
@@ -91,7 +95,7 @@ contract Deployer {
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](17);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](16);
     // getters
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
     bridgeFacetSelectors[1] = BridgeFacet.routedTransfers.selector;
@@ -106,14 +110,13 @@ contract Deployer {
     bridgeFacetSelectors[8] = BridgeFacet.removeSequencer.selector;
     bridgeFacetSelectors[9] = BridgeFacet.setXAppConnectionManager.selector;
     bridgeFacetSelectors[10] = BridgeFacet.enrollRemoteRouter.selector;
-    bridgeFacetSelectors[11] = BridgeFacet.enrollCustom.selector;
 
     // public:bridge
-    bridgeFacetSelectors[12] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[13] = BridgeFacet.xcallIntoLocal.selector;
-    bridgeFacetSelectors[14] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[15] = BridgeFacet.bumpTransfer.selector;
-    bridgeFacetSelectors[16] = BridgeFacet.forceUpdateSlippage.selector;
+    bridgeFacetSelectors[11] = BridgeFacet.xcall.selector;
+    bridgeFacetSelectors[12] = BridgeFacet.xcallIntoLocal.selector;
+    bridgeFacetSelectors[13] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[14] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[15] = BridgeFacet.forceUpdateSlippage.selector;
 
     return
       IDiamondCut.FacetCut({
@@ -351,7 +354,6 @@ contract Deployer {
 
   function deployConnext(
     uint256 domain,
-    address tokenRegistry,
     address relayerFeeRouter,
     address xAppConnectionManager,
     uint256 acceptanceDelay,
@@ -360,7 +362,6 @@ contract Deployer {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       domain,
-      tokenRegistry,
       relayerFeeRouter,
       xAppConnectionManager,
       acceptanceDelay,
