@@ -9,7 +9,7 @@ import {IOutbox} from "../interfaces/IOutbox.sol";
  * as a `XappConnectionManager` on all router contracts.
  *
  * @dev Each nomad router contract has a `XappConnectionClient`, which references a
- * XappConnectionManager to get the `Home` (oubtox) and approved `Replica` (inbox)
+ * XappConnectionManager to get the `Home` (outbox) and approved `Replica` (inbox)
  * instances. At any point the client can replace the manager it's pointing to,
  * changing the underlying messaging connection.
  */

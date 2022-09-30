@@ -10,6 +10,7 @@ import {WatcherManager} from "../../contracts/messaging/WatcherManager.sol";
 import {MerkleLib} from "../../contracts/messaging/libraries/Merkle.sol";
 import {Connector} from "../../contracts/messaging/connectors/Connector.sol";
 import {SpokeConnector} from "../../contracts/messaging/connectors/SpokeConnector.sol";
+import {MerkleTreeManager} from "../../contracts/messaging/Merkle.sol";
 
 import "../utils/ConnectorHelper.sol";
 import "../utils/Mock.sol";
@@ -71,6 +72,9 @@ contract PingPong is ConnectorHelper {
     _watcherManager = address(new WatcherManager());
     // deploy root manager
     _rootManager = address(new RootManager(address(0), _watcherManager));
+
+    _merkle = address(new MerkleTreeManager());
+
     // Mock sourceconnector on l2
     _originConnectors.spoke = address(
       new MockConnector(
@@ -78,7 +82,7 @@ contract PingPong is ConnectorHelper {
         _mainnetDomain, // uint32 _mirrorDomain
         _originAMB, // address _amb,
         _rootManager, // address _rootManager,
-        address(0), // address merkle root manager
+        _merkle, // address merkle root manager
         address(0), // address _mirrorConnector
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
@@ -95,7 +99,7 @@ contract PingPong is ConnectorHelper {
         _originDomain, // uint32 _mirrorDomain,
         _originMainnetAMB, // address _amb,
         _rootManager, // address _rootManager,
-        address(0), // address merkle root manager
+        _merkle, // address merkle root manager
         _originConnectors.spoke, // address _mirrorConnector,
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
@@ -111,7 +115,7 @@ contract PingPong is ConnectorHelper {
         _mainnetDomain, // uint32 _mirrorDomain,
         _destinationAMB, // address _amb,
         _rootManager, // address _rootManager,
-        address(0), // address merkle root manager
+        _merkle, // address merkle root manager
         address(0), // address _mirrorConnector,
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
@@ -128,7 +132,7 @@ contract PingPong is ConnectorHelper {
         _destinationDomain, // uint32 _mirrorDomain,
         _destinationMainnetAMB, // address _amb,
         _rootManager, // address _rootManager,
-        address(0), // address merkle root manager
+        _merkle, // address merkle root manager
         _destinationConnectors.spoke, // address _mirrorConnector,
         PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,

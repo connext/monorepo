@@ -120,10 +120,15 @@ export const getDeployments = (args: {
       ? {
           RootManager: getContract("RootManager"),
           MainnetConnector: getContract("MainnetSpokeConnector"),
+          WatcherManager: getContract("WatcherManager"),
           HubConnectors: connectors,
+          MerkleTreeManagerForRoot: getContract("MerkleTreeManagerRootUpgradeBeaconProxy"),
+          MerkleTreeManagerForSpoke: getContract("MerkleTreeManagerSpokeUpgradeBeaconProxy"),
         }
       : {
           SpokeConnector: connectors[0],
+          MerkleTreeManager: getContract("MerkleTreeManagerUpgradeBeaconProxy"),
+          WatcherManager: getContract("WatcherManager"),
         },
   };
 };

@@ -18,7 +18,7 @@ describe("Operations:Execute", () => {
   });
   describe("#execute", () => {
     it("should not send to the relayer if not valid ", async () => {
-      const executeArgs = { ...mock.entity.executeArgs(), local: "1" };
+      const executeArgs = { ...mock.entity.executeArgs(), routers: "0x" };
       const transferId = mkBytes32();
       await expect(execute(executeArgs, transferId)).to.be.rejectedWith(Error);
       expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(0);

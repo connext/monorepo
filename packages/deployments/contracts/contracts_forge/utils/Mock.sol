@@ -368,12 +368,12 @@ contract MockConnector is SpokeConnector, IHubConnector {
       _mirrorDomain,
       _amb,
       _rootManager,
-      _merkle,
       _mirrorConnector,
       _mirrorGas,
       _processGas,
       _reserveGas,
       _delayBlocks,
+      _merkle,
       _watcherManager
     )
   {

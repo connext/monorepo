@@ -1,4 +1,4 @@
-import { constants, BigNumber } from "ethers";
+import { constants } from "ethers";
 import {
   RequestContext,
   createLoggingContext,

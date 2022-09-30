@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
+import {ProposedOwnableUpgradeable} from "../shared/ProposedOwnable.sol";
 import {MerkleLib} from "./libraries/Merkle.sol";
 
 /**
  * @title MerkleTreeManager
  * @notice Contains a Merkle tree instance and exposes read/write functions for the tree.
  */
-// TODO: Make this upgradeable (preserve tree state across upgrades).
-contract MerkleTreeManager {
+contract MerkleTreeManager is ProposedOwnableUpgradeable {
+  // ========== Custom Errors ===========
+
+  error MerkleTreeManager__setArborist_zeroAddress();
+  error MerkleTreeManager__setArborist_alreadyArborist();
+
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
@@ -27,10 +32,14 @@ contract MerkleTreeManager {
    */
   address public arborist;
 
+  // ============ Upgrade Gap ============
+
+  uint256[49] private __GAP; // gap for upgrade safety
+
   // ============ Modifiers ============
 
   modifier onlyArborist() {
-    require(arborist == msg.sender, "!owner");
+    require(arborist == msg.sender, "!arborist");
     _;
   }
 
@@ -58,14 +67,21 @@ contract MerkleTreeManager {
     return tree.count;
   }
 
-  // ============ Constructor ============
+  // ======== Initializer =========
+  function initialize(address _arborist) public initializer {
+    __MerkleTreeManager_init(_arborist);
+    __ProposedOwnable_init();
+  }
 
   /**
-   * @notice Creates a new MerkleTreeManager instance. Sets the msg.sender as the initial permissioned
-   * arborist contract.
+   * @dev Initializes MerkleTreeManager instance. Sets the msg.sender as the initial permissioned
    */
-  constructor() {
-    arborist = msg.sender;
+  function __MerkleTreeManager_init(address _arborist) internal onlyInitializing {
+    __MerkleTreeManager_init_unchained(_arborist);
+  }
+
+  function __MerkleTreeManager_init_unchained(address _arborist) internal onlyInitializing {
+    arborist = _arborist;
   }
 
   // ============ Admin Functions ==============
@@ -74,7 +90,9 @@ contract MerkleTreeManager {
    * @notice Method for the current arborist to assign write permissions to a new arborist.
    * @param newArborist The new address to set as the current arborist.
    */
-  function setArborist(address newArborist) public onlyArborist {
+  function setArborist(address newArborist) external onlyOwner {
+    if (newArborist == address(0)) revert MerkleTreeManager__setArborist_zeroAddress();
+    if (arborist == newArborist) revert MerkleTreeManager__setArborist_alreadyArborist();
     arborist = newArborist;
   }
 

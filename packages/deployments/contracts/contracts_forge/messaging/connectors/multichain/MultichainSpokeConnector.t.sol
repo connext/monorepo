@@ -39,12 +39,12 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
         _l1Domain,
         _amb,
         _rootManager,
-        _merkle,
         _l1Connector,
         _mirrorGas,
         _processGas,
         _reserveGas,
         0, // uint256 _delayBlocks
+        _merkle,
         address(1), // watcher manager
         _chainIdMainnet
       )

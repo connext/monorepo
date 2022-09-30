@@ -85,6 +85,8 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function approvedSequencers(address _sequencer) external view returns (bool);
 
+  function xAppConnectionManager() external view returns (address);
+
   function addConnextion(uint32 _domain, address _connext) external;
 
   function addSequencer(address _sequencer) external;

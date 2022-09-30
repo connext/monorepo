@@ -1,5 +1,5 @@
 import { constants, providers, BigNumber } from "ethers";
-import { Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
+import { Logger, createLoggingContext, ChainData, XCallArgs } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
@@ -133,24 +133,10 @@ export class NxtpSdkBase {
    * @param args - XCall arguments. Some fields in args.params are optional and have default values provided.
    * @returns providers.TransactionRequest object.
    */
+
   public async xcall(
-    args: {
-      origin: string;
-      destination: string;
-      to: string;
-      asset: string;
-      amount: string;
-      slippage: string;
-      callData?: string;
-      delegate?: string;
-    },
-    // All XCallArgs must be defined except for params.
-    // args: Omit<XCallArgs, "params"> & {
-    //   // In params, all fields are optional (because of Partial) except for the ones listed by string literals here:
-    //   params: Omit<Partial<CallParams>, "to" | "originDomain" | "destinationDomain" | "destinationMinOut"> &
-    //     // This Pick is used to make these fields required to be defined. The rest are optional with default values.
-    //     Pick<CallParams, "to" | "originDomain" | "destinationDomain" | "destinationMinOut">;
-    // },
+    args: Omit<XCallArgs, "callData" | "delegate"> & Partial<XCallArgs>,
+    relayerFee?: string,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { args });
@@ -194,7 +180,7 @@ export class NxtpSdkBase {
     }
 
     // Add callback and relayer fee together to get the total ETH value that should be sent.
-    const value = BigNumber.from("0");
+    const value = BigNumber.from(relayerFee);
 
     // Take the finalized xcall arguments and encode calldata.
     const data = this.contracts.connext.encodeFunctionData("xcall", [

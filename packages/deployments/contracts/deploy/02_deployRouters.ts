@@ -11,11 +11,14 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   deployer: Signer & { address: string },
   hre: HardhatRuntimeEnvironment,
   implementationArgs: any[] = [],
+  deployName?: string,
 ): Promise<T> => {
   // get names
-  const implementationName = getDeploymentName(name);
-  const upgradeBeaconName = getDeploymentName(`${name}UpgradeBeacon`);
-  const proxyName = getDeploymentName(`${name}UpgradeBeaconProxy`);
+  deployName = deployName ?? name;
+
+  const implementationName = getDeploymentName(deployName);
+  const upgradeBeaconName = getDeploymentName(`${deployName}UpgradeBeacon`);
+  const proxyName = getDeploymentName(`${deployName}UpgradeBeaconProxy`);
   const upgradeBeaconControllerName = getDeploymentName(`UpgradeBeaconController`);
 
   // get data + factories

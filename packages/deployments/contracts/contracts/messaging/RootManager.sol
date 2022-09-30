@@ -55,8 +55,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
   constructor(address _merkle, address _watcherManager) ProposedOwnable() WatcherClient(_watcherManager) {
     _setOwner(msg.sender);
 
-    // If no MerkleTreeManager instance is specified, create a new one.
-    MERKLE = _merkle == address(0) ? new MerkleTreeManager() : MerkleTreeManager(_merkle);
+    require(_merkle != address(0), "!zero merkle");
+    MERKLE = MerkleTreeManager(_merkle);
   }
 
   // ============ Public Functions ============

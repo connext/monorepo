@@ -12,7 +12,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -24,10 +28,19 @@ import type {
 
 export interface MerkleTreeManagerInterface extends utils.Interface {
   functions: {
+    "acceptProposedOwner()": FunctionFragment;
     "arborist()": FunctionFragment;
     "branch()": FunctionFragment;
     "count()": FunctionFragment;
+    "delay()": FunctionFragment;
+    "initialize(address)": FunctionFragment;
     "insert(bytes32)": FunctionFragment;
+    "owner()": FunctionFragment;
+    "proposeNewOwner(address)": FunctionFragment;
+    "proposed()": FunctionFragment;
+    "proposedTimestamp()": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
+    "renounced()": FunctionFragment;
     "root()": FunctionFragment;
     "setArborist(address)": FunctionFragment;
     "tree()": FunctionFragment;
@@ -35,22 +48,55 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "acceptProposedOwner"
       | "arborist"
       | "branch"
       | "count"
+      | "delay"
+      | "initialize"
       | "insert"
+      | "owner"
+      | "proposeNewOwner"
+      | "proposed"
+      | "proposedTimestamp"
+      | "renounceOwnership"
+      | "renounced"
       | "root"
       | "setArborist"
       | "tree"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "acceptProposedOwner",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "arborist", values?: undefined): string;
   encodeFunctionData(functionFragment: "branch", values?: undefined): string;
   encodeFunctionData(functionFragment: "count", values?: undefined): string;
+  encodeFunctionData(functionFragment: "delay", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "insert",
     values: [PromiseOrValue<BytesLike>]
   ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proposeNewOwner",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proposedTimestamp",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(functionFragment: "root", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "setArborist",
@@ -58,10 +104,31 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "tree", values?: undefined): string;
 
+  decodeFunctionResult(
+    functionFragment: "acceptProposedOwner",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "arborist", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "branch", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "insert", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeNewOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposedTimestamp",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "root", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setArborist",
@@ -69,8 +136,46 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "tree", data: BytesLike): Result;
 
-  events: {};
+  events: {
+    "Initialized(uint8)": EventFragment;
+    "OwnershipProposed(address)": EventFragment;
+    "OwnershipTransferred(address,address)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
+export interface OwnershipProposedEventObject {
+  proposedOwner: string;
+}
+export type OwnershipProposedEvent = TypedEvent<
+  [string],
+  OwnershipProposedEventObject
+>;
+
+export type OwnershipProposedEventFilter =
+  TypedEventFilter<OwnershipProposedEvent>;
+
+export interface OwnershipTransferredEventObject {
+  previousOwner: string;
+  newOwner: string;
+}
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferredEventObject
+>;
+
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface MerkleTreeManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -99,16 +204,44 @@ export interface MerkleTreeManager extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     arborist(overrides?: CallOverrides): Promise<[string]>;
 
     branch(overrides?: CallOverrides): Promise<[string[]]>;
 
     count(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    delay(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    initialize(
+      _arborist: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     insert(
       leaf: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
+    proposeNewOwner(
+      newlyProposed: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    proposed(overrides?: CallOverrides): Promise<[string]>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     root(overrides?: CallOverrides): Promise<[string]>;
 
@@ -122,16 +255,44 @@ export interface MerkleTreeManager extends BaseContract {
     ): Promise<[BigNumber] & { count: BigNumber }>;
   };
 
+  acceptProposedOwner(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   arborist(overrides?: CallOverrides): Promise<string>;
 
   branch(overrides?: CallOverrides): Promise<string[]>;
 
   count(overrides?: CallOverrides): Promise<BigNumber>;
 
+  delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+  initialize(
+    _arborist: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   insert(
     leaf: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  owner(overrides?: CallOverrides): Promise<string>;
+
+  proposeNewOwner(
+    newlyProposed: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  proposed(overrides?: CallOverrides): Promise<string>;
+
+  proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+  renounceOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  renounced(overrides?: CallOverrides): Promise<boolean>;
 
   root(overrides?: CallOverrides): Promise<string>;
 
@@ -143,16 +304,40 @@ export interface MerkleTreeManager extends BaseContract {
   tree(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
+    acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
+
     arborist(overrides?: CallOverrides): Promise<string>;
 
     branch(overrides?: CallOverrides): Promise<string[]>;
 
     count(overrides?: CallOverrides): Promise<BigNumber>;
 
+    delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      _arborist: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     insert(
       leaf: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string, BigNumber] & { _root: string; _count: BigNumber }>;
+
+    owner(overrides?: CallOverrides): Promise<string>;
+
+    proposeNewOwner(
+      newlyProposed: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    proposed(overrides?: CallOverrides): Promise<string>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    renounced(overrides?: CallOverrides): Promise<boolean>;
 
     root(overrides?: CallOverrides): Promise<string>;
 
@@ -164,19 +349,66 @@ export interface MerkleTreeManager extends BaseContract {
     tree(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
-  filters: {};
+  filters: {
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
+    "OwnershipProposed(address)"(
+      proposedOwner?: PromiseOrValue<string> | null
+    ): OwnershipProposedEventFilter;
+    OwnershipProposed(
+      proposedOwner?: PromiseOrValue<string> | null
+    ): OwnershipProposedEventFilter;
+
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
+    OwnershipTransferred(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
+  };
 
   estimateGas: {
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     arborist(overrides?: CallOverrides): Promise<BigNumber>;
 
     branch(overrides?: CallOverrides): Promise<BigNumber>;
 
     count(overrides?: CallOverrides): Promise<BigNumber>;
 
+    delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      _arborist: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     insert(
       leaf: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    proposeNewOwner(
+      newlyProposed: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    proposed(overrides?: CallOverrides): Promise<BigNumber>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     root(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -189,16 +421,44 @@ export interface MerkleTreeManager extends BaseContract {
   };
 
   populateTransaction: {
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     arborist(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     branch(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     count(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initialize(
+      _arborist: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     insert(
       leaf: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    proposeNewOwner(
+      newlyProposed: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     root(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
