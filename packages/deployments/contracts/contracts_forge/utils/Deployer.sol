@@ -354,6 +354,7 @@ contract Deployer {
 
   function deployConnext(
     uint256 domain,
+    address tokenBeacon,
     address relayerFeeRouter,
     address xAppConnectionManager,
     uint256 acceptanceDelay,
@@ -362,6 +363,7 @@ contract Deployer {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       domain,
+      tokenBeacon,
       relayerFeeRouter,
       xAppConnectionManager,
       acceptanceDelay,

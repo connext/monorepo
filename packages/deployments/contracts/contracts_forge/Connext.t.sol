@@ -159,9 +159,6 @@ contract ConnextTest is ForgeHelper, Deployer {
     // Deploy destination IConnectorManager
     _destinationManager = new MockXAppConnectionManager(destinationHome);
 
-    // Deploy token beacon
-    address beacon = address(new TestERC20("Test Token", "TEST"));
-
     // set this to be a replica so we can call `handle` directly on routers
     MockXAppConnectionManager(address(_destinationManager)).enrollInbox(address(this));
     MockXAppConnectionManager(address(_originManager)).enrollInbox(address(this));
@@ -192,12 +189,23 @@ contract ConnextTest is ForgeHelper, Deployer {
     // deploy relayer fee router
     utils_deployRelayerFeeRouter();
 
+    // Deploy token beacon
+    address beacon = address(new TestERC20("Test Token", "TEST"));
+
     // deploy connext
-    address originConnext = deployConnext(_origin, address(_originRelayerFee), address(_originManager), 7 days, 6 days);
+    address originConnext = deployConnext(
+      _origin,
+      beacon,
+      address(_originRelayerFee),
+      address(_originManager),
+      7 days,
+      6 days
+    );
     _originConnext = IConnextHandler(originConnext);
 
     address destinationConnext = deployConnext(
       _destination,
+      beacon,
       address(_destinationRelayerFee),
       address(_destinationManager),
       7 days,

@@ -20,11 +20,20 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   uint256 ownershipDelay = 6 days;
   address internal xAppConnectionManager = address(1);
   address relayerFeeRouter = address(3);
+  address beacon = address(1232);
 
   // ============ Setup ============
 
   function setUp() public {
-    deployConnext(uint256(domain), xAppConnectionManager, address(relayerFeeRouter), acceptanceDelay, ownershipDelay);
+    // Deploy token beacon
+    deployConnext(
+      uint256(domain),
+      beacon,
+      xAppConnectionManager,
+      address(relayerFeeRouter),
+      acceptanceDelay,
+      ownershipDelay
+    );
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
   }
@@ -73,12 +82,14 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   // Diamond cut prior to elapsed delay should revert.
   function testFail_LibDiamond__initializeDiamondCut_beforeAcceptanceDelay_reverts() public {
     uint32 newDomain = 2;
+    address newBeacon = address(10001);
     address newXAppConnectionManager = address(11);
     address newRelayerFeeRouter = address(13);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
+      newBeacon,
       newXAppConnectionManager,
       newRelayerFeeRouter,
       acceptanceDelay,
@@ -103,17 +114,19 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // Diamond cut after setting 0 acceptance delay should work.
   function test_LibDiamond__initializeDiamondCut_withZeroAcceptanceDelay_works() public {
-    deployConnext(uint256(domain), xAppConnectionManager, address(relayerFeeRouter), 0, 0);
+    deployConnext(uint256(domain), beacon, xAppConnectionManager, address(relayerFeeRouter), 0, 0);
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
 
     uint32 newDomain = 2;
+    address newBeacon = address(10001);
     address newXAppConnectionManager = address(11);
     address newRelayerFeeRouter = address(13);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
+      newBeacon,
       newXAppConnectionManager,
       newRelayerFeeRouter,
       acceptanceDelay,
