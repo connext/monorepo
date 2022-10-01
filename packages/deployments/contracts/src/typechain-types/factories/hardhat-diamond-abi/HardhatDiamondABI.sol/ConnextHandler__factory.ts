@@ -182,6 +182,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BridgeFacet__xcall_capReached",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BridgeFacet__xcall_emptyTo",
     type: "error",
   },
@@ -2768,6 +2773,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "RoutersFacet__addLiquidityForRouter_capReached",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "RoutersFacet__addLiquidityForRouter_routerEmpty",
     type: "error",
   },
@@ -4313,6 +4323,43 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "uint256",
+        name: "cap",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "LiquidityCapUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "key",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "canonicalId",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "uint32",
+        name: "domain",
+        type: "uint32",
+      },
+      {
+        indexed: false,
         internalType: "address",
         name: "swapPool",
         type: "address",
@@ -4775,6 +4822,11 @@ const _abi = [
         name: "_stableSwapPool",
         type: "address",
       },
+      {
+        internalType: "uint256",
+        name: "_cap",
+        type: "uint256",
+      },
     ],
     name: "setupAsset",
     outputs: [
@@ -4821,6 +4873,11 @@ const _abi = [
         name: "_stableSwapPool",
         type: "address",
       },
+      {
+        internalType: "uint256",
+        name: "_cap",
+        type: "uint256",
+      },
     ],
     name: "setupAssetWithDeployedRepresentation",
     outputs: [
@@ -4864,6 +4921,36 @@ const _abi = [
       },
     ],
     name: "updateDetails",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
+        internalType: "uint256",
+        name: "_updated",
+        type: "uint256",
+      },
+    ],
+    name: "updateLiquidityCap",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

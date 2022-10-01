@@ -303,9 +303,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "removeAssetId((uint32,bytes32),address,address)": FunctionFragment;
     "removeAssetId(bytes32,address,address)": FunctionFragment;
     "representationToCanonical(address)": FunctionFragment;
-    "setupAsset((uint32,bytes32),uint8,string,string,address,address)": FunctionFragment;
-    "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address)": FunctionFragment;
+    "setupAsset((uint32,bytes32),uint8,string,string,address,address,uint256)": FunctionFragment;
+    "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address,uint256)": FunctionFragment;
     "updateDetails((uint32,bytes32),string,string)": FunctionFragment;
+    "updateLiquidityCap((uint32,bytes32),uint256)": FunctionFragment;
   };
 
   getFunction(
@@ -437,6 +438,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "setupAsset"
       | "setupAssetWithDeployedRepresentation"
       | "updateDetails"
+      | "updateLiquidityCap"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -1034,7 +1036,8 @@ export interface ConnextHandlerInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
@@ -1043,12 +1046,17 @@ export interface ConnextHandlerInterface extends utils.Interface {
       TokenIdStruct,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
     functionFragment: "updateDetails",
     values: [TokenIdStruct, PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateLiquidityCap",
+    values: [TokenIdStruct, PromiseOrValue<BigNumberish>]
   ): string;
 
   decodeFunctionResult(
@@ -1493,6 +1501,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
     functionFragment: "updateDetails",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateLiquidityCap",
+    data: BytesLike
+  ): Result;
 
   events: {
     "AavePortalMintUnbacked(bytes32,address,address,uint256)": EventFragment;
@@ -1540,6 +1552,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "RouterUnapprovedForPortal(address,address)": EventFragment;
     "AssetAdded(bytes32,bytes32,uint32,address,address,address)": EventFragment;
     "AssetRemoved(bytes32,address)": EventFragment;
+    "LiquidityCapUpdated(bytes32,bytes32,uint32,uint256,address)": EventFragment;
     "StableSwapAdded(bytes32,bytes32,uint32,address,address)": EventFragment;
     "TokenDeployed(uint32,bytes32,address)": EventFragment;
   };
@@ -1597,6 +1610,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "RouterUnapprovedForPortal"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "LiquidityCapUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StableSwapAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenDeployed"): EventFragment;
 }
@@ -2143,6 +2157,21 @@ export type AssetRemovedEvent = TypedEvent<
 >;
 
 export type AssetRemovedEventFilter = TypedEventFilter<AssetRemovedEvent>;
+
+export interface LiquidityCapUpdatedEventObject {
+  key: string;
+  canonicalId: string;
+  domain: number;
+  cap: BigNumber;
+  caller: string;
+}
+export type LiquidityCapUpdatedEvent = TypedEvent<
+  [string, string, number, BigNumber, string],
+  LiquidityCapUpdatedEventObject
+>;
+
+export type LiquidityCapUpdatedEventFilter =
+  TypedEventFilter<LiquidityCapUpdatedEvent>;
 
 export interface StableSwapAddedEventObject {
   key: string;
@@ -2847,6 +2876,7 @@ export interface ConnextHandler extends BaseContract {
       _representationSymbol: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2855,6 +2885,7 @@ export interface ConnextHandler extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2862,6 +2893,12 @@ export interface ConnextHandler extends BaseContract {
       _canonical: TokenIdStruct,
       _name: PromiseOrValue<string>,
       _symbol: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    updateLiquidityCap(
+      _canonical: TokenIdStruct,
+      _updated: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -3508,6 +3545,7 @@ export interface ConnextHandler extends BaseContract {
     _representationSymbol: PromiseOrValue<string>,
     _adoptedAssetId: PromiseOrValue<string>,
     _stableSwapPool: PromiseOrValue<string>,
+    _cap: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3516,6 +3554,7 @@ export interface ConnextHandler extends BaseContract {
     _representation: PromiseOrValue<string>,
     _adoptedAssetId: PromiseOrValue<string>,
     _stableSwapPool: PromiseOrValue<string>,
+    _cap: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3523,6 +3562,12 @@ export interface ConnextHandler extends BaseContract {
     _canonical: TokenIdStruct,
     _name: PromiseOrValue<string>,
     _symbol: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  updateLiquidityCap(
+    _canonical: TokenIdStruct,
+    _updated: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -4155,6 +4200,7 @@ export interface ConnextHandler extends BaseContract {
       _representationSymbol: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -4163,6 +4209,7 @@ export interface ConnextHandler extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -4170,6 +4217,12 @@ export interface ConnextHandler extends BaseContract {
       _canonical: TokenIdStruct,
       _name: PromiseOrValue<string>,
       _symbol: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateLiquidityCap(
+      _canonical: TokenIdStruct,
+      _updated: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -4612,6 +4665,21 @@ export interface ConnextHandler extends BaseContract {
       key?: PromiseOrValue<BytesLike> | null,
       caller?: null
     ): AssetRemovedEventFilter;
+
+    "LiquidityCapUpdated(bytes32,bytes32,uint32,uint256,address)"(
+      key?: PromiseOrValue<BytesLike> | null,
+      canonicalId?: PromiseOrValue<BytesLike> | null,
+      domain?: PromiseOrValue<BigNumberish> | null,
+      cap?: null,
+      caller?: null
+    ): LiquidityCapUpdatedEventFilter;
+    LiquidityCapUpdated(
+      key?: PromiseOrValue<BytesLike> | null,
+      canonicalId?: PromiseOrValue<BytesLike> | null,
+      domain?: PromiseOrValue<BigNumberish> | null,
+      cap?: null,
+      caller?: null
+    ): LiquidityCapUpdatedEventFilter;
 
     "StableSwapAdded(bytes32,bytes32,uint32,address,address)"(
       key?: PromiseOrValue<BytesLike> | null,
@@ -5283,6 +5351,7 @@ export interface ConnextHandler extends BaseContract {
       _representationSymbol: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -5291,6 +5360,7 @@ export interface ConnextHandler extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -5298,6 +5368,12 @@ export interface ConnextHandler extends BaseContract {
       _canonical: TokenIdStruct,
       _name: PromiseOrValue<string>,
       _symbol: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    updateLiquidityCap(
+      _canonical: TokenIdStruct,
+      _updated: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -5963,6 +6039,7 @@ export interface ConnextHandler extends BaseContract {
       _representationSymbol: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5971,6 +6048,7 @@ export interface ConnextHandler extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5978,6 +6056,12 @@ export interface ConnextHandler extends BaseContract {
       _canonical: TokenIdStruct,
       _name: PromiseOrValue<string>,
       _symbol: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateLiquidityCap(
+      _canonical: TokenIdStruct,
+      _updated: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

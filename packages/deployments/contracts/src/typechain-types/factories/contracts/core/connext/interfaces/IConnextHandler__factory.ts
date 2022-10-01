@@ -2780,6 +2780,11 @@ const _abi = [
         name: "_stableSwapPool",
         type: "address",
       },
+      {
+        internalType: "uint256",
+        name: "_cap",
+        type: "uint256",
+      },
     ],
     name: "setupAsset",
     outputs: [
@@ -2825,6 +2830,11 @@ const _abi = [
         internalType: "address",
         name: "_stableSwapPool",
         type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_cap",
+        type: "uint256",
       },
     ],
     name: "setupAssetWithDeployedRepresentation",

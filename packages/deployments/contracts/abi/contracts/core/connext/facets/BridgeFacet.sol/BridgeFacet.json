@@ -33,6 +33,7 @@
   "error BridgeFacet__onlyDelegate_notDelegate()",
   "error BridgeFacet__removeSequencer_notApproved()",
   "error BridgeFacet__xcall_canonicalAssetNotReceived()",
+  "error BridgeFacet__xcall_capReached()",
   "error BridgeFacet__xcall_emptyTo()",
   "error BridgeFacet__xcall_invalidSlippage()",
   "error BridgeFacet__xcall_nativeAssetNotSupported()",
