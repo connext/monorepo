@@ -4,6 +4,7 @@ import { BigNumber, constants } from "ethers";
 
 import {
   gelatoSend,
+  gelatoSDKSend,
   getGelatoRelayChains,
   isChainSupportedByGelato,
   getGelatoEstimatedFee,
@@ -20,15 +21,21 @@ import {
   getTaskStatusFromGelato,
   getGelatoRelayerAddress,
 } from "../../src";
+
+import * as relayer from "../../src/peripherals/relayer";
 import { RelayerTaskStatus } from "../../src/types/relayer";
+
+export const mockGelatoSDKSuccessResponse = { taskId: "1" };
 
 describe("Peripherals:Gelato", () => {
   let axiosGetStub: SinonStub;
   let axiosPostStub: SinonStub;
+  let gelatoSDKSendStub: SinonStub;
 
   beforeEach(() => {
     axiosGetStub = stub(axios, "get");
     axiosPostStub = stub(axios, "post");
+    gelatoSDKSendStub = stub(relayer, "gelatoSDKSend").resolves(mockGelatoSDKSuccessResponse);
   });
 
   afterEach(() => {
@@ -58,6 +65,19 @@ describe("Peripherals:Gelato", () => {
           relayerFee: "1",
         }),
       ).to.be.rejectedWith("Error sending request to Gelato Relay");
+    });
+  });
+
+  describe("#gelatoSDKSend", () => {
+    it("happy: should send data successfully!", async () => {
+      const request = {
+        chainId: 1337,
+        target: "0x1",
+        data: "0x",
+      };
+      const apiKey = "apikey";
+      const res = await gelatoSDKSend(request, apiKey);
+      expect(res).to.be.deep.eq(mockGelatoSDKSuccessResponse);
     });
   });
 

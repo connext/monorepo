@@ -211,6 +211,7 @@ locals {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
       }
     }
+    gelatoApiKey = "${var.gelato_api_key}"
     environment = var.stage
   })
 }
