@@ -220,12 +220,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     );
   }
 
-  // Deploy BridgeToken beacon
-  const bridgeTokenDeployment = await hre.deployments.deploy("BridgeToken", {
-    from: deployer.address,
-    log: true,
-    skipIfAlreadyDeployed: true,
-  });
+  // Get the token beacon
+  const bridgeTokenDeployment = await hre.deployments.getOrNull(getDeploymentName("BridgeTokenUpgradeBeacon"));
+  if (!bridgeTokenDeployment) {
+    throw new Error(`BridgeTokenUpgradeBeacon not deployed`);
+  }
 
   // Deploy connext diamond contract
   console.log("Deploying connext diamond...");
