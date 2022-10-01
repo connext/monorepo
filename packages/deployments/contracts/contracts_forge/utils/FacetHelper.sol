@@ -94,7 +94,6 @@ contract FacetHelper is ForgeHelper {
       // If the local is already set to the canonical (i.e. from some defaults)
       // redeploy
       if (_local == _canonical) {
-        console.log("ensuring local != canonical");
         _local = address(new TestERC20("Test Token", "TEST"));
       }
 
@@ -106,7 +105,6 @@ contract FacetHelper is ForgeHelper {
         _stableSwap = address(5555555555555555555);
         // ensure addresses are unique
         if (_adopted == _local) {
-          console.log("ensuring local != adopted");
           _adopted = address(new TestERC20("Test Token", "TEST"));
         }
       }
@@ -125,7 +123,6 @@ contract FacetHelper is ForgeHelper {
 
     // Setup the storage variables for adopted
     s.adoptedToCanonical[_adopted].domain = _canonicalDomain;
-    console.log("***** set", _adopted, "to:", _canonicalDomain);
     s.adoptedToCanonical[_adopted].id = _canonicalId;
     s.adoptedToLocalPools[_canonicalKey] = IStableSwap(_stableSwap);
     s.canonicalToAdopted[_canonicalKey] = _adopted;
@@ -134,16 +131,16 @@ contract FacetHelper is ForgeHelper {
     s.approvedAssets[_canonicalKey] = true;
 
     // // Log stored vars
-    console.log("setup asset:");
-    console.log("- adopted:", _adopted);
-    console.log("- local:", _local);
-    console.log("- canonical:", _canonical);
-    console.log("");
-    console.log("- domain:", s.domain);
-    console.log("- destination:", _destinationDomain);
-    console.log("- origin:", _originDomain);
-    console.log("- canonicalDomain:", _canonicalDomain);
-    console.log("- stableSwap:", _stableSwap);
+    // console.log("setup asset:");
+    // console.log("- adopted:", _adopted);
+    // console.log("- local:", _local);
+    // console.log("- canonical:", _canonical);
+    // console.log("");
+    // console.log("- domain:", s.domain);
+    // console.log("- destination:", _destinationDomain);
+    // console.log("- origin:", _originDomain);
+    // console.log("- canonicalDomain:", _canonicalDomain);
+    // console.log("- stableSwap:", _stableSwap);
     // console.log("- isLocalOrigin", onCanonical);
   }
 
