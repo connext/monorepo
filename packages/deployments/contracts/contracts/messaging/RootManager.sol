@@ -6,6 +6,7 @@ import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 import {IRootManager} from "./interfaces/IRootManager.sol";
 import {IHubConnector} from "./interfaces/IHubConnector.sol";
 import {Message} from "./libraries/Message.sol";
+import {QueueLib} from "./libraries/Queue.sol";
 
 import {MerkleTreeManager} from "./Merkle.sol";
 import {WatcherClient} from "./WatcherClient.sol";
@@ -14,13 +15,16 @@ import {WatcherClient} from "./WatcherClient.sol";
  * @notice This contract exists at cluster hubs, and aggregates all transfer roots from messaging
  * spokes into a single merkle root
  */
-
 contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
+  // ============ Libraries ============
+
+  using QueueLib for QueueLib.Queue;
+
   // ============ Events ============
 
   event RootAggregated(uint32 domain, bytes32 receivedRoot, uint256 index);
 
-  event RootPropagated(bytes32 aggregate, uint32[] domains);
+  event RootPropagated(bytes32 aggregate, uint32[] domains, uint256 count);
 
   event ConnectorAdded(uint32 domain, address connector);
 
@@ -33,6 +37,13 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
    * The root of this tree will be distributed crosschain to all spoke domains.
    */
   MerkleTreeManager public immutable MERKLE;
+
+  /**
+   * @notice Queue used for management of verification for inbound roots from spoke chains. Once
+   * verification period elapses, the inbound root can be aggregated into the merkle tree for
+   * propagation to spoke chains.
+   */
+  QueueLib.Queue public queue;
 
   /**
    * @notice Domains array tracks currently subscribed domains to this hub aggregator.
@@ -100,7 +111,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
    * @param _domains Array of domains: should match exactly the array of `domains` in storage; used here
    * to reduce gas costs, and keep them static regardless of number of supported domains.
    * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage
-   * (see `_domains` arg's note on reducing gas costs).
+   * (see `_domains` param's info on reducing gas costs).
    */
   function propagate(uint32[] calldata _domains, address[] calldata _connectors) external override {
     uint256 _numDomains = _domains.length;
@@ -112,32 +123,41 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
     // Validate that given connectors match the current array in storage.
     require(keccak256(abi.encode(_connectors)) == connectorsHash, "!connectors");
 
-    // Calculate the current aggregate root of the aggregator tree.
-    bytes32 _aggregated = MERKLE.root();
+    // Get all of the verified roots from the queue.
+    // TODO: delay should be contract property!
+    uint256 delay = 40;
+    bytes32[] memory _verifiedInboundRoots = queue.dequeueVerified(delay);
+
+    // Insert the leaves into the aggregator tree (method will also calculate and return the current
+    // aggregate root and count).
+    (bytes32 _aggregateRoot, uint256 count) = MERKLE.insert(_verifiedInboundRoots);
 
     for (uint32 i; i < _numDomains; ) {
       address _connector = connectors[domains[i]];
-      IHubConnector(_connector).sendMessage(abi.encodePacked(_aggregated));
+      IHubConnector(_connector).sendMessage(abi.encodePacked(_aggregateRoot));
 
       unchecked {
         ++i;
       }
     }
-    emit RootPropagated(_aggregated, domains);
+
+    emit RootPropagated(_aggregateRoot, domains, count);
   }
 
   /**
-   * @notice Accept an inbound root coming from a given domain's hub connector, inserting this incoming
-   * root into the current aggregate tree.
+   * @notice Accept an inbound root coming from a given domain's hub connector, enqueuing this incoming
+   * root into the current queue as it awaits the verification period.
    * @dev The aggregate tree's root, which will include this inbound root, will be propagated to all spoke
-   * domains (via `propagate`) on a regular basis.
+   * domains (via `propagate`) on a regular basis assuming the verification period is surpassed without
+   * dispute.
    *
    * @param _domain The source domain of the given root.
    * @param _inbound The inbound root coming from the given domain.
    */
   function aggregate(uint32 _domain, bytes32 _inbound) external override onlyConnector(_domain) {
-    (, uint256 count) = MERKLE.insert(_inbound);
-    emit RootAggregated(_domain, _inbound, count - 1);
+    // (, uint256 count) = MERKLE.insert(_inbound);
+    uint128 lastIndex = queue.enqueue(_inbound);
+    emit RootAggregated(_domain, _inbound, lastIndex);
   }
 
   // ============ Admin Functions ============

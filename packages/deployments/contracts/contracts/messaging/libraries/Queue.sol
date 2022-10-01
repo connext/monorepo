@@ -3,9 +3,9 @@ pragma solidity 0.8.15;
 
 /**
  * @title QueueLib
- * @author Illusory Systems Inc.
- * @notice Library containing queue struct and operations for queue used by
- * Home and Replica.
+ * @notice Library containing queue struct and operations for queue used by RootManager and SpokeConnector
+ * for handling the verification period. Tracks both message data itself and the block that the message was
+ * committed to the queue.
  **/
 library QueueLib {
   /**
@@ -16,134 +16,110 @@ library QueueLib {
   struct Queue {
     uint128 first;
     uint128 last;
-    mapping(uint256 => bytes32) queue;
+    // Message data (roots) that have been received.
+    mapping(uint256 => bytes32) data;
+    // The block that the message data was committed.
+    mapping(uint256 => uint256) commitBlock;
   }
 
   /**
    * @notice Initializes the queue
-   * @dev Empty state denoted by _q.first > q._last. Queue initialized
-   * with _q.first = 1 and _q.last = 0.
+   * @dev Empty state denoted by queue.first > queue.last. Queue initialized with
+   * queue.first = 1 and queue.last = 0.
    **/
-  function initialize(Queue storage _q) internal {
-    if (_q.first == 0) {
-      _q.first = 1;
-    }
+  function initialize(Queue storage queue) internal {
+    queue.first = 1;
+    queue.last = 0;
   }
 
   /**
-   * @notice Enqueues a single new element
-   * @param _item New element to be enqueued
-   * @return _last Index of newly enqueued element
+   * @notice Enqueues a single new element and records block number that the item was enqueued
+   * (i.e. current block).
+   * @param item New element to be enqueued.
+   * @return last Index of newly enqueued element.
    **/
-  function enqueue(Queue storage _q, bytes32 _item) internal returns (uint128 _last) {
-    _last = _q.last + 1;
-    _q.last = _last;
-    if (_item != bytes32(0)) {
-      // saves gas if we're queueing 0
-      _q.queue[_last] = _item;
-    }
+  function enqueue(Queue storage queue, bytes32 item) internal returns (uint128 last) {
+    // Commit block is the block we are committing this item to the queue.
+    uint256 commitBlock = block.number;
+    // Increment `last` position.
+    last = ++queue.last;
+    // Add the item and record block number.
+    queue.data[last] = item;
+    queue.commitBlock[last] = commitBlock;
   }
 
   /**
-   * @notice Dequeues element at front of queue
-   * @dev Removes dequeued element from storage
-   * @return _item Dequeued element
+   * @notice Dequeues element at front of queue if it exists AND it's surpassed the given
+   * verification period (i.e. has been sitting in the queue for enough blocks).
+   * @param queue QueueStorage struct from contract.
+   * @param delay The required delay that must have been surpassed in order to merit dequeuing
+   * the element.
+   * @return item Dequeued element IFF delay period has been surpassed; otherwise, empty bytes32.
    **/
-  function dequeue(Queue storage _q) internal returns (bytes32 _item) {
-    uint128 _last = _q.last;
-    uint128 _first = _q.first;
-    require(_length(_last, _first) != 0, "Empty");
-    _item = _q.queue[_first];
-    if (_item != bytes32(0)) {
-      // saves gas if we're dequeuing 0
-      delete _q.queue[_first];
-    }
-    _q.first = _first + 1;
-  }
+  function dequeueVerified(Queue storage queue, uint256 delay) internal returns (bytes32[] memory) {
+    uint128 first = queue.first;
+    uint128 last = queue.last;
+    uint256 count = _length(last, first);
+    require(count > 0, "queue empty");
 
-  /**
-   * @notice Batch enqueues several elements
-   * @param _items Array of elements to be enqueued
-   * @return _last Index of last enqueued element
-   **/
-  function enqueue(Queue storage _q, bytes32[] memory _items) internal returns (uint128 _last) {
-    _last = _q.last;
-    for (uint256 i = 0; i < _items.length; i += 1) {
-      _last += 1;
-      bytes32 _item = _items[i];
-      if (_item != bytes32(0)) {
-        _q.queue[_last] = _item;
+    // To determine the last item index in the queue we want to return, iterate backwards until we
+    // find a `commitBlock` that has surpassed the delay period.
+    // NOTE: We iterate backwards as an optimization; as soon as we find an item whose verified,
+    // we know that all items before it in the queue are already verified.
+    for (last; last >= first; ) {
+      uint256 commitBlock = queue.commitBlock[last];
+      if (block.number - commitBlock >= delay) {
+        break;
+      }
+      unchecked {
+        --last;
       }
     }
-    _q.last = _last;
-  }
 
-  /**
-   * @notice Batch dequeues `_number` elements
-   * @dev Reverts if `_number` > queue length
-   * @param _number Number of elements to dequeue
-   * @return Array of dequeued elements
-   **/
-  function dequeue(Queue storage _q, uint256 _number) internal returns (bytes32[] memory) {
-    uint128 _last = _q.last;
-    uint128 _first = _q.first;
-    // Cannot underflow unless state is corrupted
-    require(_length(_last, _first) >= _number, "Insufficient");
+    bytes32[] memory items;
+    uint256 index;
+    for (first; first <= last; ) {
+      items[index] = queue.data[first];
+      // Delete the item and the commitBlock.
+      delete queue.data[first];
+      delete queue.commitBlock[first];
 
-    bytes32[] memory _items = new bytes32[](_number);
-
-    for (uint256 i = 0; i < _number; i++) {
-      _items[i] = _q.queue[_first];
-      delete _q.queue[_first];
-      _first++;
-    }
-    _q.first = _first;
-    return _items;
-  }
-
-  /**
-   * @notice Returns true if `_item` is in the queue and false if otherwise
-   * @dev Linearly scans from _q.first to _q.last looking for `_item`
-   * @param _item Item being searched for in queue
-   * @return True if `_item` currently exists in queue, false if otherwise
-   **/
-  function contains(Queue storage _q, bytes32 _item) internal view returns (bool) {
-    for (uint256 i = _q.first; i <= _q.last; i++) {
-      if (_q.queue[i] == _item) {
-        return true;
+      unchecked {
+        ++index;
+        ++first;
       }
     }
-    return false;
+    // Update the value for `first` in our queue object since we've dequeued a number of elements.
+    queue.first = first;
+    return items;
   }
 
-  /// @notice Returns last item in queue
-  /// @dev Returns bytes32(0) if queue empty
-  function lastItem(Queue storage _q) internal view returns (bytes32) {
-    return _q.queue[_q.last];
+  /**
+   * @notice Check whether the queue is empty.
+   * @param queue QueueStorage struct from contract.
+   * @return bool True if queue is empty and false if otherwise.
+   */
+  function isEmpty(Queue storage queue) internal view returns (bool) {
+    return queue.last < queue.first;
   }
 
-  /// @notice Returns element at front of queue without removing element
-  /// @dev Reverts if queue is empty
-  function peek(Queue storage _q) internal view returns (bytes32 _item) {
-    require(!isEmpty(_q), "Empty");
-    _item = _q.queue[_q.first];
+  /**
+   * @notice Returns number of elements in queue.
+   * @param queue QueueStorage struct from contract.
+   */
+  function length(Queue storage queue) internal view returns (uint256) {
+    uint128 last = queue.last;
+    uint128 first = queue.first;
+    // Cannot underflow unless state is corrupted.
+    return _length(last, first);
   }
 
-  /// @notice Returns true if queue is empty and false if otherwise
-  function isEmpty(Queue storage _q) internal view returns (bool) {
-    return _q.last < _q.first;
-  }
-
-  /// @notice Returns number of elements in queue
-  function length(Queue storage _q) internal view returns (uint256) {
-    uint128 _last = _q.last;
-    uint128 _first = _q.first;
-    // Cannot underflow unless state is corrupted
-    return _length(_last, _first);
-  }
-
-  /// @notice Returns number of elements between `_last` and `_first` (used internally)
-  function _length(uint128 _last, uint128 _first) internal pure returns (uint256) {
-    return uint256(_last + 1 - _first);
+  /**
+   * @notice Returns number of elements between `last` and `first` (used internally).
+   * @param last The last element index.
+   * @param first The first element index.
+   */
+  function _length(uint128 last, uint128 first) internal pure returns (uint256) {
+    return uint256(last + 1 - first);
   }
 }
