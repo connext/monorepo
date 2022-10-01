@@ -48,12 +48,14 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   // Second initialization should not alter state.
   function test_LibDiamond__initializeDiamondCut_ignoreDuplicateInit() public {
     uint32 newDomain = 2;
+    address newBeacon = address(12312);
     address newXAppConnectionManager = address(11);
     address newRelayerFeeRouter = address(13);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
+      newBeacon,
       newXAppConnectionManager,
       newRelayerFeeRouter,
       acceptanceDelay,
