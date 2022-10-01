@@ -409,7 +409,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       vm.expectRevert(expectedError);
     }
 
-    console.log("----------------- xcalling");
     bytes32 ret = helpers_wrappedXCall(params, asset, amount);
 
     if (shouldSucceed) {
@@ -945,6 +944,16 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notWhitelisted.selector);
   }
 
+  // fails if asset cap would be exceeded on the canonical domain
+  function test_BridgeFacet__xcall_failIfCapReachedOnCanoncal() public {
+    // setup asset with local == adopted, on canonical domain
+    utils_setupAsset(true, true);
+
+    s.caps[utils_calculateCanonicalHash()] = 1;
+
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_capReached.selector);
+  }
+
   // fails if native asset is used && amount > 0
   function test_BridgeFacet__xcall_failIfNativeAsset() public {
     uint256 amount = 1 ether;
@@ -1086,7 +1095,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     params.canonicalId = _canonicalId;
     params.canonicalDomain = _canonicalDomain;
     bytes32 transferId = _calculateTransferId(params);
-    console.logBytes32(transferId);
 
     // Set the current relayer fee record to 2 ether. The msg.value should add 0.1 ether
     // to this for a total of 2.1 ether, as asserted below.
@@ -1442,16 +1450,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // set asset context (local == adopted)
     _canonicalDomain = _destinationDomain;
     utils_setupAsset(true, true);
-    console.log("canonical domain", _canonicalDomain);
-    console.log("stored", s.domain);
-    console.log("canonical:", _canonical);
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    console.log("origin", args.params.originDomain);
-    console.log("destination", args.params.destinationDomain);
 
     s.routerBalances[args.routers[0]][_canonical] += 10 ether;
-    console.log("credited router with", _canonical);
     // s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
     helpers_executeAndAssert(transferId, args);
