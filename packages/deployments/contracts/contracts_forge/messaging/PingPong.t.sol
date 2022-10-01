@@ -248,8 +248,15 @@ contract PingPong is ConnectorHelper {
   function utils_propagateAndAssert() public returns (bytes32 aggregateRoot) {
     aggregateRoot = RootManager(_rootManager).MERKLE().root();
 
+    uint32[] memory domains = new uint32[](2);
+    domains[0] = _originDomain;
+    domains[1] = _destinationDomain;
+    address[] memory connectors = new address[](2);
+    connectors[0] = _originConnectors.hub;
+    connectors[1] = _destinationConnectors.hub;
+
     // Propagate the aggregate root.
-    RootManager(_rootManager).propagate();
+    RootManager(_rootManager).propagate(domains, connectors);
 
     // Assert that the aggregate root was sent on all connectors.
     assertEq(MockConnector(_originConnectors.hub).lastOutbound(), keccak256(abi.encode(aggregateRoot)));

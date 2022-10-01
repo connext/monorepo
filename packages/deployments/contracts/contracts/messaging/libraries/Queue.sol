@@ -76,7 +76,7 @@ library QueueLib {
       }
     }
 
-    bytes32[] memory items;
+    bytes32[] memory items = new bytes32[](first - last);
     uint256 index;
     for (first; first <= last; ) {
       items[index] = queue.data[first];
