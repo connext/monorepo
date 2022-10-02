@@ -18,7 +18,6 @@ import {LibDiamond} from "../../libraries/LibDiamond.sol";
 import {BaseConnextFacet} from "../BaseConnextFacet.sol";
 
 import {IProposedOwnable} from "../../../../shared/interfaces/IProposedOwnable.sol";
-import {RelayerFeeRouter} from "../../../relayer-fee/RelayerFeeRouter.sol";
 import {IConnectorManager} from "../../../../messaging/interfaces/IConnectorManager.sol";
 
 // It is expected that this contract is customized if you want to deploy your diamond
@@ -63,7 +62,7 @@ contract DiamondInit is BaseConnextFacet {
       // ConnextHandler
       s.tokenBeacon = _tokenBeacon;
       s.domain = _domain;
-      s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
+      s.relayerFeeRouter = _relayerFeeRouter;
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.maxRoutersPerTransfer = 5;
       s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);

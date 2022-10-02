@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
-
 import {IWeth} from "../interfaces/IWeth.sol";
 
 import {IBridgeRouter} from "../interfaces/IBridgeRouter.sol";
@@ -119,10 +117,10 @@ struct AppStorage {
   // 1
   uint256 LIQUIDITY_FEE_NUMERATOR;
   /**
-   * @notice The local nomad relayer fee router.
+   * @notice The local address for relayer fees
    */
   // 2
-  RelayerFeeRouter relayerFeeRouter;
+  address relayerFeeRouter;
   /**
    * @notice Nonce for the contract, used to keep unique transfer ids.
    * @dev Assigned at first interaction (xcall on origin domain).
@@ -149,7 +147,7 @@ struct AppStorage {
   mapping(bytes32 => IStableSwap) adoptedToLocalPools;
   /**
    * @notice Mapping of whitelisted assets on same domain as contract.
-  * @dev Mapping is keyed on the hash of the canonical id and domain
+   * @dev Mapping is keyed on the hash of the canonical id and domain
    */
   // 7
   mapping(bytes32 => bool) approvedAssets;

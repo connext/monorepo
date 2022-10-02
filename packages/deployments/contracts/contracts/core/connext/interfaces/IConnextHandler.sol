@@ -3,8 +3,6 @@ pragma solidity 0.8.15;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
-
 import {ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {SwapUtils} from "../libraries/SwapUtils.sol";
@@ -195,21 +193,13 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function approvedRelayers(address _relayer) external view returns (bool);
 
-  function relayerFeeRouter() external view returns (RelayerFeeRouter);
+  function relayerFeeRouter() external view returns (address);
 
   function setRelayerFeeRouter(address _relayerFeeRouter) external;
 
   function addRelayer(address _relayer) external;
 
   function removeRelayer(address _relayer) external;
-
-  function initiateClaim(
-    uint32 _domain,
-    address _recipient,
-    bytes32[] calldata _transferIds
-  ) external;
-
-  function claim(address _recipient, bytes32[] calldata _transferIds) external;
 
   // RoutersFacet
   function LIQUIDITY_FEE_NUMERATOR() external view returns (uint256);
