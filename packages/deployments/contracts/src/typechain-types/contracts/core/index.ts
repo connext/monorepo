@@ -3,6 +3,3 @@
 /* eslint-disable */
 import type * as connext from "./connext";
 export type { connext };
-export type { Router } from "./Router";
-export type { Version } from "./Version";
-export type { XAppConnectionClient } from "./XAppConnectionClient";
