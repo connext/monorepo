@@ -170,15 +170,13 @@ contract Deployer {
   }
 
   function getRelayerFacetCut(address _relayerFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory relayerFacetSelectors = new bytes4[](8);
+    bytes4[] memory relayerFacetSelectors = new bytes4[](6);
     relayerFacetSelectors[0] = RelayerFacet.transferRelayer.selector;
     relayerFacetSelectors[1] = RelayerFacet.approvedRelayers.selector;
     relayerFacetSelectors[2] = RelayerFacet.relayerFeeRouter.selector;
     relayerFacetSelectors[3] = RelayerFacet.setRelayerFeeRouter.selector;
     relayerFacetSelectors[4] = RelayerFacet.addRelayer.selector;
     relayerFacetSelectors[5] = RelayerFacet.removeRelayer.selector;
-    relayerFacetSelectors[6] = RelayerFacet.initiateClaim.selector;
-    relayerFacetSelectors[7] = RelayerFacet.claim.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _relayerFacet,

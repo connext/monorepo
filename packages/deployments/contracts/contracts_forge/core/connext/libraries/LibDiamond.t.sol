@@ -26,14 +26,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   function setUp() public {
     // Deploy token beacon
-    deployConnext(
-      uint256(domain),
-      beacon,
-      xAppConnectionManager,
-      address(relayerFeeRouter),
-      acceptanceDelay,
-      ownershipDelay
-    );
+    deployConnext(uint256(domain), beacon, xAppConnectionManager, relayerFeeRouter, acceptanceDelay, ownershipDelay);
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
   }
@@ -116,7 +109,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // Diamond cut after setting 0 acceptance delay should work.
   function test_LibDiamond__initializeDiamondCut_withZeroAcceptanceDelay_works() public {
-    deployConnext(uint256(domain), beacon, xAppConnectionManager, address(relayerFeeRouter), 0, 0);
+    deployConnext(uint256(domain), beacon, xAppConnectionManager, relayerFeeRouter, 0, 0);
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
 

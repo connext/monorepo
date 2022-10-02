@@ -132,33 +132,6 @@ contract MockXApp is IXReceiver {
   }
 }
 
-contract MockRelayerFeeRouter {
-  uint32 public handledOrigin;
-  uint32 public handledNonce;
-  bytes32 public handledSender;
-  bytes public handledBody;
-
-  function send(
-    uint32 _domain,
-    address _recipient,
-    bytes32[] calldata _transactionIds
-  ) external {
-    1 == 1;
-  }
-
-  function handle(
-    uint32 origin,
-    uint32 nonce,
-    bytes32 sender,
-    bytes memory body
-  ) public {
-    handledOrigin = origin;
-    handledNonce = nonce;
-    handledSender = sender;
-    handledBody = body;
-  }
-}
-
 contract MockPool is IAavePool {
   bool fails;
 

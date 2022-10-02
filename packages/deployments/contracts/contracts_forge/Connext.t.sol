@@ -15,9 +15,6 @@ import {BridgeFacet, ExecuteArgs} from "../contracts/core/connext/facets/BridgeF
 import {TokenId} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LPToken} from "../contracts/core/connext/helpers/LPToken.sol";
 
-import {RelayerFeeRouter} from "../contracts/core/relayer-fee/RelayerFeeRouter.sol";
-import {RelayerFeeMessage} from "../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
-
 import {TestERC20} from "../contracts/test/TestERC20.sol";
 
 import {WETH} from "./utils/TestWeth.sol";
@@ -121,8 +118,8 @@ contract ConnextTest is ForgeHelper, Deployer {
   IConnectorManager _destinationManager;
 
   // ============ Relayer fee router
-  RelayerFeeRouter _originRelayerFee;
-  RelayerFeeRouter _destinationRelayerFee;
+  address _originRelayerFee = address(11232221231);
+  address _destinationRelayerFee = address(4545625622535);
 
   // ============ Connext
   IConnextHandler _originConnext;
@@ -164,31 +161,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     MockXAppConnectionManager(address(_originManager)).enrollInbox(address(this));
   }
 
-  function utils_deployRelayerFeeRouter() public {
-    // Deploy relayer fee router (origin + destination)
-    RelayerFeeRouter impl = new RelayerFeeRouter();
-
-    ERC1967Proxy originProxy = new ERC1967Proxy(
-      address(impl),
-      abi.encodeWithSelector(RelayerFeeRouter.initialize.selector, address(_originManager))
-    );
-    _originRelayerFee = RelayerFeeRouter(payable(address(originProxy)));
-
-    ERC1967Proxy destinationProxy = new ERC1967Proxy(
-      address(impl),
-      abi.encodeWithSelector(RelayerFeeRouter.initialize.selector, address(_destinationManager))
-    );
-    _destinationRelayerFee = RelayerFeeRouter(payable(address(destinationProxy)));
-
-    // enroll remotes
-    _originRelayerFee.enrollRemoteRouter(_destination, TypeCasts.addressToBytes32(address(_destinationRelayerFee)));
-    _destinationRelayerFee.enrollRemoteRouter(_origin, TypeCasts.addressToBytes32(address(_originRelayerFee)));
-  }
-
   function utils_deployConnext() public {
-    // deploy relayer fee router
-    utils_deployRelayerFeeRouter();
-
     // Deploy token beacon
     address beacon = address(new TestERC20("Test Token", "TEST"));
 
@@ -216,10 +189,6 @@ contract ConnextTest is ForgeHelper, Deployer {
     // whitelist contract as router
     _originConnext.addRelayer(address(this));
     _destinationConnext.addRelayer(address(this));
-
-    // set connext on relayer contracts
-    _originRelayerFee.setConnext(address(_originConnext));
-    _destinationRelayerFee.setConnext(address(_destinationConnext));
 
     // enroll instances
     // set remote routers
@@ -972,53 +941,5 @@ contract ConnextTest is ForgeHelper, Deployer {
   //   );
   //   assertEq(_destinationConnext.getAavePortalFeeDebt(transferId), 0);
   //   assertEq(_destinationConnext.getAavePortalDebt(transferId), 0);
-  // }
-
-  // // you should be able to bump + claim relayer fees
-  // function test_Connext__relayerFeeBumpingAndClaimingWorks() public {
-  //   /// 0. setup contracts
-  //   utils_setupAssets(_origin, true);
-
-  //   // 1. `xcall` on the origin
-  //   uint256 relayerFee = 0.01 ether;
-  //   CallParams memory params = utils_createCallParams(_destination);
-  //   XCallArgs memory xcall = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 1 ether);
-  //   bytes32 transferId = utils_xcallAndAssert(params, _originLocal, xcall.amount, relayerFee);
-
-  //   // 2. bump transfer id
-  //   uint256 bump = 0.01 ether;
-  //   uint256 init = address(_originConnext).balance;
-  //   vm.expectEmit(true, true, true, true);
-  //   emit TransferRelayerFeesUpdated(transferId, bump + relayerFee, address(this));
-  //   _originConnext.bumpTransfer{value: bump}(transferId);
-  //   assertEq(_originConnext.relayerFees(transferId), bump + relayerFee);
-  //   assertEq(address(_originConnext).balance, bump + init);
-
-  //   // 3. call `execute` on the destination
-  //   ExecuteArgs memory execute = utils_createExecuteArgs(params, xcall.amount, 2, transferId, xcall.amount);
-  //   utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
-
-  //   // 4. initiate claim
-  //   address recipient = address(123123123454545);
-  //   bytes32[] memory ids = new bytes32[](1);
-  //   ids[0] = transferId;
-  //   vm.expectEmit(true, true, true, true);
-  //   emit InitiatedClaim(_origin, recipient, address(this), ids);
-  //   _destinationConnext.initiateClaim(_origin, recipient, ids);
-
-  //   // 5. process claim
-  //   vm.expectEmit(true, true, true, true);
-  //   emit Claimed(recipient, bump + relayerFee, ids);
-
-  //   uint256 recipientInit = recipient.balance;
-  //   _originRelayerFee.handle(
-  //     _destination,
-  //     0,
-  //     TypeCasts.addressToBytes32(address(_destinationRelayerFee)),
-  //     abi.encodePacked(uint8(1), recipient, ids.length, ids)
-  //   );
-
-  //   assertEq(recipient.balance, recipientInit + bump + relayerFee);
-  //   assertEq(_originConnext.relayerFees(transferId), 0);
   // }
 }

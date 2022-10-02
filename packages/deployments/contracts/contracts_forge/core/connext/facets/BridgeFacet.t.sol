@@ -12,7 +12,6 @@ import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBridgeRouter.sol";
 import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
-import {RelayerFeeMessage} from "../../../../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import {CallParams, ExecuteArgs, TokenId} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
@@ -36,7 +35,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ Structs ============
 
   struct XCallBalances {
-    uint256 contractEth;
+    uint256 relayerEth;
     uint256 contractAsset;
     uint256 callerEth;
     uint256 callerAsset;
@@ -382,7 +381,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // Record initial balances.
       balances.callerEth = address(params.originSender).balance;
       balances.callerAsset = tokenIn.balanceOf(params.originSender);
-      balances.contractEth = address(this).balance;
+      balances.relayerEth = s.relayerFeeRouter.balance;
       balances.contractAsset = tokenIn.balanceOf(address(this));
 
       // Debugging logs.
@@ -428,7 +427,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // console.log(TestERC20(_local).balanceOf(address(this)));
 
       // Contract should have received relayer fee from user.
-      assertEq(address(this).balance, balances.contractEth + _relayerFee);
+      assertEq(s.relayerFeeRouter.balance, balances.relayerEth + _relayerFee);
       // User should have been debited relayer fee ETH and tx cost.
       assertLe(params.originSender.balance, balances.callerEth - _relayerFee);
 
