@@ -104,7 +104,6 @@ export interface BridgeFacetInterface extends utils.Interface {
     "approvedSequencers(address)": FunctionFragment;
     "bumpTransfer(bytes32)": FunctionFragment;
     "domain()": FunctionFragment;
-    "enrollCustom(uint32,bytes32,address)": FunctionFragment;
     "enrollRemoteRouter(uint32,bytes32)": FunctionFragment;
     "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes))": FunctionFragment;
     "forceUpdateSlippage((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256)": FunctionFragment;
@@ -128,7 +127,6 @@ export interface BridgeFacetInterface extends utils.Interface {
       | "approvedSequencers"
       | "bumpTransfer"
       | "domain"
-      | "enrollCustom"
       | "enrollRemoteRouter"
       | "execute"
       | "forceUpdateSlippage"
@@ -165,14 +163,6 @@ export interface BridgeFacetInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(functionFragment: "domain", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "enrollCustom",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<string>
-    ]
-  ): string;
   encodeFunctionData(
     functionFragment: "enrollRemoteRouter",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
@@ -260,10 +250,6 @@ export interface BridgeFacetInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "enrollCustom",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "enrollRemoteRouter",
     data: BytesLike
@@ -523,13 +509,6 @@ export interface BridgeFacet extends BaseContract {
 
     domain(overrides?: CallOverrides): Promise<[number]>;
 
-    enrollCustom(
-      _domain: PromiseOrValue<BigNumberish>,
-      _id: PromiseOrValue<BytesLike>,
-      _custom: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     enrollRemoteRouter(
       _domain: PromiseOrValue<BigNumberish>,
       _router: PromiseOrValue<BytesLike>,
@@ -625,13 +604,6 @@ export interface BridgeFacet extends BaseContract {
 
   domain(overrides?: CallOverrides): Promise<number>;
 
-  enrollCustom(
-    _domain: PromiseOrValue<BigNumberish>,
-    _id: PromiseOrValue<BytesLike>,
-    _custom: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   enrollRemoteRouter(
     _domain: PromiseOrValue<BigNumberish>,
     _router: PromiseOrValue<BytesLike>,
@@ -726,13 +698,6 @@ export interface BridgeFacet extends BaseContract {
     ): Promise<void>;
 
     domain(overrides?: CallOverrides): Promise<number>;
-
-    enrollCustom(
-      _domain: PromiseOrValue<BigNumberish>,
-      _id: PromiseOrValue<BytesLike>,
-      _custom: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     enrollRemoteRouter(
       _domain: PromiseOrValue<BigNumberish>,
@@ -964,13 +929,6 @@ export interface BridgeFacet extends BaseContract {
 
     domain(overrides?: CallOverrides): Promise<BigNumber>;
 
-    enrollCustom(
-      _domain: PromiseOrValue<BigNumberish>,
-      _id: PromiseOrValue<BytesLike>,
-      _custom: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     enrollRemoteRouter(
       _domain: PromiseOrValue<BigNumberish>,
       _router: PromiseOrValue<BytesLike>,
@@ -1068,13 +1026,6 @@ export interface BridgeFacet extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    enrollCustom(
-      _domain: PromiseOrValue<BigNumberish>,
-      _id: PromiseOrValue<BytesLike>,
-      _custom: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
 
     enrollRemoteRouter(
       _domain: PromiseOrValue<BigNumberish>,

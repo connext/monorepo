@@ -9,9 +9,7 @@ import {TypeCasts} from "../contracts/shared/libraries/TypeCasts.sol";
 
 import {IBridgeToken} from "../contracts/core/connext/interfaces/IBridgeToken.sol";
 import {IConnextHandler} from "../contracts/core/connext/interfaces/IConnextHandler.sol";
-import {ITokenRegistry} from "../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IBridgeRouter} from "../contracts/core/connext/interfaces/IBridgeRouter.sol";
-import {TokenRegistry} from "../contracts/core/connext/helpers/TokenRegistry.sol";
 import {BridgeMessage} from "../contracts/core/connext/libraries/BridgeMessage.sol";
 import {BridgeFacet, ExecuteArgs} from "../contracts/core/connext/facets/BridgeFacet.sol";
 import {TokenId} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
@@ -122,10 +120,6 @@ contract ConnextTest is ForgeHelper, Deployer {
   IConnectorManager _originManager;
   IConnectorManager _destinationManager;
 
-  // ============ TokenRegistry
-  TokenRegistry _originRegistry;
-  TokenRegistry _destinationRegistry;
-
   // ============ Relayer fee router
   RelayerFeeRouter _originRelayerFee;
   RelayerFeeRouter _destinationRelayerFee;
@@ -165,24 +159,6 @@ contract ConnextTest is ForgeHelper, Deployer {
     // Deploy destination IConnectorManager
     _destinationManager = new MockXAppConnectionManager(destinationHome);
 
-    // Deploy token beacon
-    address beacon = address(new TestERC20("Test Token", "TEST"));
-
-    // Deploy TokenRegistry implementation
-    TokenRegistry registryImp = new TokenRegistry();
-    // Deploy origin TokenRegistry
-    ERC1967Proxy originProxy = new ERC1967Proxy(
-      address(registryImp),
-      abi.encodeWithSelector(TokenRegistry.initialize.selector, beacon, address(_originManager))
-    );
-    _originRegistry = TokenRegistry(address(originProxy));
-    // Deploy destination TokenRegistry
-    ERC1967Proxy destinationProxy = new ERC1967Proxy(
-      address(registryImp),
-      abi.encodeWithSelector(TokenRegistry.initialize.selector, beacon, address(_destinationManager))
-    );
-    _destinationRegistry = TokenRegistry(address(destinationProxy));
-
     // set this to be a replica so we can call `handle` directly on routers
     MockXAppConnectionManager(address(_destinationManager)).enrollInbox(address(this));
     MockXAppConnectionManager(address(_originManager)).enrollInbox(address(this));
@@ -213,10 +189,13 @@ contract ConnextTest is ForgeHelper, Deployer {
     // deploy relayer fee router
     utils_deployRelayerFeeRouter();
 
+    // Deploy token beacon
+    address beacon = address(new TestERC20("Test Token", "TEST"));
+
     // deploy connext
     address originConnext = deployConnext(
       _origin,
-      address(_originRegistry),
+      beacon,
       address(_originRelayerFee),
       address(_originManager),
       7 days,
@@ -226,7 +205,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     address destinationConnext = deployConnext(
       _destination,
-      address(_destinationRegistry),
+      beacon,
       address(_destinationRelayerFee),
       address(_destinationManager),
       7 days,
@@ -256,30 +235,36 @@ contract ConnextTest is ForgeHelper, Deployer {
     if (_origin == canonicalDomain) {
       // The canonical domain is the origin, meaning any local
       // assets on the origin should be the canonical
-      _originLocal = _canonical;
       _originAdopted = _canonical;
+      _originLocal = _canonical;
     } else if (_destination == canonicalDomain) {
-      _destinationLocal = _canonical;
       _destinationAdopted = _canonical;
+      _destinationLocal = _canonical;
     } // otherwise, could be anything
 
     // Handle origin
-    if (_origin != canonicalDomain) {
-      _originRegistry.enrollCustom(canonicalDomain, canonicalId, _originLocal);
-    }
     // Setup asset whitelist
+    console.log("setting up asset on origin");
+    _originConnext.setupAssetWithDeployedRepresentation(
+      TokenId(canonicalDomain, canonicalId),
+      _originLocal,
+      localIsAdopted ? address(0) : _originAdopted,
+      address(0)
+    );
+
+    // Setup asset whitelist
+    console.log("setting up asset on destination");
+    _destinationConnext.setupAssetWithDeployedRepresentation(
+      TokenId(canonicalDomain, canonicalId),
+      _destinationLocal,
+      localIsAdopted ? address(0) : _destinationAdopted,
+      address(0)
+    );
+
     if (localIsAdopted) {
       _originAdopted = _originLocal;
       _destinationAdopted = _destinationLocal;
     }
-    _originConnext.setupAsset(TokenId(canonicalDomain, canonicalId), _originAdopted, address(0));
-
-    // Handle destination
-    if (_destination != canonicalDomain) {
-      _destinationRegistry.enrollCustom(canonicalDomain, canonicalId, _destinationLocal);
-    }
-    // Setup asset whitelist
-    _destinationConnext.setupAsset(TokenId(canonicalDomain, canonicalId), _destinationAdopted, address(0));
 
     // mint the asset
     uint256 toMint = 10_000 ether;
@@ -290,7 +275,10 @@ contract ConnextTest is ForgeHelper, Deployer {
     TestERC20(_canonical).mint(address(this), toMint);
 
     // setup + fund the pools if needed
+    console.log("_originLocal", _originLocal);
+    console.log("_originAdopted", _originAdopted);
     if (_originLocal != _originAdopted) {
+      console.log("setting up origin swap");
       utils_setupPool(_origin, _canonicalKey, 100 ether);
     }
 
@@ -332,6 +320,9 @@ contract ConnextTest is ForgeHelper, Deployer {
     }
 
     {
+      console.log("initializing swap between:");
+      console.log("- ", address(pooledTokens[0]));
+      console.log("- ", address(pooledTokens[1]));
       // initialize pool
       connext.initializeSwap(
         canonicalKey, // canonicalkey
@@ -813,6 +804,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   function test_Connext__bridgeFastAdoptedShouldWork() public {
     // 0. setup contracts
     utils_setupAssets(_other, false);
+    console.log("setup assets");
 
     // 1. `xcall` on the origin
     uint256 amount = 1 ether;

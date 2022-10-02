@@ -41,8 +41,10 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
   function setUp() public {
     utils_deployAssetContracts();
 
-    // we are on the origin domain where local == canonical
-    utils_setupAsset(false, true);
+    // we are on the origin domain where local != canonical
+    s.domain = _originDomain;
+    utils_setupAsset(false, false);
+    console.log("setup asset");
 
     // set the owner to this contract
     setOwner(_owner);
@@ -50,7 +52,9 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     // _stableSwapFacet = address(new StableSwapFacet());
 
     utils_initializeSwap();
+    console.log("setup swap");
     utils_addLiquidity(1 ether, 1 ether);
+    console.log("setup swap funds");
   }
 
   // ============ Utils ==============

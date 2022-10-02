@@ -20,15 +20,16 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   uint256 ownershipDelay = 6 days;
   address internal xAppConnectionManager = address(1);
   address relayerFeeRouter = address(3);
-  address tokenRegistry = address(5);
+  address beacon = address(1232);
 
   // ============ Setup ============
 
   function setUp() public {
+    // Deploy token beacon
     deployConnext(
       uint256(domain),
+      beacon,
       xAppConnectionManager,
-      tokenRegistry,
       address(relayerFeeRouter),
       acceptanceDelay,
       ownershipDelay
@@ -47,15 +48,15 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   // Second initialization should not alter state.
   function test_LibDiamond__initializeDiamondCut_ignoreDuplicateInit() public {
     uint32 newDomain = 2;
+    address newBeacon = address(12312);
     address newXAppConnectionManager = address(11);
     address newRelayerFeeRouter = address(13);
-    address newTokenRegistry = address(15);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
+      newBeacon,
       newXAppConnectionManager,
-      newTokenRegistry,
       newRelayerFeeRouter,
       acceptanceDelay,
       ownershipDelay
@@ -83,15 +84,15 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   // Diamond cut prior to elapsed delay should revert.
   function testFail_LibDiamond__initializeDiamondCut_beforeAcceptanceDelay_reverts() public {
     uint32 newDomain = 2;
+    address newBeacon = address(10001);
     address newXAppConnectionManager = address(11);
     address newRelayerFeeRouter = address(13);
-    address newTokenRegistry = address(15);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
+      newBeacon,
       newXAppConnectionManager,
-      newTokenRegistry,
       newRelayerFeeRouter,
       acceptanceDelay,
       ownershipDelay
@@ -115,20 +116,20 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // Diamond cut after setting 0 acceptance delay should work.
   function test_LibDiamond__initializeDiamondCut_withZeroAcceptanceDelay_works() public {
-    deployConnext(uint256(domain), xAppConnectionManager, tokenRegistry, address(relayerFeeRouter), 0, 0);
+    deployConnext(uint256(domain), beacon, xAppConnectionManager, address(relayerFeeRouter), 0, 0);
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
 
     uint32 newDomain = 2;
+    address newBeacon = address(10001);
     address newXAppConnectionManager = address(11);
     address newRelayerFeeRouter = address(13);
-    address newTokenRegistry = address(15);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
+      newBeacon,
       newXAppConnectionManager,
-      newTokenRegistry,
       newRelayerFeeRouter,
       acceptanceDelay,
       ownershipDelay

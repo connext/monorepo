@@ -36,8 +36,8 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
     desired: asset.canonical.address,
     read: { method: "canonicalToAdopted(bytes32)", args: [key] },
     write: {
-      method: "setupAsset",
-      args: [[canonical.domain, canonical.id], asset.canonical.address, constants.AddressZero],
+      method: "setupAssetWithDeployedRepresentation",
+      args: [[canonical.domain, canonical.id], asset.canonical.address, constants.AddressZero, constants.AddressZero],
     },
   });
 
@@ -61,27 +61,15 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
       );
     }
 
-    // Enroll custom local token.
-    const TokenRegistry = network.deployments.TokenRegistry;
-    await updateIfNeeded({
-      deployment: TokenRegistry,
-      desired: representation.local,
-      read: { method: "getRepresentationAddress", args: [canonical.domain, canonical.id] },
-      write: {
-        method: "enrollCustom",
-        args: [canonical.domain, canonical.id, representation.local],
-      },
-    });
-
     // Run setupAsset.
-    const desiredAdopted = representation.adopted ?? representation.local;
+    const desiredAdopted = representation.adopted ?? constants.AddressZero;
     await updateIfNeeded({
       deployment: network.deployments.Connext,
       desired: desiredAdopted,
       read: { method: "canonicalToAdopted(bytes32)", args: [key] },
       write: {
-        method: "setupAsset",
-        args: [[canonical.domain, canonical.id], desiredAdopted, stableswapPool],
+        method: "setupAssetWithDeployedRepresentation",
+        args: [[canonical.domain, canonical.id], representation.local, desiredAdopted, stableswapPool],
       },
     });
   }

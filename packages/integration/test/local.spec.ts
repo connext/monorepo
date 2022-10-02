@@ -29,14 +29,14 @@ import ConnextHandler_DiamondProxy_1338 from "@connext/nxtp-contracts/deployment
 import PromiseRouterUpgradeBeaconProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/PromiseRouterUpgradeBeaconProxy.json";
 import RelayerFeeRouterUpgradeBeaconProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/RelayerFeeRouterUpgradeBeaconProxy.json";
 import BridgeRouterUpgradeBeaconProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/BridgeRouterUpgradeBeaconProxy.json";
-import TokenRegistryUpgradeBeaconProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/TokenRegistryUpgradeBeaconProxy.json";
+import BridgeTokenUpgradeBeacon_1338 from "@connext/nxtp-contracts/deployments/local_1338/BridgeTokenUpgradeBeacon.json";
 import TestERC20_1338 from "@connext/nxtp-contracts/deployments/local_1338/TestERC20.json";
 // Local 1337 deployment imports:
 import ConnextHandler_DiamondProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/ConnextHandler_DiamondProxy.json";
 import PromiseRouterUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/PromiseRouterUpgradeBeaconProxy.json";
 import RelayerFeeRouterUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/RelayerFeeRouterUpgradeBeaconProxy.json";
 import BridgeRouterUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/BridgeRouterUpgradeBeaconProxy.json";
-import TokenRegistryUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/TokenRegistryUpgradeBeaconProxy.json";
+import BridgeTokenUpgradeBeacon_1337 from "@connext/nxtp-contracts/deployments/local_1337/BridgeTokenUpgradeBeacon.json";
 import TestERC20_1337 from "@connext/nxtp-contracts/deployments/local_1337/TestERC20.json";
 import { ConnextHandlerInterface } from "@connext/nxtp-contracts";
 
@@ -52,7 +52,7 @@ type Deployments = {
   PromiseRouterUpgradeBeaconProxy: string;
   RelayerFeeRouterUpgradeBeaconProxy: string;
   BridgeRouterUpgradeBeaconProxy: string;
-  TokenRegistryUpgradeBeaconProxy: string;
+  TokenBeacon: string;
   TestERC20: string;
 };
 
@@ -70,7 +70,7 @@ export const getDeployments = (_chain: string | number): Deployments => {
       PromiseRouterUpgradeBeaconProxy: PromiseRouterUpgradeBeaconProxy_1337.address,
       RelayerFeeRouterUpgradeBeaconProxy: RelayerFeeRouterUpgradeBeaconProxy_1337.address,
       BridgeRouterUpgradeBeaconProxy: BridgeRouterUpgradeBeaconProxy_1337.address,
-      TokenRegistryUpgradeBeaconProxy: TokenRegistryUpgradeBeaconProxy_1337.address,
+      TokenBeacon: BridgeTokenUpgradeBeacon_1337.address,
       TestERC20: TestERC20_1337.address,
     };
   } else if (chain === "1338") {
@@ -79,7 +79,7 @@ export const getDeployments = (_chain: string | number): Deployments => {
       PromiseRouterUpgradeBeaconProxy: PromiseRouterUpgradeBeaconProxy_1338.address,
       RelayerFeeRouterUpgradeBeaconProxy: RelayerFeeRouterUpgradeBeaconProxy_1338.address,
       BridgeRouterUpgradeBeaconProxy: BridgeRouterUpgradeBeaconProxy_1338.address,
-      TokenRegistryUpgradeBeaconProxy: TokenRegistryUpgradeBeaconProxy_1338.address,
+      TokenBeacon: BridgeTokenUpgradeBeacon_1338.address,
       TestERC20: TestERC20_1338.address,
     };
   } else {
@@ -346,23 +346,6 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
   );
   logger.info("Enrolled handlers.");
 
-  logger.info("Enrolling custom asset with TokenRegistry...");
-  await enrollCustom(
-    {
-      domain: PARAMETERS.A.DOMAIN,
-      tokenAddress: PARAMETERS.A.DEPLOYMENTS.TestERC20,
-    },
-    [
-      {
-        domain: PARAMETERS.B.DOMAIN,
-        tokenAddress: PARAMETERS.B.DEPLOYMENTS.TestERC20,
-        TokenRegistry: PARAMETERS.B.DEPLOYMENTS.TokenRegistryUpgradeBeaconProxy,
-      },
-    ],
-    deployerTxService,
-  );
-  logger.info("Enrolled custom asset.");
-
   logger.info("Setting up router...");
   await setupRouter(
     PARAMETERS.AGENTS.ROUTER.address,
@@ -382,13 +365,15 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
         domain: PARAMETERS.A.DOMAIN,
         ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
         // NOTE: Same as local; this means we won't be doing any swaps.
-        adopted: PARAMETERS.A.DEPLOYMENTS.TestERC20,
+        adopted: constants.AddressZero,
+        local: PARAMETERS.A.DEPLOYMENTS.TestERC20,
       },
       {
         domain: PARAMETERS.B.DOMAIN,
         ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
         // NOTE: Same as local; this means we won't be doing any swaps.
-        adopted: PARAMETERS.B.DEPLOYMENTS.TestERC20,
+        adopted: constants.AddressZero,
+        local: PARAMETERS.B.DEPLOYMENTS.TestERC20,
       },
     ],
     deployerTxService,
@@ -545,7 +530,6 @@ describe("LOCAL:E2E", () => {
           providers: PARAMETERS.A.RPC,
           deployments: {
             connext: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
-            tokenRegistry: PARAMETERS.A.DEPLOYMENTS.TokenRegistryUpgradeBeaconProxy,
             stableSwap: constants.AddressZero,
           },
         },
@@ -560,7 +544,6 @@ describe("LOCAL:E2E", () => {
           providers: PARAMETERS.B.RPC,
           deployments: {
             connext: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
-            tokenRegistry: PARAMETERS.B.DEPLOYMENTS.TokenRegistryUpgradeBeaconProxy,
             stableSwap: constants.AddressZero,
           },
         },

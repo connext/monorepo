@@ -35,13 +35,11 @@ export interface TestERC20Interface extends utils.Interface {
     "burn(address,uint256)": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
-    "detailsHash()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
     "initialize(uint8,string,string)": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "setDetails(string,string)": FunctionFragment;
-    "setDetailsHash(bytes32)": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
@@ -57,13 +55,11 @@ export interface TestERC20Interface extends utils.Interface {
       | "burn"
       | "decimals"
       | "decreaseAllowance"
-      | "detailsHash"
       | "increaseAllowance"
       | "initialize"
       | "mint"
       | "name"
       | "setDetails"
-      | "setDetailsHash"
       | "symbol"
       | "totalSupply"
       | "transfer"
@@ -93,10 +89,6 @@ export interface TestERC20Interface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "detailsHash",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "increaseAllowance",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
@@ -116,10 +108,6 @@ export interface TestERC20Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setDetails",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setDetailsHash",
-    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
@@ -153,10 +141,6 @@ export interface TestERC20Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "detailsHash",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "increaseAllowance",
     data: BytesLike
   ): Result;
@@ -164,10 +148,6 @@ export interface TestERC20Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setDetails", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setDetailsHash",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
@@ -274,8 +254,6 @@ export interface TestERC20 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    detailsHash(overrides?: CallOverrides): Promise<[string]>;
-
     increaseAllowance(
       spender: PromiseOrValue<string>,
       addedValue: PromiseOrValue<BigNumberish>,
@@ -300,11 +278,6 @@ export interface TestERC20 extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setDetailsHash(
-      _detailsHash: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -362,8 +335,6 @@ export interface TestERC20 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  detailsHash(overrides?: CallOverrides): Promise<string>;
-
   increaseAllowance(
     spender: PromiseOrValue<string>,
     addedValue: PromiseOrValue<BigNumberish>,
@@ -388,11 +359,6 @@ export interface TestERC20 extends BaseContract {
   setDetails(
     _newName: PromiseOrValue<string>,
     _newSymbol: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setDetailsHash(
-    _detailsHash: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -450,8 +416,6 @@ export interface TestERC20 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    detailsHash(overrides?: CallOverrides): Promise<string>;
-
     increaseAllowance(
       spender: PromiseOrValue<string>,
       addedValue: PromiseOrValue<BigNumberish>,
@@ -476,11 +440,6 @@ export interface TestERC20 extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setDetailsHash(
-      _detailsHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -563,8 +522,6 @@ export interface TestERC20 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    detailsHash(overrides?: CallOverrides): Promise<BigNumber>;
-
     increaseAllowance(
       spender: PromiseOrValue<string>,
       addedValue: PromiseOrValue<BigNumberish>,
@@ -589,11 +546,6 @@ export interface TestERC20 extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setDetailsHash(
-      _detailsHash: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -652,8 +604,6 @@ export interface TestERC20 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    detailsHash(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     increaseAllowance(
       spender: PromiseOrValue<string>,
       addedValue: PromiseOrValue<BigNumberish>,
@@ -678,11 +628,6 @@ export interface TestERC20 extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setDetailsHash(
-      _detailsHash: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

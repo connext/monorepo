@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {AppStorage} from "../libraries/LibConnextStorage.sol";
+import {AppStorage, TokenId} from "../libraries/LibConnextStorage.sol";
 
 /**
  * @notice
@@ -39,7 +39,6 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__addLiquidityForRouter_routerEmpty();
   error RoutersFacet__addLiquidityForRouter_amountIsZero();
   error RoutersFacet__addLiquidityForRouter_badRouter();
-  error RoutersFacet__addLiquidityForRouter_badAsset();
   error RoutersFacet__removeRouterLiquidity_recipientEmpty();
   error RoutersFacet__removeRouterLiquidity_amountIsZero();
   error RoutersFacet__removeRouterLiquidity_insufficientFunds();
@@ -543,15 +542,11 @@ contract RoutersFacet is BaseConnextFacet {
     if (_amount == 0) revert RoutersFacet__addLiquidityForRouter_amountIsZero();
 
     // Get the canonical asset ID from the representation.
-    (uint32 domain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
-    bytes32 key = _calculateCanonicalHash(canonicalId, domain);
+    (, bytes32 key) = _getApprovedCanonicalId(_local);
 
     // Sanity check: router is approved.
     if (!_isRouterWhitelistRemoved() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
-
-    // Sanity check: asset is approved.
-    if (!_isAssetWhitelistRemoved() && !s.approvedAssets[key]) revert RoutersFacet__addLiquidityForRouter_badAsset();
 
     // Transfer funds to contract.
     AssetLogic.handleIncomingAsset(_local, _amount);
@@ -588,8 +583,9 @@ contract RoutersFacet is BaseConnextFacet {
     if (_amount == 0) revert RoutersFacet__removeRouterLiquidity_amountIsZero();
 
     // Get the canonical asset ID from the representation.
-    (uint32 domain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
-    bytes32 key = _calculateCanonicalHash(canonicalId, domain);
+    // NOTE: allow getting unapproved assets to prevent lockup on approval status change
+    TokenId memory canonical = _getCanonicalTokenId(_local);
+    bytes32 key = AssetLogic.calculateCanonicalHash(canonical.id, canonical.domain);
 
     // Get existing router balance.
     uint256 routerBalance = s.routerBalances[_router][_local];

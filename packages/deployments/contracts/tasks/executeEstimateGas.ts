@@ -73,16 +73,7 @@ export default task("execute-eg", "Prepare a cross-chain tx")
           assetId = canonicalAsset;
         } else {
           // Current network's domain is not canonical domain, so we need to get the local asset representation.
-          const tokenRegistryAddress = (
-            await deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env))
-          ).address;
-          const tokenRegistry = await ethers.getContractAt(
-            (
-              await deployments.get(getDeploymentName("TokenRegistry", env))
-            ).abi,
-            tokenRegistryAddress,
-          );
-          assetId = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
+          assetId = await connext.canonicalToRepresentation(canonicalDomain, canonicalTokenId);
           if (assetId === constants.AddressZero) {
             throw new Error("Empty assetId on registry");
           }

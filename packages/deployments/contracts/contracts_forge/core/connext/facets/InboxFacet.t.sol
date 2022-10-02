@@ -8,6 +8,7 @@ import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBrid
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeMessage} from "../../../../contracts/core/connext/libraries/BridgeMessage.sol";
+import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 
 import {InboxFacet} from "../../../../contracts/core/connext/facets/InboxFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
@@ -74,16 +75,19 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
   }
 
   function utils_createMessage(CallParams memory params) public returns (bytes memory) {
-    address local = s.tokenRegistry.getLocalAddress(params.canonicalDomain, params.canonicalId);
+    address local = _getLocalAsset(
+      AssetLogic.calculateCanonicalHash(params.canonicalId, params.canonicalDomain),
+      params.canonicalId,
+      params.canonicalDomain
+    );
     return MessagingUtils.formatMessage(params, local, params.canonicalDomain == s.domain);
   }
 
   function utils_createCallParams(address asset) public returns (CallParams memory, bytes32) {
-    (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(asset);
     CallParams memory params = CallParams({
       originDomain: _originDomain,
       destinationDomain: _destinationDomain,
-      canonicalDomain: canonicalDomain,
+      canonicalDomain: _canonicalDomain,
       to: address(1111),
       delegate: address(2222),
       receiveLocal: false,
@@ -96,7 +100,7 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
       bridgedAmt: _amount,
       normalizedIn: _amount,
       nonce: 0,
-      canonicalId: canonicalId
+      canonicalId: _canonicalId
     });
     bytes32 transferId = keccak256(abi.encode(params));
     return (params, transferId);
@@ -199,15 +203,9 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
   function test_InboxFacet__handle_failIfNotTransfer() public {
     bytes29[] memory _views = new bytes29[](2);
     _views[0] = BridgeMessage.formatTokenId(_canonicalDomain, _canonicalId);
-    _views[1] = abi
-      .encodePacked(
-        BridgeMessage.Types.Invalid,
-        uint256(0),
-        BridgeMessage.getDetailsHash("Hello", "WRLD"),
-        TypeCasts.addressToBytes32(address(123)),
-        uint8(18)
-      )
-      .ref(uint40(BridgeMessage.Types.Invalid));
+    _views[1] = abi.encodePacked(BridgeMessage.Types.Invalid, uint256(0), TypeCasts.addressToBytes32(address(123))).ref(
+      uint40(BridgeMessage.Types.Invalid)
+    );
     bytes memory message = TypedMemView.join(_views);
 
     vm.expectRevert(InboxFacet.InboxFacet__handle_notTransfer.selector);

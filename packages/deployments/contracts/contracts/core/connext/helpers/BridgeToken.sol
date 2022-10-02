@@ -10,9 +10,6 @@ import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 import {ERC20} from "./OZERC20.sol";
 
 contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
-  /// @dev hash commitment to the name/symbol/decimals
-  bytes32 public override detailsHash;
-
   // ============ Upgrade Gap ============
 
   uint256[48] private __GAP; // gap for upgrade safety
@@ -21,11 +18,11 @@ contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
 
   function initialize(
     uint8 _decimals,
-    string memory _defaultName,
-    string memory _defaultSymbol
+    string memory _name,
+    string memory _symbol
   ) public override initializer {
     __Ownable_init();
-    __ERC20_init(_decimals, _defaultName, _defaultSymbol, "1");
+    __ERC20_init(_decimals, _name, _symbol, "1");
   }
 
   // ============ Events ============
@@ -60,25 +57,12 @@ contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
     _mint(_to, _amnt);
   }
 
-  /** @notice allows the owner to set the details hash commitment.
-   * @param _detailsHash the new details hash.
-   */
-  function setDetailsHash(bytes32 _detailsHash) external override onlyOwner {
-    if (detailsHash != _detailsHash) {
-      detailsHash = _detailsHash;
-    }
-  }
-
   /**
    * @notice Set the details of a token
    * @param _newName The new name
    * @param _newSymbol The new symbol
    */
-  function setDetails(string calldata _newName, string calldata _newSymbol) external override {
-    // 0 case is the initial deploy. We allow the deploying registry to set
-    // these once. After the first transfer is made, detailsHash will be
-    // set, allowing anyone to supply correct name/symbols/decimals
-    require(BridgeMessage.getDetailsHash(_newName, _newSymbol) == detailsHash, "!committed details");
+  function setDetails(string calldata _newName, string calldata _newSymbol) external override onlyOwner {
     // careful with naming convention change here
     token.name = _newName;
     token.symbol = _newSymbol;

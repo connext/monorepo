@@ -16,7 +16,6 @@ type TaskArgs = {
   adminFee?: string;
   lpTokenTargetAddress?: string;
   connextAddress?: string;
-  tokenRegistryAddress?: string;
   env?: Env;
 };
 
@@ -37,7 +36,6 @@ export default task("initialize-stableswap", "Initializes stable swap")
   .addOptionalParam("adminFee", "Override connext address")
   .addOptionalParam("lpTokenTargetAddress", "Override LP token target address")
   .addOptionalParam("connextAddress", "Override connext address")
-  .addOptionalParam("tokenRegistryAddress", "Override token registry address")
   .addOptionalParam("env", "Environment of contracts")
   .setAction(
     async (
@@ -51,7 +49,6 @@ export default task("initialize-stableswap", "Initializes stable swap")
         adminFee: _adminFee,
         lpTokenTargetAddress: _lpTokenTargetAddress,
         connextAddress: _connextAddress,
-        tokenRegistryAddress: _tokenRegistryAddress,
         env: _env,
       }: TaskArgs,
       { deployments, ethers },
@@ -87,14 +84,7 @@ export default task("initialize-stableswap", "Initializes stable swap")
 
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
 
-      const tokenDeployment = await deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env));
-      const tokenRegistry = new Contract(
-        _tokenRegistryAddress ?? tokenDeployment.address,
-        (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
-        deployer,
-      );
       const canonicalId = utils.hexlify(canonizeId(canonical));
-      console.log("tokenRegistryAddress:", tokenRegistry.address);
       console.log("domain: ", domain);
       console.log("canonicalId: ", canonicalId);
 
@@ -129,7 +119,7 @@ export default task("initialize-stableswap", "Initializes stable swap")
       );
       console.log("adopted asset ", adopted);
 
-      const local: string = await tokenRegistry["getLocalAddress(uint32,bytes32)"](domain, canonicalId);
+      const local: string = await connext["canonicalToAdopted(bytes32)"](key);
       console.log("local:", local);
 
       if (adopted.toLowerCase() === local.toLowerCase()) {
