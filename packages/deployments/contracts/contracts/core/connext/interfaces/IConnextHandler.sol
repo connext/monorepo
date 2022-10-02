@@ -40,6 +40,8 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function adoptedToLocalPools(TokenId calldata _canonical) external view returns (IStableSwap);
 
+  function getTokenId(address _candidate) external view returns (TokenId memory);
+
   function setupAsset(
     TokenId calldata _canonical,
     uint8 _canonicalDecimals,
