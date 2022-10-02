@@ -5,7 +5,7 @@ import { TransactionService } from "@connext/nxtp-txservice";
 
 export const setupAsset = async (
   canonical: { tokenAddress: string; domain: string },
-  domains: { domain: string; ConnextHandler: string; adopted: string; pool?: string }[],
+  domains: { domain: string; ConnextHandler: string; adopted: string; pool?: string; local: string }[],
   txService: TransactionService,
   logger: Logger,
 ) => {
@@ -24,8 +24,9 @@ export const setupAsset = async (
 
     if (adopted !== domain.adopted) {
       // @ts-ignore
-      const data = ConnextHandlerInterface.encodeFunctionData("setupAsset", [
+      const data = ConnextHandlerInterface.encodeFunctionData("setupAssetWithDeployedRepresentation", [
         [canonical.domain, canonicalId],
+        domain.local,
         domain.adopted,
         domain.pool ?? constants.AddressZero,
       ]);

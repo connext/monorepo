@@ -1,10 +1,5 @@
 import { utils, BigNumber, constants, Wallet } from "ethers";
-import {
-  ChainReader,
-  getConnextInterface,
-  getDeployedTokenRegistryContract,
-  getTokenRegistryInterface,
-} from "@connext/nxtp-txservice";
+import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
 import { DomainInfo, TestAgents, Environment, ENVIRONMENT } from "../../constants/testnet";
@@ -165,7 +160,6 @@ export const checkOnchainLocalAsset = async (
   canonicalId: string;
   canonicalDomain: string;
   canonicalKey: string;
-  tokenRegistry: string;
   getTokenId: string;
 }> => {
   const { chainreader } = context;
@@ -220,19 +214,13 @@ export const checkOnchainLocalAsset = async (
   }
 
   {
-    const tr = getTokenRegistryInterface();
-    trAddress = getDeployedTokenRegistryContract(
-      chain,
-      ENVIRONMENT === Environment.Staging ? "Staging" : "",
-      true,
-    )!.address;
-    const encoded = tr.encodeFunctionData("getTokenId", [adopted]);
+    const encoded = connext.encodeFunctionData("getTokenId", [adopted]);
     const result = await chainreader.readTx({
       chainId: chain,
-      to: trAddress,
+      to: contract,
       data: encoded,
     });
-    getTokenId = tr.decodeFunctionResult("getTokenId", result)[1] as string;
+    getTokenId = connext.decodeFunctionResult("getTokenId", result)[1] as string;
   }
 
   return {
@@ -242,7 +230,6 @@ export const checkOnchainLocalAsset = async (
     canonicalDomain: canonicalDomain,
     canonicalKey: canonicalKey,
     getTokenId: getTokenId.toLowerCase(),
-    tokenRegistry: trAddress,
   };
 };
 
@@ -319,12 +306,13 @@ export const setupAsset = async (
   }
 
   // Asset is not approved. Use deployer to approve asset.
-  const encoded = connext.encodeFunctionData("setupAsset", [
+  const encoded = connext.encodeFunctionData("setupAssetWithDeployedRepresentation", [
     {
       id: canonicalTokenId,
       domain: domain,
     },
     local,
+    constants.AddressZero,
     constants.AddressZero,
   ]);
   const tx = await deployer.sendTransaction({
