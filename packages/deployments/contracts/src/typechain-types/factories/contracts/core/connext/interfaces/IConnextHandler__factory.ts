@@ -3134,6 +3134,36 @@ const _abi = [
   {
     inputs: [
       {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
+        internalType: "uint256",
+        name: "_updated",
+        type: "uint256",
+      },
+    ],
+    name: "updateLiquidityCap",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "canonicalId",
         type: "bytes32",

@@ -127,6 +127,7 @@
   "function unapproveRouterForPortal(address)",
   "function unpause()",
   "function updateDetails(tuple(uint32,bytes32),string,string)",
+  "function updateLiquidityCap(tuple(uint32,bytes32),uint256)",
   "function withdrawSwapAdminFees(bytes32)",
   "function xAppConnectionManager() view returns (address)",
   "function xcall(uint32,address,address,address,uint256,uint256,bytes) payable returns (bytes32)",

@@ -4,7 +4,10 @@
 import { Signer, utils, Contract, ContractFactory, Overrides } from "ethers";
 import type { Provider, TransactionRequest } from "@ethersproject/providers";
 import type { PromiseOrValue } from "../../../../../common";
-import type { VersionFacet, VersionFacetInterface } from "../../../../../contracts/core/connext/facets/VersionFacet";
+import type {
+  VersionFacet,
+  VersionFacetInterface,
+} from "../../../../../contracts/core/connext/facets/VersionFacet";
 
 const _abi = [
   {
@@ -73,12 +76,15 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x60a06040526000608052348015601457600080fd5b50608051609a61002d6000396000602f0152609a6000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063ffa1ad7414602d575b600080fd5b7f000000000000000000000000000000000000000000000000000000000000000060405160ff909116815260200160405180910390f3fea2646970667358221220e89ba8fbb5fb3e04b6259a74c9fe4eafb8629131c964102fdf0432798fdc720b64736f6c634300080f0033";
+  "0x60a06040526000608052348015601457600080fd5b50608051609a61002d6000396000602f0152609a6000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063ffa1ad7414602d575b600080fd5b7f000000000000000000000000000000000000000000000000000000000000000060405160ff909116815260200160405180910390f3fea26469706673582212200f5758763c93ca183350b06919562628ec752033a7c7b29cd21b4dd7976ed58164736f6c634300080f0033";
 
-type VersionFacetConstructorParams = [signer?: Signer] | ConstructorParameters<typeof ContractFactory>;
+type VersionFacetConstructorParams =
+  | [signer?: Signer]
+  | ConstructorParameters<typeof ContractFactory>;
 
-const isSuperArgs = (xs: VersionFacetConstructorParams): xs is ConstructorParameters<typeof ContractFactory> =>
-  xs.length > 1;
+const isSuperArgs = (
+  xs: VersionFacetConstructorParams
+): xs is ConstructorParameters<typeof ContractFactory> => xs.length > 1;
 
 export class VersionFacet__factory extends ContractFactory {
   constructor(...args: VersionFacetConstructorParams) {
@@ -89,10 +95,14 @@ export class VersionFacet__factory extends ContractFactory {
     }
   }
 
-  override deploy(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<VersionFacet> {
+  override deploy(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<VersionFacet> {
     return super.deploy(overrides || {}) as Promise<VersionFacet>;
   }
-  override getDeployTransaction(overrides?: Overrides & { from?: PromiseOrValue<string> }): TransactionRequest {
+  override getDeployTransaction(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): TransactionRequest {
     return super.getDeployTransaction(overrides || {});
   }
   override attach(address: string): VersionFacet {
@@ -107,7 +117,10 @@ export class VersionFacet__factory extends ContractFactory {
   static createInterface(): VersionFacetInterface {
     return new utils.Interface(_abi) as VersionFacetInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): VersionFacet {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): VersionFacet {
     return new Contract(address, _abi, signerOrProvider) as VersionFacet;
   }
 }

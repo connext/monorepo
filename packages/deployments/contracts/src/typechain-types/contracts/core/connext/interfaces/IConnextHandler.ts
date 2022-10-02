@@ -304,6 +304,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "unapproveRouterForPortal(address)": FunctionFragment;
     "unpause()": FunctionFragment;
     "updateDetails((uint32,bytes32),string,string)": FunctionFragment;
+    "updateLiquidityCap((uint32,bytes32),uint256)": FunctionFragment;
     "withdrawSwapAdminFees(bytes32)": FunctionFragment;
     "xAppConnectionManager()": FunctionFragment;
     "xcall(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
@@ -437,6 +438,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "unapproveRouterForPortal"
       | "unpause"
       | "updateDetails"
+      | "updateLiquidityCap"
       | "withdrawSwapAdminFees"
       | "xAppConnectionManager"
       | "xcall"
@@ -1049,6 +1051,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values: [TokenIdStruct, PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "updateLiquidityCap",
+    values: [TokenIdStruct, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "withdrawSwapAdminFees",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -1504,6 +1510,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "updateDetails",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateLiquidityCap",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -2269,6 +2279,12 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    updateLiquidityCap(
+      _canonical: TokenIdStruct,
+      _updated: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     withdrawSwapAdminFees(
       canonicalId: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2963,6 +2979,12 @@ export interface IConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  updateLiquidityCap(
+    _canonical: TokenIdStruct,
+    _updated: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   withdrawSwapAdminFees(
     canonicalId: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -3638,6 +3660,12 @@ export interface IConnextHandler extends BaseContract {
       _canonical: TokenIdStruct,
       _name: PromiseOrValue<string>,
       _symbol: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateLiquidityCap(
+      _canonical: TokenIdStruct,
+      _updated: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -4373,6 +4401,12 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    updateLiquidityCap(
+      _canonical: TokenIdStruct,
+      _updated: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     withdrawSwapAdminFees(
       canonicalId: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -5079,6 +5113,12 @@ export interface IConnextHandler extends BaseContract {
       _canonical: TokenIdStruct,
       _name: PromiseOrValue<string>,
       _symbol: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateLiquidityCap(
+      _canonical: TokenIdStruct,
+      _updated: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
