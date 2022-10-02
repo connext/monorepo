@@ -242,6 +242,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "getSwapTokenBalance(bytes32,uint8)": FunctionFragment;
     "getSwapTokenIndex(bytes32,address)": FunctionFragment;
     "getSwapVirtualPrice(bytes32)": FunctionFragment;
+    "getTokenId(address)": FunctionFragment;
     "handle(uint32,uint32,bytes32,bytes)": FunctionFragment;
     "initializeSwap(bytes32,address[],uint8[],string,string,uint256,uint256,uint256,address)": FunctionFragment;
     "initiateClaim(uint32,address,bytes32[])": FunctionFragment;
@@ -374,6 +375,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "getSwapTokenBalance"
       | "getSwapTokenIndex"
       | "getSwapVirtualPrice"
+      | "getTokenId"
       | "handle"
       | "initializeSwap"
       | "initiateClaim"
@@ -707,6 +709,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getSwapVirtualPrice",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getTokenId",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "handle",
@@ -1291,6 +1297,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     functionFragment: "getSwapVirtualPrice",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getTokenId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "handle", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "initializeSwap",
@@ -1902,6 +1909,11 @@ export interface IConnextHandler extends BaseContract {
       canonicalId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    getTokenId(
+      _candidate: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[TokenIdStructOutput]>;
 
     handle(
       _origin: PromiseOrValue<BigNumberish>,
@@ -2588,6 +2600,11 @@ export interface IConnextHandler extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  getTokenId(
+    _candidate: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<TokenIdStructOutput>;
+
   handle(
     _origin: PromiseOrValue<BigNumberish>,
     _nonce: PromiseOrValue<BigNumberish>,
@@ -3270,6 +3287,11 @@ export interface IConnextHandler extends BaseContract {
       canonicalId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getTokenId(
+      _candidate: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<TokenIdStructOutput>;
 
     handle(
       _origin: PromiseOrValue<BigNumberish>,
@@ -3980,6 +4002,11 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getTokenId(
+      _candidate: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     handle(
       _origin: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
@@ -4671,6 +4698,11 @@ export interface IConnextHandler extends BaseContract {
 
     getSwapVirtualPrice(
       canonicalId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getTokenId(
+      _candidate: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

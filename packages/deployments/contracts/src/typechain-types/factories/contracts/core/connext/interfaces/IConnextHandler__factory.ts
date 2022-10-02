@@ -1649,6 +1649,37 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "_candidate",
+        type: "address",
+      },
+    ],
+    name: "getTokenId",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint32",
         name: "_origin",
         type: "uint32",
