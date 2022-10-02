@@ -2478,11 +2478,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "RelayerFacet__onlyRelayerFeeRouter_notRelayerFeeRouter",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "RelayerFacet__removeRelayer_notApproved",
     type: "error",
   },
@@ -2643,52 +2638,11 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_recipient",
-        type: "address",
-      },
-      {
-        internalType: "bytes32[]",
-        name: "_transferIds",
-        type: "bytes32[]",
-      },
-    ],
-    name: "claim",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "_domain",
-        type: "uint32",
-      },
-      {
-        internalType: "address",
-        name: "_recipient",
-        type: "address",
-      },
-      {
-        internalType: "bytes32[]",
-        name: "_transferIds",
-        type: "bytes32[]",
-      },
-    ],
-    name: "initiateClaim",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "relayerFeeRouter",
     outputs: [
       {
-        internalType: "contract RelayerFeeRouter",
+        internalType: "address",
         name: "",
         type: "address",
       },

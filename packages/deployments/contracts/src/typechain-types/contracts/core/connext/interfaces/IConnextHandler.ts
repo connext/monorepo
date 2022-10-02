@@ -212,7 +212,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "canonicalToAdopted((uint32,bytes32))": FunctionFragment;
     "canonicalToRepresentation(bytes32)": FunctionFragment;
     "canonicalToRepresentation((uint32,bytes32))": FunctionFragment;
-    "claim(address,bytes32[])": FunctionFragment;
     "delay()": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "domain()": FunctionFragment;
@@ -245,7 +244,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "getTokenId(address)": FunctionFragment;
     "handle(uint32,uint32,bytes32,bytes)": FunctionFragment;
     "initializeSwap(bytes32,address[],uint8[],string,string,uint256,uint256,uint256,address)": FunctionFragment;
-    "initiateClaim(uint32,address,bytes32[])": FunctionFragment;
     "maxRoutersPerTransfer()": FunctionFragment;
     "nonce()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -346,7 +344,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "canonicalToAdopted((uint32,bytes32))"
       | "canonicalToRepresentation(bytes32)"
       | "canonicalToRepresentation((uint32,bytes32))"
-      | "claim"
       | "delay"
       | "diamondCut"
       | "domain"
@@ -379,7 +376,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "getTokenId"
       | "handle"
       | "initializeSwap"
-      | "initiateClaim"
       | "maxRoutersPerTransfer"
       | "nonce"
       | "owner"
@@ -593,10 +589,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     functionFragment: "canonicalToRepresentation((uint32,bytes32))",
     values: [TokenIdStruct]
   ): string;
-  encodeFunctionData(
-    functionFragment: "claim",
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>[]]
-  ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "diamondCut",
@@ -737,14 +729,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initiateClaim",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>[]
     ]
   ): string;
   encodeFunctionData(
@@ -1210,7 +1194,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     functionFragment: "canonicalToRepresentation((uint32,bytes32))",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "claim", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "diamondCut", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
@@ -1313,10 +1296,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "handle", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "initializeSwap",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "initiateClaim",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1768,12 +1747,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     diamondCut(
@@ -1949,13 +1922,6 @@ export interface IConnextHandler extends BaseContract {
       _fee: PromiseOrValue<BigNumberish>,
       _adminFee: PromiseOrValue<BigNumberish>,
       lpTokenTargetAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2476,12 +2442,6 @@ export interface IConnextHandler extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  claim(
-    _recipient: PromiseOrValue<string>,
-    _transferIds: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
   diamondCut(
@@ -2649,13 +2609,6 @@ export interface IConnextHandler extends BaseContract {
     _fee: PromiseOrValue<BigNumberish>,
     _adminFee: PromiseOrValue<BigNumberish>,
     lpTokenTargetAddress: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  initiateClaim(
-    _domain: PromiseOrValue<BigNumberish>,
-    _recipient: PromiseOrValue<string>,
-    _transferIds: PromiseOrValue<BytesLike>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3172,12 +3125,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     diamondCut(
@@ -3347,13 +3294,6 @@ export interface IConnextHandler extends BaseContract {
       _fee: PromiseOrValue<BigNumberish>,
       _adminFee: PromiseOrValue<BigNumberish>,
       lpTokenTargetAddress: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3898,12 +3838,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     diamondCut(
@@ -4071,13 +4005,6 @@ export interface IConnextHandler extends BaseContract {
       _fee: PromiseOrValue<BigNumberish>,
       _adminFee: PromiseOrValue<BigNumberish>,
       lpTokenTargetAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4607,12 +4534,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     diamondCut(
@@ -4780,13 +4701,6 @@ export interface IConnextHandler extends BaseContract {
       _fee: PromiseOrValue<BigNumberish>,
       _adminFee: PromiseOrValue<BigNumberish>,
       lpTokenTargetAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -814,24 +814,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_recipient",
-        type: "address",
-      },
-      {
-        internalType: "bytes32[]",
-        name: "_transferIds",
-        type: "bytes32[]",
-      },
-    ],
-    name: "claim",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "delay",
     outputs: [
@@ -1759,29 +1741,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "_domain",
-        type: "uint32",
-      },
-      {
-        internalType: "address",
-        name: "_recipient",
-        type: "address",
-      },
-      {
-        internalType: "bytes32[]",
-        name: "_transferIds",
-        type: "bytes32[]",
-      },
-    ],
-    name: "initiateClaim",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "maxRoutersPerTransfer",
     outputs: [
@@ -1985,7 +1944,7 @@ const _abi = [
     name: "relayerFeeRouter",
     outputs: [
       {
-        internalType: "contract RelayerFeeRouter",
+        internalType: "address",
         name: "",
         type: "address",
       },

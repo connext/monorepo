@@ -240,8 +240,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "unpause()": FunctionFragment;
     "addRelayer(address)": FunctionFragment;
     "approvedRelayers(address)": FunctionFragment;
-    "claim(address,bytes32[])": FunctionFragment;
-    "initiateClaim(uint32,address,bytes32[])": FunctionFragment;
     "relayerFeeRouter()": FunctionFragment;
     "removeRelayer(address)": FunctionFragment;
     "setRelayerFeeRouter(address)": FunctionFragment;
@@ -373,8 +371,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "unpause"
       | "addRelayer"
       | "approvedRelayers"
-      | "claim"
-      | "initiateClaim"
       | "relayerFeeRouter"
       | "removeRelayer"
       | "setRelayerFeeRouter"
@@ -697,18 +693,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "approvedRelayers",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "claim",
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initiateClaim",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>[]
-    ]
   ): string;
   encodeFunctionData(
     functionFragment: "relayerFeeRouter",
@@ -1256,11 +1240,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "addRelayer", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "approvedRelayers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "claim", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "initiateClaim",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -2511,19 +2490,6 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     relayerFeeRouter(overrides?: CallOverrides): Promise<[string]>;
 
     removeRelayer(
@@ -3185,19 +3151,6 @@ export interface ConnextHandler extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  claim(
-    _recipient: PromiseOrValue<string>,
-    _transferIds: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  initiateClaim(
-    _domain: PromiseOrValue<BigNumberish>,
-    _recipient: PromiseOrValue<string>,
-    _transferIds: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   relayerFeeRouter(overrides?: CallOverrides): Promise<string>;
 
   removeRelayer(
@@ -3844,19 +3797,6 @@ export interface ConnextHandler extends BaseContract {
       _relayer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     relayerFeeRouter(overrides?: CallOverrides): Promise<string>;
 
@@ -5001,19 +4941,6 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     relayerFeeRouter(overrides?: CallOverrides): Promise<BigNumber>;
 
     removeRelayer(
@@ -5686,19 +5613,6 @@ export interface ConnextHandler extends BaseContract {
     approvedRelayers(
       _relayer: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     relayerFeeRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
