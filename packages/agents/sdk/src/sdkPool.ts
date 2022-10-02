@@ -1,7 +1,7 @@
 import { providers, BigNumber } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData, getCanonicalHash } from "@connext/nxtp-utils";
 import { getContractInterfaces, contractDeployments, ChainReader } from "@connext/nxtp-txservice";
-import { ConnextHandler as TConnext, TokenRegistry as TTokenRegistry, IERC20Extended } from "@connext/nxtp-contracts";
+import { ConnextHandler as TConnext, IERC20Extended } from "@connext/nxtp-contracts";
 
 import { NxtpSdkConfig, getConfig } from "./config";
 import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined, PoolDoesNotExist } from "./lib/errors";
@@ -77,7 +77,6 @@ export class NxtpSdkPool {
   public readonly config: NxtpSdkConfig;
   public readonly chainData: Map<string, ChainData>;
   public readonly connext: TConnext["interface"];
-  public readonly tokenRegistry: TTokenRegistry["interface"];
   public readonly erc20: IERC20Extended["interface"];
 
   private readonly logger: Logger;
@@ -91,7 +90,6 @@ export class NxtpSdkPool {
     this.chainData = chainData;
     this.chainReader = chainReader;
     this.connext = getContractInterfaces().connext;
-    this.tokenRegistry = getContractInterfaces().tokenRegistry;
     this.erc20 = getContractInterfaces().erc20Extended;
   }
 
@@ -121,18 +119,18 @@ export class NxtpSdkPool {
   // ------------------- Read Operations ------------------- //
 
   async getCanonicalFromLocal(domainId: string, tokenAddress: string): Promise<[string, string]> {
-    const tokenRegistryContractAddress = this.config.chains[domainId].deployments!.tokenRegistry;
-    if (!tokenRegistryContractAddress) {
+    const connextAddr = this.config.chains[domainId].deployments!.connext;
+    if (!connextAddr) {
       throw new ContractAddressMissing();
     }
 
-    const data = this.tokenRegistry.encodeFunctionData("getTokenId", [tokenAddress]);
+    const data = this.connext.encodeFunctionData("getTokenId", [tokenAddress]);
     const encoded = await this.chainReader.readTx({
       chainId: Number(domainId),
-      to: tokenRegistryContractAddress,
+      to: connextAddr,
       data: data,
     });
-    const [canonicalDomain, canonicalId] = this.tokenRegistry.decodeFunctionResult("getTokenId", encoded);
+    const [canonicalDomain, canonicalId] = this.connext.decodeFunctionResult("getTokenId", encoded);
 
     return [canonicalDomain, canonicalId];
   }
@@ -482,10 +480,6 @@ export class NxtpSdkPool {
 
     const connextContract = this.config.chains[domainId]?.deployments?.connext;
     if (!connextContract) {
-      throw new ContractAddressMissing();
-    }
-    const tokenRegistryContract = this.config.chains[domainId].deployments?.tokenRegistry;
-    if (!tokenRegistryContract) {
       throw new ContractAddressMissing();
     }
 

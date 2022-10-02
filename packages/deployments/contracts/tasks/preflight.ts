@@ -93,16 +93,9 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         localAsset = canonicalAsset;
       } else {
         // Current network's domain is not canonical domain, so we need to get the local asset representation.
-        const tokenDeployment = await hre.deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env));
-        const tokenRegistry = new Contract(
-          tokenDeployment.address,
-          (await hre.deployments.get(getDeploymentName("TokenRegistry"))).abi,
-          deployer,
-        );
-        console.log("tokenRegistry: ", tokenRegistry.address);
         console.log("canonicalDomain: ", canonicalDomain);
         console.log("canonicalTokenId: ", canonicalTokenId);
-        localAsset = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
+        localAsset = await connext.canonicalToRepresentation(canonicalDomain, canonicalTokenId);
         console.log("localAsset", localAsset);
         if (localAsset === constants.AddressZero) {
           throw new Error(

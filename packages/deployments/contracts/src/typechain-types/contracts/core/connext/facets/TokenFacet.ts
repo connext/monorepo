@@ -50,6 +50,7 @@ export interface TokenFacetInterface extends utils.Interface {
     "canonicalToRepresentation(bytes32)": FunctionFragment;
     "canonicalToRepresentation((uint32,bytes32))": FunctionFragment;
     "getLocalAndAdoptedToken(bytes32,uint32)": FunctionFragment;
+    "getTokenId(address)": FunctionFragment;
     "removeAssetId((uint32,bytes32),address,address)": FunctionFragment;
     "removeAssetId(bytes32,address,address)": FunctionFragment;
     "representationToCanonical(address)": FunctionFragment;
@@ -72,6 +73,7 @@ export interface TokenFacetInterface extends utils.Interface {
       | "canonicalToRepresentation(bytes32)"
       | "canonicalToRepresentation((uint32,bytes32))"
       | "getLocalAndAdoptedToken"
+      | "getTokenId"
       | "removeAssetId((uint32,bytes32),address,address)"
       | "removeAssetId(bytes32,address,address)"
       | "representationToCanonical"
@@ -124,6 +126,10 @@ export interface TokenFacetInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getLocalAndAdoptedToken",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getTokenId",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "removeAssetId((uint32,bytes32),address,address)",
@@ -216,6 +222,7 @@ export interface TokenFacetInterface extends utils.Interface {
     functionFragment: "getLocalAndAdoptedToken",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getTokenId", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeAssetId((uint32,bytes32),address,address)",
     data: BytesLike
@@ -408,6 +415,11 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string, string]>;
 
+    getTokenId(
+      _candidate: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[TokenIdStructOutput]>;
+
     "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
@@ -518,6 +530,11 @@ export interface TokenFacet extends BaseContract {
     overrides?: CallOverrides
   ): Promise<[string, string]>;
 
+  getTokenId(
+    _candidate: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<TokenIdStructOutput>;
+
   "removeAssetId((uint32,bytes32),address,address)"(
     _canonical: TokenIdStruct,
     _adoptedAssetId: PromiseOrValue<string>,
@@ -627,6 +644,11 @@ export interface TokenFacet extends BaseContract {
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[string, string]>;
+
+    getTokenId(
+      _candidate: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<TokenIdStructOutput>;
 
     "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
@@ -808,6 +830,11 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getTokenId(
+      _candidate: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
@@ -916,6 +943,11 @@ export interface TokenFacet extends BaseContract {
     getLocalAndAdoptedToken(
       _id: PromiseOrValue<BytesLike>,
       _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getTokenId(
+      _candidate: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

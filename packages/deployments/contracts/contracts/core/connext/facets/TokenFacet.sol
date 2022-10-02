@@ -121,6 +121,10 @@ contract TokenFacet is BaseConnextFacet {
     return canonical;
   }
 
+  function getTokenId(address _candidate) public view returns (TokenId memory) {
+    return _getCanonicalTokenId(_candidate);
+  }
+
   function getLocalAndAdoptedToken(bytes32 _id, uint32 _domain) public view returns (address, address) {
     return _getLocalAndAdoptedToken(AssetLogic.calculateCanonicalHash(_id, _domain), _id, _domain);
   }

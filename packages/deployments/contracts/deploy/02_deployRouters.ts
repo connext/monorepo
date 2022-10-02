@@ -136,6 +136,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   const chainId = +(await hre.getChainId());
 
+  // Deploy the bridge token to get the token beacon address when deploying connext
+  (await deployBeaconProxy("BridgeToken", [18, "", ""], deployer, hre)).connect(deployer);
+
   const network = getProtocolNetwork(chainId);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 

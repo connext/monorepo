@@ -6,7 +6,6 @@ use(solidity);
 import {
   Home,
   TestERC20,
-  TokenRegistry,
   WETH,
   UpgradeBeaconController,
   XAppConnectionManager,
@@ -95,8 +94,6 @@ describe("Connext", () => {
   let upgradeBeaconController: UpgradeBeaconController;
   let originXappConnectionManager: XAppConnectionManager;
   let destinationXappConnectionManager: XAppConnectionManager;
-  let originTokenRegistry: TokenRegistry;
-  let destinationTokenRegistry: TokenRegistry;
   let originAdopted: TestERC20;
   let destinationAdopted: TestERC20;
   let canonical: TestERC20;
@@ -134,21 +131,14 @@ describe("Connext", () => {
     // Deploy xapp connection manager
     originXappConnectionManager = await deployContract<XAppConnectionManager>("XAppConnectionManager");
     destinationXappConnectionManager = await deployContract<XAppConnectionManager>("XAppConnectionManager");
-    //Deploy token registry
-    originTokenRegistry = await deployUpgradeableBeaconProxy<TokenRegistry>(
-      "TokenRegistry",
-      [upgradeBeaconController.address, originXappConnectionManager.address],
-      upgradeBeaconController.address,
-    );
-    destinationTokenRegistry = await deployUpgradeableBeaconProxy<TokenRegistry>(
-      "TokenRegistry",
-      [upgradeBeaconController.address, destinationXappConnectionManager.address],
-      upgradeBeaconController.address,
-    );
-
     // Deploy dummy stable swap
     stableSwap = await deployContract<DummySwap>("DummySwap");
-
+    // Deploy token beacon
+    const tokenBeacon = await deployUpgradeableBeaconProxy(
+      "BridgeToken",
+      [18, "nextTest", "TestNXT"],
+      upgradeBeaconController.address,
+    );
     // Deploy RelayerFeeRouters
     originRelayerFeeRouter = await deployUpgradeableProxy<RelayerFeeRouter>("RelayerFeeRouter", proxyOwner.address, [
       originXappConnectionManager.address,
@@ -194,10 +184,11 @@ describe("Connext", () => {
       diamondInit.address,
       diamondInit.interface.encodeFunctionData("init", [
         originDomain,
-        originXappConnectionManager.address,
-        originTokenRegistry.address,
-        weth.address,
+        tokenBeacon.address,
         originRelayerFeeRouter.address,
+        originXappConnectionManager.address,
+        0,
+        0,
       ]),
       "ConnextHandler",
     );

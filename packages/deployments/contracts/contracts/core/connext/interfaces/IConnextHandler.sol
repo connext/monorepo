@@ -40,6 +40,8 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function adoptedToLocalPools(TokenId calldata _canonical) external view returns (IStableSwap);
 
+  function getTokenId(address _candidate) external view returns (TokenId memory);
+
   function setupAsset(
     TokenId calldata _canonical,
     uint8 _canonicalDecimals,
@@ -62,9 +64,17 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function updateLiquidityCap(TokenId calldata _canonical, uint256 _updated) external;
 
-  function removeAssetId(bytes32 _key, address _adoptedAssetId) external;
+  function removeAssetId(
+    bytes32 _key,
+    address _adoptedAssetId,
+    address _representation
+  ) external;
 
-  function removeAssetId(TokenId calldata _canonical, address _adoptedAssetId) external;
+  function removeAssetId(
+    TokenId calldata _canonical,
+    address _adoptedAssetId,
+    address _representation
+  ) external;
 
   function updateDetails(
     TokenId calldata _canonical,

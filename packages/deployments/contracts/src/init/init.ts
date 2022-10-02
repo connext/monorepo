@@ -268,7 +268,6 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // Determine if a stableswap pool is needed - does asset have both `local` and `adopted`?
   // If so, initialize stableswap pool with `initializeSwap`.
   // Call `setupAsset` for each domain. This will:
-  // - Register assets in the TokenRegistry (enroll-custom).
   // - Set up mappings for canonical ID / canonical domain / adopted asset address / etc.
   // - Set up mapping for stableswap pool if applicable.
   for (const asset of protocol.assets) {

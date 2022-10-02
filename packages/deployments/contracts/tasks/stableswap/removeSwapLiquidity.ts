@@ -8,7 +8,6 @@ type TaskArgs = {
   amount: string;
   asset?: string;
   connextAddress?: string;
-  tokenRegistryAddress?: string;
   env?: Env;
 };
 
@@ -20,18 +19,10 @@ export default task("remove-swap-liquidity", "Remove liquidity from the stable s
     "The address of the asset you want to receive. If not specified, will receive both of assets",
   )
   .addOptionalParam("connextAddress", "Override connext address")
-  .addOptionalParam("tokenRegistryAddress", "Override token registry address")
   .addOptionalParam("env", "Environment of contracts")
   .setAction(
     async (
-      {
-        canonical,
-        amount: _amount,
-        asset,
-        connextAddress: _connextAddress,
-        tokenRegistryAddress: _tokenRegistryAddress,
-        env: _env,
-      }: TaskArgs,
+      { canonical, amount: _amount, asset, connextAddress: _connextAddress, env: _env }: TaskArgs,
       { deployments, ethers },
     ) => {
       let { deployer } = await ethers.getNamedSigners();
@@ -52,14 +43,7 @@ export default task("remove-swap-liquidity", "Remove liquidity from the stable s
 
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
 
-      const tokenDeployment = await deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env));
-      const tokenRegistry = new Contract(
-        _tokenRegistryAddress ?? tokenDeployment.address,
-        (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
-        deployer,
-      );
-      console.log("tokenRegistryAddress:", tokenRegistry.address);
-      const [domain, canonicalId] = await tokenRegistry.getTokenId(canonical);
+      const [domain, canonicalId] = await connext.getTokenId(canonical);
       console.log("domain: ", domain);
       console.log("canonicalId: ", canonicalId);
 
