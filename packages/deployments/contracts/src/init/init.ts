@@ -5,14 +5,7 @@ import { providers, Wallet } from "ethers";
 
 import { chainIdToDomain } from "../domain";
 
-import {
-  ProtocolStack,
-  getDeployments,
-  enrollHandlers,
-  updateIfNeeded,
-  NetworkStack,
-  HubMessagingDeployments,
-} from "./helpers";
+import { ProtocolStack, getDeployments, updateIfNeeded, NetworkStack, HubMessagingDeployments } from "./helpers";
 import { setupAsset } from "./helpers/assets";
 import { setupMessaging } from "./helpers/messaging";
 
@@ -234,12 +227,6 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   await setupMessaging(protocol);
 
   /// MARK - Enroll Handlers
-  console.log("\n\nENROLL HANDLERS");
-  // While the Connectors will only accept messages from registered routers on their domains, Routers will only process
-  // messages that originate from their counterpart on another domain (e.g. BridgeRouter on Domain X to BridgeRouter on
-  // Domain Y). Thus, we need to enroll each Handler/Router contract with all of their counterparts on all other domains.
-  // NOTE: This will also set `bridgeRouter` in Connext contract to the correct address.
-  await enrollHandlers({ protocol });
 
   /// ********************* CONNEXT *********************
   /// MARK - Init

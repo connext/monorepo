@@ -4,7 +4,8 @@ import { BigNumber, constants, Wallet } from "ethers";
 
 import { chainIdToDomain, getConnectorName, getDeploymentName, getProtocolNetwork } from "../src";
 import { MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
-import { deployBeaconProxy } from "./02_deployRouters";
+
+import { deployBeaconProxy } from "./02_deployBridgeToken";
 
 // Format the arguments for Connector contract constructor.
 const formatConnectorArgs = (

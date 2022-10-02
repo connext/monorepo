@@ -8,7 +8,7 @@ import { mergeABIs } from "hardhat-deploy/dist/src/utils";
 import { SKIP_SETUP } from "../src/constants";
 import { getConnectorName, getDeploymentName, getProtocolNetwork } from "../src/utils";
 import { chainIdToDomain } from "../src";
-import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
+import { MESSAGING_PROTOCOL_CONFIGS, RELAYER_CONFIGS } from "../deployConfig/shared";
 
 function sigsFromABI(abi: any[]): string[] {
   return abi
@@ -177,19 +177,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const balance = await hre.ethers.provider.getBalance(deployer.address);
   console.log("balance: ", balance.toString());
 
-  // Retrieve Router deployments, format into ethers.Contract objects:
-  const relayerFeeRouterDeployment = await hre.deployments.getOrNull(
-    getDeploymentName("RelayerFeeRouterUpgradeBeaconProxy"),
-  );
-  if (!relayerFeeRouterDeployment) {
-    throw new Error("RelayerFeeRouterUpgradeBeaconProxy deployment not found!");
-  }
-  const relayerFeeRouter = await hre.ethers.getContractAt(
-    "RelayerFeeRouter",
-    relayerFeeRouterDeployment.address,
-    deployer,
-  );
-
   // Get connector manager
   const messagingNetwork = getProtocolNetwork(chainId);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[messagingNetwork];
@@ -224,6 +211,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const bridgeTokenDeployment = await hre.deployments.getOrNull(getDeploymentName("BridgeTokenUpgradeBeacon"));
   if (!bridgeTokenDeployment) {
     throw new Error(`BridgeTokenUpgradeBeacon not deployed`);
+  }
+
+  // get relayer fee information
+  const relayerFeeVault = RELAYER_CONFIGS[messagingNetwork][+chainId]?.relayerFeeVault;
+  if (!relayerFeeVault) {
+    throw new Error(`Empty relayer fee vault for ${messagingNetwork}:${chainId}`);
   }
 
   // Deploy connext diamond contract
@@ -300,7 +293,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
             args: [
               domain,
               bridgeTokenDeployment.address,
-              relayerFeeRouter.address,
+              relayerFeeVault,
               connectorManagerDeployment.address,
               acceptanceDelay,
               ownershipDelay,
@@ -311,15 +304,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
-
-  // Add connext to relayer fee router
-  if ((await relayerFeeRouter.connext()) !== connextAddress) {
-    console.log("setting connext on relayer fee router");
-    const addTm = await relayerFeeRouter.connect(deployer).setConnext(connextAddress);
-    await addTm.wait();
-  } else {
-    console.log("relayer fee router connext set");
-  }
 
   console.log("Deploying multicall...");
   const multicallName = getDeploymentName("Multicall");
@@ -358,4 +342,4 @@ export default func;
 
 func.tags = ["Connext", "prod", "local", "mainnet"];
 // func.dependencies = ["Nomad"];
-func.dependencies = ["Messaging"];
+func.dependencies = ["Messaging", "BridgeToken"];
