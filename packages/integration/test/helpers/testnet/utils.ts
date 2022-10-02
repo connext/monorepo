@@ -2,7 +2,7 @@ import { utils, BigNumber, constants, Wallet } from "ethers";
 import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
-import { DomainInfo, TestAgents, Environment, ENVIRONMENT } from "../../constants/testnet";
+import { DomainInfo, TestAgents } from "../../constants/testnet";
 
 /// MARK - Utilities
 export const canonizeTokenId = (data?: utils.BytesLike): Uint8Array => {
@@ -177,7 +177,6 @@ export const checkOnchainLocalAsset = async (
   let canonicalDomain: string;
   let adoptedToCanonical: string;
   let canonicalToAdopted: string;
-  let trAddress: string;
   let getTokenId: string;
   {
     const encoded = connext.encodeFunctionData("adoptedToCanonical", [adopted]);
