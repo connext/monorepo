@@ -11,6 +11,7 @@ import { AxiosRequestConfig } from "axios";
 export let proverCtxMock: ProverContext;
 export let chainReaderMock: SinonStubbedInstance<ChainReader>;
 export let gelatoSendStub: SinonStub<any[], any>;
+export let gelatoSDKSendStub: SinonStub<any[], any>;
 export let isChainSupportedByGelatoStub: SinonStub<any[], any>;
 export let getGelatoRelayerStub: SinonStub<any[], any>;
 export let existsSyncStub: SinonStub;
@@ -20,10 +21,12 @@ export let axiosGetStub: SinonStub<[url: string, config?: AxiosRequestConfig<unk
 export const mockAxiosErrorResponse = { isAxiosError: true, code: 500, response: "Invalid fee" };
 export const mockAxiosSuccessResponse = { isAxiosError: false, code: 200, data: [] };
 export const mockGelatoSuccessResponse = { taskId: 1, msg: "success" };
+export const mockGelatoSDKSuccessResponse = { taskId: "1" };
 
 export const mochaHooks = {
   async beforeEach() {
     gelatoSendStub = stub(Mockable, "gelatoSend").resolves(mockGelatoSuccessResponse);
+    gelatoSDKSendStub = stub(Mockable, "gelatoSDKSend").resolves(mockGelatoSDKSuccessResponse);
     isChainSupportedByGelatoStub = stub(Mockable, "isChainSupportedByGelato").resolves(true);
     getGelatoRelayerStub = stub(Mockable, "getGelatoRelayerAddress").resolves(mkAddress("0xaaa"));
     existsSyncStub = stub(Mockable, "existsSync");

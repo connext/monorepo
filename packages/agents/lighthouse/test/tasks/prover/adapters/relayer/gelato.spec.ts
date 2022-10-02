@@ -2,9 +2,9 @@ import { expect, mkAddress } from "@connext/nxtp-utils";
 
 import { send, getRelayerAddress } from "../../../../../src/tasks/prover/adapters/relayer/gelato";
 import {
-  gelatoSendStub,
+  gelatoSDKSendStub,
   isChainSupportedByGelatoStub,
-  mockGelatoSuccessResponse,
+  mockGelatoSDKSuccessResponse,
   mockAxiosErrorResponse,
   proverCtxMock,
 } from "../../../../globalTestHook";
@@ -14,7 +14,7 @@ import { RelayerSendFailed } from "../../../../../src/errors";
 describe("Adapters: Gelato", () => {
   describe("#send", () => {
     it("should error if gelato returns error", async () => {
-      gelatoSendStub.resolves(mockAxiosErrorResponse);
+      gelatoSDKSendStub.resolves(mockAxiosErrorResponse);
       expect(
         send(+mock.chain.A, proverCtxMock.config.chains[mock.domain.A].deployments.connext, "0xbeed"),
       ).to.eventually.be.rejectedWith(RelayerSendFailed);
@@ -26,8 +26,8 @@ describe("Adapters: Gelato", () => {
         proverCtxMock.config.chains[mock.domain.A].deployments.connext,
         "0xbeed",
       );
-      expect(gelatoSendStub).to.be.calledOnce;
-      expect(taskId).to.eq(mockGelatoSuccessResponse.taskId);
+      expect(gelatoSDKSendStub).to.be.calledOnce;
+      expect(taskId).to.eq(mockGelatoSDKSuccessResponse.taskId);
     });
 
     it("should throw if the chain isn't supported by gelato", async () => {

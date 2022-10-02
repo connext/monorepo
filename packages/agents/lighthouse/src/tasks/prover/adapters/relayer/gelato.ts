@@ -1,8 +1,12 @@
 import { createLoggingContext } from "@connext/nxtp-utils";
-import { AxiosError } from "axios";
 
 import { RelayerSendFailed } from "../../../../errors";
-import { getGelatoRelayerAddress, isChainSupportedByGelato, gelatoSend } from "../../../../mockable";
+import {
+  getGelatoRelayerAddress,
+  isChainSupportedByGelato,
+  getTransactionHashFromGelato,
+  gelatoSDKSend,
+} from "../../../../mockable";
 import { getContext } from "../../prover";
 
 export const getRelayerAddress = async (chainId: number): Promise<string> => {
@@ -12,7 +16,7 @@ export const getRelayerAddress = async (chainId: number): Promise<string> => {
 };
 
 export const send = async (chainId: number, destinationAddress: string, encodedData: string): Promise<string> => {
-  const { logger } = getContext();
+  const { logger, config } = getContext();
   const { requestContext, methodContext } = createLoggingContext(send.name);
 
   const isSupportedByGelato = await isChainSupportedByGelato(chainId);
@@ -20,29 +24,26 @@ export const send = async (chainId: number, destinationAddress: string, encodedD
     throw new Error("Chain not supported by gelato.");
   }
 
-  logger.info("Sending to Gelato network", requestContext, methodContext, {
-    encodedData,
-    destinationAddress,
-    chainId,
-  });
-
-  const result = await gelatoSend(chainId, {
-    dest: destinationAddress,
+  const request = {
+    chainId: chainId,
+    target: destinationAddress,
     data: encodedData,
-    token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-    relayerFee: "0",
-  });
+  };
 
-  if ((result as AxiosError).isAxiosError) {
-    throw new RelayerSendFailed({ result });
+  logger.info("Sending to Gelato network", requestContext, methodContext, request);
+
+  const response = await gelatoSDKSend(request, config.gelatoApiKey, {}, logger);
+
+  if (!response) {
+    throw new RelayerSendFailed({ response: response });
   } else {
-    const { taskId } = result;
-    logger.info("Sent to Gelato network", requestContext, methodContext, {
-      result,
-      taskId,
-      // response: response.data,
-    });
-    // TODO: replace this with transactionHash eventually
-    return taskId;
+    logger.info("Sent to Gelato network", requestContext, methodContext, response);
+    return response.taskId;
   }
+};
+
+export const getTransactionHash = async (taskId: string): Promise<string> => {
+  const { logger } = getContext();
+  const transactionHash = await getTransactionHashFromGelato(taskId, logger);
+  return transactionHash;
 };
