@@ -393,7 +393,9 @@ contract BridgeFacet is BaseConnextFacet {
   function bumpTransfer(bytes32 _transferId) external payable nonReentrant whenNotPaused {
     if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
 
+    // TODO: should we store the fees or is there an easier way to reference whats been paid?
     s.relayerFees[_transferId] += msg.value;
+    Address.sendValue(payable(s.relayerFeeRouter), msg.value);
 
     emit TransferRelayerFeesUpdated(_transferId, s.relayerFees[_transferId], msg.sender);
   }
@@ -537,6 +539,7 @@ contract BridgeFacet is BaseConnextFacet {
     // NOTE: This has to be done *after* transferring in + swapping assets because
     // the transfer id uses the amount that is bridged (i.e. amount in local asset).
     s.relayerFees[transferId] += msg.value;
+    Address.sendValue(payable(s.relayerFeeRouter), msg.value);
 
     // Send the crosschain message.
     bytes32 messageHash = _sendMessage(
