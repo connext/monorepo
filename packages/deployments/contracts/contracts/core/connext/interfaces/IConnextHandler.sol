@@ -191,9 +191,9 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function approvedRelayers(address _relayer) external view returns (bool);
 
-  function relayerFeeRouter() external view returns (address);
+  function relayerFeeVault() external view returns (address);
 
-  function setRelayerFeeRouter(address _relayerFeeRouter) external;
+  function setRelayerFeeVault(address _relayerFeeVault) external;
 
   function addRelayer(address _relayer) external;
 

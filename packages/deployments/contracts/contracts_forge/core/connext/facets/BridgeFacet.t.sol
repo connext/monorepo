@@ -374,7 +374,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // Record initial balances.
       balances.callerEth = address(params.originSender).balance;
       balances.callerAsset = tokenIn.balanceOf(params.originSender);
-      balances.relayerEth = s.relayerFeeRouter.balance;
+      balances.relayerEth = s.relayerFeeVault.balance;
       balances.contractAsset = tokenIn.balanceOf(address(this));
 
       // Debugging logs.
@@ -420,7 +420,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // console.log(TestERC20(_local).balanceOf(address(this)));
 
       // Contract should have received relayer fee from user.
-      assertEq(s.relayerFeeRouter.balance, balances.relayerEth + _relayerFee);
+      assertEq(s.relayerFeeVault.balance, balances.relayerEth + _relayerFee);
       // User should have been debited relayer fee ETH and tx cost.
       assertLe(params.originSender.balance, balances.callerEth - _relayerFee);
 

@@ -23,7 +23,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   // ============ Storage ============
   uint32 domain = _originDomain;
   address bridgeRouter = address(1);
-  address relayerFeeRouter = address(4);
+  address relayerFeeVault = address(4);
   address xAppConnectionManager = address(5);
   address router = address(1111);
   address aavePool;

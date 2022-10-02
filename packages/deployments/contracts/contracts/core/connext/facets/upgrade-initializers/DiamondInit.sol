@@ -29,7 +29,7 @@ contract DiamondInit is BaseConnextFacet {
   function init(
     uint32 _domain,
     address _tokenBeacon,
-    address _relayerFeeRouter,
+    address _relayerFeeVault,
     address _xAppConnectionManager,
     uint256 _acceptanceDelay,
     uint256 _ownershipDelay
@@ -61,7 +61,7 @@ contract DiamondInit is BaseConnextFacet {
       // ConnextHandler
       s.tokenBeacon = _tokenBeacon;
       s.domain = _domain;
-      s.relayerFeeRouter = _relayerFeeRouter;
+      s.relayerFeeVault = _relayerFeeVault;
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.maxRoutersPerTransfer = 5;
       s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);

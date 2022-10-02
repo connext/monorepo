@@ -117,7 +117,7 @@ struct AppStorage {
    * @notice The local address for relayer fees
    */
   // 2
-  address relayerFeeRouter;
+  address relayerFeeVault;
   /**
    * @notice Nonce for the contract, used to keep unique transfer ids.
    * @dev Assigned at first interaction (xcall on origin domain).

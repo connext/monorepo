@@ -19,13 +19,13 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   uint32 _domain = 1000;
 
   address _relayer = address(222);
-  address _relayerFeeRouter = address(555);
+  address _relayerFeeVault = address(555);
 
   // ============ Test set up ============
   function setUp() public {
     setOwner(_owner);
 
-    s.relayerFeeRouter = _relayerFeeRouter;
+    s.relayerFeeVault = _relayerFeeVault;
   }
 
   // ============ Utils ==============
@@ -72,46 +72,46 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
     assertEq(this.approvedRelayers(_relayer), false);
   }
 
-  // relayerFeeRouter
+  // relayerFeeVault
   // retrieves empty if not set
-  function test_RelayerFacet__relayerFeeRouter_empty() public {
-    s.relayerFeeRouter = address(0);
-    assertEq(this.relayerFeeRouter(), address(0));
+  function test_RelayerFacet__relayerFeeVault_empty() public {
+    s.relayerFeeVault = address(0);
+    assertEq(this.relayerFeeVault(), address(0));
   }
 
   // retrieves defined
-  function test_RelayerFacet__relayerFeeRouter_defined() public {
-    assertEq(this.relayerFeeRouter(), _relayerFeeRouter);
+  function test_RelayerFacet__relayerFeeVault_defined() public {
+    assertEq(this.relayerFeeVault(), _relayerFeeVault);
   }
 
   // ============ Admin functions ============
-  // setRelayerFeeRouter
+  // setRelayerFeeVault
   // fail if not owner
-  function test_RelayerFacet__setRelayerFeeRouter_failsIfNotOwner() public {
+  function test_RelayerFacet__setRelayerFeeVault_failsIfNotOwner() public {
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
 
-    this.setRelayerFeeRouter(address(42));
+    this.setRelayerFeeVault(address(42));
   }
 
   // fail if same as previous relayer fee router
-  function test_RelayerFacet__setRelayerFeeRouter_failsIfRedundant() public {
-    vm.expectRevert(RelayerFacet.RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter.selector);
+  function test_RelayerFacet__setRelayerFeeVault_failsIfRedundant() public {
+    vm.expectRevert(RelayerFacet.RelayerFacet__setRelayerFeeVault_invalidRelayerFeeVault.selector);
 
     vm.prank(_owner);
-    this.setRelayerFeeRouter(_relayerFeeRouter);
+    this.setRelayerFeeVault(_relayerFeeVault);
   }
 
-  // works; updates relayerFeeRouter
-  function test_RelayerFacet__setRelayerFeeRouter_works() public {
-    address newRelayerFeeRouter = address(42);
+  // works; updates relayerFeeVault
+  function test_RelayerFacet__setRelayerFeeVault_works() public {
+    address newRelayerFeeVault = address(42);
 
     vm.expectEmit(true, true, true, true);
-    emit RelayerFeeRouterUpdated(_relayerFeeRouter, newRelayerFeeRouter, _owner);
+    emit RelayerFeeVaultUpdated(_relayerFeeVault, newRelayerFeeVault, _owner);
 
     vm.prank(_owner);
-    this.setRelayerFeeRouter(newRelayerFeeRouter);
+    this.setRelayerFeeVault(newRelayerFeeVault);
 
-    assertEq(s.relayerFeeRouter, newRelayerFeeRouter);
+    assertEq(s.relayerFeeVault, newRelayerFeeVault);
   }
 
   // addRelayer

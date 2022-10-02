@@ -7,7 +7,7 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 contract RelayerFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
-  error RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter();
+  error RelayerFacet__setRelayerFeeVault_invalidRelayerFeeVault();
   error RelayerFacet__addRelayer_alreadyApproved();
   error RelayerFacet__removeRelayer_notApproved();
   error RelayerFacet__initiateClaim_emptyClaim();
@@ -15,12 +15,12 @@ contract RelayerFacet is BaseConnextFacet {
 
   // ========== Events ===========
   /**
-   * @notice Emitted when the relayerFeeRouter variable is updated
-   * @param oldRouter - The relayerFeeRouter old value
-   * @param newRouter - The relayerFeeRouter new value
+   * @notice Emitted when the relayerFeeVault variable is updated
+   * @param oldRouter - The relayerFeeVault old value
+   * @param newRouter - The relayerFeeVault new value
    * @param caller - The account that called the function
    */
-  event RelayerFeeRouterUpdated(address oldRouter, address newRouter, address caller);
+  event RelayerFeeVaultUpdated(address oldRouter, address newRouter, address caller);
 
   /**
    * @notice Emitted when a relayer is added or removed from whitelists
@@ -65,22 +65,22 @@ contract RelayerFacet is BaseConnextFacet {
     return s.approvedRelayers[_relayer];
   }
 
-  function relayerFeeRouter() external view returns (address) {
-    return s.relayerFeeRouter;
+  function relayerFeeVault() external view returns (address) {
+    return s.relayerFeeVault;
   }
 
   // ============ Admin functions ============
 
   /**
    * @notice Updates the relayer fee router
-   * @param _relayerFeeRouter The address of the new router
+   * @param _relayerFeeVault The address of the new router
    */
-  function setRelayerFeeRouter(address _relayerFeeRouter) external onlyOwner {
-    address old = address(s.relayerFeeRouter);
-    if (old == _relayerFeeRouter) revert RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter();
+  function setRelayerFeeVault(address _relayerFeeVault) external onlyOwner {
+    address old = address(s.relayerFeeVault);
+    if (old == _relayerFeeVault) revert RelayerFacet__setRelayerFeeVault_invalidRelayerFeeVault();
 
-    s.relayerFeeRouter = _relayerFeeRouter;
-    emit RelayerFeeRouterUpdated(old, _relayerFeeRouter, msg.sender);
+    s.relayerFeeVault = _relayerFeeVault;
+    emit RelayerFeeVaultUpdated(old, _relayerFeeVault, msg.sender);
   }
 
   /**

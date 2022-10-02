@@ -391,7 +391,7 @@ contract BridgeFacet is BaseConnextFacet {
 
     // TODO: should we store the fees or is there an easier way to reference whats been paid?
     s.relayerFees[_transferId] += msg.value;
-    Address.sendValue(payable(s.relayerFeeRouter), msg.value);
+    Address.sendValue(payable(s.relayerFeeVault), msg.value);
 
     emit TransferRelayerFeesUpdated(_transferId, s.relayerFees[_transferId], msg.sender);
   }
@@ -535,7 +535,7 @@ contract BridgeFacet is BaseConnextFacet {
     // NOTE: This has to be done *after* transferring in + swapping assets because
     // the transfer id uses the amount that is bridged (i.e. amount in local asset).
     s.relayerFees[transferId] += msg.value;
-    Address.sendValue(payable(s.relayerFeeRouter), msg.value);
+    Address.sendValue(payable(s.relayerFeeVault), msg.value);
 
     // Send the crosschain message.
     bytes32 messageHash = _sendMessage(

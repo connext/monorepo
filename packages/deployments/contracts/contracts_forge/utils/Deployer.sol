@@ -171,8 +171,8 @@ contract Deployer {
     bytes4[] memory relayerFacetSelectors = new bytes4[](6);
     relayerFacetSelectors[0] = RelayerFacet.transferRelayer.selector;
     relayerFacetSelectors[1] = RelayerFacet.approvedRelayers.selector;
-    relayerFacetSelectors[2] = RelayerFacet.relayerFeeRouter.selector;
-    relayerFacetSelectors[3] = RelayerFacet.setRelayerFeeRouter.selector;
+    relayerFacetSelectors[2] = RelayerFacet.relayerFeeVault.selector;
+    relayerFacetSelectors[3] = RelayerFacet.setRelayerFeeVault.selector;
     relayerFacetSelectors[4] = RelayerFacet.addRelayer.selector;
     relayerFacetSelectors[5] = RelayerFacet.removeRelayer.selector;
     return
@@ -338,7 +338,7 @@ contract Deployer {
   function deployConnext(
     uint256 domain,
     address tokenBeacon,
-    address relayerFeeRouter,
+    address relayerFeeVault,
     address xAppConnectionManager,
     uint256 acceptanceDelay,
     uint256 ownershipDelay
@@ -347,7 +347,7 @@ contract Deployer {
       DiamondInit.init.selector,
       domain,
       tokenBeacon,
-      relayerFeeRouter,
+      relayerFeeVault,
       xAppConnectionManager,
       acceptanceDelay,
       ownershipDelay
