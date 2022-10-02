@@ -412,8 +412,4 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
   ) external;
 
   function stopRampA(bytes32 canonicalId) external;
-
-  // VersionFacet
-
-  function VERSION() external returns (uint8);
 }

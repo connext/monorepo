@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import "../../../utils/ForgeHelper.sol";
-import {Deployer, DiamondInit, VersionFacet} from "../../../utils/Deployer.sol";
+import {Deployer, DiamondInit, BridgeFacet} from "../../../utils/Deployer.sol";
 
 import "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IConnextHandler} from "../../../../contracts/core/connext/interfaces/IConnextHandler.sol";
@@ -56,12 +56,12 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
-    bytes4[] memory versionFacetSelectors = new bytes4[](1);
-    versionFacetSelectors[0] = VersionFacet.VERSION.selector;
+    bytes4[] memory facetSelectors = new bytes4[](1);
+    facetSelectors[0] = BridgeFacet.xcall.selector;
     facetCuts[0] = IDiamondCut.FacetCut({
       facetAddress: address(0),
       action: IDiamondCut.FacetCutAction.Remove,
-      functionSelectors: versionFacetSelectors
+      functionSelectors: facetSelectors
     });
 
     vm.warp(100);
@@ -92,12 +92,12 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
-    bytes4[] memory versionFacetSelectors = new bytes4[](1);
-    versionFacetSelectors[0] = VersionFacet.VERSION.selector;
+    bytes4[] memory facetSelectors = new bytes4[](1);
+    facetSelectors[0] = BridgeFacet.xcall.selector;
     facetCuts[0] = IDiamondCut.FacetCut({
       facetAddress: address(0),
       action: IDiamondCut.FacetCutAction.Remove,
-      functionSelectors: versionFacetSelectors
+      functionSelectors: facetSelectors
     });
 
     vm.warp(100);
@@ -129,12 +129,12 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
-    bytes4[] memory versionFacetSelectors = new bytes4[](1);
-    versionFacetSelectors[0] = VersionFacet.VERSION.selector;
+    bytes4[] memory facetSelectors = new bytes4[](1);
+    facetSelectors[0] = BridgeFacet.xcall.selector;
     facetCuts[0] = IDiamondCut.FacetCut({
       facetAddress: address(0),
       action: IDiamondCut.FacetCutAction.Remove,
-      functionSelectors: versionFacetSelectors
+      functionSelectors: facetSelectors
     });
 
     vm.warp(100);
