@@ -11,7 +11,6 @@ pragma solidity ^0.8.0;
 import {IDiamondLoupe} from "../../interfaces/IDiamondLoupe.sol";
 import {IDiamondCut} from "../../interfaces/IDiamondCut.sol";
 import {IERC165} from "../../interfaces/IERC165.sol";
-import {IWeth} from "../../interfaces/IWeth.sol";
 
 import {LibDiamond} from "../../libraries/LibDiamond.sol";
 

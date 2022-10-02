@@ -21,12 +21,8 @@ import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
 import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 
-import {Router} from "../../Router.sol";
-
-import {IWeth} from "../interfaces/IWeth.sol";
 import {IXReceiver} from "../interfaces/IXReceiver.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
-import {IBridgeHook} from "../interfaces/IBridgeHook.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
 
 contract BridgeFacet is BaseConnextFacet {

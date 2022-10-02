@@ -2,7 +2,6 @@
 pragma solidity 0.8.15;
 
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
-import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
 
 import {LibConnextStorage, AppStorage, TokenId, CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {TypeCasts} from "../../contracts/shared/libraries/TypeCasts.sol";

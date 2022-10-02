@@ -10,8 +10,6 @@ import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.
 
 import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
-import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBridgeRouter.sol";
-import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import {CallParams, ExecuteArgs, TokenId} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
@@ -52,8 +50,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // mock xapp contract
   address _xapp;
-  // mock bridge router
-  address _bridgeRouter;
 
   // delegates
   address _delegate = address(123456654321);
@@ -142,9 +138,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // Deploy a mock xapp consumer.
     _xapp = address(new MockXApp());
-
-    // Deploy a mock bridge router.
-    _bridgeRouter = address(new MockBridgeRouter());
 
     // setup aave pool
     _aavePool = address(new MockPool(false));
@@ -255,7 +248,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     address bridged = asset == address(0) ? address(0) : _canonicalDomain == s.domain ? _canonical : _local;
     uint256 bridgedAmt = params.bridgedAmt;
     vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, s.nonce, MockBridgeRouter(_bridgeRouter).MESSAGE_HASH(), params, bridged);
+    emit XCalled(transferId, s.nonce, bytes32("test message"), params, bridged);
 
     // assert swap if expected
     if (shouldSwap && bridgedAmt != 0) {

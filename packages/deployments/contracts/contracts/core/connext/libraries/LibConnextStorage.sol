@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {IWeth} from "../interfaces/IWeth.sol";
-
-import {IBridgeRouter} from "../interfaces/IBridgeRouter.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager.sol";
 import {SwapUtils} from "./SwapUtils.sol";
@@ -224,11 +221,6 @@ struct AppStorage {
    */
   // 18
   uint256 maxRoutersPerTransfer;
-  /**
-   * @notice The address of the nomad bridge router for this chain.
-   */
-  // 19
-  IBridgeRouter bridgeRouter;
   /**
    * @notice Stores a mapping of transfer id to slippage overrides.
    */

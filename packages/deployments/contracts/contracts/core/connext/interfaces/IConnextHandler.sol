@@ -8,8 +8,6 @@ import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {SwapUtils} from "../libraries/SwapUtils.sol";
 
 import {IStableSwap} from "./IStableSwap.sol";
-import {IWeth} from "./IWeth.sol";
-import {IBridgeRouter} from "./IBridgeRouter.sol";
 
 import {IDiamondCut} from "./IDiamondCut.sol";
 import {IDiamondLoupe} from "./IDiamondLoupe.sol";

@@ -4,8 +4,6 @@ pragma solidity 0.8.15;
 import {TypeCasts} from "../../../../contracts/shared/libraries/TypeCasts.sol";
 import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.sol";
 
-import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBridgeRouter.sol";
-
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeMessage} from "../../../../contracts/core/connext/libraries/BridgeMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";

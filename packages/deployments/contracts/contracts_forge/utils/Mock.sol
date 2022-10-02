@@ -19,8 +19,6 @@ import {RootManager} from "../../contracts/messaging/RootManager.sol";
 import {BaseConnextFacet} from "../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {IAavePool} from "../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IXReceiver} from "../../contracts/core/connext/interfaces/IXReceiver.sol";
-import {IBridgeRouter} from "../../contracts/core/connext/interfaces/IBridgeRouter.sol";
-import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
 
 import {ProposedOwnable} from "../../contracts/shared/ProposedOwnable.sol";
 
@@ -209,64 +207,6 @@ contract TestSetterFacet is BaseConnextFacet {
 
   function setTestRoutedTransfers(bytes32 _id, address[] memory _routers) external {
     s.routedTransfers[_id] = _routers;
-  }
-}
-
-contract MockBridgeRouter is IBridgeRouter {
-  mapping(bytes32 => address) public tokenInputs;
-  mapping(bytes32 => uint256) public amountInputs;
-  mapping(bytes32 => uint32) public destinationInputs;
-  mapping(bytes32 => bytes32) public hookInputs;
-
-  bytes32 public id;
-
-  bytes32 public immutable MESSAGE_HASH = bytes32("test message");
-
-  event XSendCalled(address _token, uint256 _amount, uint32 _destination, bytes32 hook, bytes extra);
-
-  function send(
-    address _token,
-    uint256 _amount,
-    uint32 _destination,
-    bytes32 _recipient,
-    bool _enableFast /* _enableFast deprecated field, left argument for backwards compatibility */
-  ) external {
-    require(false, "shouldnt use send");
-  }
-
-  function registerTransferId(bytes32 _id) public {
-    id = _id;
-  }
-
-  function sendToHook(
-    address _token,
-    uint256 _amount,
-    uint32 _destination,
-    bytes32 _remoteHook,
-    bytes calldata _external
-  ) external returns (bytes32) {
-    tokenInputs[id] = _token;
-    amountInputs[id] = _amount;
-    destinationInputs[id] = _destination;
-    hookInputs[id] = _remoteHook;
-    // transfer amount here
-    if (_amount > 0) {
-      SafeERC20.safeTransferFrom(IERC20(_token), msg.sender, address(this), _amount);
-    }
-    emit XSendCalled(_token, _amount, _destination, _remoteHook, _external);
-    return MESSAGE_HASH;
-  }
-
-  function getToken(bytes32 transferId) external returns (address) {
-    return tokenInputs[transferId];
-  }
-
-  function getAmount(bytes32 transferId) external returns (uint256) {
-    return amountInputs[transferId];
-  }
-
-  function getDestination(bytes32 transferId) external returns (uint32) {
-    return destinationInputs[transferId];
   }
 }
 

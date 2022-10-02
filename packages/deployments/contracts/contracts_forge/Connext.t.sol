@@ -9,7 +9,6 @@ import {TypeCasts} from "../contracts/shared/libraries/TypeCasts.sol";
 
 import {IBridgeToken} from "../contracts/core/connext/interfaces/IBridgeToken.sol";
 import {IConnextHandler} from "../contracts/core/connext/interfaces/IConnextHandler.sol";
-import {IBridgeRouter} from "../contracts/core/connext/interfaces/IBridgeRouter.sol";
 import {BridgeMessage} from "../contracts/core/connext/libraries/BridgeMessage.sol";
 import {BridgeFacet, ExecuteArgs} from "../contracts/core/connext/facets/BridgeFacet.sol";
 import {TokenId} from "../contracts/core/connext/libraries/LibConnextStorage.sol";

@@ -3,7 +3,6 @@ pragma solidity 0.8.15;
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
-import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {TokenFacet} from "../../../../contracts/core/connext/facets/TokenFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
