@@ -77,7 +77,7 @@ export interface DiamondInit extends BaseContract {
     init(
       _domain: PromiseOrValue<BigNumberish>,
       _tokenBeacon: PromiseOrValue<string>,
-      _relayerFeeRouter: PromiseOrValue<string>,
+      _relayerFeeVault: PromiseOrValue<string>,
       _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
       _ownershipDelay: PromiseOrValue<BigNumberish>,
@@ -88,7 +88,7 @@ export interface DiamondInit extends BaseContract {
   init(
     _domain: PromiseOrValue<BigNumberish>,
     _tokenBeacon: PromiseOrValue<string>,
-    _relayerFeeRouter: PromiseOrValue<string>,
+    _relayerFeeVault: PromiseOrValue<string>,
     _xAppConnectionManager: PromiseOrValue<string>,
     _acceptanceDelay: PromiseOrValue<BigNumberish>,
     _ownershipDelay: PromiseOrValue<BigNumberish>,
@@ -99,7 +99,7 @@ export interface DiamondInit extends BaseContract {
     init(
       _domain: PromiseOrValue<BigNumberish>,
       _tokenBeacon: PromiseOrValue<string>,
-      _relayerFeeRouter: PromiseOrValue<string>,
+      _relayerFeeVault: PromiseOrValue<string>,
       _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
       _ownershipDelay: PromiseOrValue<BigNumberish>,
@@ -113,7 +113,7 @@ export interface DiamondInit extends BaseContract {
     init(
       _domain: PromiseOrValue<BigNumberish>,
       _tokenBeacon: PromiseOrValue<string>,
-      _relayerFeeRouter: PromiseOrValue<string>,
+      _relayerFeeVault: PromiseOrValue<string>,
       _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
       _ownershipDelay: PromiseOrValue<BigNumberish>,
@@ -125,7 +125,7 @@ export interface DiamondInit extends BaseContract {
     init(
       _domain: PromiseOrValue<BigNumberish>,
       _tokenBeacon: PromiseOrValue<string>,
-      _relayerFeeRouter: PromiseOrValue<string>,
+      _relayerFeeVault: PromiseOrValue<string>,
       _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
       _ownershipDelay: PromiseOrValue<BigNumberish>,

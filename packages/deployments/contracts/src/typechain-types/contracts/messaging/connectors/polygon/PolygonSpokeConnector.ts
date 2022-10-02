@@ -61,7 +61,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "fxChild()": FunctionFragment;
     "fxRootTunnel()": FunctionFragment;
     "home()": FunctionFragment;
-    "isPaused()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
     "localDomain()": FunctionFragment;
     "messages(bytes32)": FunctionFragment;
@@ -70,6 +69,8 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "nonces(uint32)": FunctionFragment;
     "outboundRoot()": FunctionFragment;
     "owner()": FunctionFragment;
+    "pause()": FunctionFragment;
+    "paused()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "processMessageFromRoot(uint256,address,bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
@@ -87,7 +88,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "setMirrorConnector(address)": FunctionFragment;
     "setMirrorGas(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
-    "setWatcherPaused(bool)": FunctionFragment;
+    "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
     "whitelistedSenders(address)": FunctionFragment;
   };
@@ -112,7 +113,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "fxChild"
       | "fxRootTunnel"
       | "home"
-      | "isPaused"
       | "isReplica"
       | "localDomain"
       | "messages"
@@ -121,6 +121,8 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "nonces"
       | "outboundRoot"
       | "owner"
+      | "pause"
+      | "paused"
       | "processMessage"
       | "processMessageFromRoot"
       | "proposeNewOwner"
@@ -138,7 +140,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "setMirrorConnector"
       | "setMirrorGas"
       | "setWatcherManager"
-      | "setWatcherPaused"
+      | "unpause"
       | "verifySender"
       | "whitelistedSenders"
   ): FunctionFragment;
@@ -201,7 +203,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
-  encodeFunctionData(functionFragment: "isPaused", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isReplica",
     values: [PromiseOrValue<string>]
@@ -228,6 +229,8 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(functionFragment: "pause", values?: undefined): string;
+  encodeFunctionData(functionFragment: "paused", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processMessage",
     values: [PromiseOrValue<BytesLike>]
@@ -295,10 +298,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     functionFragment: "setWatcherManager",
     values: [PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setWatcherPaused",
-    values: [PromiseOrValue<boolean>]
-  ): string;
+  encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "verifySender",
     values: [PromiseOrValue<string>]
@@ -356,7 +356,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "isPaused", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isReplica", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "localDomain",
@@ -374,6 +373,8 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processMessage",
     data: BytesLike
@@ -433,10 +434,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     functionFragment: "setWatcherManager",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setWatcherPaused",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "verifySender",
     data: BytesLike
@@ -457,9 +455,11 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "NewConnector(uint32,uint32,address,address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "Paused(address)": EventFragment;
     "Process(bytes32,bool,bytes)": EventFragment;
     "SenderAdded(address)": EventFragment;
     "SenderRemoved(address)": EventFragment;
+    "Unpaused(address)": EventFragment;
     "WatcherManagerChanged(address)": EventFragment;
   };
 
@@ -473,9 +473,11 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "NewConnector"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Process"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "WatcherManagerChanged"): EventFragment;
 }
 
@@ -600,6 +602,13 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
+export interface PausedEventObject {
+  account: string;
+}
+export type PausedEvent = TypedEvent<[string], PausedEventObject>;
+
+export type PausedEventFilter = TypedEventFilter<PausedEvent>;
+
 export interface ProcessEventObject {
   leaf: string;
   success: boolean;
@@ -625,6 +634,13 @@ export interface SenderRemovedEventObject {
 export type SenderRemovedEvent = TypedEvent<[string], SenderRemovedEventObject>;
 
 export type SenderRemovedEventFilter = TypedEventFilter<SenderRemovedEvent>;
+
+export interface UnpausedEventObject {
+  account: string;
+}
+export type UnpausedEvent = TypedEvent<[string], UnpausedEventObject>;
+
+export type UnpausedEventFilter = TypedEventFilter<UnpausedEvent>;
 
 export interface WatcherManagerChangedEventObject {
   watcherManager: string;
@@ -710,8 +726,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     home(overrides?: CallOverrides): Promise<[string]>;
 
-    isPaused(overrides?: CallOverrides): Promise<[boolean]>;
-
     isReplica(
       _potentialReplica: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -736,6 +750,12 @@ export interface PolygonSpokeConnector extends BaseContract {
     outboundRoot(overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
+
+    pause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    paused(overrides?: CallOverrides): Promise<[boolean]>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
@@ -816,8 +836,7 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setWatcherPaused(
-      paused: PromiseOrValue<boolean>,
+    unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -878,8 +897,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
   home(overrides?: CallOverrides): Promise<string>;
 
-  isPaused(overrides?: CallOverrides): Promise<boolean>;
-
   isReplica(
     _potentialReplica: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -904,6 +921,12 @@ export interface PolygonSpokeConnector extends BaseContract {
   outboundRoot(overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
+
+  pause(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  paused(overrides?: CallOverrides): Promise<boolean>;
 
   processMessage(
     _data: PromiseOrValue<BytesLike>,
@@ -984,8 +1007,7 @@ export interface PolygonSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setWatcherPaused(
-    paused: PromiseOrValue<boolean>,
+  unpause(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1044,8 +1066,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     home(overrides?: CallOverrides): Promise<string>;
 
-    isPaused(overrides?: CallOverrides): Promise<boolean>;
-
     isReplica(
       _potentialReplica: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1070,6 +1090,10 @@ export interface PolygonSpokeConnector extends BaseContract {
     outboundRoot(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
+
+    pause(overrides?: CallOverrides): Promise<void>;
+
+    paused(overrides?: CallOverrides): Promise<boolean>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
@@ -1146,10 +1170,7 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setWatcherPaused(
-      paused: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    unpause(overrides?: CallOverrides): Promise<void>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
@@ -1246,6 +1267,9 @@ export interface PolygonSpokeConnector extends BaseContract {
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
 
+    "Paused(address)"(account?: null): PausedEventFilter;
+    Paused(account?: null): PausedEventFilter;
+
     "Process(bytes32,bool,bytes)"(
       leaf?: null,
       success?: null,
@@ -1258,6 +1282,9 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     "SenderRemoved(address)"(sender?: null): SenderRemovedEventFilter;
     SenderRemoved(sender?: null): SenderRemovedEventFilter;
+
+    "Unpaused(address)"(account?: null): UnpausedEventFilter;
+    Unpaused(account?: null): UnpausedEventFilter;
 
     "WatcherManagerChanged(address)"(
       watcherManager?: null
@@ -1314,8 +1341,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     home(overrides?: CallOverrides): Promise<BigNumber>;
 
-    isPaused(overrides?: CallOverrides): Promise<BigNumber>;
-
     isReplica(
       _potentialReplica: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1340,6 +1365,12 @@ export interface PolygonSpokeConnector extends BaseContract {
     outboundRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    pause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    paused(overrides?: CallOverrides): Promise<BigNumber>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
@@ -1420,8 +1451,7 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setWatcherPaused(
-      paused: PromiseOrValue<boolean>,
+    unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1489,8 +1519,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     home(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    isPaused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     isReplica(
       _potentialReplica: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1515,6 +1543,12 @@ export interface PolygonSpokeConnector extends BaseContract {
     outboundRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    pause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    paused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
@@ -1595,8 +1629,7 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setWatcherPaused(
-      paused: PromiseOrValue<boolean>,
+    unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

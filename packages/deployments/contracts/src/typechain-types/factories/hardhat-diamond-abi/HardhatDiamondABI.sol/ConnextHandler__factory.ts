@@ -2483,7 +2483,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter",
+    name: "RelayerFacet__setRelayerFeeVault_invalidRelayerFeeVault",
     type: "error",
   },
   {
@@ -2583,7 +2583,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "RelayerFeeRouterUpdated",
+    name: "RelayerFeeVaultUpdated",
     type: "event",
   },
   {
@@ -2639,7 +2639,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "relayerFeeRouter",
+    name: "relayerFeeVault",
     outputs: [
       {
         internalType: "address",
@@ -2667,11 +2667,11 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "_relayerFeeRouter",
+        name: "_relayerFeeVault",
         type: "address",
       },
     ],
-    name: "setRelayerFeeRouter",
+    name: "setRelayerFeeVault",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
