@@ -3,8 +3,6 @@
 /* eslint-disable */
 import type * as connext from "./connext";
 export type { connext };
-import type * as relayerFee from "./relayer-fee";
-export type { relayerFee };
 export type { Router } from "./Router";
 export type { Version } from "./Version";
 export type { XAppConnectionClient } from "./XAppConnectionClient";

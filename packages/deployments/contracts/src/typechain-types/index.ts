@@ -154,8 +154,6 @@ export type { SwapUtils } from "./contracts/core/connext/libraries/SwapUtils";
 export { SwapUtils__factory } from "./factories/contracts/core/connext/libraries/SwapUtils__factory";
 export type { SwapUtilsExternal } from "./contracts/core/connext/libraries/SwapUtilsExternal";
 export { SwapUtilsExternal__factory } from "./factories/contracts/core/connext/libraries/SwapUtilsExternal__factory";
-export type { RelayerFeeRouter } from "./contracts/core/relayer-fee/RelayerFeeRouter";
-export { RelayerFeeRouter__factory } from "./factories/contracts/core/relayer-fee/RelayerFeeRouter__factory";
 export type { Router } from "./contracts/core/Router";
 export { Router__factory } from "./factories/contracts/core/Router__factory";
 export type { Version } from "./contracts/core/Version";
