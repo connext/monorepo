@@ -262,8 +262,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "relayerFeeRouter()": FunctionFragment;
     "relayerFees(bytes32)": FunctionFragment;
     "remote(uint32)": FunctionFragment;
-    "removeAssetId((uint32,bytes32),address)": FunctionFragment;
-    "removeAssetId(bytes32,address)": FunctionFragment;
+    "removeAssetId((uint32,bytes32),address,address)": FunctionFragment;
+    "removeAssetId(bytes32,address,address)": FunctionFragment;
     "removeAssetWhitelist()": FunctionFragment;
     "removeRelayer(address)": FunctionFragment;
     "removeRouter(address)": FunctionFragment;
@@ -395,8 +395,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "relayerFeeRouter"
       | "relayerFees"
       | "remote"
-      | "removeAssetId((uint32,bytes32),address)"
-      | "removeAssetId(bytes32,address)"
+      | "removeAssetId((uint32,bytes32),address,address)"
+      | "removeAssetId(bytes32,address,address)"
       | "removeAssetWhitelist"
       | "removeRelayer"
       | "removeRouter"
@@ -806,12 +806,16 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeAssetId((uint32,bytes32),address)",
-    values: [TokenIdStruct, PromiseOrValue<string>]
+    functionFragment: "removeAssetId((uint32,bytes32),address,address)",
+    values: [TokenIdStruct, PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeAssetId(bytes32,address)",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
+    functionFragment: "removeAssetId(bytes32,address,address)",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "removeAssetWhitelist",
@@ -1354,11 +1358,11 @@ export interface IConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "remote", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "removeAssetId((uint32,bytes32),address)",
+    functionFragment: "removeAssetId((uint32,bytes32),address,address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "removeAssetId(bytes32,address)",
+    functionFragment: "removeAssetId(bytes32,address,address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -2007,15 +2011,17 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    "removeAssetId((uint32,bytes32),address)"(
+    "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "removeAssetId(bytes32,address)"(
+    "removeAssetId(bytes32,address,address)"(
       _key: PromiseOrValue<BytesLike>,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2697,15 +2703,17 @@ export interface IConnextHandler extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  "removeAssetId((uint32,bytes32),address)"(
+  "removeAssetId((uint32,bytes32),address,address)"(
     _canonical: TokenIdStruct,
     _adoptedAssetId: PromiseOrValue<string>,
+    _representation: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "removeAssetId(bytes32,address)"(
+  "removeAssetId(bytes32,address,address)"(
     _key: PromiseOrValue<BytesLike>,
     _adoptedAssetId: PromiseOrValue<string>,
+    _representation: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3379,15 +3387,17 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "removeAssetId((uint32,bytes32),address)"(
+    "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "removeAssetId(bytes32,address)"(
+    "removeAssetId(bytes32,address,address)"(
       _key: PromiseOrValue<BytesLike>,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -4099,15 +4109,17 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "removeAssetId((uint32,bytes32),address)"(
+    "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "removeAssetId(bytes32,address)"(
+    "removeAssetId(bytes32,address,address)"(
       _key: PromiseOrValue<BytesLike>,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4800,15 +4812,17 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "removeAssetId((uint32,bytes32),address)"(
+    "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "removeAssetId(bytes32,address)"(
+    "removeAssetId(bytes32,address,address)"(
       _key: PromiseOrValue<BytesLike>,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -2055,6 +2055,11 @@ const _abi = [
         name: "_adoptedAssetId",
         type: "address",
       },
+      {
+        internalType: "address",
+        name: "_representation",
+        type: "address",
+      },
     ],
     name: "removeAssetId",
     outputs: [],
@@ -2071,6 +2076,11 @@ const _abi = [
       {
         internalType: "address",
         name: "_adoptedAssetId",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_representation",
         type: "address",
       },
     ],

@@ -267,7 +267,7 @@ export const removeAsset = async (
   const key = utils.solidityKeccak256(["bytes32"], [payload]);
 
   // Asset is not approved. Use deployer to approve asset.
-  const encoded = connext.encodeFunctionData("removeAssetId(bytes32,address)", [key, local]);
+  const encoded = connext.encodeFunctionData("removeAssetId(bytes32,address,address)", [key, local, local]);
   const tx = await deployer.sendTransaction({
     chainId: chain,
     to: contract,

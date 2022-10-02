@@ -60,9 +60,17 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function addStableSwapPool(TokenId calldata _canonical, address _stableSwapPool) external;
 
-  function removeAssetId(bytes32 _key, address _adoptedAssetId) external;
+  function removeAssetId(
+    bytes32 _key,
+    address _adoptedAssetId,
+    address _representation
+  ) external;
 
-  function removeAssetId(TokenId calldata _canonical, address _adoptedAssetId) external;
+  function removeAssetId(
+    TokenId calldata _canonical,
+    address _adoptedAssetId,
+    address _representation
+  ) external;
 
   function updateDetails(
     TokenId calldata _canonical,
