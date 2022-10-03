@@ -114,7 +114,7 @@ struct AppStorage {
   // 1
   uint256 LIQUIDITY_FEE_NUMERATOR;
   /**
-   * @notice The local address for relayer fees
+   * @notice The local address that is custodying relayer fees
    */
   // 2
   address relayerFeeVault;
