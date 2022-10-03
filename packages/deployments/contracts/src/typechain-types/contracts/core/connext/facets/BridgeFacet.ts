@@ -109,7 +109,6 @@ export interface BridgeFacetInterface extends utils.Interface {
     "forceUpdateSlippage((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256)": FunctionFragment;
     "nonce()": FunctionFragment;
     "reconciledTransfers(bytes32)": FunctionFragment;
-    "relayerFees(bytes32)": FunctionFragment;
     "remote(uint32)": FunctionFragment;
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
@@ -132,7 +131,6 @@ export interface BridgeFacetInterface extends utils.Interface {
       | "forceUpdateSlippage"
       | "nonce"
       | "reconciledTransfers"
-      | "relayerFees"
       | "remote"
       | "removeSequencer"
       | "routedTransfers"
@@ -178,10 +176,6 @@ export interface BridgeFacetInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "reconciledTransfers",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "relayerFees",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -264,10 +258,6 @@ export interface BridgeFacetInterface extends utils.Interface {
     functionFragment: "reconciledTransfers",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "relayerFees",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "remote", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeSequencer",
@@ -301,7 +291,7 @@ export interface BridgeFacetInterface extends utils.Interface {
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
     "SlippageUpdated(bytes32,uint256)": EventFragment;
-    "TransferRelayerFeesUpdated(bytes32,uint256,address)": EventFragment;
+    "TransferRelayerFeesIncreased(bytes32,uint256,address)": EventFragment;
     "XCalled(bytes32,uint256,bytes32,tuple,address)": EventFragment;
   };
 
@@ -314,7 +304,9 @@ export interface BridgeFacetInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "SequencerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SlippageUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TransferRelayerFeesUpdated"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "TransferRelayerFeesIncreased"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
 }
 
@@ -434,18 +426,18 @@ export type SlippageUpdatedEvent = TypedEvent<
 
 export type SlippageUpdatedEventFilter = TypedEventFilter<SlippageUpdatedEvent>;
 
-export interface TransferRelayerFeesUpdatedEventObject {
+export interface TransferRelayerFeesIncreasedEventObject {
   transferId: string;
-  relayerFee: BigNumber;
+  increase: BigNumber;
   caller: string;
 }
-export type TransferRelayerFeesUpdatedEvent = TypedEvent<
+export type TransferRelayerFeesIncreasedEvent = TypedEvent<
   [string, BigNumber, string],
-  TransferRelayerFeesUpdatedEventObject
+  TransferRelayerFeesIncreasedEventObject
 >;
 
-export type TransferRelayerFeesUpdatedEventFilter =
-  TypedEventFilter<TransferRelayerFeesUpdatedEvent>;
+export type TransferRelayerFeesIncreasedEventFilter =
+  TypedEventFilter<TransferRelayerFeesIncreasedEvent>;
 
 export interface XCalledEventObject {
   transferId: string;
@@ -532,11 +524,6 @@ export interface BridgeFacet extends BaseContract {
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    relayerFees(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
 
     remote(
       _domain: PromiseOrValue<BigNumberish>,
@@ -628,11 +615,6 @@ export interface BridgeFacet extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  relayerFees(
-    _transferId: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   remote(
     _domain: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -722,11 +704,6 @@ export interface BridgeFacet extends BaseContract {
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    relayerFees(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     remote(
       _domain: PromiseOrValue<BigNumberish>,
@@ -880,16 +857,16 @@ export interface BridgeFacet extends BaseContract {
       slippage?: null
     ): SlippageUpdatedEventFilter;
 
-    "TransferRelayerFeesUpdated(bytes32,uint256,address)"(
+    "TransferRelayerFeesIncreased(bytes32,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
-      relayerFee?: null,
+      increase?: null,
       caller?: null
-    ): TransferRelayerFeesUpdatedEventFilter;
-    TransferRelayerFeesUpdated(
+    ): TransferRelayerFeesIncreasedEventFilter;
+    TransferRelayerFeesIncreased(
       transferId?: PromiseOrValue<BytesLike> | null,
-      relayerFee?: null,
+      increase?: null,
       caller?: null
-    ): TransferRelayerFeesUpdatedEventFilter;
+    ): TransferRelayerFeesIncreasedEventFilter;
 
     "XCalled(bytes32,uint256,bytes32,tuple,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
@@ -949,11 +926,6 @@ export interface BridgeFacet extends BaseContract {
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
     reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    relayerFees(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1047,11 +1019,6 @@ export interface BridgeFacet extends BaseContract {
     nonce(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    relayerFees(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

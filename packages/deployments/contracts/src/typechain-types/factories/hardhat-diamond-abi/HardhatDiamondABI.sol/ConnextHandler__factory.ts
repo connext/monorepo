@@ -566,7 +566,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "relayerFee",
+        name: "increase",
         type: "uint256",
       },
       {
@@ -576,7 +576,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "TransferRelayerFeesUpdated",
+    name: "TransferRelayerFeesIncreased",
     type: "event",
   },
   {
@@ -1010,25 +1010,6 @@ const _abi = [
         internalType: "bool",
         name: "",
         type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_transferId",
-        type: "bytes32",
-      },
-    ],
-    name: "relayerFees",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -2483,7 +2464,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter",
+    name: "RelayerFacet__setRelayerFeeVault_invalidRelayerFeeVault",
     type: "error",
   },
   {
@@ -2583,7 +2564,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "RelayerFeeRouterUpdated",
+    name: "RelayerFeeVaultUpdated",
     type: "event",
   },
   {
@@ -2639,7 +2620,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "relayerFeeRouter",
+    name: "relayerFeeVault",
     outputs: [
       {
         internalType: "address",
@@ -2667,11 +2648,11 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "_relayerFeeRouter",
+        name: "_relayerFeeVault",
         type: "address",
       },
     ],
-    name: "setRelayerFeeRouter",
+    name: "setRelayerFeeVault",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
