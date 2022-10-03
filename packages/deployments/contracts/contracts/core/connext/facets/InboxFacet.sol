@@ -8,6 +8,7 @@ import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {BridgeMessage} from "../libraries/BridgeMessage.sol";
+import {DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
 
 import {IAavePool} from "../interfaces/IAavePool.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
@@ -154,12 +155,17 @@ contract InboxFacet is BaseConnextFacet {
     uint256 _amount
   ) internal {
     // Ensure the transfer has not already been handled (i.e. previously reconciled).
-    if (s.reconciledTransfers[_transferId]) {
+    // Will be previously reconciled IFF status == reconciled -or- status == executed
+    // and there is no path length on the transfers (no fast liquidity)
+    DestinationTransferStatus status = s.transferStatus[_transferId];
+    if (status != DestinationTransferStatus.None && status != DestinationTransferStatus.Executed) {
       revert InboxFacet__reconcile_alreadyReconciled();
     }
 
     // Mark the transfer as reconciled.
-    s.reconciledTransfers[_transferId] = true;
+    s.transferStatus[_transferId] = status == DestinationTransferStatus.None
+      ? DestinationTransferStatus.Reconciled
+      : DestinationTransferStatus.Completed;
 
     // If the transfer was executed using fast-liquidity provided by routers, then this value would be set
     // to the participating routers.

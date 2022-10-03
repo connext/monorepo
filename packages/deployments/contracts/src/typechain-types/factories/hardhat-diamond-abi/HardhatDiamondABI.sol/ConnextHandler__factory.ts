@@ -97,12 +97,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__execute_alreadyExecuted",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BridgeFacet__execute_alreadyReconciled",
+    name: "BridgeFacet__execute_badFastLiquidityStatus",
     type: "error",
   },
   {
@@ -566,7 +561,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "relayerFee",
+        name: "increase",
         type: "uint256",
       },
       {
@@ -576,7 +571,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "TransferRelayerFeesUpdated",
+    name: "TransferRelayerFeesIncreased",
     type: "event",
   },
   {
@@ -999,44 +994,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes32",
-        name: "_transferId",
-        type: "bytes32",
-      },
-    ],
-    name: "reconciledTransfers",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_transferId",
-        type: "bytes32",
-      },
-    ],
-    name: "relayerFees",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint32",
         name: "_domain",
         type: "uint32",
@@ -1096,6 +1053,25 @@ const _abi = [
     name: "setXAppConnectionManager",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_transferId",
+        type: "bytes32",
+      },
+    ],
+    name: "transferStatus",
+    outputs: [
+      {
+        internalType: "enum DestinationTransferStatus",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -2567,13 +2543,13 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
-        name: "oldRouter",
+        name: "oldVault",
         type: "address",
       },
       {
         indexed: false,
         internalType: "address",
-        name: "newRouter",
+        name: "newVault",
         type: "address",
       },
       {
@@ -2674,25 +2650,6 @@ const _abi = [
     name: "setRelayerFeeVault",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_transferId",
-        type: "bytes32",
-      },
-    ],
-    name: "transferRelayer",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {

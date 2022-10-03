@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as merkleSol from "./Merkle.sol";
 export type { merkleSol };
+import type * as queueSol from "./Queue.sol";
+export type { queueSol };
 import type * as connectors from "./connectors";
 export type { connectors };
 import type * as interfaces from "./interfaces";

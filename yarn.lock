@@ -842,7 +842,6 @@ __metadata:
     fastify: 4.5.3
     graphql: 16.6.0
     interval-promise: 1.4.0
-    merkletreejs: ^0.2.32
     mocha: 10.0.0
     nodemon: 2.0.19
     nyc: 15.1.0
@@ -1217,6 +1216,7 @@ __metadata:
     ethers: 5.7.0
     graphql-request: 5.0.0
     hyperid: 3.0.1
+    merkletreejs: ^0.2.32
     mocha: 10.0.0
     nyc: 15.1.0
     p-queue: 6.6.2

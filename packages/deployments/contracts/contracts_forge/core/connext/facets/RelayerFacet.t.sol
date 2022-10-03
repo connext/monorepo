@@ -40,20 +40,6 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   // whenNotPaused? onlyOwner?
 
   // ============ Getters ==============
-  // transferRelayer
-  // retrieves empty if not set
-  function test_RelayerFacet__transferRelayer_empty() public {
-    bytes32 transferId = bytes32("test");
-    assertEq(this.transferRelayer(transferId), address(0));
-  }
-
-  // retrieves defined value
-  function test_RelayerFacet__transferRelayer_defined() public {
-    bytes32 transferId = bytes32("test");
-    s.transferRelayer[transferId] = address(42);
-    assertEq(this.transferRelayer(transferId), address(42));
-  }
-
   // approvedRelayers
   // retrieves false if not set
   function test_RelayerFacet__approvedRelayers_empty() public {

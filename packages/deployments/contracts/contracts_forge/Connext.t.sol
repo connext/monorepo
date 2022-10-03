@@ -11,7 +11,7 @@ import {IBridgeToken} from "../contracts/core/connext/interfaces/IBridgeToken.so
 import {IConnextHandler} from "../contracts/core/connext/interfaces/IConnextHandler.sol";
 import {BridgeMessage} from "../contracts/core/connext/libraries/BridgeMessage.sol";
 import {BridgeFacet, ExecuteArgs} from "../contracts/core/connext/facets/BridgeFacet.sol";
-import {TokenId} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {TokenId, DestinationTransferStatus} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LPToken} from "../contracts/core/connext/helpers/LPToken.sol";
 
 import {TestERC20} from "../contracts/test/TestERC20.sol";
@@ -626,8 +626,11 @@ contract ConnextTest is ForgeHelper, Deployer {
       // recipient gains (adopted/specified)
       assertEq(end.toReceiving, initial.toReceiving + bridgeOut + vaultOut);
 
-      // relayer stored
-      assertEq(_destinationConnext.transferRelayer(transferId), address(this));
+      // status updated
+      assertEq(
+        uint256(_destinationConnext.transferStatus(transferId)),
+        isFast ? uint256(DestinationTransferStatus.Executed) : uint256(DestinationTransferStatus.Completed)
+      );
 
       if (!usesPortals) {
         return;
@@ -701,7 +704,8 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     ReconcileBalances memory end = utils_getReconcileBalances(transferId, routers);
     // assert router liquidity balance
-    uint256 credited = routers.length != 0 ? bridgedAmt / routers.length : 0;
+    bool isFast = routers.length != 0;
+    uint256 credited = isFast ? bridgedAmt / routers.length : 0;
     for (uint256 i; i < routers.length; i++) {
       assertEq(end.liquidity[i], initial.liquidity[i] + credited);
     }
@@ -710,7 +714,10 @@ contract ConnextTest is ForgeHelper, Deployer {
     assertEq(end.portalDebt, initial.portalDebt);
     assertEq(end.portalFeeDebt, initial.portalFeeDebt);
     // assert transfer marked as reconciled
-    assertTrue(_destinationConnext.reconciledTransfers(transferId));
+    DestinationTransferStatus expected = isFast
+      ? DestinationTransferStatus.Completed
+      : DestinationTransferStatus.Reconciled;
+    assertTrue(_destinationConnext.transferStatus(transferId) == expected);
   }
 
   // ============ Testing scenarios ============

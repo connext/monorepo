@@ -20,6 +20,19 @@ enum Role {
   Admin
 }
 
+/**
+ * @notice Enum representing status of destination transfer
+ * @dev Status is only assigned on the destination domain, will always be "none" for the
+ * origin domains
+ * @return uint - Index of value in enum
+ */
+enum DestinationTransferStatus {
+  None, // 0
+  Reconciled, // 1
+  Executed, // 2
+  Completed // 3 - executed + reconciled
+}
+
 // ============= Structs =============
 
 struct TokenId {
@@ -114,7 +127,7 @@ struct AppStorage {
   // 1
   uint256 LIQUIDITY_FEE_NUMERATOR;
   /**
-   * @notice The local address for relayer fees
+   * @notice The local address that is custodying relayer fees
    */
   // 2
   address relayerFeeVault;
@@ -181,10 +194,10 @@ struct AppStorage {
   // 11
   mapping(bytes32 => address) canonicalToRepresentation;
   /**
-   * @notice Mapping to determine if transfer is reconciled.
+   * @notice Mapping to track transfer status on destination domain
    */
   // 12
-  mapping(bytes32 => bool) reconciledTransfers;
+  mapping(bytes32 => DestinationTransferStatus) transferStatus;
   /**
    * @notice Mapping holding router address that provided fast liquidity.
    */
@@ -203,19 +216,6 @@ struct AppStorage {
    */
   // 15
   mapping(address => bool) approvedRelayers;
-  /**
-   * @notice Stores the relayer fee for a transfer. Updated on origin domain when a user calls xcall or bump.
-   * @dev This will track all of the relayer fees assigned to a transfer by id, including any bumps made by the relayer.
-   */
-  // 16
-  mapping(bytes32 => uint256) relayerFees;
-  /**
-   * @notice Stores the relayer of a transfer. Updated on the destination domain when a relayer calls execute
-   * for transfer.
-   * @dev When relayer claims, must check that the msg.sender has forwarded transfer.
-   */
-  // 17
-  mapping(bytes32 => address) transferRelayer;
   /**
    * @notice The max amount of routers a payment can be routed through.
    */

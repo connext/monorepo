@@ -2,6 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { IAavePool } from "./IAavePool";
+export type { IBridgeHook } from "./IBridgeHook";
+export type { IBridgeRouter } from "./IBridgeRouter";
 export type { IBridgeToken } from "./IBridgeToken";
 export type { IConnextHandler } from "./IConnextHandler";
 export type { IDiamondCut } from "./IDiamondCut";
@@ -12,4 +14,5 @@ export type { IGasTokenOracle } from "./IGasTokenOracle";
 export type { IPriceOracle } from "./IPriceOracle";
 export type { IStableSwap } from "./IStableSwap";
 export type { ITokenExchange } from "./ITokenExchange";
+export type { IWeth } from "./IWeth";
 export type { IXReceiver } from "./IXReceiver";

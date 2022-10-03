@@ -120,7 +120,7 @@
   "function swap(bytes32,uint8,uint8,uint256,uint256,uint256) returns (uint256)",
   "function swapExact(bytes32,uint256,address,address,uint256,uint256) payable returns (uint256)",
   "function swapExactOut(bytes32,uint256,address,address,uint256,uint256) payable returns (uint256)",
-  "function transferRelayer(bytes32) view returns (address)",
+  "function transferStatus(bytes32) view returns (uint8)",
   "function unapproveRouterForPortal(address)",
   "function unpause()",
   "function updateDetails(tuple(uint32,bytes32),string,string)",
