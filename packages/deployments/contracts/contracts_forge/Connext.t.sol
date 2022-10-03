@@ -53,7 +53,8 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 indexed nonce,
     bytes32 indexed messageHash,
     CallParams params,
-    address local
+    address asset,
+    uint256 amount
   );
 
   event Executed(
