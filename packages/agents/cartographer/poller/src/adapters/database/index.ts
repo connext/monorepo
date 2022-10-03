@@ -16,6 +16,7 @@ import {
   getPendingMessages,
   saveCheckPoint,
   getCheckPoint,
+  transaction,
 } from "./client";
 
 export type Checkpoints = {
@@ -51,6 +52,7 @@ export type Database = {
   getPendingMessages: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<XMessage[]>;
   saveCheckPoint: (check: string, point: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   getCheckPoint: (check_name: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<number>;
+  transaction: (callback: (client: TxnClientForRepeatableRead) => Promise<void>) => Promise<void>;
 };
 
 export let pool: Pool;
@@ -80,6 +82,7 @@ export const getDatabase = async (): Promise<Database> => {
     getPendingMessages,
     saveCheckPoint,
     getCheckPoint,
+    transaction,
   };
 };
 

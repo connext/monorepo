@@ -5,7 +5,6 @@ import {
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
 } from "@connext/nxtp-utils";
-import { db, pool } from "../../adapters/database";
 
 import { getContext } from "../../shared";
 
@@ -115,7 +114,7 @@ export const updateTransfers = async () => {
       })
       .filter((x) => !!x) as { domain: string; checkpoint: number }[];
 
-    await db.repeatableRead(pool, async (txnClient) => {
+    await database.transaction( async (txnClient) => {
       await database.saveTransfers(transfers, txnClient);
       for (const checkpoint of checkpoints) {
         await database.saveCheckPoint("origin_nonce_" + checkpoint.domain, checkpoint.checkpoint, txnClient);
@@ -143,7 +142,7 @@ export const updateTransfers = async () => {
       })
       .filter((x) => !!x) as { domain: string; checkpoint: number }[];
 
-    await db.repeatableRead(pool, async (txnClient) => {
+    await database.transaction( async (txnClient) => {
       await database.saveTransfers(transfers, txnClient);
       for (const checkpoint of checkpoints) {
         await database.saveCheckPoint("destination_nonce_" + checkpoint.domain, checkpoint.checkpoint, txnClient);
@@ -164,10 +163,10 @@ export const updateTransfers = async () => {
       const max = getMaxReconcileTimestamp(domainTransfers);
       const latest = subgraphReconcileQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
 
-      await db.repeatableRead(pool, async (txnClient) => {
+      await database.transaction( async (txnClient) => {
         await database.saveTransfers(domainTransfers, txnClient);
         if (domainTransfers.length > 0 && max > latest) {
-          await database.saveCheckPoint("destination_reconcile_timestamp_" + domain, max);
+          await database.saveCheckPoint("destination_reconcile_timestamp_" + domain, max, txnClient);
         }
       });
     }),

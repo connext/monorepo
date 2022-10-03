@@ -9,11 +9,7 @@ import {
   XMessage,
   RootMessage,
 } from "@connext/nxtp-utils";
-import * as transfersPoller from "../../../src/pollers/transfersPoller";
-import * as routersPoller from "../../../src/pollers/routersPoller";
 import * as messagesPoller from "../../../src/pollers/messagePoller";
-import { bindTransfers } from "../../../src/bindings/transfers";
-import { bindRouters } from "../../../src/bindings/routers";
 import { bindMessages } from "../../../src/bindings/messages";
 
 import * as dbClient from "../../../src/adapters/database/client";
@@ -121,6 +117,8 @@ describe("Message operations", () => {
     saveProcessedRootMessagesStub.resolves();
     const getPendingMessagesStub = stub(dbClient, "getPendingMessages");
     getPendingMessagesStub.resolves([]);
+    const transactionStub = stub(dbClient, "transaction");
+    transactionStub.resolves();
 
     mockContext = {
       logger: new Logger({

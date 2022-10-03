@@ -182,7 +182,7 @@ export const getPendingMessages = async (
 export const saveCheckPoint = async (
   check: string,
   point: number,
-  _pool?: Pool | db.TxnClientForRepeatableRead | db.TxnClientForRepeatableRead,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<void> => {
   const poolToUse = _pool ?? pool;
   const checkpoint = { check_name: check, check_point: point };
@@ -282,45 +282,49 @@ export const saveRouterBalances = async (
     return { address: router.router };
   });
 
-  await db.repeatableRead(poolToUse, async (txnClient) => {
-    await db.upsert("routers", routers, ["address"], { updateColumns: db.doNothing }).run(txnClient);
+  await db.upsert("routers", routers, ["address"], { updateColumns: db.doNothing }).run(poolToUse);
 
-    for (const router of routers) {
-      const balances = (routerBalances.find((r) => r.router === router.address) ?? {}).assets ?? [];
-      const dbBalances: { balance: s.asset_balances.Insertable; asset: s.assets.Insertable }[] = balances.map((b) => {
-        return {
-          balance: {
-            asset_canonical_id: b.canonicalId,
-            asset_domain: b.domain,
-            router_address: router.address,
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-            balance: b.balance as any,
-          },
-          asset: {
-            local: b.local,
-            adopted: b.adoptedAsset,
-            canonical_id: b.canonicalId,
-            canonical_domain: b.canonicalDomain,
-            domain: b.domain,
-          },
-        };
-      });
+  for (const router of routers) {
+    const balances = (routerBalances.find((r) => r.router === router.address) ?? {}).assets ?? [];
+    const dbBalances: { balance: s.asset_balances.Insertable; asset: s.assets.Insertable }[] = balances.map((b) => {
+      return {
+        balance: {
+          asset_canonical_id: b.canonicalId,
+          asset_domain: b.domain,
+          router_address: router.address,
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+          balance: b.balance as any,
+        },
+        asset: {
+          local: b.local,
+          adopted: b.adoptedAsset,
+          canonical_id: b.canonicalId,
+          canonical_domain: b.canonicalDomain,
+          domain: b.domain,
+        },
+      };
+    });
 
-      await db
-        .upsert(
-          "assets",
-          dbBalances.map((b) => b.asset),
-          ["canonical_id", "domain"],
-        )
-        .run(txnClient);
+    await db
+      .upsert(
+        "assets",
+        dbBalances.map((b) => b.asset),
+        ["canonical_id", "domain"],
+      )
+      .run(poolToUse);
 
-      await db
-        .upsert(
-          "asset_balances",
-          dbBalances.map((b) => b.balance),
-          ["asset_canonical_id", "asset_domain", "router_address"],
-        )
-        .run(txnClient);
-    }
-  });
+    await db
+      .upsert(
+        "asset_balances",
+        dbBalances.map((b) => b.balance),
+        ["asset_canonical_id", "asset_domain", "router_address"],
+      )
+      .run(poolToUse);
+  }
+};
+
+export const transaction = async (
+  callback: (client: db.TxnClientForRepeatableRead) => Promise<void>
+): Promise<void> => {
+  db.repeatableRead(pool, async (txnClient) => callback(txnClient));
 };
