@@ -57,10 +57,6 @@ contract RelayerFacet is BaseConnextFacet {
 
   // ============ Getters ============
 
-  function transferRelayer(bytes32 _transferId) public view returns (address) {
-    return s.transferRelayer[_transferId];
-  }
-
   function approvedRelayers(address _relayer) public view returns (bool) {
     return s.approvedRelayers[_relayer];
   }
