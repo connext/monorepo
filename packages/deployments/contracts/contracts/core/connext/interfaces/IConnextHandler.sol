@@ -81,8 +81,6 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
   // BaseConnextFacet
 
   // BridgeFacet
-  function relayerFees(bytes32 _transferId) external view returns (uint256);
-
   function routedTransfers(bytes32 _transferId) external view returns (address[] memory);
 
   function reconciledTransfers(bytes32 _transferId) external view returns (bool);

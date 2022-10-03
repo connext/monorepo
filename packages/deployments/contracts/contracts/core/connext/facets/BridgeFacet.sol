@@ -117,12 +117,13 @@ contract BridgeFacet is BaseConnextFacet {
   );
 
   /**
-   * @notice Emitted when `bumpTransfer` is called by an user on the origin domain
+   * @notice Emitted when `_bumpTransfer` is called by an user on the origin domain both in
+   * `xcall` and `bumpTransfer`
    * @param transferId - The unique identifier of the crosschain transaction
-   * @param relayerFee - The updated amount of relayer fee in native asset
+   * @param increase - The additional amount fees increased by
    * @param caller - The account that called the function
    */
-  event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
+  event TransferRelayerFeesIncreased(bytes32 indexed transferId, uint256 increase, address caller);
 
   /**
    * @notice Emitted when `forceUpdateSlippage` is called by an user on the destination domain
@@ -201,10 +202,6 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   // ============ Getters ============
-
-  function relayerFees(bytes32 _transferId) public view returns (uint256) {
-    return s.relayerFees[_transferId];
-  }
 
   function routedTransfers(bytes32 _transferId) public view returns (address[] memory) {
     return s.routedTransfers[_transferId];
@@ -387,13 +384,15 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _transferId - The unique identifier of the crosschain transaction
    */
   function bumpTransfer(bytes32 _transferId) external payable nonReentrant whenNotPaused {
-    if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
+    _bumpTransfer(_transferId);
+  }
 
-    // TODO: should we store the fees or is there an easier way to reference whats been paid?
-    s.relayerFees[_transferId] += msg.value;
+  function _bumpTransfer(bytes32 _transferId) internal {
+    if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
     Address.sendValue(payable(s.relayerFeeVault), msg.value);
 
-    emit TransferRelayerFeesUpdated(_transferId, s.relayerFees[_transferId], msg.sender);
+    // console.log("emitting event");
+    emit TransferRelayerFeesIncreased(_transferId, msg.value, msg.sender);
   }
 
   /**
@@ -531,11 +530,12 @@ contract BridgeFacet is BaseConnextFacet {
       _params.nonce = s.nonce++;
     }
 
-    // Store the relayer fee.
+    // Handle the relayer fee.
     // NOTE: This has to be done *after* transferring in + swapping assets because
     // the transfer id uses the amount that is bridged (i.e. amount in local asset).
-    s.relayerFees[transferId] += msg.value;
-    Address.sendValue(payable(s.relayerFeeVault), msg.value);
+    if (msg.value > 0) {
+      _bumpTransfer(transferId);
+    }
 
     // Send the crosschain message.
     bytes32 messageHash = _sendMessage(

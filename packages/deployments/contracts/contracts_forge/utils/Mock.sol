@@ -164,52 +164,6 @@ contract MockPool is IAavePool {
   }
 }
 
-contract TestSetterFacet is BaseConnextFacet {
-  function setTestRelayerFees(bytes32 _transferId, uint256 _fee) external {
-    s.relayerFees[_transferId] = _fee;
-  }
-
-  function setTestTransferRelayer(bytes32 _transferId, address _relayer) external {
-    s.transferRelayer[_transferId] = _relayer;
-  }
-
-  function setTestApproveRouterForPortal(address _router, bool _value) external {
-    s.routerPermissionInfo.approvedForPortalRouters[_router] = _value;
-  }
-
-  function setTestApprovedRelayer(address _relayer, bool _approved) external {
-    s.approvedRelayers[_relayer] = _approved;
-  }
-
-  function setTestRouterBalances(
-    address _router,
-    address _local,
-    uint256 _amount
-  ) external {
-    s.routerBalances[_router][_local] = _amount;
-  }
-
-  function setTestApprovedRouter(address _router, bool _approved) external {
-    s.routerPermissionInfo.approvedRouters[_router] = _approved;
-  }
-
-  function setTestCanonicalToAdopted(bytes32 _id, address _adopted) external {
-    s.canonicalToAdopted[_id] = _adopted;
-  }
-
-  function setTestAavePortalDebt(bytes32 _id, uint256 _amount) external {
-    s.portalDebt[_id] = _amount;
-  }
-
-  function setTestAavePortalFeeDebt(bytes32 _id, uint256 _amount) external {
-    s.portalFeeDebt[_id] = _amount;
-  }
-
-  function setTestRoutedTransfers(bytes32 _id, address[] memory _routers) external {
-    s.routedTransfers[_id] = _routers;
-  }
-}
-
 contract FeeERC20 is ERC20 {
   uint256 public fee = 1;
 
