@@ -7,6 +7,7 @@ import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
 
 import {MerkleLib} from "../libraries/Merkle.sol";
 import {Message} from "../libraries/Message.sol";
+import {OptimisticallyVerified} from "../libraries/OptimisticallyVerified.sol";
 
 import {MerkleTreeManager} from "../Merkle.sol";
 import {WatcherClient} from "../WatcherClient.sol";
@@ -26,7 +27,13 @@ import {ConnectorManager} from "./ConnectorManager.sol";
  *
  * TODO: what about the queue manager? see Home.sol for context
  */
-abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, ReentrancyGuard {
+abstract contract SpokeConnector is
+  Connector,
+  ConnectorManager,
+  WatcherClient,
+  ReentrancyGuard,
+  OptimisticallyVerified
+{
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
@@ -171,6 +178,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _processGas The gas costs used in `handle` to ensure meaningful state changes can occur (minimum gas needed
    * to handle transaction).
    * @param _reserveGas The gas costs reserved when `handle` is called to ensure failures are handled.
+   * @param _validationDelay The delay for the validation period for incoming messages in blocks.
    */
   constructor(
     uint32 _domain,
@@ -183,11 +191,13 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     uint256 _reserveGas,
     uint256 _delayBlocks,
     address _merkle,
-    address _watcherManager
+    address _watcherManager,
+    uint256 _validationDelay
   )
     ConnectorManager()
     Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
     WatcherClient(_watcherManager)
+    OptimisticallyVerified(_validationDelay)
   {
     // Sanity check: constants are reasonable.
     require(_processGas >= 850_000, "!process gas");

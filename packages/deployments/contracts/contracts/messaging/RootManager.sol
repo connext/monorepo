@@ -6,7 +6,7 @@ import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 import {IRootManager} from "./interfaces/IRootManager.sol";
 import {IHubConnector} from "./interfaces/IHubConnector.sol";
 import {Message} from "./libraries/Message.sol";
-import {QueueLib} from "./libraries/Queue.sol";
+import {OptimisticallyVerified} from "./libraries/OptimisticallyVerified.sol";
 
 import {MerkleTreeManager} from "./Merkle.sol";
 import {WatcherClient} from "./WatcherClient.sol";
@@ -15,11 +15,7 @@ import {WatcherClient} from "./WatcherClient.sol";
  * @notice This contract exists at cluster hubs, and aggregates all transfer roots from messaging
  * spokes into a single merkle root
  */
-contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
-  // ============ Libraries ============
-
-  using QueueLib for QueueLib.Queue;
-
+contract RootManager is ProposedOwnable, IRootManager, WatcherClient, OptimisticallyVerified {
   // ============ Events ============
 
   event RootAggregated(uint32 domain, bytes32 receivedRoot, uint256 index);
@@ -37,13 +33,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
    * The root of this tree will be distributed crosschain to all spoke domains.
    */
   MerkleTreeManager public immutable MERKLE;
-
-  /**
-   * @notice Queue used for management of verification for inbound roots from spoke chains. Once
-   * verification period elapses, the inbound root can be aggregated into the merkle tree for
-   * propagation to spoke chains.
-   */
-  QueueLib.Queue public queue;
 
   /**
    * @notice Domains array tracks currently subscribed domains to this hub aggregator.
@@ -93,8 +82,13 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
    * @notice Creates a new RootManager instance.
    * @param _merkle The address of the MerkleTreeManager on this domain.
    * @param _watcherManager The address of the WatcherManager on this domain.
+   * @param _validationDelay The delay for the validation period for incoming messages in blocks.
    */
-  constructor(address _merkle, address _watcherManager) ProposedOwnable() WatcherClient(_watcherManager) {
+  constructor(
+    address _merkle,
+    address _watcherManager,
+    uint256 _validationDelay
+  ) ProposedOwnable() WatcherClient(_watcherManager) OptimisticallyVerified(_validationDelay) {
     _setOwner(msg.sender);
 
     require(_merkle != address(0), "!zero merkle");
@@ -124,13 +118,11 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
     require(keccak256(abi.encode(_connectors)) == connectorsHash, "!connectors");
 
     // Get all of the verified roots from the queue.
-    // TODO: delay should be contract property!
-    uint256 delay = 40;
-    bytes32[] memory _verifiedInboundRoots = queue.dequeueVerified(delay);
+    bytes32[] memory _verifiedInboundRoots = dequeueVerified();
 
     // Insert the leaves into the aggregator tree (method will also calculate and return the current
     // aggregate root and count).
-    (bytes32 _aggregateRoot, uint256 count) = MERKLE.insert(_verifiedInboundRoots);
+    (bytes32 _aggregateRoot, uint256 _count) = MERKLE.insert(_verifiedInboundRoots);
 
     for (uint32 i; i < _numDomains; ) {
       address _connector = connectors[domains[i]];
@@ -141,7 +133,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
       }
     }
 
-    emit RootPropagated(_aggregateRoot, domains, count);
+    emit RootPropagated(_aggregateRoot, domains, _count);
   }
 
   /**
@@ -155,8 +147,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
    * @param _inbound The inbound root coming from the given domain.
    */
   function aggregate(uint32 _domain, bytes32 _inbound) external override onlyConnector(_domain) {
-    // (, uint256 count) = MERKLE.insert(_inbound);
-    uint128 lastIndex = queue.enqueue(_inbound);
+    uint128 lastIndex = enqueueRoot(_inbound);
     emit RootAggregated(_domain, _inbound, lastIndex);
   }
 
