@@ -13,7 +13,7 @@
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "function acceptProposedOwner()",
-  "function arborist() view returns (address)",
+  "function arborists(address) view returns (bool)",
   "function branch() view returns (bytes32[32])",
   "function count() view returns (uint256)",
   "function delay() view returns (uint256)",

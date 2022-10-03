@@ -12,7 +12,6 @@ import {IDiamondLoupe} from "../../interfaces/IDiamondLoupe.sol";
 import {IDiamondCut} from "../../interfaces/IDiamondCut.sol";
 import {IERC165} from "../../interfaces/IERC165.sol";
 import {IWeth} from "../../interfaces/IWeth.sol";
-import {ITokenRegistry} from "../../interfaces/ITokenRegistry.sol";
 
 import {LibDiamond} from "../../libraries/LibDiamond.sol";
 
@@ -31,7 +30,7 @@ contract DiamondInit is BaseConnextFacet {
   // data to set your own state variables
   function init(
     uint32 _domain,
-    address _tokenRegistry,
+    address _tokenBeacon,
     address _relayerFeeRouter,
     address _xAppConnectionManager,
     uint256 _acceptanceDelay,
@@ -62,9 +61,9 @@ contract DiamondInit is BaseConnextFacet {
       s._status = _NOT_ENTERED;
 
       // ConnextHandler
+      s.tokenBeacon = _tokenBeacon;
       s.domain = _domain;
       s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
-      s.tokenRegistry = ITokenRegistry(_tokenRegistry);
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.maxRoutersPerTransfer = 5;
       s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);

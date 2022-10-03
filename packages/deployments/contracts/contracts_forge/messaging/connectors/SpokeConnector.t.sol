@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import "../../utils/ForgeHelper.sol";
-import {MockConnector} from "../../utils/Mock.sol";
+import {MockSpokeConnector} from "../../utils/Mock.sol";
 import {SpokeConnector} from "../../../contracts/messaging/connectors/SpokeConnector.sol";
 import {WatcherManager} from "../../../contracts/messaging/WatcherManager.sol";
 import {MerkleTreeManager} from "../../../contracts/messaging/Merkle.sol";
@@ -38,7 +38,7 @@ contract SpokeConnectorTest is ForgeHelper {
   // ============ utils ============
   function utils_deployAndSetup() public {
     vm.prank(owner);
-    spokeConnector = new MockConnector(
+    spokeConnector = new MockSpokeConnector(
       _originDomain, // uint32 _domain,
       _mainnetDomain, // uint32 _mirrorDomain
       _originAMB, // address _amb,

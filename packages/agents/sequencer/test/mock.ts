@@ -6,7 +6,6 @@ import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice"
 import { mkAddress, Logger, mock as _mock, mkBytes32, mockSequencer } from "@connext/nxtp-utils";
 import { ConnextInterface } from "@connext/nxtp-contracts/typechain-types/Connext";
 import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
-import { TokenRegistryInterface } from "@connext/nxtp-contracts/typechain-types/TokenRegistry";
 import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/StableSwap";
 
 import { SequencerConfig } from "../src/lib/entities";
@@ -123,10 +122,6 @@ export const mock = {
       priceOracle.encodeFunctionData.returns(encodedDataMock);
       priceOracle.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
-      const tokenRegistry = createStubInstance(utils.Interface);
-      tokenRegistry.encodeFunctionData.returns(encodedDataMock);
-      tokenRegistry.decodeFunctionResult.returns([BigNumber.from(1000)]);
-
       const stableSwap = createStubInstance(utils.Interface);
       stableSwap.encodeFunctionData.returns(encodedDataMock);
       stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
@@ -139,7 +134,6 @@ export const mock = {
         erc20: erc20 as any,
         connext: connext as unknown as ConnextInterface,
         priceOracle: priceOracle as unknown as ConnextPriceOracleInterface,
-        tokenRegistry: tokenRegistry as unknown as TokenRegistryInterface,
         stableSwap: stableSwap as unknown as StableSwapInterface,
         erc20Extended: erc20 as any,
       };

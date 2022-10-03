@@ -64,8 +64,6 @@ export type DomainDeployments = {
   handlers: {
     RelayerFeeRouter: Deployment;
   };
-  // Registry.
-  TokenRegistry: Deployment;
 
   // Messaging Layer.
   // ConnectorManager
@@ -93,7 +91,7 @@ export type ProtocolStack = {
   hub: string; // The hub domain.
   // Network stack should have all info pertaining to each supported domain.
   networks: NetworkStack[];
-  // Crosschain ERC20 assets to enroll in TokenRegistry.
+  // Crosschain ERC20 assets to enroll.
   assets: AssetStack[];
   // Agents that need to be whitelisted (across all domains).
   // Leave undefined if no agents should be whitelisted in this setup.

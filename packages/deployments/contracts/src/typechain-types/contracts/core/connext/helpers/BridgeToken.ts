@@ -36,7 +36,6 @@ export interface BridgeTokenInterface extends utils.Interface {
     "burn(address,uint256)": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
-    "detailsHash()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
     "initialize(uint8,string,string)": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
@@ -46,7 +45,6 @@ export interface BridgeTokenInterface extends utils.Interface {
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setDetails(string,string)": FunctionFragment;
-    "setDetailsHash(bytes32)": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
@@ -63,7 +61,6 @@ export interface BridgeTokenInterface extends utils.Interface {
       | "burn"
       | "decimals"
       | "decreaseAllowance"
-      | "detailsHash"
       | "increaseAllowance"
       | "initialize"
       | "mint"
@@ -73,7 +70,6 @@ export interface BridgeTokenInterface extends utils.Interface {
       | "permit"
       | "renounceOwnership"
       | "setDetails"
-      | "setDetailsHash"
       | "symbol"
       | "totalSupply"
       | "transfer"
@@ -105,10 +101,6 @@ export interface BridgeTokenInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "decreaseAllowance",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "detailsHash",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "increaseAllowance",
@@ -152,10 +144,6 @@ export interface BridgeTokenInterface extends utils.Interface {
     functionFragment: "setDetails",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setDetailsHash",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
@@ -192,10 +180,6 @@ export interface BridgeTokenInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "detailsHash",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "increaseAllowance",
     data: BytesLike
   ): Result;
@@ -210,10 +194,6 @@ export interface BridgeTokenInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setDetails", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setDetailsHash",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
@@ -358,8 +338,6 @@ export interface BridgeToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    detailsHash(overrides?: CallOverrides): Promise<[string]>;
-
     increaseAllowance(
       _spender: PromiseOrValue<string>,
       _addedValue: PromiseOrValue<BigNumberish>,
@@ -368,8 +346,8 @@ export interface BridgeToken extends BaseContract {
 
     initialize(
       _decimals: PromiseOrValue<BigNumberish>,
-      _defaultName: PromiseOrValue<string>,
-      _defaultSymbol: PromiseOrValue<string>,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -406,11 +384,6 @@ export interface BridgeToken extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setDetailsHash(
-      _detailsHash: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -470,8 +443,6 @@ export interface BridgeToken extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  detailsHash(overrides?: CallOverrides): Promise<string>;
-
   increaseAllowance(
     _spender: PromiseOrValue<string>,
     _addedValue: PromiseOrValue<BigNumberish>,
@@ -480,8 +451,8 @@ export interface BridgeToken extends BaseContract {
 
   initialize(
     _decimals: PromiseOrValue<BigNumberish>,
-    _defaultName: PromiseOrValue<string>,
-    _defaultSymbol: PromiseOrValue<string>,
+    _name: PromiseOrValue<string>,
+    _symbol: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -518,11 +489,6 @@ export interface BridgeToken extends BaseContract {
   setDetails(
     _newName: PromiseOrValue<string>,
     _newSymbol: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setDetailsHash(
-    _detailsHash: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -582,8 +548,6 @@ export interface BridgeToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    detailsHash(overrides?: CallOverrides): Promise<string>;
-
     increaseAllowance(
       _spender: PromiseOrValue<string>,
       _addedValue: PromiseOrValue<BigNumberish>,
@@ -592,8 +556,8 @@ export interface BridgeToken extends BaseContract {
 
     initialize(
       _decimals: PromiseOrValue<BigNumberish>,
-      _defaultName: PromiseOrValue<string>,
-      _defaultSymbol: PromiseOrValue<string>,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -628,11 +592,6 @@ export interface BridgeToken extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setDetailsHash(
-      _detailsHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -738,8 +697,6 @@ export interface BridgeToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    detailsHash(overrides?: CallOverrides): Promise<BigNumber>;
-
     increaseAllowance(
       _spender: PromiseOrValue<string>,
       _addedValue: PromiseOrValue<BigNumberish>,
@@ -748,8 +705,8 @@ export interface BridgeToken extends BaseContract {
 
     initialize(
       _decimals: PromiseOrValue<BigNumberish>,
-      _defaultName: PromiseOrValue<string>,
-      _defaultSymbol: PromiseOrValue<string>,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -786,11 +743,6 @@ export interface BridgeToken extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setDetailsHash(
-      _detailsHash: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -851,8 +803,6 @@ export interface BridgeToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    detailsHash(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     increaseAllowance(
       _spender: PromiseOrValue<string>,
       _addedValue: PromiseOrValue<BigNumberish>,
@@ -861,8 +811,8 @@ export interface BridgeToken extends BaseContract {
 
     initialize(
       _decimals: PromiseOrValue<BigNumberish>,
-      _defaultName: PromiseOrValue<string>,
-      _defaultSymbol: PromiseOrValue<string>,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -899,11 +849,6 @@ export interface BridgeToken extends BaseContract {
     setDetails(
       _newName: PromiseOrValue<string>,
       _newSymbol: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setDetailsHash(
-      _detailsHash: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

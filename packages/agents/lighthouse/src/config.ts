@@ -38,6 +38,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   cartographerUrl: Type.String(),
   mode: TModeConfig,
   polling: TPollingConfig,
+  gelatoApiKey: Type.String(),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   relayerUrl: Type.Optional(Type.String({ format: "uri" })),
 });
@@ -100,6 +101,7 @@ export const getEnvConfig = (
         configFile.polling?.cache ||
         DEFAULT_CARTOGRAPHER_POLL_INTERVAL,
     },
+    gelatoApiKey: process.env.NXTP_GELATO_API_KEY || configJson.gelatoApiKey || configFile.gelatoApiKey || "xxx",
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
     relayerUrl: process.env.NXTP_RELAYER_URL || configJson.relayerUrl || configFile.relayerUrl,

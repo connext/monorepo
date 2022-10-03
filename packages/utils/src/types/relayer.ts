@@ -1,4 +1,5 @@
 import { Type, Static } from "@sinclair/typebox";
+import { BigNumber } from "ethers";
 
 import { TIntegerString } from "./primitives";
 
@@ -42,4 +43,30 @@ export type MetaTxTask = {
   relayer: RelayerType;
   // Number of meta tx attempts sent. Should be 1 in 99% of cases.
   attempts: number;
+};
+
+// Gelato SDK send request.
+export type RelayerRequest = {
+  // Chain ID of the chain where the target smart contract is deployed
+  chainId: number;
+  // Address of the target smart contract
+  target: string;
+  // Encoded payload data (usually a function selector plus the required arguments) used to call the required target address
+  data: string;
+  // Address of the token that is to be used for payment
+  feeToken?: string;
+};
+
+// Gelato SDK send response.
+export type RelayResponse = {
+  // Unique relay task ID which can be used for monitoring and data analytics.
+  taskId: string;
+};
+
+// Gelato SDK send request options.
+export type RelayRequestOptions = {
+  // Gas limit of the relay call. This effectively sets an upper price limit for the relay call.
+  gasLimit?: BigNumber;
+  // Number of retries that Gelato should attempt before discarding this relay call
+  retries?: number;
 };

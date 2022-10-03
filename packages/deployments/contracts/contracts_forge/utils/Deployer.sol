@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import {DiamondCutFacet} from "../../contracts/core/connext/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "../../contracts/core/connext/facets/DiamondLoupeFacet.sol";
 import {DiamondInit} from "../../contracts/core/connext/facets/upgrade-initializers/DiamondInit.sol";
-import {AssetFacet} from "../../contracts/core/connext/facets/AssetFacet.sol";
+import {TokenFacet} from "../../contracts/core/connext/facets/TokenFacet.sol";
 import {BridgeFacet} from "../../contracts/core/connext/facets/BridgeFacet.sol";
 import {InboxFacet} from "../../contracts/core/connext/facets/InboxFacet.sol";
 import {ProposedOwnableFacet} from "../../contracts/core/connext/facets/ProposedOwnableFacet.sol";
@@ -25,7 +25,7 @@ contract Deployer {
   DiamondCutFacet diamondCutFacet;
   DiamondLoupeFacet diamondLoupeFacet;
   DiamondInit diamondInit;
-  AssetFacet assetFacet;
+  TokenFacet tokenFacet;
   BridgeFacet bridgeFacet;
   InboxFacet inboxFacet;
   ProposedOwnableFacet proposedOwnableFacet;
@@ -65,33 +65,37 @@ contract Deployer {
       });
   }
 
-  function getAssetFacetCut(address _assetFacet) internal view returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory assetFacetSelectors = new bytes4[](13);
+  function getTokenFacetCut(address _tokenFacet) internal view returns (IDiamondCut.FacetCut memory) {
+    bytes4[] memory tokenFacetSelectors = new bytes4[](17);
     // NOTE: because you cannot differentiate between overloaded function selectors, you must calculate
     // them manually here.
-    assetFacetSelectors[0] = getSelector("canonicalToAdopted(bytes32)");
-    assetFacetSelectors[1] = getSelector("canonicalToAdopted(tuple(uint32,bytes32))");
-    assetFacetSelectors[2] = AssetFacet.adoptedToCanonical.selector;
-    assetFacetSelectors[3] = getSelector("approvedAssets(bytes32)");
-    assetFacetSelectors[4] = getSelector("approvedAssets(tuple(uint32,bytes32))");
-    assetFacetSelectors[5] = getSelector("adoptedToLocalPools(bytes32)");
-    assetFacetSelectors[6] = getSelector("adoptedToLocalPools(tuple(uint32,bytes32))");
-    assetFacetSelectors[7] = AssetFacet.tokenRegistry.selector;
-    assetFacetSelectors[8] = AssetFacet.setTokenRegistry.selector;
-    assetFacetSelectors[9] = AssetFacet.setupAsset.selector;
-    assetFacetSelectors[10] = AssetFacet.addStableSwapPool.selector;
-    assetFacetSelectors[11] = getSelector("removeAssetId(bytes32,address)");
-    assetFacetSelectors[12] = getSelector("removeAssetId(tuple(uint32,bytes32),address)");
+    tokenFacetSelectors[0] = getSelector("canonicalToAdopted(bytes32)");
+    tokenFacetSelectors[1] = getSelector("canonicalToAdopted(tuple(uint32,bytes32))");
+    tokenFacetSelectors[2] = TokenFacet.adoptedToCanonical.selector;
+    tokenFacetSelectors[3] = getSelector("canonicalToRepresentation(bytes32)");
+    tokenFacetSelectors[4] = getSelector("canonicalToRepresentation(tuple(uint32,bytes32))");
+    tokenFacetSelectors[5] = TokenFacet.representationToCanonical.selector;
+    tokenFacetSelectors[6] = TokenFacet.getLocalAndAdoptedToken.selector;
+    tokenFacetSelectors[7] = getSelector("approvedAssets(bytes32)");
+    tokenFacetSelectors[8] = getSelector("approvedAssets(tuple(uint32,bytes32))");
+    tokenFacetSelectors[9] = getSelector("adoptedToLocalPools(bytes32)");
+    tokenFacetSelectors[10] = getSelector("adoptedToLocalPools(tuple(uint32,bytes32))");
+    tokenFacetSelectors[11] = TokenFacet.setupAsset.selector;
+    tokenFacetSelectors[12] = TokenFacet.setupAssetWithDeployedRepresentation.selector;
+    tokenFacetSelectors[13] = TokenFacet.addStableSwapPool.selector;
+    tokenFacetSelectors[14] = getSelector("removeAssetId(bytes32,address)");
+    tokenFacetSelectors[15] = getSelector("removeAssetId(tuple(uint32,bytes32),address)");
+    tokenFacetSelectors[16] = TokenFacet.updateDetails.selector;
     return
       IDiamondCut.FacetCut({
-        facetAddress: _assetFacet,
+        facetAddress: _tokenFacet,
         action: IDiamondCut.FacetCutAction.Add,
-        functionSelectors: assetFacetSelectors
+        functionSelectors: tokenFacetSelectors
       });
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](17);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](16);
     // getters
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
     bridgeFacetSelectors[1] = BridgeFacet.routedTransfers.selector;
@@ -106,14 +110,13 @@ contract Deployer {
     bridgeFacetSelectors[8] = BridgeFacet.removeSequencer.selector;
     bridgeFacetSelectors[9] = BridgeFacet.setXAppConnectionManager.selector;
     bridgeFacetSelectors[10] = BridgeFacet.enrollRemoteRouter.selector;
-    bridgeFacetSelectors[11] = BridgeFacet.enrollCustom.selector;
 
     // public:bridge
-    bridgeFacetSelectors[12] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[13] = BridgeFacet.xcallIntoLocal.selector;
-    bridgeFacetSelectors[14] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[15] = BridgeFacet.bumpTransfer.selector;
-    bridgeFacetSelectors[16] = BridgeFacet.forceUpdateSlippage.selector;
+    bridgeFacetSelectors[11] = BridgeFacet.xcall.selector;
+    bridgeFacetSelectors[12] = BridgeFacet.xcallIntoLocal.selector;
+    bridgeFacetSelectors[13] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[14] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[15] = BridgeFacet.forceUpdateSlippage.selector;
 
     return
       IDiamondCut.FacetCut({
@@ -317,7 +320,7 @@ contract Deployer {
     diamondCutFacet = new DiamondCutFacet();
     diamondLoupeFacet = new DiamondLoupeFacet();
     diamondInit = new DiamondInit();
-    assetFacet = new AssetFacet();
+    tokenFacet = new TokenFacet();
     bridgeFacet = new BridgeFacet();
     inboxFacet = new InboxFacet();
     proposedOwnableFacet = new ProposedOwnableFacet();
@@ -335,7 +338,7 @@ contract Deployer {
     facetCuts[0] = getTestSetterFacetCut(address(testSetterFacet));
     facetCuts[1] = getDiamondCutFacetCut(address(diamondCutFacet));
     facetCuts[2] = getDiamondLoupeFacetCut(address(diamondLoupeFacet));
-    facetCuts[3] = getAssetFacetCut(address(assetFacet));
+    facetCuts[3] = getTokenFacetCut(address(tokenFacet));
     facetCuts[4] = getBridgeFacetCut(address(bridgeFacet));
     facetCuts[5] = getInboxFacetCut(address(inboxFacet));
     facetCuts[6] = getProposedOwnableFacetCut(address(proposedOwnableFacet));
@@ -351,7 +354,7 @@ contract Deployer {
 
   function deployConnext(
     uint256 domain,
-    address tokenRegistry,
+    address tokenBeacon,
     address relayerFeeRouter,
     address xAppConnectionManager,
     uint256 acceptanceDelay,
@@ -360,7 +363,7 @@ contract Deployer {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       domain,
-      tokenRegistry,
+      tokenBeacon,
       relayerFeeRouter,
       xAppConnectionManager,
       acceptanceDelay,

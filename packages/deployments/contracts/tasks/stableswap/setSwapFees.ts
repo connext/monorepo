@@ -9,7 +9,6 @@ type TaskArgs = {
   swapFee: string;
   adminFee?: string;
   connextAddress?: string;
-  tokenRegistryAddress?: string;
   env?: Env;
 };
 
@@ -18,18 +17,10 @@ export default task("set-swap-fees", "Set admin fee and swap fee of the stable s
   .addParam("swapFee", "Swap Fee percent (FEE_DENOMINATOR: 1e10, ie: 0.5% = 5e7, max: 1e8)")
   .addOptionalParam("adminFee", "Amount Fee percent (FEE_DENOMINATOR: 1e10, ie: 1%, = 1e8, max: 1e10)")
   .addOptionalParam("connextAddress", "Override connext address")
-  .addOptionalParam("tokenRegistryAddress", "Override token registry address")
   .addOptionalParam("env", "Environment of contracts")
   .setAction(
     async (
-      {
-        canonical,
-        swapFee: _swapFee,
-        adminFee: _adminFee,
-        connextAddress: _connextAddress,
-        tokenRegistryAddress: _tokenRegistryAddress,
-        env: _env,
-      }: TaskArgs,
+      { canonical, swapFee: _swapFee, adminFee: _adminFee, connextAddress: _connextAddress, env: _env }: TaskArgs,
       { deployments, ethers },
     ) => {
       let { deployer } = await ethers.getNamedSigners();
@@ -54,13 +45,6 @@ export default task("set-swap-fees", "Set admin fee and swap fee of the stable s
 
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
 
-      const tokenDeployment = await deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env));
-      const tokenRegistry = new Contract(
-        _tokenRegistryAddress ?? tokenDeployment.address,
-        (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
-        deployer,
-      );
-      console.log("tokenRegistryAddress:", tokenRegistry.address);
       const canonicalId = utils.hexlify(canonizeId(canonical));
 
       const swapPool = await connext.getSwapStorage(canonicalId);

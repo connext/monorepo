@@ -290,18 +290,11 @@ describe("TESTNET:E2E", () => {
             log.info("Added asset to chain.", { domain, hash });
           } else {
             // Check to make sure canonical -> local is correct onchain.
-            const {
-              adoptedToCanonical,
-              canonicalToAdopted,
-              canonicalId,
-              canonicalDomain,
-              canonicalKey,
-              getTokenId,
-              tokenRegistry,
-            } = await checkOnchainLocalAsset(context, {
-              domain,
-              adopted: localAsset,
-            });
+            const { adoptedToCanonical, canonicalToAdopted, canonicalId, canonicalDomain, canonicalKey, getTokenId } =
+              await checkOnchainLocalAsset(context, {
+                domain,
+                adopted: localAsset,
+              });
             if (canonicalToAdopted !== localAsset || adoptedToCanonical !== canonicalId) {
               // TODO: Change this to log.info, actually carry out the on-chain replacement below.
               // (Need to confirm that this works.)
@@ -351,7 +344,6 @@ describe("TESTNET:E2E", () => {
                   canonicalDomain,
                   canonicalKey,
                   getTokenId,
-                  tokenRegistry,
                 },
               });
             }

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { BigNumber, constants } from "ethers";
+import { GelatoRelaySDK } from "@gelatonetwork/relay-sdk";
 
 import { Logger } from "../logging";
 import {
@@ -9,6 +10,9 @@ import {
   NxtpError,
   RelayerApiPostTaskResponse,
   RelayerTaskStatus,
+  RelayerRequest,
+  RelayResponse,
+  RelayRequestOptions,
 } from "../types";
 
 /// MARK - Gelato Relay API
@@ -212,4 +216,42 @@ export const getTaskStatusFromBackupRelayer = async (
   }
 
   return result;
+};
+
+/**
+ * Gets the transactionHash for a given taskId from gelato api
+ * @param taskId - The task Id we want to get the status for
+ * @param logger - Logger Instance
+ * @returns - transactionHash
+ */
+export const getTransactionHashFromGelato = async (taskId: string, logger?: Logger): Promise<string> => {
+  let result;
+  try {
+    const apiEndpoint = `${GELATO_SERVER}/tasks/${taskId}`;
+    const res = await axios.get(apiEndpoint);
+    result = res.data.data[0]?.transactionHash;
+  } catch (error: unknown) {
+    if (logger)
+      logger.error("Error in getTransactionHashFromGelato", undefined, undefined, jsonifyError(error as Error));
+    else console.log("Error in getTransactionHashFromGelato, error: ", error);
+  }
+
+  return result;
+};
+
+export const gelatoSDKSend = async (
+  request: RelayerRequest,
+  sponsorApiKey: string,
+  options: RelayRequestOptions = {},
+  logger?: Logger,
+): Promise<RelayResponse> => {
+  let response;
+  try {
+    response = await GelatoRelaySDK.relayWithSponsoredCall(request, sponsorApiKey, options);
+  } catch (error: unknown) {
+    if (logger)
+      logger.error("Error sending request to Gelato Relay", undefined, undefined, jsonifyError(error as Error));
+    throw new NxtpError("Error sending request to Gelato Relay", { error: jsonifyError(error as Error) });
+  }
+  return response;
 };

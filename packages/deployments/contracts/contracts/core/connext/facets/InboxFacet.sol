@@ -217,8 +217,6 @@ contract InboxFacet is BaseConnextFacet {
    * @dev IFF the asset is representational (i.e. originates from a remote chain), tokens will be minted.
    * Otherwise, the token must be canonical (i.e. we are on the token's home chain), and the corresponding
    * amount will already be available in escrow in this contract.
-   * @dev This method will have the TokenRegistry deploy a new representational asset contract if no
-   * representational asset currently exists.
    *
    * @param _origin The domain of the chain from which the transfer originated.
    * @param _nonce The unique identifier for the message from origin to destination.
@@ -232,10 +230,14 @@ contract InboxFacet is BaseConnextFacet {
     bytes29 _tokenId,
     bytes29 _action
   ) internal returns (address, uint256) {
+    bytes32 _canonicalId = _tokenId.id();
+    uint32 _canonicalDomain = _tokenId.domain();
     // Get the token contract for the given tokenId on this chain.
-    // NOTE: If the token is of remote origin and there is no existing representation token contract,
-    // the TokenRegistry will deploy a new contract!
-    address _token = s.tokenRegistry.ensureLocalToken(_tokenId.domain(), _tokenId.id(), _action.decimals());
+    address _token = _getLocalAsset(
+      AssetLogic.calculateCanonicalHash(_canonicalId, _canonicalDomain),
+      _canonicalId,
+      _canonicalDomain
+    );
 
     // Load amount once.
     uint256 _amount = _action.amnt();
@@ -246,12 +248,10 @@ contract InboxFacet is BaseConnextFacet {
     }
 
     // Mint the tokens into circulation on this chain.
-    if (!s.tokenRegistry.isLocalOrigin(_token)) {
+    if (!_isLocalOrigin(_token)) {
       // If the token is of remote origin, mint the representational asset into circulation here.
       // NOTE: The bridge tokens should be distributed to their intended recipient outside
       IBridgeToken(_token).mint(address(this), _amount);
-      // Tell the token what its detailsHash is
-      IBridgeToken(_token).setDetailsHash(_action.detailsHash());
     }
     // NOTE: If the tokens are locally originating - meaning they are the canonical asset - then they
     // would be held in escrow in this contract. If we're receiving this message, it must mean

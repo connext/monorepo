@@ -130,6 +130,5 @@ export const getDeployments = (args: {
           MerkleTreeManager: getContract("MerkleTreeManagerUpgradeBeaconProxy"),
           WatcherManager: getContract("WatcherManager"),
         },
-    TokenRegistry: getContract("TokenRegistryUpgradeBeaconProxy"),
   };
 };

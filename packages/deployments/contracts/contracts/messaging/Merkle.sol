@@ -30,7 +30,7 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    * @notice The arborist contract that has permission to write to this tree.
    * @dev This could be the root manager contract or a spoke connector contract, for example.
    */
-  address public arborist;
+  mapping(address => bool) public arborists;
 
   // ============ Upgrade Gap ============
 
@@ -39,7 +39,7 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
   // ============ Modifiers ============
 
   modifier onlyArborist() {
-    require(arborist == msg.sender, "!arborist");
+    require(arborists[msg.sender], "!arborist");
     _;
   }
 
@@ -82,7 +82,7 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
   }
 
   function __MerkleTreeManager_init_unchained(address _arborist) internal onlyInitializing {
-    arborist = _arborist;
+    arborists[_arborist] = true;
   }
 
   // ============ Admin Functions ==============
@@ -93,8 +93,8 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    */
   function setArborist(address newArborist) external onlyOwner {
     if (newArborist == address(0)) revert MerkleTreeManager__setArborist_zeroAddress();
-    if (arborist == newArborist) revert MerkleTreeManager__setArborist_alreadyArborist();
-    arborist = newArborist;
+    if (arborists[newArborist]) revert MerkleTreeManager__setArborist_alreadyArborist();
+    arborists[newArborist] = true;
   }
 
   // ========= Public Functions =========

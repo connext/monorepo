@@ -28,11 +28,9 @@ import "./tasks/debugCustomError";
 import "./tasks/decodeInputData";
 import "./tasks/removeRouter";
 import "./tasks/enrollHandlers";
-import "./tasks/enrollCustom";
 import "./tasks/dustSelfAccounts";
 import "./tasks/xcall";
 import "./tasks/readBalances";
-import "./tasks/setLocalDomain";
 import "./tasks/traceMessage";
 import "./tasks/preflight";
 import "./tasks/addRelayer";
@@ -285,8 +283,8 @@ const config: HardhatUserConfig = {
     },
     "gnosis-testnet": {
       accounts: { mnemonic },
-      chainId: 100100,
-      url: urlOverride || process.env.GNOSIS_TESTNET_PROVIDER_URL || "https://rpc-chiado.gnosistestnet.com",
+      chainId: 10200,
+      url: urlOverride || process.env.GNOSIS_TESTNET_PROVIDER_URL || "https://rpc.chiadochain.net",
       companionNetworks: {
         hub: "goerli",
       },
@@ -320,10 +318,10 @@ const config: HardhatUserConfig = {
       },
       {
         network: "gnosis-testnet",
-        chainId: 100100,
+        chainId: 10200,
         urls: {
-          apiURL: "https://blockscout-chiado.gnosistestnet.com/api",
-          browserURL: "https://blockscout-chiado.gnosistestnet.com",
+          apiURL: "https://blockscout.chiadochain.net/api",
+          browserURL: "https://blockscout.chiadochain.net",
         },
       },
     ],
@@ -337,7 +335,7 @@ const config: HardhatUserConfig = {
     // (optional) An array of strings, matched against fully qualified contract names, to
     // determine which contracts are included in your Diamond ABI.
     include: [
-      "AssetFacet",
+      "TokenFacet",
       "BaseConnextFacet",
       "BridgeFacet",
       "DiamondCutFacet",

@@ -210,6 +210,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "calculateSwapTokenAmount(bytes32,uint256[],bool)": FunctionFragment;
     "canonicalToAdopted(bytes32)": FunctionFragment;
     "canonicalToAdopted((uint32,bytes32))": FunctionFragment;
+    "canonicalToRepresentation(bytes32)": FunctionFragment;
+    "canonicalToRepresentation((uint32,bytes32))": FunctionFragment;
     "claim(address,bytes32[])": FunctionFragment;
     "delay()": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -224,6 +226,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "forceUpdateSlippage((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256)": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
+    "getLocalAndAdoptedToken(bytes32,uint32)": FunctionFragment;
     "getProposedRouterOwner(address)": FunctionFragment;
     "getProposedRouterOwnerTimestamp(address)": FunctionFragment;
     "getRouterApproval(address)": FunctionFragment;
@@ -239,6 +242,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "getSwapTokenBalance(bytes32,uint8)": FunctionFragment;
     "getSwapTokenIndex(bytes32,address)": FunctionFragment;
     "getSwapVirtualPrice(bytes32)": FunctionFragment;
+    "getTokenId(address)": FunctionFragment;
     "handle(uint32,uint32,bytes32,bytes)": FunctionFragment;
     "initializeSwap(bytes32,address[],uint8[],string,string,uint256,uint256,uint256,address)": FunctionFragment;
     "initiateClaim(uint32,address,bytes32[])": FunctionFragment;
@@ -258,8 +262,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "relayerFeeRouter()": FunctionFragment;
     "relayerFees(bytes32)": FunctionFragment;
     "remote(uint32)": FunctionFragment;
-    "removeAssetId((uint32,bytes32),address)": FunctionFragment;
-    "removeAssetId(bytes32,address)": FunctionFragment;
+    "removeAssetId((uint32,bytes32),address,address)": FunctionFragment;
+    "removeAssetId(bytes32,address,address)": FunctionFragment;
     "removeAssetWhitelist()": FunctionFragment;
     "removeRelayer(address)": FunctionFragment;
     "removeRouter(address)": FunctionFragment;
@@ -274,6 +278,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "renounced()": FunctionFragment;
     "repayAavePortal((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256,uint256)": FunctionFragment;
     "repayAavePortalFor((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256)": FunctionFragment;
+    "representationToCanonical(address)": FunctionFragment;
     "rescindDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
@@ -287,18 +292,18 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "setRouterRecipient(address,address)": FunctionFragment;
     "setSwapAdminFee(bytes32,uint256)": FunctionFragment;
     "setSwapFee(bytes32,uint256)": FunctionFragment;
-    "setTokenRegistry(address)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
-    "setupAsset((uint32,bytes32),address,address)": FunctionFragment;
+    "setupAsset((uint32,bytes32),uint8,string,string,address,address)": FunctionFragment;
+    "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address)": FunctionFragment;
     "setupRouter(address,address,address)": FunctionFragment;
     "stopRampA(bytes32)": FunctionFragment;
     "swap(bytes32,uint8,uint8,uint256,uint256,uint256)": FunctionFragment;
     "swapExact(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
     "swapExactOut(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
-    "tokenRegistry()": FunctionFragment;
     "transferRelayer(bytes32)": FunctionFragment;
     "unapproveRouterForPortal(address)": FunctionFragment;
     "unpause()": FunctionFragment;
+    "updateDetails((uint32,bytes32),string,string)": FunctionFragment;
     "withdrawSwapAdminFees(bytes32)": FunctionFragment;
     "xAppConnectionManager()": FunctionFragment;
     "xcall(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
@@ -338,6 +343,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "calculateSwapTokenAmount"
       | "canonicalToAdopted(bytes32)"
       | "canonicalToAdopted((uint32,bytes32))"
+      | "canonicalToRepresentation(bytes32)"
+      | "canonicalToRepresentation((uint32,bytes32))"
       | "claim"
       | "delay"
       | "diamondCut"
@@ -352,6 +359,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "forceUpdateSlippage"
       | "getAavePortalDebt"
       | "getAavePortalFeeDebt"
+      | "getLocalAndAdoptedToken"
       | "getProposedRouterOwner"
       | "getProposedRouterOwnerTimestamp"
       | "getRouterApproval"
@@ -367,6 +375,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "getSwapTokenBalance"
       | "getSwapTokenIndex"
       | "getSwapVirtualPrice"
+      | "getTokenId"
       | "handle"
       | "initializeSwap"
       | "initiateClaim"
@@ -386,8 +395,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "relayerFeeRouter"
       | "relayerFees"
       | "remote"
-      | "removeAssetId((uint32,bytes32),address)"
-      | "removeAssetId(bytes32,address)"
+      | "removeAssetId((uint32,bytes32),address,address)"
+      | "removeAssetId(bytes32,address,address)"
       | "removeAssetWhitelist"
       | "removeRelayer"
       | "removeRouter"
@@ -402,6 +411,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "renounced"
       | "repayAavePortal"
       | "repayAavePortalFor"
+      | "representationToCanonical"
       | "rescindDiamondCut"
       | "routedTransfers"
       | "routerBalances"
@@ -415,18 +425,18 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "setRouterRecipient"
       | "setSwapAdminFee"
       | "setSwapFee"
-      | "setTokenRegistry"
       | "setXAppConnectionManager"
       | "setupAsset"
+      | "setupAssetWithDeployedRepresentation"
       | "setupRouter"
       | "stopRampA"
       | "swap"
       | "swapExact"
       | "swapExactOut"
-      | "tokenRegistry"
       | "transferRelayer"
       | "unapproveRouterForPortal"
       | "unpause"
+      | "updateDetails"
       | "withdrawSwapAdminFees"
       | "xAppConnectionManager"
       | "xcall"
@@ -574,6 +584,14 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values: [TokenIdStruct]
   ): string;
   encodeFunctionData(
+    functionFragment: "canonicalToRepresentation(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "canonicalToRepresentation((uint32,bytes32))",
+    values: [TokenIdStruct]
+  ): string;
+  encodeFunctionData(
     functionFragment: "claim",
     values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>[]]
   ): string;
@@ -627,6 +645,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getAavePortalFeeDebt",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLocalAndAdoptedToken",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "getProposedRouterOwner",
@@ -687,6 +709,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getSwapVirtualPrice",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getTokenId",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "handle",
@@ -780,12 +806,16 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeAssetId((uint32,bytes32),address)",
-    values: [TokenIdStruct, PromiseOrValue<string>]
+    functionFragment: "removeAssetId((uint32,bytes32),address,address)",
+    values: [TokenIdStruct, PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeAssetId(bytes32,address)",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
+    functionFragment: "removeAssetId(bytes32,address,address)",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "removeAssetWhitelist",
@@ -875,6 +905,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "representationToCanonical",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "rescindDiamondCut",
     values: [
       IDiamondCut.FacetCutStruct[],
@@ -931,16 +965,28 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setTokenRegistry",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setXAppConnectionManager",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setupAsset",
-    values: [TokenIdStruct, PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [
+      TokenIdStruct,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setupAssetWithDeployedRepresentation",
+    values: [
+      TokenIdStruct,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "setupRouter",
@@ -988,10 +1034,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenRegistry",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "transferRelayer",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -1000,6 +1042,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "updateDetails",
+    values: [TokenIdStruct, PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "withdrawSwapAdminFees",
     values: [PromiseOrValue<BytesLike>]
@@ -1148,6 +1194,14 @@ export interface IConnextHandlerInterface extends utils.Interface {
     functionFragment: "canonicalToAdopted((uint32,bytes32))",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "canonicalToRepresentation(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "canonicalToRepresentation((uint32,bytes32))",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "claim", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "diamondCut", data: BytesLike): Result;
@@ -1184,6 +1238,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getAavePortalFeeDebt",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLocalAndAdoptedToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1243,6 +1301,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     functionFragment: "getSwapVirtualPrice",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getTokenId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "handle", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "initializeSwap",
@@ -1299,11 +1358,11 @@ export interface IConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "remote", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "removeAssetId((uint32,bytes32),address)",
+    functionFragment: "removeAssetId((uint32,bytes32),address,address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "removeAssetId(bytes32,address)",
+    functionFragment: "removeAssetId(bytes32,address,address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1360,6 +1419,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "representationToCanonical",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "rescindDiamondCut",
     data: BytesLike
   ): Result;
@@ -1409,14 +1472,14 @@ export interface IConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "setSwapFee", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setTokenRegistry",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setXAppConnectionManager",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setupAsset", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setupAssetWithDeployedRepresentation",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setupRouter",
     data: BytesLike
@@ -1429,10 +1492,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "tokenRegistry",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "transferRelayer",
     data: BytesLike
   ): Result;
@@ -1441,6 +1500,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "updateDetails",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "withdrawSwapAdminFees",
     data: BytesLike
@@ -1683,6 +1746,16 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     claim(
       _recipient: PromiseOrValue<string>,
       _transferIds: PromiseOrValue<BytesLike>[],
@@ -1755,6 +1828,12 @@ export interface IConnextHandler extends BaseContract {
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string, string]>;
 
     getProposedRouterOwner(
       _router: PromiseOrValue<string>,
@@ -1834,6 +1913,11 @@ export interface IConnextHandler extends BaseContract {
       canonicalId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    getTokenId(
+      _candidate: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[TokenIdStructOutput]>;
 
     handle(
       _origin: PromiseOrValue<BigNumberish>,
@@ -1927,15 +2011,17 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    "removeAssetId((uint32,bytes32),address)"(
+    "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "removeAssetId(bytes32,address)"(
+    "removeAssetId(bytes32,address,address)"(
       _key: PromiseOrValue<BytesLike>,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2023,6 +2109,11 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    representationToCanonical(
+      _adopted: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[TokenIdStructOutput]>;
+
     rescindDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
       _init: PromiseOrValue<string>,
@@ -2088,11 +2179,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2100,6 +2186,17 @@ export interface IConnextHandler extends BaseContract {
 
     setupAsset(
       _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
+      _representationName: PromiseOrValue<string>,
+      _representationSymbol: PromiseOrValue<string>,
+      _adoptedAssetId: PromiseOrValue<string>,
+      _stableSwapPool: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setupAssetWithDeployedRepresentation(
+      _canonical: TokenIdStruct,
+      _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2147,8 +2244,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    tokenRegistry(overrides?: CallOverrides): Promise<[string]>;
-
     transferRelayer(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -2160,6 +2255,13 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<ContractTransaction>;
 
     unpause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    updateDetails(
+      _canonical: TokenIdStruct,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2344,6 +2446,16 @@ export interface IConnextHandler extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  "canonicalToRepresentation(bytes32)"(
+    _key: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "canonicalToRepresentation((uint32,bytes32))"(
+    _canonical: TokenIdStruct,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   claim(
     _recipient: PromiseOrValue<string>,
     _transferIds: PromiseOrValue<BytesLike>[],
@@ -2408,6 +2520,12 @@ export interface IConnextHandler extends BaseContract {
     _transferId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  getLocalAndAdoptedToken(
+    _id: PromiseOrValue<BytesLike>,
+    _domain: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<[string, string]>;
 
   getProposedRouterOwner(
     _router: PromiseOrValue<string>,
@@ -2487,6 +2605,11 @@ export interface IConnextHandler extends BaseContract {
     canonicalId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  getTokenId(
+    _candidate: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<TokenIdStructOutput>;
 
   handle(
     _origin: PromiseOrValue<BigNumberish>,
@@ -2580,15 +2703,17 @@ export interface IConnextHandler extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  "removeAssetId((uint32,bytes32),address)"(
+  "removeAssetId((uint32,bytes32),address,address)"(
     _canonical: TokenIdStruct,
     _adoptedAssetId: PromiseOrValue<string>,
+    _representation: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "removeAssetId(bytes32,address)"(
+  "removeAssetId(bytes32,address,address)"(
     _key: PromiseOrValue<BytesLike>,
     _adoptedAssetId: PromiseOrValue<string>,
+    _representation: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2676,6 +2801,11 @@ export interface IConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  representationToCanonical(
+    _adopted: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<TokenIdStructOutput>;
+
   rescindDiamondCut(
     _diamondCut: IDiamondCut.FacetCutStruct[],
     _init: PromiseOrValue<string>,
@@ -2741,11 +2871,6 @@ export interface IConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setTokenRegistry(
-    _tokenRegistry: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setXAppConnectionManager(
     _xAppConnectionManager: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2753,6 +2878,17 @@ export interface IConnextHandler extends BaseContract {
 
   setupAsset(
     _canonical: TokenIdStruct,
+    _canonicalDecimals: PromiseOrValue<BigNumberish>,
+    _representationName: PromiseOrValue<string>,
+    _representationSymbol: PromiseOrValue<string>,
+    _adoptedAssetId: PromiseOrValue<string>,
+    _stableSwapPool: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setupAssetWithDeployedRepresentation(
+    _canonical: TokenIdStruct,
+    _representation: PromiseOrValue<string>,
     _adoptedAssetId: PromiseOrValue<string>,
     _stableSwapPool: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2800,8 +2936,6 @@ export interface IConnextHandler extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  tokenRegistry(overrides?: CallOverrides): Promise<string>;
-
   transferRelayer(
     _transferId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -2813,6 +2947,13 @@ export interface IConnextHandler extends BaseContract {
   ): Promise<ContractTransaction>;
 
   unpause(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  updateDetails(
+    _canonical: TokenIdStruct,
+    _name: PromiseOrValue<string>,
+    _symbol: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2993,6 +3134,16 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     claim(
       _recipient: PromiseOrValue<string>,
       _transferIds: PromiseOrValue<BytesLike>[],
@@ -3059,6 +3210,12 @@ export interface IConnextHandler extends BaseContract {
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string, string]>;
 
     getProposedRouterOwner(
       _router: PromiseOrValue<string>,
@@ -3138,6 +3295,11 @@ export interface IConnextHandler extends BaseContract {
       canonicalId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getTokenId(
+      _candidate: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<TokenIdStructOutput>;
 
     handle(
       _origin: PromiseOrValue<BigNumberish>,
@@ -3225,15 +3387,17 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "removeAssetId((uint32,bytes32),address)"(
+    "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "removeAssetId(bytes32,address)"(
+    "removeAssetId(bytes32,address,address)"(
       _key: PromiseOrValue<BytesLike>,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3315,6 +3479,11 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    representationToCanonical(
+      _adopted: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<TokenIdStructOutput>;
+
     rescindDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
       _init: PromiseOrValue<string>,
@@ -3380,11 +3549,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -3392,10 +3556,21 @@ export interface IConnextHandler extends BaseContract {
 
     setupAsset(
       _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
+      _representationName: PromiseOrValue<string>,
+      _representationSymbol: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
+
+    setupAssetWithDeployedRepresentation(
+      _canonical: TokenIdStruct,
+      _representation: PromiseOrValue<string>,
+      _adoptedAssetId: PromiseOrValue<string>,
+      _stableSwapPool: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     setupRouter(
       router: PromiseOrValue<string>,
@@ -3439,8 +3614,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    tokenRegistry(overrides?: CallOverrides): Promise<string>;
-
     transferRelayer(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -3452,6 +3625,13 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<void>;
 
     unpause(overrides?: CallOverrides): Promise<void>;
+
+    updateDetails(
+      _canonical: TokenIdStruct,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     withdrawSwapAdminFees(
       canonicalId: PromiseOrValue<BytesLike>,
@@ -3672,6 +3852,16 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     claim(
       _recipient: PromiseOrValue<string>,
       _transferIds: PromiseOrValue<BytesLike>[],
@@ -3734,6 +3924,12 @@ export interface IConnextHandler extends BaseContract {
 
     getAavePortalFeeDebt(
       _transferId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -3813,6 +4009,11 @@ export interface IConnextHandler extends BaseContract {
 
     getSwapVirtualPrice(
       canonicalId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getTokenId(
+      _candidate: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -3908,15 +4109,17 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "removeAssetId((uint32,bytes32),address)"(
+    "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "removeAssetId(bytes32,address)"(
+    "removeAssetId(bytes32,address,address)"(
       _key: PromiseOrValue<BytesLike>,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4004,6 +4207,11 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    representationToCanonical(
+      _adopted: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     rescindDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
       _init: PromiseOrValue<string>,
@@ -4069,11 +4277,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4081,6 +4284,17 @@ export interface IConnextHandler extends BaseContract {
 
     setupAsset(
       _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
+      _representationName: PromiseOrValue<string>,
+      _representationSymbol: PromiseOrValue<string>,
+      _adoptedAssetId: PromiseOrValue<string>,
+      _stableSwapPool: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setupAssetWithDeployedRepresentation(
+      _canonical: TokenIdStruct,
+      _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4128,8 +4342,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    tokenRegistry(overrides?: CallOverrides): Promise<BigNumber>;
-
     transferRelayer(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -4141,6 +4353,13 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<BigNumber>;
 
     unpause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    updateDetails(
+      _canonical: TokenIdStruct,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4334,6 +4553,16 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    "canonicalToRepresentation(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "canonicalToRepresentation((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     claim(
       _recipient: PromiseOrValue<string>,
       _transferIds: PromiseOrValue<BytesLike>[],
@@ -4396,6 +4625,12 @@ export interface IConnextHandler extends BaseContract {
 
     getAavePortalFeeDebt(
       _transferId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getLocalAndAdoptedToken(
+      _id: PromiseOrValue<BytesLike>,
+      _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -4475,6 +4710,11 @@ export interface IConnextHandler extends BaseContract {
 
     getSwapVirtualPrice(
       canonicalId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getTokenId(
+      _candidate: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -4572,15 +4812,17 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "removeAssetId((uint32,bytes32),address)"(
+    "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "removeAssetId(bytes32,address)"(
+    "removeAssetId(bytes32,address,address)"(
       _key: PromiseOrValue<BytesLike>,
       _adoptedAssetId: PromiseOrValue<string>,
+      _representation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -4668,6 +4910,11 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    representationToCanonical(
+      _adopted: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     rescindDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
       _init: PromiseOrValue<string>,
@@ -4737,11 +4984,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setTokenRegistry(
-      _tokenRegistry: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4749,6 +4991,17 @@ export interface IConnextHandler extends BaseContract {
 
     setupAsset(
       _canonical: TokenIdStruct,
+      _canonicalDecimals: PromiseOrValue<BigNumberish>,
+      _representationName: PromiseOrValue<string>,
+      _representationSymbol: PromiseOrValue<string>,
+      _adoptedAssetId: PromiseOrValue<string>,
+      _stableSwapPool: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setupAssetWithDeployedRepresentation(
+      _canonical: TokenIdStruct,
+      _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4796,8 +5049,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    tokenRegistry(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     transferRelayer(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -4809,6 +5060,13 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     unpause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateDetails(
+      _canonical: TokenIdStruct,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

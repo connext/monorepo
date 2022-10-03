@@ -47,7 +47,7 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
    */
   function _processMessage(bytes memory _data) internal override(Connector, BaseMultichain) {
     // enforce this came from connector on l1
-    require(_verifySender(mirrorConnector), "!l1Connector");
+    require(_verifySender(mirrorConnector), "!mirrorConnector");
     // sanity check: data length
     require(_data.length == 32, "!length");
     // set the aggregate root for BSC + access control

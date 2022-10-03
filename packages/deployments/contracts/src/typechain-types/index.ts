@@ -66,8 +66,6 @@ export type { IMessageProvider } from "./@openzeppelin/contracts/vendor/arbitrum
 export { IMessageProvider__factory } from "./factories/@openzeppelin/contracts/vendor/arbitrum/IMessageProvider__factory";
 export type { IOutbox } from "./@openzeppelin/contracts/vendor/arbitrum/IOutbox";
 export { IOutbox__factory } from "./factories/@openzeppelin/contracts/vendor/arbitrum/IOutbox__factory";
-export type { AssetFacet } from "./contracts/core/connext/facets/AssetFacet";
-export { AssetFacet__factory } from "./factories/contracts/core/connext/facets/AssetFacet__factory";
 export type { BaseConnextFacet } from "./contracts/core/connext/facets/BaseConnextFacet";
 export { BaseConnextFacet__factory } from "./factories/contracts/core/connext/facets/BaseConnextFacet__factory";
 export type { BridgeFacet } from "./contracts/core/connext/facets/BridgeFacet";
@@ -90,6 +88,8 @@ export type { StableSwapFacet } from "./contracts/core/connext/facets/StableSwap
 export { StableSwapFacet__factory } from "./factories/contracts/core/connext/facets/StableSwapFacet__factory";
 export type { SwapAdminFacet } from "./contracts/core/connext/facets/SwapAdminFacet";
 export { SwapAdminFacet__factory } from "./factories/contracts/core/connext/facets/SwapAdminFacet__factory";
+export type { TokenFacet } from "./contracts/core/connext/facets/TokenFacet";
+export { TokenFacet__factory } from "./factories/contracts/core/connext/facets/TokenFacet__factory";
 export type { DiamondInit } from "./contracts/core/connext/facets/upgrade-initializers/DiamondInit";
 export { DiamondInit__factory } from "./factories/contracts/core/connext/facets/upgrade-initializers/DiamondInit__factory";
 export type { VersionFacet } from "./contracts/core/connext/facets/VersionFacet";
@@ -114,8 +114,6 @@ export type { PriceOracle } from "./contracts/core/connext/helpers/PriceOracle";
 export { PriceOracle__factory } from "./factories/contracts/core/connext/helpers/PriceOracle__factory";
 export type { StableSwap } from "./contracts/core/connext/helpers/StableSwap";
 export { StableSwap__factory } from "./factories/contracts/core/connext/helpers/StableSwap__factory";
-export type { TokenRegistry } from "./contracts/core/connext/helpers/TokenRegistry";
-export { TokenRegistry__factory } from "./factories/contracts/core/connext/helpers/TokenRegistry__factory";
 export type { IAavePool } from "./contracts/core/connext/interfaces/IAavePool";
 export { IAavePool__factory } from "./factories/contracts/core/connext/interfaces/IAavePool__factory";
 export type { IBridgeHook } from "./contracts/core/connext/interfaces/IBridgeHook";
@@ -142,8 +140,6 @@ export type { IStableSwap } from "./contracts/core/connext/interfaces/IStableSwa
 export { IStableSwap__factory } from "./factories/contracts/core/connext/interfaces/IStableSwap__factory";
 export type { ITokenExchange } from "./contracts/core/connext/interfaces/ITokenExchange";
 export { ITokenExchange__factory } from "./factories/contracts/core/connext/interfaces/ITokenExchange__factory";
-export type { ITokenRegistry } from "./contracts/core/connext/interfaces/ITokenRegistry";
-export { ITokenRegistry__factory } from "./factories/contracts/core/connext/interfaces/ITokenRegistry__factory";
 export type { IWeth } from "./contracts/core/connext/interfaces/IWeth";
 export { IWeth__factory } from "./factories/contracts/core/connext/interfaces/IWeth__factory";
 export type { IXReceiver } from "./contracts/core/connext/interfaces/IXReceiver";

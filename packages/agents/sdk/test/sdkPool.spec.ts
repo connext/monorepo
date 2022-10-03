@@ -1,6 +1,6 @@
 import { createStubInstance, reset, restore, stub, spy } from "sinon";
 import { expect } from "@connext/nxtp-utils";
-import { ChainReader, getConnextInterface, getTokenRegistryInterface } from "@connext/nxtp-txservice";
+import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
 import { providers, utils, BigNumber } from "ethers";
 import { mock } from "./mock";
 import { NxtpSdkPool, Pool } from "../src/sdkPool";

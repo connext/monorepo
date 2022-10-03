@@ -106,7 +106,7 @@ const handleDeployHub = async (
     merkleTreeManagerForRoot.address,
     deployer,
   );
-  if ((await merkleForRootContract.arborist()).toLowerCase() !== rootManager.address.toLowerCase()) {
+  if (!(await merkleForRootContract.arborists(rootManager.address.toLowerCase()))) {
     const tx = await merkleForRootContract.setArborist(rootManager.address);
     console.log(`setArborist for RootManager tx submitted:`, tx.hash);
     await tx.wait();
@@ -148,7 +148,7 @@ const handleDeployHub = async (
     merkleTreeManagerForSpoke.address,
     deployer,
   );
-  if ((await merkleForSpokeContract.arborist()).toLowerCase() !== deployment.address.toLowerCase()) {
+  if (!(await merkleForSpokeContract.arborists(deployment.address.toLowerCase()))) {
     const tx = await merkleForSpokeContract.setArborist(deployment.address);
     console.log(`setArborist for MainnetSpokeConnector tx submitted:`, tx.hash);
     await tx.wait();
@@ -275,7 +275,7 @@ const handleDeploySpoke = async (
   // setArborist to Merkle
   const merkleContract = await hre.ethers.getContractAt("MerkleTreeManager", merkleTreeManager.address, deployer);
 
-  if ((await merkleContract.arborist()).toLowerCase() !== deployment.address.toLowerCase()) {
+  if (!(await merkleContract.arborists(deployment.address.toLowerCase()))) {
     const tx = await merkleContract.setArborist(deployment.address);
     console.log(`setArborist tx submitted:`, tx.hash);
     await tx.wait();

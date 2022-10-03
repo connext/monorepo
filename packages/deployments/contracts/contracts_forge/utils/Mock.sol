@@ -12,13 +12,13 @@ import {IConnector} from "../../contracts/messaging/interfaces/IConnector.sol";
 import {IConnectorManager} from "../../contracts/messaging/interfaces/IConnectorManager.sol";
 import {IOutbox} from "../../contracts/messaging/interfaces/IOutbox.sol";
 import {Connector} from "../../contracts/messaging/connectors/Connector.sol";
+import {HubConnector} from "../../contracts/messaging/connectors/HubConnector.sol";
 import {SpokeConnector} from "../../contracts/messaging/connectors/SpokeConnector.sol";
 import {RootManager} from "../../contracts/messaging/RootManager.sol";
 
 import {BaseConnextFacet} from "../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {IAavePool} from "../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IXReceiver} from "../../contracts/core/connext/interfaces/IXReceiver.sol";
-import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IBridgeRouter} from "../../contracts/core/connext/interfaces/IBridgeRouter.sol";
 import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
 
@@ -297,42 +297,6 @@ contract MockBridgeRouter is IBridgeRouter {
   }
 }
 
-contract MockTokenRegistry is ITokenRegistry {
-  function isLocalOrigin(address _token) external pure returns (bool) {
-    return true;
-  }
-
-  function ensureLocalToken(
-    uint32 _domain,
-    bytes32 _id,
-    uint8 _decimals
-  ) external pure returns (address _local) {
-    return address(42);
-  }
-
-  function mustHaveLocalToken(uint32 _domain, bytes32 _id) external pure returns (IERC20) {
-    return IERC20(address(42));
-  }
-
-  function getLocalAddress(uint32 _domain, bytes32 _id) external pure returns (address _local) {
-    return address(42);
-  }
-
-  function getTokenId(address _token) external pure returns (uint32, bytes32) {
-    return (uint32(42), bytes32("A"));
-  }
-
-  function enrollCustom(
-    uint32 _domain,
-    bytes32 _id,
-    address _custom
-  ) external {}
-
-  function oldReprToCurrentRepr(address _oldRepr) external pure returns (address _currentRepr) {
-    return address(42);
-  }
-}
-
 contract FeeERC20 is ERC20 {
   uint256 public fee = 1;
 
@@ -375,9 +339,9 @@ contract FeeERC20 is ERC20 {
 /**
  * @notice This class mocks the connector functionality.
  */
-contract MockConnector is SpokeConnector, IHubConnector {
-  bytes32 public lastOutbound;
+contract MockSpokeConnector is SpokeConnector {
   bytes32 public lastReceived;
+  bytes32 public lastOutbound;
 
   bool public verified;
 
@@ -427,13 +391,8 @@ contract MockConnector is SpokeConnector, IHubConnector {
     updatesAggregate = _updatesAggregate;
   }
 
-  function sendMessage(bytes memory _data) external onlyRootManager {
-    _sendMessage(_data);
-  }
-
   function _sendMessage(bytes memory _data) internal override {
     lastOutbound = keccak256(_data);
-    emit MessageSent(_data, msg.sender);
   }
 
   function _processMessage(bytes memory _data) internal override {
@@ -448,5 +407,49 @@ contract MockConnector is SpokeConnector, IHubConnector {
 
   function _verifySender(address _expected) internal override returns (bool) {
     return verified;
+  }
+}
+
+contract MockHubConnector is HubConnector {
+  address public rootManager;
+  bytes32 public lastOutbound;
+  bytes32 public lastReceived;
+  bool public verified;
+  bool public updatesAggregate;
+
+  constructor(
+    uint32 _domain,
+    uint32 _mirrorDomain,
+    address _amb,
+    address _rootManager,
+    address _mirrorConnector,
+    uint256 _mirrorGas
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) {
+    _setOwner(msg.sender);
+    verified = true;
+  }
+
+  function setSenderVerified(bool _verified) public {
+    verified = _verified;
+  }
+
+  function setUpdatesAggregate(bool _updatesAggregate) public {
+    updatesAggregate = _updatesAggregate;
+  }
+
+  function _verifySender(address _expected) internal override returns (bool) {
+    return verified;
+  }
+
+  function _sendMessage(bytes memory _data) internal override {
+    lastOutbound = keccak256(_data);
+  }
+
+  function _processMessage(bytes memory _data) internal override {
+    lastReceived = keccak256(_data);
+    // hub spokes always update aggregate
+    if (updatesAggregate) {
+      RootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
+    }
   }
 }

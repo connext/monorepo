@@ -4,7 +4,6 @@ pragma solidity 0.8.15;
 import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
 
 import {IWeth} from "../interfaces/IWeth.sol";
-import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 
 import {IBridgeRouter} from "../interfaces/IBridgeRouter.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
@@ -137,10 +136,10 @@ struct AppStorage {
   // 4
   uint32 domain;
   /**
-   * @notice The local nomad token registry.
+   * @notice UpgradeBeacon from which new token proxies will get their implementation
    */
   // 5
-  ITokenRegistry tokenRegistry;
+  address tokenBeacon;
   /**
    * @notice Mapping holding the AMMs for swapping in and out of local assets.
    * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon).
@@ -163,62 +162,74 @@ struct AppStorage {
   // 8
   mapping(address => TokenId) adoptedToCanonical;
   /**
+   * @notice Mapping of representation to canonical asset information.
+   */
+  // 9
+  mapping(address => TokenId) representationToCanonical;
+  /**
    * @notice Mapping of hash(canonicalId, canonicalDomain) to adopted asset on this domain.
    * @dev If the adopted asset is the native asset, the stored address will be the
    * wrapped asset address.
    */
-  // 9
+  // 10
   mapping(bytes32 => address) canonicalToAdopted;
+  /**
+   * @notice Mapping of canonical to representation asset information.
+   * @dev If the token is of local origin (meaning it was originanlly deployed on this chain),
+   * this MUST map to address(0).
+   */
+  // 11
+  mapping(bytes32 => address) canonicalToRepresentation;
   /**
    * @notice Mapping to determine if transfer is reconciled.
    */
-  // 10
+  // 12
   mapping(bytes32 => bool) reconciledTransfers;
   /**
    * @notice Mapping holding router address that provided fast liquidity.
    */
-  // 11
+  // 13
   mapping(bytes32 => address[]) routedTransfers;
   /**
    * @notice Mapping of router to available balance of an asset.
    * @dev Routers should always store liquidity that they can expect to receive via the bridge on
    * this domain (the nomad local asset).
    */
-  // 12
+  // 14
   mapping(address => mapping(address => uint256)) routerBalances;
   /**
    * @notice Mapping of approved relayers
    * @dev Send relayer fee if msg.sender is approvedRelayer; otherwise revert.
    */
-  // 13
+  // 15
   mapping(address => bool) approvedRelayers;
   /**
    * @notice Stores the relayer fee for a transfer. Updated on origin domain when a user calls xcall or bump.
    * @dev This will track all of the relayer fees assigned to a transfer by id, including any bumps made by the relayer.
    */
-  // 14
+  // 16
   mapping(bytes32 => uint256) relayerFees;
   /**
    * @notice Stores the relayer of a transfer. Updated on the destination domain when a relayer calls execute
    * for transfer.
    * @dev When relayer claims, must check that the msg.sender has forwarded transfer.
    */
-  // 15
+  // 17
   mapping(bytes32 => address) transferRelayer;
   /**
    * @notice The max amount of routers a payment can be routed through.
    */
-  // 16
+  // 18
   uint256 maxRoutersPerTransfer;
   /**
    * @notice The address of the nomad bridge router for this chain.
    */
-  // 17
+  // 19
   IBridgeRouter bridgeRouter;
   /**
    * @notice Stores a mapping of transfer id to slippage overrides.
    */
-  // 18
+  // 20
   mapping(bytes32 => uint256) slippage;
   /**
    * @notice Stores a mapping of remote routers keyed on domains.
@@ -226,38 +237,38 @@ struct AppStorage {
    * This mapping is required because the ConnextHandler now contains the BridgeRouter and must implement
    * the remotes interface.
    */
-  // 19
+  // 21
   mapping(uint32 => bytes32) remotes;
   //
   // ProposedOwnable
   //
-  // 20
-  address _proposed;
-  // 21
-  uint256 _proposedOwnershipTimestamp;
   // 22
-  bool _routerWhitelistRemoved;
+  address _proposed;
   // 23
-  uint256 _routerWhitelistTimestamp;
+  uint256 _proposedOwnershipTimestamp;
   // 24
-  bool _assetWhitelistRemoved;
+  bool _routerWhitelistRemoved;
   // 25
+  uint256 _routerWhitelistTimestamp;
+  // 26
+  bool _assetWhitelistRemoved;
+  // 27
   uint256 _assetWhitelistTimestamp;
   /**
    * @notice Stores a mapping of address to Roles
    * @dev returns uint representing the enum Role value
    */
-  // 26
+  // 28
   mapping(address => Role) roles;
   //
   // RouterFacet
   //
-  // 27
+  // 29
   RouterPermissionsManagerInfo routerPermissionInfo;
   //
   // ReentrancyGuard
   //
-  // 28
+  // 30
   uint256 _status;
   //
   // StableSwap
@@ -268,18 +279,18 @@ struct AppStorage {
    * Struct storing data responsible for automatic market maker functionalities. In order to
    * access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol.
    */
-  // 29
+  // 31
   mapping(bytes32 => SwapUtils.Swap) swapStorages;
   /**
    * @notice Maps token address to an index in the pool. Used to prevent duplicate tokens in the pool.
    * @dev getTokenIndex function also relies on this mapping to retrieve token index.
    */
-  // 30
+  // 32
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
   /**
    * @notice Stores whether or not bribing, AMMs, have been paused.
    */
-  // 31
+  // 33
   bool _paused;
   //
   // AavePortals
@@ -287,40 +298,40 @@ struct AppStorage {
   /**
    * @notice Address of Aave Pool contract.
    */
-  // 32
+  // 34
   address aavePool;
   /**
    * @notice Fee percentage numerator for using Portal liquidity.
    * @dev Assumes the same basis points as the liquidity fee.
    */
-  // 33
+  // 35
   uint256 aavePortalFeeNumerator;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals.
    */
-  // 34
+  // 36
   mapping(bytes32 => uint256) portalDebt;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals.
    */
-  // 35
+  // 37
   mapping(bytes32 => uint256) portalFeeDebt;
   /**
    * @notice Mapping of approved sequencers
    * @dev Sequencer address provided must belong to an approved sequencer in order to call `execute`
    * for the fast liquidity route.
    */
-  // 36
+  // 38
   mapping(address => bool) approvedSequencers;
   /**
    * @notice Remote connection manager for xapp.
    */
-  // 37
+  // 39
   IConnectorManager xAppConnectionManager;
   /**
    * @notice Ownership delay for transferring ownership.
    */
-  // 38
+  // 40
   uint256 _ownershipDelay;
 }
 

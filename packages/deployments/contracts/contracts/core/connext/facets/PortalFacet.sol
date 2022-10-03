@@ -82,7 +82,8 @@ contract PortalFacet is BaseConnextFacet {
     uint256 _feeAmount,
     uint256 _maxIn
   ) external nonReentrant {
-    address local = s.tokenRegistry.getLocalAddress(_params.canonicalDomain, _params.canonicalId);
+    bytes32 key = AssetLogic.calculateCanonicalHash(_params.canonicalId, _params.canonicalDomain);
+    address local = _getLocalAsset(key, _params.canonicalId, _params.canonicalDomain);
 
     // Sanity check: has that much to spend
     if (s.routerBalances[msg.sender][local] < _maxIn) revert PortalFacet__repayAavePortal_insufficientFunds();
@@ -102,7 +103,7 @@ contract PortalFacet is BaseConnextFacet {
 
     // Swap for exact `totalRepayAmount` of adopted asset to repay aave
     (bool success, uint256 amountDebited, address assetLoaned) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(
-      _calculateCanonicalHash(_params.canonicalId, _params.canonicalDomain),
+      key,
       local,
       _backingAmount + _feeAmount,
       _maxIn
@@ -133,7 +134,7 @@ contract PortalFacet is BaseConnextFacet {
     uint256 _feeAmount
   ) external payable nonReentrant {
     // Get the adopted address
-    address adopted = _getAdoptedAsset(_params.canonicalId, _params.canonicalDomain);
+    address adopted = _getAdoptedAsset(AssetLogic.calculateCanonicalHash(_params.canonicalId, _params.canonicalDomain));
 
     // Here, generate the transfer id. This allows us to ensure the `_adopted` asset
     // is the correct one associated with the transfer. Otherwise, anyone could pay back
