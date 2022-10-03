@@ -1,4 +1,4 @@
-import { Contract, utils, Wallet } from "ethers";
+import { Contract, Wallet } from "ethers";
 
 import _Deployments from "../../../deployments.json";
 import { ConnextHandlerInterface } from "../../contracts";
