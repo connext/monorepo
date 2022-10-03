@@ -163,7 +163,6 @@
   "function relayerFeeVault() view returns (address)",
   "function removeRelayer(address)",
   "function setRelayerFeeVault(address)",
-  "function transferRelayer(bytes32) view returns (address)",
   "error AssetLogic__handleIncomingAsset_nativeAssetNotSupported()",
   "error AssetLogic__handleOutgoingAsset_notNative()",
   "error AssetLogic__transferAssetToContract_feeOnTransferNotSupported()",
