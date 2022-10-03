@@ -33,6 +33,7 @@
   "error BridgeFacet__onlyDelegate_notDelegate()",
   "error BridgeFacet__removeSequencer_notApproved()",
   "error BridgeFacet__xcall_canonicalAssetNotReceived()",
+  "error BridgeFacet__xcall_capReached()",
   "error BridgeFacet__xcall_emptyTo()",
   "error BridgeFacet__xcall_invalidSlippage()",
   "error BridgeFacet__xcall_nativeAssetNotSupported()",
@@ -174,6 +175,7 @@
   "error RoutersFacet__acceptProposedRouterOwner_notElapsed()",
   "error RoutersFacet__addLiquidityForRouter_amountIsZero()",
   "error RoutersFacet__addLiquidityForRouter_badRouter()",
+  "error RoutersFacet__addLiquidityForRouter_capReached()",
   "error RoutersFacet__addLiquidityForRouter_routerEmpty()",
   "error RoutersFacet__approveRouterForPortal_alreadyApproved()",
   "error RoutersFacet__approveRouterForPortal_notAdded()",
@@ -259,6 +261,7 @@
   "error TokenFacet__updateDetails_localNotFound()",
   "event AssetAdded(bytes32 indexed,bytes32 indexed,uint32 indexed,address,address,address)",
   "event AssetRemoved(bytes32 indexed,address)",
+  "event LiquidityCapUpdated(bytes32 indexed,bytes32 indexed,uint32 indexed,uint256,address)",
   "event StableSwapAdded(bytes32 indexed,bytes32 indexed,uint32 indexed,address,address)",
   "event TokenDeployed(uint32 indexed,bytes32 indexed,address indexed)",
   "function addStableSwapPool(tuple(uint32,bytes32),address)",
@@ -276,7 +279,8 @@
   "function removeAssetId(tuple(uint32,bytes32),address,address)",
   "function removeAssetId(bytes32,address,address)",
   "function representationToCanonical(address) view returns (tuple(uint32,bytes32))",
-  "function setupAsset(tuple(uint32,bytes32),uint8,string,string,address,address) returns (address)",
-  "function setupAssetWithDeployedRepresentation(tuple(uint32,bytes32),address,address,address) returns (address)",
-  "function updateDetails(tuple(uint32,bytes32),string,string)"
+  "function setupAsset(tuple(uint32,bytes32),uint8,string,string,address,address,uint256) returns (address)",
+  "function setupAssetWithDeployedRepresentation(tuple(uint32,bytes32),address,address,address,uint256) returns (address)",
+  "function updateDetails(tuple(uint32,bytes32),string,string)",
+  "function updateLiquidityCap(tuple(uint32,bytes32),uint256)"
 ]

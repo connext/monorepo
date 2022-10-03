@@ -47,6 +47,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_invalidSlippage();
   error BridgeFacet__xcall_canonicalAssetNotReceived();
+  error BridgeFacet__xcall_capReached();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
   error BridgeFacet__execute_notSupportedSequencer();
@@ -494,6 +495,19 @@ contract BridgeFacet is BaseConnextFacet {
 
         // Set boolean flag
         isCanonical = _params.originDomain == canonical.domain && local == _asset;
+
+        // Enforce liquidity caps
+        // NOTE: safe to do this before the swap because canonical domains do
+        // not hit the AMMs (local == canonical)
+        if (isCanonical) {
+          // NOTE: this method includes router liquidity as part of the caps,
+          // not only the minted amount
+          uint256 custodied = IERC20(local).balanceOf(address(this)) + _amount;
+          uint256 cap = s.caps[key];
+          if (custodied > cap && cap > 0) {
+            revert BridgeFacet__xcall_capReached();
+          }
+        }
 
         // Update CallParams to reflect the canonical token information.
         _params.canonicalDomain = canonical.domain;

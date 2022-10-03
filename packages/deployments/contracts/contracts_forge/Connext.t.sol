@@ -249,7 +249,8 @@ contract ConnextTest is ForgeHelper, Deployer {
       TokenId(canonicalDomain, canonicalId),
       _originLocal,
       localIsAdopted ? address(0) : _originAdopted,
-      address(0)
+      address(0),
+      10_000 ether // cap
     );
 
     // Setup asset whitelist
@@ -258,7 +259,8 @@ contract ConnextTest is ForgeHelper, Deployer {
       TokenId(canonicalDomain, canonicalId),
       _destinationLocal,
       localIsAdopted ? address(0) : _destinationAdopted,
-      address(0)
+      address(0),
+      10_000 ether // cap
     );
 
     if (localIsAdopted) {

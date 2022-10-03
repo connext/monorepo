@@ -2821,6 +2821,11 @@ const _abi = [
         name: "_stableSwapPool",
         type: "address",
       },
+      {
+        internalType: "uint256",
+        name: "_cap",
+        type: "uint256",
+      },
     ],
     name: "setupAsset",
     outputs: [
@@ -2866,6 +2871,11 @@ const _abi = [
         internalType: "address",
         name: "_stableSwapPool",
         type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_cap",
+        type: "uint256",
       },
     ],
     name: "setupAssetWithDeployedRepresentation",
@@ -3117,6 +3127,36 @@ const _abi = [
       },
     ],
     name: "updateDetails",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
+        internalType: "uint256",
+        name: "_updated",
+        type: "uint256",
+      },
+    ],
+    name: "updateLiquidityCap",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

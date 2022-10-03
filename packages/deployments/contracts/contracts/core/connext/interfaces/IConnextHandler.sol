@@ -48,17 +48,21 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
     string memory _representationName,
     string memory _representationSymbol,
     address _adoptedAssetId,
-    address _stableSwapPool
+    address _stableSwapPool,
+    uint256 _cap
   ) external returns (address);
 
   function setupAssetWithDeployedRepresentation(
     TokenId calldata _canonical,
     address _representation,
     address _adoptedAssetId,
-    address _stableSwapPool
+    address _stableSwapPool,
+    uint256 _cap
   ) external returns (address);
 
   function addStableSwapPool(TokenId calldata _canonical, address _stableSwapPool) external;
+
+  function updateLiquidityCap(TokenId calldata _canonical, uint256 _updated) external;
 
   function removeAssetId(
     bytes32 _key,

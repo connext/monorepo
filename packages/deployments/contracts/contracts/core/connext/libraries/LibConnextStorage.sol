@@ -149,11 +149,16 @@ struct AppStorage {
   mapping(bytes32 => IStableSwap) adoptedToLocalPools;
   /**
    * @notice Mapping of whitelisted assets on same domain as contract.
-   * @dev Mapping is keyed on the hash of the canonical id and domain taken from the
-   * token registry.
+   * @dev Mapping is keyed on the hash of the canonical id and domain
    */
   // 7
   mapping(bytes32 => bool) approvedAssets;
+  /**
+   * @notice Mapping of liquidity caps of whitelisted assets. If 0, no cap is enforced.
+   * @dev Mapping is keyed on the hash of the canonical id and domain
+   */
+  // 7
+  mapping(bytes32 => uint256) caps;
   /**
    * @notice Mapping of adopted to canonical asset information.
    * @dev If the adopted asset is the native asset, the keyed address will
