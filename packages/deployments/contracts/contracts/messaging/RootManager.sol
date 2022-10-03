@@ -6,7 +6,7 @@ import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 import {IRootManager} from "./interfaces/IRootManager.sol";
 import {IHubConnector} from "./interfaces/IHubConnector.sol";
 import {Message} from "./libraries/Message.sol";
-import {OptimisticallyVerified} from "./libraries/OptimisticallyVerified.sol";
+import {QueueLib} from "./libraries/Queue.sol";
 
 import {MerkleTreeManager} from "./Merkle.sol";
 import {WatcherClient} from "./WatcherClient.sol";
@@ -15,7 +15,11 @@ import {WatcherClient} from "./WatcherClient.sol";
  * @notice This contract exists at cluster hubs, and aggregates all transfer roots from messaging
  * spokes into a single merkle root
  */
-contract RootManager is ProposedOwnable, IRootManager, WatcherClient, OptimisticallyVerified {
+contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
+  // ============ Libraries ============
+
+  using QueueLib for QueueLib.Queue;
+
   // ============ Events ============
 
   event RootAggregated(uint32 domain, bytes32 receivedRoot, uint256 index);
@@ -27,6 +31,21 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, Optimistic
   event ConnectorRemoved(uint32 domain, address connector);
 
   // ============ Properties ============
+
+  /**
+   * @notice Number of blocks to delay the processing of a message to allow for watchers to verify
+   * the validity and pause if necessary.
+   */
+  uint256 public delayBlocks;
+
+  /**
+   * @notice Queue used for management of verification for inbound roots from spoke chains. Once
+   * the verification period elapses, the inbound messages can be aggregated into the merkle tree
+   * for propagation to spoke chains.
+   * @dev Watchers should be able to watch this queue for fraudulent messages and pause this contract
+   * if fraud is detected.
+   */
+  QueueLib.Queue public pendingInboundRoots;
 
   /**
    * @notice MerkleTreeManager contract instance. Will hold the active tree of aggregated inbound roots.
@@ -80,19 +99,21 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, Optimistic
 
   /**
    * @notice Creates a new RootManager instance.
+   * @param _delayBlocks The delay for the validation period for incoming messages in blocks.
    * @param _merkle The address of the MerkleTreeManager on this domain.
    * @param _watcherManager The address of the WatcherManager on this domain.
-   * @param _validationDelay The delay for the validation period for incoming messages in blocks.
    */
   constructor(
+    uint256 _delayBlocks,
     address _merkle,
-    address _watcherManager,
-    uint256 _validationDelay
-  ) ProposedOwnable() WatcherClient(_watcherManager) OptimisticallyVerified(_validationDelay) {
+    address _watcherManager
+  ) ProposedOwnable() WatcherClient(_watcherManager) {
     _setOwner(msg.sender);
 
     require(_merkle != address(0), "!zero merkle");
     MERKLE = MerkleTreeManager(_merkle);
+
+    delayBlocks = _delayBlocks;
   }
 
   // ============ Public Functions ============
@@ -118,7 +139,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, Optimistic
     require(keccak256(abi.encode(_connectors)) == connectorsHash, "!connectors");
 
     // Get all of the verified roots from the queue.
-    bytes32[] memory _verifiedInboundRoots = dequeueVerified();
+    bytes32[] memory _verifiedInboundRoots = pendingInboundRoots.dequeueVerified(delayBlocks);
 
     // Insert the leaves into the aggregator tree (method will also calculate and return the current
     // aggregate root and count).
@@ -147,7 +168,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, Optimistic
    * @param _inbound The inbound root coming from the given domain.
    */
   function aggregate(uint32 _domain, bytes32 _inbound) external override onlyConnector(_domain) {
-    uint128 lastIndex = enqueueRoot(_inbound);
+    uint128 lastIndex = pendingInboundRoots.enqueue(_inbound);
     emit RootAggregated(_domain, _inbound, lastIndex);
   }
 
