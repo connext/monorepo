@@ -23,6 +23,5 @@
   "function approvedRelayers(address) view returns (bool)",
   "function relayerFeeVault() view returns (address)",
   "function removeRelayer(address)",
-  "function setRelayerFeeVault(address)",
-  "function transferRelayer(bytes32) view returns (address)"
+  "function setRelayerFeeVault(address)"
 ]

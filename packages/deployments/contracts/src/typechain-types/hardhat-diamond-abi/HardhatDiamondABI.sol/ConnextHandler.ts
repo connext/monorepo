@@ -189,11 +189,11 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes))": FunctionFragment;
     "forceUpdateSlippage((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256)": FunctionFragment;
     "nonce()": FunctionFragment;
-    "reconciledTransfers(bytes32)": FunctionFragment;
     "remote(uint32)": FunctionFragment;
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
+    "transferStatus(bytes32)": FunctionFragment;
     "xAppConnectionManager()": FunctionFragment;
     "xcall(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
     "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
@@ -242,7 +242,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "relayerFeeVault()": FunctionFragment;
     "removeRelayer(address)": FunctionFragment;
     "setRelayerFeeVault(address)": FunctionFragment;
-    "transferRelayer(bytes32)": FunctionFragment;
     "LIQUIDITY_FEE_DENOMINATOR()": FunctionFragment;
     "LIQUIDITY_FEE_NUMERATOR()": FunctionFragment;
     "acceptProposedRouterOwner(address)": FunctionFragment;
@@ -319,11 +318,11 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "execute"
       | "forceUpdateSlippage"
       | "nonce"
-      | "reconciledTransfers"
       | "remote"
       | "removeSequencer"
       | "routedTransfers"
       | "setXAppConnectionManager"
+      | "transferStatus"
       | "xAppConnectionManager"
       | "xcall"
       | "xcallIntoLocal"
@@ -372,7 +371,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "relayerFeeVault"
       | "removeRelayer"
       | "setRelayerFeeVault"
-      | "transferRelayer"
       | "LIQUIDITY_FEE_DENOMINATOR"
       | "LIQUIDITY_FEE_NUMERATOR"
       | "acceptProposedRouterOwner"
@@ -472,10 +470,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "reconciledTransfers",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "remote",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -490,6 +484,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setXAppConnectionManager",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferStatus",
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "xAppConnectionManager",
@@ -699,10 +697,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setRelayerFeeVault",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferRelayer",
-    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "LIQUIDITY_FEE_DENOMINATOR",
@@ -1074,10 +1068,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "reconciledTransfers",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "remote", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeSequencer",
@@ -1089,6 +1079,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setXAppConnectionManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferStatus",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1242,10 +1236,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setRelayerFeeVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferRelayer",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1947,8 +1937,8 @@ export type RelayerAddedEvent = TypedEvent<
 export type RelayerAddedEventFilter = TypedEventFilter<RelayerAddedEvent>;
 
 export interface RelayerFeeVaultUpdatedEventObject {
-  oldRouter: string;
-  newRouter: string;
+  oldVault: string;
+  newVault: string;
   caller: string;
 }
 export type RelayerFeeVaultUpdatedEvent = TypedEvent<
@@ -2244,11 +2234,6 @@ export interface ConnextHandler extends BaseContract {
 
     nonce(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     remote(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -2268,6 +2253,11 @@ export interface ConnextHandler extends BaseContract {
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    transferStatus(
+      _transferId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[number]>;
 
     xAppConnectionManager(overrides?: CallOverrides): Promise<[string]>;
 
@@ -2488,11 +2478,6 @@ export interface ConnextHandler extends BaseContract {
       _relayerFeeVault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    transferRelayer(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
 
     LIQUIDITY_FEE_DENOMINATOR(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -2908,11 +2893,6 @@ export interface ConnextHandler extends BaseContract {
 
   nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
-  reconciledTransfers(
-    _transferId: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   remote(
     _domain: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -2932,6 +2912,11 @@ export interface ConnextHandler extends BaseContract {
     _xAppConnectionManager: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  transferStatus(
+    _transferId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<number>;
 
   xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
 
@@ -3144,11 +3129,6 @@ export interface ConnextHandler extends BaseContract {
     _relayerFeeVault: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  transferRelayer(
-    _transferId: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string>;
 
   LIQUIDITY_FEE_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -3564,11 +3544,6 @@ export interface ConnextHandler extends BaseContract {
 
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     remote(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -3588,6 +3563,11 @@ export interface ConnextHandler extends BaseContract {
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    transferStatus(
+      _transferId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<number>;
 
     xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
 
@@ -3786,11 +3766,6 @@ export interface ConnextHandler extends BaseContract {
       _relayerFeeVault: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    transferRelayer(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string>;
 
     LIQUIDITY_FEE_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -4444,13 +4419,13 @@ export interface ConnextHandler extends BaseContract {
     RelayerAdded(relayer?: null, caller?: null): RelayerAddedEventFilter;
 
     "RelayerFeeVaultUpdated(address,address,address)"(
-      oldRouter?: null,
-      newRouter?: null,
+      oldVault?: null,
+      newVault?: null,
       caller?: null
     ): RelayerFeeVaultUpdatedEventFilter;
     RelayerFeeVaultUpdated(
-      oldRouter?: null,
-      newRouter?: null,
+      oldVault?: null,
+      newVault?: null,
       caller?: null
     ): RelayerFeeVaultUpdatedEventFilter;
 
@@ -4688,11 +4663,6 @@ export interface ConnextHandler extends BaseContract {
 
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     remote(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -4711,6 +4681,11 @@ export interface ConnextHandler extends BaseContract {
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    transferStatus(
+      _transferId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     xAppConnectionManager(overrides?: CallOverrides): Promise<BigNumber>;
@@ -4923,11 +4898,6 @@ export interface ConnextHandler extends BaseContract {
     setRelayerFeeVault(
       _relayerFeeVault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    transferRelayer(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     LIQUIDITY_FEE_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
@@ -5347,11 +5317,6 @@ export interface ConnextHandler extends BaseContract {
 
     nonce(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     remote(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -5370,6 +5335,11 @@ export interface ConnextHandler extends BaseContract {
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    transferStatus(
+      _transferId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     xAppConnectionManager(
@@ -5592,11 +5562,6 @@ export interface ConnextHandler extends BaseContract {
     setRelayerFeeVault(
       _relayerFeeVault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    transferRelayer(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     LIQUIDITY_FEE_DENOMINATOR(

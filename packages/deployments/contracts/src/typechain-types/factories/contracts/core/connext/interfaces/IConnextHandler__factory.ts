@@ -1908,25 +1908,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_transferId",
-        type: "bytes32",
-      },
-    ],
-    name: "reconciledTransfers",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "relayerFeeVault",
     outputs: [
@@ -2992,12 +2973,12 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "transferRelayer",
+    name: "transferStatus",
     outputs: [
       {
-        internalType: "address",
+        internalType: "enum DestinationTransferStatus",
         name: "",
-        type: "address",
+        type: "uint8",
       },
     ],
     stateMutability: "view",

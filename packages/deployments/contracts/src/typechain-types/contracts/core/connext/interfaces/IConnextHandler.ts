@@ -255,7 +255,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "rampA(bytes32,uint256,uint256)": FunctionFragment;
-    "reconciledTransfers(bytes32)": FunctionFragment;
     "relayerFeeVault()": FunctionFragment;
     "remote(uint32)": FunctionFragment;
     "removeAssetId((uint32,bytes32),address,address)": FunctionFragment;
@@ -296,7 +295,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "swap(bytes32,uint8,uint8,uint256,uint256,uint256)": FunctionFragment;
     "swapExact(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
     "swapExactOut(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
-    "transferRelayer(bytes32)": FunctionFragment;
+    "transferStatus(bytes32)": FunctionFragment;
     "unapproveRouterForPortal(address)": FunctionFragment;
     "unpause()": FunctionFragment;
     "updateDetails((uint32,bytes32),string,string)": FunctionFragment;
@@ -385,7 +384,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "proposed"
       | "proposedTimestamp"
       | "rampA"
-      | "reconciledTransfers"
       | "relayerFeeVault"
       | "remote"
       | "removeAssetId((uint32,bytes32),address,address)"
@@ -426,7 +424,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "swap"
       | "swapExact"
       | "swapExactOut"
-      | "transferRelayer"
+      | "transferStatus"
       | "unapproveRouterForPortal"
       | "unpause"
       | "updateDetails"
@@ -771,10 +769,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "reconciledTransfers",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "relayerFeeVault",
     values?: undefined
   ): string;
@@ -1013,7 +1007,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "transferRelayer",
+    functionFragment: "transferStatus",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -1322,10 +1316,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "rampA", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "reconciledTransfers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "relayerFeeVault",
     data: BytesLike
   ): Result;
@@ -1465,7 +1455,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "transferRelayer",
+    functionFragment: "transferStatus",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1954,11 +1944,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     relayerFeeVault(overrides?: CallOverrides): Promise<[string]>;
 
     remote(
@@ -2201,10 +2186,10 @@ export interface IConnextHandler extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    transferRelayer(
+    transferStatus(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[string]>;
+    ): Promise<[number]>;
 
     unapproveRouterForPortal(
       _router: PromiseOrValue<string>,
@@ -2632,11 +2617,6 @@ export interface IConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  reconciledTransfers(
-    _transferId: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   relayerFeeVault(overrides?: CallOverrides): Promise<string>;
 
   remote(
@@ -2879,10 +2859,10 @@ export interface IConnextHandler extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  transferRelayer(
+  transferStatus(
     _transferId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
-  ): Promise<string>;
+  ): Promise<number>;
 
   unapproveRouterForPortal(
     _router: PromiseOrValue<string>,
@@ -3304,11 +3284,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     relayerFeeVault(overrides?: CallOverrides): Promise<string>;
 
     remote(
@@ -3545,10 +3520,10 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    transferRelayer(
+    transferStatus(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<number>;
 
     unapproveRouterForPortal(
       _router: PromiseOrValue<string>,
@@ -4012,11 +3987,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     relayerFeeVault(overrides?: CallOverrides): Promise<BigNumber>;
 
     remote(
@@ -4259,7 +4229,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    transferRelayer(
+    transferStatus(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -4701,11 +4671,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     relayerFeeVault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     remote(
@@ -4952,7 +4917,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    transferRelayer(
+    transferStatus(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

@@ -34,7 +34,6 @@ export interface RelayerFacetInterface extends utils.Interface {
     "relayerFeeVault()": FunctionFragment;
     "removeRelayer(address)": FunctionFragment;
     "setRelayerFeeVault(address)": FunctionFragment;
-    "transferRelayer(bytes32)": FunctionFragment;
   };
 
   getFunction(
@@ -44,7 +43,6 @@ export interface RelayerFacetInterface extends utils.Interface {
       | "relayerFeeVault"
       | "removeRelayer"
       | "setRelayerFeeVault"
-      | "transferRelayer"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -67,10 +65,6 @@ export interface RelayerFacetInterface extends utils.Interface {
     functionFragment: "setRelayerFeeVault",
     values: [PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "transferRelayer",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
 
   decodeFunctionResult(functionFragment: "addRelayer", data: BytesLike): Result;
   decodeFunctionResult(
@@ -87,10 +81,6 @@ export interface RelayerFacetInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setRelayerFeeVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferRelayer",
     data: BytesLike
   ): Result;
 
@@ -146,8 +136,8 @@ export type RelayerAddedEvent = TypedEvent<
 export type RelayerAddedEventFilter = TypedEventFilter<RelayerAddedEvent>;
 
 export interface RelayerFeeVaultUpdatedEventObject {
-  oldRouter: string;
-  newRouter: string;
+  oldVault: string;
+  newVault: string;
   caller: string;
 }
 export type RelayerFeeVaultUpdatedEvent = TypedEvent<
@@ -217,11 +207,6 @@ export interface RelayerFacet extends BaseContract {
       _relayerFeeVault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    transferRelayer(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
   };
 
   addRelayer(
@@ -246,11 +231,6 @@ export interface RelayerFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  transferRelayer(
-    _transferId: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
   callStatic: {
     addRelayer(
       _relayer: PromiseOrValue<string>,
@@ -273,11 +253,6 @@ export interface RelayerFacet extends BaseContract {
       _relayerFeeVault: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    transferRelayer(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string>;
   };
 
   filters: {
@@ -312,13 +287,13 @@ export interface RelayerFacet extends BaseContract {
     RelayerAdded(relayer?: null, caller?: null): RelayerAddedEventFilter;
 
     "RelayerFeeVaultUpdated(address,address,address)"(
-      oldRouter?: null,
-      newRouter?: null,
+      oldVault?: null,
+      newVault?: null,
       caller?: null
     ): RelayerFeeVaultUpdatedEventFilter;
     RelayerFeeVaultUpdated(
-      oldRouter?: null,
-      newRouter?: null,
+      oldVault?: null,
+      newVault?: null,
       caller?: null
     ): RelayerFeeVaultUpdatedEventFilter;
 
@@ -351,11 +326,6 @@ export interface RelayerFacet extends BaseContract {
       _relayerFeeVault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    transferRelayer(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -379,11 +349,6 @@ export interface RelayerFacet extends BaseContract {
     setRelayerFeeVault(
       _relayerFeeVault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    transferRelayer(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }
