@@ -18,7 +18,7 @@ import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {ExecuteArgs, CallParams, TokenId, DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
+import {ExecuteArgs, TransferIdInformation, TokenId, DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
 import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 
 import {IXReceiver} from "../interfaces/IXReceiver.sol";
@@ -71,7 +71,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param transferId - The unique identifier of the crosschain transfer.
    * @param nonce - The bridge nonce of the transfer on the origin domain.
    * @param messageHash - The hash of the message bytes (containing all transfer info) that were bridged.
-   * @param params - The `CallParams` provided to the function.
+   * @param params - The `TransferIdInformation` provided to the function.
    * @param asset - The asset sent in with xcall
    * @param amount - The amount sent in with xcall
    */
@@ -79,7 +79,7 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 indexed transferId,
     uint256 indexed nonce,
     bytes32 indexed messageHash,
-    CallParams params,
+    TransferIdInformation params,
     address asset,
     uint256 amount
   );
@@ -96,7 +96,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Emitted when `execute` is called on the destination domain of a transfer.
    * @dev `execute` may be called when providing fast liquidity or when processing a reconciled (slow) transfer.
    * @param transferId - The unique identifier of the crosschain transfer.
-   * @param to - The recipient `CallParams.to` provided, created as indexed parameter.
+   * @param to - The recipient `TransferIdInformation.to` provided, created as indexed parameter.
    * @param asset - The asset the recipient is given or the external call is executed with. Should be the
    * adopted asset on that chain.
    * @param args - The `ExecuteArgs` provided to the function.
@@ -167,9 +167,9 @@ contract BridgeFacet is BaseConnextFacet {
 
   /**
    * @notice Only accept a transfer's designated delegate.
-   * @param _params The CallParams of the transfer.
+   * @param _params The TransferIdInformation of the transfer.
    */
-  modifier onlyDelegate(CallParams calldata _params) {
+  modifier onlyDelegate(TransferIdInformation calldata _params) {
     if (_params.delegate != msg.sender) revert BridgeFacet__onlyDelegate_notDelegate();
     _;
   }
@@ -261,10 +261,10 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _slippage,
     bytes calldata _callData
   ) external payable returns (bytes32) {
-    // NOTE: These CallParams fill in as much information as they can, but
+    // NOTE: These TransferIdInformation fill in as much information as they can, but
     // some info is left blank and will be assigned in the internal _xcall
     // function (i.e. normalizedIn, bridgedAmt, canonical info, etc).
-    CallParams memory params = CallParams({
+    TransferIdInformation memory params = TransferIdInformation({
       to: _to,
       callData: _callData,
       originDomain: s.domain,
@@ -292,10 +292,10 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _slippage,
     bytes calldata _callData
   ) external payable returns (bytes32) {
-    // NOTE: These CallParams fill in as much information as they can, but
+    // NOTE: These TransferIdInformation fill in as much information as they can, but
     // some info is left blank and will be assigned in the internal _xcall
     // function (i.e. normalizedIn, bridgedAmt, canonical info, etc).
-    CallParams memory params = CallParams({
+    TransferIdInformation memory params = TransferIdInformation({
       to: _to,
       callData: _callData,
       originDomain: s.domain,
@@ -381,10 +381,13 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Allows a user-specified account to update the slippage they are willing
    * to take on destination transfers.
    *
-   * @param _params CallParams associated with the transfer
+   * @param _params TransferIdInformation associated with the transfer
    * @param _slippage The updated slippage
    */
-  function forceUpdateSlippage(CallParams calldata _params, uint256 _slippage) external onlyDelegate(_params) {
+  function forceUpdateSlippage(TransferIdInformation calldata _params, uint256 _slippage)
+    external
+    onlyDelegate(_params)
+  {
     // Sanity check slippage
     if (_slippage > BPS_FEE_DENOMINATOR) {
       revert BridgeFacet__forceUpdateSlippage_invalidSlippage();
@@ -418,11 +421,11 @@ contract BridgeFacet is BaseConnextFacet {
    * burn the tokens here. If the local assets are canonical (meaning that the adopted<>local asset pairing is native
    * to this chain), we will custody the tokens here.
    *
-   * @param _params - The CallParams arguments.
+   * @param _params - The TransferIdInformation arguments.
    * @return bytes32 - The transfer ID of the newly created crosschain transfer.
    */
   function _xcall(
-    CallParams memory _params,
+    TransferIdInformation memory _params,
     address _asset,
     uint256 _amount
   ) internal whenNotPaused returns (bytes32) {
@@ -488,7 +491,7 @@ contract BridgeFacet is BaseConnextFacet {
           }
         }
 
-        // Update CallParams to reflect the canonical token information.
+        // Update TransferIdInformation to reflect the canonical token information.
         _params.canonicalDomain = canonical.domain;
         _params.canonicalId = canonical.id;
       }
@@ -778,7 +781,7 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _amount,
     address _asset,
     bool _reconciled,
-    CallParams calldata _params
+    TransferIdInformation calldata _params
   ) internal {
     // execute the calldata
     if (keccak256(_params.callData) == EMPTY_HASH) {

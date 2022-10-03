@@ -16,7 +16,7 @@ export const ORIGIN_TRANSFER_ENTITY = `
       status
       messageHash
     
-      # CallParams
+      # TransferIdInformation
       originDomain
       destinationDomain
       canonicalDomain
@@ -76,7 +76,7 @@ export const DESTINATION_TRANSFER_ENTITY = `
         id
       }
 
-      # CallParams
+      # TransferIdInformation
       originDomain
       destinationDomain
       canonicalDomain

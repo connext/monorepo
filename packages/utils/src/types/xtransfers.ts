@@ -82,7 +82,7 @@ export const XTransferDestinationSchema = Type.Object({
   reconcile: Type.Optional(XTransferMethodCallSchema),
 });
 
-export const CallParamsSchema = Type.Object({
+export const TransferIdInformationSchema = Type.Object({
   originDomain: Type.String(),
   destinationDomain: Type.String(),
   canonicalDomain: Type.String(),
@@ -103,8 +103,8 @@ export const XTransferSchema = Type.Intersect([
     transferId: Type.String(),
 
     // Call Params
-    // NOTE: CallParams is emitted by XCalled and Executed events, but not Reconciled event.
-    xparams: CallParamsSchema,
+    // NOTE: TransferIdInformation is emitted by XCalled and Executed events, but not Reconciled event.
+    xparams: TransferIdInformationSchema,
   }),
   Type.Object({
     origin: Type.Optional(XTransferOriginSchema),
@@ -116,7 +116,7 @@ export type XTransfer = Static<typeof XTransferSchema>;
 export const OriginTransferSchema = Type.Intersect([
   Type.Object({
     transferId: Type.String(),
-    xparams: CallParamsSchema,
+    xparams: TransferIdInformationSchema,
   }),
   Type.Object({
     origin: XTransferOriginSchema,
@@ -128,7 +128,7 @@ export type OriginTransfer = Static<typeof OriginTransferSchema>;
 export const DestinationTransferSchema = Type.Intersect([
   Type.Object({
     transferId: Type.String(),
-    xparams: CallParamsSchema,
+    xparams: TransferIdInformationSchema,
   }),
   Type.Object({
     origin: Type.Optional(XTransferOriginSchema),
@@ -137,7 +137,7 @@ export const DestinationTransferSchema = Type.Intersect([
 ]);
 export type DestinationTransfer = Static<typeof DestinationTransferSchema>;
 
-export type CallParams = Static<typeof CallParamsSchema>;
+export type TransferIdInformation = Static<typeof TransferIdInformationSchema>;
 
 export const XCallArgsSchema = Type.Object({
   origin: Type.String(),
@@ -153,7 +153,7 @@ export const XCallArgsSchema = Type.Object({
 export type XCallArgs = Static<typeof XCallArgsSchema>;
 
 export const ExecuteArgsSchema = Type.Object({
-  params: CallParamsSchema,
+  params: TransferIdInformationSchema,
   routers: Type.Array(TAddress),
   routerSignatures: Type.Array(Type.String()),
   sequencer: TAddress,

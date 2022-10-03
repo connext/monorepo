@@ -38,7 +38,7 @@ export type TokenIdStructOutput = [number, string] & {
   id: string;
 };
 
-export type CallParamsStruct = {
+export type TransferIdInformationStruct = {
   originDomain: PromiseOrValue<BigNumberish>;
   destinationDomain: PromiseOrValue<BigNumberish>;
   canonicalDomain: PromiseOrValue<BigNumberish>;
@@ -54,7 +54,7 @@ export type CallParamsStruct = {
   canonicalId: PromiseOrValue<BytesLike>;
 };
 
-export type CallParamsStructOutput = [
+export type TransferIdInformationStructOutput = [
   number,
   number,
   number,
@@ -85,7 +85,7 @@ export type CallParamsStructOutput = [
 };
 
 export type ExecuteArgsStruct = {
-  params: CallParamsStruct;
+  params: TransferIdInformationStruct;
   routers: PromiseOrValue<string>[];
   routerSignatures: PromiseOrValue<BytesLike>[];
   sequencer: PromiseOrValue<string>;
@@ -93,13 +93,13 @@ export type ExecuteArgsStruct = {
 };
 
 export type ExecuteArgsStructOutput = [
-  CallParamsStructOutput,
+  TransferIdInformationStructOutput,
   string[],
   string[],
   string,
   string
 ] & {
-  params: CallParamsStructOutput;
+  params: TransferIdInformationStructOutput;
   routers: string[];
   routerSignatures: string[];
   sequencer: string;
@@ -623,7 +623,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "facets", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "forceUpdateSlippage",
-    values: [CallParamsStruct, PromiseOrValue<BigNumberish>]
+    values: [TransferIdInformationStruct, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "getAavePortalDebt",
@@ -861,7 +861,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "repayAavePortal",
     values: [
-      CallParamsStruct,
+      TransferIdInformationStruct,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
@@ -870,7 +870,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "repayAavePortalFor",
     values: [
-      CallParamsStruct,
+      TransferIdInformationStruct,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
@@ -1771,7 +1771,7 @@ export interface IConnextHandler extends BaseContract {
     >;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -2035,7 +2035,7 @@ export interface IConnextHandler extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     repayAavePortal(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -2043,7 +2043,7 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<ContractTransaction>;
 
     repayAavePortalFor(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2444,7 +2444,7 @@ export interface IConnextHandler extends BaseContract {
   facets(overrides?: CallOverrides): Promise<IDiamondLoupe.FacetStructOutput[]>;
 
   forceUpdateSlippage(
-    _params: CallParamsStruct,
+    _params: TransferIdInformationStruct,
     _slippage: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -2708,7 +2708,7 @@ export interface IConnextHandler extends BaseContract {
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
   repayAavePortal(
-    _params: CallParamsStruct,
+    _params: TransferIdInformationStruct,
     _backingAmount: PromiseOrValue<BigNumberish>,
     _feeAmount: PromiseOrValue<BigNumberish>,
     _maxIn: PromiseOrValue<BigNumberish>,
@@ -2716,7 +2716,7 @@ export interface IConnextHandler extends BaseContract {
   ): Promise<ContractTransaction>;
 
   repayAavePortalFor(
-    _params: CallParamsStruct,
+    _params: TransferIdInformationStruct,
     _backingAmount: PromiseOrValue<BigNumberish>,
     _feeAmount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -3117,7 +3117,7 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<IDiamondLoupe.FacetStructOutput[]>;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -3369,7 +3369,7 @@ export interface IConnextHandler extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
     repayAavePortal(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -3377,7 +3377,7 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<void>;
 
     repayAavePortalFor(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -3814,7 +3814,7 @@ export interface IConnextHandler extends BaseContract {
     facets(overrides?: CallOverrides): Promise<BigNumber>;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -4078,7 +4078,7 @@ export interface IConnextHandler extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     repayAavePortal(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -4086,7 +4086,7 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<BigNumber>;
 
     repayAavePortalFor(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4496,7 +4496,7 @@ export interface IConnextHandler extends BaseContract {
     facets(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -4762,7 +4762,7 @@ export interface IConnextHandler extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     repayAavePortal(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -4770,7 +4770,7 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     repayAavePortalFor(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }

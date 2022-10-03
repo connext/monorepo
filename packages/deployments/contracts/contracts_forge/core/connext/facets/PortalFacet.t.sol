@@ -9,7 +9,7 @@ import {IDiamondCut} from "../../../../contracts/core/connext/interfaces/IDiamon
 
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
-import {CallParams} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {TransferIdInformation} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {PortalFacet} from "../../../../contracts/core/connext/facets/PortalFacet.sol";
 import {TestAavePool} from "../../../../contracts/test/TestAavePool.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
@@ -28,7 +28,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   address router = address(1111);
   address aavePool;
 
-  CallParams defaultParams;
+  TransferIdInformation defaultParams;
   address originSender = address(1232123);
   uint256 bridgedAmt = 1 ether;
   uint256 nonce = 89;
@@ -50,7 +50,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     // set pool
     s.aavePool = aavePool;
 
-    defaultParams = CallParams({
+    defaultParams = TransferIdInformation({
       originDomain: _originDomain,
       destinationDomain: _destinationDomain,
       canonicalDomain: _canonicalDomain,
@@ -70,7 +70,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   // ============ Test utils ============
 
   // helper for getting updated params and transfer ID, should be called after setting up asset
-  function utils_getParams() public returns (CallParams memory, bytes32) {
+  function utils_getParams() public returns (TransferIdInformation memory, bytes32) {
     // Update canonical ID info.
     defaultParams.canonicalId = _canonicalId;
     defaultParams.canonicalDomain = _canonicalDomain;
@@ -78,7 +78,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   }
 
   function utils_repayPortal(
-    CallParams memory params,
+    TransferIdInformation memory params,
     uint256 backingAmount,
     uint256 feeAmount,
     uint256 maxIn
@@ -87,7 +87,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   }
 
   function utils_repayPortalFor(
-    CallParams memory params,
+    TransferIdInformation memory params,
     uint256 backingAmount,
     uint256 feeAmount
   ) public {
@@ -149,7 +149,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     // set approval context
     s.routerPermissionInfo.approvedForPortalRouters[router] = true;
 
-    (CallParams memory params, bytes32 transferId) = utils_getParams();
+    (TransferIdInformation memory params, bytes32 transferId) = utils_getParams();
 
     // set debt amount
     uint256 backing = 1111;
@@ -182,7 +182,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     // set approval context
     s.routerPermissionInfo.approvedForPortalRouters[router] = true;
 
-    (CallParams memory params, ) = utils_getParams();
+    (TransferIdInformation memory params, ) = utils_getParams();
 
     // set liquidity
     assertEq(s.routerBalances[router][_local], 0);
@@ -201,7 +201,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   function test_PortalFacet__repayAavePortal_failsIfSwapFailed() public {
     // we are on the destination domain where local != canonical
     utils_setupAsset(false, false);
-    (CallParams memory params, ) = utils_getParams();
+    (TransferIdInformation memory params, ) = utils_getParams();
 
     // set approval context
     s.routerPermissionInfo.approvedForPortalRouters[router] = true;
@@ -231,7 +231,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   function test_PortalFacet__repayAavePortal_failsIfRepayTooMuch() public {
     // we are on the destination domain where local != canonical
     utils_setupAsset(false, false);
-    (CallParams memory params, bytes32 transferId) = utils_getParams();
+    (TransferIdInformation memory params, bytes32 transferId) = utils_getParams();
 
     // set approval context
     s.routerPermissionInfo.approvedForPortalRouters[router] = true;
@@ -273,7 +273,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   function test_PortalFacet__repayAavePortal_shouldWorkUsingSwap() public {
     // we are on the destination domain where local != canonical
     utils_setupAsset(false, false);
-    (CallParams memory params, bytes32 transferId) = utils_getParams();
+    (TransferIdInformation memory params, bytes32 transferId) = utils_getParams();
 
     // set approval context
     s.routerPermissionInfo.approvedForPortalRouters[router] = true;
@@ -344,7 +344,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
 
     // we are on the destination domain where local != canonical
     utils_setupAsset(false, false);
-    (CallParams memory params, ) = utils_getParams();
+    (TransferIdInformation memory params, ) = utils_getParams();
 
     vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortalFor_zeroAmount.selector));
     utils_repayPortalFor(params, backing, fee);
@@ -354,7 +354,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   function test_PortalFacet__repayAavePortalFor_shouldWork() public {
     // we are on the destination domain where local != canonical
     utils_setupAsset(false, false);
-    (CallParams memory params, bytes32 transferId) = utils_getParams();
+    (TransferIdInformation memory params, bytes32 transferId) = utils_getParams();
 
     // set debt amount
     uint256 backing = 1111;

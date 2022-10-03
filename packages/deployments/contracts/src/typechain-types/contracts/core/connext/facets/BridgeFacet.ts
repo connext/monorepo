@@ -28,7 +28,7 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
-export type CallParamsStruct = {
+export type TransferIdInformationStruct = {
   originDomain: PromiseOrValue<BigNumberish>;
   destinationDomain: PromiseOrValue<BigNumberish>;
   canonicalDomain: PromiseOrValue<BigNumberish>;
@@ -44,7 +44,7 @@ export type CallParamsStruct = {
   canonicalId: PromiseOrValue<BytesLike>;
 };
 
-export type CallParamsStructOutput = [
+export type TransferIdInformationStructOutput = [
   number,
   number,
   number,
@@ -75,7 +75,7 @@ export type CallParamsStructOutput = [
 };
 
 export type ExecuteArgsStruct = {
-  params: CallParamsStruct;
+  params: TransferIdInformationStruct;
   routers: PromiseOrValue<string>[];
   routerSignatures: PromiseOrValue<BytesLike>[];
   sequencer: PromiseOrValue<string>;
@@ -83,13 +83,13 @@ export type ExecuteArgsStruct = {
 };
 
 export type ExecuteArgsStructOutput = [
-  CallParamsStructOutput,
+  TransferIdInformationStructOutput,
   string[],
   string[],
   string,
   string
 ] & {
-  params: CallParamsStructOutput;
+  params: TransferIdInformationStructOutput;
   routers: string[];
   routerSignatures: string[];
   sequencer: string;
@@ -165,7 +165,7 @@ export interface BridgeFacetInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "forceUpdateSlippage",
-    values: [CallParamsStruct, PromiseOrValue<BigNumberish>]
+    values: [TransferIdInformationStruct, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(
@@ -402,12 +402,19 @@ export interface XCalledEventObject {
   transferId: string;
   nonce: BigNumber;
   messageHash: string;
-  params: CallParamsStructOutput;
+  params: TransferIdInformationStructOutput;
   asset: string;
   amount: BigNumber;
 }
 export type XCalledEvent = TypedEvent<
-  [string, BigNumber, string, CallParamsStructOutput, string, BigNumber],
+  [
+    string,
+    BigNumber,
+    string,
+    TransferIdInformationStructOutput,
+    string,
+    BigNumber
+  ],
   XCalledEventObject
 >;
 
@@ -471,7 +478,7 @@ export interface BridgeFacet extends BaseContract {
     ): Promise<ContractTransaction>;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -559,7 +566,7 @@ export interface BridgeFacet extends BaseContract {
   ): Promise<ContractTransaction>;
 
   forceUpdateSlippage(
-    _params: CallParamsStruct,
+    _params: TransferIdInformationStruct,
     _slippage: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -647,7 +654,7 @@ export interface BridgeFacet extends BaseContract {
     ): Promise<string>;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -844,7 +851,7 @@ export interface BridgeFacet extends BaseContract {
     ): Promise<BigNumber>;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -935,7 +942,7 @@ export interface BridgeFacet extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

@@ -11,7 +11,7 @@ import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.
 import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
-import {CallParams, ExecuteArgs, TokenId, DestinationTransferStatus} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {TransferIdInformation, ExecuteArgs, TokenId, DestinationTransferStatus} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
@@ -71,9 +71,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   uint256 _defaultAmount = 1.1 ether;
   // default nonce on xcall
   uint256 _defaultNonce = s.nonce;
-  // default CallParams
-  CallParams _defaultParams =
-    CallParams({
+  // default TransferIdInformation
+  TransferIdInformation _defaultParams =
+    TransferIdInformation({
       originDomain: _originDomain,
       destinationDomain: _destinationDomain,
       canonicalDomain: 0, // Will be set in setUp; should also be updated in helpers.
@@ -183,8 +183,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   {
     s.domain = _destinationDomain;
 
-    // Format CallParams.
-    CallParams memory params = _defaultParams;
+    // Format TransferIdInformation.
+    TransferIdInformation memory params = _defaultParams;
     params.canonicalId = _canonicalId;
     params.canonicalDomain = _canonicalDomain;
     params.bridgedAmt = _defaultAmount;
@@ -239,7 +239,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // Helpers used for executing target methods with given params that assert expected base behavior.
   function helpers_setupSuccessfulXcallCallAssertions(
     bytes32 transferId,
-    CallParams memory params,
+    TransferIdInformation memory params,
     address asset,
     uint256 amount,
     bool shouldSwap
@@ -271,7 +271,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // Helper to prevent stack too deep issues (since there a lot of arguments to xcall).
   function helpers_wrappedXCall(
-    CallParams memory params,
+    TransferIdInformation memory params,
     address asset,
     uint256 amount
   ) public returns (bytes32) {
@@ -300,7 +300,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // Calls `xcall` with given args and handles standard assertions.
   function helpers_xcallAndAssert(
-    CallParams memory params,
+    TransferIdInformation memory params,
     address asset,
     uint256 amount,
     bytes4 expectedError,
@@ -1054,7 +1054,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert();
   }
 
-  // `xcallIntoLocal` should effectively be the same as the xcall but the CallParams should
+  // `xcallIntoLocal` should effectively be the same as the xcall but the TransferIdInformation should
   // have `receiveLocal` set to true.
   function test_BridgeFacet__xcallIntoLocal_works() public {
     utils_setupAsset(false, false);
@@ -1083,7 +1083,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _relayerFee = 0.1 ether;
 
     // Flesh out the params and get the expected transfer ID.
-    CallParams memory params = _defaultParams;
+    TransferIdInformation memory params = _defaultParams;
     params.bridgedAmt = _defaultAmount;
     params.normalizedIn = _defaultAmount;
     params.canonicalId = _canonicalId;

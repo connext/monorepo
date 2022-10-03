@@ -28,7 +28,7 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
-export type CallParamsStruct = {
+export type TransferIdInformationStruct = {
   originDomain: PromiseOrValue<BigNumberish>;
   destinationDomain: PromiseOrValue<BigNumberish>;
   canonicalDomain: PromiseOrValue<BigNumberish>;
@@ -44,7 +44,7 @@ export type CallParamsStruct = {
   canonicalId: PromiseOrValue<BytesLike>;
 };
 
-export type CallParamsStructOutput = [
+export type TransferIdInformationStructOutput = [
   number,
   number,
   number,
@@ -75,7 +75,7 @@ export type CallParamsStructOutput = [
 };
 
 export type ExecuteArgsStruct = {
-  params: CallParamsStruct;
+  params: TransferIdInformationStruct;
   routers: PromiseOrValue<string>[];
   routerSignatures: PromiseOrValue<BytesLike>[];
   sequencer: PromiseOrValue<string>;
@@ -83,13 +83,13 @@ export type ExecuteArgsStruct = {
 };
 
 export type ExecuteArgsStructOutput = [
-  CallParamsStructOutput,
+  TransferIdInformationStructOutput,
   string[],
   string[],
   string,
   string
 ] & {
-  params: CallParamsStructOutput;
+  params: TransferIdInformationStructOutput;
   routers: string[];
   routerSignatures: string[];
   sequencer: string;
@@ -460,7 +460,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "forceUpdateSlippage",
-    values: [CallParamsStruct, PromiseOrValue<BigNumberish>]
+    values: [TransferIdInformationStruct, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(
@@ -576,7 +576,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "repayAavePortal",
     values: [
-      CallParamsStruct,
+      TransferIdInformationStruct,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
@@ -585,7 +585,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "repayAavePortalFor",
     values: [
-      CallParamsStruct,
+      TransferIdInformationStruct,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
@@ -1675,12 +1675,19 @@ export interface XCalledEventObject {
   transferId: string;
   nonce: BigNumber;
   messageHash: string;
-  params: CallParamsStructOutput;
+  params: TransferIdInformationStructOutput;
   asset: string;
   amount: BigNumber;
 }
 export type XCalledEvent = TypedEvent<
-  [string, BigNumber, string, CallParamsStructOutput, string, BigNumber],
+  [
+    string,
+    BigNumber,
+    string,
+    TransferIdInformationStructOutput,
+    string,
+    BigNumber
+  ],
   XCalledEventObject
 >;
 
@@ -2185,7 +2192,7 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<ContractTransaction>;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -2311,7 +2318,7 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<[BigNumber]>;
 
     repayAavePortal(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -2319,7 +2326,7 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<ContractTransaction>;
 
     repayAavePortalFor(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -2842,7 +2849,7 @@ export interface ConnextHandler extends BaseContract {
   ): Promise<ContractTransaction>;
 
   forceUpdateSlippage(
-    _params: CallParamsStruct,
+    _params: TransferIdInformationStruct,
     _slippage: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -2960,7 +2967,7 @@ export interface ConnextHandler extends BaseContract {
   ): Promise<BigNumber>;
 
   repayAavePortal(
-    _params: CallParamsStruct,
+    _params: TransferIdInformationStruct,
     _backingAmount: PromiseOrValue<BigNumberish>,
     _feeAmount: PromiseOrValue<BigNumberish>,
     _maxIn: PromiseOrValue<BigNumberish>,
@@ -2968,7 +2975,7 @@ export interface ConnextHandler extends BaseContract {
   ): Promise<ContractTransaction>;
 
   repayAavePortalFor(
-    _params: CallParamsStruct,
+    _params: TransferIdInformationStruct,
     _backingAmount: PromiseOrValue<BigNumberish>,
     _feeAmount: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -3491,7 +3498,7 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<string>;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -3611,7 +3618,7 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<BigNumber>;
 
     repayAavePortal(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -3619,7 +3626,7 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<void>;
 
     repayAavePortalFor(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -4582,7 +4589,7 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<BigNumber>;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -4700,7 +4707,7 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<BigNumber>;
 
     repayAavePortal(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -4708,7 +4715,7 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<BigNumber>;
 
     repayAavePortalFor(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -5234,7 +5241,7 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -5354,7 +5361,7 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     repayAavePortal(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -5362,7 +5369,7 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     repayAavePortalFor(
-      _params: CallParamsStruct,
+      _params: TransferIdInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
