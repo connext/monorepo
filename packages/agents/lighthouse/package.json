@@ -42,7 +42,6 @@
     "ethers": "5.7.0",
     "fastify": "4.5.3",
     "graphql": "16.6.0",
-    "merkletreejs": "^0.2.32",
     "prom-client": "14.1.0"
   },
   "devDependencies": {

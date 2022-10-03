@@ -1,5 +1,3 @@
-import { X509Certificate } from "crypto";
-
 import { NxtpSdkUtils } from "@connext/nxtp-sdk";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
