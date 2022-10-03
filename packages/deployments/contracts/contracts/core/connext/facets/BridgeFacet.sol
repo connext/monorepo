@@ -501,7 +501,7 @@ contract BridgeFacet is BaseConnextFacet {
           // not only the minted amount
           uint256 custodied = IERC20(local).balanceOf(address(this)) + _amount;
           uint256 cap = s.caps[key];
-          if (custodied > cap && cap > 0) {
+          if (cap > 0 && custodied > cap) {
             revert BridgeFacet__xcall_capReached();
           }
         }
