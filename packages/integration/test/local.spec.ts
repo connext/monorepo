@@ -13,7 +13,7 @@ import {
 } from "@connext/nxtp-utils";
 import { TransactionService, getConnextInterface } from "@connext/nxtp-txservice";
 import { NxtpSdkBase, NxtpSdkUtils } from "@connext/nxtp-sdk";
-import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers";
+import { BigNumber, constants, Contract, ContractInterface, providers, utils, Wallet } from "ethers";
 import { expect } from "chai";
 /**
  * NOTE: These deployment imports must be kept here (or any .ts file that won't be transpiled/compiled) due to local_1337 and local_1338
@@ -26,22 +26,16 @@ import { expect } from "chai";
  */
 // Local 1338 deployment imports:
 import ConnextHandler_DiamondProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/ConnextHandler_DiamondProxy.json";
-import PromiseRouterUpgradeBeaconProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/PromiseRouterUpgradeBeaconProxy.json";
-import RelayerFeeRouterUpgradeBeaconProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/RelayerFeeRouterUpgradeBeaconProxy.json";
-import BridgeRouterUpgradeBeaconProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/BridgeRouterUpgradeBeaconProxy.json";
 import BridgeTokenUpgradeBeacon_1338 from "@connext/nxtp-contracts/deployments/local_1338/BridgeTokenUpgradeBeacon.json";
 import TestERC20_1338 from "@connext/nxtp-contracts/deployments/local_1338/TestERC20.json";
 // Local 1337 deployment imports:
 import ConnextHandler_DiamondProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/ConnextHandler_DiamondProxy.json";
-import PromiseRouterUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/PromiseRouterUpgradeBeaconProxy.json";
-import RelayerFeeRouterUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/RelayerFeeRouterUpgradeBeaconProxy.json";
-import BridgeRouterUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/BridgeRouterUpgradeBeaconProxy.json";
 import BridgeTokenUpgradeBeacon_1337 from "@connext/nxtp-contracts/deployments/local_1337/BridgeTokenUpgradeBeacon.json";
 import TestERC20_1337 from "@connext/nxtp-contracts/deployments/local_1337/TestERC20.json";
 import { ConnextHandlerInterface } from "@connext/nxtp-contracts";
 
 import { pollSomething } from "./helpers/shared";
-import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
+import { setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
 import { DEPLOYER_WALLET, PARAMETERS as _PARAMETERS, SUBG_POLL_PARITY, USER_WALLET } from "./constants/local";
 import { addSequencer } from "./helpers/local/addSequencer";
 
@@ -49,9 +43,6 @@ export const logger = new Logger({ name: "e2e" });
 
 type Deployments = {
   ConnextHandler: string;
-  PromiseRouterUpgradeBeaconProxy: string;
-  RelayerFeeRouterUpgradeBeaconProxy: string;
-  BridgeRouterUpgradeBeaconProxy: string;
   TokenBeacon: string;
   TestERC20: string;
 };
@@ -67,18 +58,12 @@ export const getDeployments = (_chain: string | number): Deployments => {
   if (chain === "1337") {
     result = {
       ConnextHandler: ConnextHandler_DiamondProxy_1337.address,
-      PromiseRouterUpgradeBeaconProxy: PromiseRouterUpgradeBeaconProxy_1337.address,
-      RelayerFeeRouterUpgradeBeaconProxy: RelayerFeeRouterUpgradeBeaconProxy_1337.address,
-      BridgeRouterUpgradeBeaconProxy: BridgeRouterUpgradeBeaconProxy_1337.address,
       TokenBeacon: BridgeTokenUpgradeBeacon_1337.address,
       TestERC20: TestERC20_1337.address,
     };
   } else if (chain === "1338") {
     result = {
       ConnextHandler: ConnextHandler_DiamondProxy_1338.address,
-      PromiseRouterUpgradeBeaconProxy: PromiseRouterUpgradeBeaconProxy_1338.address,
-      RelayerFeeRouterUpgradeBeaconProxy: RelayerFeeRouterUpgradeBeaconProxy_1338.address,
-      BridgeRouterUpgradeBeaconProxy: BridgeRouterUpgradeBeaconProxy_1338.address,
       TokenBeacon: BridgeTokenUpgradeBeacon_1338.address,
       TestERC20: TestERC20_1338.address,
     };
@@ -133,7 +118,7 @@ const userTxService = new TransactionService(
 
 const sendXCall = async (
   sdkBase: NxtpSdkBase,
-  xparams: Partial<CallParams> & { transactingAsset?: string; transactingAmount?: string } = {},
+  xparams: Partial<CallParams & { asset: string; amount: string }> = {},
   signer?: Wallet,
 ): Promise<{
   receipt: providers.TransactionReceipt;
@@ -142,24 +127,14 @@ const sendXCall = async (
   logger.info("Formatting XCall.");
   const { asset, amount, ...callParams } = xparams;
   const xcallData: XCallArgs = {
-    params: {
-      to: PARAMETERS.AGENTS.USER.address,
-      originDomain: PARAMETERS.A.DOMAIN,
-      destinationDomain: PARAMETERS.B.DOMAIN,
-      callback: constants.AddressZero,
-      agent: PARAMETERS.AGENTS.USER.address,
-      callbackFee: "0",
-      callData: "0x",
-      // TODO: Will need option to override `receiveLocal` when we do AMM-related tests.
-      receiveLocal: true,
-      recovery: PARAMETERS.AGENTS.USER.address,
-      relayerFee: "0",
-      destinationMinOut: "0",
-      ...callParams,
-    },
+    origin: PARAMETERS.A.DOMAIN,
+    to: callParams.to ?? PARAMETERS.AGENTS.USER.address,
+    destination: callParams.destinationDomain ?? PARAMETERS.B.DOMAIN,
+    delegate: PARAMETERS.AGENTS.USER.address,
     asset: asset ?? PARAMETERS.A.DEPLOYMENTS.TestERC20,
     amount: amount ?? "1000",
-    originMinOut: "0",
+    slippage: callParams.slippage ?? "9000",
+    callData: callParams.callData ?? "0x",
   };
   const tx = await sdkBase.xcall(xcallData);
 
@@ -327,24 +302,6 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
   // TODO: Mirror connectors set up for messaging
   // TODO: Whitelist messaging routers as callers of dispatch?
   // TODO: Approve relayers as caller for connectors and root manager?
-
-  logger.info("Enrolling handlers...");
-  await enrollHandlers(
-    [
-      {
-        chain: PARAMETERS.A.CHAIN,
-        domain: PARAMETERS.A.DOMAIN,
-        ...PARAMETERS.A.DEPLOYMENTS,
-      },
-      {
-        chain: PARAMETERS.B.CHAIN,
-        domain: PARAMETERS.B.DOMAIN,
-        ...PARAMETERS.B.DEPLOYMENTS,
-      },
-    ],
-    deployerTxService,
-  );
-  logger.info("Enrolled handlers.");
 
   logger.info("Setting up router...");
   await setupRouter(
@@ -572,7 +529,7 @@ describe("LOCAL:E2E", () => {
     // TODO: Check user funds, assert tokens were deducted.
 
     logger.info("Waiting for execution on the destination domain.", requestContext, methodContext, {
-      domain: xcallData.params.destinationDomain,
+      domain: xcallData.destination,
       transferId: originTransfer?.transferId,
     });
 
@@ -604,8 +561,8 @@ describe("LOCAL:E2E", () => {
         });
       } else {
         logger.info(`Retrieved auction status from Sequencer.`, requestContext, methodContext, {
-          originDomain: xcallData.params.originDomain,
-          destinationDomain: xcallData.params.destinationDomain,
+          originDomain: xcallData.origin,
+          destinationDomain: xcallData.destination,
           etc: { status: status.data },
         });
       }
@@ -616,8 +573,8 @@ describe("LOCAL:E2E", () => {
 
     // TODO: Check router liquidity on-chain, assert funds were deducted.
     logger.info("Fast-liquidity transfer completed successfully!", requestContext, methodContext, {
-      originDomain: xcallData.params.originDomain,
-      destinationDomain: xcallData.params.destinationDomain,
+      originDomain: xcallData.origin,
+      destinationDomain: xcallData.destination,
       etc: {
         transfer: {
           ...originTransfer,
@@ -631,7 +588,7 @@ describe("LOCAL:E2E", () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
       sdkBase,
-      { forceSlow: false, transactingAmount: "0", transactingAsset: constants.AddressZero },
+      { amount: "0", asset: constants.AddressZero },
       PARAMETERS.AGENTS.USER.signer.connect(originProvider),
     );
     const originTransfer = await getTransferByTransactionHash(sdkUtils, PARAMETERS.A.DOMAIN, receipt.transactionHash);
@@ -639,7 +596,7 @@ describe("LOCAL:E2E", () => {
     // TODO: Check user funds, assert tokens were deducted.
 
     logger.info("Waiting for execution on the destination domain.", requestContext, methodContext, {
-      domain: xcallData.params.destinationDomain,
+      domain: xcallData.destination,
       transferId: originTransfer?.transferId,
     });
 
@@ -671,8 +628,8 @@ describe("LOCAL:E2E", () => {
         });
       } else {
         logger.info(`Retrieved auction status from Sequencer.`, requestContext, methodContext, {
-          originDomain: xcallData.params.originDomain,
-          destinationDomain: xcallData.params.destinationDomain,
+          originDomain: xcallData.origin,
+          destinationDomain: xcallData.destination,
           etc: { status: status.data },
         });
       }
@@ -683,8 +640,8 @@ describe("LOCAL:E2E", () => {
 
     // TODO: Check router liquidity on-chain, assert funds were deducted.
     logger.info("Fast-liquidity transfer completed successfully!", requestContext, methodContext, {
-      originDomain: xcallData.params.originDomain,
-      destinationDomain: xcallData.params.destinationDomain,
+      originDomain: xcallData.origin,
+      destinationDomain: xcallData.destination,
       etc: {
         transfer: {
           ...originTransfer,
@@ -712,7 +669,7 @@ describe("LOCAL:E2E", () => {
     );
 
     const iface = getConnextInterface();
-    const connext = new Contract(PARAMETERS.B.DEPLOYMENTS.ConnextHandler, iface, deployer);
+    const connext = new Contract(PARAMETERS.B.DEPLOYMENTS.ConnextHandler, iface as ContractInterface, deployer);
 
     // Extract the xchain nomad message bytes from the XCalled event logged.
     const xcalledEvent = connext.filters.XCalled(null).address;
@@ -742,8 +699,8 @@ describe("LOCAL:E2E", () => {
     expect(destinationTransfer.destination?.status).to.be.eq(XTransferStatus.CompletedSlow);
 
     logger.info("Slow-liquidity transfer completed successfully!", requestContext, methodContext, {
-      originDomain: xcallData.params.originDomain,
-      destinationDomain: xcallData.params.destinationDomain,
+      originDomain: xcallData.origin,
+      destinationDomain: xcallData.destination,
       etc: {
         transfer: {
           ...originTransfer,
