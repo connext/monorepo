@@ -98,8 +98,8 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     MultichainSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
 
-    // Check: root is updated
-    assertEq(MultichainSpokeConnector(_l2Connector).aggregateRootPending(), bytes32(_data));
+    // Check: root is marked as pending
+    assertEq(MultichainSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
   }
 
   // msg.sender is not the bridge on L2

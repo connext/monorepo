@@ -246,13 +246,15 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   /**
    * @notice Manually remove a pending aggregateRoot by owner if the contract is paused.
    * @dev This method is required for handling fraud cases in the current construction.
+   * @param _fraudulentRoot Target fraudulent root that should be erased from the
+   * `pendingAggregateRoots` mapping.
    */
-  function removePendingAggregateRoot(bytes32 _pending) public onlyOwner {
+  function removePendingAggregateRoot(bytes32 _fraudulentRoot) public onlyOwner {
     require(watcherPaused, "!paused");
     // Sanity check: pending aggregate root exists.
-    require(pendingAggregateRoots[_pending] != 0, "aggregateRoot !exists");
-    delete pendingAggregateRoots[_pending];
-    emit AggregateRootRemoved(_pending);
+    require(pendingAggregateRoots[_fraudulentRoot] != 0, "aggregateRoot !exists");
+    delete pendingAggregateRoots[_fraudulentRoot];
+    emit AggregateRootRemoved(_fraudulentRoot);
   }
 
   // ============ Public Functions ============

@@ -69,6 +69,6 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
     // ensure it is headed to this domain
     require(GnosisAmb(AMB).destinationChainId() == block.chainid, "!destinationChain");
     // update the aggregate root on the domain
-    updateAggregateRoot(bytes32(_data));
+    receiveAggregateRoot(bytes32(_data));
   }
 }

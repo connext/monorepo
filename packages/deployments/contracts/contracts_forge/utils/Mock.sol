@@ -440,8 +440,7 @@ contract MockConnector is SpokeConnector, IHubConnector {
     lastReceived = keccak256(_data);
     if (updatesAggregate) {
       // FIXME: when using this.update it sets caller to address(this) not AMB
-      aggregateRootCurrent = bytes32(_data);
-      aggregateRootPending = bytes32(_data);
+      receiveAggregateRoot(bytes32(_data));
     } else {
       RootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
     }

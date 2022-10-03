@@ -66,7 +66,7 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
     // get the data (should be the aggregate root)
     require(data.length == 32, "!length");
     // update the aggregate root on the domain
-    updateAggregateRoot(bytes32(data));
+    receiveAggregateRoot(bytes32(data));
 
     emit MessageProcessed(data, msg.sender);
   }

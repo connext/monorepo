@@ -108,7 +108,8 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     OptimismSpokeConnector(_l2Connector).processMessage(_data);
 
-    assertEq(bytes32(_data), OptimismSpokeConnector(_l2Connector).aggregateRootPending());
+    // Check: root is marked as pending
+    assertEq(OptimismSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
   }
 
   function test_OptimismSpokeConnector__processMessage_failsIfNotMirrorConnector() public {
@@ -145,6 +146,7 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     OptimismSpokeConnector(_l2Connector).processMessage(_data);
 
-    assertEq(bytes32(_data), OptimismSpokeConnector(_l2Connector).aggregateRootPending());
+    // Check: root is marked as pending
+    assertEq(OptimismSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
   }
 }

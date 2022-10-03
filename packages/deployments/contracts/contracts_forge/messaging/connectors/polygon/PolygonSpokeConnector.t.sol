@@ -105,8 +105,8 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     PolygonSpokeConnector(_l2Connector).processMessageFromRoot(stateId, rootSender, _data);
 
-    // assert update
-    assertEq(bytes32(_data), PolygonSpokeConnector(_l2Connector).aggregateRootPending());
+    // Check: root is marked as pending
+    assertEq(PolygonSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
   }
 
   function test_PolygonSpokeConnector__processMessage_works_fuzz(bytes32 data) public {
@@ -125,8 +125,8 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     PolygonSpokeConnector(_l2Connector).processMessageFromRoot(stateId, rootSender, _data);
 
-    // assert update
-    assertEq(bytes32(_data), PolygonSpokeConnector(_l2Connector).aggregateRootPending());
+    // Check: root is marked as pending
+    assertEq(PolygonSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
   }
 
   function test_PolygonSpokeConnector__processMessage_failsIfNotAmb() public {
