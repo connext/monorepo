@@ -63,7 +63,6 @@ contract BridgeFacet is BaseConnextFacet {
   // ============ Properties ============
 
   uint16 public constant AAVE_REFERRAL_CODE = 0;
-  uint256 public constant DUST_AMOUNT = 0.06 ether;
 
   // ============ Events ============
 
