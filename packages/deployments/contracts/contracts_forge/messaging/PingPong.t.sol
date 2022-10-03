@@ -280,7 +280,7 @@ contract PingPong is ConnectorHelper {
     assertEq(MockConnector(connector).lastReceived(), keccak256(abi.encode(aggregateRoot)));
 
     // Aggregate root should be updated.
-    assertEq(SpokeConnector(connector).aggregateRootCurrent(), aggregateRoot);
+    assertEq(SpokeConnector(connector).provenAggregateRoots(aggregateRoot), true);
   }
 
   // Get the proof/path for a given message in the reference spoke tree.
