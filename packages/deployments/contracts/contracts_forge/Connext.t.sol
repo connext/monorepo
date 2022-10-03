@@ -380,20 +380,6 @@ contract ConnextTest is ForgeHelper, Deployer {
     }
 
     {
-      // Expect a Sent event.
-      address bridgedAsset = asset == address(0) ? address(0) : _originLocal;
-      vm.expectEmit(true, true, true, true);
-      emit Send(
-        bridgedAsset,
-        address(this),
-        params.destinationDomain,
-        TypeCasts.addressToBytes32(address(_destinationConnext)),
-        params.bridgedAmt,
-        true
-      );
-    }
-
-    {
       // Expect an XCalled event.
       vm.expectEmit(true, true, true, true);
       emit XCalled(

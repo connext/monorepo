@@ -140,14 +140,6 @@ contract BridgeFacet is BaseConnextFacet {
   event AavePortalMintUnbacked(bytes32 indexed transferId, address indexed router, address asset, uint256 amount);
 
   /**
-   * @notice Emitted when the executor variable is updated
-   * @param oldExecutor - The executor old value
-   * @param newExecutor - The executor new value
-   * @param caller - The account that called the function
-   */
-  event ExecutorUpdated(address oldExecutor, address newExecutor, address caller);
-
-  /**
    * @notice Emitted when a new remote instance is added
    * @param domain - The domain the remote instance is on
    * @param remote - The address of the remote instance
@@ -168,25 +160,6 @@ contract BridgeFacet is BaseConnextFacet {
    * @param caller - The account that called the function
    */
   event SequencerRemoved(address sequencer, address caller);
-
-  /**
-   * @notice emitted when tokens are sent from this domain to another domain
-   * @param token the address of the token contract
-   * @param from the address sending tokens
-   * @param toDomain the domain of the chain the tokens are being sent to
-   * @param toId the bytes32 address of the recipient of the tokens
-   * @param amount the amount of tokens sent
-   * @param toHook True if sent to a hook, on the remote chain, false
-   *        otherwise
-   */
-  event Send(
-    address indexed token,
-    address indexed from,
-    uint32 indexed toDomain,
-    bytes32 toId,
-    uint256 amount,
-    bool toHook
-  );
 
   // ============ Modifiers ============
 
@@ -933,8 +906,7 @@ contract BridgeFacet is BaseConnextFacet {
       BridgeMessage.formatMessage(_tokenId, _action)
     );
 
-    // Emit Send event to record message details.
-    emit Send(_local, msg.sender, _destination, _connextion, _amount, true);
+    // return message hash
     return _messageHash;
   }
 
