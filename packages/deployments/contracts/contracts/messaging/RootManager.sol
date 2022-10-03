@@ -7,6 +7,7 @@ import {IRootManager} from "./interfaces/IRootManager.sol";
 import {IHubConnector} from "./interfaces/IHubConnector.sol";
 import {Message} from "./libraries/Message.sol";
 import {QueueLib} from "./libraries/Queue.sol";
+import {DomainIndexer} from "./libraries/DomainIndexer.sol";
 
 import {MerkleTreeManager} from "./Merkle.sol";
 import {WatcherClient} from "./WatcherClient.sol";
@@ -15,7 +16,7 @@ import {WatcherClient} from "./WatcherClient.sol";
  * @notice This contract exists at cluster hubs, and aggregates all transfer roots from messaging
  * spokes into a single merkle root
  */
-contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
+contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainIndexer {
   // ============ Libraries ============
 
   using QueueLib for QueueLib.Queue;
@@ -53,45 +54,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
    */
   MerkleTreeManager public immutable MERKLE;
 
-  /**
-   * @notice Domains array tracks currently subscribed domains to this hub aggregator.
-   * We should distribute the aggregate root to all of these domains in the `propagate` method.
-   * @dev Whenever this domains array is updated, the connectors array should also be updated.
-   */
-  uint32[] public domains;
-
-  /**
-   * @notice A "quick reference" hash used in the `propagate` method below to validate that the provided
-   * array of domains matches the one we have in storage.
-   * @dev This hash should be re-calculated whenever the domains array is updated.
-   */
-  bytes32 public domainsHash;
-
-  /**
-   * @notice Connectors array tracks the addresses of the hub connector contracts corresponding to
-   * subscribed spoke domains. The index of any given connector in this array should match the index of
-   * that connector's target spoke domain in the `domains` array above.
-   * @dev This should be updated whenever the domains array is updated.
-   */
-  address[] public connectors;
-
-  /**
-   * @notice A "quick reference" hash used in the `propagate` method below to validate that the provided
-   * array of connectors matches the one we have in storage.
-   * @dev This hash should be re-calculated whenever the connectors array is updated.
-   */
-  bytes32 public connectorsHash;
-
-  /**
-   * @notice Convenience mapping for supported domains. Used to sanity check adding new domains.
-   * @dev This should be updated whenever the domains array is updated.
-   */
-  mapping(uint32 => bool) isDomainSupported;
-
   // ============ Modifiers ============
 
   modifier onlyConnector(uint32 _domain) {
-    require(connectors[_domain] == msg.sender, "!connector");
+    require(getConnectorForDomain(_domain) == msg.sender, "!connector");
     _;
   }
 
@@ -137,45 +103,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
    * @param _connector Address of the hub connector.
    */
   function addConnector(uint32 _domain, address _connector) external onlyOwner {
-    // Sanity check: domain does not already exist.
-    require(!isDomainSupported[_domain], "exists");
-    // Sanity check: connector is reasonable.
-    require(_connector != address(0), "!connector");
-
-    // Mark domain as supported.
-    isDomainSupported[_domain] = true;
-    // Push domain and connector to respective arrays.
-    domains.push(_domain);
-    connectors.push(_connector);
-
-    // Update the hashes for the given arrays.
-    updateHashes();
-
+    addDomain(_domain, _connector);
     emit ConnectorAdded(_domain, _connector);
-  }
-
-  /**
-   * @notice Helper function for calling `removeConnector` without specifying index in advance, for the
-   * lazy.
-   * @dev Noticeably inefficient, as we'll be worst-case reading every domain in the array.
-   * @param _domain The spoke domain of the target connector we want to remove.
-   */
-  function removeConnector(uint32 _domain) external onlyWatcher {
-    uint256 _numDomains = domains.length;
-    uint256 _index;
-    bool found;
-    for (_index; _index < _numDomains; ) {
-      if (domains[_index] == _domain) {
-        found = true;
-        break;
-      }
-
-      unchecked {
-        ++_index;
-      }
-    }
-    require(found, "invalid domain");
-    removeConnector(_index, _domain);
   }
 
   /**
@@ -184,40 +113,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
    * @dev Only watcher can remove a connector.
    * TODO: Could add a metatx-able `removeConnectorWithSig` if we want to use relayers?
    *
-   * @param _index The index (in arrays) of the target spoke domain and connector pair we want to remove.
-   * (To get this value, just find the index of the domain you want to remove in the `domains` array.)
-   * @param _domainRef The spoke domain of the target connector we want to remove; used for sanity checking
-   * given index is correct and points to intended value.
+   * @param _domain The spoke domain of the target connector we want to remove.
    */
-  function removeConnector(uint256 _index, uint32 _domainRef) public onlyWatcher {
-    // Get the domain at the given index.
-    uint32 _domain = domains[_index];
-    // Sanity check: domain matches the domain reference arg; otherwise, index is incorrect!
-    require(_domain == _domainRef, "!index");
-
-    // Get the connector at the given index.
-    address _connector = connectors[_index];
-    // Sanity check: connector exists.
-    require(_connector != address(0), "connector !exists");
-
-    // Shortcut: is the index the last index in the domains/connectors arrays?
-    uint256 _lastIndex = domains.length - 1;
-    if (_index < _lastIndex) {
-      // If the target index for removal is not the last index, we'll need to move the last index
-      // item to the target index's place so we can conveniently pop the last item.
-      // Replace domain in domains array with the domain in the final index.
-      domains[_index] = domains[_lastIndex];
-      // Replace connector in connectors array with the connector in the final index.
-      connectors[_index] = connectors[_lastIndex];
-    }
-
-    // Remove support indicator for this domain.
-    delete isDomainSupported[_domain];
-    // Pop the last item in the arrays.
-    domains.pop();
-    connectors.pop();
-    updateHashes();
-
+  function removeConnector(uint32 _domain) public onlyWatcher {
+    address _connector = removeDomain(_domain);
     emit ConnectorRemoved(_domain, _connector);
   }
 
@@ -237,11 +136,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
     uint256 _numDomains = _domains.length;
 
     // Sanity check: domains length matches connectors length.
-    require(_connectors.length == _numDomains);
-    // Validate that given domains match the current array in storage.
-    require(keccak256(abi.encode(_domains)) == domainsHash, "!domains");
-    // Validate that given connectors match the current array in storage.
-    require(keccak256(abi.encode(_connectors)) == connectorsHash, "!connectors");
+    require(_connectors.length == _numDomains, "invalid lengths");
+    validateDomains(_domains, _connectors);
 
     // Get all of the verified roots from the queue.
     bytes32[] memory _verifiedInboundRoots = pendingInboundRoots.dequeueVerified(delayBlocks);
@@ -255,15 +151,14 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
     (bytes32 _aggregateRoot, uint256 _count) = MERKLE.insert(_verifiedInboundRoots);
 
     for (uint32 i; i < _numDomains; ) {
-      address _connector = connectors[domains[i]];
-      IHubConnector(_connector).sendMessage(abi.encodePacked(_aggregateRoot));
+      IHubConnector(_connectors[i]).sendMessage(abi.encodePacked(_aggregateRoot));
 
       unchecked {
         ++i;
       }
     }
 
-    emit RootPropagated(_aggregateRoot, domains, _count);
+    emit RootPropagated(_aggregateRoot, _domains, _count);
   }
 
   /**
@@ -279,18 +174,5 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
   function aggregate(uint32 _domain, bytes32 _inbound) external onlyConnector(_domain) {
     uint128 lastIndex = pendingInboundRoots.enqueue(_inbound);
     emit RootAggregated(_domain, _inbound, lastIndex);
-  }
-
-  // ============ Helper Functions ============
-
-  /**
-   * @notice Calculate the new hashes for the domains and connectors arrays and update storage refs.
-   * @dev Used for the Connector update functions `addConnector`, `removeConnector`.
-   */
-  function updateHashes() internal {
-    uint32[] memory _domains = domains;
-    address[] memory _connectors = connectors;
-    domainsHash = keccak256(abi.encode(_domains));
-    connectorsHash = keccak256(abi.encode(_connectors));
   }
 }
