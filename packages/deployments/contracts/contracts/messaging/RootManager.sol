@@ -116,6 +116,17 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
     delayBlocks = _delayBlocks;
   }
 
+  // ============ Admin Functions ============
+
+  /**
+   * @notice Set the `delayBlocks`, the period in blocks over which an incoming message
+   * is verified.
+   */
+  function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
+    require(_delayBlocks != delayBlocks, "!delayBlocks");
+    delayBlocks = _delayBlocks;
+  }
+
   // ============ Public Functions ============
 
   /**

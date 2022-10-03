@@ -42,6 +42,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
   event AggregateRootReceived(bytes32 root);
 
+  event AggregateRootRemoved(bytes32 root);
+
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
 
   event Process(bytes32 leaf, bool success, bytes returnData);
@@ -247,8 +249,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    */
   function removePendingAggregateRoot(bytes32 _pending) public onlyOwner {
     require(watcherPaused, "!paused");
+    // Sanity check: pending aggregate root exists.
+    require(pendingAggregateRoots[_pending] != 0, "aggregateRoot !exists");
     delete pendingAggregateRoots[_pending];
-    // emit PendingAggregateRootUpdated(_current, _pending);
+    emit AggregateRootRemoved(_pending);
   }
 
   // ============ Public Functions ============
