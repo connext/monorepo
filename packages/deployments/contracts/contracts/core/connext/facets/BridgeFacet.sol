@@ -72,14 +72,16 @@ contract BridgeFacet is BaseConnextFacet {
    * @param nonce - The bridge nonce of the transfer on the origin domain.
    * @param messageHash - The hash of the message bytes (containing all transfer info) that were bridged.
    * @param params - The `CallParams` provided to the function.
-   * @param local - The address of the local asset (i.e. bridged token) used in the transfer.
+   * @param asset - The asset sent in with xcall
+   * @param amount - The amount sent in with xcall
    */
   event XCalled(
     bytes32 indexed transferId,
     uint256 indexed nonce,
     bytes32 indexed messageHash,
     CallParams params,
-    address local
+    address asset,
+    uint256 amount
   );
 
   /**
@@ -529,7 +531,7 @@ contract BridgeFacet is BaseConnextFacet {
     );
 
     // emit event
-    emit XCalled(transferId, _params.nonce, messageHash, _params, local);
+    emit XCalled(transferId, _params.nonce, messageHash, _params, _asset, _amount);
 
     return transferId;
   }

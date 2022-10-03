@@ -248,7 +248,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     address bridged = asset == address(0) ? address(0) : _canonicalDomain == s.domain ? _canonical : _local;
     uint256 bridgedAmt = params.bridgedAmt;
     vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, s.nonce, bytes32("test message"), params, bridged);
+    emit XCalled(transferId, s.nonce, bytes32("test message"), params, asset, amount);
 
     // assert swap if expected
     if (shouldSwap && bridgedAmt != 0) {

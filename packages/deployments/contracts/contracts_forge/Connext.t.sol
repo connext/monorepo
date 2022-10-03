@@ -387,7 +387,8 @@ contract ConnextTest is ForgeHelper, Deployer {
         params.nonce,
         MockHome(address(MockXAppConnectionManager(address(_originManager)).home())).MESSAGE_HASH(),
         params,
-        params.canonicalId == bytes32("") && params.canonicalDomain == uint32(0) ? address(0) : _originLocal
+        asset,
+        amount
       );
     }
 
