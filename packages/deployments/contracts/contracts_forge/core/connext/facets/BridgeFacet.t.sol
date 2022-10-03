@@ -11,7 +11,7 @@ import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.
 import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
-import {CallParams, ExecuteArgs, TokenId} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams, ExecuteArgs, TokenId, DestinationTransferStatus} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
@@ -700,7 +700,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
 
     // should mark the transfer as executed
-    assertEq(s.transferRelayer[transferId], sender);
+    DestinationTransferStatus expected = _inputs.isSlow
+      ? DestinationTransferStatus.Completed
+      : DestinationTransferStatus.Executed;
+    assertTrue(s.transferStatus[transferId] == expected);
 
     // should have assigned transfer as routed
     address[] memory savedRouters = s.routedTransfers[transferId];
@@ -814,7 +817,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     assertEq(this.nonce(), _destinationDomain);
   }
 
-  // The rest (relayerFees, routedTransfers, reconciledTransfers) are checked on
+  // The rest (relayerFees, routedTransfers) are checked on
   // assertions for xcall / reconcile / execute
 
   // ============ Admin methods ==============
@@ -1172,7 +1175,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(args);
   }
 
-  // should fail if no routers were passed in and not reconciled
+  // should fail if no routers were passed in and not reconciled (status != Reconciled)
   function test_BridgeFacet__execute_failIfNoRoutersAndNotReconciled() public {
     // Setting no routers in the execute call means that the transfer must already be reconciled.
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
@@ -1293,14 +1296,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(args);
   }
 
-  // should fail if it was already executed (s.transferRelayer[transferId] != address(0))
+  // should fail if it was already executed (s.transferStatus[transferId] != none)
   function test_BridgeFacet__execute_failIfAlreadyExecuted() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    s.transferRelayer[transferId] = address(this);
+    s.transferStatus[transferId] = DestinationTransferStatus.Executed;
 
     s.routerBalances[args.routers[0]][_local] += 10 ether;
 
-    vm.expectRevert(BridgeFacet.BridgeFacet__execute_alreadyExecuted.selector);
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_badFastLiquidityStatus.selector);
     this.execute(args);
   }
 
@@ -1543,7 +1546,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
 
-    s.reconciledTransfers[transferId] = true;
+    s.transferStatus[transferId] = DestinationTransferStatus.Reconciled;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
@@ -1585,7 +1588,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
 
     // Transfer has already been reconciled.
-    s.reconciledTransfers[transferId] = true;
+    s.transferStatus[transferId] = DestinationTransferStatus.Reconciled;
 
     helpers_executeAndAssert(transferId, args, args.params.bridgedAmt, true, true, false, false, false);
   }
