@@ -149,7 +149,7 @@ struct AppStorage {
   mapping(bytes32 => IStableSwap) adoptedToLocalPools;
   /**
    * @notice Mapping of whitelisted assets on same domain as contract.
-  * @dev Mapping is keyed on the hash of the canonical id and domain
+   * @dev Mapping is keyed on the hash of the canonical id and domain
    */
   // 7
   mapping(bytes32 => bool) approvedAssets;
