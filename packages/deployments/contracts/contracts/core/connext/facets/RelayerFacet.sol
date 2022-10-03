@@ -16,11 +16,11 @@ contract RelayerFacet is BaseConnextFacet {
   // ========== Events ===========
   /**
    * @notice Emitted when the relayerFeeVault variable is updated
-   * @param oldRouter - The relayerFeeVault old value
-   * @param newRouter - The relayerFeeVault new value
+   * @param oldVault - The relayerFeeVault old value
+   * @param newVault - The relayerFeeVault new value
    * @param caller - The account that called the function
    */
-  event RelayerFeeVaultUpdated(address oldRouter, address newRouter, address caller);
+  event RelayerFeeVaultUpdated(address oldVault, address newVault, address caller);
 
   /**
    * @notice Emitted when a relayer is added or removed from whitelists
