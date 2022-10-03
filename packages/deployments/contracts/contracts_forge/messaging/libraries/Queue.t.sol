@@ -109,7 +109,8 @@ contract QueueLibTest is ForgeHelper {
       Entry memory entry = entries[i];
       utils_enqueueEntry(entry);
     }
-    bytes32[] memory verified = queue.dequeueVerified(25);
+    bytes32[] memory verified = queue.dequeueVerified(1234567);
+    assertEq(verified.length, 0);
   }
 
   function test_dequeueVerifiedFailsIfQueueIsEmpty() public {

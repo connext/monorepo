@@ -400,8 +400,6 @@ contract MockSpokeConnector is SpokeConnector {
     if (updatesAggregate) {
       // FIXME: when using this.update it sets caller to address(this) not AMB
       receiveAggregateRoot(bytes32(_data));
-    } else {
-      RootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
     }
   }
 
@@ -411,7 +409,6 @@ contract MockSpokeConnector is SpokeConnector {
 }
 
 contract MockHubConnector is HubConnector {
-  address public rootManager;
   bytes32 public lastOutbound;
   bytes32 public lastReceived;
   bool public verified;
@@ -447,7 +444,7 @@ contract MockHubConnector is HubConnector {
 
   function _processMessage(bytes memory _data) internal override {
     lastReceived = keccak256(_data);
-    // hub spokes always update aggregate
+    // hub should always update aggregate
     if (updatesAggregate) {
       RootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
     }
