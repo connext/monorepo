@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import "../../utils/ForgeHelper.sol";
 import {MockSpokeConnector} from "../../utils/Mock.sol";
 import {SpokeConnector} from "../../../contracts/messaging/connectors/SpokeConnector.sol";
 import {WatcherManager} from "../../../contracts/messaging/WatcherManager.sol";
 import {MerkleTreeManager} from "../../../contracts/messaging/Merkle.sol";
 import {Message} from "../../../contracts/messaging/libraries/Message.sol";
+
+import "../../utils/ForgeHelper.sol";
 
 contract SpokeConnectorTest is ForgeHelper {
   // ============ Storage ============
@@ -92,6 +93,6 @@ contract SpokeConnectorTest is ForgeHelper {
     vm.expectRevert("!unpaused");
     SpokeConnector.Proof[] memory proofs = new SpokeConnector.Proof[](1);
     proofs[0] = SpokeConnector.Proof(message, proof, 0);
-    spokeConnector.proveAndProcess(proofs, proof, 0);
+    spokeConnector.proveAndProcess(proofs, bytes32(""), proof, 0);
   }
 }

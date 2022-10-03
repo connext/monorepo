@@ -20,8 +20,8 @@ import "../utils/Mock.sol";
 import "forge-std/console.sol";
 
 /**
- * @notice This contract is designed to test the full messaging flow using
- * mocked mainnet and l2 connectors
+ * @notice This contract is designed to test the full messaging flow using mocked hub and spoke connectors,
+ * root manager, etc.
  */
 contract PingPong is ConnectorHelper {
   // ============ Storage ============
@@ -50,6 +50,7 @@ contract PingPong is ConnectorHelper {
   MerkleTreeManager originSpokeTree;
   MerkleTreeManager aggregateTree;
 
+  uint256 _delayBlocks = 40;
   address _watcherManager;
 
   // ============ connectors
@@ -79,7 +80,7 @@ contract PingPong is ConnectorHelper {
     // deploy watcher manager
     _watcherManager = address(new WatcherManager());
     // deploy root manager
-    _rootManager = address(new RootManager(address(aggregateTree), _watcherManager));
+    _rootManager = address(new RootManager(_delayBlocks, address(aggregateTree), _watcherManager));
     aggregateTree.setArborist(_rootManager);
 
     // Mock sourceconnector on l2
@@ -165,8 +166,8 @@ contract PingPong is ConnectorHelper {
     RootManager(_rootManager).addConnector(_originDomain, _originConnectors.hub);
     RootManager(_rootManager).addConnector(_destinationDomain, _destinationConnectors.hub);
     // check setup
-    assertEq(RootManager(_rootManager).connectors(_originDomain), _originConnectors.hub);
-    assertEq(RootManager(_rootManager).connectors(_destinationDomain), _destinationConnectors.hub);
+    assertEq(RootManager(_rootManager).connectors(0), _originConnectors.hub);
+    assertEq(RootManager(_rootManager).connectors(1), _destinationConnectors.hub);
     assertEq(RootManager(_rootManager).domains(0), _originDomain);
     assertEq(RootManager(_rootManager).domains(1), _destinationDomain);
   }
@@ -362,7 +363,7 @@ contract PingPong is ConnectorHelper {
 
     // console.logBytes32(messageHash);
     // console.logBytes32(outboundRoot);
-    // console.logBytes32(aggregateRoot);
+    console.logBytes32(aggregateRoot);
 
     // If the root == target leaf (i.e. the leaf is in the first index), then the proof == zeroHashes.
     bytes32[32] memory messageProof = MerkleLib.zeroHashes();
@@ -370,7 +371,7 @@ contract PingPong is ConnectorHelper {
 
     SpokeConnector.Proof[] memory proofs = new SpokeConnector.Proof[](1);
     proofs[0] = SpokeConnector.Proof(message, messageProof, 0);
-    SpokeConnector(_destinationConnectors.spoke).proveAndProcess(proofs, aggregateProof, 0);
+    // SpokeConnector(_destinationConnectors.spoke).proveAndProcess(proofs, aggregateProof, 0);
 
     // assertEq(uint256(SpokeConnector(_destinationConnectors.spoke).messages(keccak256(message))), 2);
     // assertEq(MockRelayerFeeRouter(TypeCasts.bytes32ToAddress(_destinationRouter)).handledOrigin(), _originDomain);

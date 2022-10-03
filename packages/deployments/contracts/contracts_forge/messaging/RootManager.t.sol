@@ -23,6 +23,7 @@ contract RootManagerTest is ForgeHelper {
 
   // ============ Storage ============
   RootManager _rootManager;
+  uint256 _delayBlocks = 40;
   address _merkle;
   uint32[] _domains;
   address[] _connectors;
@@ -39,7 +40,7 @@ contract RootManagerTest is ForgeHelper {
     MerkleTreeManager(_merkle).initialize(address(_rootManager));
 
     vm.prank(owner);
-    _rootManager = new RootManager(_merkle, watcherManager);
+    _rootManager = new RootManager(_delayBlocks, _merkle, watcherManager);
     MerkleTreeManager(_merkle).setArborist(address(_rootManager));
   }
 
@@ -53,7 +54,7 @@ contract RootManagerTest is ForgeHelper {
     vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
 
-    assertEq(_rootManager.connectors(_domains[0]), _connectors[0]);
+    assertEq(_rootManager.connectors(0), _connectors[0]);
   }
 
   function test_RootManager__addConnector_shouldFailIfCallerNotOwner(address caller) public {
@@ -101,7 +102,8 @@ contract RootManagerTest is ForgeHelper {
 
     _rootManager.removeConnector(_domains[0]);
 
-    assertEq(_rootManager.connectors(_domains[0]), address(0));
+    assertEq(_rootManager.domains(0), 0);
+    assertEq(_rootManager.connectors(0), address(0));
   }
 
   function test_RootManager__removeConnector_shouldFailIfCallerNotWatcher() public {
@@ -157,7 +159,7 @@ contract RootManagerTest is ForgeHelper {
     vm.mockCall(_connectors[0], abi.encodeWithSelector(IHubConnector.sendMessage.selector), abi.encode());
     vm.expectCall(_connectors[0], abi.encodeWithSelector(IHubConnector.sendMessage.selector));
 
-    _rootManager.propagate();
+    _rootManager.propagate(_domains, _connectors);
   }
 
   function test_RootManager__propagate_shouldSendToAllL2s(bytes32 inbound) public {
@@ -175,6 +177,30 @@ contract RootManagerTest is ForgeHelper {
     vm.prank(_connectors[0]);
     _rootManager.aggregate(_domains[0], inbound);
 
-    _rootManager.propagate();
+    // Fast forward delayBlocks number of blocks.
+    vm.roll(_rootManager.delayBlocks());
+
+    _rootManager.propagate(_domains, _connectors);
+  }
+
+  function test_RootManager__propagate_shouldRevertIfNoVerifiedPending(bytes32 inbound) public {
+    // Add another connector
+    _domains.push(1001);
+    _connectors.push(address(1001));
+
+    for (uint32 i; i < _domains.length; i++) {
+      vm.prank(owner);
+      _rootManager.addConnector(_domains[i], _connectors[i]);
+      vm.expectCall(_connectors[i], abi.encodeWithSelector(IHubConnector.sendMessage.selector));
+      vm.mockCall(_connectors[i], abi.encodeWithSelector(IHubConnector.sendMessage.selector), abi.encode());
+    }
+
+    vm.prank(_connectors[0]);
+    _rootManager.aggregate(_domains[0], inbound);
+
+    // Delay blocks have not been surpassed: the given root should not be included, and this call should revert
+    // because an empty propagate is useless.
+    vm.expectRevert("no verified roots");
+    _rootManager.propagate(_domains, _connectors);
   }
 }

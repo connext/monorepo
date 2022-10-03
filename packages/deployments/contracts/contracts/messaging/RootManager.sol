@@ -127,6 +127,100 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
     delayBlocks = _delayBlocks;
   }
 
+  /**
+   * @notice Add a new supported domain and corresponding hub connector to the system. This new domain
+   * will receive the propagated aggregate root.
+   * @dev Only owner can add a new connector. Address should be the connector on L1.
+   * @dev Cannot add address(0) to avoid duplicated domain in array and reduce gas fee while propagating.
+   *
+   * @param _domain The target spoke domain of the given connector.
+   * @param _connector Address of the hub connector.
+   */
+  function addConnector(uint32 _domain, address _connector) external onlyOwner {
+    // Sanity check: domain does not already exist.
+    require(!isDomainSupported[_domain], "exists");
+    // Sanity check: connector is reasonable.
+    require(_connector != address(0), "!connector");
+
+    // Mark domain as supported.
+    isDomainSupported[_domain] = true;
+    // Push domain and connector to respective arrays.
+    domains.push(_domain);
+    connectors.push(_connector);
+
+    // Update the hashes for the given arrays.
+    updateHashes();
+
+    emit ConnectorAdded(_domain, _connector);
+  }
+
+  /**
+   * @notice Helper function for calling `removeConnector` without specifying index in advance, for the
+   * lazy.
+   * @dev Noticeably inefficient, as we'll be worst-case reading every domain in the array.
+   * @param _domain The spoke domain of the target connector we want to remove.
+   */
+  function removeConnector(uint32 _domain) external onlyWatcher {
+    uint256 _numDomains = domains.length;
+    uint256 _index;
+    bool found;
+    for (_index; _index < _numDomains; ) {
+      if (domains[_index] == _domain) {
+        found = true;
+        break;
+      }
+
+      unchecked {
+        ++_index;
+      }
+    }
+    require(found, "invalid domain");
+    removeConnector(_index, _domain);
+  }
+
+  /**
+   * @notice Remove support for a connector and respective domain. That connector/domain will no longer
+   * receive updates for the latest aggregate root.
+   * @dev Only watcher can remove a connector.
+   * TODO: Could add a metatx-able `removeConnectorWithSig` if we want to use relayers?
+   *
+   * @param _index The index (in arrays) of the target spoke domain and connector pair we want to remove.
+   * (To get this value, just find the index of the domain you want to remove in the `domains` array.)
+   * @param _domainRef The spoke domain of the target connector we want to remove; used for sanity checking
+   * given index is correct and points to intended value.
+   */
+  function removeConnector(uint256 _index, uint32 _domainRef) public onlyWatcher {
+    // Get the domain at the given index.
+    uint32 _domain = domains[_index];
+    // Sanity check: domain matches the domain reference arg; otherwise, index is incorrect!
+    require(_domain == _domainRef, "!index");
+
+    // Get the connector at the given index.
+    address _connector = connectors[_index];
+    // Sanity check: connector exists.
+    require(_connector != address(0), "connector !exists");
+
+    // Shortcut: is the index the last index in the domains/connectors arrays?
+    uint256 _lastIndex = domains.length - 1;
+    if (_index < _lastIndex) {
+      // If the target index for removal is not the last index, we'll need to move the last index
+      // item to the target index's place so we can conveniently pop the last item.
+      // Replace domain in domains array with the domain in the final index.
+      domains[_index] = domains[_lastIndex];
+      // Replace connector in connectors array with the connector in the final index.
+      connectors[_index] = connectors[_lastIndex];
+    }
+
+    // Remove support indicator for this domain.
+    delete isDomainSupported[_domain];
+    // Pop the last item in the arrays.
+    domains.pop();
+    connectors.pop();
+    updateHashes();
+
+    emit ConnectorRemoved(_domain, _connector);
+  }
+
   // ============ Public Functions ============
 
   /**
@@ -151,6 +245,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
 
     // Get all of the verified roots from the queue.
     bytes32[] memory _verifiedInboundRoots = pendingInboundRoots.dequeueVerified(delayBlocks);
+
+    // Sanity check: there must be some verified roots to aggregate and send: otherwise we would be
+    // propagating a redundant aggregate root.
+    require(_verifiedInboundRoots.length != 0, "no verified roots");
 
     // Insert the leaves into the aggregator tree (method will also calculate and return the current
     // aggregate root and count).
@@ -181,78 +279,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
   function aggregate(uint32 _domain, bytes32 _inbound) external override onlyConnector(_domain) {
     uint128 lastIndex = pendingInboundRoots.enqueue(_inbound);
     emit RootAggregated(_domain, _inbound, lastIndex);
-  }
-
-  // ============ Admin Functions ============
-
-  /**
-   * @notice Add a new supported domain and corresponding hub connector to the system. This new domain
-   * will receive the propagated aggregate root.
-   * @dev Only owner can add a new connector. Address should be the connector on L1.
-   * @dev Cannot add address(0) to avoid duplicated domain in array and reduce gas fee while propagating.
-   *
-   * @param _domain The target spoke domain of the given connector.
-   * @param _connector Address of the hub connector.
-   */
-  function addConnector(uint32 _domain, address _connector) external onlyOwner {
-    // Sanity check: domain does not already exist.
-    require(!isDomainSupported[_domain], "exists");
-    // Sanity check: connector is reasonable.
-    require(_connector != address(0), "!connector");
-
-    // Mark domain as supported.
-    isDomainSupported[_domain] = true;
-    // Push domain and connector to respective arrays.
-    domains.push(_domain);
-    connectors.push(_connector);
-
-    // Update the hashes for the given arrays.
-    updateHashes();
-
-    emit ConnectorAdded(_domain, _connector);
-  }
-
-  /**
-   * @notice Remove support for a connector and respective domain. That connector/domain will no longer
-   * receive updates for the latest aggregate root.
-   * @dev Only watcher can remove a connector.
-   * TODO: Could add a metatx-able `removeConnectorWithSig` if we want to use relayers?
-   *
-   * @param _index The index (in arrays) of the target spoke domain and connector pair we want to remove.
-   * (To get this value, just find the index of the domain you want to remove in the `domains` array.)
-   * @param _domainRef The spoke domain of the target connector we want to remove; used for sanity checking
-   * given index is correct and points to intended value.
-   */
-  function removeConnector(uint256 _index, uint32 _domainRef) external onlyWatcher {
-    // Get the domain at the given index.
-    uint32 _domain = domains[_index];
-    // Sanity check: domain matches the domain reference arg; otherwise, index is incorrect!
-    require(_domain == _domainRef, "!index");
-
-    // Get the connector at the given index.
-    address _connector = connectors[_index];
-    // Sanity check: connector exists.
-    require(_connector != address(0), "!exists");
-
-    // Shortcut: is the index the last index in the domains/connectors arrays?
-    uint256 _lastIndex = domains.length - 1;
-    if (_index < _lastIndex) {
-      // If the target index for removal is not the last index, we'll need to move the last index
-      // item to the target index's place so we can conveniently pop the last item.
-      // Replace domain in domains array with the domain in the final index.
-      domains[_index] = domains[_lastIndex];
-      // Replace connector in connectors array with the connector in the final index.
-      connectors[_index] = connectors[_lastIndex];
-    }
-
-    // Remove support indicator for this domain.
-    delete isDomainSupported[_domain];
-    // Pop the last item in the arrays.
-    domains.pop();
-    connectors.pop();
-    updateHashes();
-
-    emit ConnectorRemoved(_domain, _connector);
   }
 
   // ============ Helper Functions ============
