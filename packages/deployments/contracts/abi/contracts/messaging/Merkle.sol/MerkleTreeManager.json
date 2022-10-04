@@ -19,6 +19,7 @@
   "function delay() view returns (uint256)",
   "function initialize(address)",
   "function insert(bytes32) returns (bytes32, uint256)",
+  "function insert(bytes32[]) returns (bytes32, uint256)",
   "function owner() view returns (address)",
   "function proposeNewOwner(address)",
   "function proposed() view returns (address)",

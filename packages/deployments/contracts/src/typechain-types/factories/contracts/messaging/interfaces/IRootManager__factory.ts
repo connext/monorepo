@@ -29,7 +29,18 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "uint32[]",
+        name: "_domains",
+        type: "uint32[]",
+      },
+      {
+        internalType: "address[]",
+        name: "_connectors",
+        type: "address[]",
+      },
+    ],
     name: "propagate",
     outputs: [],
     stateMutability: "nonpayable",

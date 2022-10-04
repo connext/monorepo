@@ -15,3 +15,4 @@ export type { RoutersFacet } from "./RoutersFacet";
 export type { StableSwapFacet } from "./StableSwapFacet";
 export type { SwapAdminFacet } from "./SwapAdminFacet";
 export type { TokenFacet } from "./TokenFacet";
+export type { VersionFacet } from "./VersionFacet";

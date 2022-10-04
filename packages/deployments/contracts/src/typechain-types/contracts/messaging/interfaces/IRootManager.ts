@@ -26,7 +26,7 @@ import type {
 export interface IRootManagerInterface extends utils.Interface {
   functions: {
     "aggregate(uint32,bytes32)": FunctionFragment;
-    "propagate()": FunctionFragment;
+    "propagate(uint32[],address[])": FunctionFragment;
   };
 
   getFunction(
@@ -37,7 +37,10 @@ export interface IRootManagerInterface extends utils.Interface {
     functionFragment: "aggregate",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
   ): string;
-  encodeFunctionData(functionFragment: "propagate", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "propagate",
+    values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<string>[]]
+  ): string;
 
   decodeFunctionResult(functionFragment: "aggregate", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "propagate", data: BytesLike): Result;
@@ -79,6 +82,8 @@ export interface IRootManager extends BaseContract {
     ): Promise<ContractTransaction>;
 
     propagate(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -90,6 +95,8 @@ export interface IRootManager extends BaseContract {
   ): Promise<ContractTransaction>;
 
   propagate(
+    _domains: PromiseOrValue<BigNumberish>[],
+    _connectors: PromiseOrValue<string>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -100,7 +107,11 @@ export interface IRootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    propagate(overrides?: CallOverrides): Promise<void>;
+    propagate(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {};
@@ -113,6 +124,8 @@ export interface IRootManager extends BaseContract {
     ): Promise<BigNumber>;
 
     propagate(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -125,6 +138,8 @@ export interface IRootManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     propagate(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
