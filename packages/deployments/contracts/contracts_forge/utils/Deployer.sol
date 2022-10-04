@@ -311,14 +311,12 @@ contract Deployer {
 
   function deployConnext(
     uint256 domain,
-    address relayerFeeVault,
     address xAppConnectionManager,
     uint256 acceptanceDelay
   ) internal returns (address) {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       domain,
-      relayerFeeVault,
       xAppConnectionManager,
       acceptanceDelay
     );

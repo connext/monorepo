@@ -19,13 +19,12 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   uint256 acceptanceDelay = 7 days;
   uint256 ownershipDelay = 6 days;
   address internal xAppConnectionManager = address(1);
-  address relayerFeeVault = address(3);
 
   // ============ Setup ============
 
   function setUp() public {
     // Deploy token beacon
-    deployConnext(uint256(domain), xAppConnectionManager, relayerFeeVault, acceptanceDelay);
+    deployConnext(uint256(domain), xAppConnectionManager, acceptanceDelay);
 
     connextHandler = IConnext(address(connextDiamondProxy));
   }
@@ -41,13 +40,11 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   function test_LibDiamond__initializeDiamondCut_ignoreDuplicateInit() public {
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
-    address newRelayerFeeVault = address(13);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
       newXAppConnectionManager,
-      newRelayerFeeVault,
       acceptanceDelay
     );
 
@@ -74,13 +71,11 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   function testFail_LibDiamond__initializeDiamondCut_beforeAcceptanceDelay_reverts() public {
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
-    address newRelayerFeeVault = address(13);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
       newXAppConnectionManager,
-      newRelayerFeeVault,
       acceptanceDelay
     );
 
@@ -102,19 +97,17 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // Diamond cut after setting 0 acceptance delay should work.
   function test_LibDiamond__initializeDiamondCut_withZeroAcceptanceDelay_works() public {
-    deployConnext(uint256(domain), xAppConnectionManager, relayerFeeVault, 0);
+    deployConnext(uint256(domain), xAppConnectionManager, 0);
 
     connextHandler = IConnext(address(connextDiamondProxy));
 
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
-    address newRelayerFeeVault = address(13);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
       newXAppConnectionManager,
-      newRelayerFeeVault,
       acceptanceDelay
     );
 

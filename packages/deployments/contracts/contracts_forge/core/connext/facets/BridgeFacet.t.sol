@@ -63,6 +63,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // relayer fee
   uint256 _relayerFee = 0.1 ether;
+  address _relayerFeeVault = address(12313454241);
 
   // Defaults
   // default origin sender
@@ -112,7 +113,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.approvedSequencers[_sequencer] = true;
     s.maxRoutersPerTransfer = 5;
     s._routerWhitelistRemoved = true;
-
+    s.relayerFeeVault = _relayerFeeVault;
     s.domain = _originDomain;
 
     s.remotes[_destinationDomain] = TypeCasts.addressToBytes32(address(this));

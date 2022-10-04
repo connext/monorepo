@@ -163,20 +163,19 @@ contract ConnextTest is ForgeHelper, Deployer {
 
   function utils_deployConnext() public {
     // deploy connext
-    address originConnext = deployConnext(_origin, address(_originRelayerFee), address(_originManager), 7 days);
+    address originConnext = deployConnext(_origin, address(_originManager), 7 days);
     _originConnext = IConnext(originConnext);
 
-    address destinationConnext = deployConnext(
-      _destination,
-      address(_destinationRelayerFee),
-      address(_destinationManager),
-      7 days
-    );
+    address destinationConnext = deployConnext(_destination, address(_destinationManager), 7 days);
     _destinationConnext = IConnext(destinationConnext);
 
     // whitelist contract as router
     _originConnext.addRelayer(address(this));
     _destinationConnext.addRelayer(address(this));
+
+    // set relayer fee router
+    _originConnext.setRelayerFeeVault(_originRelayerFee);
+    _destinationConnext.setRelayerFeeVault(_destinationRelayerFee);
 
     // enroll instances
     // set remote routers
