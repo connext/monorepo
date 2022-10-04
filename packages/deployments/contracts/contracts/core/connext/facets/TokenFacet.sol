@@ -3,7 +3,6 @@ pragma solidity 0.8.15;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
-import {UpgradeBeaconProxy} from "../../../shared/upgrade/UpgradeBeaconProxy.sol";
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 
 import {TokenId} from "../libraries/LibConnextStorage.sol";
@@ -12,6 +11,8 @@ import {AssetLogic} from "../libraries/AssetLogic.sol";
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
+
+import {BridgeToken} from "../helpers/BridgeToken.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
@@ -394,10 +395,8 @@ contract TokenFacet is BaseConnextFacet {
     string memory _name,
     string memory _symbol
   ) internal returns (address _token) {
-    // deploy and initialize the token contract
-    _token = address(new UpgradeBeaconProxy(s.tokenBeacon, ""));
-    // initialize the token with decimals and default name
-    IBridgeToken(_token).initialize(_decimals, _name, _symbol);
+    // deploy the token contract
+    _token = address(new BridgeToken(_decimals, _name, _symbol));
     // emit event upon deploying new token
     emit TokenDeployed(_domain, _id, _token);
   }

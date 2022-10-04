@@ -28,7 +28,6 @@ contract DiamondInit is BaseConnextFacet {
   // data to set your own state variables
   function init(
     uint32 _domain,
-    address _tokenBeacon,
     address _relayerFeeVault,
     address _xAppConnectionManager,
     uint256 _acceptanceDelay
@@ -58,7 +57,6 @@ contract DiamondInit is BaseConnextFacet {
       s._status = _NOT_ENTERED;
 
       // Connext
-      s.tokenBeacon = _tokenBeacon;
       s.domain = _domain;
       s.relayerFeeVault = _relayerFeeVault;
       s.LIQUIDITY_FEE_NUMERATOR = 9995;

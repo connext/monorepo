@@ -156,7 +156,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const chainId = await hre.getChainId();
 
   const acceptanceDelay = 0; // 604800 = 7 days
-  const ownershipDelay = 0; // 604800 = 7 days
 
   let _deployer: any;
   ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
@@ -205,12 +204,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       "Nxtp Stable LP Token",
       "NxtpStableLPToken",
     );
-  }
-
-  // Get the token beacon
-  const bridgeTokenDeployment = await hre.deployments.getOrNull(getDeploymentName("BridgeTokenUpgradeBeacon"));
-  if (!bridgeTokenDeployment) {
-    throw new Error(`BridgeTokenUpgradeBeacon not deployed`);
   }
 
   // get relayer fee information
@@ -289,13 +282,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         : {
             contract: "DiamondInit",
             methodName: "init",
-            args: [
-              domain,
-              bridgeTokenDeployment.address,
-              relayerFeeVault,
-              connectorManagerDeployment.address,
-              acceptanceDelay,
-            ],
+            args: [domain, relayerFeeVault, connectorManagerDeployment.address, acceptanceDelay],
           },
     });
   }
@@ -339,5 +326,4 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 export default func;
 
 func.tags = ["Connext", "prod", "local", "mainnet"];
-// func.dependencies = ["Nomad"];
-func.dependencies = ["Messaging", "BridgeToken"];
+func.dependencies = ["Messaging"];

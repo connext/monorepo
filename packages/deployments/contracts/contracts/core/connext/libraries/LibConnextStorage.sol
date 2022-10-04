@@ -144,11 +144,6 @@ struct AppStorage {
   // 4
   uint32 domain;
   /**
-   * @notice UpgradeBeacon from which new token proxies will get their implementation
-   */
-  // 5
-  address tokenBeacon;
-  /**
    * @notice Mapping holding the AMMs for swapping in and out of local assets.
    * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon).
    * This mapping is keyed on the hash of the canonical id + domain for local asset.

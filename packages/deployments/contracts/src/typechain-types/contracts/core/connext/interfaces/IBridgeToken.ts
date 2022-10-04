@@ -28,12 +28,10 @@ export interface IBridgeTokenInterface extends utils.Interface {
     "balanceOf(address)": FunctionFragment;
     "burn(address,uint256)": FunctionFragment;
     "decimals()": FunctionFragment;
-    "initialize(uint8,string,string)": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "setDetails(string,string)": FunctionFragment;
     "symbol()": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
   };
 
   getFunction(
@@ -41,12 +39,10 @@ export interface IBridgeTokenInterface extends utils.Interface {
       | "balanceOf"
       | "burn"
       | "decimals"
-      | "initialize"
       | "mint"
       | "name"
       | "setDetails"
       | "symbol"
-      | "transferOwnership"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -59,14 +55,6 @@ export interface IBridgeTokenInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "initialize",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "mint",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
@@ -76,23 +64,14 @@ export interface IBridgeTokenInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [PromiseOrValue<string>]
-  ): string;
 
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setDetails", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
 
   events: {};
 }
@@ -137,13 +116,6 @@ export interface IBridgeToken extends BaseContract {
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
-    initialize(
-      _decimals: PromiseOrValue<BigNumberish>,
-      _name: PromiseOrValue<string>,
-      _symbol: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     mint(
       _to: PromiseOrValue<string>,
       _amnt: PromiseOrValue<BigNumberish>,
@@ -161,11 +133,6 @@ export interface IBridgeToken extends BaseContract {
     ): Promise<ContractTransaction>;
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
-
-    transferOwnership(
-      _newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
   };
 
   balanceOf(
@@ -180,13 +147,6 @@ export interface IBridgeToken extends BaseContract {
   ): Promise<ContractTransaction>;
 
   decimals(overrides?: CallOverrides): Promise<number>;
-
-  initialize(
-    _decimals: PromiseOrValue<BigNumberish>,
-    _name: PromiseOrValue<string>,
-    _symbol: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   mint(
     _to: PromiseOrValue<string>,
@@ -206,11 +166,6 @@ export interface IBridgeToken extends BaseContract {
 
   symbol(overrides?: CallOverrides): Promise<string>;
 
-  transferOwnership(
-    _newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     balanceOf(
       _account: PromiseOrValue<string>,
@@ -224,13 +179,6 @@ export interface IBridgeToken extends BaseContract {
     ): Promise<void>;
 
     decimals(overrides?: CallOverrides): Promise<number>;
-
-    initialize(
-      _decimals: PromiseOrValue<BigNumberish>,
-      _name: PromiseOrValue<string>,
-      _symbol: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     mint(
       _to: PromiseOrValue<string>,
@@ -247,11 +195,6 @@ export interface IBridgeToken extends BaseContract {
     ): Promise<void>;
 
     symbol(overrides?: CallOverrides): Promise<string>;
-
-    transferOwnership(
-      _newOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {};
@@ -270,13 +213,6 @@ export interface IBridgeToken extends BaseContract {
 
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
-    initialize(
-      _decimals: PromiseOrValue<BigNumberish>,
-      _name: PromiseOrValue<string>,
-      _symbol: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     mint(
       _to: PromiseOrValue<string>,
       _amnt: PromiseOrValue<BigNumberish>,
@@ -294,11 +230,6 @@ export interface IBridgeToken extends BaseContract {
     ): Promise<BigNumber>;
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
-
-    transferOwnership(
-      _newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -314,13 +245,6 @@ export interface IBridgeToken extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    initialize(
-      _decimals: PromiseOrValue<BigNumberish>,
-      _name: PromiseOrValue<string>,
-      _symbol: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
 
     mint(
       _to: PromiseOrValue<string>,
@@ -339,10 +263,5 @@ export interface IBridgeToken extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      _newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
   };
 }
