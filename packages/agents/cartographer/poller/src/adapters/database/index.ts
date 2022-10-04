@@ -1,5 +1,6 @@
 import { jsonifyError, XTransfer, XTransferStatus, RouterBalance, XMessage, RootMessage } from "@connext/nxtp-utils";
 import { Pool } from "pg";
+import { TxnClientForRepeatableRead } from "zapatos/db";
 
 import { getContext } from "../../shared";
 
@@ -15,39 +16,47 @@ import {
   getPendingMessages,
   saveCheckPoint,
   getCheckPoint,
+  transaction,
 } from "./client";
 
+export type Checkpoints = {
+  prefix: string;
+  checkpoints: { domain: string; checkpoint: number }[];
+};
+
 export type Database = {
-  saveTransfers: (xtransfers: XTransfer[], _pool?: Pool) => Promise<void>;
+  saveTransfers: (xtransfers: XTransfer[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   getTransfersByStatus: (
     status: XTransferStatus,
     limit: number,
     offset?: number,
     orderDirection?: "ASC" | "DESC",
-    _pool?: Pool,
+    _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XTransfer[]>;
   getTransfersWithOriginPending: (
     domain: string,
     limit: number,
     orderDirection?: "ASC" | "DESC",
-    _pool?: Pool,
+    _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<string[]>;
   getTransfersWithDestinationPending: (
     domain: string,
     limit: number,
     orderDirection?: "ASC" | "DESC",
-    _pool?: Pool,
+    _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<string[]>;
-  saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool) => Promise<void>;
-  saveMessages: (messages: XMessage[], _pool?: Pool) => Promise<void>;
-  saveSentRootMessages: (messages: RootMessage[], _pool?: Pool) => Promise<void>;
-  saveProcessedRootMessages: (messages: RootMessage[], _pool?: Pool) => Promise<void>;
-  getPendingMessages: (_pool?: Pool) => Promise<XMessage[]>;
-  saveCheckPoint: (check: string, point: number, _pool?: Pool) => Promise<void>;
-  getCheckPoint: (check_name: string, _pool?: Pool) => Promise<number>;
+  saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveMessages: (messages: XMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveSentRootMessages: (messages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveProcessedRootMessages: (messages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  getPendingMessages: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<XMessage[]>;
+  saveCheckPoint: (check: string, point: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  getCheckPoint: (check_name: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<number>;
+  transaction: (callback: (client: TxnClientForRepeatableRead) => Promise<void>) => Promise<void>;
 };
 
 export let pool: Pool;
+export * as db from "zapatos/db";
 
 export const getDatabase = async (): Promise<Database> => {
   const { config, logger } = getContext();
@@ -73,6 +82,7 @@ export const getDatabase = async (): Promise<Database> => {
     getPendingMessages,
     saveCheckPoint,
     getCheckPoint,
+    transaction,
   };
 };
 
