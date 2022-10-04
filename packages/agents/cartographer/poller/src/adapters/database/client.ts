@@ -124,22 +124,20 @@ export const saveTransfers = async (
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<void> => {
   const poolToUse = _pool ?? pool;
-  const transfers: s.transfers.Insertable[] = xtransfers.map(convertToDbTransfer).map(sanitizeNull);
+  let transfers: s.transfers.Insertable[] = xtransfers.map(convertToDbTransfer).map(sanitizeNull);
 
+  const dbTransfers = await getTransfersByTransferIds(
+    xtransfers.map((xtransfer) => xtransfer.transferId),
+    poolToUse,
+  );
 
-  const dbTransfers = await getTransfersByTransferIds(xtransfers.map(xtransfer => xtransfer.transferId), poolToUse);
-  const statusMap = new Map<string, XTransferStatus>();
-  dbTransfers.map(dbTransfer => statusMap.set(
-    dbTransfer.transfer_id as string,
-    dbTransfer.status as XTransferStatus
-  ));
-
-  await Promise.all(transfers.map(async (transfer) => {
-    if (transfer.status === undefined){
-      const dbStatus = statusMap.get(transfer.transfer_id as string);
-      transfer.status = dbStatus ? dbStatus : XTransferStatus.XCalled;
+  transfers = transfers.map((transfer) => {
+    const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === transfer.transfer_id);
+    if (transfer.status === undefined) {
+      transfer.status = dbTransfer?.status ? dbTransfer.status : XTransferStatus.XCalled;
     }
-  }));
+    return transfer;
+  });
 
   // TODO: Perfomance implications to be evaluated. Upgrade to batching of configured batch size N.
   await db.upsert("transfers", transfers, ["transfer_id"]).run(poolToUse);
@@ -228,14 +226,10 @@ export const getTransferByTransferId = async (
 export const getTransfersByTransferIds = async (
   transfer_ids: string[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<any[]> => {
+): Promise<s.transfers.JSONSelectable[]> => {
   const poolToUse = _pool ?? pool;
 
-  const x = await db.select(
-      "transfers",
-      { transfer_id: db.conditions.isIn(transfer_ids) }
-    ).run(poolToUse);
-
+  const x = await db.select("transfers", { transfer_id: db.conditions.isIn(transfer_ids) }).run(poolToUse);
   return x;
 };
 
@@ -353,7 +347,7 @@ export const saveRouterBalances = async (
 };
 
 export const transaction = async (
-  callback: (client: db.TxnClientForRepeatableRead) => Promise<void>
+  callback: (client: db.TxnClientForRepeatableRead) => Promise<void>,
 ): Promise<void> => {
   db.repeatableRead(pool, async (txnClient) => callback(txnClient));
 };
