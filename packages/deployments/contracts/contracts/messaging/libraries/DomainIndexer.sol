@@ -58,23 +58,14 @@ abstract contract DomainIndexer {
   }
 
   /**
-   * @notice Validate given domains and connectors arrays are correct (i.e. they mirror what is
-   * currently saved in storage).
-   * @dev Reverts if domains or connectors do not match.
-   */
-  function validateDomains(uint32[] calldata _domains, address[] calldata _connectors) public view {
-    // Validate that given domains match the current array in storage.
-    require(keccak256(abi.encode(_domains)) == domainsHash, "!domains");
-    // Validate that given connectors match the current array in storage.
-    require(keccak256(abi.encode(_connectors)) == connectorsHash, "!connectors");
-  }
-
-  /**
    * @notice Gets the index of a given domain in the domains and connectors arrays.
+   * @dev Reverts if domain is not supported.
    * @param _domain The domain for which to get the index value.
    */
   function getDomainIndex(uint32 _domain) public view returns (uint256) {
-    return domainToIndexPlusOne[_domain] - 1;
+    uint256 index = domainToIndexPlusOne[_domain];
+    require(index != 0, "!supported");
+    return index - 1;
   }
 
   /**
@@ -84,6 +75,18 @@ abstract contract DomainIndexer {
    */
   function getConnectorForDomain(uint32 _domain) public view returns (address) {
     return connectors[getDomainIndex(_domain)];
+  }
+
+  /**
+   * @notice Validate given domains and connectors arrays are correct (i.e. they mirror what is
+   * currently saved in storage).
+   * @dev Reverts if domains or connectors do not match.
+   */
+  function validateDomains(uint32[] calldata _domains, address[] calldata _connectors) public view {
+    // Validate that given domains match the current array in storage.
+    require(keccak256(abi.encode(_domains)) == domainsHash, "!domains");
+    // Validate that given connectors match the current array in storage.
+    require(keccak256(abi.encode(_connectors)) == connectorsHash, "!connectors");
   }
 
   // ============ Helper Functions ============
@@ -101,7 +104,7 @@ abstract contract DomainIndexer {
 
     // Push domain and connector to respective arrays.
     domains.push(_domain);
-    connectors[_domain] = _connector;
+    connectors.push(_connector);
     // Set reverse lookup.
     uint256 _indexPlusOne = domains.length;
     domainToIndexPlusOne[_domain] = _indexPlusOne;

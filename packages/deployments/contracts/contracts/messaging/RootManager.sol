@@ -80,6 +80,9 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     MERKLE = MerkleTreeManager(_merkle);
 
     delayBlocks = _delayBlocks;
+
+    // Initialize pending inbound root queue.
+    pendingInboundRoots.initialize();
   }
 
   // ============ Admin Functions ============
@@ -152,7 +155,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
     for (uint32 i; i < _numDomains; ) {
       IHubConnector(_connectors[i]).sendMessage(abi.encodePacked(_aggregateRoot));
-
       unchecked {
         ++i;
       }

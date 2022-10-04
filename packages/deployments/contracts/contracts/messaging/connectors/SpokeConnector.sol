@@ -434,7 +434,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     require(_aggregateRootCommitBlock != 0, "aggregateRoot !exist");
 
     // 2. Pending aggregate root has surpassed the `delayBlocks` verification period.
-    require(block.number - _aggregateRootCommitBlock > delayBlocks, "aggregateRoot !verified");
+    require(block.number - _aggregateRootCommitBlock >= delayBlocks, "aggregateRoot !verified");
 
     // 3. The target aggregate root has surpassed verification period, we can move it over to the
     // proven mapping.

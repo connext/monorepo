@@ -59,8 +59,7 @@ library QueueLib {
   function dequeueVerified(Queue storage queue, uint256 delay) internal returns (bytes32[] memory) {
     uint128 first = queue.first;
     uint128 last = queue.last;
-    uint256 count = _length(last, first);
-    require(count != 0, "queue empty");
+    require(last >= first, "queue empty");
 
     // To determine the last item index in the queue we want to return, iterate backwards until we
     // find a `commitBlock` that has surpassed the delay period.

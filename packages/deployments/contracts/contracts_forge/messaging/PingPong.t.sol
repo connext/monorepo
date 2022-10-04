@@ -260,28 +260,28 @@ contract PingPong is ConnectorHelper {
     vm.expectEmit(true, true, true, true);
     emit MessageProcessed(abi.encode(inboundRoot), _originMainnetAMB);
 
-    uint256 initialAggregateCount = RootManager(_rootManager).MERKLE().count();
-
     // The AMB would normally deliver to the HubConnector the inboundRoot.
     vm.prank(_originMainnetAMB);
     Connector(_originConnectors.hub).processMessage(abi.encode(inboundRoot));
 
     // Make sure inboundRoot was received.
     assertEq(MockHubConnector(_originConnectors.hub).lastReceived(), keccak256(abi.encode(inboundRoot)));
-
-    // Aggregate this inboundRoot into the reference tree.
-    (bytes32 expectedAggregateRoot, uint256 expectedAggregateCount) = referenceAggregateTree.insert(inboundRoot);
-    assertEq(RootManager(_rootManager).MERKLE().root(), expectedAggregateRoot);
-    // Assert index increased by 1.
-    uint256 updatedAggregateCount = RootManager(_rootManager).MERKLE().count();
-    assertEq(updatedAggregateCount, expectedAggregateCount);
-    assertEq(updatedAggregateCount, initialAggregateCount + 1);
   }
 
   // Propagate aggregateRoot on all connectors.
-  function utils_propagateAndAssert() public returns (bytes32 aggregateRoot) {
-    aggregateRoot = RootManager(_rootManager).MERKLE().root();
+  function utils_propagateAndAssert(bytes32 inboundRoot) public returns (bytes32 aggregateRoot) {
+    // Aggregate this inboundRoot into the reference tree (as it should be done in `propagate`).
+    bytes32[] memory inboundRoots = new bytes32[](1);
+    inboundRoots[0] = inboundRoot;
+    (bytes32 expectedAggregateRoot, uint256 expectedAggregateCount) = referenceAggregateTree.insert(inboundRoots);
 
+    // Move ahead the expected number of delay blocks.
+    vm.roll(block.number + RootManager(_rootManager).delayBlocks());
+
+    // Get initial count for aggregate tree.
+    uint256 initialAggregateCount = RootManager(_rootManager).MERKLE().count();
+
+    // Format params.
     uint32[] memory domains = new uint32[](2);
     domains[0] = _originDomain;
     domains[1] = _destinationDomain;
@@ -292,9 +292,18 @@ contract PingPong is ConnectorHelper {
     // Propagate the aggregate root.
     RootManager(_rootManager).propagate(domains, connectors);
 
+    // Assert that the current aggregate root matches expected (from reference tree).
+    aggregateRoot = RootManager(_rootManager).MERKLE().root();
+    assertEq(aggregateRoot, expectedAggregateRoot);
+
+    // Assert index increased by 1.
+    uint256 updatedAggregateCount = RootManager(_rootManager).MERKLE().count();
+    assertEq(updatedAggregateCount, expectedAggregateCount);
+    assertEq(updatedAggregateCount, initialAggregateCount + 1);
+
     // Assert that the aggregate root was sent on all connectors.
-    assertEq(MockHubConnector(_originConnectors.hub).lastOutbound(), keccak256(abi.encode(aggregateRoot)));
-    assertEq(MockHubConnector(_destinationConnectors.hub).lastOutbound(), keccak256(abi.encode(aggregateRoot)));
+    assertEq(MockHubConnector(_originConnectors.hub).lastOutbound(), keccak256(abi.encode(expectedAggregateRoot)));
+    assertEq(MockHubConnector(_destinationConnectors.hub).lastOutbound(), keccak256(abi.encode(expectedAggregateRoot)));
   }
 
   // Process a given aggregateRoot on a given spoke.
@@ -313,8 +322,8 @@ contract PingPong is ConnectorHelper {
     // Make sure aggregateRoot was received.
     assertEq(MockSpokeConnector(connector).lastReceived(), keccak256(abi.encode(aggregateRoot)));
 
-    // Aggregate root should be updated.
-    assertEq(SpokeConnector(connector).provenAggregateRoots(aggregateRoot), true);
+    // `pendingAggregateRoots` should be updated.
+    assertEq(SpokeConnector(connector).pendingAggregateRoots(aggregateRoot), block.number);
   }
 
   // Get the proof/path for a given message in the reference spoke tree.
@@ -343,11 +352,16 @@ contract PingPong is ConnectorHelper {
     utils_aggregateAndAssert(outboundRoot);
 
     // 4. Propagate roots to both connectors.
-    bytes32 aggregateRoot = utils_propagateAndAssert();
+    bytes32 aggregateRoot = utils_propagateAndAssert(outboundRoot);
 
     // 5. Process aggregateRoot on destination spoke, as well as origin spoke (should be broadcasted to both).
     utils_processAggregateRootAndAssert(_destinationConnectors.spoke, _destinationAMB, aggregateRoot);
     utils_processAggregateRootAndAssert(_originConnectors.spoke, _originAMB, aggregateRoot);
+
+    // Now fast forward `delayBlocks` so the aggregateRoot we just delivered to the destination spoke chain
+    // will be considered verified.
+    uint256 destinationDelay = MockSpokeConnector(_destinationConnectors.spoke).delayBlocks();
+    vm.roll(block.number + destinationDelay);
 
     // 6. Process original message.
     // bytes32[32] memory branch = referenceAggregateTree.branch();
@@ -371,7 +385,7 @@ contract PingPong is ConnectorHelper {
 
     SpokeConnector.Proof[] memory proofs = new SpokeConnector.Proof[](1);
     proofs[0] = SpokeConnector.Proof(message, messageProof, 0);
-    // SpokeConnector(_destinationConnectors.spoke).proveAndProcess(proofs, aggregateProof, 0);
+    SpokeConnector(_destinationConnectors.spoke).proveAndProcess(proofs, aggregateRoot, aggregateProof, 0);
 
     // assertEq(uint256(SpokeConnector(_destinationConnectors.spoke).messages(keccak256(message))), 2);
     // assertEq(MockRelayerFeeRouter(TypeCasts.bytes32ToAddress(_destinationRouter)).handledOrigin(), _originDomain);
