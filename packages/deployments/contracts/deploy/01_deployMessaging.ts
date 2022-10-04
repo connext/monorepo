@@ -26,6 +26,7 @@ const formatConnectorArgs = (
   // FIXME: settle on domains w/nomad
   const deploymentDomain = BigNumber.from(chainIdToDomain(deploymentChainId).toString());
   const mirrorDomain = BigNumber.from(chainIdToDomain(mirrorChainId).toString());
+
   const hubArgs = [
     deploymentDomain,
     // Mirror domain should be known.
@@ -166,6 +167,7 @@ const handleDeployHub = async (
   );
   console.log(`${connectorName} SendOutboundRootResolver deployed to ${resolverDeployment.address}`);
 
+  /// HUBCONNECTOR DEPLOYMENT
   // Loop through every HubConnector configuration (except for the actual hub's) and deploy.
   const { configs } = protocol;
   for (const mirrorChain of Object.keys(configs)) {

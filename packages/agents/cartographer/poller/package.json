@@ -42,7 +42,6 @@
     "eslint": "8.23.0",
     "nodemon": "2.0.19",
     "nyc": "15.1.0",
-    "pg-mem": "2.6.3",
     "pino-pretty": "9.1.0",
     "rimraf": "3.0.2",
     "sinclair": "0.2.0",

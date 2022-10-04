@@ -370,11 +370,11 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _transferId - The unique identifier of the crosschain transaction
    */
   function bumpTransfer(bytes32 _transferId) external payable nonReentrant whenNotPaused {
+    if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
     _bumpTransfer(_transferId);
   }
 
   function _bumpTransfer(bytes32 _transferId) internal {
-    if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
     Address.sendValue(payable(s.relayerFeeVault), msg.value);
 
     emit TransferRelayerFeesIncreased(_transferId, msg.value, msg.sender);

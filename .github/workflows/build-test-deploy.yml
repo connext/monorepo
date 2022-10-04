@@ -22,6 +22,28 @@ jobs:
     permissions:
       contents: read
 
+    env:
+      DATABASE_URL: postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable
+
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: qwerty
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # maps tcp port 5432 on service container to the host
+          - 5432:5432
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -44,6 +66,12 @@ jobs:
 
       - name: Yarn build
         run: yarn build
+
+      - name: Install DBMate
+        run: sudo curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 && sudo chmod +x /usr/local/bin/dbmate
+
+      - name: Migrate Database
+        run: yarn workspace @connext/cartographer-poller dbmate up
 
       - name: Yarn test
         run: yarn test:all

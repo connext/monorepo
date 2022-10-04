@@ -384,7 +384,7 @@ export const mock = {
       timestamp: Math.floor(Date.now() / 1000),
       gasPrice: utils.parseUnits("5", "gwei").toNumber(),
       gasLimit: 100000,
-      blockNumber: Math.floor(Date.now()),
+      blockNumber: Math.floor(Date.now() / 1000),
       ...overrides,
     }),
   },
