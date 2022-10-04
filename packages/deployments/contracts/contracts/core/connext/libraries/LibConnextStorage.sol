@@ -41,7 +41,7 @@ struct TokenId {
 }
 
 /**
- * @notice These are the call parameters that will remain constant between the
+ * @notice These are the parameters that will remain constant between the
  * two chains. They are supplied on `xcall` and should be asserted on `execute`
  * @property to - The account that receives funds, in the event of a crosschain call,
  * will receive funds if the call fails.
@@ -61,7 +61,7 @@ struct TokenId {
  * @param nonce - The nonce on the origin domain used to ensure the transferIds are unique
  * @param canonicalId - The unique identifier of the canonical token corresponding to bridge assets
  */
-struct CallParams {
+struct TransferInfo {
   uint32 originDomain;
   uint32 destinationDomain;
   uint32 canonicalDomain;
@@ -79,7 +79,7 @@ struct CallParams {
 
 /**
  * @notice
- * @param params - The CallParams. These are consistent across sending and receiving chains.
+ * @param params - The TransferInfo. These are consistent across sending and receiving chains.
  * @param routers - The routers who you are sending the funds on behalf of.
  * @param routerSignatures - Signatures belonging to the routers indicating permission to use funds
  * for the signed transfer ID.
@@ -88,7 +88,7 @@ struct CallParams {
  * for the path that was signed.
  */
 struct ExecuteArgs {
-  CallParams params;
+  TransferInfo params;
   address[] routers;
   bytes[] routerSignatures;
   address sequencer;
@@ -122,7 +122,7 @@ struct AppStorage {
   // 0
   bool initialized;
   //
-  // ConnextHandler
+  // Connext
   //
   // 1
   uint256 LIQUIDITY_FEE_NUMERATOR;
@@ -143,11 +143,6 @@ struct AppStorage {
    */
   // 4
   uint32 domain;
-  /**
-   * @notice UpgradeBeacon from which new token proxies will get their implementation
-   */
-  // 5
-  address tokenBeacon;
   /**
    * @notice Mapping holding the AMMs for swapping in and out of local assets.
    * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon).
@@ -229,7 +224,7 @@ struct AppStorage {
   /**
    * @notice Stores a mapping of remote routers keyed on domains.
    * @dev Addresses are cast to bytes32.
-   * This mapping is required because the ConnextHandler now contains the BridgeRouter and must implement
+   * This mapping is required because the Connext now contains the BridgeRouter and must implement
    * the remotes interface.
    */
   // 21
@@ -323,11 +318,6 @@ struct AppStorage {
    */
   // 39
   IConnectorManager xAppConnectionManager;
-  /**
-   * @notice Ownership delay for transferring ownership.
-   */
-  // 40
-  uint256 _ownershipDelay;
 }
 
 library LibConnextStorage {

@@ -71,7 +71,7 @@ contract RelayerFacet is BaseConnextFacet {
    * @notice Updates the relayer fee router
    * @param _relayerFeeVault The address of the new router
    */
-  function setRelayerFeeVault(address _relayerFeeVault) external onlyOwner {
+  function setRelayerFeeVault(address _relayerFeeVault) external onlyOwnerOrAdmin {
     address old = address(s.relayerFeeVault);
     if (old == _relayerFeeVault) revert RelayerFacet__setRelayerFeeVault_invalidRelayerFeeVault();
 
@@ -83,7 +83,7 @@ contract RelayerFacet is BaseConnextFacet {
    * @notice Used to add approved relayer
    * @param _relayer - The relayer address to add
    */
-  function addRelayer(address _relayer) external onlyOwner {
+  function addRelayer(address _relayer) external onlyOwnerOrAdmin {
     if (s.approvedRelayers[_relayer]) revert RelayerFacet__addRelayer_alreadyApproved();
     s.approvedRelayers[_relayer] = true;
 
@@ -94,7 +94,7 @@ contract RelayerFacet is BaseConnextFacet {
    * @notice Used to remove approved relayer
    * @param _relayer - The relayer address to remove
    */
-  function removeRelayer(address _relayer) external onlyOwner {
+  function removeRelayer(address _relayer) external onlyOwnerOrAdmin {
     if (!s.approvedRelayers[_relayer]) revert RelayerFacet__removeRelayer_notApproved();
     delete s.approvedRelayers[_relayer];
 

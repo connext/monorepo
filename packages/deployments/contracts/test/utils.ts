@@ -18,7 +18,7 @@ import {
   UpgradeBeaconProxy,
   TestERC20,
   TransparentUpgradeableProxy,
-  ConnextHandler,
+  Connext,
   BridgeFacet,
   ProposedOwnableFacet,
   IERC20,
@@ -151,7 +151,7 @@ export const getOnchainBalance = async (
     : new Contract(assetId, Erc20Abi, provider).balanceOf(address);
 };
 
-export const getRoutersBalances = async (routers: string[], connextContract: ConnextHandler, asset: string) =>
+export const getRoutersBalances = async (routers: string[], connextContract: Connext, asset: string) =>
   Promise.all(routers.map((addr) => connextContract.routerBalances(addr, asset)));
 
 export const setBlockTime = async (desiredTimestamp: number) => {
@@ -371,7 +371,7 @@ export const connextXCall = async (
     callbackFee: number;
     receiveLocal: boolean;
   },
-  connext: ConnextHandler,
+  connext: Connext,
   bridgeFacet: BridgeFacet,
 ) => {
   // Approve user

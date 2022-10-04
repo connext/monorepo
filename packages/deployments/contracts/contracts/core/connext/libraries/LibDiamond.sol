@@ -62,6 +62,10 @@ library LibDiamond {
     contractOwner_ = diamondStorage().contractOwner;
   }
 
+  function acceptanceDelay() internal view returns (uint256) {
+    return diamondStorage().acceptanceDelay;
+  }
+
   function acceptanceTime(bytes32 _key) internal view returns (uint256) {
     return diamondStorage().acceptanceTimes[_key];
   }

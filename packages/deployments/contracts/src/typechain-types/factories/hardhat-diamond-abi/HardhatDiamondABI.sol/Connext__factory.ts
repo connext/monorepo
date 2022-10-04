@@ -4,7 +4,10 @@
 
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
-import type { Connext, ConnextInterface } from "../../../hardhat-diamond-abi/HardhatDiamondABI.sol/Connext";
+import type {
+  Connext,
+  ConnextInterface,
+} from "../../../hardhat-diamond-abi/HardhatDiamondABI.sol/Connext";
 
 const _abi = [
   {
@@ -64,12 +67,17 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "AssetLogic__handleOutgoingAsset_notNative",
+    name: "AssetLogic__handleIncomingAsset_feeOnTransferNotSupported",
     type: "error",
   },
   {
     inputs: [],
-    name: "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
+    name: "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "AssetLogic__handleOutgoingAsset_notNative",
     type: "error",
   },
   {
@@ -80,6 +88,11 @@ const _abi = [
   {
     inputs: [],
     name: "BridgeFacet__addSequencer_alreadyApproved",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BridgeFacet__bumpTransfer_noRelayerVault",
     type: "error",
   },
   {
@@ -1507,12 +1520,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
+    name: "AssetLogic__handleIncomingAsset_feeOnTransferNotSupported",
     type: "error",
   },
   {
     inputs: [],
-    name: "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
+    name: "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
     type: "error",
   },
   {
@@ -2576,17 +2589,17 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "AssetLogic__handleIncomingAsset_feeOnTransferNotSupported",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
     type: "error",
   },
   {
     inputs: [],
     name: "AssetLogic__handleOutgoingAsset_notNative",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
     type: "error",
   },
   {
@@ -4826,7 +4839,10 @@ export class Connext__factory {
   static createInterface(): ConnextInterface {
     return new utils.Interface(_abi) as ConnextInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): Connext {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): Connext {
     return new Contract(address, _abi, signerOrProvider) as Connext;
   }
 }

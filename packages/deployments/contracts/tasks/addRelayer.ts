@@ -24,7 +24,7 @@ export default task("add-relayer", "Add Relayer to whitelist")
     console.log("env:", env);
     console.log("relayer: ", relayer);
 
-    const connextName = getDeploymentName("ConnextHandler", env);
+    const connextName = getDeploymentName("Connext", env);
     const connextDeployment = await deployments.get(connextName);
     const connextAddress = _connextAddress ?? connextDeployment.address;
     console.log("connextAddress: ", connextAddress);

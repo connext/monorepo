@@ -24,7 +24,7 @@ const proposeDiamondUpgrade = async (
   deployer: Wallet,
 ): Promise<{ cuts: FacetCut[]; tx: undefined | providers.TransactionResponse; abi: undefined | any[] }> => {
   // Get existing facets + selectors
-  const existingDeployment = (await hre.deployments.getOrNull(getDeploymentName("ConnextHandler")))!;
+  const existingDeployment = (await hre.deployments.getOrNull(getDeploymentName("Connext")))!;
   const contract = new Contract(existingDeployment.address, existingDeployment?.abi, deployer);
 
   const oldFacets: { facetAddress: string; functionSelectors: string[] }[] = await contract.facets();
@@ -156,7 +156,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const chainId = await hre.getChainId();
 
   const acceptanceDelay = 0; // 604800 = 7 days
-  const ownershipDelay = 0; // 604800 = 7 days
 
   let _deployer: any;
   ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
@@ -207,12 +206,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     );
   }
 
-  // Get the token beacon
-  const bridgeTokenDeployment = await hre.deployments.getOrNull(getDeploymentName("BridgeTokenUpgradeBeacon"));
-  if (!bridgeTokenDeployment) {
-    throw new Error(`BridgeTokenUpgradeBeacon not deployed`);
-  }
-
   // get relayer fee information
   const relayerFeeVault = RELAYER_CONFIGS[messagingNetwork][+chainId]?.relayerFeeVault;
   if (!relayerFeeVault) {
@@ -221,7 +214,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Deploy connext diamond contract
   console.log("Deploying connext diamond...");
-  const isDiamondUpgrade = !!(await hre.deployments.getOrNull(getDeploymentName("ConnextHandler")));
+  const isDiamondUpgrade = !!(await hre.deployments.getOrNull(getDeploymentName("Connext")));
 
   const facets: FacetOptions[] = [
     { name: getDeploymentName("TokenFacet"), contract: "TokenFacet", args: [] },
@@ -238,7 +231,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   if (isDiamondUpgrade) {
     console.log("proposing upgrade...");
 
-    connext = (await hre.deployments.getOrNull(getDeploymentName("ConnextHandler")))!;
+    connext = (await hre.deployments.getOrNull(getDeploymentName("Connext")))!;
 
     const { cuts, tx: proposalTx, abi } = await proposeDiamondUpgrade(facets, hre, deployer);
     if (!proposalTx || !cuts.length) {
@@ -269,7 +262,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
             abi: abi ?? connext.abi,
           };
 
-          await hre.deployments.save(getDeploymentName("ConnextHandler"), diamondDeployment);
+          await hre.deployments.save(getDeploymentName("Connext"), diamondDeployment);
           console.log("upgraded abi");
         }
       }
@@ -277,7 +270,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       console.log(`upgrade failed`, e);
     }
   } else {
-    connext = await hre.deployments.diamond.deploy(getDeploymentName("ConnextHandler"), {
+    connext = await hre.deployments.diamond.deploy(getDeploymentName("Connext"), {
       from: deployer.address,
       owner: deployer.address,
       log: true,
@@ -289,14 +282,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         : {
             contract: "DiamondInit",
             methodName: "init",
-            args: [
-              domain,
-              bridgeTokenDeployment.address,
-              relayerFeeVault,
-              connectorManagerDeployment.address,
-              acceptanceDelay,
-              ownershipDelay,
-            ],
+            args: [domain, relayerFeeVault, connectorManagerDeployment.address, acceptanceDelay],
           },
     });
   }
@@ -340,5 +326,4 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 export default func;
 
 func.tags = ["Connext", "prod", "local", "mainnet"];
-// func.dependencies = ["Nomad"];
-func.dependencies = ["Messaging", "BridgeToken"];
+func.dependencies = ["Messaging"];

@@ -17,7 +17,7 @@ import {
   RouterOwnerProposed,
   RouterRecipientSet,
   MaxRoutersPerTransferUpdated,
-} from "../../../generated/Connext/ConnextHandler";
+} from "../../../generated/Connext/Connext";
 import {
   NewConnector,
   Dispatch,
@@ -64,4 +64,3 @@ export function handleRelayerRemoved(event: RelayerRemoved): void {
     relayer.save();
   }
 }
-

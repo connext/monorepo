@@ -6,7 +6,7 @@ import {
   XTransferStatus,
   getRandomBytes32,
   Bid,
-  CallParams,
+  TransferInfo,
   ExecuteArgs,
   createLoggingContext,
 } from "..";
@@ -76,7 +76,7 @@ export const mock = {
   },
   loggingContext: (name = "TEST") => createLoggingContext(name, undefined, mkBytes32()),
   entity: {
-    callParams: (overrides: Partial<CallParams> = {}): CallParams => ({
+    callParams: (overrides: Partial<TransferInfo> = {}): TransferInfo => ({
       originDomain: mock.domain.A,
       destinationDomain: mock.domain.B,
       canonicalDomain: mock.domain.A,

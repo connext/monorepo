@@ -74,7 +74,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   // setRelayerFeeVault
   // fail if not owner
   function test_RelayerFacet__setRelayerFeeVault_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
     this.setRelayerFeeVault(address(42));
   }
@@ -103,7 +103,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   // addRelayer
   // fails if not owner
   function test_RelayerFacet__addRelayer_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
     this.addRelayer(address(42));
   }
@@ -135,7 +135,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   // removeRelayer
   // fails if not owner
   function test_RelayerFacet__removeRelayer_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
     this.removeRelayer(address(42));
   }

@@ -21,7 +21,7 @@ describe("contracts", () => {
               address: testAddress,
               abi: ["fakeAbi()"],
             },
-            ConnextHandler: {
+            Connext: {
               address: testAddress,
               abi: ["fakeAbi()"],
             },

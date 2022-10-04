@@ -11,7 +11,7 @@ import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.
 import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
-import {CallParams, ExecuteArgs, TokenId, DestinationTransferStatus} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {TransferInfo, ExecuteArgs, TokenId, DestinationTransferStatus} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
@@ -63,6 +63,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // relayer fee
   uint256 _relayerFee = 0.1 ether;
+  address _relayerFeeVault = address(12313454241);
 
   // Defaults
   // default origin sender
@@ -71,9 +72,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   uint256 _defaultAmount = 1.1 ether;
   // default nonce on xcall
   uint256 _defaultNonce = s.nonce;
-  // default CallParams
-  CallParams _defaultParams =
-    CallParams({
+  // default TransferInfo
+  TransferInfo _defaultParams =
+    TransferInfo({
       originDomain: _originDomain,
       destinationDomain: _destinationDomain,
       canonicalDomain: 0, // Will be set in setUp; should also be updated in helpers.
@@ -112,7 +113,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.approvedSequencers[_sequencer] = true;
     s.maxRoutersPerTransfer = 5;
     s._routerWhitelistRemoved = true;
-
+    s.relayerFeeVault = _relayerFeeVault;
     s.domain = _originDomain;
 
     s.remotes[_destinationDomain] = TypeCasts.addressToBytes32(address(this));
@@ -183,8 +184,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   {
     s.domain = _destinationDomain;
 
-    // Format CallParams.
-    CallParams memory params = _defaultParams;
+    // Format TransferInfo.
+    TransferInfo memory params = _defaultParams;
     params.canonicalId = _canonicalId;
     params.canonicalDomain = _canonicalDomain;
     params.bridgedAmt = _defaultAmount;
@@ -239,7 +240,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // Helpers used for executing target methods with given params that assert expected base behavior.
   function helpers_setupSuccessfulXcallCallAssertions(
     bytes32 transferId,
-    CallParams memory params,
+    TransferInfo memory params,
     address asset,
     uint256 amount,
     bool shouldSwap
@@ -248,7 +249,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     address bridged = asset == address(0) ? address(0) : _canonicalDomain == s.domain ? _canonical : _local;
     uint256 bridgedAmt = params.bridgedAmt;
     vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, s.nonce, bytes32("test message"), params, bridged);
+    emit XCalled(transferId, s.nonce, bytes32("test message"), params, asset, amount);
 
     // assert swap if expected
     if (shouldSwap && bridgedAmt != 0) {
@@ -271,7 +272,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // Helper to prevent stack too deep issues (since there a lot of arguments to xcall).
   function helpers_wrappedXCall(
-    CallParams memory params,
+    TransferInfo memory params,
     address asset,
     uint256 amount
   ) public returns (bytes32) {
@@ -300,7 +301,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // Calls `xcall` with given args and handles standard assertions.
   function helpers_xcallAndAssert(
-    CallParams memory params,
+    TransferInfo memory params,
     address asset,
     uint256 amount,
     bytes4 expectedError,
@@ -828,7 +829,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // test revert
     vm.prank(_defaultOriginSender);
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     this.addSequencer(sequencer);
   }
 
@@ -866,7 +867,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // test revert
     vm.prank(_defaultOriginSender);
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     this.removeSequencer(sequencer);
   }
 
@@ -1054,7 +1055,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert();
   }
 
-  // `xcallIntoLocal` should effectively be the same as the xcall but the CallParams should
+  // `xcallIntoLocal` should effectively be the same as the xcall but the TransferInfo should
   // have `receiveLocal` set to true.
   function test_BridgeFacet__xcallIntoLocal_works() public {
     utils_setupAsset(false, false);
@@ -1083,7 +1084,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _relayerFee = 0.1 ether;
 
     // Flesh out the params and get the expected transfer ID.
-    CallParams memory params = _defaultParams;
+    TransferInfo memory params = _defaultParams;
     params.bridgedAmt = _defaultAmount;
     params.normalizedIn = _defaultAmount;
     params.canonicalId = _canonicalId;
