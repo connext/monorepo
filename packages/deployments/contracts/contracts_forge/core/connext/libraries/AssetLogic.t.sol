@@ -9,8 +9,6 @@ import {LibConnextStorage, AppStorage, TokenId} from "../../../../contracts/core
 import "../../../utils/FacetHelper.sol";
 import "../../../utils/Mock.sol";
 
-import "forge-std/console.sol";
-
 // Helper to call library with native value functions
 contract LibCaller {
   constructor() {
