@@ -8,5 +8,6 @@
       "providers": ["https://kovan.infura.io/v3/..."]
     }
   },
+  "gelatoApiKey": "xxx",
   "environment": "production"
 }

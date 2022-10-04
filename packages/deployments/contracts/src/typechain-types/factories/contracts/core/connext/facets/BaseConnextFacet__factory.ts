@@ -17,12 +17,32 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BaseConnextFacet__getApprovedCanonicalId_notWhitelisted",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BaseConnextFacet__nonReentrant_reentrantCall",
     type: "error",
   },
   {
     inputs: [],
     name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrWatcher_notOwnerOrWatcher",
     type: "error",
   },
   {
@@ -43,7 +63,7 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122035f7cbe3eaa54903a909c40a560192441d15cb557f89c331fae4ed5fdc2975d864736f6c634300080f0033";
+  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220ab2c0b710273bf359334cdd709c6be0e2cc408c0f2b523cf97caa878a892583264736f6c634300080f0033";
 
 type BaseConnextFacetConstructorParams =
   | [signer?: Signer]

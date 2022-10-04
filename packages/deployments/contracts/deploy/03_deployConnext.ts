@@ -1,7 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, Facet } from "hardhat-deploy/types";
 import { constants, Contract, providers, Wallet } from "ethers";
-import { ethers } from "hardhat";
 import { FunctionFragment, Interface } from "ethers/lib/utils";
 import { FacetCut, FacetCutAction, ExtendedArtifact, DeploymentSubmission } from "hardhat-deploy/dist/types";
 import { mergeABIs } from "hardhat-deploy/dist/src/utils";
@@ -9,8 +8,7 @@ import { mergeABIs } from "hardhat-deploy/dist/src/utils";
 import { SKIP_SETUP } from "../src/constants";
 import { getConnectorName, getDeploymentName, getProtocolNetwork } from "../src/utils";
 import { chainIdToDomain } from "../src";
-import { deployConfigs } from "../deployConfig";
-import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
+import { MESSAGING_PROTOCOL_CONFIGS, RELAYER_CONFIGS } from "../deployConfig/shared";
 
 function sigsFromABI(abi: any[]): string[] {
   return abi
@@ -179,20 +177,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const balance = await hre.ethers.provider.getBalance(deployer.address);
   console.log("balance: ", balance.toString());
 
-  // Retrieve Router deployments, format into ethers.Contract objects:
-  const relayerFeeRouterDeployment = await hre.deployments.getOrNull(
-    getDeploymentName("RelayerFeeRouterUpgradeBeaconProxy"),
-  );
-  if (!relayerFeeRouterDeployment) {
-    throw new Error("RelayerFeeRouterUpgradeBeaconProxy deployment not found!");
-  }
-  const relayerFeeRouter = await hre.ethers.getContractAt(
-    "RelayerFeeRouter",
-    relayerFeeRouterDeployment.address,
-    deployer,
-  );
-
-  const deployConfig = deployConfigs[chainId];
   // Get connector manager
   const messagingNetwork = getProtocolNetwork(chainId);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[messagingNetwork];
@@ -206,19 +190,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   if (!connectorManagerDeployment) {
     throw new Error(`${connectorName} not deployed`);
   }
-
-  console.log("Fetching token registry...");
-  let tokenRegistryAddress = deployConfig?.TokenRegistry;
-  if (!tokenRegistryAddress) {
-    const tokenRegistryDeployment = await hre.deployments.getOrNull(
-      getDeploymentName("TokenRegistryUpgradeBeaconProxy"),
-    );
-    if (!tokenRegistryDeployment) {
-      throw new Error(`TokenRegistry not deployed`);
-    }
-    tokenRegistryAddress = tokenRegistryDeployment.address;
-  }
-  const tokenRegistry = await hre.ethers.getContractAt("TokenRegistry", tokenRegistryAddress, deployer);
 
   const lpTokenDeployment = await hre.deployments.deploy("LPToken", {
     from: deployer.address,
@@ -236,12 +207,24 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     );
   }
 
+  // Get the token beacon
+  const bridgeTokenDeployment = await hre.deployments.getOrNull(getDeploymentName("BridgeTokenUpgradeBeacon"));
+  if (!bridgeTokenDeployment) {
+    throw new Error(`BridgeTokenUpgradeBeacon not deployed`);
+  }
+
+  // get relayer fee information
+  const relayerFeeVault = RELAYER_CONFIGS[messagingNetwork][+chainId]?.relayerFeeVault;
+  if (!relayerFeeVault) {
+    throw new Error(`Empty relayer fee vault for ${messagingNetwork}:${chainId}`);
+  }
+
   // Deploy connext diamond contract
   console.log("Deploying connext diamond...");
   const isDiamondUpgrade = !!(await hre.deployments.getOrNull(getDeploymentName("ConnextHandler")));
 
   const facets: FacetOptions[] = [
-    { name: getDeploymentName("AssetFacet"), contract: "AssetFacet", args: [] },
+    { name: getDeploymentName("TokenFacet"), contract: "TokenFacet", args: [] },
     { name: getDeploymentName("BridgeFacet"), contract: "BridgeFacet", args: [] },
     { name: getDeploymentName("InboxFacet"), contract: "InboxFacet", args: [] },
     { name: getDeploymentName("ProposedOwnableFacet"), contract: "ProposedOwnableFacet", args: [] },
@@ -249,7 +232,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     { name: getDeploymentName("RoutersFacet"), contract: "RoutersFacet", args: [] },
     { name: getDeploymentName("StableSwapFacet"), contract: "StableSwapFacet", args: [] },
     { name: getDeploymentName("SwapAdminFacet"), contract: "SwapAdminFacet", args: [] },
-    { name: getDeploymentName("VersionFacet"), contract: "VersionFacet", args: [] },
     { name: getDeploymentName("DiamondCutFacet"), contract: "DiamondCutFacet", args: [] },
   ];
   let connext;
@@ -309,8 +291,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
             methodName: "init",
             args: [
               domain,
-              tokenRegistry.address,
-              relayerFeeRouter.address,
+              bridgeTokenDeployment.address,
+              relayerFeeVault,
               connectorManagerDeployment.address,
               acceptanceDelay,
               ownershipDelay,
@@ -321,26 +303,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
-
-  // Sanity check: did token registry set
-  const contract = new Contract(connext.address, connext.abi, ethers.provider);
-  if ((await contract.tokenRegistry()).toLowerCase() !== tokenRegistry.address.toLowerCase()) {
-    console.log("expected token registry:", tokenRegistry.address);
-    console.log("init-d token registry:", await contract.tokenRegistry());
-    console.log(`Improperly init-d token registry, setting TokenRegistry...`);
-    const setTm = await contract.connect(deployer).setTokenRegistry(tokenRegistry.address);
-    await setTm.wait();
-    console.log(`New TokenRegistry address set!`);
-  }
-
-  // Add connext to relayer fee router
-  if ((await relayerFeeRouter.connext()) !== connextAddress) {
-    console.log("setting connext on relayer fee router");
-    const addTm = await relayerFeeRouter.connect(deployer).setConnext(connextAddress);
-    await addTm.wait();
-  } else {
-    console.log("relayer fee router connext set");
-  }
 
   console.log("Deploying multicall...");
   const multicallName = getDeploymentName("Multicall");
@@ -379,4 +341,4 @@ export default func;
 
 func.tags = ["Connext", "prod", "local", "mainnet"];
 // func.dependencies = ["Nomad"];
-func.dependencies = ["Messaging"];
+func.dependencies = ["Messaging", "BridgeToken"];

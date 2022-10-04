@@ -1,22 +1,13 @@
 import * as fs from "fs";
 
 import { getChainData, getChainIdFromDomain } from "@connext/nxtp-utils";
-import { constants, providers, Wallet } from "ethers";
+import { providers, Wallet } from "ethers";
 
 import { chainIdToDomain } from "../domain";
 
-import {
-  ProtocolStack,
-  NetworkStack,
-  HubMessagingDeployments,
-  SpokeMessagingDeployments,
-  getDeployments,
-  enrollHandlers,
-  updateIfNeeded,
-  assertValue,
-  getValue,
-} from "./helpers";
+import { ProtocolStack, getDeployments, updateIfNeeded, NetworkStack, HubMessagingDeployments } from "./helpers";
 import { setupAsset } from "./helpers/assets";
+import { setupMessaging } from "./helpers/messaging";
 
 /**
  * Call the core `initProtocol` method using a JSON config file provided by the local environment.
@@ -231,179 +222,11 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and frontload the http request.
   await getChainData(true);
 
-  /// MARK - Peripherals
-  // Get hub domain for specific use.
-  const hub: NetworkStack = protocol.networks.filter((d) => d.domain === protocol.hub)[0];
-
-  /// MARK - Contracts
-  // Convenience setup for contracts.
-  const { RootManager, MainnetConnector, HubConnectors } = hub.deployments.messaging as HubMessagingDeployments;
-
-  /// ******************** MESSAGING ********************
-  /// MARK - Init
-  // TODO: Currently unused, as messaging init checks are not needed with the AMB-compatible stack.
-  // However, they will be useful as sanity checks for Nomad deployments in the future - thus, leaving
-  // this placeholder here for now...
-
-  /// MARK - Connector Mirrors
-  console.log("\n\nMESSAGING");
-  // Connectors should have their mirrors' address set; this lets them know about their counterparts.
-  for (const HubConnector of HubConnectors) {
-    // Get the connector's mirror domain (and convert to a string value).
-    const mirrorDomain = (
-      await getValue<number>({
-        deployment: HubConnector,
-        read: "MIRROR_DOMAIN",
-      })
-    ).toString();
-
-    // Find the spoke domain.
-    let foundMirror = false;
-    for (const spoke of protocol.networks) {
-      if (spoke.domain === mirrorDomain) {
-        if (spoke.domain === hub.domain) {
-          throw new Error("Mirror domain was hub? Bruh");
-        }
-        foundMirror = true;
-        const SpokeConnector = (spoke.deployments.messaging as SpokeMessagingDeployments).SpokeConnector;
-
-        console.log(`\tVerifying connection: ${hub.chain}<>${spoke.chain}:`);
-
-        /// MARK - Sanity Checks
-        // Sanity check: Make sure RootManager is set correctly for the HubConnector.
-        // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
-        console.log("\tVerifying Connectors' ROOT_MANAGER set correctly.");
-        await assertValue({
-          deployment: HubConnector,
-          read: "ROOT_MANAGER",
-          desired: RootManager.address,
-        });
-        // Sanity check: Make sure RootManager is set correctly for the SpokeConnector.
-        await assertValue({
-          deployment: SpokeConnector,
-          read: "ROOT_MANAGER",
-          desired: RootManager.address,
-        });
-
-        /// MARK - RootManager: Add Connector
-        // Set hub connector address for this domain on RootManager.
-        console.log("\tVerifying RootManager `connectors` has HubConnector set correctly.");
-        const currentValue = await getValue({
-          deployment: RootManager,
-          read: { method: "connectors", args: [spoke.domain] },
-        });
-        // If the current connector address is not correct and isn't empty, we need to remove the connector first.
-        if (currentValue !== HubConnector.address && currentValue !== constants.AddressZero) {
-          await updateIfNeeded({
-            deployment: RootManager,
-            desired: constants.AddressZero,
-            read: { method: "connectors", args: [spoke.domain] },
-            write: { method: "removeConnector", args: [spoke.domain] },
-          });
-        }
-
-        await updateIfNeeded({
-          deployment: RootManager,
-          desired: HubConnector.address,
-          read: { method: "connectors", args: [spoke.domain] },
-          write: { method: "addConnector", args: [spoke.domain, HubConnector.address] },
-        });
-
-        /// MARK - Connectors: Mirrors
-        // Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
-        console.log("\tVerifying mirror connectors are set correctly.");
-        await updateIfNeeded({
-          deployment: HubConnector,
-          desired: SpokeConnector.address,
-          read: { method: "mirrorConnector", args: [] },
-          write: { method: "setMirrorConnector", args: [SpokeConnector.address] },
-        });
-        await updateIfNeeded({
-          deployment: SpokeConnector,
-          desired: HubConnector.address,
-          read: { method: "mirrorConnector", args: [] },
-          write: { method: "setMirrorConnector", args: [HubConnector.address] },
-        });
-
-        /// MARK - Connectors: Whitelist Senders
-        // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to
-        // call `dispatch`.
-        console.log("\tVerifying senders (handlers) are whitelisted.");
-        for (const handler of Object.values(spoke.deployments.handlers)) {
-          await updateIfNeeded({
-            deployment: SpokeConnector,
-            desired: true,
-            read: { method: "whitelistedSenders", args: [handler.address] },
-            write: { method: "addSender", args: [handler.address] },
-          });
-        }
-      }
-    }
-
-    // TODO: Actually, should we just submit a warning and skip this iteration? We may discontinue an L2...
-    // TODO: Alternatively, this would be best as a sanity check.
-    if (!foundMirror) {
-      throw new Error(
-        `Did not find mirrorDomain ${mirrorDomain} in protocol networks! Please configure all Spoke (L2) networks.`,
-      );
-    }
-  }
-
-  /// MARK - MainnetConnector
-  // On the hub itself, you only need to connect the mainnet l1 connector to RootManager (no mirror).
-  console.log("\tVerifying MainnetConnector is set up correctly...");
-  // Sanity check: mirror is address(0).
-  assertValue({
-    deployment: MainnetConnector,
-    desired: constants.AddressZero,
-    read: "mirrorConnector",
-  });
-
-  // Make sure RootManager is set correctly for this MainnetConnector.
-  // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
-  assertValue({
-    deployment: MainnetConnector,
-    desired: RootManager.address,
-    read: "ROOT_MANAGER",
-  });
-
-  // Functionality of the MainnetConnector is that of a spoke; we should hook it up to the RootManager.
-  const currentValue = await getValue({
-    deployment: RootManager,
-    read: { method: "connectors", args: [hub.domain] },
-  });
-  // If the current connector address is not correct and isn't empty, we need to remove the connector first.
-  if (currentValue !== MainnetConnector.address && currentValue !== constants.AddressZero) {
-    await updateIfNeeded({
-      deployment: RootManager,
-      desired: constants.AddressZero,
-      read: { method: "connectors", args: [hub.domain] },
-      write: { method: "removeConnector", args: [hub.domain] },
-    });
-  }
-  await updateIfNeeded({
-    deployment: RootManager,
-    desired: MainnetConnector.address,
-    read: { method: "connectors", args: [hub.domain] },
-    write: { method: "addConnector", args: [hub.domain, MainnetConnector.address] },
-  });
-
-  for (const handler of Object.values(hub.deployments.handlers)) {
-    await updateIfNeeded({
-      deployment: MainnetConnector,
-      desired: true,
-      read: { method: "whitelistedSenders", args: [handler.address] },
-      write: { method: "addSender", args: [handler.address] },
-    });
-  }
+  /// ********************* Messaging **********************
+  /// MARK - Messaging
+  await setupMessaging(protocol);
 
   /// MARK - Enroll Handlers
-  console.log("\n\nENROLL HANDLERS");
-  // While the Connectors will only accept messages from registered routers on their domains, Routers will only process
-  // messages that originate from their counterpart on another domain (e.g. BridgeRouter on Domain X to BridgeRouter on
-  // Domain Y). Thus, we need to enroll each Handler/Router contract with all of their counterparts on all other domains.
-  // NOTE: This will also set `bridgeRouter` in Connext contract to the correct address.
-  await enrollHandlers({ protocol });
 
   /// ********************* CONNEXT *********************
   /// MARK - Init
@@ -432,7 +255,6 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // Determine if a stableswap pool is needed - does asset have both `local` and `adopted`?
   // If so, initialize stableswap pool with `initializeSwap`.
   // Call `setupAsset` for each domain. This will:
-  // - Register assets in the TokenRegistry (enroll-custom).
   // - Set up mappings for canonical ID / canonical domain / adopted asset address / etc.
   // - Set up mapping for stableswap pool if applicable.
   for (const asset of protocol.assets) {
@@ -448,13 +270,21 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     if (protocol.agents.watchers) {
       if (protocol.agents.watchers.whitelist) {
         console.log("\n\nWHITELIST WATCHERS");
+
+        // Get hub domain for specific use.
+        const hub: NetworkStack = protocol.networks.filter((d) => d.domain === protocol.hub)[0];
+
+        /// MARK - Contracts
+        // Convenience setup for contracts.
+        const { WatcherManager } = hub.deployments.messaging as HubMessagingDeployments;
+
         // Watchers are a permissioned role with the ability to disconnect malicious connectors.
         // Whitelist watchers in RootManager.
         for (const watcher of protocol.agents.watchers.whitelist) {
           await updateIfNeeded({
-            deployment: RootManager,
+            deployment: WatcherManager,
             desired: true,
-            read: { method: "watchers", args: [watcher] },
+            read: { method: "isWatcher", args: [watcher] },
             write: { method: "addWatcher", args: [watcher] },
           });
         }

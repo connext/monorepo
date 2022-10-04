@@ -23,8 +23,6 @@ import {ConnectorManager} from "./ConnectorManager.sol";
  *
  * @dev If you are deploying this contract to mainnet, then the mirror values stored in the HubConnector
  * will be unused
- *
- * TODO: what about the queue manager? see Home.sol for context
  */
 abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, ReentrancyGuard {
   // ============ Libraries ============
@@ -137,23 +135,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    */
   mapping(bytes32 => MessageStatus) public messages;
 
-  /**
-   * @notice Boolean indicating if the connector has been paused by a watcher.
-   */
-  bool private watcherPaused;
-
   // ============ Modifiers ============
 
   modifier onlyWhitelistedSender() {
     require(whitelistedSenders[msg.sender], "!whitelisted");
-    _;
-  }
-
-  /**
-   * @notice Modifier to check if the connector is paused by a watcher.
-   */
-  modifier onlyUnpaused() {
-    require(!watcherPaused, "!unpaused");
     _;
   }
 
@@ -177,12 +162,12 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    address _merkle,
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
+    address _merkle,
     address _watcherManager
   )
     ConnectorManager()
@@ -195,8 +180,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     PROCESS_GAS = _processGas;
     RESERVE_GAS = _reserveGas;
 
-    // If no MerkleTreeManager instance is specified, create a new one.
-    MERKLE = _merkle == address(0) ? new MerkleTreeManager() : MerkleTreeManager(_merkle);
+    require(_merkle != address(0), "!zero merkle");
+    MERKLE = MerkleTreeManager(_merkle);
 
     delayBlocks = _delayBlocks;
   }
@@ -222,15 +207,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   }
 
   /**
-   * @notice Set the `watcherPaused` boolean
-   * @dev This is only callable by a watcher, as set in the WatcherManager
-   */
-  function setWatcherPaused(bool paused) public onlyWatcher {
-    require(watcherPaused != paused, "Already set");
-    watcherPaused = paused;
-  }
-
-  /**
    * @notice Set the delayBlocks, in case this needs to be configured later
    */
   function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
@@ -242,21 +218,13 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @notice Set the aggregateRoots by owner if the contract is paused
    * @dev This required in case of fraud
    */
-  function setAggregateRoots(bytes32 _current, bytes32 _pending) public onlyOwner {
-    require(watcherPaused, "!paused");
+  function setAggregateRoots(bytes32 _current, bytes32 _pending) public onlyOwner whenPaused {
     aggregateRootCurrent = _current;
     aggregateRootPending = _pending;
     emit AggregateRootsUpdated(_current, _pending);
   }
 
   // ============ Public Functions ============
-
-  /**
-   * @notice This is called by the watcher to update the aggregate root
-   */
-  function isPaused() external view returns (bool) {
-    return watcherPaused;
-  }
 
   /**
    * @notice This returns the root of all messages with the origin domain as this domain (i.e.
@@ -278,7 +246,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @notice This returns the root of all messages with the origin domain as this domain (i.e.
    * all outbound messages)
    */
-  function send() external {
+  function send() external whenNotPaused {
     bytes memory _data = abi.encodePacked(MERKLE.root());
     _sendMessage(_data);
     emit MessageSent(_data, msg.sender);
@@ -289,6 +257,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @dev The root of this tree will eventually be dispatched to mainnet via `send`. On mainnet (the "hub"),
    * it will be combined into a single aggregate root by RootManager (along with outbound roots from other
    * chains). This aggregate root will be redistributed to all destination chains.
+   *
+   * NOTE: okay to leave dispatch operational when paused as pause is designed for crosschain interactions
    */
   function dispatch(
     uint32 _destinationDomain,
@@ -348,7 +318,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     Proof[] calldata _proofs,
     bytes32[32] calldata _aggregatorPath,
     uint256 _aggregatorIndex
-  ) external onlyUnpaused {
+  ) external whenNotPaused {
     // Sanity check: proofs are included.
     require(_proofs.length > 0, "!proofs");
 

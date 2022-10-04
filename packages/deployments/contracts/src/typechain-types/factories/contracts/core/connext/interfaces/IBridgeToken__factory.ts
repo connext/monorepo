@@ -61,19 +61,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "detailsHash",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "uint8",
@@ -141,19 +128,6 @@ const _abi = [
       },
     ],
     name: "setDetails",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_detailsHash",
-        type: "bytes32",
-      },
-    ],
-    name: "setDetailsHash",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

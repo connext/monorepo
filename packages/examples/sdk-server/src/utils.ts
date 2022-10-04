@@ -10,7 +10,6 @@ import {
   getTransfersByTransactionHashSchema,
   getTransfersSchema,
 } from "./types/api";
-import { X509Certificate } from "crypto";
 
 export const utilsRoutes = async (server: FastifyInstance, sdkUtilsInstance: NxtpSdkUtils): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();

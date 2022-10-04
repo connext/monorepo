@@ -16,12 +16,12 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    address _merkle,
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
+    address _merkle,
     address _watcherManager
   )
     SpokeConnector(
@@ -29,12 +29,12 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
       _mirrorDomain,
       _amb,
       _rootManager,
-      _merkle,
       _mirrorConnector,
       _mirrorGas,
       _processGas,
       _reserveGas,
       _delayBlocks,
+      _merkle,
       _watcherManager
     )
     GnosisBase()
@@ -65,7 +65,7 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
    */
   function _processMessage(bytes memory _data) internal override {
     // ensure the l1 connector sent the message
-    require(_verifySender(mirrorConnector), "!l1Connector");
+    require(_verifySender(mirrorConnector), "!mirrorConnector");
     // ensure it is headed to this domain
     require(GnosisAmb(AMB).destinationChainId() == block.chainid, "!destinationChain");
     // update the aggregate root on the domain

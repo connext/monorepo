@@ -46,21 +46,20 @@ export type HubMessagingDeployments = {
   RootManager: Deployment;
   MainnetConnector: Deployment;
   HubConnectors: Deployment[];
+  WatcherManager: Deployment;
+  MerkleTreeManagerForRoot: Deployment;
+  MerkleTreeManagerForSpoke: Deployment;
 };
 
 export type SpokeMessagingDeployments = {
   SpokeConnector: Deployment;
+  MerkleTreeManager: Deployment;
+  WatcherManager: Deployment;
 };
 
 export type DomainDeployments = {
   // Diamond.
   Connext: Deployment;
-  // Handlers.
-  handlers: {
-    RelayerFeeRouter: Deployment;
-  };
-  // Registry.
-  TokenRegistry: Deployment;
 
   // Messaging Layer.
   // ConnectorManager
@@ -88,7 +87,7 @@ export type ProtocolStack = {
   hub: string; // The hub domain.
   // Network stack should have all info pertaining to each supported domain.
   networks: NetworkStack[];
-  // Crosschain ERC20 assets to enroll in TokenRegistry.
+  // Crosschain ERC20 assets to enroll.
   assets: AssetStack[];
   // Agents that need to be whitelisted (across all domains).
   // Leave undefined if no agents should be whitelisted in this setup.

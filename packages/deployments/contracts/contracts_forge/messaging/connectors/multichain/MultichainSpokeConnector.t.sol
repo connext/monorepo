@@ -39,12 +39,12 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
         _l1Domain,
         _amb,
         _rootManager,
-        _merkle,
         _l1Connector,
         _mirrorGas,
         _processGas,
         _reserveGas,
         0, // uint256 _delayBlocks
+        _merkle,
         address(1), // watcher manager
         _chainIdMainnet
       )
@@ -128,7 +128,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
-    vm.expectRevert(abi.encodePacked("!l1Connector"));
+    vm.expectRevert(abi.encodePacked("!mirrorConnector"));
     vm.prank(_amb);
     MultichainSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
   }
@@ -145,7 +145,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
-    vm.expectRevert(abi.encodePacked("!l1Connector"));
+    vm.expectRevert(abi.encodePacked("!mirrorConnector"));
     vm.prank(_amb);
     MultichainSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
   }

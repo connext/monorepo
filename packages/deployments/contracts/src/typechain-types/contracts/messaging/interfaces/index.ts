@@ -10,4 +10,3 @@ export type { IMessageRecipient } from "./IMessageRecipient";
 export type { IOutbox } from "./IOutbox";
 export type { IResolver } from "./IResolver";
 export type { IRootManager } from "./IRootManager";
-export type { ISpokeConnector } from "./ISpokeConnector";

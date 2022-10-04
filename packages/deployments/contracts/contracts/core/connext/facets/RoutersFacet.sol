@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {AppStorage} from "../libraries/LibConnextStorage.sol";
+import {AppStorage, TokenId} from "../libraries/LibConnextStorage.sol";
 
 /**
  * @notice
@@ -39,7 +41,7 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__addLiquidityForRouter_routerEmpty();
   error RoutersFacet__addLiquidityForRouter_amountIsZero();
   error RoutersFacet__addLiquidityForRouter_badRouter();
-  error RoutersFacet__addLiquidityForRouter_badAsset();
+  error RoutersFacet__addLiquidityForRouter_capReached();
   error RoutersFacet__removeRouterLiquidity_recipientEmpty();
   error RoutersFacet__removeRouterLiquidity_amountIsZero();
   error RoutersFacet__removeRouterLiquidity_insufficientFunds();
@@ -262,7 +264,7 @@ contract RoutersFacet is BaseConnextFacet {
     address router,
     address owner,
     address recipient
-  ) external onlyOwner {
+  ) external onlyOwnerOrRouter {
     // Sanity check: not empty
     if (router == address(0)) revert RoutersFacet__setupRouter_routerEmpty();
 
@@ -292,7 +294,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Used to remove routers that can transact crosschain
    * @param router Router address to remove
    */
-  function removeRouter(address router) external onlyOwner {
+  function removeRouter(address router) external onlyOwnerOrAdmin {
     // Sanity check: not empty
     if (router == address(0)) revert RoutersFacet__removeRouter_routerEmpty();
 
@@ -543,15 +545,20 @@ contract RoutersFacet is BaseConnextFacet {
     if (_amount == 0) revert RoutersFacet__addLiquidityForRouter_amountIsZero();
 
     // Get the canonical asset ID from the representation.
-    (uint32 domain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
-    bytes32 key = _calculateCanonicalHash(canonicalId, domain);
+    (TokenId memory canonical, bytes32 key) = _getApprovedCanonicalId(_local);
 
     // Sanity check: router is approved.
     if (!_isRouterWhitelistRemoved() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
 
-    // Sanity check: asset is approved.
-    if (!_isAssetWhitelistRemoved() && !s.approvedAssets[key]) revert RoutersFacet__addLiquidityForRouter_badAsset();
+    if (s.domain == canonical.domain) {
+      // Sanity check: caps not reached
+      uint256 custodied = IERC20(_local).balanceOf(address(this)) + _amount;
+      uint256 cap = s.caps[key];
+      if (cap > 0 && custodied > cap) {
+        revert RoutersFacet__addLiquidityForRouter_capReached();
+      }
+    }
 
     // Transfer funds to contract.
     AssetLogic.handleIncomingAsset(_local, _amount);
@@ -588,8 +595,9 @@ contract RoutersFacet is BaseConnextFacet {
     if (_amount == 0) revert RoutersFacet__removeRouterLiquidity_amountIsZero();
 
     // Get the canonical asset ID from the representation.
-    (uint32 domain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
-    bytes32 key = _calculateCanonicalHash(canonicalId, domain);
+    // NOTE: allow getting unapproved assets to prevent lockup on approval status change
+    TokenId memory canonical = _getCanonicalTokenId(_local);
+    bytes32 key = AssetLogic.calculateCanonicalHash(canonical.id, canonical.domain);
 
     // Get existing router balance.
     uint256 routerBalance = s.routerBalances[_router][_local];

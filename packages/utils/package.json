@@ -22,6 +22,7 @@
     "src/**/*"
   ],
   "dependencies": {
+    "@gelatonetwork/relay-sdk": "^2.0.0",
     "@maticnetwork/maticjs": "^3.4.0",
     "@maticnetwork/maticjs-web3": "^1.0.1",
     "@sinclair/typebox": "0.24.39",
@@ -37,6 +38,7 @@
     "ethers": "5.7.0",
     "graphql-request": "5.0.0",
     "hyperid": "3.0.1",
+    "merkletreejs": "^0.2.32",
     "p-queue": "6.6.2",
     "pino": "8.5.0",
     "proxyquire": "2.1.3",

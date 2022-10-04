@@ -28,12 +28,10 @@ export interface IBridgeTokenInterface extends utils.Interface {
     "balanceOf(address)": FunctionFragment;
     "burn(address,uint256)": FunctionFragment;
     "decimals()": FunctionFragment;
-    "detailsHash()": FunctionFragment;
     "initialize(uint8,string,string)": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "setDetails(string,string)": FunctionFragment;
-    "setDetailsHash(bytes32)": FunctionFragment;
     "symbol()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
@@ -43,12 +41,10 @@ export interface IBridgeTokenInterface extends utils.Interface {
       | "balanceOf"
       | "burn"
       | "decimals"
-      | "detailsHash"
       | "initialize"
       | "mint"
       | "name"
       | "setDetails"
-      | "setDetailsHash"
       | "symbol"
       | "transferOwnership"
   ): FunctionFragment;
@@ -62,10 +58,6 @@ export interface IBridgeTokenInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "detailsHash",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "initialize",
     values: [
@@ -83,10 +75,6 @@ export interface IBridgeTokenInterface extends utils.Interface {
     functionFragment: "setDetails",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setDetailsHash",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
@@ -96,18 +84,10 @@ export interface IBridgeTokenInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "detailsHash",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setDetails", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setDetailsHash",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
@@ -157,8 +137,6 @@ export interface IBridgeToken extends BaseContract {
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
-    detailsHash(overrides?: CallOverrides): Promise<[string]>;
-
     initialize(
       _decimals: PromiseOrValue<BigNumberish>,
       _name: PromiseOrValue<string>,
@@ -179,11 +157,6 @@ export interface IBridgeToken extends BaseContract {
     setDetails(
       _name: PromiseOrValue<string>,
       _symbol: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setDetailsHash(
-      _detailsHash: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -208,8 +181,6 @@ export interface IBridgeToken extends BaseContract {
 
   decimals(overrides?: CallOverrides): Promise<number>;
 
-  detailsHash(overrides?: CallOverrides): Promise<string>;
-
   initialize(
     _decimals: PromiseOrValue<BigNumberish>,
     _name: PromiseOrValue<string>,
@@ -230,11 +201,6 @@ export interface IBridgeToken extends BaseContract {
   setDetails(
     _name: PromiseOrValue<string>,
     _symbol: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setDetailsHash(
-    _detailsHash: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -259,8 +225,6 @@ export interface IBridgeToken extends BaseContract {
 
     decimals(overrides?: CallOverrides): Promise<number>;
 
-    detailsHash(overrides?: CallOverrides): Promise<string>;
-
     initialize(
       _decimals: PromiseOrValue<BigNumberish>,
       _name: PromiseOrValue<string>,
@@ -279,11 +243,6 @@ export interface IBridgeToken extends BaseContract {
     setDetails(
       _name: PromiseOrValue<string>,
       _symbol: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setDetailsHash(
-      _detailsHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -311,8 +270,6 @@ export interface IBridgeToken extends BaseContract {
 
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
-    detailsHash(overrides?: CallOverrides): Promise<BigNumber>;
-
     initialize(
       _decimals: PromiseOrValue<BigNumberish>,
       _name: PromiseOrValue<string>,
@@ -333,11 +290,6 @@ export interface IBridgeToken extends BaseContract {
     setDetails(
       _name: PromiseOrValue<string>,
       _symbol: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setDetailsHash(
-      _detailsHash: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -363,8 +315,6 @@ export interface IBridgeToken extends BaseContract {
 
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    detailsHash(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     initialize(
       _decimals: PromiseOrValue<BigNumberish>,
       _name: PromiseOrValue<string>,
@@ -385,11 +335,6 @@ export interface IBridgeToken extends BaseContract {
     setDetails(
       _name: PromiseOrValue<string>,
       _symbol: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setDetailsHash(
-      _detailsHash: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

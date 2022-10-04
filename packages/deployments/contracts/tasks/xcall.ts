@@ -96,6 +96,13 @@ export default task("xcall", "Prepare a cross-chain tx")
       // Get the relayer fee (defaults to 0)
       const relayerFee = _relayerFee ?? process.env.RELAYER_FEE ?? "0";
 
+      // Load contracts
+      const connextName = getDeploymentName("ConnextHandler", env);
+      const connextDeployment = await hre.deployments.get(connextName);
+      const connextAddress = _connextAddress ?? connextDeployment.address;
+      const connext = new Contract(connextAddress, connextDeployment.abi);
+      console.log("connextAddress: ", connextAddress);
+
       // Get the transacting asset ID.
       let asset = _asset ?? process.env.TRANSFER_ASSET;
       if (!asset) {
@@ -114,12 +121,7 @@ export default task("xcall", "Prepare a cross-chain tx")
           asset = canonicalAsset;
         } else {
           // Current network's domain is not canonical domain, so we need to get the local asset representation.
-          const tokenDeployment = await hre.deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env));
-          const tokenRegistry = new Contract(
-            tokenDeployment.address,
-            (await hre.deployments.get(getDeploymentName("TokenRegistry"))).abi,
-          );
-          asset = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
+          asset = await connext.canonicalToRepresentation(canonicalDomain, canonicalTokenId);
           if (asset === constants.AddressZero) {
             throw new Error("Empty asset on registry");
           }
@@ -129,20 +131,6 @@ export default task("xcall", "Prepare a cross-chain tx")
         // If the above attempt fails, then we default to telling the user to just specify the transacting asset ID.
         throw new Error("Transfer asset ID must be specified as param or from env (TRANSFER_ASSET)");
       }
-
-      // Load contracts
-      const connextName = getDeploymentName("ConnextHandler", env);
-      const connextDeployment = await hre.deployments.get(connextName);
-      const connextAddress = _connextAddress ?? connextDeployment.address;
-      const connext = new Contract(connextAddress, connextDeployment.abi);
-      console.log("connextAddress: ", connextAddress);
-
-      const tokenRegistry = await connext.connect(senders[0]).tokenRegistry();
-      if (tokenRegistry === constants.AddressZero) {
-        throw new Error(`TokenRegistry not set on connext`);
-      }
-      console.log("tokenRegistry:", tokenRegistry);
-
       const domain = await connext.connect(senders[0]).domain();
       if (domain !== originDomain) {
         throw new Error(`Wrong origin domain!. expected: ${domain}, provided: ${originDomain}`);

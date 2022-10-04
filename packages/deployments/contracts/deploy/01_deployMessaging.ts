@@ -5,6 +5,8 @@ import { BigNumber, constants, Wallet } from "ethers";
 import { chainIdToDomain, getConnectorName, getDeploymentName, getProtocolNetwork } from "../src";
 import { MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
 
+import { deployBeaconProxy } from "./02_deployBridgeToken";
+
 // Format the arguments for Connector contract constructor.
 const formatConnectorArgs = (
   protocol: MessagingProtocolConfig,
@@ -13,9 +15,11 @@ const formatConnectorArgs = (
     deploymentChainId: number;
     mirrorChainId: number;
     rootManager: string;
+    merkleManager?: string;
+    watcherManager?: string;
   },
 ): any[] => {
-  const { deploymentChainId, mirrorChainId, rootManager, connectorChainId } = args;
+  const { deploymentChainId, mirrorChainId, rootManager, connectorChainId, merkleManager, watcherManager } = args;
   const config = protocol.configs[connectorChainId];
   console.log(`using config`, config);
 
@@ -45,6 +49,9 @@ const formatConnectorArgs = (
     ...hubArgs,
     config.processGas,
     config.reserveGas,
+    config.delayBlocks,
+    merkleManager!,
+    watcherManager!,
     ...Object.values(config?.custom?.spoke ?? {}),
   ];
   console.log(
@@ -61,16 +68,61 @@ const handleDeployHub = async (
   deployer: Wallet,
   protocol: MessagingProtocolConfig,
 ): Promise<void> => {
-  // Deploy RootManager.
-  console.log("Deploying RootManager...");
-  const rootManager = await hre.deployments.deploy(getDeploymentName("RootManager"), {
-    contract: "RootManager",
+  // Deploy WatcherManager.
+  console.log("Deploying WatcherManager...");
+  const watcherManager = await hre.deployments.deploy(getDeploymentName("WatcherManager"), {
+    contract: "WatcherManager",
     from: deployer.address,
     args: [],
     skipIfAlreadyDeployed: true,
     log: true,
   });
+  console.log(`WatcherManager deployed to ${watcherManager.address}`);
+
+  // Deploy MerkleTreeManager(beacon proxy)
+  console.log("Deploying MerkleTreeManager proxy For RootManager...");
+  const merkleTreeManagerForRoot = await deployBeaconProxy(
+    "MerkleTreeManager",
+    [constants.AddressZero],
+    deployer,
+    hre,
+    [],
+    "MerkleTreeManagerRoot",
+  );
+
+  // Deploy RootManager.
+  console.log("Deploying RootManager...");
+  const rootManager = await hre.deployments.deploy(getDeploymentName("RootManager"), {
+    contract: "RootManager",
+    from: deployer.address,
+    args: [merkleTreeManagerForRoot.address, watcherManager.address],
+    skipIfAlreadyDeployed: true,
+    log: true,
+  });
   console.log(`RootManager deployed to ${rootManager.address}`);
+
+  // setArborist to Merkle for RootManager
+  const merkleForRootContract = await hre.ethers.getContractAt(
+    "MerkleTreeManager",
+    merkleTreeManagerForRoot.address,
+    deployer,
+  );
+  if (!(await merkleForRootContract.arborists(rootManager.address.toLowerCase()))) {
+    const tx = await merkleForRootContract.setArborist(rootManager.address);
+    console.log(`setArborist for RootManager tx submitted:`, tx.hash);
+    await tx.wait();
+  }
+
+  // Deploy MerkleTreeManager(beacon proxy)
+  console.log("Deploying MerkleTreeManager proxy For MainnetSpokeConnector...");
+  const merkleTreeManagerForSpoke = await deployBeaconProxy(
+    "MerkleTreeManager",
+    [constants.AddressZero],
+    deployer,
+    hre,
+    [],
+    "MerkleTreeManagerSpoke",
+  );
 
   // Deploy MainnetSpokeConnector.
   const connectorName = getConnectorName(protocol, protocol.hub);
@@ -83,11 +135,25 @@ const handleDeployHub = async (
       deploymentChainId: protocol.hub,
       mirrorChainId: protocol.hub,
       rootManager: rootManager.address,
+      merkleManager: merkleTreeManagerForSpoke.address,
+      watcherManager: watcherManager.address,
     }),
     skipIfAlreadyDeployed: true,
     log: true,
   });
   console.log(`${connectorName} deployed to ${deployment.address}`);
+
+  // setArborist for Spoke to Merkle
+  const merkleForSpokeContract = await hre.ethers.getContractAt(
+    "MerkleTreeManager",
+    merkleTreeManagerForSpoke.address,
+    deployer,
+  );
+  if (!(await merkleForSpokeContract.arborists(deployment.address.toLowerCase()))) {
+    const tx = await merkleForSpokeContract.setArborist(deployment.address);
+    console.log(`setArborist for MainnetSpokeConnector tx submitted:`, tx.hash);
+    await tx.wait();
+  }
 
   console.log(`Deploying ${connectorName} SendOutboundRootResolver...`);
   const resolverDeployment = await hre.deployments.deploy(
@@ -174,6 +240,22 @@ const handleDeploySpoke = async (
   ) {
     return;
   }
+
+  // Deploy WatcherManager.
+  console.log("Deploying WatcherManager...");
+  const watcherManager = await hre.deployments.deploy(getDeploymentName("WatcherManager"), {
+    contract: "WatcherManager",
+    from: deployer.address,
+    args: [],
+    skipIfAlreadyDeployed: true,
+    log: true,
+  });
+  console.log(`WatcherManager deployed to ${watcherManager.address}`);
+
+  // Deploy MerkleTreeManager(beacon proxy)
+  console.log("Deploying MerkleTreeManager proxy...");
+  const merkleTreeManager = await deployBeaconProxy("MerkleTreeManager", [constants.AddressZero], deployer, hre);
+
   console.log(`Deploying ${contract}...`);
   const deployment = await hre.deployments.deploy(getDeploymentName(contract), {
     contract,
@@ -183,11 +265,22 @@ const handleDeploySpoke = async (
       deploymentChainId,
       mirrorChainId: protocol.hub,
       rootManager: rootManagerDeployment.address,
+      merkleManager: merkleTreeManager.address,
+      watcherManager: watcherManager.address,
     }),
     skipIfAlreadyDeployed: true,
     log: true,
   });
   console.log(`${contract} deployed to ${deployment.address}`);
+
+  // setArborist to Merkle
+  const merkleContract = await hre.ethers.getContractAt("MerkleTreeManager", merkleTreeManager.address, deployer);
+
+  if (!(await merkleContract.arborists(deployment.address.toLowerCase()))) {
+    const tx = await merkleContract.setArborist(deployment.address);
+    console.log(`setArborist tx submitted:`, tx.hash);
+    await tx.wait();
+  }
 
   console.log(`Deploying ${contract} SendOutboundRootResolver...`);
   const resolverDeployment = await hre.deployments.deploy(getDeploymentName(`${contract}SendOutboundRootResolver`), {

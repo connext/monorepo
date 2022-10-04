@@ -17,12 +17,32 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BaseConnextFacet__getApprovedCanonicalId_notWhitelisted",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BaseConnextFacet__nonReentrant_reentrantCall",
     type: "error",
   },
   {
     inputs: [],
     name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrWatcher_notOwnerOrWatcher",
     type: "error",
   },
   {
@@ -56,7 +76,7 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x60a06040526000608052348015601457600080fd5b50608051609a61002d6000396000602f0152609a6000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063ffa1ad7414602d575b600080fd5b7f000000000000000000000000000000000000000000000000000000000000000060405160ff909116815260200160405180910390f3fea26469706673582212206d0deaecb047338d8d2b765cef77addba306fa65f3d13ff2e07d74b76e58b6ab64736f6c634300080f0033";
+  "0x60a06040526000608052348015601457600080fd5b50608051609a61002d6000396000602f0152609a6000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063ffa1ad7414602d575b600080fd5b7f000000000000000000000000000000000000000000000000000000000000000060405160ff909116815260200160405180910390f3fea26469706673582212201dfe6575db5c0764330f6dfe00b8a1b5ad7e6ce834dfad9457f45997b12e941464736f6c634300080f0033";
 
 type VersionFacetConstructorParams =
   | [signer?: Signer]

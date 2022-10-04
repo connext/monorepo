@@ -3,27 +3,30 @@ pragma solidity 0.8.15;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
-
-import {ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
+import {ExecuteArgs, CallParams, TokenId, DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {SwapUtils} from "../libraries/SwapUtils.sol";
 
 import {IStableSwap} from "./IStableSwap.sol";
-import {IWeth} from "./IWeth.sol";
-import {ITokenRegistry} from "./ITokenRegistry.sol";
-import {IBridgeRouter} from "./IBridgeRouter.sol";
 
 import {IDiamondCut} from "./IDiamondCut.sol";
 import {IDiamondLoupe} from "./IDiamondLoupe.sol";
 
 interface IConnextHandler is IDiamondLoupe, IDiamondCut {
-  // AssetFacet
+  // TokenFacet
   function canonicalToAdopted(bytes32 _key) external view returns (address);
 
   function canonicalToAdopted(TokenId calldata _canonical) external view returns (address);
 
   function adoptedToCanonical(address _adopted) external view returns (TokenId memory);
+
+  function canonicalToRepresentation(bytes32 _key) external view returns (address);
+
+  function canonicalToRepresentation(TokenId calldata _canonical) external view returns (address);
+
+  function representationToCanonical(address _adopted) external view returns (TokenId memory);
+
+  function getLocalAndAdoptedToken(bytes32 _id, uint32 _domain) external view returns (address, address);
 
   function approvedAssets(bytes32 _key) external view returns (bool);
 
@@ -33,30 +36,54 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function adoptedToLocalPools(TokenId calldata _canonical) external view returns (IStableSwap);
 
-  function tokenRegistry() external view returns (ITokenRegistry);
-
-  function setTokenRegistry(address _tokenRegistry) external;
+  function getTokenId(address _candidate) external view returns (TokenId memory);
 
   function setupAsset(
     TokenId calldata _canonical,
+    uint8 _canonicalDecimals,
+    string memory _representationName,
+    string memory _representationSymbol,
     address _adoptedAssetId,
-    address _stableSwapPool
-  ) external;
+    address _stableSwapPool,
+    uint256 _cap
+  ) external returns (address);
+
+  function setupAssetWithDeployedRepresentation(
+    TokenId calldata _canonical,
+    address _representation,
+    address _adoptedAssetId,
+    address _stableSwapPool,
+    uint256 _cap
+  ) external returns (address);
 
   function addStableSwapPool(TokenId calldata _canonical, address _stableSwapPool) external;
 
-  function removeAssetId(bytes32 _key, address _adoptedAssetId) external;
+  function updateLiquidityCap(TokenId calldata _canonical, uint256 _updated) external;
 
-  function removeAssetId(TokenId calldata _canonical, address _adoptedAssetId) external;
+  function removeAssetId(
+    bytes32 _key,
+    address _adoptedAssetId,
+    address _representation
+  ) external;
+
+  function removeAssetId(
+    TokenId calldata _canonical,
+    address _adoptedAssetId,
+    address _representation
+  ) external;
+
+  function updateDetails(
+    TokenId calldata _canonical,
+    string memory _name,
+    string memory _symbol
+  ) external;
 
   // BaseConnextFacet
 
   // BridgeFacet
-  function relayerFees(bytes32 _transferId) external view returns (uint256);
-
   function routedTransfers(bytes32 _transferId) external view returns (address[] memory);
 
-  function reconciledTransfers(bytes32 _transferId) external view returns (bool);
+  function transferStatus(bytes32 _transferId) external view returns (DestinationTransferStatus);
 
   function remote(uint32 _domain) external view returns (address);
 
@@ -65,6 +92,8 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
   function nonce() external view returns (uint256);
 
   function approvedSequencers(address _sequencer) external view returns (bool);
+
+  function xAppConnectionManager() external view returns (address);
 
   function addConnextion(uint32 _domain, address _connext) external;
 
@@ -156,25 +185,15 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
   function unpause() external;
 
   // RelayerFacet
-  function transferRelayer(bytes32 _transferId) external view returns (address);
-
   function approvedRelayers(address _relayer) external view returns (bool);
 
-  function relayerFeeRouter() external view returns (RelayerFeeRouter);
+  function relayerFeeVault() external view returns (address);
 
-  function setRelayerFeeRouter(address _relayerFeeRouter) external;
+  function setRelayerFeeVault(address _relayerFeeVault) external;
 
   function addRelayer(address _relayer) external;
 
   function removeRelayer(address _relayer) external;
-
-  function initiateClaim(
-    uint32 _domain,
-    address _recipient,
-    bytes32[] calldata _transferIds
-  ) external;
-
-  function claim(address _recipient, bytes32[] calldata _transferIds) external;
 
   // RoutersFacet
   function LIQUIDITY_FEE_NUMERATOR() external view returns (uint256);
@@ -389,8 +408,4 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
   ) external;
 
   function stopRampA(bytes32 canonicalId) external;
-
-  // VersionFacet
-
-  function VERSION() external returns (uint8);
 }

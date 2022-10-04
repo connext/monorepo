@@ -95,10 +95,6 @@ export const mock = {
       priceOracle.encodeFunctionData.returns(encodedDataMock);
       priceOracle.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
-      const tokenRegistry = createStubInstance(utils.Interface);
-      tokenRegistry.encodeFunctionData.returns(encodedDataMock);
-      tokenRegistry.decodeFunctionResult.returns([BigNumber.from(1000)]);
-
       const stableSwap = createStubInstance(utils.Interface);
       stableSwap.encodeFunctionData.returns(encodedDataMock);
       stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
@@ -116,7 +112,6 @@ export const mock = {
         erc20Extended: erc20 as unknown as ConnextContractInterfaces["erc20Extended"],
         connext: connext as unknown as ConnextContractInterfaces["connext"],
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
-        tokenRegistry: tokenRegistry as unknown as ConnextContractInterfaces["tokenRegistry"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
         spokeConnector: spokeConnector as unknown as ConnextContractInterfaces["spokeConnector"],
       };
@@ -139,7 +134,6 @@ export const mock = {
           abi: {},
         }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
-        tokenRegistry: (_: number) => ({ address: mkAddress("0xbbbddde"), abi: {} }),
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbdddf"), abi: {} }),
         spokeConnector: (_: number) => ({ address: mkAddress("0xbbbddda"), abi: {} }),
       };

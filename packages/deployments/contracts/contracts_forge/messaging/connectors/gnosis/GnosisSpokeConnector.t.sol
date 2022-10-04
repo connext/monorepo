@@ -22,12 +22,12 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
         _l1Domain,
         _amb,
         _rootManager,
-        _merkle,
         _l1Connector,
         _mirrorGas,
         _processGas,
         _reserveGas,
         0, // uint256 _delayBlocks
+        _merkle,
         address(1) // watcher manager
       )
     );
@@ -151,7 +151,7 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
     vm.prank(_amb);
-    vm.expectRevert(abi.encodePacked("!l1Connector"));
+    vm.expectRevert(abi.encodePacked("!mirrorConnector"));
     GnosisSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
   }
 

@@ -55,8 +55,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
   constructor(address _merkle, address _watcherManager) ProposedOwnable() WatcherClient(_watcherManager) {
     _setOwner(msg.sender);
 
-    // If no MerkleTreeManager instance is specified, create a new one.
-    MERKLE = _merkle == address(0) ? new MerkleTreeManager() : MerkleTreeManager(_merkle);
+    require(_merkle != address(0), "!zero merkle");
+    MERKLE = MerkleTreeManager(_merkle);
   }
 
   // ============ Public Functions ============
@@ -66,7 +66,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
    * spoke domains.
    * @dev Should be called by relayers at a regular interval.
    */
-  function propagate() external override {
+  function propagate() external override whenNotPaused {
     bytes32 _aggregated = MERKLE.root();
 
     uint256 _numDomains = domains.length;
@@ -90,7 +90,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient {
    * @param _domain The source domain of the given root.
    * @param _inbound The inbound root coming from the given domain.
    */
-  function aggregate(uint32 _domain, bytes32 _inbound) external override onlyConnector(_domain) {
+  function aggregate(uint32 _domain, bytes32 _inbound) external override whenNotPaused onlyConnector(_domain) {
     (, uint256 count) = MERKLE.insert(_inbound);
     emit RootAggregated(_domain, _inbound, count - 1);
   }

@@ -13,4 +13,3 @@ export type { Multicall } from "./Multicall";
 export type { OwnerPausableUpgradeable } from "./OwnerPausableUpgradeable";
 export type { PriceOracle } from "./PriceOracle";
 export type { StableSwap } from "./StableSwap";
-export type { TokenRegistry } from "./TokenRegistry";

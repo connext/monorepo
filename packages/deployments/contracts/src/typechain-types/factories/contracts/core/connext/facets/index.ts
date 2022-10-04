@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as upgradeInitializers from "./upgrade-initializers";
-export { AssetFacet__factory } from "./AssetFacet__factory";
 export { BaseConnextFacet__factory } from "./BaseConnextFacet__factory";
 export { BridgeFacet__factory } from "./BridgeFacet__factory";
 export { DiamondCutFacet__factory } from "./DiamondCutFacet__factory";
@@ -14,4 +13,5 @@ export { RelayerFacet__factory } from "./RelayerFacet__factory";
 export { RoutersFacet__factory } from "./RoutersFacet__factory";
 export { StableSwapFacet__factory } from "./StableSwapFacet__factory";
 export { SwapAdminFacet__factory } from "./SwapAdminFacet__factory";
+export { TokenFacet__factory } from "./TokenFacet__factory";
 export { VersionFacet__factory } from "./VersionFacet__factory";

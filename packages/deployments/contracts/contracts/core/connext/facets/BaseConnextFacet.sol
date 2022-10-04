@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {CallParams, AppStorage, TokenId} from "../libraries/LibConnextStorage.sol";
+import {CallParams, AppStorage, TokenId, Role} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
+import {AssetLogic} from "../libraries/AssetLogic.sol";
 
 contract BaseConnextFacet {
   AppStorage internal s;
@@ -20,9 +21,13 @@ contract BaseConnextFacet {
   error BaseConnextFacet__onlyBridgeRouter_notBridgeRouter();
   error BaseConnextFacet__onlyOwner_notOwner();
   error BaseConnextFacet__onlyProposed_notProposedOwner();
+  error BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter();
+  error BaseConnextFacet__onlyOwnerOrWatcher_notOwnerOrWatcher();
+  error BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin();
   error BaseConnextFacet__whenNotPaused_paused();
   error BaseConnextFacet__nonReentrant_reentrantCall();
   error BaseConnextFacet__getAdoptedAsset_notWhitelisted();
+  error BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
 
   // ============ Modifiers ============
 
@@ -64,6 +69,33 @@ contract BaseConnextFacet {
   }
 
   /**
+   * @notice Throws if called by any account other than the owner and router role.
+   */
+  modifier onlyOwnerOrRouter() {
+    if (LibDiamond.contractOwner() != msg.sender && s.roles[msg.sender] != Role.Router)
+      revert BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter();
+    _;
+  }
+
+  /**
+   * @notice Throws if called by any account other than the owner and watcher role.
+   */
+  modifier onlyOwnerOrWatcher() {
+    if (LibDiamond.contractOwner() != msg.sender && s.roles[msg.sender] != Role.Watcher)
+      revert BaseConnextFacet__onlyOwnerOrWatcher_notOwnerOrWatcher();
+    _;
+  }
+
+  /**
+   * @notice Throws if called by any account other than the owner and admin role.
+   */
+  modifier onlyOwnerOrAdmin() {
+    if (LibDiamond.contractOwner() != msg.sender && s.roles[msg.sender] != Role.Admin)
+      revert BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin();
+    _;
+  }
+
+  /**
    * @notice Throws if all functionality is paused
    */
   modifier whenNotPaused() {
@@ -89,13 +121,6 @@ contract BaseConnextFacet {
   /**
    * @notice Returns the adopted assets for given canonical information
    */
-  function _getAdoptedAsset(bytes32 _canonicalId, uint32 _canonicalDomain) internal view returns (address) {
-    return _getAdoptedAsset(_calculateCanonicalHash(_canonicalId, _canonicalDomain));
-  }
-
-  /**
-   * @notice Returns the adopted assets for given canonical information
-   */
   function _getAdoptedAsset(bytes32 _key) internal view returns (address) {
     address adopted = s.canonicalToAdopted[_key];
     if (adopted == address(0)) {
@@ -105,26 +130,20 @@ contract BaseConnextFacet {
   }
 
   /**
+   * @notice Returns the adopted assets for given canonical information
+   */
+  function _getRepresentationAsset(bytes32 _key) internal view returns (address) {
+    address representation = s.canonicalToRepresentation[_key];
+    // If this is address(0), then there is no mintable token for this asset on this
+    // domain
+    return representation;
+  }
+
+  /**
    * @notice Calculates a transferId
    */
   function _calculateTransferId(CallParams memory _params) internal pure returns (bytes32) {
     return keccak256(abi.encode(_params));
-  }
-
-  /**
-   * @notice Calculates the hash of canonical id and domain
-   * @dev This hash is used as the key for many asset-related mappings
-   */
-  function _calculateCanonicalHash(bytes32 _id, uint32 _domain) internal pure returns (bytes32) {
-    return keccak256(abi.encode(_id, _domain));
-  }
-
-  /**
-   * @notice Calculates the hash of canonical id and domain
-   * @dev This is an alias to allow usage of `TokenId` struct directly
-   */
-  function _calculateCanonicalHash(TokenId calldata _canonical) internal pure returns (bytes32) {
-    return _calculateCanonicalHash(_canonical.id, _canonical.domain);
   }
 
   /**
@@ -137,5 +156,40 @@ contract BaseConnextFacet {
    */
   function _originAndNonce(uint32 _origin, uint32 _nonce) internal pure returns (uint64) {
     return (uint64(_origin) << 32) | _nonce;
+  }
+
+  function _getLocalAsset(
+    bytes32 _key,
+    bytes32 _id,
+    uint32 _domain
+  ) internal view returns (address) {
+    return AssetLogic.getLocalAsset(_key, _id, _domain, s);
+  }
+
+  function _getCanonicalTokenId(address _candidate) internal view returns (TokenId memory) {
+    return AssetLogic.getCanonicalTokenId(_candidate, s);
+  }
+
+  function _getLocalAndAdoptedToken(
+    bytes32 _key,
+    bytes32 _id,
+    uint32 _domain
+  ) internal view returns (address, address) {
+    address _local = AssetLogic.getLocalAsset(_key, _id, _domain, s);
+    address _adopted = _getAdoptedAsset(_key);
+    return (_local, _adopted);
+  }
+
+  function _isLocalOrigin(address _token) internal view returns (bool) {
+    return AssetLogic.isLocalOrigin(_token, s);
+  }
+
+  function _getApprovedCanonicalId(address _candidate) internal view returns (TokenId memory, bytes32) {
+    TokenId memory _canonical = _getCanonicalTokenId(_candidate);
+    bytes32 _key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
+    if (!_isAssetWhitelistRemoved() && !s.approvedAssets[_key]) {
+      revert BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
+    }
+    return (_canonical, _key);
   }
 }

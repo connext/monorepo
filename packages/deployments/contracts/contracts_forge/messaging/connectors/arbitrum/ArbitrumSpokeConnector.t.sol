@@ -37,12 +37,12 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
         _l1Domain,
         _amb,
         _rootManager,
-        _merkle,
         _l1Connector,
         _mirrorGas,
         _processGas,
         _reserveGas,
         0, // uint256 _delayBlocks
+        _merkle,
         address(1) // watcher manager
       )
     );
@@ -182,7 +182,7 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     // get outbound data
     bytes memory _data = abi.encode(bytes32("test"), 123123123);
 
-    // should revert because not bridge
+    // should revert because not 32 bytes
     vm.expectRevert(bytes("!length"));
 
     // make call

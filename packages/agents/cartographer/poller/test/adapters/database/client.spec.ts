@@ -1,4 +1,5 @@
 import { restore, reset } from "sinon";
+import { readFileSync } from "fs";
 import {
   expect,
   mkAddress,
@@ -48,6 +49,7 @@ describe("Database client", () => {
     await pool.query("DELETE FROM messages CASCADE");
     await pool.query("DELETE FROM routers CASCADE");
     await pool.query("DELETE FROM checkpoints CASCADE");
+
     restore();
     reset();
   });

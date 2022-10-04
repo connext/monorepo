@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
-import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
 
 import {LibConnextStorage, AppStorage, TokenId, CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {TypeCasts} from "../../contracts/shared/libraries/TypeCasts.sol";
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
 
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
@@ -36,8 +35,6 @@ contract FacetHelper is ForgeHelper {
   // local asset for this domain
   address _local;
 
-  // token registry
-  address _tokenRegistry = address(6);
   // stable swap address
   address _stableSwap = address(5555555555555555555);
 
@@ -67,72 +64,87 @@ contract FacetHelper is ForgeHelper {
     _local = address(new TestERC20("Test Token", "TEST"));
     // Deploy the canonical token.
     _canonical = address(new TestERC20("Test Token", "TEST"));
-    _canonicalId = bytes32(abi.encodePacked(_canonical));
+    _canonicalId = TypeCasts.addressToBytes32(_canonical);
     _canonicalKey = keccak256(abi.encode(_canonicalId, _canonicalDomain));
-    // Set token registry
-    s.tokenRegistry = ITokenRegistry(_tokenRegistry);
   }
 
-  // Sets the storage and token registry return results.
+  // Sets the storage results
   function utils_setupAsset(bool localIsAdopted, bool onCanonical) public {
     AppStorage storage s = LibConnextStorage.connextStorage();
+
+    // clear any previous listings
+    delete s.adoptedToCanonical[_local];
+    delete s.representationToCanonical[_local];
+    delete s.canonicalToRepresentation[utils_calculateCanonicalHash()];
+    delete s.canonicalToAdopted[utils_calculateCanonicalHash()];
+
     if (onCanonical) {
+      // set domain
+      s.domain = _canonicalDomain;
+      // on canonical, local is always adopted && local is always canonical
       _local = _canonical;
-      _canonicalDomain = _originDomain;
+      _adopted = _canonical;
     } else {
+      // Ensure stored domain is not canonical domain
+      if (s.domain == _canonicalDomain) {
+        _canonicalDomain = _canonicalDomain == _originDomain ? _destinationDomain : _originDomain;
+      }
+
       // If the local is already set to the canonical (i.e. from some defaults)
       // redeploy
       if (_local == _canonical) {
         _local = address(new TestERC20("Test Token", "TEST"));
       }
-      _canonicalDomain = _destinationDomain;
-    }
-    if (localIsAdopted) {
-      _adopted = _local;
-      _stableSwap = address(0);
-    } else {
-      // If the adopted is already set as the local, redeploy
-      if (_adopted == _local) {
-        _adopted = address(new TestERC20("Test Token", "TEST"));
-      }
-      if (_stableSwap == address(0)) {
+
+      // If the local is adopted, ensure addresses align
+      if (localIsAdopted) {
+        _local = _adopted;
+        _stableSwap = address(0);
+      } else {
         _stableSwap = address(5555555555555555555);
+        // ensure addresses are unique
+        if (_adopted == _local) {
+          _adopted = address(new TestERC20("Test Token", "TEST"));
+        }
       }
     }
-    // token registry should always return the canonical
-    vm.mockCall(
-      _tokenRegistry,
-      abi.encodeWithSelector(ITokenRegistry.getTokenId.selector),
-      _local != address(0) ? abi.encode(_canonicalDomain, _canonicalId) : abi.encode(0, bytes32(0))
-    );
 
-    // if you are not on canonical domain, ensure the local origin returns false
-    // (indicates whether token should be burned or not)
-    vm.mockCall(
-      _tokenRegistry,
-      abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _local),
-      abi.encode(onCanonical)
-    );
-
-    // ensure local token should always return the local token wrt current domain
-    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.ensureLocalToken.selector), abi.encode(_local));
-
-    // Ensure token registry is always returned properly
-    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(_local));
-
-    // Setup the storage variables
     _canonicalKey = keccak256(abi.encode(_canonicalId, _canonicalDomain));
-    s.adoptedToCanonical[_adopted] = TokenId(_canonicalDomain, _canonicalId);
+
+    // - token registry should always return the canonical
+    // - if you are not on canonical domain, ensure the local origin returns false
+    //   (indicates whether token should be burned or not)
+    if (s.domain != _canonicalDomain) {
+      s.representationToCanonical[_local].domain = _canonicalDomain;
+      s.representationToCanonical[_local].id = _canonicalId;
+      s.canonicalToRepresentation[_canonicalKey] = _local;
+    }
+
+    // Setup the storage variables for adopted
+    s.adoptedToCanonical[_adopted].domain = _canonicalDomain;
+    s.adoptedToCanonical[_adopted].id = _canonicalId;
     s.adoptedToLocalPools[_canonicalKey] = IStableSwap(_stableSwap);
     s.canonicalToAdopted[_canonicalKey] = _adopted;
+
+    // Add to whitelist
+    s.approvedAssets[_canonicalKey] = true;
 
     // // Log stored vars
     // console.log("setup asset:");
     // console.log("- adopted:", _adopted);
     // console.log("- local:", _local);
     // console.log("- canonical:", _canonical);
+    // console.log("");
+    // console.log("- domain:", s.domain);
+    // console.log("- destination:", _destinationDomain);
+    // console.log("- origin:", _originDomain);
+    // console.log("- canonicalDomain:", _canonicalDomain);
     // console.log("- stableSwap:", _stableSwap);
     // console.log("- isLocalOrigin", onCanonical);
+  }
+
+  function utils_calculateCanonicalHash() internal view returns (bytes32) {
+    return keccak256(abi.encode(_canonicalId, _canonicalDomain));
   }
 
   function utils_getCallParams(

@@ -32,6 +32,15 @@ contract WatcherManagerTest is ForgeHelper {
     watcherManager.addWatcher(caller);
   }
 
+  function test_WatcherManager__addWatcher_failsIfAlreadyAdded(address watcher) public {
+    vm.prank(owner);
+    watcherManager.addWatcher(watcher);
+
+    vm.expectRevert(bytes("already watcher"));
+    vm.prank(owner);
+    watcherManager.addWatcher(watcher);
+  }
+
   function test_WatcherManager__addWatcher_works(address watcher) public {
     vm.prank(owner);
     watcherManager.addWatcher(watcher);
@@ -50,6 +59,12 @@ contract WatcherManagerTest is ForgeHelper {
     vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
     vm.prank(caller);
     watcherManager.removeWatcher(address(1));
+  }
+
+  function test_WatcherManager__removeWatcher_failsIfNotAdded(address watcher) public {
+    vm.expectRevert(bytes("!exist"));
+    vm.prank(owner);
+    watcherManager.removeWatcher(watcher);
   }
 
   function test_WatcherManager__removeWatcher_works(address watcher) public {
