@@ -42,18 +42,11 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
   // ============ Utils ============
 
   // ============ PolygonSpokeConnector.verifySender ============
-  function test_PolygonSpokeConnector__verifySender_shouldWorkIfTrue() public {
+  function test_PolygonSpokeConnector__verifySender_shouldReturnFalse() public {
     address expected = address(1);
 
     vm.prank(_amb);
-    assertTrue(PolygonSpokeConnector(_l2Connector).verifySender(expected));
-  }
-
-  function test_PolygonSpokeConnector__verifySender_shouldFailIfCallerNotAmb() public {
-    address expected = address(1);
-
-    vm.expectRevert("!bridge");
-    PolygonSpokeConnector(_l2Connector).verifySender(expected);
+    assertTrue(!PolygonSpokeConnector(_l2Connector).verifySender(expected));
   }
 
   // ============ PolygonSpokeConnector.setFxRootTunnel ============
