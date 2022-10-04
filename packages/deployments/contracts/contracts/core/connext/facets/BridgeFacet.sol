@@ -56,6 +56,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_notReconciled();
   error BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn();
   error BridgeFacet__bumpTransfer_valueIsZero();
+  error BridgeFacet__bumpTransfer_noRelayerVault();
   error BridgeFacet__forceUpdateSlippage_invalidSlippage();
   error BridgeFacet__forceUpdateSlippage_notDestination();
   error BridgeFacet__mustHaveRemote_destinationNotSupported();
@@ -375,7 +376,9 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   function _bumpTransfer(bytes32 _transferId) internal {
-    Address.sendValue(payable(s.relayerFeeVault), msg.value);
+    address relayerVault = s.relayerFeeVault;
+    if (relayerVault == address(0)) revert BridgeFacet__bumpTransfer_noRelayerVault();
+    Address.sendValue(payable(relayerVault), msg.value);
 
     emit TransferRelayerFeesIncreased(_transferId, msg.value, msg.sender);
   }
