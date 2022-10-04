@@ -117,8 +117,6 @@ describe("Message operations", () => {
     saveProcessedRootMessagesStub.resolves();
     const getPendingMessagesStub = stub(dbClient, "getPendingMessages");
     getPendingMessagesStub.resolves([]);
-    const transactionStub = stub(dbClient, "transaction");
-    transactionStub.resolves();
 
     mockContext = {
       logger: new Logger({
@@ -139,6 +137,7 @@ describe("Message operations", () => {
           saveSentRootMessages: dbClient.saveSentRootMessages,
           saveProcessedRootMessages: dbClient.saveProcessedRootMessages,
           getPendingMessages: dbClient.getPendingMessages,
+          transaction: dbClient.transaction,
         },
       },
       config: mockConfig as CartographerConfig,

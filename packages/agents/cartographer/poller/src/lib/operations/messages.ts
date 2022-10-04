@@ -1,6 +1,5 @@
 import { createLoggingContext, XMessage, RootMessage } from "@connext/nxtp-utils";
 
-import { db, pool } from "../../adapters/database";
 import { getContext } from "../../shared";
 
 export const retrieveOriginMessages = async () => {
