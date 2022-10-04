@@ -33,18 +33,28 @@ export interface RootManagerInterface extends utils.Interface {
     "acceptProposedOwner()": FunctionFragment;
     "addConnector(uint32,address)": FunctionFragment;
     "aggregate(uint32,bytes32)": FunctionFragment;
-    "connectors(uint32)": FunctionFragment;
+    "connectors(uint256)": FunctionFragment;
+    "connectorsHash()": FunctionFragment;
     "delay()": FunctionFragment;
+    "delayBlocks()": FunctionFragment;
     "domains(uint256)": FunctionFragment;
+    "domainsHash()": FunctionFragment;
+    "getConnectorForDomain(uint32)": FunctionFragment;
+    "getDomainIndex(uint32)": FunctionFragment;
+    "getPendingInboundRootsCount()": FunctionFragment;
+    "isDomainSupported(uint32)": FunctionFragment;
     "owner()": FunctionFragment;
-    "propagate()": FunctionFragment;
+    "pendingInboundRoots()": FunctionFragment;
+    "propagate(uint32[],address[])": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "removeConnector(uint32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
+    "setDelayBlocks(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
+    "validateDomains(uint32[],address[])": FunctionFragment;
   };
 
   getFunction(
@@ -54,9 +64,17 @@ export interface RootManagerInterface extends utils.Interface {
       | "addConnector"
       | "aggregate"
       | "connectors"
+      | "connectorsHash"
       | "delay"
+      | "delayBlocks"
       | "domains"
+      | "domainsHash"
+      | "getConnectorForDomain"
+      | "getDomainIndex"
+      | "getPendingInboundRootsCount"
+      | "isDomainSupported"
       | "owner"
+      | "pendingInboundRoots"
       | "propagate"
       | "proposeNewOwner"
       | "proposed"
@@ -64,7 +82,9 @@ export interface RootManagerInterface extends utils.Interface {
       | "removeConnector"
       | "renounceOwnership"
       | "renounced"
+      | "setDelayBlocks"
       | "setWatcherManager"
+      | "validateDomains"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "MERKLE", values?: undefined): string;
@@ -84,13 +104,48 @@ export interface RootManagerInterface extends utils.Interface {
     functionFragment: "connectors",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "connectorsHash",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "delayBlocks",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "domains",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "domainsHash",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getConnectorForDomain",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getDomainIndex",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPendingInboundRootsCount",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isDomainSupported",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(functionFragment: "propagate", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "pendingInboundRoots",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "propagate",
+    values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<string>[]]
+  ): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
     values: [PromiseOrValue<string>]
@@ -110,8 +165,16 @@ export interface RootManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "setDelayBlocks",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setWatcherManager",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "validateDomains",
+    values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<string>[]]
   ): string;
 
   decodeFunctionResult(functionFragment: "MERKLE", data: BytesLike): Result;
@@ -125,9 +188,41 @@ export interface RootManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "aggregate", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "connectors", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "connectorsHash",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "delayBlocks",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "domains", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "domainsHash",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getConnectorForDomain",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getDomainIndex",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPendingInboundRootsCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isDomainSupported",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "pendingInboundRoots",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "propagate", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
@@ -148,7 +243,15 @@ export interface RootManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "setDelayBlocks",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setWatcherManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "validateDomains",
     data: BytesLike
   ): Result;
 
@@ -158,7 +261,7 @@ export interface RootManagerInterface extends utils.Interface {
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "RootAggregated(uint32,bytes32,uint256)": EventFragment;
-    "RootPropagated(bytes32,uint32[])": EventFragment;
+    "RootPropagated(bytes32,uint32[],uint256)": EventFragment;
     "WatcherManagerChanged(address)": EventFragment;
   };
 
@@ -232,9 +335,10 @@ export type RootAggregatedEventFilter = TypedEventFilter<RootAggregatedEvent>;
 export interface RootPropagatedEventObject {
   aggregate: string;
   domains: number[];
+  count: BigNumber;
 }
 export type RootPropagatedEvent = TypedEvent<
-  [string, number[]],
+  [string, number[], BigNumber],
   RootPropagatedEventObject
 >;
 
@@ -301,16 +405,47 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    connectorsHash(overrides?: CallOverrides): Promise<[string]>;
+
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    delayBlocks(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     domains(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[number]>;
 
+    domainsHash(overrides?: CallOverrides): Promise<[string]>;
+
+    getConnectorForDomain(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    getDomainIndex(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    getPendingInboundRootsCount(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    isDomainSupported(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    pendingInboundRoots(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber] & { first: BigNumber; last: BigNumber }>;
+
     propagate(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -334,10 +469,21 @@ export interface RootManager extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
+    setDelayBlocks(
+      _delayBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    validateDomains(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
+      overrides?: CallOverrides
+    ): Promise<[void]>;
   };
 
   MERKLE(overrides?: CallOverrides): Promise<string>;
@@ -363,16 +509,45 @@ export interface RootManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  connectorsHash(overrides?: CallOverrides): Promise<string>;
+
   delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+  delayBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
   domains(
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<number>;
 
+  domainsHash(overrides?: CallOverrides): Promise<string>;
+
+  getConnectorForDomain(
+    _domain: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  getDomainIndex(
+    _domain: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  getPendingInboundRootsCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+  isDomainSupported(
+    _domain: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
+  pendingInboundRoots(
+    overrides?: CallOverrides
+  ): Promise<[BigNumber, BigNumber] & { first: BigNumber; last: BigNumber }>;
+
   propagate(
+    _domains: PromiseOrValue<BigNumberish>[],
+    _connectors: PromiseOrValue<string>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -396,10 +571,21 @@ export interface RootManager extends BaseContract {
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
+  setDelayBlocks(
+    _delayBlocks: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setWatcherManager(
     _watcherManager: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  validateDomains(
+    _domains: PromiseOrValue<BigNumberish>[],
+    _connectors: PromiseOrValue<string>[],
+    overrides?: CallOverrides
+  ): Promise<void>;
 
   callStatic: {
     MERKLE(overrides?: CallOverrides): Promise<string>;
@@ -423,16 +609,47 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    connectorsHash(overrides?: CallOverrides): Promise<string>;
+
     delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    delayBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
     domains(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<number>;
 
+    domainsHash(overrides?: CallOverrides): Promise<string>;
+
+    getConnectorForDomain(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    getDomainIndex(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getPendingInboundRootsCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isDomainSupported(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     owner(overrides?: CallOverrides): Promise<string>;
 
-    propagate(overrides?: CallOverrides): Promise<void>;
+    pendingInboundRoots(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber] & { first: BigNumber; last: BigNumber }>;
+
+    propagate(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -452,8 +669,19 @@ export interface RootManager extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
+    setDelayBlocks(
+      _delayBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    validateDomains(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -501,11 +729,16 @@ export interface RootManager extends BaseContract {
       index?: null
     ): RootAggregatedEventFilter;
 
-    "RootPropagated(bytes32,uint32[])"(
+    "RootPropagated(bytes32,uint32[],uint256)"(
       aggregate?: null,
-      domains?: null
+      domains?: null,
+      count?: null
     ): RootPropagatedEventFilter;
-    RootPropagated(aggregate?: null, domains?: null): RootPropagatedEventFilter;
+    RootPropagated(
+      aggregate?: null,
+      domains?: null,
+      count?: null
+    ): RootPropagatedEventFilter;
 
     "WatcherManagerChanged(address)"(
       watcherManager?: null
@@ -539,16 +772,43 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    connectorsHash(overrides?: CallOverrides): Promise<BigNumber>;
+
     delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    delayBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
     domains(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    domainsHash(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getConnectorForDomain(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getDomainIndex(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getPendingInboundRootsCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isDomainSupported(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    pendingInboundRoots(overrides?: CallOverrides): Promise<BigNumber>;
+
     propagate(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -572,9 +832,20 @@ export interface RootManager extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
+    setDelayBlocks(
+      _delayBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    validateDomains(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
@@ -602,16 +873,47 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    connectorsHash(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    delayBlocks(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     domains(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    domainsHash(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getConnectorForDomain(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getDomainIndex(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getPendingInboundRootsCount(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isDomainSupported(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    pendingInboundRoots(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     propagate(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -635,9 +937,20 @@ export interface RootManager extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    setDelayBlocks(
+      _delayBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    validateDomains(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

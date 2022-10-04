@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as upgradeInitializers from "./upgrade-initializers";
+export { AssetFacet__factory } from "./AssetFacet__factory";
 export { BaseConnextFacet__factory } from "./BaseConnextFacet__factory";
 export { BridgeFacet__factory } from "./BridgeFacet__factory";
 export { DiamondCutFacet__factory } from "./DiamondCutFacet__factory";

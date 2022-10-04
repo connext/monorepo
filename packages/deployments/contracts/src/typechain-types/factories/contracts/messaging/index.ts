@@ -5,6 +5,7 @@ export * as merkleSol from "./Merkle.sol";
 export * as queueSol from "./Queue.sol";
 export * as connectors from "./connectors";
 export * as interfaces from "./interfaces";
+export * as libraries from "./libraries";
 export { RootManager__factory } from "./RootManager__factory";
 export { WatcherClient__factory } from "./WatcherClient__factory";
 export { WatcherManager__factory } from "./WatcherManager__factory";

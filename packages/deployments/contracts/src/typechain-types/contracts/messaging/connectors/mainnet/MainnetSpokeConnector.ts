@@ -52,9 +52,6 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
     "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "addSender(address)": FunctionFragment;
-    "aggregateRootCurrent()": FunctionFragment;
-    "aggregateRootPending()": FunctionFragment;
-    "aggregateRootPendingBlock()": FunctionFragment;
     "delay()": FunctionFragment;
     "delayBlocks()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
@@ -68,18 +65,20 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
     "nonces(uint32)": FunctionFragment;
     "outboundRoot()": FunctionFragment;
     "owner()": FunctionFragment;
+    "pendingAggregateRoots(bytes32)": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
-    "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32[32],uint256)": FunctionFragment;
-    "provenRoots(bytes32)": FunctionFragment;
+    "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32,bytes32[32],uint256)": FunctionFragment;
+    "provenAggregateRoots(bytes32)": FunctionFragment;
+    "provenMessageRoots(bytes32)": FunctionFragment;
+    "removePendingAggregateRoot(bytes32)": FunctionFragment;
     "removeSender(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "send()": FunctionFragment;
     "sendMessage(bytes)": FunctionFragment;
-    "setAggregateRoots(bytes32,bytes32)": FunctionFragment;
     "setDelayBlocks(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setMirrorGas(uint256)": FunctionFragment;
@@ -100,9 +99,6 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
       | "ROOT_MANAGER"
       | "acceptProposedOwner"
       | "addSender"
-      | "aggregateRootCurrent"
-      | "aggregateRootPending"
-      | "aggregateRootPendingBlock"
       | "delay"
       | "delayBlocks"
       | "dispatch"
@@ -116,18 +112,20 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
       | "nonces"
       | "outboundRoot"
       | "owner"
+      | "pendingAggregateRoots"
       | "processMessage"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
       | "proveAndProcess"
-      | "provenRoots"
+      | "provenAggregateRoots"
+      | "provenMessageRoots"
+      | "removePendingAggregateRoot"
       | "removeSender"
       | "renounceOwnership"
       | "renounced"
       | "send"
       | "sendMessage"
-      | "setAggregateRoots"
       | "setDelayBlocks"
       | "setMirrorConnector"
       | "setMirrorGas"
@@ -163,18 +161,6 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "addSender",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "aggregateRootCurrent",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "aggregateRootPending",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "aggregateRootPendingBlock",
-    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(
@@ -218,6 +204,10 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "pendingAggregateRoots",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "processMessage",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -234,12 +224,21 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
     functionFragment: "proveAndProcess",
     values: [
       SpokeConnector.ProofStruct[],
+      PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>[],
       PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "provenRoots",
+    functionFragment: "provenAggregateRoots",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "provenMessageRoots",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removePendingAggregateRoot",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -255,10 +254,6 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "sendMessage",
     values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setAggregateRoots",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "setDelayBlocks",
@@ -313,18 +308,6 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "addSender", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "aggregateRootCurrent",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "aggregateRootPending",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "aggregateRootPendingBlock",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "delayBlocks",
@@ -351,6 +334,10 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "pendingAggregateRoots",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "processMessage",
     data: BytesLike
   ): Result;
@@ -368,7 +355,15 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "provenRoots",
+    functionFragment: "provenAggregateRoots",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "provenMessageRoots",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removePendingAggregateRoot",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -383,10 +378,6 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "sendMessage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setAggregateRoots",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -419,7 +410,8 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "AggregateRootsUpdated(bytes32,bytes32)": EventFragment;
+    "AggregateRootReceived(bytes32)": EventFragment;
+    "AggregateRootRemoved(bytes32)": EventFragment;
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes,address)": EventFragment;
@@ -434,7 +426,8 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
     "WatcherManagerChanged(address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AggregateRootsUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AggregateRootReceived"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AggregateRootRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Dispatch"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
@@ -449,17 +442,27 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "WatcherManagerChanged"): EventFragment;
 }
 
-export interface AggregateRootsUpdatedEventObject {
-  current: string;
-  pending: string;
+export interface AggregateRootReceivedEventObject {
+  root: string;
 }
-export type AggregateRootsUpdatedEvent = TypedEvent<
-  [string, string],
-  AggregateRootsUpdatedEventObject
+export type AggregateRootReceivedEvent = TypedEvent<
+  [string],
+  AggregateRootReceivedEventObject
 >;
 
-export type AggregateRootsUpdatedEventFilter =
-  TypedEventFilter<AggregateRootsUpdatedEvent>;
+export type AggregateRootReceivedEventFilter =
+  TypedEventFilter<AggregateRootReceivedEvent>;
+
+export interface AggregateRootRemovedEventObject {
+  root: string;
+}
+export type AggregateRootRemovedEvent = TypedEvent<
+  [string],
+  AggregateRootRemovedEventObject
+>;
+
+export type AggregateRootRemovedEventFilter =
+  TypedEventFilter<AggregateRootRemovedEvent>;
 
 export interface DispatchEventObject {
   leaf: string;
@@ -645,12 +648,6 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    aggregateRootCurrent(overrides?: CallOverrides): Promise<[string]>;
-
-    aggregateRootPending(overrides?: CallOverrides): Promise<[string]>;
-
-    aggregateRootPendingBlock(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     delayBlocks(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -691,6 +688,11 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    pendingAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -707,15 +709,26 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     proveAndProcess(
       _proofs: SpokeConnector.ProofStruct[],
-      _aggregatorPath: PromiseOrValue<BytesLike>[],
-      _aggregatorIndex: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _aggregatePath: PromiseOrValue<BytesLike>[],
+      _aggregateIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    provenRoots(
+    provenAggregateRoots(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    removePendingAggregateRoot(
+      _fraudulentRoot: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     removeSender(
       _sender: PromiseOrValue<string>,
@@ -734,12 +747,6 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setAggregateRoots(
-      _current: PromiseOrValue<BytesLike>,
-      _pending: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -802,12 +809,6 @@ export interface MainnetSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  aggregateRootCurrent(overrides?: CallOverrides): Promise<string>;
-
-  aggregateRootPending(overrides?: CallOverrides): Promise<string>;
-
-  aggregateRootPendingBlock(overrides?: CallOverrides): Promise<BigNumber>;
-
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
   delayBlocks(overrides?: CallOverrides): Promise<BigNumber>;
@@ -848,6 +849,11 @@ export interface MainnetSpokeConnector extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
+  pendingAggregateRoots(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   processMessage(
     _data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -864,15 +870,26 @@ export interface MainnetSpokeConnector extends BaseContract {
 
   proveAndProcess(
     _proofs: SpokeConnector.ProofStruct[],
-    _aggregatorPath: PromiseOrValue<BytesLike>[],
-    _aggregatorIndex: PromiseOrValue<BigNumberish>,
+    _aggregateRoot: PromiseOrValue<BytesLike>,
+    _aggregatePath: PromiseOrValue<BytesLike>[],
+    _aggregateIndex: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  provenRoots(
+  provenAggregateRoots(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  provenMessageRoots(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  removePendingAggregateRoot(
+    _fraudulentRoot: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   removeSender(
     _sender: PromiseOrValue<string>,
@@ -891,12 +908,6 @@ export interface MainnetSpokeConnector extends BaseContract {
 
   sendMessage(
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setAggregateRoots(
-    _current: PromiseOrValue<BytesLike>,
-    _pending: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -957,12 +968,6 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    aggregateRootCurrent(overrides?: CallOverrides): Promise<string>;
-
-    aggregateRootPending(overrides?: CallOverrides): Promise<string>;
-
-    aggregateRootPendingBlock(overrides?: CallOverrides): Promise<BigNumber>;
-
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     delayBlocks(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1003,6 +1008,11 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
+    pendingAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1019,15 +1029,26 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     proveAndProcess(
       _proofs: SpokeConnector.ProofStruct[],
-      _aggregatorPath: PromiseOrValue<BytesLike>[],
-      _aggregatorIndex: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _aggregatePath: PromiseOrValue<BytesLike>[],
+      _aggregateIndex: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    provenRoots(
+    provenAggregateRoots(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    removePendingAggregateRoot(
+      _fraudulentRoot: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     removeSender(
       _sender: PromiseOrValue<string>,
@@ -1042,12 +1063,6 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setAggregateRoots(
-      _current: PromiseOrValue<BytesLike>,
-      _pending: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1088,14 +1103,15 @@ export interface MainnetSpokeConnector extends BaseContract {
   };
 
   filters: {
-    "AggregateRootsUpdated(bytes32,bytes32)"(
-      current?: null,
-      pending?: null
-    ): AggregateRootsUpdatedEventFilter;
-    AggregateRootsUpdated(
-      current?: null,
-      pending?: null
-    ): AggregateRootsUpdatedEventFilter;
+    "AggregateRootReceived(bytes32)"(
+      root?: null
+    ): AggregateRootReceivedEventFilter;
+    AggregateRootReceived(root?: null): AggregateRootReceivedEventFilter;
+
+    "AggregateRootRemoved(bytes32)"(
+      root?: null
+    ): AggregateRootRemovedEventFilter;
+    AggregateRootRemoved(root?: null): AggregateRootRemovedEventFilter;
 
     "Dispatch(bytes32,uint256,bytes32,bytes)"(
       leaf?: null,
@@ -1216,12 +1232,6 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    aggregateRootCurrent(overrides?: CallOverrides): Promise<BigNumber>;
-
-    aggregateRootPending(overrides?: CallOverrides): Promise<BigNumber>;
-
-    aggregateRootPendingBlock(overrides?: CallOverrides): Promise<BigNumber>;
-
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     delayBlocks(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1262,6 +1272,11 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    pendingAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1278,14 +1293,25 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     proveAndProcess(
       _proofs: SpokeConnector.ProofStruct[],
-      _aggregatorPath: PromiseOrValue<BytesLike>[],
-      _aggregatorIndex: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _aggregatePath: PromiseOrValue<BytesLike>[],
+      _aggregateIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    provenRoots(
+    provenAggregateRoots(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    removePendingAggregateRoot(
+      _fraudulentRoot: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     removeSender(
@@ -1305,12 +1331,6 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setAggregateRoots(
-      _current: PromiseOrValue<BytesLike>,
-      _pending: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1374,18 +1394,6 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    aggregateRootCurrent(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    aggregateRootPending(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    aggregateRootPendingBlock(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     delayBlocks(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1426,6 +1434,11 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    pendingAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1442,14 +1455,25 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     proveAndProcess(
       _proofs: SpokeConnector.ProofStruct[],
-      _aggregatorPath: PromiseOrValue<BytesLike>[],
-      _aggregatorIndex: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _aggregatePath: PromiseOrValue<BytesLike>[],
+      _aggregateIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    provenRoots(
+    provenAggregateRoots(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    removePendingAggregateRoot(
+      _fraudulentRoot: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     removeSender(
@@ -1469,12 +1493,6 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setAggregateRoots(
-      _current: PromiseOrValue<BytesLike>,
-      _pending: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
