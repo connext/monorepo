@@ -119,17 +119,6 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         });
 
         /// MARK - Connectors: Whitelist Senders
-        // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to
-        // call `dispatch`.
-        console.log("\tVerifying senders (handlers) are whitelisted.");
-        for (const handler of [...Object.values(spoke.deployments.handlers), hub.deployments.Connext]) {
-          await updateIfNeeded({
-            deployment: SpokeConnector,
-            desired: true,
-            read: { method: "whitelistedSenders", args: [handler.address] },
-            write: { method: "addSender", args: [handler.address] },
-          });
-        }
       }
     }
 
@@ -201,13 +190,4 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
     read: { method: "xAppConnectionManager", args: [] },
     write: { method: "setXAppConnectionManager", args: [MainnetConnector.address] },
   });
-
-  for (const handler of [...Object.values(hub.deployments.handlers), hub.deployments.Connext]) {
-    await updateIfNeeded({
-      deployment: MainnetConnector,
-      desired: true,
-      read: { method: "whitelistedSenders", args: [handler.address] },
-      write: { method: "addSender", args: [handler.address] },
-    });
-  }
 };

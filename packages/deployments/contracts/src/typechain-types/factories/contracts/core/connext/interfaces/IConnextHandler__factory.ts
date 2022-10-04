@@ -170,19 +170,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "VERSION",
-    outputs: [
-      {
-        internalType: "uint8",
-        name: "",
-        type: "uint8",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "aavePool",
     outputs: [
       {
@@ -811,24 +798,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_recipient",
-        type: "address",
-      },
-      {
-        internalType: "bytes32[]",
-        name: "_transferIds",
-        type: "bytes32[]",
-      },
-    ],
-    name: "claim",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1759,29 +1728,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "_domain",
-        type: "uint32",
-      },
-      {
-        internalType: "address",
-        name: "_recipient",
-        type: "address",
-      },
-      {
-        internalType: "bytes32[]",
-        name: "_transferIds",
-        type: "bytes32[]",
-      },
-    ],
-    name: "initiateClaim",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "maxRoutersPerTransfer",
     outputs: [
@@ -1962,51 +1908,13 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_transferId",
-        type: "bytes32",
-      },
-    ],
-    name: "reconciledTransfers",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
-    name: "relayerFeeRouter",
+    name: "relayerFeeVault",
     outputs: [
       {
-        internalType: "contract RelayerFeeRouter",
+        internalType: "address",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_transferId",
-        type: "bytes32",
-      },
-    ],
-    name: "relayerFees",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -2701,11 +2609,11 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "_relayerFeeRouter",
+        name: "_relayerFeeVault",
         type: "address",
       },
     ],
-    name: "setRelayerFeeRouter",
+    name: "setRelayerFeeVault",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -3065,12 +2973,12 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "transferRelayer",
+    name: "transferStatus",
     outputs: [
       {
-        internalType: "address",
+        internalType: "enum DestinationTransferStatus",
         name: "",
-        type: "address",
+        type: "uint8",
       },
     ],
     stateMutability: "view",

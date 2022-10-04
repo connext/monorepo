@@ -2,8 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber, Contract, Signer, Wallet } from "ethers";
 
-import { getConnectorName, getDeploymentName, getProtocolNetwork } from "../src/utils";
-import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
+import { getDeploymentName } from "../src/utils";
 
 export const deployBeaconProxy = async <T extends Contract = Contract>(
   name: string,
@@ -116,9 +115,6 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   return proxy as unknown as T;
 };
 
-// List of all the router contracts to deploy (by name).
-const ROUTERS = ["RelayerFeeRouter"];
-
 /**
  * Hardhat task for deploying the Routers.
  *
@@ -131,70 +127,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     [_deployer] = await hre.ethers.getUnnamedSigners();
   }
   const deployer = _deployer as Wallet;
-  console.log("\n============================= Deploying Routers ===============================");
+  console.log("\n============================= Deploying Bridge Token ===============================");
   console.log("deployer: ", deployer.address);
-
-  const chainId = +(await hre.getChainId());
 
   // Deploy the bridge token to get the token beacon address when deploying connext
   (await deployBeaconProxy("BridgeToken", [18, "", ""], deployer, hre)).connect(deployer);
-
-  const network = getProtocolNetwork(chainId);
-  const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
-
-  if (!protocol.configs[protocol.hub]) {
-    throw new Error(`Network ${network} is not supported! (no messaging config)`);
-  }
-
-  const connectorName = getConnectorName(protocol, chainId);
-  console.log(`using connector: ${connectorName}`);
-
-  // Find the connector that exists on this domain / chain
-  // and use it as the connectorManager address
-  const connector = await hre.ethers.getContractOrNull(getDeploymentName(connectorName), deployer);
-  if (!connector) {
-    throw new Error(`No connector manager deployed to this chain (looking for: ${connectorName})`);
-  }
-
-  for (const router of ROUTERS) {
-    // NOTE: the connector manager address will *NOT* be known until the connectors are deployed
-    console.log(`Deploying ${router}`);
-    const deployment = (await deployBeaconProxy(router, [connector.address], deployer, hre)).connect(deployer);
-    // const deployment = await hre.deployments.getOrNull(getDeploymentName(`${router}UpgradeBeaconProxy`));
-    if (!deployment) {
-      throw new Error(`No deployment (looking for: ${getDeploymentName(`${router}UpgradeBeaconProxy`)})`);
-    }
-    const implementation = await hre.deployments.getOrNull(getDeploymentName(router));
-    if (!implementation) {
-      throw new Error(`No implementation (looking for: ${getDeploymentName(`${router}`)})`);
-    }
-    const contract = new Contract(deployment.address, implementation.abi, deployer);
-
-    console.log(`${router} deployed to ${contract.address}`);
-    const owner = await contract.owner();
-    console.log(`${router} owner set to ${owner}`);
-
-    if ((await contract.xAppConnectionManager()).toLowerCase() !== connector.address.toLowerCase()) {
-      const setXAppConnectionManagerTx = await contract.setXAppConnectionManager(connector.address);
-      console.log(`setXAppConnectionManager tx submitted:`, setXAppConnectionManagerTx.hash);
-      const receipt = await setXAppConnectionManagerTx.wait();
-      console.log(`setXAppConnectionManager tx mined:`, receipt.transactionHash);
-    }
-
-    // whitelist the router on the connector
-    if (await connector.whitelistedSenders(deployment.address)) {
-      console.log(`router already whitelisted on connector`);
-      continue;
-    }
-    console.log(`whitelisting router on connector: ${connector.address}`);
-    const whitelist = await connector.addSender(deployment.address);
-    console.log(`whitelist tx:`, whitelist.hash);
-    await whitelist.wait();
-    console.log(`whitelist tx mined`);
-  }
 };
 
 export default func;
 
-func.tags = ["Routers", "prod", "local", "mainnet"];
-func.dependencies = ["Messaging"];
+func.tags = ["BridgeToken", "prod", "local", "mainnet"];

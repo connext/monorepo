@@ -11,7 +11,6 @@ import {Encoding} from "../libraries/Encoding.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
-import {IWeth} from "../interfaces/IWeth.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";

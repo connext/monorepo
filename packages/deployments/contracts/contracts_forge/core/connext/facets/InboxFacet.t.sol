@@ -4,19 +4,19 @@ pragma solidity 0.8.15;
 import {TypeCasts} from "../../../../contracts/shared/libraries/TypeCasts.sol";
 import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.sol";
 
-import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBridgeRouter.sol";
-
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeMessage} from "../../../../contracts/core/connext/libraries/BridgeMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 
 import {InboxFacet} from "../../../../contracts/core/connext/facets/InboxFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
-import {CallParams, ExecuteArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams, ExecuteArgs, DestinationTransferStatus} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
 import {MessagingUtils} from "../../../utils/Messaging.sol";
+
+import "forge-std/console.sol";
 
 contract InboxFacetTest is InboxFacet, FacetHelper {
   // ============ Libs ============
@@ -169,15 +169,17 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
     helpers_reconcileCaller(params);
 
     if (shouldSucceed) {
-      assertEq(s.reconciledTransfers[transferId], true);
       address[] memory routers = s.routedTransfers[transferId];
       if (routers.length != 0) {
+        assertTrue(s.transferStatus[transferId] == DestinationTransferStatus.Completed);
         uint256 routerAmt = params.bridgedAmt / s.routedTransfers[transferId].length;
 
         // Fast liquidity route. Should have reimbursed routers.
         for (uint256 i = 0; i < routers.length; i++) {
           assertEq(s.routerBalances[routers[i]][_local], routerBalances[i] + routerAmt);
         }
+      } else {
+        assertTrue(s.transferStatus[transferId] == DestinationTransferStatus.Reconciled);
       }
     }
   }
@@ -213,11 +215,24 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
     this.handle(_originDomain, uint32(_nonce), _originConnext, message);
   }
 
-  // fails if already reconciled (s.reconciledTransfers[transferId] = true)
-  function test_InboxFacet__reconcile_failIfAlreadyReconciled() public {
+  // fails if already reconciled (status == reconciled)
+  function test_InboxFacet__reconcile_failIfReconciled() public {
     utils_setupAsset(true, false);
     (CallParams memory params, bytes32 transferId) = utils_createCallParams(_local);
-    s.reconciledTransfers[transferId] = true;
+    s.transferStatus[transferId] = DestinationTransferStatus.Reconciled;
+
+    bytes memory message = utils_createMessage(params);
+
+    vm.expectRevert(InboxFacet.InboxFacet__reconcile_alreadyReconciled.selector);
+    vm.prank(_originSender);
+    this.handle(params.originDomain, uint32(_nonce), _originConnext, message);
+  }
+
+  // fails if already reconciled (status == completed)
+  function test_InboxFacet__reconcile_failIfCompleted() public {
+    utils_setupAsset(true, false);
+    (CallParams memory params, bytes32 transferId) = utils_createCallParams(_local);
+    s.transferStatus[transferId] = DestinationTransferStatus.Completed;
 
     bytes memory message = utils_createMessage(params);
 
@@ -231,6 +246,7 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
     utils_setupAsset(true, false);
     (CallParams memory params, bytes32 transferId) = utils_createCallParams(_local);
     delete s.routedTransfers[transferId];
+    delete s.transferStatus[transferId];
 
     // set portal fee debt
     s.portalDebt[transferId] = 15;
@@ -260,7 +276,7 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
     utils_setupAsset(true, false);
     (CallParams memory params, bytes32 transferId) = utils_createCallParams(_local);
     delete s.routedTransfers[transferId];
-
+    delete s.transferStatus[transferId];
     helpers_reconcileAndAssert(params, transferId, _originConnext, bytes4(""));
   }
 
@@ -269,6 +285,7 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
     utils_setupAsset(true, false);
     (CallParams memory params, bytes32 transferId) = utils_createCallParams(_local);
     s.routedTransfers[transferId] = [address(42)];
+    s.transferStatus[transferId] = DestinationTransferStatus.Executed;
     helpers_reconcileAndAssert(params, transferId, _originConnext, bytes4(""));
   }
 
@@ -277,6 +294,7 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
     utils_setupAsset(true, false);
     (CallParams memory params, bytes32 transferId) = utils_createCallParams(_local);
     s.routedTransfers[transferId] = [address(42), address(43), address(44), address(45)];
+    s.transferStatus[transferId] = DestinationTransferStatus.Executed;
     helpers_reconcileAndAssert(params, transferId, _originConnext, bytes4(""));
   }
 }

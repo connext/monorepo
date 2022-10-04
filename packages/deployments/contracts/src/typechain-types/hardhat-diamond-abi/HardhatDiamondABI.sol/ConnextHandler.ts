@@ -189,12 +189,11 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes))": FunctionFragment;
     "forceUpdateSlippage((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256)": FunctionFragment;
     "nonce()": FunctionFragment;
-    "reconciledTransfers(bytes32)": FunctionFragment;
-    "relayerFees(bytes32)": FunctionFragment;
     "remote(uint32)": FunctionFragment;
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
+    "transferStatus(bytes32)": FunctionFragment;
     "xAppConnectionManager()": FunctionFragment;
     "xcall(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
     "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
@@ -240,12 +239,9 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "unpause()": FunctionFragment;
     "addRelayer(address)": FunctionFragment;
     "approvedRelayers(address)": FunctionFragment;
-    "claim(address,bytes32[])": FunctionFragment;
-    "initiateClaim(uint32,address,bytes32[])": FunctionFragment;
-    "relayerFeeRouter()": FunctionFragment;
+    "relayerFeeVault()": FunctionFragment;
     "removeRelayer(address)": FunctionFragment;
-    "setRelayerFeeRouter(address)": FunctionFragment;
-    "transferRelayer(bytes32)": FunctionFragment;
+    "setRelayerFeeVault(address)": FunctionFragment;
     "LIQUIDITY_FEE_DENOMINATOR()": FunctionFragment;
     "LIQUIDITY_FEE_NUMERATOR()": FunctionFragment;
     "acceptProposedRouterOwner(address)": FunctionFragment;
@@ -322,12 +318,11 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "execute"
       | "forceUpdateSlippage"
       | "nonce"
-      | "reconciledTransfers"
-      | "relayerFees"
       | "remote"
       | "removeSequencer"
       | "routedTransfers"
       | "setXAppConnectionManager"
+      | "transferStatus"
       | "xAppConnectionManager"
       | "xcall"
       | "xcallIntoLocal"
@@ -373,12 +368,9 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "unpause"
       | "addRelayer"
       | "approvedRelayers"
-      | "claim"
-      | "initiateClaim"
-      | "relayerFeeRouter"
+      | "relayerFeeVault"
       | "removeRelayer"
-      | "setRelayerFeeRouter"
-      | "transferRelayer"
+      | "setRelayerFeeVault"
       | "LIQUIDITY_FEE_DENOMINATOR"
       | "LIQUIDITY_FEE_NUMERATOR"
       | "acceptProposedRouterOwner"
@@ -478,14 +470,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "reconciledTransfers",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "relayerFees",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "remote",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -500,6 +484,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setXAppConnectionManager",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferStatus",
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "xAppConnectionManager",
@@ -699,19 +687,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "claim",
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initiateClaim",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>[]
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "relayerFeeRouter",
+    functionFragment: "relayerFeeVault",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -719,12 +695,8 @@ export interface ConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setRelayerFeeRouter",
+    functionFragment: "setRelayerFeeVault",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferRelayer",
-    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "LIQUIDITY_FEE_DENOMINATOR",
@@ -1096,14 +1068,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "reconciledTransfers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "relayerFees",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "remote", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeSequencer",
@@ -1115,6 +1079,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setXAppConnectionManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferStatus",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1258,13 +1226,8 @@ export interface ConnextHandlerInterface extends utils.Interface {
     functionFragment: "approvedRelayers",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "claim", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "initiateClaim",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "relayerFeeRouter",
+    functionFragment: "relayerFeeVault",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1272,11 +1235,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setRelayerFeeRouter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferRelayer",
+    functionFragment: "setRelayerFeeVault",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1523,7 +1482,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
     "SlippageUpdated(bytes32,uint256)": EventFragment;
-    "TransferRelayerFeesUpdated(bytes32,uint256,address)": EventFragment;
+    "TransferRelayerFeesIncreased(bytes32,uint256,address)": EventFragment;
     "XCalled(bytes32,uint256,bytes32,tuple,address)": EventFragment;
     "DiamondCut(tuple[],address,bytes)": EventFragment;
     "DiamondCutProposed(tuple[],address,bytes,uint256)": EventFragment;
@@ -1544,7 +1503,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "Claimed(address,uint256,bytes32[])": EventFragment;
     "InitiatedClaim(uint32,address,address,bytes32[])": EventFragment;
     "RelayerAdded(address,address)": EventFragment;
-    "RelayerFeeRouterUpdated(address,address,address)": EventFragment;
+    "RelayerFeeVaultUpdated(address,address,address)": EventFragment;
     "RelayerRemoved(address,address)": EventFragment;
     "LiquidityFeeNumeratorUpdated(uint256,address)": EventFragment;
     "MaxRoutersPerTransferUpdated(uint256,address)": EventFragment;
@@ -1573,7 +1532,9 @@ export interface ConnextHandlerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "SequencerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SlippageUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TransferRelayerFeesUpdated"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "TransferRelayerFeesIncreased"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DiamondCut"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DiamondCutProposed"): EventFragment;
@@ -1598,7 +1559,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Claimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "InitiatedClaim"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RelayerFeeRouterUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RelayerFeeVaultUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerRemoved"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "LiquidityFeeNumeratorUpdated"
@@ -1738,18 +1699,18 @@ export type SlippageUpdatedEvent = TypedEvent<
 
 export type SlippageUpdatedEventFilter = TypedEventFilter<SlippageUpdatedEvent>;
 
-export interface TransferRelayerFeesUpdatedEventObject {
+export interface TransferRelayerFeesIncreasedEventObject {
   transferId: string;
-  relayerFee: BigNumber;
+  increase: BigNumber;
   caller: string;
 }
-export type TransferRelayerFeesUpdatedEvent = TypedEvent<
+export type TransferRelayerFeesIncreasedEvent = TypedEvent<
   [string, BigNumber, string],
-  TransferRelayerFeesUpdatedEventObject
+  TransferRelayerFeesIncreasedEventObject
 >;
 
-export type TransferRelayerFeesUpdatedEventFilter =
-  TypedEventFilter<TransferRelayerFeesUpdatedEvent>;
+export type TransferRelayerFeesIncreasedEventFilter =
+  TypedEventFilter<TransferRelayerFeesIncreasedEvent>;
 
 export interface XCalledEventObject {
   transferId: string;
@@ -1975,18 +1936,18 @@ export type RelayerAddedEvent = TypedEvent<
 
 export type RelayerAddedEventFilter = TypedEventFilter<RelayerAddedEvent>;
 
-export interface RelayerFeeRouterUpdatedEventObject {
-  oldRouter: string;
-  newRouter: string;
+export interface RelayerFeeVaultUpdatedEventObject {
+  oldVault: string;
+  newVault: string;
   caller: string;
 }
-export type RelayerFeeRouterUpdatedEvent = TypedEvent<
+export type RelayerFeeVaultUpdatedEvent = TypedEvent<
   [string, string, string],
-  RelayerFeeRouterUpdatedEventObject
+  RelayerFeeVaultUpdatedEventObject
 >;
 
-export type RelayerFeeRouterUpdatedEventFilter =
-  TypedEventFilter<RelayerFeeRouterUpdatedEvent>;
+export type RelayerFeeVaultUpdatedEventFilter =
+  TypedEventFilter<RelayerFeeVaultUpdatedEvent>;
 
 export interface RelayerRemovedEventObject {
   relayer: string;
@@ -2273,16 +2234,6 @@ export interface ConnextHandler extends BaseContract {
 
     nonce(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    relayerFees(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     remote(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -2302,6 +2253,11 @@ export interface ConnextHandler extends BaseContract {
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    transferStatus(
+      _transferId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[number]>;
 
     xAppConnectionManager(overrides?: CallOverrides): Promise<[string]>;
 
@@ -2511,35 +2467,17 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    relayerFeeRouter(overrides?: CallOverrides): Promise<[string]>;
+    relayerFeeVault(overrides?: CallOverrides): Promise<[string]>;
 
     removeRelayer(
       _relayer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setRelayerFeeRouter(
-      _relayerFeeRouter: PromiseOrValue<string>,
+    setRelayerFeeVault(
+      _relayerFeeVault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    transferRelayer(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
 
     LIQUIDITY_FEE_DENOMINATOR(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -2955,16 +2893,6 @@ export interface ConnextHandler extends BaseContract {
 
   nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
-  reconciledTransfers(
-    _transferId: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  relayerFees(
-    _transferId: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   remote(
     _domain: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -2984,6 +2912,11 @@ export interface ConnextHandler extends BaseContract {
     _xAppConnectionManager: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  transferStatus(
+    _transferId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<number>;
 
   xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
 
@@ -3185,35 +3118,17 @@ export interface ConnextHandler extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  claim(
-    _recipient: PromiseOrValue<string>,
-    _transferIds: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  initiateClaim(
-    _domain: PromiseOrValue<BigNumberish>,
-    _recipient: PromiseOrValue<string>,
-    _transferIds: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  relayerFeeRouter(overrides?: CallOverrides): Promise<string>;
+  relayerFeeVault(overrides?: CallOverrides): Promise<string>;
 
   removeRelayer(
     _relayer: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setRelayerFeeRouter(
-    _relayerFeeRouter: PromiseOrValue<string>,
+  setRelayerFeeVault(
+    _relayerFeeVault: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  transferRelayer(
-    _transferId: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string>;
 
   LIQUIDITY_FEE_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -3629,16 +3544,6 @@ export interface ConnextHandler extends BaseContract {
 
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    relayerFees(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     remote(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -3658,6 +3563,11 @@ export interface ConnextHandler extends BaseContract {
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    transferStatus(
+      _transferId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<number>;
 
     xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
 
@@ -3845,35 +3755,17 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    relayerFeeRouter(overrides?: CallOverrides): Promise<string>;
+    relayerFeeVault(overrides?: CallOverrides): Promise<string>;
 
     removeRelayer(
       _relayer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setRelayerFeeRouter(
-      _relayerFeeRouter: PromiseOrValue<string>,
+    setRelayerFeeVault(
+      _relayerFeeVault: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    transferRelayer(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string>;
 
     LIQUIDITY_FEE_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -4356,16 +4248,16 @@ export interface ConnextHandler extends BaseContract {
       slippage?: null
     ): SlippageUpdatedEventFilter;
 
-    "TransferRelayerFeesUpdated(bytes32,uint256,address)"(
+    "TransferRelayerFeesIncreased(bytes32,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
-      relayerFee?: null,
+      increase?: null,
       caller?: null
-    ): TransferRelayerFeesUpdatedEventFilter;
-    TransferRelayerFeesUpdated(
+    ): TransferRelayerFeesIncreasedEventFilter;
+    TransferRelayerFeesIncreased(
       transferId?: PromiseOrValue<BytesLike> | null,
-      relayerFee?: null,
+      increase?: null,
       caller?: null
-    ): TransferRelayerFeesUpdatedEventFilter;
+    ): TransferRelayerFeesIncreasedEventFilter;
 
     "XCalled(bytes32,uint256,bytes32,tuple,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
@@ -4526,16 +4418,16 @@ export interface ConnextHandler extends BaseContract {
     ): RelayerAddedEventFilter;
     RelayerAdded(relayer?: null, caller?: null): RelayerAddedEventFilter;
 
-    "RelayerFeeRouterUpdated(address,address,address)"(
-      oldRouter?: null,
-      newRouter?: null,
+    "RelayerFeeVaultUpdated(address,address,address)"(
+      oldVault?: null,
+      newVault?: null,
       caller?: null
-    ): RelayerFeeRouterUpdatedEventFilter;
-    RelayerFeeRouterUpdated(
-      oldRouter?: null,
-      newRouter?: null,
+    ): RelayerFeeVaultUpdatedEventFilter;
+    RelayerFeeVaultUpdated(
+      oldVault?: null,
+      newVault?: null,
       caller?: null
-    ): RelayerFeeRouterUpdatedEventFilter;
+    ): RelayerFeeVaultUpdatedEventFilter;
 
     "RelayerRemoved(address,address)"(
       relayer?: null,
@@ -4771,16 +4663,6 @@ export interface ConnextHandler extends BaseContract {
 
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    relayerFees(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     remote(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -4799,6 +4681,11 @@ export interface ConnextHandler extends BaseContract {
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    transferStatus(
+      _transferId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     xAppConnectionManager(overrides?: CallOverrides): Promise<BigNumber>;
@@ -5001,34 +4888,16 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    relayerFeeRouter(overrides?: CallOverrides): Promise<BigNumber>;
+    relayerFeeVault(overrides?: CallOverrides): Promise<BigNumber>;
 
     removeRelayer(
       _relayer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setRelayerFeeRouter(
-      _relayerFeeRouter: PromiseOrValue<string>,
+    setRelayerFeeVault(
+      _relayerFeeVault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    transferRelayer(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     LIQUIDITY_FEE_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
@@ -5448,16 +5317,6 @@ export interface ConnextHandler extends BaseContract {
 
     nonce(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    relayerFees(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     remote(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -5476,6 +5335,11 @@ export interface ConnextHandler extends BaseContract {
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    transferStatus(
+      _transferId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     xAppConnectionManager(
@@ -5688,34 +5552,16 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    relayerFeeRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    relayerFeeVault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     removeRelayer(
       _relayer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setRelayerFeeRouter(
-      _relayerFeeRouter: PromiseOrValue<string>,
+    setRelayerFeeVault(
+      _relayerFeeVault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    transferRelayer(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     LIQUIDITY_FEE_DENOMINATOR(

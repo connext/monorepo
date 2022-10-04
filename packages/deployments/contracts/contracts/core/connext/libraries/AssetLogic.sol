@@ -9,8 +9,6 @@ import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 
-import {IWeth} from "../interfaces/IWeth.sol";
-
 import {LibConnextStorage, AppStorage, TokenId} from "./LibConnextStorage.sol";
 import {SwapUtils} from "./SwapUtils.sol";
 

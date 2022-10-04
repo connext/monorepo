@@ -555,7 +555,7 @@ contract RoutersFacet is BaseConnextFacet {
       // Sanity check: caps not reached
       uint256 custodied = IERC20(_local).balanceOf(address(this)) + _amount;
       uint256 cap = s.caps[key];
-      if (custodied > cap && cap > 0) {
+      if (cap > 0 && custodied > cap) {
         revert RoutersFacet__addLiquidityForRouter_capReached();
       }
     }

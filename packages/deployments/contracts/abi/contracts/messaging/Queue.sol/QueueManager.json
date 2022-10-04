@@ -1,6 +1,0 @@
-[
-  "event Initialized(uint8)",
-  "function queueContains(bytes32) view returns (bool)",
-  "function queueEnd() view returns (bytes32)",
-  "function queueLength() view returns (uint256)"
-]

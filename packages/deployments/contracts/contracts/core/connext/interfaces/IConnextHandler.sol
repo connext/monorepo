@@ -3,15 +3,11 @@ pragma solidity 0.8.15;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
-
-import {ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
+import {ExecuteArgs, CallParams, TokenId, DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {SwapUtils} from "../libraries/SwapUtils.sol";
 
 import {IStableSwap} from "./IStableSwap.sol";
-import {IWeth} from "./IWeth.sol";
-import {IBridgeRouter} from "./IBridgeRouter.sol";
 
 import {IDiamondCut} from "./IDiamondCut.sol";
 import {IDiamondLoupe} from "./IDiamondLoupe.sol";
@@ -85,11 +81,9 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
   // BaseConnextFacet
 
   // BridgeFacet
-  function relayerFees(bytes32 _transferId) external view returns (uint256);
-
   function routedTransfers(bytes32 _transferId) external view returns (address[] memory);
 
-  function reconciledTransfers(bytes32 _transferId) external view returns (bool);
+  function transferStatus(bytes32 _transferId) external view returns (DestinationTransferStatus);
 
   function remote(uint32 _domain) external view returns (address);
 
@@ -191,25 +185,15 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
   function unpause() external;
 
   // RelayerFacet
-  function transferRelayer(bytes32 _transferId) external view returns (address);
-
   function approvedRelayers(address _relayer) external view returns (bool);
 
-  function relayerFeeRouter() external view returns (RelayerFeeRouter);
+  function relayerFeeVault() external view returns (address);
 
-  function setRelayerFeeRouter(address _relayerFeeRouter) external;
+  function setRelayerFeeVault(address _relayerFeeVault) external;
 
   function addRelayer(address _relayer) external;
 
   function removeRelayer(address _relayer) external;
-
-  function initiateClaim(
-    uint32 _domain,
-    address _recipient,
-    bytes32[] calldata _transferIds
-  ) external;
-
-  function claim(address _recipient, bytes32[] calldata _transferIds) external;
 
   // RoutersFacet
   function LIQUIDITY_FEE_NUMERATOR() external view returns (uint256);
@@ -424,8 +408,4 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
   ) external;
 
   function stopRampA(bytes32 canonicalId) external;
-
-  // VersionFacet
-
-  function VERSION() external returns (uint8);
 }
