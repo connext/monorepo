@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
 
-import {LibConnextStorage, AppStorage, TokenId, TransferIdInformation} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {LibConnextStorage, AppStorage, TokenId, TransferInfo} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {TypeCasts} from "../../contracts/shared/libraries/TypeCasts.sol";
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
 
@@ -155,9 +155,9 @@ contract FacetHelper is ForgeHelper {
     uint256 _amount,
     uint256 _slippage,
     bytes calldata _callData
-  ) public returns (TransferIdInformation memory) {
+  ) public returns (TransferInfo memory) {
     return
-      TransferIdInformation({
+      TransferInfo({
         to: _to,
         callData: _callData,
         originDomain: _originDomain,

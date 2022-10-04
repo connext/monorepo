@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {TransferIdInformation, AppStorage, TokenId, Role} from "../libraries/LibConnextStorage.sol";
+import {TransferInfo, AppStorage, TokenId, Role} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 
@@ -142,7 +142,7 @@ contract BaseConnextFacet {
   /**
    * @notice Calculates a transferId
    */
-  function _calculateTransferId(TransferIdInformation memory _params) internal pure returns (bytes32) {
+  function _calculateTransferId(TransferInfo memory _params) internal pure returns (bytes32) {
     return keccak256(abi.encode(_params));
   }
 

@@ -52,7 +52,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes32 indexed transferId,
     uint256 indexed nonce,
     bytes32 indexed messageHash,
-    TransferIdInformation params,
+    TransferInfo params,
     address asset,
     uint256 amount
   );
@@ -316,11 +316,11 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint32 destination,
     uint256 amount,
     uint256 bridgedAmount
-  ) public returns (TransferIdInformation memory) {
+  ) public returns (TransferInfo memory) {
     bool sendToDest = destination == _destination;
     bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
     return
-      TransferIdInformation({
+      TransferInfo({
         originDomain: sendToDest ? _origin : _destination,
         destinationDomain: destination,
         canonicalDomain: _canonicalDomain,
@@ -355,7 +355,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   function utils_xcallAndAssert(
-    TransferIdInformation memory params,
+    TransferInfo memory params,
     address asset, // input asset
     uint256 amount, // input amount
     uint256 relayerFee
@@ -473,7 +473,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   function utils_createExecuteArgs(
-    TransferIdInformation memory params,
+    TransferInfo memory params,
     bytes32 transferId,
     uint256 pathLen,
     uint256 liquidity
@@ -482,7 +482,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     (address sequencer, bytes memory sequencerSignature) = utils_createSequencer(transferId, routers);
     return
       ExecuteArgs(
-        params, // TransferIdInformation
+        params, // TransferInfo
         routers, // routers
         routerSignatures, // router signatures
         sequencer, // sequencer
@@ -490,10 +490,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       );
   }
 
-  function utils_createExecuteArgs(TransferIdInformation memory params, uint256 pathLen)
-    public
-    returns (ExecuteArgs memory)
-  {
+  function utils_createExecuteArgs(TransferInfo memory params, uint256 pathLen) public returns (ExecuteArgs memory) {
     bytes32 transferId = keccak256(abi.encode(params));
     return utils_createExecuteArgs(params, transferId, pathLen, 20 ether);
   }
@@ -649,7 +646,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   function utils_reconcileAndAssert(
-    TransferIdInformation memory params,
+    TransferInfo memory params,
     bytes32 transferId,
     address[] memory routers
   ) public {
@@ -706,7 +703,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_setupAssets(_origin, true);
 
     // 1. `xcall` on the origin
-    TransferIdInformation memory params = utils_createTransferIdInformation(_destination, 0, 0);
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, 0, 0);
     bytes32 transferId = utils_xcallAndAssert(params, _originLocal, 0, 0);
 
     // 2. call `execute` on the destination
@@ -723,7 +720,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_setupAssets(_origin, true);
 
     // 1. `xcall` on the origin
-    TransferIdInformation memory params = utils_createTransferIdInformation(_destination, 0, 0);
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, 0, 0);
     params.slippage = 0;
     params.canonicalId = bytes32("");
     params.canonicalDomain = uint32(0);
@@ -745,7 +742,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 1. `xcall` on the origin
     uint256 amount = 1 ether;
     uint256 bridgedAmount = amount;
-    TransferIdInformation memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
     bytes32 transferId = utils_xcallAndAssert(params, _originLocal, amount, 0);
 
     // 2. call `execute` on the destination
@@ -770,7 +767,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       1, // adopted idx always 1
       amount // no min
     );
-    TransferIdInformation memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
     bytes32 transferId = utils_xcallAndAssert(params, _originAdopted, amount, 0);
 
     // 2. call `execute` on the destination
@@ -795,7 +792,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 1. `xcall` on the origin
     uint256 amount = 1 ether;
     uint256 bridgedAmount = amount;
-    TransferIdInformation memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
     bytes32 transferId = utils_xcallAndAssert(params, _originLocal, amount, 0);
 
     // 2. call `execute` on the destination
@@ -820,7 +817,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 1. `xcall` on the origin
     uint256 amount = 1 ether;
     uint256 bridgedAmount = amount;
-    TransferIdInformation memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
     bytes32 transferId = utils_xcallAndAssert(params, _originLocal, amount, 0);
 
     // create execute args
@@ -843,7 +840,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 1. xcall
     uint256 amount = 1 ether;
     uint256 bridgedAmount = amount;
-    TransferIdInformation memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
     params.to = address(callTo);
     params.callData = callData;
     bytes32 transferId = utils_xcallAndAssert(params, _originLocal, amount, 0);
@@ -865,7 +862,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 1. xcall
     uint256 amount = 1 ether;
     uint256 bridgedAmount = amount;
-    TransferIdInformation memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
     params.to = address(callTo);
     params.callData = callData;
     bytes32 transferId = utils_xcallAndAssert(params, _originLocal, amount, 0);
@@ -890,7 +887,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   //   _destinationConnext.setAavePortalFee(5);
 
   //   // 1. `xcall` on the origin
-  //   TransferIdInformation memory params = utils_createTransferIdInformation(_destination);
+  //   TransferInfo memory params = utils_createTransferIdInformation(_destination);
   //   XCallArgs memory args = XCallArgs(utils_createUserTransferIdInformation(_destination), _originAdopted, 1 ether);
   //   bytes32 transferId = utils_xcallAndAssert(params, _originLocal, args.amount, 0);
 

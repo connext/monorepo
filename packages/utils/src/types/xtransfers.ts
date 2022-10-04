@@ -103,7 +103,7 @@ export const XTransferSchema = Type.Intersect([
     transferId: Type.String(),
 
     // Call Params
-    // NOTE: TransferIdInformation is emitted by XCalled and Executed events, but not Reconciled event.
+    // NOTE: TransferInfo is emitted by XCalled and Executed events, but not Reconciled event.
     xparams: TransferIdInformationSchema,
   }),
   Type.Object({
@@ -137,7 +137,7 @@ export const DestinationTransferSchema = Type.Intersect([
 ]);
 export type DestinationTransfer = Static<typeof DestinationTransferSchema>;
 
-export type TransferIdInformation = Static<typeof TransferIdInformationSchema>;
+export type TransferInfo = Static<typeof TransferIdInformationSchema>;
 
 export const XCallArgsSchema = Type.Object({
   origin: Type.String(),

@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {ExecuteArgs, TransferIdInformation, TokenId, DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
+import {ExecuteArgs, TransferInfo, TokenId, DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {SwapUtils} from "../libraries/SwapUtils.sol";
 
@@ -123,7 +123,7 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32 transferId);
 
-  function forceUpdateSlippage(TransferIdInformation calldata _params, uint256 _slippage) external;
+  function forceUpdateSlippage(TransferInfo calldata _params, uint256 _slippage) external;
 
   function bumpTransfer(bytes32 _transferId) external payable;
 
@@ -273,14 +273,14 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
   function setAavePortalFee(uint256 _aavePortalFeeNumerator) external;
 
   function repayAavePortal(
-    TransferIdInformation calldata _params,
+    TransferInfo calldata _params,
     uint256 _backingAmount,
     uint256 _feeAmount,
     uint256 _maxIn
   ) external;
 
   function repayAavePortalFor(
-    TransferIdInformation calldata _params,
+    TransferInfo calldata _params,
     uint256 _backingAmount,
     uint256 _feeAmount
   ) external;

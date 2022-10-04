@@ -28,7 +28,7 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
-export type TransferIdInformationStruct = {
+export type TransferInfoStruct = {
   originDomain: PromiseOrValue<BigNumberish>;
   destinationDomain: PromiseOrValue<BigNumberish>;
   canonicalDomain: PromiseOrValue<BigNumberish>;
@@ -44,7 +44,7 @@ export type TransferIdInformationStruct = {
   canonicalId: PromiseOrValue<BytesLike>;
 };
 
-export type TransferIdInformationStructOutput = [
+export type TransferInfoStructOutput = [
   number,
   number,
   number,
@@ -75,7 +75,7 @@ export type TransferIdInformationStructOutput = [
 };
 
 export type ExecuteArgsStruct = {
-  params: TransferIdInformationStruct;
+  params: TransferInfoStruct;
   routers: PromiseOrValue<string>[];
   routerSignatures: PromiseOrValue<BytesLike>[];
   sequencer: PromiseOrValue<string>;
@@ -83,13 +83,13 @@ export type ExecuteArgsStruct = {
 };
 
 export type ExecuteArgsStructOutput = [
-  TransferIdInformationStructOutput,
+  TransferInfoStructOutput,
   string[],
   string[],
   string,
   string
 ] & {
-  params: TransferIdInformationStructOutput;
+  params: TransferInfoStructOutput;
   routers: string[];
   routerSignatures: string[];
   sequencer: string;
@@ -460,7 +460,7 @@ export interface ConnextInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "forceUpdateSlippage",
-    values: [TransferIdInformationStruct, PromiseOrValue<BigNumberish>]
+    values: [TransferInfoStruct, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(
@@ -576,7 +576,7 @@ export interface ConnextInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "repayAavePortal",
     values: [
-      TransferIdInformationStruct,
+      TransferInfoStruct,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
@@ -585,7 +585,7 @@ export interface ConnextInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "repayAavePortalFor",
     values: [
-      TransferIdInformationStruct,
+      TransferInfoStruct,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
@@ -1675,19 +1675,12 @@ export interface XCalledEventObject {
   transferId: string;
   nonce: BigNumber;
   messageHash: string;
-  params: TransferIdInformationStructOutput;
+  params: TransferInfoStructOutput;
   asset: string;
   amount: BigNumber;
 }
 export type XCalledEvent = TypedEvent<
-  [
-    string,
-    BigNumber,
-    string,
-    TransferIdInformationStructOutput,
-    string,
-    BigNumber
-  ],
+  [string, BigNumber, string, TransferInfoStructOutput, string, BigNumber],
   XCalledEventObject
 >;
 
@@ -2192,7 +2185,7 @@ export interface Connext extends BaseContract {
     ): Promise<ContractTransaction>;
 
     forceUpdateSlippage(
-      _params: TransferIdInformationStruct,
+      _params: TransferInfoStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -2318,7 +2311,7 @@ export interface Connext extends BaseContract {
     ): Promise<[BigNumber]>;
 
     repayAavePortal(
-      _params: TransferIdInformationStruct,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -2326,7 +2319,7 @@ export interface Connext extends BaseContract {
     ): Promise<ContractTransaction>;
 
     repayAavePortalFor(
-      _params: TransferIdInformationStruct,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -2849,7 +2842,7 @@ export interface Connext extends BaseContract {
   ): Promise<ContractTransaction>;
 
   forceUpdateSlippage(
-    _params: TransferIdInformationStruct,
+    _params: TransferInfoStruct,
     _slippage: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -2967,7 +2960,7 @@ export interface Connext extends BaseContract {
   ): Promise<BigNumber>;
 
   repayAavePortal(
-    _params: TransferIdInformationStruct,
+    _params: TransferInfoStruct,
     _backingAmount: PromiseOrValue<BigNumberish>,
     _feeAmount: PromiseOrValue<BigNumberish>,
     _maxIn: PromiseOrValue<BigNumberish>,
@@ -2975,7 +2968,7 @@ export interface Connext extends BaseContract {
   ): Promise<ContractTransaction>;
 
   repayAavePortalFor(
-    _params: TransferIdInformationStruct,
+    _params: TransferInfoStruct,
     _backingAmount: PromiseOrValue<BigNumberish>,
     _feeAmount: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -3498,7 +3491,7 @@ export interface Connext extends BaseContract {
     ): Promise<string>;
 
     forceUpdateSlippage(
-      _params: TransferIdInformationStruct,
+      _params: TransferInfoStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -3618,7 +3611,7 @@ export interface Connext extends BaseContract {
     ): Promise<BigNumber>;
 
     repayAavePortal(
-      _params: TransferIdInformationStruct,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -3626,7 +3619,7 @@ export interface Connext extends BaseContract {
     ): Promise<void>;
 
     repayAavePortalFor(
-      _params: TransferIdInformationStruct,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -4589,7 +4582,7 @@ export interface Connext extends BaseContract {
     ): Promise<BigNumber>;
 
     forceUpdateSlippage(
-      _params: TransferIdInformationStruct,
+      _params: TransferInfoStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -4707,7 +4700,7 @@ export interface Connext extends BaseContract {
     ): Promise<BigNumber>;
 
     repayAavePortal(
-      _params: TransferIdInformationStruct,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -4715,7 +4708,7 @@ export interface Connext extends BaseContract {
     ): Promise<BigNumber>;
 
     repayAavePortalFor(
-      _params: TransferIdInformationStruct,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -5241,7 +5234,7 @@ export interface Connext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     forceUpdateSlippage(
-      _params: TransferIdInformationStruct,
+      _params: TransferInfoStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -5361,7 +5354,7 @@ export interface Connext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     repayAavePortal(
-      _params: TransferIdInformationStruct,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -5369,7 +5362,7 @@ export interface Connext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     repayAavePortalFor(
-      _params: TransferIdInformationStruct,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }

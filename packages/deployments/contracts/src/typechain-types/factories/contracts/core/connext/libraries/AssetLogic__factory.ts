@@ -17,6 +17,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "AssetLogic__handleIncomingAsset_feeOnTransferNotSupported",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
     type: "error",
   },
@@ -35,15 +40,10 @@ const _abi = [
     name: "AssetLogic__swapToLocalAssetIfNeeded_swapPaused",
     type: "error",
   },
-  {
-    inputs: [],
-    name: "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
-    type: "error",
-  },
 ];
 
 const _bytecode =
-  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea264697066735822122000d5fd2b613ce30c0b2a41786245d5be341f75c0bee17e0e2de798d220dae39364736f6c634300080f0033";
+  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212204d2e171f7c40542a9854f2dd08c4de5baac790fadb0b607c6681f1da7ab21cfa64736f6c634300080f0033";
 
 type AssetLogicConstructorParams =
   | [signer?: Signer]

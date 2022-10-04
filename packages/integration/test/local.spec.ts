@@ -5,7 +5,7 @@ import {
   ExecuteFastApiGetExecStatusResponse,
   SequencerApiErrorResponse,
   XCallArgs,
-  TransferIdInformation,
+  TransferInfo,
   ERC20Abi,
   convertFromDbTransfer,
   XTransfer,
@@ -118,7 +118,7 @@ const userTxService = new TransactionService(
 
 const sendXCall = async (
   sdkBase: NxtpSdkBase,
-  xparams: Partial<TransferIdInformation & { asset: string; amount: string }> = {},
+  xparams: Partial<TransferInfo & { asset: string; amount: string }> = {},
   signer?: Wallet,
 ): Promise<{
   receipt: providers.TransactionReceipt;

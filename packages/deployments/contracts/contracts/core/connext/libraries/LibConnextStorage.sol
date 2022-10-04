@@ -61,7 +61,7 @@ struct TokenId {
  * @param nonce - The nonce on the origin domain used to ensure the transferIds are unique
  * @param canonicalId - The unique identifier of the canonical token corresponding to bridge assets
  */
-struct TransferIdInformation {
+struct TransferInfo {
   uint32 originDomain;
   uint32 destinationDomain;
   uint32 canonicalDomain;
@@ -79,7 +79,7 @@ struct TransferIdInformation {
 
 /**
  * @notice
- * @param params - The TransferIdInformation. These are consistent across sending and receiving chains.
+ * @param params - The TransferInfo. These are consistent across sending and receiving chains.
  * @param routers - The routers who you are sending the funds on behalf of.
  * @param routerSignatures - Signatures belonging to the routers indicating permission to use funds
  * for the signed transfer ID.
@@ -88,7 +88,7 @@ struct TransferIdInformation {
  * for the path that was signed.
  */
 struct ExecuteArgs {
-  TransferIdInformation params;
+  TransferInfo params;
   address[] routers;
   bytes[] routerSignatures;
   address sequencer;

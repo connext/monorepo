@@ -1,11 +1,11 @@
-import {TransferIdInformation} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {TransferInfo} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {IBridgeToken} from "../../contracts/core/connext/interfaces/IBridgeToken.sol";
 import {BridgeMessage} from "../../contracts/core/connext/libraries/BridgeMessage.sol";
 
 library MessagingUtils {
   // Format cross-chain message from call params.
   function formatMessage(
-    TransferIdInformation memory params,
+    TransferInfo memory params,
     address local,
     bool isCanonical
   ) public returns (bytes memory) {
