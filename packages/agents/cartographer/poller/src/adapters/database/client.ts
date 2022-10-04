@@ -126,6 +126,21 @@ export const saveTransfers = async (
   const poolToUse = _pool ?? pool;
   const transfers: s.transfers.Insertable[] = xtransfers.map(convertToDbTransfer).map(sanitizeNull);
 
+
+  const dbTransfers = await getTransfersByTransferIds(xtransfers.map(xtransfer => xtransfer.transferId), poolToUse);
+  const statusMap = new Map<string, XTransferStatus>();
+  dbTransfers.map(dbTransfer => statusMap.set(
+    dbTransfer.transfer_id as string,
+    dbTransfer.status as XTransferStatus
+  ));
+
+  await Promise.all(transfers.map(async (transfer) => {
+    if (transfer.status === undefined){
+      const dbStatus = statusMap.get(transfer.transfer_id as string);
+      transfer.status = dbStatus ? dbStatus : XTransferStatus.XCalled;
+    }
+  }));
+
   // TODO: Perfomance implications to be evaluated. Upgrade to batching of configured batch size N.
   await db.upsert("transfers", transfers, ["transfer_id"]).run(poolToUse);
 };
@@ -208,6 +223,20 @@ export const getTransferByTransferId = async (
 
   const x = await db.selectOne("transfers", { transfer_id }).run(poolToUse);
   return x ? convertFromDbTransfer(x) : undefined;
+};
+
+export const getTransfersByTransferIds = async (
+  transfer_ids: string[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<any[]> => {
+  const poolToUse = _pool ?? pool;
+
+  const x = await db.select(
+      "transfers",
+      { transfer_id: db.conditions.isIn(transfer_ids) }
+    ).run(poolToUse);
+
+  return x;
 };
 
 export const getTransfersByStatus = async (
