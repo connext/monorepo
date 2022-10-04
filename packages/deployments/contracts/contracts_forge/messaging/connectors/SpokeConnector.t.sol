@@ -64,20 +64,20 @@ contract SpokeConnectorTest is ForgeHelper {
     vm.expectRevert("!watcher");
     // no watchers so every address should fail
     vm.prank(caller);
-    spokeConnector.setWatcherPaused(true);
+    spokeConnector.pause();
   }
 
   function test_SpokeConnector__setWatcherPaused_worksIfWatcher(address watcher) public {
     utils_mockIsWatcher_true();
     vm.prank(watcher);
-    spokeConnector.setWatcherPaused(true);
-    assertTrue(spokeConnector.isPaused());
+    spokeConnector.pause();
+    assertTrue(spokeConnector.paused());
   }
 
   function test_SpokeConnector__proveAndProcess_failsIfPaused() public {
     utils_mockIsWatcher_true();
-    spokeConnector.setWatcherPaused(true);
-    assertTrue(spokeConnector.isPaused());
+    spokeConnector.pause();
+    assertTrue(spokeConnector.paused());
 
     bytes32[32] memory proof;
     bytes32 _destinationRouter;
@@ -90,7 +90,7 @@ contract SpokeConnectorTest is ForgeHelper {
       _destinationRouter,
       body
     );
-    vm.expectRevert("!unpaused");
+    vm.expectRevert("Pausable: paused");
     SpokeConnector.Proof[] memory proofs = new SpokeConnector.Proof[](1);
     proofs[0] = SpokeConnector.Proof(message, proof, 0);
     spokeConnector.proveAndProcess(proofs, bytes32(""), proof, 0);

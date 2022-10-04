@@ -146,7 +146,7 @@ contract PingPong is ConnectorHelper {
       )
     );
     MockHubConnector(_destinationConnectors.hub).setUpdatesAggregate(true);
-    _destinationRouter = TypeCasts.addressToBytes32(address(new MockRelayerFeeRouter()));
+    _destinationRouter = TypeCasts.addressToBytes32(address(12356556423));
   }
 
   function utils_configureContracts() public {
@@ -388,12 +388,5 @@ contract PingPong is ConnectorHelper {
     SpokeConnector(_destinationConnectors.spoke).proveAndProcess(proofs, aggregateRoot, aggregateProof, 0);
 
     // assertEq(uint256(SpokeConnector(_destinationConnectors.spoke).messages(keccak256(message))), 2);
-    // assertEq(MockRelayerFeeRouter(TypeCasts.bytes32ToAddress(_destinationRouter)).handledOrigin(), _originDomain);
-    // assertEq(MockRelayerFeeRouter(TypeCasts.bytes32ToAddress(_destinationRouter)).handledNonce(), 0);
-    // assertEq(
-    //   MockRelayerFeeRouter(TypeCasts.bytes32ToAddress(_destinationRouter)).handledSender(),
-    //   TypeCasts.addressToBytes32(address(this))
-    // );
-    // assertEq(MockRelayerFeeRouter(TypeCasts.bytes32ToAddress(_destinationRouter)).handledBody(), body);
   }
 }

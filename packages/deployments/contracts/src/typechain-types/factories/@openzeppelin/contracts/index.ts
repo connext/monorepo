@@ -5,5 +5,6 @@ export * as access from "./access";
 export * as crosschain from "./crosschain";
 export * as interfaces from "./interfaces";
 export * as proxy from "./proxy";
+export * as security from "./security";
 export * as token from "./token";
 export * as vendor from "./vendor";

@@ -12,8 +12,10 @@
   "event ConnectorRemoved(uint32,address)",
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
+  "event Paused(address)",
   "event RootAggregated(uint32,bytes32,uint256)",
   "event RootPropagated(bytes32,uint32[],uint256)",
+  "event Unpaused(address)",
   "event WatcherManagerChanged(address)",
   "function MERKLE() view returns (address)",
   "function acceptProposedOwner()",
@@ -30,6 +32,8 @@
   "function getPendingInboundRootsCount() view returns (uint256)",
   "function isDomainSupported(uint32) view returns (bool)",
   "function owner() view returns (address)",
+  "function pause()",
+  "function paused() view returns (bool)",
   "function pendingInboundRoots() view returns (uint128, uint128)",
   "function propagate(uint32[],address[])",
   "function proposeNewOwner(address)",
@@ -40,5 +44,6 @@
   "function renounced() view returns (bool)",
   "function setDelayBlocks(uint256)",
   "function setWatcherManager(address)",
+  "function unpause()",
   "function validateDomains(uint32[],address[]) view"
 ]

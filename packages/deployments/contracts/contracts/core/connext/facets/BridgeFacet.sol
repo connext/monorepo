@@ -18,15 +18,11 @@ import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
+import {ExecuteArgs, CallParams, TokenId, DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
 import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 
-import {Router} from "../../Router.sol";
-
-import {IWeth} from "../interfaces/IWeth.sol";
 import {IXReceiver} from "../interfaces/IXReceiver.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
-import {IBridgeHook} from "../interfaces/IBridgeHook.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
 
 contract BridgeFacet is BaseConnextFacet {
@@ -47,6 +43,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_invalidSlippage();
   error BridgeFacet__xcall_canonicalAssetNotReceived();
+  error BridgeFacet__xcall_capReached();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
   error BridgeFacet__execute_notSupportedSequencer();
@@ -54,9 +51,8 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_maxRoutersExceeded();
   error BridgeFacet__execute_notSupportedRouter();
   error BridgeFacet__execute_invalidRouterSignature();
-  error BridgeFacet__execute_alreadyExecuted();
   error BridgeFacet__execute_notApprovedForPortals();
-  error BridgeFacet__execute_alreadyReconciled();
+  error BridgeFacet__execute_badFastLiquidityStatus();
   error BridgeFacet__execute_notReconciled();
   error BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn();
   error BridgeFacet__bumpTransfer_valueIsZero();
@@ -120,12 +116,13 @@ contract BridgeFacet is BaseConnextFacet {
   );
 
   /**
-   * @notice Emitted when `bumpTransfer` is called by an user on the origin domain
+   * @notice Emitted when `_bumpTransfer` is called by an user on the origin domain both in
+   * `xcall` and `bumpTransfer`
    * @param transferId - The unique identifier of the crosschain transaction
-   * @param relayerFee - The updated amount of relayer fee in native asset
+   * @param increase - The additional amount fees increased by
    * @param caller - The account that called the function
    */
-  event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
+  event TransferRelayerFeesIncreased(bytes32 indexed transferId, uint256 increase, address caller);
 
   /**
    * @notice Emitted when `forceUpdateSlippage` is called by an user on the destination domain
@@ -205,16 +202,12 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ============ Getters ============
 
-  function relayerFees(bytes32 _transferId) public view returns (uint256) {
-    return s.relayerFees[_transferId];
-  }
-
   function routedTransfers(bytes32 _transferId) public view returns (address[] memory) {
     return s.routedTransfers[_transferId];
   }
 
-  function reconciledTransfers(bytes32 _transferId) public view returns (bool) {
-    return s.reconciledTransfers[_transferId];
+  function transferStatus(bytes32 _transferId) public view returns (DestinationTransferStatus) {
+    return s.transferStatus[_transferId];
   }
 
   function remote(uint32 _domain) public view returns (address) {
@@ -361,10 +354,13 @@ contract BridgeFacet is BaseConnextFacet {
    * reconciliation to occur.
    */
   function execute(ExecuteArgs calldata _args) external nonReentrant whenNotPaused returns (bytes32) {
-    (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args);
+    (bytes32 transferId, DestinationTransferStatus status) = _executeSanityChecks(_args);
 
-    // Set the relayer for this transfer to enable the relayer to submit a future claim of their owed relayer fee.
-    s.transferRelayer[transferId] = msg.sender;
+    DestinationTransferStatus updated = status == DestinationTransferStatus.Reconciled
+      ? DestinationTransferStatus.Completed
+      : DestinationTransferStatus.Executed;
+
+    s.transferStatus[transferId] = updated;
 
     // Supply assets to target recipient. Use router liquidity when this is a fast transfer, or mint bridge tokens
     // when this is a slow transfer.
@@ -372,12 +368,18 @@ contract BridgeFacet is BaseConnextFacet {
     (uint256 amountOut, address asset, address local) = _handleExecuteLiquidity(
       transferId,
       AssetLogic.calculateCanonicalHash(_args.params.canonicalId, _args.params.canonicalDomain),
-      !reconciled,
+      updated != DestinationTransferStatus.Completed,
       _args
     );
 
     // Execute the transaction using the designated calldata.
-    uint256 amount = _handleExecuteTransaction(_args, amountOut, asset, transferId, reconciled);
+    uint256 amount = _handleExecuteTransaction(
+      _args,
+      amountOut,
+      asset,
+      transferId,
+      updated == DestinationTransferStatus.Completed
+    );
 
     // Emit event.
     emit Executed(transferId, _args.params.to, asset, _args, local, amount, msg.sender);
@@ -391,10 +393,13 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function bumpTransfer(bytes32 _transferId) external payable nonReentrant whenNotPaused {
     if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
+    _bumpTransfer(_transferId);
+  }
 
-    s.relayerFees[_transferId] += msg.value;
+  function _bumpTransfer(bytes32 _transferId) internal {
+    Address.sendValue(payable(s.relayerFeeVault), msg.value);
 
-    emit TransferRelayerFeesUpdated(_transferId, s.relayerFees[_transferId], msg.sender);
+    emit TransferRelayerFeesIncreased(_transferId, msg.value, msg.sender);
   }
 
   /**
@@ -495,6 +500,19 @@ contract BridgeFacet is BaseConnextFacet {
         // Set boolean flag
         isCanonical = _params.originDomain == canonical.domain && local == _asset;
 
+        // Enforce liquidity caps
+        // NOTE: safe to do this before the swap because canonical domains do
+        // not hit the AMMs (local == canonical)
+        if (isCanonical) {
+          // NOTE: this method includes router liquidity as part of the caps,
+          // not only the minted amount
+          uint256 custodied = IERC20(local).balanceOf(address(this)) + _amount;
+          uint256 cap = s.caps[key];
+          if (cap > 0 && custodied > cap) {
+            revert BridgeFacet__xcall_capReached();
+          }
+        }
+
         // Update CallParams to reflect the canonical token information.
         _params.canonicalDomain = canonical.domain;
         _params.canonicalId = canonical.id;
@@ -519,10 +537,12 @@ contract BridgeFacet is BaseConnextFacet {
       _params.nonce = s.nonce++;
     }
 
-    // Store the relayer fee.
+    // Handle the relayer fee.
     // NOTE: This has to be done *after* transferring in + swapping assets because
     // the transfer id uses the amount that is bridged (i.e. amount in local asset).
-    s.relayerFees[transferId] += msg.value;
+    if (msg.value > 0) {
+      _bumpTransfer(transferId);
+    }
 
     // Send the crosschain message.
     bytes32 messageHash = _sendMessage(
@@ -556,7 +576,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Performs some sanity checks for `execute`.
    * @dev Need this to prevent stack too deep.
    */
-  function _executeSanityChecks(ExecuteArgs calldata _args) private view returns (bytes32, bool) {
+  function _executeSanityChecks(ExecuteArgs calldata _args) private view returns (bytes32, DestinationTransferStatus) {
     // If the sender is not approved relayer, revert
     if (!s.approvedRelayers[msg.sender] && msg.sender != _args.params.delegate) {
       revert BridgeFacet__execute_unapprovedSender();
@@ -578,7 +598,7 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 transferId = _calculateTransferId(_args.params);
 
     // Retrieve the reconciled record.
-    bool reconciled = s.reconciledTransfers[transferId];
+    DestinationTransferStatus status = s.transferStatus[transferId];
 
     // Hash the payload for which each router should have produced a signature.
     // Each router should have signed the `transferId` (which implicitly signs call params,
@@ -589,7 +609,7 @@ contract BridgeFacet is BaseConnextFacet {
     if (pathLength != 0) {
       // Check to make sure the transfer has not been reconciled (no need for routers if the transfer is
       // already reconciled; i.e. if there are routers provided, the transfer must *not* be reconciled).
-      if (reconciled) revert BridgeFacet__execute_alreadyReconciled();
+      if (status != DestinationTransferStatus.None) revert BridgeFacet__execute_badFastLiquidityStatus();
 
       // NOTE: The sequencer address may be empty and no signature needs to be provided in the case of the
       // slow liquidity route (i.e. no routers involved). Additionally, the sequencer does not need to be the
@@ -626,16 +646,10 @@ contract BridgeFacet is BaseConnextFacet {
     } else {
       // If there are no routers for this transfer, this `execute` must be a slow liquidity route; in which
       // case, we must make sure the transfer's been reconciled.
-      if (!reconciled) revert BridgeFacet__execute_notReconciled();
+      if (status != DestinationTransferStatus.Reconciled) revert BridgeFacet__execute_notReconciled();
     }
 
-    // Require that this transfer has not already been executed. If it were executed, the `transferRelayer`
-    // would have been set in the previous call (to enable the caller to claim relayer fees).
-    if (s.transferRelayer[transferId] != address(0)) {
-      revert BridgeFacet__execute_alreadyExecuted();
-    }
-
-    return (transferId, reconciled);
+    return (transferId, status);
   }
 
   /**

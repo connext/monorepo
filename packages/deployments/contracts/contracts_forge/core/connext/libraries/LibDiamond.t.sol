@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import "../../../utils/ForgeHelper.sol";
-import {Deployer, DiamondInit, VersionFacet} from "../../../utils/Deployer.sol";
+import {Deployer, DiamondInit, BridgeFacet} from "../../../utils/Deployer.sol";
 
 import "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IConnextHandler} from "../../../../contracts/core/connext/interfaces/IConnextHandler.sol";
@@ -19,21 +19,14 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   uint256 acceptanceDelay = 7 days;
   uint256 ownershipDelay = 6 days;
   address internal xAppConnectionManager = address(1);
-  address relayerFeeRouter = address(3);
+  address relayerFeeVault = address(3);
   address beacon = address(1232);
 
   // ============ Setup ============
 
   function setUp() public {
     // Deploy token beacon
-    deployConnext(
-      uint256(domain),
-      beacon,
-      xAppConnectionManager,
-      address(relayerFeeRouter),
-      acceptanceDelay,
-      ownershipDelay
-    );
+    deployConnext(uint256(domain), beacon, xAppConnectionManager, relayerFeeVault, acceptanceDelay, ownershipDelay);
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
   }
@@ -50,25 +43,25 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     uint32 newDomain = 2;
     address newBeacon = address(12312);
     address newXAppConnectionManager = address(11);
-    address newRelayerFeeRouter = address(13);
+    address newRelayerFeeVault = address(13);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
       newBeacon,
       newXAppConnectionManager,
-      newRelayerFeeRouter,
+      newRelayerFeeVault,
       acceptanceDelay,
       ownershipDelay
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
-    bytes4[] memory versionFacetSelectors = new bytes4[](1);
-    versionFacetSelectors[0] = VersionFacet.VERSION.selector;
+    bytes4[] memory facetSelectors = new bytes4[](1);
+    facetSelectors[0] = BridgeFacet.xcall.selector;
     facetCuts[0] = IDiamondCut.FacetCut({
       facetAddress: address(0),
       action: IDiamondCut.FacetCutAction.Remove,
-      functionSelectors: versionFacetSelectors
+      functionSelectors: facetSelectors
     });
 
     vm.warp(100);
@@ -86,25 +79,25 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     uint32 newDomain = 2;
     address newBeacon = address(10001);
     address newXAppConnectionManager = address(11);
-    address newRelayerFeeRouter = address(13);
+    address newRelayerFeeVault = address(13);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
       newBeacon,
       newXAppConnectionManager,
-      newRelayerFeeRouter,
+      newRelayerFeeVault,
       acceptanceDelay,
       ownershipDelay
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
-    bytes4[] memory versionFacetSelectors = new bytes4[](1);
-    versionFacetSelectors[0] = VersionFacet.VERSION.selector;
+    bytes4[] memory facetSelectors = new bytes4[](1);
+    facetSelectors[0] = BridgeFacet.xcall.selector;
     facetCuts[0] = IDiamondCut.FacetCut({
       facetAddress: address(0),
       action: IDiamondCut.FacetCutAction.Remove,
-      functionSelectors: versionFacetSelectors
+      functionSelectors: facetSelectors
     });
 
     vm.warp(100);
@@ -116,32 +109,32 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // Diamond cut after setting 0 acceptance delay should work.
   function test_LibDiamond__initializeDiamondCut_withZeroAcceptanceDelay_works() public {
-    deployConnext(uint256(domain), beacon, xAppConnectionManager, address(relayerFeeRouter), 0, 0);
+    deployConnext(uint256(domain), beacon, xAppConnectionManager, relayerFeeVault, 0, 0);
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
 
     uint32 newDomain = 2;
     address newBeacon = address(10001);
     address newXAppConnectionManager = address(11);
-    address newRelayerFeeRouter = address(13);
+    address newRelayerFeeVault = address(13);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
       newBeacon,
       newXAppConnectionManager,
-      newRelayerFeeRouter,
+      newRelayerFeeVault,
       acceptanceDelay,
       ownershipDelay
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
-    bytes4[] memory versionFacetSelectors = new bytes4[](1);
-    versionFacetSelectors[0] = VersionFacet.VERSION.selector;
+    bytes4[] memory facetSelectors = new bytes4[](1);
+    facetSelectors[0] = BridgeFacet.xcall.selector;
     facetCuts[0] = IDiamondCut.FacetCut({
       facetAddress: address(0),
       action: IDiamondCut.FacetCutAction.Remove,
-      functionSelectors: versionFacetSelectors
+      functionSelectors: facetSelectors
     });
 
     vm.warp(100);

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {AppStorage, TokenId} from "../libraries/LibConnextStorage.sol";
@@ -39,6 +41,7 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__addLiquidityForRouter_routerEmpty();
   error RoutersFacet__addLiquidityForRouter_amountIsZero();
   error RoutersFacet__addLiquidityForRouter_badRouter();
+  error RoutersFacet__addLiquidityForRouter_capReached();
   error RoutersFacet__removeRouterLiquidity_recipientEmpty();
   error RoutersFacet__removeRouterLiquidity_amountIsZero();
   error RoutersFacet__removeRouterLiquidity_insufficientFunds();
@@ -542,11 +545,20 @@ contract RoutersFacet is BaseConnextFacet {
     if (_amount == 0) revert RoutersFacet__addLiquidityForRouter_amountIsZero();
 
     // Get the canonical asset ID from the representation.
-    (, bytes32 key) = _getApprovedCanonicalId(_local);
+    (TokenId memory canonical, bytes32 key) = _getApprovedCanonicalId(_local);
 
     // Sanity check: router is approved.
     if (!_isRouterWhitelistRemoved() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
+
+    if (s.domain == canonical.domain) {
+      // Sanity check: caps not reached
+      uint256 custodied = IERC20(_local).balanceOf(address(this)) + _amount;
+      uint256 cap = s.caps[key];
+      if (cap > 0 && custodied > cap) {
+        revert RoutersFacet__addLiquidityForRouter_capReached();
+      }
+    }
 
     // Transfer funds to contract.
     AssetLogic.handleIncomingAsset(_local, _amount);

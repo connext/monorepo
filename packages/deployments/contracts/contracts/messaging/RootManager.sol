@@ -141,7 +141,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage
    * (see `_domains` param's info on reducing gas costs).
    */
-  function propagate(uint32[] calldata _domains, address[] calldata _connectors) external {
+  function propagate(uint32[] calldata _domains, address[] calldata _connectors) external whenNotPaused {
     uint256 _numDomains = _domains.length;
 
     // Sanity check: domains length matches connectors length.
@@ -179,7 +179,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @param _domain The source domain of the given root.
    * @param _inbound The inbound root coming from the given domain.
    */
-  function aggregate(uint32 _domain, bytes32 _inbound) external onlyConnector(_domain) {
+  function aggregate(uint32 _domain, bytes32 _inbound) external whenNotPaused onlyConnector(_domain) {
     uint128 lastIndex = pendingInboundRoots.enqueue(_inbound);
     emit RootAggregated(_domain, _inbound, lastIndex);
   }

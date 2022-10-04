@@ -23,8 +23,6 @@ import {ConnectorManager} from "./ConnectorManager.sol";
  *
  * @dev If you are deploying this contract to mainnet, then the mirror values stored in the HubConnector
  * will be unused
- *
- * TODO: what about the queue manager? see Home.sol for context
  */
 abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, ReentrancyGuard {
   // ============ Libraries ============
@@ -139,23 +137,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    */
   mapping(bytes32 => MessageStatus) public messages;
 
-  /**
-   * @notice Boolean indicating if the connector has been paused by a watcher.
-   */
-  bool private watcherPaused;
-
   // ============ Modifiers ============
 
   modifier onlyWhitelistedSender() {
     require(whitelistedSenders[msg.sender], "!whitelisted");
-    _;
-  }
-
-  /**
-   * @notice Modifier to check if the connector is paused by a watcher.
-   */
-  modifier onlyUnpaused() {
-    require(!watcherPaused, "!unpaused");
     _;
   }
 
@@ -226,17 +211,9 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   }
 
   /**
-   * @notice Set the `watcherPaused` flag.
-   * @dev This is only callable by a watcher, as set in the WatcherManager.
-   */
-  function setWatcherPaused(bool paused) public onlyWatcher {
-    require(watcherPaused != paused, "Already set");
-    watcherPaused = paused;
-  }
-
-  /**
    * @notice Set the `delayBlocks`, the period in blocks over which an incoming message
    * is verified.
+   * @notice Set the delayBlocks, in case this needs to be configured later
    */
   function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
     require(_delayBlocks != delayBlocks, "!delayBlocks");
@@ -249,8 +226,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _fraudulentRoot Target fraudulent root that should be erased from the
    * `pendingAggregateRoots` mapping.
    */
-  function removePendingAggregateRoot(bytes32 _fraudulentRoot) public onlyOwner {
-    require(watcherPaused, "!paused");
+  function removePendingAggregateRoot(bytes32 _fraudulentRoot) public onlyOwner whenPaused {
     // Sanity check: pending aggregate root exists.
     require(pendingAggregateRoots[_fraudulentRoot] != 0, "aggregateRoot !exists");
     delete pendingAggregateRoots[_fraudulentRoot];
@@ -258,13 +234,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   }
 
   // ============ Public Functions ============
-
-  /**
-   * @notice This is called by the watcher to update the aggregate root
-   */
-  function isPaused() external view returns (bool) {
-    return watcherPaused;
-  }
 
   /**
    * @notice This returns the root of all messages with the origin domain as this domain (i.e.
@@ -286,7 +255,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @notice This returns the root of all messages with the origin domain as this domain (i.e.
    * all outbound messages)
    */
-  function send() external {
+  function send() external whenNotPaused {
     bytes memory _data = abi.encodePacked(MERKLE.root());
     _sendMessage(_data);
     emit MessageSent(_data, msg.sender);
@@ -297,6 +266,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @dev The root of this tree will eventually be dispatched to mainnet via `send`. On mainnet (the "hub"),
    * it will be combined into a single aggregate root by RootManager (along with outbound roots from other
    * chains). This aggregate root will be redistributed to all destination chains.
+   *
+   * NOTE: okay to leave dispatch operational when paused as pause is designed for crosschain interactions
    */
   function dispatch(
     uint32 _destinationDomain,
@@ -359,7 +330,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     bytes32 _aggregateRoot,
     bytes32[32] calldata _aggregatePath,
     uint256 _aggregateIndex
-  ) external onlyUnpaused {
+  ) external whenNotPaused {
     // Sanity check: proofs are included.
     require(_proofs.length > 0, "!proofs");
 

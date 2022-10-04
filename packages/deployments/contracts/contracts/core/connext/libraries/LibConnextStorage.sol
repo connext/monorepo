@@ -1,11 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
-
-import {IWeth} from "../interfaces/IWeth.sol";
-
-import {IBridgeRouter} from "../interfaces/IBridgeRouter.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager.sol";
 import {SwapUtils} from "./SwapUtils.sol";
@@ -23,6 +18,19 @@ enum Role {
   Router,
   Watcher,
   Admin
+}
+
+/**
+ * @notice Enum representing status of destination transfer
+ * @dev Status is only assigned on the destination domain, will always be "none" for the
+ * origin domains
+ * @return uint - Index of value in enum
+ */
+enum DestinationTransferStatus {
+  None, // 0
+  Reconciled, // 1
+  Executed, // 2
+  Completed // 3 - executed + reconciled
 }
 
 // ============= Structs =============
@@ -119,10 +127,10 @@ struct AppStorage {
   // 1
   uint256 LIQUIDITY_FEE_NUMERATOR;
   /**
-   * @notice The local nomad relayer fee router.
+   * @notice The local address that is custodying relayer fees
    */
   // 2
-  RelayerFeeRouter relayerFeeRouter;
+  address relayerFeeVault;
   /**
    * @notice Nonce for the contract, used to keep unique transfer ids.
    * @dev Assigned at first interaction (xcall on origin domain).
@@ -149,11 +157,16 @@ struct AppStorage {
   mapping(bytes32 => IStableSwap) adoptedToLocalPools;
   /**
    * @notice Mapping of whitelisted assets on same domain as contract.
-   * @dev Mapping is keyed on the hash of the canonical id and domain taken from the
-   * token registry.
+   * @dev Mapping is keyed on the hash of the canonical id and domain
    */
   // 7
   mapping(bytes32 => bool) approvedAssets;
+  /**
+   * @notice Mapping of liquidity caps of whitelisted assets. If 0, no cap is enforced.
+   * @dev Mapping is keyed on the hash of the canonical id and domain
+   */
+  // 7
+  mapping(bytes32 => uint256) caps;
   /**
    * @notice Mapping of adopted to canonical asset information.
    * @dev If the adopted asset is the native asset, the keyed address will
@@ -181,10 +194,10 @@ struct AppStorage {
   // 11
   mapping(bytes32 => address) canonicalToRepresentation;
   /**
-   * @notice Mapping to determine if transfer is reconciled.
+   * @notice Mapping to track transfer status on destination domain
    */
   // 12
-  mapping(bytes32 => bool) reconciledTransfers;
+  mapping(bytes32 => DestinationTransferStatus) transferStatus;
   /**
    * @notice Mapping holding router address that provided fast liquidity.
    */
@@ -204,28 +217,10 @@ struct AppStorage {
   // 15
   mapping(address => bool) approvedRelayers;
   /**
-   * @notice Stores the relayer fee for a transfer. Updated on origin domain when a user calls xcall or bump.
-   * @dev This will track all of the relayer fees assigned to a transfer by id, including any bumps made by the relayer.
-   */
-  // 16
-  mapping(bytes32 => uint256) relayerFees;
-  /**
-   * @notice Stores the relayer of a transfer. Updated on the destination domain when a relayer calls execute
-   * for transfer.
-   * @dev When relayer claims, must check that the msg.sender has forwarded transfer.
-   */
-  // 17
-  mapping(bytes32 => address) transferRelayer;
-  /**
    * @notice The max amount of routers a payment can be routed through.
    */
   // 18
   uint256 maxRoutersPerTransfer;
-  /**
-   * @notice The address of the nomad bridge router for this chain.
-   */
-  // 19
-  IBridgeRouter bridgeRouter;
   /**
    * @notice Stores a mapping of transfer id to slippage overrides.
    */

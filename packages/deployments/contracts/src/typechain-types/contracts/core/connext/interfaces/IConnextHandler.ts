@@ -181,7 +181,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
   functions: {
     "LIQUIDITY_FEE_DENOMINATOR()": FunctionFragment;
     "LIQUIDITY_FEE_NUMERATOR()": FunctionFragment;
-    "VERSION()": FunctionFragment;
     "aavePool()": FunctionFragment;
     "aavePortalFee()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
@@ -212,7 +211,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "canonicalToAdopted((uint32,bytes32))": FunctionFragment;
     "canonicalToRepresentation(bytes32)": FunctionFragment;
     "canonicalToRepresentation((uint32,bytes32))": FunctionFragment;
-    "claim(address,bytes32[])": FunctionFragment;
     "delay()": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "domain()": FunctionFragment;
@@ -245,7 +243,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "getTokenId(address)": FunctionFragment;
     "handle(uint32,uint32,bytes32,bytes)": FunctionFragment;
     "initializeSwap(bytes32,address[],uint8[],string,string,uint256,uint256,uint256,address)": FunctionFragment;
-    "initiateClaim(uint32,address,bytes32[])": FunctionFragment;
     "maxRoutersPerTransfer()": FunctionFragment;
     "nonce()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -258,9 +255,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "rampA(bytes32,uint256,uint256)": FunctionFragment;
-    "reconciledTransfers(bytes32)": FunctionFragment;
-    "relayerFeeRouter()": FunctionFragment;
-    "relayerFees(bytes32)": FunctionFragment;
+    "relayerFeeVault()": FunctionFragment;
     "remote(uint32)": FunctionFragment;
     "removeAssetId((uint32,bytes32),address,address)": FunctionFragment;
     "removeAssetId(bytes32,address,address)": FunctionFragment;
@@ -288,22 +283,23 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "setAavePortalFee(uint256)": FunctionFragment;
     "setLiquidityFeeNumerator(uint256)": FunctionFragment;
     "setMaxRoutersPerTransfer(uint256)": FunctionFragment;
-    "setRelayerFeeRouter(address)": FunctionFragment;
+    "setRelayerFeeVault(address)": FunctionFragment;
     "setRouterRecipient(address,address)": FunctionFragment;
     "setSwapAdminFee(bytes32,uint256)": FunctionFragment;
     "setSwapFee(bytes32,uint256)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
-    "setupAsset((uint32,bytes32),uint8,string,string,address,address)": FunctionFragment;
-    "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address)": FunctionFragment;
+    "setupAsset((uint32,bytes32),uint8,string,string,address,address,uint256)": FunctionFragment;
+    "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address,uint256)": FunctionFragment;
     "setupRouter(address,address,address)": FunctionFragment;
     "stopRampA(bytes32)": FunctionFragment;
     "swap(bytes32,uint8,uint8,uint256,uint256,uint256)": FunctionFragment;
     "swapExact(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
     "swapExactOut(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
-    "transferRelayer(bytes32)": FunctionFragment;
+    "transferStatus(bytes32)": FunctionFragment;
     "unapproveRouterForPortal(address)": FunctionFragment;
     "unpause()": FunctionFragment;
     "updateDetails((uint32,bytes32),string,string)": FunctionFragment;
+    "updateLiquidityCap((uint32,bytes32),uint256)": FunctionFragment;
     "withdrawSwapAdminFees(bytes32)": FunctionFragment;
     "xAppConnectionManager()": FunctionFragment;
     "xcall(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
@@ -314,7 +310,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "LIQUIDITY_FEE_DENOMINATOR"
       | "LIQUIDITY_FEE_NUMERATOR"
-      | "VERSION"
       | "aavePool"
       | "aavePortalFee"
       | "acceptProposedOwner"
@@ -345,7 +340,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "canonicalToAdopted((uint32,bytes32))"
       | "canonicalToRepresentation(bytes32)"
       | "canonicalToRepresentation((uint32,bytes32))"
-      | "claim"
       | "delay"
       | "diamondCut"
       | "domain"
@@ -378,7 +372,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "getTokenId"
       | "handle"
       | "initializeSwap"
-      | "initiateClaim"
       | "maxRoutersPerTransfer"
       | "nonce"
       | "owner"
@@ -391,9 +384,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "proposed"
       | "proposedTimestamp"
       | "rampA"
-      | "reconciledTransfers"
-      | "relayerFeeRouter"
-      | "relayerFees"
+      | "relayerFeeVault"
       | "remote"
       | "removeAssetId((uint32,bytes32),address,address)"
       | "removeAssetId(bytes32,address,address)"
@@ -421,7 +412,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "setAavePortalFee"
       | "setLiquidityFeeNumerator"
       | "setMaxRoutersPerTransfer"
-      | "setRelayerFeeRouter"
+      | "setRelayerFeeVault"
       | "setRouterRecipient"
       | "setSwapAdminFee"
       | "setSwapFee"
@@ -433,10 +424,11 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "swap"
       | "swapExact"
       | "swapExactOut"
-      | "transferRelayer"
+      | "transferStatus"
       | "unapproveRouterForPortal"
       | "unpause"
       | "updateDetails"
+      | "updateLiquidityCap"
       | "withdrawSwapAdminFees"
       | "xAppConnectionManager"
       | "xcall"
@@ -451,7 +443,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     functionFragment: "LIQUIDITY_FEE_NUMERATOR",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "VERSION", values?: undefined): string;
   encodeFunctionData(functionFragment: "aavePool", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "aavePortalFee",
@@ -590,10 +581,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "canonicalToRepresentation((uint32,bytes32))",
     values: [TokenIdStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "claim",
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(
@@ -738,14 +725,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "initiateClaim",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>[]
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "maxRoutersPerTransfer",
     values?: undefined
   ): string;
@@ -790,16 +769,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "reconciledTransfers",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "relayerFeeRouter",
+    functionFragment: "relayerFeeVault",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "relayerFees",
-    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "remote",
@@ -949,7 +920,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setRelayerFeeRouter",
+    functionFragment: "setRelayerFeeVault",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -976,7 +947,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
@@ -985,7 +957,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
       TokenIdStruct,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
@@ -1034,7 +1007,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "transferRelayer",
+    functionFragment: "transferStatus",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -1045,6 +1018,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "updateDetails",
     values: [TokenIdStruct, PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateLiquidityCap",
+    values: [TokenIdStruct, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "withdrawSwapAdminFees",
@@ -1087,7 +1064,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     functionFragment: "LIQUIDITY_FEE_NUMERATOR",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "VERSION", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "aavePool", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "aavePortalFee",
@@ -1202,7 +1178,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     functionFragment: "canonicalToRepresentation((uint32,bytes32))",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "claim", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "diamondCut", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
@@ -1308,10 +1283,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "initiateClaim",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "maxRoutersPerTransfer",
     data: BytesLike
   ): Result;
@@ -1345,15 +1316,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "rampA", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "reconciledTransfers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "relayerFeeRouter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "relayerFees",
+    functionFragment: "relayerFeeVault",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "remote", data: BytesLike): Result;
@@ -1459,7 +1422,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setRelayerFeeRouter",
+    functionFragment: "setRelayerFeeVault",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1492,7 +1455,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "transferRelayer",
+    functionFragment: "transferStatus",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1502,6 +1465,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "updateDetails",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateLiquidityCap",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1598,10 +1565,6 @@ export interface IConnextHandler extends BaseContract {
     LIQUIDITY_FEE_DENOMINATOR(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     LIQUIDITY_FEE_NUMERATOR(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    VERSION(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     aavePool(overrides?: CallOverrides): Promise<[string]>;
 
@@ -1755,12 +1718,6 @@ export interface IConnextHandler extends BaseContract {
       _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<[string]>;
-
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -1940,13 +1897,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     maxRoutersPerTransfer(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     nonce(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -1994,17 +1944,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    relayerFeeRouter(overrides?: CallOverrides): Promise<[string]>;
-
-    relayerFees(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    relayerFeeVault(overrides?: CallOverrides): Promise<[string]>;
 
     remote(
       _domain: PromiseOrValue<BigNumberish>,
@@ -2156,8 +2096,8 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setRelayerFeeRouter(
-      _relayerFeeRouter: PromiseOrValue<string>,
+    setRelayerFeeVault(
+      _relayerFeeVault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2191,6 +2131,7 @@ export interface IConnextHandler extends BaseContract {
       _representationSymbol: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2199,6 +2140,7 @@ export interface IConnextHandler extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2244,10 +2186,10 @@ export interface IConnextHandler extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    transferRelayer(
+    transferStatus(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[string]>;
+    ): Promise<[number]>;
 
     unapproveRouterForPortal(
       _router: PromiseOrValue<string>,
@@ -2262,6 +2204,12 @@ export interface IConnextHandler extends BaseContract {
       _canonical: TokenIdStruct,
       _name: PromiseOrValue<string>,
       _symbol: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    updateLiquidityCap(
+      _canonical: TokenIdStruct,
+      _updated: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2298,10 +2246,6 @@ export interface IConnextHandler extends BaseContract {
   LIQUIDITY_FEE_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
   LIQUIDITY_FEE_NUMERATOR(overrides?: CallOverrides): Promise<BigNumber>;
-
-  VERSION(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   aavePool(overrides?: CallOverrides): Promise<string>;
 
@@ -2455,12 +2399,6 @@ export interface IConnextHandler extends BaseContract {
     _canonical: TokenIdStruct,
     overrides?: CallOverrides
   ): Promise<string>;
-
-  claim(
-    _recipient: PromiseOrValue<string>,
-    _transferIds: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -2632,13 +2570,6 @@ export interface IConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  initiateClaim(
-    _domain: PromiseOrValue<BigNumberish>,
-    _recipient: PromiseOrValue<string>,
-    _transferIds: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
 
   nonce(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2686,17 +2617,7 @@ export interface IConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  reconciledTransfers(
-    _transferId: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  relayerFeeRouter(overrides?: CallOverrides): Promise<string>;
-
-  relayerFees(
-    _transferId: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  relayerFeeVault(overrides?: CallOverrides): Promise<string>;
 
   remote(
     _domain: PromiseOrValue<BigNumberish>,
@@ -2848,8 +2769,8 @@ export interface IConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setRelayerFeeRouter(
-    _relayerFeeRouter: PromiseOrValue<string>,
+  setRelayerFeeVault(
+    _relayerFeeVault: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2883,6 +2804,7 @@ export interface IConnextHandler extends BaseContract {
     _representationSymbol: PromiseOrValue<string>,
     _adoptedAssetId: PromiseOrValue<string>,
     _stableSwapPool: PromiseOrValue<string>,
+    _cap: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2891,6 +2813,7 @@ export interface IConnextHandler extends BaseContract {
     _representation: PromiseOrValue<string>,
     _adoptedAssetId: PromiseOrValue<string>,
     _stableSwapPool: PromiseOrValue<string>,
+    _cap: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2936,10 +2859,10 @@ export interface IConnextHandler extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  transferRelayer(
+  transferStatus(
     _transferId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
-  ): Promise<string>;
+  ): Promise<number>;
 
   unapproveRouterForPortal(
     _router: PromiseOrValue<string>,
@@ -2954,6 +2877,12 @@ export interface IConnextHandler extends BaseContract {
     _canonical: TokenIdStruct,
     _name: PromiseOrValue<string>,
     _symbol: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  updateLiquidityCap(
+    _canonical: TokenIdStruct,
+    _updated: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2990,8 +2919,6 @@ export interface IConnextHandler extends BaseContract {
     LIQUIDITY_FEE_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
     LIQUIDITY_FEE_NUMERATOR(overrides?: CallOverrides): Promise<BigNumber>;
-
-    VERSION(overrides?: CallOverrides): Promise<number>;
 
     aavePool(overrides?: CallOverrides): Promise<string>;
 
@@ -3143,12 +3070,6 @@ export interface IConnextHandler extends BaseContract {
       _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -3322,13 +3243,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
 
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
@@ -3370,17 +3284,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    relayerFeeRouter(overrides?: CallOverrides): Promise<string>;
-
-    relayerFees(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    relayerFeeVault(overrides?: CallOverrides): Promise<string>;
 
     remote(
       _domain: PromiseOrValue<BigNumberish>,
@@ -3526,8 +3430,8 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setRelayerFeeRouter(
-      _relayerFeeRouter: PromiseOrValue<string>,
+    setRelayerFeeVault(
+      _relayerFeeVault: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3561,6 +3465,7 @@ export interface IConnextHandler extends BaseContract {
       _representationSymbol: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -3569,6 +3474,7 @@ export interface IConnextHandler extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -3614,10 +3520,10 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    transferRelayer(
+    transferStatus(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<number>;
 
     unapproveRouterForPortal(
       _router: PromiseOrValue<string>,
@@ -3630,6 +3536,12 @@ export interface IConnextHandler extends BaseContract {
       _canonical: TokenIdStruct,
       _name: PromiseOrValue<string>,
       _symbol: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateLiquidityCap(
+      _canonical: TokenIdStruct,
+      _updated: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3704,10 +3616,6 @@ export interface IConnextHandler extends BaseContract {
     LIQUIDITY_FEE_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
     LIQUIDITY_FEE_NUMERATOR(overrides?: CallOverrides): Promise<BigNumber>;
-
-    VERSION(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
 
     aavePool(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -3860,12 +3768,6 @@ export interface IConnextHandler extends BaseContract {
     "canonicalToRepresentation((uint32,bytes32))"(
       _canonical: TokenIdStruct,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -4038,13 +3940,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
 
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
@@ -4092,17 +3987,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    relayerFeeRouter(overrides?: CallOverrides): Promise<BigNumber>;
-
-    relayerFees(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    relayerFeeVault(overrides?: CallOverrides): Promise<BigNumber>;
 
     remote(
       _domain: PromiseOrValue<BigNumberish>,
@@ -4254,8 +4139,8 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setRelayerFeeRouter(
-      _relayerFeeRouter: PromiseOrValue<string>,
+    setRelayerFeeVault(
+      _relayerFeeVault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4289,6 +4174,7 @@ export interface IConnextHandler extends BaseContract {
       _representationSymbol: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4297,6 +4183,7 @@ export interface IConnextHandler extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4342,7 +4229,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    transferRelayer(
+    transferStatus(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -4360,6 +4247,12 @@ export interface IConnextHandler extends BaseContract {
       _canonical: TokenIdStruct,
       _name: PromiseOrValue<string>,
       _symbol: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    updateLiquidityCap(
+      _canonical: TokenIdStruct,
+      _updated: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4400,10 +4293,6 @@ export interface IConnextHandler extends BaseContract {
 
     LIQUIDITY_FEE_NUMERATOR(
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    VERSION(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     aavePool(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -4561,12 +4450,6 @@ export interface IConnextHandler extends BaseContract {
     "canonicalToRepresentation((uint32,bytes32))"(
       _canonical: TokenIdStruct,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    claim(
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -4739,13 +4622,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    initiateClaim(
-      _domain: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _transferIds: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     maxRoutersPerTransfer(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -4795,17 +4671,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    reconciledTransfers(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    relayerFeeRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    relayerFees(
-      _transferId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    relayerFeeVault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     remote(
       _domain: PromiseOrValue<BigNumberish>,
@@ -4961,8 +4827,8 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setRelayerFeeRouter(
-      _relayerFeeRouter: PromiseOrValue<string>,
+    setRelayerFeeVault(
+      _relayerFeeVault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -4996,6 +4862,7 @@ export interface IConnextHandler extends BaseContract {
       _representationSymbol: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5004,6 +4871,7 @@ export interface IConnextHandler extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5049,7 +4917,7 @@ export interface IConnextHandler extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    transferRelayer(
+    transferStatus(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -5067,6 +4935,12 @@ export interface IConnextHandler extends BaseContract {
       _canonical: TokenIdStruct,
       _name: PromiseOrValue<string>,
       _symbol: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateLiquidityCap(
+      _canonical: TokenIdStruct,
+      _updated: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

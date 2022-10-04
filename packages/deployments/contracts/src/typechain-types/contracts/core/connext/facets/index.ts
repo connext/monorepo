@@ -3,7 +3,6 @@
 /* eslint-disable */
 import type * as upgradeInitializers from "./upgrade-initializers";
 export type { upgradeInitializers };
-export type { AssetFacet } from "./AssetFacet";
 export type { BaseConnextFacet } from "./BaseConnextFacet";
 export type { BridgeFacet } from "./BridgeFacet";
 export type { DiamondCutFacet } from "./DiamondCutFacet";

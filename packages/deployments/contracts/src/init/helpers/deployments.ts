@@ -1,8 +1,7 @@
-import { Contract, utils, Wallet } from "ethers";
+import { Contract, Wallet } from "ethers";
 
 import _Deployments from "../../../deployments.json";
 import { ConnextHandlerInterface } from "../../contracts";
-import { Router__factory } from "../../typechain-types";
 
 import { Deployment, DomainDeployments, NetworkStack } from "./types";
 
@@ -92,11 +91,6 @@ export const getDeployments = (args: {
       }
     }
 
-    // If this is a Router/Handler contract, append the core Router ABI.
-    if (contract.includes("Router")) {
-      abi = abi.concat((Router__factory.createInterface() as utils.Interface).fragments);
-    }
-
     return {
       proxy: key,
       name: isConnextHandler ? "Connext" : implementation ?? contract,
@@ -113,9 +107,6 @@ export const getDeployments = (args: {
 
   return {
     Connext: getContract("ConnextHandler_DiamondProxy"),
-    handlers: {
-      RelayerFeeRouter: getContract("RelayerFeeRouterUpgradeBeaconProxy"),
-    },
     messaging: isHub
       ? {
           RootManager: getContract("RootManager"),

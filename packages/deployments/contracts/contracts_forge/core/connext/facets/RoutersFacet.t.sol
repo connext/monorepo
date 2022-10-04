@@ -5,7 +5,6 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
-import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {RoutersFacet, BaseConnextFacet} from "../../../../contracts/core/connext/facets/RoutersFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
@@ -679,6 +678,15 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 amount = 10;
     vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_routerEmpty.selector);
     this.addRouterLiquidityFor(amount, _local, address(0));
+  }
+
+  function test_RoutersFacet__addLiquidityForRouter_failsIfHitsCap() public {
+    uint256 amount = 10;
+    utils_setupAsset(true, true);
+    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.caps[utils_calculateCanonicalHash()] = 1;
+    vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_capReached.selector);
+    this.addRouterLiquidityFor(amount, _local, _routerAgent0);
   }
 
   function test_RoutersFacet__addLiquidityForRouter_failsIfNoAmount() public {

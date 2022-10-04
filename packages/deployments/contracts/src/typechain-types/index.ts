@@ -48,6 +48,8 @@ export type { ProxyAdmin } from "./@openzeppelin/contracts/proxy/transparent/Pro
 export { ProxyAdmin__factory } from "./factories/@openzeppelin/contracts/proxy/transparent/ProxyAdmin__factory";
 export type { TransparentUpgradeableProxy } from "./@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy";
 export { TransparentUpgradeableProxy__factory } from "./factories/@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy__factory";
+export type { Pausable } from "./@openzeppelin/contracts/security/Pausable";
+export { Pausable__factory } from "./factories/@openzeppelin/contracts/security/Pausable__factory";
 export type { ERC20 } from "./@openzeppelin/contracts/token/ERC20/ERC20";
 export { ERC20__factory } from "./factories/@openzeppelin/contracts/token/ERC20/ERC20__factory";
 export type { IERC20Permit } from "./@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol/IERC20Permit";
@@ -66,8 +68,6 @@ export type { IMessageProvider } from "./@openzeppelin/contracts/vendor/arbitrum
 export { IMessageProvider__factory } from "./factories/@openzeppelin/contracts/vendor/arbitrum/IMessageProvider__factory";
 export type { IOutbox } from "./@openzeppelin/contracts/vendor/arbitrum/IOutbox";
 export { IOutbox__factory } from "./factories/@openzeppelin/contracts/vendor/arbitrum/IOutbox__factory";
-export type { AssetFacet } from "./contracts/core/connext/facets/AssetFacet";
-export { AssetFacet__factory } from "./factories/contracts/core/connext/facets/AssetFacet__factory";
 export type { BaseConnextFacet } from "./contracts/core/connext/facets/BaseConnextFacet";
 export { BaseConnextFacet__factory } from "./factories/contracts/core/connext/facets/BaseConnextFacet__factory";
 export type { BridgeFacet } from "./contracts/core/connext/facets/BridgeFacet";
@@ -116,8 +116,6 @@ export type { PriceOracle } from "./contracts/core/connext/helpers/PriceOracle";
 export { PriceOracle__factory } from "./factories/contracts/core/connext/helpers/PriceOracle__factory";
 export type { StableSwap } from "./contracts/core/connext/helpers/StableSwap";
 export { StableSwap__factory } from "./factories/contracts/core/connext/helpers/StableSwap__factory";
-export type { TokenRegistry } from "./contracts/core/connext/helpers/TokenRegistry";
-export { TokenRegistry__factory } from "./factories/contracts/core/connext/helpers/TokenRegistry__factory";
 export type { IAavePool } from "./contracts/core/connext/interfaces/IAavePool";
 export { IAavePool__factory } from "./factories/contracts/core/connext/interfaces/IAavePool__factory";
 export type { IBridgeHook } from "./contracts/core/connext/interfaces/IBridgeHook";
@@ -144,8 +142,6 @@ export type { IStableSwap } from "./contracts/core/connext/interfaces/IStableSwa
 export { IStableSwap__factory } from "./factories/contracts/core/connext/interfaces/IStableSwap__factory";
 export type { ITokenExchange } from "./contracts/core/connext/interfaces/ITokenExchange";
 export { ITokenExchange__factory } from "./factories/contracts/core/connext/interfaces/ITokenExchange__factory";
-export type { ITokenRegistry } from "./contracts/core/connext/interfaces/ITokenRegistry";
-export { ITokenRegistry__factory } from "./factories/contracts/core/connext/interfaces/ITokenRegistry__factory";
 export type { IWeth } from "./contracts/core/connext/interfaces/IWeth";
 export { IWeth__factory } from "./factories/contracts/core/connext/interfaces/IWeth__factory";
 export type { IXReceiver } from "./contracts/core/connext/interfaces/IXReceiver";
@@ -244,8 +240,6 @@ export type { DomainIndexer } from "./contracts/messaging/libraries/DomainIndexe
 export { DomainIndexer__factory } from "./factories/contracts/messaging/libraries/DomainIndexer__factory";
 export type { MerkleTreeManager } from "./contracts/messaging/Merkle.sol/MerkleTreeManager";
 export { MerkleTreeManager__factory } from "./factories/contracts/messaging/Merkle.sol/MerkleTreeManager__factory";
-export type { QueueManager } from "./contracts/messaging/Queue.sol/QueueManager";
-export { QueueManager__factory } from "./factories/contracts/messaging/Queue.sol/QueueManager__factory";
 export type { RootManager } from "./contracts/messaging/RootManager";
 export { RootManager__factory } from "./factories/contracts/messaging/RootManager__factory";
 export type { WatcherClient } from "./contracts/messaging/WatcherClient";

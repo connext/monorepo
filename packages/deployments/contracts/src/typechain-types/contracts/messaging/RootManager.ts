@@ -44,6 +44,8 @@ export interface RootManagerInterface extends utils.Interface {
     "getPendingInboundRootsCount()": FunctionFragment;
     "isDomainSupported(uint32)": FunctionFragment;
     "owner()": FunctionFragment;
+    "pause()": FunctionFragment;
+    "paused()": FunctionFragment;
     "pendingInboundRoots()": FunctionFragment;
     "propagate(uint32[],address[])": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
@@ -54,6 +56,7 @@ export interface RootManagerInterface extends utils.Interface {
     "renounced()": FunctionFragment;
     "setDelayBlocks(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
+    "unpause()": FunctionFragment;
     "validateDomains(uint32[],address[])": FunctionFragment;
   };
 
@@ -74,6 +77,8 @@ export interface RootManagerInterface extends utils.Interface {
       | "getPendingInboundRootsCount"
       | "isDomainSupported"
       | "owner"
+      | "pause"
+      | "paused"
       | "pendingInboundRoots"
       | "propagate"
       | "proposeNewOwner"
@@ -84,6 +89,7 @@ export interface RootManagerInterface extends utils.Interface {
       | "renounced"
       | "setDelayBlocks"
       | "setWatcherManager"
+      | "unpause"
       | "validateDomains"
   ): FunctionFragment;
 
@@ -138,6 +144,8 @@ export interface RootManagerInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(functionFragment: "pause", values?: undefined): string;
+  encodeFunctionData(functionFragment: "paused", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "pendingInboundRoots",
     values?: undefined
@@ -172,6 +180,7 @@ export interface RootManagerInterface extends utils.Interface {
     functionFragment: "setWatcherManager",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "validateDomains",
     values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<string>[]]
@@ -219,6 +228,8 @@ export interface RootManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "pendingInboundRoots",
     data: BytesLike
@@ -250,6 +261,7 @@ export interface RootManagerInterface extends utils.Interface {
     functionFragment: "setWatcherManager",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "validateDomains",
     data: BytesLike
@@ -260,8 +272,10 @@ export interface RootManagerInterface extends utils.Interface {
     "ConnectorRemoved(uint32,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "Paused(address)": EventFragment;
     "RootAggregated(uint32,bytes32,uint256)": EventFragment;
     "RootPropagated(bytes32,uint32[],uint256)": EventFragment;
+    "Unpaused(address)": EventFragment;
     "WatcherManagerChanged(address)": EventFragment;
   };
 
@@ -269,8 +283,10 @@ export interface RootManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ConnectorRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootAggregated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootPropagated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "WatcherManagerChanged"): EventFragment;
 }
 
@@ -320,6 +336,13 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
+export interface PausedEventObject {
+  account: string;
+}
+export type PausedEvent = TypedEvent<[string], PausedEventObject>;
+
+export type PausedEventFilter = TypedEventFilter<PausedEvent>;
+
 export interface RootAggregatedEventObject {
   domain: number;
   receivedRoot: string;
@@ -343,6 +366,13 @@ export type RootPropagatedEvent = TypedEvent<
 >;
 
 export type RootPropagatedEventFilter = TypedEventFilter<RootPropagatedEvent>;
+
+export interface UnpausedEventObject {
+  account: string;
+}
+export type UnpausedEvent = TypedEvent<[string], UnpausedEventObject>;
+
+export type UnpausedEventFilter = TypedEventFilter<UnpausedEvent>;
 
 export interface WatcherManagerChangedEventObject {
   watcherManager: string;
@@ -439,6 +469,12 @@ export interface RootManager extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    pause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    paused(overrides?: CallOverrides): Promise<[boolean]>;
+
     pendingInboundRoots(
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber] & { first: BigNumber; last: BigNumber }>;
@@ -476,6 +512,10 @@ export interface RootManager extends BaseContract {
 
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -541,6 +581,12 @@ export interface RootManager extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
+  pause(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  paused(overrides?: CallOverrides): Promise<boolean>;
+
   pendingInboundRoots(
     overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber] & { first: BigNumber; last: BigNumber }>;
@@ -578,6 +624,10 @@ export interface RootManager extends BaseContract {
 
   setWatcherManager(
     _watcherManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  unpause(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -641,6 +691,10 @@ export interface RootManager extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
+    pause(overrides?: CallOverrides): Promise<void>;
+
+    paused(overrides?: CallOverrides): Promise<boolean>;
+
     pendingInboundRoots(
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber] & { first: BigNumber; last: BigNumber }>;
@@ -678,6 +732,8 @@ export interface RootManager extends BaseContract {
       _watcherManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    unpause(overrides?: CallOverrides): Promise<void>;
 
     validateDomains(
       _domains: PromiseOrValue<BigNumberish>[],
@@ -718,6 +774,9 @@ export interface RootManager extends BaseContract {
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
 
+    "Paused(address)"(account?: null): PausedEventFilter;
+    Paused(account?: null): PausedEventFilter;
+
     "RootAggregated(uint32,bytes32,uint256)"(
       domain?: null,
       receivedRoot?: null,
@@ -739,6 +798,9 @@ export interface RootManager extends BaseContract {
       domains?: null,
       count?: null
     ): RootPropagatedEventFilter;
+
+    "Unpaused(address)"(account?: null): UnpausedEventFilter;
+    Unpaused(account?: null): UnpausedEventFilter;
 
     "WatcherManagerChanged(address)"(
       watcherManager?: null
@@ -804,6 +866,12 @@ export interface RootManager extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    pause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    paused(overrides?: CallOverrides): Promise<BigNumber>;
+
     pendingInboundRoots(overrides?: CallOverrides): Promise<BigNumber>;
 
     propagate(
@@ -839,6 +907,10 @@ export interface RootManager extends BaseContract {
 
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -907,6 +979,12 @@ export interface RootManager extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    pause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    paused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     pendingInboundRoots(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -944,6 +1022,10 @@ export interface RootManager extends BaseContract {
 
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

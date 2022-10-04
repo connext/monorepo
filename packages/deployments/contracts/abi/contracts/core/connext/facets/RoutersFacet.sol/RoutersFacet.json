@@ -15,6 +15,7 @@
   "error RoutersFacet__acceptProposedRouterOwner_notElapsed()",
   "error RoutersFacet__addLiquidityForRouter_amountIsZero()",
   "error RoutersFacet__addLiquidityForRouter_badRouter()",
+  "error RoutersFacet__addLiquidityForRouter_capReached()",
   "error RoutersFacet__addLiquidityForRouter_routerEmpty()",
   "error RoutersFacet__approveRouterForPortal_alreadyApproved()",
   "error RoutersFacet__approveRouterForPortal_notAdded()",

@@ -3,7 +3,6 @@ pragma solidity 0.8.15;
 
 import "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import "../../../../contracts/core/connext/libraries/SwapUtils.sol";
-import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {LibConnextStorage, AppStorage, TokenId} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 
@@ -18,10 +17,6 @@ contract LibCaller {
 
   function handleIncomingAsset(address _assetId, uint256 _assetAmount) public payable {
     AssetLogic.handleIncomingAsset(_assetId, _assetAmount);
-  }
-
-  function deposit(IWeth wrapper) public payable {
-    wrapper.deposit{value: msg.value}();
   }
 
   function transferAssetToContract(address _assetId, uint256 _amount) public {
