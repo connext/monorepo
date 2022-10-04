@@ -165,14 +165,17 @@ export type GelatoApiStatusResponse = {
 
 /// MARK - SDK Server API ---------------------------------------------------------------------------
 export const SdkServerApiXCallSchema = Type.Object({
+  args: Type.Object({
+    destination: Type.String(),
+    to: TAddress,
+    asset: TAddress,
+    amount: TIntegerString,
+    slippage: TIntegerString,
+    callData: Type.String(),
+    delegate: TAddress,
+  }),
   origin: Type.String(),
-  destination: Type.String(),
-  to: TAddress,
-  asset: TAddress,
-  amount: TIntegerString,
-  slippage: TIntegerString,
-  callData: Type.String(),
-  delegate: TAddress,
+  relayerFee: Type.Optional(Type.String()),
 });
 
 export type SdkServerApiXCall = Static<typeof SdkServerApiXCallSchema>;

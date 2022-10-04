@@ -140,7 +140,6 @@ export type DestinationTransfer = Static<typeof DestinationTransferSchema>;
 export type CallParams = Static<typeof CallParamsSchema>;
 
 export const XCallArgsSchema = Type.Object({
-  origin: Type.String(),
   destination: Type.String(),
   to: TAddress,
   asset: TAddress,
