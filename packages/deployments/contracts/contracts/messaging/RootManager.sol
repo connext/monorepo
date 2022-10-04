@@ -85,6 +85,12 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     pendingInboundRoots.initialize();
   }
 
+  // ================ Getters ================
+
+  function getPendingInboundRootsCount() public view returns (uint256) {
+    return pendingInboundRoots.length();
+  }
+
   // ============ Admin Functions ============
 
   /**
