@@ -334,13 +334,7 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function execute(ExecuteArgs calldata _args) external nonReentrant whenNotPaused returns (bytes32) {
     bytes32 transferId;
-    DestinationTransferStatus status;
-    // Path length refers to the number of facilitating routers. A transfer is considered 'multipath'
-    // if multiple routers provide liquidity (in even 'shares') for it.
-    uint256 pathLength = _args.routers.length;
-    // If the path is empty, this MUST be a reconciled transfer.
-    // NOTE: A check exists below to assert that the current transfer status reflects this.
-    bool wasReconciled = pathLength == 0;
+    bool wasReconciled;
 
     /// 1. Sanity and permissions checks.
     {
@@ -360,7 +354,14 @@ contract BridgeFacet is BaseConnextFacet {
       // Retrieve the transfer status record. This will be empty (DestinationTransferStatus.None) in the
       // event of a fast-liquidity transfer, and DestinationTransferStatus.Reconciled in the event of
       // a slow-liquidity transfer.
-      status = s.transferStatus[transferId];
+      DestinationTransferStatus status = s.transferStatus[transferId];
+
+      // Path length refers to the number of facilitating routers. A transfer is considered 'multipath'
+      // if multiple routers provide liquidity (in even 'shares') for it.
+      uint256 pathLength = _args.routers.length;
+      // If the path is empty, this MUST be a reconciled transfer.
+      // NOTE: A check exists below to assert that the current transfer status reflects this.
+      wasReconciled = pathLength == 0;
 
       if (!wasReconciled) {
         // Make sure number of routers is below the configured maximum.
@@ -420,65 +421,72 @@ contract BridgeFacet is BaseConnextFacet {
     // NOTE: Status flow for the transfer state machine:
     // reconciled -> executed -> completed
     // executed -> reconciled -> completed
-    status = wasReconciled ? DestinationTransferStatus.Completed : DestinationTransferStatus.Executed;
     // Save the updated transfer status.
-    s.transferStatus[transferId] = status;
+    s.transferStatus[transferId] = wasReconciled
+      ? DestinationTransferStatus.Completed
+      : DestinationTransferStatus.Executed;
 
-    /// 3. Get asset information needed to handle transfer.
-    // TODO: Would be more efficient if we avoid all these calls in the event of a 0-value transfer...
-    // Get the canonical key for the asset we're transferring.
-    bytes32 key = AssetLogic.calculateCanonicalHash(_args.params.canonicalId, _args.params.canonicalDomain);
-    // Get the local asset contract address.
-    address local = _getLocalAsset(key, _args.params.canonicalId, _args.params.canonicalDomain);
-    // Delivered asset; local is default; if there's an adopted asset to be set, it should be in the block below.
-    address assetOut = _args.params.receiveLocal ? local : _getAdoptedAsset(key);
-    // The initial amountOut; this might change in the block below.
-    uint256 amountOut = _args.params.bridgedAmt;
+    /// 3. Source assets intended for recipient.
+    address local;
+    address assetOut;
+    uint256 amountOut;
+    {
+      // TODO: Would be more efficient if we avoided all these calls in the event of a 0-value transfer...
+      // Get the canonical key for the asset we're transferring.
+      bytes32 key = AssetLogic.calculateCanonicalHash(_args.params.canonicalId, _args.params.canonicalDomain);
+      // Get the local asset contract address.
+      local = _getLocalAsset(key, _args.params.canonicalId, _args.params.canonicalDomain);
+      // Delivered asset; local is default; if there's an adopted asset to be set, it should be in the block below.
+      assetOut = _args.params.receiveLocal ? local : _getAdoptedAsset(key);
+      // The initial amountOut; this might change in the block below.
+      amountOut = _args.params.bridgedAmt;
 
-    /// 4. Source assets intended for recipient.
-    // NOTE: If this is a zero-value transfer (i.e. `bridgedAmt` is 0), no need to handle liquidity here.
-    if (amountOut != 0) {
-      if (!wasReconciled) {
-        // NOTE: This is the fast-liquidity path.
-        // Fee deduction: calculate amount that routers will provide with the fast-liquidity fee deducted.
-        amountOut = _muldiv(_args.params.bridgedAmt, s.LIQUIDITY_FEE_NUMERATOR, BPS_FEE_DENOMINATOR);
-        // Deduct liquidity from applicable router accounts.
-        _withdrawRouterLiquidity(transferId, _args.routers, local, assetOut, amountOut);
-        // Save the addresses of all the routers providing liquidity for this transfer. This will be used to reimburse
-        // them on reconcile.
-        s.routedTransfers[transferId] = _args.routers;
-      }
-      // NOTE: If this is a slow-liquidity path (i.e. the transfer `wasReconciled`), the funds would have been minted
-      // if needed and custodied in this contract. The exact custodied amount is untracked in state (since the amount
-      // is hashed in the transfer ID itself) - thus, no updates are required here to handle accounting in that case.
+      // NOTE: If this is a zero-value transfer (i.e. `bridgedAmt` is 0), no need to handle liquidity here.
+      if (amountOut != 0) {
+        if (!wasReconciled) {
+          // NOTE: This is the fast-liquidity path.
+          // Fee deduction: calculate amount that routers will provide with the fast-liquidity fee deducted.
+          amountOut = _muldiv(_args.params.bridgedAmt, s.LIQUIDITY_FEE_NUMERATOR, BPS_FEE_DENOMINATOR);
+          // Deduct liquidity from applicable router accounts.
+          _withdrawRouterLiquidity(transferId, _args.routers, local, assetOut, amountOut);
+          // Save the addresses of all the routers providing liquidity for this transfer. This will be used to reimburse
+          // them on reconcile.
+          s.routedTransfers[transferId] = _args.routers;
+        }
+        // NOTE: If this is a slow-liquidity path (i.e. the transfer `wasReconciled`), the funds would have been minted
+        // if needed and custodied in this contract. The exact custodied amount is untracked in state (since the amount
+        // is hashed in the transfer ID itself) - thus, no updates are required here to handle accounting in that case.
 
-      // If the local asset is specified, or the adopted asset was overridden (e.g. when user facing slippage
-      // conditions outside of their boundaries), continue without swapping.
-      // NOTE: In the event that `receiveLocal` is true, assetOut == local.
-      if (assetOut != local) {
-        // Check to see if there's an updated max slippage setting.
-        uint256 slippageOverride = s.slippage[transferId];
+        // If the local asset is specified, or the adopted asset was overridden (e.g. when user facing slippage
+        // conditions outside of their boundaries), continue without swapping.
+        // NOTE: In the event that `receiveLocal` is true, assetOut == local.
+        if (assetOut != local) {
+          // Check to see if there's an updated max slippage setting.
+          uint256 slippageOverride = s.slippage[transferId];
 
-        // Swap out of representational asset into adopted asset.
-        amountOut = AssetLogic.swapFromLocalAsset(
-          key,
-          local,
-          assetOut,
-          amountOut,
-          slippageOverride != 0 ? slippageOverride : _args.params.slippage,
-          _args.params.normalizedIn
-        );
+          // Swap out of representational asset into adopted asset.
+          amountOut = AssetLogic.swapFromLocalAsset(
+            key,
+            local,
+            assetOut,
+            amountOut,
+            slippageOverride != 0 ? slippageOverride : _args.params.slippage,
+            _args.params.normalizedIn
+          );
+        }
       }
     }
 
-    /// 5. Deliver funds to the intended recipient, and execute the transaction using the designated calldata,
+    /// 4. Deliver funds to the intended recipient, and execute the transaction using the designated calldata,
     // if applicable.
-    // Transfer funds to recipient.
-    if (amountOut != 0) {
-      AssetLogic.handleOutgoingAsset(assetOut, _args.params.to, amountOut);
+    {
+      // Transfer funds to recipient.
+      if (amountOut != 0) {
+        AssetLogic.handleOutgoingAsset(assetOut, _args.params.to, amountOut);
+      }
+      // Execute external calldata.
+      _executeCalldata(transferId, assetOut, amountOut, wasReconciled, _args.params);
     }
-    // Execute external calldata.
-    _executeCalldata(transferId, assetOut, amountOut, wasReconciled, _args.params);
 
     emit Executed(transferId, _args.params.to, assetOut, _args, local, amountOut, msg.sender);
     return transferId;

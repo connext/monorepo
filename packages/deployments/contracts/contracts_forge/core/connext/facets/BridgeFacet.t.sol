@@ -1349,7 +1349,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // set aave enabled
     s.aavePool = _aavePool;
 
-    vm.expectRevert(abi.encodeWithSelector(BridgeFacet.BridgeFacet__execute_notApprovedForPortals.selector));
+    vm.expectRevert(
+      abi.encodeWithSelector(BridgeFacet.BridgeFacet__withdrawRouterLiquidity_insufficientFastLiquidity.selector)
+      // TODO: encode router address arg
+    );
     this.execute(_args);
   }
 
