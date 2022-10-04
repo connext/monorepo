@@ -253,28 +253,49 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ============ Public Functions: Bridge ==============
 
+  /**
+   * @notice Initiates a cross-chain transfer of funds and/or xcalldata.
+   *
+   * @dev For transfers including an ERC20 asset, this contract must already have approval to transfer the input asset.
+   * @dev Canonical assets on their home chain will be escrowed here for bridging.
+   * @dev Adopted assets will be swapped for the Connext bridge's representational asset (i.e. bridge tokens) via the
+   * configured stableswap IFF needed, then burnt for transferring the value crosschain.
+   * @dev Representational assets (i.e. bridge tokens) will NOT require a swap.
+   *
+   * @param destination - The destination domain (chain) of the transfer. (See Connext docs for the list of domain
+   * IDs by chain ID.)
+   * @param to - The intended recipient on the destination domain of the transferred tokens and/or xcalldata.
+   * @param asset - The ERC20 asset being transferred in.
+   * @param delegate - An address that will have permission to update the slippage tolerance on the behalf of the
+   * xcaller for execution on the destination domain. This is used to alleviate asynchronous slippage changes in the
+   * event a swap will be needed on the destination domain.
+   * @param amount - The amount being transferred. Can be zero, if the transfer is intended only for the purpose of
+   * delivering xcalldata.
+   * @param xcalldata - The xcalldata bytes to execute on the destination domain.
+   * @return bytes32 - The unique transfer ID of the crosschain transfer.
+   */
   function xcall(
-    uint32 _destination,
-    address _to,
-    address _asset,
-    address _delegate,
-    uint256 _amount,
-    uint256 _slippage,
-    bytes calldata _callData
+    uint32 destination,
+    address to,
+    address asset,
+    address delegate,
+    uint256 amount,
+    uint256 slippage,
+    bytes calldata xcalldata
   ) external payable returns (bytes32) {
     // NOTE: Here, we fill in as much information as we can for the TransferInfo.
     // Some info is left blank and will be assigned in the internal `_xcall` function (e.g.
     // `normalizedIn`, `bridgedAmt`, canonical info, etc).
     TransferInfo memory params = TransferInfo({
-      to: _to,
-      callData: _callData,
+      to: to,
+      callData: xcalldata,
       originDomain: s.domain,
-      destinationDomain: _destination,
-      delegate: _delegate,
+      destinationDomain: destination,
+      delegate: delegate,
       // `receiveLocal: false` indicates we should always deliver the adopted asset on the
       // destination chain, swapping from the local asset if needed.
       receiveLocal: false,
-      slippage: _slippage,
+      slippage: slippage,
       originSender: msg.sender,
       // The following values should be assigned in _xcall.
       nonce: 0,
@@ -283,31 +304,53 @@ contract BridgeFacet is BaseConnextFacet {
       normalizedIn: 0,
       canonicalId: bytes32(0)
     });
-    return _xcall(params, _asset, _amount);
+    return _xcall(params, asset, amount);
   }
 
+  /**
+   * @notice Initiates a cross-chain transfer of funds and/or xcalldata. This method will configure the transfer to
+   * ONLY deliver the representational (or canonical) asset on the destination domain.
+   *
+   * @dev For transfers including an ERC20 asset, this contract must already have approval to transfer the input asset.
+   * @dev Canonical assets on their home chain will be escrowed here for bridging.
+   * @dev Adopted assets will be swapped for the Connext bridge's representational asset (i.e. bridge tokens) via the
+   * configured stableswap IFF needed, then burnt for transferring the value crosschain.
+   * @dev Representational assets (i.e. bridge tokens) will NOT require a swap.
+   *
+   * @param destination - The destination domain (chain) of the transfer. (See Connext docs for the list of domain
+   * IDs by chain ID.)
+   * @param to - The intended recipient on the destination domain of the transferred tokens and/or xcalldata.
+   * @param asset - The ERC20 asset being transferred in.
+   * @param delegate - An address that will have permission to update the slippage tolerance on the behalf of the
+   * xcaller for execution on the destination domain. This is used to alleviate asynchronous slippage changes in the
+   * event a swap will be needed on the destination domain.
+   * @param amount - The amount being transferred. Can be zero, if the transfer is intended only for the purpose of
+   * delivering xcalldata.
+   * @param xcalldata - The xcalldata bytes to execute on the destination domain.
+   * @return bytes32 - The unique transfer ID of the crosschain transfer.
+   */
   function xcallIntoLocal(
-    uint32 _destination,
-    address _to,
-    address _asset,
-    address _delegate,
-    uint256 _amount,
-    uint256 _slippage,
-    bytes calldata _callData
+    uint32 destination,
+    address to,
+    address asset,
+    address delegate,
+    uint256 amount,
+    uint256 slippage,
+    bytes calldata xcalldata
   ) external payable returns (bytes32) {
     // NOTE: Here, we fill in as much information as we can for the TransferInfo.
     // Some info is left blank and will be assigned in the internal `_xcall` function (e.g.
     // `normalizedIn`, `bridgedAmt`, canonical info, etc).
     TransferInfo memory params = TransferInfo({
-      to: _to,
-      callData: _callData,
+      to: to,
+      callData: xcalldata,
       originDomain: s.domain,
-      destinationDomain: _destination,
-      delegate: _delegate,
+      destinationDomain: destination,
+      delegate: delegate,
       // `receiveLocal: true` indicates we should always deliver the local asset on the
       // destination chain, and NOT swap into any adopted assets.
       receiveLocal: true,
-      slippage: _slippage,
+      slippage: slippage,
       originSender: msg.sender,
       // The following values should be assigned in _xcall.
       nonce: 0,
@@ -316,7 +359,7 @@ contract BridgeFacet is BaseConnextFacet {
       normalizedIn: 0,
       canonicalId: bytes32(0)
     });
-    return _xcall(params, _asset, _amount);
+    return _xcall(params, asset, amount);
   }
 
   /**
@@ -414,25 +457,18 @@ contract BridgeFacet is BaseConnextFacet {
   // ============ Internal: Bridge ============
 
   /**
-   * @notice Initiates a cross-chain transfer of funds, calldata, and/or various named properties using the nomad
-   * network.
-   *
-   * @dev For ERC20 transfers, this contract must have approval to transfer the input (transacting) assets. The adopted
-   * assets will be swapped for their local nomad asset counterparts (i.e. bridgeable tokens) via the configured AMM if
-   * necessary. In the event that the adopted assets *are* local nomad assets, no swap is needed. The local tokens will
-   * then be sent via the bridge router. If the local assets are representational for an asset on another chain, we will
-   * burn the tokens here. If the local assets are canonical (meaning that the adopted<>local asset pairing is native
-   * to this chain), we will custody the tokens here.
-   *
+   * @notice Core xcall logic.
    * @param _params - The TransferInfo arguments.
-   * @return bytes32 - The transfer ID of the newly created crosschain transfer.
+   * @param _asset - The input ERC20 asset address.
+   * @param _amount - The input amount of the given asset.
+   * @return bytes32 - The unique transfer ID of the newly created crosschain transfer.
    */
   function _xcall(
     TransferInfo memory _params,
     address _asset,
     uint256 _amount
   ) internal whenNotPaused returns (bytes32) {
-    // Sanity checks.
+    /// 1. Sanity checks.
     bytes32 remoteInstance;
     {
       // Not native asset.
@@ -444,8 +480,8 @@ contract BridgeFacet is BaseConnextFacet {
       }
 
       // Destination domain is supported.
-      // NOTE: This check implicitly also checks that `_params.destinationDomain != s.domain`, because the index
-      // `s.domain` of `s.remotes` should always be `bytes32(0)`.
+      // NOTE: This check implicitly also checks that `_params.destinationDomain != s.domain`, because the
+      // index `s.domain` of `s.remotes` should always be `bytes32(0)`.
       remoteInstance = _mustHaveRemote(_params.destinationDomain);
 
       // Recipient defined.
@@ -458,6 +494,7 @@ contract BridgeFacet is BaseConnextFacet {
       }
     }
 
+    /// 2. Handle identifying the input asset's canonical information and transferring assets to contract.
     // NOTE: The local asset will stay address(0) if input asset is address(0) in the event of a
     // 0-value transfer. Otherwise, the local address will be retrieved below
     address local;
@@ -518,14 +555,14 @@ contract BridgeFacet is BaseConnextFacet {
       _params.nonce = s.nonce++;
     }
 
-    // Handle the relayer fee.
+    /// 3. Deliver the relayer fee, if one was sent, to configured relayer fee vault.
     // NOTE: This has to be done *after* transferring in + swapping assets because
     // the transfer id uses the amount that is bridged (i.e. amount in local asset).
     if (msg.value > 0) {
       _bumpTransfer(transferId);
     }
 
-    // Send the crosschain message.
+    /// 4. Send the crosschain message.
     bytes32 messageHash = _sendMessage(
       transferId,
       _params.destinationDomain,
@@ -536,9 +573,7 @@ contract BridgeFacet is BaseConnextFacet {
       isCanonical
     );
 
-    // emit event
     emit XCalled(transferId, _params.nonce, messageHash, _params, _asset, _amount);
-
     return transferId;
   }
 
