@@ -23,6 +23,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   // ============ Events ============
 
+  event DelayBlocksUpdated(uint256 previous, uint256 updated);
+
   event RootAggregated(uint32 domain, bytes32 receivedRoot, uint256 index);
 
   event RootPropagated(bytes32 aggregate, uint32[] domains, uint256 count);
@@ -99,6 +101,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    */
   function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
     require(_delayBlocks != delayBlocks, "!delayBlocks");
+    emit DelayBlocksUpdated(_delayBlocks, delayBlocks);
     delayBlocks = _delayBlocks;
   }
 
