@@ -228,6 +228,12 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        custom: {
+          hub: {
+            // https://goerli.etherscan.io/address/0x9c945aC97Baf48cB784AbBB61399beB71aF7A378
+            stateCommitmentChain: "0x9c945aC97Baf48cB784AbBB61399beB71aF7A378",
+          },
+        },
       },
     },
   },
