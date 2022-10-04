@@ -323,11 +323,6 @@ struct AppStorage {
    */
   // 39
   IConnectorManager xAppConnectionManager;
-  /**
-   * @notice Ownership delay for transferring ownership.
-   */
-  // 40
-  uint256 _ownershipDelay;
 }
 
 library LibConnextStorage {

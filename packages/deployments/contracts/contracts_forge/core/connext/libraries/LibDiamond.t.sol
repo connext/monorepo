@@ -26,7 +26,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   function setUp() public {
     // Deploy token beacon
-    deployConnext(uint256(domain), beacon, xAppConnectionManager, relayerFeeVault, acceptanceDelay, ownershipDelay);
+    deployConnext(uint256(domain), beacon, xAppConnectionManager, relayerFeeVault, acceptanceDelay);
 
     connextHandler = IConnext(address(connextDiamondProxy));
   }
@@ -51,8 +51,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       newBeacon,
       newXAppConnectionManager,
       newRelayerFeeVault,
-      acceptanceDelay,
-      ownershipDelay
+      acceptanceDelay
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
@@ -87,8 +86,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       newBeacon,
       newXAppConnectionManager,
       newRelayerFeeVault,
-      acceptanceDelay,
-      ownershipDelay
+      acceptanceDelay
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
@@ -109,7 +107,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // Diamond cut after setting 0 acceptance delay should work.
   function test_LibDiamond__initializeDiamondCut_withZeroAcceptanceDelay_works() public {
-    deployConnext(uint256(domain), beacon, xAppConnectionManager, relayerFeeVault, 0, 0);
+    deployConnext(uint256(domain), beacon, xAppConnectionManager, relayerFeeVault, 0);
 
     connextHandler = IConnext(address(connextDiamondProxy));
 
@@ -124,8 +122,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       newBeacon,
       newXAppConnectionManager,
       newRelayerFeeVault,
-      acceptanceDelay,
-      ownershipDelay
+      acceptanceDelay
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);

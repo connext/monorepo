@@ -314,8 +314,7 @@ contract Deployer {
     address tokenBeacon,
     address relayerFeeVault,
     address xAppConnectionManager,
-    uint256 acceptanceDelay,
-    uint256 ownershipDelay
+    uint256 acceptanceDelay
   ) internal returns (address) {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
@@ -323,8 +322,7 @@ contract Deployer {
       tokenBeacon,
       relayerFeeVault,
       xAppConnectionManager,
-      acceptanceDelay,
-      ownershipDelay
+      acceptanceDelay
     );
 
     deployFacets();

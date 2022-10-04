@@ -295,7 +295,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
               relayerFeeVault,
               connectorManagerDeployment.address,
               acceptanceDelay,
-              ownershipDelay,
             ],
           },
     });

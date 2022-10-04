@@ -166,14 +166,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     address beacon = address(new TestERC20("Test Token", "TEST"));
 
     // deploy connext
-    address originConnext = deployConnext(
-      _origin,
-      beacon,
-      address(_originRelayerFee),
-      address(_originManager),
-      7 days,
-      6 days
-    );
+    address originConnext = deployConnext(_origin, beacon, address(_originRelayerFee), address(_originManager), 7 days);
     _originConnext = IConnext(originConnext);
 
     address destinationConnext = deployConnext(
@@ -181,8 +174,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       beacon,
       address(_destinationRelayerFee),
       address(_destinationManager),
-      7 days,
-      6 days
+      7 days
     );
     _destinationConnext = IConnext(destinationConnext);
 
