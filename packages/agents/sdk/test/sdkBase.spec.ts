@@ -114,7 +114,9 @@ describe("SdkBase", () => {
     it("should error if signerAddress is undefined", async () => {
       (nxtpSdkBase as any).config.signerAddress = undefined;
 
-      await expect(nxtpSdkBase.xcall(mock.entity.xcallArgs())).to.be.rejectedWith(SignerAddressMissing);
+      await expect(
+        nxtpSdkBase.xcall(mock.entity.xcallArgs(), mock.entity.callParams().originDomain),
+      ).to.be.rejectedWith(SignerAddressMissing);
     });
 
     it("happy: should work if ERC20", async () => {
@@ -136,7 +138,7 @@ describe("SdkBase", () => {
         chainId,
       };
 
-      const res = await nxtpSdkBase.xcall(mockXcallArgs, relayerFee.toString());
+      const res = await nxtpSdkBase.xcall(mockXcallArgs, mock.entity.callParams().originDomain, relayerFee.toString());
       expect(res).to.be.deep.eq(mockXCallRequest);
     });
 
@@ -153,6 +155,7 @@ describe("SdkBase", () => {
       });
 
       stub(nxtpSdkBase, "estimateRelayerFee").resolves(BigNumber.from("50000"));
+      const mockXcallArgs = mock.entity.xcallArgs();
       const data = getConnextInterface().encodeFunctionData("xcall", [
         mockXcallArgs.destination,
         mockXcallArgs.to,
@@ -171,7 +174,7 @@ describe("SdkBase", () => {
         chainId,
       };
 
-      const res = await nxtpSdkBase.xcall(mockXcallArgs);
+      const res = await nxtpSdkBase.xcall(mockXcallArgs, mock.entity.callParams().originDomain);
       expect(res).to.be.deep.eq(mockXCallRequest);
     });
   });
