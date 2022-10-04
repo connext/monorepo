@@ -135,9 +135,11 @@ export class NxtpSdkBase {
    */
 
   public async xcall(
-    args: Omit<XCallArgs, "callData" | "delegate"> & Partial<XCallArgs>,
-    origin: string,
-    relayerFee?: string,
+    args: Omit<XCallArgs, "callData" | "delegate"> &
+      Partial<XCallArgs> & {
+        origin: string;
+        relayerFee?: string;
+      },
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { args });
@@ -146,7 +148,7 @@ export class NxtpSdkBase {
     if (!signerAddress) {
       throw new SignerAddressMissing();
     }
-    const { destination, to, asset, amount, slippage } = args;
+    const { origin, relayerFee, destination, to, asset, amount, slippage } = args;
 
     // Substitute default values as needed.
     const callData = args.callData ?? "0x";
