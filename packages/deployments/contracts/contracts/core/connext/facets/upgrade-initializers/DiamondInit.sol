@@ -57,7 +57,6 @@ contract DiamondInit is BaseConnextFacet {
 
       // Connext
       s.domain = _domain;
-      s.relayerFeeVault = _relayerFeeVault;
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.maxRoutersPerTransfer = 5;
       s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
