@@ -181,6 +181,28 @@ library AssetLogic {
       );
   }
 
+  /// @notice shortcut if adopted asset is known and "IsNeeded" is known
+  function swapFromLocalAsset(
+    bytes32 _key,
+    address _local,
+    address _adopted,
+    uint256 _amount,
+    uint256 _slippage,
+    uint256 _normalizedIn
+  ) internal returns (uint256 _out) {
+    // Swap the asset to the proper local asset
+    (_out, ) = _swapAsset(
+      _key,
+      _local,
+      _adopted,
+      _amount,
+      // NOTE: To get the slippage boundary here, you must take the slippage % off of the
+      // normalized amount in (at 18 decimals by convention), then convert that amount
+      // to the proper decimals of adopted.
+      calculateSlippageBoundary(uint8(18), ERC20(_adopted).decimals(), _normalizedIn, _slippage)
+    );
+  }
+
   /**
    * @notice Swaps a local nomad asset for the adopted asset using the stored stable swap
    * @dev Will not swap if the asset passed in is the adopted asset

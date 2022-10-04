@@ -51,10 +51,10 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_maxRoutersExceeded();
   error BridgeFacet__execute_notSupportedRouter();
   error BridgeFacet__execute_invalidRouterSignature();
-  error BridgeFacet__execute_notApprovedForPortals();
   error BridgeFacet__execute_badFastLiquidityStatus();
   error BridgeFacet__execute_notReconciled();
-  error BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn();
+  error BridgeFacet__withdrawRouterLiquidity_insufficientFastLiquidity(address router);
+  error BridgeFacet__withdrawPortalLiquidity_insufficientAmountWithdrawn();
   error BridgeFacet__bumpTransfer_valueIsZero();
   error BridgeFacet__bumpTransfer_noRelayerVault();
   error BridgeFacet__forceUpdateSlippage_invalidSlippage();
@@ -333,36 +333,154 @@ contract BridgeFacet is BaseConnextFacet {
    * reconciliation to occur.
    */
   function execute(ExecuteArgs calldata _args) external nonReentrant whenNotPaused returns (bytes32) {
-    (bytes32 transferId, DestinationTransferStatus status) = _executeSanityChecks(_args);
+    bytes32 transferId;
+    DestinationTransferStatus status;
+    // Path length refers to the number of facilitating routers. A transfer is considered 'multipath'
+    // if multiple routers provide liquidity (in even 'shares') for it.
+    uint256 pathLength = _args.routers.length;
+    // If the path is empty, this MUST be a reconciled transfer.
+    // NOTE: A check exists below to assert that the current transfer status reflects this.
+    bool wasReconciled = pathLength == 0;
 
-    DestinationTransferStatus updated = status == DestinationTransferStatus.Reconciled
-      ? DestinationTransferStatus.Completed
-      : DestinationTransferStatus.Executed;
+    /// 1. Sanity and permissions checks.
+    {
+      // If the sender is not an approved relayer, revert.
+      if (!s.approvedRelayers[msg.sender] && msg.sender != _args.params.delegate) {
+        revert BridgeFacet__execute_unapprovedSender();
+      }
 
-    s.transferStatus[transferId] = updated;
+      // If this is not the destination domain, revert.
+      if (_args.params.destinationDomain != s.domain) {
+        revert BridgeFacet__execute_wrongDomain();
+      }
 
-    // Supply assets to target recipient. Use router liquidity when this is a fast transfer, or mint bridge tokens
-    // when this is a slow transfer.
-    // NOTE: Asset will be adopted unless specified to `receiveLocal` in params.
-    (uint256 amountOut, address asset, address local) = _handleExecuteLiquidity(
-      transferId,
-      AssetLogic.calculateCanonicalHash(_args.params.canonicalId, _args.params.canonicalDomain),
-      updated != DestinationTransferStatus.Completed,
-      _args
-    );
+      // Derive transfer ID based on given arguments.
+      transferId = _calculateTransferId(_args.params);
 
-    // Execute the transaction using the designated calldata.
-    uint256 amount = _handleExecuteTransaction(
-      _args,
-      amountOut,
-      asset,
-      transferId,
-      updated == DestinationTransferStatus.Completed
-    );
+      // Retrieve the transfer status record. This will be empty (DestinationTransferStatus.None) in the
+      // event of a fast-liquidity transfer, and DestinationTransferStatus.Reconciled in the event of
+      // a slow-liquidity transfer.
+      status = s.transferStatus[transferId];
 
-    // Emit event.
-    emit Executed(transferId, _args.params.to, asset, _args, local, amount, msg.sender);
+      if (!wasReconciled) {
+        // Make sure number of routers is below the configured maximum.
+        if (pathLength > s.maxRoutersPerTransfer) revert BridgeFacet__execute_maxRoutersExceeded();
 
+        // Check to make sure the transfer has not been reconciled (no need for routers if the transfer is
+        // already reconciled; i.e. if there are routers provided, the transfer must *not* be reconciled).
+        if (status != DestinationTransferStatus.None) revert BridgeFacet__execute_badFastLiquidityStatus();
+
+        // NOTE: The sequencer address may be empty and no signature needs to be provided in the case of the
+        // slow liquidity route (i.e. no routers involved).
+        // NOTE: Additionally, the sequencer does NOT need to be the msg.sender: that would be the relayer.
+        // Check to make sure the sequencer address provided is approved
+        if (!s.approvedSequencers[_args.sequencer]) {
+          revert BridgeFacet__execute_notSupportedSequencer();
+        }
+        // Check to make sure the sequencer provided did sign the transfer ID and router path provided.
+        if (
+          _args.sequencer !=
+          _recoverSignature(keccak256(abi.encode(transferId, _args.routers)), _args.sequencerSignature)
+        ) {
+          revert BridgeFacet__execute_invalidSequencerSignature();
+        }
+
+        // Hash the payload for which each router should have produced a signature.
+        // Each router should have signed the `transferId` (which implicitly signs call params,
+        // amount, and tokenId) as well as the `pathLength`, or the number of routers with which
+        // they are splitting liquidity provision.
+        bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
+
+        for (uint256 i; i < pathLength; ) {
+          // Make sure the router is approved, if applicable.
+          // If router ownership is renounced (_RouterOwnershipRenounced() is true), then the router whitelist
+          // no longer applies and we can skip this approval step.
+          if (!_isRouterWhitelistRemoved() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
+            revert BridgeFacet__execute_notSupportedRouter();
+          }
+
+          // Validate the signature. We'll recover the signer's address using the expected payload and basic ECDSA
+          // signature scheme recovery. The address for each signature must match the router's address.
+          if (_args.routers[i] != _recoverSignature(routerHash, _args.routerSignatures[i])) {
+            revert BridgeFacet__execute_invalidRouterSignature();
+          }
+
+          unchecked {
+            ++i;
+          }
+        }
+      } else if (status != DestinationTransferStatus.Reconciled) {
+        // If there are no routers for this transfer, this `execute` must be using slow-liquidity route; in
+        // which case, the transfer MUST have been reconciled. If it wasn't, we should revert.
+        revert BridgeFacet__execute_notReconciled();
+      }
+    }
+
+    /// 2. Update status of the destination transfer and record it.
+    // NOTE: Status flow for the transfer state machine:
+    // reconciled -> executed -> completed
+    // executed -> reconciled -> completed
+    status = wasReconciled ? DestinationTransferStatus.Completed : DestinationTransferStatus.Executed;
+    // Save the updated transfer status.
+    s.transferStatus[transferId] = status;
+
+    /// 3. Get asset information needed to handle transfer.
+    // TODO: Would be more efficient if we avoid all these calls in the event of a 0-value transfer...
+    // Get the canonical key for the asset we're transferring.
+    bytes32 key = AssetLogic.calculateCanonicalHash(_args.params.canonicalId, _args.params.canonicalDomain);
+    // Get the local asset contract address.
+    address local = _getLocalAsset(key, _args.params.canonicalId, _args.params.canonicalDomain);
+    // Delivered asset; local is default; if there's an adopted asset to be set, it should be in the block below.
+    address assetOut = _args.params.receiveLocal ? local : _getAdoptedAsset(key);
+    // The initial amountOut; this might change in the block below.
+    uint256 amountOut = _args.params.bridgedAmt;
+
+    /// 4. Source assets intended for recipient.
+    // NOTE: If this is a zero-value transfer (i.e. `bridgedAmt` is 0), no need to handle liquidity here.
+    if (amountOut != 0) {
+      if (!wasReconciled) {
+        // NOTE: This is the fast-liquidity path.
+        // Fee deduction: calculate amount that routers will provide with the fast-liquidity fee deducted.
+        amountOut = _muldiv(_args.params.bridgedAmt, s.LIQUIDITY_FEE_NUMERATOR, BPS_FEE_DENOMINATOR);
+        // Deduct liquidity from applicable router accounts.
+        _withdrawRouterLiquidity(transferId, _args.routers, local, assetOut, amountOut);
+        // Save the addresses of all the routers providing liquidity for this transfer. This will be used to reimburse
+        // them on reconcile.
+        s.routedTransfers[transferId] = _args.routers;
+      }
+      // NOTE: If this is a slow-liquidity path (i.e. the transfer `wasReconciled`), the funds would have been minted
+      // if needed and custodied in this contract. The exact custodied amount is untracked in state (since the amount
+      // is hashed in the transfer ID itself) - thus, no updates are required here to handle accounting in that case.
+
+      // If the local asset is specified, or the adopted asset was overridden (e.g. when user facing slippage
+      // conditions outside of their boundaries), continue without swapping.
+      // NOTE: In the event that `receiveLocal` is true, assetOut == local.
+      if (assetOut != local) {
+        // Check to see if there's an updated max slippage setting.
+        uint256 slippageOverride = s.slippage[transferId];
+
+        // Swap out of representational asset into adopted asset.
+        amountOut = AssetLogic.swapFromLocalAsset(
+          key,
+          local,
+          assetOut,
+          amountOut,
+          slippageOverride != 0 ? slippageOverride : _args.params.slippage,
+          _args.params.normalizedIn
+        );
+      }
+    }
+
+    /// 5. Deliver funds to the intended recipient, and execute the transaction using the designated calldata,
+    // if applicable.
+    // Transfer funds to recipient.
+    if (amountOut != 0) {
+      AssetLogic.handleOutgoingAsset(assetOut, _args.params.to, amountOut);
+    }
+    // Execute external calldata.
+    _executeCalldata(transferId, assetOut, amountOut, wasReconciled, _args.params);
+
+    emit Executed(transferId, _args.params.to, assetOut, _args, local, amountOut, msg.sender);
     return transferId;
   }
 
@@ -432,7 +550,7 @@ contract BridgeFacet is BaseConnextFacet {
     address _asset,
     uint256 _amount
   ) internal whenNotPaused returns (bytes32) {
-    // Sanity checks.
+    // 1. Sanity and permissions checks.
     bytes32 remoteInstance;
     {
       // Not native asset.
@@ -443,12 +561,12 @@ contract BridgeFacet is BaseConnextFacet {
         revert BridgeFacet__xcall_nativeAssetNotSupported();
       }
 
-      // Destination domain is supported.
+      // Destination domain must be supported.
       // NOTE: This check implicitly also checks that `_params.destinationDomain != s.domain`, because the index
       // `s.domain` of `s.remotes` should always be `bytes32(0)`.
       remoteInstance = _mustHaveRemote(_params.destinationDomain);
 
-      // Recipient defined.
+      // Recipient must be defined.
       if (_params.to == address(0)) {
         revert BridgeFacet__xcall_emptyTo();
       }
@@ -459,7 +577,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // NOTE: The local asset will stay address(0) if input asset is address(0) in the event of a
-    // 0-value transfer. Otherwise, the local address will be retrieved below
+    // 0-value transfer. Otherwise, the local address will be retrieved below.
     address local;
     bytes32 transferId;
     TokenId memory canonical;
@@ -543,247 +661,26 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Holds the logic to recover the signer from an encoded payload.
-   * @dev Will hash and convert to an eth signed message.
-   * @param _signed The hash that was signed.
-   * @param _sig The signature from which we will recover the signer.
-   */
-  function _recoverSignature(bytes32 _signed, bytes calldata _sig) internal pure returns (address) {
-    // Recover
-    return ECDSA.recover(ECDSA.toEthSignedMessageHash(_signed), _sig);
-  }
-
-  /**
-   * @notice Performs some sanity checks for `execute`.
-   * @dev Need this to prevent stack too deep.
-   * @param _args ExecuteArgs that were passed in to the `execute` call.
-   */
-  function _executeSanityChecks(ExecuteArgs calldata _args) private view returns (bytes32, DestinationTransferStatus) {
-    // If the sender is not approved relayer, revert
-    if (!s.approvedRelayers[msg.sender] && msg.sender != _args.params.delegate) {
-      revert BridgeFacet__execute_unapprovedSender();
-    }
-
-    // If this is not the destination domain revert
-    if (_args.params.destinationDomain != s.domain) {
-      revert BridgeFacet__execute_wrongDomain();
-    }
-
-    // Path length refers to the number of facilitating routers. A transfer is considered 'multipath'
-    // if multiple routers provide liquidity (in even 'shares') for it.
-    uint256 pathLength = _args.routers.length;
-
-    // Derive transfer ID based on given arguments.
-    bytes32 transferId = _calculateTransferId(_args.params);
-
-    // Retrieve the reconciled record.
-    DestinationTransferStatus status = s.transferStatus[transferId];
-
-    if (pathLength != 0) {
-      // Make sure number of routers is below the configured maximum.
-      if (pathLength > s.maxRoutersPerTransfer) revert BridgeFacet__execute_maxRoutersExceeded();
-
-      // Check to make sure the transfer has not been reconciled (no need for routers if the transfer is
-      // already reconciled; i.e. if there are routers provided, the transfer must *not* be reconciled).
-      if (status != DestinationTransferStatus.None) revert BridgeFacet__execute_badFastLiquidityStatus();
-
-      // NOTE: The sequencer address may be empty and no signature needs to be provided in the case of the
-      // slow liquidity route (i.e. no routers involved). Additionally, the sequencer does not need to be the
-      // msg.sender.
-      // Check to make sure the sequencer address provided is approved
-      if (!s.approvedSequencers[_args.sequencer]) {
-        revert BridgeFacet__execute_notSupportedSequencer();
-      }
-      // Check to make sure the sequencer provided did sign the transfer ID and router path provided.
-      if (
-        _args.sequencer != _recoverSignature(keccak256(abi.encode(transferId, _args.routers)), _args.sequencerSignature)
-      ) {
-        revert BridgeFacet__execute_invalidSequencerSignature();
-      }
-
-      // Hash the payload for which each router should have produced a signature.
-      // Each router should have signed the `transferId` (which implicitly signs call params,
-      // amount, and tokenId) as well as the `pathLength`, or the number of routers with which
-      // they are splitting liquidity provision.
-      bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
-
-      for (uint256 i; i < pathLength; ) {
-        // Make sure the router is approved, if applicable.
-        // If router ownership is renounced (_RouterOwnershipRenounced() is true), then the router whitelist
-        // no longer applies and we can skip this approval step.
-        if (!_isRouterWhitelistRemoved() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
-          revert BridgeFacet__execute_notSupportedRouter();
-        }
-
-        // Validate the signature. We'll recover the signer's address using the expected payload and basic ECDSA
-        // signature scheme recovery. The address for each signature must match the router's address.
-        if (_args.routers[i] != _recoverSignature(routerHash, _args.routerSignatures[i])) {
-          revert BridgeFacet__execute_invalidRouterSignature();
-        }
-
-        unchecked {
-          ++i;
-        }
-      }
-    } else {
-      // If there are no routers for this transfer, this `execute` must be a slow liquidity route; in which
-      // case, we must make sure the transfer's been reconciled.
-      if (status != DestinationTransferStatus.Reconciled) revert BridgeFacet__execute_notReconciled();
-    }
-
-    return (transferId, status);
-  }
-
-  /**
-   * @notice Calculates fast transfer amount.
-   * @param _amount Transfer amount
-   * @param _numerator Numerator
-   * @param _denominator Denominator
-   */
-  function _muldiv(
-    uint256 _amount,
-    uint256 _numerator,
-    uint256 _denominator
-  ) private pure returns (uint256) {
-    return (_amount * _numerator) / _denominator;
-  }
-
-  /**
-   * @notice Execute liquidity process used when calling `execute`.
-   * @dev Will revert with underflow if any router in the path has insufficient liquidity to provide
-   * for the transfer.
-   * @dev Need this to prevent stack too deep.
-   */
-  function _handleExecuteLiquidity(
-    bytes32 _transferId,
-    bytes32 _key,
-    bool _isFast,
-    ExecuteArgs calldata _args
-  )
-    private
-    returns (
-      uint256,
-      address,
-      address
-    )
-  {
-    // Save the addresses of all routers providing liquidity for this transfer.
-    s.routedTransfers[_transferId] = _args.routers;
-
-    // Get the local asset contract address.
-    address local = _getLocalAsset(_key, _args.params.canonicalId, _args.params.canonicalDomain);
-
-    // If this is a zero-value transfer, short-circuit remaining logic.
-    if (_args.params.bridgedAmt == 0) {
-      return (0, local, local);
-    }
-
-    uint256 toSwap = _args.params.bridgedAmt;
-    // If this is a fast liquidity path, we should handle deducting from applicable routers' liquidity.
-    // If this is a slow liquidity path, the transfer must have been reconciled (if we've reached this point),
-    // and the funds would have been custodied in this contract. The exact custodied amount is untracked in state
-    // (since the amount is hashed in the transfer ID itself) - thus, no updates are required.
-    if (_isFast) {
-      uint256 pathLen = _args.routers.length;
-
-      // Calculate amount that routers will provide with the fast-liquidity fee deducted.
-      toSwap = _muldiv(_args.params.bridgedAmt, s.LIQUIDITY_FEE_NUMERATOR, BPS_FEE_DENOMINATOR);
-
-      if (pathLen == 1) {
-        // If router does not have enough liquidity, try to use Aave Portals.
-        // NOTE: Only one router should be responsible for taking on this credit risk, and it should only deal
-        // with transfers expecting adopted assets (to avoid introducing runtime slippage).
-        if (
-          !_args.params.receiveLocal && s.routerBalances[_args.routers[0]][local] < toSwap && s.aavePool != address(0)
-        ) {
-          if (!s.routerPermissionInfo.approvedForPortalRouters[_args.routers[0]])
-            revert BridgeFacet__execute_notApprovedForPortals();
-
-          // Portals deliver the adopted asset directly; return after portal execution is completed.
-          (uint256 portalDeliveredAmount, address adoptedAsset) = _executePortalTransfer(
-            _transferId,
-            _key,
-            toSwap,
-            _args.routers[0]
-          );
-          return (portalDeliveredAmount, adoptedAsset, local);
-        } else {
-          // Decrement the router's liquidity.
-          s.routerBalances[_args.routers[0]][local] -= toSwap;
-        }
-      } else {
-        // For each router, assert they are approved, and deduct liquidity.
-        uint256 routerAmount = toSwap / pathLen;
-        for (uint256 i; i < pathLen - 1; ) {
-          // Decrement router's liquidity.
-          // NOTE: If any router in the path has insufficient liquidity, this will revert with an underflow error.
-          s.routerBalances[_args.routers[i]][local] -= routerAmount;
-
-          unchecked {
-            ++i;
-          }
-        }
-        // The last router in the multipath will sweep the remaining balance to account for remainder dust.
-        uint256 toSweep = routerAmount + (toSwap % pathLen);
-        s.routerBalances[_args.routers[pathLen - 1]][local] -= toSweep;
-      }
-    }
-
-    // If the local asset is specified, or the adopted asset was overridden (e.g. when user facing slippage
-    // conditions outside of their boundaries), exit without swapping.
-    if (_args.params.receiveLocal) {
-      return (toSwap, local, local);
-    }
-
-    // Swap out of representational asset into adopted asset if needed.
-    uint256 slippageOverride = s.slippage[_transferId];
-    (uint256 amount, address adopted) = AssetLogic.swapFromLocalAssetIfNeeded(
-      _key,
-      local,
-      toSwap,
-      slippageOverride != 0 ? slippageOverride : _args.params.slippage,
-      _args.params.normalizedIn
-    );
-    return (amount, adopted, local);
-  }
-
-  /**
-   * @notice Process the transfer, and calldata if needed, when calling `execute`
-   * @dev Need this to prevent stack too deep
-   */
-  function _handleExecuteTransaction(
-    ExecuteArgs calldata _args,
-    uint256 _amountOut,
-    address _asset, // adopted (or local if specified)
-    bytes32 _transferId,
-    bool _reconciled
-  ) private returns (uint256) {
-    // transfer funds to recipient
-    AssetLogic.handleOutgoingAsset(_asset, _args.params.to, _amountOut);
-
-    // execute the calldata
-    _executeCalldata(_transferId, _amountOut, _asset, _reconciled, _args.params);
-
-    return _amountOut;
-  }
-
-  /**
-   * @notice Executes external calldata.
-   * 
-   * @dev Once a transfer is reconciled (i.e. data is authenticated), external calls will
-   * fail gracefully. This means errors will be emitted in an event, but the function itself
-   * will not revert.
-
-   * In the case where a transaction is *not* reconciled (i.e. data is unauthenticated), this
-   * external call will fail loudly. This allows all functions that rely on authenticated data
-   * (using a specific check on the origin sender), to be forced into the slow path for
-   * execution to succeed.
-   * 
+   * @notice Safely executes external calldata.
+   *
+   * @dev If the transfer was reconciled (i.e. data is authenticated), external calls that would fail will do
+   * so gracefully and not revert. This means that any applicable errors will be emitted in an event, but
+   * the function itself will not revert.
+   *
+   * In the case where a transaction is *not* reconciled (i.e. data is unauthenticated), this external
+   * call WILL revert. This allows all functions that rely on authenticated data (using a specific check
+   * on the origin sender), to be forced into the slow path for execution to succeed.
+   *
+   * @param _transferId The transfer ID.
+   * @param _asset Local asset address to deduct from routers' accounts.
+   * @param _amount The amount of the given `_asset` to deliver to intended recipient.
+   * @param _reconciled Whether the destination transfer has already been reconciled (i.e. slow-liquidity path).
+   * @param _params The TransferInfo params to consult when formatting the external call.
    */
   function _executeCalldata(
     bytes32 _transferId,
-    uint256 _amount,
     address _asset,
+    uint256 _amount,
     bool _reconciled,
     TransferInfo calldata _params
   ) internal {
@@ -837,37 +734,117 @@ contract BridgeFacet is BaseConnextFacet {
     emit ExternalCalldataExecuted(_transferId, success, returnData);
   }
 
+  // ============ Internal: Accounting ============
+
   /**
-   * @notice Uses Aave Portals to provide fast liquidity
+   * @notice Handle deducting liquidity from given routers' accounts for the specified asset. If there are
+   * multiple routers in the path, debited amount will be divided up evenly between them.
+   * @dev If a single router is in the path and the router doesn't have enough liquidity, we will try to
+   * use Aave Portals to source the target asset.
+   * @dev Reverts with convenient error if any one router does not have sufficient liquidity.
+   *
+   * @param transferId The transfer ID.
+   * @param routers Path of routers from whose accounts we should deduct target funds.
+   * @param local Local asset address to deduct from routers' accounts.
+   * @param adopted The adopted asset address to try withdrawing from portals if router has insufficient
+   * amount of local asset. If set to address(0), portals won't be used! Setting this value to local is
+   * acceptable in the event that the local asset *is* the adopted asset and Aave Portals provides it.
+   * @param total The amount that must be debited in total across all routers. Should be the amount AFTER
+   * taking router fees, if applicable!
    */
-  function _executePortalTransfer(
-    bytes32 _transferId,
-    bytes32 _key,
-    uint256 _fastTransferAmount,
-    address _router
-  ) internal returns (uint256, address) {
-    // Calculate local to adopted swap output if needed
-    address adopted = _getAdoptedAsset(_key);
+  function _withdrawRouterLiquidity(
+    bytes32 transferId,
+    address[] calldata routers,
+    address local,
+    address adopted,
+    uint256 total
+  ) internal {
+    uint256 pathLength = routers.length;
+    if (pathLength == 1) {
+      // NOTE: Separate handling for single-router path.
+      address router = routers[0];
+      uint256 routerLiquidity = s.routerBalances[router][local];
 
-    IAavePool(s.aavePool).mintUnbacked(adopted, _fastTransferAmount, address(this), AAVE_REFERRAL_CODE);
+      // Check to see if router has enough liquidity.
+      if (routerLiquidity < total) {
+        // Decrement the target router's liquidity.
+        unchecked {
+          s.routerBalances[router][local] -= total;
+        }
+      } else if (
+        adopted != address(0) && s.routerPermissionInfo.approvedForPortalRouters[router] && s.aavePool != address(0)
+      ) {
+        // If router does not have enough liquidity, and the router is approved for it, try to use Aave Portals.
+        // NOTE: Only one router should be responsible for taking on this credit risk, and it should only deal
+        // with transfers expecting adopted assets (to avoid introducing runtime slippage).
 
-    // Improvement: Instead of withdrawing to address(this), withdraw directly to the user or executor to save 1 transfer
-    uint256 amountWithdrawn = IAavePool(s.aavePool).withdraw(adopted, _fastTransferAmount, address(this));
+        // Portals deliver the adopted asset directly; return after portal execution is completed.
+        _withdrawPortalLiquidity(transferId, router, adopted, total);
+      } else {
+        // Router did not have enough funds and was not approved for portals!
+        revert BridgeFacet__withdrawRouterLiquidity_insufficientFastLiquidity(router);
+      }
+    } else {
+      address router;
+      uint256 routerLiquidity;
+      // For each router, assert they are approved, and deduct liquidity.
+      uint256 routerAmount = total / pathLength;
+      for (uint256 i; i < pathLength - 1; ) {
+        // Check to make sure router has sufficient liquidity.
+        router = routers[i];
+        routerLiquidity = s.routerBalances[router][local];
+        if (routerLiquidity < routerAmount)
+          revert BridgeFacet__withdrawRouterLiquidity_insufficientFastLiquidity(router);
+        unchecked {
+          // Decrement router's liquidity.
+          s.routerBalances[router][local] = routerLiquidity - routerAmount;
 
-    if (amountWithdrawn < _fastTransferAmount) revert BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn();
-
-    // Store principle debt
-    s.portalDebt[_transferId] = _fastTransferAmount;
-
-    // Store fee debt
-    s.portalFeeDebt[_transferId] = (s.aavePortalFeeNumerator * _fastTransferAmount) / BPS_FEE_DENOMINATOR;
-
-    emit AavePortalMintUnbacked(_transferId, _router, adopted, _fastTransferAmount);
-
-    return (_fastTransferAmount, adopted);
+          ++i;
+        }
+      }
+      // The last router in the multipath will sweep the remaining balance to account for remainder dust.
+      routerAmount = routerAmount + (total % pathLength);
+      router = routers[pathLength - 1];
+      routerLiquidity = s.routerBalances[router][local];
+      if (routerLiquidity < routerAmount) revert BridgeFacet__withdrawRouterLiquidity_insufficientFastLiquidity(router);
+      unchecked {
+        // Decrement router's liquidity.
+        s.routerBalances[router][local] = routerLiquidity - routerAmount;
+      }
+    }
   }
 
-  // ============ Internal: Send ============
+  /**
+   * @notice Uses Aave Portals to provide fast liquidity via unbacked loans.
+   * @dev Reverts if amount withdrawn from portals is not equal to the desired amount.
+   *
+   * @param transferId The transfer ID.
+   * @param router The router who will take on the credit obligation.
+   * @param adopted The adopted asset address to try withdrawing from the Aave pool.
+   * @param amount The target amount we wish to loan from the Aave pool.
+   */
+  function _withdrawPortalLiquidity(
+    bytes32 transferId,
+    address router,
+    address adopted,
+    uint256 amount
+  ) internal {
+    IAavePool(s.aavePool).mintUnbacked(adopted, amount, address(this), AAVE_REFERRAL_CODE);
+
+    // TODO: Instead of withdrawing to address(this), withdraw directly to the user or executor to save 1 transfer?
+    uint256 amountWithdrawn = IAavePool(s.aavePool).withdraw(adopted, amount, address(this));
+
+    if (amountWithdrawn != amount) revert BridgeFacet__withdrawPortalLiquidity_insufficientAmountWithdrawn();
+
+    // Store principle debt.
+    s.portalDebt[transferId] = amount;
+    // Store fee debt.
+    s.portalFeeDebt[transferId] = (s.aavePortalFeeNumerator * amount) / BPS_FEE_DENOMINATOR;
+
+    emit AavePortalMintUnbacked(transferId, router, adopted, amount);
+  }
+
+  // ============ Internal: Messaging Layer ============
 
   /**
    * @notice Format and send transfer message to a remote chain.
@@ -929,5 +906,32 @@ contract BridgeFacet is BaseConnextFacet {
     if (_remote == bytes32(0)) {
       revert BridgeFacet__mustHaveRemote_destinationNotSupported();
     }
+  }
+
+  // ============ Internal: Helpers ============
+
+  /**
+   * @notice Holds the logic to recover the signer from an encoded payload.
+   * @dev Will hash and convert to an eth signed message.
+   * @param _signed The hash that was signed.
+   * @param _sig The signature from which we will recover the signer.
+   */
+  function _recoverSignature(bytes32 _signed, bytes calldata _sig) internal pure returns (address) {
+    // Recover
+    return ECDSA.recover(ECDSA.toEthSignedMessageHash(_signed), _sig);
+  }
+
+  /**
+   * @notice Calculates fast transfer amount.
+   * @param _amount Transfer amount
+   * @param _numerator Numerator
+   * @param _denominator Denominator
+   */
+  function _muldiv(
+    uint256 _amount,
+    uint256 _numerator,
+    uint256 _denominator
+  ) private pure returns (uint256) {
+    return (_amount * _numerator) / _denominator;
   }
 }
