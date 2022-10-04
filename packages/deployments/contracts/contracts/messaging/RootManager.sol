@@ -29,9 +29,9 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   event RootPropagated(bytes32 aggregate, uint32[] domains, uint256 count);
 
-  event ConnectorAdded(uint32 domain, address connector);
+  event ConnectorAdded(uint32 domain, address connector, uint32[] domains, address[] connectors);
 
-  event ConnectorRemoved(uint32 domain, address connector);
+  event ConnectorRemoved(uint32 domain, address connector, uint32[] domains, address[] connectors, address caller);
 
   // ============ Properties ============
 
@@ -116,7 +116,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    */
   function addConnector(uint32 _domain, address _connector) external onlyOwner {
     addDomain(_domain, _connector);
-    emit ConnectorAdded(_domain, _connector);
+    emit ConnectorAdded(_domain, _connector, domains, connectors);
   }
 
   /**
@@ -129,7 +129,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    */
   function removeConnector(uint32 _domain) public onlyWatcher {
     address _connector = removeDomain(_domain);
-    emit ConnectorRemoved(_domain, _connector);
+    emit ConnectorRemoved(_domain, _connector, domains, connectors, msg.sender);
   }
 
   // ============ Public Functions ============

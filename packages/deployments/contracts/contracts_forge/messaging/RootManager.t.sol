@@ -17,9 +17,9 @@ contract RootManagerTest is ForgeHelper {
 
   event RootPropagated(bytes32 aggregate, uint32[] domains, uint256 count);
 
-  event ConnectorAdded(uint32 domain, address connector);
+  event ConnectorAdded(uint32 domain, address connector, uint32[] domains, address[] connectors);
 
-  event ConnectorRemoved(uint32 domain, address connector);
+  event ConnectorRemoved(uint32 domain, address connector, uint32[] domains, address[] connectors, address caller);
 
   // ============ Storage ============
   RootManager _rootManager;
@@ -85,7 +85,7 @@ contract RootManagerTest is ForgeHelper {
   // ============ RootManager.addConnector ============
   function test_RootManager__addConnector_shouldWork() public {
     vm.expectEmit(true, true, true, true);
-    emit ConnectorAdded(_domains[0], _connectors[0]);
+    emit ConnectorAdded(_domains[0], _connectors[0], _domains, _connectors);
 
     vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
@@ -128,8 +128,11 @@ contract RootManagerTest is ForgeHelper {
     vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
 
+    uint32[] memory emitted = new uint32[](0);
+    address[] memory emittedConnectors = new address[](0);
+
     vm.expectEmit(true, true, true, true);
-    emit ConnectorRemoved(_domains[0], _connectors[0]);
+    emit ConnectorRemoved(_domains[0], _connectors[0], emitted, emittedConnectors, address(this));
 
     vm.mockCall(
       watcherManager,
