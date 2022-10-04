@@ -109,7 +109,9 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   // should fail if not owner
   function test_PortalFacet__setAavePool_failsIfNotOwner() public {
     vm.prank(address(10));
-    vm.expectRevert(abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector));
+    vm.expectRevert(
+      abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector)
+    );
     this.setAavePool(aavePool);
   }
 
@@ -130,7 +132,9 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     uint256 fee = 5;
 
     vm.prank(address(10));
-    vm.expectRevert(abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector));
+    vm.expectRevert(
+      abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector)
+    );
     this.setAavePortalFee(fee);
   }
 

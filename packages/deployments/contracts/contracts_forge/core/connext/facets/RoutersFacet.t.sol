@@ -237,8 +237,8 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     assertEq(s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0], false);
   }
 
-  function test_RoutersFacet__removeRouter_failsIfNotOwnerOrAdmin() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
+  function test_RoutersFacet__removeRouter_failsIfNotOwnerOrRouter() public {
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter.selector);
     vm.prank(address(123456123));
     this.removeRouter(address(0));
   }
@@ -332,7 +332,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__setMaxRoutersPerTransfer_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     vm.prank(address(123456654321));
     this.setMaxRoutersPerTransfer(10);
   }
@@ -367,7 +367,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__setLiquidityFeeNumerator_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     vm.prank(address(123456654321));
     this.setLiquidityFeeNumerator(9995);
   }

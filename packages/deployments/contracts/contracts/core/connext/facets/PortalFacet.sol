@@ -53,7 +53,7 @@ contract PortalFacet is BaseConnextFacet {
    * @dev Allows to set the aavePool to address zero to disable Aave Portal if needed
    * @param _aavePool The address of the Aave Pool contract
    */
-  function setAavePool(address _aavePool) external onlyOwner {
+  function setAavePool(address _aavePool) external onlyOwnerOrAdmin {
     s.aavePool = _aavePool;
   }
 
@@ -61,7 +61,7 @@ contract PortalFacet is BaseConnextFacet {
    * @notice Sets the Aave Portal fee numerator
    * @param _aavePortalFeeNumerator The new value for the Aave Portal fee numerator
    */
-  function setAavePortalFee(uint256 _aavePortalFeeNumerator) external onlyOwner {
+  function setAavePortalFee(uint256 _aavePortalFeeNumerator) external onlyOwnerOrAdmin {
     if (_aavePortalFeeNumerator > BPS_FEE_DENOMINATOR) revert PortalFacet__setAavePortalFee_invalidFee();
 
     s.aavePortalFeeNumerator = _aavePortalFeeNumerator;

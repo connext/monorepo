@@ -158,7 +158,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     assertTrue(_owner != address(1));
 
     vm.prank(address(1));
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
     this.initializeSwap(
       key,
@@ -435,7 +435,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     assertTrue(_owner != address(1));
 
     vm.prank(address(1));
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
     this.withdrawSwapAdminFees(_canonicalKey);
   }
@@ -482,7 +482,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     assertTrue(_owner != address(1));
 
     vm.prank(address(1));
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
     this.setSwapAdminFee(_canonicalKey, 1e8);
   }
@@ -512,7 +512,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     assertTrue(_owner != address(1));
 
     vm.prank(address(1));
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
     this.setSwapFee(_canonicalKey, 1e8);
   }
@@ -542,7 +542,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     assertTrue(_owner != address(1));
 
     vm.prank(address(1));
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
     this.rampA(_canonicalKey, 100, blockTimestamp + 14 days + 1);
   }
@@ -617,7 +617,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     assertTrue(_owner != address(1));
 
     vm.prank(address(1));
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
     this.stopRampA(_canonicalKey);
   }

@@ -828,7 +828,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // test revert
     vm.prank(_defaultOriginSender);
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     this.addSequencer(sequencer);
   }
 
@@ -866,7 +866,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // test revert
     vm.prank(_defaultOriginSender);
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     this.removeSequencer(sequencer);
   }
 

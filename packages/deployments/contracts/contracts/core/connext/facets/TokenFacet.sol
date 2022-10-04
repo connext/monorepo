@@ -168,7 +168,7 @@ contract TokenFacet is BaseConnextFacet {
     address _adoptedAssetId,
     address _stableSwapPool,
     uint256 _cap
-  ) external onlyOwner returns (address _local) {
+  ) external onlyOwnerOrAdmin returns (address _local) {
     // Deploy the representation token if on a remote domain
     if (_canonical.domain != s.domain) {
       _local = _deployRepresentation(
@@ -194,7 +194,7 @@ contract TokenFacet is BaseConnextFacet {
     address _adoptedAssetId,
     address _stableSwapPool,
     uint256 _cap
-  ) external onlyOwner returns (address) {
+  ) external onlyOwnerOrAdmin returns (address) {
     bytes32 key = _enrollAdoptedAndLocalAssets(_adoptedAssetId, _representation, _stableSwapPool, _canonical);
     if (_cap != 0) {
       _setLiquidityCap(_canonical, _cap, key);
@@ -206,7 +206,7 @@ contract TokenFacet is BaseConnextFacet {
    * @notice Adds a stable swap pool for the local <> adopted asset.
    * @dev Must pass in the _canonical information so it can be emitted in event
    */
-  function addStableSwapPool(TokenId calldata _canonical, address _stableSwapPool) external onlyOwner {
+  function addStableSwapPool(TokenId calldata _canonical, address _stableSwapPool) external onlyOwnerOrAdmin {
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
     _addStableSwapPool(_canonical, _stableSwapPool, key);
   }
@@ -215,7 +215,7 @@ contract TokenFacet is BaseConnextFacet {
    * @notice Adds a stable swap pool for the local <> adopted asset.
    * @dev Must pass in the _canonical information so it can be emitted in event
    */
-  function updateLiquidityCap(TokenId calldata _canonical, uint256 _updated) external onlyOwner {
+  function updateLiquidityCap(TokenId calldata _canonical, uint256 _updated) external onlyOwnerOrAdmin {
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
     _setLiquidityCap(_canonical, _updated, key);
   }
@@ -229,7 +229,7 @@ contract TokenFacet is BaseConnextFacet {
     bytes32 _key,
     address _adoptedAssetId,
     address _representation
-  ) external onlyOwner {
+  ) external onlyOwnerOrAdmin {
     _removeAssetId(_key, _adoptedAssetId, _representation);
   }
 
@@ -242,7 +242,7 @@ contract TokenFacet is BaseConnextFacet {
     TokenId calldata _canonical,
     address _adoptedAssetId,
     address _representation
-  ) external onlyOwner {
+  ) external onlyOwnerOrAdmin {
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
     _removeAssetId(key, _adoptedAssetId, _representation);
   }
@@ -257,7 +257,7 @@ contract TokenFacet is BaseConnextFacet {
     TokenId calldata _canonical,
     string memory _name,
     string memory _symbol
-  ) external onlyOwner {
+  ) external onlyOwnerOrAdmin {
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
     address local = s.canonicalToRepresentation[key];
     if (local == address(0)) {

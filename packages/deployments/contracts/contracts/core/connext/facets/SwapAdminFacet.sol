@@ -116,7 +116,7 @@ contract SwapAdminFacet is BaseConnextFacet {
     uint256 _fee,
     uint256 _adminFee,
     address lpTokenTargetAddress
-  ) external onlyOwner {
+  ) external onlyOwnerOrAdmin {
     if (s.swapStorages[_key].pooledTokens.length != 0) revert SwapAdminFacet__initializeSwap_alreadyInitialized();
 
     // Check _pooledTokens and precisions parameter
@@ -180,7 +180,7 @@ contract SwapAdminFacet is BaseConnextFacet {
    * @notice Withdraw all admin fees to the contract owner
    * @param key Hash of the canonical domain and id
    */
-  function withdrawSwapAdminFees(bytes32 key) external onlyOwner nonReentrant {
+  function withdrawSwapAdminFees(bytes32 key) external onlyOwnerOrAdmin nonReentrant {
     s.swapStorages[key].withdrawAdminFees(msg.sender);
     emit AdminFeesWithdrawn(key, msg.sender);
   }
@@ -190,7 +190,7 @@ contract SwapAdminFacet is BaseConnextFacet {
    * @param key Hash of the canonical domain and id
    * @param newAdminFee new admin fee to be applied on future transactions
    */
-  function setSwapAdminFee(bytes32 key, uint256 newAdminFee) external onlyOwner {
+  function setSwapAdminFee(bytes32 key, uint256 newAdminFee) external onlyOwnerOrAdmin {
     s.swapStorages[key].setAdminFee(newAdminFee);
     emit AdminFeesSet(key, newAdminFee, msg.sender);
   }
@@ -200,7 +200,7 @@ contract SwapAdminFacet is BaseConnextFacet {
    * @param key Hash of the canonical domain and id
    * @param newSwapFee new swap fee to be applied on future transactions
    */
-  function setSwapFee(bytes32 key, uint256 newSwapFee) external onlyOwner {
+  function setSwapFee(bytes32 key, uint256 newSwapFee) external onlyOwnerOrAdmin {
     s.swapStorages[key].setSwapFee(newSwapFee);
     emit SwapFeesSet(key, newSwapFee, msg.sender);
   }
@@ -217,7 +217,7 @@ contract SwapAdminFacet is BaseConnextFacet {
     bytes32 key,
     uint256 futureA,
     uint256 futureTime
-  ) external onlyOwner {
+  ) external onlyOwnerOrAdmin {
     s.swapStorages[key].rampA(futureA, futureTime);
     emit RampAStarted(key, futureA, futureTime, msg.sender);
   }
@@ -226,7 +226,7 @@ contract SwapAdminFacet is BaseConnextFacet {
    * @notice Stop ramping A immediately. Reverts if ramp A is already stopped.
    * @param key Hash of the canonical domain and id
    */
-  function stopRampA(bytes32 key) external onlyOwner {
+  function stopRampA(bytes32 key) external onlyOwnerOrAdmin {
     s.swapStorages[key].stopRampA();
     emit RampAStopped(key, msg.sender);
   }

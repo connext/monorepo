@@ -210,7 +210,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Used to add an approved sequencer to the whitelist.
    * @param _sequencer - The sequencer address to add.
    */
-  function addSequencer(address _sequencer) external onlyOwner {
+  function addSequencer(address _sequencer) external onlyOwnerOrAdmin {
     if (s.approvedSequencers[_sequencer]) revert BridgeFacet__addSequencer_alreadyApproved();
     s.approvedSequencers[_sequencer] = true;
 
@@ -221,7 +221,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Used to remove an approved sequencer from the whitelist.
    * @param _sequencer - The sequencer address to remove.
    */
-  function removeSequencer(address _sequencer) external onlyOwner {
+  function removeSequencer(address _sequencer) external onlyOwnerOrAdmin {
     if (!s.approvedSequencers[_sequencer]) revert BridgeFacet__removeSequencer_notApproved();
     delete s.approvedSequencers[_sequencer];
 
@@ -232,7 +232,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Modify the contract the xApp uses to validate Replica contracts
    * @param _xAppConnectionManager The address of the xAppConnectionManager contract
    */
-  function setXAppConnectionManager(address _xAppConnectionManager) external onlyOwner {
+  function setXAppConnectionManager(address _xAppConnectionManager) external onlyOwnerOrAdmin {
     s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
   }
 
@@ -241,7 +241,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _domain The domain of the remote xApp Router
    * @param _router The address of the remote xApp Router
    */
-  function enrollRemoteRouter(uint32 _domain, bytes32 _router) external onlyOwner {
+  function enrollRemoteRouter(uint32 _domain, bytes32 _router) external onlyOwnerOrAdmin {
     // Make sure we aren't setting the current domain as the connextion.
     if (_domain == s.domain) {
       revert BridgeFacet__addRemote_invalidDomain();
