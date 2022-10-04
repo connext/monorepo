@@ -261,16 +261,18 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _slippage,
     bytes calldata _callData
   ) external payable returns (bytes32) {
-    // NOTE: These TransferIdInformation fill in as much information as they can, but
-    // some info is left blank and will be assigned in the internal _xcall
-    // function (i.e. normalizedIn, bridgedAmt, canonical info, etc).
+    // NOTE: Here, we fill in as much information as we can for the TransferIdInformation.
+    // Some info is left blank and will be assigned in the internal `_xcall` function (e.g.
+    // `normalizedIn`, `bridgedAmt`, canonical info, etc).
     TransferIdInformation memory params = TransferIdInformation({
       to: _to,
       callData: _callData,
       originDomain: s.domain,
       destinationDomain: _destination,
       delegate: _delegate,
-      receiveLocal: false, // Always swap into adopted in xcall pass.
+      // `receiveLocal: false` indicates we should always deliver the adopted asset on the
+      // destination chain, swapping from the local asset if needed.
+      receiveLocal: false,
       slippage: _slippage,
       originSender: msg.sender,
       // The following values should be assigned in _xcall.
@@ -292,16 +294,18 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _slippage,
     bytes calldata _callData
   ) external payable returns (bytes32) {
-    // NOTE: These TransferIdInformation fill in as much information as they can, but
-    // some info is left blank and will be assigned in the internal _xcall
-    // function (i.e. normalizedIn, bridgedAmt, canonical info, etc).
+    // NOTE: Here, we fill in as much information as we can for the TransferIdInformation.
+    // Some info is left blank and will be assigned in the internal `_xcall` function (e.g.
+    // `normalizedIn`, `bridgedAmt`, canonical info, etc).
     TransferIdInformation memory params = TransferIdInformation({
       to: _to,
       callData: _callData,
       originDomain: s.domain,
       destinationDomain: _destination,
       delegate: _delegate,
-      receiveLocal: true, // Don't swap into adopted.
+      // `receiveLocal: true` indicates we should always deliver the local asset on the
+      // destination chain, and NOT swap into any adopted assets.
+      receiveLocal: true,
       slippage: _slippage,
       originSender: msg.sender,
       // The following values should be assigned in _xcall.
@@ -373,7 +377,6 @@ contract BridgeFacet is BaseConnextFacet {
     if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
     Address.sendValue(payable(s.relayerFeeVault), msg.value);
 
-    // console.log("emitting event");
     emit TransferRelayerFeesIncreased(_transferId, msg.value, msg.sender);
   }
 
@@ -542,8 +545,8 @@ contract BridgeFacet is BaseConnextFacet {
   /**
    * @notice Holds the logic to recover the signer from an encoded payload.
    * @dev Will hash and convert to an eth signed message.
-   * @param _signed The hash that was signed
-   * @param _sig The signature you are recovering the signer from
+   * @param _signed The hash that was signed.
+   * @param _sig The signature from which we will recover the signer.
    */
   function _recoverSignature(bytes32 _signed, bytes calldata _sig) internal pure returns (address) {
     // Recover
@@ -553,6 +556,7 @@ contract BridgeFacet is BaseConnextFacet {
   /**
    * @notice Performs some sanity checks for `execute`.
    * @dev Need this to prevent stack too deep.
+   * @param _args ExecuteArgs that were passed in to the `execute` call.
    */
   function _executeSanityChecks(ExecuteArgs calldata _args) private view returns (bytes32, DestinationTransferStatus) {
     // If the sender is not approved relayer, revert
@@ -569,22 +573,16 @@ contract BridgeFacet is BaseConnextFacet {
     // if multiple routers provide liquidity (in even 'shares') for it.
     uint256 pathLength = _args.routers.length;
 
-    // Make sure number of routers is below the configured maximum.
-    if (pathLength > s.maxRoutersPerTransfer) revert BridgeFacet__execute_maxRoutersExceeded();
-
     // Derive transfer ID based on given arguments.
     bytes32 transferId = _calculateTransferId(_args.params);
 
     // Retrieve the reconciled record.
     DestinationTransferStatus status = s.transferStatus[transferId];
 
-    // Hash the payload for which each router should have produced a signature.
-    // Each router should have signed the `transferId` (which implicitly signs call params,
-    // amount, and tokenId) as well as the `pathLength`, or the number of routers with which
-    // they are splitting liquidity provision.
-    bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
-
     if (pathLength != 0) {
+      // Make sure number of routers is below the configured maximum.
+      if (pathLength > s.maxRoutersPerTransfer) revert BridgeFacet__execute_maxRoutersExceeded();
+
       // Check to make sure the transfer has not been reconciled (no need for routers if the transfer is
       // already reconciled; i.e. if there are routers provided, the transfer must *not* be reconciled).
       if (status != DestinationTransferStatus.None) revert BridgeFacet__execute_badFastLiquidityStatus();
@@ -602,6 +600,12 @@ contract BridgeFacet is BaseConnextFacet {
       ) {
         revert BridgeFacet__execute_invalidSequencerSignature();
       }
+
+      // Hash the payload for which each router should have produced a signature.
+      // Each router should have signed the `transferId` (which implicitly signs call params,
+      // amount, and tokenId) as well as the `pathLength`, or the number of routers with which
+      // they are splitting liquidity provision.
+      bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
 
       for (uint256 i; i < pathLength; ) {
         // Make sure the router is approved, if applicable.
