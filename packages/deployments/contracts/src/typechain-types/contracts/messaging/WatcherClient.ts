@@ -31,12 +31,15 @@ export interface WatcherClientInterface extends utils.Interface {
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
     "owner()": FunctionFragment;
+    "pause()": FunctionFragment;
+    "paused()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
+    "unpause()": FunctionFragment;
   };
 
   getFunction(
@@ -44,12 +47,15 @@ export interface WatcherClientInterface extends utils.Interface {
       | "acceptProposedOwner"
       | "delay"
       | "owner"
+      | "pause"
+      | "paused"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
       | "renounceOwnership"
       | "renounced"
       | "setWatcherManager"
+      | "unpause"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -58,6 +64,8 @@ export interface WatcherClientInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(functionFragment: "pause", values?: undefined): string;
+  encodeFunctionData(functionFragment: "paused", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
     values: [PromiseOrValue<string>]
@@ -76,6 +84,7 @@ export interface WatcherClientInterface extends utils.Interface {
     functionFragment: "setWatcherManager",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
 
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
@@ -83,6 +92,8 @@ export interface WatcherClientInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
@@ -101,15 +112,20 @@ export interface WatcherClientInterface extends utils.Interface {
     functionFragment: "setWatcherManager",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
 
   events: {
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "Paused(address)": EventFragment;
+    "Unpaused(address)": EventFragment;
     "WatcherManagerChanged(address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "WatcherManagerChanged"): EventFragment;
 }
 
@@ -135,6 +151,20 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
+
+export interface PausedEventObject {
+  account: string;
+}
+export type PausedEvent = TypedEvent<[string], PausedEventObject>;
+
+export type PausedEventFilter = TypedEventFilter<PausedEvent>;
+
+export interface UnpausedEventObject {
+  account: string;
+}
+export type UnpausedEvent = TypedEvent<[string], UnpausedEventObject>;
+
+export type UnpausedEventFilter = TypedEventFilter<UnpausedEvent>;
 
 export interface WatcherManagerChangedEventObject {
   watcherManager: string;
@@ -182,6 +212,12 @@ export interface WatcherClient extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    pause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    paused(overrides?: CallOverrides): Promise<[boolean]>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -201,6 +237,10 @@ export interface WatcherClient extends BaseContract {
       _watcherManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    unpause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   acceptProposedOwner(
@@ -210,6 +250,12 @@ export interface WatcherClient extends BaseContract {
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
+
+  pause(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  paused(overrides?: CallOverrides): Promise<boolean>;
 
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
@@ -231,12 +277,20 @@ export interface WatcherClient extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  unpause(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
+
+    pause(overrides?: CallOverrides): Promise<void>;
+
+    paused(overrides?: CallOverrides): Promise<boolean>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -255,6 +309,8 @@ export interface WatcherClient extends BaseContract {
       _watcherManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    unpause(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -274,6 +330,12 @@ export interface WatcherClient extends BaseContract {
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
 
+    "Paused(address)"(account?: null): PausedEventFilter;
+    Paused(account?: null): PausedEventFilter;
+
+    "Unpaused(address)"(account?: null): UnpausedEventFilter;
+    Unpaused(account?: null): UnpausedEventFilter;
+
     "WatcherManagerChanged(address)"(
       watcherManager?: null
     ): WatcherManagerChangedEventFilter;
@@ -290,6 +352,12 @@ export interface WatcherClient extends BaseContract {
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    pause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    paused(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -310,6 +378,10 @@ export interface WatcherClient extends BaseContract {
       _watcherManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    unpause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -320,6 +392,12 @@ export interface WatcherClient extends BaseContract {
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    pause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    paused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -338,6 +416,10 @@ export interface WatcherClient extends BaseContract {
 
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
