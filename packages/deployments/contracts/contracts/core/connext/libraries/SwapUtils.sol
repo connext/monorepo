@@ -1171,4 +1171,13 @@ library SwapUtils {
 
     emit NewSwapFee(self.key, newSwapFee);
   }
+
+  /**
+   * @notice Check if this stableswap pool exists and is valid (i.e. has been
+   * initialized and tokens have been added).
+   * @return bool true if this stableswap pool is valid, false if not.
+   */
+  function exists(Swap storage self) internal view returns (bool) {
+    return self.pooledTokens.length != 0;
+  }
 }

@@ -501,7 +501,7 @@ contract BridgeFacet is BaseConnextFacet {
 
       if (_amount > 0) {
         // Transfer funds of input asset to the contract from the user.
-        AssetLogic.transferAssetToContract(_asset, _amount);
+        AssetLogic.handleIncomingAsset(_asset, _amount);
 
         // Swap to the local asset from adopted if applicable.
         // TODO: drop the "IfNeeded", instead just check whether the asset is already local / needs swap here.

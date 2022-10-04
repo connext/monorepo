@@ -25,41 +25,19 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
  */
 contract InboxFacet is BaseConnextFacet {
   // ============ Libraries ============
+
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
   using BridgeMessage for bytes29;
 
   // ========== Custom Errors ===========
+
   error InboxFacet__onlyReplica_notReplica();
   error InboxFacet__onlyRemoteRouter_notRemote();
   error InboxFacet__handle_notTransfer();
   error InboxFacet__reconcile_notConnext();
   error InboxFacet__reconcile_alreadyReconciled();
   error InboxFacet__reconcile_noPortalRouter();
-
-  // ============ Modifiers ============
-
-  /**
-   * @notice Only accept messages from an Nomad Replica contract.
-   */
-  modifier onlyReplica() {
-    if (!_isReplica(msg.sender)) {
-      revert InboxFacet__onlyReplica_notReplica();
-    }
-    _;
-  }
-
-  /**
-   * @notice Only accept messages from a remote Router contract.
-   * @param _origin The domain the message is coming from.
-   * @param _router The address the message is coming from.
-   */
-  modifier onlyRemoteRouter(uint32 _origin, bytes32 _router) {
-    if (!_isRemoteRouter(_origin, _router)) {
-      revert InboxFacet__onlyRemoteRouter_notRemote();
-    }
-    _;
-  }
 
   // ============ Events ============
 
@@ -102,6 +80,30 @@ contract InboxFacet is BaseConnextFacet {
     address liquidityProvider,
     uint256 amount
   );
+
+  // ============ Modifiers ============
+
+  /**
+   * @notice Only accept messages from an Nomad Replica contract.
+   */
+  modifier onlyReplica() {
+    if (!_isReplica(msg.sender)) {
+      revert InboxFacet__onlyReplica_notReplica();
+    }
+    _;
+  }
+
+  /**
+   * @notice Only accept messages from a remote Router contract.
+   * @param _origin The domain the message is coming from.
+   * @param _router The address the message is coming from.
+   */
+  modifier onlyRemoteRouter(uint32 _origin, bytes32 _router) {
+    if (!_isRemoteRouter(_origin, _router)) {
+      revert InboxFacet__onlyRemoteRouter_notRemote();
+    }
+    _;
+  }
 
   // ============ External Functions ============
 
