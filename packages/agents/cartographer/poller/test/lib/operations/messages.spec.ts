@@ -9,11 +9,7 @@ import {
   XMessage,
   RootMessage,
 } from "@connext/nxtp-utils";
-import * as transfersPoller from "../../../src/pollers/transfersPoller";
-import * as routersPoller from "../../../src/pollers/routersPoller";
 import * as messagesPoller from "../../../src/pollers/messagePoller";
-import { bindTransfers } from "../../../src/bindings/transfers";
-import { bindRouters } from "../../../src/bindings/routers";
 import { bindMessages } from "../../../src/bindings/messages";
 
 import * as dbClient from "../../../src/adapters/database/client";
@@ -141,6 +137,7 @@ describe("Message operations", () => {
           saveSentRootMessages: dbClient.saveSentRootMessages,
           saveProcessedRootMessages: dbClient.saveProcessedRootMessages,
           getPendingMessages: dbClient.getPendingMessages,
+          transaction: dbClient.transaction,
         },
       },
       config: mockConfig as CartographerConfig,

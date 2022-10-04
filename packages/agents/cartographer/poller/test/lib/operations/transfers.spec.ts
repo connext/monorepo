@@ -157,6 +157,7 @@ describe("Backend operations", () => {
           getTransfersWithDestinationPending: dbClient.getTransfersWithDestinationPending,
           getCheckPoint: dbClient.getCheckPoint,
           saveCheckPoint: dbClient.saveCheckPoint,
+          transaction: dbClient.transaction,
         },
       },
       config: mockConfig as CartographerConfig,

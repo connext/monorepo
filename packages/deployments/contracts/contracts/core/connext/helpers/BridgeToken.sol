@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
@@ -9,21 +9,14 @@ import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 
 import {ERC20} from "./OZERC20.sol";
 
-contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
-  // ============ Upgrade Gap ============
+contract BridgeToken is IBridgeToken, Ownable, ERC20 {
+  // ============ Constructor ============
 
-  uint256[48] private __GAP; // gap for upgrade safety
-
-  // ============ Initializer ============
-
-  function initialize(
+  constructor(
     uint8 _decimals,
     string memory _name,
     string memory _symbol
-  ) public override initializer {
-    __Ownable_init();
-    __ERC20_init(_decimals, _name, _symbol, "1");
-  }
+  ) ERC20(_decimals, _name, _symbol, "1") Ownable() {}
 
   // ============ Events ============
 
@@ -106,10 +99,5 @@ contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
    */
   function decimals() public view override returns (uint8) {
     return token.decimals;
-  }
-
-  // required for solidity inheritance
-  function transferOwnership(address _newOwner) public override(IBridgeToken, OwnableUpgradeable) onlyOwner {
-    OwnableUpgradeable.transferOwnership(_newOwner);
   }
 }

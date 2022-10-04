@@ -125,7 +125,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * @notice Returns the delay period before a new owner can be accepted.
    */
   function delay() public view returns (uint256) {
-    return s._ownershipDelay;
+    return LibDiamond.acceptanceDelay();
   }
 
   /**

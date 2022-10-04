@@ -13,7 +13,7 @@ import {RoutersFacet} from "../../contracts/core/connext/facets/RoutersFacet.sol
 import {StableSwapFacet} from "../../contracts/core/connext/facets/StableSwapFacet.sol";
 import {SwapAdminFacet} from "../../contracts/core/connext/facets/SwapAdminFacet.sol";
 import {PortalFacet} from "../../contracts/core/connext/facets/PortalFacet.sol";
-import {CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {TransferInfo} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
 
 import {Connext} from "./Connext.sol";
@@ -311,20 +311,14 @@ contract Deployer {
 
   function deployConnext(
     uint256 domain,
-    address tokenBeacon,
-    address relayerFeeVault,
     address xAppConnectionManager,
-    uint256 acceptanceDelay,
-    uint256 ownershipDelay
+    uint256 acceptanceDelay
   ) internal returns (address) {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       domain,
-      tokenBeacon,
-      relayerFeeVault,
       xAppConnectionManager,
-      acceptanceDelay,
-      ownershipDelay
+      acceptanceDelay
     );
 
     deployFacets();

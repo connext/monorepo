@@ -38,7 +38,7 @@ export default task("set-swap-fees", "Set admin fee and swap fee of the stable s
       const MAX_SWAP_FEE = BigNumber.from(1e8);
       const MAX_ADMIN_FEE = FEE_DENOMINATOR;
 
-      const connextName = getDeploymentName("ConnextHandler", env);
+      const connextName = getDeploymentName("Connext", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       console.log("connextAddress: ", connextAddress);

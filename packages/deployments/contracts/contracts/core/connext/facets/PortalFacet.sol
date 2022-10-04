@@ -8,7 +8,7 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {TokenId, CallParams} from "../libraries/LibConnextStorage.sol";
+import {TokenId, TransferInfo} from "../libraries/LibConnextStorage.sol";
 
 contract PortalFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
@@ -53,7 +53,7 @@ contract PortalFacet is BaseConnextFacet {
    * @dev Allows to set the aavePool to address zero to disable Aave Portal if needed
    * @param _aavePool The address of the Aave Pool contract
    */
-  function setAavePool(address _aavePool) external onlyOwner {
+  function setAavePool(address _aavePool) external onlyOwnerOrAdmin {
     s.aavePool = _aavePool;
   }
 
@@ -61,7 +61,7 @@ contract PortalFacet is BaseConnextFacet {
    * @notice Sets the Aave Portal fee numerator
    * @param _aavePortalFeeNumerator The new value for the Aave Portal fee numerator
    */
-  function setAavePortalFee(uint256 _aavePortalFeeNumerator) external onlyOwner {
+  function setAavePortalFee(uint256 _aavePortalFeeNumerator) external onlyOwnerOrAdmin {
     if (_aavePortalFeeNumerator > BPS_FEE_DENOMINATOR) revert PortalFacet__setAavePortalFee_invalidFee();
 
     s.aavePortalFeeNumerator = _aavePortalFeeNumerator;
@@ -71,13 +71,13 @@ contract PortalFacet is BaseConnextFacet {
    * @notice Used by routers to perform a manual repayment to Aave Portals to cover any outstanding debt
    * @dev The router must be approved for portal and with enough liquidity, and must be the caller of this
    * function
-   * @param _params CallParams associated with the transfer
+   * @param _params TransferInfo associated with the transfer
    * @param _backingAmount The principle to be paid (in adopted asset)
    * @param _feeAmount The fee to be paid (in adopted asset)
    * @param _maxIn The max value of the local asset to swap for the _backingAmount of adopted asset
    */
   function repayAavePortal(
-    CallParams calldata _params,
+    TransferInfo calldata _params,
     uint256 _backingAmount,
     uint256 _feeAmount,
     uint256 _maxIn
@@ -124,12 +124,12 @@ contract PortalFacet is BaseConnextFacet {
    *
    * @dev Should always be paying in the backing asset for the aave loan
    *
-   * @param _params CallParams associated with the transfer
+   * @param _params TransferInfo associated with the transfer
    * @param _backingAmount Amount of principle to repay
    * @param _feeAmount Amount of fees to repay
    */
   function repayAavePortalFor(
-    CallParams calldata _params,
+    TransferInfo calldata _params,
     uint256 _backingAmount,
     uint256 _feeAmount
   ) external payable nonReentrant {

@@ -42,7 +42,7 @@ export default task("add-swap-liquidity", "Add liquidity to the stable swap pool
       console.log("adopted amount: ", _adoptedAmount);
       console.log("minToMint: ", _minToMint);
 
-      const connextName = getDeploymentName("ConnextHandler", env);
+      const connextName = getDeploymentName("Connext", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       console.log("connextAddress: ", connextAddress);

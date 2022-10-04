@@ -294,7 +294,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Used to remove routers that can transact crosschain
    * @param router Router address to remove
    */
-  function removeRouter(address router) external onlyOwnerOrAdmin {
+  function removeRouter(address router) external onlyOwnerOrRouter {
     // Sanity check: not empty
     if (router == address(0)) revert RoutersFacet__removeRouter_routerEmpty();
 
@@ -335,7 +335,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Used to set the max amount of routers a payment can be routed through
    * @param _newMaxRouters The new max amount of routers
    */
-  function setMaxRoutersPerTransfer(uint256 _newMaxRouters) external onlyOwner {
+  function setMaxRoutersPerTransfer(uint256 _newMaxRouters) external onlyOwnerOrAdmin {
     if (_newMaxRouters == 0 || _newMaxRouters == s.maxRoutersPerTransfer)
       revert RoutersFacet__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
 
@@ -349,7 +349,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @dev Admin can set LIQUIDITY_FEE_NUMERATOR variable, Liquidity fee should be less than 5%
    * @param _numerator new LIQUIDITY_FEE_NUMERATOR
    */
-  function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwner {
+  function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwnerOrAdmin {
     // Slightly misleading: the liquidity fee numerator is not the amount charged,
     // but the amount received after fees are deducted (e.g. 9995/10000 would be .005%).
     uint256 denominator = BPS_FEE_DENOMINATOR;
@@ -365,7 +365,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Allow router to use Portals
    * @param _router - The router address to approve
    */
-  function approveRouterForPortal(address _router) external onlyOwner {
+  function approveRouterForPortal(address _router) external onlyOwnerOrAdmin {
     if (!s.routerPermissionInfo.approvedRouters[_router] && !_isRouterWhitelistRemoved())
       revert RoutersFacet__approveRouterForPortal_notAdded();
     if (s.routerPermissionInfo.approvedForPortalRouters[_router])
@@ -380,7 +380,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Remove router access to use Portals
    * @param _router - The router address to remove approval
    */
-  function unapproveRouterForPortal(address _router) external onlyOwner {
+  function unapproveRouterForPortal(address _router) external onlyOwnerOrAdmin {
     if (!s.routerPermissionInfo.approvedForPortalRouters[_router])
       revert RoutersFacet__unapproveRouterForPortal_notApproved();
 

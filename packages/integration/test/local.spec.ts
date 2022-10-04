@@ -5,7 +5,7 @@ import {
   ExecuteFastApiGetExecStatusResponse,
   SequencerApiErrorResponse,
   XCallArgs,
-  CallParams,
+  TransferInfo,
   ERC20Abi,
   convertFromDbTransfer,
   XTransfer,
@@ -25,14 +25,14 @@ import { expect } from "chai";
  * We use these imports to retrieve the deployment addresses dynamically at runtime, so the PARAMETERS config does not need to be hardcoded.
  */
 // Local 1338 deployment imports:
-import ConnextHandler_DiamondProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/ConnextHandler_DiamondProxy.json";
+import Connext_DiamondProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/Connext_DiamondProxy.json";
 import BridgeTokenUpgradeBeacon_1338 from "@connext/nxtp-contracts/deployments/local_1338/BridgeTokenUpgradeBeacon.json";
 import TestERC20_1338 from "@connext/nxtp-contracts/deployments/local_1338/TestERC20.json";
 // Local 1337 deployment imports:
-import ConnextHandler_DiamondProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/ConnextHandler_DiamondProxy.json";
+import Connext_DiamondProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/Connext_DiamondProxy.json";
 import BridgeTokenUpgradeBeacon_1337 from "@connext/nxtp-contracts/deployments/local_1337/BridgeTokenUpgradeBeacon.json";
 import TestERC20_1337 from "@connext/nxtp-contracts/deployments/local_1337/TestERC20.json";
-import { ConnextHandlerInterface } from "@connext/nxtp-contracts";
+import { ConnextInterface } from "@connext/nxtp-contracts";
 
 import { pollSomething } from "./helpers/shared";
 import { setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
@@ -42,7 +42,7 @@ import { addSequencer } from "./helpers/local/addSequencer";
 export const logger = new Logger({ name: "e2e" });
 
 type Deployments = {
-  ConnextHandler: string;
+  Connext: string;
   TokenBeacon: string;
   TestERC20: string;
 };
@@ -57,13 +57,13 @@ export const getDeployments = (_chain: string | number): Deployments => {
   let result: Deployments;
   if (chain === "1337") {
     result = {
-      ConnextHandler: ConnextHandler_DiamondProxy_1337.address,
+      Connext: Connext_DiamondProxy_1337.address,
       TokenBeacon: BridgeTokenUpgradeBeacon_1337.address,
       TestERC20: TestERC20_1337.address,
     };
   } else if (chain === "1338") {
     result = {
-      ConnextHandler: ConnextHandler_DiamondProxy_1338.address,
+      Connext: Connext_DiamondProxy_1338.address,
       TokenBeacon: BridgeTokenUpgradeBeacon_1338.address,
       TestERC20: TestERC20_1338.address,
     };
@@ -118,7 +118,7 @@ const userTxService = new TransactionService(
 
 const sendXCall = async (
   sdkBase: NxtpSdkBase,
-  xparams: Partial<CallParams & { asset: string; amount: string }> = {},
+  xparams: Partial<TransferInfo & { asset: string; amount: string }> = {},
   signer?: Wallet,
 ): Promise<{
   receipt: providers.TransactionReceipt;
@@ -162,7 +162,7 @@ const sendXCall = async (
     logs: receipt.logs
       .map((event) => {
         try {
-          const result = ConnextHandlerInterface.parseLog(event);
+          const result = ConnextInterface.parseLog(event);
           return {
             name: result.eventFragment.name,
             signature: result.signature,
@@ -307,8 +307,8 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
   await setupRouter(
     PARAMETERS.AGENTS.ROUTER.address,
     [
-      { ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler, domain: PARAMETERS.A.DOMAIN },
-      { ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler, domain: PARAMETERS.B.DOMAIN },
+      { Connext: PARAMETERS.A.DEPLOYMENTS.Connext, domain: PARAMETERS.A.DOMAIN },
+      { Connext: PARAMETERS.B.DEPLOYMENTS.Connext, domain: PARAMETERS.B.DOMAIN },
     ],
     deployerTxService,
   );
@@ -320,14 +320,14 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
     [
       {
         domain: PARAMETERS.A.DOMAIN,
-        ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+        Connext: PARAMETERS.A.DEPLOYMENTS.Connext,
         // NOTE: Same as local; this means we won't be doing any swaps.
         adopted: constants.AddressZero,
         local: PARAMETERS.A.DEPLOYMENTS.TestERC20,
       },
       {
         domain: PARAMETERS.B.DOMAIN,
-        ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
+        Connext: PARAMETERS.B.DEPLOYMENTS.Connext,
         // NOTE: Same as local; this means we won't be doing any swaps.
         adopted: constants.AddressZero,
         local: PARAMETERS.B.DEPLOYMENTS.TestERC20,
@@ -346,14 +346,14 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
         amount: utils.parseEther("100").toString(),
         router: PARAMETERS.AGENTS.ROUTER.address,
         asset: PARAMETERS.A.DEPLOYMENTS.TestERC20,
-        ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+        Connext: PARAMETERS.A.DEPLOYMENTS.Connext,
       },
       {
         domain: PARAMETERS.B.DOMAIN,
         amount: utils.parseEther("100").toString(),
         router: PARAMETERS.AGENTS.ROUTER.address,
         asset: PARAMETERS.B.DEPLOYMENTS.TestERC20,
-        ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
+        Connext: PARAMETERS.B.DEPLOYMENTS.Connext,
       },
     ],
     deployerTxService,
@@ -367,12 +367,12 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
       {
         domain: PARAMETERS.A.DOMAIN,
         relayer: PARAMETERS.AGENTS.RELAYER.address,
-        ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+        Connext: PARAMETERS.A.DEPLOYMENTS.Connext,
       },
       {
         domain: PARAMETERS.B.DOMAIN,
         relayer: PARAMETERS.AGENTS.RELAYER.address,
-        ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
+        Connext: PARAMETERS.B.DEPLOYMENTS.Connext,
       },
     ],
     deployerTxService,
@@ -385,12 +385,12 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
       {
         domain: PARAMETERS.A.DOMAIN,
         sequencer: PARAMETERS.AGENTS.SEQUENCER.address,
-        ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+        Connext: PARAMETERS.A.DEPLOYMENTS.Connext,
       },
       {
         domain: PARAMETERS.B.DOMAIN,
         sequencer: PARAMETERS.AGENTS.SEQUENCER.address,
-        ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
+        Connext: PARAMETERS.B.DEPLOYMENTS.Connext,
       },
     ],
     deployerTxService,
@@ -486,7 +486,7 @@ describe("LOCAL:E2E", () => {
           assets: [{ address: PARAMETERS.A.DEPLOYMENTS.TestERC20, name: "TestERC20", symbol: "TEST" }],
           providers: PARAMETERS.A.RPC,
           deployments: {
-            connext: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+            connext: PARAMETERS.A.DEPLOYMENTS.Connext,
             stableSwap: constants.AddressZero,
           },
         },
@@ -500,7 +500,7 @@ describe("LOCAL:E2E", () => {
           ],
           providers: PARAMETERS.B.RPC,
           deployments: {
-            connext: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
+            connext: PARAMETERS.B.DEPLOYMENTS.Connext,
             stableSwap: constants.AddressZero,
           },
         },
@@ -669,7 +669,7 @@ describe("LOCAL:E2E", () => {
     );
 
     const iface = getConnextInterface();
-    const connext = new Contract(PARAMETERS.B.DEPLOYMENTS.ConnextHandler, iface as ContractInterface, deployer);
+    const connext = new Contract(PARAMETERS.B.DEPLOYMENTS.Connext, iface as ContractInterface, deployer);
 
     // Extract the xchain nomad message bytes from the XCalled event logged.
     const xcalledEvent = connext.filters.XCalled(null).address;

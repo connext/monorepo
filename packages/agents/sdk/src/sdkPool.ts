@@ -1,7 +1,7 @@
 import { providers, BigNumber } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData, getCanonicalHash } from "@connext/nxtp-utils";
 import { getContractInterfaces, contractDeployments, ChainReader } from "@connext/nxtp-txservice";
-import { ConnextHandler as TConnext, IERC20Extended } from "@connext/nxtp-contracts";
+import { Connext as TConnext, IERC20Extended } from "@connext/nxtp-contracts";
 
 import { NxtpSdkConfig, getConfig } from "./config";
 import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined, PoolDoesNotExist } from "./lib/errors";

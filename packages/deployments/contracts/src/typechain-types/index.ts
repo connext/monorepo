@@ -28,8 +28,6 @@ export type { IERC20Upgradeable } from "./@openzeppelin/contracts-upgradeable/to
 export { IERC20Upgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable__factory";
 export type { ContextUpgradeable } from "./@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable";
 export { ContextUpgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable__factory";
-export type { EIP712Upgradeable } from "./@openzeppelin/contracts-upgradeable/utils/cryptography/draft-EIP712Upgradeable.sol/EIP712Upgradeable";
-export { EIP712Upgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/utils/cryptography/draft-EIP712Upgradeable.sol/EIP712Upgradeable__factory";
 export type { Ownable } from "./@openzeppelin/contracts/access/Ownable";
 export { Ownable__factory } from "./factories/@openzeppelin/contracts/access/Ownable__factory";
 export type { LibArbitrumL2 } from "./@openzeppelin/contracts/crosschain/arbitrum/LibArbitrumL2";
@@ -124,8 +122,8 @@ export type { IBridgeRouter } from "./contracts/core/connext/interfaces/IBridgeR
 export { IBridgeRouter__factory } from "./factories/contracts/core/connext/interfaces/IBridgeRouter__factory";
 export type { IBridgeToken } from "./contracts/core/connext/interfaces/IBridgeToken";
 export { IBridgeToken__factory } from "./factories/contracts/core/connext/interfaces/IBridgeToken__factory";
-export type { IConnextHandler } from "./contracts/core/connext/interfaces/IConnextHandler";
-export { IConnextHandler__factory } from "./factories/contracts/core/connext/interfaces/IConnextHandler__factory";
+export type { IConnext } from "./contracts/core/connext/interfaces/IConnext";
+export { IConnext__factory } from "./factories/contracts/core/connext/interfaces/IConnext__factory";
 export type { IDiamondCut } from "./contracts/core/connext/interfaces/IDiamondCut";
 export { IDiamondCut__factory } from "./factories/contracts/core/connext/interfaces/IDiamondCut__factory";
 export type { IDiamondLoupe } from "./contracts/core/connext/interfaces/IDiamondLoupe";
@@ -266,5 +264,5 @@ export type { TestAggregator } from "./contracts/test/TestAggregator";
 export { TestAggregator__factory } from "./factories/contracts/test/TestAggregator__factory";
 export type { TestERC20 } from "./contracts/test/TestERC20";
 export { TestERC20__factory } from "./factories/contracts/test/TestERC20__factory";
-export type { ConnextHandler } from "./hardhat-diamond-abi/HardhatDiamondABI.sol/ConnextHandler";
-export { ConnextHandler__factory } from "./factories/hardhat-diamond-abi/HardhatDiamondABI.sol/ConnextHandler__factory";
+export type { Connext } from "./hardhat-diamond-abi/HardhatDiamondABI.sol/Connext";
+export { Connext__factory } from "./factories/hardhat-diamond-abi/HardhatDiamondABI.sol/Connext__factory";

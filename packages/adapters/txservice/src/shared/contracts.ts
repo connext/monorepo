@@ -3,13 +3,13 @@ import _contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import {
   IERC20 as TIERC20Minimal,
   IERC20Extended as TIERC20Extended,
-  ConnextHandler as TConnext,
+  Connext as TConnext,
   ConnextPriceOracle as TConnextPriceOracle,
   StableSwap as TStableSwap,
   SpokeConnector as TSpokeConnector,
 } from "@connext/nxtp-contracts";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
-import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-abi/HardhatDiamondABI.sol/ConnextHandler.json";
+import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-abi/HardhatDiamondABI.sol/Connext.json";
 import ERC20ExtendedArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/interfaces/IERC20Extended.sol/IERC20Extended.json";
 import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
 import SpokeConnectorArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/connectors/SpokeConnector.sol/SpokeConnector.json";
@@ -37,7 +37,7 @@ export const getDeployedConnextContract = (
   postfix: ContractPostfix = "",
 ): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const contract = record[0]?.contracts ? record[0]?.contracts[`ConnextHandler${postfix}`] : undefined;
+  const contract = record[0]?.contracts ? record[0]?.contracts[`Connext${postfix}`] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 

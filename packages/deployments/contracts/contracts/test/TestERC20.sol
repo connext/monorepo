@@ -16,18 +16,10 @@ contract TestERC20 is ERC20, IBridgeToken {
   }
 
   // ============ Bridge functions ===============
-  function initialize(
-    uint8 _decimals,
-    string memory _name,
-    string memory _symbol
-  ) external override {}
-
   function setDetails(string calldata _newName, string calldata _newSymbol) external override {
     // Does nothing, in practice will update the details to match the hash in message
     // not the autodeployed results
   }
-
-  function transferOwnership(address _newOwner) external override {}
 
   // ============ Token functions ===============
   function balanceOf(address account) public view override(ERC20, IBridgeToken) returns (uint256) {

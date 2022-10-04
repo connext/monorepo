@@ -4,10 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
-import type {
-  IConnextHandler,
-  IConnextHandlerInterface,
-} from "../../../../../contracts/core/connext/interfaces/IConnextHandler";
+import type { IConnext, IConnextInterface } from "../../../../../contracts/core/connext/interfaces/IConnext";
 
 const _abi = [
   {
@@ -979,7 +976,7 @@ const _abi = [
                 type: "bytes32",
               },
             ],
-            internalType: "struct CallParams",
+            internalType: "struct TransferInfo",
             name: "params",
             type: "tuple",
           },
@@ -1166,7 +1163,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct CallParams",
+        internalType: "struct TransferInfo",
         name: "_params",
         type: "tuple",
       },
@@ -2298,7 +2295,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct CallParams",
+        internalType: "struct TransferInfo",
         name: "_params",
         type: "tuple",
       },
@@ -2393,7 +2390,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct CallParams",
+        internalType: "struct TransferInfo",
         name: "_params",
         type: "tuple",
       },
@@ -3195,15 +3192,12 @@ const _abi = [
   },
 ];
 
-export class IConnextHandler__factory {
+export class IConnext__factory {
   static readonly abi = _abi;
-  static createInterface(): IConnextHandlerInterface {
-    return new utils.Interface(_abi) as IConnextHandlerInterface;
+  static createInterface(): IConnextInterface {
+    return new utils.Interface(_abi) as IConnextInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IConnextHandler {
-    return new Contract(address, _abi, signerOrProvider) as IConnextHandler;
+  static connect(address: string, signerOrProvider: Signer | Provider): IConnext {
+    return new Contract(address, _abi, signerOrProvider) as IConnext;
   }
 }

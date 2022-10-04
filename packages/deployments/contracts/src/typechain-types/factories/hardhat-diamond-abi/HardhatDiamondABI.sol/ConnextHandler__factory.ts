@@ -4,10 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
-import type {
-  ConnextHandler,
-  ConnextHandlerInterface,
-} from "../../../hardhat-diamond-abi/HardhatDiamondABI.sol/ConnextHandler";
+import type { Connext, ConnextInterface } from "../../../hardhat-diamond-abi/HardhatDiamondABI.sol/Connext";
 
 const _abi = [
   {
@@ -322,7 +319,7 @@ const _abi = [
                 type: "bytes32",
               },
             ],
-            internalType: "struct CallParams",
+            internalType: "struct TransferInfo",
             name: "params",
             type: "tuple",
           },
@@ -378,31 +375,6 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
-        internalType: "address",
-        name: "oldExecutor",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "newExecutor",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "ExecutorUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
         indexed: true,
         internalType: "bytes32",
         name: "transferId",
@@ -447,49 +419,6 @@ const _abi = [
       },
     ],
     name: "RemoteAdded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "from",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "uint32",
-        name: "toDomain",
-        type: "uint32",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "toId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "toHook",
-        type: "bool",
-      },
-    ],
-    name: "Send",
     type: "event",
   },
   {
@@ -664,15 +593,21 @@ const _abi = [
           },
         ],
         indexed: false,
-        internalType: "struct CallParams",
+        internalType: "struct TransferInfo",
         name: "params",
         type: "tuple",
       },
       {
         indexed: false,
         internalType: "address",
-        name: "local",
+        name: "asset",
         type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
     ],
     name: "XCalled",
@@ -686,19 +621,6 @@ const _abi = [
         internalType: "uint16",
         name: "",
         type: "uint16",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "DUST_AMOUNT",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -852,7 +774,7 @@ const _abi = [
                 type: "bytes32",
               },
             ],
-            internalType: "struct CallParams",
+            internalType: "struct TransferInfo",
             name: "params",
             type: "tuple",
           },
@@ -963,7 +885,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct CallParams",
+        internalType: "struct TransferInfo",
         name: "_params",
         type: "tuple",
       },
@@ -1784,7 +1706,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct CallParams",
+        internalType: "struct TransferInfo",
         name: "_params",
         type: "tuple",
       },
@@ -1879,7 +1801,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct CallParams",
+        internalType: "struct TransferInfo",
         name: "_params",
         type: "tuple",
       },
@@ -4899,15 +4821,12 @@ const _abi = [
   },
 ];
 
-export class ConnextHandler__factory {
+export class Connext__factory {
   static readonly abi = _abi;
-  static createInterface(): ConnextHandlerInterface {
-    return new utils.Interface(_abi) as ConnextHandlerInterface;
+  static createInterface(): ConnextInterface {
+    return new utils.Interface(_abi) as ConnextInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): ConnextHandler {
-    return new Contract(address, _abi, signerOrProvider) as ConnextHandler;
+  static connect(address: string, signerOrProvider: Signer | Provider): Connext {
+    return new Contract(address, _abi, signerOrProvider) as Connext;
   }
 }

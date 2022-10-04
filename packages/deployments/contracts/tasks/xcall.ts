@@ -97,7 +97,7 @@ export default task("xcall", "Prepare a cross-chain tx")
       const relayerFee = _relayerFee ?? process.env.RELAYER_FEE ?? "0";
 
       // Load contracts
-      const connextName = getDeploymentName("ConnextHandler", env);
+      const connextName = getDeploymentName("Connext", env);
       const connextDeployment = await hre.deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       const connext = new Contract(connextAddress, connextDeployment.abi);

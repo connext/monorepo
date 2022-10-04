@@ -5,7 +5,7 @@ import "../../../utils/ForgeHelper.sol";
 import {Deployer, DiamondInit, BridgeFacet} from "../../../utils/Deployer.sol";
 
 import "../../../../contracts/core/connext/libraries/LibDiamond.sol";
-import {IConnextHandler} from "../../../../contracts/core/connext/interfaces/IConnextHandler.sol";
+import {IConnext} from "../../../../contracts/core/connext/interfaces/IConnext.sol";
 import {IDiamondCut} from "../../../../contracts/core/connext/interfaces/IDiamondCut.sol";
 
 contract LibDiamondTest is ForgeHelper, Deployer {
@@ -14,21 +14,19 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   using stdStorage for StdStorage;
 
   // ============ Storage ============
-  IConnextHandler connextHandler;
+  IConnext connextHandler;
   uint32 domain = 1;
   uint256 acceptanceDelay = 7 days;
   uint256 ownershipDelay = 6 days;
   address internal xAppConnectionManager = address(1);
-  address relayerFeeVault = address(3);
-  address beacon = address(1232);
 
   // ============ Setup ============
 
   function setUp() public {
     // Deploy token beacon
-    deployConnext(uint256(domain), beacon, xAppConnectionManager, relayerFeeVault, acceptanceDelay, ownershipDelay);
+    deployConnext(uint256(domain), xAppConnectionManager, acceptanceDelay);
 
-    connextHandler = IConnextHandler(address(connextDiamondProxy));
+    connextHandler = IConnext(address(connextDiamondProxy));
   }
 
   // ============ Utils ============
@@ -41,18 +39,13 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   // Second initialization should not alter state.
   function test_LibDiamond__initializeDiamondCut_ignoreDuplicateInit() public {
     uint32 newDomain = 2;
-    address newBeacon = address(12312);
     address newXAppConnectionManager = address(11);
-    address newRelayerFeeVault = address(13);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
-      newBeacon,
       newXAppConnectionManager,
-      newRelayerFeeVault,
-      acceptanceDelay,
-      ownershipDelay
+      acceptanceDelay
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
@@ -77,18 +70,13 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   // Diamond cut prior to elapsed delay should revert.
   function testFail_LibDiamond__initializeDiamondCut_beforeAcceptanceDelay_reverts() public {
     uint32 newDomain = 2;
-    address newBeacon = address(10001);
     address newXAppConnectionManager = address(11);
-    address newRelayerFeeVault = address(13);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
-      newBeacon,
       newXAppConnectionManager,
-      newRelayerFeeVault,
-      acceptanceDelay,
-      ownershipDelay
+      acceptanceDelay
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
@@ -109,23 +97,18 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // Diamond cut after setting 0 acceptance delay should work.
   function test_LibDiamond__initializeDiamondCut_withZeroAcceptanceDelay_works() public {
-    deployConnext(uint256(domain), beacon, xAppConnectionManager, relayerFeeVault, 0, 0);
+    deployConnext(uint256(domain), xAppConnectionManager, 0);
 
-    connextHandler = IConnextHandler(address(connextDiamondProxy));
+    connextHandler = IConnext(address(connextDiamondProxy));
 
     uint32 newDomain = 2;
-    address newBeacon = address(10001);
     address newXAppConnectionManager = address(11);
-    address newRelayerFeeVault = address(13);
 
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       newDomain,
-      newBeacon,
       newXAppConnectionManager,
-      newRelayerFeeVault,
-      acceptanceDelay,
-      ownershipDelay
+      acceptanceDelay
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);

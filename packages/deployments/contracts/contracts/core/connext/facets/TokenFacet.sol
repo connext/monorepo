@@ -3,7 +3,6 @@ pragma solidity 0.8.15;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
-import {UpgradeBeaconProxy} from "../../../shared/upgrade/UpgradeBeaconProxy.sol";
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 
 import {TokenId} from "../libraries/LibConnextStorage.sol";
@@ -12,6 +11,8 @@ import {AssetLogic} from "../libraries/AssetLogic.sol";
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
+
+import {BridgeToken} from "../helpers/BridgeToken.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
@@ -168,7 +169,7 @@ contract TokenFacet is BaseConnextFacet {
     address _adoptedAssetId,
     address _stableSwapPool,
     uint256 _cap
-  ) external onlyOwner returns (address _local) {
+  ) external onlyOwnerOrAdmin returns (address _local) {
     // Deploy the representation token if on a remote domain
     if (_canonical.domain != s.domain) {
       _local = _deployRepresentation(
@@ -194,7 +195,7 @@ contract TokenFacet is BaseConnextFacet {
     address _adoptedAssetId,
     address _stableSwapPool,
     uint256 _cap
-  ) external onlyOwner returns (address) {
+  ) external onlyOwnerOrAdmin returns (address) {
     bytes32 key = _enrollAdoptedAndLocalAssets(_adoptedAssetId, _representation, _stableSwapPool, _canonical);
     if (_cap != 0) {
       _setLiquidityCap(_canonical, _cap, key);
@@ -206,7 +207,7 @@ contract TokenFacet is BaseConnextFacet {
    * @notice Adds a stable swap pool for the local <> adopted asset.
    * @dev Must pass in the _canonical information so it can be emitted in event
    */
-  function addStableSwapPool(TokenId calldata _canonical, address _stableSwapPool) external onlyOwner {
+  function addStableSwapPool(TokenId calldata _canonical, address _stableSwapPool) external onlyOwnerOrAdmin {
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
     _addStableSwapPool(_canonical, _stableSwapPool, key);
   }
@@ -215,7 +216,7 @@ contract TokenFacet is BaseConnextFacet {
    * @notice Adds a stable swap pool for the local <> adopted asset.
    * @dev Must pass in the _canonical information so it can be emitted in event
    */
-  function updateLiquidityCap(TokenId calldata _canonical, uint256 _updated) external onlyOwner {
+  function updateLiquidityCap(TokenId calldata _canonical, uint256 _updated) external onlyOwnerOrAdmin {
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
     _setLiquidityCap(_canonical, _updated, key);
   }
@@ -229,7 +230,7 @@ contract TokenFacet is BaseConnextFacet {
     bytes32 _key,
     address _adoptedAssetId,
     address _representation
-  ) external onlyOwner {
+  ) external onlyOwnerOrAdmin {
     _removeAssetId(_key, _adoptedAssetId, _representation);
   }
 
@@ -242,7 +243,7 @@ contract TokenFacet is BaseConnextFacet {
     TokenId calldata _canonical,
     address _adoptedAssetId,
     address _representation
-  ) external onlyOwner {
+  ) external onlyOwnerOrAdmin {
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
     _removeAssetId(key, _adoptedAssetId, _representation);
   }
@@ -257,7 +258,7 @@ contract TokenFacet is BaseConnextFacet {
     TokenId calldata _canonical,
     string memory _name,
     string memory _symbol
-  ) external onlyOwner {
+  ) external onlyOwnerOrAdmin {
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
     address local = s.canonicalToRepresentation[key];
     if (local == address(0)) {
@@ -394,10 +395,8 @@ contract TokenFacet is BaseConnextFacet {
     string memory _name,
     string memory _symbol
   ) internal returns (address _token) {
-    // deploy and initialize the token contract
-    _token = address(new UpgradeBeaconProxy(s.tokenBeacon, ""));
-    // initialize the token with decimals and default name
-    IBridgeToken(_token).initialize(_decimals, _name, _symbol);
+    // deploy the token contract
+    _token = address(new BridgeToken(_decimals, _name, _symbol));
     // emit event upon deploying new token
     emit TokenDeployed(_domain, _id, _token);
   }

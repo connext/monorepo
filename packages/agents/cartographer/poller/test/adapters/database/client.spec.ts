@@ -10,9 +10,9 @@ import {
   XTransferStatus,
   convertToRouterBalance,
   XMessage,
+  RootMessage,
 } from "@connext/nxtp-utils";
-import pg from "pg";
-import { newDb } from "pg-mem";
+import { Pool } from "pg";
 import { utils } from "ethers";
 
 import {
@@ -31,184 +31,25 @@ import {
 } from "../../../src/adapters/database/client";
 
 describe("Database client", () => {
-  let pool: pg.Pool;
+  let pool: Pool;
   const batchSize = 10;
 
-  beforeEach(async () => {
-    const db = newDb();
-    const { Pool } = db.adapters.createPg();
-    pool = new Pool();
-
-    // const schema = readFileSync(`./db/schema.sql`, "utf8");
-    await pool.query(
-      `
-      CREATE TYPE public.transfer_status AS ENUM (
-          'XCalled',
-          'Executed',
-          'Reconciled',
-          'CompletedSlow',
-          'CompletedFast'
-      );
-      CREATE TABLE public.asset_balances (
-          asset_canonical_id character(66) NOT NULL,
-          asset_domain character varying(255) NOT NULL,
-          router_address character(42) NOT NULL,
-          balance numeric DEFAULT 0 NOT NULL
-      );
-      CREATE TABLE public.assets (
-          local character(42) NOT NULL,
-          adopted character(42) NOT NULL,
-          canonical_id character(66) NOT NULL,
-          canonical_domain character varying(255) NOT NULL,
-          domain character varying(255) NOT NULL
-      );
-      CREATE TABLE public.checkpoints (
-          check_name character varying(255) NOT NULL,
-          check_point numeric DEFAULT 0 NOT NULL
-      );
-      CREATE TABLE public.routers (
-          address character(42) NOT NULL
-      );
-      CREATE TABLE public.transfers (
-        transfer_id character(66) NOT NULL,
-        nonce bigint,
-        "to" character(42),
-        call_data text,
-        origin_domain character varying(255) NOT NULL,
-        destination_domain character varying(255),
-        recovery character(42),
-        force_slow boolean,
-        receive_local boolean,
-        callback character(42),
-        callback_fee numeric,
-        relayer_fee numeric,
-        origin_chain character varying(255),
-        origin_transacting_asset character(42),
-        origin_transacting_amount numeric,
-        origin_bridged_asset character(42),
-        origin_bridged_amount numeric,
-        xcall_caller character(42),
-        xcall_transaction_hash character(66),
-        xcall_timestamp integer,
-        xcall_gas_price numeric,
-        xcall_gas_limit numeric,
-        xcall_block_number integer,
-        destination_chain character varying(255),
-        status public.transfer_status DEFAULT 'XCalled'::public.transfer_status NOT NULL,
-        routers character(42)[],
-        destination_transacting_asset character(42),
-        destination_transacting_amount numeric,
-        destination_local_asset character(42),
-        destination_local_amount numeric,
-        execute_caller character(42),
-        execute_transaction_hash character(66),
-        execute_timestamp integer,
-        execute_gas_price numeric,
-        execute_gas_limit numeric,
-        execute_block_number integer,
-        execute_origin_sender character(42),
-        reconcile_caller character(42),
-        reconcile_transaction_hash character(66),
-        reconcile_timestamp integer,
-        reconcile_gas_price numeric,
-        reconcile_gas_limit numeric,
-        reconcile_block_number integer,
-        update_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        delegate character(42),
-        transfer_status_update_by_agent character(42),
-        transfer_status_message_by_agent character(42),
-        message_hash character(66),
-        canonical_domain character varying(255),
-        slippage numeric,
-        origin_sender character(42),
-        bridged_amt numeric,
-        normalized_in numeric,
-        canonical_id character(42)
-      );    
-      CREATE TABLE public.messages (
-          leaf character(66) NOT NULL,
-          origin_domain character varying(255) NOT NULL,
-          destination_domain character varying(255),
-          index numeric,
-          root character(66),
-          message character varying,
-          processed boolean DEFAULT false,
-          return_data character varying(255)
-      );
-      CREATE TABLE public.processed_root_messages (
-          id character(66) NOT NULL,
-          spoke_domain character varying(255),
-          hub_domain character varying(255),
-          root character(66),
-          caller character(42),
-          transaction_hash character(66),
-          processed_timestamp integer,
-          gas_price numeric,
-          gas_limit numeric,
-          block_number integer
-      );
-      CREATE TABLE public.schema_migrations (
-          version character varying(255) NOT NULL
-      );
-      CREATE TABLE public.sent_root_messages (
-          id character(66) NOT NULL,
-          spoke_domain character varying(255),
-          hub_domain character varying(255),
-          root character(66),
-          caller character(42),
-          transaction_hash character(66),
-          sent_timestamp integer,
-          gas_price numeric,
-          gas_limit numeric,
-          block_number integer
-      );
-      CREATE VIEW public.routers_with_balances AS
-      SELECT routers.address,
-        asset_balances.asset_canonical_id,
-        asset_balances.asset_domain,
-        asset_balances.router_address,
-        asset_balances.balance,
-        assets.local,
-        assets.adopted,
-        assets.canonical_id,
-        assets.canonical_domain,
-        assets.domain
-        FROM ((public.routers
-          JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
-          JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
-      ALTER TABLE ONLY public.asset_balances
-          ADD CONSTRAINT asset_balances_pkey PRIMARY KEY (asset_canonical_id, asset_domain, router_address);
-
-      ALTER TABLE ONLY public.assets
-          ADD CONSTRAINT assets_pkey PRIMARY KEY (canonical_id, domain);
-      
-      ALTER TABLE ONLY public.checkpoints
-          ADD CONSTRAINT checkpoints_pkey PRIMARY KEY (check_name);
-      ALTER TABLE ONLY public.messages
-          ADD CONSTRAINT messages_pkey PRIMARY KEY (leaf);      
-      ALTER TABLE ONLY public.processed_root_messages
-          ADD CONSTRAINT processed_root_messages_pkey PRIMARY KEY (id);
-      ALTER TABLE ONLY public.routers
-          ADD CONSTRAINT routers_pkey PRIMARY KEY (address);
-      ALTER TABLE ONLY public.schema_migrations
-          ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
-      ALTER TABLE ONLY public.sent_root_messages
-          ADD CONSTRAINT sent_root_messages_pkey PRIMARY KEY (id);
-      ALTER TABLE ONLY public.transfers
-          ADD CONSTRAINT transfers_pkey PRIMARY KEY (transfer_id);      
-      CREATE INDEX messages_processed_index_idx ON public.messages USING btree (processed, index);
-      CREATE INDEX transfers_destination_domain_update_time_idx ON public.transfers USING btree (destination_domain, update_time);
-      CREATE INDEX transfers_origin_domain_xcall_timestamp_idx ON public.transfers USING btree (origin_domain, xcall_timestamp);
-      CREATE INDEX transfers_status_xcall_timestamp_idx ON public.transfers USING btree (status, xcall_timestamp);
-      ALTER TABLE ONLY public.asset_balances
-          ADD CONSTRAINT fk_asset FOREIGN KEY (asset_canonical_id, asset_domain) REFERENCES public.assets(canonical_id, domain);
-      ALTER TABLE ONLY public.asset_balances
-          ADD CONSTRAINT fk_router FOREIGN KEY (router_address) REFERENCES public.routers(address);
-      `,
-    );
+  beforeEach(() => {
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL || "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
+      idleTimeoutMillis: 3000,
+      allowExitOnIdle: true,
+    });
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await pool.query("DELETE FROM asset_balances CASCADE");
+    await pool.query("DELETE FROM assets CASCADE");
+    await pool.query("DELETE FROM transfers CASCADE");
+    await pool.query("DELETE FROM messages CASCADE");
+    await pool.query("DELETE FROM routers CASCADE");
+    await pool.query("DELETE FROM checkpoints CASCADE");
+
     restore();
     reset();
   });
@@ -225,19 +66,13 @@ describe("Database client", () => {
 
   it("should save single transfer null destination", async () => {
     let xTransferLocal = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-    xTransferLocal.destination = null;
-    await saveTransfers([xTransferLocal], pool);
-  });
-
-  it("should save single transfer null destination", async () => {
-    let xTransferLocal = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-    xTransferLocal.origin = null;
+    xTransferLocal.xparams.destinationDomain = null as any;
     await saveTransfers([xTransferLocal], pool);
   });
 
   it("should upsert single transfer", async () => {
     const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-    xTransfer.destination.status = XTransferStatus.CompletedFast;
+    xTransfer.destination!.status = XTransferStatus.CompletedFast;
     await saveTransfers([xTransfer], pool);
     const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
     expect(dbTransfer!.destination!.status).equal(XTransferStatus.CompletedFast);
@@ -246,14 +81,14 @@ describe("Database client", () => {
 
   it("should upsert origin and then destination side transfer", async () => {
     const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.XCalled });
-    const xcall_timestamp = xTransfer.origin.xcall.timestamp;
+    const xcall_timestamp = xTransfer.origin!.xcall.timestamp;
     xTransfer.destination = undefined;
     const origin = xTransfer.origin;
     await saveTransfers([xTransfer], pool);
     const xTransferDestination = mock.entity.xtransfer({ status: XTransferStatus.CompletedFast });
     xTransfer.destination = xTransferDestination.destination;
     xTransfer.origin = undefined;
-    const reconcile_timestamp = xTransfer.destination.reconcile.timestamp;
+    const reconcile_timestamp = xTransfer.destination!.reconcile!.timestamp;
     await saveTransfers([xTransfer], pool);
     const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
     expect(dbTransfer!.destination!.status).equal(XTransferStatus.CompletedFast);
@@ -267,11 +102,11 @@ describe("Database client", () => {
     const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.CompletedFast });
     const origin = xTransfer.origin;
     xTransfer.origin = undefined;
-    const reconcile_timestamp = xTransfer.destination.reconcile.timestamp;
+    const reconcile_timestamp = xTransfer.destination!.reconcile!.timestamp;
     await saveTransfers([xTransfer], pool);
     xTransfer.origin = origin;
     xTransfer.destination = undefined;
-    const xcall_timestamp = xTransfer.origin.xcall.timestamp;
+    const xcall_timestamp = xTransfer.origin!.xcall.timestamp;
     await saveTransfers([xTransfer], pool);
     const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
     expect(dbTransfer!.destination!.status).equal(XTransferStatus.CompletedFast);
@@ -308,7 +143,7 @@ describe("Database client", () => {
 
     const statusTransfers = await getTransfersByStatus(XTransferStatus.CompletedFast, 10, 0, "ASC", pool);
     expect(statusTransfers.length).greaterThan(0);
-    expect(statusTransfers[0]!.destination!.status).equal(xTransfer.destination.status);
+    expect(statusTransfers[0]!.destination!.status).equal(xTransfer.destination!.status);
   });
 
   it("should get transfer by status with limit and ascending order", async () => {
@@ -471,7 +306,7 @@ describe("Database client", () => {
       },
     ];
     await saveRouterBalances(routerBalances, pool);
-    const res = await pool.query(`SELECT * FROM routers_with_balances`);
+    const res = await pool.query(`SELECT * FROM routers_with_balances order by address, domain, canonical_id`);
     const rb = convertToRouterBalance(res.rows);
     expect(rb).to.deep.eq(routerBalances);
   });
