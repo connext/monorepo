@@ -15,6 +15,7 @@
   "error AssetLogic__handleOutgoingAsset_notNative()",
   "error BridgeFacet__addRemote_invalidDomain()",
   "error BridgeFacet__addSequencer_alreadyApproved()",
+  "error BridgeFacet__bumpTransfer_noRelayerVault()",
   "error BridgeFacet__bumpTransfer_valueIsZero()",
   "error BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn()",
   "error BridgeFacet__execute_badFastLiquidityStatus()",

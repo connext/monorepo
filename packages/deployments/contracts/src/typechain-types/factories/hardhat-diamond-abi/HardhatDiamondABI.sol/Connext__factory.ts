@@ -92,6 +92,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BridgeFacet__bumpTransfer_noRelayerVault",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BridgeFacet__bumpTransfer_valueIsZero",
     type: "error",
   },
