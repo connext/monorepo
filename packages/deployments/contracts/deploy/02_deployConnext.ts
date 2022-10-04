@@ -206,12 +206,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     );
   }
 
-  // get relayer fee information
-  const relayerFeeVault = RELAYER_CONFIGS[messagingNetwork][+chainId]?.relayerFeeVault;
-  if (!relayerFeeVault) {
-    throw new Error(`Empty relayer fee vault for ${messagingNetwork}:${chainId}`);
-  }
-
   // Deploy connext diamond contract
   console.log("Deploying connext diamond...");
   const isDiamondUpgrade = !!(await hre.deployments.getOrNull(getDeploymentName("Connext")));
@@ -282,7 +276,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         : {
             contract: "DiamondInit",
             methodName: "init",
-            args: [domain, relayerFeeVault, connectorManagerDeployment.address, acceptanceDelay],
+            args: [domain, connectorManagerDeployment.address, acceptanceDelay],
           },
     });
   }
