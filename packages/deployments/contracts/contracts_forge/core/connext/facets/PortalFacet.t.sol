@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import {Deployer} from "../../../utils/Deployer.sol";
-import {IConnextHandler} from "../../../../contracts/core/connext/interfaces/IConnextHandler.sol";
+import {IConnext} from "../../../../contracts/core/connext/interfaces/IConnext.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IDiamondCut} from "../../../../contracts/core/connext/interfaces/IDiamondCut.sol";

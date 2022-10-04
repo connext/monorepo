@@ -4,7 +4,10 @@
 
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
-import type { Connext, ConnextInterface } from "../../../hardhat-diamond-abi/HardhatDiamondABI.sol/Connext";
+import type {
+  Connext,
+  ConnextInterface,
+} from "../../../hardhat-diamond-abi/HardhatDiamondABI.sol/Connext";
 
 const _abi = [
   {
@@ -4826,7 +4829,10 @@ export class Connext__factory {
   static createInterface(): ConnextInterface {
     return new utils.Interface(_abi) as ConnextInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): Connext {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): Connext {
     return new Contract(address, _abi, signerOrProvider) as Connext;
   }
 }

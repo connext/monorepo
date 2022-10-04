@@ -12,7 +12,7 @@ import {IStableSwap} from "./IStableSwap.sol";
 import {IDiamondCut} from "./IDiamondCut.sol";
 import {IDiamondLoupe} from "./IDiamondLoupe.sol";
 
-interface IConnextHandler is IDiamondLoupe, IDiamondCut {
+interface IConnext is IDiamondLoupe, IDiamondCut {
   // TokenFacet
   function canonicalToAdopted(bytes32 _key) external view returns (address);
 

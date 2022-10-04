@@ -58,7 +58,7 @@ contract DiamondInit is BaseConnextFacet {
       // __ReentrancyGuard_init_unchained
       s._status = _NOT_ENTERED;
 
-      // ConnextHandler
+      // Connext
       s.tokenBeacon = _tokenBeacon;
       s.domain = _domain;
       s.relayerFeeVault = _relayerFeeVault;

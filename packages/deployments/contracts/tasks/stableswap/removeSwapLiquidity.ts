@@ -36,7 +36,7 @@ export default task("remove-swap-liquidity", "Remove liquidity from the stable s
       console.log("lp amount: ", _amount);
       console.log("asset: ", asset);
 
-      const connextName = getDeploymentName("ConnextHandler", env);
+      const connextName = getDeploymentName("Connext", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       console.log("connextAddress: ", connextAddress);

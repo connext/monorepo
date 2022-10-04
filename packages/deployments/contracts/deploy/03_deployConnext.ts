@@ -24,7 +24,7 @@ const proposeDiamondUpgrade = async (
   deployer: Wallet,
 ): Promise<{ cuts: FacetCut[]; tx: undefined | providers.TransactionResponse; abi: undefined | any[] }> => {
   // Get existing facets + selectors
-  const existingDeployment = (await hre.deployments.getOrNull(getDeploymentName("ConnextHandler")))!;
+  const existingDeployment = (await hre.deployments.getOrNull(getDeploymentName("Connext")))!;
   const contract = new Contract(existingDeployment.address, existingDeployment?.abi, deployer);
 
   const oldFacets: { facetAddress: string; functionSelectors: string[] }[] = await contract.facets();
@@ -221,7 +221,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Deploy connext diamond contract
   console.log("Deploying connext diamond...");
-  const isDiamondUpgrade = !!(await hre.deployments.getOrNull(getDeploymentName("ConnextHandler")));
+  const isDiamondUpgrade = !!(await hre.deployments.getOrNull(getDeploymentName("Connext")));
 
   const facets: FacetOptions[] = [
     { name: getDeploymentName("TokenFacet"), contract: "TokenFacet", args: [] },
@@ -238,7 +238,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   if (isDiamondUpgrade) {
     console.log("proposing upgrade...");
 
-    connext = (await hre.deployments.getOrNull(getDeploymentName("ConnextHandler")))!;
+    connext = (await hre.deployments.getOrNull(getDeploymentName("Connext")))!;
 
     const { cuts, tx: proposalTx, abi } = await proposeDiamondUpgrade(facets, hre, deployer);
     if (!proposalTx || !cuts.length) {
@@ -269,7 +269,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
             abi: abi ?? connext.abi,
           };
 
-          await hre.deployments.save(getDeploymentName("ConnextHandler"), diamondDeployment);
+          await hre.deployments.save(getDeploymentName("Connext"), diamondDeployment);
           console.log("upgraded abi");
         }
       }
@@ -277,7 +277,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       console.log(`upgrade failed`, e);
     }
   } else {
-    connext = await hre.deployments.diamond.deploy(getDeploymentName("ConnextHandler"), {
+    connext = await hre.deployments.diamond.deploy(getDeploymentName("Connext"), {
       from: deployer.address,
       owner: deployer.address,
       log: true,

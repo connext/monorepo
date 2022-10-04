@@ -3,7 +3,7 @@
 /* eslint-disable */
 export { IAavePool__factory } from "./IAavePool__factory";
 export { IBridgeToken__factory } from "./IBridgeToken__factory";
-export { IConnextHandler__factory } from "./IConnextHandler__factory";
+export { IConnext__factory } from "./IConnext__factory";
 export { IDiamondCut__factory } from "./IDiamondCut__factory";
 export { IDiamondLoupe__factory } from "./IDiamondLoupe__factory";
 export { IERC165__factory } from "./IERC165__factory";

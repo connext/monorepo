@@ -4,7 +4,10 @@
 
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
-import type { IConnext, IConnextInterface } from "../../../../../contracts/core/connext/interfaces/IConnext";
+import type {
+  IConnext,
+  IConnextInterface,
+} from "../../../../../contracts/core/connext/interfaces/IConnext";
 
 const _abi = [
   {
@@ -3197,7 +3200,10 @@ export class IConnext__factory {
   static createInterface(): IConnextInterface {
     return new utils.Interface(_abi) as IConnextInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IConnext {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IConnext {
     return new Contract(address, _abi, signerOrProvider) as IConnext;
   }
 }

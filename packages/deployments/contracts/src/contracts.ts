@@ -1,11 +1,11 @@
 import { utils } from "ethers";
 
-import { ConnextHandlerAbi, TokenFacetAbi, BridgeFacetAbi, InboxFacetAbi } from "./abi";
-import { ConnextHandlerInterface as TConnextHandlerInterface } from "./typechain-types/hardhat-diamond-abi/HardhatDiamondABI.sol/ConnextHandler";
+import { ConnextAbi, TokenFacetAbi, BridgeFacetAbi, InboxFacetAbi } from "./abi";
+import { ConnextInterface as TConnextInterface } from "./typechain-types/hardhat-diamond-abi/HardhatDiamondABI.sol/Connext";
 
-const connextAbi = ConnextHandlerAbi.concat(
+const connextAbi = ConnextAbi.concat(
   TokenFacetAbi.filter((k) => k.includes("event"))
     .concat(BridgeFacetAbi.filter((k) => k.includes("event")))
     .concat(InboxFacetAbi.filter((k) => k.includes("event"))),
 );
-export const ConnextHandlerInterface = new utils.Interface(connextAbi) as TConnextHandlerInterface;
+export const ConnextInterface = new utils.Interface(connextAbi) as TConnextInterface;

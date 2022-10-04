@@ -5,7 +5,7 @@ import "../../../utils/ForgeHelper.sol";
 import {Deployer, DiamondInit, BridgeFacet} from "../../../utils/Deployer.sol";
 
 import "../../../../contracts/core/connext/libraries/LibDiamond.sol";
-import {IConnextHandler} from "../../../../contracts/core/connext/interfaces/IConnextHandler.sol";
+import {IConnext} from "../../../../contracts/core/connext/interfaces/IConnext.sol";
 import {IDiamondCut} from "../../../../contracts/core/connext/interfaces/IDiamondCut.sol";
 
 contract LibDiamondTest is ForgeHelper, Deployer {
@@ -14,7 +14,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   using stdStorage for StdStorage;
 
   // ============ Storage ============
-  IConnextHandler connextHandler;
+  IConnext connextHandler;
   uint32 domain = 1;
   uint256 acceptanceDelay = 7 days;
   uint256 ownershipDelay = 6 days;
@@ -28,7 +28,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     // Deploy token beacon
     deployConnext(uint256(domain), beacon, xAppConnectionManager, relayerFeeVault, acceptanceDelay, ownershipDelay);
 
-    connextHandler = IConnextHandler(address(connextDiamondProxy));
+    connextHandler = IConnext(address(connextDiamondProxy));
   }
 
   // ============ Utils ============
@@ -111,7 +111,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   function test_LibDiamond__initializeDiamondCut_withZeroAcceptanceDelay_works() public {
     deployConnext(uint256(domain), beacon, xAppConnectionManager, relayerFeeVault, 0, 0);
 
-    connextHandler = IConnextHandler(address(connextDiamondProxy));
+    connextHandler = IConnext(address(connextDiamondProxy));
 
     uint32 newDomain = 2;
     address newBeacon = address(10001);

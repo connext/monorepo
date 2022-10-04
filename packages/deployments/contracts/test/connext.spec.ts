@@ -21,7 +21,7 @@ import {
   RelayerFacet,
   RoutersFacet,
   StableSwapFacet,
-  ConnextHandler,
+  Connext,
   DiamondInit,
   PortalFacet,
 } from "../src/typechain-types";
@@ -104,8 +104,8 @@ describe("Connext", () => {
   let tokenFacet: TokenFacet;
   let routersFacet: RoutersFacet;
   let portalFacet: PortalFacet;
-  let originBridge: ConnextHandler;
-  let destinationBridge: ConnextHandler;
+  let originBridge: Connext;
+  let destinationBridge: Connext;
   let stableSwap: DummySwap;
   let originRelayerFeeRouter: RelayerFeeRouter;
   let destinationRelayerFeeRouter: RelayerFeeRouter;
@@ -166,7 +166,7 @@ describe("Connext", () => {
     const diamondInit = await deployContract<DiamondInit>("DiamondInit");
 
     // Deploy origin diamond
-    originBridge = await deployDiamond<ConnextHandler>(
+    originBridge = await deployDiamond<Connext>(
       "Connext",
       [
         diamondCutFacet,
@@ -190,11 +190,11 @@ describe("Connext", () => {
         0,
         0,
       ]),
-      "ConnextHandler",
+      "Connext",
     );
 
     // Deploy destination diamond
-    destinationBridge = await deployDiamond<ConnextHandler>(
+    destinationBridge = await deployDiamond<Connext>(
       "Connext",
       [
         diamondCutFacet,
@@ -217,7 +217,7 @@ describe("Connext", () => {
         weth.address,
         destinationRelayerFeeRouter.address,
       ]),
-      "ConnextHandler",
+      "Connext",
     );
 
     // Deploy home in origin domain

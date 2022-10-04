@@ -1,7 +1,7 @@
 import { Contract, Wallet } from "ethers";
 
 import _Deployments from "../../../deployments.json";
-import { ConnextHandlerInterface } from "../../contracts";
+import { ConnextInterface } from "../../contracts";
 
 import { Deployment, DomainDeployments, NetworkStack } from "./types";
 
@@ -68,8 +68,8 @@ export const getDeployments = (args: {
 
   // Custom function to format lookup by env and double check that the contract retrieved is not null.
   const getContract = (contract: string): any => {
-    const isConnextHandler = contract.includes("ConnextHandler");
-    const key = isConnextHandler ? `ConnextHandler${env}_DiamondProxy` : contract + env;
+    const isConnext = contract.includes("Connext");
+    const key = isConnext ? `Connext${env}_DiamondProxy` : contract + env;
     const result = contracts[key];
     if (!result) {
       throw new Error(`Contract ${key} was not found in deployments.json!`);
@@ -93,20 +93,20 @@ export const getDeployments = (args: {
 
     return {
       proxy: key,
-      name: isConnextHandler ? "Connext" : implementation ?? contract,
+      name: isConnext ? "Connext" : implementation ?? contract,
       address: result.address,
       abi,
       contract: new Contract(
         result.address as string,
         // Special case if this is the Connext diamond.
-        isConnextHandler ? ConnextHandlerInterface : abi,
+        isConnext ? ConnextInterface : abi,
         deployer,
       ),
     };
   };
 
   return {
-    Connext: getContract("ConnextHandler_DiamondProxy"),
+    Connext: getContract("Connext_DiamondProxy"),
     messaging: isHub
       ? {
           RootManager: getContract("RootManager"),

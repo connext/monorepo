@@ -122,7 +122,7 @@ struct AppStorage {
   // 0
   bool initialized;
   //
-  // ConnextHandler
+  // Connext
   //
   // 1
   uint256 LIQUIDITY_FEE_NUMERATOR;
@@ -229,7 +229,7 @@ struct AppStorage {
   /**
    * @notice Stores a mapping of remote routers keyed on domains.
    * @dev Addresses are cast to bytes32.
-   * This mapping is required because the ConnextHandler now contains the BridgeRouter and must implement
+   * This mapping is required because the Connext now contains the BridgeRouter and must implement
    * the remotes interface.
    */
   // 21

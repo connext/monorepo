@@ -8,7 +8,7 @@ import {IConnectorManager} from "../contracts/messaging/interfaces/IConnectorMan
 import {TypeCasts} from "../contracts/shared/libraries/TypeCasts.sol";
 
 import {IBridgeToken} from "../contracts/core/connext/interfaces/IBridgeToken.sol";
-import {IConnextHandler} from "../contracts/core/connext/interfaces/IConnextHandler.sol";
+import {IConnext} from "../contracts/core/connext/interfaces/IConnext.sol";
 import {BridgeMessage} from "../contracts/core/connext/libraries/BridgeMessage.sol";
 import {BridgeFacet, ExecuteArgs} from "../contracts/core/connext/facets/BridgeFacet.sol";
 import {TokenId, DestinationTransferStatus} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
@@ -122,8 +122,8 @@ contract ConnextTest is ForgeHelper, Deployer {
   address _destinationRelayerFee = address(4545625622535);
 
   // ============ Connext
-  IConnextHandler _originConnext;
-  IConnextHandler _destinationConnext;
+  IConnext _originConnext;
+  IConnext _destinationConnext;
 
   // ============ Payable ============
   receive() external payable {}
@@ -174,7 +174,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       7 days,
       6 days
     );
-    _originConnext = IConnextHandler(originConnext);
+    _originConnext = IConnext(originConnext);
 
     address destinationConnext = deployConnext(
       _destination,
@@ -184,7 +184,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       7 days,
       6 days
     );
-    _destinationConnext = IConnextHandler(destinationConnext);
+    _destinationConnext = IConnext(destinationConnext);
 
     // whitelist contract as router
     _originConnext.addRelayer(address(this));
@@ -274,7 +274,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     decimals[0] = 18;
     decimals[1] = 18;
 
-    IConnextHandler connext = isOrigin ? _originConnext : _destinationConnext;
+    IConnext connext = isOrigin ? _originConnext : _destinationConnext;
 
     string memory LP_TOKEN_NAME = "Test LP Token Name";
     string memory LP_TOKEN_SYMBOL = "TESTLP";

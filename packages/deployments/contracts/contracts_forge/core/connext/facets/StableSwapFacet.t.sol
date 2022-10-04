@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import "../../../utils/FacetHelper.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
-import {IConnextHandler} from "../../../../contracts/core/connext/interfaces/IConnextHandler.sol";
+import {IConnext} from "../../../../contracts/core/connext/interfaces/IConnext.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "../../../../contracts/core/connext/facets/StableSwapFacet.sol";
