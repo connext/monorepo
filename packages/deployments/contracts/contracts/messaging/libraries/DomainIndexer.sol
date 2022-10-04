@@ -80,7 +80,7 @@ abstract contract DomainIndexer {
   /**
    * @notice Validate given domains and connectors arrays are correct (i.e. they mirror what is
    * currently saved in storage).
-   * @dev Reverts if domains or connectors do not match.
+   * @dev Reverts if domains or connectors do not match, including ordering.
    */
   function validateDomains(uint32[] calldata _domains, address[] calldata _connectors) public view {
     // Validate that given domains match the current array in storage.
