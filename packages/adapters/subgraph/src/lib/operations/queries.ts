@@ -1,7 +1,6 @@
 import { gql } from "graphql-request";
 import {
   SubgraphQueryMetaParams,
-  XTransferStatus,
   SubgraphQueryByTransferIDsMetaParams,
   SubgraphQueryByTimestampMetaParams,
 } from "@connext/nxtp-utils";
@@ -555,22 +554,11 @@ export const getDestinationTransfersByDomainAndReconcileTimestampQuery = (
   `;
 };
 
-const destinationTransfersByIdsQueryString = (
-  prefix: string,
-  transferIds: string[],
-  maxBlockNumber?: number,
-  status?: XTransferStatus,
-) => {
+const destinationTransfersByIdsQueryString = (prefix: string, transferIds: string[]) => {
   return `
   ${prefix}_destinationTransfers ( 
     where: { 
-      transferId_in: [${transferIds}] 
-      ${
-        maxBlockNumber
-          ? `, executedBlockNumber_lte: ${maxBlockNumber}, reconciledBlockNumber_lte: ${maxBlockNumber}`
-          : ""
-      } 
-      ${status ? `, status: ${status}` : ""}
+      transferId_in: [${transferIds}]
     }, 
     orderBy: nonce, 
     orderDirection: desc) {
