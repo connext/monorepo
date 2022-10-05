@@ -415,19 +415,28 @@ contract BridgeFacet is BaseConnextFacet {
 
   /**
    * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
-   * @param _transferId - The unique identifier of the crosschain transaction
+   * @dev Funds will be sent to the configured `relayerVault`: accounting for current relayer fee per
+   * transfer is handled in the subgraph.
+   * @param transferId - The unique identifier of the crosschain transfer.
    */
-  function bumpTransfer(bytes32 _transferId) external payable nonReentrant whenNotPaused {
+  function bumpTransfer(bytes32 transferId) external payable nonReentrant whenNotPaused {
     if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
-    _bumpTransfer(_transferId);
+    _bumpTransfer(transferId);
   }
 
-  function _bumpTransfer(bytes32 _transferId) internal {
+  /**
+   * @notice Core bumpTransfer method: increases the relayer fee for a specified transfer.
+   * @param transferId - The transfer ID.
+   */
+  function _bumpTransfer(bytes32 transferId) internal {
+    // Sanity check: relayerVault exists.
     address relayerVault = s.relayerFeeVault;
     if (relayerVault == address(0)) revert BridgeFacet__bumpTransfer_noRelayerVault();
+
+    // Send ETH to configured relayerVault.
     Address.sendValue(payable(relayerVault), msg.value);
 
-    emit TransferRelayerFeesIncreased(_transferId, msg.value, msg.sender);
+    emit TransferRelayerFeesIncreased(transferId, msg.value, msg.sender);
   }
 
   /**
