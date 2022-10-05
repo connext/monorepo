@@ -268,8 +268,9 @@ export interface RootManagerInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "ConnectorAdded(uint32,address)": EventFragment;
-    "ConnectorRemoved(uint32,address)": EventFragment;
+    "ConnectorAdded(uint32,address,uint32[],address[])": EventFragment;
+    "ConnectorRemoved(uint32,address,uint32[],address[],address)": EventFragment;
+    "DelayBlocksUpdated(uint256,uint256)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused(address)": EventFragment;
@@ -281,6 +282,7 @@ export interface RootManagerInterface extends utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "ConnectorAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ConnectorRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DelayBlocksUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
@@ -293,9 +295,11 @@ export interface RootManagerInterface extends utils.Interface {
 export interface ConnectorAddedEventObject {
   domain: number;
   connector: string;
+  domains: number[];
+  connectors: string[];
 }
 export type ConnectorAddedEvent = TypedEvent<
-  [number, string],
+  [number, string, number[], string[]],
   ConnectorAddedEventObject
 >;
 
@@ -304,14 +308,29 @@ export type ConnectorAddedEventFilter = TypedEventFilter<ConnectorAddedEvent>;
 export interface ConnectorRemovedEventObject {
   domain: number;
   connector: string;
+  domains: number[];
+  connectors: string[];
+  caller: string;
 }
 export type ConnectorRemovedEvent = TypedEvent<
-  [number, string],
+  [number, string, number[], string[], string],
   ConnectorRemovedEventObject
 >;
 
 export type ConnectorRemovedEventFilter =
   TypedEventFilter<ConnectorRemovedEvent>;
+
+export interface DelayBlocksUpdatedEventObject {
+  previous: BigNumber;
+  updated: BigNumber;
+}
+export type DelayBlocksUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  DelayBlocksUpdatedEventObject
+>;
+
+export type DelayBlocksUpdatedEventFilter =
+  TypedEventFilter<DelayBlocksUpdatedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -743,20 +762,42 @@ export interface RootManager extends BaseContract {
   };
 
   filters: {
-    "ConnectorAdded(uint32,address)"(
+    "ConnectorAdded(uint32,address,uint32[],address[])"(
       domain?: null,
-      connector?: null
+      connector?: null,
+      domains?: null,
+      connectors?: null
     ): ConnectorAddedEventFilter;
-    ConnectorAdded(domain?: null, connector?: null): ConnectorAddedEventFilter;
-
-    "ConnectorRemoved(uint32,address)"(
+    ConnectorAdded(
       domain?: null,
-      connector?: null
+      connector?: null,
+      domains?: null,
+      connectors?: null
+    ): ConnectorAddedEventFilter;
+
+    "ConnectorRemoved(uint32,address,uint32[],address[],address)"(
+      domain?: null,
+      connector?: null,
+      domains?: null,
+      connectors?: null,
+      caller?: null
     ): ConnectorRemovedEventFilter;
     ConnectorRemoved(
       domain?: null,
-      connector?: null
+      connector?: null,
+      domains?: null,
+      connectors?: null,
+      caller?: null
     ): ConnectorRemovedEventFilter;
+
+    "DelayBlocksUpdated(uint256,uint256)"(
+      previous?: null,
+      updated?: null
+    ): DelayBlocksUpdatedEventFilter;
+    DelayBlocksUpdated(
+      previous?: null,
+      updated?: null
+    ): DelayBlocksUpdatedEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
