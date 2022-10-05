@@ -1,8 +1,7 @@
 ---
 name: Subtask
 about: A single task to help complete an enhancement
-title: "[action] the [result] [by|for|of|to] an [object]  (ex/ Update calculation
-  of slippage)"
+title: Triple the size of my bags    (action the result to/of/byfrom a thing)
 labels: subtask ⚙️
 assignees: ''
 
