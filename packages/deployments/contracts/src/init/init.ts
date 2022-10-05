@@ -148,7 +148,6 @@ export const sanitizeAndInit = async (config: any) => {
   /// MARK - Assets
   // If assets are not specified, just set an empty array.
   const assets = config.assets ?? [];
-  console.log({ assets });
   // All domains specified in AssetStack(s) must be included in domains.
   for (const asset of assets) {
     const domains = [asset.canonical.domain].concat(Object.keys(asset.representations as { [domain: string]: any }));
