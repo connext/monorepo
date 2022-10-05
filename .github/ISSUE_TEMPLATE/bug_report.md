@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: This thing be buggin out dawg
+title: This thing buggin my g
 labels: "bug \U0001F41B"
 assignees: ''
 
