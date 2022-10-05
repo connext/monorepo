@@ -256,6 +256,8 @@ contract BridgeFacet is BaseConnextFacet {
   /**
    * @notice Initiates a cross-chain transfer of funds and/or xcalldata.
    *
+   * @dev Any `msg.value` for a transaction calling this method will be delivered to the configured relayer fee vault
+   * as payment for execution on the destination domain.
    * @dev For transfers including an ERC20 asset, this contract must already have approval to transfer the input asset.
    * @dev Canonical assets on their home chain will be escrowed here for bridging.
    * @dev Adopted assets will be swapped for the Connext bridge's representational asset (i.e. bridge tokens) via the
@@ -311,6 +313,8 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Initiates a cross-chain transfer of funds and/or xcalldata. This method will configure the transfer to
    * ONLY deliver the representational (or canonical) asset on the destination domain.
    *
+   * @dev Any `msg.value` for a transaction calling this method will be delivered to the configured relayer fee vault
+   * as payment for execution on the destination domain.
    * @dev For transfers including an ERC20 asset, this contract must already have approval to transfer the input asset.
    * @dev Canonical assets on their home chain will be escrowed here for bridging.
    * @dev Adopted assets will be swapped for the Connext bridge's representational asset (i.e. bridge tokens) via the
