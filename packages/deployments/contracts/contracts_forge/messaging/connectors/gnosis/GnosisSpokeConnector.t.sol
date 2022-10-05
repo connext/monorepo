@@ -111,8 +111,8 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     GnosisSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
 
-    // Check: root is updated
-    assertEq(GnosisSpokeConnector(_l2Connector).aggregateRootPending(), bytes32(_data));
+    // Check: root is marked as pending
+    assertEq(GnosisSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
   }
 
   function test_GnosisSpokeConnector__processMessage_shouldUpdateAggregateRoot_fuzz(bytes32 data) public {
@@ -133,8 +133,8 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     GnosisSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
 
-    // Check: root is updated
-    assertEq(GnosisSpokeConnector(_l2Connector).aggregateRootPending(), bytes32(_data));
+    // Check: root is marked as pending
+    assertEq(GnosisSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
   }
 
   function test_GnosisSpokeConnector__processMessage_shouldFailIfSenderNotVerified() public {

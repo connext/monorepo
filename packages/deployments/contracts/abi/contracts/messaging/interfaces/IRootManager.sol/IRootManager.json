@@ -1,4 +1,4 @@
 [
   "function aggregate(uint32,bytes32)",
-  "function propagate()"
+  "function propagate(uint32[],address[])"
 ]

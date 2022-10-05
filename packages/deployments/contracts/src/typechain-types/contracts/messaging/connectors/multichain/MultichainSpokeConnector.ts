@@ -52,9 +52,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "addSender(address)": FunctionFragment;
-    "aggregateRootCurrent()": FunctionFragment;
-    "aggregateRootPending()": FunctionFragment;
-    "aggregateRootPendingBlock()": FunctionFragment;
     "anyExecute(bytes)": FunctionFragment;
     "delay()": FunctionFragment;
     "delayBlocks()": FunctionFragment;
@@ -70,17 +67,19 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
     "paused()": FunctionFragment;
+    "pendingAggregateRoots(bytes32)": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
-    "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32[32],uint256)": FunctionFragment;
-    "provenRoots(bytes32)": FunctionFragment;
+    "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32,bytes32[32],uint256)": FunctionFragment;
+    "provenAggregateRoots(bytes32)": FunctionFragment;
+    "provenMessageRoots(bytes32)": FunctionFragment;
+    "removePendingAggregateRoot(bytes32)": FunctionFragment;
     "removeSender(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "send()": FunctionFragment;
-    "setAggregateRoots(bytes32,bytes32)": FunctionFragment;
     "setDelayBlocks(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setMirrorGas(uint256)": FunctionFragment;
@@ -101,9 +100,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
       | "ROOT_MANAGER"
       | "acceptProposedOwner"
       | "addSender"
-      | "aggregateRootCurrent"
-      | "aggregateRootPending"
-      | "aggregateRootPendingBlock"
       | "anyExecute"
       | "delay"
       | "delayBlocks"
@@ -119,17 +115,19 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
       | "owner"
       | "pause"
       | "paused"
+      | "pendingAggregateRoots"
       | "processMessage"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
       | "proveAndProcess"
-      | "provenRoots"
+      | "provenAggregateRoots"
+      | "provenMessageRoots"
+      | "removePendingAggregateRoot"
       | "removeSender"
       | "renounceOwnership"
       | "renounced"
       | "send"
-      | "setAggregateRoots"
       | "setDelayBlocks"
       | "setMirrorConnector"
       | "setMirrorGas"
@@ -165,18 +163,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "addSender",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "aggregateRootCurrent",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "aggregateRootPending",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "aggregateRootPendingBlock",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "anyExecute",
@@ -225,6 +211,10 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(functionFragment: "paused", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "pendingAggregateRoots",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "processMessage",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -241,12 +231,21 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     functionFragment: "proveAndProcess",
     values: [
       SpokeConnector.ProofStruct[],
+      PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>[],
       PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "provenRoots",
+    functionFragment: "provenAggregateRoots",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "provenMessageRoots",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removePendingAggregateRoot",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -259,10 +258,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(functionFragment: "send", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "setAggregateRoots",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
   encodeFunctionData(
     functionFragment: "setDelayBlocks",
     values: [PromiseOrValue<BigNumberish>]
@@ -313,18 +308,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "addSender", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "aggregateRootCurrent",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "aggregateRootPending",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "aggregateRootPendingBlock",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "anyExecute", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(
@@ -353,6 +336,10 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "pendingAggregateRoots",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "processMessage",
     data: BytesLike
   ): Result;
@@ -370,7 +357,15 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "provenRoots",
+    functionFragment: "provenAggregateRoots",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "provenMessageRoots",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removePendingAggregateRoot",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -383,10 +378,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setAggregateRoots",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "setDelayBlocks",
     data: BytesLike
@@ -414,7 +405,8 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "AggregateRootsUpdated(bytes32,bytes32)": EventFragment;
+    "AggregateRootReceived(bytes32)": EventFragment;
+    "AggregateRootRemoved(bytes32)": EventFragment;
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes,address)": EventFragment;
@@ -431,7 +423,8 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     "WatcherManagerChanged(address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AggregateRootsUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AggregateRootReceived"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AggregateRootRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Dispatch"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
@@ -448,17 +441,27 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "WatcherManagerChanged"): EventFragment;
 }
 
-export interface AggregateRootsUpdatedEventObject {
-  current: string;
-  pending: string;
+export interface AggregateRootReceivedEventObject {
+  root: string;
 }
-export type AggregateRootsUpdatedEvent = TypedEvent<
-  [string, string],
-  AggregateRootsUpdatedEventObject
+export type AggregateRootReceivedEvent = TypedEvent<
+  [string],
+  AggregateRootReceivedEventObject
 >;
 
-export type AggregateRootsUpdatedEventFilter =
-  TypedEventFilter<AggregateRootsUpdatedEvent>;
+export type AggregateRootReceivedEventFilter =
+  TypedEventFilter<AggregateRootReceivedEvent>;
+
+export interface AggregateRootRemovedEventObject {
+  root: string;
+}
+export type AggregateRootRemovedEvent = TypedEvent<
+  [string],
+  AggregateRootRemovedEventObject
+>;
+
+export type AggregateRootRemovedEventFilter =
+  TypedEventFilter<AggregateRootRemovedEvent>;
 
 export interface DispatchEventObject {
   leaf: string;
@@ -658,12 +661,6 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    aggregateRootCurrent(overrides?: CallOverrides): Promise<[string]>;
-
-    aggregateRootPending(overrides?: CallOverrides): Promise<[string]>;
-
-    aggregateRootPendingBlock(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     anyExecute(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -713,6 +710,11 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     paused(overrides?: CallOverrides): Promise<[boolean]>;
 
+    pendingAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -729,15 +731,26 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     proveAndProcess(
       _proofs: SpokeConnector.ProofStruct[],
-      _aggregatorPath: PromiseOrValue<BytesLike>[],
-      _aggregatorIndex: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _aggregatePath: PromiseOrValue<BytesLike>[],
+      _aggregateIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    provenRoots(
+    provenAggregateRoots(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    removePendingAggregateRoot(
+      _fraudulentRoot: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     removeSender(
       _sender: PromiseOrValue<string>,
@@ -751,12 +764,6 @@ export interface MultichainSpokeConnector extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     send(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setAggregateRoots(
-      _current: PromiseOrValue<BytesLike>,
-      _pending: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -818,12 +825,6 @@ export interface MultichainSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  aggregateRootCurrent(overrides?: CallOverrides): Promise<string>;
-
-  aggregateRootPending(overrides?: CallOverrides): Promise<string>;
-
-  aggregateRootPendingBlock(overrides?: CallOverrides): Promise<BigNumber>;
-
   anyExecute(
     _data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -873,6 +874,11 @@ export interface MultichainSpokeConnector extends BaseContract {
 
   paused(overrides?: CallOverrides): Promise<boolean>;
 
+  pendingAggregateRoots(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   processMessage(
     _data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -889,15 +895,26 @@ export interface MultichainSpokeConnector extends BaseContract {
 
   proveAndProcess(
     _proofs: SpokeConnector.ProofStruct[],
-    _aggregatorPath: PromiseOrValue<BytesLike>[],
-    _aggregatorIndex: PromiseOrValue<BigNumberish>,
+    _aggregateRoot: PromiseOrValue<BytesLike>,
+    _aggregatePath: PromiseOrValue<BytesLike>[],
+    _aggregateIndex: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  provenRoots(
+  provenAggregateRoots(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  provenMessageRoots(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  removePendingAggregateRoot(
+    _fraudulentRoot: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   removeSender(
     _sender: PromiseOrValue<string>,
@@ -911,12 +928,6 @@ export interface MultichainSpokeConnector extends BaseContract {
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
   send(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setAggregateRoots(
-    _current: PromiseOrValue<BytesLike>,
-    _pending: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -976,12 +987,6 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    aggregateRootCurrent(overrides?: CallOverrides): Promise<string>;
-
-    aggregateRootPending(overrides?: CallOverrides): Promise<string>;
-
-    aggregateRootPendingBlock(overrides?: CallOverrides): Promise<BigNumber>;
-
     anyExecute(
       _data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1029,6 +1034,11 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     paused(overrides?: CallOverrides): Promise<boolean>;
 
+    pendingAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1045,15 +1055,26 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     proveAndProcess(
       _proofs: SpokeConnector.ProofStruct[],
-      _aggregatorPath: PromiseOrValue<BytesLike>[],
-      _aggregatorIndex: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _aggregatePath: PromiseOrValue<BytesLike>[],
+      _aggregateIndex: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    provenRoots(
+    provenAggregateRoots(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    removePendingAggregateRoot(
+      _fraudulentRoot: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     removeSender(
       _sender: PromiseOrValue<string>,
@@ -1065,12 +1086,6 @@ export interface MultichainSpokeConnector extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
     send(overrides?: CallOverrides): Promise<void>;
-
-    setAggregateRoots(
-      _current: PromiseOrValue<BytesLike>,
-      _pending: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
@@ -1106,14 +1121,15 @@ export interface MultichainSpokeConnector extends BaseContract {
   };
 
   filters: {
-    "AggregateRootsUpdated(bytes32,bytes32)"(
-      current?: null,
-      pending?: null
-    ): AggregateRootsUpdatedEventFilter;
-    AggregateRootsUpdated(
-      current?: null,
-      pending?: null
-    ): AggregateRootsUpdatedEventFilter;
+    "AggregateRootReceived(bytes32)"(
+      root?: null
+    ): AggregateRootReceivedEventFilter;
+    AggregateRootReceived(root?: null): AggregateRootReceivedEventFilter;
+
+    "AggregateRootRemoved(bytes32)"(
+      root?: null
+    ): AggregateRootRemovedEventFilter;
+    AggregateRootRemoved(root?: null): AggregateRootRemovedEventFilter;
 
     "Dispatch(bytes32,uint256,bytes32,bytes)"(
       leaf?: null,
@@ -1240,12 +1256,6 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    aggregateRootCurrent(overrides?: CallOverrides): Promise<BigNumber>;
-
-    aggregateRootPending(overrides?: CallOverrides): Promise<BigNumber>;
-
-    aggregateRootPendingBlock(overrides?: CallOverrides): Promise<BigNumber>;
-
     anyExecute(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1295,6 +1305,11 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     paused(overrides?: CallOverrides): Promise<BigNumber>;
 
+    pendingAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1311,14 +1326,25 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     proveAndProcess(
       _proofs: SpokeConnector.ProofStruct[],
-      _aggregatorPath: PromiseOrValue<BytesLike>[],
-      _aggregatorIndex: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _aggregatePath: PromiseOrValue<BytesLike>[],
+      _aggregateIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    provenRoots(
+    provenAggregateRoots(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    removePendingAggregateRoot(
+      _fraudulentRoot: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     removeSender(
@@ -1333,12 +1359,6 @@ export interface MultichainSpokeConnector extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     send(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setAggregateRoots(
-      _current: PromiseOrValue<BytesLike>,
-      _pending: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1401,18 +1421,6 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    aggregateRootCurrent(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    aggregateRootPending(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    aggregateRootPendingBlock(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     anyExecute(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1462,6 +1470,11 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     paused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    pendingAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1478,14 +1491,25 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     proveAndProcess(
       _proofs: SpokeConnector.ProofStruct[],
-      _aggregatorPath: PromiseOrValue<BytesLike>[],
-      _aggregatorIndex: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _aggregatePath: PromiseOrValue<BytesLike>[],
+      _aggregateIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    provenRoots(
+    provenAggregateRoots(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    removePendingAggregateRoot(
+      _fraudulentRoot: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     removeSender(
@@ -1500,12 +1524,6 @@ export interface MultichainSpokeConnector extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     send(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setAggregateRoots(
-      _current: PromiseOrValue<BytesLike>,
-      _pending: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

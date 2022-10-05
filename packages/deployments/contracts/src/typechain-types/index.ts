@@ -218,6 +218,8 @@ export type { IResolver } from "./contracts/messaging/interfaces/IResolver";
 export { IResolver__factory } from "./factories/contracts/messaging/interfaces/IResolver__factory";
 export type { IRootManager } from "./contracts/messaging/interfaces/IRootManager";
 export { IRootManager__factory } from "./factories/contracts/messaging/interfaces/IRootManager__factory";
+export type { DomainIndexer } from "./contracts/messaging/libraries/DomainIndexer";
+export { DomainIndexer__factory } from "./factories/contracts/messaging/libraries/DomainIndexer__factory";
 export type { MerkleTreeManager } from "./contracts/messaging/Merkle.sol/MerkleTreeManager";
 export { MerkleTreeManager__factory } from "./factories/contracts/messaging/Merkle.sol/MerkleTreeManager__factory";
 export type { RootManager } from "./contracts/messaging/RootManager";

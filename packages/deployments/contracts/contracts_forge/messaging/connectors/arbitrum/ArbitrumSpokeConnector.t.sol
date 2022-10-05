@@ -134,8 +134,8 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     ArbitrumSpokeConnector(_l2Connector).processMessage(_data);
 
-    // assert update
-    assertEq(bytes32(_data), ArbitrumSpokeConnector(_l2Connector).aggregateRootPending());
+    // Check: root is marked as pending
+    assertEq(ArbitrumSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
   }
 
   function test_ArbitrumSpokeConnector__processMessage_works_fuzz(bytes32 data) public {
@@ -152,8 +152,8 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     ArbitrumSpokeConnector(_l2Connector).processMessage(_data);
 
-    // assert update
-    assertEq(bytes32(_data), ArbitrumSpokeConnector(_l2Connector).aggregateRootPending());
+    // Check: root is marked as pending
+    assertEq(ArbitrumSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
   }
 
   function test_ArbitrumSpokeConnector__processMessage_failsIfNotCrosschain() public {

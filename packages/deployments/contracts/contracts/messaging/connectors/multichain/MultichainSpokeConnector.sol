@@ -51,7 +51,7 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
     // sanity check: data length
     require(_data.length == 32, "!length");
     // set the aggregate root for BSC + access control
-    updateAggregateRoot(bytes32(_data));
+    receiveAggregateRoot(bytes32(_data));
   }
 
   function _sendMessage(bytes memory _data) internal override {

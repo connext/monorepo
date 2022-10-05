@@ -35,6 +35,7 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "initialize(address)": FunctionFragment;
     "insert(bytes32)": FunctionFragment;
+    "insert(bytes32[])": FunctionFragment;
     "owner()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
@@ -54,7 +55,8 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
       | "count"
       | "delay"
       | "initialize"
-      | "insert"
+      | "insert(bytes32)"
+      | "insert(bytes32[])"
       | "owner"
       | "proposeNewOwner"
       | "proposed"
@@ -82,8 +84,12 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "insert",
+    functionFragment: "insert(bytes32)",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "insert(bytes32[])",
+    values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -116,7 +122,14 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "insert", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "insert(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "insert(bytes32[])",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
@@ -227,8 +240,13 @@ export interface MerkleTreeManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    insert(
+    "insert(bytes32)"(
       leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "insert(bytes32[])"(
+      leaves: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -281,8 +299,13 @@ export interface MerkleTreeManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  insert(
+  "insert(bytes32)"(
     leaf: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "insert(bytes32[])"(
+    leaves: PromiseOrValue<BytesLike>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -331,8 +354,13 @@ export interface MerkleTreeManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    insert(
+    "insert(bytes32)"(
       leaf: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string, BigNumber] & { _root: string; _count: BigNumber }>;
+
+    "insert(bytes32[])"(
+      leaves: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<[string, BigNumber] & { _root: string; _count: BigNumber }>;
 
@@ -403,8 +431,13 @@ export interface MerkleTreeManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    insert(
+    "insert(bytes32)"(
       leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "insert(bytes32[])"(
+      leaves: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -456,8 +489,13 @@ export interface MerkleTreeManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    insert(
+    "insert(bytes32)"(
       leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "insert(bytes32[])"(
+      leaves: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
