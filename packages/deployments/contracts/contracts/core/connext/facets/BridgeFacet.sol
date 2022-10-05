@@ -435,7 +435,7 @@ contract BridgeFacet is BaseConnextFacet {
     address local;
     address assetOut;
     uint256 amountOut;
-    {
+    if (args.params.canonicalDomain != 0) {
       // TODO: Would be more efficient if we avoided all these calls in the event of a 0-value transfer...
       // Get the canonical key for the asset we're transferring.
       bytes32 key = AssetLogic.calculateCanonicalHash(args.params.canonicalId, args.params.canonicalDomain);
