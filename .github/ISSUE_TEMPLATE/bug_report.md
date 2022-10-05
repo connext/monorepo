@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: "[what is broken]"
+title: "(describe what is broken in plain language)"
 labels: "bug \U0001F41B"
 assignees: ''
 
@@ -20,15 +20,10 @@ Steps to reproduce the behavior:
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
 **Version:**
-
-**Product Component:**
- - Pool UI
-- Sequencer
-- Contract interface
 
 **Additional context**
 Add any other context about the problem here.
+
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
