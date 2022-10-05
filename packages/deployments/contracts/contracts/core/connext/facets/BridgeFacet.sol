@@ -328,28 +328,28 @@ contract BridgeFacet is BaseConnextFacet {
    * executed calldata (including properties like `originSender`) may or may not be verified depending on whether the
    * reconcile has been completed (i.e. the optimistic confirmation period has elapsed).
    *
-   * @param _args - ExecuteArgs arguments.
+   * @param args - ExecuteArgs arguments.
    * @return bytes32 - The transfer ID of the crosschain transfer. Should match the xcall's transfer ID in order for
    * reconciliation to occur.
    */
-  function execute(ExecuteArgs calldata _args) external nonReentrant whenNotPaused returns (bytes32) {
+  function execute(ExecuteArgs calldata args) external nonReentrant whenNotPaused returns (bytes32) {
     bytes32 transferId;
     bool wasReconciled;
 
     /// 1. Sanity and permissions checks.
     {
       // If the sender is not an approved relayer, revert.
-      if (!s.approvedRelayers[msg.sender] && msg.sender != _args.params.delegate) {
+      if (!s.approvedRelayers[msg.sender] && msg.sender != args.params.delegate) {
         revert BridgeFacet__execute_unapprovedSender();
       }
 
       // If this is not the destination domain, revert.
-      if (_args.params.destinationDomain != s.domain) {
+      if (args.params.destinationDomain != s.domain) {
         revert BridgeFacet__execute_wrongDomain();
       }
 
       // Derive transfer ID based on given arguments.
-      transferId = _calculateTransferId(_args.params);
+      transferId = _calculateTransferId(args.params);
 
       // Retrieve the transfer status record. This will be empty (DestinationTransferStatus.None) in the
       // event of a fast-liquidity transfer, and DestinationTransferStatus.Reconciled in the event of
@@ -358,7 +358,7 @@ contract BridgeFacet is BaseConnextFacet {
 
       // Path length refers to the number of facilitating routers. A transfer is considered 'multipath'
       // if multiple routers provide liquidity (in even 'shares') for it.
-      uint256 pathLength = _args.routers.length;
+      uint256 pathLength = args.routers.length;
       // If the path is empty, this MUST be a reconciled transfer.
       // NOTE: A check exists below to assert that the current transfer status reflects this.
       wasReconciled = pathLength == 0;
@@ -375,13 +375,12 @@ contract BridgeFacet is BaseConnextFacet {
         // slow liquidity route (i.e. no routers involved).
         // NOTE: Additionally, the sequencer does NOT need to be the msg.sender: that would be the relayer.
         // Check to make sure the sequencer address provided is approved
-        if (!s.approvedSequencers[_args.sequencer]) {
+        if (!s.approvedSequencers[args.sequencer]) {
           revert BridgeFacet__execute_notSupportedSequencer();
         }
         // Check to make sure the sequencer provided did sign the transfer ID and router path provided.
         if (
-          _args.sequencer !=
-          _recoverSignature(keccak256(abi.encode(transferId, _args.routers)), _args.sequencerSignature)
+          args.sequencer != _recoverSignature(keccak256(abi.encode(transferId, args.routers)), args.sequencerSignature)
         ) {
           revert BridgeFacet__execute_invalidSequencerSignature();
         }
@@ -396,13 +395,13 @@ contract BridgeFacet is BaseConnextFacet {
           // Make sure the router is approved, if applicable.
           // If router ownership is renounced (_RouterOwnershipRenounced() is true), then the router whitelist
           // no longer applies and we can skip this approval step.
-          if (!_isRouterWhitelistRemoved() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
+          if (!_isRouterWhitelistRemoved() && !s.routerPermissionInfo.approvedRouters[args.routers[i]]) {
             revert BridgeFacet__execute_notSupportedRouter();
           }
 
           // Validate the signature. We'll recover the signer's address using the expected payload and basic ECDSA
           // signature scheme recovery. The address for each signature must match the router's address.
-          if (_args.routers[i] != _recoverSignature(routerHash, _args.routerSignatures[i])) {
+          if (args.routers[i] != _recoverSignature(routerHash, args.routerSignatures[i])) {
             revert BridgeFacet__execute_invalidRouterSignature();
           }
 
@@ -426,6 +425,12 @@ contract BridgeFacet is BaseConnextFacet {
       ? DestinationTransferStatus.Completed
       : DestinationTransferStatus.Executed;
 
+    if (!wasReconciled) {
+      // Save the addresses of all the routers providing liquidity for this transfer. This will be used to
+      // reimburse them on reconcile.
+      s.routedTransfers[transferId] = args.routers;
+    }
+
     /// 3. Source assets intended for recipient.
     address local;
     address assetOut;
@@ -433,25 +438,22 @@ contract BridgeFacet is BaseConnextFacet {
     {
       // TODO: Would be more efficient if we avoided all these calls in the event of a 0-value transfer...
       // Get the canonical key for the asset we're transferring.
-      bytes32 key = AssetLogic.calculateCanonicalHash(_args.params.canonicalId, _args.params.canonicalDomain);
+      bytes32 key = AssetLogic.calculateCanonicalHash(args.params.canonicalId, args.params.canonicalDomain);
       // Get the local asset contract address.
-      local = _getLocalAsset(key, _args.params.canonicalId, _args.params.canonicalDomain);
+      local = _getLocalAsset(key, args.params.canonicalId, args.params.canonicalDomain);
       // Delivered asset; local is default; if there's an adopted asset to be set, it should be in the block below.
-      assetOut = _args.params.receiveLocal ? local : _getAdoptedAsset(key);
+      assetOut = args.params.receiveLocal ? local : _getAdoptedAsset(key);
       // The initial amountOut; this might change in the block below.
-      amountOut = _args.params.bridgedAmt;
+      amountOut = args.params.bridgedAmt;
 
       // NOTE: If this is a zero-value transfer (i.e. `bridgedAmt` is 0), no need to handle liquidity here.
       if (amountOut != 0) {
         if (!wasReconciled) {
           // NOTE: This is the fast-liquidity path.
           // Fee deduction: calculate amount that routers will provide with the fast-liquidity fee deducted.
-          amountOut = _muldiv(_args.params.bridgedAmt, s.LIQUIDITY_FEE_NUMERATOR, BPS_FEE_DENOMINATOR);
+          amountOut = _muldiv(args.params.bridgedAmt, s.LIQUIDITY_FEE_NUMERATOR, BPS_FEE_DENOMINATOR);
           // Deduct liquidity from applicable router accounts.
-          _withdrawRouterLiquidity(transferId, _args.routers, local, assetOut, amountOut);
-          // Save the addresses of all the routers providing liquidity for this transfer. This will be used to reimburse
-          // them on reconcile.
-          s.routedTransfers[transferId] = _args.routers;
+          _withdrawRouterLiquidity(transferId, args.routers, local, assetOut, amountOut);
         }
         // NOTE: If this is a slow-liquidity path (i.e. the transfer `wasReconciled`), the funds would have been minted
         // if needed and custodied in this contract. The exact custodied amount is untracked in state (since the amount
@@ -470,8 +472,8 @@ contract BridgeFacet is BaseConnextFacet {
             local,
             assetOut,
             amountOut,
-            slippageOverride != 0 ? slippageOverride : _args.params.slippage,
-            _args.params.normalizedIn
+            slippageOverride != 0 ? slippageOverride : args.params.slippage,
+            args.params.normalizedIn
           );
         }
       }
@@ -482,13 +484,13 @@ contract BridgeFacet is BaseConnextFacet {
     {
       // Transfer funds to recipient.
       if (amountOut != 0) {
-        AssetLogic.handleOutgoingAsset(assetOut, _args.params.to, amountOut);
+        AssetLogic.handleOutgoingAsset(assetOut, args.params.to, amountOut);
       }
       // Execute external calldata.
-      _executeCalldata(transferId, assetOut, amountOut, wasReconciled, _args.params);
+      _executeCalldata(transferId, assetOut, amountOut, wasReconciled, args.params);
     }
 
-    emit Executed(transferId, _args.params.to, assetOut, _args, local, amountOut, msg.sender);
+    emit Executed(transferId, args.params.to, assetOut, args, local, amountOut, msg.sender);
     return transferId;
   }
 
