@@ -1,6 +1,4 @@
 /* eslint-disable prefer-const */
-import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
-
 import { NewConnector, MessageProcessed } from "../../generated/OptimismHubConnector/OptimismHubConnector";
 import { OptimismConnectorMeta, RootMessageProcessed } from "../../generated/schema";
 

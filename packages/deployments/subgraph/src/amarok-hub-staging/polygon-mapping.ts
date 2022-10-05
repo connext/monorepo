@@ -1,8 +1,5 @@
 /* eslint-disable prefer-const */
-import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
-
 import { NewConnector, MessageProcessed } from "../../generated/PolygonHubConnector/PolygonHubConnector";
-
 import { PolygonConnectorMeta, RootMessageProcessed } from "../../generated/schema";
 
 const DEFAULT_POLYGON_HUB_CONNECTOR_META_ID = "POLYGON_HUB_CONNECTOR_META_ID";
