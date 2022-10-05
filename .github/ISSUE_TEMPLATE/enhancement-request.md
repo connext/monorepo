@@ -1,26 +1,22 @@
 ---
 name: Enhancement request
-about: We want to intentionally add, improve, optimize something
-title: As a user, I need/want to do something
+about: This is intentional new work. We want to intentionally add, improve, optimize something.
+title: As a [dev user / end user / router], I want ABC in order to XYZ
 labels: Enhancement
 assignees: ""
 ---
 
-**Problem**
-A clear and concise description of what the problem is
+##Problem
+What problem are we solving and why does it matter, ser? 
 
-**Ideas to solve this**
-A clear and concise description of what you think could solve this problem.
+##Proposed Solution
+Thoughts on solution design. We should do ____ to solve this problem.
 
-**Acceptance Criteria**
+- [ ] Subtask 1
+
+##Acceptance Criteria
+From an end tester and/or user perspective, the below criteria must be met to consider this complete and close it:
 
 - [ ] X happens
-- [ ] Y happens
 
-**Impact**
-1. What OKR goal does this align to?
-
-2. Provide Impact estimate = ideally quantitative forecast, if not then qualitative description of impact 
-
-**Other Notes**
-A clear and concise description of what the problem is
+##Other notes/links
