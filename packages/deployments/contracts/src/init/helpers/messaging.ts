@@ -32,13 +32,13 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
     ).toString();
 
     // Find the spoke domain.
-    let foundMirror = false;
+    // let foundMirror = false;
     for (const spoke of protocol.networks) {
       if (spoke.domain === mirrorDomain) {
         if (spoke.domain === hub.domain) {
           throw new Error("Mirror domain was hub? Bruh");
         }
-        foundMirror = true;
+        // foundMirror = true;
         const { SpokeConnector, MerkleTreeManager } = spoke.deployments.messaging as SpokeMessagingDeployments;
 
         console.log(`\tVerifying connection: ${hub.chain}<>${spoke.chain}:`);
@@ -124,11 +124,11 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
 
     // TODO: Actually, should we just submit a warning and skip this iteration? We may discontinue an L2...
     // TODO: Alternatively, this would be best as a sanity check.
-    if (!foundMirror) {
-      throw new Error(
-        `Did not find mirrorDomain ${mirrorDomain} in protocol networks! Please configure all Spoke (L2) networks.`,
-      );
-    }
+    // if (!foundMirror) {
+    //   throw new Error(
+    //     `Did not find mirrorDomain ${mirrorDomain} in protocol networks! Please configure all Spoke (L2) networks.`,
+    //   );
+    // }
   }
 
   /// MARK - MainnetConnector
