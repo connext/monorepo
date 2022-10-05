@@ -91,10 +91,12 @@ const handleDeployHub = async (
 
   // Deploy RootManager.
   console.log("Deploying RootManager...");
+  // TODO: need to make this hardcoded value configurable
+  const delayBlocks = 100;
   const rootManager = await hre.deployments.deploy(getDeploymentName("RootManager"), {
     contract: "RootManager",
     from: deployer.address,
-    args: [merkleTreeManagerForRoot.address, watcherManager.address],
+    args: [delayBlocks, merkleTreeManagerForRoot.address, watcherManager.address],
     skipIfAlreadyDeployed: true,
     log: true,
   });
