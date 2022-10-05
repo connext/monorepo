@@ -18,9 +18,7 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
     [utils.defaultAbiCoder.encode(["bytes32", "uint32"], [canonical.id, canonical.domain])],
   );
   console.log(
-    `\tVerifying asset setup for ${asset.name ?? asset.canonical.address}. Canonical ID: ${
-      canonical.id
-    }; Canonical Domain: ${canonical.domain}; Key: ${key}`,
+    `\tVerifying asset setup for ${asset.name} (${asset.canonical.address}). Canonical ID: ${canonical.id}; Canonical Domain: ${canonical.domain}; Key: ${key}`,
   );
 
   // Set up the canonical asset on the canonical domain.
