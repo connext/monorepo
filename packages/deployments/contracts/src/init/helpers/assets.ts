@@ -37,7 +37,13 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
     read: { method: "canonicalToAdopted(bytes32)", args: [key] },
     write: {
       method: "setupAssetWithDeployedRepresentation",
-      args: [[canonical.domain, canonical.id], asset.canonical.address, constants.AddressZero, constants.AddressZero],
+      args: [
+        [canonical.domain, canonical.id],
+        asset.canonical.address,
+        constants.AddressZero,
+        constants.AddressZero,
+        0,
+      ],
     },
   });
 
@@ -69,7 +75,7 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
       read: { method: "canonicalToAdopted(bytes32)", args: [key] },
       write: {
         method: "setupAssetWithDeployedRepresentation",
-        args: [[canonical.domain, canonical.id], representation.local, desiredAdopted, stableswapPool],
+        args: [[canonical.domain, canonical.id], representation.local, desiredAdopted, stableswapPool, 0],
       },
     });
   }
