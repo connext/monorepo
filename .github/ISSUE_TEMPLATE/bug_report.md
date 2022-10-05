@@ -1,8 +1,8 @@
 ---
 name: Bug report
-about: Something is not working as expected and needs debugging and/or fixing
-title: ''
-labels: Bug
+about: Create a report to help us improve
+title: "[what is broken]"
+labels: "bug \U0001F41B"
 assignees: ''
 
 ---
@@ -14,7 +14,21 @@ A clear and concise description of what the bug is.
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
-3. 
+3. Scroll down to '....'
+4. See error
+
+**Expected behavior**
+A clear and concise description of what you expected to happen.
+
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
+
+**Version:**
+
+**Product Component:**
+ - Pool UI
+- Sequencer
+- Contract interface
 
 **Additional context**
 Add any other context about the problem here.

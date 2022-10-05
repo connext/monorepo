@@ -1,9 +1,11 @@
 ---
-name: Enhancement request
-about: This is intentional new work. We want to intentionally add, improve, optimize something.
-title: As a [dev user / end user / router], I want ABC in order to XYZ
-labels: Enhancement
-assignees: ""
+name: Enhancement
+about: This is intentional new work. We want to intentionally add, improve, optimize
+  something.
+title: As a [dev user / end user / router], I want ___ in order to ___
+labels: "enhancement \U0001F9D8"
+assignees: ''
+
 ---
 
 ## Problem
