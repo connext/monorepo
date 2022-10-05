@@ -172,15 +172,15 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
 
   await updateIfNeeded({
     deployment: MerkleTreeManagerForRoot,
-    desired: RootManager.address,
-    read: { method: "arborist", args: [] },
+    desired: true,
+    read: { method: "arborists", args: [RootManager.address] },
     write: { method: "setArborist", args: [RootManager.address] },
   });
 
   await updateIfNeeded({
     deployment: MerkleTreeManagerForSpoke,
-    desired: MainnetConnector.address,
-    read: { method: "arborist", args: [] },
+    desired: true,
+    read: { method: "arborists", args: [MainnetConnector.address] },
     write: { method: "setArborist", args: [MainnetConnector.address] },
   });
 
