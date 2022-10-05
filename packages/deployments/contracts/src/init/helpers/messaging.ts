@@ -104,7 +104,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         await updateIfNeeded({
           deployment: MerkleTreeManager,
           desired: SpokeConnector.address,
-          read: { method: "arborist", args: [] },
+          read: { method: "arborists", args: [SpokeConnector.address] },
           write: { method: "setArborist", args: [SpokeConnector.address] },
         });
 
