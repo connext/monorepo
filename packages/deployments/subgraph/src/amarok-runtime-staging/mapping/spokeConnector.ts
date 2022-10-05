@@ -1,5 +1,4 @@
 /* eslint-disable prefer-const */
-import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 import {
   NewConnector,
   Dispatch,
@@ -14,8 +13,6 @@ import {
   RootMessageProcessed,
   ConnectorMeta,
 } from "../../../generated/schema";
-
-import { getChainId, getOrCreateAsset, getOrCreateAssetBalance } from "./helper";
 
 const DEFAULT_CONNECTOR_META_ID = "CONNECTOR_META_ID";
 

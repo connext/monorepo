@@ -32,13 +32,13 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
     ).toString();
 
     // Find the spoke domain.
-    let foundMirror = false;
+    // let foundMirror = false;
     for (const spoke of protocol.networks) {
       if (spoke.domain === mirrorDomain) {
         if (spoke.domain === hub.domain) {
           throw new Error("Mirror domain was hub? Bruh");
         }
-        foundMirror = true;
+        // foundMirror = true;
         const { SpokeConnector, MerkleTreeManager } = spoke.deployments.messaging as SpokeMessagingDeployments;
 
         console.log(`\tVerifying connection: ${hub.chain}<>${spoke.chain}:`);
@@ -62,24 +62,26 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         /// MARK - RootManager: Add Connector
         // Set hub connector address for this domain on RootManager.
         console.log("\tVerifying RootManager `connectors` has HubConnector set correctly.");
-        const currentValue = await getValue({
-          deployment: RootManager,
-          read: { method: "connectors", args: [spoke.domain] },
-        });
-        // If the current connector address is not correct and isn't empty, we need to remove the connector first.
-        if (currentValue !== HubConnector.address && currentValue !== constants.AddressZero) {
-          await updateIfNeeded({
+        try {
+          const currentValue = await getValue({
             deployment: RootManager,
-            desired: constants.AddressZero,
-            read: { method: "connectors", args: [spoke.domain] },
-            write: { method: "removeConnector", args: [spoke.domain] },
+            read: { method: "getConnectorForDomain", args: [spoke.domain] },
           });
-        }
+          // If the current connector address is not correct and isn't empty, we need to remove the connector first.
+          if (currentValue !== HubConnector.address && currentValue !== constants.AddressZero) {
+            await updateIfNeeded({
+              deployment: RootManager,
+              desired: constants.AddressZero,
+              read: { method: "getConnectorForDomain", args: [spoke.domain] },
+              write: { method: "removeConnector", args: [spoke.domain] },
+            });
+          }
+        } catch {}
 
         await updateIfNeeded({
           deployment: RootManager,
           desired: HubConnector.address,
-          read: { method: "connectors", args: [spoke.domain] },
+          read: { method: "getConnectorForDomain", args: [spoke.domain] },
           write: { method: "addConnector", args: [spoke.domain, HubConnector.address] },
         });
 
@@ -103,8 +105,8 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         console.log("\tVerifying merkle tree managers are set correctly.");
         await updateIfNeeded({
           deployment: MerkleTreeManager,
-          desired: SpokeConnector.address,
-          read: { method: "arborist", args: [] },
+          desired: true,
+          read: { method: "arborists", args: [SpokeConnector.address] },
           write: { method: "setArborist", args: [SpokeConnector.address] },
         });
 
@@ -124,11 +126,11 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
 
     // TODO: Actually, should we just submit a warning and skip this iteration? We may discontinue an L2...
     // TODO: Alternatively, this would be best as a sanity check.
-    if (!foundMirror) {
-      throw new Error(
-        `Did not find mirrorDomain ${mirrorDomain} in protocol networks! Please configure all Spoke (L2) networks.`,
-      );
-    }
+    // if (!foundMirror) {
+    //   throw new Error(
+    //     `Did not find mirrorDomain ${mirrorDomain} in protocol networks! Please configure all Spoke (L2) networks.`,
+    //   );
+    // }
   }
 
   /// MARK - MainnetConnector
@@ -150,37 +152,40 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
   });
 
   // Functionality of the MainnetConnector is that of a spoke; we should hook it up to the RootManager.
-  const currentValue = await getValue({
-    deployment: RootManager,
-    read: { method: "connectors", args: [hub.domain] },
-  });
-  // If the current connector address is not correct and isn't empty, we need to remove the connector first.
-  if (currentValue !== MainnetConnector.address && currentValue !== constants.AddressZero) {
-    await updateIfNeeded({
+  try {
+    const currentValue = await getValue({
       deployment: RootManager,
-      desired: constants.AddressZero,
-      read: { method: "connectors", args: [hub.domain] },
-      write: { method: "removeConnector", args: [hub.domain] },
+      read: { method: "getConnectorForDomain", args: [hub.domain] },
     });
-  }
+    // If the current connector address is not correct and isn't empty, we need to remove the connector first.
+    if (currentValue !== MainnetConnector.address && currentValue !== constants.AddressZero) {
+      await updateIfNeeded({
+        deployment: RootManager,
+        desired: constants.AddressZero,
+        read: { method: "getConnectorForDomain", args: [hub.domain] },
+        write: { method: "removeConnector", args: [hub.domain] },
+      });
+    }
+  } catch {}
+
   await updateIfNeeded({
     deployment: RootManager,
     desired: MainnetConnector.address,
-    read: { method: "connectors", args: [hub.domain] },
+    read: { method: "getConnectorForDomain", args: [hub.domain] },
     write: { method: "addConnector", args: [hub.domain, MainnetConnector.address] },
   });
 
   await updateIfNeeded({
     deployment: MerkleTreeManagerForRoot,
-    desired: RootManager.address,
-    read: { method: "arborist", args: [] },
+    desired: true,
+    read: { method: "arborists", args: [RootManager.address] },
     write: { method: "setArborist", args: [RootManager.address] },
   });
 
   await updateIfNeeded({
     deployment: MerkleTreeManagerForSpoke,
-    desired: MainnetConnector.address,
-    read: { method: "arborist", args: [] },
+    desired: true,
+    read: { method: "arborists", args: [MainnetConnector.address] },
     write: { method: "setArborist", args: [MainnetConnector.address] },
   });
 

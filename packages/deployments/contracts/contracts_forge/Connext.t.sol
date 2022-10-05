@@ -54,7 +54,8 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes32 indexed messageHash,
     TransferInfo params,
     address asset,
-    uint256 amount
+    uint256 amount,
+    address local
   );
 
   event Executed(
@@ -376,7 +377,8 @@ contract ConnextTest is ForgeHelper, Deployer {
         MockHome(address(MockXAppConnectionManager(address(_originManager)).home())).MESSAGE_HASH(),
         params,
         asset,
-        amount
+        amount,
+        (params.canonicalId == bytes32("") && params.canonicalDomain == uint32(0)) ? address(0) : _originLocal
       );
     }
 
