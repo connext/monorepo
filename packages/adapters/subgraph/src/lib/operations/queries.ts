@@ -42,7 +42,7 @@ export const ORIGIN_TRANSFER_ENTITY = `
 
       # Message
       message {
-        id: ID!
+        id
 
         # origin transfer data
         transferId
@@ -56,12 +56,12 @@ export const ORIGIN_TRANSFER_ENTITY = `
       }
     
       # XCalled Transaction
-      caller: Bytes
+      caller
       transactionHash
-      timestamp: BigInt
-      gasPrice: BigInt
-      gasLimit: BigInt
-      blockNumber: BigInt
+      timestamp
+      gasPrice
+      gasLimit
+      blockNumber
 `;
 
 export const DESTINATION_TRANSFER_ENTITY = `
