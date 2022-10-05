@@ -4,14 +4,14 @@
     "network": "goerli",
     "source": [
       {
-        "name": "ConnextHandler",
-        "address": "0x8F5Ce8D12A6d825F725e465ccAf239953db0d327",
-        "startBlock": 7550413
+        "name": "Connext",
+        "address": "0xE43C940C3370611DA8C38200046c1bf6b0A27E21",
+        "startBlock": 7712175
       },
       {
         "name": "Connector",
-        "address": "0x96461CFcA78F126Fd41181cb8AC96e86E5AcB1d5",
-        "startBlock": 7584631
+        "address": "0x01972A36C8FaBe3982ABa968D9330269C6b6Eb9D",
+        "startBlock": 7711947
       }
     ]
   },
@@ -20,14 +20,14 @@
     "network": "optimism-goerli",
     "source": [
       {
-        "name": "ConnextHandler",
-        "address": "0x699245C07801f4a4031b821A0f194e00d8c74eC4",
-        "startBlock": 947253
+        "name": "Connext",
+        "address": "0xa3697ba8BE852a9b0d3f6Ba351FD1DF1ABCD031f",
+        "startBlock": 1693782
       },
       {
         "name": "Connector",
-        "address": "0xD0981781BC3873290e9178E24af610ebCea79c1a",
-        "startBlock": 1070832
+        "address": "0x1E884Ea410bB80954B25229EeeF2A49c133593f5",
+        "startBlock": 1691695
       }
     ]
   },
@@ -36,7 +36,7 @@
     "network": "mumbai",
     "source": [
       {
-        "name": "ConnextHandler",
+        "name": "Connext",
         "address": "0xD186493Db6CbE0DD27dE04A15450C9dfe1F5A497",
         "startBlock": 28068383
       },
