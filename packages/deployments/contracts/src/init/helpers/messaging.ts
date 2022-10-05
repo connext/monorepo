@@ -103,7 +103,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         console.log("\tVerifying merkle tree managers are set correctly.");
         await updateIfNeeded({
           deployment: MerkleTreeManager,
-          desired: SpokeConnector.address,
+          desired: true,
           read: { method: "arborists", args: [SpokeConnector.address] },
           write: { method: "setArborist", args: [SpokeConnector.address] },
         });
