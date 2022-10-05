@@ -175,7 +175,7 @@ export type ReconciledTransaction = {
 };
 
 export const AssetSchema = Type.Object({
-  local: TAddress,
+  id: TAddress,
   adoptedAsset: TAddress,
   canonicalId: Type.String(),
   canonicalDomain: Type.String(),
