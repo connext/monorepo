@@ -2167,7 +2167,7 @@ export interface Connext extends BaseContract {
     ): Promise<[boolean]>;
 
     bumpTransfer(
-      _transferId: PromiseOrValue<BytesLike>,
+      transferId: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2220,24 +2220,24 @@ export interface Connext extends BaseContract {
     xAppConnectionManager(overrides?: CallOverrides): Promise<[string]>;
 
     xcall(
-      _destination: PromiseOrValue<BigNumberish>,
-      _to: PromiseOrValue<string>,
-      _asset: PromiseOrValue<string>,
-      _delegate: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _slippage: PromiseOrValue<BigNumberish>,
-      _callData: PromiseOrValue<BytesLike>,
+      destination: PromiseOrValue<BigNumberish>,
+      to: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      delegate: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
+      xcalldata: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     xcallIntoLocal(
-      _destination: PromiseOrValue<BigNumberish>,
-      _to: PromiseOrValue<string>,
-      _asset: PromiseOrValue<string>,
-      _delegate: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _slippage: PromiseOrValue<BigNumberish>,
-      _callData: PromiseOrValue<BytesLike>,
+      destination: PromiseOrValue<BigNumberish>,
+      to: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      delegate: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
+      xcalldata: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2824,7 +2824,7 @@ export interface Connext extends BaseContract {
   ): Promise<boolean>;
 
   bumpTransfer(
-    _transferId: PromiseOrValue<BytesLike>,
+    transferId: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2877,24 +2877,24 @@ export interface Connext extends BaseContract {
   xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
 
   xcall(
-    _destination: PromiseOrValue<BigNumberish>,
-    _to: PromiseOrValue<string>,
-    _asset: PromiseOrValue<string>,
-    _delegate: PromiseOrValue<string>,
-    _amount: PromiseOrValue<BigNumberish>,
-    _slippage: PromiseOrValue<BigNumberish>,
-    _callData: PromiseOrValue<BytesLike>,
+    destination: PromiseOrValue<BigNumberish>,
+    to: PromiseOrValue<string>,
+    asset: PromiseOrValue<string>,
+    delegate: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    slippage: PromiseOrValue<BigNumberish>,
+    xcalldata: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   xcallIntoLocal(
-    _destination: PromiseOrValue<BigNumberish>,
-    _to: PromiseOrValue<string>,
-    _asset: PromiseOrValue<string>,
-    _delegate: PromiseOrValue<string>,
-    _amount: PromiseOrValue<BigNumberish>,
-    _slippage: PromiseOrValue<BigNumberish>,
-    _callData: PromiseOrValue<BytesLike>,
+    destination: PromiseOrValue<BigNumberish>,
+    to: PromiseOrValue<string>,
+    asset: PromiseOrValue<string>,
+    delegate: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    slippage: PromiseOrValue<BigNumberish>,
+    xcalldata: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3473,7 +3473,7 @@ export interface Connext extends BaseContract {
     ): Promise<boolean>;
 
     bumpTransfer(
-      _transferId: PromiseOrValue<BytesLike>,
+      transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3526,24 +3526,24 @@ export interface Connext extends BaseContract {
     xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
 
     xcall(
-      _destination: PromiseOrValue<BigNumberish>,
-      _to: PromiseOrValue<string>,
-      _asset: PromiseOrValue<string>,
-      _delegate: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _slippage: PromiseOrValue<BigNumberish>,
-      _callData: PromiseOrValue<BytesLike>,
+      destination: PromiseOrValue<BigNumberish>,
+      to: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      delegate: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
+      xcalldata: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
 
     xcallIntoLocal(
-      _destination: PromiseOrValue<BigNumberish>,
-      _to: PromiseOrValue<string>,
-      _asset: PromiseOrValue<string>,
-      _delegate: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _slippage: PromiseOrValue<BigNumberish>,
-      _callData: PromiseOrValue<BytesLike>,
+      destination: PromiseOrValue<BigNumberish>,
+      to: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      delegate: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
+      xcalldata: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -4564,7 +4564,7 @@ export interface Connext extends BaseContract {
     ): Promise<BigNumber>;
 
     bumpTransfer(
-      _transferId: PromiseOrValue<BytesLike>,
+      transferId: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4617,24 +4617,24 @@ export interface Connext extends BaseContract {
     xAppConnectionManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     xcall(
-      _destination: PromiseOrValue<BigNumberish>,
-      _to: PromiseOrValue<string>,
-      _asset: PromiseOrValue<string>,
-      _delegate: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _slippage: PromiseOrValue<BigNumberish>,
-      _callData: PromiseOrValue<BytesLike>,
+      destination: PromiseOrValue<BigNumberish>,
+      to: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      delegate: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
+      xcalldata: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     xcallIntoLocal(
-      _destination: PromiseOrValue<BigNumberish>,
-      _to: PromiseOrValue<string>,
-      _asset: PromiseOrValue<string>,
-      _delegate: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _slippage: PromiseOrValue<BigNumberish>,
-      _callData: PromiseOrValue<BytesLike>,
+      destination: PromiseOrValue<BigNumberish>,
+      to: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      delegate: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
+      xcalldata: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -5216,7 +5216,7 @@ export interface Connext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     bumpTransfer(
-      _transferId: PromiseOrValue<BytesLike>,
+      transferId: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5271,24 +5271,24 @@ export interface Connext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     xcall(
-      _destination: PromiseOrValue<BigNumberish>,
-      _to: PromiseOrValue<string>,
-      _asset: PromiseOrValue<string>,
-      _delegate: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _slippage: PromiseOrValue<BigNumberish>,
-      _callData: PromiseOrValue<BytesLike>,
+      destination: PromiseOrValue<BigNumberish>,
+      to: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      delegate: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
+      xcalldata: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     xcallIntoLocal(
-      _destination: PromiseOrValue<BigNumberish>,
-      _to: PromiseOrValue<string>,
-      _asset: PromiseOrValue<string>,
-      _delegate: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      _slippage: PromiseOrValue<BigNumberish>,
-      _callData: PromiseOrValue<BytesLike>,
+      destination: PromiseOrValue<BigNumberish>,
+      to: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      delegate: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
+      xcalldata: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

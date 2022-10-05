@@ -675,7 +675,7 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "_transferId",
+        name: "transferId",
         type: "bytes32",
       },
     ],
@@ -1026,37 +1026,37 @@ const _abi = [
     inputs: [
       {
         internalType: "uint32",
-        name: "_destination",
+        name: "destination",
         type: "uint32",
       },
       {
         internalType: "address",
-        name: "_to",
+        name: "to",
         type: "address",
       },
       {
         internalType: "address",
-        name: "_asset",
+        name: "asset",
         type: "address",
       },
       {
         internalType: "address",
-        name: "_delegate",
+        name: "delegate",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "_amount",
+        name: "amount",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "_slippage",
+        name: "slippage",
         type: "uint256",
       },
       {
         internalType: "bytes",
-        name: "_callData",
+        name: "xcalldata",
         type: "bytes",
       },
     ],
@@ -1075,37 +1075,37 @@ const _abi = [
     inputs: [
       {
         internalType: "uint32",
-        name: "_destination",
+        name: "destination",
         type: "uint32",
       },
       {
         internalType: "address",
-        name: "_to",
+        name: "to",
         type: "address",
       },
       {
         internalType: "address",
-        name: "_asset",
+        name: "asset",
         type: "address",
       },
       {
         internalType: "address",
-        name: "_delegate",
+        name: "delegate",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "_amount",
+        name: "amount",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "_slippage",
+        name: "slippage",
         type: "uint256",
       },
       {
         internalType: "bytes",
-        name: "_callData",
+        name: "xcalldata",
         type: "bytes",
       },
     ],
