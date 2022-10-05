@@ -121,6 +121,13 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         });
 
         /// MARK - Connectors: Whitelist Senders
+        console.log(`\tVerifying whitelistSender of SpokeConnector are set correctly.`, spoke.chain);
+        await updateIfNeeded({
+          deployment: SpokeConnector,
+          desired: true,
+          read: { method: "whitelistedSenders", args: [spoke.deployments.Connext.address] },
+          write: { method: "addSender", args: [spoke.deployments.Connext.address] },
+        });
       }
     }
 
@@ -194,5 +201,12 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
     desired: MainnetConnector.address,
     read: { method: "xAppConnectionManager", args: [] },
     write: { method: "setXAppConnectionManager", args: [MainnetConnector.address] },
+  });
+
+  await updateIfNeeded({
+    deployment: MainnetConnector,
+    desired: true,
+    read: { method: "whitelistedSenders", args: [hub.deployments.Connext.address] },
+    write: { method: "addSender", args: [hub.deployments.Connext.address] },
   });
 };
