@@ -78,7 +78,7 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
     return await contract.callStatic[read.method](...read.args);
   };
   const writeCall = async (): Promise<providers.TransactionResponse> => {
-    return await contract[write.method](...write.args);
+    return await contract[write.method](...write.args, { gasLimit: 2000000 });
   };
 
   const network = await contract.provider.getNetwork();
