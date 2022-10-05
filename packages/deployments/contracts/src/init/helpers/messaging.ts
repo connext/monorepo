@@ -152,23 +152,26 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
   });
 
   // Functionality of the MainnetConnector is that of a spoke; we should hook it up to the RootManager.
-  const currentValue = await getValue({
-    deployment: RootManager,
-    read: { method: "connectors", args: [hub.domain] },
-  });
-  // If the current connector address is not correct and isn't empty, we need to remove the connector first.
-  if (currentValue !== MainnetConnector.address && currentValue !== constants.AddressZero) {
-    await updateIfNeeded({
+  try {
+    const currentValue = await getValue({
       deployment: RootManager,
-      desired: constants.AddressZero,
-      read: { method: "connectors", args: [hub.domain] },
-      write: { method: "removeConnector", args: [hub.domain] },
+      read: { method: "getConnectorForDomain", args: [hub.domain] },
     });
-  }
+    // If the current connector address is not correct and isn't empty, we need to remove the connector first.
+    if (currentValue !== MainnetConnector.address && currentValue !== constants.AddressZero) {
+      await updateIfNeeded({
+        deployment: RootManager,
+        desired: constants.AddressZero,
+        read: { method: "getConnectorForDomain", args: [hub.domain] },
+        write: { method: "removeConnector", args: [hub.domain] },
+      });
+    }
+  } catch {}
+
   await updateIfNeeded({
     deployment: RootManager,
     desired: MainnetConnector.address,
-    read: { method: "connectors", args: [hub.domain] },
+    read: { method: "getConnectorForDomain", args: [hub.domain] },
     write: { method: "addConnector", args: [hub.domain, MainnetConnector.address] },
   });
 
