@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: What's not working as expected?
+title: This thing be buggin out dawg
 labels: "bug \U0001F41B"
 assignees: ''
 
