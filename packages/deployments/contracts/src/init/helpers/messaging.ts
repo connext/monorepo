@@ -62,24 +62,26 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         /// MARK - RootManager: Add Connector
         // Set hub connector address for this domain on RootManager.
         console.log("\tVerifying RootManager `connectors` has HubConnector set correctly.");
-        const currentValue = await getValue({
-          deployment: RootManager,
-          read: { method: "connectors", args: [spoke.domain] },
-        });
-        // If the current connector address is not correct and isn't empty, we need to remove the connector first.
-        if (currentValue !== HubConnector.address && currentValue !== constants.AddressZero) {
-          await updateIfNeeded({
+        try {
+          const currentValue = await getValue({
             deployment: RootManager,
-            desired: constants.AddressZero,
-            read: { method: "connectors", args: [spoke.domain] },
-            write: { method: "removeConnector", args: [spoke.domain] },
+            read: { method: "getConnectorForDomain", args: [spoke.domain] },
           });
-        }
+          // If the current connector address is not correct and isn't empty, we need to remove the connector first.
+          if (currentValue !== HubConnector.address && currentValue !== constants.AddressZero) {
+            await updateIfNeeded({
+              deployment: RootManager,
+              desired: constants.AddressZero,
+              read: { method: "getConnectorForDomain", args: [spoke.domain] },
+              write: { method: "removeConnector", args: [spoke.domain] },
+            });
+          }
+        } catch {}
 
         await updateIfNeeded({
           deployment: RootManager,
           desired: HubConnector.address,
-          read: { method: "connectors", args: [spoke.domain] },
+          read: { method: "getConnectorForDomain", args: [spoke.domain] },
           write: { method: "addConnector", args: [spoke.domain, HubConnector.address] },
         });
 
