@@ -280,9 +280,8 @@ export const getRouterQuery = (prefix: string, router: string): string => {
 
 export const getAssetByLocalQuery = (prefix: string, local: string): string => {
   const queryString = `
-    ${prefix}_assets(where: { local: "${local}" }) {
+    ${prefix}_assets(where: { id: "${local}" }) {
       id
-      local
       adoptedAsset
       canonicalId
       canonicalDomain
@@ -299,7 +298,6 @@ export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string):
   const str = `
     ${prefix}_assets(where: { canonicalId: "${canonicalId}" }, orderBy: blockNumber, orderDirection: desc) {
             id
-            local
             adoptedAsset
             canonicalId
             canonicalDomain

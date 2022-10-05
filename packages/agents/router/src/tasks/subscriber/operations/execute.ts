@@ -51,7 +51,7 @@ export const getDestinationLocalAsset = async (
     return ethers.constants.AddressZero;
   }
 
-  // get canonical asset from orgin domain.
+  // get canonical asset from origin domain.
   const sendingDomainAsset = await subgraph.getAssetByLocal(_originDomain, _originLocalAsset);
 
   const canonicalId = sendingDomainAsset?.canonicalId;
@@ -61,7 +61,7 @@ export const getDestinationLocalAsset = async (
   }
 
   const destinationDomainAsset = await subgraph.getAssetByCanonicalId(_destinationDomain, canonicalId);
-  const localAddress = destinationDomainAsset?.local;
+  const localAddress = destinationDomainAsset?.id;
 
   return localAddress;
 };
