@@ -6,17 +6,15 @@ labels: Enhancement
 assignees: ""
 ---
 
-##Problem
-What problem are we solving and why does it matter, ser? 
+## Problem
+_What problem are we solving and why does it matter, ser?_ 
 
-##Proposed Solution
-Thoughts on solution design. We should do ____ to solve this problem.
 
+## Proposed Solution
+_Thoughts on solution design. We should do <insert idea> to solve this problem._
 - [ ] Subtask 1
 
-##Acceptance Criteria
-From an end tester and/or user perspective, the below criteria must be met to consider this complete and close it:
 
+## Acceptance Criteria
+_From an end tester and/or user perspective, the below criteria must be met to consider this done:_
 - [ ] X happens
-
-##Other notes/links
