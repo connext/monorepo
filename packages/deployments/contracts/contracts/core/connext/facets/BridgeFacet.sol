@@ -53,7 +53,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_invalidRouterSignature();
   error BridgeFacet__execute_badFastLiquidityStatus();
   error BridgeFacet__execute_notReconciled();
-  error BridgeFacet__withdrawRouterLiquidity_insufficientFastLiquidity(address router);
+  error BridgeFacet__withdrawRouterLiquidity_insufficientFunds(address router);
   error BridgeFacet__withdrawPortalLiquidity_insufficientAmountWithdrawn();
   error BridgeFacet__bumpTransfer_valueIsZero();
   error BridgeFacet__bumpTransfer_noRelayerVault();
@@ -767,56 +767,63 @@ contract BridgeFacet is BaseConnextFacet {
     address adopted,
     uint256 total
   ) internal {
+    address router;
+    uint256 routerLiquidity;
     uint256 pathLength = routers.length;
     if (pathLength == 1) {
-      // NOTE: Separate handling for single-router path.
-      address router = routers[0];
-      uint256 routerLiquidity = s.routerBalances[router][local];
+      // NOTE: Single-router transfer.
+      router = routers[0];
+      routerLiquidity = s.routerBalances[router][local];
 
       // Check to see if router has enough liquidity.
-      if (routerLiquidity < total) {
+      if (routerLiquidity > total) {
         // Decrement the target router's liquidity.
         unchecked {
-          s.routerBalances[router][local] -= total;
+          s.routerBalances[router][local] = routerLiquidity - total;
         }
-      } else if (
-        adopted != address(0) && s.routerPermissionInfo.approvedForPortalRouters[router] && s.aavePool != address(0)
-      ) {
-        // If router does not have enough liquidity, and the router is approved for it, try to use Aave Portals.
-        // NOTE: Only one router should be responsible for taking on this credit risk, and it should only deal
-        // with transfers expecting adopted assets (to avoid introducing runtime slippage).
+        return;
+      } else if (adopted != address(0)) {
+        // If router does not have enough liquidity, and the adopted asset can acceptably be delivered, check to see
+        // if the router is approved for loans from Aave Portals.
+        address aavePool = s.aavePool;
+        if (aavePool != address(0) && s.routerPermissionInfo.approvedForPortalRouters[router]) {
+          // NOTE: Only one router should be responsible for taking on this credit risk, and it should only deal
+          // with transfers expecting adopted assets (to avoid introducing runtime slippage).
 
-        // Portals deliver the adopted asset directly; return after portal execution is completed.
-        _withdrawPortalLiquidity(transferId, router, adopted, total);
-      } else {
-        // Router did not have enough funds and was not approved for portals!
-        revert BridgeFacet__withdrawRouterLiquidity_insufficientFastLiquidity(router);
+          // Portals deliver the adopted asset directly; return after portal execution is completed.
+          _withdrawPortalLiquidity(IAavePool(aavePool), transferId, router, adopted, total);
+          return;
+        }
       }
+      // If we haven't returned by now, router did not have enough funds and was not approved for portals!
+      revert BridgeFacet__withdrawRouterLiquidity_insufficientFunds(router);
     } else {
-      address router;
-      uint256 routerLiquidity;
-      // For each router, assert they are approved, and deduct liquidity.
+      // NOTE: Multipath transfer.
+      // Calculate the share that each router should pay to split the transfer evenly.
       uint256 routerAmount = total / pathLength;
+
+      // For each router, assert they have sufficient liquidity for their share, then deduct it.
       for (uint256 i; i < pathLength - 1; ) {
         // Check to make sure router has sufficient liquidity.
         router = routers[i];
         routerLiquidity = s.routerBalances[router][local];
-        if (routerLiquidity < routerAmount)
-          revert BridgeFacet__withdrawRouterLiquidity_insufficientFastLiquidity(router);
-        unchecked {
-          // Decrement router's liquidity.
-          s.routerBalances[router][local] = routerLiquidity - routerAmount;
+        if (routerLiquidity < routerAmount) revert BridgeFacet__withdrawRouterLiquidity_insufficientFunds(router);
 
+        // Decrement router's liquidity.
+        unchecked {
+          s.routerBalances[router][local] = routerLiquidity - routerAmount;
           ++i;
         }
       }
+
       // The last router in the multipath will sweep the remaining balance to account for remainder dust.
       routerAmount = routerAmount + (total % pathLength);
       router = routers[pathLength - 1];
       routerLiquidity = s.routerBalances[router][local];
-      if (routerLiquidity < routerAmount) revert BridgeFacet__withdrawRouterLiquidity_insufficientFastLiquidity(router);
+      if (routerLiquidity < routerAmount) revert BridgeFacet__withdrawRouterLiquidity_insufficientFunds(router);
+
+      // Decrement the final router's liquidity.
       unchecked {
-        // Decrement router's liquidity.
         s.routerBalances[router][local] = routerLiquidity - routerAmount;
       }
     }
@@ -826,22 +833,24 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Uses Aave Portals to provide fast liquidity via unbacked loans.
    * @dev Reverts if amount withdrawn from portals is not equal to the desired amount.
    *
+   * @param aavePool The IAavePool wrapped address.
    * @param transferId The transfer ID.
    * @param router The router who will take on the credit obligation.
    * @param adopted The adopted asset address to try withdrawing from the Aave pool.
    * @param amount The target amount we wish to loan from the Aave pool.
    */
   function _withdrawPortalLiquidity(
+    IAavePool aavePool,
     bytes32 transferId,
     address router,
     address adopted,
     uint256 amount
   ) internal {
-    IAavePool(s.aavePool).mintUnbacked(adopted, amount, address(this), AAVE_REFERRAL_CODE);
-
+    aavePool.mintUnbacked(adopted, amount, address(this), AAVE_REFERRAL_CODE);
     // TODO: Instead of withdrawing to address(this), withdraw directly to the user or executor to save 1 transfer?
-    uint256 amountWithdrawn = IAavePool(s.aavePool).withdraw(adopted, amount, address(this));
+    uint256 amountWithdrawn = aavePool.withdraw(adopted, amount, address(this));
 
+    // Make sure the amount withdrawn matches the target amount.
     if (amountWithdrawn != amount) revert BridgeFacet__withdrawPortalLiquidity_insufficientAmountWithdrawn();
 
     // Store principle debt.

@@ -1316,7 +1316,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     s.routerBalances[args.routers[0]][_local] = 1.5 ether;
 
-    vm.expectRevert(stdError.arithmeticError);
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        BridgeFacet.BridgeFacet__withdrawRouterLiquidity_insufficientFunds.selector,
+        args.routers[0]
+      )
+    );
     this.execute(args);
   }
 
@@ -1328,32 +1333,40 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     uint256 routerAmountSent = _defaultAmount / args.routers.length; // The amount each individual router will send.
 
-    // Set the first router's balance to be (slightly) less than the amount that they'd need to send.
-    s.routerBalances[args.routers[0]][_local] = routerAmountSent - 0.1 ether;
-    // All other routers have plenty of funds.
-    for (uint256 i = 1; i < args.routers.length; i++) {
+    // All of the routers have plenty of funds except for the last one.
+    for (uint256 i; i < args.routers.length - 1; i++) {
       s.routerBalances[args.routers[i]][_local] = 50 ether;
     }
+    // Set the last router's balance to be (slightly) less than the amount that they'd need to send.
+    address delinquentRouter = args.routers[args.routers.length - 1];
+    s.routerBalances[delinquentRouter][_local] = routerAmountSent - 0.1 ether;
 
-    vm.expectRevert(stdError.arithmeticError);
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        BridgeFacet.BridgeFacet__withdrawRouterLiquidity_insufficientFunds.selector,
+        delinquentRouter
+      )
+    );
     this.execute(args);
   }
 
   function test_BridgeFacet__execute_failsIfRouterNotApprovedForPortal() public {
     _defaultAmount = 5 ether;
 
-    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
+    (bytes32 _id, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[_args.routers[0]][_local] = 4.5 ether;
+    s.routerBalances[args.routers[0]][_local] = 4.5 ether;
 
     // set aave enabled
     s.aavePool = _aavePool;
 
     vm.expectRevert(
-      abi.encodeWithSelector(BridgeFacet.BridgeFacet__withdrawRouterLiquidity_insufficientFastLiquidity.selector)
-      // TODO: encode router address arg
+      abi.encodeWithSelector(
+        BridgeFacet.BridgeFacet__withdrawRouterLiquidity_insufficientFunds.selector,
+        args.routers[0]
+      )
     );
-    this.execute(_args);
+    this.execute(args);
   }
 
   // ============ execute success cases
@@ -1570,7 +1583,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // set aave not enabled
     s.aavePool = address(0);
 
-    vm.expectRevert(stdError.arithmeticError);
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        BridgeFacet.BridgeFacet__withdrawRouterLiquidity_insufficientFunds.selector,
+        _args.routers[0]
+      )
+    );
     this.execute(_args);
   }
 
