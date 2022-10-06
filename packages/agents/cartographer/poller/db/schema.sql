@@ -162,7 +162,7 @@ CREATE TABLE public.transfers (
     origin_sender character(42),
     bridged_amt numeric,
     normalized_in numeric,
-    canonical_id character(42)
+    canonical_id character(66)
 );
 
 
