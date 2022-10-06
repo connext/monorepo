@@ -8,6 +8,30 @@ import {
 
 import { getContext } from "../../reader";
 
+export const ASSET_ENTITY = `
+      id,
+      key,
+      canonicalId,
+      canonicalDomain,
+      adoptedAsset,
+      localAsset,
+      blockNumber,
+`;
+export const ORIGIN_MESSAGE_ENTITY = `
+      id
+      leaf
+      index
+      root
+      message
+      transferId
+      destinationDomain
+`;
+export const DESTINATION_MESSAGE_ENTITY = `
+      id
+      leaf
+      processed
+      returnData
+`;
 export const ORIGIN_TRANSFER_ENTITY = `
       id
       chainId
@@ -31,29 +55,10 @@ export const ORIGIN_TRANSFER_ENTITY = `
       canonicalId
     
       # Asset
-      asset {
-        id
-        key
-        canonicalId
-        canonicalDomain
-        adoptedAsset
-        blockNumber
-      }
+      ${ASSET_ENTITY}
 
       # Message
-      message {
-        id
-
-        # origin transfer data
-        transferId
-        destinationDomain
-        # Dispatch Transaction
-        leaf
-        index
-        root
-        message
-        transactionHash
-      }
+      ${ORIGIN_MESSAGE_ENTITY}
     
       # XCalled Transaction
       caller
@@ -91,14 +96,7 @@ export const DESTINATION_TRANSFER_ENTITY = `
       canonicalId
 
       # Asset
-      asset {
-        id
-        key
-        canonicalId
-        canonicalDomain
-        adoptedAsset
-        blockNumber
-      }
+      ${ASSET_ENTITY}
 
       # Executed Transaction
       executedCaller
@@ -121,22 +119,6 @@ export const BLOCK_NUMBER_ENTITY = `
       block {
         number
       }
-`;
-
-export const ORIGIN_MESSAGE_ENTITY = `
-      id
-      leaf
-      index
-      root
-      message
-      transferId
-      destinationDomain
-`;
-export const DESTINATION_MESSAGE_ENTITY = `
-      id
-      leaf
-      processed
-      returnData
 `;
 export const ROOT_MESSAGE_SENT_ENTITY = `
       id
@@ -198,13 +180,7 @@ export const getAssetBalanceQuery = (prefix: string, router: string, local: stri
   const queryString = `
     ${prefix}_assetBalance(id: "${local}-${router}") {
       amount
-      asset {
-        id
-        canonicalId
-        canonicalDomain
-        adoptedAsset
-        blockNumber
-      }
+      ${ASSET_ENTITY}
     }`;
   return gql`
     query GetAssetBalance {
@@ -217,13 +193,7 @@ export const getAssetBalancesQuery = (prefix: string, router: string): string =>
   const queryString = `
     ${prefix}_assetBalances(where: { router: "${router}" }) {
       amount
-      asset {
-        id
-        canonicalId
-        canonicalDomain
-        adoptedAsset
-        blockNumber
-      }
+      ${ASSET_ENTITY}
     }`;
 
   return gql`
@@ -248,13 +218,7 @@ export const getAssetBalancesRoutersQuery = (
       id
       assetBalances {
         amount
-        asset {
-          id
-          adoptedAsset
-          canonicalId
-          canonicalDomain
-          blockNumber
-        }
+        ${ASSET_ENTITY}
       }
     }`;
 
