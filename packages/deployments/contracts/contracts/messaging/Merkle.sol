@@ -56,8 +56,7 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    * @notice Calculates and returns the current root.
    */
   function root() public view returns (bytes32) {
-    MerkleLib.Tree memory _tree = tree;
-    return _tree.root();
+    return tree.root();
   }
 
   /**
@@ -130,23 +129,11 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
   /**
    * @notice Inserts the given leaf into the tree.
    * @param leaf The leaf to be inserted into the tree.
-   * @return _root Current root for convenience.
-   * @return _count Current node count (i.e. number of indices) AFTER the insertion of the new leaf,
-   * provided for convenience.
+   * @return uint256 Current node count (i.e. number of indices) AFTER the insertion of the new
+   * leaf, provided for convenience.
    */
-  function insert(bytes32 leaf) public onlyArborist returns (bytes32 _root, uint256 _count) {
-    // NOTE: Considerably more efficient to put this tree into memory, conduct operations,
-    // then re-assign it to storage.
-    MerkleLib.Tree memory _tree = tree;
-
+  function insert(bytes32 leaf) public onlyArborist returns (uint256) {
     // Insert the new node.
-    _tree = _tree.insert(leaf);
-
-    // Get return details for convenience.
-    _root = _tree.root();
-    _count = _tree.count;
-
-    // Write the newly updated tree to storage.
-    tree = _tree;
+    return tree.insert(leaf);
   }
 }
