@@ -54,6 +54,7 @@ export type stagingoptimismgoerli_Asset = {
   canonicalId: Scalars['stagingoptimismgoerli_Bytes'];
   canonicalDomain: Scalars['BigInt'];
   adoptedAsset: Scalars['stagingoptimismgoerli_Bytes'];
+  localAsset: Scalars['stagingoptimismgoerli_Bytes'];
   blockNumber: Scalars['BigInt'];
 };
 
@@ -168,6 +169,12 @@ export type stagingoptimismgoerli_Asset_filter = {
   adoptedAsset_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
   adoptedAsset_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   adoptedAsset_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  localAsset?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  localAsset_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  localAsset_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  localAsset_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  localAsset_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  localAsset_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -186,6 +193,7 @@ export type stagingoptimismgoerli_Asset_orderBy =
   | 'canonicalId'
   | 'canonicalDomain'
   | 'adoptedAsset'
+  | 'localAsset'
   | 'blockNumber';
 
 export type stagingoptimismgoerli_BlockChangedFilter = {
@@ -1007,8 +1015,6 @@ export type Query = {
   stagingoptimismgoerli_connectorMetas: Array<stagingoptimismgoerli_ConnectorMeta>;
   stagingoptimismgoerli_rootMessageSent?: Maybe<stagingoptimismgoerli_RootMessageSent>;
   stagingoptimismgoerli_rootMessageSents: Array<stagingoptimismgoerli_RootMessageSent>;
-  stagingoptimismgoerli_rootMessageProcessed?: Maybe<stagingoptimismgoerli_RootMessageProcessed>;
-  stagingoptimismgoerli_rootMessageProcesseds: Array<stagingoptimismgoerli_RootMessageProcessed>;
   /** Access to subgraph metadata */
   stagingoptimismgoerli__meta?: Maybe<stagingoptimismgoerli__Meta_>;
 };
@@ -1248,24 +1254,6 @@ export type Querystagingoptimismgoerli_rootMessageSentsArgs = {
 };
 
 
-export type Querystagingoptimismgoerli_rootMessageProcessedArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingoptimismgoerli_rootMessageProcessedsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingoptimismgoerli_RootMessageProcessed_orderBy>;
-  orderDirection?: InputMaybe<stagingoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<stagingoptimismgoerli_RootMessageProcessed_filter>;
-  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
 export type Querystagingoptimismgoerli__metaArgs = {
   block?: InputMaybe<stagingoptimismgoerli_Block_height>;
 };
@@ -1303,90 +1291,6 @@ export type stagingoptimismgoerli_Relayer_orderBy =
   | 'id'
   | 'isActive'
   | 'relayer';
-
-export type stagingoptimismgoerli_RootMessageProcessed = {
-  id: Scalars['ID'];
-  root?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  caller?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  transactionHash?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  timestamp?: Maybe<Scalars['BigInt']>;
-  gasPrice?: Maybe<Scalars['BigInt']>;
-  gasLimit?: Maybe<Scalars['BigInt']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type stagingoptimismgoerli_RootMessageProcessed_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  root?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  root_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  caller?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  caller_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingoptimismgoerli_BlockChangedFilter>;
-};
-
-export type stagingoptimismgoerli_RootMessageProcessed_orderBy =
-  | 'id'
-  | 'root'
-  | 'caller'
-  | 'transactionHash'
-  | 'timestamp'
-  | 'gasPrice'
-  | 'gasLimit'
-  | 'blockNumber';
 
 export type stagingoptimismgoerli_RootMessageSent = {
   id: Scalars['ID'];
@@ -1675,8 +1579,6 @@ export type Subscription = {
   stagingoptimismgoerli_connectorMetas: Array<stagingoptimismgoerli_ConnectorMeta>;
   stagingoptimismgoerli_rootMessageSent?: Maybe<stagingoptimismgoerli_RootMessageSent>;
   stagingoptimismgoerli_rootMessageSents: Array<stagingoptimismgoerli_RootMessageSent>;
-  stagingoptimismgoerli_rootMessageProcessed?: Maybe<stagingoptimismgoerli_RootMessageProcessed>;
-  stagingoptimismgoerli_rootMessageProcesseds: Array<stagingoptimismgoerli_RootMessageProcessed>;
   /** Access to subgraph metadata */
   stagingoptimismgoerli__meta?: Maybe<stagingoptimismgoerli__Meta_>;
 };
@@ -1916,24 +1818,6 @@ export type Subscriptionstagingoptimismgoerli_rootMessageSentsArgs = {
 };
 
 
-export type Subscriptionstagingoptimismgoerli_rootMessageProcessedArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingoptimismgoerli_rootMessageProcessedsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingoptimismgoerli_RootMessageProcessed_orderBy>;
-  orderDirection?: InputMaybe<stagingoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<stagingoptimismgoerli_RootMessageProcessed_filter>;
-  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
 export type Subscriptionstagingoptimismgoerli__metaArgs = {
   block?: InputMaybe<stagingoptimismgoerli_Block_height>;
 };
@@ -2030,10 +1914,6 @@ export type QueryConnextStagingOptimismGoerliSdk = {
   stagingoptimismgoerli_rootMessageSent: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_rootMessageSent'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_rootMessageSentArgs, MeshContext>,
   /** null **/
   stagingoptimismgoerli_rootMessageSents: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_rootMessageSents'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_rootMessageSentsArgs, MeshContext>,
-  /** null **/
-  stagingoptimismgoerli_rootMessageProcessed: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_rootMessageProcessed'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_rootMessageProcessedArgs, MeshContext>,
-  /** null **/
-  stagingoptimismgoerli_rootMessageProcesseds: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_rootMessageProcesseds'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_rootMessageProcessedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   stagingoptimismgoerli__meta: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli__meta'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli__metaArgs, MeshContext>
 };
@@ -2095,10 +1975,6 @@ export type SubscriptionConnextStagingOptimismGoerliSdk = {
   stagingoptimismgoerli_rootMessageSent: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_rootMessageSent'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_rootMessageSentArgs, MeshContext>,
   /** null **/
   stagingoptimismgoerli_rootMessageSents: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_rootMessageSents'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_rootMessageSentsArgs, MeshContext>,
-  /** null **/
-  stagingoptimismgoerli_rootMessageProcessed: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_rootMessageProcessed'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_rootMessageProcessedArgs, MeshContext>,
-  /** null **/
-  stagingoptimismgoerli_rootMessageProcesseds: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_rootMessageProcesseds'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_rootMessageProcessedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   stagingoptimismgoerli__meta: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli__meta'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli__metaArgs, MeshContext>
 };

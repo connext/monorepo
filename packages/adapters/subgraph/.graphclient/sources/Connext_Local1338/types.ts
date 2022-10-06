@@ -54,6 +54,7 @@ export type local1338_Asset = {
   canonicalId: Scalars['local1338_Bytes'];
   canonicalDomain: Scalars['BigInt'];
   adoptedAsset: Scalars['local1338_Bytes'];
+  localAsset: Scalars['local1338_Bytes'];
   blockNumber: Scalars['BigInt'];
 };
 
@@ -168,6 +169,12 @@ export type local1338_Asset_filter = {
   adoptedAsset_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
   adoptedAsset_contains?: InputMaybe<Scalars['local1338_Bytes']>;
   adoptedAsset_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  localAsset?: InputMaybe<Scalars['local1338_Bytes']>;
+  localAsset_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  localAsset_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  localAsset_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  localAsset_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  localAsset_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -186,6 +193,7 @@ export type local1338_Asset_orderBy =
   | 'canonicalId'
   | 'canonicalDomain'
   | 'adoptedAsset'
+  | 'localAsset'
   | 'blockNumber';
 
 export type local1338_BlockChangedFilter = {
@@ -1007,8 +1015,6 @@ export type Query = {
   local1338_connectorMetas: Array<local1338_ConnectorMeta>;
   local1338_rootMessageSent?: Maybe<local1338_RootMessageSent>;
   local1338_rootMessageSents: Array<local1338_RootMessageSent>;
-  local1338_rootMessageProcessed?: Maybe<local1338_RootMessageProcessed>;
-  local1338_rootMessageProcesseds: Array<local1338_RootMessageProcessed>;
   /** Access to subgraph metadata */
   local1338__meta?: Maybe<local1338__Meta_>;
 };
@@ -1248,24 +1254,6 @@ export type Querylocal1338_rootMessageSentsArgs = {
 };
 
 
-export type Querylocal1338_rootMessageProcessedArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querylocal1338_rootMessageProcessedsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_RootMessageProcessed_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_RootMessageProcessed_filter>;
-  block?: InputMaybe<local1338_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
 export type Querylocal1338__metaArgs = {
   block?: InputMaybe<local1338_Block_height>;
 };
@@ -1303,90 +1291,6 @@ export type local1338_Relayer_orderBy =
   | 'id'
   | 'isActive'
   | 'relayer';
-
-export type local1338_RootMessageProcessed = {
-  id: Scalars['ID'];
-  root?: Maybe<Scalars['local1338_Bytes']>;
-  caller?: Maybe<Scalars['local1338_Bytes']>;
-  transactionHash?: Maybe<Scalars['local1338_Bytes']>;
-  timestamp?: Maybe<Scalars['BigInt']>;
-  gasPrice?: Maybe<Scalars['BigInt']>;
-  gasLimit?: Maybe<Scalars['BigInt']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type local1338_RootMessageProcessed_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  root?: InputMaybe<Scalars['local1338_Bytes']>;
-  root_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  caller?: InputMaybe<Scalars['local1338_Bytes']>;
-  caller_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['local1338_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
-};
-
-export type local1338_RootMessageProcessed_orderBy =
-  | 'id'
-  | 'root'
-  | 'caller'
-  | 'transactionHash'
-  | 'timestamp'
-  | 'gasPrice'
-  | 'gasLimit'
-  | 'blockNumber';
 
 export type local1338_RootMessageSent = {
   id: Scalars['ID'];
@@ -1675,8 +1579,6 @@ export type Subscription = {
   local1338_connectorMetas: Array<local1338_ConnectorMeta>;
   local1338_rootMessageSent?: Maybe<local1338_RootMessageSent>;
   local1338_rootMessageSents: Array<local1338_RootMessageSent>;
-  local1338_rootMessageProcessed?: Maybe<local1338_RootMessageProcessed>;
-  local1338_rootMessageProcesseds: Array<local1338_RootMessageProcessed>;
   /** Access to subgraph metadata */
   local1338__meta?: Maybe<local1338__Meta_>;
 };
@@ -1916,24 +1818,6 @@ export type Subscriptionlocal1338_rootMessageSentsArgs = {
 };
 
 
-export type Subscriptionlocal1338_rootMessageProcessedArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionlocal1338_rootMessageProcessedsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_RootMessageProcessed_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_RootMessageProcessed_filter>;
-  block?: InputMaybe<local1338_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
 export type Subscriptionlocal1338__metaArgs = {
   block?: InputMaybe<local1338_Block_height>;
 };
@@ -2030,10 +1914,6 @@ export type QueryConnextLocal1338Sdk = {
   local1338_rootMessageSent: InContextSdkMethod<ConnextLocal1338Types.Query['local1338_rootMessageSent'], ConnextLocal1338Types.Querylocal1338_rootMessageSentArgs, MeshContext>,
   /** null **/
   local1338_rootMessageSents: InContextSdkMethod<ConnextLocal1338Types.Query['local1338_rootMessageSents'], ConnextLocal1338Types.Querylocal1338_rootMessageSentsArgs, MeshContext>,
-  /** null **/
-  local1338_rootMessageProcessed: InContextSdkMethod<ConnextLocal1338Types.Query['local1338_rootMessageProcessed'], ConnextLocal1338Types.Querylocal1338_rootMessageProcessedArgs, MeshContext>,
-  /** null **/
-  local1338_rootMessageProcesseds: InContextSdkMethod<ConnextLocal1338Types.Query['local1338_rootMessageProcesseds'], ConnextLocal1338Types.Querylocal1338_rootMessageProcessedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   local1338__meta: InContextSdkMethod<ConnextLocal1338Types.Query['local1338__meta'], ConnextLocal1338Types.Querylocal1338__metaArgs, MeshContext>
 };
@@ -2095,10 +1975,6 @@ export type SubscriptionConnextLocal1338Sdk = {
   local1338_rootMessageSent: InContextSdkMethod<ConnextLocal1338Types.Subscription['local1338_rootMessageSent'], ConnextLocal1338Types.Subscriptionlocal1338_rootMessageSentArgs, MeshContext>,
   /** null **/
   local1338_rootMessageSents: InContextSdkMethod<ConnextLocal1338Types.Subscription['local1338_rootMessageSents'], ConnextLocal1338Types.Subscriptionlocal1338_rootMessageSentsArgs, MeshContext>,
-  /** null **/
-  local1338_rootMessageProcessed: InContextSdkMethod<ConnextLocal1338Types.Subscription['local1338_rootMessageProcessed'], ConnextLocal1338Types.Subscriptionlocal1338_rootMessageProcessedArgs, MeshContext>,
-  /** null **/
-  local1338_rootMessageProcesseds: InContextSdkMethod<ConnextLocal1338Types.Subscription['local1338_rootMessageProcesseds'], ConnextLocal1338Types.Subscriptionlocal1338_rootMessageProcessedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   local1338__meta: InContextSdkMethod<ConnextLocal1338Types.Subscription['local1338__meta'], ConnextLocal1338Types.Subscriptionlocal1338__metaArgs, MeshContext>
 };
