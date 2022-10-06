@@ -48,10 +48,10 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
 
   // ============ Private fns ============
 
-  function _verifySender(address _expected) internal view override returns (bool) {
-    require(msg.sender == AMB, "!bridge");
-    // FIXME: this doesnt check the sender on mainnet chain
-    return true;
+  function _verifySender(address _expected) internal pure override returns (bool) {
+    // NOTE: Always return false here because we cannot verify sender except in
+    // _processMessageFromRoot, where it is exposed in plaintext
+    return false;
   }
 
   function _sendMessage(bytes memory _data) internal override {
@@ -63,10 +63,12 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
     address sender,
     bytes memory data
   ) internal override validateSender(sender) {
+    // make sure the sender is the mirror connector
+    require(sender == mirrorConnector, "!sender");
     // get the data (should be the aggregate root)
     require(data.length == 32, "!length");
     // update the aggregate root on the domain
-    updateAggregateRoot(bytes32(data));
+    receiveAggregateRoot(bytes32(data));
 
     emit MessageProcessed(data, msg.sender);
   }

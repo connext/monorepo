@@ -37,7 +37,7 @@ export default task("setup-router", "Setup a router")
       const recipient = _recipient || constants.AddressZero;
       const owner = _owner || constants.AddressZero;
 
-      const connextName = getDeploymentName("ConnextHandler", env);
+      const connextName = getDeploymentName("Connext", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);

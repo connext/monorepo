@@ -28,7 +28,7 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
-export type CallParamsStruct = {
+export type TransferInfoStruct = {
   originDomain: PromiseOrValue<BigNumberish>;
   destinationDomain: PromiseOrValue<BigNumberish>;
   canonicalDomain: PromiseOrValue<BigNumberish>;
@@ -44,7 +44,7 @@ export type CallParamsStruct = {
   canonicalId: PromiseOrValue<BytesLike>;
 };
 
-export type CallParamsStructOutput = [
+export type TransferInfoStructOutput = [
   number,
   number,
   number,
@@ -75,7 +75,7 @@ export type CallParamsStructOutput = [
 };
 
 export type ExecuteArgsStruct = {
-  params: CallParamsStruct;
+  params: TransferInfoStruct;
   routers: PromiseOrValue<string>[];
   routerSignatures: PromiseOrValue<BytesLike>[];
   sequencer: PromiseOrValue<string>;
@@ -83,13 +83,13 @@ export type ExecuteArgsStruct = {
 };
 
 export type ExecuteArgsStructOutput = [
-  CallParamsStructOutput,
+  TransferInfoStructOutput,
   string[],
   string[],
   string,
   string
 ] & {
-  params: CallParamsStructOutput;
+  params: TransferInfoStructOutput;
   routers: string[];
   routerSignatures: string[];
   sequencer: string;
@@ -99,7 +99,6 @@ export type ExecuteArgsStructOutput = [
 export interface BridgeFacetInterface extends utils.Interface {
   functions: {
     "AAVE_REFERRAL_CODE()": FunctionFragment;
-    "DUST_AMOUNT()": FunctionFragment;
     "addSequencer(address)": FunctionFragment;
     "approvedSequencers(address)": FunctionFragment;
     "bumpTransfer(bytes32)": FunctionFragment;
@@ -121,7 +120,6 @@ export interface BridgeFacetInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "AAVE_REFERRAL_CODE"
-      | "DUST_AMOUNT"
       | "addSequencer"
       | "approvedSequencers"
       | "bumpTransfer"
@@ -142,10 +140,6 @@ export interface BridgeFacetInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "AAVE_REFERRAL_CODE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "DUST_AMOUNT",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -171,7 +165,7 @@ export interface BridgeFacetInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "forceUpdateSlippage",
-    values: [CallParamsStruct, PromiseOrValue<BigNumberish>]
+    values: [TransferInfoStruct, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(
@@ -228,10 +222,6 @@ export interface BridgeFacetInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "DUST_AMOUNT",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "addSequencer",
     data: BytesLike
   ): Result;
@@ -284,23 +274,19 @@ export interface BridgeFacetInterface extends utils.Interface {
   events: {
     "AavePortalMintUnbacked(bytes32,address,address,uint256)": EventFragment;
     "Executed(bytes32,address,address,tuple,address,uint256,address)": EventFragment;
-    "ExecutorUpdated(address,address,address)": EventFragment;
     "ExternalCalldataExecuted(bytes32,bool,bytes)": EventFragment;
     "RemoteAdded(uint32,address,address)": EventFragment;
-    "Send(address,address,uint32,bytes32,uint256,bool)": EventFragment;
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
     "SlippageUpdated(bytes32,uint256)": EventFragment;
     "TransferRelayerFeesIncreased(bytes32,uint256,address)": EventFragment;
-    "XCalled(bytes32,uint256,bytes32,tuple,address)": EventFragment;
+    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AavePortalMintUnbacked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ExecutorUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ExternalCalldataExecuted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RemoteAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Send"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SlippageUpdated"): EventFragment;
@@ -340,18 +326,6 @@ export type ExecutedEvent = TypedEvent<
 
 export type ExecutedEventFilter = TypedEventFilter<ExecutedEvent>;
 
-export interface ExecutorUpdatedEventObject {
-  oldExecutor: string;
-  newExecutor: string;
-  caller: string;
-}
-export type ExecutorUpdatedEvent = TypedEvent<
-  [string, string, string],
-  ExecutorUpdatedEventObject
->;
-
-export type ExecutorUpdatedEventFilter = TypedEventFilter<ExecutorUpdatedEvent>;
-
 export interface ExternalCalldataExecutedEventObject {
   transferId: string;
   success: boolean;
@@ -376,21 +350,6 @@ export type RemoteAddedEvent = TypedEvent<
 >;
 
 export type RemoteAddedEventFilter = TypedEventFilter<RemoteAddedEvent>;
-
-export interface SendEventObject {
-  token: string;
-  from: string;
-  toDomain: number;
-  toId: string;
-  amount: BigNumber;
-  toHook: boolean;
-}
-export type SendEvent = TypedEvent<
-  [string, string, number, string, BigNumber, boolean],
-  SendEventObject
->;
-
-export type SendEventFilter = TypedEventFilter<SendEvent>;
 
 export interface SequencerAddedEventObject {
   sequencer: string;
@@ -443,11 +402,12 @@ export interface XCalledEventObject {
   transferId: string;
   nonce: BigNumber;
   messageHash: string;
-  params: CallParamsStructOutput;
-  local: string;
+  params: TransferInfoStructOutput;
+  asset: string;
+  amount: BigNumber;
 }
 export type XCalledEvent = TypedEvent<
-  [string, BigNumber, string, CallParamsStructOutput, string],
+  [string, BigNumber, string, TransferInfoStructOutput, string, BigNumber],
   XCalledEventObject
 >;
 
@@ -482,8 +442,6 @@ export interface BridgeFacet extends BaseContract {
   functions: {
     AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<[number]>;
 
-    DUST_AMOUNT(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -513,7 +471,7 @@ export interface BridgeFacet extends BaseContract {
     ): Promise<ContractTransaction>;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferInfoStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -572,8 +530,6 @@ export interface BridgeFacet extends BaseContract {
 
   AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
 
-  DUST_AMOUNT(overrides?: CallOverrides): Promise<BigNumber>;
-
   addSequencer(
     _sequencer: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -603,7 +559,7 @@ export interface BridgeFacet extends BaseContract {
   ): Promise<ContractTransaction>;
 
   forceUpdateSlippage(
-    _params: CallParamsStruct,
+    _params: TransferInfoStruct,
     _slippage: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -662,8 +618,6 @@ export interface BridgeFacet extends BaseContract {
   callStatic: {
     AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
 
-    DUST_AMOUNT(overrides?: CallOverrides): Promise<BigNumber>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -693,7 +647,7 @@ export interface BridgeFacet extends BaseContract {
     ): Promise<string>;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferInfoStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -783,17 +737,6 @@ export interface BridgeFacet extends BaseContract {
       caller?: null
     ): ExecutedEventFilter;
 
-    "ExecutorUpdated(address,address,address)"(
-      oldExecutor?: null,
-      newExecutor?: null,
-      caller?: null
-    ): ExecutorUpdatedEventFilter;
-    ExecutorUpdated(
-      oldExecutor?: null,
-      newExecutor?: null,
-      caller?: null
-    ): ExecutorUpdatedEventFilter;
-
     "ExternalCalldataExecuted(bytes32,bool,bytes)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       success?: null,
@@ -815,23 +758,6 @@ export interface BridgeFacet extends BaseContract {
       remote?: null,
       caller?: null
     ): RemoteAddedEventFilter;
-
-    "Send(address,address,uint32,bytes32,uint256,bool)"(
-      token?: PromiseOrValue<string> | null,
-      from?: PromiseOrValue<string> | null,
-      toDomain?: PromiseOrValue<BigNumberish> | null,
-      toId?: null,
-      amount?: null,
-      toHook?: null
-    ): SendEventFilter;
-    Send(
-      token?: PromiseOrValue<string> | null,
-      from?: PromiseOrValue<string> | null,
-      toDomain?: PromiseOrValue<BigNumberish> | null,
-      toId?: null,
-      amount?: null,
-      toHook?: null
-    ): SendEventFilter;
 
     "SequencerAdded(address,address)"(
       sequencer?: null,
@@ -868,26 +794,26 @@ export interface BridgeFacet extends BaseContract {
       caller?: null
     ): TransferRelayerFeesIncreasedEventFilter;
 
-    "XCalled(bytes32,uint256,bytes32,tuple,address)"(
+    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
       messageHash?: PromiseOrValue<BytesLike> | null,
       params?: null,
-      local?: null
+      asset?: null,
+      amount?: null
     ): XCalledEventFilter;
     XCalled(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
       messageHash?: PromiseOrValue<BytesLike> | null,
       params?: null,
-      local?: null
+      asset?: null,
+      amount?: null
     ): XCalledEventFilter;
   };
 
   estimateGas: {
     AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    DUST_AMOUNT(overrides?: CallOverrides): Promise<BigNumber>;
 
     addSequencer(
       _sequencer: PromiseOrValue<string>,
@@ -918,7 +844,7 @@ export interface BridgeFacet extends BaseContract {
     ): Promise<BigNumber>;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferInfoStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -980,8 +906,6 @@ export interface BridgeFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    DUST_AMOUNT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1011,7 +935,7 @@ export interface BridgeFacet extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     forceUpdateSlippage(
-      _params: CallParamsStruct,
+      _params: TransferInfoStruct,
       _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

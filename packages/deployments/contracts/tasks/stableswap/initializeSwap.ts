@@ -77,7 +77,7 @@ export default task("initialize-stableswap", "Initializes stable swap")
       console.log("fee: ", fee);
       console.log("adminFee: ", adminFee);
 
-      const connextName = getDeploymentName("ConnextHandler", env);
+      const connextName = getDeploymentName("Connext", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       console.log("connextAddress: ", connextAddress);

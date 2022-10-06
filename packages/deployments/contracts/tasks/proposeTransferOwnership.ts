@@ -24,7 +24,7 @@ export default task("propose-transfer-owner", "Propose Transfer Ownership")
     console.log("newOwner: ", newOwner);
     console.log("deployer: ", deployer.address);
 
-    const connextName = getDeploymentName("ConnextHandler", env);
+    const connextName = getDeploymentName("Connext", env);
     const connextDeployment = await deployments.get(connextName);
     const connextAddress = _connextAddress ?? connextDeployment.address;
     console.log("connextAddress: ", connextAddress);

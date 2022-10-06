@@ -25,7 +25,7 @@ export default task("remove-relayer", "Remove Relayer from whitelist")
     console.log("env:", env);
     console.log("deployer:", deployer.address);
 
-    const connextName = getDeploymentName("ConnextHandler", env);
+    const connextName = getDeploymentName("Connext", env);
     const connextDeployment = await deployments.get(connextName);
     const connextAddress = _connextAddress ?? connextDeployment.address;
     const connext = new Contract(connextAddress, connextDeployment.abi, deployer);

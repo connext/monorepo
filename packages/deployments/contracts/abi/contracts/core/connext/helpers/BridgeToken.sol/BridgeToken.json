@@ -1,6 +1,6 @@
 [
+  "constructor(uint8,string,string)",
   "event Approval(address indexed,address indexed,uint256)",
-  "event Initialized(uint8)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "event Transfer(address indexed,address indexed,uint256)",
   "event UpdateDetails(string indexed,string indexed)",
@@ -12,7 +12,6 @@
   "function decimals() view returns (uint8)",
   "function decreaseAllowance(address,uint256) returns (bool)",
   "function increaseAllowance(address,uint256) returns (bool)",
-  "function initialize(uint8,string,string)",
   "function mint(address,uint256)",
   "function name() view returns (string)",
   "function nonces(address) view returns (uint256)",

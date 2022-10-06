@@ -17,7 +17,7 @@ import {
   RouterOwnerProposed,
   RouterRecipientSet,
   MaxRoutersPerTransferUpdated,
-} from "../../../generated/Connext/ConnextHandler";
+} from "../../../generated/Connext/Connext";
 import {
   NewConnector,
   Dispatch,

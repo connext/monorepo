@@ -28,11 +28,8 @@ contract DiamondInit is BaseConnextFacet {
   // data to set your own state variables
   function init(
     uint32 _domain,
-    address _tokenBeacon,
-    address _relayerFeeVault,
     address _xAppConnectionManager,
-    uint256 _acceptanceDelay,
-    uint256 _ownershipDelay
+    uint256 _acceptanceDelay
   ) external {
     // adding ERC165 data
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
@@ -58,14 +55,11 @@ contract DiamondInit is BaseConnextFacet {
       // __ReentrancyGuard_init_unchained
       s._status = _NOT_ENTERED;
 
-      // ConnextHandler
-      s.tokenBeacon = _tokenBeacon;
+      // Connext
       s.domain = _domain;
-      s.relayerFeeVault = _relayerFeeVault;
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.maxRoutersPerTransfer = 5;
       s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
-      s._ownershipDelay = _ownershipDelay;
     }
   }
 }

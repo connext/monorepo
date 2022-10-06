@@ -19,7 +19,7 @@ export default task("debug-custom-error", "Debug revert data from connext contra
     const env = mustGetEnv(_env);
     console.log("env:", env);
 
-    const connextDeployment = await deployments.getArtifact("ConnextHandler");
+    const connextDeployment = await deployments.getArtifact("Connext");
 
     //"error":{"reason":"processing response error","code":"SERVER_ERROR","body":"{\"jsonrpc\":\"2.0\",\"id\":49,\"error\":{\"code\":-32603,\"message\":\"Error: Transaction reverted without a reason string\",\"data\":{\"message\":\"Error: Transaction reverted without a reason string\",\"data\":\"0x991634c4\"}}}","error":{"code":-32603,"data":{"message":"Error: Transaction reverted without a reason string","data":"0x991634c4"}},
     const iErrors = new Interface(connextDeployment.abi);
