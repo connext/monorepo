@@ -217,8 +217,11 @@ export const getAssetBalancesRoutersQuery = (
     orderDirection: ${orderDirection}) {
       id
       assetBalances {
+        id
         amount
-        ${ASSET_ENTITY}
+        asset {
+          ${ASSET_ENTITY}
+        }
       }
     }`;
 
