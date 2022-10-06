@@ -226,7 +226,7 @@ describe("Database client", () => {
         router: mkAddress("0xa"),
         assets: [
           {
-            canonicalId: mkAddress("0xb"),
+            canonicalId: mkBytes32("0xb"),
             adoptedAsset: mkAddress("0xaa"),
             blockNumber: "0",
             domain: "1234",
@@ -237,7 +237,7 @@ describe("Database client", () => {
             balance: utils.parseEther("100").toString(),
           },
           {
-            canonicalId: mkAddress("0xb"),
+            canonicalId: mkBytes32("0xbb"),
             adoptedAsset: mkAddress("0xaa"),
             blockNumber: "0",
             domain: "1234",
@@ -248,10 +248,10 @@ describe("Database client", () => {
             balance: utils.parseEther("99").toString(),
           },
           {
-            canonicalId: mkAddress("0xb"),
+            canonicalId: mkBytes32("0xb"),
             adoptedAsset: mkAddress("0xaa"),
             blockNumber: "0",
-            domain: "1234",
+            domain: "12345",
             id: mkAddress("0xbb"),
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
@@ -259,10 +259,10 @@ describe("Database client", () => {
             balance: utils.parseEther("98").toString(),
           },
           {
-            canonicalId: mkAddress("0xb"),
+            canonicalId: mkBytes32("0xbb"),
             adoptedAsset: mkAddress("0xaa"),
             blockNumber: "0",
-            domain: "1234",
+            domain: "12345",
             id: mkAddress("0xbb"),
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
@@ -275,7 +275,7 @@ describe("Database client", () => {
         router: mkAddress("0xb"),
         assets: [
           {
-            canonicalId: mkAddress("0xb"),
+            canonicalId: mkBytes32("0xb"),
             adoptedAsset: mkAddress("0xaa"),
             blockNumber: "0",
             domain: "1234",
@@ -286,7 +286,7 @@ describe("Database client", () => {
             balance: utils.parseEther("100").toString(),
           },
           {
-            canonicalId: mkAddress("0xb"),
+            canonicalId: mkBytes32("0xbb"),
             adoptedAsset: mkAddress("0xaa"),
             blockNumber: "0",
             domain: "1234",
@@ -297,10 +297,10 @@ describe("Database client", () => {
             balance: utils.parseEther("99").toString(),
           },
           {
-            canonicalId: mkAddress("0xb"),
+            canonicalId: mkBytes32("0xb"),
             adoptedAsset: mkAddress("0xaa"),
             blockNumber: "0",
-            domain: "1234",
+            domain: "12345",
             id: mkAddress("0xbb"),
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
@@ -308,10 +308,10 @@ describe("Database client", () => {
             balance: utils.parseEther("98").toString(),
           },
           {
-            canonicalId: mkAddress("0xb"),
+            canonicalId: mkBytes32("0xbb"),
             adoptedAsset: mkAddress("0xaa"),
             blockNumber: "0",
-            domain: "1234",
+            domain: "12345",
             id: mkAddress("0xbb"),
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
