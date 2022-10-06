@@ -43,11 +43,14 @@
     "ethers": "5.7.0",
     "fastify": "4.5.3",
     "graphql": "16.6.0",
-    "prom-client": "14.1.0"
+    "pg": "^8.8.0",
+    "prom-client": "14.1.0",
+    "zapatos": "^6.1.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "2.12.0",
     "@types/mocha": "9.1.1",
+    "@types/pg": "^8",
     "@types/sinon": "10.0.13",
     "concurrently": "7.4.0",
     "eslint": "8.23.0",

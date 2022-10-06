@@ -832,6 +832,7 @@ __metadata:
     "@graphql-codegen/cli": 2.12.0
     "@sinclair/typebox": 0.24.39
     "@types/mocha": 9.1.1
+    "@types/pg": ^8
     "@types/sinon": 10.0.13
     axios: 0.27.2
     concurrently: 7.4.0
@@ -845,12 +846,14 @@ __metadata:
     mocha: 10.0.0
     nodemon: 2.0.19
     nyc: 15.1.0
+    pg: ^8.8.0
     pino-pretty: 9.1.0
     prom-client: 14.1.0
     rimraf: 3.0.2
     sinon: 14.0.0
     ts-mocha: 10.0.0
     typescript: 4.8.3
+    zapatos: ^6.1.1
   languageName: unknown
   linkType: soft
 
@@ -6034,7 +6037,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/pg@npm:8.6.5":
+"@types/pg@npm:8.6.5, @types/pg@npm:^8":
   version: 8.6.5
   resolution: "@types/pg@npm:8.6.5"
   dependencies:
@@ -20508,7 +20511,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg@npm:8.8.0":
+"pg@npm:8.8.0, pg@npm:^8.8.0":
   version: 8.8.0
   resolution: "pg@npm:8.8.0"
   dependencies:
@@ -26975,6 +26978,19 @@ __metadata:
   bin:
     zapatos: dist/generate/cli.js
   checksum: 9f84cff51398dd65ec0e55620f711ac36605e4f941389f9218a8e818194b29c60be372ab26ec0fbbef59f3fcac85486b078f069ee0a7bbb058e9a3bfe82b90f8
+  languageName: node
+  linkType: hard
+
+"zapatos@npm:^6.1.1":
+  version: 6.1.1
+  resolution: "zapatos@npm:6.1.1"
+  peerDependencies:
+    "@types/pg": ">=7.14.3"
+    pg: ">=7.18.2"
+    typescript: ">=4.1"
+  bin:
+    zapatos: dist/generate/cli.js
+  checksum: 0c0a6a0574c6dc087e1aef5ea487865c25c6cbdd50cd60fcbde847a5003f8f4cb693d922e72eccbcce1f16f087979d7e6bcd315bd5065a69573af9f27d2ecd6d
   languageName: node
   linkType: hard
 
