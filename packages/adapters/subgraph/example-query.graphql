@@ -1,5 +1,5 @@
 query ExampleQuery {
-  rinkeby_assets(first: 1) {
+  goerli_assets(first: 1) {
     id
     local
     adoptedAsset
