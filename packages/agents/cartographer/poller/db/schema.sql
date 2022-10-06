@@ -369,6 +369,38 @@ CREATE VIEW public.hourly_transfer_volume AS
 
 
 --
+-- Name: merkel_cache; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.merkel_cache (
+    domain character varying(255) NOT NULL,
+    domain_path character(32) NOT NULL,
+    tree_hash character(66) NOT NULL
+);
+
+
+--
+-- Name: merkel_messages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.merkel_messages (
+    domain_index numeric NOT NULL,
+    domain character varying(255) NOT NULL,
+    message_hash character(66) NOT NULL
+);
+
+
+--
+-- Name: merkel_roots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.merkel_roots (
+    id numeric NOT NULL,
+    outbound_root character(66) NOT NULL
+);
+
+
+--
 -- Name: messages; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -498,6 +530,22 @@ ALTER TABLE ONLY public.checkpoints
 
 
 --
+-- Name: merkel_cache merkel_cache_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.merkel_cache
+    ADD CONSTRAINT merkel_cache_pkey PRIMARY KEY (domain, domain_path);
+
+
+--
+-- Name: merkel_messages merkel_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.merkel_messages
+    ADD CONSTRAINT merkel_messages_pkey PRIMARY KEY (domain_index, domain);
+
+
+--
 -- Name: messages messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -619,4 +667,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20220914215736'),
     ('20220914230120'),
     ('20220920101730'),
-    ('20220921065611');
+    ('20220921065611'),
+    ('20221006054718');
