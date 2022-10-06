@@ -22909,7 +22909,7 @@
           ]
         },
         "TokenFacetStaging": {
-          "address": "0x61E81353B26b472Fac6A2Ce1B761478E12087F98",
+          "address": "0x07690D08C69d825909F6438014159825C44A3040",
           "abi": [
             {
               "inputs": [],
@@ -24202,7 +24202,7 @@
       "chainId": "420",
       "contracts": {
         "BridgeFacetStaging": {
-          "address": "0x114F1Cf3E134B1F7a33FeE741813791AE1101088",
+          "address": "0x6c4B4eb4E30c5E8ABd26e03bb9191130D870d41b",
           "abi": [
             {
               "inputs": [],
@@ -43362,8 +43362,470 @@
             }
           ]
         },
+        "UpgradeBeaconControllerStaging": {
+          "address": "0x4bc04c13229bAcad3599c797F948D7610040f711",
+          "abi": [
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "beacon",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "implementation",
+                  "type": "address"
+                }
+              ],
+              "name": "BeaconUpgraded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "previousOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipTransferred",
+              "type": "event"
+            },
+            {
+              "inputs": [],
+              "name": "owner",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "transferOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_beacon",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_implementation",
+                  "type": "address"
+                }
+              ],
+              "name": "upgrade",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ]
+        },
+        "WatcherManagerStaging": {
+          "address": "0xf2D704097E83AC8fAB26883B8Ee496772D6760a9",
+          "abi": [
+            {
+              "inputs": [],
+              "stateMutability": "nonpayable",
+              "type": "constructor"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__onlyOwner_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__onlyProposed_notProposedOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__renounceOwnership_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__renounceOwnership_invalidProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__renounceOwnership_noProposal",
+              "type": "error"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "proposedOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "previousOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipTransferred",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "watcher",
+                  "type": "address"
+                }
+              ],
+              "name": "WatcherAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "watcher",
+                  "type": "address"
+                }
+              ],
+              "name": "WatcherRemoved",
+              "type": "event"
+            },
+            {
+              "inputs": [],
+              "name": "acceptProposedOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_watcher",
+                  "type": "address"
+                }
+              ],
+              "name": "addWatcher",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "delay",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_watcher",
+                  "type": "address"
+                }
+              ],
+              "name": "isWatcher",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "owner",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newlyProposed",
+                  "type": "address"
+                }
+              ],
+              "name": "proposeNewOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proposed",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proposedTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_watcher",
+                  "type": "address"
+                }
+              ],
+              "name": "removeWatcher",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            }
+          ]
+        },
+        "_DefaultDiamondERC165Init": {
+          "address": "0xe68d85348f227d2ebEE814C38918F8A2D7d9B603",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes4[]",
+                  "name": "interfaceIds",
+                  "type": "bytes4[]"
+                },
+                {
+                  "internalType": "bytes4[]",
+                  "name": "interfaceIdsToRemove",
+                  "type": "bytes4[]"
+                }
+              ],
+              "name": "setERC165",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ]
+        },
+        "_DefaultDiamondLoupeFacet": {
+          "address": "0x3Bcf4185443A339517aD4e580067f178d1B68E1D",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes4",
+                  "name": "_functionSelector",
+                  "type": "bytes4"
+                }
+              ],
+              "name": "facetAddress",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "facetAddress_",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "facetAddresses",
+              "outputs": [
+                {
+                  "internalType": "address[]",
+                  "name": "facetAddresses_",
+                  "type": "address[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_facet",
+                  "type": "address"
+                }
+              ],
+              "name": "facetFunctionSelectors",
+              "outputs": [
+                {
+                  "internalType": "bytes4[]",
+                  "name": "facetFunctionSelectors_",
+                  "type": "bytes4[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "facets",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "facetAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes4[]",
+                      "name": "functionSelectors",
+                      "type": "bytes4[]"
+                    }
+                  ],
+                  "internalType": "struct IDiamondLoupe.Facet[]",
+                  "name": "facets_",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes4",
+                  "name": "_interfaceId",
+                  "type": "bytes4"
+                }
+              ],
+              "name": "supportsInterface",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            }
+          ]
+        },
         "TokenFacetStaging": {
-          "address": "0x61E81353B26b472Fac6A2Ce1B761478E12087F98",
+          "address": "0x3db410BB07421Ab15Aac96925d46e23A5d5C4882",
           "abi": [
             {
               "inputs": [],
@@ -44181,468 +44643,6 @@
               "name": "updateLiquidityCap",
               "outputs": [],
               "stateMutability": "nonpayable",
-              "type": "function"
-            }
-          ]
-        },
-        "UpgradeBeaconControllerStaging": {
-          "address": "0x4bc04c13229bAcad3599c797F948D7610040f711",
-          "abi": [
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "beacon",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "implementation",
-                  "type": "address"
-                }
-              ],
-              "name": "BeaconUpgraded",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "previousOwner",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "OwnershipTransferred",
-              "type": "event"
-            },
-            {
-              "inputs": [],
-              "name": "owner",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounceOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "transferOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_beacon",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "_implementation",
-                  "type": "address"
-                }
-              ],
-              "name": "upgrade",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            }
-          ]
-        },
-        "WatcherManagerStaging": {
-          "address": "0xf2D704097E83AC8fAB26883B8Ee496772D6760a9",
-          "abi": [
-            {
-              "inputs": [],
-              "stateMutability": "nonpayable",
-              "type": "constructor"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__onlyOwner_notOwner",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__onlyProposed_notProposedOwner",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__renounceOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__renounceOwnership_invalidProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__renounceOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "proposedOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "OwnershipProposed",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "previousOwner",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "OwnershipTransferred",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "watcher",
-                  "type": "address"
-                }
-              ],
-              "name": "WatcherAdded",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "watcher",
-                  "type": "address"
-                }
-              ],
-              "name": "WatcherRemoved",
-              "type": "event"
-            },
-            {
-              "inputs": [],
-              "name": "acceptProposedOwner",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_watcher",
-                  "type": "address"
-                }
-              ],
-              "name": "addWatcher",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "delay",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_watcher",
-                  "type": "address"
-                }
-              ],
-              "name": "isWatcher",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "owner",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "newlyProposed",
-                  "type": "address"
-                }
-              ],
-              "name": "proposeNewOwner",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "proposed",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "proposedTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_watcher",
-                  "type": "address"
-                }
-              ],
-              "name": "removeWatcher",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounceOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounced",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            }
-          ]
-        },
-        "_DefaultDiamondERC165Init": {
-          "address": "0xe68d85348f227d2ebEE814C38918F8A2D7d9B603",
-          "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes4[]",
-                  "name": "interfaceIds",
-                  "type": "bytes4[]"
-                },
-                {
-                  "internalType": "bytes4[]",
-                  "name": "interfaceIdsToRemove",
-                  "type": "bytes4[]"
-                }
-              ],
-              "name": "setERC165",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            }
-          ]
-        },
-        "_DefaultDiamondLoupeFacet": {
-          "address": "0x3Bcf4185443A339517aD4e580067f178d1B68E1D",
-          "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes4",
-                  "name": "_functionSelector",
-                  "type": "bytes4"
-                }
-              ],
-              "name": "facetAddress",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "facetAddress_",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "facetAddresses",
-              "outputs": [
-                {
-                  "internalType": "address[]",
-                  "name": "facetAddresses_",
-                  "type": "address[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_facet",
-                  "type": "address"
-                }
-              ],
-              "name": "facetFunctionSelectors",
-              "outputs": [
-                {
-                  "internalType": "bytes4[]",
-                  "name": "facetFunctionSelectors_",
-                  "type": "bytes4[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "facets",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "address",
-                      "name": "facetAddress",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "bytes4[]",
-                      "name": "functionSelectors",
-                      "type": "bytes4[]"
-                    }
-                  ],
-                  "internalType": "struct IDiamondLoupe.Facet[]",
-                  "name": "facets_",
-                  "type": "tuple[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes4",
-                  "name": "_interfaceId",
-                  "type": "bytes4"
-                }
-              ],
-              "name": "supportsInterface",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
               "type": "function"
             }
           ]
@@ -63892,7 +63892,7 @@
           ]
         },
         "TokenFacetStaging": {
-          "address": "0x61E81353B26b472Fac6A2Ce1B761478E12087F98",
+          "address": "0xbe1A92F96b23328C69FE93ac0F761DEf96dd7b25",
           "abi": [
             {
               "inputs": [],
@@ -84373,7 +84373,7 @@
           ]
         },
         "TokenFacetStaging": {
-          "address": "0x61E81353B26b472Fac6A2Ce1B761478E12087F98",
+          "address": "0x9E26681Aae427167B7Efe801375Cc268c417311b",
           "abi": [
             {
               "inputs": [],
