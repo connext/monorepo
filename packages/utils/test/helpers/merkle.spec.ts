@@ -5,7 +5,7 @@ import { DBImpl, SparseMerkleTree } from "../../src/helpers/merkle";
 const TREE_HEIGHT = 32;
 const SAMPLE_HASH_COUNT = 123;
 
-describe.only("Helpers: Merkle", () => {
+describe("Helpers: Merkle", () => {
   let db: DBImpl;
   let merkle: SparseMerkleTree;
 
@@ -17,7 +17,7 @@ describe.only("Helpers: Merkle", () => {
     }
     console.log("Generating sample leaf hashes... done.");
 
-    merkle = new SparseMerkleTree(db, TREE_HEIGHT, true);
+    merkle = new SparseMerkleTree(db, TREE_HEIGHT);
   });
 
   describe("#getMerkleProof", () => {
@@ -34,11 +34,11 @@ describe.only("Helpers: Merkle", () => {
       const proof = await merkle.getProof(index);
       expect(proof.length).to.be.eq(TREE_HEIGHT);
       const result = merkle.verify(index, leaf, proof, expectedRoot);
-      console.log({
-        ...result,
-        expected: expectedRoot,
-        proof,
-      });
+      // console.log({
+      //   ...result,
+      //   expected: expectedRoot,
+      //   proof,
+      // });
       expect(result.verified).to.be.true;
       expect(result.calculated).to.be.eq(expectedRoot);
     });
