@@ -57,6 +57,8 @@ CREATE TABLE public.asset_balances (
 --
 
 CREATE TABLE public.assets (
+    key character(66) NOT NULL,
+    id character(42) NOT NULL,
     local character(42) NOT NULL,
     adopted character(42) NOT NULL,
     canonical_id character(66) NOT NULL,
@@ -620,4 +622,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20220914230120'),
     ('20220920101730'),
     ('20220921065611'),
-    ('20221006115622');
+    ('20221006115622'),
+    ('20221006193142');
