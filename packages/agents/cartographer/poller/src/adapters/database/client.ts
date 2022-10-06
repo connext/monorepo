@@ -314,7 +314,9 @@ export const saveRouterBalances = async (
           balance: b.balance as any,
         },
         asset: {
-          local: b.id,
+          key: b.key,
+          id: b.id,
+          local: b.localAsset,
           adopted: b.adoptedAsset,
           canonical_id: b.canonicalId,
           canonical_domain: b.canonicalDomain,

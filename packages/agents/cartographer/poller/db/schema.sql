@@ -44,6 +44,8 @@ CREATE TABLE public.asset_balances (
 --
 
 CREATE TABLE public.assets (
+    key character(66) NOT NULL,
+    id character(42) NOT NULL,
     local character(42) NOT NULL,
     adopted character(42) NOT NULL,
     canonical_id character(66) NOT NULL,
@@ -77,25 +79,14 @@ SELECT routers.address,
     assets.adopted,
     assets.canonical_id,
     assets.canonical_domain,
-    assets.domain
-FROM (
-        (
-            public.routers
-            JOIN public.asset_balances ON (
-                (routers.address = asset_balances.router_address)
-            )
-        )
-        JOIN public.assets ON (
-            (
-                (
-                    asset_balances.asset_canonical_id = assets.canonical_id
-                )
-                AND (
-                    (asset_balances.asset_domain)::text = (assets.domain)::text
-                )
-            )
-        )
-    );
+    assets.domain,
+    assets.key,
+    assets.id
+   FROM ((public.routers
+     JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
+     JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
+
+
 --
 -- Name: transfers; Type: TABLE; Schema: public; Owner: -
 --
@@ -744,4 +735,5 @@ VALUES ('20220520150644'),
     ('20220920101730'),
     ('20220921065611'),
     ('20221006051045');
-('20221006115622');
+    ('20221006115622');
+    ('20221006193142');
