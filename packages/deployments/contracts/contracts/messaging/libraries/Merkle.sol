@@ -31,8 +31,9 @@ library MerkleLib {
    * @notice Inserts a given node (leaf) into merkle tree.
    * @dev Reverts if the tree is already full.
    * @param node Element to insert into tree.
+   * @return uint256 updated count (number of nodes in the tree).
    **/
-  function insert(Tree storage tree, bytes32 node) internal {
+  function insert(Tree storage tree, bytes32 node) internal returns (uint256) {
     uint256 size = tree.count + 1; // Add 1 since we'll be including a new node.
     if (tree.count >= MAX_LEAVES) revert MerkleLib__insert_treeIsFull();
 
@@ -48,7 +49,7 @@ library MerkleLib {
         // If i > 0, then this node will be a hash of the original node with every layer up
         // until layer `i`.
         tree.branch[i] = node;
-        return;
+        return size;
       }
       // If the size is not yet odd, we hash the current index in the tree branch with the node.
       node = keccak256(abi.encodePacked(tree.branch[i], node));
@@ -58,9 +59,9 @@ library MerkleLib {
         ++i;
       }
     }
-    // As the loop should always end prematurely with the `return` statement,
-    // this code should be unreachable. We assert `false` just to be safe.
-    assert(false);
+    // As the loop should always end prematurely with the `return` statement, this code should
+    // be unreachable. We revert here just to be safe.
+    revert MerkleLib__insert_treeIsFull();
   }
 
   /**
