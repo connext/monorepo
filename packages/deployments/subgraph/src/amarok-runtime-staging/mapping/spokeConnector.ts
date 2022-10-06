@@ -6,13 +6,7 @@ import {
   MessageSent,
   MessageProcessed,
 } from "../../../generated/SpokeConnector/SpokeConnector";
-import {
-  OriginMessage,
-  AggregateRoot,
-  RootMessageSent,
-  RootMessageProcessed,
-  ConnectorMeta,
-} from "../../../generated/schema";
+import { OriginMessage, AggregateRoot, RootMessageSent, ConnectorMeta } from "../../../generated/schema";
 
 const DEFAULT_CONNECTOR_META_ID = "CONNECTOR_META_ID";
 
@@ -56,22 +50,6 @@ export function handleMessageSent(event: MessageSent): void {
 
   message.spokeDomain = meta.spokeDomain;
   message.hubDomain = meta.hubDomain;
-
-  message.root = event.params.data;
-  message.caller = event.params.caller;
-  message.transactionHash = event.transaction.hash;
-  message.timestamp = event.block.timestamp;
-  message.gasPrice = event.transaction.gasPrice;
-  message.gasLimit = event.transaction.gasLimit;
-  message.blockNumber = event.block.number;
-  message.save();
-}
-
-export function handleMessageProcessed(event: MessageProcessed): void {
-  let message = RootMessageProcessed.load(event.params.data.toHexString());
-  if (message == null) {
-    message = new RootMessageProcessed(event.params.data.toHexString());
-  }
 
   message.root = event.params.data;
   message.caller = event.params.caller;

@@ -75,7 +75,7 @@ export const originTransfer = (entity: any): OriginTransfer => {
           amount: entity.normalizedIn,
         },
         bridged: {
-          asset: entity.asset.local,
+          asset: entity.asset.id,
           amount: entity.bridgedAmt,
         },
       },
@@ -163,7 +163,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
               }
             : undefined,
         local: {
-          asset: entity.asset.local,
+          asset: entity.asset.id,
           amount: entity.bridgedAmt,
         },
       },

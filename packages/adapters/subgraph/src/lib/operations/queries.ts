@@ -199,9 +199,9 @@ export const getAssetBalanceQuery = (prefix: string, router: string, local: stri
     ${prefix}_assetBalance(id: "${local}-${router}") {
       amount
       asset {
+        id
         canonicalId
         canonicalDomain
-        local
         adoptedAsset
         blockNumber
       }
@@ -218,11 +218,11 @@ export const getAssetBalancesQuery = (prefix: string, router: string): string =>
     ${prefix}_assetBalances(where: { router: "${router}" }) {
       amount
       asset {
-          canonicalId
-          canonicalDomain
-          local
-          adoptedAsset
-          blockNumber
+        id
+        canonicalId
+        canonicalDomain
+        adoptedAsset
+        blockNumber
       }
     }`;
 
@@ -249,7 +249,7 @@ export const getAssetBalancesRoutersQuery = (
       assetBalances {
         amount
         asset {
-          local
+          id
           adoptedAsset
           canonicalId
           canonicalDomain
@@ -280,9 +280,8 @@ export const getRouterQuery = (prefix: string, router: string): string => {
 
 export const getAssetByLocalQuery = (prefix: string, local: string): string => {
   const queryString = `
-    ${prefix}_assets(where: { local: "${local}" }) {
+    ${prefix}_assets(where: { id: "${local}" }) {
       id
-      local
       adoptedAsset
       canonicalId
       canonicalDomain
@@ -299,7 +298,6 @@ export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string):
   const str = `
     ${prefix}_assets(where: { canonicalId: "${canonicalId}" }, orderBy: blockNumber, orderDirection: desc) {
             id
-            local
             adoptedAsset
             canonicalId
             canonicalDomain
