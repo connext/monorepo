@@ -206,18 +206,6 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
     domain: string;
-      /**
-      * **assets.key**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    key: string | null;
-      /**
-      * **assets.id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    id: string | null;
     }
     export interface JSONSelectable {
       /**
@@ -250,18 +238,6 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
     domain: string;
-      /**
-      * **assets.key**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    key: string | null;
-      /**
-      * **assets.id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    id: string | null;
     }
     export interface Whereable {
       /**
@@ -294,18 +270,6 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
     domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **assets.key**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    key?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **assets.id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -338,18 +302,6 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
     domain: string | db.Parameter<string> | db.SQLFragment;
-      /**
-      * **assets.key**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    key?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **assets.id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -382,18 +334,6 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
     domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
-      /**
-      * **assets.key**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    key?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **assets.id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'assets_pkey';
     export type Column = keyof Selectable;

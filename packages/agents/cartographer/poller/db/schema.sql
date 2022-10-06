@@ -100,7 +100,9 @@ CREATE VIEW public.routers_with_balances AS
     assets.adopted,
     assets.canonical_id,
     assets.canonical_domain,
-    assets.domain
+    assets.domain,
+    assets.key,
+    assets.id
    FROM ((public.routers
      JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
      JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
