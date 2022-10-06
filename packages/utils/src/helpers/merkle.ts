@@ -64,8 +64,8 @@ const ZERO_BYTES = mkBytes32("0x");
 
 export class SparseMerkleTree {
   public get maxCount() {
-    // For a height of 32, this will be 2,147,483,648 nodes.
-    return 2 ** this.height / 2;
+    // For a height of 32, this will be 4,294,967,296 nodes.
+    return 2 ** this.height;
   }
 
   // Hash function used.
@@ -133,7 +133,6 @@ export class SparseMerkleTree {
     // We can skip the first N layers (i.e. let them be zero hashes) depending on the current count.
     let depth = await this.getStartingDepth();
     let prefix = "".padStart(depth, "0"); // Path prefix, useful for getting specific subtrees.
-    // NOTE: We skip the last (base) layer in the tree here because the final sibling will always be 0x0.
     for (depth; depth < this.height - 1; depth++) {
       const p = pathToTarget[depth];
 
@@ -150,20 +149,6 @@ export class SparseMerkleTree {
       // Extend the current prefix down the target branch.
       prefix += p;
 
-      // Calculating the sibling root:
-      // e.g. Let's say the depth is 22 and we're branching off into the right-hand subtree.
-      // |    path prefix     |
-      // 00000000000000000000001000000000 : 512
-      // 00000000000000000000001111111110 : 1022
-      //                       ^ split index
-      // Worst case:
-      // Assuming the subtree isn't already cached, we need every node from 512/2 - 1022/2 [256 - 511] in
-      // order to get this subtree's root.
-      // e.g. for the first (base) layer:
-      // hash(nodes[256], 0x0), hash(nodes[257], 0x0) ... hash(nodes[511], 0x0)
-      // for the second layer:
-      // hash(hash(nodes[256], 0x0) + hash(nodes[257], 0x0)) ... hash(hash(nodes[511], 0x0) + hash(nodes[511], 0x0))
-
       // Get the subtree down the opposite path of the one to the target.
       const nodes = await this.getSubtreeNodes(depth + 1, siblingPath);
 
@@ -176,6 +161,14 @@ export class SparseMerkleTree {
       siblings[depth] = this.getSubtreeRoot(depth + 1, nodes);
     }
 
+    // Get the last sibling node.
+    const p = pathToTarget[depth];
+    const siblingPath = pathToTarget.substring(0, this.height - 1) + (p === "1" ? "0" : "1");
+    const node = await this.db.getNode(parseInt(siblingPath, 2));
+    if (node) {
+      siblings[this.height - 1] = node;
+    }
+
     // Reverse the siblings, since hashing to get the root will go the other way.
     return siblings.reverse();
   }
@@ -186,8 +179,8 @@ export class SparseMerkleTree {
     // Starting with the prefix path that gets us TO the subtree, build out the path for the lower and upper bound
     // nodes, then convert that to an index.
     // Lower bound will be the left-most node in the subtree, upper bound will be the right-most node in the subtree.
-    const lowerBoundPath = pathPrefix + "".padEnd(layer - 1, "0");
-    const upperBoundPath = pathPrefix + "".padEnd(layer - 1, "1");
+    const lowerBoundPath = pathPrefix + "".padEnd(layer, "0");
+    const upperBoundPath = pathPrefix + "".padEnd(layer, "1");
     const lowerBound = parseInt(lowerBoundPath, 2);
     const upperBound = parseInt(upperBoundPath, 2);
 
@@ -207,13 +200,15 @@ export class SparseMerkleTree {
         t,
       );
       console.log("Sibling prefix:", pathPrefix);
-      console.log("Lower bound:   ", lowerBoundPath + "0", ";", lowerBound);
-      console.log("Upper bound:   ", upperBoundPath + "0", ";", upperBound);
+      console.log("Lower bound:   ", lowerBoundPath, ";", lowerBound);
+      console.log("Upper bound:   ", upperBoundPath, ";", upperBound);
     }
 
     // Sanity check: the boundary path should be the same length as the tree height.
-    if (lowerBoundPath.length + 1 !== this.height) {
-      throw new Error("whut");
+    if (lowerBoundPath.length !== this.height) {
+      throw new Error(
+        "Lower bound path is incorrect length: " + lowerBoundPath.length.toString() + " != " + this.height.toString(),
+      );
     }
 
     return await this.db.getNodes(lowerBound, upperBound);
@@ -224,19 +219,11 @@ export class SparseMerkleTree {
     // TODO: Check to see if we have the given subtree cached!
     // const cached = await this.db.getSubtreeRoot()
 
-    let roots: string[] = [];
-    for (let i = 0; i < nodes.length; i++) {
-      // TODO: Shortcut: hash the base layer nodes with 0x0?
-      // roots.push(this.hash(nodes[i], ZERO_BYTES));
-      // At the base layer, left node is the value, right node is the null node.
-      roots.push(nodes[i], ZERO_BYTES);
-    }
-
     // TODO: There's probably a faster way to fill out empty subtrees... i.e. using KNOWN zero hashes.
     // Determine the expected number of nodes in this subtree given the current depth.
     // At a depth of 0, this should be the whole tree (e.g. for a tree of 16-depth: 65,536 nodes).
     const expectedNodeCount = 2 ** (this.height - depth);
-    roots = roots.concat(new Array(expectedNodeCount - roots.length).fill(ZERO_BYTES)); //hashedBaseLayer));
+    let roots: string[] = nodes.concat(new Array(expectedNodeCount - nodes.length).fill(ZERO_BYTES)); //hashedBaseLayer));
 
     if (this._debugLog) {
       console.log("GETTING ROOT FOR SUBTREE AT DEPTH", depth, expectedNodeCount);
@@ -281,15 +268,14 @@ export class SparseMerkleTree {
 
   private async getStartingDepth(_count?: number): Promise<number> {
     const count = _count ?? (await this.db.getCount()); // Number of nodes (AKA max index).
-    return this.height - (count * 2).toString(2).length;
+    return this.height - count.toString(2).length;
   }
 
   // NOTE: Returns the DESCENDING path. Will need to be reversed to path climbing up the tree.
   private indexToPath(index: number): string {
-    // The index * 2 is the path to the target leaf from the root in binary (where 0 = left,
-    // 1 = right). We multiply by two because the last bit will always be a 0 (since every other
-    // node at the base is 0x0).
-    return (index * 2).toString(2).padStart(this.height, "0"); // Path in binary string.
+    // The index is the path to the target leaf from the root in binary (where 0 = left,
+    // 1 = right).
+    return index.toString(2).padStart(this.height, "0"); // Path in binary string.
   }
 }
 
