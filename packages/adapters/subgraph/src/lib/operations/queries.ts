@@ -25,6 +25,7 @@ export const ORIGIN_MESSAGE_ENTITY = `
       message
       transferId
       destinationDomain
+      transactionHash
 `;
 export const DESTINATION_MESSAGE_ENTITY = `
       id
@@ -55,11 +56,15 @@ export const ORIGIN_TRANSFER_ENTITY = `
       canonicalId
     
       # Asset
-      ${ASSET_ENTITY}
+      asset {
+        ${ASSET_ENTITY}
+      }
 
       # Message
-      ${ORIGIN_MESSAGE_ENTITY}
-    
+      message { 
+        ${ORIGIN_MESSAGE_ENTITY}
+      }
+
       # XCalled Transaction
       caller
       transactionHash
