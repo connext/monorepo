@@ -70,6 +70,8 @@ export const mock = {
     },
     environment: "staging",
     relayerUrl: "http://www.example.com",
+    database: { url: "postgres://localhost:5432/lighthouse" },
+    gelatoApiKey: "foo",
   }),
   adapters: {
     chainreader: (): SinonStubbedInstance<ChainReader> => {
@@ -123,7 +125,11 @@ export const mock = {
       };
     },
     cartographer: (): Cartographer => {
-      return { getUnProcessedMessages: stub().resolves([mockXMessage1, mockXMessage2]) };
+      return {
+        getUnProcessedMessages: stub().resolves([mockXMessage1, mockXMessage2]),
+        getSentRootMessages: stub().resolves([]),
+        getUnProcessedRootMessages: stub().resolves([]),
+      };
     },
   },
   contracts: {
@@ -136,6 +142,7 @@ export const mock = {
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbdddf"), abi: {} }),
         spokeConnector: (_: number) => ({ address: mkAddress("0xbbbddda"), abi: {} }),
+        hubConnector: (_: number) => ({ address: mkAddress("0xbbbdddb"), abi: {} }),
       };
     },
   },
