@@ -33,6 +33,10 @@ dataSources:
         # RelayerRemoved: relayer, caller
         - event: RelayerRemoved(address,address)
           handler: handleRelayerRemoved
+        - event: SequencerAdded(address,address)
+          handler: handleSequencerAdded
+        - event: SequencerRemoved(address,address)
+          handler: handleSequencerRemoved
         - event: RouterLiquidityAdded(indexed address,address,bytes32,uint256,address)
           handler: handleRouterLiquidityAdded
         - event: RouterLiquidityRemoved(indexed address,address,address,bytes32,uint256,address)
