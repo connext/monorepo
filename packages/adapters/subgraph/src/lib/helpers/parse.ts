@@ -285,7 +285,6 @@ export const rootMessage = (entity: any): RootMessage => {
     "hubDomain",
     "root",
     "caller",
-    "transactionHash",
     "timestamp",
     "gasPrice",
     "gasLimit",

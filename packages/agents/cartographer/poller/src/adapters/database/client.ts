@@ -85,30 +85,16 @@ const convertToDbMessage = (message: XMessage): s.messages.Insertable => {
   };
 };
 
-const convertToDbSentRootMessage = (message: RootMessage): s.sent_root_messages.Insertable => {
+const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"): s.root_messages.Insertable => {
   return {
     id: message.id,
     spoke_domain: message.spokeDomain,
     hub_domain: message.hubDomain,
     root: message.root,
     caller: message.caller,
-    transaction_hash: message.transactionHash,
+    sent_transaction_hash: type === "sent" ? message.transactionHash : undefined,
+    processed_transaction_hash: type === "processed" ? message.transactionHash : undefined,
     sent_timestamp: message.timestamp,
-    gas_price: message.gasPrice,
-    gas_limit: message.gasLimit,
-    block_number: message.blockNumber,
-  };
-};
-
-const convertToDbProcessedRootMessage = (message: RootMessage): s.processed_root_messages.Insertable => {
-  return {
-    id: message.id,
-    spoke_domain: message.spokeDomain,
-    hub_domain: message.hubDomain,
-    root: message.root,
-    caller: message.caller,
-    transaction_hash: message.transactionHash,
-    processed_timestamp: message.timestamp,
     gas_price: message.gasPrice,
     gas_limit: message.gasLimit,
     block_number: message.blockNumber,
@@ -159,9 +145,12 @@ export const saveSentRootMessages = async (
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<void> => {
   const poolToUse = _pool ?? pool;
-  const messages: s.sent_root_messages.Insertable[] = _messages.map(convertToDbSentRootMessage).map(sanitizeNull);
+  const messages: s.root_messages.Insertable[] = _messages
+    .map((m) => convertToDbRootMessage(m, "sent"))
+    .map(sanitizeNull);
 
-  await db.upsert("sent_root_messages", messages, ["id"]).run(poolToUse);
+  // use upsert here. if the message exists, we don't want to overwrite anything, just add the sent tx hash
+  await db.upsert("root_messages", messages, ["id"], { updateColumns: ["sent_transaction_hash"] }).run(poolToUse);
 };
 
 export const saveProcessedRootMessages = async (
@@ -169,11 +158,17 @@ export const saveProcessedRootMessages = async (
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<void> => {
   const poolToUse = _pool ?? pool;
-  const messages: s.processed_root_messages.Insertable[] = _messages
-    .map(convertToDbProcessedRootMessage)
+  const messages: s.root_messages.Insertable[] = _messages
+    .map((m) => convertToDbRootMessage(m, "processed"))
     .map(sanitizeNull);
 
-  await db.upsert("processed_root_messages", messages, ["id"]).run(poolToUse);
+  // upsert to set processed tx hash and processed boolean only
+  await db
+    .upsert("root_messages", messages, ["id"], {
+      updateColumns: ["processed_transaction_hash"],
+      updateValues: { processed: true },
+    })
+    .run(poolToUse);
 };
 
 export const getPendingMessages = async (
