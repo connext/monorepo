@@ -4,6 +4,7 @@ type Asset @entity {
   canonicalId: Bytes!
   canonicalDomain: BigInt!
   adoptedAsset: Bytes!
+  localAsset: Bytes!
   blockNumber: BigInt! # needed in case multiple locals are stored under the same canonicalId
 }
 
@@ -183,20 +184,6 @@ type RootMessageSent @entity {
   root: Bytes
 
   # MessageSent Transaction
-  caller: Bytes
-  transactionHash: Bytes
-  timestamp: BigInt
-  gasPrice: BigInt
-  gasLimit: BigInt
-  blockNumber: BigInt
-}
-
-type RootMessageProcessed @entity {
-  id: ID!
-
-  root: Bytes
-
-  # MessageProcessed Transaction
   caller: Bytes
   transactionHash: Bytes
   timestamp: BigInt
