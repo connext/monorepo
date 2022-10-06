@@ -516,8 +516,8 @@ contract BridgeFacet is BaseConnextFacet {
         : AssetLogic.normalizeDecimals(ERC20(_asset).decimals(), uint8(18), _amount);
 
       // Calculate the transfer ID.
-      transferId = _calculateTransferId(_params);
       _params.nonce = s.nonce++;
+      transferId = _calculateTransferId(_params);
     }
 
     // Handle the relayer fee.

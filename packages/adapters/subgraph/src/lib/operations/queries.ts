@@ -25,6 +25,7 @@ export const ORIGIN_MESSAGE_ENTITY = `
       message
       transferId
       destinationDomain
+      transactionHash
 `;
 export const DESTINATION_MESSAGE_ENTITY = `
       id
@@ -55,11 +56,15 @@ export const ORIGIN_TRANSFER_ENTITY = `
       canonicalId
     
       # Asset
-      ${ASSET_ENTITY}
+      asset {
+        ${ASSET_ENTITY}
+      }
 
       # Message
-      ${ORIGIN_MESSAGE_ENTITY}
-    
+      message { 
+        ${ORIGIN_MESSAGE_ENTITY}
+      }
+
       # XCalled Transaction
       caller
       transactionHash
@@ -96,7 +101,9 @@ export const DESTINATION_TRANSFER_ENTITY = `
       canonicalId
 
       # Asset
-      ${ASSET_ENTITY}
+      asset {
+        ${ASSET_ENTITY}
+      }
 
       # Executed Transaction
       executedCaller
@@ -180,7 +187,9 @@ export const getAssetBalanceQuery = (prefix: string, router: string, local: stri
   const queryString = `
     ${prefix}_assetBalance(id: "${local}-${router}") {
       amount
-      ${ASSET_ENTITY}
+      asset {
+        ${ASSET_ENTITY}
+      }
     }`;
   return gql`
     query GetAssetBalance {
@@ -193,7 +202,9 @@ export const getAssetBalancesQuery = (prefix: string, router: string): string =>
   const queryString = `
     ${prefix}_assetBalances(where: { router: "${router}" }) {
       amount
-      ${ASSET_ENTITY}
+      asset {
+        ${ASSET_ENTITY}
+      }
     }`;
 
   return gql`
@@ -217,8 +228,11 @@ export const getAssetBalancesRoutersQuery = (
     orderDirection: ${orderDirection}) {
       id
       assetBalances {
+        id
         amount
-        ${ASSET_ENTITY}
+        asset {
+          ${ASSET_ENTITY}
+        }
       }
     }`;
 
@@ -245,11 +259,7 @@ export const getRouterQuery = (prefix: string, router: string): string => {
 export const getAssetByLocalQuery = (prefix: string, local: string): string => {
   const queryString = `
     ${prefix}_assets(where: { id: "${local}" }) {
-      id
-      adoptedAsset
-      canonicalId
-      canonicalDomain
-      blockNumber
+      ${ASSET_ENTITY}
     }`;
   return gql`
     query GetAssetByLocal {
@@ -261,13 +271,8 @@ export const getAssetByLocalQuery = (prefix: string, local: string): string => {
 export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string): string => {
   const str = `
     ${prefix}_assets(where: { canonicalId: "${canonicalId}" }, orderBy: blockNumber, orderDirection: desc) {
-            id
-            adoptedAsset
-            canonicalId
-            canonicalDomain
-            blockNumber
-        }
-    `;
+          ${ASSET_ENTITY}
+        }`;
 
   return gql`
     query GetAssetByCanonicalId {

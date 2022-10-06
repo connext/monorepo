@@ -25,7 +25,7 @@ ALTER TABLE public.transfers
 ADD COLUMN IF NOT EXISTS normalized_in numeric;
 
 ALTER TABLE public.transfers
-ADD COLUMN IF NOT EXISTS canonical_id character(42);  
+ADD COLUMN IF NOT EXISTS canonical_id character(42);
 
 -- 
 -- cleanup interface params

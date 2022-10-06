@@ -47,6 +47,7 @@ type stagingoptimismgoerli_Asset {
   canonicalId: stagingoptimismgoerli_Bytes!
   canonicalDomain: BigInt!
   adoptedAsset: stagingoptimismgoerli_Bytes!
+  localAsset: stagingoptimismgoerli_Bytes!
   blockNumber: BigInt!
 }
 
@@ -162,6 +163,12 @@ input stagingoptimismgoerli_Asset_filter {
   adoptedAsset_not_in: [stagingoptimismgoerli_Bytes!]
   adoptedAsset_contains: stagingoptimismgoerli_Bytes
   adoptedAsset_not_contains: stagingoptimismgoerli_Bytes
+  localAsset: stagingoptimismgoerli_Bytes
+  localAsset_not: stagingoptimismgoerli_Bytes
+  localAsset_in: [stagingoptimismgoerli_Bytes!]
+  localAsset_not_in: [stagingoptimismgoerli_Bytes!]
+  localAsset_contains: stagingoptimismgoerli_Bytes
+  localAsset_not_contains: stagingoptimismgoerli_Bytes
   blockNumber: BigInt
   blockNumber_not: BigInt
   blockNumber_gt: BigInt
@@ -180,6 +187,7 @@ enum stagingoptimismgoerli_Asset_orderBy {
   canonicalId
   canonicalDomain
   adoptedAsset
+  localAsset
   blockNumber
 }
 
@@ -1317,32 +1325,6 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [stagingoptimismgoerli_RootMessageSent!]!
-  stagingoptimismgoerli_rootMessageProcessed(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: stagingoptimismgoerli_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): stagingoptimismgoerli_RootMessageProcessed
-  stagingoptimismgoerli_rootMessageProcesseds(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: stagingoptimismgoerli_RootMessageProcessed_orderBy
-    orderDirection: stagingoptimismgoerli_OrderDirection
-    where: stagingoptimismgoerli_RootMessageProcessed_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: stagingoptimismgoerli_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [stagingoptimismgoerli_RootMessageProcessed!]!
   """Access to subgraph metadata"""
   stagingoptimismgoerli__meta(block: stagingoptimismgoerli_Block_height): stagingoptimismgoerli__Meta_
 }
@@ -1380,91 +1362,6 @@ enum stagingoptimismgoerli_Relayer_orderBy {
   id
   isActive
   relayer
-}
-
-type stagingoptimismgoerli_RootMessageProcessed {
-  id: ID!
-  root: stagingoptimismgoerli_Bytes
-  caller: stagingoptimismgoerli_Bytes
-  transactionHash: stagingoptimismgoerli_Bytes
-  timestamp: BigInt
-  gasPrice: BigInt
-  gasLimit: BigInt
-  blockNumber: BigInt
-}
-
-input stagingoptimismgoerli_RootMessageProcessed_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  root: stagingoptimismgoerli_Bytes
-  root_not: stagingoptimismgoerli_Bytes
-  root_in: [stagingoptimismgoerli_Bytes!]
-  root_not_in: [stagingoptimismgoerli_Bytes!]
-  root_contains: stagingoptimismgoerli_Bytes
-  root_not_contains: stagingoptimismgoerli_Bytes
-  caller: stagingoptimismgoerli_Bytes
-  caller_not: stagingoptimismgoerli_Bytes
-  caller_in: [stagingoptimismgoerli_Bytes!]
-  caller_not_in: [stagingoptimismgoerli_Bytes!]
-  caller_contains: stagingoptimismgoerli_Bytes
-  caller_not_contains: stagingoptimismgoerli_Bytes
-  transactionHash: stagingoptimismgoerli_Bytes
-  transactionHash_not: stagingoptimismgoerli_Bytes
-  transactionHash_in: [stagingoptimismgoerli_Bytes!]
-  transactionHash_not_in: [stagingoptimismgoerli_Bytes!]
-  transactionHash_contains: stagingoptimismgoerli_Bytes
-  transactionHash_not_contains: stagingoptimismgoerli_Bytes
-  timestamp: BigInt
-  timestamp_not: BigInt
-  timestamp_gt: BigInt
-  timestamp_lt: BigInt
-  timestamp_gte: BigInt
-  timestamp_lte: BigInt
-  timestamp_in: [BigInt!]
-  timestamp_not_in: [BigInt!]
-  gasPrice: BigInt
-  gasPrice_not: BigInt
-  gasPrice_gt: BigInt
-  gasPrice_lt: BigInt
-  gasPrice_gte: BigInt
-  gasPrice_lte: BigInt
-  gasPrice_in: [BigInt!]
-  gasPrice_not_in: [BigInt!]
-  gasLimit: BigInt
-  gasLimit_not: BigInt
-  gasLimit_gt: BigInt
-  gasLimit_lt: BigInt
-  gasLimit_gte: BigInt
-  gasLimit_lte: BigInt
-  gasLimit_in: [BigInt!]
-  gasLimit_not_in: [BigInt!]
-  blockNumber: BigInt
-  blockNumber_not: BigInt
-  blockNumber_gt: BigInt
-  blockNumber_lt: BigInt
-  blockNumber_gte: BigInt
-  blockNumber_lte: BigInt
-  blockNumber_in: [BigInt!]
-  blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
-  _change_block: stagingoptimismgoerli_BlockChangedFilter
-}
-
-enum stagingoptimismgoerli_RootMessageProcessed_orderBy {
-  id
-  root
-  caller
-  transactionHash
-  timestamp
-  gasPrice
-  gasLimit
-  blockNumber
 }
 
 type stagingoptimismgoerli_RootMessageSent {
@@ -2061,32 +1958,6 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [stagingoptimismgoerli_RootMessageSent!]!
-  stagingoptimismgoerli_rootMessageProcessed(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: stagingoptimismgoerli_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): stagingoptimismgoerli_RootMessageProcessed
-  stagingoptimismgoerli_rootMessageProcesseds(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: stagingoptimismgoerli_RootMessageProcessed_orderBy
-    orderDirection: stagingoptimismgoerli_OrderDirection
-    where: stagingoptimismgoerli_RootMessageProcessed_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: stagingoptimismgoerli_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [stagingoptimismgoerli_RootMessageProcessed!]!
   """Access to subgraph metadata"""
   stagingoptimismgoerli__meta(block: stagingoptimismgoerli_Block_height): stagingoptimismgoerli__Meta_
 }

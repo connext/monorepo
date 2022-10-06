@@ -13,6 +13,7 @@ export function handleAssetAdded(event: AssetAdded): void {
   asset.canonicalId = event.params.canonicalId;
   asset.canonicalDomain = event.params.domain;
   asset.adoptedAsset = event.params.adoptedAsset;
+  asset.localAsset = event.params.localAsset;
   asset.blockNumber = event.block.number;
   asset.save();
 }
