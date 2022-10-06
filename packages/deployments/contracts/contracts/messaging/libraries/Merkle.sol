@@ -27,10 +27,10 @@ library MerkleLib {
    * @param node Element to insert into tree.
    **/
   function insert(Tree storage tree, bytes32 node) internal {
-    require(tree.count < MAX_LEAVES, "merkle tree full");
+    uint256 size = tree.count + 1;
+    require(size < MAX_LEAVES, "merkle tree full");
 
-    tree.count += 1;
-    uint256 size = tree.count;
+    tree.count = size;
     for (uint256 i = 0; i < TREE_DEPTH; i++) {
       if ((size & 1) == 1) {
         tree.branch[i] = node;
@@ -78,7 +78,6 @@ library MerkleLib {
     // As the loop should always end prematurely with the `return` statement,
     // this code should be unreachable. We assert `false` just to be safe.
     assert(false);
-    return tree;
   }
 
   /**
@@ -103,8 +102,8 @@ library MerkleLib {
 
     for (uint256 i = 0; i < TREE_DEPTH; i++) {
       uint256 _ithBit = (_index >> i) & 0x01;
-      bytes32 _next = tree.branch[i];
       if (_ithBit == 1) {
+        bytes32 _next = tree.branch[i];
         _current = keccak256(abi.encodePacked(_next, _current));
       } else {
         _current = keccak256(abi.encodePacked(_current, _zeroes[i]));
