@@ -51,6 +51,16 @@ export const getDeployedSpokeConnecterContract = (
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
+export const getDeployedHubConnecterContract = (
+  chainId: number,
+  prefix: string,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  const contract = record[0]?.contracts ? record[0]?.contracts[`${prefix}HubConnector${postfix}`] : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
 /**
  * A number[] list of all chain IDs on which a Connext Price Oracle Contracts
  * have been deployed.
@@ -120,11 +130,18 @@ export type SpokeConnectorDeploymentGetter = (
   postfix?: ContractPostfix,
 ) => { address: string; abi: any } | undefined;
 
+export type HubConnectorDeploymentGetter = (
+  chainId: number,
+  prefix: string,
+  postfix?: ContractPostfix,
+) => { address: string; abi: any } | undefined;
+
 export type ConnextContractDeployments = {
   connext: ConnextContractDeploymentGetter;
   priceOracle: ConnextContractDeploymentGetter;
   stableSwap: ConnextContractDeploymentGetter;
   spokeConnector: SpokeConnectorDeploymentGetter;
+  hubConnector: HubConnectorDeploymentGetter;
 };
 
 export const contractDeployments: ConnextContractDeployments = {
@@ -132,6 +149,7 @@ export const contractDeployments: ConnextContractDeployments = {
   priceOracle: getDeployedPriceOracleContract,
   stableSwap: getDeployedStableSwapContract,
   spokeConnector: getDeployedSpokeConnecterContract,
+  hubConnector: getDeployedHubConnecterContract,
 };
 
 /// MARK - CONTRACT INTERFACES

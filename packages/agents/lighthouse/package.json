@@ -35,6 +35,7 @@
   "dependencies": {
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
+    "@eth-optimism/sdk": "^1.6.6",
     "@sinclair/typebox": "0.24.39",
     "axios": "0.27.2",
     "dd-trace": "^3.2.0",

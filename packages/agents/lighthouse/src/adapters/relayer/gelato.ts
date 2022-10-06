@@ -1,23 +1,27 @@
-import { createLoggingContext } from "@connext/nxtp-utils";
+import { createLoggingContext, Logger, RequestContext } from "@connext/nxtp-utils";
 
-import { RelayerSendFailed } from "../../../../errors";
+import { RelayerSendFailed } from "../../errors";
 import {
   getGelatoRelayerAddress,
   isChainSupportedByGelato,
   getTransactionHashFromGelato,
   gelatoSDKSend,
-} from "../../../../mockable";
-import { getContext } from "../../prover";
+} from "../../mockable";
 
-export const getRelayerAddress = async (chainId: number): Promise<string> => {
-  const { logger } = getContext();
+export const getRelayerAddress = async (chainId: number, logger: Logger): Promise<string> => {
   const relayerAddress = await getGelatoRelayerAddress(chainId, logger);
   return relayerAddress;
 };
 
-export const send = async (chainId: number, destinationAddress: string, encodedData: string): Promise<string> => {
-  const { logger, config } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(send.name);
+export const send = async (
+  chainId: number,
+  destinationAddress: string,
+  encodedData: string,
+  gelatoApiKey: string,
+  logger: Logger,
+  _requestContext?: RequestContext,
+): Promise<string> => {
+  const { requestContext, methodContext } = createLoggingContext(send.name, _requestContext);
 
   const isSupportedByGelato = await isChainSupportedByGelato(chainId);
   if (!isSupportedByGelato) {
@@ -32,7 +36,7 @@ export const send = async (chainId: number, destinationAddress: string, encodedD
 
   logger.info("Sending to Gelato network", requestContext, methodContext, request);
 
-  const response = await gelatoSDKSend(request, config.gelatoApiKey, {}, logger);
+  const response = await gelatoSDKSend(request, gelatoApiKey, {}, logger);
 
   if (!response) {
     throw new RelayerSendFailed({ response: response });
@@ -42,8 +46,7 @@ export const send = async (chainId: number, destinationAddress: string, encodedD
   }
 };
 
-export const getTransactionHash = async (taskId: string): Promise<string> => {
-  const { logger } = getContext();
+export const getTransactionHash = async (taskId: string, logger: Logger): Promise<string> => {
   const transactionHash = await getTransactionHashFromGelato(taskId, logger);
   return transactionHash;
 };

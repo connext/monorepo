@@ -828,6 +828,7 @@ __metadata:
   dependencies:
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
+    "@eth-optimism/sdk": ^1.6.6
     "@graphql-codegen/cli": 2.12.0
     "@sinclair/typebox": 0.24.39
     "@types/mocha": 9.1.1
@@ -1450,6 +1451,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@eth-optimism/contracts-bedrock@npm:0.8.0":
+  version: 0.8.0
+  resolution: "@eth-optimism/contracts-bedrock@npm:0.8.0"
+  dependencies:
+    "@eth-optimism/core-utils": ^0.10.1
+    "@openzeppelin/contracts": 4.7.3
+    "@openzeppelin/contracts-upgradeable": 4.7.3
+    ethers: ^5.7.0
+    hardhat: ^2.9.6
+  checksum: cda0d053be6d9c12b1125e2b178689d8094ba1a709ed0a00dd7ea1586c40260d4c66c7fd0e7bfc8f3da38435f49d46ac86efc8fc27381b8453d6a0dc6328618c
+  languageName: node
+  linkType: hard
+
 "@eth-optimism/contracts@npm:0.5.36":
   version: 0.5.36
   resolution: "@eth-optimism/contracts@npm:0.5.36"
@@ -1460,6 +1474,19 @@ __metadata:
   peerDependencies:
     ethers: ^5
   checksum: b97469afe39b3c4390f35f0a4f9e751c4f5a779e99d4d3ed20ac98cf7f43401a1eebd98fa6e762bd79ff7f33b266fb4310c3f1adf6dcdcbf2600827367c64568
+  languageName: node
+  linkType: hard
+
+"@eth-optimism/contracts@npm:0.5.37":
+  version: 0.5.37
+  resolution: "@eth-optimism/contracts@npm:0.5.37"
+  dependencies:
+    "@eth-optimism/core-utils": 0.10.1
+    "@ethersproject/abstract-provider": ^5.7.0
+    "@ethersproject/abstract-signer": ^5.7.0
+  peerDependencies:
+    ethers: ^5
+  checksum: 52a694838abaeadaa6b87fa37cd4936ff8db8b212c1650a8415e207b8386444a1a6e48b6cb836ea3019515e8fb3c3a9c0d0f16b261e1d880c36b428d9c0b7728
   languageName: node
   linkType: hard
 
@@ -1500,6 +1527,22 @@ __metadata:
   peerDependencies:
     ethers: ^5
   checksum: e0db7339670f98d4988f1c21c043009103f6e5145e2b8bd379f97240d10a7d81a50739d58c344188463e9ede1d3c826a6986b1e971c67ea4466bde3d6072b2b2
+  languageName: node
+  linkType: hard
+
+"@eth-optimism/sdk@npm:^1.6.6":
+  version: 1.6.6
+  resolution: "@eth-optimism/sdk@npm:1.6.6"
+  dependencies:
+    "@eth-optimism/contracts": 0.5.37
+    "@eth-optimism/contracts-bedrock": 0.8.0
+    "@eth-optimism/core-utils": 0.10.1
+    lodash: ^4.17.21
+    merkletreejs: ^0.2.27
+    rlp: ^2.2.7
+  peerDependencies:
+    ethers: ^5
+  checksum: be6558cf7f81c35cf1e85d2ec99bd9bc7cf95c81102a41df927e18c984fdbbc57a6bde9c20b4a93d38d87c0a46733a3c833e6dfe4f0d14ccaf5213ab1c20f3f9
   languageName: node
   linkType: hard
 
@@ -12244,7 +12287,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
+  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
   languageName: node
   linkType: hard
 
@@ -14159,7 +14202,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 20c10d1856a091b825c3f89d5277c69673aa410776275c83116fcae5c75da6e4555e7447157bee975b78fb61c84a8db73fd844ab2f433319b684e23aebdb61bc
+  checksum: 71abe7f31555f169a47510675596f79193c8f55e4beeb4e6efa06c22d41988fa9c747d5e398af7f8401cca22c08ffb7a6d57b03d764c14858513c9eba23b53b8
   languageName: node
   linkType: hard
 
