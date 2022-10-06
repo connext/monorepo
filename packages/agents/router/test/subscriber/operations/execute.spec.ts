@@ -28,7 +28,7 @@ describe("Operations:Execute", () => {
     it("should return the local asset for the destination chain", async () => {
       const mockLocalAsset = "0x456";
       (mockSubContext.adapters.subgraph.getAssetByLocal as SinonStub).resolves({ canonicalId: "0x123" });
-      (mockSubContext.adapters.subgraph.getAssetByCanonicalId as SinonStub).resolves({ local: mockLocalAsset });
+      (mockSubContext.adapters.subgraph.getAssetByCanonicalId as SinonStub).resolves({ id: mockLocalAsset });
 
       const localAsset = await getDestinationLocalAsset(mock.chain.A, mock.asset.A.address, mock.chain.B);
       expect(localAsset).to.be.eq(mockLocalAsset);
@@ -36,7 +36,7 @@ describe("Operations:Execute", () => {
     it("should return native asset if origin transacting asset is native asset", async () => {
       const mockLocalAsset = constants.AddressZero;
       (mockSubContext.adapters.subgraph.getAssetByLocal as SinonStub).resolves({ canonicalId: "0x123" });
-      (mockSubContext.adapters.subgraph.getAssetByCanonicalId as SinonStub).resolves({ local: mockLocalAsset });
+      (mockSubContext.adapters.subgraph.getAssetByCanonicalId as SinonStub).resolves({ id: mockLocalAsset });
 
       const localAsset = await getDestinationLocalAsset(mock.chain.A, mock.asset.A.address, mock.chain.B);
       expect(localAsset).to.be.eq(constants.AddressZero);
