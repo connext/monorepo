@@ -29,6 +29,7 @@ COPY .yarnrc.yml /tmp/build/
 COPY package.json /tmp/build/
 COPY packages/agents/cartographer/poller/package.json /tmp/build/packages/agents/cartographer/poller/
 COPY packages/adapters/subgraph/package.json /tmp/build/packages/adapters/subgraph/
+COPY packages/adapters/database/package.json /tmp/build/packages/database/subgraph/
 COPY packages/utils/package.json /tmp/build/packages/utils/
 COPY yarn.lock /tmp/build/
 
@@ -40,6 +41,7 @@ RUN yarn install
 COPY config config/
 COPY packages/agents/cartographer/poller /tmp/build/packages/agents/cartographer/poller
 COPY packages/adapters/subgraph /tmp/build/packages/adapters/subgraph
+COPY packages/adapters/database /tmp/build/packages/database/subgraph
 COPY packages/utils /tmp/build/packages/utils
 COPY .eslintignore /tmp/build/
 COPY .eslintrc.js /tmp/build/
