@@ -606,8 +606,9 @@ jobs:
       - name: Yarn build
         run: yarn build
 
-      - name: Integration Tests
-        run: yarn test:integration
+      # TODO ADD THIS BACK IN
+      # - name: Integration Tests
+      # run: yarn test:integration
 
     outputs:
       router-publisher-tags: ${{ needs.build-and-push-router-publisher-image.outputs.json }}

@@ -1,16 +1,9 @@
 /* eslint-disable prefer-const */
-import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
 
 import {
   RouterLiquidityAdded,
   RouterLiquidityRemoved,
-  RelayerAdded,
-  RelayerRemoved,
-  StableSwapAdded,
-  XCalled,
-  Executed,
-  Reconciled,
-  AssetAdded,
   RouterRemoved,
   RouterAdded,
   RouterOwnerAccepted,
@@ -18,31 +11,9 @@ import {
   RouterRecipientSet,
   MaxRoutersPerTransferUpdated,
 } from "../../../generated/Connext/Connext";
-import {
-  NewConnector,
-  Dispatch,
-  AggregateRootsUpdated,
-  MessageSent,
-  MessageProcessed,
-} from "../../../generated/SpokeConnector/SpokeConnector";
-import {
-  Asset,
-  AssetBalance,
-  Router,
-  Relayer,
-  StableSwap,
-  OriginTransfer,
-  DestinationTransfer,
-  Setting,
-  OriginMessage,
-  AggregateRoot,
-  RootMessageSent,
-  RootMessageProcessed,
-  ConnectorMeta,
-} from "../../../generated/schema";
+import { Router, Setting } from "../../../generated/schema";
 
-import { getChainId, getOrCreateAsset, getOrCreateAssetBalance } from "./helper";
-
+import { getOrCreateAssetBalance } from "./helper";
 const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
 
 /// MARK - Routers
