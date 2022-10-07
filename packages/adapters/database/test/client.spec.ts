@@ -1,5 +1,4 @@
 import { restore, reset } from "sinon";
-import { readFileSync } from "fs";
 import {
   expect,
   mkAddress,
@@ -28,7 +27,7 @@ import {
   saveSentRootMessages,
   saveProcessedRootMessages,
   getPendingMessages,
-} from "../../../src/adapters/database/client";
+} from "../src/client";
 
 describe("Database client", () => {
   let pool: Pool;
@@ -47,6 +46,7 @@ describe("Database client", () => {
     await pool.query("DELETE FROM assets CASCADE");
     await pool.query("DELETE FROM transfers CASCADE");
     await pool.query("DELETE FROM messages CASCADE");
+    await pool.query("DELETE FROM root_messages CASCADE");
     await pool.query("DELETE FROM routers CASCADE");
     await pool.query("DELETE FROM checkpoints CASCADE");
 
@@ -464,6 +464,8 @@ describe("Database client", () => {
     }
     await saveSentRootMessages(messages, pool);
   });
+
+  it("should get sent root message", async () => {});
 
   it("should throw errors", async () => {
     await expect(getTransferByTransferId("")).to.eventually.not.be.rejected;

@@ -12,19 +12,12 @@ export const mockRelayerAddress = mkAddress("0xabcdef123");
 export const encodedDataMock = "0xabcde";
 export const requestContext = createLoggingContext("LIGHTHOUSE-TEST").requestContext;
 
-export const mockXMessage1: XMessage = {
-  originDomain: _mock.domain.A,
-  destinationDomain: _mock.domain.B,
-  leaf: mkBytes32("0xabcde"),
-  origin: { index: 42, message: mkBytes32("0xabc"), root: mkBytes32("0x123") },
-  transferId: mkBytes32("0xabc"),
-};
+export const mockXMessage1: XMessage = { ..._mock.entity.xMessage(), transferId: mkBytes32("0xabc") };
 
 export const mockXMessage2: XMessage = {
+  ..._mock.entity.xMessage(),
   originDomain: _mock.domain.B,
   destinationDomain: _mock.domain.A,
-  leaf: mkBytes32("0xedcba"),
-  origin: { index: 24, message: mkBytes32("0xcba"), root: mkBytes32("0x321") },
   transferId: mkBytes32("0xabcdef"),
 };
 

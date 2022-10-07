@@ -1,7 +1,7 @@
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
+import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
 
-import { closeDatabase, getDatabase } from "../adapters/database";
 import { bindMessages } from "../bindings";
 import { CartographerConfig, getConfig } from "../config";
 import { context } from "../shared";
@@ -33,7 +33,7 @@ export const makeMessagesPoller = async (_configOverride?: CartographerConfig) =
     context.config.environment,
     context.config.subgraphPrefix,
   );
-  context.adapters.database = await getDatabase();
+  context.adapters.database = await getDatabase(context.config.database.url, context.logger);
 
   /// MARK - Domains
   // Filter out the supported domains from the subgraph.

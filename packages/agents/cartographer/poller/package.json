@@ -12,7 +12,6 @@
     "start:transfers": "node dist/entryTransfers.js",
     "start:routers": "node dist/entryRouters.js",
     "start:messages": "node dist/entryMessages.js",
-    "docker:start:postgres": "docker run --name cartographer-db --rm -p 5432:5432 -e POSTGRES_PASSWORD=qwerty postgres",
     "docker:start:postgrest": "docker run --name cartographer-postgrest --rm -p 3000:3000 -e PGRST_DB_URI=postgres://reader:3eadooor@host.docker.internal:5432/connext -e PGRST_DB_SCHEMA=public -e PGRST_DB_ANON_ROLE=query postgrest/postgrest",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
@@ -21,13 +20,12 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "zapatos": "zapatos",
-    "dbmate": "dbmate",
     "version": "yarn version"
   },
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
+    "@connext/nxtp-adapters-database": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "0.24.39",

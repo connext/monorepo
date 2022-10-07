@@ -6,6 +6,7 @@ import {
   XMessage,
   RootMessage,
   convertFromDbMessage,
+  convertFromDbRootMessage,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -95,8 +96,8 @@ const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"
     sent_transaction_hash: type === "sent" ? message.transactionHash : undefined,
     processed_transaction_hash: type === "processed" ? message.transactionHash : undefined,
     sent_timestamp: message.timestamp,
-    gas_price: message.gasPrice,
-    gas_limit: message.gasLimit,
+    gas_price: message.gasPrice as any,
+    gas_limit: message.gasLimit as any,
     block_number: message.blockNumber,
   };
 };
@@ -164,11 +165,27 @@ export const saveProcessedRootMessages = async (
 
   // upsert to set processed tx hash and processed boolean only
   await db
-    .upsert("root_messages", messages, ["id"], {
-      updateColumns: ["processed_transaction_hash"],
-      updateValues: { processed: true },
-    })
+    .upsert(
+      "root_messages",
+      messages.map((m) => {
+        return { ...m, processed: true };
+      }),
+      ["id"],
+      {
+        updateColumns: ["processed_transaction_hash", "processed"],
+      },
+    )
     .run(poolToUse);
+};
+
+export const getUnProcessedRootMessages = async (
+  limit = 100,
+  orderDirection: "ASC" | "DESC" = "ASC",
+): Promise<RootMessage[]> => {
+  const messages = await db
+    .select("root_messages", { processed: false }, { limit, order: { by: "block_number", direction: orderDirection } })
+    .run(pool);
+  return messages.map(convertFromDbRootMessage);
 };
 
 export const getPendingMessages = async (

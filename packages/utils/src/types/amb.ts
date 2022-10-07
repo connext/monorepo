@@ -1,5 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
 
+import { TIntegerString } from "./primitives";
+
 export const XMessageSchema = Type.Object({
   leaf: Type.String(),
   originDomain: Type.String(),
@@ -46,8 +48,8 @@ export const RootMessageSchema = Type.Object({
   caller: Type.String(),
   transactionHash: Type.String(),
   timestamp: Type.Number(),
-  gasPrice: Type.Number(),
-  gasLimit: Type.Number(),
+  gasPrice: TIntegerString,
+  gasLimit: TIntegerString,
   blockNumber: Type.Number(),
 });
 export type RootMessage = Static<typeof RootMessageSchema>;

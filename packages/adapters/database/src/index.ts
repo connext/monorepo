@@ -1,8 +1,14 @@
-import { jsonifyError, XTransfer, XTransferStatus, RouterBalance, XMessage, RootMessage } from "@connext/nxtp-utils";
+import {
+  jsonifyError,
+  XTransfer,
+  XTransferStatus,
+  RouterBalance,
+  XMessage,
+  RootMessage,
+  Logger,
+} from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
-
-import { getContext } from "../../shared";
 
 import {
   getTransfersByStatus,
@@ -17,7 +23,10 @@ import {
   saveCheckPoint,
   getCheckPoint,
   transaction,
+  getUnProcessedRootMessages,
 } from "./client";
+
+export * as db from "zapatos/db";
 
 export type Checkpoints = {
   prefix: string;
@@ -47,6 +56,7 @@ export type Database = {
   ) => Promise<string[]>;
   saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveMessages: (messages: XMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  getUnProcessedRootMessages: (limit?: number, orderDirection?: "ASC" | "DESC") => Promise<RootMessage[]>;
   saveSentRootMessages: (messages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveProcessedRootMessages: (messages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   getPendingMessages: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<XMessage[]>;
@@ -56,11 +66,9 @@ export type Database = {
 };
 
 export let pool: Pool;
-export * as db from "zapatos/db";
 
-export const getDatabase = async (): Promise<Database> => {
-  const { config, logger } = getContext();
-  pool = new Pool({ connectionString: config.database.url, idleTimeoutMillis: 3000, allowExitOnIdle: true });
+export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<Database> => {
+  pool = new Pool({ connectionString: databaseUrl, idleTimeoutMillis: 3000, allowExitOnIdle: true });
   pool.on("error", (err: Error) => logger.error("Database error", undefined, undefined, jsonifyError(err))); // don't let a pg restart kill your app
 
   try {
@@ -77,6 +85,7 @@ export const getDatabase = async (): Promise<Database> => {
     getTransfersWithDestinationPending,
     saveRouterBalances,
     saveMessages,
+    getUnProcessedRootMessages,
     saveSentRootMessages,
     saveProcessedRootMessages,
     getPendingMessages,
