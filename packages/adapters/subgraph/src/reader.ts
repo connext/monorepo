@@ -193,7 +193,9 @@ export class SubgraphReader {
             canonicalDomain: a.asset.canonicalDomain,
             canonicalId: a.asset.canonicalId,
             domain,
+            localAsset: a.asset.id,
             id: a.asset.id,
+            key: a.asset.key,
           } as AssetBalance;
         }),
         router: router.id,

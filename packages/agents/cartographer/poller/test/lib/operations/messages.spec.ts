@@ -128,12 +128,6 @@ describe("Message operations", () => {
 
     (mockContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockBlockNumber);
 
-    mockContext.adapters.database.getCheckPoint.resolves(0);
-    mockContext.adapters.database.saveCheckPoint.resolves();
-    mockContext.adapters.database.saveMessages.resolves();
-    mockContext.adapters.database.saveSentRootMessages.resolves();
-    mockContext.adapters.database.saveProcessedRootMessages.resolves();
-    mockContext.adapters.database.getPendingMessages.resolves([]);
     process.env.DATABASE_URL = "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable";
   });
 

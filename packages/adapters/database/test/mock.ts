@@ -17,6 +17,6 @@ export const mockDatabase = (): Database => {
     saveRouterBalances: stub().resolves(),
     saveSentRootMessages: stub().resolves(),
     saveTransfers: stub().resolves(),
-    transaction: stub().resolves(),
+    transaction: stub().yields(null),
   };
 };
