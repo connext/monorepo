@@ -136,17 +136,17 @@ describe("Backend operations", () => {
       domains: ["1337", "1338"],
     };
 
-    mockContext.adapters.database.saveTransfersStub.resolves();
-    mockContext.adapters.database.getTransfersByStatusStub.onFirstCall().resolves(mockOriginSubgraphResponse);
-    mockContext.adapters.database.getTransfersByStatusStub.onSecondCall().resolves(mockOriginSubgraphResponse);
-    mockContext.adapters.database.getTransfersByStatusStub.onThirdCall().resolves(mockOriginSubgraphResponse);
-    mockContext.adapters.database.saveRouterBalancesStub.resolves();
-    mockContext.adapters.database.getCheckPointStub.resolves(0);
-    mockContext.adapters.database.saveCheckPointStub.resolves();
-    mockContext.adapters.database.getTransfersWithOriginPendingStub.resolves([]);
-    mockContext.adapters.database.getTransfersWithDestinationPendingStub.resolves([]);
+    mockContext.adapters.database.saveTransfers.resolves();
+    mockContext.adapters.database.getTransfersByStatus.onFirstCall().resolves(mockOriginSubgraphResponse);
+    mockContext.adapters.database.getTransfersByStatus.onSecondCall().resolves(mockOriginSubgraphResponse);
+    mockContext.adapters.database.getTransfersByStatus.onThirdCall().resolves(mockOriginSubgraphResponse);
+    mockContext.adapters.database.saveRouterBalances.resolves();
+    mockContext.adapters.database.getCheckPoint.resolves(0);
+    mockContext.adapters.database.saveCheckPoint.resolves();
+    mockContext.adapters.database.getTransfersWithOriginPending.resolves([]);
+    mockContext.adapters.database.getTransfersWithDestinationPending.resolves([]);
     mockContext.adapters.database.saveMessages.resolves();
-    mockContext.adapters.database.getPendingMessagesStub.resolves([]);
+    mockContext.adapters.database.getPendingMessages.resolves([]);
     stub(shared, "getContext").returns(mockContext);
 
     (mockContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockBlockNumber);
