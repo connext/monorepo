@@ -33,7 +33,7 @@
 - Run poller:
 
 ```sh
-yarn workspace @connext/cartographer-poller dev
+yarn workspace @connext/cartographer-poller start:all
 ```
 
 # Updating DB Schema
