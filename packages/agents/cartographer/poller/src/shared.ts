@@ -1,8 +1,8 @@
 import { ChainData, Logger } from "@connext/nxtp-utils";
 import { SubgraphReader as _SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+import { Database } from "@connext/nxtp-adapters-database";
 
 import { CartographerConfig } from "./config";
-import { Database } from "./adapters/database";
 
 export const SubgraphReader = _SubgraphReader;
 

@@ -1,7 +1,8 @@
 import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
-import { CrossChainMessageProof, CrossChainMessenger } from "@eth-optimism/sdk";
+import { CrossChainMessageProof } from "@eth-optimism/sdk";
 import { BigNumber, providers } from "ethers";
 
+import { CrossChainMessenger } from "../../../mockable";
 import { NoRootAvailable } from "../errors";
 import { getContext } from "../processFromRoot";
 

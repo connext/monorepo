@@ -19,20 +19,10 @@
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
     "version": "yarn version"
   },
-  "nodemonConfig": {
-    "exec": "node --enable-source-maps ./dist/index.js | pino-pretty",
-    "delay": "500",
-    "ext": "js,json",
-    "watch": [
-      ".env",
-      "./dist",
-      "../@connext/nxtp-txservice/dist",
-      "../@connext/nxtp-utils/dist"
-    ]
-  },
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
+    "@connext/nxtp-adapters-database": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@eth-optimism/sdk": "^1.6.6",

@@ -797,6 +797,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/cartographer-poller@workspace:packages/agents/cartographer/poller"
   dependencies:
+    "@connext/nxtp-adapters-database": "workspace:*"
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@sinclair/typebox": 0.24.39
@@ -826,6 +827,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/lighthouse@workspace:packages/agents/lighthouse"
   dependencies:
+    "@connext/nxtp-adapters-database": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@eth-optimism/sdk": ^1.6.6
@@ -875,6 +877,24 @@ __metadata:
     ts-node: 10.9.1
     tslib: 2.4.0
     typescript: 4.8.3
+  languageName: unknown
+  linkType: soft
+
+"@connext/nxtp-adapters-database@workspace:*, @connext/nxtp-adapters-database@workspace:packages/adapters/database":
+  version: 0.0.0-use.local
+  resolution: "@connext/nxtp-adapters-database@workspace:packages/adapters/database"
+  dependencies:
+    "@connext/nxtp-utils": "workspace:*"
+    "@types/mocha": 9.1.1
+    dbmate: ^1.0.3
+    eslint: 8.23.0
+    mocha: 10.0.0
+    nyc: 15.1.0
+    ts-mocha: 10.0.0
+    ts-node: 10.9.1
+    tslib: 2.4.0
+    typescript: 4.8.3
+    zapatos: ^6.1.1
   languageName: unknown
   linkType: soft
 
@@ -10467,6 +10487,15 @@ __metadata:
   version: 1.11.5
   resolution: "dayjs@npm:1.11.5"
   checksum: e3bbaa7b4883b31be4bf75a181f1447fbb19800c29b332852125aab96baeff3ac232dcba8b88c4ea17d3b636c99dac5fb9d1af4bb6ae26615698bbc4a852dffb
+  languageName: node
+  linkType: hard
+
+"dbmate@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "dbmate@npm:1.0.3"
+  bin:
+    dbmate: dist/cli.js
+  checksum: 0cd27ab413a8e0b6ea3d6b68a16847250f6b0d8c0132e743b5f97fae3ca13ef285139a3875c10d7fe7084b5ab75b4af715f781278f79f505bcf39a94ac8b8c4a
   languageName: node
   linkType: hard
 

@@ -14,11 +14,11 @@ import * as messagesPoller from "../../../src/pollers/messagePoller";
 import { bindTransfers } from "../../../src/bindings/transfers";
 import { bindRouters } from "../../../src/bindings/routers";
 
-import * as dbClient from "../../../src/adapters/database/client";
 import { CartographerConfig } from "../../../src/config";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { AppContext } from "../../../src/shared";
 import * as shared from "../../../src/shared";
+import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
 
 const mockOriginSubgraphResponse = [
   mock.entity.xtransfer({ originDomain: "1337", destinationDomain: "1338" }) as OriginTransfer,
@@ -43,6 +43,7 @@ const mockConfig: CartographerConfig = {
   logLevel: "silent",
   database: { url: "postgres://postgres:qwery@localhost:5432/connext?sslmode=disable" },
   environment: "production",
+  chains: {},
 };
 
 const mockChainData = chainDataToMap([
@@ -114,27 +115,6 @@ describe("Backend operations", () => {
   let mockContext: AppContext;
 
   beforeEach(() => {
-    const saveTransfersStub = stub(dbClient, "saveTransfers");
-    saveTransfersStub.resolves();
-    const getTransfersByStatusStub = stub(dbClient, "getTransfersByStatus");
-    getTransfersByStatusStub.onFirstCall().resolves(mockOriginSubgraphResponse);
-    getTransfersByStatusStub.onSecondCall().resolves(mockOriginSubgraphResponse);
-    getTransfersByStatusStub.onThirdCall().resolves(mockOriginSubgraphResponse);
-    const saveRouterBalancesStub = stub(dbClient, "saveRouterBalances");
-    saveRouterBalancesStub.resolves();
-    const getCheckPointStub = stub(dbClient, "getCheckPoint");
-    getCheckPointStub.resolves(0);
-    const saveCheckPointStub = stub(dbClient, "saveCheckPoint");
-    saveCheckPointStub.resolves();
-    const getTransfersWithOriginPendingStub = stub(dbClient, "getTransfersWithOriginPending");
-    getTransfersWithOriginPendingStub.resolves([]);
-    const getTransfersWithDestinationPendingStub = stub(dbClient, "getTransfersWithDestinationPending");
-    getTransfersWithDestinationPendingStub.resolves([]);
-    const saveMessages = stub(dbClient, "saveMessages");
-    saveMessages.resolves();
-    const getPendingMessagesStub = stub(dbClient, "getPendingMessages");
-    getPendingMessagesStub.resolves([]);
-
     mockContext = {
       logger: new Logger({
         level: "silent",
@@ -147,23 +127,26 @@ describe("Backend operations", () => {
           getDestinationTransfersByDomainAndReconcileTimestamp: Promise.resolve(mockDestinationSubgraphResponse),
           getOriginTransfersById: Promise.resolve(mockOriginSubgraphResponse),
           getDestinationTransfersById: Promise.resolve(mockDestinationSubgraphResponse),
-          getAssetBalancesRouters: Promise.resolve(mockRouterResponse),
+          getAssetBalancesRouters: Promise.resolve(mockRouterResponse) as any,
         }),
-        database: {
-          saveTransfers: dbClient.saveTransfers,
-          getTransfersByStatus: dbClient.getTransfersByStatus,
-          saveRouterBalances: dbClient.saveRouterBalances,
-          getTransfersWithOriginPending: dbClient.getTransfersWithOriginPending,
-          getTransfersWithDestinationPending: dbClient.getTransfersWithDestinationPending,
-          getCheckPoint: dbClient.getCheckPoint,
-          saveCheckPoint: dbClient.saveCheckPoint,
-          transaction: dbClient.transaction,
-        },
+        database: mockDatabase(),
       },
       config: mockConfig as CartographerConfig,
       chainData: mockChainData,
       domains: ["1337", "1338"],
     };
+
+    mockContext.adapters.database.saveTransfers.resolves();
+    mockContext.adapters.database.getTransfersByStatus.onFirstCall().resolves(mockOriginSubgraphResponse);
+    mockContext.adapters.database.getTransfersByStatus.onSecondCall().resolves(mockOriginSubgraphResponse);
+    mockContext.adapters.database.getTransfersByStatus.onThirdCall().resolves(mockOriginSubgraphResponse);
+    mockContext.adapters.database.saveRouterBalances.resolves();
+    mockContext.adapters.database.getCheckPoint.resolves(0);
+    mockContext.adapters.database.saveCheckPoint.resolves();
+    mockContext.adapters.database.getTransfersWithOriginPending.resolves([]);
+    mockContext.adapters.database.getTransfersWithDestinationPending.resolves([]);
+    mockContext.adapters.database.saveMessages.resolves();
+    mockContext.adapters.database.getPendingMessages.resolves([]);
     stub(shared, "getContext").returns(mockContext);
 
     (mockContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockBlockNumber);

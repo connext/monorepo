@@ -1,45 +1,6 @@
 /* eslint-disable prefer-const */
-import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
-
-import {
-  RouterLiquidityAdded,
-  RouterLiquidityRemoved,
-  RelayerAdded,
-  RelayerRemoved,
-  StableSwapAdded,
-  XCalled,
-  Executed,
-  Reconciled,
-  AssetAdded,
-  RouterRemoved,
-  RouterAdded,
-  RouterOwnerAccepted,
-  RouterOwnerProposed,
-  RouterRecipientSet,
-  MaxRoutersPerTransferUpdated,
-} from "../../../generated/Connext/Connext";
-import {
-  NewConnector,
-  Dispatch,
-  AggregateRootsUpdated,
-  MessageSent,
-  MessageProcessed,
-} from "../../../generated/SpokeConnector/SpokeConnector";
-import {
-  Asset,
-  AssetBalance,
-  Router,
-  Relayer,
-  StableSwap,
-  OriginTransfer,
-  DestinationTransfer,
-  Setting,
-  OriginMessage,
-  AggregateRoot,
-  RootMessageSent,
-  RootMessageProcessed,
-  ConnectorMeta,
-} from "../../../generated/schema";
+import { AssetAdded } from "../../../generated/Connext/Connext";
+import { Asset } from "../../../generated/schema";
 
 /// MARK - Assets
 export function handleAssetAdded(event: AssetAdded): void {
@@ -52,6 +13,7 @@ export function handleAssetAdded(event: AssetAdded): void {
   asset.canonicalId = event.params.canonicalId;
   asset.canonicalDomain = event.params.domain;
   asset.adoptedAsset = event.params.adoptedAsset;
+  asset.localAsset = event.params.localAsset;
   asset.blockNumber = event.block.number;
   asset.save();
 }

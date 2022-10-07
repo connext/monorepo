@@ -1,4 +1,4 @@
-import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
+import { createLoggingContext, getChainData, Logger } from "@connext/nxtp-utils";
 import { getContractInterfaces, ChainReader, contractDeployments } from "@connext/nxtp-txservice";
 
 import { getConfig } from "../../config";
@@ -12,8 +12,7 @@ const context: ProverContext = {} as any;
 export const getContext = () => context;
 
 export const makeProver = async () => {
-  const requestContext = createRequestContext(makeProver.name);
-  const methodContext = createMethodContext(makeProver.name);
+  const { requestContext, methodContext } = createLoggingContext(makeProver.name);
 
   try {
     // Get ChainData and parse out configuration.
