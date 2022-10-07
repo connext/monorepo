@@ -1,6 +1,10 @@
 import * as fs from "fs";
+import * as path from "path";
 
-import { ProtocolStack } from "../helpers";
+import { ajv } from "@connext/nxtp-utils";
+
+import { InitConfig, InitConfigSchema, ProtocolStack } from "../helpers";
+import { chainIdToDomain } from "../../domain";
 
 /**
  * Load the protocol stack from the default config
@@ -15,5 +19,33 @@ export const getDefaulProtocolStack = (
   chainIds?: number[],
 ): ProtocolStack | undefined => {
   const json_filename = `${network}.${env}.json`;
-  throw new Error("Not implemented yet");
+  const file_path = path.join(__dirname, `./default/${json_filename}`);
+  if (!fs.existsSync(file_path)) {
+    return undefined;
+  }
+
+  const json = fs.readFileSync(file_path, { encoding: "utf-8" });
+  const config = JSON.parse(json) as InitConfig;
+
+  // schema validation for json config
+  const validate = ajv.compile(InitConfigSchema);
+  const valid = validate(config);
+  if (!valid) {
+    throw new Error(validate.errors?.map((err: unknown) => JSON.stringify(err, null, 2)).join(","));
+  }
+
+  // validation for the chainIds
+  const supported_domains = config.supportedDomains;
+  let active_domains: string[] = [];
+  if (chainIds) {
+    for (const chainId of chainIds) {
+      const domain = chainIdToDomain(chainId).toString();
+      if (!supported_domains.includes(domain)) {
+        throw new Error(`Unsupported chain: ${chainId}, domain: ${domain}, supported: ${supported_domains}`);
+      }
+      active_domains.push(domain);
+    }
+  } else {
+    active_domains = supported_domains;
+  }
 };

@@ -1,4 +1,37 @@
+import { Type, Static } from "@sinclair/typebox";
 import { Contract, providers, Wallet } from "ethers";
+
+// NOTE: Used to do a sanity check when loading default config from json files
+export const InitConfigSchema = Type.Object({
+  hub: Type.String(),
+  supportedDomains: Type.Array(Type.String()),
+  assets: Type.Array(
+    Type.Object({
+      name: Type.String(),
+      canonical: Type.Object({
+        domain: Type.String(),
+        address: Type.String(),
+      }),
+      representations: Type.Record(Type.String(), Type.Object({ local: Type.String(), adopted: Type.String() })),
+    }),
+  ),
+  agents: Type.Object({
+    watchers: Type.Object({
+      whitelist: Type.Array(Type.String()),
+    }),
+    routers: Type.Object({
+      whitelist: Type.Array(Type.String()),
+    }),
+    sequencers: Type.Object({
+      whitelist: Type.Array(Type.String()),
+    }),
+    relayers: Type.Object({
+      whitelist: Type.Array(Type.String()),
+    }),
+  }),
+});
+
+export type InitConfig = Static<typeof InitConfigSchema>;
 
 // NOTE: Agents will currently be whitelisted/blacklisted respectively on ALL domains.
 export type AgentStack = {
