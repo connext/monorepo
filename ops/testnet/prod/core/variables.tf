@@ -124,3 +124,7 @@ variable "sequencer_web3_signer_private_key" {
 variable "dd_api_key" {
   type = string
 }
+
+variable "gelato_api_key" {
+  type = string
+}
