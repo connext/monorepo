@@ -4,6 +4,7 @@ type Asset @entity {
   canonicalId: Bytes!
   canonicalDomain: BigInt!
   adoptedAsset: Bytes!
+  localAsset: Bytes!
   blockNumber: BigInt! # needed in case multiple locals are stored under the same canonicalId
 }
 
@@ -35,6 +36,12 @@ type Relayer @entity {
   id: ID!
   isActive: Boolean!
   relayer: Bytes
+}
+
+type Sequencer @entity {
+  id: ID!
+  isActive: Boolean!
+  sequencer: Bytes
 }
 
 type StableSwap @entity {
@@ -183,20 +190,6 @@ type RootMessageSent @entity {
   root: Bytes
 
   # MessageSent Transaction
-  caller: Bytes
-  transactionHash: Bytes
-  timestamp: BigInt
-  gasPrice: BigInt
-  gasLimit: BigInt
-  blockNumber: BigInt
-}
-
-type RootMessageProcessed @entity {
-  id: ID!
-
-  root: Bytes
-
-  # MessageProcessed Transaction
   caller: Bytes
   transactionHash: Bytes
   timestamp: BigInt

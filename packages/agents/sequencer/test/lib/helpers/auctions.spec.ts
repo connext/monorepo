@@ -90,7 +90,7 @@ describe("Helpers:Auctions", () => {
       const canonicalId = "0x123";
       const mockLocalAsset = "0x456";
       (ctxMock.adapters.subgraph as any).getAssetByLocal.resolves({ canonicalId });
-      (ctxMock.adapters.subgraph as any).getAssetByCanonicalId.resolves({ local: mockLocalAsset });
+      (ctxMock.adapters.subgraph as any).getAssetByCanonicalId.resolves({ localAsset: mockLocalAsset });
       const origin = mock.domain.A;
       const originLocal = mock.asset.A.address;
       const destination = mock.domain.B;
@@ -104,7 +104,7 @@ describe("Helpers:Auctions", () => {
       const canonicalId = "0x123";
       const mockLocalAsset = constants.AddressZero;
       (ctxMock.adapters.subgraph as any).getAssetByLocal.resolves({ canonicalId });
-      (ctxMock.adapters.subgraph as any).getAssetByCanonicalId.resolves({ local: mockLocalAsset });
+      (ctxMock.adapters.subgraph as any).getAssetByCanonicalId.resolves({ localAsset: mockLocalAsset });
       const origin = mock.domain.A;
       const originLocal = mock.asset.A.address;
       const destination = mock.domain.B;

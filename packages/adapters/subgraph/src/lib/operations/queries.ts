@@ -8,6 +8,31 @@ import {
 
 import { getContext } from "../../reader";
 
+export const ASSET_ENTITY = `
+      id,
+      key,
+      canonicalId,
+      canonicalDomain,
+      adoptedAsset,
+      localAsset,
+      blockNumber,
+`;
+export const ORIGIN_MESSAGE_ENTITY = `
+      id
+      leaf
+      index
+      root
+      message
+      transferId
+      destinationDomain
+      transactionHash
+`;
+export const DESTINATION_MESSAGE_ENTITY = `
+      id
+      leaf
+      processed
+      returnData
+`;
 export const ORIGIN_TRANSFER_ENTITY = `
       id
       chainId
@@ -32,36 +57,21 @@ export const ORIGIN_TRANSFER_ENTITY = `
     
       # Asset
       asset {
-        id
-        key
-        canonicalId
-        canonicalDomain
-        adoptedAsset
-        blockNumber
+        ${ASSET_ENTITY}
       }
 
       # Message
-      message {
-        id: ID!
-
-        # origin transfer data
-        transferId
-        destinationDomain
-        # Dispatch Transaction
-        leaf
-        index
-        root
-        message
-        transactionHash
+      message { 
+        ${ORIGIN_MESSAGE_ENTITY}
       }
-    
+
       # XCalled Transaction
-      caller: Bytes
+      caller
       transactionHash
-      timestamp: BigInt
-      gasPrice: BigInt
-      gasLimit: BigInt
-      blockNumber: BigInt
+      timestamp
+      gasPrice
+      gasLimit
+      blockNumber
 `;
 
 export const DESTINATION_TRANSFER_ENTITY = `
@@ -92,12 +102,7 @@ export const DESTINATION_TRANSFER_ENTITY = `
 
       # Asset
       asset {
-        id
-        key
-        canonicalId
-        canonicalDomain
-        adoptedAsset
-        blockNumber
+        ${ASSET_ENTITY}
       }
 
       # Executed Transaction
@@ -121,22 +126,6 @@ export const BLOCK_NUMBER_ENTITY = `
       block {
         number
       }
-`;
-
-export const ORIGIN_MESSAGE_ENTITY = `
-      id
-      leaf
-      index
-      root
-      message
-      transferId
-      destinationDomain
-`;
-export const DESTINATION_MESSAGE_ENTITY = `
-      id
-      leaf
-      processed
-      returnData
 `;
 export const ROOT_MESSAGE_SENT_ENTITY = `
       id
@@ -199,11 +188,7 @@ export const getAssetBalanceQuery = (prefix: string, router: string, local: stri
     ${prefix}_assetBalance(id: "${local}-${router}") {
       amount
       asset {
-        canonicalId
-        canonicalDomain
-        local
-        adoptedAsset
-        blockNumber
+        ${ASSET_ENTITY}
       }
     }`;
   return gql`
@@ -218,11 +203,7 @@ export const getAssetBalancesQuery = (prefix: string, router: string): string =>
     ${prefix}_assetBalances(where: { router: "${router}" }) {
       amount
       asset {
-          canonicalId
-          canonicalDomain
-          local
-          adoptedAsset
-          blockNumber
+        ${ASSET_ENTITY}
       }
     }`;
 
@@ -247,13 +228,10 @@ export const getAssetBalancesRoutersQuery = (
     orderDirection: ${orderDirection}) {
       id
       assetBalances {
+        id
         amount
         asset {
-          local
-          adoptedAsset
-          canonicalId
-          canonicalDomain
-          blockNumber
+          ${ASSET_ENTITY}
         }
       }
     }`;
@@ -280,13 +258,8 @@ export const getRouterQuery = (prefix: string, router: string): string => {
 
 export const getAssetByLocalQuery = (prefix: string, local: string): string => {
   const queryString = `
-    ${prefix}_assets(where: { local: "${local}" }) {
-      id
-      local
-      adoptedAsset
-      canonicalId
-      canonicalDomain
-      blockNumber
+    ${prefix}_assets(where: { id: "${local}" }) {
+      ${ASSET_ENTITY}
     }`;
   return gql`
     query GetAssetByLocal {
@@ -298,14 +271,8 @@ export const getAssetByLocalQuery = (prefix: string, local: string): string => {
 export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string): string => {
   const str = `
     ${prefix}_assets(where: { canonicalId: "${canonicalId}" }, orderBy: blockNumber, orderDirection: desc) {
-            id
-            local
-            adoptedAsset
-            canonicalId
-            canonicalDomain
-            blockNumber
-        }
-    `;
+          ${ASSET_ENTITY}
+        }`;
 
   return gql`
     query GetAssetByCanonicalId {
@@ -573,14 +540,33 @@ const destinationTransfersByIdsQueryString = (
   maxBlockNumber?: number,
   status?: XTransferStatus,
 ) => {
-  return `${prefix}_destinationTransfers ( where: { transferId_in: [${transferIds}] ${
-    maxBlockNumber ? `, executedBlockNumber_lte: ${maxBlockNumber}, reconciledBlockNumber_lte: ${maxBlockNumber}` : ""
-  } ${status ? `, status: ${status}` : ""}}, orderBy: nonce, orderDirection: desc) {${DESTINATION_TRANSFER_ENTITY}}`;
+  return `
+  ${prefix}_destinationTransfers ( 
+    where: { 
+      transferId_in: [${transferIds}] 
+      ${
+        maxBlockNumber
+          ? `, executedBlockNumber_lte: ${maxBlockNumber}, reconciledBlockNumber_lte: ${maxBlockNumber}`
+          : ""
+      } 
+      ${status ? `, status: ${status}` : ""}
+    }, 
+    orderBy: nonce, 
+    orderDirection: desc
+  ) {
+    ${DESTINATION_TRANSFER_ENTITY}
+  }`;
 };
 
 export const getDestinationTransfersByIdsQuery = (prefix: string, transferIds: string[]): string => {
   const queryStr = `
-    ${prefix}_destinationTransfers(where: { transferId_in: [${transferIds}] }) {${DESTINATION_TRANSFER_ENTITY}}`;
+    ${prefix}_destinationTransfers(
+      where: { 
+        transferId_in: [${transferIds}] 
+      }
+    ) {
+      ${DESTINATION_TRANSFER_ENTITY}
+    }`;
   return gql`
     query GetDestinationTransfers {
       ${queryStr}
@@ -609,7 +595,19 @@ export const getOriginMessagesByDomainAndIndexQuery = (
   let combinedQuery = "";
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
-    combinedQuery += `${prefix}_originMessages ( first: ${param.limit}, where: { index_gte: ${param.offset}, transferId_not: null, destinationDomain_not: null}) {${ORIGIN_MESSAGE_ENTITY}} orderBy: index, orderDirection: asc`;
+    combinedQuery += `
+    ${prefix}_originMessages ( 
+      first: ${param.limit}, 
+      where: { 
+        index_gte: ${param.offset}, 
+        transferId_not: null, 
+        destinationDomain_not: null
+      }
+    ) {
+      ${ORIGIN_MESSAGE_ENTITY}
+    } 
+    orderBy: index, 
+    orderDirection: asc`;
   }
 
   return gql`
@@ -625,7 +623,14 @@ export const getDestinationMessagesByDomainAndLeafQuery = (params: Map<string, s
   for (const domain of params.keys()) {
     const prefix = config.sources[domain].prefix;
     const leafs = [...params.get(domain)!.map((leaf) => `"${leaf}"`)];
-    combinedQuery += `${prefix}_destinationMessages ( where: { leaf_in: [${leafs}] }) {${DESTINATION_MESSAGE_ENTITY}}`;
+    combinedQuery += `
+    ${prefix}_destinationMessages ( 
+      where: { 
+        leaf_in: [${leafs}] 
+      }
+    ) {
+      ${DESTINATION_MESSAGE_ENTITY}
+    }`;
   }
 
   return gql`
@@ -642,7 +647,15 @@ export const getSentRootMessagesByDomainAndBlockQuery = (
   let combinedQuery = "";
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
-    combinedQuery += `${prefix}_rootMessageSent ( first: ${param.limit}, where: { blockNumber_gt: ${param.offset} }) {${ROOT_MESSAGE_SENT_ENTITY}}`;
+    combinedQuery += `
+    ${prefix}_rootMessageSents ( 
+      first: ${param.limit}, 
+      where: { 
+        blockNumber_gt: ${param.offset} 
+      }
+    ) {
+      ${ROOT_MESSAGE_SENT_ENTITY}
+    }`;
   }
 
   return gql`
@@ -659,7 +672,15 @@ export const getProcessedRootMessagesByDomainAndBlockQuery = (
   let combinedQuery = "";
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
-    combinedQuery += `${prefix}_rootMessageProcessed ( first: ${param.limit}, where: { blockNumber_gt: ${param.offset} }) {${ROOT_MESSAGE_PROCESSED_ENTITY}}`;
+    combinedQuery += `
+    ${prefix}_rootMessageProcesseds ( 
+      first: ${param.limit}, 
+      where: { 
+        blockNumber_gt: ${param.offset} 
+      }
+    ) {
+      ${ROOT_MESSAGE_PROCESSED_ENTITY}
+    }`;
   }
 
   return gql`

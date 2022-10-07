@@ -1,9 +1,9 @@
 import * as fs from "fs";
 
 import { getChainData, getChainIdFromDomain } from "@connext/nxtp-utils";
-import { providers, Wallet } from "ethers";
+import { providers, Wallet, utils } from "ethers";
 
-import { chainIdToDomain } from "../domain";
+import { canonizeId, chainIdToDomain } from "../domain";
 
 import { ProtocolStack, getDeployments, updateIfNeeded, NetworkStack, HubMessagingDeployments } from "./helpers";
 import { setupAsset } from "./helpers/assets";
@@ -148,7 +148,6 @@ export const sanitizeAndInit = async (config: any) => {
   /// MARK - Assets
   // If assets are not specified, just set an empty array.
   const assets = config.assets ?? [];
-  console.log({ assets });
   // All domains specified in AssetStack(s) must be included in domains.
   for (const asset of assets) {
     const domains = [asset.canonical.domain].concat(Object.keys(asset.representations as { [domain: string]: any }));
@@ -226,27 +225,25 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// MARK - Messaging
   await setupMessaging(protocol);
 
+  // ********************* CONNEXT *********************
   /// MARK - Enroll Handlers
-
-  /// ********************* CONNEXT *********************
-  /// MARK - Init
-  // Check to make sure Diamond Proxy is initialized.
-  /// MARK - Connextions
-  // console.log("\n\nSET CONNEXTIONS");
-  // // TODO/NOTE: Will likely be removing 'connextions' once we combine Connext+BridgeRouter.
-  // for (let i = 0; i < protocol.networks.length; i++) {
-  //   const targetNetwork = protocol.networks[i];
-  //   const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
-  //   for (const remoteNetwork of remoteNetworks) {
-  //     const desiredConnextion = remoteNetwork.deployments.Connext.address;
-  //     await updateIfNeeded({
-  //       deployment: targetNetwork.deployments.Connext,
-  //       desired: desiredConnextion,
-  //       read: { method: "connextion", args: [remoteNetwork.domain] },
-  //       write: { method: "addConnextion", args: [remoteNetwork.domain, desiredConnextion] },
-  //     });
-  //   }
-  // }
+  console.log("\n\nEnrolling handlers");
+  for (let i = 0; i < protocol.networks.length; i++) {
+    const targetNetwork = protocol.networks[i];
+    const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
+    for (const remoteNetwork of remoteNetworks) {
+      const desiredConnextion = remoteNetwork.deployments.Connext.address;
+      await updateIfNeeded({
+        deployment: targetNetwork.deployments.Connext,
+        desired: desiredConnextion,
+        read: { method: "remote", args: [remoteNetwork.domain] },
+        write: {
+          method: "enrollRemoteRouter",
+          args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
+        },
+      });
+    }
+  }
 
   /// ********************* ASSETS **********************
   /// MARK - Register Assets

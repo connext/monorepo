@@ -18,9 +18,7 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
     [utils.defaultAbiCoder.encode(["bytes32", "uint32"], [canonical.id, canonical.domain])],
   );
   console.log(
-    `\tVerifying asset setup for ${asset.name ?? asset.canonical.address}. Canonical ID: ${
-      canonical.id
-    }; Canonical Domain: ${canonical.domain}; Key: ${key}`,
+    `\tVerifying asset setup for ${asset.name} (${asset.canonical.address}). Canonical ID: ${canonical.id}; Canonical Domain: ${canonical.domain}; Key: ${key}`,
   );
 
   // Set up the canonical asset on the canonical domain.
@@ -37,7 +35,13 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
     read: { method: "canonicalToAdopted(bytes32)", args: [key] },
     write: {
       method: "setupAssetWithDeployedRepresentation",
-      args: [[canonical.domain, canonical.id], asset.canonical.address, constants.AddressZero, constants.AddressZero],
+      args: [
+        [canonical.domain, canonical.id],
+        asset.canonical.address,
+        constants.AddressZero,
+        constants.AddressZero,
+        0,
+      ],
     },
   });
 
@@ -69,7 +73,7 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
       read: { method: "canonicalToAdopted(bytes32)", args: [key] },
       write: {
         method: "setupAssetWithDeployedRepresentation",
-        args: [[canonical.domain, canonical.id], representation.local, desiredAdopted, stableswapPool],
+        args: [[canonical.domain, canonical.id], representation.local, desiredAdopted, stableswapPool, 0],
       },
     });
   }

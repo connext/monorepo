@@ -136,7 +136,9 @@ export const convertToRouterBalance = (routerBalanceRows: any[]): RouterBalance[
       canonicalDomain: routerBalanceRow.canonical_domain,
       canonicalId: routerBalanceRow.canonical_id,
       domain: routerBalanceRow.asset_domain,
-      local: routerBalanceRow.local,
+      id: routerBalanceRow.id,
+      localAsset: routerBalanceRow.local,
+      key: routerBalanceRow.key,
     };
     const found = routerBalances.find((r) => r.router === routerBalanceRow.router_address);
     if (found) {

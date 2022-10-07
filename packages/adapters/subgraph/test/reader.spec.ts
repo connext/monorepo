@@ -48,7 +48,7 @@ describe("SubgraphReader", () => {
   describe("#supported", () => {
     it("get supported domains", () => {
       console.log("subgraphReader.supported: ", subgraphReader.supported);
-      expect(subgraphReader.supported).to.be.deep.eq({ "1111": true, "3331": true, "5555555555555": false });
+      expect(subgraphReader.supported).to.be.deep.eq({ "1111": false, "3331": true, "5555555555555": false });
     });
   });
   describe("#query", () => {
@@ -82,7 +82,7 @@ describe("SubgraphReader", () => {
       expect(await subgraphReader.getAssetBalances("1111", mkAddress("0x111"))).to.be.deep.eq({});
     });
     it("happy: should return the asset balance", async () => {
-      response.set("1111", [[{ asset: { local: mkAddress("0x111") }, amount: "100" }]]);
+      response.set("1111", [[{ asset: { id: mkAddress("0x111") }, amount: "100" }]]);
       executeStub.resolves(response);
       expect(await subgraphReader.getAssetBalances("1111", mkAddress("0x11"))).to.be.deep.eq({
         "0x1110000000000000000000000000000000000000": BigNumber.from("100"),
@@ -100,7 +100,7 @@ describe("SubgraphReader", () => {
               {
                 asset: {
                   adoptedAsset: mkAddress("0x111"),
-                  local: mkAddress("0x222"),
+                  id: mkAddress("0x222"),
                   blockNumber: 50000,
                   canonicalDomain: "1111",
                   canonicalId: mkAddress("0x11111"),
@@ -119,7 +119,7 @@ describe("SubgraphReader", () => {
           assets: [
             {
               adoptedAsset: mkAddress("0x111"),
-              local: mkAddress("0x222"),
+              id: mkAddress("0x222"),
               blockNumber: 50000,
               canonicalDomain: "1111",
               canonicalId: mkAddress("0x11111"),
@@ -150,7 +150,7 @@ describe("SubgraphReader", () => {
       response.set("1111", [
         [
           {
-            local: mkAddress("0x111"),
+            id: mkAddress("0x111"),
             adoptedAsset: mkAddress("0x112"),
             canonicalId: mkBytes32(),
             canonicalDomain: "1111",
@@ -160,7 +160,7 @@ describe("SubgraphReader", () => {
       ]);
       executeStub.resolves(response);
       expect(await subgraphReader.getAssetByLocal("1111", mkAddress())).to.be.deep.eq({
-        local: mkAddress("0x111"),
+        id: mkAddress("0x111"),
         adoptedAsset: mkAddress("0x112"),
         canonicalId: mkBytes32(),
         canonicalDomain: "1111",
@@ -179,7 +179,7 @@ describe("SubgraphReader", () => {
       response.set("1111", [
         [
           {
-            local: mkAddress("0x111"),
+            id: mkAddress("0x111"),
             adoptedAsset: mkAddress("0x112"),
             canonicalId: mkBytes32(),
             canonicalDomain: "1111",
@@ -189,7 +189,7 @@ describe("SubgraphReader", () => {
       ]);
       executeStub.resolves(response);
       expect(await subgraphReader.getAssetByCanonicalId("1111", mkAddress())).to.be.deep.eq({
-        local: mkAddress("0x111"),
+        id: mkAddress("0x111"),
         adoptedAsset: mkAddress("0x112"),
         canonicalId: mkBytes32(),
         canonicalDomain: "1111",

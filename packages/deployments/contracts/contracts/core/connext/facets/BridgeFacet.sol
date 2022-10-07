@@ -75,6 +75,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param params - The `TransferInfo` provided to the function.
    * @param asset - The asset sent in with xcall
    * @param amount - The amount sent in with xcall
+   * @param local - The local asset that is controlled by the bridge and can be burned/minted
    */
   event XCalled(
     bytes32 indexed transferId,
@@ -82,7 +83,8 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 indexed messageHash,
     TransferInfo params,
     address asset,
-    uint256 amount
+    uint256 amount,
+    address local
   );
 
   /**
@@ -514,8 +516,8 @@ contract BridgeFacet is BaseConnextFacet {
         : AssetLogic.normalizeDecimals(ERC20(_asset).decimals(), uint8(18), _amount);
 
       // Calculate the transfer ID.
-      transferId = _calculateTransferId(_params);
       _params.nonce = s.nonce++;
+      transferId = _calculateTransferId(_params);
     }
 
     // Handle the relayer fee.
@@ -537,7 +539,7 @@ contract BridgeFacet is BaseConnextFacet {
     );
 
     // emit event
-    emit XCalled(transferId, _params.nonce, messageHash, _params, _asset, _amount);
+    emit XCalled(transferId, _params.nonce, messageHash, _params, _asset, _amount, local);
 
     return transferId;
   }
