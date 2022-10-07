@@ -28,8 +28,6 @@ export type { IERC20Upgradeable } from "./@openzeppelin/contracts-upgradeable/to
 export { IERC20Upgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable__factory";
 export type { ContextUpgradeable } from "./@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable";
 export { ContextUpgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable__factory";
-export type { EIP712Upgradeable } from "./@openzeppelin/contracts-upgradeable/utils/cryptography/draft-EIP712Upgradeable.sol/EIP712Upgradeable";
-export { EIP712Upgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/utils/cryptography/draft-EIP712Upgradeable.sol/EIP712Upgradeable__factory";
 export type { Ownable } from "./@openzeppelin/contracts/access/Ownable";
 export { Ownable__factory } from "./factories/@openzeppelin/contracts/access/Ownable__factory";
 export type { LibArbitrumL2 } from "./@openzeppelin/contracts/crosschain/arbitrum/LibArbitrumL2";

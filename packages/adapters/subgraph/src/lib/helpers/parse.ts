@@ -309,5 +309,6 @@ export const rootMessage = (entity: any): RootMessage => {
     gasPrice: entity.gasPrice,
     gasLimit: entity.gasLimit,
     blockNumber: entity.blockNumber,
+    processed: entity.processed,
   };
 };
