@@ -1,14 +1,14 @@
 /* eslint-disable prefer-const */
-import { NewConnector, MessageProcessed } from "../../generated/OptimismHubConnector/OptimismHubConnector";
-import { OptimismConnectorMeta, RootMessageProcessed } from "../../generated/schema";
+import { NewConnector, MessageProcessed } from "../../../generated/PolygonHubConnector/PolygonHubConnector";
+import { PolygonConnectorMeta, RootMessageProcessed } from "../../../generated/schema";
 
-const DEFAULT_OPTIMISM_HUB_CONNECTOR_META_ID = "OPTIMISM_HUB_CONNECTOR_META_ID";
+const DEFAULT_POLYGON_HUB_CONNECTOR_META_ID = "POLYGON_HUB_CONNECTOR_META_ID";
 
-/// MARK - OPTIMISM
-export function handleOptimismNewConnector(event: NewConnector): void {
-  let meta = OptimismConnectorMeta.load(DEFAULT_OPTIMISM_HUB_CONNECTOR_META_ID);
+/// MARK - POLYGON
+export function handlePolygonNewConnector(event: NewConnector): void {
+  let meta = PolygonConnectorMeta.load(DEFAULT_POLYGON_HUB_CONNECTOR_META_ID);
   if (meta == null) {
-    meta = new OptimismConnectorMeta(DEFAULT_OPTIMISM_HUB_CONNECTOR_META_ID);
+    meta = new PolygonConnectorMeta(DEFAULT_POLYGON_HUB_CONNECTOR_META_ID);
   }
 
   meta.spokeDomain = event.params.mirrorDomain;
@@ -21,15 +21,15 @@ export function handleOptimismNewConnector(event: NewConnector): void {
   meta.save();
 }
 
-export function handleOptimismMessageProcessed(event: MessageProcessed): void {
+export function handlePolygonMessageProcessed(event: MessageProcessed): void {
   let message = RootMessageProcessed.load(event.params.data.toHexString());
   if (message == null) {
     message = new RootMessageProcessed(event.params.data.toHexString());
   }
 
-  let meta = OptimismConnectorMeta.load(DEFAULT_OPTIMISM_HUB_CONNECTOR_META_ID);
+  let meta = PolygonConnectorMeta.load(DEFAULT_POLYGON_HUB_CONNECTOR_META_ID);
   if (meta == null) {
-    meta = new OptimismConnectorMeta(DEFAULT_OPTIMISM_HUB_CONNECTOR_META_ID);
+    meta = new PolygonConnectorMeta(DEFAULT_POLYGON_HUB_CONNECTOR_META_ID);
   }
 
   message.spokeDomain = meta.spokeDomain;
