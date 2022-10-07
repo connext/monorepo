@@ -27,6 +27,7 @@ import {
   saveSentRootMessages,
   saveProcessedRootMessages,
   getPendingMessages,
+  getRootMessages,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -425,31 +426,60 @@ describe("Database client", () => {
 
   it("should save multiple sent root messages", async () => {
     const messages: RootMessage[] = [];
-    for (var _i = 0; _i < batchSize; _i++) {
+    for (let _i = 0; _i < batchSize; _i++) {
       messages.push(mock.entity.rootMessage());
     }
     await saveSentRootMessages(messages, pool);
+    const _messages = await getRootMessages(undefined, 100, "ASC", pool);
+    expect(_messages).to.deep.eq(messages);
   });
 
-  it("should upsert multiple sent messages", async () => {
+  it("should upsert multiple processed messages on top of sent messages and set processed = true", async () => {
     const messages: RootMessage[] = [];
-    for (var _i = 0; _i < batchSize; _i++) {
+    for (let _i = 0; _i < batchSize; _i++) {
       messages.push(mock.entity.rootMessage());
     }
-    await saveSentRootMessages(messages, pool);
 
-    for (let message of messages) {
-      message.root = "0xroot";
-    }
+    // processed should overwrite and set processed true
     await saveSentRootMessages(messages, pool);
-  });
-
-  it("should save multiple processed root messages", async () => {
-    const messages: RootMessage[] = [];
-    for (var _i = 0; _i < batchSize; _i++) {
-      messages.push(mock.entity.rootMessage());
-    }
     await saveProcessedRootMessages(messages, pool);
+
+    const _messages = await getRootMessages(undefined, 100, "ASC", pool);
+    expect(_messages).to.deep.eq(
+      messages.map((m) => {
+        return { ...m, processed: true };
+      }),
+    );
+  });
+
+  it("should not set processed to false", async () => {
+    const messages: RootMessage[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      messages.push(mock.entity.rootMessage());
+    }
+
+    // sent should not overwrite to processed = false
+    await saveProcessedRootMessages(messages, pool);
+    await saveSentRootMessages(messages, pool);
+
+    const _messages = await getRootMessages(undefined, 100, "ASC", pool);
+    expect(_messages).to.deep.eq(
+      messages.map((m) => {
+        return { ...m, processed: true };
+      }),
+    );
+  });
+
+  it.only("should get processed only", async () => {
+    const messages: RootMessage[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      messages.push(mock.entity.rootMessage());
+    }
+    await saveSentRootMessages(messages, pool);
+    await saveProcessedRootMessages(messages.slice(batchSize / 2 - 1), pool);
+
+    const _messages = await getRootMessages(true, 100, "ASC", pool);
+    expect(_messages).to.deep.eq(messages.slice(batchSize / 2 - 1).map((m) => ({ ...m, processed: true })));
   });
 
   it("should upsert multiple processed messages", async () => {

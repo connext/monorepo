@@ -385,6 +385,7 @@ export const mock = {
       gasPrice: utils.parseUnits("5", "gwei").toString(),
       gasLimit: "100000",
       blockNumber: Math.floor(Date.now() / 1000),
+      processed: false,
       ...overrides,
     }),
   },

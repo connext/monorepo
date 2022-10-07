@@ -178,13 +178,19 @@ export const saveProcessedRootMessages = async (
     .run(poolToUse);
 };
 
-export const getUnProcessedRootMessages = async (
+export const getRootMessages = async (
+  processed: boolean | undefined,
   limit = 100,
   orderDirection: "ASC" | "DESC" = "ASC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<RootMessage[]> => {
+  const poolToUse = _pool ?? pool;
   const messages = await db
-    .select("root_messages", { processed: false }, { limit, order: { by: "block_number", direction: orderDirection } })
-    .run(pool);
+    .select("root_messages", processed === undefined ? {} : { processed }, {
+      limit,
+      order: { by: "block_number", direction: orderDirection },
+    })
+    .run(poolToUse);
   return messages.map(convertFromDbRootMessage);
 };
 

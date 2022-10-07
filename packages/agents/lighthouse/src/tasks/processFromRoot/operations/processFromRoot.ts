@@ -33,7 +33,7 @@ export const processFromRoot = async () => {
 
   const { requestContext: _requestContext, methodContext } = createLoggingContext("processFromRoot");
   logger.info("processFromRoot method start", _requestContext, methodContext);
-  const unprocessed = await database.getUnProcessedRootMessages();
+  const unprocessed = await database.getRootMessages(false);
   logger.info("Got unprocessed root messages", _requestContext, methodContext, { unprocessed });
 
   await Promise.all(
@@ -41,8 +41,8 @@ export const processFromRoot = async () => {
       const requestContext = createRequestContext("processFromRoot", msg.transactionHash);
       logger.info("Processing root message", requestContext, methodContext, { msg });
 
-      const spokeChain = chainData.get(msg.spokeDomain)?.chainId;
-      const hubChain = chainData.get(msg.hubDomain)?.chainId;
+      const spokeChain = chainData.get(msg.spokeDomain as string)?.chainId;
+      const hubChain = chainData.get(msg.hubDomain as string)?.chainId;
       const processorConfig = processorConfigs[msg.spokeDomain];
       const spokeProvider = config.chains[msg.spokeDomain]?.providers?.[0];
       const hubProvider = config.chains[msg.hubDomain]?.providers?.[0];
@@ -58,13 +58,19 @@ export const processFromRoot = async () => {
           "Incomplete config for processing from root",
           requestContext,
           methodContext,
-          new ProcessConfigNotAvailable(msg.spokeDomain, msg.hubDomain, requestContext, methodContext, {
-            spokeChain,
-            hubChain,
-            spokeProvider,
-            hubProvider,
-            hubConnector: hubConnector?.address,
-          }),
+          new ProcessConfigNotAvailable(
+            msg.spokeDomain as string,
+            msg.hubDomain as string,
+            requestContext,
+            methodContext,
+            {
+              spokeChain,
+              hubChain,
+              spokeProvider,
+              hubProvider,
+              hubConnector: hubConnector?.address,
+            },
+          ),
         );
         return;
       }
@@ -74,7 +80,7 @@ export const processFromRoot = async () => {
         hubChain,
         new providers.JsonRpcProvider(spokeProvider),
         new providers.JsonRpcProvider(hubProvider),
-        msg.transactionHash,
+        msg.transactionHash as string,
         requestContext,
       );
 
@@ -114,7 +120,7 @@ export const processFromRoot = async () => {
 
       const taskId = await relayer.send(
         hubChain,
-        hubConnector.address as string,
+        hubConnector.address,
         encodedData,
         config.gelatoApiKey,
         logger,

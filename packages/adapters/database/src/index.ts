@@ -23,7 +23,7 @@ import {
   saveCheckPoint,
   getCheckPoint,
   transaction,
-  getUnProcessedRootMessages,
+  getRootMessages,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -56,7 +56,12 @@ export type Database = {
   ) => Promise<string[]>;
   saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveMessages: (messages: XMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
-  getUnProcessedRootMessages: (limit?: number, orderDirection?: "ASC" | "DESC") => Promise<RootMessage[]>;
+  getRootMessages: (
+    processed: boolean | undefined,
+    limit?: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<RootMessage[]>;
   saveSentRootMessages: (messages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveProcessedRootMessages: (messages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   getPendingMessages: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<XMessage[]>;
@@ -85,7 +90,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getTransfersWithDestinationPending,
     saveRouterBalances,
     saveMessages,
-    getUnProcessedRootMessages,
+    getRootMessages,
     saveSentRootMessages,
     saveProcessedRootMessages,
     getPendingMessages,
