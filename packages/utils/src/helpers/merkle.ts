@@ -69,7 +69,7 @@ export class SparseMerkleTree {
   }
 
   // Hash function used.
-  private hash = (a: string, b: string) => {
+  public static hash = (a: string, b: string) => {
     return utils.solidityKeccak256(["bytes32", "bytes32"], [a, b]);
   };
 
@@ -88,7 +88,7 @@ export class SparseMerkleTree {
     const zeroHashes = ZERO_HASHES();
     let current = this.getSubtreeRoot(depth, nodes);
     for (let i = depth - 1; i >= 0; i--) {
-      current = this.hash(current, zeroHashes[i]);
+      current = SparseMerkleTree.hash(current, zeroHashes[i]);
     }
     return current;
   }
@@ -107,7 +107,7 @@ export class SparseMerkleTree {
       // Must be hashed in order (left node, right node).
       const isLeft = path[i] === "0";
       const args = isLeft ? [current, proof[i]] : [proof[i], current];
-      current = this.hash(args[0], args[1]);
+      current = SparseMerkleTree.hash(args[0], args[1]);
       if (this._debugLog) {
         console.log(path[i], ": Hashed", args[0], "with", args[1], "to get", current);
       }
@@ -253,7 +253,7 @@ export class SparseMerkleTree {
 
         // TODO: Check if the two roots are both the same zero hash, could skip hashing since
         // result would be known...
-        roots[i] = this.hash(roots[a], roots[b]);
+        roots[i] = SparseMerkleTree.hash(roots[a], roots[b]);
       }
 
       roots = roots.slice(0, i);
