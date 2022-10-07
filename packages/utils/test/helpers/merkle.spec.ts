@@ -3,9 +3,9 @@ import { constants } from "ethers";
 
 import { DBImpl, SparseMerkleTree, ZERO_HASHES } from "../../src/helpers/merkle";
 
-describe.only("Helpers: Merkle", () => {
+describe("Helpers: Merkle", () => {
   const TREE_HEIGHT = 32;
-  const SAMPLE_HASH_COUNT = 123;
+  const SAMPLE_HASH_COUNT = 100_000;
   const SAMPLE_HASHES: string[] = [];
 
   before(() => {
@@ -153,25 +153,30 @@ describe.only("Helpers: Merkle", () => {
 
     describe("#getMerkleProof", () => {
       it("should get merkle proof", async () => {
-        console.log("Calculating expected root...");
         const expectedRoot = mockle.root();
-        console.log("EXPECTED ROOT:", expectedRoot, "\n\n");
 
         // Pick a random leaf for whom we want to get the proof.
-        const index = 57; // This index is definitely random, I generated it myself.
+        const index = 5731; // This index is definitely random, I generated it myself.
         const leaf: string = (await db.getNode(index))!;
-        console.log("Getting proof for leaf:", leaf, "at index:", index);
 
+        const start = Date.now();
         const proof = await merkle.getProof(index);
+        console.log(`Calculated proof. Took: ${Date.now() - start}ms`);
+
         expect(proof.length).to.be.eq(TREE_HEIGHT);
+
+        // Verify using the same lib:
         const result = merkle.verify(index, leaf, proof, expectedRoot);
+        // Verify using the mock of the on-chain behavior for `branchRoot`:
         const mockBranchRoot = MockMerkleLib.branchRoot(leaf, proof, index);
-        console.log({
-          ...result,
-          expected: expectedRoot,
-          mockBranchRoot: mockBranchRoot,
-          proof,
-        });
+
+        // console.log({
+        //   ...result,
+        //   mockExpectedRoot: expectedRoot,
+        //   mockBranchRoot: mockBranchRoot,
+        //   proof,
+        // });
+
         expect(result.verified).to.be.true;
         expect(result.calculated).to.be.eq(expectedRoot);
         expect(result.calculated).to.be.eq(mockBranchRoot);
