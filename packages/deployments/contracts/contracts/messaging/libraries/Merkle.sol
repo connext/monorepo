@@ -25,13 +25,53 @@ library MerkleLib {
     uint256 count;
   }
 
+  // ========= In-Memory Methods =========
+
+  /**
+   * @notice Inserts a given node (leaf) into merkle tree. Operates on an in-memory tree and
+   * returns an updated version of that tree.
+   * @dev Reverts if the tree is already full.
+   * @param node Element to insert into tree.
+   * @return Tree Updated tree.
+   **/
+  // function insert(Tree memory tree, bytes32 node) internal pure returns (Tree memory) {
+  //   uint256 size = tree.count + 1; // Add 1 since we'll be including a new node.
+  //   if (tree.count >= MAX_LEAVES) revert MerkleLib__insert_treeIsFull();
+
+  //   // Update tree.count to increase the current count by 1.
+  //   tree.count = size;
+
+  //   // Loop starting at 0, ending when we've finished inserting the node (i.e. hashing it) into
+  //   // the active branch. Each loop we cut size in half, hashing the inserted node up the active
+  //   // branch along the way.
+  //   for (uint256 i; i < TREE_DEPTH; ) {
+  //     // Check if the current size is odd; if so, we set this index in the branch to be the node.
+  //     if ((size & 1) == 1) {
+  //       // If i > 0, then this node will be a hash of the original node with every layer up
+  //       // until layer `i`.
+  //       tree.branch[i] = node;
+  //       return tree;
+  //     }
+  //     // If the size is not yet odd, we hash the current index in the tree branch with the node.
+  //     node = keccak256(abi.encodePacked(tree.branch[i], node));
+  //     size /= 2;
+
+  //     unchecked {
+  //       ++i;
+  //     }
+  //   }
+  //   // As the loop should always end prematurely with the `return` statement, this code should
+  //   // be unreachable. We revert here just to be safe.
+  //   revert MerkleLib__insert_treeIsFull();
+  // }
+
   // ========= Storage Methods =========
 
   /**
    * @notice Inserts a given node (leaf) into merkle tree.
    * @dev Reverts if the tree is already full.
    * @param node Element to insert into tree.
-   * @return uint256 updated count (number of nodes in the tree).
+   * @return uint256 Updated count (number of nodes in the tree).
    **/
   function insert(Tree storage tree, bytes32 node) internal returns (uint256) {
     uint256 size = tree.count + 1; // Add 1 since we'll be including a new node.

@@ -106,24 +106,24 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    * provided for convenience.
    */
   function insert(bytes32[] memory leaves) public onlyArborist returns (bytes32 _root, uint256 _count) {
-    // NOTE: Considerably more efficient to put this tree into memory, conduct operations,
-    // then re-assign it to storage.
-    MerkleLib.Tree memory _tree = tree;
+    // TODO: Considerably more efficient to put this tree into memory, conduct operations,
+    // then re-assign it to storage - *especially* if we have multiple leaves to insert.
+    // MerkleLib.Tree memory _tree = tree;
 
     for (uint256 i; i < leaves.length; ) {
       // Insert the new node.
-      _tree = _tree.insert(leaves[i]);
+      tree.insert(leaves[i]);
       unchecked {
         ++i;
       }
     }
 
     // Get return details for convenience.
-    _root = _tree.root();
-    _count = _tree.count;
+    _root = tree.root();
+    _count = tree.count;
 
-    // Write the newly updated tree to storage.
-    tree = _tree;
+    // TODO: IFF using tree assigned to memory, write the newly updated tree to storage.
+    // tree = _tree;
   }
 
   /**
