@@ -52,7 +52,7 @@ export const processFromRoot = async () => {
       logger.info("Processing root message", requestContext, methodContext, { msg });
 
       try {
-        await processSingleRootMessage(msg as RootMessage, requestContext);
+        await processSingleRootMessage(msg, requestContext);
       } catch (err: unknown) {
         logger.error("Error processing from root", requestContext, methodContext, jsonifyError(err as NxtpError));
       }
