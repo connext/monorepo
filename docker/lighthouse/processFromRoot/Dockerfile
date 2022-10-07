@@ -1,17 +1,15 @@
 FROM node:16-alpine as node
 
 # ----------------------------------------
-# Builds Docker container for nxtp-poller package.
+# Builds Docker container for nxtp-router package.
 # @dev configuraion located ./config.json (relative to this file)
+
 
 # ----------------------------------------
 
 FROM node as build
 RUN apk update
 RUN apk add git curl
-
-RUN curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 && \
-        chmod +x /usr/local/bin/dbmate
 
 ENV HOME=/tmp/build \
     PATH=/tmp/build/node_modules/.bin:./node_modules/.bin:${PATH}
@@ -27,8 +25,9 @@ ARG TEMP_DEPS_DIR
 COPY .yarn /tmp/build/.yarn/
 COPY .yarnrc.yml /tmp/build/
 COPY package.json /tmp/build/
-COPY packages/agents/cartographer/poller/package.json /tmp/build/packages/agents/cartographer/poller/
-COPY packages/adapters/subgraph/package.json /tmp/build/packages/adapters/subgraph/
+COPY packages/agents/lighthouse/package.json /tmp/build/packages/agents/lighthouse/
+COPY packages/adapters/txservice/package.json /tmp/build/packages/adapters/txservice/
+COPY packages/deployments/contracts/package.json /tmp/build/packages/deployments/contracts/
 COPY packages/adapters/database/package.json /tmp/build/packages/adapters/database/
 COPY packages/utils/package.json /tmp/build/packages/utils/
 COPY yarn.lock /tmp/build/
@@ -39,8 +38,9 @@ RUN yarn install
 
 # ----- Copy source and all other files that affect lint, test, build -----
 COPY config config/
-COPY packages/agents/cartographer/poller /tmp/build/packages/agents/cartographer/poller
-COPY packages/adapters/subgraph /tmp/build/packages/adapters/subgraph
+COPY packages/agents/lighthouse/ /tmp/build/packages/agents/lighthouse/
+COPY packages/adapters/txservice /tmp/build/packages/adapters/txservice
+COPY packages/deployments/contracts /tmp/build/packages/deployments/contracts/
 COPY packages/adapters/database /tmp/build/packages/adapters/database
 COPY packages/utils /tmp/build/packages/utils
 COPY .eslintignore /tmp/build/
@@ -55,21 +55,20 @@ RUN yarn build
 
 FROM node as runtime
 
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    PORT=8080
 
 ARG COMMIT_HASH
 ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
 
 # ----- Copy files required at runtime by the app -----
 COPY --from=build --chown=node:node /tmp/build /home/node
-COPY --from=build --chown=node:node /usr/local/bin/dbmate /usr/local/bin/dbmate
-
-COPY docker/cartographer/transfers/docker-entrypoint.sh /home/node/packages/agents/cartographer/poller
-RUN chmod +x /home/node/packages/agents/cartographer/poller/docker-entrypoint.sh
 
 # This user is created in the base image with uid and gid = 1000.
 USER node
 
-WORKDIR /home/node/packages/agents/cartographer/poller
+WORKDIR /home/node/packages/agents/lighthouse
 
-CMD ./docker-entrypoint.sh
+EXPOSE 8080
+
+CMD ["node", "--trace-warnings", "dist/tasks/processFromRoot/index.js"]
