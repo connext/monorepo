@@ -5,13 +5,13 @@
     "source": [
       {
         "name": "PolygonHubConnector",
-        "address": "0x51aF1eABBE220C8d687142376E0173Bb18E07b0d",
-        "startBlock": 7584639
+        "address": "0x0E77208359bC266A9EF04048916072Af45B696d6",
+        "startBlock": 7726675
       },
       {
         "name": "OptimismHubConnector",
-        "address": "0x86443d940cEE4FCeD0C9640109BdF277b9D0248A",
-        "startBlock": 7584635
+        "address": "0x62796c10DCEeff1c6262FA6521Ec9E693Ed237ca",
+        "startBlock": 7726673
       }
     ]
   }
