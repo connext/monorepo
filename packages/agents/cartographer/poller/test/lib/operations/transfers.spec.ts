@@ -43,6 +43,7 @@ const mockConfig: CartographerConfig = {
   logLevel: "silent",
   database: { url: "postgres://postgres:qwery@localhost:5432/connext?sslmode=disable" },
   environment: "production",
+  chains: {},
 };
 
 const mockChainData = chainDataToMap([
