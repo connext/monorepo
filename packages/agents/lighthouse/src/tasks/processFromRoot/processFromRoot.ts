@@ -5,10 +5,10 @@ import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
 import { setupRelayer } from "../../adapters";
 import { getConfig } from "../../config";
 
-import { ProcessOptimismContext } from "./context";
+import { ProcessFromRootContext } from "./context";
 import { processFromRoot } from "./operations";
 
-const context: ProcessOptimismContext = {} as any;
+const context: ProcessFromRootContext = {} as any;
 export const getContext = () => context;
 
 export const makeProcessFromRoot = async () => {

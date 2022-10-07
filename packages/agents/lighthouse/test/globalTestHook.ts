@@ -3,12 +3,16 @@ import { Logger, mkAddress } from "@connext/nxtp-utils";
 import { parseUnits } from "ethers/lib/utils";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import { ProverContext } from "../src/tasks/prover/context";
+import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
 import { mock } from "./mock";
 import * as ProverFns from "../src/tasks/prover/prover";
+import * as ProcessFromRootFns from "../src/tasks/processFromRoot/processFromRoot";
 import * as Mockable from "../src/mockable";
 import { AxiosRequestConfig } from "axios";
 
 export let proverCtxMock: ProverContext;
+export let processFromRootCtxMock: ProcessFromRootContext;
+
 export let chainReaderMock: SinonStubbedInstance<ChainReader>;
 export let gelatoSendStub: SinonStub<any[], any>;
 export let gelatoSDKSendStub: SinonStub<any[], any>;
@@ -36,18 +40,12 @@ export const mochaHooks = {
     chainReaderMock = createStubInstance(ChainReader);
     chainReaderMock.getGasEstimate.resolves(parseUnits("1", 9));
     chainReaderMock.getGasEstimateWithRevertCode.resolves(parseUnits("1", 9));
-    proverCtxMock = {
-      adapters: {
-        chainreader: chainReaderMock,
-        contracts: mock.context().adapters.contracts,
-        relayer: mock.context().adapters.relayer,
-        cartographer: mock.context().adapters.cartographer,
-      },
-      config: mock.config(),
-      chainData: mock.context().chainData,
-      logger: new Logger({ name: "test", level: process.env.LOG_LEVEL || "silent" }),
-    };
+
+    proverCtxMock = mock.proverCtx();
     stub(ProverFns, "getContext").returns(proverCtxMock);
+
+    processFromRootCtxMock = mock.processFromRootCtx();
+    stub(ProcessFromRootFns, "getContext").returns(processFromRootCtxMock);
   },
   afterEach() {
     restore();

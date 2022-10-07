@@ -5,7 +5,7 @@ import { Database } from "@connext/nxtp-adapters-database";
 import { NxtpLighthouseConfig } from "../../config";
 import { Relayer } from "../../adapters";
 
-export type ProcessOptimismContext = {
+export type ProcessFromRootContext = {
   logger: Logger;
   adapters: {
     // Stateful interfaces for peripherals.

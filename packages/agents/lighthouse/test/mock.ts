@@ -6,6 +6,9 @@ import { mkAddress, Logger, mock as _mock, mkBytes32, createLoggingContext, XMes
 import { NxtpLighthouseConfig } from "../src/config";
 import { ProverContext } from "../src/tasks/prover/context";
 import { Cartographer } from "../src/tasks/prover/adapters";
+import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
+import { Database } from "@connext/nxtp-adapters-database";
+import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
 
 export const mockTaskId = mkBytes32("0xabcdef123");
 export const mockRelayerAddress = mkAddress("0xabcdef123");
@@ -23,7 +26,7 @@ export const mockXMessage2: XMessage = {
 
 export const mock = {
   ..._mock,
-  context: (): ProverContext => {
+  proverCtx: (): ProverContext => {
     return {
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
       adapters: {
@@ -31,6 +34,19 @@ export const mock = {
         contracts: mock.adapters.contracts(),
         relayer: mock.adapters.relayer(),
         cartographer: mock.adapters.cartographer(),
+      },
+      config: mock.config(),
+      chainData: mock.chainData(),
+    };
+  },
+  processFromRootCtx: (): ProcessFromRootContext => {
+    return {
+      logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
+      adapters: {
+        chainreader: mock.adapters.chainreader(),
+        contracts: mock.adapters.deployments(),
+        relayer: mock.adapters.relayer(),
+        database: mock.adapters.database(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -111,6 +127,15 @@ export const mock = {
         spokeConnector: spokeConnector as unknown as ConnextContractInterfaces["spokeConnector"],
       };
     },
+    deployments: (): SinonStubbedInstance<ConnextContractDeployments> => {
+      return {
+        connext: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        hubConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        priceOracle: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        spokeConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        stableSwap: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+      };
+    },
     relayer: () => {
       return {
         getRelayerAddress: stub().resolves(mockRelayerAddress),
@@ -123,6 +148,9 @@ export const mock = {
         getSentRootMessages: stub().resolves([]),
         getUnProcessedRootMessages: stub().resolves([]),
       };
+    },
+    database: (): Database => {
+      return mockDatabase();
     },
   },
   contracts: {
