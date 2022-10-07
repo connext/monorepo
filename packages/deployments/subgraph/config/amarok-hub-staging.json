@@ -4,6 +4,11 @@
     "network": "goerli",
     "source": [
       {
+        "name": "RootManager",
+        "address": "0x3878105118Ec49EAB5d5a9E93010daE493a7c3Ce",
+        "startBlock": 7726656
+      },
+      {
         "name": "PolygonHubConnector",
         "address": "0x0E77208359bC266A9EF04048916072Af45B696d6",
         "startBlock": 7726675
