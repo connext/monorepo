@@ -5,7 +5,7 @@ import { getConfig } from "../../config";
 
 import { ProverContext } from "./context";
 import { proveAndProcess } from "./operations";
-import { setupCartographer, setupRelayer } from "./adapters";
+import { setupDbClient, setupRelayer } from "./adapters";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: ProverContext = {} as any;
@@ -44,7 +44,7 @@ export const makeProver = async () => {
       context.logger.child({ module: "ChainReader" }),
       context.config.chains,
     );
-    context.adapters.cartographer = await setupCartographer();
+    context.adapters.database = await setupDbClient();
     context.adapters.relayer = await setupRelayer();
     context.adapters.contracts = getContractInterfaces();
 

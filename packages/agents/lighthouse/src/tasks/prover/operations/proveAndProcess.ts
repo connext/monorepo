@@ -1,4 +1,4 @@
-import { createLoggingContext, jsonifyError, NxtpError, XMessage } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, NxtpError, XMessage, SparseMerkleTree } from "@connext/nxtp-utils";
 import { constants } from "ethers";
 
 import { NoDestinationDomainForProof } from "../../../errors";
@@ -8,10 +8,10 @@ export const proveAndProcess = async () => {
   const { requestContext, methodContext } = createLoggingContext(proveAndProcess.name);
   const {
     logger,
-    adapters: { cartographer },
+    adapters: { database },
   } = getContext();
 
-  const unprocessed = await cartographer.getUnProcessedMessages();
+  const unprocessed = await database.getUnProcessedMessages();
   logger.info("Got unprocessed messages", requestContext, methodContext, { unprocessed });
 
   // process messages
