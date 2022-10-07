@@ -927,7 +927,7 @@
           ]
         },
         "BridgeFacetStaging": {
-          "address": "0x743A04AD926b5342e996EBb91c9F11b91AA96655",
+          "address": "0xD7d5E22A486d0c9F71616eB724095d7F37f351Bd",
           "abi": [
             {
               "inputs": [],
@@ -24202,7 +24202,7 @@
       "chainId": "420",
       "contracts": {
         "BridgeFacetStaging": {
-          "address": "0x743A04AD926b5342e996EBb91c9F11b91AA96655",
+          "address": "0x59a96C9D1Fdcf65b3141E28cc41b109662A13a86",
           "abi": [
             {
               "inputs": [],
