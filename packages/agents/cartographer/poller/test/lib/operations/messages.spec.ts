@@ -128,18 +128,12 @@ describe("Message operations", () => {
 
     (mockContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockBlockNumber);
 
-    const getCheckPointStub = stub(mockContext.adapters.database, "getCheckPoint");
-    getCheckPointStub.resolves(0);
-    const saveCheckPointStub = stub(mockContext.adapters.database, "saveCheckPoint");
-    saveCheckPointStub.resolves();
-    const saveMessages = stub(mockContext.adapters.database, "saveMessages");
-    saveMessages.resolves();
-    const saveSentRootMessagesStub = stub(mockContext.adapters.database, "saveSentRootMessages");
-    saveSentRootMessagesStub.resolves();
-    const saveProcessedRootMessagesStub = stub(mockContext.adapters.database, "saveProcessedRootMessages");
-    saveProcessedRootMessagesStub.resolves();
-    const getPendingMessagesStub = stub(mockContext.adapters.database, "getPendingMessages");
-    getPendingMessagesStub.resolves([]);
+    mockContext.adapters.database.getCheckPointStub.resolves(0);
+    mockContext.adapters.database.saveCheckPointStub.resolves();
+    mockContext.adapters.database.saveMessages.resolves();
+    mockContext.adapters.database.saveSentRootMessagesStub.resolves();
+    mockContext.adapters.database.saveProcessedRootMessagesStub.resolves();
+    mockContext.adapters.database.getPendingMessagesStub.resolves([]);
   });
 
   afterEach(() => {

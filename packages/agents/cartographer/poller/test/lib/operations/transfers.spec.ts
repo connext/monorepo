@@ -136,29 +136,17 @@ describe("Backend operations", () => {
       domains: ["1337", "1338"],
     };
 
-    const saveTransfersStub = stub(mockContext.adapters.database, "saveTransfers");
-    saveTransfersStub.resolves();
-    const getTransfersByStatusStub = stub(mockContext.adapters.database, "getTransfersByStatus");
-    getTransfersByStatusStub.onFirstCall().resolves(mockOriginSubgraphResponse);
-    getTransfersByStatusStub.onSecondCall().resolves(mockOriginSubgraphResponse);
-    getTransfersByStatusStub.onThirdCall().resolves(mockOriginSubgraphResponse);
-    const saveRouterBalancesStub = stub(mockContext.adapters.database, "saveRouterBalances");
-    saveRouterBalancesStub.resolves();
-    const getCheckPointStub = stub(mockContext.adapters.database, "getCheckPoint");
-    getCheckPointStub.resolves(0);
-    const saveCheckPointStub = stub(mockContext.adapters.database, "saveCheckPoint");
-    saveCheckPointStub.resolves();
-    const getTransfersWithOriginPendingStub = stub(mockContext.adapters.database, "getTransfersWithOriginPending");
-    getTransfersWithOriginPendingStub.resolves([]);
-    const getTransfersWithDestinationPendingStub = stub(
-      mockContext.adapters.database,
-      "getTransfersWithDestinationPending",
-    );
-    getTransfersWithDestinationPendingStub.resolves([]);
-    const saveMessages = stub(mockContext.adapters.database, "saveMessages");
-    saveMessages.resolves();
-    const getPendingMessagesStub = stub(mockContext.adapters.database, "getPendingMessages");
-    getPendingMessagesStub.resolves([]);
+    mockContext.adapters.database.saveTransfersStub.resolves();
+    mockContext.adapters.database.getTransfersByStatusStub.onFirstCall().resolves(mockOriginSubgraphResponse);
+    mockContext.adapters.database.getTransfersByStatusStub.onSecondCall().resolves(mockOriginSubgraphResponse);
+    mockContext.adapters.database.getTransfersByStatusStub.onThirdCall().resolves(mockOriginSubgraphResponse);
+    mockContext.adapters.database.saveRouterBalancesStub.resolves();
+    mockContext.adapters.database.getCheckPointStub.resolves(0);
+    mockContext.adapters.database.saveCheckPointStub.resolves();
+    mockContext.adapters.database.getTransfersWithOriginPendingStub.resolves([]);
+    mockContext.adapters.database.getTransfersWithDestinationPendingStub.resolves([]);
+    mockContext.adapters.database.saveMessages.resolves();
+    mockContext.adapters.database.getPendingMessagesStub.resolves([]);
     stub(shared, "getContext").returns(mockContext);
 
     (mockContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockBlockNumber);
