@@ -797,7 +797,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/cartographer-poller@workspace:packages/agents/cartographer/poller"
   dependencies:
-    "@connext/nxtp-adapters-database": "workspace:^"
+    "@connext/nxtp-adapters-database": "workspace:*"
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@sinclair/typebox": 0.24.39
@@ -880,7 +880,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-adapters-database@workspace:*, @connext/nxtp-adapters-database@workspace:^, @connext/nxtp-adapters-database@workspace:packages/adapters/database":
+"@connext/nxtp-adapters-database@workspace:*, @connext/nxtp-adapters-database@workspace:packages/adapters/database":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-adapters-database@workspace:packages/adapters/database"
   dependencies:
