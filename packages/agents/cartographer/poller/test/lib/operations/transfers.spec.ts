@@ -10,7 +10,6 @@ import {
 } from "@connext/nxtp-utils";
 import * as transfersPoller from "../../../src/pollers/transfersPoller";
 import * as routersPoller from "../../../src/pollers/routersPoller";
-import * as messagesPoller from "../../../src/pollers/messagePoller";
 import { bindTransfers } from "../../../src/bindings/transfers";
 import { bindRouters } from "../../../src/bindings/routers";
 
@@ -180,11 +179,8 @@ describe("Backend operations", () => {
     await expect(bindTransfers()).to.eventually.not.be.rejected;
   });
 
-  it("should throw error on backend loadup", async () => {
-    process.env.DATABASE_URL = "invalid_URI";
-    try {
-      await transfersPoller.makeTransfersPoller();
-    } catch (Error) {}
+  it("should loadup for transfers", async () => {
+    await expect(transfersPoller.makeTransfersPoller()).to.eventually.not.be.rejectedWith(Error);
   });
 
   it("should poll subgraph with mock non zero block", async () => {
@@ -202,10 +198,7 @@ describe("Backend operations", () => {
     await expect(bindRouters()).to.eventually.not.be.rejected;
   });
 
-  it("should throw error on backend loadup", async () => {
-    process.env.DATABASE_URL = "invalid_URI";
-    try {
-      await routersPoller.makeRoutersPoller();
-    } catch (Error) {}
+  it("should loadup", async () => {
+    await expect(routersPoller.makeRoutersPoller()).to.eventually.not.be.rejectedWith(Error);
   });
 });

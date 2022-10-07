@@ -134,6 +134,7 @@ describe("Message operations", () => {
     mockContext.adapters.database.saveSentRootMessages.resolves();
     mockContext.adapters.database.saveProcessedRootMessages.resolves();
     mockContext.adapters.database.getPendingMessages.resolves([]);
+    process.env.DATABASE_URL = "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable";
   });
 
   afterEach(() => {
@@ -175,8 +176,10 @@ describe("Message operations", () => {
 
   it("should throw error on backend loadup for messages", async () => {
     process.env.DATABASE_URL = "invalid_URI";
-    try {
-      await messagesPoller.makeMessagesPoller();
-    } catch (Error) {}
+    await expect(messagesPoller.makeMessagesPoller()).to.eventually.be.rejectedWith(Error);
+  });
+
+  it("should loadup", async () => {
+    await expect(messagesPoller.makeMessagesPoller()).to.eventually.not.be.rejectedWith(Error);
   });
 });
