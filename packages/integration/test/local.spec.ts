@@ -26,11 +26,9 @@ import { expect } from "chai";
  */
 // Local 1338 deployment imports:
 import Connext_DiamondProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/Connext_DiamondProxy.json";
-import BridgeTokenUpgradeBeacon_1338 from "@connext/nxtp-contracts/deployments/local_1338/BridgeTokenUpgradeBeacon.json";
 import TestERC20_1338 from "@connext/nxtp-contracts/deployments/local_1338/TestERC20.json";
 // Local 1337 deployment imports:
 import Connext_DiamondProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/Connext_DiamondProxy.json";
-import BridgeTokenUpgradeBeacon_1337 from "@connext/nxtp-contracts/deployments/local_1337/BridgeTokenUpgradeBeacon.json";
 import TestERC20_1337 from "@connext/nxtp-contracts/deployments/local_1337/TestERC20.json";
 import { ConnextInterface } from "@connext/nxtp-contracts";
 
@@ -43,7 +41,6 @@ export const logger = new Logger({ name: "e2e" });
 
 type Deployments = {
   Connext: string;
-  TokenBeacon: string;
   TestERC20: string;
 };
 
@@ -58,13 +55,11 @@ export const getDeployments = (_chain: string | number): Deployments => {
   if (chain === "1337") {
     result = {
       Connext: Connext_DiamondProxy_1337.address,
-      TokenBeacon: BridgeTokenUpgradeBeacon_1337.address,
       TestERC20: TestERC20_1337.address,
     };
   } else if (chain === "1338") {
     result = {
       Connext: Connext_DiamondProxy_1338.address,
-      TokenBeacon: BridgeTokenUpgradeBeacon_1338.address,
       TestERC20: TestERC20_1338.address,
     };
   } else {
