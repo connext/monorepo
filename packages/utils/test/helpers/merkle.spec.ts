@@ -165,16 +165,13 @@ describe.only("Helpers: Merkle", () => {
         const proof = await merkle.getProof(index);
         expect(proof.length).to.be.eq(TREE_HEIGHT);
         const result = merkle.verify(index, leaf, proof, expectedRoot);
-        const mockBranchRoot = MockMerkleLib.branchRoot(leaf, proof, index);
         console.log({
           ...result,
           expected: expectedRoot,
-          mockBranchRoot: mockBranchRoot,
           proof,
         });
         expect(result.verified).to.be.true;
         expect(result.calculated).to.be.eq(expectedRoot);
-        expect(result.calculated).to.be.eq(mockBranchRoot);
       });
     });
   });
@@ -258,7 +255,7 @@ class MockMerkleLib {
   }
 
   // See `MerkleLib.branchRoot`
-  public static branchRoot(leaf: string, branch: string[], index: number): string {
+  public static branchRoot(leaf: string, branch: string[], index: number) {
     const height = branch.length;
 
     let current = leaf;
@@ -273,7 +270,5 @@ class MockMerkleLib {
         current = SparseMerkleTree.hash(current, sibling);
       }
     }
-
-    return current;
   }
 }
