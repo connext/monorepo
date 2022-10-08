@@ -36,7 +36,7 @@ library MerkleLib {
    **/
   // function insert(Tree memory tree, bytes32 node) internal pure returns (Tree memory) {
   //   uint256 size = tree.count + 1; // Add 1 since we'll be including a new node.
-  //   if (size >= MAX_LEAVES) revert MerkleLib__insert_treeIsFull();
+  //   if (tree.count >= MAX_LEAVES) revert MerkleLib__insert_treeIsFull();
 
   //   // Update tree.count to increase the current count by 1.
   //   tree.count = size;
@@ -75,7 +75,7 @@ library MerkleLib {
    **/
   function insert(Tree storage tree, bytes32 node) internal returns (uint256) {
     uint256 size = tree.count + 1; // Add 1 since we'll be including a new node.
-    if (size >= MAX_LEAVES) revert MerkleLib__insert_treeIsFull();
+    if (tree.count >= MAX_LEAVES) revert MerkleLib__insert_treeIsFull();
 
     // Update tree.count to increase the current count by 1.
     tree.count = size;
@@ -122,25 +122,20 @@ library MerkleLib {
   function rootWithCtx(Tree storage tree, bytes32[TREE_DEPTH] memory _zeroes) internal view returns (bytes32 _current) {
     uint256 _index = tree.count;
 
-    // TODO: Optimization: skip the first N loops where the ith bits are all 0 - start at that
-    // depth with zero hashes.
-    for (uint256 i; i < TREE_DEPTH; ) {
+    for (uint256 i = 0; i < TREE_DEPTH; i++) {
       uint256 _ithBit = (_index >> i) & 0x01;
       if (_ithBit == 1) {
-        _current = keccak256(abi.encodePacked(tree.branch[i], _current));
+        bytes32 _next = tree.branch[i];
+        _current = keccak256(abi.encodePacked(_next, _current));
       } else {
         _current = keccak256(abi.encodePacked(_current, _zeroes[i]));
-      }
-
-      unchecked {
-        ++i;
       }
     }
   }
 
   /**
-   * @notice Calculates and returns the merkle root for the given leaf `_item`,
-   * a merkle branch, and the index of `_item` in the tree.
+   * @notice Calculates and returns the merkle root for the given leaf
+   * `_item`, a merkle branch, and the index of `_item` in the tree.
    * @param _item Merkle leaf
    * @param _branch Merkle proof
    * @param _index Index of `_item` in tree
@@ -153,17 +148,13 @@ library MerkleLib {
   ) internal pure returns (bytes32 _current) {
     _current = _item;
 
-    for (uint256 i; i < TREE_DEPTH; ) {
+    for (uint256 i = 0; i < TREE_DEPTH; i++) {
       uint256 _ithBit = (_index >> i) & 0x01;
       bytes32 _next = _branch[i];
       if (_ithBit == 1) {
         _current = keccak256(abi.encodePacked(_next, _current));
       } else {
         _current = keccak256(abi.encodePacked(_current, _next));
-      }
-
-      unchecked {
-        ++i;
       }
     }
   }
