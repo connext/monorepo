@@ -1,6 +1,6 @@
-import { expect, mkAddress } from "@connext/nxtp-utils";
+import { expect, mkAddress, mkHash } from "@connext/nxtp-utils";
 
-import { send, getRelayerAddress } from "../../../src/adapters/relayer/gelato";
+import { send, getRelayerAddress, getTransactionHash } from "../../../src/adapters/relayer/gelato";
 import {
   gelatoSDKSendStub,
   isChainSupportedByGelatoStub,
@@ -55,6 +55,12 @@ describe("Adapters: Gelato", () => {
   describe("#getRelayerAddress", () => {
     it("should return the relayer address", async () => {
       expect(await getRelayerAddress(+mock.chain.A, proverCtxMock.logger)).to.eq(mkAddress("0xaaa"));
+    });
+  });
+
+  describe("#getTransactionHash", () => {
+    it("should get transaction hash from relayer", async () => {
+      expect(await getTransactionHash(mkHash("0xabc"), proverCtxMock.logger)).to.eq(mkHash("0xaaa"));
     });
   });
 });
