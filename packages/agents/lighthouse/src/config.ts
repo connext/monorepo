@@ -138,7 +138,7 @@ export const getEnvConfig = (
             ? deployments.spokeConnector(chainDataForChain.chainId, prefix, contractPostfix)
             : undefined;
           if (!res) {
-            throw new Error(`No SpokeConnector contract address for domain ${domainId}`);
+            throw new Error(`No ${prefix}SpokeConnector${contractPostfix} contract address for domain ${domainId}`);
           }
           return res.address;
         })(),
