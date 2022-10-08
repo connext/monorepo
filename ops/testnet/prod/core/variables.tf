@@ -134,3 +134,12 @@ variable "dd_api_key" {
 variable "gelato_api_key" {
   type = string
 }
+
+variable "postgres_password" {
+  type = string
+}
+
+variable "postgres_user" {
+  type    = string
+  default = "connext"
+}

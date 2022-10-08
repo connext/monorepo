@@ -213,5 +213,6 @@ locals {
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment = var.stage
+    databaseUrl = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.connext.ninja:5432/connext"
   })
 }
