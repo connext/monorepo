@@ -15317,7 +15317,7 @@
           ]
         },
         "OptimismHubConnectorSendOutboundRootResolverStaging": {
-          "address": "0xa6eEb556589548CCF9E11524A814663D2C0DdF5D",
+          "address": "0xF9755908517763F2421EB40C5276F32c8d1563a9",
           "abi": [
             {
               "inputs": [
@@ -15592,7 +15592,7 @@
           ]
         },
         "OptimismHubConnectorStaging": {
-          "address": "0x12FED618c8836Ced93Ce84A35431ccE310De4959",
+          "address": "0x0056f54c7aF3AF3124BB2618733396A710e8Fcb6",
           "abi": [
             {
               "inputs": [
@@ -36877,7 +36877,7 @@
           ]
         },
         "OptimismSpokeConnectorSendOutboundRootResolverStaging": {
-          "address": "0xFFe4C3D4D24Dd7492a1Fea623DfDCDeAb985576d",
+          "address": "0xbdF4FCd8cC3ceE3948b260510D2Ed66bf6f801e4",
           "abi": [
             {
               "inputs": [
@@ -37152,7 +37152,7 @@
           ]
         },
         "OptimismSpokeConnectorStaging": {
-          "address": "0xe24E94e468182748BfEadA13f3E75A719860BC71",
+          "address": "0x5B706c4c724dB4Ab8ba4D12a4BC148720c300C58",
           "abi": [
             {
               "inputs": [
