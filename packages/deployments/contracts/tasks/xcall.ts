@@ -154,7 +154,11 @@ export default task("xcall", "Prepare a cross-chain tx")
         if (asset === constants.AddressZero) {
           balance = await hre.ethers.provider.getBalance(senders[i].address);
         } else {
-          const erc20 = await hre.ethers.getContractAt("IERC20", asset, senders[i]);
+          const erc20 = await hre.ethers.getContractAt(
+            "@matterlabs/zksync-contracts/l1/contracts/common/interfaces/IERC20.sol:IERC20",
+            asset,
+            senders[i],
+          );
           console.log("erc20: ", erc20.address);
           const allowance = await erc20.allowance(senders[i].address, connextAddress);
           console.log("allowance: ", allowance.toString());
