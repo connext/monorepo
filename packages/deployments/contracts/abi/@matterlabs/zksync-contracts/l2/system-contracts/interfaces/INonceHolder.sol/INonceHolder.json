@@ -1,0 +1,8 @@
+[
+  "function getAccountNonce() view returns (uint256)",
+  "function getDeploymentNonce(address) view returns (uint256)",
+  "function getRawNonce(address) view returns (uint256)",
+  "function incrementDeploymentNonce(address) returns (uint256)",
+  "function incrementNonce() returns (uint256)",
+  "function incrementNonceIfEquals(uint256)"
+]

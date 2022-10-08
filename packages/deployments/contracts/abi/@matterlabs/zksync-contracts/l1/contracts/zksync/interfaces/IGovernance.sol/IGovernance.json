@@ -1,0 +1,8 @@
+[
+  "event NewGovernor(address indexed)",
+  "event NewPendingGovernor(address indexed,address indexed)",
+  "event ValidatorStatusUpdate(address indexed,bool)",
+  "function acceptGovernor()",
+  "function setPendingGovernor(address)",
+  "function setValidator(address,bool)"
+]

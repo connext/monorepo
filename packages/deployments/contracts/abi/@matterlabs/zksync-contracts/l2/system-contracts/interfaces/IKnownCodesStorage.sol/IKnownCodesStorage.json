@@ -1,0 +1,7 @@
+[
+  "function checkIfKnown(bytes32) view returns (bool)",
+  "function getMarker(bytes32) view returns (uint256)",
+  "function markAsKnownCandidates(bytes32[16])",
+  "function markAsRepublished(bytes32)",
+  "function removeUnusedKnownCandidate(bytes32)"
+]

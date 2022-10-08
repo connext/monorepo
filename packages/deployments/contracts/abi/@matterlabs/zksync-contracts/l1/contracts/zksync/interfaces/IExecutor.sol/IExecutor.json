@@ -1,0 +1,9 @@
+[
+  "event BlockCommit(uint256 indexed)",
+  "event BlockExecution(uint256 indexed)",
+  "event BlocksRevert(uint256,uint256)",
+  "function commitBlocks(tuple(uint32,uint16,bytes32,bytes32,bytes32,bytes32),tuple(bytes32,uint32,address,uint16,uint16,bytes32,bytes32,bytes,bytes[],bytes,bytes)[])",
+  "function executeBlocks(tuple(uint32,uint16,bytes32,bytes32,bytes32,bytes32)[])",
+  "function proveBlocks(tuple(uint32,uint16,bytes32,bytes32,bytes32,bytes32)[],tuple(uint256[],uint256[],uint256[],uint8[],uint256[16]))",
+  "function revertBlocks(uint256)"
+]
