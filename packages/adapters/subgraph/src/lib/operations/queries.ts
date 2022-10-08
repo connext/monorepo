@@ -673,7 +673,7 @@ export const getProcessedRootMessagesByDomainAndBlockQuery = (
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
     combinedQuery += `
-    ${prefix}_rootMessageProcesseds ( 
+    ${prefix}hub_rootMessageProcesseds ( 
       first: ${param.limit}, 
       where: { 
         blockNumber_gt: ${param.offset} 
