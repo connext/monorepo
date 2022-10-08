@@ -999,6 +999,8 @@ export type Query = {
   staginggoerli_settings: Array<staginggoerli_Setting>;
   staginggoerli_relayer?: Maybe<staginggoerli_Relayer>;
   staginggoerli_relayers: Array<staginggoerli_Relayer>;
+  staginggoerli_sequencer?: Maybe<staginggoerli_Sequencer>;
+  staginggoerli_sequencers: Array<staginggoerli_Sequencer>;
   staginggoerli_stableSwap?: Maybe<staginggoerli_StableSwap>;
   staginggoerli_stableSwaps: Array<staginggoerli_StableSwap>;
   staginggoerli_originTransfer?: Maybe<staginggoerli_OriginTransfer>;
@@ -1105,6 +1107,24 @@ export type Querystaginggoerli_relayersArgs = {
   orderBy?: InputMaybe<staginggoerli_Relayer_orderBy>;
   orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
   where?: InputMaybe<staginggoerli_Relayer_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_sequencerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_sequencersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_Sequencer_filter>;
   block?: InputMaybe<staginggoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1468,6 +1488,40 @@ export type staginggoerli_Router_orderBy =
   | 'proposedTimestamp'
   | 'assetBalances';
 
+export type staginggoerli_Sequencer = {
+  id: Scalars['ID'];
+  isActive: Scalars['Boolean'];
+  sequencer?: Maybe<Scalars['staginggoerli_Bytes']>;
+};
+
+export type staginggoerli_Sequencer_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  isActive?: InputMaybe<Scalars['Boolean']>;
+  isActive_not?: InputMaybe<Scalars['Boolean']>;
+  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  sequencer?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  sequencer_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  sequencer_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  sequencer_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  sequencer_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  sequencer_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_Sequencer_orderBy =
+  | 'id'
+  | 'isActive'
+  | 'sequencer';
+
 export type staginggoerli_Setting = {
   id: Scalars['ID'];
   maxRoutersPerTransfer: Scalars['BigInt'];
@@ -1563,6 +1617,8 @@ export type Subscription = {
   staginggoerli_settings: Array<staginggoerli_Setting>;
   staginggoerli_relayer?: Maybe<staginggoerli_Relayer>;
   staginggoerli_relayers: Array<staginggoerli_Relayer>;
+  staginggoerli_sequencer?: Maybe<staginggoerli_Sequencer>;
+  staginggoerli_sequencers: Array<staginggoerli_Sequencer>;
   staginggoerli_stableSwap?: Maybe<staginggoerli_StableSwap>;
   staginggoerli_stableSwaps: Array<staginggoerli_StableSwap>;
   staginggoerli_originTransfer?: Maybe<staginggoerli_OriginTransfer>;
@@ -1669,6 +1725,24 @@ export type Subscriptionstaginggoerli_relayersArgs = {
   orderBy?: InputMaybe<staginggoerli_Relayer_orderBy>;
   orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
   where?: InputMaybe<staginggoerli_Relayer_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_sequencerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_sequencersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_Sequencer_filter>;
   block?: InputMaybe<staginggoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1883,6 +1957,10 @@ export type QueryConnextStagingGoerliSdk = {
   /** null **/
   staginggoerli_relayers: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_relayers'], ConnextStagingGoerliTypes.Querystaginggoerli_relayersArgs, MeshContext>,
   /** null **/
+  staginggoerli_sequencer: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_sequencer'], ConnextStagingGoerliTypes.Querystaginggoerli_sequencerArgs, MeshContext>,
+  /** null **/
+  staginggoerli_sequencers: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_sequencers'], ConnextStagingGoerliTypes.Querystaginggoerli_sequencersArgs, MeshContext>,
+  /** null **/
   staginggoerli_stableSwap: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_stableSwap'], ConnextStagingGoerliTypes.Querystaginggoerli_stableSwapArgs, MeshContext>,
   /** null **/
   staginggoerli_stableSwaps: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_stableSwaps'], ConnextStagingGoerliTypes.Querystaginggoerli_stableSwapsArgs, MeshContext>,
@@ -1943,6 +2021,10 @@ export type SubscriptionConnextStagingGoerliSdk = {
   staginggoerli_relayer: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_relayer'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_relayerArgs, MeshContext>,
   /** null **/
   staginggoerli_relayers: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_relayers'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_relayersArgs, MeshContext>,
+  /** null **/
+  staginggoerli_sequencer: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_sequencer'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_sequencerArgs, MeshContext>,
+  /** null **/
+  staginggoerli_sequencers: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_sequencers'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_sequencersArgs, MeshContext>,
   /** null **/
   staginggoerli_stableSwap: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_stableSwap'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_stableSwapArgs, MeshContext>,
   /** null **/

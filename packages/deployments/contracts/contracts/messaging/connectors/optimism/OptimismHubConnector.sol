@@ -117,6 +117,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     bytes32 _data = _view.index(_view.len() - 32, 32);
 
     _processMessage(abi.encode(_data));
+    emit MessageProcessed(abi.encode(_data), msg.sender);
   }
 
   /**
