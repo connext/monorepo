@@ -199,5 +199,6 @@ export const convertFromDbRootMessage = (message: any): RootMessage => {
     gasLimit: BigNumber.from(message.gas_limit).toString(),
     blockNumber: message.block_number,
     processed: message.processed,
+    index: message.index,
   };
 };

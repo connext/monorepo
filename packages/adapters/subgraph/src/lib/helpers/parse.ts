@@ -289,6 +289,7 @@ export const rootMessage = (entity: any): RootMessage => {
     "gasPrice",
     "gasLimit",
     "blockNumber",
+    "index",
   ]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `RootMessage` entity parser: Message entity missing required field", {
@@ -310,5 +311,6 @@ export const rootMessage = (entity: any): RootMessage => {
     gasLimit: entity.gasLimit,
     blockNumber: entity.blockNumber,
     processed: entity.processed,
+    index: entity.index,
   };
 };

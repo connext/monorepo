@@ -1,5 +1,4 @@
-import { createLoggingContext, jsonifyError, NxtpError, XMessage, SparseMerkleTree } from "@connext/nxtp-utils";
-import { constants } from "ethers";
+import { createLoggingContext, jsonifyError, NxtpError, XMessage, SparseMerkleTree, DBImpl } from "@connext/nxtp-utils";
 
 import { NoDestinationDomainForProof } from "../../../errors";
 import { getContext } from "../prover";
@@ -29,32 +28,38 @@ export const proveAndProcess = async () => {
 export const processMessage = async (message: XMessage) => {
   const {
     logger,
-    adapters: { contracts, relayer, chainreader },
+    adapters: { contracts, relayer, chainreader, database },
     config,
     chainData,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("processUnprocessedMessage");
 
+  // TODO: Move to per domain storage adapters in context
+  const spokeStore = new DBImpl();
+  const hubStore = new DBImpl();
+
+  const spokeSMT = new SparseMerkleTree(spokeStore);
+  const hubSMT = new SparseMerkleTree(hubStore);
+
   const proof = {
-    message: message.origin.message, // Message bytes.
-    // TODO: Get real path from utility.
-    path: Array(32).fill(constants.HashZero) as string[], // bytes32[32] proof path.
-    index: message.origin.index, // Index of message leaf node.
+    message: message.origin.message,
+    path: await spokeSMT.getProof(message.origin.index),
+    index: message.origin.index,
   };
 
   // TODO: Proof path for proving inclusion of outboundRoot in aggregateRoot.
   // Will need to get the currentAggregateRoot from on-chain state (or pending, if the validation period
   // has elapsed!) to determine which tree snapshot we should be generating the proof from.
-  const targetAggregateRoot = constants.HashZero;
-  const aggregatorProof = Array(32).fill(constants.HashZero) as string[];
+  const targetAggregateRoot = await database.getCurrentAggregateRoot();
   // TODO: Index of outboundRoot leaf node in aggregate tree.
-  const aggregatorIndex = 0;
+  const outboundRootIndex = await database.getOutboutRootIndex(message.origin.root);
+  const outboundRootProof = await hubSMT.getProof(outboundRootIndex);
 
   const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
     [proof],
     targetAggregateRoot,
-    aggregatorProof,
-    aggregatorIndex,
+    outboundRootProof,
+    outboundRootIndex,
   ]);
 
   const destinationSpokeConnector = config.chains[message.destinationDomain]?.deployments.spokeConnector;

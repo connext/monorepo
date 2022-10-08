@@ -138,6 +138,7 @@ export const ROOT_MESSAGE_SENT_ENTITY = `
       gasPrice
       gasLimit
       blockNumber
+      index
 `;
 export const ROOT_MESSAGE_PROCESSED_ENTITY = `
       id
@@ -150,6 +151,7 @@ export const ROOT_MESSAGE_PROCESSED_ENTITY = `
       gasPrice
       gasLimit
       blockNumber
+      index
 `;
 
 const lastedBlockNumberQuery = (prefix: string): string => {

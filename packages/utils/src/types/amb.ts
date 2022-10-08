@@ -52,5 +52,6 @@ export const RootMessageSchema = Type.Object({
   gasLimit: TIntegerString,
   blockNumber: Type.Number(),
   processed: Type.Boolean(),
+  index: Type.Number({ minimum: 0 }),
 });
 export type RootMessage = Static<typeof RootMessageSchema>;

@@ -21,3 +21,14 @@ export const getUnProcessedMessages = async (
     .run(pool);
   return messages.map(convertFromDbMessage);
 };
+
+export const getCurrentAggregateRoot = async (): Promise<string> => {
+  const root = "0x0000000000000000000000000000000000000000000000000000000000000000";
+  return root;
+};
+
+export const getOutboutRootIndex = async (outboundRoot: string): Promise<number> => {
+  // TODO: Find the index emitted from the RootAggregated event
+  const index = outboundRoot.length;
+  return index;
+};
