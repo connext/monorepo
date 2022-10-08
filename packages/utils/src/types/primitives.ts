@@ -18,6 +18,10 @@ export const TUrl = Type.String({ format: "uri" });
 export const TChainId = Type.Number({ minimum: 1 });
 export const TDecimalString = Type.RegEx(/^[0-9]*\.?[0-9]*$/);
 
+export const TDatabaseConfig = Type.Object({
+  url: Type.String({ format: "uri" }),
+});
+
 export const TLogLevel = Type.Union([
   Type.Literal("fatal"),
   Type.Literal("error"),

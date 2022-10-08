@@ -193,10 +193,11 @@ export const convertFromDbRootMessage = (message: any): RootMessage => {
     hubDomain: message.hub_domain,
     root: message.root,
     caller: message.caller,
-    transactionHash: message.transaction_hash,
+    transactionHash: message.sent_transaction_hash,
     timestamp: message.sent_timestamp,
-    gasPrice: message.gas_price,
-    gasLimit: message.gas_limit,
+    gasPrice: BigNumber.from(message.gas_price).toString(),
+    gasLimit: BigNumber.from(message.gas_limit).toString(),
     blockNumber: message.block_number,
+    processed: message.processed,
   };
 };

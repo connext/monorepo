@@ -48,7 +48,7 @@ describe("Operations: ProveAndProcess", () => {
 
     it("should process a message", async () => {
       await processMessage(mockXMessage1);
-      expect(proverCtxMock.adapters.relayer.send).to.be.calledOnceWithExactly(
+      expect(proverCtxMock.adapters.relayer.send).to.be.calledOnceWith(
         +mock.chain.B,
         proverCtxMock.config.chains[mockXMessage1.destinationDomain].deployments.spokeConnector,
         encodedDataMock,

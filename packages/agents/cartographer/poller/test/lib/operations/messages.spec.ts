@@ -12,11 +12,11 @@ import {
 import * as messagesPoller from "../../../src/pollers/messagePoller";
 import { bindMessages } from "../../../src/bindings/messages";
 
-import * as dbClient from "../../../src/adapters/database/client";
 import { CartographerConfig } from "../../../src/config";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { AppContext } from "../../../src/shared";
 import * as shared from "../../../src/shared";
+import { mockDatabase } from "../../../../../../adapters/database/test/mock";
 
 const mockRootSubgraphResponse = [mock.entity.rootMessage() as RootMessage, mock.entity.rootMessage() as RootMessage];
 const mockOriginMessageSubgraphResponse = [
@@ -34,6 +34,7 @@ const mockConfig: CartographerConfig = {
   logLevel: "silent",
   database: { url: "postgres://postgres:qwery@localhost:5432/connext?sslmode=disable" },
   environment: "production",
+  chains: {},
 };
 
 const mockChainData = chainDataToMap([
@@ -105,19 +106,6 @@ describe("Message operations", () => {
   let mockContext: AppContext;
 
   beforeEach(() => {
-    const getCheckPointStub = stub(dbClient, "getCheckPoint");
-    getCheckPointStub.resolves(0);
-    const saveCheckPointStub = stub(dbClient, "saveCheckPoint");
-    saveCheckPointStub.resolves();
-    const saveMessages = stub(dbClient, "saveMessages");
-    saveMessages.resolves();
-    const saveSentRootMessagesStub = stub(dbClient, "saveSentRootMessages");
-    saveSentRootMessagesStub.resolves();
-    const saveProcessedRootMessagesStub = stub(dbClient, "saveProcessedRootMessages");
-    saveProcessedRootMessagesStub.resolves();
-    const getPendingMessagesStub = stub(dbClient, "getPendingMessages");
-    getPendingMessagesStub.resolves([]);
-
     mockContext = {
       logger: new Logger({
         level: "silent",
@@ -130,15 +118,7 @@ describe("Message operations", () => {
           getSentRootMessagesByDomain: Promise.resolve(mockRootSubgraphResponse),
           getProcessedRootMessagesByDomain: Promise.resolve(mockRootSubgraphResponse),
         }),
-        database: {
-          getCheckPoint: dbClient.getCheckPoint,
-          saveCheckPoint: dbClient.saveCheckPoint,
-          saveMessages: dbClient.saveMessages,
-          saveSentRootMessages: dbClient.saveSentRootMessages,
-          saveProcessedRootMessages: dbClient.saveProcessedRootMessages,
-          getPendingMessages: dbClient.getPendingMessages,
-          transaction: dbClient.transaction,
-        },
+        database: mockDatabase(),
       },
       config: mockConfig as CartographerConfig,
       chainData: mockChainData,
@@ -147,6 +127,8 @@ describe("Message operations", () => {
     stub(shared, "getContext").returns(mockContext);
 
     (mockContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockBlockNumber);
+
+    process.env.DATABASE_URL = "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable";
   });
 
   afterEach(() => {
@@ -188,8 +170,10 @@ describe("Message operations", () => {
 
   it("should throw error on backend loadup for messages", async () => {
     process.env.DATABASE_URL = "invalid_URI";
-    try {
-      await messagesPoller.makeMessagesPoller();
-    } catch (Error) {}
+    await expect(messagesPoller.makeMessagesPoller()).to.eventually.be.rejectedWith(Error);
+  });
+
+  it("should loadup", async () => {
+    await expect(messagesPoller.makeMessagesPoller()).to.eventually.not.be.rejectedWith(Error);
   });
 });

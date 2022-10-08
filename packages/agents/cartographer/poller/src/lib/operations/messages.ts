@@ -32,7 +32,7 @@ export const retrieveOriginMessages = async () => {
     });
 
     const newOffset = originMessages.length == 0 ? 0 : originMessages[originMessages.length - 1].index;
-    await database.transaction( async (txnClient) => {
+    await database.transaction(async (txnClient) => {
       await database.saveMessages(xMessages, txnClient);
 
       // Reset offset at the end of the cycle.
@@ -101,7 +101,7 @@ export const retrieveSentRootMessages = async () => {
     const newOffset =
       sentRootMessages.length == 0 ? 0 : Math.max(...sentRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
 
-    await database.transaction( async (txnClient) => {
+    await database.transaction(async (txnClient) => {
       await database.saveSentRootMessages(sentRootMessages, txnClient);
 
       if (sentRootMessages.length > 0 && newOffset > offset) {
@@ -140,7 +140,7 @@ export const retrieveProcessedRootMessages = async () => {
         ? 0
         : Math.max(...processedRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
 
-    await database.transaction( async (txnClient) => {
+    await database.transaction(async (txnClient) => {
       await database.saveProcessedRootMessages(processedRootMessages, txnClient);
 
       if (processedRootMessages.length > 0 && newOffset > offset) {

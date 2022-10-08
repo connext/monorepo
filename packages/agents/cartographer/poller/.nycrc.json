@@ -1,4 +1,18 @@
 {
   "extends": "../../../../.nycrc.json",
-  "exclude": ["cartographer.config.js", "src/zapatos/schema.d.ts", "src/adapters/database/index.ts"]
+  "exclude": [
+    "test/**/*",
+    "src/zapatos/schema.d.ts",
+    "src/entryMessages.ts",
+    "src/entryRouters.ts",
+    "src/entryTransfers.ts",
+    "src/bindings/index.ts",
+    "src/bindings/routers/index.ts",
+    "src/bindings/messages/index.ts",
+    "src/bindings/transfers/index.ts",
+    "src/lib/operations/index.ts",
+    "src/pollers/messagePollers.ts",
+    "src/pollers/transfersPollers.ts",
+    "src/pollers/routersPollers.ts"
+  ]
 }
