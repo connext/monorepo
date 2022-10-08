@@ -4,6 +4,7 @@
     "src/config.ts",
     "src/errors/*.ts",
     "src/mockable.ts",
+    "src/adapters/index.ts",
     "src/adapters/relayer/index.ts",
     "src/tasks/prover/adapters/cartographer/index.ts",
     "src/tasks/prover/adapters/index.ts",

@@ -999,6 +999,8 @@ export type Query = {
   stagingoptimismgoerli_settings: Array<stagingoptimismgoerli_Setting>;
   stagingoptimismgoerli_relayer?: Maybe<stagingoptimismgoerli_Relayer>;
   stagingoptimismgoerli_relayers: Array<stagingoptimismgoerli_Relayer>;
+  stagingoptimismgoerli_sequencer?: Maybe<stagingoptimismgoerli_Sequencer>;
+  stagingoptimismgoerli_sequencers: Array<stagingoptimismgoerli_Sequencer>;
   stagingoptimismgoerli_stableSwap?: Maybe<stagingoptimismgoerli_StableSwap>;
   stagingoptimismgoerli_stableSwaps: Array<stagingoptimismgoerli_StableSwap>;
   stagingoptimismgoerli_originTransfer?: Maybe<stagingoptimismgoerli_OriginTransfer>;
@@ -1105,6 +1107,24 @@ export type Querystagingoptimismgoerli_relayersArgs = {
   orderBy?: InputMaybe<stagingoptimismgoerli_Relayer_orderBy>;
   orderDirection?: InputMaybe<stagingoptimismgoerli_OrderDirection>;
   where?: InputMaybe<stagingoptimismgoerli_Relayer_filter>;
+  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingoptimismgoerli_sequencerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingoptimismgoerli_sequencersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingoptimismgoerli_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<stagingoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<stagingoptimismgoerli_Sequencer_filter>;
   block?: InputMaybe<stagingoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1468,6 +1488,40 @@ export type stagingoptimismgoerli_Router_orderBy =
   | 'proposedTimestamp'
   | 'assetBalances';
 
+export type stagingoptimismgoerli_Sequencer = {
+  id: Scalars['ID'];
+  isActive: Scalars['Boolean'];
+  sequencer?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
+};
+
+export type stagingoptimismgoerli_Sequencer_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  isActive?: InputMaybe<Scalars['Boolean']>;
+  isActive_not?: InputMaybe<Scalars['Boolean']>;
+  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  sequencer?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  sequencer_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  sequencer_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  sequencer_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  sequencer_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  sequencer_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingoptimismgoerli_BlockChangedFilter>;
+};
+
+export type stagingoptimismgoerli_Sequencer_orderBy =
+  | 'id'
+  | 'isActive'
+  | 'sequencer';
+
 export type stagingoptimismgoerli_Setting = {
   id: Scalars['ID'];
   maxRoutersPerTransfer: Scalars['BigInt'];
@@ -1563,6 +1617,8 @@ export type Subscription = {
   stagingoptimismgoerli_settings: Array<stagingoptimismgoerli_Setting>;
   stagingoptimismgoerli_relayer?: Maybe<stagingoptimismgoerli_Relayer>;
   stagingoptimismgoerli_relayers: Array<stagingoptimismgoerli_Relayer>;
+  stagingoptimismgoerli_sequencer?: Maybe<stagingoptimismgoerli_Sequencer>;
+  stagingoptimismgoerli_sequencers: Array<stagingoptimismgoerli_Sequencer>;
   stagingoptimismgoerli_stableSwap?: Maybe<stagingoptimismgoerli_StableSwap>;
   stagingoptimismgoerli_stableSwaps: Array<stagingoptimismgoerli_StableSwap>;
   stagingoptimismgoerli_originTransfer?: Maybe<stagingoptimismgoerli_OriginTransfer>;
@@ -1669,6 +1725,24 @@ export type Subscriptionstagingoptimismgoerli_relayersArgs = {
   orderBy?: InputMaybe<stagingoptimismgoerli_Relayer_orderBy>;
   orderDirection?: InputMaybe<stagingoptimismgoerli_OrderDirection>;
   where?: InputMaybe<stagingoptimismgoerli_Relayer_filter>;
+  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingoptimismgoerli_sequencerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingoptimismgoerli_sequencersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingoptimismgoerli_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<stagingoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<stagingoptimismgoerli_Sequencer_filter>;
   block?: InputMaybe<stagingoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1883,6 +1957,10 @@ export type QueryConnextStagingOptimismGoerliSdk = {
   /** null **/
   stagingoptimismgoerli_relayers: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_relayers'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_relayersArgs, MeshContext>,
   /** null **/
+  stagingoptimismgoerli_sequencer: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_sequencer'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_sequencerArgs, MeshContext>,
+  /** null **/
+  stagingoptimismgoerli_sequencers: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_sequencers'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_sequencersArgs, MeshContext>,
+  /** null **/
   stagingoptimismgoerli_stableSwap: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_stableSwap'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_stableSwapArgs, MeshContext>,
   /** null **/
   stagingoptimismgoerli_stableSwaps: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_stableSwaps'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_stableSwapsArgs, MeshContext>,
@@ -1943,6 +2021,10 @@ export type SubscriptionConnextStagingOptimismGoerliSdk = {
   stagingoptimismgoerli_relayer: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_relayer'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_relayerArgs, MeshContext>,
   /** null **/
   stagingoptimismgoerli_relayers: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_relayers'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_relayersArgs, MeshContext>,
+  /** null **/
+  stagingoptimismgoerli_sequencer: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_sequencer'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_sequencerArgs, MeshContext>,
+  /** null **/
+  stagingoptimismgoerli_sequencers: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_sequencers'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_sequencersArgs, MeshContext>,
   /** null **/
   stagingoptimismgoerli_stableSwap: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_stableSwap'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_stableSwapArgs, MeshContext>,
   /** null **/

@@ -134,3 +134,12 @@ variable "sequencer_web3_signer_private_key" {
 variable "gelato_api_key" {
   type = string
 }
+
+variable "postgres_password" {
+  type = string
+}
+
+variable "postgres_user" {
+  type    = string
+  default = "connext"
+}

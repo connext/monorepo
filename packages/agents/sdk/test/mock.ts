@@ -11,7 +11,7 @@ export const mock = {
   ..._mock,
   config: (): NxtpSdkConfig => ({
     signerAddress: mkAddress("0xabcdef123"),
-    logLevel: (process.env.LOG_LEVEL as any) || "debug",
+    logLevel: (process.env.LOG_LEVEL as any) || "silent",
     network: "testnet",
     maxSlippage: 0,
     environment: "staging",
@@ -66,12 +66,17 @@ export const mock = {
       erc20.encodeFunctionData.returns(encodedDataMock);
       erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const spokeConnector = createStubInstance(utils.Interface);
+      spokeConnector.encodeFunctionData.returns(encodedDataMock);
+      spokeConnector.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       return {
         erc20: erc20 as unknown as ConnextContractInterfaces["erc20"],
         erc20Extended: erc20Extended as unknown as ConnextContractInterfaces["erc20Extended"],
         connext: connext as unknown as ConnextContractInterfaces["connext"],
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
+        spokeConnector: spokeConnector as unknown as ConnextContractInterfaces["spokeConnector"],
       };
     },
     deployments: (): ConnextContractDeployments => {
@@ -82,6 +87,8 @@ export const mock = {
         }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
+        hubConnector: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
+        spokeConnector: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
       };
     },
   },

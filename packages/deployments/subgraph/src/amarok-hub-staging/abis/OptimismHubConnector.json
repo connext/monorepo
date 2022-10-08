@@ -30,6 +30,11 @@
         "internalType": "uint256",
         "name": "_mirrorGas",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_stateCommitmentChain",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -348,6 +353,124 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_target",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_sender",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_message",
+        "type": "bytes"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_messageNonce",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "stateRoot",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "batchIndex",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "batchRoot",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "uint256",
+                "name": "batchSize",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "prevTotalElements",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bytes",
+                "name": "extraData",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct ChainBatchHeader",
+            "name": "stateRootBatchHeader",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "index",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bytes32[]",
+                "name": "siblings",
+                "type": "bytes32[]"
+              }
+            ],
+            "internalType": "struct ChainInclusionProof",
+            "name": "stateRootProof",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "stateTrieWitness",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "storageTrieWitness",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct L2MessageInclusionProof",
+        "name": "_proof",
+        "type": "tuple"
+      }
+    ],
+    "name": "processMessageFromRoot",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "processed",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "newlyProposed",
         "type": "address"
       }
@@ -440,6 +563,19 @@
     "name": "setMirrorGas",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stateCommitmentChain",
+    "outputs": [
+      {
+        "internalType": "contract IStateCommitmentChain",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
