@@ -47,7 +47,7 @@ export const makeProcessFromRoot = async () => {
     context.adapters.relayer = await setupRelayer();
     context.adapters.contracts = contractDeployments;
 
-    context.logger.info("Prover boot complete!", requestContext, methodContext, {
+    context.logger.info("Process from root boot complete!", requestContext, methodContext, {
       chains: [...Object.keys(context.config.chains)],
     });
     console.log(
@@ -66,8 +66,8 @@ export const makeProcessFromRoot = async () => {
     await processFromRoot();
   } catch (e: unknown) {
     console.error("Error starting Prover. Sad! :(", e);
-    process.exit();
   } finally {
-    closeDatabase();
+    await closeDatabase();
+    process.exit();
   }
 };
