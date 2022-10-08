@@ -13,6 +13,8 @@ import {
   OriginMessage,
   DestinationMessage,
   RootMessage,
+  AggregatedRoot,
+  PropagatedRoot,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -39,6 +41,8 @@ import {
   getDestinationMessagesByDomainAndLeafQuery,
   getSentRootMessagesByDomainAndBlockQuery,
   getProcessedRootMessagesByDomainAndBlockQuery,
+  getAggregatedRootsByDomainQuery,
+  getPropagatedRootsQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -667,5 +671,57 @@ export class SubgraphReader {
       .map(parser.rootMessage);
 
     return processedRootMessages;
+  }
+
+  /**
+   * Gets all the aggregated rootsstarting with index for a given domain
+   */
+  public async getGetAggregatedRootsByDomain(
+    params: { domain: string; index: number; limit: number }[],
+  ): Promise<AggregatedRoot[]> {
+    const { parser, execute } = getHelpers();
+    const aggregatedRootsQuery = getAggregatedRootsByDomainQuery(params);
+    const response = await execute(aggregatedRootsQuery);
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const aggregatedRoots: AggregatedRoot[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.aggregatedRoot);
+
+    return aggregatedRoots;
+  }
+
+  /**
+   * Gets all the propagated rootsstarting with index for a given domain
+   */
+  public async getGetPropagatedRootsByDomain(prefix: string, count: number, limit: number): Promise<PropagatedRoot[]> {
+    const { parser, execute } = getHelpers();
+    const propagatedRootsQuery = getPropagatedRootsQuery(prefix, count, limit);
+    const response = await execute(propagatedRootsQuery);
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const propagatedRoots: PropagatedRoot[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.propagatedRoot);
+
+    return propagatedRoots;
   }
 }

@@ -4,6 +4,8 @@ import {
   OriginMessage,
   DestinationMessage,
   RootMessage,
+  AggregatedRoot,
+  PropagatedRoot,
   OriginTransfer,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
@@ -312,5 +314,49 @@ export const rootMessage = (entity: any): RootMessage => {
     blockNumber: entity.blockNumber,
     processed: entity.processed,
     index: entity.index,
+  };
+};
+
+export const aggregatedRoot = (entity: any): AggregatedRoot => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `AggregatedRoot` entity parser: AggregatedRoot, entity is `undefined`.");
+  }
+  for (const field of ["id", "domain", "receivedRoot", "index"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `AggregatedRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    domain: entity.domain,
+    receivedRoot: entity.receivedRoot,
+    index: entity.index,
+  };
+};
+
+export const propagatedRoot = (entity: any): PropagatedRoot => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `PropagatedRoot` entity parser: PropagatedRoot, entity is `undefined`.");
+  }
+  for (const field of ["id", "aggregate", "domains", "count"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `PropagatedRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    aggregate: entity.aggregate,
+    domains: entity.domains,
+    count: entity.count,
   };
 };

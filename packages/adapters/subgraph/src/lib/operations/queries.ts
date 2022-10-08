@@ -153,6 +153,18 @@ export const ROOT_MESSAGE_PROCESSED_ENTITY = `
       blockNumber
       index
 `;
+export const ROOT_AGGREGATED_ENTITY = `
+      id
+      domain
+      receivedRoot
+      index
+`;
+export const ROOT_PROPAGATED_ENTITY = `
+      id
+      aggregate
+      domains
+      count
+`;
 
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
@@ -688,6 +700,53 @@ export const getProcessedRootMessagesByDomainAndBlockQuery = (
   return gql`
     query GetProcessedRootMessages {
       ${combinedQuery}
+    }
+  `;
+};
+
+export const getAggregatedRootsByDomainQuery = (params: { domain: string; index: number; limit: number }[]) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.domain].prefix;
+    combinedQuery += `
+    ${prefix}hub_rootAggregateds ( 
+      first: ${param.limit}, 
+      where: { 
+        domain: "${param.domain}",
+        index_gte: ${param.index}
+      }
+    ) {
+      ${ROOT_AGGREGATED_ENTITY}
+    orderBy: index, 
+    orderDirection: asc
+    }`;
+  }
+
+  return gql`
+    query GetAggregatedRoots {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getPropagatedRootsQuery = (prefix: string, count: number, limit: number) => {
+  const { config } = getContext();
+  const queryString = `
+  ${prefix}hub_rootPropagateds ( 
+    first: ${limit}, 
+    where: { 
+      count_gte: ${count} 
+    }
+  ) {
+    ${ROOT_PROPAGATED_ENTITY}
+  orderBy: count, 
+  orderDirection: asc
+  }`;
+
+  return gql`
+    query GetAggregatedRoots {
+      ${queryString}
     }
   `;
 };
