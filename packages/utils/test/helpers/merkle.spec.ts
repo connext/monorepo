@@ -5,7 +5,7 @@ import { DBImpl, SparseMerkleTree, ZERO_HASHES } from "../../src/helpers/merkle"
 
 describe("Helpers: Merkle", () => {
   const TREE_HEIGHT = 32;
-  const SAMPLE_HASH_COUNT = 1_000;
+  const SAMPLE_HASH_COUNT = 100_000;
   const SAMPLE_HASHES: string[] = [];
 
   before(() => {
@@ -156,7 +156,7 @@ describe("Helpers: Merkle", () => {
         const expectedRoot = mockle.root();
 
         // Pick a random leaf for whom we want to get the proof.
-        const index = 573; // This index is definitely random, I generated it myself.
+        const index = 5731; // This index is definitely random, I generated it myself.
         const leaf: string = (await db.getNode(index))!;
 
         const start = Date.now();
