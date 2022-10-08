@@ -68,7 +68,7 @@ export const processMessage = async (message: XMessage) => {
   });
   const chainId = chainData.get(message.destinationDomain)!.chainId;
 
-  const relayerAddress = await relayer.getRelayerAddress(chainId);
+  const relayerAddress = await relayer.getRelayerAddress(chainId, logger);
   logger.debug("Getting gas estimate", requestContext, methodContext, {
     chainId,
     to: destinationSpokeConnector,
@@ -91,6 +91,13 @@ export const processMessage = async (message: XMessage) => {
     transferId: message.transferId,
   });
 
-  const taskId = await relayer.send(chainId, destinationSpokeConnector, data);
+  const taskId = await relayer.send(
+    chainId,
+    destinationSpokeConnector,
+    data,
+    config.gelatoApiKey,
+    logger,
+    requestContext,
+  );
   logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
 };

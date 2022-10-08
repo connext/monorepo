@@ -7,8 +7,11 @@
     "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
   },
   "exclude": ["test/**/*.ts"],
-  "include": ["src/**/*.ts", "knexfile.ts", "migrations/**/*.ts"],
+  "include": ["src/**/*.ts"],
   "references": [
+    {
+      "path": "../../../adapters/database/tsconfig.build.json"
+    },
     {
       "path": "../../../adapters/subgraph/tsconfig.build.json"
     },

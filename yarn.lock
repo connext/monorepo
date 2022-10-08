@@ -797,6 +797,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/cartographer-poller@workspace:packages/agents/cartographer/poller"
   dependencies:
+    "@connext/nxtp-adapters-database": "workspace:*"
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@sinclair/typebox": 0.24.39
@@ -826,11 +827,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/lighthouse@workspace:packages/agents/lighthouse"
   dependencies:
+    "@connext/nxtp-adapters-database": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
+    "@eth-optimism/sdk": ^1.6.6
     "@graphql-codegen/cli": 2.12.0
     "@sinclair/typebox": 0.24.39
     "@types/mocha": 9.1.1
+    "@types/pg": ^8
     "@types/sinon": 10.0.13
     axios: 0.27.2
     concurrently: 7.4.0
@@ -844,12 +848,14 @@ __metadata:
     mocha: 10.0.0
     nodemon: 2.0.19
     nyc: 15.1.0
+    pg: ^8.8.0
     pino-pretty: 9.1.0
     prom-client: 14.1.0
     rimraf: 3.0.2
     sinon: 14.0.0
     ts-mocha: 10.0.0
     typescript: 4.8.3
+    zapatos: ^6.1.1
   languageName: unknown
   linkType: soft
 
@@ -871,6 +877,24 @@ __metadata:
     ts-node: 10.9.1
     tslib: 2.4.0
     typescript: 4.8.3
+  languageName: unknown
+  linkType: soft
+
+"@connext/nxtp-adapters-database@workspace:*, @connext/nxtp-adapters-database@workspace:packages/adapters/database":
+  version: 0.0.0-use.local
+  resolution: "@connext/nxtp-adapters-database@workspace:packages/adapters/database"
+  dependencies:
+    "@connext/nxtp-utils": "workspace:*"
+    "@types/mocha": 9.1.1
+    dbmate: ^1.0.3
+    eslint: 8.23.0
+    mocha: 10.0.0
+    nyc: 15.1.0
+    ts-mocha: 10.0.0
+    ts-node: 10.9.1
+    tslib: 2.4.0
+    typescript: 4.8.3
+    zapatos: ^6.1.1
   languageName: unknown
   linkType: soft
 
@@ -1450,6 +1474,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@eth-optimism/contracts-bedrock@npm:0.8.0":
+  version: 0.8.0
+  resolution: "@eth-optimism/contracts-bedrock@npm:0.8.0"
+  dependencies:
+    "@eth-optimism/core-utils": ^0.10.1
+    "@openzeppelin/contracts": 4.7.3
+    "@openzeppelin/contracts-upgradeable": 4.7.3
+    ethers: ^5.7.0
+    hardhat: ^2.9.6
+  checksum: cda0d053be6d9c12b1125e2b178689d8094ba1a709ed0a00dd7ea1586c40260d4c66c7fd0e7bfc8f3da38435f49d46ac86efc8fc27381b8453d6a0dc6328618c
+  languageName: node
+  linkType: hard
+
 "@eth-optimism/contracts@npm:0.5.36":
   version: 0.5.36
   resolution: "@eth-optimism/contracts@npm:0.5.36"
@@ -1460,6 +1497,19 @@ __metadata:
   peerDependencies:
     ethers: ^5
   checksum: b97469afe39b3c4390f35f0a4f9e751c4f5a779e99d4d3ed20ac98cf7f43401a1eebd98fa6e762bd79ff7f33b266fb4310c3f1adf6dcdcbf2600827367c64568
+  languageName: node
+  linkType: hard
+
+"@eth-optimism/contracts@npm:0.5.37":
+  version: 0.5.37
+  resolution: "@eth-optimism/contracts@npm:0.5.37"
+  dependencies:
+    "@eth-optimism/core-utils": 0.10.1
+    "@ethersproject/abstract-provider": ^5.7.0
+    "@ethersproject/abstract-signer": ^5.7.0
+  peerDependencies:
+    ethers: ^5
+  checksum: 52a694838abaeadaa6b87fa37cd4936ff8db8b212c1650a8415e207b8386444a1a6e48b6cb836ea3019515e8fb3c3a9c0d0f16b261e1d880c36b428d9c0b7728
   languageName: node
   linkType: hard
 
@@ -1500,6 +1550,22 @@ __metadata:
   peerDependencies:
     ethers: ^5
   checksum: e0db7339670f98d4988f1c21c043009103f6e5145e2b8bd379f97240d10a7d81a50739d58c344188463e9ede1d3c826a6986b1e971c67ea4466bde3d6072b2b2
+  languageName: node
+  linkType: hard
+
+"@eth-optimism/sdk@npm:^1.6.6":
+  version: 1.6.6
+  resolution: "@eth-optimism/sdk@npm:1.6.6"
+  dependencies:
+    "@eth-optimism/contracts": 0.5.37
+    "@eth-optimism/contracts-bedrock": 0.8.0
+    "@eth-optimism/core-utils": 0.10.1
+    lodash: ^4.17.21
+    merkletreejs: ^0.2.27
+    rlp: ^2.2.7
+  peerDependencies:
+    ethers: ^5
+  checksum: be6558cf7f81c35cf1e85d2ec99bd9bc7cf95c81102a41df927e18c984fdbbc57a6bde9c20b4a93d38d87c0a46733a3c833e6dfe4f0d14ccaf5213ab1c20f3f9
   languageName: node
   linkType: hard
 
@@ -5991,7 +6057,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/pg@npm:8.6.5":
+"@types/pg@npm:8.6.5, @types/pg@npm:^8":
   version: 8.6.5
   resolution: "@types/pg@npm:8.6.5"
   dependencies:
@@ -10421,6 +10487,15 @@ __metadata:
   version: 1.11.5
   resolution: "dayjs@npm:1.11.5"
   checksum: e3bbaa7b4883b31be4bf75a181f1447fbb19800c29b332852125aab96baeff3ac232dcba8b88c4ea17d3b636c99dac5fb9d1af4bb6ae26615698bbc4a852dffb
+  languageName: node
+  linkType: hard
+
+"dbmate@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "dbmate@npm:1.0.3"
+  bin:
+    dbmate: dist/cli.js
+  checksum: 0cd27ab413a8e0b6ea3d6b68a16847250f6b0d8c0132e743b5f97fae3ca13ef285139a3875c10d7fe7084b5ab75b4af715f781278f79f505bcf39a94ac8b8c4a
   languageName: node
   linkType: hard
 
@@ -20465,7 +20540,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg@npm:8.8.0":
+"pg@npm:8.8.0, pg@npm:^8.8.0":
   version: 8.8.0
   resolution: "pg@npm:8.8.0"
   dependencies:
@@ -26932,6 +27007,19 @@ __metadata:
   bin:
     zapatos: dist/generate/cli.js
   checksum: 9f84cff51398dd65ec0e55620f711ac36605e4f941389f9218a8e818194b29c60be372ab26ec0fbbef59f3fcac85486b078f069ee0a7bbb058e9a3bfe82b90f8
+  languageName: node
+  linkType: hard
+
+"zapatos@npm:^6.1.1":
+  version: 6.1.1
+  resolution: "zapatos@npm:6.1.1"
+  peerDependencies:
+    "@types/pg": ">=7.14.3"
+    pg: ">=7.18.2"
+    typescript: ">=4.1"
+  bin:
+    zapatos: dist/generate/cli.js
+  checksum: 0c0a6a0574c6dc087e1aef5ea487865c25c6cbdd50cd60fcbde847a5003f8f4cb693d922e72eccbcce1f16f087979d7e6bcd315bd5065a69573af9f27d2ecd6d
   languageName: node
   linkType: hard
 
