@@ -41,6 +41,18 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: aggregated_roots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.aggregated_roots (
+    id character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    received_root character(66) NOT NULL,
+    domain_index numeric NOT NULL
+);
+
+
+--
 -- Name: asset_balances; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -389,6 +401,18 @@ CREATE TABLE public.messages (
 
 
 --
+-- Name: propagated_roots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.propagated_roots (
+    id character(66) NOT NULL,
+    aggregate_root character(66) NOT NULL,
+    domains text[] NOT NULL,
+    leaf_count numeric NOT NULL
+);
+
+
+--
 -- Name: root_messages; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -462,6 +486,30 @@ CREATE VIEW public.transfer_volume AS
 
 
 --
+-- Name: aggregated_roots aggregated_roots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.aggregated_roots
+    ADD CONSTRAINT aggregated_roots_id_key UNIQUE (id);
+
+
+--
+-- Name: aggregated_roots aggregated_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.aggregated_roots
+    ADD CONSTRAINT aggregated_roots_pkey PRIMARY KEY (domain_index, domain);
+
+
+--
+-- Name: aggregated_roots aggregated_roots_received_root_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.aggregated_roots
+    ADD CONSTRAINT aggregated_roots_received_root_key UNIQUE (received_root);
+
+
+--
 -- Name: asset_balances asset_balances_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -491,6 +539,22 @@ ALTER TABLE ONLY public.checkpoints
 
 ALTER TABLE ONLY public.messages
     ADD CONSTRAINT messages_pkey PRIMARY KEY (leaf);
+
+
+--
+-- Name: propagated_roots propagated_roots_aggregate_root_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.propagated_roots
+    ADD CONSTRAINT propagated_roots_aggregate_root_key UNIQUE (aggregate_root);
+
+
+--
+-- Name: propagated_roots propagated_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.propagated_roots
+    ADD CONSTRAINT propagated_roots_pkey PRIMARY KEY (id);
 
 
 --
@@ -602,4 +666,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20220921065611'),
     ('20221006051045'),
     ('20221006115622'),
-    ('20221006193142');
+    ('20221006193142'),
+    ('20221009051415');

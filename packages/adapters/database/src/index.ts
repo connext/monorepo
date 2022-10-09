@@ -6,6 +6,8 @@ import {
   XMessage,
   RootMessage,
   Logger,
+  AggregatedRoot,
+  PropagatedRoot,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -24,6 +26,8 @@ import {
   getCheckPoint,
   transaction,
   getRootMessages,
+  saveAggregatedRoots,
+  savePropagatedRoots,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -68,6 +72,8 @@ export type Database = {
   saveCheckPoint: (check: string, point: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   getCheckPoint: (check_name: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<number>;
   transaction: (callback: (client: TxnClientForRepeatableRead) => Promise<void>) => Promise<void>;
+  saveAggregatedRoots: (roots: AggregatedRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  savePropagatedRoots: (roots: PropagatedRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
 };
 
 export let pool: Pool;
@@ -97,6 +103,8 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     saveCheckPoint,
     getCheckPoint,
     transaction,
+    saveAggregatedRoots,
+    savePropagatedRoots,
   };
 };
 

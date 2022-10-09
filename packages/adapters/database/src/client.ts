@@ -7,6 +7,8 @@ import {
   RootMessage,
   convertFromDbMessage,
   convertFromDbRootMessage,
+  AggregatedRoot,
+  PropagatedRoot,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -99,6 +101,24 @@ const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"
     gas_price: message.gasPrice as any,
     gas_limit: message.gasLimit as any,
     block_number: message.blockNumber,
+  };
+};
+
+const convertToDbAggregatedRoot = (root: AggregatedRoot): s.aggregated_roots.Insertable => {
+  return {
+    id: root.id,
+    domain: root.domain,
+    received_root: root.receivedRoot,
+    domain_index: root.index,
+  };
+};
+
+const convertToDbPropagatedRoot = (root: PropagatedRoot): s.propagated_roots.Insertable => {
+  return {
+    id: root.id,
+    aggregate_root: root.aggregate,
+    domains: root.domains,
+    leaf_count: root.count,
   };
 };
 
@@ -208,6 +228,28 @@ export const getPendingMessages = async (
     .run(poolToUse);
 
   return x.map(convertFromDbMessage);
+};
+
+export const saveAggregatedRoots = async (
+  _roots: AggregatedRoot[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const roots: s.aggregated_roots.Insertable[] = _roots.map((r) => convertToDbAggregatedRoot(r)).map(sanitizeNull);
+
+  // use upsert here. if the root exists, we don't want to overwrite anything
+  await db.upsert("aggregated_roots", roots, ["id"], { updateColumns: [] }).run(poolToUse);
+};
+
+export const savePropagatedRoots = async (
+  _roots: PropagatedRoot[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const roots: s.propagated_roots.Insertable[] = _roots.map((r) => convertToDbPropagatedRoot(r)).map(sanitizeNull);
+
+  // use upsert here. if the root exists, we don't want to overwrite anything
+  await db.upsert("propagated_roots", roots, ["id"], { updateColumns: [] }).run(poolToUse);
 };
 
 export const saveCheckPoint = async (

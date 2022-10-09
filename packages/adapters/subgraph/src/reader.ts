@@ -703,7 +703,7 @@ export class SubgraphReader {
   /**
    * Gets all the propagated rootsstarting with index for a given domain
    */
-  public async getGetPropagatedRootsByDomain(prefix: string, count: number, limit: number): Promise<PropagatedRoot[]> {
+  public async getGetPropagatedRoots(prefix: string, count: number, limit: number): Promise<PropagatedRoot[]> {
     const { parser, execute } = getHelpers();
     const propagatedRootsQuery = getPropagatedRootsQuery(prefix, count, limit);
     const response = await execute(propagatedRootsQuery);
