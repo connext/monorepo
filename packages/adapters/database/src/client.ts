@@ -87,6 +87,7 @@ const convertToDbMessage = (message: XMessage): s.messages.Insertable => {
 };
 
 const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"): s.root_messages.Insertable => {
+  console.log("message: ", message);
   return {
     id: message.id,
     spoke_domain: message.spokeDomain,
@@ -95,6 +96,7 @@ const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"
     caller: message.caller,
     sent_transaction_hash: type === "sent" ? message.transactionHash : undefined,
     processed_transaction_hash: type === "processed" ? message.transactionHash : undefined,
+    processed: type === "processed" ? true : message.processed,
     sent_timestamp: message.timestamp,
     gas_price: message.gasPrice as any,
     gas_limit: message.gasLimit as any,
@@ -164,17 +166,11 @@ export const saveProcessedRootMessages = async (
     .map(sanitizeNull);
 
   // upsert to set processed tx hash and processed boolean only
+  console.log("messages: ", messages);
   await db
-    .upsert(
-      "root_messages",
-      messages.map((m) => {
-        return { ...m, processed: true };
-      }),
-      ["id"],
-      {
-        updateColumns: ["processed_transaction_hash", "processed"],
-      },
-    )
+    .upsert("root_messages", messages, ["id"], {
+      updateColumns: ["processed_transaction_hash", "processed"],
+    })
     .run(poolToUse);
 };
 

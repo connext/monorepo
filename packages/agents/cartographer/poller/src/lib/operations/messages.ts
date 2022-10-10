@@ -102,6 +102,7 @@ export const retrieveSentRootMessages = async () => {
       sentRootMessages.length == 0 ? 0 : Math.max(...sentRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
 
     await database.transaction(async (txnClient) => {
+      console.log("HELLO FROM SENT ROOT");
       await database.saveSentRootMessages(sentRootMessages, txnClient);
 
       if (sentRootMessages.length > 0 && newOffset > offset) {
@@ -144,6 +145,7 @@ export const retrieveProcessedRootMessages = async () => {
         : Math.max(...processedRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
 
     await database.transaction(async (txnClient) => {
+      console.log("HELLO FROM PROCESSED ROOT");
       await database.saveProcessedRootMessages(processedRootMessages, txnClient);
 
       if (processedRootMessages.length > 0 && newOffset > offset) {
