@@ -102,7 +102,6 @@ export const retrieveSentRootMessages = async () => {
       sentRootMessages.length == 0 ? 0 : Math.max(...sentRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
 
     await database.transaction(async (txnClient) => {
-      console.log("HELLO FROM SENT ROOT");
       await database.saveSentRootMessages(sentRootMessages, txnClient);
 
       if (sentRootMessages.length > 0 && newOffset > offset) {
@@ -143,16 +142,12 @@ export const retrieveProcessedRootMessages = async () => {
       processedRootMessages.length == 0
         ? 0
         : Math.max(...processedRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
-    console.log("processedRootMessages: ", processedRootMessages);
 
-    await database.transaction(async (txnClient) => {
-      console.log("HELLO FROM PROCESSED ROOT");
-      await database.saveProcessedRootMessages(processedRootMessages, txnClient);
+    await database.saveProcessedRootMessages(processedRootMessages);
 
-      if (processedRootMessages.length > 0 && newOffset > offset) {
-        await database.saveCheckPoint("processed_root_message_" + domain, newOffset, txnClient);
-      }
-    });
+    if (processedRootMessages.length > 0 && newOffset > offset) {
+      await database.saveCheckPoint("processed_root_message_" + domain, newOffset);
+    }
 
     logger.debug("Saved processed root messages", requestContext, methodContext, { domain: domain, offset: newOffset });
   }
