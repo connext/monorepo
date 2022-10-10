@@ -168,10 +168,10 @@ export const SdkServerApiXCallSchema = Type.Object({
   destination: Type.String(),
   to: TAddress,
   asset: TAddress,
+  delegate: TAddress,
   amount: TIntegerString,
   slippage: TIntegerString,
   callData: Type.String(),
-  delegate: TAddress,
   origin: Type.String(),
   relayerFee: Type.Optional(Type.String()),
 });
