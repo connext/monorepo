@@ -41,7 +41,7 @@ export const STAGING_INIT_CONFIG = {
       representations: {
         "1735356532": {
           local: "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E",
-          adopted: "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E",
+          adopted: "0x74c6FD7D2Bc6a8F0Ebd7D78321A95471b8C2B806",
         },
         "9991": {
           local: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
