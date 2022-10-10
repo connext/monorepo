@@ -63,6 +63,6 @@ contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
     // get the data (should be the aggregate root)
     require(_data.length == 32, "!length");
     // set the aggregate root
-    updateAggregateRoot(bytes32(_data));
+    receiveAggregateRoot(bytes32(_data));
   }
 }

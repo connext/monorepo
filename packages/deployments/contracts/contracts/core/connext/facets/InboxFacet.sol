@@ -8,6 +8,7 @@ import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {BridgeMessage} from "../libraries/BridgeMessage.sol";
+import {DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
 
 import {IAavePool} from "../interfaces/IAavePool.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
@@ -24,41 +25,19 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
  */
 contract InboxFacet is BaseConnextFacet {
   // ============ Libraries ============
+
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
   using BridgeMessage for bytes29;
 
   // ========== Custom Errors ===========
+
   error InboxFacet__onlyReplica_notReplica();
   error InboxFacet__onlyRemoteRouter_notRemote();
   error InboxFacet__handle_notTransfer();
   error InboxFacet__reconcile_notConnext();
   error InboxFacet__reconcile_alreadyReconciled();
   error InboxFacet__reconcile_noPortalRouter();
-
-  // ============ Modifiers ============
-
-  /**
-   * @notice Only accept messages from an Nomad Replica contract.
-   */
-  modifier onlyReplica() {
-    if (!_isReplica(msg.sender)) {
-      revert InboxFacet__onlyReplica_notReplica();
-    }
-    _;
-  }
-
-  /**
-   * @notice Only accept messages from a remote Router contract.
-   * @param _origin The domain the message is coming from.
-   * @param _router The address the message is coming from.
-   */
-  modifier onlyRemoteRouter(uint32 _origin, bytes32 _router) {
-    if (!_isRemoteRouter(_origin, _router)) {
-      revert InboxFacet__onlyRemoteRouter_notRemote();
-    }
-    _;
-  }
 
   // ============ Events ============
 
@@ -101,6 +80,30 @@ contract InboxFacet is BaseConnextFacet {
     address liquidityProvider,
     uint256 amount
   );
+
+  // ============ Modifiers ============
+
+  /**
+   * @notice Only accept messages from an Nomad Replica contract.
+   */
+  modifier onlyReplica() {
+    if (!_isReplica(msg.sender)) {
+      revert InboxFacet__onlyReplica_notReplica();
+    }
+    _;
+  }
+
+  /**
+   * @notice Only accept messages from a remote Router contract.
+   * @param _origin The domain the message is coming from.
+   * @param _router The address the message is coming from.
+   */
+  modifier onlyRemoteRouter(uint32 _origin, bytes32 _router) {
+    if (!_isRemoteRouter(_origin, _router)) {
+      revert InboxFacet__onlyRemoteRouter_notRemote();
+    }
+    _;
+  }
 
   // ============ External Functions ============
 
@@ -154,12 +157,17 @@ contract InboxFacet is BaseConnextFacet {
     uint256 _amount
   ) internal {
     // Ensure the transfer has not already been handled (i.e. previously reconciled).
-    if (s.reconciledTransfers[_transferId]) {
+    // Will be previously reconciled IFF status == reconciled -or- status == executed
+    // and there is no path length on the transfers (no fast liquidity)
+    DestinationTransferStatus status = s.transferStatus[_transferId];
+    if (status != DestinationTransferStatus.None && status != DestinationTransferStatus.Executed) {
       revert InboxFacet__reconcile_alreadyReconciled();
     }
 
     // Mark the transfer as reconciled.
-    s.reconciledTransfers[_transferId] = true;
+    s.transferStatus[_transferId] = status == DestinationTransferStatus.None
+      ? DestinationTransferStatus.Reconciled
+      : DestinationTransferStatus.Completed;
 
     // If the transfer was executed using fast-liquidity provided by routers, then this value would be set
     // to the participating routers.

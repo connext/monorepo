@@ -5,7 +5,6 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
-import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {RoutersFacet, BaseConnextFacet} from "../../../../contracts/core/connext/facets/RoutersFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
@@ -238,8 +237,8 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     assertEq(s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0], false);
   }
 
-  function test_RoutersFacet__removeRouter_failsIfNotOwnerOrAdmin() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
+  function test_RoutersFacet__removeRouter_failsIfNotOwnerOrRouter() public {
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter.selector);
     vm.prank(address(123456123));
     this.removeRouter(address(0));
   }
@@ -333,7 +332,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__setMaxRoutersPerTransfer_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     vm.prank(address(123456654321));
     this.setMaxRoutersPerTransfer(10);
   }
@@ -368,7 +367,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__setLiquidityFeeNumerator_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     vm.prank(address(123456654321));
     this.setLiquidityFeeNumerator(9995);
   }
@@ -679,6 +678,15 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 amount = 10;
     vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_routerEmpty.selector);
     this.addRouterLiquidityFor(amount, _local, address(0));
+  }
+
+  function test_RoutersFacet__addLiquidityForRouter_failsIfHitsCap() public {
+    uint256 amount = 10;
+    utils_setupAsset(true, true);
+    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.caps[utils_calculateCanonicalHash()] = 1;
+    vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_capReached.selector);
+    this.addRouterLiquidityFor(amount, _local, _routerAgent0);
   }
 
   function test_RoutersFacet__addLiquidityForRouter_failsIfNoAmount() public {

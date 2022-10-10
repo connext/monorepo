@@ -4,10 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
-import type {
-  ConnextHandler,
-  ConnextHandlerInterface,
-} from "../../../hardhat-diamond-abi/HardhatDiamondABI.sol/ConnextHandler";
+import type { Connext, ConnextInterface } from "../../../hardhat-diamond-abi/HardhatDiamondABI.sol/Connext";
 
 const _abi = [
   {
@@ -97,12 +94,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__execute_alreadyExecuted",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BridgeFacet__execute_alreadyReconciled",
+    name: "BridgeFacet__execute_badFastLiquidityStatus",
     type: "error",
   },
   {
@@ -178,6 +170,11 @@ const _abi = [
   {
     inputs: [],
     name: "BridgeFacet__xcall_canonicalAssetNotReceived",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BridgeFacet__xcall_capReached",
     type: "error",
   },
   {
@@ -322,7 +319,7 @@ const _abi = [
                 type: "bytes32",
               },
             ],
-            internalType: "struct CallParams",
+            internalType: "struct TransferInfo",
             name: "params",
             type: "tuple",
           },
@@ -378,31 +375,6 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
-        internalType: "address",
-        name: "oldExecutor",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "newExecutor",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "ExecutorUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
         indexed: true,
         internalType: "bytes32",
         name: "transferId",
@@ -447,49 +419,6 @@ const _abi = [
       },
     ],
     name: "RemoteAdded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "from",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "uint32",
-        name: "toDomain",
-        type: "uint32",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "toId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "toHook",
-        type: "bool",
-      },
-    ],
-    name: "Send",
     type: "event",
   },
   {
@@ -561,7 +490,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "relayerFee",
+        name: "increase",
         type: "uint256",
       },
       {
@@ -571,7 +500,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "TransferRelayerFeesUpdated",
+    name: "TransferRelayerFeesIncreased",
     type: "event",
   },
   {
@@ -664,15 +593,21 @@ const _abi = [
           },
         ],
         indexed: false,
-        internalType: "struct CallParams",
+        internalType: "struct TransferInfo",
         name: "params",
         type: "tuple",
       },
       {
         indexed: false,
         internalType: "address",
-        name: "local",
+        name: "asset",
         type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
     ],
     name: "XCalled",
@@ -686,19 +621,6 @@ const _abi = [
         internalType: "uint16",
         name: "",
         type: "uint16",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "DUST_AMOUNT",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -852,7 +774,7 @@ const _abi = [
                 type: "bytes32",
               },
             ],
-            internalType: "struct CallParams",
+            internalType: "struct TransferInfo",
             name: "params",
             type: "tuple",
           },
@@ -963,7 +885,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct CallParams",
+        internalType: "struct TransferInfo",
         name: "_params",
         type: "tuple",
       },
@@ -981,44 +903,6 @@ const _abi = [
   {
     inputs: [],
     name: "nonce",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_transferId",
-        type: "bytes32",
-      },
-    ],
-    name: "reconciledTransfers",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_transferId",
-        type: "bytes32",
-      },
-    ],
-    name: "relayerFees",
     outputs: [
       {
         internalType: "uint256",
@@ -1091,6 +975,25 @@ const _abi = [
     name: "setXAppConnectionManager",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_transferId",
+        type: "bytes32",
+      },
+    ],
+    name: "transferStatus",
+    outputs: [
+      {
+        internalType: "enum DestinationTransferStatus",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -1803,7 +1706,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct CallParams",
+        internalType: "struct TransferInfo",
         name: "_params",
         type: "tuple",
       },
@@ -1898,7 +1801,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct CallParams",
+        internalType: "struct TransferInfo",
         name: "_params",
         type: "tuple",
       },
@@ -2473,17 +2376,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "RelayerFacet__onlyRelayerFeeRouter_notRelayerFeeRouter",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "RelayerFacet__removeRelayer_notApproved",
     type: "error",
   },
   {
     inputs: [],
-    name: "RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter",
+    name: "RelayerFacet__setRelayerFeeVault_invalidRelayerFeeVault",
     type: "error",
   },
   {
@@ -2567,13 +2465,13 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
-        name: "oldRouter",
+        name: "oldVault",
         type: "address",
       },
       {
         indexed: false,
         internalType: "address",
-        name: "newRouter",
+        name: "newVault",
         type: "address",
       },
       {
@@ -2583,7 +2481,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "RelayerFeeRouterUpdated",
+    name: "RelayerFeeVaultUpdated",
     type: "event",
   },
   {
@@ -2638,52 +2536,11 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_recipient",
-        type: "address",
-      },
-      {
-        internalType: "bytes32[]",
-        name: "_transferIds",
-        type: "bytes32[]",
-      },
-    ],
-    name: "claim",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "_domain",
-        type: "uint32",
-      },
-      {
-        internalType: "address",
-        name: "_recipient",
-        type: "address",
-      },
-      {
-        internalType: "bytes32[]",
-        name: "_transferIds",
-        type: "bytes32[]",
-      },
-    ],
-    name: "initiateClaim",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
-    name: "relayerFeeRouter",
+    name: "relayerFeeVault",
     outputs: [
       {
-        internalType: "contract RelayerFeeRouter",
+        internalType: "address",
         name: "",
         type: "address",
       },
@@ -2708,32 +2565,13 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "_relayerFeeRouter",
+        name: "_relayerFeeVault",
         type: "address",
       },
     ],
-    name: "setRelayerFeeRouter",
+    name: "setRelayerFeeVault",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_transferId",
-        type: "bytes32",
-      },
-    ],
-    name: "transferRelayer",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -2764,6 +2602,11 @@ const _abi = [
   {
     inputs: [],
     name: "RoutersFacet__addLiquidityForRouter_badRouter",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RoutersFacet__addLiquidityForRouter_capReached",
     type: "error",
   },
   {
@@ -4313,6 +4156,43 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "uint256",
+        name: "cap",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "LiquidityCapUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "key",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "canonicalId",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "uint32",
+        name: "domain",
+        type: "uint32",
+      },
+      {
+        indexed: false,
         internalType: "address",
         name: "swapPool",
         type: "address",
@@ -4806,6 +4686,11 @@ const _abi = [
         name: "_stableSwapPool",
         type: "address",
       },
+      {
+        internalType: "uint256",
+        name: "_cap",
+        type: "uint256",
+      },
     ],
     name: "setupAsset",
     outputs: [
@@ -4851,6 +4736,11 @@ const _abi = [
         internalType: "address",
         name: "_stableSwapPool",
         type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_cap",
+        type: "uint256",
       },
     ],
     name: "setupAssetWithDeployedRepresentation",
@@ -4899,17 +4789,44 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
+        internalType: "uint256",
+        name: "_updated",
+        type: "uint256",
+      },
+    ],
+    name: "updateLiquidityCap",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ];
 
-export class ConnextHandler__factory {
+export class Connext__factory {
   static readonly abi = _abi;
-  static createInterface(): ConnextHandlerInterface {
-    return new utils.Interface(_abi) as ConnextHandlerInterface;
+  static createInterface(): ConnextInterface {
+    return new utils.Interface(_abi) as ConnextInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): ConnextHandler {
-    return new Contract(address, _abi, signerOrProvider) as ConnextHandler;
+  static connect(address: string, signerOrProvider: Signer | Provider): Connext {
+    return new Contract(address, _abi, signerOrProvider) as Connext;
   }
 }

@@ -416,7 +416,7 @@ const _abi = [
     name: "connext",
     outputs: [
       {
-        internalType: "contract IConnextHandler",
+        internalType: "contract IConnext",
         name: "",
         type: "address",
       },

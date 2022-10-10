@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {AppStorage, TokenId} from "../libraries/LibConnextStorage.sol";
@@ -39,6 +41,7 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__addLiquidityForRouter_routerEmpty();
   error RoutersFacet__addLiquidityForRouter_amountIsZero();
   error RoutersFacet__addLiquidityForRouter_badRouter();
+  error RoutersFacet__addLiquidityForRouter_capReached();
   error RoutersFacet__removeRouterLiquidity_recipientEmpty();
   error RoutersFacet__removeRouterLiquidity_amountIsZero();
   error RoutersFacet__removeRouterLiquidity_insufficientFunds();
@@ -291,7 +294,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Used to remove routers that can transact crosschain
    * @param router Router address to remove
    */
-  function removeRouter(address router) external onlyOwnerOrAdmin {
+  function removeRouter(address router) external onlyOwnerOrRouter {
     // Sanity check: not empty
     if (router == address(0)) revert RoutersFacet__removeRouter_routerEmpty();
 
@@ -332,7 +335,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Used to set the max amount of routers a payment can be routed through
    * @param _newMaxRouters The new max amount of routers
    */
-  function setMaxRoutersPerTransfer(uint256 _newMaxRouters) external onlyOwner {
+  function setMaxRoutersPerTransfer(uint256 _newMaxRouters) external onlyOwnerOrAdmin {
     if (_newMaxRouters == 0 || _newMaxRouters == s.maxRoutersPerTransfer)
       revert RoutersFacet__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
 
@@ -346,7 +349,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @dev Admin can set LIQUIDITY_FEE_NUMERATOR variable, Liquidity fee should be less than 5%
    * @param _numerator new LIQUIDITY_FEE_NUMERATOR
    */
-  function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwner {
+  function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwnerOrAdmin {
     // Slightly misleading: the liquidity fee numerator is not the amount charged,
     // but the amount received after fees are deducted (e.g. 9995/10000 would be .005%).
     uint256 denominator = BPS_FEE_DENOMINATOR;
@@ -362,7 +365,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Allow router to use Portals
    * @param _router - The router address to approve
    */
-  function approveRouterForPortal(address _router) external onlyOwner {
+  function approveRouterForPortal(address _router) external onlyOwnerOrAdmin {
     if (!s.routerPermissionInfo.approvedRouters[_router] && !_isRouterWhitelistRemoved())
       revert RoutersFacet__approveRouterForPortal_notAdded();
     if (s.routerPermissionInfo.approvedForPortalRouters[_router])
@@ -377,7 +380,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Remove router access to use Portals
    * @param _router - The router address to remove approval
    */
-  function unapproveRouterForPortal(address _router) external onlyOwner {
+  function unapproveRouterForPortal(address _router) external onlyOwnerOrAdmin {
     if (!s.routerPermissionInfo.approvedForPortalRouters[_router])
       revert RoutersFacet__unapproveRouterForPortal_notApproved();
 
@@ -542,11 +545,20 @@ contract RoutersFacet is BaseConnextFacet {
     if (_amount == 0) revert RoutersFacet__addLiquidityForRouter_amountIsZero();
 
     // Get the canonical asset ID from the representation.
-    (, bytes32 key) = _getApprovedCanonicalId(_local);
+    (TokenId memory canonical, bytes32 key) = _getApprovedCanonicalId(_local);
 
     // Sanity check: router is approved.
     if (!_isRouterWhitelistRemoved() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
+
+    if (s.domain == canonical.domain) {
+      // Sanity check: caps not reached
+      uint256 custodied = IERC20(_local).balanceOf(address(this)) + _amount;
+      uint256 cap = s.caps[key];
+      if (cap > 0 && custodied > cap) {
+        revert RoutersFacet__addLiquidityForRouter_capReached();
+      }
+    }
 
     // Transfer funds to contract.
     AssetLogic.handleIncomingAsset(_local, _amount);

@@ -13,7 +13,9 @@ import {
   OriginMessage,
   DestinationMessage,
   RootMessage,
+  ConnectorMeta,
 } from "@connext/nxtp-utils";
+import { gql } from "graphql-request";
 
 import { getHelpers } from "./lib/helpers";
 import {
@@ -38,12 +40,18 @@ import {
   getOriginMessagesByDomainAndIndexQuery,
   getDestinationMessagesByDomainAndLeafQuery,
   getSentRootMessagesByDomainAndBlockQuery,
-  getProcessedRootMessagesByDomainAndBlockQuery,
+  getConnectorMetaQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
+import { graphQlRequest } from "./mockable";
 
 let context: { config: SubgraphMap };
 export const getContext = () => context;
+
+// TODO: VERY STUPID, graphclient is not working for this
+export const DOMAIN_TO_HUB_MAPPING: Record<string, string> = {
+  "1735353714": "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-hub-staging-goerli",
+};
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
@@ -137,10 +145,11 @@ export class SubgraphReader {
 
     const query = getAssetBalanceQuery(prefix, router.toLowerCase(), local.toLowerCase());
     const response = await execute(query);
-    if (![...response.values()][0] || [...response.values()][0].length == 0) {
+    const values = [...response.values()];
+    if (!values[0] || values[0].length == 0 || values[0][0] == null) {
       return BigNumber.from("0");
     }
-    return BigNumber.from([...response.values()][0][0].amount);
+    return BigNumber.from(values[0][0].amount);
   }
 
   /**
@@ -156,10 +165,11 @@ export class SubgraphReader {
 
     const query = getAssetBalancesQuery(prefix, router.toLowerCase());
     const response = await execute(query);
+    const values = [...response.values()];
 
-    const assetBalances = [...response.values()][0] ? [...response.values()][0][0] : [];
+    const assetBalances = values[0] ? values[0][0] : [];
     const balances: Record<string, BigNumber> = {};
-    assetBalances.forEach((bal: any) => (balances[bal.asset.local as string] = BigNumber.from(bal.amount)));
+    assetBalances.forEach((bal: any) => (balances[bal.asset.id as string] = BigNumber.from(bal.amount)));
     return balances;
   }
 
@@ -191,7 +201,9 @@ export class SubgraphReader {
             canonicalDomain: a.asset.canonicalDomain,
             canonicalId: a.asset.canonicalId,
             domain,
-            local: a.asset.local,
+            localAsset: a.asset.id,
+            id: a.asset.id,
+            key: a.asset.key,
           } as AssetBalance;
         }),
         router: router.id,
@@ -644,18 +656,52 @@ export class SubgraphReader {
   public async getProcessedRootMessagesByDomain(
     params: { domain: string; offset: number; limit: number }[],
   ): Promise<RootMessage[]> {
-    const { parser, execute } = getHelpers();
-    const processedRootMessageQuery = getProcessedRootMessagesByDomainAndBlockQuery(params);
-    const response = await execute(processedRootMessageQuery);
-    const _messages: any[] = [];
-    for (const key of response.keys()) {
-      const value = response.get(key);
-      const flatten = value?.flat();
-      const _message = flatten?.map((x) => {
-        return { ...x, domain: key };
-      });
-      _messages.push(_message);
-    }
+    const { parser } = getHelpers();
+
+    const _messages = await Promise.all(
+      params.map(async (param) => {
+        const processedRootMessageQuery_ = gql`
+          query RootMessageProcesseds($limit: Int!, $offset: Int!) {
+            rootMessageProcesseds(first: $limit, where: { blockNumber_gt: $offset }) {
+              id
+              spokeDomain
+              hubDomain
+              root
+              caller
+              transactionHash
+              timestamp
+              gasPrice
+              gasLimit
+              blockNumber
+            }
+          }
+        `;
+
+        const endpoint = DOMAIN_TO_HUB_MAPPING[param.domain];
+        if (!endpoint) {
+          return [];
+        }
+
+        const data = await graphQlRequest(endpoint, processedRootMessageQuery_, {
+          limit: param.limit,
+          offset: param.offset,
+        });
+        return data?.rootMessageProcesseds ?? [];
+      }),
+    );
+
+    // TOOD: THIS SHOULD WORK BUT DOESNT
+    // const processedRootMessageQuery = getProcessedRootMessagesByDomainAndBlockQuery(params);
+    // const response = await execute(processedRootMessageQuery);
+    // const _messages: any[] = [];
+    // for (const key of response.keys()) {
+    //   const value = response.get(key);
+    //   const flatten = value?.flat();
+    //   const _message = flatten?.map((x) => {
+    //     return { ...x, domain: key };
+    //   });
+    //   _messages.push(_message);
+    // }
 
     const processedRootMessages: RootMessage[] = _messages
       .flat()
@@ -663,5 +709,27 @@ export class SubgraphReader {
       .map(parser.rootMessage);
 
     return processedRootMessages;
+  }
+
+  public async getConnectorMeta(domains: string[]): Promise<ConnectorMeta[]> {
+    const { parser, execute } = getHelpers();
+    const connectorMetaQuery = getConnectorMetaQuery(domains);
+    const response = await execute(connectorMetaQuery);
+    const _metas: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _message = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _metas.push(_message);
+    }
+
+    const connectorMetas: ConnectorMeta[] = _metas
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.connectorMeta);
+
+    return connectorMetas;
   }
 }

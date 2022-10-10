@@ -8,7 +8,7 @@ pragma solidity 0.8.15;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol";
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/draft-EIP712Upgradeable.sol";
+import {EIP712} from "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -45,7 +45,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract ERC20 is IERC20, IERC20Permit, EIP712Upgradeable {
+contract ERC20 is IERC20, IERC20Permit, EIP712 {
   using SafeMath for uint256;
 
   mapping(address => uint256) private balances;
@@ -64,6 +64,7 @@ contract ERC20 is IERC20, IERC20Permit, EIP712Upgradeable {
     keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
   bytes32 private constant _TYPE_HASH =
     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+  bytes32 private _HASHED_VERSION;
 
   /**
    * @dev Initializes the {EIP712} domain separator using the `name` parameter,
@@ -71,16 +72,16 @@ contract ERC20 is IERC20, IERC20Permit, EIP712Upgradeable {
    *
    * It's a good idea to use the same `name` that is defined as the ERC20 token name.
    */
-  function __ERC20_init(
+  constructor(
     uint8 _decimals,
     string memory _name,
     string memory _symbol,
     string memory _version
-  ) internal onlyInitializing {
-    __EIP712_init(_name, _version);
+  ) EIP712(_name, _version) {
     token.name = _name;
     token.decimals = _decimals;
     token.symbol = _symbol;
+    _HASHED_VERSION = keccak256(bytes(_version));
   }
 
   struct Token {
@@ -379,10 +380,10 @@ contract ERC20 is IERC20, IERC20Permit, EIP712Upgradeable {
    * This is ALWAYS calculated at runtime because the token name is mutable, not constant.
    */
   function DOMAIN_SEPARATOR() external view override returns (bytes32) {
-    // See {EIP712Upgradeable._buildDomainSeparator}
+    // See {EIP712._buildDomainSeparator}
     return
       keccak256(
-        abi.encode(_TYPE_HASH, keccak256(abi.encode(token.name)), _EIP712VersionHash(), block.chainid, address(this))
+        abi.encode(_TYPE_HASH, keccak256(abi.encode(token.name)), _HASHED_VERSION, block.chainid, address(this))
       );
   }
 

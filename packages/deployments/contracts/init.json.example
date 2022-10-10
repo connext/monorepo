@@ -19,10 +19,15 @@
         "domain": "1735353714",
         "address": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1"
       },
-      "representations": {
-        "1735356532": {
-          "local": "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF"
-        }
+      "representations": {	
+        "1735356532": {	
+          "local": "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF",	
+          "adopted": "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF"	
+        },	
+        "1734439522": {	
+          "local": "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",	
+          "adopted": "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f"	
+        }	
       }
     },
     {

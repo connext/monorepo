@@ -7,6 +7,7 @@ import {
   getTransactionHashFromGelato as _getTransactionHashFromGelato,
   gelatoSDKSend as _gelatoSDKSend,
 } from "@connext/nxtp-utils";
+import { CrossChainMessenger as _CrossChainMessenger } from "@eth-optimism/sdk";
 import axios from "axios";
 
 export const existsSync = fs.existsSync;
@@ -25,3 +26,5 @@ export const gelatoSDKSend = _gelatoSDKSend;
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 export const axiosGet = axios.get;
+
+export const CrossChainMessenger = _CrossChainMessenger;

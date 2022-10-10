@@ -3,7 +3,6 @@ pragma solidity 0.8.15;
 
 import "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import "../../../../contracts/core/connext/libraries/SwapUtils.sol";
-import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {LibConnextStorage, AppStorage, TokenId} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 
@@ -16,16 +15,8 @@ contract LibCaller {
     AppStorage storage s = LibConnextStorage.connextStorage();
   }
 
-  function handleIncomingAsset(address _assetId, uint256 _assetAmount) public payable {
-    AssetLogic.handleIncomingAsset(_assetId, _assetAmount);
-  }
-
-  function deposit(IWeth wrapper) public payable {
-    wrapper.deposit{value: msg.value}();
-  }
-
-  function transferAssetToContract(address _assetId, uint256 _amount) public {
-    AssetLogic.transferAssetToContract(_assetId, _amount);
+  function handleIncomingAsset(address _asset, uint256 _amount) public payable {
+    AssetLogic.handleIncomingAsset(_asset, _amount);
   }
 }
 
@@ -85,29 +76,22 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   }
 
   // transfers specified asset to contract
-  function utils_handleIncomingAssetAndAssert(
-    address assetId,
-    uint256 amount,
-    uint256 fee
-  ) public {
+  function utils_handleIncomingAssetAndAssert(address asset, uint256 amount) public {
     // get initial balances
-    uint256 initDestAssetBalance = IERC20(assetId).balanceOf(address(caller));
-    uint256 initDestFeeBalance = address(caller).balance;
-
-    uint256 initSrcAssetBalance = IERC20(assetId).balanceOf(address(this));
-    uint256 initSrcFeeBalance = address(this).balance;
+    uint256 initSrcAssetBalance = IERC20(asset).balanceOf(address(this));
+    uint256 initDestAssetBalance = IERC20(asset).balanceOf(address(caller));
 
     // approve
-    IERC20(assetId).approve(address(caller), amount);
+    IERC20(asset).approve(address(caller), amount);
 
-    caller.handleIncomingAsset{value: fee}(assetId, amount);
+    caller.handleIncomingAsset(asset, amount);
 
-    // caller balance always goes up in token
-    assertEq(IERC20(assetId).balanceOf(address(caller)), initDestAssetBalance + amount);
-    // fees on caller
-    assertEq(address(caller).balance, initDestFeeBalance + fee);
-    assertEq(IERC20(assetId).balanceOf(address(this)), initSrcAssetBalance - amount);
-    assertEq(address(this).balance, initSrcFeeBalance - fee);
+    console.log(asset, amount);
+
+    // caller balance should go up in token amount.
+    assertEq(IERC20(asset).balanceOf(address(caller)), initDestAssetBalance + amount);
+    // source balance should go down in token amount.
+    assertEq(IERC20(asset).balanceOf(address(this)), initSrcAssetBalance - amount);
   }
 
   // transfers specified asset from contract
@@ -195,13 +179,6 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     assertEq(received, willSwap ? swapOut : amount);
   }
 
-  // ============ stableSwapPoolExist ============
-  function test_AssetLogic__stableSwapPoolExist_works() public {
-    utils_setMockStableSwap();
-    assertEq(AssetLogic.stableSwapPoolExist(_canonicalKey), true);
-    assertEq(AssetLogic.stableSwapPoolExist(bytes32(abi.encodePacked(address(5)))), false);
-  }
-
   // ============ getTokenIndexFromStableSwapPool ============
   function test_AssetLogic__getTokenIndexFromStableSwapPool_failsIfNotFound() public {
     utils_setMockStableSwap();
@@ -217,10 +194,13 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
 
   // ============ handleIncomingAsset ============
   function test_AssetLogic__handleIncomingAsset_worksWithToken() public {
-    address assetId = _local;
-    uint256 amount = 10;
-    uint256 fee = 1;
-    utils_handleIncomingAssetAndAssert(assetId, amount, fee);
+    utils_handleIncomingAssetAndAssert(_local, 1 ether);
+  }
+
+  function test_AssetLogic__handleIncomingAsset_failsWithFeeOnTransferToken() public {
+    FeeERC20 feeAsset = new FeeERC20();
+    vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_feeOnTransferNotSupported.selector);
+    caller.handleIncomingAsset(address(feeAsset), 1 ether);
   }
 
   // ============ handleOutgoingAsset ============
@@ -247,22 +227,6 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     address to = address(12345);
     uint256 amount = 0;
     utils_handleOutgoingAssetAndAssert(assetId, to, amount);
-  }
-
-  // ============ transferAssetToContract ============
-  function test_AssetLogic__transferAssetToContract_works() public {
-    uint256 initSrc = IERC20(_local).balanceOf(address(this));
-    uint256 initDest = IERC20(_local).balanceOf(address(caller));
-    IERC20(_local).approve(address(caller), 100);
-    caller.transferAssetToContract(_local, 100);
-    assertEq(IERC20(_local).balanceOf(address(this)), initSrc - 100);
-    assertEq(IERC20(_local).balanceOf(address(caller)), initDest + 100);
-  }
-
-  function test_AssetLogic__transferAssetToContract_failsWithFeeOnTransfer() public {
-    FeeERC20 fee = new FeeERC20();
-    vm.expectRevert(AssetLogic.AssetLogic__transferAssetToContract_feeOnTransferNotSupported.selector);
-    caller.transferAssetToContract(address(fee), 100);
   }
 
   // ============ calculateSlippageBoundary ============

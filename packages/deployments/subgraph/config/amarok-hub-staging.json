@@ -4,14 +4,19 @@
     "network": "goerli",
     "source": [
       {
+        "name": "RootManager",
+        "address": "0x3A22C32A7Cff982c17bdff8532099Cc919A844a8",
+        "startBlock": 7734509
+      },
+      {
         "name": "PolygonHubConnector",
-        "address": "0x51aF1eABBE220C8d687142376E0173Bb18E07b0d",
-        "startBlock": 7584639
+        "address": "0xa1f3A7655D37cfa25e795300F43cF70d0FaC70D9",
+        "startBlock": 7734523
       },
       {
         "name": "OptimismHubConnector",
-        "address": "0x86443d940cEE4FCeD0C9640109BdF277b9D0248A",
-        "startBlock": 7584635
+        "address": "0x243CB382865E6813822D70496D7009Cfe62db70f",
+        "startBlock": 7734520
       }
     ]
   }

@@ -6,7 +6,7 @@ import {
   XTransferStatus,
   getRandomBytes32,
   Bid,
-  CallParams,
+  TransferInfo,
   ExecuteArgs,
   createLoggingContext,
 } from "..";
@@ -76,7 +76,7 @@ export const mock = {
   },
   loggingContext: (name = "TEST") => createLoggingContext(name, undefined, mkBytes32()),
   entity: {
-    callParams: (overrides: Partial<CallParams> = {}): CallParams => ({
+    callParams: (overrides: Partial<TransferInfo> = {}): TransferInfo => ({
       originDomain: mock.domain.A,
       destinationDomain: mock.domain.B,
       canonicalDomain: mock.domain.A,
@@ -381,9 +381,10 @@ export const mock = {
       caller: mock.address.relayer,
       transactionHash: getRandomBytes32(),
       timestamp: Math.floor(Date.now() / 1000),
-      gasPrice: utils.parseUnits("5", "gwei").toNumber(),
-      gasLimit: 100000,
-      blockNumber: Math.floor(Date.now()),
+      gasPrice: utils.parseUnits("5", "gwei").toString(),
+      gasLimit: "100000",
+      blockNumber: Math.floor(Date.now() / 1000),
+      processed: false,
       ...overrides,
     }),
   },

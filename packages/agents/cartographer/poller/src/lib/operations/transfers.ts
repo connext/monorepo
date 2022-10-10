@@ -102,18 +102,24 @@ export const updateTransfers = async () => {
       );
       logger.info("Retrieved origin transfer", _requestContext, _methodContext, { transfer });
     });
-    await database.saveTransfers(transfers);
-
-    await Promise.all(
-      domains.map(async (domain) => {
+    const checkpoints = domains
+      .map((domain) => {
         const domainTransfers = transfers.filter((transfer) => transfer.xparams!.originDomain === domain);
         const max = getMaxNonce(domainTransfers);
         const latest = subgraphOriginQueryMetaParams.get(domain)?.latestNonce ?? 0;
         if (domainTransfers.length > 0 && max > latest) {
-          await database.saveCheckPoint("origin_nonce_" + domain, max);
+          return { domain, checkpoint: max };
         }
-      }),
-    );
+        return undefined;
+      })
+      .filter((x) => !!x) as { domain: string; checkpoint: number }[];
+
+    await database.transaction(async (txnClient) => {
+      await database.saveTransfers(transfers, txnClient);
+      for (const checkpoint of checkpoints) {
+        await database.saveCheckPoint("origin_nonce_" + checkpoint.domain, checkpoint.checkpoint, txnClient);
+      }
+    });
   }
 
   if (subgraphDestinationQueryMetaParams.size > 0) {
@@ -123,18 +129,25 @@ export const updateTransfers = async () => {
       transfers: transfers,
       count: transfers.length,
     });
-    await database.saveTransfers(transfers);
 
-    await Promise.all(
-      domains.map(async (domain) => {
+    const checkpoints = domains
+      .map((domain) => {
         const domainTransfers = transfers.filter((transfer) => transfer.xparams!.destinationDomain === domain);
         const max = getMaxNonce(domainTransfers);
         const latest = subgraphDestinationQueryMetaParams.get(domain)?.latestNonce ?? 0;
         if (domainTransfers.length > 0 && max > latest) {
-          await database.saveCheckPoint("destination_nonce_" + domain, max);
+          return { domain, checkpoint: max };
         }
-      }),
-    );
+        return undefined;
+      })
+      .filter((x) => !!x) as { domain: string; checkpoint: number }[];
+
+    await database.transaction(async (txnClient) => {
+      await database.saveTransfers(transfers, txnClient);
+      for (const checkpoint of checkpoints) {
+        await database.saveCheckPoint("destination_nonce_" + checkpoint.domain, checkpoint.checkpoint, txnClient);
+      }
+    });
   }
 
   await Promise.all(
@@ -147,13 +160,15 @@ export const updateTransfers = async () => {
         domain: domain,
         count: domainTransfers.length,
       });
-      await database.saveTransfers(domainTransfers);
-
       const max = getMaxReconcileTimestamp(domainTransfers);
       const latest = subgraphReconcileQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
-      if (domainTransfers.length > 0 && max > latest) {
-        await database.saveCheckPoint("destination_reconcile_timestamp_" + domain, max);
-      }
+
+      await database.transaction(async (txnClient) => {
+        await database.saveTransfers(domainTransfers, txnClient);
+        if (domainTransfers.length > 0 && max > latest) {
+          await database.saveCheckPoint("destination_reconcile_timestamp_" + domain, max, txnClient);
+        }
+      });
     }),
   );
 

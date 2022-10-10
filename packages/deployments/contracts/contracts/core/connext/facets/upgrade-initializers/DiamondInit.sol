@@ -11,14 +11,12 @@ pragma solidity ^0.8.0;
 import {IDiamondLoupe} from "../../interfaces/IDiamondLoupe.sol";
 import {IDiamondCut} from "../../interfaces/IDiamondCut.sol";
 import {IERC165} from "../../interfaces/IERC165.sol";
-import {IWeth} from "../../interfaces/IWeth.sol";
 
 import {LibDiamond} from "../../libraries/LibDiamond.sol";
 
 import {BaseConnextFacet} from "../BaseConnextFacet.sol";
 
 import {IProposedOwnable} from "../../../../shared/interfaces/IProposedOwnable.sol";
-import {RelayerFeeRouter} from "../../../relayer-fee/RelayerFeeRouter.sol";
 import {IConnectorManager} from "../../../../messaging/interfaces/IConnectorManager.sol";
 
 // It is expected that this contract is customized if you want to deploy your diamond
@@ -30,11 +28,8 @@ contract DiamondInit is BaseConnextFacet {
   // data to set your own state variables
   function init(
     uint32 _domain,
-    address _tokenBeacon,
-    address _relayerFeeRouter,
     address _xAppConnectionManager,
-    uint256 _acceptanceDelay,
-    uint256 _ownershipDelay
+    uint256 _acceptanceDelay
   ) external {
     // adding ERC165 data
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
@@ -60,14 +55,11 @@ contract DiamondInit is BaseConnextFacet {
       // __ReentrancyGuard_init_unchained
       s._status = _NOT_ENTERED;
 
-      // ConnextHandler
-      s.tokenBeacon = _tokenBeacon;
+      // Connext
       s.domain = _domain;
-      s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.maxRoutersPerTransfer = 5;
       s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
-      s._ownershipDelay = _ownershipDelay;
     }
   }
 }

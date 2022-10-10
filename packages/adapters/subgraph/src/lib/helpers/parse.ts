@@ -5,6 +5,7 @@ import {
   DestinationMessage,
   RootMessage,
   OriginTransfer,
+  ConnectorMeta,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
@@ -75,7 +76,7 @@ export const originTransfer = (entity: any): OriginTransfer => {
           amount: entity.normalizedIn,
         },
         bridged: {
-          asset: entity.asset.local,
+          asset: entity.asset.id,
           amount: entity.bridgedAmt,
         },
       },
@@ -163,7 +164,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
               }
             : undefined,
         local: {
-          asset: entity.asset.local,
+          asset: entity.asset.id,
           amount: entity.bridgedAmt,
         },
       },
@@ -285,7 +286,6 @@ export const rootMessage = (entity: any): RootMessage => {
     "hubDomain",
     "root",
     "caller",
-    "transactionHash",
     "timestamp",
     "gasPrice",
     "gasLimit",
@@ -310,5 +310,30 @@ export const rootMessage = (entity: any): RootMessage => {
     gasPrice: entity.gasPrice,
     gasLimit: entity.gasLimit,
     blockNumber: entity.blockNumber,
+    processed: entity.processed,
+  };
+};
+
+export const connectorMeta = (entity: any): ConnectorMeta => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `ConnectorMeta` entity parser: ConnectorMeta, entity is `undefined`.");
+  }
+  for (const field of ["id", "spokeDomain", "hubDomain", "rootManager", "mirrorConnector", "amb"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `ConnectorMeta` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    spokeDomain: entity.spokeDomain,
+    hubDomain: entity.hubDomain,
+    amb: entity.amb,
+    mirrorConnector: entity.mirrorConnector,
+    rootManager: entity.rootManager,
   };
 };

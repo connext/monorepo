@@ -2,9 +2,8 @@
 pragma solidity 0.8.15;
 
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
-import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
 
-import {LibConnextStorage, AppStorage, TokenId, CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {LibConnextStorage, AppStorage, TokenId, TransferInfo} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {TypeCasts} from "../../contracts/shared/libraries/TypeCasts.sol";
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
 
@@ -94,7 +93,6 @@ contract FacetHelper is ForgeHelper {
       // If the local is already set to the canonical (i.e. from some defaults)
       // redeploy
       if (_local == _canonical) {
-        console.log("ensuring local != canonical");
         _local = address(new TestERC20("Test Token", "TEST"));
       }
 
@@ -106,7 +104,6 @@ contract FacetHelper is ForgeHelper {
         _stableSwap = address(5555555555555555555);
         // ensure addresses are unique
         if (_adopted == _local) {
-          console.log("ensuring local != adopted");
           _adopted = address(new TestERC20("Test Token", "TEST"));
         }
       }
@@ -125,7 +122,6 @@ contract FacetHelper is ForgeHelper {
 
     // Setup the storage variables for adopted
     s.adoptedToCanonical[_adopted].domain = _canonicalDomain;
-    console.log("***** set", _adopted, "to:", _canonicalDomain);
     s.adoptedToCanonical[_adopted].id = _canonicalId;
     s.adoptedToLocalPools[_canonicalKey] = IStableSwap(_stableSwap);
     s.canonicalToAdopted[_canonicalKey] = _adopted;
@@ -134,16 +130,16 @@ contract FacetHelper is ForgeHelper {
     s.approvedAssets[_canonicalKey] = true;
 
     // // Log stored vars
-    console.log("setup asset:");
-    console.log("- adopted:", _adopted);
-    console.log("- local:", _local);
-    console.log("- canonical:", _canonical);
-    console.log("");
-    console.log("- domain:", s.domain);
-    console.log("- destination:", _destinationDomain);
-    console.log("- origin:", _originDomain);
-    console.log("- canonicalDomain:", _canonicalDomain);
-    console.log("- stableSwap:", _stableSwap);
+    // console.log("setup asset:");
+    // console.log("- adopted:", _adopted);
+    // console.log("- local:", _local);
+    // console.log("- canonical:", _canonical);
+    // console.log("");
+    // console.log("- domain:", s.domain);
+    // console.log("- destination:", _destinationDomain);
+    // console.log("- origin:", _originDomain);
+    // console.log("- canonicalDomain:", _canonicalDomain);
+    // console.log("- stableSwap:", _stableSwap);
     // console.log("- isLocalOrigin", onCanonical);
   }
 
@@ -151,7 +147,7 @@ contract FacetHelper is ForgeHelper {
     return keccak256(abi.encode(_canonicalId, _canonicalDomain));
   }
 
-  function utils_getCallParams(
+  function utils_getTransferIdInformation(
     uint32 _destination,
     address _to,
     address _asset,
@@ -159,9 +155,9 @@ contract FacetHelper is ForgeHelper {
     uint256 _amount,
     uint256 _slippage,
     bytes calldata _callData
-  ) public returns (CallParams memory) {
+  ) public returns (TransferInfo memory) {
     return
-      CallParams({
+      TransferInfo({
         to: _to,
         callData: _callData,
         originDomain: _originDomain,

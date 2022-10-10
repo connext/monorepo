@@ -160,7 +160,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
     );
   }
 
-  /// MARK - Assert ConnextHandler contract is deployed helper.
+  /// MARK - Assert Connext contract is deployed helper.
   const getConnextContract = (chainId: number): string => {
     const contract = getDeployedConnextContract(chainId, ENVIRONMENT === Environment.Staging ? "Staging" : "");
     if (!contract) {

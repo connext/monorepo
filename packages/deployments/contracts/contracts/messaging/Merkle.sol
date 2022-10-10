@@ -68,6 +68,7 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
   }
 
   // ======== Initializer =========
+
   function initialize(address _arborist) public initializer {
     __MerkleTreeManager_init(_arborist);
     __ProposedOwnable_init();
@@ -97,6 +98,34 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
   }
 
   // ========= Public Functions =========
+
+  /**
+   * @notice Inserts the given leaves into the tree.
+   * @param leaves The leaves to be inserted into the tree.
+   * @return _root Current root for convenience.
+   * @return _count Current node count (i.e. number of indices) AFTER the insertion of the new leaf,
+   * provided for convenience.
+   */
+  function insert(bytes32[] memory leaves) public onlyArborist returns (bytes32 _root, uint256 _count) {
+    // NOTE: Considerably more efficient to put this tree into memory, conduct operations,
+    // then re-assign it to storage.
+    MerkleLib.Tree memory _tree = tree;
+
+    for (uint256 i; i < leaves.length; ) {
+      // Insert the new node.
+      _tree = _tree.insert(leaves[i]);
+      unchecked {
+        ++i;
+      }
+    }
+
+    // Get return details for convenience.
+    _root = _tree.root();
+    _count = _tree.count;
+
+    // Write the newly updated tree to storage.
+    tree = _tree;
+  }
 
   /**
    * @notice Inserts the given leaf into the tree.

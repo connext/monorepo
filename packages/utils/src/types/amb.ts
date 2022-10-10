@@ -1,5 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
 
+import { TIntegerString } from "./primitives";
+
 export const XMessageSchema = Type.Object({
   leaf: Type.String(),
   originDomain: Type.String(),
@@ -46,8 +48,19 @@ export const RootMessageSchema = Type.Object({
   caller: Type.String(),
   transactionHash: Type.String(),
   timestamp: Type.Number(),
-  gasPrice: Type.Number(),
-  gasLimit: Type.Number(),
+  gasPrice: TIntegerString,
+  gasLimit: TIntegerString,
   blockNumber: Type.Number(),
+  processed: Type.Boolean(),
 });
 export type RootMessage = Static<typeof RootMessageSchema>;
+
+export const ConnectorMetaSchema = Type.Object({
+  id: Type.String(),
+  spokeDomain: Type.String(),
+  hubDomain: Type.String(),
+  rootManager: Type.String(),
+  mirrorConnector: Type.String(),
+  amb: Type.String(),
+});
+export type ConnectorMeta = Static<typeof ConnectorMetaSchema>;

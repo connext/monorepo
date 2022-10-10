@@ -147,6 +147,37 @@ const DEFAULT_PROCESS_GAS = BigNumber.from("850000");
 const DEFAULT_RESERVE_GAS = BigNumber.from("15000");
 const DEFAULT_DELAY_BLOCKS = 10;
 
+export type RelayerConfig = {
+  [chain: number]: {
+    relayerFeeVault: string;
+  };
+};
+
+export const RELAYER_CONFIGS: {
+  local: RelayerConfig;
+  testnet: RelayerConfig;
+  mainnet: RelayerConfig;
+} = {
+  local: {
+    1337: {
+      relayerFeeVault: constants.AddressZero,
+    },
+    1338: {
+      relayerFeeVault: constants.AddressZero,
+    },
+  },
+  testnet: {
+    5: {
+      relayerFeeVault: "",
+    },
+  },
+  mainnet: {
+    1: {
+      relayerFeeVault: "",
+    },
+  },
+};
+
 export type MessagingProtocolConfig = {
   // The chain ID of the hub. For production environment, should be Ethereum Mainnet (1).
   hub: number;
@@ -197,6 +228,12 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        custom: {
+          hub: {
+            // https://goerli.etherscan.io/address/0x9c945aC97Baf48cB784AbBB61399beB71aF7A378
+            stateCommitmentChain: "0x9c945aC97Baf48cB784AbBB61399beB71aF7A378",
+          },
+        },
       },
     },
   },

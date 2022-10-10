@@ -1,11 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
-
-import {IWeth} from "../interfaces/IWeth.sol";
-
-import {IBridgeRouter} from "../interfaces/IBridgeRouter.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager.sol";
 import {SwapUtils} from "./SwapUtils.sol";
@@ -25,6 +20,19 @@ enum Role {
   Admin
 }
 
+/**
+ * @notice Enum representing status of destination transfer
+ * @dev Status is only assigned on the destination domain, will always be "none" for the
+ * origin domains
+ * @return uint - Index of value in enum
+ */
+enum DestinationTransferStatus {
+  None, // 0
+  Reconciled, // 1
+  Executed, // 2
+  Completed // 3 - executed + reconciled
+}
+
 // ============= Structs =============
 
 struct TokenId {
@@ -33,7 +41,7 @@ struct TokenId {
 }
 
 /**
- * @notice These are the call parameters that will remain constant between the
+ * @notice These are the parameters that will remain constant between the
  * two chains. They are supplied on `xcall` and should be asserted on `execute`
  * @property to - The account that receives funds, in the event of a crosschain call,
  * will receive funds if the call fails.
@@ -53,7 +61,7 @@ struct TokenId {
  * @param nonce - The nonce on the origin domain used to ensure the transferIds are unique
  * @param canonicalId - The unique identifier of the canonical token corresponding to bridge assets
  */
-struct CallParams {
+struct TransferInfo {
   uint32 originDomain;
   uint32 destinationDomain;
   uint32 canonicalDomain;
@@ -71,7 +79,7 @@ struct CallParams {
 
 /**
  * @notice
- * @param params - The CallParams. These are consistent across sending and receiving chains.
+ * @param params - The TransferInfo. These are consistent across sending and receiving chains.
  * @param routers - The routers who you are sending the funds on behalf of.
  * @param routerSignatures - Signatures belonging to the routers indicating permission to use funds
  * for the signed transfer ID.
@@ -80,7 +88,7 @@ struct CallParams {
  * for the path that was signed.
  */
 struct ExecuteArgs {
-  CallParams params;
+  TransferInfo params;
   address[] routers;
   bytes[] routerSignatures;
   address sequencer;
@@ -114,15 +122,15 @@ struct AppStorage {
   // 0
   bool initialized;
   //
-  // ConnextHandler
+  // Connext
   //
   // 1
   uint256 LIQUIDITY_FEE_NUMERATOR;
   /**
-   * @notice The local nomad relayer fee router.
+   * @notice The local address that is custodying relayer fees
    */
   // 2
-  RelayerFeeRouter relayerFeeRouter;
+  address relayerFeeVault;
   /**
    * @notice Nonce for the contract, used to keep unique transfer ids.
    * @dev Assigned at first interaction (xcall on origin domain).
@@ -136,11 +144,6 @@ struct AppStorage {
   // 4
   uint32 domain;
   /**
-   * @notice UpgradeBeacon from which new token proxies will get their implementation
-   */
-  // 5
-  address tokenBeacon;
-  /**
    * @notice Mapping holding the AMMs for swapping in and out of local assets.
    * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon).
    * This mapping is keyed on the hash of the canonical id + domain for local asset.
@@ -149,11 +152,16 @@ struct AppStorage {
   mapping(bytes32 => IStableSwap) adoptedToLocalPools;
   /**
    * @notice Mapping of whitelisted assets on same domain as contract.
-   * @dev Mapping is keyed on the hash of the canonical id and domain taken from the
-   * token registry.
+   * @dev Mapping is keyed on the hash of the canonical id and domain
    */
   // 7
   mapping(bytes32 => bool) approvedAssets;
+  /**
+   * @notice Mapping of liquidity caps of whitelisted assets. If 0, no cap is enforced.
+   * @dev Mapping is keyed on the hash of the canonical id and domain
+   */
+  // 7
+  mapping(bytes32 => uint256) caps;
   /**
    * @notice Mapping of adopted to canonical asset information.
    * @dev If the adopted asset is the native asset, the keyed address will
@@ -181,10 +189,10 @@ struct AppStorage {
   // 11
   mapping(bytes32 => address) canonicalToRepresentation;
   /**
-   * @notice Mapping to determine if transfer is reconciled.
+   * @notice Mapping to track transfer status on destination domain
    */
   // 12
-  mapping(bytes32 => bool) reconciledTransfers;
+  mapping(bytes32 => DestinationTransferStatus) transferStatus;
   /**
    * @notice Mapping holding router address that provided fast liquidity.
    */
@@ -204,28 +212,10 @@ struct AppStorage {
   // 15
   mapping(address => bool) approvedRelayers;
   /**
-   * @notice Stores the relayer fee for a transfer. Updated on origin domain when a user calls xcall or bump.
-   * @dev This will track all of the relayer fees assigned to a transfer by id, including any bumps made by the relayer.
-   */
-  // 16
-  mapping(bytes32 => uint256) relayerFees;
-  /**
-   * @notice Stores the relayer of a transfer. Updated on the destination domain when a relayer calls execute
-   * for transfer.
-   * @dev When relayer claims, must check that the msg.sender has forwarded transfer.
-   */
-  // 17
-  mapping(bytes32 => address) transferRelayer;
-  /**
    * @notice The max amount of routers a payment can be routed through.
    */
   // 18
   uint256 maxRoutersPerTransfer;
-  /**
-   * @notice The address of the nomad bridge router for this chain.
-   */
-  // 19
-  IBridgeRouter bridgeRouter;
   /**
    * @notice Stores a mapping of transfer id to slippage overrides.
    */
@@ -234,7 +224,7 @@ struct AppStorage {
   /**
    * @notice Stores a mapping of remote routers keyed on domains.
    * @dev Addresses are cast to bytes32.
-   * This mapping is required because the ConnextHandler now contains the BridgeRouter and must implement
+   * This mapping is required because the Connext now contains the BridgeRouter and must implement
    * the remotes interface.
    */
   // 21
@@ -328,11 +318,6 @@ struct AppStorage {
    */
   // 39
   IConnectorManager xAppConnectionManager;
-  /**
-   * @notice Ownership delay for transferring ownership.
-   */
-  // 40
-  uint256 _ownershipDelay;
 }
 
 library LibConnextStorage {

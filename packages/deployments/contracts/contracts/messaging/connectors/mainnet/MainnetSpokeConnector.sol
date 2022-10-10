@@ -66,7 +66,7 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
     require(_data.length == 32, "!length");
     if (msg.sender == ROOT_MANAGER) {
       // update the aggregate root
-      updateAggregateRoot(bytes32(_data));
+      receiveAggregateRoot(bytes32(_data));
       return;
     }
     // otherwise is relayer, update the outbound root on the root manager

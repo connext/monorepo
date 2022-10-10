@@ -331,7 +331,7 @@ const config: HardhatUserConfig = {
   },
   diamondAbi: {
     // (required) The name of your Diamond ABI.
-    name: "ConnextHandler",
+    name: "Connext",
     // (optional) An array of strings, matched against fully qualified contract names, to
     // determine which contracts are included in your Diamond ABI.
     include: [

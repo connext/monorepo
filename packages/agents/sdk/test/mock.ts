@@ -11,7 +11,7 @@ export const mock = {
   ..._mock,
   config: (): NxtpSdkConfig => ({
     signerAddress: mkAddress("0xabcdef123"),
-    logLevel: (process.env.LOG_LEVEL as any) || "debug",
+    logLevel: (process.env.LOG_LEVEL as any) || "silent",
     network: "testnet",
     maxSlippage: 0,
     environment: "staging",
@@ -87,7 +87,8 @@ export const mock = {
         }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
-        spokeConnector: (_: number) => ({ address: mkAddress("0xbbbddda"), abi: {} }),
+        hubConnector: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
+        spokeConnector: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
       };
     },
   },

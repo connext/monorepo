@@ -1,6 +1,6 @@
 [
+  "constructor(uint8,string,string,string)",
   "event Approval(address indexed,address indexed,uint256)",
-  "event Initialized(uint8)",
   "event Transfer(address indexed,address indexed,uint256)",
   "function DOMAIN_SEPARATOR() view returns (bytes32)",
   "function allowance(address,address) view returns (uint256)",

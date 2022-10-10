@@ -45,12 +45,14 @@ export const processMessage = async (message: XMessage) => {
   // TODO: Proof path for proving inclusion of outboundRoot in aggregateRoot.
   // Will need to get the currentAggregateRoot from on-chain state (or pending, if the validation period
   // has elapsed!) to determine which tree snapshot we should be generating the proof from.
+  const targetAggregateRoot = constants.HashZero;
   const aggregatorProof = Array(32).fill(constants.HashZero) as string[];
   // TODO: Index of outboundRoot leaf node in aggregate tree.
   const aggregatorIndex = 0;
 
   const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
     [proof],
+    targetAggregateRoot,
     aggregatorProof,
     aggregatorIndex,
   ]);
@@ -66,7 +68,7 @@ export const processMessage = async (message: XMessage) => {
   });
   const chainId = chainData.get(message.destinationDomain)!.chainId;
 
-  const relayerAddress = await relayer.getRelayerAddress(chainId);
+  const relayerAddress = await relayer.getRelayerAddress(chainId, logger);
   logger.debug("Getting gas estimate", requestContext, methodContext, {
     chainId,
     to: destinationSpokeConnector,
@@ -89,6 +91,13 @@ export const processMessage = async (message: XMessage) => {
     transferId: message.transferId,
   });
 
-  const taskId = await relayer.send(chainId, destinationSpokeConnector, data);
+  const taskId = await relayer.send(
+    chainId,
+    destinationSpokeConnector,
+    data,
+    config.gelatoApiKey,
+    logger,
+    requestContext,
+  );
   logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
 };

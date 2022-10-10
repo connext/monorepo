@@ -56,17 +56,24 @@ const _abi = [
       {
         indexed: false,
         internalType: "bytes32",
-        name: "current",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "pending",
+        name: "root",
         type: "bytes32",
       },
     ],
-    name: "AggregateRootsUpdated",
+    name: "AggregateRootReceived",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "root",
+        type: "bytes32",
+      },
+    ],
+    name: "AggregateRootRemoved",
     type: "event",
   },
   {
@@ -250,6 +257,19 @@ const _abi = [
     inputs: [
       {
         indexed: false,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "Paused",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: "bytes32",
         name: "leaf",
         type: "bytes32",
@@ -294,6 +314,19 @@ const _abi = [
       },
     ],
     name: "SenderRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "Unpaused",
     type: "event",
   },
   {
@@ -422,45 +455,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "aggregateRootCurrent",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "aggregateRootPending",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "aggregateRootPendingBlock",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "delay",
     outputs: [
       {
@@ -522,19 +516,6 @@ const _abi = [
         internalType: "contract IOutbox",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "isPaused",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -663,6 +644,45 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "pause",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "paused",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    name: "pendingAggregateRoots",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes",
@@ -739,13 +759,18 @@ const _abi = [
         type: "tuple[]",
       },
       {
+        internalType: "bytes32",
+        name: "_aggregateRoot",
+        type: "bytes32",
+      },
+      {
         internalType: "bytes32[32]",
-        name: "_aggregatorPath",
+        name: "_aggregatePath",
         type: "bytes32[32]",
       },
       {
         internalType: "uint256",
-        name: "_aggregatorIndex",
+        name: "_aggregateIndex",
         type: "uint256",
       },
     ],
@@ -762,7 +787,7 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "provenRoots",
+    name: "provenAggregateRoots",
     outputs: [
       {
         internalType: "bool",
@@ -771,6 +796,38 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    name: "provenMessageRoots",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_fraudulentRoot",
+        type: "bytes32",
+      },
+    ],
+    name: "removePendingAggregateRoot",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -809,24 +866,6 @@ const _abi = [
   {
     inputs: [],
     name: "send",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_current",
-        type: "bytes32",
-      },
-      {
-        internalType: "bytes32",
-        name: "_pending",
-        type: "bytes32",
-      },
-    ],
-    name: "setAggregateRoots",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -884,14 +923,8 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bool",
-        name: "paused",
-        type: "bool",
-      },
-    ],
-    name: "setWatcherPaused",
+    inputs: [],
+    name: "unpause",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

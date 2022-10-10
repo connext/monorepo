@@ -30,11 +30,14 @@ export const retrieveOriginMessages = async () => {
         origin: { index: _message.index, root: _message.root, message: _message.message },
       };
     });
-    await database.saveMessages(xMessages);
 
-    // Reset offset at the end of the cycle.
     const newOffset = originMessages.length == 0 ? 0 : originMessages[originMessages.length - 1].index;
-    await database.saveCheckPoint("message_" + domain, newOffset);
+    await database.transaction(async (txnClient) => {
+      await database.saveMessages(xMessages, txnClient);
+
+      // Reset offset at the end of the cycle.
+      await database.saveCheckPoint("message_" + domain, newOffset, txnClient);
+    });
 
     logger.debug("Saved messages", requestContext, methodContext, { domain: domain, offset: newOffset });
   }
@@ -94,14 +97,17 @@ export const retrieveSentRootMessages = async () => {
 
     const sentRootMessages: RootMessage[] = await subgraph.getSentRootMessagesByDomain([{ domain, offset, limit }]);
 
-    await database.saveSentRootMessages(sentRootMessages);
-
     // Reset offset at the end of the cycle.
     const newOffset =
       sentRootMessages.length == 0 ? 0 : Math.max(...sentRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
-    if (sentRootMessages.length > 0 && newOffset > offset) {
-      await database.saveCheckPoint("sent_root_message_" + domain, newOffset);
-    }
+
+    await database.transaction(async (txnClient) => {
+      await database.saveSentRootMessages(sentRootMessages, txnClient);
+
+      if (sentRootMessages.length > 0 && newOffset > offset) {
+        await database.saveCheckPoint("sent_root_message_" + domain, newOffset, txnClient);
+      }
+    });
 
     logger.debug("Saved sent root messages", requestContext, methodContext, { domain: domain, offset: newOffset });
   }
@@ -115,7 +121,10 @@ export const retrieveProcessedRootMessages = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(retrieveProcessedRootMessages.name);
 
-  for (const domain of domains) {
+  const connectorMetas = await subgraph.getConnectorMeta(domains);
+  const hubDomains = new Set(connectorMetas.map((meta) => meta.hubDomain));
+
+  for (const domain of [...hubDomains]) {
     const offset = await database.getCheckPoint("processed_root_message_" + domain);
     const limit = 100;
     logger.debug("Retrieving processed root messages", requestContext, methodContext, {
@@ -128,13 +137,14 @@ export const retrieveProcessedRootMessages = async () => {
       { domain, offset, limit },
     ]);
 
-    await database.saveProcessedRootMessages(processedRootMessages);
-
     // Reset offset at the end of the cycle.
     const newOffset =
       processedRootMessages.length == 0
         ? 0
         : Math.max(...processedRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
+
+    await database.saveProcessedRootMessages(processedRootMessages);
+
     if (processedRootMessages.length > 0 && newOffset > offset) {
       await database.saveCheckPoint("processed_root_message_" + domain, newOffset);
     }

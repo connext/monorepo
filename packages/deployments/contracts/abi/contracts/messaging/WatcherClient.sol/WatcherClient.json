@@ -10,14 +10,19 @@
   "error ProposedOwnable__renounceOwnership_noProposal()",
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
+  "event Paused(address)",
+  "event Unpaused(address)",
   "event WatcherManagerChanged(address)",
   "function acceptProposedOwner()",
   "function delay() view returns (uint256)",
   "function owner() view returns (address)",
+  "function pause()",
+  "function paused() view returns (bool)",
   "function proposeNewOwner(address)",
   "function proposed() view returns (address)",
   "function proposedTimestamp() view returns (uint256)",
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
-  "function setWatcherManager(address)"
+  "function setWatcherManager(address)",
+  "function unpause()"
 ]

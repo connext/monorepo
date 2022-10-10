@@ -2,7 +2,7 @@
 
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv, ChainData, TAddress, TLogLevel } from "@connext/nxtp-utils";
+import { ajv, ChainData, TAddress, TDatabaseConfig, TLogLevel } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 import { existsSync, readFileSync } from "./mockable";
@@ -41,6 +41,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   gelatoApiKey: Type.String(),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   relayerUrl: Type.Optional(Type.String({ format: "uri" })),
+  database: TDatabaseConfig,
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
@@ -102,6 +103,7 @@ export const getEnvConfig = (
         DEFAULT_CARTOGRAPHER_POLL_INTERVAL,
     },
     gelatoApiKey: process.env.NXTP_GELATO_API_KEY || configJson.gelatoApiKey || configFile.gelatoApiKey || "xxx",
+    database: { url: process.env.DATABASE_URL || configJson.databaseUrl || configFile.databaseUrl },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
     relayerUrl: process.env.NXTP_RELAYER_URL || configJson.relayerUrl || configFile.relayerUrl,
@@ -136,7 +138,7 @@ export const getEnvConfig = (
             ? deployments.spokeConnector(chainDataForChain.chainId, prefix, contractPostfix)
             : undefined;
           if (!res) {
-            throw new Error(`No SpokeConnector contract address for domain ${domainId}`);
+            throw new Error(`No ${prefix}SpokeConnector${contractPostfix} contract address for domain ${domainId}`);
           }
           return res.address;
         })(),

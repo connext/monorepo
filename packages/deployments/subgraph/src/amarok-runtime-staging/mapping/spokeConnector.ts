@@ -1,21 +1,11 @@
 /* eslint-disable prefer-const */
-import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 import {
   NewConnector,
   Dispatch,
-  AggregateRootsUpdated,
+  AggregateRootReceived,
   MessageSent,
-  MessageProcessed,
 } from "../../../generated/SpokeConnector/SpokeConnector";
-import {
-  OriginMessage,
-  AggregateRoot,
-  RootMessageSent,
-  RootMessageProcessed,
-  ConnectorMeta,
-} from "../../../generated/schema";
-
-import { getChainId, getOrCreateAsset, getOrCreateAssetBalance } from "./helper";
+import { OriginMessage, AggregateRoot, RootMessageSent, ConnectorMeta } from "../../../generated/schema";
 
 const DEFAULT_CONNECTOR_META_ID = "CONNECTOR_META_ID";
 
@@ -36,13 +26,13 @@ export function handleDispatch(event: Dispatch): void {
   message.save();
 }
 
-export function handleAggregateRootUpdated(event: AggregateRootsUpdated): void {
-  let aggregateRoot = AggregateRoot.load(event.params.current.toHexString());
+export function handleAggregateRootReceived(event: AggregateRootReceived): void {
+  let aggregateRoot = AggregateRoot.load(event.params.root.toHexString());
   if (aggregateRoot == null) {
-    aggregateRoot = new AggregateRoot(event.params.current.toHexString());
+    aggregateRoot = new AggregateRoot(event.params.root.toHexString());
   }
 
-  aggregateRoot.root = event.params.current;
+  aggregateRoot.root = event.params.root;
   aggregateRoot.save();
 }
 
@@ -59,22 +49,6 @@ export function handleMessageSent(event: MessageSent): void {
 
   message.spokeDomain = meta.spokeDomain;
   message.hubDomain = meta.hubDomain;
-
-  message.root = event.params.data;
-  message.caller = event.params.caller;
-  message.transactionHash = event.transaction.hash;
-  message.timestamp = event.block.timestamp;
-  message.gasPrice = event.transaction.gasPrice;
-  message.gasLimit = event.transaction.gasLimit;
-  message.blockNumber = event.block.number;
-  message.save();
-}
-
-export function handleMessageProcessed(event: MessageProcessed): void {
-  let message = RootMessageProcessed.load(event.params.data.toHexString());
-  if (message == null) {
-    message = new RootMessageProcessed(event.params.data.toHexString());
-  }
 
   message.root = event.params.data;
   message.caller = event.params.caller;

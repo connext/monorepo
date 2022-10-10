@@ -2,9 +2,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployResult } from "hardhat-deploy/types";
 import { BigNumber, constants, Wallet } from "ethers";
 
-import { chainIdToDomain, getConnectorName, getDeploymentName, getProtocolNetwork } from "../src";
+import { chainIdToDomain, getConnectorName, getDeploymentName, getProtocolNetwork, deployBeaconProxy } from "../src";
 import { MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
-import { deployBeaconProxy } from "./02_deployRouters";
 
 // Format the arguments for Connector contract constructor.
 const formatConnectorArgs = (
@@ -27,6 +26,7 @@ const formatConnectorArgs = (
   // FIXME: settle on domains w/nomad
   const deploymentDomain = BigNumber.from(chainIdToDomain(deploymentChainId).toString());
   const mirrorDomain = BigNumber.from(chainIdToDomain(mirrorChainId).toString());
+
   const hubArgs = [
     deploymentDomain,
     // Mirror domain should be known.
@@ -91,10 +91,12 @@ const handleDeployHub = async (
 
   // Deploy RootManager.
   console.log("Deploying RootManager...");
+  // TODO: need to make this hardcoded value configurable
+  const delayBlocks = 100;
   const rootManager = await hre.deployments.deploy(getDeploymentName("RootManager"), {
     contract: "RootManager",
     from: deployer.address,
-    args: [merkleTreeManagerForRoot.address, watcherManager.address],
+    args: [delayBlocks, merkleTreeManagerForRoot.address, watcherManager.address],
     skipIfAlreadyDeployed: true,
     log: true,
   });
@@ -167,6 +169,7 @@ const handleDeployHub = async (
   );
   console.log(`${connectorName} SendOutboundRootResolver deployed to ${resolverDeployment.address}`);
 
+  /// HUBCONNECTOR DEPLOYMENT
   // Loop through every HubConnector configuration (except for the actual hub's) and deploy.
   const { configs } = protocol;
   for (const mirrorChain of Object.keys(configs)) {

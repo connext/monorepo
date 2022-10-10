@@ -34,12 +34,14 @@ export default task("add-liquidity", "Add liquidity for a router")
       console.log("asset: ", asset);
       console.log("deployer: ", deployer.address);
 
-      const connextName = getDeploymentName("ConnextHandler", env);
+      const connextName = getDeploymentName("Connext", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       console.log("connextAddress: ", connextAddress);
 
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
+      let liquidity = await connext.routerBalances(router, asset);
+      console.log("current liquidity: ", liquidity.toString());
       let amount;
       if (asset !== ethers.constants.AddressZero) {
         const erc20 = await ethers.getContractAt("TestERC20", asset);
@@ -94,7 +96,7 @@ export default task("add-liquidity", "Add liquidity for a router")
       console.log("addLiquidityFor tx: ", tx);
       const receipt = await tx.wait();
       console.log("addLiquidityFor tx mined: ", receipt.transactionHash);
-      const liquidity = await connext.routerBalances(router, asset);
+      liquidity = await connext.routerBalances(router, asset);
       console.log("liquidity: ", liquidity.toString());
     },
   );

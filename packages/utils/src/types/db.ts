@@ -136,7 +136,9 @@ export const convertToRouterBalance = (routerBalanceRows: any[]): RouterBalance[
       canonicalDomain: routerBalanceRow.canonical_domain,
       canonicalId: routerBalanceRow.canonical_id,
       domain: routerBalanceRow.asset_domain,
-      local: routerBalanceRow.local,
+      id: routerBalanceRow.id,
+      localAsset: routerBalanceRow.local,
+      key: routerBalanceRow.key,
     };
     const found = routerBalances.find((r) => r.router === routerBalanceRow.router_address);
     if (found) {
@@ -191,10 +193,11 @@ export const convertFromDbRootMessage = (message: any): RootMessage => {
     hubDomain: message.hub_domain,
     root: message.root,
     caller: message.caller,
-    transactionHash: message.transaction_hash,
+    transactionHash: message.sent_transaction_hash,
     timestamp: message.sent_timestamp,
-    gasPrice: message.gas_price,
-    gasLimit: message.gas_limit,
+    gasPrice: BigNumber.from(message.gas_price).toString(),
+    gasLimit: BigNumber.from(message.gas_limit).toString(),
     blockNumber: message.block_number,
+    processed: message.processed,
   };
 };

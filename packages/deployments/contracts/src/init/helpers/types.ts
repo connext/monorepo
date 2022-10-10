@@ -60,10 +60,6 @@ export type SpokeMessagingDeployments = {
 export type DomainDeployments = {
   // Diamond.
   Connext: Deployment;
-  // Handlers.
-  handlers: {
-    RelayerFeeRouter: Deployment;
-  };
 
   // Messaging Layer.
   // ConnectorManager

@@ -23,8 +23,6 @@ import {ConnectorManager} from "./ConnectorManager.sol";
  *
  * @dev If you are deploying this contract to mainnet, then the mirror values stored in the HubConnector
  * will be unused
- *
- * TODO: what about the queue manager? see Home.sol for context
  */
 abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, ReentrancyGuard {
   // ============ Libraries ============
@@ -40,7 +38,9 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
   event SenderRemoved(address sender);
 
-  event AggregateRootsUpdated(bytes32 current, bytes32 pending);
+  event AggregateRootReceived(bytes32 root);
+
+  event AggregateRootRemoved(bytes32 root);
 
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
 
@@ -73,6 +73,12 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   // ============ Public Storage ============
 
   /**
+   * @notice Number of blocks to delay the processing of a message to allow for watchers to verify
+   * the validity and pause if necessary.
+   */
+  uint256 public delayBlocks;
+
+  /**
    * @notice MerkleTreeManager contract instance. Will hold the active tree of message hashes, whose root
    * will be sent crosschain to the hub for aggregation and redistribution.
    */
@@ -89,71 +95,52 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   uint256 public immutable RESERVE_GAS;
 
   /**
-   * @notice Number of blocks to delay the processing of a message to allow for watchers to verify
-   * the validity and pause if necessary.
+   * @notice This will hold the commit block for incoming aggregateRoots from the hub chain. Once
+   * they are verified, (i.e. have surpassed the verification period in `delayBlocks`) they can
+   * be used for proving inclusion of crosschain messages.
+   *
+   * @dev NOTE: A commit block of 0 should be considered invalid (it is an empty entry in the
+   * mapping). We must ALWAYS ensure the value is not 0 before checking whether it has surpassed the
+   * verification period.
    */
-  uint256 public delayBlocks;
+  mapping(bytes32 => uint256) public pendingAggregateRoots;
 
   /**
-   * @notice This tracks the root of the tree containing outbound roots from all other supported
-   * domains. The "current" version is the one that is known to be past the delayBlocks time period.
+   * @notice This tracks the roots of the aggregate tree containing outbound roots from all other
+   * supported domains. The current version is the one that is known to be past the delayBlocks
+   * time period.
    * @dev This root is the root of the tree that is aggregated on mainnet (composed of all the roots
-   * of previous trees)
+   * of previous trees).
    */
-  bytes32 public aggregateRootCurrent;
+  mapping(bytes32 => bool) public provenAggregateRoots;
 
   /**
-   * @notice This is the "pending" aggregate root which is stored to allow a second root to be passing through
-   * the delayBlocks window while the current root is confirmed.
-   */
-  bytes32 public aggregateRootPending;
-
-  /**
-   * @notice This is the block number at which the pending aggregate root was set.
-   * @dev This is used to determine when the pending aggregate root can be confirmed.
-   */
-  uint256 public aggregateRootPendingBlock;
-
-  /**
-   * @notice This tracks whether the root has been proven to exist within the given aggregate root
+   * @notice This tracks whether the root has been proven to exist within the given aggregate root.
    * @dev Tracking this is an optimization so you dont have to prove inclusion of the same constituent
-   * root many times
+   * root many times.
    */
-  mapping(bytes32 => bool) public provenRoots;
+  mapping(bytes32 => bool) public provenMessageRoots;
 
   /**
    * @dev This is used for the `onlyWhitelistedSender` modifier, which gates who
-   * can send messages using `dispatch`
+   * can send messages using `dispatch`.
    */
   mapping(address => bool) public whitelistedSenders;
 
   /**
-   * @notice domain => next available nonce for the domain
+   * @notice domain => next available nonce for the domain.
    */
   mapping(uint32 => uint32) public nonces;
 
   /**
-   * @notice Mapping of message leaves to MessageStatus, keyed on leaf
+   * @notice Mapping of message leaves to MessageStatus, keyed on leaf.
    */
   mapping(bytes32 => MessageStatus) public messages;
-
-  /**
-   * @notice Boolean indicating if the connector has been paused by a watcher.
-   */
-  bool private watcherPaused;
 
   // ============ Modifiers ============
 
   modifier onlyWhitelistedSender() {
     require(whitelistedSenders[msg.sender], "!whitelisted");
-    _;
-  }
-
-  /**
-   * @notice Modifier to check if the connector is paused by a watcher.
-   */
-  modifier onlyUnpaused() {
-    require(!watcherPaused, "!unpaused");
     _;
   }
 
@@ -165,12 +152,14 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _mirrorDomain The hub domain.
    * @param _amb The address of the AMB on the spoke domain this connector lives on.
    * @param _rootManager The address of the RootManager on the hub.
-   * @param _merkle The address of the MerkleTreeManager on this spoke domain.
    * @param _mirrorConnector The address of the spoke connector.
    * @param _mirrorGas The gas costs required to process a message on mirror.
    * @param _processGas The gas costs used in `handle` to ensure meaningful state changes can occur (minimum gas needed
    * to handle transaction).
    * @param _reserveGas The gas costs reserved when `handle` is called to ensure failures are handled.
+   * @param _delayBlocks The delay for the validation period for incoming messages in blocks.
+   * @param _merkle The address of the MerkleTreeManager on this spoke domain.
+   * @param _watcherManager The address of the WatcherManager to whom this connector is a client.
    */
   constructor(
     uint32 _domain,
@@ -204,8 +193,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   // ============ Admin Functions ============
 
   /**
-   * @notice Adds a sender to the whitelist
-   * @dev Only whitelisted routers can call `dispatch`
+   * @notice Adds a sender to the whitelist.
+   * @dev Only whitelisted routers (senders) can call `dispatch`.
    */
   function addSender(address _sender) public onlyOwner {
     whitelistedSenders[_sender] = true;
@@ -213,8 +202,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   }
 
   /**
-   * @notice Removes a sender from the whitelist
-   * @dev Only whitelisted routers can call `dispatch`
+   * @notice Removes a sender from the whitelist.
+   * @dev Only whitelisted routers (senders) can call `dispatch`.
    */
   function removeSender(address _sender) public onlyOwner {
     whitelistedSenders[_sender] = false;
@@ -222,15 +211,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   }
 
   /**
-   * @notice Set the `watcherPaused` boolean
-   * @dev This is only callable by a watcher, as set in the WatcherManager
-   */
-  function setWatcherPaused(bool paused) public onlyWatcher {
-    require(watcherPaused != paused, "Already set");
-    watcherPaused = paused;
-  }
-
-  /**
+   * @notice Set the `delayBlocks`, the period in blocks over which an incoming message
+   * is verified.
    * @notice Set the delayBlocks, in case this needs to be configured later
    */
   function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
@@ -239,24 +221,19 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   }
 
   /**
-   * @notice Set the aggregateRoots by owner if the contract is paused
-   * @dev This required in case of fraud
+   * @notice Manually remove a pending aggregateRoot by owner if the contract is paused.
+   * @dev This method is required for handling fraud cases in the current construction.
+   * @param _fraudulentRoot Target fraudulent root that should be erased from the
+   * `pendingAggregateRoots` mapping.
    */
-  function setAggregateRoots(bytes32 _current, bytes32 _pending) public onlyOwner {
-    require(watcherPaused, "!paused");
-    aggregateRootCurrent = _current;
-    aggregateRootPending = _pending;
-    emit AggregateRootsUpdated(_current, _pending);
+  function removePendingAggregateRoot(bytes32 _fraudulentRoot) public onlyOwner whenPaused {
+    // Sanity check: pending aggregate root exists.
+    require(pendingAggregateRoots[_fraudulentRoot] != 0, "aggregateRoot !exists");
+    delete pendingAggregateRoots[_fraudulentRoot];
+    emit AggregateRootRemoved(_fraudulentRoot);
   }
 
   // ============ Public Functions ============
-
-  /**
-   * @notice This is called by the watcher to update the aggregate root
-   */
-  function isPaused() external view returns (bool) {
-    return watcherPaused;
-  }
 
   /**
    * @notice This returns the root of all messages with the origin domain as this domain (i.e.
@@ -278,7 +255,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @notice This returns the root of all messages with the origin domain as this domain (i.e.
    * all outbound messages)
    */
-  function send() external {
+  function send() external whenNotPaused {
     bytes memory _data = abi.encodePacked(MERKLE.root());
     _sendMessage(_data);
     emit MessageSent(_data, msg.sender);
@@ -289,6 +266,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @dev The root of this tree will eventually be dispatched to mainnet via `send`. On mainnet (the "hub"),
    * it will be combined into a single aggregate root by RootManager (along with outbound roots from other
    * chains). This aggregate root will be redistributed to all destination chains.
+   *
+   * NOTE: okay to leave dispatch operational when paused as pause is designed for crosschain interactions
    */
   function dispatch(
     uint32 _destinationDomain,
@@ -341,14 +320,17 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * in the aggregateRoot.
    *
    * @param _proofs Batch of Proofs containing messages for proving/processing.
-   * @param _aggregatorPath Merkle path of inclusion for the inbound root.
-   * @param _aggregatorIndex Index of the inbound root in the aggregator's merkle tree in the hub.
+   * @param _aggregateRoot The target aggregate root we want to prove inclusion for. This root must have
+   * already been delivered to this spoke connector contract and surpassed the validation period.
+   * @param _aggregatePath Merkle path of inclusion for the inbound root.
+   * @param _aggregateIndex Index of the inbound root in the aggregator's merkle tree in the hub.
    */
   function proveAndProcess(
     Proof[] calldata _proofs,
-    bytes32[32] calldata _aggregatorPath,
-    uint256 _aggregatorIndex
-  ) external onlyUnpaused {
+    bytes32 _aggregateRoot,
+    bytes32[32] calldata _aggregatePath,
+    uint256 _aggregateIndex
+  ) external whenNotPaused {
     // Sanity check: proofs are included.
     require(_proofs.length > 0, "!proofs");
 
@@ -358,27 +340,11 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     bytes32 _messageHash = keccak256(_proofs[0].message);
     // TODO: Could use an array of sharedRoots so you can submit a message batch of messages with
     // different origins.
-    bytes32 _inboundRoot = calculateMessageRoot(_messageHash, _proofs[0].path, _proofs[0].index);
+    bytes32 _messageRoot = calculateMessageRoot(_messageHash, _proofs[0].path, _proofs[0].index);
 
-    // Check to see if the root for this batch has already been proven.
-    if (!provenRoots[_inboundRoot]) {
-      // TODO: If the updateAggregateRoot function hasnt been called for a while, we might be able
-      // to prove against the pending root which is more recent.
-      // TODO: Shouldn't we go ahead and move the pending aggregate root into current, in this case?
-      // TODO: Optimization: allow caller to specify whether to try using the pending root (if enough time has elapsed)
-      // or ignore this check! We really can't just pick which one to use willy-nilly - the given proof (aggregatorPath)
-      // will only work with *one* root in particular.
-      bytes32 _aggregateRoot = block.number > aggregateRootPendingBlock ? aggregateRootPending : aggregateRootCurrent;
-
-      // Calculate an aggregate root, given this inbound root, and make sure it matches the current
-      // aggregate root we have stored.
-      bytes32 _calculatedAggregateRoot = MerkleLib.branchRoot(_inboundRoot, _aggregatorPath, _aggregatorIndex);
-      require(_calculatedAggregateRoot == _aggregateRoot, "!aggregateRoot");
-      // This inbound root has been proven. We should specify that to optimize future calls.
-      provenRoots[_inboundRoot] = true;
-    }
-
-    // Assuming the inbound root was proven, the first message is now proven.
+    // Handle proving this message root is included in the target aggregate root.
+    proveMessageRoot(_messageRoot, _aggregateRoot, _aggregatePath, _aggregateIndex);
+    // Assuming the inbound message root was proven, the first message is now considered proven.
     messages[_messageHash] = MessageStatus.Proven;
 
     // Now we handle proving all remaining messages in the batch - they should all share the same
@@ -387,7 +353,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
       _messageHash = keccak256(_proofs[i].message);
       bytes32 _calculatedRoot = calculateMessageRoot(_messageHash, _proofs[i].path, _proofs[i].index);
       // Make sure this root matches the validated inbound root.
-      require(_calculatedRoot == _inboundRoot, "!sharedRoot");
+      require(_calculatedRoot == _messageRoot, "!sharedRoot");
       // Message is proven!
       messages[_messageHash] = MessageStatus.Proven;
 
@@ -397,8 +363,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     }
 
     // All messages have been proven. We iterate separately here to process each message in the batch.
-    // NOTE: Going through the proving phase for all messages in the batch before processing ensures
-    // we hit reverts before we consume gas from `process` calls.
+    // NOTE: Going through the proving phase for all messages in the batch BEFORE processing ensures
+    // we hit reverts before we consume unbounded gas from `process` calls.
     for (uint32 i = 0; i < _proofs.length; ) {
       process(_proofs[i].message);
       unchecked {
@@ -415,12 +381,38 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @dev Must check the msg.sender on the origin chain to ensure only the root manager is passing
    * these roots.
    */
-  function updateAggregateRoot(bytes32 _newRoot) internal {
-    require(block.number > aggregateRootPendingBlock + delayBlocks, "!delayBlocks");
-    aggregateRootCurrent = aggregateRootPending;
-    aggregateRootPending = _newRoot;
-    aggregateRootPendingBlock = block.number;
-    emit AggregateRootsUpdated(aggregateRootCurrent, aggregateRootPending);
+  function receiveAggregateRoot(bytes32 _newRoot) internal {
+    pendingAggregateRoots[_newRoot] = block.number;
+    emit AggregateRootReceived(_newRoot);
+  }
+
+  /**
+   * @notice Checks whether the given aggregate root has surpassed the verification period.
+   * @dev Reverts if the given aggregate root is invalid (does not exist) OR has not surpassed
+   * verification period.
+   * @dev If the target aggregate root is pending and HAS surpassed the verification period, then we will
+   * move it over to the proven mapping.
+   * @param _aggregateRoot Target aggregate root to verify.
+   */
+  function verifyAggregateRoot(bytes32 _aggregateRoot) internal {
+    // 0. Check to see if the target *aggregate* root has already been proven.
+    if (provenAggregateRoots[_aggregateRoot]) {
+      return; // Short circuit if this root is proven.
+    }
+
+    // 1. The target aggregate root must be pending. Aggregate root commit block entry MUST exist.
+    uint256 _aggregateRootCommitBlock = pendingAggregateRoots[_aggregateRoot];
+    require(_aggregateRootCommitBlock != 0, "aggregateRoot !exist");
+
+    // 2. Pending aggregate root has surpassed the `delayBlocks` verification period.
+    require(block.number - _aggregateRootCommitBlock >= delayBlocks, "aggregateRoot !verified");
+
+    // 3. The target aggregate root has surpassed verification period, we can move it over to the
+    // proven mapping.
+    provenAggregateRoots[_aggregateRoot] = true;
+    // May as well delete the pending aggregate root entry for the gas refund: it should no longer
+    // be needed.
+    delete pendingAggregateRoots[_aggregateRoot];
   }
 
   /**
@@ -445,6 +437,41 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     // that the hub has received. If the message were invalid, the root calculated here would not exist in the
     // aggregate root.
     return MerkleLib.branchRoot(_messageHash, _messagePath, _messageIndex);
+  }
+
+  /**
+   * @notice Prove an inbound message root from another chain is included in the target aggregateRoot.
+   * @param _messageRoot The message root we want to verify.
+   * @param _aggregateRoot The target aggregate root we want to prove inclusion for. This root must have
+   * already been delivered to this spoke connector contract and surpassed the validation period.
+   * @param _aggregatePath Merkle path of inclusion for the inbound root.
+   * @param _aggregateIndex Index of the inbound root in the aggregator's merkle tree in the hub.
+   */
+  function proveMessageRoot(
+    bytes32 _messageRoot,
+    bytes32 _aggregateRoot,
+    bytes32[32] calldata _aggregatePath,
+    uint256 _aggregateIndex
+  ) internal {
+    // 0. Check to see if the root for this batch has already been proven.
+    if (provenMessageRoots[_messageRoot]) {
+      // NOTE: It seems counter-intuitive, but we do NOT need to prove the given `_aggregateRoot` param
+      // is valid IFF the `_messageRoot` has already been proven; we know that the `_messageRoot` has to
+      // have been included in *some* proven aggregate root historically.
+      return;
+    }
+
+    // 1. Ensure aggregate root has been proven.
+    verifyAggregateRoot(_aggregateRoot);
+
+    // 2. Calculate an aggregate root, given this inbound root (as leaf), path (proof), and index.
+    bytes32 _calculatedAggregateRoot = MerkleLib.branchRoot(_messageRoot, _aggregatePath, _aggregateIndex);
+
+    // 3. Check to make sure it matches the current aggregate root we have stored.
+    require(_calculatedAggregateRoot == _aggregateRoot, "invalid inboundRoot");
+
+    // This inbound root has been proven. We should specify that to optimize future calls.
+    provenMessageRoots[_messageRoot] = true;
   }
 
   /**
