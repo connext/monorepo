@@ -9,6 +9,7 @@ import {
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
   ConnectorMeta,
+  mock,
 } from "@connext/nxtp-utils";
 import {
   mockChainData,
@@ -18,7 +19,9 @@ import {
   stubContext,
 } from "./mock";
 import { SubgraphReader } from "../src/reader";
+import * as ReaderFns from "../src/reader";
 import * as ParserFns from "../src/lib/helpers/parse";
+import * as MockableFns from "../src/mockable";
 
 import * as ExecuteFns from "../src/lib/helpers/execute";
 import { BigNumber } from "ethers";
@@ -452,6 +455,20 @@ describe("SubgraphReader", () => {
       const transferEntity: XTransfer = ParserFns.originTransfer(originTransferEntity1);
       transferEntity.destination = ParserFns.destinationTransfer(destinationTransferEntity).destination;
       expect(await subgraphReader.getDestinationTransfers(originTransfers)).to.be.deep.eq([transferEntity]);
+    });
+  });
+
+  describe("#getProcessedRootMessagesByDomain", () => {
+    it("should return the processed root messages", async () => {
+      stub(ReaderFns, "DOMAIN_TO_HUB_MAPPING").value({ "1111": "https://hello.world" });
+
+      const rootMessages = [mock.entity.rootMessage(), mock.entity.rootMessage()];
+      stub(MockableFns, "graphQlRequest").resolves({ rootMessageProcesseds: rootMessages });
+
+      const processedRootMessages = await subgraphReader.getProcessedRootMessagesByDomain([
+        { domain: "1111", limit: 100, offset: 0 },
+      ]);
+      expect(processedRootMessages).to.be.deep.eq(rootMessages);
     });
   });
 
