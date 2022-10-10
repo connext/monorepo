@@ -55,7 +55,7 @@ export const STAGING_INIT_CONFIG = {
       whitelist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB"],
     },
     routers: {
-      whitelist: ["0xD2aD711861ab345977B7379c81165708C8717fF1"],
+      whitelist: ["0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"],
     },
     sequencers: {
       whitelist: ["0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C"],
