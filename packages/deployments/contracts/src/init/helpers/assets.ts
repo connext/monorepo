@@ -69,7 +69,7 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
     const desiredAdopted = representation.adopted ?? constants.AddressZero;
     // TODO: If an asset has already been set up with local<>adopted mappings and this init script is being run
     //       with a *different* desiredAdopted, then the call to `setupAssetWithDeployedRepresentation` will revert
-    //       on "TokenFacet__addAssetId_alreadyAdded". For this script to be idempotent, we need to first call
+    //       on "TokenFacet__addAssetId_alreadyAdded". For this script to work correctly, we need to first call
     //       `removeAssetId` in these cases.
     await updateIfNeeded({
       deployment: network.deployments.Connext,
