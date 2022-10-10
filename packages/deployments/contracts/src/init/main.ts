@@ -1,3 +1,3 @@
-import { initWithEnv } from "./init";
+import { sanitizeAndInit } from "./init";
 
-initWithEnv();
+sanitizeAndInit();

@@ -1,44 +1,40 @@
-import * as fs from "fs";
-
+import { config } from "dotenv";
 import { getChainData, getChainIdFromDomain } from "@connext/nxtp-utils";
 import { providers, Wallet, utils } from "ethers";
 
 import { canonizeId, chainIdToDomain } from "../domain";
 
+import { PRODUCTION_INIT_CONFIG, STAGING_INIT_CONFIG } from "./config";
 import { ProtocolStack, getDeployments, updateIfNeeded, NetworkStack, HubMessagingDeployments } from "./helpers";
 import { setupAsset } from "./helpers/assets";
 import { setupMessaging } from "./helpers/messaging";
 
-/**
- * Call the core `initProtocol` method using a JSON config file provided by the local environment.
- */
-export const initWithEnv = async () => {
-  const path = process.env.INIT_CONFIG_FILE ?? "init.json";
-  console.log(`Retrieving config file from ${path}...`);
-  if (!fs.existsSync(path)) {
-    throw new Error(
-      "No init config file was provided. Please set INIT_CONFIG_FILE in env or create init.json locally.",
-    );
-  }
-  const json = fs.readFileSync(path, { encoding: "utf-8" });
-  console.log("Parsing JSON config...");
-  // TODO: Use typebox and AJV parser for config to ensure params are correct?
-  const config = JSON.parse(json);
-  if (!config) {
-    throw new Error("Config was empty? Please ensure your JSON file has, like, stuff in it.");
-  }
-
-  await sanitizeAndInit(config);
-};
+config();
 
 /**
+ * Call the core `initProtocol` method.
  * Sanitizer method to make sure config is set up correctly.
  * @param config - ProtocolStack, but as any/Partial.
  */
-export const sanitizeAndInit = async (config: any) => {
+export const sanitizeAndInit = async () => {
+  /// MARK - ENV
+  // Get deployment environment.
+  const env = process.env.ENV || process.env.ENVIRONMENT;
+  if (!env) {
+    throw new Error(
+      `ENVIRONMENT was not specified in env. Please specify whether ENVIRONMENT (for deployments) is staging or production, etc.",
+      ${process.env.ENV}`,
+    );
+  }
+  const useStaging = env === "staging";
+  console.log(`USING ${useStaging ? "STAGING" : "PRODUCTION"} AS ENVIRONMENT`);
+
+  /// MARK - CONFIG
+  const config: any = useStaging ? STAGING_INIT_CONFIG : PRODUCTION_INIT_CONFIG;
+
   /// MARK - Deployer
   // Get deployer mnemonic, which should be provided in env if not in the config.
-  const mnemonic = config.deployer || process.env.DEPLOYER || process.env.DEPLOYER_MNEMONIC;
+  const mnemonic = process.env.DEPLOYER || process.env.DEPLOYER_MNEMONIC;
   if (!mnemonic) {
     throw new Error(
       "Deployer mnemonic was not specified. Please specify `deployer` in the config file, " +
@@ -46,7 +42,7 @@ export const sanitizeAndInit = async (config: any) => {
     );
   }
   // Convert deployer from mnemonic to Wallet.
-  const deployer = Wallet.fromMnemonic(mnemonic as string);
+  const deployer = Wallet.fromMnemonic(mnemonic);
 
   /// MARK - Domains
   // Make sure hub is specified.
@@ -64,16 +60,6 @@ export const sanitizeAndInit = async (config: any) => {
   }
 
   /// MARK - Deployments
-  // Get deployment environment.
-  const env = config.environment || process.env.ENVIRONMENT;
-  if (!env) {
-    throw new Error(
-      "ENVIRONMENT was not specified in config or env. Please specify whether ENVIRONMENT (for deployments) is `staging` " +
-        "or `production`, etc.",
-    );
-  }
-  const useStaging = env === "staging";
-  console.log(`USING ${useStaging ? "STAGING" : "PRODUCTION"} AS ENVIRONMENT`);
 
   // Get deployments for each domain if not specified in the config.
   for (let i = 0; i < config.networks.length; i++) {
