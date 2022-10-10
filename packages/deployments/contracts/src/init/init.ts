@@ -42,7 +42,7 @@ export const sanitizeAndInit = async () => {
     );
   }
   // Convert deployer from mnemonic to Wallet.
-  const deployer = Wallet.fromMnemonic(mnemonic as string);
+  const deployer = Wallet.fromMnemonic(mnemonic);
 
   /// MARK - Domains
   // Make sure hub is specified.
