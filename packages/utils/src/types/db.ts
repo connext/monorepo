@@ -1,6 +1,6 @@
 import { BigNumber, constants } from "ethers";
 
-import { XMessage, RootMessage } from "./amb";
+import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot } from "./amb";
 import { AssetBalance, RouterBalance, XTransfer, XTransferStatus } from "./xtransfers";
 
 /**
@@ -200,5 +200,35 @@ export const convertFromDbRootMessage = (message: any): RootMessage => {
     blockNumber: message.block_number,
     processed: message.processed,
     index: message.index,
+  };
+};
+
+/**
+ * Converts a aggregated root message from the cartographer db through
+ * either DB queries or Postgrest into the AggregatedRoot type
+ * @param message - the message from the cartographer db as a JSON object
+ * @returns an AggregatedRoot object
+ */
+export const convertFromDbAggregatedRoot = (message: any): AggregatedRoot => {
+  return {
+    id: message.id,
+    domain: message.domain,
+    receivedRoot: message.received_root,
+    index: message.domain_index,
+  };
+};
+
+/**
+ * Converts a propagated root message from the cartographer db through
+ * either DB queries or Postgrest into the PropagatedRoot type
+ * @param message - the message from the cartographer db as a JSON object
+ * @returns an PropagatedRoot object
+ */
+export const convertFromDbPropagatedRoot = (message: any): PropagatedRoot => {
+  return {
+    id: message.id,
+    aggregate: message.aggregate_root,
+    domains: message.domains,
+    count: message.leaf_count,
   };
 };

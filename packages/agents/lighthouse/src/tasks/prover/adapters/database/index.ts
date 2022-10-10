@@ -3,20 +3,18 @@ import { Pool } from "pg";
 
 import { getContext } from "../../prover";
 
-import {
-  getUnProcessedRootMessages,
-  getUnProcessedMessages,
-  getCurrentAggregateRoot,
-  getOutboutRootIndex,
-} from "./database";
+import { getUnProcessedRootMessages, getUnProcessedMessages, getAggregateRoot, getOutboutRootIndex } from "./database";
 
+export { conditions as dc } from "zapatos/db";
 export * as db from "zapatos/db";
+// TODO: Resolve
+// export type * as s from "../../../../../../../adapters/database/src/zapatos/schema";
 
 export type DbClient = {
   getUnProcessedRootMessages: () => Promise<RootMessage[]>;
   getUnProcessedMessages: () => Promise<XMessage[]>;
-  getCurrentAggregateRoot: () => Promise<string>;
-  getOutboutRootIndex: (outboundRoot: string) => Promise<number>;
+  getAggregateRoot: (outboundRootIndex: number) => Promise<string | undefined>;
+  getOutboutRootIndex: (outboundRoot: string) => Promise<number | undefined>;
 };
 
 export let pool: Pool;
@@ -36,7 +34,7 @@ export const setupDbClient = async (): Promise<DbClient> => {
   return {
     getUnProcessedRootMessages,
     getUnProcessedMessages,
-    getCurrentAggregateRoot,
+    getAggregateRoot,
     getOutboutRootIndex,
   };
 };

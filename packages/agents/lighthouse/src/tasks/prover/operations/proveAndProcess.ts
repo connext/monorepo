@@ -1,7 +1,21 @@
-import { createLoggingContext, jsonifyError, NxtpError, XMessage, SparseMerkleTree, DBImpl } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  jsonifyError,
+  NxtpError,
+  XMessage,
+  SparseMerkleTree,
+  DBHelper,
+} from "@connext/nxtp-utils";
 
-import { NoDestinationDomainForProof } from "../../../errors";
+import {
+  NoDestinationDomainForProof,
+  NoAggregatedRoot,
+  NoOutboundRootIndex,
+  NoOutboundRootProof,
+  NoMessageProof,
+} from "../../../errors";
 import { getContext } from "../prover";
+import { SpokeDBHelper, HubDBHelper } from "../adapters/database/helper";
 
 export const proveAndProcess = async () => {
   const { requestContext, methodContext } = createLoggingContext(proveAndProcess.name);
@@ -35,8 +49,8 @@ export const processMessage = async (message: XMessage) => {
   const { requestContext, methodContext } = createLoggingContext("processUnprocessedMessage");
 
   // TODO: Move to per domain storage adapters in context
-  const spokeStore = new DBImpl();
-  const hubStore = new DBImpl();
+  const spokeStore = new SpokeDBHelper(message.originDomain) as DBHelper;
+  const hubStore = new HubDBHelper("hub") as DBHelper;
 
   const spokeSMT = new SparseMerkleTree(spokeStore);
   const hubSMT = new SparseMerkleTree(hubStore);
@@ -46,14 +60,28 @@ export const processMessage = async (message: XMessage) => {
     path: await spokeSMT.getProof(message.origin.index),
     index: message.origin.index,
   };
+  if (!proof.path) {
+    throw new NoMessageProof(proof.index, message.leaf);
+  }
 
-  // TODO: Proof path for proving inclusion of outboundRoot in aggregateRoot.
-  // Will need to get the currentAggregateRoot from on-chain state (or pending, if the validation period
-  // has elapsed!) to determine which tree snapshot we should be generating the proof from.
-  const targetAggregateRoot = await database.getCurrentAggregateRoot();
-  // TODO: Index of outboundRoot leaf node in aggregate tree.
+  // Index of outboundRoot leaf node in aggregate tree.
   const outboundRootIndex = await database.getOutboutRootIndex(message.origin.root);
+  if (!outboundRootIndex) {
+    throw new NoOutboundRootIndex(message.origin.root);
+  }
+
+  // Get the currentAggregateRoot from on-chain state (or pending, if the validation period
+  // has elapsed!) to determine which tree snapshot we should be generating the proof from.
+  const targetAggregateRoot = await database.getAggregateRoot(outboundRootIndex);
+  if (!targetAggregateRoot) {
+    throw new NoAggregatedRoot();
+  }
+
+  // Proof path for proving inclusion of outboundRoot in aggregateRoot.
   const outboundRootProof = await hubSMT.getProof(outboundRootIndex);
+  if (!outboundRootProof) {
+    throw new NoOutboundRootProof(outboundRootIndex, message.origin.root);
+  }
 
   const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
     [proof],

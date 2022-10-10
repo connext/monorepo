@@ -1,6 +1,15 @@
-import { convertFromDbRootMessage, RootMessage, convertFromDbMessage, XMessage } from "@connext/nxtp-utils";
+import {
+  convertFromDbRootMessage,
+  RootMessage,
+  convertFromDbMessage,
+  XMessage,
+  PropagatedRoot,
+  convertFromDbAggregatedRoot,
+  convertFromDbPropagatedRoot,
+  AggregatedRoot,
+} from "@connext/nxtp-utils";
 
-import { db, pool } from "./index";
+import { dc, db, pool } from "./index";
 
 export const getUnProcessedRootMessages = async (
   limit = 100,
@@ -22,13 +31,30 @@ export const getUnProcessedMessages = async (
   return messages.map(convertFromDbMessage);
 };
 
-export const getCurrentAggregateRoot = async (): Promise<string> => {
-  const root = "0x0000000000000000000000000000000000000000000000000000000000000000";
-  return root;
+export const getAggregateRoot = async (outboundRootIndex: number): Promise<string | undefined> => {
+  // Get the most recent unprocessed propagated root
+  const dbRoot: PropagatedRoot = convertFromDbPropagatedRoot(
+    await db
+      .selectOne(
+        "propagated_roots",
+        { leaf_count: dc.gte(outboundRootIndex) },
+        { limit: 1, order: { by: "leaf_count", direction: "ASC" } },
+      )
+      .run(pool),
+  );
+  return dbRoot?.aggregate;
 };
 
-export const getOutboutRootIndex = async (outboundRoot: string): Promise<number> => {
-  // TODO: Find the index emitted from the RootAggregated event
-  const index = outboundRoot.length;
-  return index;
+export const getOutboutRootIndex = async (outboundRoot: string): Promise<number | undefined> => {
+  // Find the index emitted from the RootAggregated event
+  const dbRoot: AggregatedRoot = convertFromDbAggregatedRoot(
+    await db.selectOne("aggregated_roots", { received_root: outboundRoot }).run(pool),
+  );
+  return dbRoot?.index;
+};
+
+export const getRootFromIndex = async (domain: string, index: number): Promise<string | undefined> => {
+  // Find the first published outbound root that contains the index, for a given domain
+  // const dbRoot = await db.selectOne("aggregated_roots", { received_root: outboundRoot }).run(pool);
+  return;
 };
