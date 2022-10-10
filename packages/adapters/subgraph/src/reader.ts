@@ -40,7 +40,6 @@ import {
   getOriginMessagesByDomainAndIndexQuery,
   getDestinationMessagesByDomainAndLeafQuery,
   getSentRootMessagesByDomainAndBlockQuery,
-  getProcessedRootMessagesByDomainAndBlockQuery,
   getConnectorMetaQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
@@ -691,6 +690,7 @@ export class SubgraphReader {
       }),
     );
 
+    // TOOD: THIS SHOULD WORK BUT DOESNT
     // const processedRootMessageQuery = getProcessedRootMessagesByDomainAndBlockQuery(params);
     // const response = await execute(processedRootMessageQuery);
     // const _messages: any[] = [];
