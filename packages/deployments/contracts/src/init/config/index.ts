@@ -4,7 +4,7 @@ import * as path from "path";
 import { ajv } from "@connext/nxtp-utils";
 
 import { InitConfig, InitConfigSchema, ProtocolStack } from "../helpers";
-import { chainIdToDomain } from "../../domain";
+import { chainIdToDomain, domainToChainId } from "../../domain";
 
 /**
  * Load the protocol stack from the default config
@@ -48,4 +48,7 @@ export const getDefaulProtocolStack = (
   } else {
     active_domains = supported_domains;
   }
+
+  const active_chains = active_domains.map((domain) => domainToChainId(Number(domain)));
+  const hub_chain = domainToChainId(Number(config.hub));
 };
