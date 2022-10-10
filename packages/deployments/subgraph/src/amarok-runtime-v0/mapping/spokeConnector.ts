@@ -2,9 +2,8 @@
 import {
   NewConnector,
   Dispatch,
-  AggregateRootsUpdated,
+  AggregateRootReceived,
   MessageSent,
-  MessageProcessed,
 } from "../../../generated/SpokeConnector/SpokeConnector";
 import { OriginMessage, AggregateRoot, RootMessageSent, ConnectorMeta } from "../../../generated/schema";
 
@@ -27,13 +26,13 @@ export function handleDispatch(event: Dispatch): void {
   message.save();
 }
 
-export function handleAggregateRootUpdated(event: AggregateRootsUpdated): void {
-  let aggregateRoot = AggregateRoot.load(event.params.current.toHexString());
+export function handleAggregateRootReceived(event: AggregateRootReceived): void {
+  let aggregateRoot = AggregateRoot.load(event.params.root.toHexString());
   if (aggregateRoot == null) {
-    aggregateRoot = new AggregateRoot(event.params.current.toHexString());
+    aggregateRoot = new AggregateRoot(event.params.root.toHexString());
   }
 
-  aggregateRoot.root = event.params.current;
+  aggregateRoot.root = event.params.root;
   aggregateRoot.save();
 }
 
