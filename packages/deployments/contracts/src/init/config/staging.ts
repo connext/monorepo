@@ -45,7 +45,7 @@ export const STAGING_INIT_CONFIG = {
         },
         "9991": {
           local: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
-          adopted: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+          adopted: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
         },
       },
     },
