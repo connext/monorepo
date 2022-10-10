@@ -13,6 +13,7 @@ import {
   OriginMessage,
   DestinationMessage,
   RootMessage,
+  ConnectorMeta,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -39,6 +40,7 @@ import {
   getDestinationMessagesByDomainAndLeafQuery,
   getSentRootMessagesByDomainAndBlockQuery,
   getProcessedRootMessagesByDomainAndBlockQuery,
+  getConnectorMetaQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -667,5 +669,27 @@ export class SubgraphReader {
       .map(parser.rootMessage);
 
     return processedRootMessages;
+  }
+
+  public async getConnectorMeta(domains: string[]): Promise<ConnectorMeta[]> {
+    const { parser, execute } = getHelpers();
+    const connectorMetaQuery = getConnectorMetaQuery(domains);
+    const response = await execute(connectorMetaQuery);
+    const _metas: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _message = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _metas.push(_message);
+    }
+
+    const connectorMetas: ConnectorMeta[] = _metas
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.connectorMeta);
+
+    return connectorMetas;
   }
 }
