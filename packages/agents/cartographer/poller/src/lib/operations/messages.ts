@@ -143,6 +143,7 @@ export const retrieveProcessedRootMessages = async () => {
       processedRootMessages.length == 0
         ? 0
         : Math.max(...processedRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
+    console.log("processedRootMessages: ", processedRootMessages);
 
     await database.transaction(async (txnClient) => {
       console.log("HELLO FROM PROCESSED ROOT");
