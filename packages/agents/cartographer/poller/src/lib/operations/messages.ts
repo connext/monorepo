@@ -121,7 +121,10 @@ export const retrieveProcessedRootMessages = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(retrieveProcessedRootMessages.name);
 
-  for (const domain of domains) {
+  const connectorMetas = await subgraph.getConnectorMeta(domains);
+  const hubDomains = new Set(connectorMetas.map((meta) => meta.hubDomain));
+
+  for (const domain of [...hubDomains]) {
     const offset = await database.getCheckPoint("processed_root_message_" + domain);
     const limit = 100;
     logger.debug("Retrieving processed root messages", requestContext, methodContext, {

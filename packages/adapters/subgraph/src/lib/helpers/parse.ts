@@ -5,6 +5,7 @@ import {
   DestinationMessage,
   RootMessage,
   OriginTransfer,
+  ConnectorMeta,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
@@ -310,5 +311,29 @@ export const rootMessage = (entity: any): RootMessage => {
     gasLimit: entity.gasLimit,
     blockNumber: entity.blockNumber,
     processed: entity.processed,
+  };
+};
+
+export const connectorMeta = (entity: any): ConnectorMeta => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `ConnectorMeta` entity parser: ConnectorMeta, entity is `undefined`.");
+  }
+  for (const field of ["id", "spokeDomain", "hubDomain", "rootManager", "mirrorConnector", "amb"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `ConnectorMeta` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    spokeDomain: entity.spokeDomain,
+    hubDomain: entity.hubDomain,
+    amb: entity.amb,
+    mirrorConnector: entity.mirrorConnector,
+    rootManager: entity.rootManager,
   };
 };
