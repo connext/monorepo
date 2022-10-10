@@ -1,0 +1,3 @@
+[
+  "function xReceive(bytes32,uint256,address,address,uint32,bytes) returns (bytes)"
+]

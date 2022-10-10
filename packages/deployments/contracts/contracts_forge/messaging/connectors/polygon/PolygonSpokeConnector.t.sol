@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 import "@openzeppelin/contracts/crosschain/errors.sol";
 
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
 
 import {PolygonSpokeConnector} from "../../../../contracts/messaging/connectors/polygon/PolygonSpokeConnector.sol";
 
@@ -19,6 +20,8 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
     // deploy
     _l1Connector = address(123321123);
 
+    _merkle = address(new MerkleTreeManager());
+
     _l2Connector = address(
       new PolygonSpokeConnector(
         _l2Domain,
@@ -28,7 +31,10 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
         _l1Connector,
         _mirrorGas,
         _processGas,
-        _reserveGas
+        _reserveGas,
+        0, // uint256 _delayBlocks
+        _merkle,
+        address(1) // watcher manager
       )
     );
   }
@@ -36,18 +42,11 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
   // ============ Utils ============
 
   // ============ PolygonSpokeConnector.verifySender ============
-  function test_PolygonSpokeConnector__verifySender_shouldWorkIfTrue() public {
+  function test_PolygonSpokeConnector__verifySender_shouldReturnFalse() public {
     address expected = address(1);
 
     vm.prank(_amb);
-    assertTrue(PolygonSpokeConnector(_l2Connector).verifySender(expected));
-  }
-
-  function test_PolygonSpokeConnector__verifySender_shouldFailIfCallerNotAmb() public {
-    address expected = address(1);
-
-    vm.expectRevert("!bridge");
-    PolygonSpokeConnector(_l2Connector).verifySender(expected);
+    assertTrue(!PolygonSpokeConnector(_l2Connector).verifySender(expected));
   }
 
   // ============ PolygonSpokeConnector.setFxRootTunnel ============
@@ -99,8 +98,28 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     PolygonSpokeConnector(_l2Connector).processMessageFromRoot(stateId, rootSender, _data);
 
-    // assert update
-    assertEq(bytes32(_data), PolygonSpokeConnector(_l2Connector).aggregateRoot());
+    // Check: root is marked as pending
+    assertEq(PolygonSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
+  }
+
+  function test_PolygonSpokeConnector__processMessage_works_fuzz(bytes32 data) public {
+    PolygonSpokeConnector(_l2Connector).setFxRootTunnel(_l1Connector);
+
+    // get outbound data
+    bytes memory _data = abi.encode(data);
+    uint256 stateId = 1;
+    address rootSender = _l1Connector;
+
+    // should emit an event
+    vm.expectEmit(true, true, true, true);
+    emit MessageProcessed(_data, _amb);
+
+    // make call
+    vm.prank(_amb);
+    PolygonSpokeConnector(_l2Connector).processMessageFromRoot(stateId, rootSender, _data);
+
+    // Check: root is marked as pending
+    assertEq(PolygonSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
   }
 
   function test_PolygonSpokeConnector__processMessage_failsIfNotAmb() public {

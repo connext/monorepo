@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-subgraph",
-  "version": "0.2.0-beta.23",
+  "version": "0.2.0-alpha.24",
   "license": "UNLICENSED",
   "scripts": {
     "graph": "graph",
@@ -17,7 +17,7 @@
     "deploy:amarok-stableswap-staging": "yarn deploy amarok-stableswap-staging amarok-stableswap-staging all",
     "prepare:v0": "yarn deploy amarok-runtime-v0 local mainnet",
     "prepare:staging": "yarn deploy amarok-runtime-staging local mainnet",
-    "prepare:hub-staging": "yarn deploy amarok-hub-staging local mainnet",
+    "prepare:hub-staging": "yarn deploy amarok-hub-staging local_hub mainnet",
     "prepare:stableswap": "yarn deploy amarok-stableswap-staging local mainnet",
     "prepare:local_1337": "yarn deploy amarok-runtime-v0 local_1337 mainnet",
     "prepare:local_1338": "yarn deploy amarok-runtime-v0 local_1338 mainnet",
@@ -27,7 +27,8 @@
     "create-local-1338": "graph create --node http://localhost:9020/ connext/nxtp",
     "remove-local-1338": "graph remove --node http://localhost:9020/ connext/nxtp",
     "deploy-local-1338": "graph deploy --node http://localhost:9020/ --ipfs http://localhost:5001 connext/nxtp",
-    "test": "exit 0"
+    "test": "exit 0",
+    "version": "yarn version"
   },
   "files": [
     "schema.graphql",

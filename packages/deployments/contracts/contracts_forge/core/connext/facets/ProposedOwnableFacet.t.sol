@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {ProposedOwnableFacet} from "../../../../contracts/core/connext/facets/ProposedOwnableFacet.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
+import {Role} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
@@ -10,11 +11,21 @@ import "../../../utils/FacetHelper.sol";
 contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
   // ============ Storage ============
   address _owner = address(123123);
+  uint256 DELAY = 6 days;
+
+  address _routerAgent1 = address(222001111);
+  address _routerAgent2 = address(222002111);
+
+  address _adminAgent1 = address(222001222);
+  address _adminAgent2 = address(222002222);
+
+  address _watcherAgent1 = address(222001333);
 
   // ============ Test set up ============
   function setUp() public {
     LibDiamond.setContractOwner(_owner);
     assertEq(this.owner(), _owner);
+    vm.mockCall(address(this), abi.encodeWithSelector(this.delay.selector), abi.encode(DELAY));
   }
 
   // ============ Utils ============
@@ -130,6 +141,60 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     utils_acceptNewOwnerAndAssert(_proposed);
   }
 
+  function utils_revokeRole(address agent, address caller) public {
+    Role revokedRole = this.queryRole(agent);
+
+    vm.expectEmit(true, true, true, true);
+    emit RevokeRole(agent, revokedRole);
+    vm.prank(caller);
+    this.revokeRole(agent);
+
+    if (this.queryRole(agent) == Role.None) {
+      assertTrue(true);
+    } else {
+      assertTrue(false);
+    }
+  }
+
+  function utils_assignRoleRouter(address routerAgent, address caller) public {
+    vm.expectEmit(true, true, true, true);
+    emit AssignRoleRouter(routerAgent);
+    vm.prank(caller);
+    this.assignRoleRouter(routerAgent);
+
+    if (this.queryRole(routerAgent) == Role.Router) {
+      assertTrue(true);
+    } else {
+      assertTrue(false);
+    }
+  }
+
+  function utils_assignRoleWatcher(address watcherAgent, address caller) public {
+    vm.expectEmit(true, true, true, true);
+    emit AssignRoleWatcher(watcherAgent);
+    vm.prank(caller);
+    this.assignRoleWatcher(watcherAgent);
+
+    if (this.queryRole(watcherAgent) == Role.Watcher) {
+      assertTrue(true);
+    } else {
+      assertTrue(false);
+    }
+  }
+
+  function utils_assignRoleAdmin(address adminAgent, address caller) public {
+    vm.expectEmit(true, true, true, true);
+    emit AssignRoleAdmin(adminAgent);
+    vm.prank(caller);
+    this.assignRoleAdmin(adminAgent);
+
+    if (this.queryRole(adminAgent) == Role.Admin) {
+      assertTrue(true);
+    } else {
+      assertTrue(false);
+    }
+  }
+
   // ============ owner ============
   // tested in assertion functions
 
@@ -151,14 +216,17 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
   // ============ assetWhitelistTimestamp ============
   // tested in assertion functions
 
+  // ============ queryRole ============
+  // tested in assertion functions
+
   // ============ delay ============
   function test_ProposedOwnableFacet__delay_works() public {
-    assertEq(this.delay(), 7 days);
+    assertEq(this.delay(), DELAY);
   }
 
   // ============ proposeRouterWhitelistRemoval ============
-  function test_ProposedOwnableFacet__proposeRouterWhitelistRemoval_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet__onlyOwner_notOwner.selector);
+  function test_ProposedOwnableFacet__proposeRouterWhitelistRemoval_failsIfNotOwnerOrAdmin() public {
+    vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     this.proposeRouterWhitelistRemoval();
   }
 
@@ -172,14 +240,22 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     this.proposeRouterWhitelistRemoval();
   }
 
-  function test_ProposedOwnableFacet__proposeRouterWhitelistRemoval_works() public {
+  function test_ProposedOwnableFacet__proposeRouterWhitelistRemoval_worksIfOwner() public {
     utils_proposeRenounceRouterAndAssert();
   }
 
+  function test_ProposedOwnableFacet__proposeRouterWhitelistRemoval_worksIfAdmin() public {
+    vm.prank(_owner);
+    this.assignRoleAdmin(_adminAgent1);
+
+    vm.prank(_adminAgent1);
+    this.proposeRouterWhitelistRemoval();
+  }
+
   // ============ removeRouterWhitelist ============
-  function test_ProposedOwnableFacet__removeRouterWhitelist_failsIfNotOwner() public {
+  function test_ProposedOwnableFacet__removeRouterWhitelist_failsIfNotOwnerOrAdmin() public {
     utils_proposeRenounceRouterAndAssert();
-    vm.expectRevert(BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     this.removeRouterWhitelist();
   }
 
@@ -206,15 +282,27 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     this.removeRouterWhitelist();
   }
 
-  function test_ProposedOwnableFacet__removeRouterWhitelist_works() public {
+  function test_ProposedOwnableFacet__removeRouterWhitelist_worksIfOwner() public {
     utils_proposeRenounceRouterAndAssert();
     vm.warp(block.timestamp + this.delay() + 1);
     utils_renounceRouterAndAssert();
   }
 
+  function test_ProposedOwnableFacet__removeRouterWhitelist_worksIfAdmin() public {
+    utils_proposeRenounceRouterAndAssert();
+    vm.warp(block.timestamp + this.delay() + 1);
+
+    vm.prank(_owner);
+    this.assignRoleAdmin(_adminAgent1);
+
+    vm.prank(_adminAgent1);
+    this.removeRouterWhitelist();
+  }
+
   // ============ proposeAssetWhitelistRemoval ============
-  function test_ProposedOwnableFacet__proposeAssetWhitelistRemoval_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet__onlyOwner_notOwner.selector);
+  function test_ProposedOwnableFacet__proposeAssetWhitelistRemoval_failsIfNotOwnerOrAdmin() public {
+    vm.prank(_adminAgent2);
+    vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     this.proposeAssetWhitelistRemoval();
   }
 
@@ -228,14 +316,22 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     this.proposeAssetWhitelistRemoval();
   }
 
-  function test_ProposedOwnableFacet__proposeAssetWhitelistRemoval_works() public {
+  function test_ProposedOwnableFacet__proposeAssetWhitelistRemoval_worksIfOwner() public {
     utils_proposeRenounceAssetAndAssert();
   }
 
+  function test_ProposedOwnableFacet__proposeAssetWhitelistRemoval_worksIfAdmin() public {
+    vm.prank(_owner);
+    this.assignRoleAdmin(_adminAgent1);
+
+    vm.prank(_adminAgent1);
+    this.proposeAssetWhitelistRemoval();
+  }
+
   // ============ removeAssetWhitelist ============
-  function test_ProposedOwnableFacet__removeAssetWhitelist_failsIfNotOwner() public {
+  function test_ProposedOwnableFacet__removeAssetWhitelist_failsIfNotOwnerOrAdmin() public {
     utils_proposeRenounceAssetAndAssert();
-    vm.expectRevert(BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     this.removeAssetWhitelist();
   }
 
@@ -262,10 +358,21 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     this.removeAssetWhitelist();
   }
 
-  function test_ProposedOwnableFacet__removeAssetWhitelist_works() public {
+  function test_ProposedOwnableFacet__removeAssetWhitelist_worksIfOwner() public {
     utils_proposeRenounceAssetAndAssert();
     vm.warp(block.timestamp + this.delay() + 1);
     utils_renounceAssetAndAssert();
+  }
+
+  function test_ProposedOwnableFacet__removeAssetWhitelist_worksIfAdmin() public {
+    utils_proposeRenounceAssetAndAssert();
+    vm.warp(block.timestamp + this.delay() + 1);
+
+    vm.prank(_owner);
+    this.assignRoleAdmin(_adminAgent1);
+
+    vm.prank(_adminAgent1);
+    this.removeAssetWhitelist();
   }
 
   // ============ renounced ============
@@ -364,6 +471,137 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
 
   function test_ProposedOwnableFacet__acceptProposedOwner_works() public {
     utils_transferOwnership(address(12));
+  }
+
+  // ============ revokeRole ============
+  function test_ProposedOwnableFacet__revokeRole_failsIfNotOwnerOrAdmin() public {
+    vm.prank(_routerAgent2);
+    vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
+    this.revokeRole(_routerAgent1);
+  }
+
+  function test_ProposedOwnableFacet__revokeRole_failsIfAlreadyRevoked() public {
+    utils_assignRoleRouter(_routerAgent1, _owner);
+    utils_revokeRole(_routerAgent1, _owner);
+
+    vm.prank(_owner);
+    vm.expectRevert(ProposedOwnableFacet__revokeRole_invalidInput.selector);
+    this.revokeRole(_routerAgent1);
+  }
+
+  function test_ProposedOwnableFacet__revokeRole_failsIfInputAddressZero() public {
+    vm.prank(_owner);
+    vm.expectRevert(ProposedOwnableFacet__revokeRole_invalidInput.selector);
+    this.revokeRole(address(0));
+  }
+
+  function test_ProposedOwnableFacet__revokeRole_worksIfCallerIsOwner() public {
+    utils_assignRoleRouter(_routerAgent1, _owner);
+    utils_revokeRole(_routerAgent1, _owner);
+  }
+
+  function test_ProposedOwnableFacet__revokeRole_worksIfCallerIsAdmin() public {
+    utils_assignRoleRouter(_routerAgent1, _owner);
+    utils_assignRoleAdmin(_adminAgent1, _owner);
+
+    utils_revokeRole(_routerAgent1, _adminAgent1);
+  }
+
+  // ============ assignRoleRouter ============
+  function test_ProposedOwnableFacet__assignRoleRouter_failsIfNotOwnerOrAdmin() public {
+    vm.prank(_routerAgent2);
+    vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
+    this.assignRoleRouter(_routerAgent1);
+  }
+
+  function test_ProposedOwnableFacet__assignRoleRouter_failsIfAlreadyAdded() public {
+    utils_assignRoleRouter(_routerAgent1, _owner);
+
+    vm.prank(_owner);
+    vm.expectRevert(ProposedOwnableFacet__assignRoleRouter_invalidInput.selector);
+    this.assignRoleRouter(_routerAgent1);
+  }
+
+  function test_ProposedOwnableFacet__assignRoleRouter_failsIfInputAddressZero() public {
+    vm.prank(_owner);
+    vm.expectRevert(ProposedOwnableFacet__assignRoleRouter_invalidInput.selector);
+    this.assignRoleRouter(address(0));
+  }
+
+  function test_ProposedOwnableFacet__assignRoleRouter_worksIfCallerIsOwner() public {
+    utils_assignRoleRouter(_routerAgent1, _owner);
+  }
+
+  function test_ProposedOwnableFacet__assignRoleRouter_worksIfCallerIsAdmin() public {
+    utils_assignRoleAdmin(_adminAgent1, _owner);
+
+    utils_assignRoleRouter(_routerAgent2, _adminAgent1);
+  }
+
+  // ============ assignRoleWatcher ============
+  function test_ProposedOwnableFacet__assignRoleWatcher_failsIfNotOwnerOrAdmin() public {
+    vm.prank(_watcherAgent1);
+    vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
+    this.assignRoleWatcher(_watcherAgent1);
+  }
+
+  function test_ProposedOwnableFacet__assignRoleWatcher_failsIfAlreadyAdded() public {
+    utils_assignRoleWatcher(_watcherAgent1, _owner);
+
+    vm.prank(_owner);
+    vm.expectRevert(ProposedOwnableFacet__assignRoleWatcher_invalidInput.selector);
+    this.assignRoleWatcher(_watcherAgent1);
+  }
+
+  function test_ProposedOwnableFacet__assignRoleWatcher_failsIfInputAddressZero() public {
+    utils_assignRoleWatcher(_watcherAgent1, _owner);
+
+    vm.prank(_owner);
+    vm.expectRevert(ProposedOwnableFacet__assignRoleWatcher_invalidInput.selector);
+    this.assignRoleWatcher(address(0));
+  }
+
+  function test_ProposedOwnableFacet__assignRoleWatcher_worksIfCallerIsOwner() public {
+    utils_assignRoleWatcher(_watcherAgent1, _owner);
+  }
+
+  function test_ProposedOwnableFacet__assignRoleWatcher_worksIfCallerIsAdmin() public {
+    utils_assignRoleAdmin(_adminAgent1, _owner);
+
+    utils_assignRoleWatcher(_watcherAgent1, _adminAgent1);
+  }
+
+  // ============ assignRoleAdmin ============
+  function test_ProposedOwnableFacet__assignRoleAdmin_failsIfNotOwnerOrAdmin() public {
+    vm.prank(_adminAgent1);
+    vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
+    this.assignRoleAdmin(_adminAgent1);
+  }
+
+  function test_ProposedOwnableFacet__assignRoleAdmin_failsIfAlreadyAdded() public {
+    utils_assignRoleAdmin(_adminAgent1, _owner);
+
+    vm.prank(_owner);
+    vm.expectRevert(ProposedOwnableFacet__assignRoleAdmin_invalidInput.selector);
+    this.assignRoleAdmin(_adminAgent1);
+  }
+
+  function test_ProposedOwnableFacet__assignRoleAdmin_failsIfInputAddressZero() public {
+    utils_assignRoleAdmin(_adminAgent1, _owner);
+
+    vm.prank(_owner);
+    vm.expectRevert(ProposedOwnableFacet__assignRoleAdmin_invalidInput.selector);
+    this.assignRoleAdmin(address(0));
+  }
+
+  function test_ProposedOwnableFacet__assignRoleAdmin_worksIfCallerIsOwner() public {
+    utils_assignRoleAdmin(_adminAgent1, _owner);
+  }
+
+  function test_ProposedOwnableFacet__assignRoleAdmin_worksIfCallerIsAdmin() public {
+    utils_assignRoleAdmin(_adminAgent1, _owner);
+
+    utils_assignRoleAdmin(_adminAgent2, _adminAgent1);
   }
 
   // ============ pause ============

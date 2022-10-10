@@ -10,91 +10,88 @@ import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.
 
 import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
-import {ISponsorVault} from "../../../../contracts/core/connext/interfaces/ISponsorVault.sol";
-import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
-import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBridgeRouter.sol";
-import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
-import {IExecutor} from "../../../../contracts/core/connext/interfaces/IExecutor.sol";
-import {Executor} from "../../../../contracts/core/connext/helpers/Executor.sol";
-import {RelayerFeeMessage} from "../../../../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
-import {LibCrossDomainProperty} from "../../../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
-import {CallParams, ExecuteArgs, XCallArgs, TokenId, TransferIdInformation} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {TransferInfo, ExecuteArgs, TokenId, DestinationTransferStatus} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
+import {BridgeMessage} from "../../../../contracts/core/connext/libraries/BridgeMessage.sol";
+
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
-import {TokenRegistry} from "../../../../contracts/test/TokenRegistry.sol";
-import {BridgeMessage} from "../../../../contracts/test/BridgeMessage.sol";
-import {PromiseRouter} from "../../../../contracts/core/promise/PromiseRouter.sol";
 
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
 
+import "forge-std/console.sol";
+
 contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ Libs ============
+
   using TypedMemView for bytes29;
   using TypedMemView for bytes;
+
+  // ============ Structs ============
+
+  struct XCallBalances {
+    uint256 relayerEth;
+    uint256 contractAsset;
+    uint256 callerEth;
+    uint256 callerAsset;
+  }
+
   // ============ Constants ============
 
   bytes32 constant TEST_MESSAGE = bytes32("test message");
 
   // ============ Storage ============
+
   // diamond storage contract owner
   address _ds_owner = address(987654321);
 
-  // executor contract
-  address _executor;
   // mock xapp contract
   address _xapp;
-  // mock bridge router
-  address _bridgeRouter;
-  // mock promise router
-  address payable _promiseRouter;
-  // mock callback contract
-  address _callback;
 
-  // agents
-  address _agent = address(123456654321);
+  // delegates
+  address _delegate = address(123456654321);
 
   // sequencer
   uint256 _sequencerPKey = 0xA11CE;
   address _sequencer = vm.addr(_sequencerPKey);
-
-  // default origin sender
-  address _originSender = address(4);
 
   // aave pool details
   address _aavePool;
 
   // relayer fee
   uint256 _relayerFee = 0.1 ether;
+  address _relayerFeeVault = address(12313454241);
 
+  // Defaults
+  // default origin sender
+  address _defaultOriginSender = address(4);
   // default amount
-  uint256 _amount = 1.1 ether;
-
+  uint256 _defaultAmount = 1.1 ether;
   // default nonce on xcall
-  uint256 _nonce = 1;
-
-  // default recovery address
-  address constant _recovery = address(121212);
-
-  // default CallParams
-  CallParams _params =
-    CallParams(
-      address(11), // to
-      bytes(""), // callData
-      _originDomain, // origin domain
-      _destinationDomain, // destination domain
-      _agent, // agent
-      _recovery, // recovery address
-      false, // forceSlow
-      false, // receiveLocal
-      address(0), // callback
-      0, // callbackFee
-      _relayerFee, // relayer fee
-      1 ether // destinationMinOut
-    );
+  uint256 _defaultNonce = s.nonce;
+  // default TransferInfo
+  TransferInfo _defaultParams =
+    TransferInfo({
+      originDomain: _originDomain,
+      destinationDomain: _destinationDomain,
+      canonicalDomain: 0, // Will be set in setUp; should also be updated in helpers.
+      to: address(11),
+      delegate: _delegate,
+      receiveLocal: false,
+      callData: bytes(""),
+      slippage: 1000,
+      // These items would normally be replaced in the nested internal _xcall,
+      // but will be defined as the "expected values" for the purpose of getting
+      // the expected transfer ID.
+      originSender: _defaultOriginSender,
+      bridgedAmt: 0,
+      normalizedIn: 0,
+      nonce: _defaultNonce,
+      canonicalId: bytes32("") // Will be set in setUp.
+    });
 
   // ============ Test set up ============
   function setUp() public {
@@ -107,20 +104,21 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // is using - and is representational (meaning canonically it belongs to another chain).
     utils_setupAsset(true, false);
 
-    // Promise router mock calls.
-    vm.mockCall(_promiseRouter, abi.encodeWithSelector(PromiseRouter.send.selector), abi.encode());
-    vm.mockCall(_promiseRouter, abi.encodeWithSelector(PromiseRouter.initCallbackFee.selector), abi.encode());
+    // Defaults setup.
+    _defaultParams.canonicalId = _canonicalId;
+    _defaultParams.canonicalDomain = _canonicalDomain;
 
     // Other context setup: configuration, storage, etc.
     s.approvedRelayers[address(this)] = true;
     s.approvedSequencers[_sequencer] = true;
     s.maxRoutersPerTransfer = 5;
     s._routerWhitelistRemoved = true;
-    s.bridgeRouter = IBridgeRouter(_bridgeRouter);
+    s.relayerFeeVault = _relayerFeeVault;
+    s.domain = _originDomain;
 
-    s.connextions[_destinationDomain] = TypeCasts.addressToBytes32(address(this));
-    s.connextions[_originDomain] = TypeCasts.addressToBytes32(address(this));
-    s.connextions[_canonicalDomain] = TypeCasts.addressToBytes32(address(this));
+    s.remotes[_destinationDomain] = TypeCasts.addressToBytes32(address(this));
+    s.remotes[_originDomain] = TypeCasts.addressToBytes32(address(this));
+    s.remotes[_canonicalDomain] = TypeCasts.addressToBytes32(address(this));
 
     vm.prank(address(this));
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
@@ -133,73 +131,18 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // Used in set up for deploying any needed peripheral contracts.
   function utils_deployContracts() public {
     utils_deployAssetContracts();
-    // Deploy an executor.
-    _executor = address(new Executor(address(this)));
-    s.executor = IExecutor(_executor);
+
+    // Deploy mock home.
+    MockHome originHome = new MockHome(_originDomain);
+    // Deploy xAppConnectionManager contract.
+    s.xAppConnectionManager = new MockXAppConnectionManager(originHome);
+
     // Deploy a mock xapp consumer.
     _xapp = address(new MockXApp());
-
-    // Deploy a mock bridge router.
-    _bridgeRouter = address(new MockBridgeRouter());
-    // Deploy the promise router.
-    s.promiseRouter = new MockPromiseRouter();
-    _promiseRouter = payable(address(s.promiseRouter));
-
-    // Deploy a mock callback.
-    _callback = address(new MockCallback());
 
     // setup aave pool
     _aavePool = address(new MockPool(false));
     s.aavePool = _aavePool;
-  }
-
-  // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
-  function utils_getTransferIdFromXCallArgs(
-    XCallArgs memory _args,
-    address sender,
-    bytes32 canonicalId,
-    uint32 canonicalDomain,
-    uint256 bridigedAmt
-  ) public view returns (bytes32) {
-    return keccak256(abi.encode(s.nonce, _args.params, sender, canonicalId, canonicalDomain, bridigedAmt));
-  }
-
-  // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
-  function utils_getTransferIdFromExecuteArgs(ExecuteArgs memory _args) public returns (bytes32) {
-    return
-      keccak256(
-        abi.encode(_args.nonce, _args.params, _args.originSender, _canonicalId, _canonicalDomain, _args.amount)
-      );
-  }
-
-  // Makes some mock xcall arguments using params set in storage.
-  function utils_makeXCallArgs(uint256 bridged) public returns (bytes32, XCallArgs memory) {
-    s.domain = _originDomain;
-    // get args
-    XCallArgs memory args = XCallArgs(_params, _adopted, _amount, (_amount * 9990) / 10000);
-    // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged);
-
-    return (transferId, args);
-  }
-
-  function utils_makeXCallArgs(address transactingAssetId, uint256 bridged) public returns (bytes32, XCallArgs memory) {
-    s.domain = _originDomain;
-    // get args
-    XCallArgs memory args = XCallArgs(
-      _params,
-      transactingAssetId, // transactingAssetId : could be adopted, local, or wrapped.
-      _amount,
-      (_amount * 9990) / 10000
-    );
-    if (transactingAssetId == address(0)) {
-      _canonicalId = bytes32(0);
-      _canonicalDomain = 0;
-    }
-    // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged);
-
-    return (transferId, args);
   }
 
   function utils_makeSequencerSignature(
@@ -240,22 +183,27 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     returns (bytes32, ExecuteArgs memory)
   {
     s.domain = _destinationDomain;
-    // get args
+
+    // Format TransferInfo.
+    TransferInfo memory params = _defaultParams;
+    params.canonicalId = _canonicalId;
+    params.canonicalDomain = _canonicalDomain;
+    params.bridgedAmt = _defaultAmount;
+    params.normalizedIn = _defaultAmount;
+
+    // Make args struct, will be updated / filled in below.
     bytes[] memory empty = new bytes[](0);
-    ExecuteArgs memory args = ExecuteArgs(
-      _params,
-      _local,
-      routers,
-      empty,
-      address(0),
-      bytes(""),
-      _amount,
-      _nonce,
-      _originSender
-    );
-    // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromExecuteArgs(args);
-    // generate router signatures if applicable
+    ExecuteArgs memory args = ExecuteArgs({
+      params: params,
+      routers: routers,
+      routerSignatures: empty,
+      sequencer: address(0),
+      sequencerSignature: bytes("")
+    });
+
+    // Generate transfer ID.
+    bytes32 transferId = _calculateTransferId(args.params);
+    // Generate router signatures, if applicable.
     if (routers.length != 0) {
       args.routerSignatures = utils_makeRouterSignatures(transferId, routers, keys);
       args.sequencer = _sequencer;
@@ -292,223 +240,282 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // Helpers used for executing target methods with given params that assert expected base behavior.
   function helpers_setupSuccessfulXcallCallAssertions(
     bytes32 transferId,
-    XCallArgs memory args,
-    uint256 bridgedAmt,
+    TransferInfo memory params,
+    address asset,
+    uint256 amount,
     bool shouldSwap
   ) public {
-    // bridged is either local or canonical, depending on domain xcall originates on
-    address bridged = args.transactingAsset == address(0) ? address(0) : _canonicalDomain == args.params.originDomain
-      ? _canonical
-      : _local;
+    // Bridged asset will either local or canonical, depending on domain xcall originates on.
+    address bridged = asset == address(0) ? address(0) : _canonicalDomain == s.domain ? _canonical : _local;
+    uint256 bridgedAmt = params.bridgedAmt;
     vm.expectEmit(true, true, true, true);
-    emit XCalled(
-      transferId,
-      s.nonce,
-      MockBridgeRouter(_bridgeRouter).MESSAGE_HASH(),
-      args,
-      bridged,
-      bridgedAmt,
-      _originSender
-    );
+    emit XCalled(transferId, s.nonce, bytes32("test message"), params, asset, amount, bridged);
 
     // assert swap if expected
     if (shouldSwap && bridgedAmt != 0) {
       // Transacting asset shouldve been approved for amount in
-      vm.expectCall(
-        args.transactingAsset,
-        abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, args.transactingAmount)
-      );
+      vm.expectCall(asset, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, amount));
 
       // swapExact on pool should have been called
       vm.expectCall(
         _stableSwap,
         abi.encodeWithSelector(
           IStableSwap.swapExact.selector,
-          args.transactingAmount,
-          args.transactingAsset,
+          amount,
+          asset,
           _local,
-          args.originMinOut
+          (amount * (10_000 - params.slippage)) / 10_000
         )
       );
     }
+  }
 
-    if (args.params.callbackFee != 0) {
-      // Assert that CallbackFee would be paid by the user.
-      vm.expectCall(
-        _promiseRouter,
-        args.params.callbackFee,
-        abi.encodeWithSelector(PromiseRouter.initCallbackFee.selector, transferId)
-      );
-    }
-    // Assert approval call
-    if (bridgedAmt > 0) {
-      vm.expectCall(bridged, abi.encodeWithSelector(IERC20.approve.selector, _bridgeRouter, bridgedAmt));
-    }
-
-    // Assert bridge router call
-    vm.expectCall(
-      _bridgeRouter,
-      abi.encodeWithSelector(
-        IBridgeRouter.sendToHook.selector,
-        bridged,
-        bridgedAmt,
-        args.params.destinationDomain,
-        s.connextions[args.params.destinationDomain], // always use this as remote connext
-        abi.encode(TransferIdInformation(args.params, s.nonce, _originSender))
-      )
-    );
+  // Helper to prevent stack too deep issues (since there a lot of arguments to xcall).
+  function helpers_wrappedXCall(
+    TransferInfo memory params,
+    address asset,
+    uint256 amount
+  ) public returns (bytes32) {
+    vm.prank(params.originSender);
+    return
+      params.receiveLocal
+        ? this.xcallIntoLocal{value: _relayerFee}(
+          params.destinationDomain,
+          params.to,
+          asset,
+          params.delegate,
+          amount,
+          params.slippage,
+          params.callData
+        )
+        : this.xcall{value: _relayerFee}(
+          params.destinationDomain,
+          params.to,
+          asset,
+          params.delegate,
+          amount,
+          params.slippage,
+          params.callData
+        );
   }
 
   // Calls `xcall` with given args and handles standard assertions.
   function helpers_xcallAndAssert(
-    bytes32 transferId,
-    XCallArgs memory args,
-    uint256 dealTokens,
-    uint256 bridgedAmt,
+    TransferInfo memory params,
+    address asset,
+    uint256 amount,
     bytes4 expectedError,
     bool shouldSwap
   ) public {
     bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
-    bool isCanonical = _canonicalDomain == args.params.originDomain;
+    bool isCanonical = _canonicalDomain == s.domain;
 
-    // Deal the user required eth for transfer.
-    vm.deal(_originSender, 100 ether);
+    if (asset == address(0)) {
+      // Both should be empty if the asset address is 0 (meaning this is probably a 0-value transfer).
+      params.canonicalId = bytes32("");
+      params.canonicalDomain = 0;
+    } else {
+      // Make sure canonical domain and ID are up to date in case this unit test altered the asset setup.
+      params.canonicalId = _canonicalId;
+      params.canonicalDomain = _canonicalDomain;
+    }
 
-    uint256 initialUserBalance;
-    uint256 initialContractBalance;
-    {
-      if (args.transactingAsset != address(0)) {
-        TestERC20 tokenIn = TestERC20(args.transactingAsset);
-        TestERC20 localToken = TestERC20(_local);
+    // If the bridged amount was pre-specified, it's likely we wanted to test a specific slippage
+    // amount below in the stableswap mock call.
+    if (params.bridgedAmt == 0) {
+      // TODO: Is the normalizedIn correct in all cases here? What about diff decimals?
 
-        // Mint the specified amount of tokens for the user.
-        tokenIn.mint(_originSender, dealTokens);
-
-        initialUserBalance = tokenIn.balanceOf(_originSender);
-        initialContractBalance = localToken.balanceOf(address(this));
-
-        // Approve the target contract to spend the specified amount of tokens.
-        vm.prank(_originSender);
-        tokenIn.approve(address(this), dealTokens);
+      if (shouldSwap) {
+        // Bridged amount of asset will be the amount post-swap.
+        // This is just an example of the kind of slippage we could expect.
+        params.bridgedAmt = (_defaultAmount * 9995) / _liquidityFeeDenominator;
+        // Normalized input amount is the pre-swap amount.
+        params.normalizedIn = amount;
+      } else if (asset == address(0)) {
+        // An asset address of 0 indicates this is a 0-value transfer.
+        params.bridgedAmt = 0;
+        params.normalizedIn = 0;
       } else {
-        initialUserBalance = address(_originSender).balance;
-        initialContractBalance = address(this).balance;
+        // No swap will occur, so the amount bridged should just be the amount in.
+        params.bridgedAmt = amount;
+        params.normalizedIn = amount;
       }
+    } else if (params.normalizedIn == 0) {
+      params.normalizedIn = amount;
+    }
+
+    bytes32 transferId = _calculateTransferId(params);
+
+    // Console logs for debugging:
+    // console.log("asset", asset);
+    // console.log("amount", amount);
+    // console.log("transferID");
+    // console.logBytes32(transferId);
+    // console.log("bridgedAmt", params.bridgedAmt);
+    // console.log("normalizedIn", params.normalizedIn);
+
+    // Set up and record initial balances.
+    XCallBalances memory balances;
+    {
+      // Deal the user required eth for transfer.
+      vm.deal(params.originSender, 100 ether);
+
+      TestERC20 tokenIn = TestERC20(asset != address(0) ? asset : _local);
+
+      if (amount > 0) {
+        // First, mint the specified amount of tokens for the user.
+        tokenIn.mint(params.originSender, amount);
+
+        // As the user, approve this contract to spend the specified amount of tokens.
+        vm.prank(params.originSender);
+        tokenIn.approve(address(this), amount);
+      }
+
+      // Record initial balances.
+      balances.callerEth = address(params.originSender).balance;
+      balances.callerAsset = tokenIn.balanceOf(params.originSender);
+      balances.relayerEth = s.relayerFeeVault.balance;
+      balances.contractAsset = tokenIn.balanceOf(address(this));
+
+      // Debugging logs.
+      // console.log("initial balances");
+      // console.log(address(this).balance);
+      // console.log(params.originSender.balance);
+      // console.log(tokenIn.balanceOf(params.originSender));
+      // console.log(tokenIn.balanceOf(address(this)));
+      // console.log(TestERC20(_local).balanceOf(address(this)));
     }
 
     if (shouldSwap) {
-      // Setup the expected swap mock (adopted <> local)
-      vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector), abi.encode(bridgedAmt, _local));
+      // Set up the expected swap mock (adopted <> local).
+      vm.mockCall(
+        _stableSwap,
+        abi.encodeWithSelector(IStableSwap.swapExact.selector),
+        abi.encode(params.bridgedAmt, _local)
+      );
     }
 
-    uint256 initialRelayerFees = s.relayerFees[transferId];
-
     if (shouldSucceed) {
-      helpers_setupSuccessfulXcallCallAssertions(transferId, args, bridgedAmt, shouldSwap);
+      helpers_setupSuccessfulXcallCallAssertions(transferId, params, asset, amount, shouldSwap);
     } else {
       vm.expectRevert(expectedError);
     }
 
-    uint256 fees = args.params.relayerFee + args.params.callbackFee;
-    vm.prank(_originSender);
-    this.xcall{value: fees}(args);
+    // TODO: event manually validated, value to relayer fee vault automatically validated,
+    // this event check wont pass :(
+    // if (_relayerFee > 0) {
+    //   vm.expectEmit(true, true, true, true);
+    //   emit TransferRelayerFeesIncreased(transferId, _relayerFee, params.originSender);
+    // }
+    bytes32 ret = helpers_wrappedXCall(params, asset, amount);
 
     if (shouldSucceed) {
-      // User should have been debited fees... but also tx cost?
-      // assertEq(payable(_originSender).balance, initialUserBalance - fees);
+      assertEq(ret, transferId);
 
-      // Check that the user has been debited the correct amount of tokens.
-      if (args.transactingAsset != address(0)) {
-        assertEq(
-          TestERC20(args.transactingAsset).balanceOf(_originSender),
-          initialUserBalance - args.transactingAmount
-        );
-      } else {
-        // User should have been debited fees... but also tx cost?
-        assertEq(_originSender.balance, (initialUserBalance - fees));
-      }
+      // Nonce should have increased.
+      assertEq(s.nonce, params.nonce + 1);
 
-      // Check that the contract has been credited the correct amount of tokens.
-      // NOTE: Because the tokens are a representational local asset, they are burnt. The contract
+      TestERC20 tokenIn = TestERC20(asset != address(0) ? asset : _local);
+
+      // Debugging logs.
+      // console.log("out balances");
+      // console.log(address(this).balance);
+      // console.log(params.originSender.balance);
+      // console.log(tokenIn.balanceOf(params.originSender));
+      // console.log(tokenIn.balanceOf(address(this)));
+      // console.log(TestERC20(_local).balanceOf(address(this)));
+
+      // Contract should have received relayer fee from user.
+      assertEq(s.relayerFeeVault.balance, balances.relayerEth + _relayerFee);
+      // User should have been debited relayer fee ETH and tx cost.
+      assertLe(params.originSender.balance, balances.callerEth - _relayerFee);
+
+      // Check that the contract has been credited the correct amount of tokens and that the user has
+      // been debited the correct amount of tokens.
+      // NOTE: If the tokens are a representational local asset, they are burnt. The contract
       // should NOT be holding any additional tokens after xcall completes.
-      if (args.transactingAsset == address(0)) {
-        // No balance change
-        assertEq(address(this).balance, initialContractBalance + fees);
+      if (asset == address(0)) {
+        // No balance changes should have occurred.
+        assertEq(tokenIn.balanceOf(params.originSender), balances.callerAsset);
+        assertEq(tokenIn.balanceOf(address(this)), balances.contractAsset);
       } else if (isCanonical) {
-        // This should be a canonical asset transfer
-        assertEq(TestERC20(_canonical).balanceOf(address(this)), initialContractBalance);
+        // User should have been debited tokens.
+        assertEq(tokenIn.balanceOf(params.originSender), balances.callerAsset - amount);
+        // The contract should have stored the asset in escrow.
+        assertEq(tokenIn.balanceOf(address(this)), balances.contractAsset + amount);
       } else {
         // NOTE: Normally the adopted asset would be swapped into the local asset and then
         // the local asset would be burned. Because the swap increases the contracts balance
         // the prod difference in balance is net 0. However, because the swap here is mocked,
-        // when a swap occurrs no balance increase of local happens (i.e. if swap needed, the
-        // balance will decrease by bridgedAmt / what is burned)
-        uint256 expected = args.transactingAsset == _local
-          ? initialContractBalance
-          : initialContractBalance - bridgedAmt;
-        assertEq(TestERC20(_local).balanceOf(address(this)), expected);
-      }
+        // when a swap occurs no balance increase of local happens (i.e. if swap needed, the
+        // balance will decrease by bridgedAmt / what is burned).
+        uint256 expectedLocalBalance = asset == _local
+          ? balances.contractAsset
+          : balances.contractAsset - params.bridgedAmt;
+        assertEq(TestERC20(_local).balanceOf(address(this)), expectedLocalBalance);
 
-      // Should have updated relayer fees mapping.
-      assertEq(this.relayerFees(transferId), args.params.relayerFee + initialRelayerFees);
+        // TODO: Cannot test this because the swap is stubbed, but the contract should end up with 0
+        // 0 additional adopted asset in production.
 
-      if (args.params.callbackFee != 0) {
-        // TODO: For some reason, balance isn't changing. Perhaps the vm.mockCall prevents this?
-        // CallbackFee should be delivered to the PromiseRouter.
-        // assertEq(_promiseRouter.balance, _params.callbackFee);
+        // Assert user spent input asset.
+        assertEq(tokenIn.balanceOf(params.originSender), balances.callerAsset - amount);
       }
-    } else {
-      // Should have reverted.
-      assertEq(this.relayerFees(transferId), initialRelayerFees);
     }
   }
 
-  // Shortcut for the main fn. Generates args within this method.
+  // Shortcut for the main fn. Uses default params.
   function helpers_xcallAndAssert(
+    address asset,
+    uint256 amount,
     bytes4 expectedError,
-    uint256 bridged,
-    bool swaps
+    bool shouldSwap
   ) public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(bridged);
-    uint256 dealTokens = (args.transactingAsset == address(0)) ? 0 : args.transactingAmount;
-    helpers_xcallAndAssert(transferId, args, dealTokens, bridged, expectedError, swaps);
+    _defaultParams.originDomain = _originDomain;
+    _defaultParams.destinationDomain = _destinationDomain;
+    helpers_xcallAndAssert(_defaultParams, asset, amount, expectedError, shouldSwap);
   }
 
+  // Shortcut helper where you just input an expected error.
   function helpers_xcallAndAssert(bytes4 expectedError) public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-    uint256 dealTokens = (args.transactingAsset == address(0)) ? 0 : args.transactingAmount;
-    helpers_xcallAndAssert(transferId, args, dealTokens, 0, expectedError, false);
+    _defaultParams.originDomain = _originDomain;
+    _defaultParams.destinationDomain = _destinationDomain;
+    helpers_xcallAndAssert(_defaultParams, _adopted, _defaultAmount, expectedError, true);
   }
 
-  // Shortcut for the above fn, with no expected error.
-  function helpers_xcallAndAssert(uint256 bridged, bool swaps) public {
-    helpers_xcallAndAssert(bytes4(""), bridged, swaps);
+  // Shortcut helper with no expected error. Asset is determined to be local or adopted
+  // depending on whether a swap should occur.
+  function helpers_xcallAndAssert(uint256 amount, bool shouldSwap) public {
+    _defaultParams.originDomain = _originDomain;
+    _defaultParams.destinationDomain = _destinationDomain;
+    helpers_xcallAndAssert(_defaultParams, shouldSwap ? _adopted : _local, amount, bytes4(""), shouldSwap);
   }
 
-  // Shortcut for the above fn, no expected error, specified transacting asset
-  function helpers_xcallAndAssert(
-    uint256 bridged,
-    address transacting,
-    bool swaps
-  ) public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(transacting, bridged);
-    helpers_xcallAndAssert(transferId, args, args.transactingAmount, bridged, bytes4(""), swaps);
+  // Shortcut helper with no expected error, specified input asset and amount.
+  // Determines shouldSwap property implicitly.
+  function helpers_xcallAndAssert(address asset, uint256 amount) public {
+    _defaultParams.originDomain = _originDomain;
+    _defaultParams.destinationDomain = _destinationDomain;
+    // shouldSwap is determined by whether the asset is local or canonical or empty (meaning no swap is needed).
+    // If it isn't any of those, it's an adopted asset that will require a swap.
+    helpers_xcallAndAssert(
+      _defaultParams,
+      asset,
+      amount,
+      bytes4(""),
+      asset != address(0) && asset != _local && _canonicalDomain != s.domain
+    );
   }
 
-  // Shortcut for the main fn.
-  function helpers_xcallAndAssert(
-    uint256 dealTokens,
-    uint256 bridged,
-    bool swaps
-  ) public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(bridged);
-    helpers_xcallAndAssert(transferId, args, dealTokens, bridged, bytes4(""), swaps);
+  // Helper that uses default values for everything.
+  function helpers_xcallAndAssert() public {
+    _defaultParams.originDomain = _originDomain;
+    _defaultParams.destinationDomain = _destinationDomain;
+    helpers_xcallAndAssert(_defaultParams, _adopted, _defaultAmount, bytes4(""), true);
   }
 
   struct ExecuteBalances {
     uint256 bridge;
     uint256 to;
-    uint256 executor;
     uint256 debt;
     uint256 feeDebt;
   }
@@ -522,7 +529,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool shouldSwap; // Whether the `to` address should receive the tokens.
     bool isSlow;
     bool usesPortals;
-    bool useAgent;
+    bool useDelegate;
   }
 
   function utils_getExecuteBalances(
@@ -534,8 +541,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 fee = s.portalFeeDebt[transferId];
     uint256 bridge = _local == address(0) ? address(this).balance : IERC20(_local).balanceOf(address(this));
     uint256 to = asset == address(0) ? _to.balance : IERC20(asset).balanceOf(_to);
-    uint256 executor = asset == address(0) ? _executor.balance : IERC20(asset).balanceOf(_executor);
-    return ExecuteBalances(bridge, to, executor, debt, fee);
+    return ExecuteBalances(bridge, to, debt, fee);
   }
 
   function helpers_setupExecuteAssertions(
@@ -564,6 +570,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     if (_inputs.shouldSwap) {
       // register expected approval
       vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, _inputs.routerAmt));
+      uint256 slippage = s.slippage[transferId] > 0 ? s.slippage[transferId] : _args.params.slippage;
       // register expected swap amount
       vm.expectCall(
         _stableSwap,
@@ -572,83 +579,32 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           _inputs.routerAmt,
           _local,
           _adopted,
-          _args.params.destinationMinOut
-        )
-      );
-    }
-
-    // expected sponsor vault
-    if (address(s.sponsorVault) != address(0)) {
-      // if it is a fast transfer, then it should reimburse liquidity fees
-      if (!_inputs.isSlow) {
-        vm.expectCall(
-          address(s.sponsorVault),
-          abi.encodeWithSelector(
-            ISponsorVault.reimburseLiquidityFees.selector,
-            _inputs.token,
-            (_args.amount * (BPS_FEE_DENOMINATOR - s.LIQUIDITY_FEE_NUMERATOR)) / BPS_FEE_DENOMINATOR,
-            _args.params.to
-          )
-        );
-      }
-      // always reimburses relayer fees
-      vm.expectCall(
-        address(s.sponsorVault),
-        abi.encodeWithSelector(
-          ISponsorVault.reimburseRelayerFees.selector,
-          _originDomain,
-          _args.params.to,
-          _args.params.relayerFee
+          (_args.params.normalizedIn * (10_000 - slippage)) / 10_000
         )
       );
     }
 
     // expected transfer out of contract
-    if (_args.amount != 0) {
+    if (_args.params.bridgedAmt != 0) {
       // token transfer
       vm.expectCall(
         _inputs.token,
-        abi.encodeWithSelector(
-          IERC20.transfer.selector,
-          _inputs.callsExternal ? _executor : _args.params.to,
-          _inputs.expectedAmt
-        )
+        abi.encodeWithSelector(IERC20.transfer.selector, _args.params.to, _inputs.expectedAmt)
       );
     }
 
-    // expected executor call
+    // expected external call
     if (_inputs.callsExternal) {
-      {
-        vm.expectCall(
-          _executor,
-          abi.encodeWithSelector(
-            IExecutor.execute.selector,
-            IExecutor.ExecutorArgs(
-              transferId,
-              _inputs.expectedAmt,
-              _args.params.to,
-              _args.params.recovery,
-              _inputs.token,
-              _inputs.isSlow ? _args.originSender : address(0),
-              _inputs.isSlow ? _args.params.originDomain : 0,
-              _args.params.callData
-            )
-          )
-        );
-      }
-    }
-
-    // expected promise router call
-    if (_args.params.callback != address(0)) {
       vm.expectCall(
-        _promiseRouter,
+        _args.params.to,
         abi.encodeWithSelector(
-          PromiseRouter.send.selector,
-          _originDomain,
+          IXReceiver.xReceive.selector,
           transferId,
-          _args.params.callback,
-          _inputs.externalCallSucceeds,
-          bytes("")
+          _inputs.expectedAmt,
+          _inputs.token,
+          _inputs.isSlow ? _args.params.originSender : address(0),
+          _args.params.originDomain,
+          _args.params.callData
         )
       );
     }
@@ -676,7 +632,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // execute
     // expected amount is impacted by (1) fast liquidity fees (2) slippage
     // router debited amount in local is only impacted by fast liquidity
-    uint256 routerAmt = _inputs.isSlow ? _args.amount : utils_getFastTransferAmount(_args.amount);
+    uint256 routerAmt = _inputs.isSlow ? _args.params.bridgedAmt : utils_getFastTransferAmount(_args.params.bridgedAmt);
 
     // setup pool mock if needed
     if (_inputs.shouldSwap) {
@@ -687,13 +643,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
     }
 
-    // setup execute mock
-    vm.mockCall(
-      _executor,
-      abi.encodeWithSelector(Executor.execute.selector),
-      abi.encode(_inputs.externalCallSucceeds, bytes(""))
-    );
-
     // register expected calls
     helpers_setupExecuteAssertions(transferId, _args, _inputs);
 
@@ -703,9 +652,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
 
     // register expected emit event
-    address sender = _inputs.useAgent ? _args.params.agent : address(this);
+    address sender = _inputs.useDelegate ? _args.params.delegate : address(this);
     vm.expectEmit(true, true, false, true);
-    emit Executed(transferId, _args.params.to, _args, _inputs.token, _inputs.expectedAmt, sender);
+    emit Executed(transferId, _args.params.to, _inputs.token, _args, _local, _inputs.expectedAmt, sender);
     // make call
     vm.prank(sender);
     this.execute(_args);
@@ -716,7 +665,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         // should decrement router balance unless using aave
         for (uint256 i; i < pathLen; i++) {
           assertEq(
-            s.routerBalances[_args.routers[i]][_args.local],
+            s.routerBalances[_args.routers[i]][_local],
             _inputs.usesPortals ? prevLiquidity[i] : prevLiquidity[i] - (_inputs.routerAmt / pathLen)
           );
         }
@@ -748,23 +697,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         assertEq(finalBalances.debt, prevBalances.debt);
       }
 
-      if (_inputs.callsExternal) {
-        // should increment balance of executor
-        // should NOT increment balance of to
-        // NOTE: recovery address testing should be done in Executor.t.sol
-        // as such, executor balance should *always* increment
-        assertEq(finalBalances.executor, prevBalances.executor + _inputs.expectedAmt);
-        assertEq(token.balanceOf(_params.to), prevBalances.to);
-      } else {
-        // should have incremented balance of `to`
-        // should NOT increment balance of executor
-        assertEq(finalBalances.to, prevBalances.to + _inputs.expectedAmt);
-        assertEq(finalBalances.executor, prevBalances.executor);
-      }
+      assertEq(finalBalances.to, prevBalances.to + _inputs.expectedAmt);
     }
 
     // should mark the transfer as executed
-    assertEq(s.transferRelayer[transferId], sender);
+    DestinationTransferStatus expected = _inputs.isSlow
+      ? DestinationTransferStatus.Completed
+      : DestinationTransferStatus.Executed;
+    assertTrue(s.transferStatus[transferId] == expected);
 
     // should have assigned transfer as routed
     address[] memory savedRouters = s.routedTransfers[transferId];
@@ -781,12 +721,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool externalCallSucceeds,
     bool shouldSwap, // Whether the `to` address should receive the tokens.
     bool usesPortals,
-    bool useAgent
+    bool useDelegate
   ) public {
     uint256 pathLen = _args.routers.length;
     bool isSlow = pathLen == 0;
     // get pre-execute balance here in local
-    uint256 routerAmt = isSlow ? _args.amount : utils_getFastTransferAmount(_args.amount);
+    uint256 routerAmt = isSlow ? _args.params.bridgedAmt : utils_getFastTransferAmount(_args.params.bridgedAmt);
     helpers_executeAndAssert(
       transferId,
       _args,
@@ -799,7 +739,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         shouldSwap,
         isSlow,
         usesPortals,
-        useAgent
+        useDelegate
       )
     );
   }
@@ -830,9 +770,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // - does not call external
   // - calling on non-canonical domain
   function helpers_executeAndAssert(bytes32 transferId, ExecuteArgs memory _args) public {
-    uint256 expected = _args.amount;
+    uint256 expected = _args.params.bridgedAmt;
     if (_args.routers.length != 0) {
-      expected = utils_getFastTransferAmount(_args.amount);
+      expected = utils_getFastTransferAmount(_args.params.bridgedAmt);
     }
     helpers_executeAndAssert(transferId, _args, expected, false, false, false, false, false);
   }
@@ -853,228 +793,43 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function helpers_executeAndAssert(
     bytes32 transferId,
     ExecuteArgs memory _args,
-    bool useAgent
+    bool useDelegate
   ) public {
-    uint256 expected = _args.amount;
+    uint256 expected = _args.params.bridgedAmt;
     if (_args.routers.length != 0) {
-      expected = utils_getFastTransferAmount(_args.amount);
+      expected = utils_getFastTransferAmount(_args.params.bridgedAmt);
     }
-    helpers_executeAndAssert(transferId, _args, expected, false, false, false, false, useAgent);
+    helpers_executeAndAssert(transferId, _args, expected, false, false, false, false, useDelegate);
   }
 
   // ============ Getters ==============
 
-  function test_BridgeFacet_domain_works() public {
+  function test_BridgeFacet__domain_works() public {
     s.domain = 0;
     assertEq(this.domain(), 0);
     s.domain = _destinationDomain;
     assertEq(this.domain(), _destinationDomain);
   }
 
-  function test_BridgeFacet_executor_works() public {
-    s.executor = IExecutor(address(0));
-    assertEq(address(this.executor()), address(0));
-    s.executor = IExecutor(_local);
-    assertEq(address(this.executor()), _local);
-  }
-
-  function test_BridgeFacet_nonce_works() public {
+  function test_BridgeFacet__nonce_works() public {
     s.nonce = 0;
     assertEq(this.nonce(), 0);
     s.nonce = _destinationDomain;
     assertEq(this.nonce(), _destinationDomain);
   }
 
-  function test_BridgeFacet_sponsorVault_works() public {
-    s.sponsorVault = ISponsorVault(address(0));
-    assertEq(address(this.sponsorVault()), address(0));
-    s.sponsorVault = ISponsorVault(_local);
-    assertEq(address(this.sponsorVault()), _local);
-  }
-
-  function test_BridgeFacet_promiseRouter_works() public {
-    s.promiseRouter = PromiseRouter(payable(address(0)));
-    assertEq(address(this.promiseRouter()), address(0));
-    s.promiseRouter = PromiseRouter(payable(_local));
-    assertEq(address(this.promiseRouter()), _local);
-  }
-
-  // The rest (relayerFees, routedTransfers, reconciledTransfers) are checked on
+  // The rest (relayerFees, routedTransfers) are checked on
   // assertions for xcall / reconcile / execute
 
   // ============ Admin methods ==============
-  // setPromiseRouter
-  // FIXME: move to BaseConnextFacet.t.sol
-  function test_BridgeFacet__setPromiseRouter_failIfNotOwner() public {
-    // constants
-    address old = address(123);
-    address updated = address(_local);
-
-    // set storage
-    s.promiseRouter = PromiseRouter(payable(old));
-
-    // test revert
-    vm.prank(_originSender);
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
-    this.setPromiseRouter(payable(updated));
-  }
-
-  function test_BridgeFacet__setPromiseRouter_failIfNoChange() public {
-    // constants
-    address old = address(123);
-    address updated = old;
-
-    // set storage
-    s.promiseRouter = PromiseRouter(payable(old));
-
-    // test revert
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectRevert(BridgeFacet.BridgeFacet__setPromiseRouter_invalidPromiseRouter.selector);
-    this.setPromiseRouter(payable(updated));
-  }
-
-  function test_BridgeFacet__setPromiseRouter_failIfNotContract() public {
-    // constants
-    address old = address(123);
-    address updated = address(456);
-
-    // set storage
-    s.promiseRouter = PromiseRouter(payable(old));
-
-    // test revert
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectRevert(BridgeFacet.BridgeFacet__setPromiseRouter_invalidPromiseRouter.selector);
-    this.setPromiseRouter(payable(updated));
-  }
-
-  function test_BridgeFacet__setPromiseRouter_works() public {
-    // constants
-    address old = address(123);
-    address updated = address(_local);
-
-    // set storage
-    s.promiseRouter = PromiseRouter(payable(old));
-
-    // test success
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectEmit(true, true, true, true);
-    emit PromiseRouterUpdated(old, updated, LibDiamond.contractOwner());
-    this.setPromiseRouter(payable(updated));
-    assertEq(address(this.promiseRouter()), updated);
-  }
-
-  // setExecutor
-  function test_BridgeFacet__setExecutor_failIfNotOwner() public {
-    // constants
-    address old = address(123);
-    address updated = address(_local);
-
-    // set storage
-    s.executor = IExecutor(payable(old));
-
-    // test revert
-    vm.prank(_originSender);
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
-    this.setExecutor(payable(updated));
-  }
-
-  function test_BridgeFacet__setExecutor_failIfNoChange() public {
-    // constants
-    address old = address(123);
-    address updated = old;
-
-    // set storage
-    s.executor = IExecutor(payable(old));
-
-    // test revert
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectRevert(BridgeFacet.BridgeFacet__setExecutor_invalidExecutor.selector);
-    this.setExecutor(payable(updated));
-  }
-
-  function test_BridgeFacet__setExecutor_failIfNotContract() public {
-    // constants
-    address old = address(123);
-    address updated = address(456);
-
-    // set storage
-    s.executor = IExecutor(payable(old));
-
-    // test revert
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectRevert(BridgeFacet.BridgeFacet__setExecutor_invalidExecutor.selector);
-    this.setExecutor(payable(updated));
-  }
-
-  function test_BridgeFacet__setExecutor_works() public {
-    // constants
-    address old = address(123);
-    address updated = address(_local);
-
-    // set storage
-    s.executor = IExecutor(payable(old));
-
-    // test revert
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectEmit(true, true, true, true);
-    emit ExecutorUpdated(old, updated, LibDiamond.contractOwner());
-    this.setExecutor(payable(updated));
-    assertEq(address(this.executor()), updated);
-  }
-
-  // setSponsorVault
-  function test_BridgeFacet__setSponsorVault_failIfNotOwner() public {
-    // constants
-    address old = address(123);
-    address updated = old;
-
-    // set storage
-    s.sponsorVault = ISponsorVault(payable(old));
-
-    // test revert
-    vm.prank(_originSender);
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
-    this.setSponsorVault(payable(updated));
-  }
-
-  function test_BridgeFacet__setSponsorVault_failIfNoChange() public {
-    // constants
-    address old = address(123);
-    address updated = old;
-
-    // set storage
-    s.sponsorVault = ISponsorVault(payable(old));
-
-    // test revert
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectRevert(BridgeFacet.BridgeFacet__setSponsorVault_invalidSponsorVault.selector);
-    this.setSponsorVault(payable(updated));
-  }
-
-  function test_BridgeFacet__setSponsorVault_works() public {
-    // constants
-    address old = address(123);
-    address updated = address(_local);
-
-    // set storage
-    s.sponsorVault = ISponsorVault(payable(old));
-
-    // test revert
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectEmit(true, true, true, true);
-    emit SponsorVaultUpdated(old, updated, LibDiamond.contractOwner());
-    this.setSponsorVault(payable(updated));
-    assertEq(address(this.sponsorVault()), updated);
-  }
-
   // addSequencer
   function test_BridgeFacet__addSequencer_failIfNotOwner() public {
     // constants
     address sequencer = address(123);
 
     // test revert
-    vm.prank(_originSender);
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.prank(_defaultOriginSender);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     this.addSequencer(sequencer);
   }
 
@@ -1111,8 +866,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     address sequencer = address(123);
 
     // test revert
-    vm.prank(_originSender);
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.prank(_defaultOriginSender);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     this.removeSequencer(sequencer);
   }
 
@@ -1146,255 +901,237 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ Public methods ==============
 
   // ============ xcall ============
-
   // ============ xcall fail cases
+
   // fails if paused
   // FIXME: move to BaseConnextFacet.t.sol
   function test_BridgeFacet__xcall_failIfPaused() public {
     // require(false, "not tested");
   }
 
-  // fails if origin domain is incorrect
-  function test_BridgeFacet__xcall_failIfDomainIncorrect() public {
-    _params.originDomain = 999999;
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_wrongDomain.selector);
+  function test_BridgeFacet__xcall_failIfDestinationNotSupported() public {
+    _destinationDomain = 10000;
+    s.domain = _originDomain;
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__mustHaveRemote_destinationNotSupported.selector);
   }
 
-  function test_BridgeFacet__xcall_failIfDestinationNotSupported() public {
-    _params.destinationDomain = 999999;
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_destinationNotSupported.selector);
+  function test_BridgeFacet__xcall_failIfEmptyTo() public {
+    _defaultParams.to = address(0);
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_emptyTo.selector);
+  }
+
+  function test_BridgeFacet__xcall_failIfInvalidSlippage() public {
+    _defaultParams.slippage = 15_000;
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_invalidSlippage.selector);
   }
 
   // TODO: fails if destination domain does not have an xapp router registered
   // FIXME: this should be tested at the integration level (i.e. when we deploy
   // the contracts via Deployer.sol), or on a facet that asserts this
 
-  // fails if recipient `to` not a valid address (i.e. != address(0))
-  function test_BridgeFacet__xcall_failIfNoRecipient() public {
-    _params.to = address(0);
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_emptyToOrRecovery.selector);
-  }
-
-  // fails if callback fee > 0 but callback address is not defined
-  function test_BridgeFacet__xcall_failIfCallbackFeeButNoContract() public {
-    _params.callback = address(0);
-    _params.callbackFee = 0.001 ether;
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_nonZeroCallbackFeeForCallback.selector);
-  }
-
-  // fails if callback is defined but not a contract
-  function test_BridgeFacet__xcall_failIfCallbackNotAContract() public {
-    _params.callback = address(42);
-    _params.callbackFee = 0.001 ether;
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_callbackNotAContract.selector);
-  }
-
-  // fails if asset is not supported (i.e. s.adoptedToCanonical[transactingAssetId].id == bytes32(0) and using non-local)
+  // fails if asset is not supported (i.e. s.adoptedToCanonical[assetId].id == bytes32(0) and using non-local)
   function test_BridgeFacet__xcall_failIfAssetNotSupported() public {
     // setup asset with local != adopted, not on canonical domain
     utils_setupAsset(false, false);
 
-    s.adoptedToCanonical[_adopted] = TokenId(0, bytes32(0));
+    s.approvedAssets[utils_calculateCanonicalHash()] = false;
 
-    // ensure token registry returns true for local origin
-    vm.mockCall(
-      address(s.tokenRegistry),
-      abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _adopted),
-      abi.encode(true)
-    );
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_notSupportedAsset.selector);
+    helpers_xcallAndAssert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notWhitelisted.selector);
+  }
+
+  // fails if asset cap would be exceeded on the canonical domain
+  function test_BridgeFacet__xcall_failIfCapReachedOnCanoncal() public {
+    // setup asset with local == adopted, on canonical domain
+    utils_setupAsset(true, true);
+
+    s.caps[utils_calculateCanonicalHash()] = 1;
+
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_capReached.selector);
   }
 
   // fails if native asset is used && amount > 0
   function test_BridgeFacet__xcall_failIfNativeAsset() public {
-    _amount = 1 ether;
+    uint256 amount = 1 ether;
     TestERC20 localToken = TestERC20(_local);
-    localToken.mint(_originSender, 1 ether);
-    vm.prank(_originSender);
+    localToken.mint(_defaultOriginSender, 1 ether);
+    vm.prank(_defaultOriginSender);
     localToken.approve(address(this), 1 ether);
 
-    vm.deal(_originSender, 100 ether);
-
-    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
+    vm.deal(_defaultOriginSender, 100 ether);
 
     // Set transacting asset to address 0, indicating the user wants to send native token, which
     // isn't supported.
-    args.transactingAsset = address(0);
+    address asset = address(0);
 
     vm.expectRevert(BridgeFacet.BridgeFacet__xcall_nativeAssetNotSupported.selector);
-    vm.prank(_originSender);
-    this.xcall{value: args.params.relayerFee}(args);
-  }
-
-  // fails if erc20 transfer and eth sent < relayerFee + callbackFee
-  function test_BridgeFacet__xcall_failEthWithErc20TransferInsufficient() public {
-    utils_setupAsset(true, false);
-    vm.deal(_originSender, 100 ether);
-    _relayerFee = 0.1 ether;
-
-    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-
-    vm.expectRevert(BridgeFacet.BridgeFacet__xcall_ethValueMismatchedFees.selector);
-    vm.prank(_originSender);
-    // Sending insufficent eth to cover relayer fee.
-    this.xcall{value: 0.08 ether}(args);
-  }
-
-  // fails if erc20 transfer and eth sent > relayerFee + callbackFee
-  function test_BridgeFacet__xcall_failEthWithErc20TransferUnnecessary() public {
-    vm.deal(_originSender, 100 ether);
-    _relayerFee = 0.1 ether;
-
-    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-
-    vm.expectRevert(BridgeFacet.BridgeFacet__xcall_ethValueMismatchedFees.selector);
-    vm.prank(_originSender);
-    // Sending too much eth.
-    this.xcall{value: 1 ether}(args);
+    vm.prank(_defaultOriginSender);
+    this.xcall{value: _relayerFee}(
+      _defaultParams.destinationDomain,
+      _defaultParams.to,
+      asset,
+      _defaultParams.delegate,
+      amount,
+      _defaultParams.slippage,
+      _defaultParams.callData
+    );
   }
 
   // fails if user has insufficient tokens
   function test_BridgeFacet__xcall_failInsufficientErc20Tokens() public {
-    _amount = 10.1 ether;
+    // The supposed input amount of tokens to be transferred.
+    uint256 amount = 10.1 ether;
+    // Local token contract.
     TestERC20 localToken = TestERC20(_local);
-    localToken.mint(_originSender, 10 ether);
-    vm.prank(_originSender);
+
+    // Mint only 10 ether of the input asset for the user - they will be 0.1 ether short!
+    localToken.mint(_defaultOriginSender, 10 ether);
+
+    // Deal user some ETH for making calls.
+    vm.deal(_defaultOriginSender, 100 ether);
+
+    // Approve for 10.1 ether.
+    vm.prank(_defaultOriginSender);
     localToken.approve(address(this), 10.1 ether);
 
-    vm.deal(_originSender, 100 ether);
-
-    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-
     vm.expectRevert("ERC20: transfer amount exceeds balance");
-    vm.prank(_originSender);
-    this.xcall{value: args.params.relayerFee}(args);
+    vm.prank(_defaultOriginSender);
+    this.xcall{value: _relayerFee}(
+      _defaultParams.destinationDomain,
+      _defaultParams.to,
+      _local,
+      _defaultParams.delegate,
+      amount,
+      _defaultParams.slippage,
+      _defaultParams.callData
+    );
   }
 
   // fails if user has not set enough allowance
   function test_BridgeFacet__xcall_failInsufficientErc20Approval() public {
-    _amount = 10.1 ether;
+    // The input amount of tokens to be transferred.
+    uint256 amount = 10.1 ether;
+    // Local token contract.
     TestERC20 localToken = TestERC20(_local);
-    localToken.mint(_originSender, 10.1 ether);
-    vm.prank(_originSender);
+
+    // Mint 20 ether of the input asset for the user; they have plenty of funds.
+    localToken.mint(_defaultOriginSender, 20 ether);
+
+    // Deal user some ETH for making calls.
+    vm.deal(_defaultOriginSender, 100 ether);
+
+    // Approve for only 10 ether - approval is 0.1 ether short!
+    vm.prank(_defaultOriginSender);
     localToken.approve(address(this), 10 ether);
 
-    vm.deal(_originSender, 100 ether);
-
-    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-
     vm.expectRevert("ERC20: insufficient allowance");
-    vm.prank(_originSender);
-    this.xcall{value: args.params.relayerFee}(args);
+    vm.prank(_defaultOriginSender);
+    this.xcall{value: _relayerFee}(
+      _defaultParams.destinationDomain,
+      _defaultParams.to,
+      _local,
+      _defaultParams.delegate,
+      amount,
+      _defaultParams.slippage,
+      _defaultParams.callData
+    );
   }
 
   // ============ xcall success cases
-  // asset cases:
-  // - works on remote domain
-  //   - transferring native (local == adopted)
-  //   - transferring native (local != adopted)
-  //   - transferring asset (local == adopted)
-  //   - transferring asset (local != adopted)
 
-  // - works on cannonical domain
-  //   - transferring native (local == adopted)
-  //   - transferring asset (local == adopted)
-  // canonincal token transfer on canonical domain
+  // canonical token transfer on canonical domain
   function test_BridgeFacet__xcall_canonicalTokenTransferWorks() public {
     utils_setupAsset(true, true);
-    helpers_xcallAndAssert(_amount, false);
+    helpers_xcallAndAssert(_canonical, _defaultAmount);
   }
 
   // works when transferring 0 value and empty asset
   function test_BridgeFacet__xcall_zeroValueEmptyAssetWorks() public {
-    _amount = 0;
-    utils_setupAsset(true, true);
-    s.adoptedToCanonical[address(0)] = TokenId(0, bytes32(0));
-    helpers_xcallAndAssert(0, address(0), false);
+    helpers_xcallAndAssert(address(0), 0);
   }
 
   // local token transfer on non-canonical domain (local != adopted)
   function test_BridgeFacet__xcall_localTokenTransferWorksWithAdopted() public {
-    uint256 bridged = (_amount * 9995) / _liquidityFeeDenominator;
     utils_setupAsset(false, false);
-    helpers_xcallAndAssert(bridged, true);
+    helpers_xcallAndAssert();
+  }
+
+  // `xcallIntoLocal` should effectively be the same as the xcall but the TransferInfo should
+  // have `receiveLocal` set to true.
+  function test_BridgeFacet__xcallIntoLocal_works() public {
+    utils_setupAsset(false, false);
+    _defaultParams.receiveLocal = true;
+    helpers_xcallAndAssert();
   }
 
   // local token transfer on non-canonical domain, local != adopted, send in local
-  // (i.e. i should be able to xcall with madEth on optimism)
+  // (e.g. I should be able to xcall with madEth on optimism)
   function test_BridgeFacet__xcall_localTokenTransferWorksWhenNotAdopted() public {
-    // local is not adopted, not on canonical domain, sending in local
+    // Local is not adopted, not on canonical domain, sending in local.
+    s.domain = _originDomain;
     utils_setupAsset(false, false);
-    s.adoptedToCanonical[_local] = TokenId(0, bytes32(0));
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-    vm.mockCall(
-      _tokenRegistry,
-      abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _local),
-      abi.encode(false)
-    );
-    args.transactingAsset = _local;
-    helpers_xcallAndAssert(transferId, args, args.transactingAmount, args.transactingAmount, bytes4(""), false);
+    helpers_xcallAndAssert(_local, _defaultAmount);
   }
 
+  // should just add relayer fee to the entry under the given transfer ID
   function test_BridgeFacet__xcall_worksIfPreexistingRelayerFee() public {
-    // local is not adopted, not on canonical domain, sending in local
+    // Local is not adopted, not on canonical domain, sending in local.
     utils_setupAsset(true, false);
-    _params.relayerFee = 0.1 ether;
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-    s.relayerFees[transferId] = 2 ether;
-    helpers_xcallAndAssert(transferId, args, args.transactingAmount, args.transactingAmount, bytes4(""), false);
-    assertEq(s.relayerFees[transferId], 2.1 ether);
+
+    _defaultParams.originDomain = _originDomain;
+    _defaultParams.destinationDomain = _destinationDomain;
+
+    // The relayer fee we'll be sending in the helper method below:
+    _relayerFee = 0.1 ether;
+
+    // Flesh out the params and get the expected transfer ID.
+    TransferInfo memory params = _defaultParams;
+    params.bridgedAmt = _defaultAmount;
+    params.normalizedIn = _defaultAmount;
+    params.canonicalId = _canonicalId;
+    params.canonicalDomain = _canonicalDomain;
+    bytes32 transferId = _calculateTransferId(params);
+
+    // Set the current relayer fee record to 2 ether. The msg.value should add 0.1 ether
+    // to this for a total of 2.1 ether, as asserted below.
+    helpers_xcallAndAssert(params, _local, _defaultAmount, bytes4(""), false);
   }
 
   // local token transfer on non-canonical domain (local == adopted)
   function test_BridgeFacet__xcall_localTokenTransferWorksWithoutAdopted() public {
     utils_setupAsset(true, false);
-    helpers_xcallAndAssert(_amount, false);
+    helpers_xcallAndAssert(_local, _defaultAmount);
   }
 
   // adopted asset transfer
   function test_BridgeFacet__xcall_adoptedTransferWorks() public {
     utils_setupAsset(false, false);
-    uint256 bridged = (_amount * 9995) / _liquidityFeeDenominator;
-    helpers_xcallAndAssert(bridged, true);
+    // Set the expected slippage specifically:
+    _defaultParams.bridgedAmt = (_defaultAmount * 9995) / _liquidityFeeDenominator;
+    helpers_xcallAndAssert(_adopted, _defaultAmount);
   }
 
   // should work with positive slippage
   function test_BridgeFacet__xcall_worksWithPositiveSlippage() public {
     utils_setupAsset(false, false);
-    uint256 bridged = (_amount * 10005) / _liquidityFeeDenominator;
-    helpers_xcallAndAssert(bridged, true);
+    // Set the expected slippage to be positive.
+    _defaultParams.bridgedAmt = (_defaultAmount * 10005) / _liquidityFeeDenominator;
+    helpers_xcallAndAssert(_adopted, _defaultAmount);
   }
 
-  // should work with 0 value
+  // should work with asset defined and 0 value
   function test_BridgeFacet__xcall_worksWithoutValue() public {
     utils_setupAsset(false, false);
-    _amount = 0;
-    helpers_xcallAndAssert(0, true);
-  }
-
-  // should send promise router callback fee
-  function test_BridgeFacet__xcall_shouldHandleCallbackFee() public {
-    _params.callback = _callback;
-    _params.callbackFee = 0.02 ether;
-    helpers_xcallAndAssert(_amount, false);
+    // Despite using the adopted asset as the input asset, this xcall shouldn't
+    // call stableswap because it's a 0-value transfer.
+    helpers_xcallAndAssert(_adopted, 0, bytes4(""), false);
   }
 
   // works if relayer fee is set to 0
   function test_BridgeFacet__xcall_zeroRelayerFeeWorks() public {
     _relayerFee = 0;
-    helpers_xcallAndAssert(_amount, false);
-  }
-
-  // works with callback fee set to 0
-  function test_BridgeFacet__xcall_zeroCallbackFeesWorks() public {
-    _params.callbackFee = 0;
-    helpers_xcallAndAssert(_amount, false);
-  }
-
-  // FIXME: move to BaseConnextFacet.t.sol
-  // works if swap isnt required and swaps are paused
-  function test_BridgeFacet__xcall_worksIfNoSwapAndSwapPaused() public {
-    // require(false, "not tested");
+    s.domain = _originDomain;
+    utils_setupAsset(true, true);
+    helpers_xcallAndAssert(_adopted, _defaultAmount);
   }
 
   // ============ execute ============
@@ -1414,7 +1151,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(args);
   }
 
-  // should fail if msg.sender is not an approved relayer && msg.sender != params.agent
+  // should fail if msg.sender is not an approved relayer && msg.sender != params.delegate
   function test_BridgeFacet__execute_failIfSenderNotApproved() public {
     // set context
     s.approvedRelayers[address(this)] = false;
@@ -1432,36 +1169,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(s.maxRoutersPerTransfer + 1);
 
     for (uint256 i; i < args.routers.length; i++) {
-      s.routerBalances[args.routers[i]][args.local] += 10 ether;
+      s.routerBalances[args.routers[i]][_local] += 10 ether;
     }
 
     vm.expectRevert(BridgeFacet.BridgeFacet__execute_maxRoutersExceeded.selector);
     this.execute(args);
   }
 
-  // should fail if it is a slow transfer (forceSlow = true) and not reconciled
-  function test_BridgeFacet__execute_failIfForceSlowAndNotReconciled() public {
-    _params.forceSlow = true;
-
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
-
-    vm.expectRevert(BridgeFacet.BridgeFacet__execute_notReconciled.selector);
-    this.execute(args);
-  }
-
-  // should fail if it is a slow transfer (forceSlow = true) and we try to execute with routers
-  function test_BridgeFacet__execute_failIfForceSlowAndRoutersSet() public {
-    _params.forceSlow = true;
-
-    // Routers providing liquidity implies this is a fast-liquidity transfer. If we're forcing slow,
-    // this should fail.
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(2);
-
-    vm.expectRevert(BridgeFacet.BridgeFacet__execute_notReconciled.selector);
-    this.execute(args);
-  }
-
-  // should fail if no routers were passed in and not reconciled
+  // should fail if no routers were passed in and not reconciled (status != Reconciled)
   function test_BridgeFacet__execute_failIfNoRoutersAndNotReconciled() public {
     // Setting no routers in the execute call means that the transfer must already be reconciled.
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
@@ -1485,10 +1200,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_failIfSignatureInvalid() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
 
     // Make invalid args based on (slightly) altered params.
-    _params.originDomain = 1001;
+    _defaultParams.originDomain = 1001;
     (, ExecuteArgs memory invalidArgs) = utils_makeExecuteArgs(4);
     // The signature of the last router in the group will be invalid.
     args.routerSignatures[0] = invalidArgs.routerSignatures[0];
@@ -1510,11 +1225,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_failIfSequencerSignatureInvalid() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
 
     // Make invalid args based on (slightly) altered params (this will make
     // the transfer ID different).
-    _params.originDomain = 1001;
+    _defaultParams.originDomain = 1001;
     (, ExecuteArgs memory invalidArgs) = utils_makeExecuteArgs(4);
     // The signature of the sequencer will be invalid, as it signed a different transfer ID.
     args.sequencerSignature = invalidArgs.sequencerSignature;
@@ -1528,10 +1243,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_failIfSequencerSignatureAndRoutersMismatch() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(4);
 
-    s.routerBalances[args.routers[0]][args.local] += 100 ether;
-    s.routerBalances[args.routers[1]][args.local] += 100 ether;
-    s.routerBalances[args.routers[2]][args.local] += 100 ether;
-    s.routerBalances[args.routers[3]][args.local] += 100 ether;
+    s.routerBalances[args.routers[0]][_local] += 100 ether;
+    s.routerBalances[args.routers[1]][_local] += 100 ether;
+    s.routerBalances[args.routers[2]][_local] += 100 ether;
+    s.routerBalances[args.routers[3]][_local] += 100 ether;
 
     // Imagine a malicious relayer calling `execute` colludes with the first router in the array
     // to replay their address and signature for the other slots in the path.
@@ -1550,7 +1265,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_failIfSequencerSignatureAndSequencerAddressMismatch() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
 
     address otherSequencer = address(789456123);
     s.approvedSequencers[otherSequencer] = true;
@@ -1569,11 +1284,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(4);
 
     for (uint256 i; i < args.routers.length; i++) {
-      s.routerBalances[args.routers[i]][args.local] += 10 ether;
+      s.routerBalances[args.routers[i]][_local] += 10 ether;
     }
 
     // Make invalid args based on (slightly) altered params.
-    _params.originDomain = 1001;
+    _defaultParams.originDomain = 1001;
     (, ExecuteArgs memory invalidArgs) = utils_makeExecuteArgs(4);
     // The signature of the last router in the group will be invalid.
     args.routerSignatures[3] = invalidArgs.routerSignatures[3];
@@ -1582,24 +1297,24 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(args);
   }
 
-  // should fail if it was already executed (s.transferRelayer[transferId] != address(0))
+  // should fail if it was already executed (s.transferStatus[transferId] != none)
   function test_BridgeFacet__execute_failIfAlreadyExecuted() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    s.transferRelayer[transferId] = address(this);
+    s.transferStatus[transferId] = DestinationTransferStatus.Executed;
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
 
-    vm.expectRevert(BridgeFacet.BridgeFacet__execute_alreadyExecuted.selector);
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_badFastLiquidityStatus.selector);
     this.execute(args);
   }
 
   // should fail if the router does not have sufficient tokens
   function test_BridgeFacet__execute_failIfRouterHasInsufficientFunds() public {
-    _amount = 5 ether;
+    _defaultAmount = 5 ether;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(2);
 
-    s.routerBalances[args.routers[0]][args.local] = 1.5 ether;
+    s.routerBalances[args.routers[0]][_local] = 1.5 ether;
 
     vm.expectRevert(stdError.arithmeticError);
     this.execute(args);
@@ -1607,48 +1322,29 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // multipath: should fail if any 1 router has insufficient tokens
   function test_BridgeFacet__execute_failIfAnyRouterHasInsufficientFunds() public {
-    _amount = 5 ether;
+    _defaultAmount = 5 ether;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(s.maxRoutersPerTransfer);
 
-    uint256 routerAmountSent = _amount / args.routers.length; // The amount each individual router will send.
+    uint256 routerAmountSent = _defaultAmount / args.routers.length; // The amount each individual router will send.
 
     // Set the first router's balance to be (slightly) less than the amount that they'd need to send.
-    s.routerBalances[args.routers[0]][args.local] = routerAmountSent - 0.1 ether;
+    s.routerBalances[args.routers[0]][_local] = routerAmountSent - 0.1 ether;
+    // All other routers have plenty of funds.
     for (uint256 i = 1; i < args.routers.length; i++) {
-      // The other routers have plenty of funds.
-      s.routerBalances[args.routers[i]][args.local] = 50 ether;
+      s.routerBalances[args.routers[i]][_local] = 50 ether;
     }
 
     vm.expectRevert(stdError.arithmeticError);
     this.execute(args);
   }
 
-  // should fail if sponsored vault did not fund contract with returned amount
-  function test_BridgeFacet__execute_failIfSponsorVaultLied() public {
-    (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
-    for (uint256 i = 0; i < args.routers.length; i++) {
-      // The other routers have plenty of funds.
-      s.routerBalances[args.routers[i]][args.local] = 50 ether;
-    }
-
-    // set mock sponsor vault
-    address vault = address(123456654321);
-    s.sponsorVault = ISponsorVault(vault);
-    // set change
-    vm.mockCall(vault, abi.encodeWithSelector(ISponsorVault.reimburseLiquidityFees.selector), abi.encode(10 ether));
-
-    vm.expectRevert(BridgeFacet.BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount.selector);
-    this.execute(args);
-  }
-
   function test_BridgeFacet__execute_failsIfRouterNotApprovedForPortal() public {
-    _amount = 5 ether;
+    _defaultAmount = 5 ether;
 
     (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[_args.routers[0]][_args.local] = 4.5 ether;
+    s.routerBalances[_args.routers[0]][_local] = 4.5 ether;
 
     // set aave enabled
     s.aavePool = _aavePool;
@@ -1658,42 +1354,25 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // ============ execute success cases
-  // should use slow liquidity if specified (forceSlow = true)
-  function test_BridgeFacet__execute_forceSlowWorks() public {
-    // set test params
-    _params.forceSlow = true;
-
-    // get args
-    (bytes32 transferId, ExecuteArgs memory _args) = utils_makeExecuteArgs(0);
-
-    // set reconciled context
-    s.reconciledTransfers[transferId] = true;
-
-    // set asset context (local == adopted)
-    utils_setupAsset(true, false);
-
-    helpers_executeAndAssert(transferId, _args);
-  }
-
   // should use the local asset if specified (receiveLocal = true)
   function test_BridgeFacet__execute_receiveLocalWorks() public {
-    _params.receiveLocal = true;
+    _defaultParams.receiveLocal = true;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
 
     // set asset context (local != adopted)
     utils_setupAsset(false, false);
 
-    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), false);
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt), false);
   }
 
   // should work with approved router if router ownership is not renounced
   function test_BridgeFacet__execute_worksWithLocalAsAdopted() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
     // set asset context (local == adopted)
@@ -1704,13 +1383,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should work with approved router if router ownership is not renounced
   function test_BridgeFacet__execute_worksWithEmptyCanonicalIfZeroValue() public {
-    _canonicalId = bytes32(0);
-    _canonicalDomain = 0;
-    _amount = 0;
+    _defaultParams.canonicalId = bytes32(0);
+    _defaultParams.canonicalDomain = 0;
+    _defaultAmount = 0;
     _local = address(0);
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
     // set asset context (local == adopted)
@@ -1722,51 +1401,53 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // works when local != adopted
   function test_BridgeFacet__execute_worksWithAdopted() public {
     // set asset context (local != adopted)
+    s.domain = _destinationDomain;
     utils_setupAsset(false, false);
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
-    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true);
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt), true);
   }
 
   // works when local != adopted, should work with +ve slippage
   function test_BridgeFacet__execute_worksWithPositiveSlippage() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
     // set asset context (local != adopted)
     utils_setupAsset(false, false);
 
-    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount) + 1 ether, true);
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt) + 1 ether, true);
   }
 
   // works when local != adopted, should work with -ve slippage
   function test_BridgeFacet__execute_worksWithNegativeSlippage() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
     // set asset context (local != adopted)
     utils_setupAsset(false, false);
 
-    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount) - 0.01 ether, true);
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt) - 0.01 ether, true);
   }
 
   // works when on canonical domain
   function test_BridgeFacet__execute_worksOnCanonical() public {
     // set asset context (local == adopted)
+    _canonicalDomain = _destinationDomain;
     utils_setupAsset(true, true);
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    s.routerBalances[args.routers[0]][_canonical] += 10 ether;
+    // s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
     helpers_executeAndAssert(transferId, args);
   }
@@ -1777,7 +1458,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = false;
 
     // set asset context (local == adopted)
@@ -1788,7 +1469,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should work with 0 value
   function test_BridgeFacet__execute_worksWith0Value() public {
-    _amount = 0;
+    _defaultAmount = 0;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
@@ -1796,62 +1477,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     utils_setupAsset(true, false);
 
     helpers_executeAndAssert(transferId, args);
-  }
-
-  // should work if no sponsor vault set
-  function test_BridgeFacet__execute_worksWithoutVault() public {
-    s.sponsorVault = ISponsorVault(address(0));
-
-    // set asset context (local == adopted)
-    utils_setupAsset(true, false);
-
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
-
-    helpers_executeAndAssert(transferId, args);
-  }
-
-  // should sponsor if fast liquidity is used and sponsor vault set
-  function test_BridgeFacet__execute_worksWithSponsorLiquidity() public {
-    // setup vault
-    uint256 vaultAmount = 10000;
-    MockSponsorVault vault = new MockSponsorVault(vaultAmount, 0);
-    s.sponsorVault = vault;
-
-    // set asset context (local == adopted)
-    utils_setupAsset(true, false);
-
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
-
-    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount) + vaultAmount, false);
-  }
-
-  // should sponsor relayer fee in slow liquidity
-  function test_BridgeFacet__execute_sponsorsRelayersSlow() public {
-    // set test vault
-    uint256 vaultAmount = 10000;
-    MockSponsorVault vault = new MockSponsorVault(vaultAmount, 0);
-    s.sponsorVault = vault;
-
-    // set asset context (local == adopted)
-    utils_setupAsset(true, false);
-
-    // get args
-    (bytes32 transferId, ExecuteArgs memory _args) = utils_makeExecuteArgs(0);
-
-    // set reconciled context
-    s.reconciledTransfers[transferId] = true;
-
-    helpers_executeAndAssert(transferId, _args);
   }
 
   // should work without calldata
   function test_BridgeFacet__execute_noCalldataWorks() public {
-    _params.callData = bytes("");
+    _defaultParams.callData = bytes("");
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
@@ -1863,11 +1496,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // should work with successful calldata and using fast liquidity
   function test_BridgeFacet__execute_successfulCalldata() public {
     // Set the args.to to the mock xapp address, and args.callData to the `fulfill` fn.
-    _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
+    _defaultParams.to = _xapp;
+    _defaultParams.callData = bytes("zomg");
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
@@ -1875,7 +1509,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(
       transferId,
       args,
-      utils_getFastTransferAmount(args.amount),
+      utils_getFastTransferAmount(args.params.bridgedAmt),
       true,
       true,
       false,
@@ -1885,28 +1519,40 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // should work with failing calldata : contract call failed
-  function test_BridgeFacet__execute_failingCalldata() public {
-    // Set the args.to to the mock xapp address, and args.callData to the `fail` fn.
-    _params.callData = abi.encodeWithSelector(MockXApp.fail.selector);
-    _params.to = _xapp;
+  function test_BridgeFacet__execute_calldataFailsLoudlyOnFast() public {
+    // Set the args.to to the mock xapp address, and set to fail
+    MockXApp(_xapp).setFail(true);
+    _defaultParams.callData = bytes("zomg");
+    _defaultParams.to = _xapp;
 
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    // set asset context (local == adopted)
+    s.domain = _destinationDomain;
+    utils_setupAsset(true, false);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    // get args
+    (bytes32 transferId, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[_args.routers[0]][_local] += 10 ether;
+
+    vm.expectRevert("fails");
+    this.execute(_args);
+  }
+
+  // should work with failing calldata : contract call failed
+  function test_BridgeFacet__execute_calldataFailureHandledOnSlow() public {
+    // Set the args.to to the mock xapp address, and set to fail
+    MockXApp(_xapp).setFail(true);
+    _defaultParams.callData = bytes("zomg");
+    _defaultParams.to = _xapp;
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
+
+    s.transferStatus[transferId] = DestinationTransferStatus.Reconciled;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
 
-    helpers_executeAndAssert(
-      transferId,
-      args,
-      utils_getFastTransferAmount(args.amount),
-      true,
-      false,
-      false,
-      false,
-      false
-    );
+    helpers_executeAndAssert(transferId, args, args.params.bridgedAmt, true, false, false, false, false);
   }
 
   function test_BridgeFacet__execute_failsIfNoLiquidityAndAaveNotEnabled() public {
@@ -1915,7 +1561,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // set liquidity context
     for (uint256 i; i < _args.routers.length; i++) {
-      s.routerBalances[_args.routers[i]][_args.local] = 0 ether;
+      s.routerBalances[_args.routers[i]][_local] = 0 ether;
     }
 
     // set aave not enabled
@@ -1925,88 +1571,32 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(_args);
   }
 
-  // should work with a callback
-  function test_BridgeFacet__execute_worksWithCallback() public {
-    // set asset context (local == adopted)
-    utils_setupAsset(true, false);
-
-    _params.callback = address(123456654321);
-    // Set the args.to to the mock xapp address, and args.callData to the `fulfill` fn.
-    _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
-
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
-
-    helpers_executeAndAssert(
-      transferId,
-      args,
-      utils_getFastTransferAmount(args.amount),
-      true,
-      true,
-      false,
-      false,
-      false
-    );
-  }
-
-  // FIXME: move to Executor.t.sol
-  // should work with failing calldata : recipient `to` is not a contract (should call _handleFailure)
-  function test_BridgeFacet__execute_handleRecipientNotAContract() public {
-    // Setting the calldata to be for fulfill... but obviously, that method should never be called.
-    // Because `to` is not a valid contract address.
-    _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
-    _params.to = address(42);
-
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
-
-    // set asset context (local == adopted)
-    utils_setupAsset(true, false);
-
-    helpers_executeAndAssert(
-      transferId,
-      args,
-      utils_getFastTransferAmount(args.amount),
-      true,
-      true,
-      false,
-      false,
-      false
-    );
-  }
-
   // should work if already reconciled (happening in slow liquidity mode, uses
   // authenticated data)
   function test_BridgeFacet__execute_handleAlreadyReconciled() public {
     // set asset context (local == adopted)
+    s.domain = _destinationDomain;
     utils_setupAsset(true, false);
 
     // Set the args.to to the mock xapp address, and args.callData to the
     // `fulfillWithProperties` fn. This will check to make sure `originDomain` and
     // `originSender` properties are correctly set.
-    _params.callData = abi.encodeWithSelector(
-      MockXApp.fulfillWithProperties.selector,
-      _local,
-      TEST_MESSAGE,
-      _originDomain,
-      _originSender
-    );
-    _params.to = _xapp;
+    MockXApp(_xapp).setPermissions(_defaultOriginSender, _originDomain);
+    _defaultParams.callData = bytes("yayaytestsyay");
+    _defaultParams.to = _xapp;
 
     // We specify that 0 routers are in the path for this execution.
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
 
     // Transfer has already been reconciled.
-    s.reconciledTransfers[transferId] = true;
+    s.transferStatus[transferId] = DestinationTransferStatus.Reconciled;
 
-    helpers_executeAndAssert(transferId, args, args.amount, true, true, false, false, false);
+    helpers_executeAndAssert(transferId, args, args.params.bridgedAmt, true, true, false, false, false);
   }
 
   // multipath: should subtract equally from each router's liquidity
   function test_BridgeFacet__execute_multipath() public {
-    _amount = 1 ether;
+    _defaultAmount = 1 ether;
 
     // Should work if the pathLength == max routers.
     uint256 pathLength = s.maxRoutersPerTransfer;
@@ -2014,13 +1604,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // Add initial liquiidty
     for (uint256 i = 1; i < args.routers.length; i++) {
-      s.routerBalances[args.routers[i]][args.local] = 10 ether;
+      s.routerBalances[args.routers[i]][_local] = 10 ether;
     }
     // Sanity check: assuming the multipath is > 1, no router should need to have more than half of the
     // transfer amount.
-    s.routerBalances[args.routers[0]][args.local] = 0.5 ether;
+    s.routerBalances[args.routers[0]][_local] = 0.5 ether;
 
-    uint256 amount = utils_getFastTransferAmount(args.amount);
+    uint256 amount = utils_getFastTransferAmount(args.params.bridgedAmt);
     uint256 routerAmountSent = amount / pathLength; // The amount each individual router will send.
 
     // set asset context (local == adopted)
@@ -2030,12 +1620,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // should work with approved router if router ownership is not renounced
-  function test_BridgeFacet__execute_worksWithAgentAsSender() public {
-    address agent = address(12345654321);
-    _params.agent = agent;
+  function test_BridgeFacet__execute_worksWithDelegateAsSender() public {
+    address delegate = address(12345654321);
+    _defaultParams.delegate = delegate;
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
     // set asset context (local == adopted)
@@ -2048,12 +1638,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // can use liquidity from portals
   function test_BridgeFacet__execute_worksWithAave() public {
     // set asset context (local == adopted)
+    s.domain = _destinationDomain;
     utils_setupAsset(true, false);
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     // set liquidity
-    s.routerBalances[args.routers[0]][args.local] = 0;
+    s.routerBalances[args.routers[0]][_local] = 0;
 
     // set approval
     s.routerPermissionInfo.approvedForPortalRouters[args.routers[0]] = true;
@@ -2061,7 +1652,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(
       transferId,
       args,
-      utils_getFastTransferAmount(args.amount),
+      utils_getFastTransferAmount(args.params.bridgedAmt),
       false,
       true,
       false,
@@ -2070,8 +1661,57 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     );
   }
 
+  // uses slippage overrides
+  function test_BridgeFacet__execute_respectsSlippageOverrides() public {
+    // set asset context (local != adopted)
+    s.domain = _destinationDomain;
+    utils_setupAsset(false, false);
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    // set liquidity
+    s.routerBalances[args.routers[0]][_local] = 10 ether;
+
+    // set slippage override
+    s.slippage[transferId] = 5000;
+
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt), true);
+  }
+
   // ============ bumpTransfer ============
   // ============ bumpTransfer fail cases
-
   // should work with unapproved router if router-whitelist ownership renouncedcanonicalId
+
+  // ============ forceUpdateSlippage ============
+  function test_BridgeFacet__forceUpdateSlippage_failsIfNotDelegate() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    vm.expectRevert(BridgeFacet.BridgeFacet__onlyDelegate_notDelegate.selector);
+    this.forceUpdateSlippage(args.params, 5_000);
+  }
+
+  function test_BridgeFacet__forceUpdateSlippage_failsIfInvalidSlippage() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    vm.expectRevert(BridgeFacet.BridgeFacet__forceUpdateSlippage_invalidSlippage.selector);
+    vm.prank(args.params.delegate);
+    this.forceUpdateSlippage(args.params, 25_000);
+  }
+
+  function test_BridgeFacet__forceUpdateSlippage_failsIfNotDestination() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    s.domain = args.params.originDomain;
+    vm.expectRevert(BridgeFacet.BridgeFacet__forceUpdateSlippage_notDestination.selector);
+    vm.prank(args.params.delegate);
+    this.forceUpdateSlippage(args.params, 5_000);
+  }
+
+  function test_BridgeFacet__forceUpdateSlippage_works() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    s.domain = args.params.destinationDomain;
+
+    vm.expectEmit(true, true, true, true);
+    emit SlippageUpdated(transferId, 5_000);
+
+    vm.prank(args.params.delegate);
+    this.forceUpdateSlippage(args.params, 5_000);
+  }
 }

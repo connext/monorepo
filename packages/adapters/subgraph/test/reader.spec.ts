@@ -8,6 +8,8 @@ import {
   SubgraphQueryByTimestampMetaParams,
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
+  ConnectorMeta,
+  mock,
 } from "@connext/nxtp-utils";
 import {
   mockChainData,
@@ -17,10 +19,13 @@ import {
   stubContext,
 } from "./mock";
 import { SubgraphReader } from "../src/reader";
+import * as ReaderFns from "../src/reader";
 import * as ParserFns from "../src/lib/helpers/parse";
+import * as MockableFns from "../src/mockable";
 
 import * as ExecuteFns from "../src/lib/helpers/execute";
 import { BigNumber } from "ethers";
+import { CONNECTOR_META_ID } from "../src/lib/operations";
 
 describe("SubgraphReader", () => {
   let subgraphReader: SubgraphReader;
@@ -48,7 +53,7 @@ describe("SubgraphReader", () => {
   describe("#supported", () => {
     it("get supported domains", () => {
       console.log("subgraphReader.supported: ", subgraphReader.supported);
-      expect(subgraphReader.supported).to.be.deep.eq({ "1111": true, "3331": true, "5555555555555": false });
+      expect(subgraphReader.supported).to.be.deep.eq({ "1111": false, "3331": true, "5555555555555": false });
     });
   });
   describe("#query", () => {
@@ -82,7 +87,7 @@ describe("SubgraphReader", () => {
       expect(await subgraphReader.getAssetBalances("1111", mkAddress("0x111"))).to.be.deep.eq({});
     });
     it("happy: should return the asset balance", async () => {
-      response.set("1111", [[{ asset: { local: mkAddress("0x111") }, amount: "100" }]]);
+      response.set("1111", [[{ asset: { id: mkAddress("0x111") }, amount: "100" }]]);
       executeStub.resolves(response);
       expect(await subgraphReader.getAssetBalances("1111", mkAddress("0x11"))).to.be.deep.eq({
         "0x1110000000000000000000000000000000000000": BigNumber.from("100"),
@@ -100,10 +105,12 @@ describe("SubgraphReader", () => {
               {
                 asset: {
                   adoptedAsset: mkAddress("0x111"),
-                  local: mkAddress("0x222"),
+                  id: mkAddress("0x222"),
                   blockNumber: 50000,
                   canonicalDomain: "1111",
                   canonicalId: mkAddress("0x11111"),
+                  key: mkBytes32(),
+                  localAsset: mkAddress("0x222"),
                 },
                 domain: "1111",
                 amount: "100",
@@ -119,10 +126,12 @@ describe("SubgraphReader", () => {
           assets: [
             {
               adoptedAsset: mkAddress("0x111"),
-              local: mkAddress("0x222"),
+              id: mkAddress("0x222"),
               blockNumber: 50000,
               canonicalDomain: "1111",
               canonicalId: mkAddress("0x11111"),
+              key: mkBytes32(),
+              localAsset: mkAddress("0x222"),
               domain: "1111",
               balance: "100",
             },
@@ -150,7 +159,7 @@ describe("SubgraphReader", () => {
       response.set("1111", [
         [
           {
-            local: mkAddress("0x111"),
+            id: mkAddress("0x111"),
             adoptedAsset: mkAddress("0x112"),
             canonicalId: mkBytes32(),
             canonicalDomain: "1111",
@@ -160,7 +169,7 @@ describe("SubgraphReader", () => {
       ]);
       executeStub.resolves(response);
       expect(await subgraphReader.getAssetByLocal("1111", mkAddress())).to.be.deep.eq({
-        local: mkAddress("0x111"),
+        id: mkAddress("0x111"),
         adoptedAsset: mkAddress("0x112"),
         canonicalId: mkBytes32(),
         canonicalDomain: "1111",
@@ -179,7 +188,7 @@ describe("SubgraphReader", () => {
       response.set("1111", [
         [
           {
-            local: mkAddress("0x111"),
+            id: mkAddress("0x111"),
             adoptedAsset: mkAddress("0x112"),
             canonicalId: mkBytes32(),
             canonicalDomain: "1111",
@@ -189,7 +198,7 @@ describe("SubgraphReader", () => {
       ]);
       executeStub.resolves(response);
       expect(await subgraphReader.getAssetByCanonicalId("1111", mkAddress())).to.be.deep.eq({
-        local: mkAddress("0x111"),
+        id: mkAddress("0x111"),
         adoptedAsset: mkAddress("0x112"),
         canonicalId: mkBytes32(),
         canonicalDomain: "1111",
@@ -449,6 +458,20 @@ describe("SubgraphReader", () => {
     });
   });
 
+  describe("#getProcessedRootMessagesByDomain", () => {
+    it("should return the processed root messages", async () => {
+      stub(ReaderFns, "DOMAIN_TO_HUB_MAPPING").value({ "1111": "https://hello.world" });
+
+      const rootMessages = [mock.entity.rootMessage(), mock.entity.rootMessage()];
+      stub(MockableFns, "graphQlRequest").resolves({ rootMessageProcesseds: rootMessages });
+
+      const processedRootMessages = await subgraphReader.getProcessedRootMessagesByDomain([
+        { domain: "1111", limit: 100, offset: 0 },
+      ]);
+      expect(processedRootMessages).to.be.deep.eq(rootMessages);
+    });
+  });
+
   describe("#getLatestBlockNumber", () => {
     it("should return latestBlockNumber per domain", async () => {
       response.set("1111", [{ block: { number: 100 } }]);
@@ -468,6 +491,33 @@ describe("SubgraphReader", () => {
       const res = await subgraphReader.getMaxRoutersPerTransfer(["1111", "3331"]);
       expect(res.get("1111")).to.be.eq(3);
       expect(res.get("3331")).to.be.eq(3);
+    });
+  });
+
+  describe("#getConnectorMeta", () => {
+    it("should return connector meta per domain", async () => {
+      const connectorMeta1111 = {
+        amb: mkAddress("0x1111"),
+        hubDomain: "1111",
+        spokeDomain: "1111",
+        id: CONNECTOR_META_ID,
+        mirrorConnector: mkAddress("0x2222"),
+        rootManager: mkAddress("0x3333"),
+      };
+
+      const connectorMeta3331 = {
+        amb: mkAddress("0x1111"),
+        hubDomain: "1111",
+        spokeDomain: "3331",
+        id: CONNECTOR_META_ID,
+        mirrorConnector: mkAddress("0x2222"),
+        rootManager: mkAddress("0x3333"),
+      };
+      response.set("1111", [connectorMeta1111]);
+      response.set("3331", [connectorMeta3331]);
+      executeStub.resolves(response);
+      const res = await subgraphReader.getConnectorMeta(["1111", "3331"]);
+      expect(res).to.deep.eq([ParserFns.connectorMeta(connectorMeta1111), ParserFns.connectorMeta(connectorMeta3331)]);
     });
   });
 });

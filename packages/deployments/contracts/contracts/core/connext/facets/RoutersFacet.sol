@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {AppStorage} from "../libraries/LibConnextStorage.sol";
+import {AppStorage, TokenId} from "../libraries/LibConnextStorage.sol";
 
 /**
  * @notice
@@ -39,7 +41,7 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__addLiquidityForRouter_routerEmpty();
   error RoutersFacet__addLiquidityForRouter_amountIsZero();
   error RoutersFacet__addLiquidityForRouter_badRouter();
-  error RoutersFacet__addLiquidityForRouter_badAsset();
+  error RoutersFacet__addLiquidityForRouter_capReached();
   error RoutersFacet__removeRouterLiquidity_recipientEmpty();
   error RoutersFacet__removeRouterLiquidity_amountIsZero();
   error RoutersFacet__removeRouterLiquidity_insufficientFunds();
@@ -141,7 +143,14 @@ contract RoutersFacet is BaseConnextFacet {
    * @param amount - The amount of liquidity withdrawn
    * @param caller - The account that called the function
    */
-  event RouterLiquidityRemoved(address indexed router, address to, address local, uint256 amount, address caller);
+  event RouterLiquidityRemoved(
+    address indexed router,
+    address to,
+    address local,
+    bytes32 key,
+    uint256 amount,
+    address caller
+  );
 
   // ============ Modifiers ============
 
@@ -255,7 +264,7 @@ contract RoutersFacet is BaseConnextFacet {
     address router,
     address owner,
     address recipient
-  ) external onlyOwner {
+  ) external onlyOwnerOrRouter {
     // Sanity check: not empty
     if (router == address(0)) revert RoutersFacet__setupRouter_routerEmpty();
 
@@ -285,7 +294,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Used to remove routers that can transact crosschain
    * @param router Router address to remove
    */
-  function removeRouter(address router) external onlyOwner {
+  function removeRouter(address router) external onlyOwnerOrRouter {
     // Sanity check: not empty
     if (router == address(0)) revert RoutersFacet__removeRouter_routerEmpty();
 
@@ -326,7 +335,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Used to set the max amount of routers a payment can be routed through
    * @param _newMaxRouters The new max amount of routers
    */
-  function setMaxRoutersPerTransfer(uint256 _newMaxRouters) external onlyOwner {
+  function setMaxRoutersPerTransfer(uint256 _newMaxRouters) external onlyOwnerOrAdmin {
     if (_newMaxRouters == 0 || _newMaxRouters == s.maxRoutersPerTransfer)
       revert RoutersFacet__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
 
@@ -340,7 +349,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @dev Admin can set LIQUIDITY_FEE_NUMERATOR variable, Liquidity fee should be less than 5%
    * @param _numerator new LIQUIDITY_FEE_NUMERATOR
    */
-  function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwner {
+  function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwnerOrAdmin {
     // Slightly misleading: the liquidity fee numerator is not the amount charged,
     // but the amount received after fees are deducted (e.g. 9995/10000 would be .005%).
     uint256 denominator = BPS_FEE_DENOMINATOR;
@@ -356,7 +365,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Allow router to use Portals
    * @param _router - The router address to approve
    */
-  function approveRouterForPortal(address _router) external onlyOwner {
+  function approveRouterForPortal(address _router) external onlyOwnerOrAdmin {
     if (!s.routerPermissionInfo.approvedRouters[_router] && !_isRouterWhitelistRemoved())
       revert RoutersFacet__approveRouterForPortal_notAdded();
     if (s.routerPermissionInfo.approvedForPortalRouters[_router])
@@ -371,7 +380,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Remove router access to use Portals
    * @param _router - The router address to remove approval
    */
-  function unapproveRouterForPortal(address _router) external onlyOwner {
+  function unapproveRouterForPortal(address _router) external onlyOwnerOrAdmin {
     if (!s.routerPermissionInfo.approvedForPortalRouters[_router])
       revert RoutersFacet__unapproveRouterForPortal_notApproved();
 
@@ -536,15 +545,20 @@ contract RoutersFacet is BaseConnextFacet {
     if (_amount == 0) revert RoutersFacet__addLiquidityForRouter_amountIsZero();
 
     // Get the canonical asset ID from the representation.
-    (uint32 domain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
-    bytes32 key = _calculateCanonicalHash(canonicalId, domain);
+    (TokenId memory canonical, bytes32 key) = _getApprovedCanonicalId(_local);
 
     // Sanity check: router is approved.
     if (!_isRouterWhitelistRemoved() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
 
-    // Sanity check: asset is approved.
-    if (!_isAssetWhitelistRemoved() && !s.approvedAssets[key]) revert RoutersFacet__addLiquidityForRouter_badAsset();
+    if (s.domain == canonical.domain) {
+      // Sanity check: caps not reached
+      uint256 custodied = IERC20(_local).balanceOf(address(this)) + _amount;
+      uint256 cap = s.caps[key];
+      if (cap > 0 && custodied > cap) {
+        revert RoutersFacet__addLiquidityForRouter_capReached();
+      }
+    }
 
     // Transfer funds to contract.
     AssetLogic.handleIncomingAsset(_local, _amount);
@@ -580,6 +594,11 @@ contract RoutersFacet is BaseConnextFacet {
     // Sanity check: nonzero amounts.
     if (_amount == 0) revert RoutersFacet__removeRouterLiquidity_amountIsZero();
 
+    // Get the canonical asset ID from the representation.
+    // NOTE: allow getting unapproved assets to prevent lockup on approval status change
+    TokenId memory canonical = _getCanonicalTokenId(_local);
+    bytes32 key = AssetLogic.calculateCanonicalHash(canonical.id, canonical.domain);
+
     // Get existing router balance.
     uint256 routerBalance = s.routerBalances[_router][_local];
 
@@ -594,6 +613,6 @@ contract RoutersFacet is BaseConnextFacet {
     // Transfer from contract to specified `to` address.
     AssetLogic.handleOutgoingAsset(_local, recipient, _amount);
 
-    emit RouterLiquidityRemoved(_router, recipient, _local, _amount, msg.sender);
+    emit RouterLiquidityRemoved(_router, recipient, _local, key, _amount, msg.sender);
   }
 }

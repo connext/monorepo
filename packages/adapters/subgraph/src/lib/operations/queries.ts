@@ -7,37 +7,62 @@ import {
 
 import { getContext } from "../../reader";
 
+export const ASSET_ENTITY = `
+      id,
+      key,
+      canonicalId,
+      canonicalDomain,
+      adoptedAsset,
+      localAsset,
+      blockNumber,
+`;
+export const ORIGIN_MESSAGE_ENTITY = `
+      id
+      leaf
+      index
+      root
+      message
+      transferId
+      destinationDomain
+      transactionHash
+`;
+export const DESTINATION_MESSAGE_ENTITY = `
+      id
+      leaf
+      processed
+      returnData
+`;
 export const ORIGIN_TRANSFER_ENTITY = `
       id
-      # Meta Data
       chainId
       transferId
       nonce
-
-      # call params
-      to
-      callData
+      status
+      messageHash
+    
+      # TransferInfo
       originDomain
       destinationDomain
-      forceSlow
+      canonicalDomain
+      to
+      delegate
       receiveLocal
-      recovery
-      agent
-      callback
-      callbackFee
-      relayerFee
-      slippageTol
-      destinationMinOut
-      
-      # Asset Data
-      transactingAsset
-      transactingAmount
-      originMinOut
-      bridgedAsset
-      bridgedAmount
+      callData
+      slippage
+      originSender
+      bridgedAmt
+      normalizedIn
+      canonicalId
+    
+      # Asset
+      asset {
+        ${ASSET_ENTITY}
+      }
 
-      # Event Data
-      message
+      # Message
+      message { 
+        ${ORIGIN_MESSAGE_ENTITY}
+      }
 
       # XCalled Transaction
       caller
@@ -51,40 +76,33 @@ export const ORIGIN_TRANSFER_ENTITY = `
 export const DESTINATION_TRANSFER_ENTITY = `
       id
 
-      # Meta Data
+      # Meta
       chainId
       transferId
       nonce
-
-      # call params
-      to
-      callData
-      originDomain
-      destinationDomain
-      forceSlow
-      receiveLocal
-      recovery
-      agent
-      callback
-      callbackFee
-      relayerFee
-      slippageTol
-      destinationMinOut
-
-      # Asset Data
-      localAsset
-      localAmount
-      originMinOut
-      transactingAsset
-      transactingAmount
-      sponsorVaultRelayerFee
-
-      # Executed event Data
       status
       routers {
         id
       }
+
+      # TransferInfo
+      originDomain
+      destinationDomain
+      canonicalDomain
+      to
+      delegate
+      receiveLocal
+      callData
+      slippage
       originSender
+      bridgedAmt
+      normalizedIn
+      canonicalId
+
+      # Asset
+      asset {
+        ${ASSET_ENTITY}
+      }
 
       # Executed Transaction
       executedCaller
@@ -108,22 +126,6 @@ export const BLOCK_NUMBER_ENTITY = `
         number
       }
 `;
-
-export const ORIGIN_MESSAGE_ENTITY = `
-      id
-      leaf
-      index
-      root
-      message
-      transferId
-      destinationDomain
-`;
-export const DESTINATION_MESSAGE_ENTITY = `
-      id
-      leaf
-      processed
-      returnData
-`;
 export const ROOT_MESSAGE_SENT_ENTITY = `
       id
       spokeDomain
@@ -138,6 +140,8 @@ export const ROOT_MESSAGE_SENT_ENTITY = `
 `;
 export const ROOT_MESSAGE_PROCESSED_ENTITY = `
       id
+      spokeDomain
+      hubDomain
       root
       caller
       transactionHash
@@ -145,6 +149,15 @@ export const ROOT_MESSAGE_PROCESSED_ENTITY = `
       gasPrice
       gasLimit
       blockNumber
+`;
+
+export const CONNECTOR_META_ENTITY = `
+      amb
+      hubDomain
+      id
+      mirrorConnector
+      rootManager
+      spokeDomain
 `;
 
 const lastedBlockNumberQuery = (prefix: string): string => {
@@ -183,11 +196,7 @@ export const getAssetBalanceQuery = (prefix: string, router: string, local: stri
     ${prefix}_assetBalance(id: "${local}-${router}") {
       amount
       asset {
-        canonicalId
-        canonicalDomain
-        local
-        adoptedAsset
-        blockNumber
+        ${ASSET_ENTITY}
       }
     }`;
   return gql`
@@ -202,11 +211,7 @@ export const getAssetBalancesQuery = (prefix: string, router: string): string =>
     ${prefix}_assetBalances(where: { router: "${router}" }) {
       amount
       asset {
-          canonicalId
-          canonicalDomain
-          local
-          adoptedAsset
-          blockNumber
+        ${ASSET_ENTITY}
       }
     }`;
 
@@ -231,13 +236,10 @@ export const getAssetBalancesRoutersQuery = (
     orderDirection: ${orderDirection}) {
       id
       assetBalances {
+        id
         amount
         asset {
-          local
-          adoptedAsset
-          canonicalId
-          canonicalDomain
-          blockNumber
+          ${ASSET_ENTITY}
         }
       }
     }`;
@@ -264,13 +266,8 @@ export const getRouterQuery = (prefix: string, router: string): string => {
 
 export const getAssetByLocalQuery = (prefix: string, local: string): string => {
   const queryString = `
-    ${prefix}_assets(where: { local: "${local}" }) {
-      id
-      local
-      adoptedAsset
-      canonicalId
-      canonicalDomain
-      blockNumber
+    ${prefix}_assets(where: { id: "${local}" }) {
+      ${ASSET_ENTITY}
     }`;
   return gql`
     query GetAssetByLocal {
@@ -282,14 +279,8 @@ export const getAssetByLocalQuery = (prefix: string, local: string): string => {
 export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string): string => {
   const str = `
     ${prefix}_assets(where: { canonicalId: "${canonicalId}" }, orderBy: blockNumber, orderDirection: desc) {
-            id
-            local
-            adoptedAsset
-            canonicalId
-            canonicalDomain
-            blockNumber
-        }
-    `;
+          ${ASSET_ENTITY}
+        }`;
 
   return gql`
     query GetAssetByCanonicalId {
@@ -323,13 +314,11 @@ const originTransferQueryString = (
   originDomain: string,
   fromNonce: number,
   destinationDomains: string[],
-  forceSlow: boolean,
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "desc",
 ) => {
   return `${prefix}_originTransfers(
     where: {
-      forceSlow: ${forceSlow},
       originDomain: ${originDomain},
       nonce_gte: ${fromNonce},
       destinationDomain_in: [${destinationDomains}]
@@ -353,7 +342,6 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
         domain,
         agents.get(domain)!.latestNonce,
         domains,
-        agents.get(domain)?.forceSlow ?? false,
         agents.get(domain)!.maxBlockNumber,
         agents.get(domain)!.orderDirection,
       );
@@ -561,14 +549,21 @@ const destinationTransfersByIdsQueryString = (prefix: string, transferIds: strin
       transferId_in: [${transferIds}]
     }, 
     orderBy: nonce, 
-    orderDirection: desc) {
-      ${DESTINATION_TRANSFER_ENTITY}
-    }`;
+    orderDirection: desc
+  ) {
+    ${DESTINATION_TRANSFER_ENTITY}
+  }`;
 };
 
 export const getDestinationTransfersByIdsQuery = (prefix: string, transferIds: string[]): string => {
   const queryStr = `
-    ${prefix}_destinationTransfers(where: { transferId_in: [${transferIds}] }) {${DESTINATION_TRANSFER_ENTITY}}`;
+    ${prefix}_destinationTransfers(
+      where: { 
+        transferId_in: [${transferIds}] 
+      }
+    ) {
+      ${DESTINATION_TRANSFER_ENTITY}
+    }`;
   return gql`
     query GetDestinationTransfers {
       ${queryStr}
@@ -598,7 +593,7 @@ export const getOriginMessagesByDomainAndIndexQuery = (
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
     combinedQuery += `
-    ${prefix}_originMessages (
+    ${prefix}_originMessages ( 
       first: ${param.limit}, 
       where: { 
         index_gte: ${param.offset}, 
@@ -650,7 +645,7 @@ export const getSentRootMessagesByDomainAndBlockQuery = (
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
     combinedQuery += `
-    ${prefix}_rootMessageSents (
+    ${prefix}_rootMessageSents ( 
       first: ${param.limit}, 
       where: { 
         blockNumber_gt: ${param.offset} 
@@ -675,7 +670,7 @@ export const getProcessedRootMessagesByDomainAndBlockQuery = (
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
     combinedQuery += `
-    ${prefix}_rootMessageProcesseds ( 
+    ${prefix}hub_rootMessageProcesseds ( 
       first: ${param.limit}, 
       where: { 
         blockNumber_gt: ${param.offset} 
@@ -687,6 +682,26 @@ export const getProcessedRootMessagesByDomainAndBlockQuery = (
 
   return gql`
     query GetProcessedRootMessages {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const CONNECTOR_META_ID = "CONNECTOR_META_ID";
+
+export const getConnectorMetaQuery = (domains: string[]) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    combinedQuery += `
+    ${prefix}_connectorMeta (id: "${CONNECTOR_META_ID}") {
+      ${CONNECTOR_META_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetConnectorMeta {
       ${combinedQuery}
     }
   `;

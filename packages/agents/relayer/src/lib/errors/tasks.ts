@@ -24,7 +24,7 @@ export class ParamsInvalid extends NxtpError {
 
 export class ContractDeploymentMissing extends NxtpError {
   public static contracts = {
-    connext: "ConnextHandler",
+    connext: "Connext",
   };
 
   constructor(contract: Values<typeof ContractDeploymentMissing.contracts>, chain: number, context: any = {}) {

@@ -6,31 +6,27 @@ import { mkAddress, Logger, mock as _mock, mkBytes32, createLoggingContext, XMes
 import { NxtpLighthouseConfig } from "../src/config";
 import { ProverContext } from "../src/tasks/prover/context";
 import { Cartographer } from "../src/tasks/prover/adapters";
+import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
+import { Database } from "@connext/nxtp-adapters-database";
+import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
 
 export const mockTaskId = mkBytes32("0xabcdef123");
 export const mockRelayerAddress = mkAddress("0xabcdef123");
 export const encodedDataMock = "0xabcde";
 export const requestContext = createLoggingContext("LIGHTHOUSE-TEST").requestContext;
 
-export const mockXMessage1: XMessage = {
-  originDomain: _mock.domain.A,
-  destinationDomain: _mock.domain.B,
-  leaf: mkBytes32("0xabcde"),
-  origin: { index: 42, message: mkBytes32("0xabc"), root: mkBytes32("0x123") },
-  transferId: mkBytes32("0xabc"),
-};
+export const mockXMessage1: XMessage = { ..._mock.entity.xMessage(), transferId: mkBytes32("0xabc") };
 
 export const mockXMessage2: XMessage = {
+  ..._mock.entity.xMessage(),
   originDomain: _mock.domain.B,
   destinationDomain: _mock.domain.A,
-  leaf: mkBytes32("0xedcba"),
-  origin: { index: 24, message: mkBytes32("0xcba"), root: mkBytes32("0x321") },
   transferId: mkBytes32("0xabcdef"),
 };
 
 export const mock = {
   ..._mock,
-  context: (): ProverContext => {
+  proverCtx: (): ProverContext => {
     return {
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
       adapters: {
@@ -38,6 +34,19 @@ export const mock = {
         contracts: mock.adapters.contracts(),
         relayer: mock.adapters.relayer(),
         cartographer: mock.adapters.cartographer(),
+      },
+      config: mock.config(),
+      chainData: mock.chainData(),
+    };
+  },
+  processFromRootCtx: (): ProcessFromRootContext => {
+    return {
+      logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
+      adapters: {
+        chainreader: mock.adapters.chainreader(),
+        contracts: mock.adapters.deployments(),
+        relayer: mock.adapters.relayer(),
+        database: mock.adapters.database(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -70,6 +79,8 @@ export const mock = {
     },
     environment: "staging",
     relayerUrl: "http://www.example.com",
+    database: { url: "postgres://localhost:5432/lighthouse" },
+    gelatoApiKey: "foo",
   }),
   adapters: {
     chainreader: (): SinonStubbedInstance<ChainReader> => {
@@ -95,10 +106,6 @@ export const mock = {
       priceOracle.encodeFunctionData.returns(encodedDataMock);
       priceOracle.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
-      const tokenRegistry = createStubInstance(utils.Interface);
-      tokenRegistry.encodeFunctionData.returns(encodedDataMock);
-      tokenRegistry.decodeFunctionResult.returns([BigNumber.from(1000)]);
-
       const stableSwap = createStubInstance(utils.Interface);
       stableSwap.encodeFunctionData.returns(encodedDataMock);
       stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
@@ -116,9 +123,17 @@ export const mock = {
         erc20Extended: erc20 as unknown as ConnextContractInterfaces["erc20Extended"],
         connext: connext as unknown as ConnextContractInterfaces["connext"],
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
-        tokenRegistry: tokenRegistry as unknown as ConnextContractInterfaces["tokenRegistry"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
         spokeConnector: spokeConnector as unknown as ConnextContractInterfaces["spokeConnector"],
+      };
+    },
+    deployments: (): SinonStubbedInstance<ConnextContractDeployments> => {
+      return {
+        connext: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        hubConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        priceOracle: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        spokeConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        stableSwap: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
       };
     },
     relayer: () => {
@@ -128,7 +143,14 @@ export const mock = {
       };
     },
     cartographer: (): Cartographer => {
-      return { getUnProcessedMessages: stub().resolves([mockXMessage1, mockXMessage2]) };
+      return {
+        getUnProcessedMessages: stub().resolves([mockXMessage1, mockXMessage2]),
+        getSentRootMessages: stub().resolves([]),
+        getUnProcessedRootMessages: stub().resolves([]),
+      };
+    },
+    database: (): Database => {
+      return mockDatabase();
     },
   },
   contracts: {
@@ -139,9 +161,9 @@ export const mock = {
           abi: {},
         }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
-        tokenRegistry: (_: number) => ({ address: mkAddress("0xbbbddde"), abi: {} }),
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbdddf"), abi: {} }),
         spokeConnector: (_: number) => ({ address: mkAddress("0xbbbddda"), abi: {} }),
+        hubConnector: (_: number) => ({ address: mkAddress("0xbbbdddb"), abi: {} }),
       };
     },
   },

@@ -28,47 +28,50 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
-export type CallParamsStruct = {
-  to: PromiseOrValue<string>;
-  callData: PromiseOrValue<BytesLike>;
+export type TransferInfoStruct = {
   originDomain: PromiseOrValue<BigNumberish>;
   destinationDomain: PromiseOrValue<BigNumberish>;
-  agent: PromiseOrValue<string>;
-  recovery: PromiseOrValue<string>;
-  forceSlow: PromiseOrValue<boolean>;
+  canonicalDomain: PromiseOrValue<BigNumberish>;
+  to: PromiseOrValue<string>;
+  delegate: PromiseOrValue<string>;
   receiveLocal: PromiseOrValue<boolean>;
-  callback: PromiseOrValue<string>;
-  callbackFee: PromiseOrValue<BigNumberish>;
-  relayerFee: PromiseOrValue<BigNumberish>;
-  destinationMinOut: PromiseOrValue<BigNumberish>;
+  callData: PromiseOrValue<BytesLike>;
+  slippage: PromiseOrValue<BigNumberish>;
+  originSender: PromiseOrValue<string>;
+  bridgedAmt: PromiseOrValue<BigNumberish>;
+  normalizedIn: PromiseOrValue<BigNumberish>;
+  nonce: PromiseOrValue<BigNumberish>;
+  canonicalId: PromiseOrValue<BytesLike>;
 };
 
-export type CallParamsStructOutput = [
-  string,
-  string,
+export type TransferInfoStructOutput = [
+  number,
   number,
   number,
   string,
   string,
   boolean,
-  boolean,
+  string,
+  BigNumber,
   string,
   BigNumber,
   BigNumber,
-  BigNumber
+  BigNumber,
+  string
 ] & {
-  to: string;
-  callData: string;
   originDomain: number;
   destinationDomain: number;
-  agent: string;
-  recovery: string;
-  forceSlow: boolean;
+  canonicalDomain: number;
+  to: string;
+  delegate: string;
   receiveLocal: boolean;
-  callback: string;
-  callbackFee: BigNumber;
-  relayerFee: BigNumber;
-  destinationMinOut: BigNumber;
+  callData: string;
+  slippage: BigNumber;
+  originSender: string;
+  bridgedAmt: BigNumber;
+  normalizedIn: BigNumber;
+  nonce: BigNumber;
+  canonicalId: string;
 };
 
 export interface PortalFacetInterface extends utils.Interface {
@@ -77,8 +80,8 @@ export interface PortalFacetInterface extends utils.Interface {
     "aavePortalFee()": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
-    "repayAavePortal((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
-    "repayAavePortalFor((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortal((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortalFor((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256)": FunctionFragment;
     "setAavePool(address)": FunctionFragment;
     "setAavePortalFee(uint256)": FunctionFragment;
   };
@@ -111,11 +114,7 @@ export interface PortalFacetInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "repayAavePortal",
     values: [
-      CallParamsStruct,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
+      TransferInfoStruct,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
@@ -124,11 +123,7 @@ export interface PortalFacetInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "repayAavePortalFor",
     values: [
-      CallParamsStruct,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
+      TransferInfoStruct,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
@@ -236,11 +231,7 @@ export interface PortalFacet extends BaseContract {
     ): Promise<[BigNumber]>;
 
     repayAavePortal(
-      _params: CallParamsStruct,
-      _local: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -248,11 +239,7 @@ export interface PortalFacet extends BaseContract {
     ): Promise<ContractTransaction>;
 
     repayAavePortalFor(
-      _params: CallParamsStruct,
-      _adopted: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -284,11 +271,7 @@ export interface PortalFacet extends BaseContract {
   ): Promise<BigNumber>;
 
   repayAavePortal(
-    _params: CallParamsStruct,
-    _local: PromiseOrValue<string>,
-    _originSender: PromiseOrValue<string>,
-    _bridgedAmt: PromiseOrValue<BigNumberish>,
-    _nonce: PromiseOrValue<BigNumberish>,
+    _params: TransferInfoStruct,
     _backingAmount: PromiseOrValue<BigNumberish>,
     _feeAmount: PromiseOrValue<BigNumberish>,
     _maxIn: PromiseOrValue<BigNumberish>,
@@ -296,11 +279,7 @@ export interface PortalFacet extends BaseContract {
   ): Promise<ContractTransaction>;
 
   repayAavePortalFor(
-    _params: CallParamsStruct,
-    _adopted: PromiseOrValue<string>,
-    _originSender: PromiseOrValue<string>,
-    _bridgedAmt: PromiseOrValue<BigNumberish>,
-    _nonce: PromiseOrValue<BigNumberish>,
+    _params: TransferInfoStruct,
     _backingAmount: PromiseOrValue<BigNumberish>,
     _feeAmount: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -332,11 +311,7 @@ export interface PortalFacet extends BaseContract {
     ): Promise<BigNumber>;
 
     repayAavePortal(
-      _params: CallParamsStruct,
-      _local: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -344,11 +319,7 @@ export interface PortalFacet extends BaseContract {
     ): Promise<void>;
 
     repayAavePortalFor(
-      _params: CallParamsStruct,
-      _adopted: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -398,11 +369,7 @@ export interface PortalFacet extends BaseContract {
     ): Promise<BigNumber>;
 
     repayAavePortal(
-      _params: CallParamsStruct,
-      _local: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -410,11 +377,7 @@ export interface PortalFacet extends BaseContract {
     ): Promise<BigNumber>;
 
     repayAavePortalFor(
-      _params: CallParamsStruct,
-      _adopted: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -447,11 +410,7 @@ export interface PortalFacet extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     repayAavePortal(
-      _params: CallParamsStruct,
-      _local: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -459,11 +418,7 @@ export interface PortalFacet extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     repayAavePortalFor(
-      _params: CallParamsStruct,
-      _adopted: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
+      _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }

@@ -40,11 +40,11 @@ export default task("setup-asset", "Configures an asset")
       console.log("deployer: ", deployer.address);
       let connextAddress = _connextAddress;
       if (!connextAddress) {
-        const connextName = getDeploymentName("ConnextHandler", env);
+        const connextName = getDeploymentName("Connext", env);
         const connextDeployment = await deployments.get(connextName);
         connextAddress = connextDeployment.address;
       }
-      const connext = await ethers.getContractAt("ConnextHandler", connextAddress);
+      const connext = await ethers.getContractAt("Connext", connextAddress);
       console.log("connextAddress: ", connextAddress);
 
       const canonicalTokenId = {

@@ -37,7 +37,7 @@ export const getSentRootMessages = async (): Promise<RootMessage[]> => {
   const { logger, config } = getContext();
 
   const statusIdentifier = `order=block_number.asc`;
-  const uri = formatUrl(config.cartographerUrl, "sent_root_messages?", statusIdentifier);
+  const uri = formatUrl(config.cartographerUrl, "root_messages?", statusIdentifier);
   logger.debug("Getting messages from URI", requestContext, methodContext, { uri });
   try {
     const response = await axiosGet(uri);

@@ -3,6 +3,7 @@
     "1337": { "providers": ["http://chain-1337:8545"] },
     "1338": { "providers": ["http://chain-1338:8545"] }
   },
+  "gelatoApiKey": "xxx",
   "environment": "production",
   "logLevel": "debug",
   "relayerUrl": "http://relayer:8080",

@@ -18,7 +18,7 @@ import {
   UpgradeBeaconProxy,
   TestERC20,
   TransparentUpgradeableProxy,
-  ConnextHandler,
+  Connext,
   BridgeFacet,
   ProposedOwnableFacet,
   IERC20,
@@ -151,7 +151,7 @@ export const getOnchainBalance = async (
     : new Contract(assetId, Erc20Abi, provider).balanceOf(address);
 };
 
-export const getRoutersBalances = async (routers: string[], connextContract: ConnextHandler, asset: string) =>
+export const getRoutersBalances = async (routers: string[], connextContract: Connext, asset: string) =>
   Promise.all(routers.map((addr) => connextContract.routerBalances(addr, asset)));
 
 export const setBlockTime = async (desiredTimestamp: number) => {
@@ -369,20 +369,19 @@ export const connextXCall = async (
     destinationDomain: number;
     callback: string;
     callbackFee: number;
-    forceSlow: boolean;
     receiveLocal: boolean;
   },
-  connext: ConnextHandler,
+  connext: Connext,
   bridgeFacet: BridgeFacet,
 ) => {
   // Approve user
   await asset.connect(user).approve(connext.address, amount);
 
   // Prepare from the user
-  const transactingAssetId = asset.address;
+  const assetId = asset.address;
   const prepare = await connext
     .connect(user)
-    .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
+    .xcall({ params, asset: assetId, amount, relayerFee }, { value: relayerFee });
   const prepareReceipt = await prepare.wait();
 
   const xcalledTopic = bridgeFacet.filters.XCalled().topics as string[];

@@ -3,29 +3,17 @@ import { existsSync, readFileSync } from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv } from "@connext/nxtp-utils";
+import { ajv, TLogLevel, TDatabaseConfig } from "@connext/nxtp-utils";
 
 const DEFAULT_POLL_INTERVAL = 15_000;
 
 dotenvConfig();
 
-export const TDatabaseConfig = Type.Object({
-  url: Type.String({ format: "uri" }),
-});
-
 export const TChains = Type.Record(Type.String(), Type.Object({}));
 
 export const Cartographer = Type.Object({
   pollInterval: Type.Integer({ minimum: 1000 }),
-  logLevel: Type.Union([
-    Type.Literal("fatal"),
-    Type.Literal("error"),
-    Type.Literal("warn"),
-    Type.Literal("info"),
-    Type.Literal("debug"),
-    Type.Literal("trace"),
-    Type.Literal("silent"),
-  ]),
+  logLevel: TLogLevel,
   database: TDatabaseConfig,
   subgraphPrefix: Type.Optional(Type.String()),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),

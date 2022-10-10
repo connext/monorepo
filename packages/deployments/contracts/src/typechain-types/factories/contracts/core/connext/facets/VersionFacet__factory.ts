@@ -12,12 +12,37 @@ import type {
 const _abi = [
   {
     inputs: [],
+    name: "BaseConnextFacet__getAdoptedAsset_notWhitelisted",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__getApprovedCanonicalId_notWhitelisted",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BaseConnextFacet__nonReentrant_reentrantCall",
     type: "error",
   },
   {
     inputs: [],
     name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BaseConnextFacet__onlyOwnerOrWatcher_notOwnerOrWatcher",
     type: "error",
   },
   {
@@ -51,7 +76,7 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x60a06040526000608052348015601457600080fd5b50608051609a61002d6000396000602f0152609a6000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063ffa1ad7414602d575b600080fd5b7f000000000000000000000000000000000000000000000000000000000000000060405160ff909116815260200160405180910390f3fea2646970667358221220b078af0380f52a4ce465f8e4266f3c6de1a57ad857096e600942bca686d0858264736f6c634300080f0033";
+  "0x60a06040526000608052348015601457600080fd5b50608051609a61002d6000396000602f0152609a6000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063ffa1ad7414602d575b600080fd5b7f000000000000000000000000000000000000000000000000000000000000000060405160ff909116815260200160405180910390f3fea26469706673582212201dfe6575db5c0764330f6dfe00b8a1b5ad7e6ce834dfad9457f45997b12e941464736f6c634300080f0033";
 
 type VersionFacetConstructorParams =
   | [signer?: Signer]

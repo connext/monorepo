@@ -23,6 +23,7 @@ import {
   RetryableBidPostError,
   SequencerResponseInvalid,
   UnableToGetAsset,
+  RouterVersionInvalid,
 } from "../../../errors";
 // @ts-ignore
 import { version } from "../../../../package.json";
@@ -50,7 +51,7 @@ export const getDestinationLocalAsset = async (
     return ethers.constants.AddressZero;
   }
 
-  // get canonical asset from orgin domain.
+  // get canonical asset from origin domain.
   const sendingDomainAsset = await subgraph.getAssetByLocal(_originDomain, _originLocalAsset);
 
   const canonicalId = sendingDomainAsset?.canonicalId;
@@ -60,8 +61,7 @@ export const getDestinationLocalAsset = async (
   }
 
   const destinationDomainAsset = await subgraph.getAssetByCanonicalId(_destinationDomain, canonicalId);
-
-  const localAddress = destinationDomainAsset?.local;
+  const localAddress = destinationDomainAsset?.localAsset;
 
   return localAddress;
 };
@@ -92,12 +92,15 @@ export const sendBid = async (bid: Bid, _requestContext: RequestContext): Promis
     if (error.response?.data?.message === "AuctionExpired") {
       // TODO: Should we mark this transfer as expired? Technically speaking, it *could* become unexpired
       // if the sequencer decides relayer execution has timed out.
-      throw new AuctionExpired({ transferId });
-    }
-    if (error.response?.data?.message === "MissingXCall") {
+      throw new AuctionExpired({ transferId, requestContext, methodContext, data: error.response.data });
+    } else if (error.response?.data?.message === "MissingXCall") {
       // TODO: Should we mark this transfer as expired? Technically speaking, it *could* become unexpired
       // if the sequencer decides relayer execution has timed out.
-      throw new RetryableBidPostError({ transferId, requestContext, methodContext });
+      throw new RetryableBidPostError({ transferId, requestContext, methodContext, data: error.response.data });
+    } else if (error.response?.data?.message === "RouterVersionInvalid") {
+      // TODO: Should we mark this transfer as expired? Technically speaking, it *could* become unexpired
+      // if the sequencer decides relayer execution has timed out.
+      throw new RouterVersionInvalid({ transferId, requestContext, methodContext, data: error.response.data });
     } else {
       const errorObj: any = {};
       if (error.response) {
@@ -179,13 +182,8 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
   const {
     origin,
     transferId,
-    xparams: { callData, to, forceSlow, originDomain, destinationDomain },
+    xparams: { callData, to, originDomain, destinationDomain },
   } = params;
-
-  if (forceSlow) {
-    logger.debug("Opt for slow path", requestContext, methodContext, {});
-    return;
-  }
 
   const dest = await subgraph.getDestinationTransferById(destinationDomain, transferId);
   if (dest) {

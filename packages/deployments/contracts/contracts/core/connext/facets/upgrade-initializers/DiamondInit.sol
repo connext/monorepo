@@ -11,18 +11,13 @@ pragma solidity ^0.8.0;
 import {IDiamondLoupe} from "../../interfaces/IDiamondLoupe.sol";
 import {IDiamondCut} from "../../interfaces/IDiamondCut.sol";
 import {IERC165} from "../../interfaces/IERC165.sol";
-import {IWeth} from "../../interfaces/IWeth.sol";
-import {ITokenRegistry} from "../../interfaces/ITokenRegistry.sol";
-
-import {Executor} from "../../helpers/Executor.sol";
 
 import {LibDiamond} from "../../libraries/LibDiamond.sol";
 
 import {BaseConnextFacet} from "../BaseConnextFacet.sol";
 
 import {IProposedOwnable} from "../../../../shared/interfaces/IProposedOwnable.sol";
-import {RelayerFeeRouter} from "../../../relayer-fee/RelayerFeeRouter.sol";
-import {PromiseRouter} from "../../../promise/PromiseRouter.sol";
+import {IConnectorManager} from "../../../../messaging/interfaces/IConnectorManager.sol";
 
 // It is expected that this contract is customized if you want to deploy your diamond
 // with data from a deployment script. Use the init function to initialize state variables
@@ -33,9 +28,7 @@ contract DiamondInit is BaseConnextFacet {
   // data to set your own state variables
   function init(
     uint32 _domain,
-    address _tokenRegistry, // Nomad token registry
-    address _relayerFeeRouter,
-    address payable _promiseRouter,
+    address _xAppConnectionManager,
     uint256 _acceptanceDelay
   ) external {
     // adding ERC165 data
@@ -62,14 +55,11 @@ contract DiamondInit is BaseConnextFacet {
       // __ReentrancyGuard_init_unchained
       s._status = _NOT_ENTERED;
 
-      // ConnextHandler
+      // Connext
       s.domain = _domain;
-      s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
-      s.promiseRouter = PromiseRouter(_promiseRouter);
-      s.executor = new Executor(address(this));
-      s.tokenRegistry = ITokenRegistry(_tokenRegistry);
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.maxRoutersPerTransfer = 5;
+      s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
     }
   }
 }

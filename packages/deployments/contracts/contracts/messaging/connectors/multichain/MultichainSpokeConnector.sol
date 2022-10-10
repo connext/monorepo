@@ -19,9 +19,24 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
     uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
+    uint256 _delayBlocks,
+    address _merkle,
+    address _watcherManager,
     uint256 _mirrorChainId
   )
-    SpokeConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas, _processGas, _reserveGas)
+    SpokeConnector(
+      _domain,
+      _mirrorDomain,
+      _amb,
+      _rootManager,
+      _mirrorConnector,
+      _mirrorGas,
+      _processGas,
+      _reserveGas,
+      _delayBlocks,
+      _merkle,
+      _watcherManager
+    )
     BaseMultichain(_amb, _mirrorChainId)
   {}
 
@@ -32,11 +47,11 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
    */
   function _processMessage(bytes memory _data) internal override(Connector, BaseMultichain) {
     // enforce this came from connector on l1
-    require(_verifySender(mirrorConnector), "!l1Connector");
+    require(_verifySender(mirrorConnector), "!mirrorConnector");
     // sanity check: data length
     require(_data.length == 32, "!length");
     // set the aggregate root for BSC + access control
-    updateAggregateRoot(bytes32(_data));
+    receiveAggregateRoot(bytes32(_data));
   }
 
   function _sendMessage(bytes memory _data) internal override {

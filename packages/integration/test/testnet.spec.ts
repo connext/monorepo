@@ -290,18 +290,11 @@ describe("TESTNET:E2E", () => {
             log.info("Added asset to chain.", { domain, hash });
           } else {
             // Check to make sure canonical -> local is correct onchain.
-            const {
-              adoptedToCanonical,
-              canonicalToAdopted,
-              canonicalId,
-              canonicalDomain,
-              canonicalKey,
-              getTokenId,
-              tokenRegistry,
-            } = await checkOnchainLocalAsset(context, {
-              domain,
-              adopted: localAsset,
-            });
+            const { adoptedToCanonical, canonicalToAdopted, canonicalId, canonicalDomain, canonicalKey, getTokenId } =
+              await checkOnchainLocalAsset(context, {
+                domain,
+                adopted: localAsset,
+              });
             if (canonicalToAdopted !== localAsset || adoptedToCanonical !== canonicalId) {
               // TODO: Change this to log.info, actually carry out the on-chain replacement below.
               // (Need to confirm that this works.)
@@ -351,7 +344,6 @@ describe("TESTNET:E2E", () => {
                   canonicalDomain,
                   canonicalKey,
                   getTokenId,
-                  tokenRegistry,
                 },
               });
             }
@@ -807,7 +799,6 @@ describe("TESTNET:E2E", () => {
               callData: "0x",
               originDomain: domainInfo.ORIGIN.domain,
               destinationDomain: domainInfo.DESTINATION.domain,
-              forceSlow: false,
               receiveLocal: false,
               callback: constants.AddressZero,
               callbackFee: "0",
@@ -816,8 +807,8 @@ describe("TESTNET:E2E", () => {
               agent: agents.user.address,
               destinationMinOut: "0",
             },
-            transactingAsset: originAsset.address,
-            transactingAmount: TRANSFER_TOKEN_AMOUNT.toString(),
+            asset: originAsset.address,
+            amount: TRANSFER_TOKEN_AMOUNT.toString(),
             originMinOut: "0",
           };
           const encoded = connext.encodeFunctionData("xcall", [args]);

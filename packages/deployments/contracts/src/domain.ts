@@ -19,6 +19,8 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
   [420, 0x676f7074], // optimism-goerli (gopti interpreted as int) 1735356532
   [69, 0x6b6f7074], // optimism-kovan (kopti interpreted as int) 1802465396
   [80001, 0x2707], // mumbai 9991
+  [421613, 0x67617262], // arbitrum-goerli (garb interpreted as int) 1734439522
+  [10200, 0x63686961], // gnosis-chiado (chiado interpreted as int) 1667787105
   [1337, 1337],
   [1338, 1338],
 ]);
@@ -111,58 +113,3 @@ export function evmId(data: utils.BytesLike): Address {
 export function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
-// export type NomadDomainInfo = {
-//   name: string;
-//   domain: number;
-//   contracts: {
-//     bridge: BridgeContracts;
-//     core: CoreContracts;
-//   };
-// };
-
-// export const getNomadConfig = async (chainId: number): Promise<NomadConfig> => {
-//   const env = MAINNET_CHAINS.includes(chainId) ? "production" : "staging";
-//   const nomadConfig = await NomadContext.fetchConfig(env);
-//   if (!nomadConfig) {
-//     throw new Error(`No nomad config found for ${env}`);
-//   }
-//   return nomadConfig;
-// };
-
-// export const getDomainInfoFromChainId = async (
-//   chainId: number,
-//   hre: HardhatRuntimeEnvironment,
-// ): Promise<NomadDomainInfo> => {
-//   if ([1337, 1338, 31337].includes(chainId)) {
-//     return {
-//       name: `local${chainId}`,
-//       domain: chainId,
-//       contracts: {
-//         bridge: {
-//           bridgeToken: { beacon: (await hre.deployments.get(getDeploymentName(`BridgeTokenUpgradeBeacon`))).address },
-//         },
-//         core: {
-//           replicas: [],
-//           home: { proxy: (await hre.deployments.get(getDeploymentName(`HomeUpgradeBeaconProxy`))).address },
-//         },
-//       },
-//     } as any;
-//   }
-//   const nomadConfig = await getNomadConfig(chainId);
-//   const [name, domainConfig] =
-//     Object.entries(nomadConfig.protocol.networks).find(([_, info]) => {
-//       return info.specs.chainId === chainId;
-//     }) ?? [];
-//   if (!domainConfig || !name) {
-//     throw new Error(`No nomad domain info found for ${chainId}`);
-//   }
-//   return {
-//     name,
-//     domain: domainConfig.domain,
-//     contracts: {
-//       bridge: nomadConfig.bridge[name],
-//       core: nomadConfig.core[name],
-//     },
-//   };
-// };

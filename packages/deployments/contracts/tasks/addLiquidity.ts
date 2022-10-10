@@ -9,7 +9,6 @@ type TaskArgs = {
   asset: string;
   amount: string;
   connextAddress?: string;
-  tokenRegistryAddress?: string;
   env?: Env;
 };
 
@@ -18,18 +17,10 @@ export default task("add-liquidity", "Add liquidity for a router")
   .addParam("asset", "Local token address")
   .addParam("amount", "Amount (real units)")
   .addOptionalParam("connextAddress", "Override connext address")
-  .addOptionalParam("tokenRegistryAddress", "Override token registry address")
   .addOptionalParam("env", "Environment of contracts")
   .setAction(
     async (
-      {
-        asset,
-        router,
-        connextAddress: _connextAddress,
-        amount: _amount,
-        tokenRegistryAddress: _tokenRegistryAddress,
-        env: _env,
-      }: TaskArgs,
+      { asset, router, connextAddress: _connextAddress, amount: _amount, env: _env }: TaskArgs,
       { deployments, ethers },
     ) => {
       let { deployer } = await ethers.getNamedSigners();
@@ -43,12 +34,14 @@ export default task("add-liquidity", "Add liquidity for a router")
       console.log("asset: ", asset);
       console.log("deployer: ", deployer.address);
 
-      const connextName = getDeploymentName("ConnextHandler", env);
+      const connextName = getDeploymentName("Connext", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       console.log("connextAddress: ", connextAddress);
 
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
+      let liquidity = await connext.routerBalances(router, asset);
+      console.log("current liquidity: ", liquidity.toString());
       let amount;
       if (asset !== ethers.constants.AddressZero) {
         const erc20 = await ethers.getContractAt("TestERC20", asset);
@@ -78,14 +71,7 @@ export default task("add-liquidity", "Add liquidity for a router")
         throw new Error("Router not approved");
       }
 
-      const tokenDeployment = await deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env));
-      const tokenRegistry = new Contract(
-        _tokenRegistryAddress ?? tokenDeployment.address,
-        (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
-        deployer,
-      );
-      console.log("tokenRegistryAddress:", tokenRegistry.address);
-      const [domain, canonical] = await tokenRegistry.getTokenId(asset);
+      const [domain, canonical] = await connext.getTokenId(asset);
       console.log("domain: ", domain);
       console.log("canonical: ", canonical);
       const key = solidityKeccak256(["bytes"], [defaultAbiCoder.encode(["bytes32", "uint32"], [canonical, domain])]);
@@ -110,7 +96,7 @@ export default task("add-liquidity", "Add liquidity for a router")
       console.log("addLiquidityFor tx: ", tx);
       const receipt = await tx.wait();
       console.log("addLiquidityFor tx mined: ", receipt.transactionHash);
-      const liquidity = await connext.routerBalances(router, asset);
+      liquidity = await connext.routerBalances(router, asset);
       console.log("liquidity: ", liquidity.toString());
     },
   );

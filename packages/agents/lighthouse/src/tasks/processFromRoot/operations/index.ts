@@ -1,0 +1,1 @@
+export { processFromRoot } from "./processFromRoot";

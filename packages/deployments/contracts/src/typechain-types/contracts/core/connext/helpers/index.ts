@@ -3,12 +3,13 @@
 /* eslint-disable */
 import type * as connextPriceOracleSol from "./ConnextPriceOracle.sol";
 export type { connextPriceOracleSol };
+import type * as ozerc20Sol from "./OZERC20.sol";
+export type { ozerc20Sol };
+export type { BridgeToken } from "./BridgeToken";
 export type { ConnextProxyAdmin } from "./ConnextProxyAdmin";
 export type { Diamond } from "./Diamond";
-export type { Executor } from "./Executor";
 export type { LPToken } from "./LPToken";
 export type { Multicall } from "./Multicall";
 export type { OwnerPausableUpgradeable } from "./OwnerPausableUpgradeable";
 export type { PriceOracle } from "./PriceOracle";
-export type { SponsorVault } from "./SponsorVault";
 export type { StableSwap } from "./StableSwap";

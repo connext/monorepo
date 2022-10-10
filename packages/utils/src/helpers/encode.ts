@@ -1,6 +1,6 @@
-import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
+import { defaultAbiCoder, keccak256, hexlify, solidityKeccak256, BytesLike } from "ethers/lib/utils";
 
-import { ExternalCall, ReconciledTransaction } from "..";
+import { ExternalCall, ReconciledTransaction, canonizeId } from "..";
 
 /**
  * Cleans any strings so they replace the newlines and properly format whitespace. Used to translate human readable encoding to contract-compatible encoding.
@@ -95,4 +95,13 @@ export const encodeExternalCallData = (exteranalCallData: ExternalCall): string 
 export const getExternalCallHash = (externalCallData: ExternalCall): string => {
   const digest = keccak256(defaultAbiCoder.encode([ExternalCallDataEncoding], [externalCallData]));
   return digest;
+};
+
+export const getCanonicalHash = (canonicalDomain: string, _canonicalId: string): string => {
+  const canonicalId = hexlify(canonizeId(_canonicalId as BytesLike));
+  const payload = defaultAbiCoder.encode(
+    ["tuple(bytes32 canonicalId,uint32 canonicalDomain)"],
+    [{ canonicalId, canonicalDomain }],
+  );
+  return solidityKeccak256(["bytes"], [payload]);
 };

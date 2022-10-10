@@ -25,7 +25,7 @@ export const XTransferOriginSchema = Type.Object({
   chain: TIntegerString,
 
   // Event Data
-  originMinOut: TIntegerString,
+  messageHash: Type.String(),
 
   // Assets
   assets: Type.Object({
@@ -82,31 +82,29 @@ export const XTransferDestinationSchema = Type.Object({
   reconcile: Type.Optional(XTransferMethodCallSchema),
 });
 
-export const CallParamsSchema = Type.Object({
-  to: TAddress,
-  callData: Type.String(),
+export const TransferIdInformationSchema = Type.Object({
   originDomain: Type.String(),
   destinationDomain: Type.String(),
-  agent: TAddress,
-  recovery: TAddress,
-  forceSlow: Type.Boolean(),
+  canonicalDomain: Type.String(),
+  to: TAddress,
+  delegate: TAddress,
   receiveLocal: Type.Boolean(),
-  callback: TAddress,
-  callbackFee: TIntegerString,
-  relayerFee: TIntegerString,
-  destinationMinOut: TIntegerString,
+  callData: Type.String(),
+  slippage: TIntegerString,
+  originSender: TAddress,
+  bridgedAmt: Type.String(),
+  normalizedIn: TIntegerString,
+  nonce: Type.Number(),
+  canonicalId: Type.String(),
 });
 
 export const XTransferSchema = Type.Intersect([
   Type.Object({
     transferId: Type.String(),
 
-    // NOTE: Nonce is delivered by XCalled and Executed events, but not Reconciled event.
-    nonce: Type.Optional(Type.Integer()),
-
     // Call Params
-    // NOTE: CallParams is emitted by XCalled and Executed events, but not Reconciled event.
-    xparams: CallParamsSchema,
+    // NOTE: TransferInfo is emitted by XCalled and Executed events, but not Reconciled event.
+    xparams: TransferIdInformationSchema,
   }),
   Type.Object({
     origin: Type.Optional(XTransferOriginSchema),
@@ -118,8 +116,7 @@ export type XTransfer = Static<typeof XTransferSchema>;
 export const OriginTransferSchema = Type.Intersect([
   Type.Object({
     transferId: Type.String(),
-    nonce: Type.Integer(),
-    xparams: CallParamsSchema,
+    xparams: TransferIdInformationSchema,
   }),
   Type.Object({
     origin: XTransferOriginSchema,
@@ -131,8 +128,7 @@ export type OriginTransfer = Static<typeof OriginTransferSchema>;
 export const DestinationTransferSchema = Type.Intersect([
   Type.Object({
     transferId: Type.String(),
-    nonce: Type.Optional(Type.Integer()),
-    xparams: CallParamsSchema,
+    xparams: TransferIdInformationSchema,
   }),
   Type.Object({
     origin: Type.Optional(XTransferOriginSchema),
@@ -141,27 +137,27 @@ export const DestinationTransferSchema = Type.Intersect([
 ]);
 export type DestinationTransfer = Static<typeof DestinationTransferSchema>;
 
-export type CallParams = Static<typeof CallParamsSchema>;
+export type TransferInfo = Static<typeof TransferIdInformationSchema>;
 
 export const XCallArgsSchema = Type.Object({
-  params: CallParamsSchema,
-  transactingAsset: Type.String(),
-  transactingAmount: TIntegerString,
-  originMinOut: TIntegerString,
+  origin: Type.String(),
+  destination: Type.String(),
+  to: TAddress,
+  asset: TAddress,
+  delegate: TAddress,
+  amount: TIntegerString,
+  slippage: TIntegerString,
+  callData: Type.String(),
 });
 
 export type XCallArgs = Static<typeof XCallArgsSchema>;
 
 export const ExecuteArgsSchema = Type.Object({
-  params: CallParamsSchema,
-  local: TAddress,
+  params: TransferIdInformationSchema,
   routers: Type.Array(TAddress),
   routerSignatures: Type.Array(Type.String()),
   sequencer: TAddress,
   sequencerSignature: Type.String(),
-  amount: TIntegerString,
-  nonce: Type.Integer(),
-  originSender: TAddress,
 });
 
 export type ExecuteArgs = Static<typeof ExecuteArgsSchema>;
@@ -179,10 +175,12 @@ export type ReconciledTransaction = {
 };
 
 export const AssetSchema = Type.Object({
-  local: TAddress,
+  id: TAddress,
+  key: Type.String(),
   adoptedAsset: TAddress,
   canonicalId: Type.String(),
   canonicalDomain: Type.String(),
+  localAsset: TAddress,
   blockNumber: Type.String(),
 });
 export type Asset = Static<typeof AssetSchema>;

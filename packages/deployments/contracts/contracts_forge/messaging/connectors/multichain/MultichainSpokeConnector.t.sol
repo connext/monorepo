@@ -4,6 +4,8 @@ pragma solidity 0.8.15;
 import {MultichainSpokeConnector} from "../../../../contracts/messaging/connectors/multichain/MultichainSpokeConnector.sol";
 import {Multichain} from "../../../../contracts/messaging/interfaces/ambs/Multichain.sol";
 
+import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
+
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
 
@@ -27,6 +29,8 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     // Get the n+1 deployment address
     _l1Connector = address(123123123123);
 
+    _merkle = address(new MerkleTreeManager());
+
     // Deploy
     vm.prank(_owner);
     _l2Connector = address(
@@ -39,6 +43,9 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
         _mirrorGas,
         _processGas,
         _reserveGas,
+        0, // uint256 _delayBlocks
+        _merkle,
+        address(1), // watcher manager
         _chainIdMainnet
       )
     );
@@ -91,8 +98,8 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     MultichainSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
 
-    // Check: root is updated
-    assertEq(MultichainSpokeConnector(_l2Connector).aggregateRoot(), bytes32(_data));
+    // Check: root is marked as pending
+    assertEq(MultichainSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
   }
 
   // msg.sender is not the bridge on L2
@@ -121,7 +128,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
-    vm.expectRevert(abi.encodePacked("!l1Connector"));
+    vm.expectRevert(abi.encodePacked("!mirrorConnector"));
     vm.prank(_amb);
     MultichainSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
   }
@@ -138,7 +145,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
-    vm.expectRevert(abi.encodePacked("!l1Connector"));
+    vm.expectRevert(abi.encodePacked("!mirrorConnector"));
     vm.prank(_amb);
     MultichainSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
   }
