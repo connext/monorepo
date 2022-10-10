@@ -1,3 +1,4 @@
+import { config } from "dotenv";
 import { getChainData, getChainIdFromDomain } from "@connext/nxtp-utils";
 import { providers, Wallet, utils } from "ethers";
 
@@ -8,6 +9,8 @@ import { ProtocolStack, getDeployments, updateIfNeeded, NetworkStack, HubMessagi
 import { setupAsset } from "./helpers/assets";
 import { setupMessaging } from "./helpers/messaging";
 
+config();
+
 /**
  * Call the core `initProtocol` method.
  * Sanitizer method to make sure config is set up correctly.
@@ -16,18 +19,18 @@ import { setupMessaging } from "./helpers/messaging";
 export const sanitizeAndInit = async () => {
   /// MARK - ENV
   // Get deployment environment.
-  const env = process.env.ENVIRONMENT;
+  const env = process.env.ENV || process.env.ENVIRONMENT;
   if (!env) {
     throw new Error(
-      "ENVIRONMENT was not specified in config or env. Please specify whether ENVIRONMENT (for deployments) is `staging` " +
-        "or `production`, etc.",
+      `ENVIRONMENT was not specified in env. Please specify whether ENVIRONMENT (for deployments) is staging or production, etc.",
+      ${process.env.ENV}`,
     );
   }
   const useStaging = env === "staging";
   console.log(`USING ${useStaging ? "STAGING" : "PRODUCTION"} AS ENVIRONMENT`);
 
   /// MARK - CONFIG
-  const config: any = process.env.ENVIRONMENT === "staging" ? STAGING_INIT_CONFIG : PRODUCTION_INIT_CONFIG;
+  const config: any = useStaging ? STAGING_INIT_CONFIG : PRODUCTION_INIT_CONFIG;
 
   /// MARK - Deployer
   // Get deployer mnemonic, which should be provided in env if not in the config.
