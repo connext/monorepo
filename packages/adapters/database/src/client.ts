@@ -87,7 +87,6 @@ const convertToDbMessage = (message: XMessage): s.messages.Insertable => {
 };
 
 const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"): s.root_messages.Insertable => {
-  console.log("message: ", message);
   return {
     id: message.id,
     spoke_domain: message.spokeDomain,
