@@ -110,6 +110,12 @@ locals {
           limit      = 6
           queueLimit = 10000
           subscribe  = true
+        },
+        {
+          name       = "9991"
+          limit      = 6
+          queueLimit = 10000
+          subscribe  = true
         }
       ]
       bindings = [
@@ -122,6 +128,11 @@ locals {
           exchange = "sequencerX"
           target   = "1735353714"
           keys     = ["1735353714"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "9991"
+          keys     = ["9991"]
         }
       ]
       executerTimeout = 300000
@@ -207,9 +218,9 @@ locals {
       "1735353714" = {
         providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
       }
-      # "9991" = {
-      #   providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
-      # }
+      "9991" = {
+        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
+      }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
