@@ -130,9 +130,9 @@ export class NxtpSdkPool {
       to: connextAddr,
       data: data,
     });
-    const [canonicalDomain, canonicalId] = this.connext.decodeFunctionResult("getTokenId", encoded);
+    const [tokenId] = this.connext.decodeFunctionResult("getTokenId", encoded);
 
-    return [canonicalDomain, canonicalId];
+    return [tokenId.domain, tokenId.id];
   }
 
   async getLPTokenAddress(domainId: string, key: string): Promise<string> {
