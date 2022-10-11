@@ -1,4 +1,4 @@
-import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext } from "@connext/nxtp-utils";
 import { CrossChainMessageProof } from "@eth-optimism/sdk";
 import { BigNumber, providers } from "ethers";
 
@@ -6,17 +6,19 @@ import { CrossChainMessenger } from "../../../mockable";
 import { NoRootAvailable } from "../errors";
 import { getContext } from "../processFromRoot";
 
-export const getProcessFromOptimismRootArgs = async (
-  l2ChainId: number,
-  l1ChainId: number,
-  l2Provider: providers.JsonRpcProvider,
-  l1Provider: providers.JsonRpcProvider,
-  sendHash: string,
-  _requestContext: RequestContext,
-): Promise<[string, string, string, BigNumber, CrossChainMessageProof]> => {
+import { GetProcessArgsParams } from ".";
+
+export const getProcessFromOptimismRootArgs = async ({
+  spokeChainId,
+  hubChainId,
+  spokeProvider,
+  hubProvider,
+  sendHash,
+  _requestContext,
+}: GetProcessArgsParams): Promise<[string, string, string, BigNumber, CrossChainMessageProof]> => {
   const { logger } = getContext();
-  const { requestContext, methodContext } = createLoggingContext("processFromOptimismRoot", _requestContext);
-  logger.info("processFromOptimismRoot method start", requestContext, methodContext);
+  const { requestContext, methodContext } = createLoggingContext("getProcessFromOptimismRootArgs", _requestContext);
+  logger.info("getProcessFromOptimismRootArgs method start", requestContext, methodContext);
   // When processing from root on optimism, you need the following information:
   //   address _target, -> connector
   //   address _sender, -> mirror connector
@@ -26,16 +28,16 @@ export const getProcessFromOptimismRootArgs = async (
 
   // create the messenger
   const messenger = new CrossChainMessenger({
-    l2ChainId,
-    l2SignerOrProvider: l2Provider,
-    l1ChainId,
-    l1SignerOrProvider: l1Provider,
+    l2ChainId: spokeChainId,
+    l2SignerOrProvider: new providers.JsonRpcProvider(spokeProvider),
+    l1ChainId: hubChainId,
+    l1SignerOrProvider: new providers.JsonRpcProvider(hubProvider),
   });
 
   // check to make sure you can prove
   const root = await messenger.getMessageStateRoot(sendHash);
   if (!root) {
-    throw new NoRootAvailable(l2ChainId, l1ChainId, requestContext, methodContext);
+    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext);
   }
 
   // get the message to get the message nonce

@@ -177,17 +177,17 @@ type AggregateRoot @entity {
 
 type ConnectorMeta @entity {
   id: ID! # "ConnectorMeta"
-  spokeDomain: BigInt!
-  hubDomain: BigInt!
+  spokeDomain: BigInt
+  hubDomain: BigInt
 
-  amb: Bytes!
-  rootManager: Bytes!
-  mirrorConnector: Bytes!
+  amb: Bytes
+  rootManager: Bytes
+  mirrorConnector: Bytes
 }
 
 type RootCount @entity {
   id: ID!
-  count: BigInt!
+  count: BigInt
 }
 
 type RootMessageSent @entity {
