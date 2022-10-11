@@ -11,6 +11,13 @@ import { DEFAULT_INIT_CONFIG } from "./config";
 
 config();
 
+export const OptionDefinitions = [
+  { name: "name", defaultOption: true },
+  { name: "network", type: String },
+  { name: "env", type: String },
+  { name: "chains", type: Number, multiple: true },
+];
+
 /**
  * Call the core `initProtocol` method.
  * Sanitizer method to make sure config is set up correctly.
