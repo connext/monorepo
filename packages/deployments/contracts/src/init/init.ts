@@ -2,16 +2,25 @@ import { config } from "dotenv";
 import { getChainData, getChainIdFromDomain } from "@connext/nxtp-utils";
 import { providers, Wallet, utils } from "ethers";
 
+import commandLineArgs from "command-line-args";
+
 import { canonizeId, chainIdToDomain } from "../domain";
 
-import { ProtocolStack, getDeployments, updateIfNeeded, NetworkStack, HubMessagingDeployments } from "./helpers";
+import {
+  ProtocolStack,
+  getDeployments,
+  updateIfNeeded,
+  NetworkStack,
+  HubMessagingDeployments,
+  InitConfig,
+} from "./helpers";
 import { setupAsset } from "./helpers/assets";
 import { setupMessaging } from "./helpers/messaging";
 import { DEFAULT_INIT_CONFIG } from "./config";
 
 config();
 
-export const OptionDefinitions = [
+export const optionDefinitions = [
   { name: "name", defaultOption: true },
   { name: "network", type: String },
   { name: "env", type: String },
@@ -24,20 +33,27 @@ export const OptionDefinitions = [
  * @param config - ProtocolStack, but as any/Partial.
  */
 export const sanitizeAndInit = async () => {
-  /// MARK - ENV
-  // Get deployment environment.
-  const env = process.env.ENV || process.env.ENVIRONMENT;
-  if (!env) {
-    throw new Error(
-      `ENVIRONMENT was not specified in env. Please specify whether ENVIRONMENT (for deployments) is staging or production, etc.",
-      ${process.env.ENV}`,
-    );
+  let cmdArgs: any;
+  try {
+    cmdArgs = commandLineArgs(optionDefinitions);
+  } catch (err: any) {
+    throw new Error(`Parsing arguments failed, cmdArgs: ${process.argv}`);
   }
+
+  const { network, env } = cmdArgs;
+  if (!["staging", "production"].includes(env as string)) {
+    throw new Error(`Environment should be either staging or production, env: ${env}`);
+  }
+
+  if (!["testnet", "mainnet"].includes(env as string)) {
+    throw new Error(`Network should be either testnet or mainnet, network: ${network}`);
+  }
+
   const useStaging = env === "staging";
   console.log(`USING ${useStaging ? "STAGING" : "PRODUCTION"} AS ENVIRONMENT`);
 
   /// MARK - CONFIG
-  const config: any = useStaging ? STAGING_INIT_CONFIG : PRODUCTION_INIT_CONFIG;
+  const config: InitConfig = (DEFAULT_INIT_CONFIG as any)[network as string][env];
 
   /// MARK - Deployer
   // Get deployer mnemonic, which should be provided in env if not in the config.
