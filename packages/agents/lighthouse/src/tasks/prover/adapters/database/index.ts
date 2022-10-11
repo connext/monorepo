@@ -8,9 +8,9 @@ import {
   getUnProcessedMessages,
   getAggregateRoot,
   getAggregateRootCount,
-  getOutboutRootIndex,
-  getOutboundRootFromIndex,
-  getOutboutRootCount,
+  getMessageRootIndex,
+  getMessageRootFromIndex,
+  getMessageRootCount,
 } from "./database";
 
 export { conditions as dc } from "zapatos/db";
@@ -21,11 +21,11 @@ export * as db from "zapatos/db";
 export type DbClient = {
   getUnProcessedRootMessages: () => Promise<RootMessage[]>;
   getUnProcessedMessages: () => Promise<XMessage[]>;
-  getAggregateRoot: (outboundRootIndex: number) => Promise<string | undefined>;
+  getAggregateRoot: (messageRootIndex: number) => Promise<string | undefined>;
   getAggregateRootCount: (aggregateRoot: string) => Promise<number | undefined>;
-  getOutboutRootIndex: (domain: string, outboundRoot: string) => Promise<number | undefined>;
-  getOutboundRootFromIndex: (domain: string, index: number) => Promise<string | undefined>;
-  getOutboutRootCount: (domain: string, outboundRoot: string) => Promise<number | undefined>;
+  getMessageRootIndex: (domain: string, messageRoot: string) => Promise<number | undefined>;
+  getMessageRootFromIndex: (domain: string, index: number) => Promise<string | undefined>;
+  getMessageRootCount: (domain: string, messageRoot: string) => Promise<number | undefined>;
 };
 
 export let pool: Pool;
@@ -47,9 +47,9 @@ export const setupDbClient = async (): Promise<DbClient> => {
     getUnProcessedMessages,
     getAggregateRoot,
     getAggregateRootCount,
-    getOutboutRootIndex,
-    getOutboundRootFromIndex,
-    getOutboutRootCount,
+    getMessageRootIndex,
+    getMessageRootFromIndex,
+    getMessageRootCount,
   };
 };
 

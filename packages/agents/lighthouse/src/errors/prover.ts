@@ -21,25 +21,25 @@ export class NoAggregateRootCount extends NxtpError {
   }
 }
 
-export class NoOutboundRootIndex extends NxtpError {
-  constructor(domain: string | undefined, outboundRoot: string | undefined, context: any = {}) {
-    super(`No index for outbound root ${outboundRoot} in ${domain}`, context, NoOutboundRootIndex.name);
+export class NoMessageRootIndex extends NxtpError {
+  constructor(domain: string | undefined, messageRoot: string | undefined, context: any = {}) {
+    super(`No index for outbound root ${messageRoot} in ${domain}`, context, NoMessageRootIndex.name);
   }
 }
-export class NoOutboundRootCount extends NxtpError {
-  constructor(domain: string | undefined, outboundRoot: string | undefined, context: any = {}) {
-    super(`No count for outbound root ${outboundRoot} in ${domain}`, context, NoOutboundRootCount.name);
+export class NoMessageRootCount extends NxtpError {
+  constructor(domain: string | undefined, messageRoot: string | undefined, context: any = {}) {
+    super(`No count for outbound root ${messageRoot} in ${domain}`, context, NoMessageRootCount.name);
   }
 }
-export class NoTargetOutboundRoot extends NxtpError {
+export class NoTargetMessageRoot extends NxtpError {
   constructor(domain: string | undefined, index: number | undefined, context: any = {}) {
-    super(`No target outbound root for ${index} in ${domain}`, context, NoTargetOutboundRoot.name);
+    super(`No target outbound root for ${index} in ${domain}`, context, NoTargetMessageRoot.name);
   }
 }
 
-export class NoOutboundRootProof extends NxtpError {
-  constructor(outboundRootIndex: number | undefined, outboundRoot: string, context: any = {}) {
-    super(`No index ${outboundRootIndex} for outbound root ${outboundRoot}`, context, NoOutboundRootProof.name);
+export class NoMessageRootProof extends NxtpError {
+  constructor(messageRootIndex: number | undefined, messageRoot: string, context: any = {}) {
+    super(`No index ${messageRootIndex} for outbound root ${messageRoot}`, context, NoMessageRootProof.name);
   }
 }
 

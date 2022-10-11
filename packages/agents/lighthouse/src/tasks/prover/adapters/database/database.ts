@@ -31,13 +31,13 @@ export const getUnProcessedMessages = async (
   return messages.map(convertFromDbMessage);
 };
 
-export const getAggregateRoot = async (outboundRootIndex: number): Promise<string | undefined> => {
+export const getAggregateRoot = async (messageRootIndex: number): Promise<string | undefined> => {
   // Get the most recent unprocessed propagated root
   const root: PropagatedRoot = convertFromDbPropagatedRoot(
     await db
       .selectOne(
         "propagated_roots",
-        { leaf_count: dc.gte(outboundRootIndex) },
+        { leaf_count: dc.gte(messageRootIndex) },
         { limit: 1, order: { by: "leaf_count", direction: "ASC" } },
       )
       .run(pool),
@@ -53,15 +53,15 @@ export const getAggregateRootCount = async (aggreateRoot: string): Promise<numbe
   return root?.count;
 };
 
-export const getOutboutRootIndex = async (domain: string, outboundRoot: string): Promise<number | undefined> => {
+export const getMessageRootIndex = async (domain: string, messageRoot: string): Promise<number | undefined> => {
   // Find the index emitted from the RootAggregated event
   const root: AggregatedRoot = convertFromDbAggregatedRoot(
-    await db.selectOne("aggregated_roots", { domain: domain, received_root: outboundRoot }).run(pool),
+    await db.selectOne("aggregated_roots", { domain: domain, received_root: messageRoot }).run(pool),
   );
   return root?.index;
 };
 
-export const getOutboundRootFromIndex = async (domain: string, index: number): Promise<string | undefined> => {
+export const getMessageRootFromIndex = async (domain: string, index: number): Promise<string | undefined> => {
   // Find the first published outbound root that contains the index, for a given domain
   const root: RootMessage = convertFromDbRootMessage(
     await db
@@ -75,9 +75,9 @@ export const getOutboundRootFromIndex = async (domain: string, index: number): P
   return root?.root;
 };
 
-export const getOutboutRootCount = async (domain: string, outboundRoot: string): Promise<number | undefined> => {
-  // Find the index of the last message in the published outboundRoot.
-  // This will be the count at the time outboundRoot was sent
-  const message: XMessage = convertFromDbMessage(await db.selectOne("messages", { root: outboundRoot }).run(pool));
+export const getMessageRootCount = async (domain: string, messageRoot: string): Promise<number | undefined> => {
+  // Find the index of the last message in the published messageRoot.
+  // This will be the count at the time messageRoot was sent
+  const message: XMessage = convertFromDbMessage(await db.selectOne("messages", { root: messageRoot }).run(pool));
   return message?.origin?.index;
 };

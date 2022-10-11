@@ -11,11 +11,11 @@ import {
   NoDestinationDomainForProof,
   NoAggregatedRoot,
   NoAggregateRootCount,
-  NoOutboundRootIndex,
-  NoOutboundRootCount,
-  NoOutboundRootProof,
+  NoMessageRootIndex,
+  NoMessageRootCount,
+  NoMessageRootProof,
   NoMessageProof,
-  NoTargetOutboundRoot,
+  NoTargetMessageRoot,
 } from "../../../errors";
 import { getContext } from "../prover";
 import { SpokeDBHelper, HubDBHelper } from "../adapters/database/helper";
@@ -51,24 +51,24 @@ export const processMessage = async (message: XMessage) => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("processUnprocessedMessage");
 
-  const targetOutboundRoot = await database.getOutboundRootFromIndex(message.originDomain, message.origin.index);
-  if (!targetOutboundRoot) {
-    throw new NoTargetOutboundRoot(message.originDomain, message.origin.index);
+  const targetMessageRoot = await database.getMessageRootFromIndex(message.originDomain, message.origin.index);
+  if (!targetMessageRoot) {
+    throw new NoTargetMessageRoot(message.originDomain, message.origin.index);
   }
   // Count of leaf nodes in origin domain`s outbound tree
-  const outboundRootCount = await database.getOutboutRootCount(message.originDomain, targetOutboundRoot);
-  if (!outboundRootCount) {
-    throw new NoOutboundRootCount(message.originDomain, targetOutboundRoot);
+  const messageRootCount = await database.getMessageRootCount(message.originDomain, targetMessageRoot);
+  if (!messageRootCount) {
+    throw new NoMessageRootCount(message.originDomain, targetMessageRoot);
   }
-  // Index of outboundRoot leaf node in aggregate tree.
-  const outboundRootIndex = await database.getOutboutRootIndex(message.originDomain, targetOutboundRoot);
-  if (!outboundRootIndex) {
-    throw new NoOutboundRootIndex(message.originDomain, targetOutboundRoot);
+  // Index of messageRoot leaf node in aggregate tree.
+  const messageRootIndex = await database.getMessageRootIndex(message.originDomain, targetMessageRoot);
+  if (!messageRootIndex) {
+    throw new NoMessageRootIndex(message.originDomain, targetMessageRoot);
   }
 
   // Get the currentAggregateRoot from on-chain state (or pending, if the validation period
   // has elapsed!) to determine which tree snapshot we should be generating the proof from.
-  const targetAggregateRoot = await database.getAggregateRoot(outboundRootIndex);
+  const targetAggregateRoot = await database.getAggregateRoot(messageRootIndex);
   if (!targetAggregateRoot) {
     // TODO
     throw new NoAggregatedRoot();
@@ -80,32 +80,32 @@ export const processMessage = async (message: XMessage) => {
     throw new NoAggregateRootCount(targetAggregateRoot);
   }
   // TODO: Move to per domain storage adapters in context
-  const spokeStore = new SpokeDBHelper(message.originDomain, outboundRootCount) as DBHelper;
+  const spokeStore = new SpokeDBHelper(message.originDomain, messageRootCount) as DBHelper;
   const hubStore = new HubDBHelper("hub", aggregateRootCount) as DBHelper;
 
   const spokeSMT = new SparseMerkleTree(spokeStore);
   const hubSMT = new SparseMerkleTree(hubStore);
 
-  const proof = {
+  const messageProof = {
     message: message.origin.message,
     path: await spokeSMT.getProof(message.origin.index),
     index: message.origin.index,
   };
-  if (!proof.path) {
-    throw new NoMessageProof(proof.index, message.leaf);
+  if (!messageProof.path) {
+    throw new NoMessageProof(messageProof.index, message.leaf);
   }
 
-  // Proof path for proving inclusion of outboundRoot in aggregateRoot.
-  const outboundRootProof = await hubSMT.getProof(outboundRootIndex);
-  if (!outboundRootProof) {
-    throw new NoOutboundRootProof(outboundRootIndex, message.origin.root);
+  // Proof path for proving inclusion of messageRoot in aggregateRoot.
+  const messageRootProof = await hubSMT.getProof(messageRootIndex);
+  if (!messageRootProof) {
+    throw new NoMessageRootProof(messageRootIndex, message.origin.root);
   }
 
   const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
-    [proof],
+    [messageProof],
     targetAggregateRoot,
-    outboundRootProof,
-    outboundRootIndex,
+    messageRootProof,
+    messageRootIndex,
   ]);
 
   const destinationSpokeConnector = config.chains[message.destinationDomain]?.deployments.spokeConnector;
