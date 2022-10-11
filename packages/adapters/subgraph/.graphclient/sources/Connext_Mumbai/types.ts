@@ -647,6 +647,7 @@ export type mumbai_OriginMessage = {
   root?: Maybe<Scalars['mumbai_Bytes']>;
   message?: Maybe<Scalars['mumbai_Bytes']>;
   transactionHash?: Maybe<Scalars['mumbai_Bytes']>;
+  rootCount?: Maybe<mumbai_RootCount>;
 };
 
 export type mumbai_OriginMessage_filter = {
@@ -704,6 +705,27 @@ export type mumbai_OriginMessage_filter = {
   transactionHash_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
   transactionHash_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  rootCount?: InputMaybe<Scalars['String']>;
+  rootCount_not?: InputMaybe<Scalars['String']>;
+  rootCount_gt?: InputMaybe<Scalars['String']>;
+  rootCount_lt?: InputMaybe<Scalars['String']>;
+  rootCount_gte?: InputMaybe<Scalars['String']>;
+  rootCount_lte?: InputMaybe<Scalars['String']>;
+  rootCount_in?: InputMaybe<Array<Scalars['String']>>;
+  rootCount_not_in?: InputMaybe<Array<Scalars['String']>>;
+  rootCount_contains?: InputMaybe<Scalars['String']>;
+  rootCount_contains_nocase?: InputMaybe<Scalars['String']>;
+  rootCount_not_contains?: InputMaybe<Scalars['String']>;
+  rootCount_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  rootCount_starts_with?: InputMaybe<Scalars['String']>;
+  rootCount_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  rootCount_not_starts_with?: InputMaybe<Scalars['String']>;
+  rootCount_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  rootCount_ends_with?: InputMaybe<Scalars['String']>;
+  rootCount_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  rootCount_not_ends_with?: InputMaybe<Scalars['String']>;
+  rootCount_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  rootCount_?: InputMaybe<mumbai_RootCount_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
 };
@@ -716,7 +738,8 @@ export type mumbai_OriginMessage_orderBy =
   | 'index'
   | 'root'
   | 'message'
-  | 'transactionHash';
+  | 'transactionHash'
+  | 'rootCount';
 
 export type mumbai_OriginTransfer = {
   id: Scalars['ID'];
@@ -1015,6 +1038,8 @@ export type Query = {
   mumbai_aggregateRoots: Array<mumbai_AggregateRoot>;
   mumbai_connectorMeta?: Maybe<mumbai_ConnectorMeta>;
   mumbai_connectorMetas: Array<mumbai_ConnectorMeta>;
+  mumbai_rootCount?: Maybe<mumbai_RootCount>;
+  mumbai_rootCounts: Array<mumbai_RootCount>;
   mumbai_rootMessageSent?: Maybe<mumbai_RootMessageSent>;
   mumbai_rootMessageSents: Array<mumbai_RootMessageSent>;
   /** Access to subgraph metadata */
@@ -1256,6 +1281,24 @@ export type Querymumbai_connectorMetasArgs = {
 };
 
 
+export type Querymumbai_rootCountArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymumbai_rootCountsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mumbai_RootCount_orderBy>;
+  orderDirection?: InputMaybe<mumbai_OrderDirection>;
+  where?: InputMaybe<mumbai_RootCount_filter>;
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Querymumbai_rootMessageSentArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<mumbai_Block_height>;
@@ -1312,11 +1355,42 @@ export type mumbai_Relayer_orderBy =
   | 'isActive'
   | 'relayer';
 
+export type mumbai_RootCount = {
+  id: Scalars['ID'];
+  count: Scalars['BigInt'];
+};
+
+export type mumbai_RootCount_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  count?: InputMaybe<Scalars['BigInt']>;
+  count_not?: InputMaybe<Scalars['BigInt']>;
+  count_gt?: InputMaybe<Scalars['BigInt']>;
+  count_lt?: InputMaybe<Scalars['BigInt']>;
+  count_gte?: InputMaybe<Scalars['BigInt']>;
+  count_lte?: InputMaybe<Scalars['BigInt']>;
+  count_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
+};
+
+export type mumbai_RootCount_orderBy =
+  | 'id'
+  | 'count';
+
 export type mumbai_RootMessageSent = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
   hubDomain?: Maybe<Scalars['BigInt']>;
   root?: Maybe<Scalars['mumbai_Bytes']>;
+  count?: Maybe<Scalars['BigInt']>;
   caller?: Maybe<Scalars['mumbai_Bytes']>;
   transactionHash?: Maybe<Scalars['mumbai_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -1356,6 +1430,14 @@ export type mumbai_RootMessageSent_filter = {
   root_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
   root_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
   root_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  count?: InputMaybe<Scalars['BigInt']>;
+  count_not?: InputMaybe<Scalars['BigInt']>;
+  count_gt?: InputMaybe<Scalars['BigInt']>;
+  count_lt?: InputMaybe<Scalars['BigInt']>;
+  count_gte?: InputMaybe<Scalars['BigInt']>;
+  count_lte?: InputMaybe<Scalars['BigInt']>;
+  count_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['mumbai_Bytes']>;
   caller_not?: InputMaybe<Scalars['mumbai_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
@@ -1409,6 +1491,7 @@ export type mumbai_RootMessageSent_orderBy =
   | 'spokeDomain'
   | 'hubDomain'
   | 'root'
+  | 'count'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1633,6 +1716,8 @@ export type Subscription = {
   mumbai_aggregateRoots: Array<mumbai_AggregateRoot>;
   mumbai_connectorMeta?: Maybe<mumbai_ConnectorMeta>;
   mumbai_connectorMetas: Array<mumbai_ConnectorMeta>;
+  mumbai_rootCount?: Maybe<mumbai_RootCount>;
+  mumbai_rootCounts: Array<mumbai_RootCount>;
   mumbai_rootMessageSent?: Maybe<mumbai_RootMessageSent>;
   mumbai_rootMessageSents: Array<mumbai_RootMessageSent>;
   /** Access to subgraph metadata */
@@ -1874,6 +1959,24 @@ export type Subscriptionmumbai_connectorMetasArgs = {
 };
 
 
+export type Subscriptionmumbai_rootCountArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmumbai_rootCountsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mumbai_RootCount_orderBy>;
+  orderDirection?: InputMaybe<mumbai_OrderDirection>;
+  where?: InputMaybe<mumbai_RootCount_filter>;
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionmumbai_rootMessageSentArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<mumbai_Block_height>;
@@ -1989,6 +2092,10 @@ export type QueryConnextMumbaiSdk = {
   /** null **/
   mumbai_connectorMetas: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_connectorMetas'], ConnextMumbaiTypes.Querymumbai_connectorMetasArgs, MeshContext>,
   /** null **/
+  mumbai_rootCount: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_rootCount'], ConnextMumbaiTypes.Querymumbai_rootCountArgs, MeshContext>,
+  /** null **/
+  mumbai_rootCounts: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_rootCounts'], ConnextMumbaiTypes.Querymumbai_rootCountsArgs, MeshContext>,
+  /** null **/
   mumbai_rootMessageSent: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_rootMessageSent'], ConnextMumbaiTypes.Querymumbai_rootMessageSentArgs, MeshContext>,
   /** null **/
   mumbai_rootMessageSents: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_rootMessageSents'], ConnextMumbaiTypes.Querymumbai_rootMessageSentsArgs, MeshContext>,
@@ -2053,6 +2160,10 @@ export type SubscriptionConnextMumbaiSdk = {
   mumbai_connectorMeta: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_connectorMeta'], ConnextMumbaiTypes.Subscriptionmumbai_connectorMetaArgs, MeshContext>,
   /** null **/
   mumbai_connectorMetas: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_connectorMetas'], ConnextMumbaiTypes.Subscriptionmumbai_connectorMetasArgs, MeshContext>,
+  /** null **/
+  mumbai_rootCount: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_rootCount'], ConnextMumbaiTypes.Subscriptionmumbai_rootCountArgs, MeshContext>,
+  /** null **/
+  mumbai_rootCounts: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_rootCounts'], ConnextMumbaiTypes.Subscriptionmumbai_rootCountsArgs, MeshContext>,
   /** null **/
   mumbai_rootMessageSent: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_rootMessageSent'], ConnextMumbaiTypes.Subscriptionmumbai_rootMessageSentArgs, MeshContext>,
   /** null **/

@@ -155,6 +155,9 @@ type OriginMessage @entity {
   root: Bytes
   message: Bytes
   transactionHash: Bytes
+
+  # root count RD
+  rootCount: RootCount
 }
 
 type DestinationMessage @entity {
@@ -182,12 +185,18 @@ type ConnectorMeta @entity {
   mirrorConnector: Bytes!
 }
 
+type RootCount @entity {
+  id: ID!
+  count: BigInt!
+}
+
 type RootMessageSent @entity {
   id: ID!
 
   spokeDomain: BigInt
   hubDomain: BigInt
   root: Bytes
+  count: BigInt
 
   # MessageSent Transaction
   caller: Bytes

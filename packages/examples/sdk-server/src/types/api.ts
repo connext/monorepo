@@ -80,7 +80,7 @@ export const getUserPoolsSchema = Type.Object({
 export const addLiquiditySchema = Type.Object({
   domainId: Type.String(),
   key: Type.String(),
-  amounts: Type.Array(Type.Number()),
+  amounts: Type.Array(Type.String()),
   deadline: Type.Optional(Type.Number()),
   estimateGas: Type.Optional(Type.Boolean()),
 });
@@ -111,8 +111,8 @@ export const approveIfNeededSchema = Type.Object({
 });
 
 export const calculateCanonicalHashSchema = Type.Object({
-  canonicalDomain: Type.String(),
   canonicalId: Type.String(),
+  canonicalDomain: Type.String(),
 });
 
 export const getTransfersByUserSchema = Type.Object({

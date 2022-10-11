@@ -135,8 +135,11 @@ export class NxtpSdkBase {
    */
 
   public async xcall(
-    args: Omit<XCallArgs, "callData" | "delegate"> & Partial<XCallArgs>,
-    relayerFee?: string,
+    args: Omit<XCallArgs, "callData" | "delegate"> &
+      Partial<XCallArgs> & {
+        origin: string;
+        relayerFee?: string;
+      },
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { args });
@@ -145,7 +148,7 @@ export class NxtpSdkBase {
     if (!signerAddress) {
       throw new SignerAddressMissing();
     }
-    const { origin, destination, to, asset, amount, slippage } = args;
+    const { origin, relayerFee, destination, to, asset, amount, slippage } = args;
 
     // Substitute default values as needed.
     const callData = args.callData ?? "0x";
@@ -180,7 +183,7 @@ export class NxtpSdkBase {
     }
 
     // Add callback and relayer fee together to get the total ETH value that should be sent.
-    const value = BigNumber.from(relayerFee);
+    const value = BigNumber.from(relayerFee ?? "0");
 
     // Take the finalized xcall arguments and encode calldata.
     const data = this.contracts.connext.encodeFunctionData("xcall", [
