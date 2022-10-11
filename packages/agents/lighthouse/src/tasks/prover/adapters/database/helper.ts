@@ -1,10 +1,4 @@
-import {
-  convertFromDbMessage,
-  XMessage,
-  convertFromDbAggregatedRoot,
-  convertFromDbPropagatedRoot,
-  AggregatedRoot,
-} from "@connext/nxtp-utils";
+import { convertFromDbMessage, XMessage, convertFromDbAggregatedRoot, AggregatedRoot } from "@connext/nxtp-utils";
 
 import { dc, db, pool } from "./index";
 

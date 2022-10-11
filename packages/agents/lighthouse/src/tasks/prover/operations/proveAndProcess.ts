@@ -51,6 +51,7 @@ export const processMessage = async (message: XMessage) => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("processUnprocessedMessage");
 
+  // Find the first published outbound root that contains the index, for a given domain
   const targetMessageRoot = await database.getMessageRootFromIndex(message.originDomain, message.origin.index);
   if (!targetMessageRoot) {
     throw new NoTargetMessageRoot(message.originDomain, message.origin.index);
@@ -70,7 +71,6 @@ export const processMessage = async (message: XMessage) => {
   // has elapsed!) to determine which tree snapshot we should be generating the proof from.
   const targetAggregateRoot = await database.getAggregateRoot(messageRootIndex);
   if (!targetAggregateRoot) {
-    // TODO
     throw new NoAggregatedRoot();
   }
 
