@@ -14,6 +14,7 @@ import "hardhat-abi-exporter";
 import { HardhatUserConfig } from "hardhat/types";
 import { utils } from "ethers";
 
+import "./tasks/addWatcher";
 import "./tasks/setupRouter";
 import "./tasks/setupAsset";
 import "./tasks/addLiquidity";
