@@ -2,6 +2,7 @@ import React from "react";
 
 import { WalletProvider } from "../contexts/Wallet";
 import { CrossChainTransfer } from "../components/CrossChainTransfer";
+import { Pool } from "../components/Pool";
 import { Header } from "../components/Header";
 import "../styles/main.pcss";
 import { ChainsProvider } from "../contexts/Chains";
@@ -22,6 +23,12 @@ export const App = () => (
               </div>
               <div className="flex justify-center items-center">
                 <CrossChainTransfer />
+              </div>
+              <div className="flex justify-center pt-10 pb-10 inline-block text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight dark:text-slate-200">
+                <p>Pool</p>
+              </div>
+              <div className="flex justify-center items-center">
+                <Pool />
               </div>
             </div>
           </SdkProvider>
