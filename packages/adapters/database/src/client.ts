@@ -165,7 +165,6 @@ export const saveProcessedRootMessages = async (
     .map(sanitizeNull);
 
   // upsert to set processed tx hash and processed boolean only
-  console.log("messages: ", messages);
   await db
     .upsert("root_messages", messages, ["id"], {
       updateColumns: ["processed_transaction_hash", "processed"],
