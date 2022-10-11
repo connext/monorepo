@@ -4,10 +4,10 @@ import { providers, Wallet, utils } from "ethers";
 
 import { canonizeId, chainIdToDomain } from "../domain";
 
-import { PRODUCTION_INIT_CONFIG, STAGING_INIT_CONFIG } from "./config";
 import { ProtocolStack, getDeployments, updateIfNeeded, NetworkStack, HubMessagingDeployments } from "./helpers";
 import { setupAsset } from "./helpers/assets";
 import { setupMessaging } from "./helpers/messaging";
+import { DEFAULT_INIT_CONFIG } from "./config";
 
 config();
 
