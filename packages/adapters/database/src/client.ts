@@ -101,6 +101,7 @@ const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"
     gas_price: message.gasPrice as any,
     gas_limit: message.gasLimit as any,
     block_number: message.blockNumber,
+    // leaf_count: message.count || undefined;
   };
 };
 

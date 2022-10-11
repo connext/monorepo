@@ -15,21 +15,36 @@ export class NoAggregatedRoot extends NxtpError {
     super(`No Aggregated Root found.`, context, NoAggregatedRoot.name);
   }
 }
+export class NoAggregateRootCount extends NxtpError {
+  constructor(aggregateRoot: string | undefined, context: any = {}) {
+    super(`No count for Aggregated Root ${aggregateRoot} found.`, context, NoAggregateRootCount.name);
+  }
+}
 
 export class NoOutboundRootIndex extends NxtpError {
-  constructor(outboundRoot: string, context: any = {}) {
-    super(`No index for outbound root ${outboundRoot}`, context, NoOutboundRootIndex.name);
+  constructor(domain: string | undefined, outboundRoot: string | undefined, context: any = {}) {
+    super(`No index for outbound root ${outboundRoot} in ${domain}`, context, NoOutboundRootIndex.name);
+  }
+}
+export class NoOutboundRootCount extends NxtpError {
+  constructor(domain: string | undefined, outboundRoot: string | undefined, context: any = {}) {
+    super(`No count for outbound root ${outboundRoot} in ${domain}`, context, NoOutboundRootCount.name);
+  }
+}
+export class NoTargetOutboundRoot extends NxtpError {
+  constructor(domain: string | undefined, index: number | undefined, context: any = {}) {
+    super(`No target outbound root for ${index} in ${domain}`, context, NoTargetOutboundRoot.name);
   }
 }
 
 export class NoOutboundRootProof extends NxtpError {
-  constructor(outboundRootIndex: number, outboundRoot: string, context: any = {}) {
+  constructor(outboundRootIndex: number | undefined, outboundRoot: string, context: any = {}) {
     super(`No index ${outboundRootIndex} for outbound root ${outboundRoot}`, context, NoOutboundRootProof.name);
   }
 }
 
 export class NoMessageProof extends NxtpError {
-  constructor(index: number, leaf: string, context: any = {}) {
+  constructor(index: number, leaf: string | undefined, context: any = {}) {
     super(`No index ${index} for message hash ${leaf}`, context, NoMessageProof.name);
   }
 }

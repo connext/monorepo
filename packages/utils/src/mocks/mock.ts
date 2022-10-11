@@ -396,7 +396,7 @@ export const mock = {
       gasLimit: "100000",
       blockNumber: Math.floor(Date.now() / 1000),
       processed: false,
-      index: Math.floor(Date.now() / 1000),
+      count: Math.floor(Date.now() / 1000),
       ...overrides,
     }),
     aggregatedRoot: (overrides: Partial<AggregatedRoot> = {}): AggregatedRoot => ({

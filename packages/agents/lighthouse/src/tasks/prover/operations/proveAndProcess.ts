@@ -10,9 +10,12 @@ import {
 import {
   NoDestinationDomainForProof,
   NoAggregatedRoot,
+  NoAggregateRootCount,
   NoOutboundRootIndex,
+  NoOutboundRootCount,
   NoOutboundRootProof,
   NoMessageProof,
+  NoTargetOutboundRoot,
 } from "../../../errors";
 import { getContext } from "../prover";
 import { SpokeDBHelper, HubDBHelper } from "../adapters/database/helper";
@@ -48,9 +51,37 @@ export const processMessage = async (message: XMessage) => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("processUnprocessedMessage");
 
+  const targetOutboundRoot = await database.getOutboundRootFromIndex(message.originDomain, message.origin.index);
+  if (!targetOutboundRoot) {
+    throw new NoTargetOutboundRoot(message.originDomain, message.origin.index);
+  }
+  // Count of leaf nodes in origin domain`s outbound tree
+  const outboundRootCount = await database.getOutboutRootCount(message.originDomain, targetOutboundRoot);
+  if (!outboundRootCount) {
+    throw new NoOutboundRootCount(message.originDomain, targetOutboundRoot);
+  }
+  // Index of outboundRoot leaf node in aggregate tree.
+  const outboundRootIndex = await database.getOutboutRootIndex(message.originDomain, targetOutboundRoot);
+  if (!outboundRootIndex) {
+    throw new NoOutboundRootIndex(message.originDomain, targetOutboundRoot);
+  }
+
+  // Get the currentAggregateRoot from on-chain state (or pending, if the validation period
+  // has elapsed!) to determine which tree snapshot we should be generating the proof from.
+  const targetAggregateRoot = await database.getAggregateRoot(outboundRootIndex);
+  if (!targetAggregateRoot) {
+    // TODO
+    throw new NoAggregatedRoot();
+  }
+
+  // Count of leafs in aggregate tree at targetAggregateRoot.
+  const aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot);
+  if (!aggregateRootCount) {
+    throw new NoAggregateRootCount(targetAggregateRoot);
+  }
   // TODO: Move to per domain storage adapters in context
-  const spokeStore = new SpokeDBHelper(message.originDomain) as DBHelper;
-  const hubStore = new HubDBHelper("hub") as DBHelper;
+  const spokeStore = new SpokeDBHelper(message.originDomain, outboundRootCount) as DBHelper;
+  const hubStore = new HubDBHelper("hub", aggregateRootCount) as DBHelper;
 
   const spokeSMT = new SparseMerkleTree(spokeStore);
   const hubSMT = new SparseMerkleTree(hubStore);
@@ -62,19 +93,6 @@ export const processMessage = async (message: XMessage) => {
   };
   if (!proof.path) {
     throw new NoMessageProof(proof.index, message.leaf);
-  }
-
-  // Index of outboundRoot leaf node in aggregate tree.
-  const outboundRootIndex = await database.getOutboutRootIndex(message.origin.root);
-  if (!outboundRootIndex) {
-    throw new NoOutboundRootIndex(message.origin.root);
-  }
-
-  // Get the currentAggregateRoot from on-chain state (or pending, if the validation period
-  // has elapsed!) to determine which tree snapshot we should be generating the proof from.
-  const targetAggregateRoot = await database.getAggregateRoot(outboundRootIndex);
-  if (!targetAggregateRoot) {
-    throw new NoAggregatedRoot();
   }
 
   // Proof path for proving inclusion of outboundRoot in aggregateRoot.

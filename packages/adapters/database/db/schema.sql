@@ -385,6 +385,17 @@ CREATE VIEW public.hourly_transfer_volume AS
 
 
 --
+-- Name: merkle_cache; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.merkle_cache (
+    domain character varying(255) NOT NULL,
+    domain_path character(32) NOT NULL,
+    tree_root character(66) NOT NULL
+);
+
+
+--
 -- Name: messages; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -428,7 +439,8 @@ CREATE TABLE public.root_messages (
     gas_limit numeric,
     block_number integer,
     processed boolean DEFAULT false NOT NULL,
-    processed_transaction_hash character(66)
+    processed_transaction_hash character(66),
+    leaf_count numeric
 );
 
 
@@ -531,6 +543,14 @@ ALTER TABLE ONLY public.assets
 
 ALTER TABLE ONLY public.checkpoints
     ADD CONSTRAINT checkpoints_pkey PRIMARY KEY (check_name);
+
+
+--
+-- Name: merkle_cache merkle_cache_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.merkle_cache
+    ADD CONSTRAINT merkle_cache_pkey PRIMARY KEY (domain, domain_path);
 
 
 --
@@ -667,4 +687,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20221006051045'),
     ('20221006115622'),
     ('20221006193142'),
-    ('20221009051415');
+    ('20221009051415'),
+    ('20221010233716'),
+    ('20221011065150');

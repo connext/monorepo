@@ -40,7 +40,8 @@ export type DBHelper = {
   getCount: () => Promise<number>;
   getNode: (index: number) => Promise<string | undefined>;
   getNodes: (start: number, end: number) => Promise<string[]>;
-  push: (hash: string) => Promise<void>;
+  putRoot: (path: string, hash: string) => Promise<void>;
+  getRoot: (path: string) => Promise<string | undefined>;
 };
 
 const ZERO_BYTES = mkBytes32("0x");
