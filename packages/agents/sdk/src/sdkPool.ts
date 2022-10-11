@@ -316,7 +316,7 @@ export class NxtpSdkPool {
   async addLiquidity(
     domainId: string,
     key: string,
-    amounts: number[], // [0] for adopted asset, [1] for local asset
+    amounts: string[], // [0] for adopted asset, [1] for local asset
     minToMint = "0",
     deadline?: number,
   ): Promise<providers.TransactionRequest> {
