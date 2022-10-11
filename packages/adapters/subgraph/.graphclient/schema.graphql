@@ -134,7 +134,9 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [staginggoerlihub_RootMessageProcessed!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   staginggoerlihub__meta(block: staginggoerlihub_Block_height): staginggoerlihub__Meta_
   local1338_asset(
     id: ID!
@@ -370,7 +372,9 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [local1338_DestinationTransfer!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   local1338__meta(block: local1338_Block_height): local1338__Meta_
   testoptimismgoerli_asset(
     id: ID!
@@ -606,7 +610,9 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [testoptimismgoerli_DestinationTransfer!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   testoptimismgoerli__meta(block: testoptimismgoerli_Block_height): testoptimismgoerli__Meta_
   local1337_asset(
     id: ID!
@@ -842,7 +848,9 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [local1337_DestinationTransfer!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   local1337__meta(block: local1337_Block_height): local1337__Meta_
   testgoerli_asset(
     id: ID!
@@ -1078,7 +1086,9 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [testgoerli_DestinationTransfer!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   testgoerli__meta(block: testgoerli_Block_height): testgoerli__Meta_
   goerli_asset(
     id: ID!
@@ -1470,7 +1480,9 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_RootMessageSent!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   goerli__meta(block: goerli_Block_height): goerli__Meta_
   staginggoerli_asset(
     id: ID!
@@ -1862,7 +1874,9 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [staginggoerli_RootMessageSent!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   staginggoerli__meta(block: staginggoerli_Block_height): staginggoerli__Meta_
   optimismgoerli_asset(
     id: ID!
@@ -2254,7 +2268,9 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [optimismgoerli_RootMessageSent!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   optimismgoerli__meta(block: optimismgoerli_Block_height): optimismgoerli__Meta_
   stagingmumbai_asset(
     id: ID!
@@ -2646,7 +2662,9 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [stagingmumbai_RootMessageSent!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   stagingmumbai__meta(block: stagingmumbai_Block_height): stagingmumbai__Meta_
   mumbai_asset(
     id: ID!
@@ -3038,7 +3056,9 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [mumbai_RootMessageSent!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   mumbai__meta(block: mumbai_Block_height): mumbai__Meta_
   stagingoptimismgoerli_asset(
     id: ID!
@@ -3404,7 +3424,9 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [stagingoptimismgoerli_RootMessageSent!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   stagingoptimismgoerli__meta(block: stagingoptimismgoerli_Block_height): stagingoptimismgoerli__Meta_
 }
 
@@ -3539,7 +3561,9 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [staginggoerlihub_RootMessageProcessed!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   staginggoerlihub__meta(block: staginggoerlihub_Block_height): staginggoerlihub__Meta_
   local1338_asset(
     id: ID!
@@ -3775,7 +3799,9 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [local1338_DestinationTransfer!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   local1338__meta(block: local1338_Block_height): local1338__Meta_
   testoptimismgoerli_asset(
     id: ID!
@@ -4011,7 +4037,9 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [testoptimismgoerli_DestinationTransfer!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   testoptimismgoerli__meta(block: testoptimismgoerli_Block_height): testoptimismgoerli__Meta_
   local1337_asset(
     id: ID!
@@ -4247,7 +4275,9 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [local1337_DestinationTransfer!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   local1337__meta(block: local1337_Block_height): local1337__Meta_
   testgoerli_asset(
     id: ID!
@@ -4483,7 +4513,9 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [testgoerli_DestinationTransfer!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   testgoerli__meta(block: testgoerli_Block_height): testgoerli__Meta_
   goerli_asset(
     id: ID!
@@ -4875,7 +4907,9 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_RootMessageSent!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   goerli__meta(block: goerli_Block_height): goerli__Meta_
   staginggoerli_asset(
     id: ID!
@@ -5267,7 +5301,9 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [staginggoerli_RootMessageSent!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   staginggoerli__meta(block: staginggoerli_Block_height): staginggoerli__Meta_
   optimismgoerli_asset(
     id: ID!
@@ -5659,7 +5695,9 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [optimismgoerli_RootMessageSent!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   optimismgoerli__meta(block: optimismgoerli_Block_height): optimismgoerli__Meta_
   stagingmumbai_asset(
     id: ID!
@@ -6051,7 +6089,9 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [stagingmumbai_RootMessageSent!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   stagingmumbai__meta(block: stagingmumbai_Block_height): stagingmumbai__Meta_
   mumbai_asset(
     id: ID!
@@ -6443,7 +6483,9 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [mumbai_RootMessageSent!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   mumbai__meta(block: mumbai_Block_height): mumbai__Meta_
   stagingoptimismgoerli_asset(
     id: ID!
@@ -6809,7 +6851,9 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [stagingoptimismgoerli_RootMessageSent!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   stagingoptimismgoerli__meta(block: stagingoptimismgoerli_Block_height): stagingoptimismgoerli__Meta_
 }
 
@@ -6881,7 +6925,9 @@ input staginggoerlihub_OptimismConnectorMeta_filter {
   mirrorConnector_not_in: [staginggoerlihub_Bytes!]
   mirrorConnector_contains: staginggoerlihub_Bytes
   mirrorConnector_not_contains: staginggoerlihub_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerlihub_BlockChangedFilter
 }
 
@@ -6894,7 +6940,9 @@ enum staginggoerlihub_OptimismConnectorMeta_orderBy {
   mirrorConnector
 }
 
-"""Defines the order direction, either ascending or descending"""
+"""
+Defines the order direction, either ascending or descending
+"""
 enum staginggoerlihub_OrderDirection {
   asc
   desc
@@ -6952,7 +7000,9 @@ input staginggoerlihub_PolygonConnectorMeta_filter {
   mirrorConnector_not_in: [staginggoerlihub_Bytes!]
   mirrorConnector_contains: staginggoerlihub_Bytes
   mirrorConnector_not_contains: staginggoerlihub_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerlihub_BlockChangedFilter
 }
 
@@ -7003,7 +7053,9 @@ input staginggoerlihub_RootAggregated_filter {
   index_lte: BigInt
   index_in: [BigInt!]
   index_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerlihub_BlockChangedFilter
 }
 
@@ -7102,7 +7154,9 @@ input staginggoerlihub_RootMessageProcessed_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerlihub_BlockChangedFilter
 }
 
@@ -7155,7 +7209,9 @@ input staginggoerlihub_RootPropagated_filter {
   count_lte: BigInt
   count_in: [BigInt!]
   count_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerlihub_BlockChangedFilter
 }
 
@@ -7167,32 +7223,45 @@ enum staginggoerlihub_RootPropagated_orderBy {
 }
 
 type staginggoerlihub__Block_ {
-  """The hash of the block"""
+  """
+  The hash of the block
+  """
   hash: staginggoerlihub_Bytes
-  """The block number"""
+  """
+  The block number
+  """
   number: Int!
-  """Integer representation of the timestamp stored in blocks for the chain"""
+  """
+  Integer representation of the timestamp stored in blocks for the chain
+  """
   timestamp: Int
 }
 
-"""The type for the top-level _meta field"""
+"""
+The type for the top-level _meta field
+"""
 type staginggoerlihub__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
   a block number. It will be filled if the _meta field has no block constraint
   and therefore asks for the latest  block
-  
   """
   block: staginggoerlihub__Block_!
-  """The deployment ID"""
+  """
+  The deployment ID
+  """
   deployment: String!
-  """If `true`, the subgraph encountered indexing errors at some past block"""
+  """
+  If `true`, the subgraph encountered indexing errors at some past block
+  """
   hasIndexingErrors: Boolean!
 }
 
 enum _SubgraphErrorPolicy_ {
-  """Data will be returned even if the subgraph has indexing errors"""
+  """
+  Data will be returned even if the subgraph has indexing errors
+  """
   allow
   """
   If the subgraph has indexing errors, data will be omitted. The default.
@@ -7276,7 +7345,9 @@ input local1338_AssetBalance_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: local1338_Asset_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1338_BlockChangedFilter
 }
 
@@ -7336,7 +7407,9 @@ input local1338_Asset_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1338_BlockChangedFilter
 }
 
@@ -7382,7 +7455,13 @@ type local1338_DestinationTransfer {
   relayerFee: BigInt
   destinationMinOut: BigInt
   status: local1338_TransferStatus
-  routers(skip: Int = 0, first: Int = 100, orderBy: local1338_Router_orderBy, orderDirection: local1338_OrderDirection, where: local1338_Router_filter): [local1338_Router!]
+  routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1338_Router_orderBy
+    orderDirection: local1338_OrderDirection
+    where: local1338_Router_filter
+  ): [local1338_Router!]
   originSender: local1338_Bytes
   transactingAsset: local1338_Bytes
   transactingAmount: BigInt
@@ -7653,7 +7732,9 @@ input local1338_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1338_BlockChangedFilter
 }
 
@@ -7696,7 +7777,9 @@ enum local1338_DestinationTransfer_orderBy {
   reconciledBlockNumber
 }
 
-"""Defines the order direction, either ascending or descending"""
+"""
+Defines the order direction, either ascending or descending
+"""
 enum local1338_OrderDirection {
   asc
   desc
@@ -7926,7 +8009,9 @@ input local1338_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1338_BlockChangedFilter
 }
 
@@ -7986,7 +8071,9 @@ input local1338_Relayer_filter {
   relayer_not_in: [local1338_Bytes!]
   relayer_contains: local1338_Bytes
   relayer_not_contains: local1338_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1338_BlockChangedFilter
 }
 
@@ -8003,7 +8090,13 @@ type local1338_Router {
   recipient: local1338_Bytes
   proposedOwner: local1338_Bytes
   proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: local1338_AssetBalance_orderBy, orderDirection: local1338_OrderDirection, where: local1338_AssetBalance_filter): [local1338_AssetBalance!]!
+  assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1338_AssetBalance_orderBy
+    orderDirection: local1338_OrderDirection
+    where: local1338_AssetBalance_filter
+  ): [local1338_AssetBalance!]!
 }
 
 input local1338_Router_filter {
@@ -8046,7 +8139,9 @@ input local1338_Router_filter {
   proposedTimestamp_in: [BigInt!]
   proposedTimestamp_not_in: [BigInt!]
   assetBalances_: local1338_AssetBalance_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1338_BlockChangedFilter
 }
 
@@ -8089,7 +8184,9 @@ input local1338_Setting_filter {
   caller_not_in: [local1338_Bytes!]
   caller_contains: local1338_Bytes
   caller_not_contains: local1338_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1338_BlockChangedFilter
 }
 
@@ -8119,7 +8216,9 @@ input local1338_SponsorVault_filter {
   sponsorVault_not_in: [local1338_Bytes!]
   sponsorVault_contains: local1338_Bytes
   sponsorVault_not_contains: local1338_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1338_BlockChangedFilter
 }
 
@@ -8164,7 +8263,9 @@ input local1338_StableSwap_filter {
   swapPool_not_in: [local1338_Bytes!]
   swapPool_contains: local1338_Bytes
   swapPool_not_contains: local1338_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1338_BlockChangedFilter
 }
 
@@ -8184,27 +8285,38 @@ enum local1338_TransferStatus {
 }
 
 type local1338__Block_ {
-  """The hash of the block"""
+  """
+  The hash of the block
+  """
   hash: local1338_Bytes
-  """The block number"""
+  """
+  The block number
+  """
   number: Int!
-  """Integer representation of the timestamp stored in blocks for the chain"""
+  """
+  Integer representation of the timestamp stored in blocks for the chain
+  """
   timestamp: Int
 }
 
-"""The type for the top-level _meta field"""
+"""
+The type for the top-level _meta field
+"""
 type local1338__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
   a block number. It will be filled if the _meta field has no block constraint
   and therefore asks for the latest  block
-  
   """
   block: local1338__Block_!
-  """The deployment ID"""
+  """
+  The deployment ID
+  """
   deployment: String!
-  """If `true`, the subgraph encountered indexing errors at some past block"""
+  """
+  If `true`, the subgraph encountered indexing errors at some past block
+  """
   hasIndexingErrors: Boolean!
 }
 
@@ -8284,7 +8396,9 @@ input testoptimismgoerli_AssetBalance_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: testoptimismgoerli_Asset_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testoptimismgoerli_BlockChangedFilter
 }
 
@@ -8344,7 +8458,9 @@ input testoptimismgoerli_Asset_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testoptimismgoerli_BlockChangedFilter
 }
 
@@ -8390,7 +8506,13 @@ type testoptimismgoerli_DestinationTransfer {
   relayerFee: BigInt
   destinationMinOut: BigInt
   status: testoptimismgoerli_TransferStatus
-  routers(skip: Int = 0, first: Int = 100, orderBy: testoptimismgoerli_Router_orderBy, orderDirection: testoptimismgoerli_OrderDirection, where: testoptimismgoerli_Router_filter): [testoptimismgoerli_Router!]
+  routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: testoptimismgoerli_Router_orderBy
+    orderDirection: testoptimismgoerli_OrderDirection
+    where: testoptimismgoerli_Router_filter
+  ): [testoptimismgoerli_Router!]
   originSender: testoptimismgoerli_Bytes
   transactingAsset: testoptimismgoerli_Bytes
   transactingAmount: BigInt
@@ -8661,7 +8783,9 @@ input testoptimismgoerli_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testoptimismgoerli_BlockChangedFilter
 }
 
@@ -8704,7 +8828,9 @@ enum testoptimismgoerli_DestinationTransfer_orderBy {
   reconciledBlockNumber
 }
 
-"""Defines the order direction, either ascending or descending"""
+"""
+Defines the order direction, either ascending or descending
+"""
 enum testoptimismgoerli_OrderDirection {
   asc
   desc
@@ -8934,7 +9060,9 @@ input testoptimismgoerli_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testoptimismgoerli_BlockChangedFilter
 }
 
@@ -8994,7 +9122,9 @@ input testoptimismgoerli_Relayer_filter {
   relayer_not_in: [testoptimismgoerli_Bytes!]
   relayer_contains: testoptimismgoerli_Bytes
   relayer_not_contains: testoptimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testoptimismgoerli_BlockChangedFilter
 }
 
@@ -9011,7 +9141,13 @@ type testoptimismgoerli_Router {
   recipient: testoptimismgoerli_Bytes
   proposedOwner: testoptimismgoerli_Bytes
   proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: testoptimismgoerli_AssetBalance_orderBy, orderDirection: testoptimismgoerli_OrderDirection, where: testoptimismgoerli_AssetBalance_filter): [testoptimismgoerli_AssetBalance!]!
+  assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: testoptimismgoerli_AssetBalance_orderBy
+    orderDirection: testoptimismgoerli_OrderDirection
+    where: testoptimismgoerli_AssetBalance_filter
+  ): [testoptimismgoerli_AssetBalance!]!
 }
 
 input testoptimismgoerli_Router_filter {
@@ -9054,7 +9190,9 @@ input testoptimismgoerli_Router_filter {
   proposedTimestamp_in: [BigInt!]
   proposedTimestamp_not_in: [BigInt!]
   assetBalances_: testoptimismgoerli_AssetBalance_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testoptimismgoerli_BlockChangedFilter
 }
 
@@ -9097,7 +9235,9 @@ input testoptimismgoerli_Setting_filter {
   caller_not_in: [testoptimismgoerli_Bytes!]
   caller_contains: testoptimismgoerli_Bytes
   caller_not_contains: testoptimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testoptimismgoerli_BlockChangedFilter
 }
 
@@ -9127,7 +9267,9 @@ input testoptimismgoerli_SponsorVault_filter {
   sponsorVault_not_in: [testoptimismgoerli_Bytes!]
   sponsorVault_contains: testoptimismgoerli_Bytes
   sponsorVault_not_contains: testoptimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testoptimismgoerli_BlockChangedFilter
 }
 
@@ -9172,7 +9314,9 @@ input testoptimismgoerli_StableSwap_filter {
   swapPool_not_in: [testoptimismgoerli_Bytes!]
   swapPool_contains: testoptimismgoerli_Bytes
   swapPool_not_contains: testoptimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testoptimismgoerli_BlockChangedFilter
 }
 
@@ -9192,27 +9336,38 @@ enum testoptimismgoerli_TransferStatus {
 }
 
 type testoptimismgoerli__Block_ {
-  """The hash of the block"""
+  """
+  The hash of the block
+  """
   hash: testoptimismgoerli_Bytes
-  """The block number"""
+  """
+  The block number
+  """
   number: Int!
-  """Integer representation of the timestamp stored in blocks for the chain"""
+  """
+  Integer representation of the timestamp stored in blocks for the chain
+  """
   timestamp: Int
 }
 
-"""The type for the top-level _meta field"""
+"""
+The type for the top-level _meta field
+"""
 type testoptimismgoerli__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
   a block number. It will be filled if the _meta field has no block constraint
   and therefore asks for the latest  block
-  
   """
   block: testoptimismgoerli__Block_!
-  """The deployment ID"""
+  """
+  The deployment ID
+  """
   deployment: String!
-  """If `true`, the subgraph encountered indexing errors at some past block"""
+  """
+  If `true`, the subgraph encountered indexing errors at some past block
+  """
   hasIndexingErrors: Boolean!
 }
 
@@ -9292,7 +9447,9 @@ input local1337_AssetBalance_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: local1337_Asset_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1337_BlockChangedFilter
 }
 
@@ -9352,7 +9509,9 @@ input local1337_Asset_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1337_BlockChangedFilter
 }
 
@@ -9398,7 +9557,13 @@ type local1337_DestinationTransfer {
   relayerFee: BigInt
   destinationMinOut: BigInt
   status: local1337_TransferStatus
-  routers(skip: Int = 0, first: Int = 100, orderBy: local1337_Router_orderBy, orderDirection: local1337_OrderDirection, where: local1337_Router_filter): [local1337_Router!]
+  routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_Router_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_Router_filter
+  ): [local1337_Router!]
   originSender: local1337_Bytes
   transactingAsset: local1337_Bytes
   transactingAmount: BigInt
@@ -9669,7 +9834,9 @@ input local1337_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1337_BlockChangedFilter
 }
 
@@ -9712,7 +9879,9 @@ enum local1337_DestinationTransfer_orderBy {
   reconciledBlockNumber
 }
 
-"""Defines the order direction, either ascending or descending"""
+"""
+Defines the order direction, either ascending or descending
+"""
 enum local1337_OrderDirection {
   asc
   desc
@@ -9942,7 +10111,9 @@ input local1337_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1337_BlockChangedFilter
 }
 
@@ -10002,7 +10173,9 @@ input local1337_Relayer_filter {
   relayer_not_in: [local1337_Bytes!]
   relayer_contains: local1337_Bytes
   relayer_not_contains: local1337_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1337_BlockChangedFilter
 }
 
@@ -10019,7 +10192,13 @@ type local1337_Router {
   recipient: local1337_Bytes
   proposedOwner: local1337_Bytes
   proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: local1337_AssetBalance_orderBy, orderDirection: local1337_OrderDirection, where: local1337_AssetBalance_filter): [local1337_AssetBalance!]!
+  assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_AssetBalance_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_AssetBalance_filter
+  ): [local1337_AssetBalance!]!
 }
 
 input local1337_Router_filter {
@@ -10062,7 +10241,9 @@ input local1337_Router_filter {
   proposedTimestamp_in: [BigInt!]
   proposedTimestamp_not_in: [BigInt!]
   assetBalances_: local1337_AssetBalance_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1337_BlockChangedFilter
 }
 
@@ -10105,7 +10286,9 @@ input local1337_Setting_filter {
   caller_not_in: [local1337_Bytes!]
   caller_contains: local1337_Bytes
   caller_not_contains: local1337_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1337_BlockChangedFilter
 }
 
@@ -10135,7 +10318,9 @@ input local1337_SponsorVault_filter {
   sponsorVault_not_in: [local1337_Bytes!]
   sponsorVault_contains: local1337_Bytes
   sponsorVault_not_contains: local1337_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1337_BlockChangedFilter
 }
 
@@ -10180,7 +10365,9 @@ input local1337_StableSwap_filter {
   swapPool_not_in: [local1337_Bytes!]
   swapPool_contains: local1337_Bytes
   swapPool_not_contains: local1337_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: local1337_BlockChangedFilter
 }
 
@@ -10200,27 +10387,38 @@ enum local1337_TransferStatus {
 }
 
 type local1337__Block_ {
-  """The hash of the block"""
+  """
+  The hash of the block
+  """
   hash: local1337_Bytes
-  """The block number"""
+  """
+  The block number
+  """
   number: Int!
-  """Integer representation of the timestamp stored in blocks for the chain"""
+  """
+  Integer representation of the timestamp stored in blocks for the chain
+  """
   timestamp: Int
 }
 
-"""The type for the top-level _meta field"""
+"""
+The type for the top-level _meta field
+"""
 type local1337__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
   a block number. It will be filled if the _meta field has no block constraint
   and therefore asks for the latest  block
-  
   """
   block: local1337__Block_!
-  """The deployment ID"""
+  """
+  The deployment ID
+  """
   deployment: String!
-  """If `true`, the subgraph encountered indexing errors at some past block"""
+  """
+  If `true`, the subgraph encountered indexing errors at some past block
+  """
   hasIndexingErrors: Boolean!
 }
 
@@ -10300,7 +10498,9 @@ input testgoerli_AssetBalance_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: testgoerli_Asset_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testgoerli_BlockChangedFilter
 }
 
@@ -10360,7 +10560,9 @@ input testgoerli_Asset_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testgoerli_BlockChangedFilter
 }
 
@@ -10406,7 +10608,13 @@ type testgoerli_DestinationTransfer {
   relayerFee: BigInt
   destinationMinOut: BigInt
   status: testgoerli_TransferStatus
-  routers(skip: Int = 0, first: Int = 100, orderBy: testgoerli_Router_orderBy, orderDirection: testgoerli_OrderDirection, where: testgoerli_Router_filter): [testgoerli_Router!]
+  routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: testgoerli_Router_orderBy
+    orderDirection: testgoerli_OrderDirection
+    where: testgoerli_Router_filter
+  ): [testgoerli_Router!]
   originSender: testgoerli_Bytes
   transactingAsset: testgoerli_Bytes
   transactingAmount: BigInt
@@ -10677,7 +10885,9 @@ input testgoerli_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testgoerli_BlockChangedFilter
 }
 
@@ -10720,7 +10930,9 @@ enum testgoerli_DestinationTransfer_orderBy {
   reconciledBlockNumber
 }
 
-"""Defines the order direction, either ascending or descending"""
+"""
+Defines the order direction, either ascending or descending
+"""
 enum testgoerli_OrderDirection {
   asc
   desc
@@ -10950,7 +11162,9 @@ input testgoerli_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testgoerli_BlockChangedFilter
 }
 
@@ -11010,7 +11224,9 @@ input testgoerli_Relayer_filter {
   relayer_not_in: [testgoerli_Bytes!]
   relayer_contains: testgoerli_Bytes
   relayer_not_contains: testgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testgoerli_BlockChangedFilter
 }
 
@@ -11027,7 +11243,13 @@ type testgoerli_Router {
   recipient: testgoerli_Bytes
   proposedOwner: testgoerli_Bytes
   proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: testgoerli_AssetBalance_orderBy, orderDirection: testgoerli_OrderDirection, where: testgoerli_AssetBalance_filter): [testgoerli_AssetBalance!]!
+  assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: testgoerli_AssetBalance_orderBy
+    orderDirection: testgoerli_OrderDirection
+    where: testgoerli_AssetBalance_filter
+  ): [testgoerli_AssetBalance!]!
 }
 
 input testgoerli_Router_filter {
@@ -11070,7 +11292,9 @@ input testgoerli_Router_filter {
   proposedTimestamp_in: [BigInt!]
   proposedTimestamp_not_in: [BigInt!]
   assetBalances_: testgoerli_AssetBalance_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testgoerli_BlockChangedFilter
 }
 
@@ -11113,7 +11337,9 @@ input testgoerli_Setting_filter {
   caller_not_in: [testgoerli_Bytes!]
   caller_contains: testgoerli_Bytes
   caller_not_contains: testgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testgoerli_BlockChangedFilter
 }
 
@@ -11143,7 +11369,9 @@ input testgoerli_SponsorVault_filter {
   sponsorVault_not_in: [testgoerli_Bytes!]
   sponsorVault_contains: testgoerli_Bytes
   sponsorVault_not_contains: testgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testgoerli_BlockChangedFilter
 }
 
@@ -11188,7 +11416,9 @@ input testgoerli_StableSwap_filter {
   swapPool_not_in: [testgoerli_Bytes!]
   swapPool_contains: testgoerli_Bytes
   swapPool_not_contains: testgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: testgoerli_BlockChangedFilter
 }
 
@@ -11208,27 +11438,38 @@ enum testgoerli_TransferStatus {
 }
 
 type testgoerli__Block_ {
-  """The hash of the block"""
+  """
+  The hash of the block
+  """
   hash: testgoerli_Bytes
-  """The block number"""
+  """
+  The block number
+  """
   number: Int!
-  """Integer representation of the timestamp stored in blocks for the chain"""
+  """
+  Integer representation of the timestamp stored in blocks for the chain
+  """
   timestamp: Int
 }
 
-"""The type for the top-level _meta field"""
+"""
+The type for the top-level _meta field
+"""
 type testgoerli__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
   a block number. It will be filled if the _meta field has no block constraint
   and therefore asks for the latest  block
-  
   """
   block: testgoerli__Block_!
-  """The deployment ID"""
+  """
+  The deployment ID
+  """
   deployment: String!
-  """If `true`, the subgraph encountered indexing errors at some past block"""
+  """
+  If `true`, the subgraph encountered indexing errors at some past block
+  """
   hasIndexingErrors: Boolean!
 }
 
@@ -11252,7 +11493,9 @@ input goerli_AggregateRoot_filter {
   root_not_in: [goerli_Bytes!]
   root_contains: goerli_Bytes
   root_not_contains: goerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -11337,7 +11580,9 @@ input goerli_AssetBalance_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: goerli_Asset_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -11397,7 +11642,9 @@ input goerli_Asset_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -11477,7 +11724,9 @@ input goerli_ConnectorMeta_filter {
   mirrorConnector_not_in: [goerli_Bytes!]
   mirrorConnector_contains: goerli_Bytes
   mirrorConnector_not_contains: goerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -11529,7 +11778,9 @@ input goerli_DestinationMessage_filter {
   transactionHash_not_in: [goerli_Bytes!]
   transactionHash_contains: goerli_Bytes
   transactionHash_not_contains: goerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -11547,7 +11798,13 @@ type goerli_DestinationTransfer {
   transferId: goerli_Bytes
   nonce: BigInt
   status: goerli_TransferStatus
-  routers(skip: Int = 0, first: Int = 100, orderBy: goerli_Router_orderBy, orderDirection: goerli_OrderDirection, where: goerli_Router_filter): [goerli_Router!]
+  routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_Router_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_Router_filter
+  ): [goerli_Router!]
   originDomain: BigInt
   destinationDomain: BigInt
   canonicalDomain: BigInt
@@ -11808,7 +12065,9 @@ input goerli_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -11846,7 +12105,9 @@ enum goerli_DestinationTransfer_orderBy {
   reconciledBlockNumber
 }
 
-"""Defines the order direction, either ascending or descending"""
+"""
+Defines the order direction, either ascending or descending
+"""
 enum goerli_OrderDirection {
   asc
   desc
@@ -11940,7 +12201,9 @@ input goerli_OriginMessage_filter {
   rootCount_not_ends_with: String
   rootCount_not_ends_with_nocase: String
   rootCount_: goerli_RootCount_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -12194,7 +12457,9 @@ input goerli_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -12252,7 +12517,9 @@ input goerli_Relayer_filter {
   relayer_not_in: [goerli_Bytes!]
   relayer_contains: goerli_Bytes
   relayer_not_contains: goerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -12284,7 +12551,9 @@ input goerli_RootCount_filter {
   count_lte: BigInt
   count_in: [BigInt!]
   count_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -12390,7 +12659,9 @@ input goerli_RootMessageSent_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -12415,7 +12686,13 @@ type goerli_Router {
   recipient: goerli_Bytes
   proposedOwner: goerli_Bytes
   proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: goerli_AssetBalance_orderBy, orderDirection: goerli_OrderDirection, where: goerli_AssetBalance_filter): [goerli_AssetBalance!]!
+  assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_AssetBalance_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_AssetBalance_filter
+  ): [goerli_AssetBalance!]!
 }
 
 input goerli_Router_filter {
@@ -12458,7 +12735,9 @@ input goerli_Router_filter {
   proposedTimestamp_in: [BigInt!]
   proposedTimestamp_not_in: [BigInt!]
   assetBalances_: goerli_AssetBalance_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -12497,7 +12776,9 @@ input goerli_Sequencer_filter {
   sequencer_not_in: [goerli_Bytes!]
   sequencer_contains: goerli_Bytes
   sequencer_not_contains: goerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -12536,7 +12817,9 @@ input goerli_Setting_filter {
   caller_not_in: [goerli_Bytes!]
   caller_contains: goerli_Bytes
   caller_not_contains: goerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -12582,7 +12865,9 @@ input goerli_StableSwap_filter {
   swapPool_not_in: [goerli_Bytes!]
   swapPool_contains: goerli_Bytes
   swapPool_not_contains: goerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -12602,27 +12887,38 @@ enum goerli_TransferStatus {
 }
 
 type goerli__Block_ {
-  """The hash of the block"""
+  """
+  The hash of the block
+  """
   hash: goerli_Bytes
-  """The block number"""
+  """
+  The block number
+  """
   number: Int!
-  """Integer representation of the timestamp stored in blocks for the chain"""
+  """
+  Integer representation of the timestamp stored in blocks for the chain
+  """
   timestamp: Int
 }
 
-"""The type for the top-level _meta field"""
+"""
+The type for the top-level _meta field
+"""
 type goerli__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
   a block number. It will be filled if the _meta field has no block constraint
   and therefore asks for the latest  block
-  
   """
   block: goerli__Block_!
-  """The deployment ID"""
+  """
+  The deployment ID
+  """
   deployment: String!
-  """If `true`, the subgraph encountered indexing errors at some past block"""
+  """
+  If `true`, the subgraph encountered indexing errors at some past block
+  """
   hasIndexingErrors: Boolean!
 }
 
@@ -12646,7 +12942,9 @@ input staginggoerli_AggregateRoot_filter {
   root_not_in: [staginggoerli_Bytes!]
   root_contains: staginggoerli_Bytes
   root_not_contains: staginggoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerli_BlockChangedFilter
 }
 
@@ -12731,7 +13029,9 @@ input staginggoerli_AssetBalance_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: staginggoerli_Asset_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerli_BlockChangedFilter
 }
 
@@ -12791,7 +13091,9 @@ input staginggoerli_Asset_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerli_BlockChangedFilter
 }
 
@@ -12871,7 +13173,9 @@ input staginggoerli_ConnectorMeta_filter {
   mirrorConnector_not_in: [staginggoerli_Bytes!]
   mirrorConnector_contains: staginggoerli_Bytes
   mirrorConnector_not_contains: staginggoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerli_BlockChangedFilter
 }
 
@@ -12923,7 +13227,9 @@ input staginggoerli_DestinationMessage_filter {
   transactionHash_not_in: [staginggoerli_Bytes!]
   transactionHash_contains: staginggoerli_Bytes
   transactionHash_not_contains: staginggoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerli_BlockChangedFilter
 }
 
@@ -12941,7 +13247,13 @@ type staginggoerli_DestinationTransfer {
   transferId: staginggoerli_Bytes
   nonce: BigInt
   status: staginggoerli_TransferStatus
-  routers(skip: Int = 0, first: Int = 100, orderBy: staginggoerli_Router_orderBy, orderDirection: staginggoerli_OrderDirection, where: staginggoerli_Router_filter): [staginggoerli_Router!]
+  routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_Router_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_Router_filter
+  ): [staginggoerli_Router!]
   originDomain: BigInt
   destinationDomain: BigInt
   canonicalDomain: BigInt
@@ -13202,7 +13514,9 @@ input staginggoerli_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerli_BlockChangedFilter
 }
 
@@ -13240,7 +13554,9 @@ enum staginggoerli_DestinationTransfer_orderBy {
   reconciledBlockNumber
 }
 
-"""Defines the order direction, either ascending or descending"""
+"""
+Defines the order direction, either ascending or descending
+"""
 enum staginggoerli_OrderDirection {
   asc
   desc
@@ -13334,7 +13650,9 @@ input staginggoerli_OriginMessage_filter {
   rootCount_not_ends_with: String
   rootCount_not_ends_with_nocase: String
   rootCount_: staginggoerli_RootCount_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerli_BlockChangedFilter
 }
 
@@ -13588,7 +13906,9 @@ input staginggoerli_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerli_BlockChangedFilter
 }
 
@@ -13646,7 +13966,9 @@ input staginggoerli_Relayer_filter {
   relayer_not_in: [staginggoerli_Bytes!]
   relayer_contains: staginggoerli_Bytes
   relayer_not_contains: staginggoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerli_BlockChangedFilter
 }
 
@@ -13678,7 +14000,9 @@ input staginggoerli_RootCount_filter {
   count_lte: BigInt
   count_in: [BigInt!]
   count_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerli_BlockChangedFilter
 }
 
@@ -13784,7 +14108,9 @@ input staginggoerli_RootMessageSent_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerli_BlockChangedFilter
 }
 
@@ -13809,7 +14135,13 @@ type staginggoerli_Router {
   recipient: staginggoerli_Bytes
   proposedOwner: staginggoerli_Bytes
   proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: staginggoerli_AssetBalance_orderBy, orderDirection: staginggoerli_OrderDirection, where: staginggoerli_AssetBalance_filter): [staginggoerli_AssetBalance!]!
+  assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_AssetBalance_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_AssetBalance_filter
+  ): [staginggoerli_AssetBalance!]!
 }
 
 input staginggoerli_Router_filter {
@@ -13852,7 +14184,9 @@ input staginggoerli_Router_filter {
   proposedTimestamp_in: [BigInt!]
   proposedTimestamp_not_in: [BigInt!]
   assetBalances_: staginggoerli_AssetBalance_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerli_BlockChangedFilter
 }
 
@@ -13891,7 +14225,9 @@ input staginggoerli_Sequencer_filter {
   sequencer_not_in: [staginggoerli_Bytes!]
   sequencer_contains: staginggoerli_Bytes
   sequencer_not_contains: staginggoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerli_BlockChangedFilter
 }
 
@@ -13930,7 +14266,9 @@ input staginggoerli_Setting_filter {
   caller_not_in: [staginggoerli_Bytes!]
   caller_contains: staginggoerli_Bytes
   caller_not_contains: staginggoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerli_BlockChangedFilter
 }
 
@@ -13976,7 +14314,9 @@ input staginggoerli_StableSwap_filter {
   swapPool_not_in: [staginggoerli_Bytes!]
   swapPool_contains: staginggoerli_Bytes
   swapPool_not_contains: staginggoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: staginggoerli_BlockChangedFilter
 }
 
@@ -13996,27 +14336,38 @@ enum staginggoerli_TransferStatus {
 }
 
 type staginggoerli__Block_ {
-  """The hash of the block"""
+  """
+  The hash of the block
+  """
   hash: staginggoerli_Bytes
-  """The block number"""
+  """
+  The block number
+  """
   number: Int!
-  """Integer representation of the timestamp stored in blocks for the chain"""
+  """
+  Integer representation of the timestamp stored in blocks for the chain
+  """
   timestamp: Int
 }
 
-"""The type for the top-level _meta field"""
+"""
+The type for the top-level _meta field
+"""
 type staginggoerli__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
   a block number. It will be filled if the _meta field has no block constraint
   and therefore asks for the latest  block
-  
   """
   block: staginggoerli__Block_!
-  """The deployment ID"""
+  """
+  The deployment ID
+  """
   deployment: String!
-  """If `true`, the subgraph encountered indexing errors at some past block"""
+  """
+  If `true`, the subgraph encountered indexing errors at some past block
+  """
   hasIndexingErrors: Boolean!
 }
 
@@ -14040,7 +14391,9 @@ input optimismgoerli_AggregateRoot_filter {
   root_not_in: [optimismgoerli_Bytes!]
   root_contains: optimismgoerli_Bytes
   root_not_contains: optimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
@@ -14125,7 +14478,9 @@ input optimismgoerli_AssetBalance_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: optimismgoerli_Asset_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
@@ -14185,7 +14540,9 @@ input optimismgoerli_Asset_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
@@ -14265,7 +14622,9 @@ input optimismgoerli_ConnectorMeta_filter {
   mirrorConnector_not_in: [optimismgoerli_Bytes!]
   mirrorConnector_contains: optimismgoerli_Bytes
   mirrorConnector_not_contains: optimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
@@ -14317,7 +14676,9 @@ input optimismgoerli_DestinationMessage_filter {
   transactionHash_not_in: [optimismgoerli_Bytes!]
   transactionHash_contains: optimismgoerli_Bytes
   transactionHash_not_contains: optimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
@@ -14335,7 +14696,13 @@ type optimismgoerli_DestinationTransfer {
   transferId: optimismgoerli_Bytes
   nonce: BigInt
   status: optimismgoerli_TransferStatus
-  routers(skip: Int = 0, first: Int = 100, orderBy: optimismgoerli_Router_orderBy, orderDirection: optimismgoerli_OrderDirection, where: optimismgoerli_Router_filter): [optimismgoerli_Router!]
+  routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_Router_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_Router_filter
+  ): [optimismgoerli_Router!]
   originDomain: BigInt
   destinationDomain: BigInt
   canonicalDomain: BigInt
@@ -14596,7 +14963,9 @@ input optimismgoerli_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
@@ -14634,7 +15003,9 @@ enum optimismgoerli_DestinationTransfer_orderBy {
   reconciledBlockNumber
 }
 
-"""Defines the order direction, either ascending or descending"""
+"""
+Defines the order direction, either ascending or descending
+"""
 enum optimismgoerli_OrderDirection {
   asc
   desc
@@ -14728,7 +15099,9 @@ input optimismgoerli_OriginMessage_filter {
   rootCount_not_ends_with: String
   rootCount_not_ends_with_nocase: String
   rootCount_: optimismgoerli_RootCount_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
@@ -14982,7 +15355,9 @@ input optimismgoerli_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
@@ -15040,7 +15415,9 @@ input optimismgoerli_Relayer_filter {
   relayer_not_in: [optimismgoerli_Bytes!]
   relayer_contains: optimismgoerli_Bytes
   relayer_not_contains: optimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
@@ -15072,7 +15449,9 @@ input optimismgoerli_RootCount_filter {
   count_lte: BigInt
   count_in: [BigInt!]
   count_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
@@ -15178,7 +15557,9 @@ input optimismgoerli_RootMessageSent_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
@@ -15203,7 +15584,13 @@ type optimismgoerli_Router {
   recipient: optimismgoerli_Bytes
   proposedOwner: optimismgoerli_Bytes
   proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: optimismgoerli_AssetBalance_orderBy, orderDirection: optimismgoerli_OrderDirection, where: optimismgoerli_AssetBalance_filter): [optimismgoerli_AssetBalance!]!
+  assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_AssetBalance_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_AssetBalance_filter
+  ): [optimismgoerli_AssetBalance!]!
 }
 
 input optimismgoerli_Router_filter {
@@ -15246,7 +15633,9 @@ input optimismgoerli_Router_filter {
   proposedTimestamp_in: [BigInt!]
   proposedTimestamp_not_in: [BigInt!]
   assetBalances_: optimismgoerli_AssetBalance_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
@@ -15285,7 +15674,9 @@ input optimismgoerli_Sequencer_filter {
   sequencer_not_in: [optimismgoerli_Bytes!]
   sequencer_contains: optimismgoerli_Bytes
   sequencer_not_contains: optimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
@@ -15324,7 +15715,9 @@ input optimismgoerli_Setting_filter {
   caller_not_in: [optimismgoerli_Bytes!]
   caller_contains: optimismgoerli_Bytes
   caller_not_contains: optimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
@@ -15370,7 +15763,9 @@ input optimismgoerli_StableSwap_filter {
   swapPool_not_in: [optimismgoerli_Bytes!]
   swapPool_contains: optimismgoerli_Bytes
   swapPool_not_contains: optimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
@@ -15390,27 +15785,38 @@ enum optimismgoerli_TransferStatus {
 }
 
 type optimismgoerli__Block_ {
-  """The hash of the block"""
+  """
+  The hash of the block
+  """
   hash: optimismgoerli_Bytes
-  """The block number"""
+  """
+  The block number
+  """
   number: Int!
-  """Integer representation of the timestamp stored in blocks for the chain"""
+  """
+  Integer representation of the timestamp stored in blocks for the chain
+  """
   timestamp: Int
 }
 
-"""The type for the top-level _meta field"""
+"""
+The type for the top-level _meta field
+"""
 type optimismgoerli__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
   a block number. It will be filled if the _meta field has no block constraint
   and therefore asks for the latest  block
-  
   """
   block: optimismgoerli__Block_!
-  """The deployment ID"""
+  """
+  The deployment ID
+  """
   deployment: String!
-  """If `true`, the subgraph encountered indexing errors at some past block"""
+  """
+  If `true`, the subgraph encountered indexing errors at some past block
+  """
   hasIndexingErrors: Boolean!
 }
 
@@ -15434,7 +15840,9 @@ input stagingmumbai_AggregateRoot_filter {
   root_not_in: [stagingmumbai_Bytes!]
   root_contains: stagingmumbai_Bytes
   root_not_contains: stagingmumbai_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingmumbai_BlockChangedFilter
 }
 
@@ -15519,7 +15927,9 @@ input stagingmumbai_AssetBalance_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: stagingmumbai_Asset_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingmumbai_BlockChangedFilter
 }
 
@@ -15579,7 +15989,9 @@ input stagingmumbai_Asset_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingmumbai_BlockChangedFilter
 }
 
@@ -15659,7 +16071,9 @@ input stagingmumbai_ConnectorMeta_filter {
   mirrorConnector_not_in: [stagingmumbai_Bytes!]
   mirrorConnector_contains: stagingmumbai_Bytes
   mirrorConnector_not_contains: stagingmumbai_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingmumbai_BlockChangedFilter
 }
 
@@ -15711,7 +16125,9 @@ input stagingmumbai_DestinationMessage_filter {
   transactionHash_not_in: [stagingmumbai_Bytes!]
   transactionHash_contains: stagingmumbai_Bytes
   transactionHash_not_contains: stagingmumbai_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingmumbai_BlockChangedFilter
 }
 
@@ -15729,7 +16145,13 @@ type stagingmumbai_DestinationTransfer {
   transferId: stagingmumbai_Bytes
   nonce: BigInt
   status: stagingmumbai_TransferStatus
-  routers(skip: Int = 0, first: Int = 100, orderBy: stagingmumbai_Router_orderBy, orderDirection: stagingmumbai_OrderDirection, where: stagingmumbai_Router_filter): [stagingmumbai_Router!]
+  routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingmumbai_Router_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_Router_filter
+  ): [stagingmumbai_Router!]
   originDomain: BigInt
   destinationDomain: BigInt
   canonicalDomain: BigInt
@@ -15990,7 +16412,9 @@ input stagingmumbai_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingmumbai_BlockChangedFilter
 }
 
@@ -16028,7 +16452,9 @@ enum stagingmumbai_DestinationTransfer_orderBy {
   reconciledBlockNumber
 }
 
-"""Defines the order direction, either ascending or descending"""
+"""
+Defines the order direction, either ascending or descending
+"""
 enum stagingmumbai_OrderDirection {
   asc
   desc
@@ -16122,7 +16548,9 @@ input stagingmumbai_OriginMessage_filter {
   rootCount_not_ends_with: String
   rootCount_not_ends_with_nocase: String
   rootCount_: stagingmumbai_RootCount_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingmumbai_BlockChangedFilter
 }
 
@@ -16376,7 +16804,9 @@ input stagingmumbai_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingmumbai_BlockChangedFilter
 }
 
@@ -16434,7 +16864,9 @@ input stagingmumbai_Relayer_filter {
   relayer_not_in: [stagingmumbai_Bytes!]
   relayer_contains: stagingmumbai_Bytes
   relayer_not_contains: stagingmumbai_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingmumbai_BlockChangedFilter
 }
 
@@ -16466,7 +16898,9 @@ input stagingmumbai_RootCount_filter {
   count_lte: BigInt
   count_in: [BigInt!]
   count_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingmumbai_BlockChangedFilter
 }
 
@@ -16572,7 +17006,9 @@ input stagingmumbai_RootMessageSent_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingmumbai_BlockChangedFilter
 }
 
@@ -16597,7 +17033,13 @@ type stagingmumbai_Router {
   recipient: stagingmumbai_Bytes
   proposedOwner: stagingmumbai_Bytes
   proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: stagingmumbai_AssetBalance_orderBy, orderDirection: stagingmumbai_OrderDirection, where: stagingmumbai_AssetBalance_filter): [stagingmumbai_AssetBalance!]!
+  assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingmumbai_AssetBalance_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_AssetBalance_filter
+  ): [stagingmumbai_AssetBalance!]!
 }
 
 input stagingmumbai_Router_filter {
@@ -16640,7 +17082,9 @@ input stagingmumbai_Router_filter {
   proposedTimestamp_in: [BigInt!]
   proposedTimestamp_not_in: [BigInt!]
   assetBalances_: stagingmumbai_AssetBalance_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingmumbai_BlockChangedFilter
 }
 
@@ -16679,7 +17123,9 @@ input stagingmumbai_Sequencer_filter {
   sequencer_not_in: [stagingmumbai_Bytes!]
   sequencer_contains: stagingmumbai_Bytes
   sequencer_not_contains: stagingmumbai_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingmumbai_BlockChangedFilter
 }
 
@@ -16718,7 +17164,9 @@ input stagingmumbai_Setting_filter {
   caller_not_in: [stagingmumbai_Bytes!]
   caller_contains: stagingmumbai_Bytes
   caller_not_contains: stagingmumbai_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingmumbai_BlockChangedFilter
 }
 
@@ -16764,7 +17212,9 @@ input stagingmumbai_StableSwap_filter {
   swapPool_not_in: [stagingmumbai_Bytes!]
   swapPool_contains: stagingmumbai_Bytes
   swapPool_not_contains: stagingmumbai_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingmumbai_BlockChangedFilter
 }
 
@@ -16784,27 +17234,38 @@ enum stagingmumbai_TransferStatus {
 }
 
 type stagingmumbai__Block_ {
-  """The hash of the block"""
+  """
+  The hash of the block
+  """
   hash: stagingmumbai_Bytes
-  """The block number"""
+  """
+  The block number
+  """
   number: Int!
-  """Integer representation of the timestamp stored in blocks for the chain"""
+  """
+  Integer representation of the timestamp stored in blocks for the chain
+  """
   timestamp: Int
 }
 
-"""The type for the top-level _meta field"""
+"""
+The type for the top-level _meta field
+"""
 type stagingmumbai__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
   a block number. It will be filled if the _meta field has no block constraint
   and therefore asks for the latest  block
-  
   """
   block: stagingmumbai__Block_!
-  """The deployment ID"""
+  """
+  The deployment ID
+  """
   deployment: String!
-  """If `true`, the subgraph encountered indexing errors at some past block"""
+  """
+  If `true`, the subgraph encountered indexing errors at some past block
+  """
   hasIndexingErrors: Boolean!
 }
 
@@ -16828,7 +17289,9 @@ input mumbai_AggregateRoot_filter {
   root_not_in: [mumbai_Bytes!]
   root_contains: mumbai_Bytes
   root_not_contains: mumbai_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: mumbai_BlockChangedFilter
 }
 
@@ -16913,7 +17376,9 @@ input mumbai_AssetBalance_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: mumbai_Asset_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: mumbai_BlockChangedFilter
 }
 
@@ -16973,7 +17438,9 @@ input mumbai_Asset_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: mumbai_BlockChangedFilter
 }
 
@@ -17053,7 +17520,9 @@ input mumbai_ConnectorMeta_filter {
   mirrorConnector_not_in: [mumbai_Bytes!]
   mirrorConnector_contains: mumbai_Bytes
   mirrorConnector_not_contains: mumbai_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: mumbai_BlockChangedFilter
 }
 
@@ -17105,7 +17574,9 @@ input mumbai_DestinationMessage_filter {
   transactionHash_not_in: [mumbai_Bytes!]
   transactionHash_contains: mumbai_Bytes
   transactionHash_not_contains: mumbai_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: mumbai_BlockChangedFilter
 }
 
@@ -17123,7 +17594,13 @@ type mumbai_DestinationTransfer {
   transferId: mumbai_Bytes
   nonce: BigInt
   status: mumbai_TransferStatus
-  routers(skip: Int = 0, first: Int = 100, orderBy: mumbai_Router_orderBy, orderDirection: mumbai_OrderDirection, where: mumbai_Router_filter): [mumbai_Router!]
+  routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: mumbai_Router_orderBy
+    orderDirection: mumbai_OrderDirection
+    where: mumbai_Router_filter
+  ): [mumbai_Router!]
   originDomain: BigInt
   destinationDomain: BigInt
   canonicalDomain: BigInt
@@ -17384,7 +17861,9 @@ input mumbai_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: mumbai_BlockChangedFilter
 }
 
@@ -17422,7 +17901,9 @@ enum mumbai_DestinationTransfer_orderBy {
   reconciledBlockNumber
 }
 
-"""Defines the order direction, either ascending or descending"""
+"""
+Defines the order direction, either ascending or descending
+"""
 enum mumbai_OrderDirection {
   asc
   desc
@@ -17516,7 +17997,9 @@ input mumbai_OriginMessage_filter {
   rootCount_not_ends_with: String
   rootCount_not_ends_with_nocase: String
   rootCount_: mumbai_RootCount_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: mumbai_BlockChangedFilter
 }
 
@@ -17770,7 +18253,9 @@ input mumbai_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: mumbai_BlockChangedFilter
 }
 
@@ -17828,7 +18313,9 @@ input mumbai_Relayer_filter {
   relayer_not_in: [mumbai_Bytes!]
   relayer_contains: mumbai_Bytes
   relayer_not_contains: mumbai_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: mumbai_BlockChangedFilter
 }
 
@@ -17860,7 +18347,9 @@ input mumbai_RootCount_filter {
   count_lte: BigInt
   count_in: [BigInt!]
   count_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: mumbai_BlockChangedFilter
 }
 
@@ -17966,7 +18455,9 @@ input mumbai_RootMessageSent_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: mumbai_BlockChangedFilter
 }
 
@@ -17991,7 +18482,13 @@ type mumbai_Router {
   recipient: mumbai_Bytes
   proposedOwner: mumbai_Bytes
   proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: mumbai_AssetBalance_orderBy, orderDirection: mumbai_OrderDirection, where: mumbai_AssetBalance_filter): [mumbai_AssetBalance!]!
+  assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: mumbai_AssetBalance_orderBy
+    orderDirection: mumbai_OrderDirection
+    where: mumbai_AssetBalance_filter
+  ): [mumbai_AssetBalance!]!
 }
 
 input mumbai_Router_filter {
@@ -18034,7 +18531,9 @@ input mumbai_Router_filter {
   proposedTimestamp_in: [BigInt!]
   proposedTimestamp_not_in: [BigInt!]
   assetBalances_: mumbai_AssetBalance_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: mumbai_BlockChangedFilter
 }
 
@@ -18073,7 +18572,9 @@ input mumbai_Sequencer_filter {
   sequencer_not_in: [mumbai_Bytes!]
   sequencer_contains: mumbai_Bytes
   sequencer_not_contains: mumbai_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: mumbai_BlockChangedFilter
 }
 
@@ -18112,7 +18613,9 @@ input mumbai_Setting_filter {
   caller_not_in: [mumbai_Bytes!]
   caller_contains: mumbai_Bytes
   caller_not_contains: mumbai_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: mumbai_BlockChangedFilter
 }
 
@@ -18158,7 +18661,9 @@ input mumbai_StableSwap_filter {
   swapPool_not_in: [mumbai_Bytes!]
   swapPool_contains: mumbai_Bytes
   swapPool_not_contains: mumbai_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: mumbai_BlockChangedFilter
 }
 
@@ -18178,27 +18683,38 @@ enum mumbai_TransferStatus {
 }
 
 type mumbai__Block_ {
-  """The hash of the block"""
+  """
+  The hash of the block
+  """
   hash: mumbai_Bytes
-  """The block number"""
+  """
+  The block number
+  """
   number: Int!
-  """Integer representation of the timestamp stored in blocks for the chain"""
+  """
+  Integer representation of the timestamp stored in blocks for the chain
+  """
   timestamp: Int
 }
 
-"""The type for the top-level _meta field"""
+"""
+The type for the top-level _meta field
+"""
 type mumbai__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
   a block number. It will be filled if the _meta field has no block constraint
   and therefore asks for the latest  block
-  
   """
   block: mumbai__Block_!
-  """The deployment ID"""
+  """
+  The deployment ID
+  """
   deployment: String!
-  """If `true`, the subgraph encountered indexing errors at some past block"""
+  """
+  If `true`, the subgraph encountered indexing errors at some past block
+  """
   hasIndexingErrors: Boolean!
 }
 
@@ -18222,7 +18738,9 @@ input stagingoptimismgoerli_AggregateRoot_filter {
   root_not_in: [stagingoptimismgoerli_Bytes!]
   root_contains: stagingoptimismgoerli_Bytes
   root_not_contains: stagingoptimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingoptimismgoerli_BlockChangedFilter
 }
 
@@ -18307,7 +18825,9 @@ input stagingoptimismgoerli_AssetBalance_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: stagingoptimismgoerli_Asset_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingoptimismgoerli_BlockChangedFilter
 }
 
@@ -18367,7 +18887,9 @@ input stagingoptimismgoerli_Asset_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingoptimismgoerli_BlockChangedFilter
 }
 
@@ -18447,7 +18969,9 @@ input stagingoptimismgoerli_ConnectorMeta_filter {
   mirrorConnector_not_in: [stagingoptimismgoerli_Bytes!]
   mirrorConnector_contains: stagingoptimismgoerli_Bytes
   mirrorConnector_not_contains: stagingoptimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingoptimismgoerli_BlockChangedFilter
 }
 
@@ -18499,7 +19023,9 @@ input stagingoptimismgoerli_DestinationMessage_filter {
   transactionHash_not_in: [stagingoptimismgoerli_Bytes!]
   transactionHash_contains: stagingoptimismgoerli_Bytes
   transactionHash_not_contains: stagingoptimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingoptimismgoerli_BlockChangedFilter
 }
 
@@ -18517,7 +19043,13 @@ type stagingoptimismgoerli_DestinationTransfer {
   transferId: stagingoptimismgoerli_Bytes
   nonce: BigInt
   status: stagingoptimismgoerli_TransferStatus
-  routers(skip: Int = 0, first: Int = 100, orderBy: stagingoptimismgoerli_Router_orderBy, orderDirection: stagingoptimismgoerli_OrderDirection, where: stagingoptimismgoerli_Router_filter): [stagingoptimismgoerli_Router!]
+  routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingoptimismgoerli_Router_orderBy
+    orderDirection: stagingoptimismgoerli_OrderDirection
+    where: stagingoptimismgoerli_Router_filter
+  ): [stagingoptimismgoerli_Router!]
   originDomain: BigInt
   destinationDomain: BigInt
   canonicalDomain: BigInt
@@ -18778,7 +19310,9 @@ input stagingoptimismgoerli_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingoptimismgoerli_BlockChangedFilter
 }
 
@@ -18816,7 +19350,9 @@ enum stagingoptimismgoerli_DestinationTransfer_orderBy {
   reconciledBlockNumber
 }
 
-"""Defines the order direction, either ascending or descending"""
+"""
+Defines the order direction, either ascending or descending
+"""
 enum stagingoptimismgoerli_OrderDirection {
   asc
   desc
@@ -18888,7 +19424,9 @@ input stagingoptimismgoerli_OriginMessage_filter {
   transactionHash_not_in: [stagingoptimismgoerli_Bytes!]
   transactionHash_contains: stagingoptimismgoerli_Bytes
   transactionHash_not_contains: stagingoptimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingoptimismgoerli_BlockChangedFilter
 }
 
@@ -19141,7 +19679,9 @@ input stagingoptimismgoerli_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingoptimismgoerli_BlockChangedFilter
 }
 
@@ -19199,7 +19739,9 @@ input stagingoptimismgoerli_Relayer_filter {
   relayer_not_in: [stagingoptimismgoerli_Bytes!]
   relayer_contains: stagingoptimismgoerli_Bytes
   relayer_not_contains: stagingoptimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingoptimismgoerli_BlockChangedFilter
 }
 
@@ -19297,7 +19839,9 @@ input stagingoptimismgoerli_RootMessageSent_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingoptimismgoerli_BlockChangedFilter
 }
 
@@ -19321,7 +19865,13 @@ type stagingoptimismgoerli_Router {
   recipient: stagingoptimismgoerli_Bytes
   proposedOwner: stagingoptimismgoerli_Bytes
   proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: stagingoptimismgoerli_AssetBalance_orderBy, orderDirection: stagingoptimismgoerli_OrderDirection, where: stagingoptimismgoerli_AssetBalance_filter): [stagingoptimismgoerli_AssetBalance!]!
+  assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingoptimismgoerli_AssetBalance_orderBy
+    orderDirection: stagingoptimismgoerli_OrderDirection
+    where: stagingoptimismgoerli_AssetBalance_filter
+  ): [stagingoptimismgoerli_AssetBalance!]!
 }
 
 input stagingoptimismgoerli_Router_filter {
@@ -19364,7 +19914,9 @@ input stagingoptimismgoerli_Router_filter {
   proposedTimestamp_in: [BigInt!]
   proposedTimestamp_not_in: [BigInt!]
   assetBalances_: stagingoptimismgoerli_AssetBalance_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingoptimismgoerli_BlockChangedFilter
 }
 
@@ -19403,7 +19955,9 @@ input stagingoptimismgoerli_Sequencer_filter {
   sequencer_not_in: [stagingoptimismgoerli_Bytes!]
   sequencer_contains: stagingoptimismgoerli_Bytes
   sequencer_not_contains: stagingoptimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingoptimismgoerli_BlockChangedFilter
 }
 
@@ -19442,7 +19996,9 @@ input stagingoptimismgoerli_Setting_filter {
   caller_not_in: [stagingoptimismgoerli_Bytes!]
   caller_contains: stagingoptimismgoerli_Bytes
   caller_not_contains: stagingoptimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingoptimismgoerli_BlockChangedFilter
 }
 
@@ -19488,7 +20044,9 @@ input stagingoptimismgoerli_StableSwap_filter {
   swapPool_not_in: [stagingoptimismgoerli_Bytes!]
   swapPool_contains: stagingoptimismgoerli_Bytes
   swapPool_not_contains: stagingoptimismgoerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: stagingoptimismgoerli_BlockChangedFilter
 }
 
@@ -19508,26 +20066,37 @@ enum stagingoptimismgoerli_TransferStatus {
 }
 
 type stagingoptimismgoerli__Block_ {
-  """The hash of the block"""
+  """
+  The hash of the block
+  """
   hash: stagingoptimismgoerli_Bytes
-  """The block number"""
+  """
+  The block number
+  """
   number: Int!
-  """Integer representation of the timestamp stored in blocks for the chain"""
+  """
+  Integer representation of the timestamp stored in blocks for the chain
+  """
   timestamp: Int
 }
 
-"""The type for the top-level _meta field"""
+"""
+The type for the top-level _meta field
+"""
 type stagingoptimismgoerli__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
   a block number. It will be filled if the _meta field has no block constraint
   and therefore asks for the latest  block
-  
   """
   block: stagingoptimismgoerli__Block_!
-  """The deployment ID"""
+  """
+  The deployment ID
+  """
   deployment: String!
-  """If `true`, the subgraph encountered indexing errors at some past block"""
+  """
+  If `true`, the subgraph encountered indexing errors at some past block
+  """
   hasIndexingErrors: Boolean!
 }
