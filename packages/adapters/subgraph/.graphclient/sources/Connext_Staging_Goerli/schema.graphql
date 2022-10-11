@@ -643,6 +643,7 @@ type staginggoerli_OriginMessage {
   root: staginggoerli_Bytes
   message: staginggoerli_Bytes
   transactionHash: staginggoerli_Bytes
+  rootCount: staginggoerli_RootCount
 }
 
 input staginggoerli_OriginMessage_filter {
@@ -700,6 +701,27 @@ input staginggoerli_OriginMessage_filter {
   transactionHash_not_in: [staginggoerli_Bytes!]
   transactionHash_contains: staginggoerli_Bytes
   transactionHash_not_contains: staginggoerli_Bytes
+  rootCount: String
+  rootCount_not: String
+  rootCount_gt: String
+  rootCount_lt: String
+  rootCount_gte: String
+  rootCount_lte: String
+  rootCount_in: [String!]
+  rootCount_not_in: [String!]
+  rootCount_contains: String
+  rootCount_contains_nocase: String
+  rootCount_not_contains: String
+  rootCount_not_contains_nocase: String
+  rootCount_starts_with: String
+  rootCount_starts_with_nocase: String
+  rootCount_not_starts_with: String
+  rootCount_not_starts_with_nocase: String
+  rootCount_ends_with: String
+  rootCount_ends_with_nocase: String
+  rootCount_not_ends_with: String
+  rootCount_not_ends_with_nocase: String
+  rootCount_: staginggoerli_RootCount_filter
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
 }
@@ -713,6 +735,7 @@ enum staginggoerli_OriginMessage_orderBy {
   root
   message
   transactionHash
+  rootCount
 }
 
 type staginggoerli_OriginTransfer {
@@ -1325,6 +1348,32 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [staginggoerli_ConnectorMeta!]!
+  staginggoerli_rootCount(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): staginggoerli_RootCount
+  staginggoerli_rootCounts(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_RootCount_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_RootCount_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [staginggoerli_RootCount!]!
   staginggoerli_rootMessageSent(
     id: ID!
     """
@@ -1390,11 +1439,43 @@ enum staginggoerli_Relayer_orderBy {
   relayer
 }
 
+type staginggoerli_RootCount {
+  id: ID!
+  count: BigInt!
+}
+
+input staginggoerli_RootCount_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  count: BigInt
+  count_not: BigInt
+  count_gt: BigInt
+  count_lt: BigInt
+  count_gte: BigInt
+  count_lte: BigInt
+  count_in: [BigInt!]
+  count_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: staginggoerli_BlockChangedFilter
+}
+
+enum staginggoerli_RootCount_orderBy {
+  id
+  count
+}
+
 type staginggoerli_RootMessageSent {
   id: ID!
   spokeDomain: BigInt
   hubDomain: BigInt
   root: staginggoerli_Bytes
+  count: BigInt
   caller: staginggoerli_Bytes
   transactionHash: staginggoerli_Bytes
   timestamp: BigInt
@@ -1434,6 +1515,14 @@ input staginggoerli_RootMessageSent_filter {
   root_not_in: [staginggoerli_Bytes!]
   root_contains: staginggoerli_Bytes
   root_not_contains: staginggoerli_Bytes
+  count: BigInt
+  count_not: BigInt
+  count_gt: BigInt
+  count_lt: BigInt
+  count_gte: BigInt
+  count_lte: BigInt
+  count_in: [BigInt!]
+  count_not_in: [BigInt!]
   caller: staginggoerli_Bytes
   caller_not: staginggoerli_Bytes
   caller_in: [staginggoerli_Bytes!]
@@ -1487,6 +1576,7 @@ enum staginggoerli_RootMessageSent_orderBy {
   spokeDomain
   hubDomain
   root
+  count
   caller
   transactionHash
   timestamp
@@ -2019,6 +2109,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [staginggoerli_ConnectorMeta!]!
+  staginggoerli_rootCount(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): staginggoerli_RootCount
+  staginggoerli_rootCounts(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_RootCount_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_RootCount_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [staginggoerli_RootCount!]!
   staginggoerli_rootMessageSent(
     id: ID!
     """
