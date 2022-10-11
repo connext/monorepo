@@ -1,10 +1,11 @@
+import { TAddress } from "@connext/nxtp-utils";
 import { Type, Static } from "@sinclair/typebox";
 import { Contract, providers, Wallet } from "ethers";
 
 // NOTE: Agents will currently be whitelisted/blacklisted respectively on ALL domains.
 export const AgentStackSchema = Type.Object({
-  whitelist: Type.Optional(Type.Array(Type.String())),
-  blacklist: Type.Optional(Type.Array(Type.String())),
+  whitelist: Type.Optional(Type.Array(TAddress)),
+  blacklist: Type.Optional(Type.Array(TAddress)),
 });
 export type AgentStack = Static<typeof AgentStackSchema>;
 
@@ -116,10 +117,15 @@ export type CallSchema<T> = {
 };
 
 // NOTE: Used to do a sanity check when loading default config from json files
-export const InitConfigSchema = Type.Object({
+export const InitHeaderConfigSchema = Type.Object({
   hub: Type.String(),
   assets: Type.Array(AssetStackSchema),
   agents: AgentsSchema,
+});
+
+export const InitConfigSchema = Type.Object({
+  InitHeaderConfigSchema,
+  supportedDomains: Type.Array(Type.String()),
 });
 
 export type InitConfig = Static<typeof InitConfigSchema>;
