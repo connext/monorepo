@@ -73,7 +73,11 @@ export const STAGING_INIT_CONFIG = {
       whitelist: ["0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C"],
     },
     relayers: {
-      whitelist: ["0xaB0A8DCb1590C4565C35cC785dc25A0590398054", "0xCDdE9992Fb66038Dd8419b56149a75CC79Df133C"],
+      whitelist: [
+        "0xaB0A8DCb1590C4565C35cC785dc25A0590398054",
+        "0xCDdE9992Fb66038Dd8419b56149a75CC79Df133C",
+        "0x24D677f8A59A486BfC6d87E9453C4f1fEfcB0958",
+      ],
     },
   },
 };
