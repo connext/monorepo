@@ -57,7 +57,7 @@ export function handleMessageSent(event: MessageSent): void {
 
   message.count = rootCount.count;
 
-  message.caller = message.caller;
+  message.caller = event.transaction.from;
   message.transactionHash = event.transaction.hash;
   message.timestamp = event.block.timestamp;
   message.gasPrice = event.transaction.gasPrice;

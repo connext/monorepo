@@ -10,8 +10,8 @@
       },
       {
         "name": "PolygonHubConnector",
-        "address": "0xa1f3A7655D37cfa25e795300F43cF70d0FaC70D9",
-        "startBlock": 7734523
+        "address": "0xfC91c5C31555a1ECAA0E7DA8A22b55C7254b4699",
+        "startBlock": 7751121
       },
       {
         "name": "OptimismHubConnector",

@@ -13,6 +13,10 @@ export const STAGING_INIT_CONFIG = {
       chain: 80001,
       rpc: "https://rpc.ankr.com/polygon_mumbai",
     },
+    {
+      chain: 421613,
+      rpc: "https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+    },
   ],
   assets: [
     {
@@ -29,6 +33,10 @@ export const STAGING_INIT_CONFIG = {
         "9991": {
           local: "0xeDb95D8037f769B72AAab41deeC92903A98C9E16",
           adopted: "0xeDb95D8037f769B72AAab41deeC92903A98C9E16",
+        },
+        "1734439522": {
+          local: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
+          adopted: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
         },
       },
     },
@@ -47,6 +55,10 @@ export const STAGING_INIT_CONFIG = {
           local: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
           adopted: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
         },
+        "1734439522": {
+          local: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
+          adopted: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
+        },
       },
     },
   ],
@@ -61,7 +73,11 @@ export const STAGING_INIT_CONFIG = {
       whitelist: ["0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C"],
     },
     relayers: {
-      whitelist: ["0xaB0A8DCb1590C4565C35cC785dc25A0590398054", "0xCDdE9992Fb66038Dd8419b56149a75CC79Df133C"],
+      whitelist: [
+        "0xaB0A8DCb1590C4565C35cC785dc25A0590398054",
+        "0xCDdE9992Fb66038Dd8419b56149a75CC79Df133C",
+        "0x24D677f8A59A486BfC6d87E9453C4f1fEfcB0958",
+      ],
     },
   },
 };

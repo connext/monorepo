@@ -42,8 +42,24 @@
       },
       {
         "name": "Connector",
-        "address": "0xc8D550a1793ECf608D63ED0324a1f2Be9E414686",
-        "startBlock": 28514924
+        "address": "0x8AB9978E53df208b02ED69a96AE40200c8B74eF9",
+        "startBlock": 28563288
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/runtime-staging-arb-goerli",
+    "network": "arbitrum-goerli",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xD135B85E868C4B02df3b328DCE917f34F76895dE",
+        "startBlock": 586288
+      },
+      {
+        "name": "Connector",
+        "address": "0xc3eaA2513Ab6D60B3c845378d2bD282555D5AfDC",
+        "startBlock": 586274
       }
     ]
   }
