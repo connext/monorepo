@@ -121,7 +121,10 @@ export const retrieveProcessedRootMessages = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(retrieveProcessedRootMessages.name);
 
-  for (const domain of domains) {
+  const connectorMetas = await subgraph.getConnectorMeta(domains);
+  const hubDomains = new Set(connectorMetas.map((meta) => meta.hubDomain));
+
+  for (const domain of [...hubDomains]) {
     const offset = await database.getCheckPoint("processed_root_message_" + domain);
     const limit = 100;
     logger.debug("Retrieving processed root messages", requestContext, methodContext, {
@@ -140,13 +143,11 @@ export const retrieveProcessedRootMessages = async () => {
         ? 0
         : Math.max(...processedRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
 
-    await database.transaction(async (txnClient) => {
-      await database.saveProcessedRootMessages(processedRootMessages, txnClient);
+    await database.saveProcessedRootMessages(processedRootMessages);
 
-      if (processedRootMessages.length > 0 && newOffset > offset) {
-        await database.saveCheckPoint("processed_root_message_" + domain, newOffset, txnClient);
-      }
-    });
+    if (processedRootMessages.length > 0 && newOffset > offset) {
+      await database.saveCheckPoint("processed_root_message_" + domain, newOffset);
+    }
 
     logger.debug("Saved processed root messages", requestContext, methodContext, { domain: domain, offset: newOffset });
   }

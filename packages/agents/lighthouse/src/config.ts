@@ -50,6 +50,7 @@ export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
 export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "1735356532": "Optimism",
   "1735353714": "Mainnet",
+  "9991": "Polygon",
 };
 
 /**

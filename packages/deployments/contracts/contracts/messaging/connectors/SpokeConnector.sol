@@ -290,9 +290,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
     // Insert the hashed message into the Merkle tree.
     bytes32 _messageHash = keccak256(_message);
+    // TODO: `insert` function here calculates the root after insertion. Is calculating
+    // the root necessary on dispatch, since we only need the roots transmitted xchain?
     (bytes32 _root, uint256 _count) = MERKLE.insert(_messageHash);
 
-    // TODO: see comment on queue manager at the top
     // Emit Dispatch event with message information.
     // NOTE: Current leaf index is count - 1 since new leaf has already been inserted.
     emit Dispatch(_messageHash, _count - 1, _root, _message);

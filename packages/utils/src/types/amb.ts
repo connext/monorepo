@@ -71,3 +71,13 @@ export const PropagatedRootSchema = Type.Object({
   count: Type.Number({ minimum: 0 }),
 });
 export type PropagatedRoot = Static<typeof PropagatedRootSchema>;
+
+export const ConnectorMetaSchema = Type.Object({
+  id: Type.String(),
+  spokeDomain: Type.String(),
+  hubDomain: Type.String(),
+  rootManager: Type.String(),
+  mirrorConnector: Type.String(),
+  amb: Type.String(),
+});
+export type ConnectorMeta = Static<typeof ConnectorMetaSchema>;

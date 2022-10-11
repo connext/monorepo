@@ -1,7 +1,6 @@
 import { gql } from "graphql-request";
 import {
   SubgraphQueryMetaParams,
-  XTransferStatus,
   SubgraphQueryByTransferIDsMetaParams,
   SubgraphQueryByTimestampMetaParams,
 } from "@connext/nxtp-utils";
@@ -163,6 +162,15 @@ export const ROOT_PROPAGATED_ENTITY = `
       aggregate
       domains
       count
+`;
+
+export const CONNECTOR_META_ENTITY = `
+      amb
+      hubDomain
+      id
+      mirrorConnector
+      rootManager
+      spokeDomain
 `;
 
 const lastedBlockNumberQuery = (prefix: string): string => {
@@ -547,22 +555,11 @@ export const getDestinationTransfersByDomainAndReconcileTimestampQuery = (
   `;
 };
 
-const destinationTransfersByIdsQueryString = (
-  prefix: string,
-  transferIds: string[],
-  maxBlockNumber?: number,
-  status?: XTransferStatus,
-) => {
+const destinationTransfersByIdsQueryString = (prefix: string, transferIds: string[]) => {
   return `
   ${prefix}_destinationTransfers ( 
     where: { 
-      transferId_in: [${transferIds}] 
-      ${
-        maxBlockNumber
-          ? `, executedBlockNumber_lte: ${maxBlockNumber}, reconciledBlockNumber_lte: ${maxBlockNumber}`
-          : ""
-      } 
-      ${status ? `, status: ${status}` : ""}
+      transferId_in: [${transferIds}]
     }, 
     orderBy: nonce, 
     orderDirection: desc
@@ -746,6 +743,26 @@ export const getPropagatedRootsQuery = (prefix: string, count: number, limit: nu
   return gql`
     query GetAggregatedRoots {
       ${queryString}
+    }
+  `;
+};
+
+export const CONNECTOR_META_ID = "CONNECTOR_META_ID";
+
+export const getConnectorMetaQuery = (domains: string[]) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    combinedQuery += `
+    ${prefix}_connectorMeta (id: "${CONNECTOR_META_ID}") {
+      ${CONNECTOR_META_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetConnectorMeta {
+      ${combinedQuery}
     }
   `;
 };
