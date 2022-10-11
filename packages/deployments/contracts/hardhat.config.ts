@@ -291,7 +291,7 @@ const config: HardhatUserConfig = {
       verify: {
         etherscan: {
           apiKey: process.env.ETHERSCAN_API_KEY!,
-          apiUrl: "https://blockscout-chiado.gnosistestnet.com/api",
+          apiUrl: "https://blockscout.chiadochain.net/api",
         },
       },
     },
