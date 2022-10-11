@@ -129,11 +129,13 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
   /**
    * @notice Inserts the given leaf into the tree.
    * @param leaf The leaf to be inserted into the tree.
-   * @return uint256 Current node count (i.e. number of indices) AFTER the insertion of the new
-   * leaf, provided for convenience.
+   * @return _root Current root for convenience.
+   * @return _count Current node count (i.e. number of indices) AFTER the insertion of the new leaf,
+   * provided for convenience.
    */
-  function insert(bytes32 leaf) public onlyArborist returns (uint256) {
+  function insert(bytes32 leaf) public onlyArborist returns (bytes32 _root, uint256 _count) {
     // Insert the new node.
-    return tree.insert(leaf);
+    _count = tree.insert(leaf);
+    _root = tree.root();
   }
 }
