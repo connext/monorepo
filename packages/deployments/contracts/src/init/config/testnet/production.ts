@@ -1,4 +1,6 @@
-export const PRODUCTION_INIT_CONFIG = {
+import { InitConfig } from "../../helpers";
+
+export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
   hub: 5,
   networks: [
     {
