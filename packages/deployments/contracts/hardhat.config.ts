@@ -269,7 +269,7 @@ const config: HardhatUserConfig = {
       chainId: 421613,
       url:
         urlOverride ||
-        process.env.OPTI_GOERLI_ETH_PROVIDER_URL ||
+        process.env.ARBITRUM_GOERLI_ETH_PROVIDER_URL ||
         "https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
       companionNetworks: {
         hub: "goerli",
@@ -291,7 +291,7 @@ const config: HardhatUserConfig = {
       verify: {
         etherscan: {
           apiKey: process.env.ETHERSCAN_API_KEY!,
-          apiUrl: "https://blockscout-chiado.gnosistestnet.com/api",
+          apiUrl: "https://blockscout.chiadochain.net/api",
         },
       },
     },
