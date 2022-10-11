@@ -83,7 +83,7 @@ locals {
         ]
       }
       "1734439522" = {
-        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"]
+        providers = ["https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"]
         assets = [
           {
             name    = "TEST"
@@ -224,7 +224,7 @@ locals {
         ]
       },
       "1734439522" = {
-        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"]
+        providers = ["https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"]
         assets = [
           {
             name    = "TEST"
@@ -259,7 +259,7 @@ locals {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
       }
       "1734439522" = {
-        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"]
+        providers = ["https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
