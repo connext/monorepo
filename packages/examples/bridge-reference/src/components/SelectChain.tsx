@@ -1,34 +1,33 @@
 import React from "react";
 
-import { getChainTitle, Chain } from "../utils/chain";
+import { getChainTitle } from "../utils/chain";
+import { Chain, ChainTerminus } from "../types/chain";
 import { useChains } from "../contexts/Chains";
 
 interface Props {
-  origin?: boolean;
+  chain_terminus?: ChainTerminus;
   source_chain?: Chain;
   destination_chain?: Chain;
   onSelect: (chain?: Chain) => void;
 }
 
-export const SelectChain = ({ origin, source_chain, destination_chain, onSelect }: Props) => {
+export const SelectChain = ({ chain_terminus, source_chain, destination_chain, onSelect }: Props) => {
   const {
     state: { chains },
   } = useChains();
 
-  const chainType = origin ? "origin" : "destination";
-
   return (
     <div>
       <label
-        htmlFor={chainType}
+        htmlFor={chain_terminus}
         className="block capitalize items-center text-slate-400 dark:text-white text-sm sm:text-base sm:font-semibold gap-2 pt-8 pb-2"
       >
-        {chainType}
+        {chain_terminus}
       </label>
       <select
-        id={chainType}
-        name={chainType}
-        value={origin ? source_chain?.chain_id : destination_chain?.chain_id}
+        id={chain_terminus}
+        name={chain_terminus}
+        value={chain_terminus ? source_chain?.chain_id : destination_chain?.chain_id}
         onChange={(e) => {
           onSelect(chains.find((chain) => chain.chain_id.toString() === e.target.value));
         }}

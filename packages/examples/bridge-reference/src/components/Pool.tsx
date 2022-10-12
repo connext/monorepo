@@ -7,14 +7,13 @@ import { useAssets } from "../contexts/Assets";
 import { Contract as IContract } from "../types/asset";
 import { useWallet } from "../contexts/Wallet";
 import { useBalances } from "../contexts/Balances";
-import { Bridge } from "../types/bridge";
 
 import { Balance } from "./Balance";
 import { SelectAsset } from "./SelectAsset";
 import { SelectChain } from "./SelectChain";
-import { TransferButton } from "./TransferButton";
+import { AddLiquidityButton } from "./AddLiquidityButton";
 
-export const CrossChainTransfer = () => {
+export const Pool = () => {
   const balancesContext = useBalances();
 
   const {
@@ -29,12 +28,9 @@ export const CrossChainTransfer = () => {
     state: { assets },
   } = useAssets();
 
-  const [bridge, setBridge] = useState<Bridge>({
-    source_chain: chains[0],
-    destination_chain: chains[1],
-    asset: assets[0],
-    amount: undefined,
-  });
+  const [chain, setChain] = useState(chains[0]);
+  const [asset, setAsset] = useState(assets[0]);
+  const [amount, setAmount] = useState(0);
 
   // update balances
   useEffect(() => {
@@ -43,8 +39,7 @@ export const CrossChainTransfer = () => {
     });
 
     if (address) {
-      getBalances(bridge.source_chain);
-      getBalances(bridge.destination_chain);
+      getBalances(chain);
     }
   }, [address]);
 
@@ -100,49 +95,17 @@ export const CrossChainTransfer = () => {
       <div className="grid grid-cols-2 gap-4">
         <SelectChain
           onSelect={(c) => {
-            const _source_chain: Chain | undefined = c;
-            const _destination_chain = c === bridge.destination_chain ? bridge.source_chain : bridge.destination_chain;
-
-            setBridge({
-              ...bridge,
-              source_chain: _source_chain,
-              destination_chain: _destination_chain,
-            });
-
-            getBalances(_source_chain);
-            getBalances(_destination_chain);
+            setChain(c!);
+            getBalances(c);
           }}
-          source_chain={bridge.source_chain}
-          destination_chain={bridge.destination_chain}
-          chain_terminus={ChainTerminus.origin}
-        />
-        <SelectChain
-          onSelect={(c) => {
-            const _source_chain = c === bridge.source_chain ? bridge.destination_chain : bridge.source_chain;
-            const _destination_chain: Chain | undefined = c;
-
-            setBridge({
-              ...bridge,
-              source_chain: _source_chain,
-              destination_chain: _destination_chain,
-            });
-
-            getBalances(_source_chain);
-            getBalances(_destination_chain);
-          }}
-          source_chain={bridge.source_chain}
-          destination_chain={bridge.destination_chain}
-          chain_terminus={ChainTerminus.destination}
+          chain_terminus={ChainTerminus.none}
         />
       </div>
       <SelectAsset
-        disabled={!(bridge.source_chain && bridge.destination_chain)}
-        value={bridge.asset}
+        disabled={!chain}
+        value={asset}
         onSelect={(a) => {
-          setBridge({
-            ...bridge,
-            asset: a,
-          });
+          setAsset(a!);
         }}
       />
 
@@ -151,10 +114,10 @@ export const CrossChainTransfer = () => {
           <div className="flex items-center justify-start sm:justify-start space-x-1 sm:space-x-2.5">
             <span className="text-slate-400 dark:text-white text-sm sm:text-base sm:font-semibold">Amount</span>
           </div>
-          {(bridge.source_chain?.chain_id && bridge.asset && (
+          {(chain?.chain_id && asset && (
             <div className="flex items-center space-x-1">
               <div className="text-slate-400 dark:text-slate-600 text-xs font-medium">Balance</div>
-              <Balance chainId={bridge.source_chain?.chain_id} asset={bridge.asset} />
+              <Balance chainId={chain?.chain_id} asset={asset} />
             </div>
           )) || <></>}
         </div>
@@ -162,8 +125,8 @@ export const CrossChainTransfer = () => {
           <input
             type="number"
             placeholder="0.00"
-            disabled={!bridge.asset}
-            value={typeof bridge.amount === "number" && bridge.amount >= 0 ? bridge.amount : ""}
+            disabled={!asset}
+            value={typeof amount === "number" && amount >= 0 ? amount : ""}
             onChange={(e) => {
               const regex = /^[0-9.\b]+$/;
               let _amount = 0;
@@ -172,17 +135,14 @@ export const CrossChainTransfer = () => {
               }
               _amount = _amount < 0 ? 0 : _amount;
 
-              setBridge({
-                ...bridge,
-                amount: _amount && !isNaN(_amount) ? Number(_amount) : _amount,
-              });
+              setAmount(_amount && !isNaN(_amount) ? Number(_amount) : _amount);
             }}
             onKeyDown={(e) => ["e", "E", "-"].includes(e.key) && e.preventDefault()}
             className="w-36 sm:w-48 bg-slate-50 focus:bg-slate-100 dark:bg-slate-900 dark:focus:bg-slate-700 border-0 focus:ring-0 rounded-xl sm:text-lg font-semibold text-right py-1.5 sm:py-2 px-2 sm:px-3"
           />
         </div>
       </div>
-      <TransferButton bridge={bridge} setBridge={setBridge} getBalances={getBalances} />
+      <AddLiquidityButton chain={chain} asset={asset} amount={amount} getBalances={getBalances} />
     </div>
   );
 };
