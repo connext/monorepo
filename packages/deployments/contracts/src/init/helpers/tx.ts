@@ -46,7 +46,7 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
     throw new Error("Cannot update if no write method is provided!");
   }
   // Sanity check: desired is specified.
-  if (!desired) {
+  if (desired === undefined || desired === null) {
     throw new Error("Desired value not specified for `updateIfNeeded` call.");
   }
 

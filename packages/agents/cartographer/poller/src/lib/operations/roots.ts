@@ -44,18 +44,18 @@ export const updatePropagatedRoots = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updatePropagatedRoots.name);
 
-  // TODO: Get prefix
-  const prefix = "";
+  // TODO: should replace below hardcoded value
+  const domain = "1735353714";
   const offset = await database.getCheckPoint("propagated_root_");
   const limit = 100;
 
   logger.debug("Retrieving propagated roots", requestContext, methodContext, {
-    prefix: prefix,
+    domain: domain,
     offset: offset,
     limit: limit,
   });
 
-  const propagatedRoots: PropagatedRoot[] = await subgraph.getGetPropagatedRoots(prefix, offset, limit);
+  const propagatedRoots: PropagatedRoot[] = await subgraph.getGetPropagatedRoots(domain, offset, limit);
 
   // Reset offset at the end of the cycle.
   const newOffset = propagatedRoots.length == 0 ? 0 : propagatedRoots[propagatedRoots.length - 1].count;

@@ -209,11 +209,11 @@ scalar stagingmumbai_Bytes
 
 type stagingmumbai_ConnectorMeta {
   id: ID!
-  spokeDomain: BigInt!
-  hubDomain: BigInt!
-  amb: stagingmumbai_Bytes!
-  rootManager: stagingmumbai_Bytes!
-  mirrorConnector: stagingmumbai_Bytes!
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  amb: stagingmumbai_Bytes
+  rootManager: stagingmumbai_Bytes
+  mirrorConnector: stagingmumbai_Bytes
 }
 
 input stagingmumbai_ConnectorMeta_filter {
@@ -1441,7 +1441,7 @@ enum stagingmumbai_Relayer_orderBy {
 
 type stagingmumbai_RootCount {
   id: ID!
-  count: BigInt!
+  count: BigInt
 }
 
 input stagingmumbai_RootCount_filter {

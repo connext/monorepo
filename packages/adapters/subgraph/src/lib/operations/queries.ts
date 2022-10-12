@@ -683,7 +683,7 @@ export const getProcessedRootMessagesByDomainAndBlockQuery = (
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
     combinedQuery += `
-    ${prefix}hub_rootMessageProcesseds ( 
+    ${prefix}_rootMessageProcesseds ( 
       first: ${param.limit}, 
       where: { 
         blockNumber_gt: ${param.offset} 
@@ -706,7 +706,7 @@ export const getAggregatedRootsByDomainQuery = (params: { domain: string; index:
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
     combinedQuery += `
-    ${prefix}hub_rootAggregateds ( 
+    ${prefix}_rootAggregateds ( 
       first: ${param.limit}, 
       where: { 
         domain: "${param.domain}",
@@ -726,10 +726,11 @@ export const getAggregatedRootsByDomainQuery = (params: { domain: string; index:
   `;
 };
 
-export const getPropagatedRootsQuery = (prefix: string, count: number, limit: number) => {
+export const getPropagatedRootsQuery = (domain: string, count: number, limit: number) => {
   const { config } = getContext();
+  const prefix = config.sources[domain].prefix;
   const queryString = `
-  ${prefix}hub_rootPropagateds ( 
+  ${prefix}_rootPropagateds ( 
     first: ${limit}, 
     where: { 
       count_gte: ${count} 

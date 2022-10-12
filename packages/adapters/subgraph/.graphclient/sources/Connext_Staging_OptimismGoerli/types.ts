@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
@@ -16,7 +17,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   stagingoptimismgoerli_BigDecimal: any;
-  BigInt: bigint;
+  BigInt: any;
   stagingoptimismgoerli_Bytes: any;
 };
 
@@ -208,11 +209,11 @@ export type stagingoptimismgoerli_Block_height = {
 
 export type stagingoptimismgoerli_ConnectorMeta = {
   id: Scalars['ID'];
-  spokeDomain: Scalars['BigInt'];
-  hubDomain: Scalars['BigInt'];
-  amb: Scalars['stagingoptimismgoerli_Bytes'];
-  rootManager: Scalars['stagingoptimismgoerli_Bytes'];
-  mirrorConnector: Scalars['stagingoptimismgoerli_Bytes'];
+  spokeDomain?: Maybe<Scalars['BigInt']>;
+  hubDomain?: Maybe<Scalars['BigInt']>;
+  amb?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  rootManager?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  mirrorConnector?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
 };
 
 export type stagingoptimismgoerli_ConnectorMeta_filter = {
@@ -647,6 +648,7 @@ export type stagingoptimismgoerli_OriginMessage = {
   root?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   message?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   transactionHash?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  rootCount?: Maybe<stagingoptimismgoerli_RootCount>;
 };
 
 export type stagingoptimismgoerli_OriginMessage_filter = {
@@ -704,6 +706,27 @@ export type stagingoptimismgoerli_OriginMessage_filter = {
   transactionHash_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   transactionHash_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  rootCount?: InputMaybe<Scalars['String']>;
+  rootCount_not?: InputMaybe<Scalars['String']>;
+  rootCount_gt?: InputMaybe<Scalars['String']>;
+  rootCount_lt?: InputMaybe<Scalars['String']>;
+  rootCount_gte?: InputMaybe<Scalars['String']>;
+  rootCount_lte?: InputMaybe<Scalars['String']>;
+  rootCount_in?: InputMaybe<Array<Scalars['String']>>;
+  rootCount_not_in?: InputMaybe<Array<Scalars['String']>>;
+  rootCount_contains?: InputMaybe<Scalars['String']>;
+  rootCount_contains_nocase?: InputMaybe<Scalars['String']>;
+  rootCount_not_contains?: InputMaybe<Scalars['String']>;
+  rootCount_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  rootCount_starts_with?: InputMaybe<Scalars['String']>;
+  rootCount_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  rootCount_not_starts_with?: InputMaybe<Scalars['String']>;
+  rootCount_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  rootCount_ends_with?: InputMaybe<Scalars['String']>;
+  rootCount_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  rootCount_not_ends_with?: InputMaybe<Scalars['String']>;
+  rootCount_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  rootCount_?: InputMaybe<stagingoptimismgoerli_RootCount_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingoptimismgoerli_BlockChangedFilter>;
 };
@@ -716,7 +739,8 @@ export type stagingoptimismgoerli_OriginMessage_orderBy =
   | 'index'
   | 'root'
   | 'message'
-  | 'transactionHash';
+  | 'transactionHash'
+  | 'rootCount';
 
 export type stagingoptimismgoerli_OriginTransfer = {
   id: Scalars['ID'];
@@ -1015,6 +1039,8 @@ export type Query = {
   stagingoptimismgoerli_aggregateRoots: Array<stagingoptimismgoerli_AggregateRoot>;
   stagingoptimismgoerli_connectorMeta?: Maybe<stagingoptimismgoerli_ConnectorMeta>;
   stagingoptimismgoerli_connectorMetas: Array<stagingoptimismgoerli_ConnectorMeta>;
+  stagingoptimismgoerli_rootCount?: Maybe<stagingoptimismgoerli_RootCount>;
+  stagingoptimismgoerli_rootCounts: Array<stagingoptimismgoerli_RootCount>;
   stagingoptimismgoerli_rootMessageSent?: Maybe<stagingoptimismgoerli_RootMessageSent>;
   stagingoptimismgoerli_rootMessageSents: Array<stagingoptimismgoerli_RootMessageSent>;
   /** Access to subgraph metadata */
@@ -1256,6 +1282,24 @@ export type Querystagingoptimismgoerli_connectorMetasArgs = {
 };
 
 
+export type Querystagingoptimismgoerli_rootCountArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingoptimismgoerli_rootCountsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingoptimismgoerli_RootCount_orderBy>;
+  orderDirection?: InputMaybe<stagingoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<stagingoptimismgoerli_RootCount_filter>;
+  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Querystagingoptimismgoerli_rootMessageSentArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<stagingoptimismgoerli_Block_height>;
@@ -1312,11 +1356,42 @@ export type stagingoptimismgoerli_Relayer_orderBy =
   | 'isActive'
   | 'relayer';
 
+export type stagingoptimismgoerli_RootCount = {
+  id: Scalars['ID'];
+  count?: Maybe<Scalars['BigInt']>;
+};
+
+export type stagingoptimismgoerli_RootCount_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  count?: InputMaybe<Scalars['BigInt']>;
+  count_not?: InputMaybe<Scalars['BigInt']>;
+  count_gt?: InputMaybe<Scalars['BigInt']>;
+  count_lt?: InputMaybe<Scalars['BigInt']>;
+  count_gte?: InputMaybe<Scalars['BigInt']>;
+  count_lte?: InputMaybe<Scalars['BigInt']>;
+  count_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingoptimismgoerli_BlockChangedFilter>;
+};
+
+export type stagingoptimismgoerli_RootCount_orderBy =
+  | 'id'
+  | 'count';
+
 export type stagingoptimismgoerli_RootMessageSent = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
   hubDomain?: Maybe<Scalars['BigInt']>;
   root?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  count?: Maybe<Scalars['BigInt']>;
   caller?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   transactionHash?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -1356,6 +1431,14 @@ export type stagingoptimismgoerli_RootMessageSent_filter = {
   root_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
   root_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   root_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  count?: InputMaybe<Scalars['BigInt']>;
+  count_not?: InputMaybe<Scalars['BigInt']>;
+  count_gt?: InputMaybe<Scalars['BigInt']>;
+  count_lt?: InputMaybe<Scalars['BigInt']>;
+  count_gte?: InputMaybe<Scalars['BigInt']>;
+  count_lte?: InputMaybe<Scalars['BigInt']>;
+  count_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
@@ -1409,6 +1492,7 @@ export type stagingoptimismgoerli_RootMessageSent_orderBy =
   | 'spokeDomain'
   | 'hubDomain'
   | 'root'
+  | 'count'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1633,6 +1717,8 @@ export type Subscription = {
   stagingoptimismgoerli_aggregateRoots: Array<stagingoptimismgoerli_AggregateRoot>;
   stagingoptimismgoerli_connectorMeta?: Maybe<stagingoptimismgoerli_ConnectorMeta>;
   stagingoptimismgoerli_connectorMetas: Array<stagingoptimismgoerli_ConnectorMeta>;
+  stagingoptimismgoerli_rootCount?: Maybe<stagingoptimismgoerli_RootCount>;
+  stagingoptimismgoerli_rootCounts: Array<stagingoptimismgoerli_RootCount>;
   stagingoptimismgoerli_rootMessageSent?: Maybe<stagingoptimismgoerli_RootMessageSent>;
   stagingoptimismgoerli_rootMessageSents: Array<stagingoptimismgoerli_RootMessageSent>;
   /** Access to subgraph metadata */
@@ -1874,6 +1960,24 @@ export type Subscriptionstagingoptimismgoerli_connectorMetasArgs = {
 };
 
 
+export type Subscriptionstagingoptimismgoerli_rootCountArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingoptimismgoerli_rootCountsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingoptimismgoerli_RootCount_orderBy>;
+  orderDirection?: InputMaybe<stagingoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<stagingoptimismgoerli_RootCount_filter>;
+  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionstagingoptimismgoerli_rootMessageSentArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<stagingoptimismgoerli_Block_height>;
@@ -1934,133 +2038,142 @@ export type _SubgraphErrorPolicy_ =
   /** If the subgraph has indexing errors, data will be omitted. The default. */
   | 'deny';
 
-}
-export type QueryConnextStagingOptimismGoerliSdk = {
+  export type QuerySdk = {
+      /** null **/
+  stagingoptimismgoerli_asset: InContextSdkMethod<Query['stagingoptimismgoerli_asset'], Querystagingoptimismgoerli_assetArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_asset: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_asset'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_assetArgs, MeshContext>,
+  stagingoptimismgoerli_assets: InContextSdkMethod<Query['stagingoptimismgoerli_assets'], Querystagingoptimismgoerli_assetsArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_assets: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_assets'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_assetsArgs, MeshContext>,
+  stagingoptimismgoerli_assetBalance: InContextSdkMethod<Query['stagingoptimismgoerli_assetBalance'], Querystagingoptimismgoerli_assetBalanceArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_assetBalance: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_assetBalance'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_assetBalanceArgs, MeshContext>,
+  stagingoptimismgoerli_assetBalances: InContextSdkMethod<Query['stagingoptimismgoerli_assetBalances'], Querystagingoptimismgoerli_assetBalancesArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_assetBalances: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_assetBalances'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_assetBalancesArgs, MeshContext>,
+  stagingoptimismgoerli_router: InContextSdkMethod<Query['stagingoptimismgoerli_router'], Querystagingoptimismgoerli_routerArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_router: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_router'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_routerArgs, MeshContext>,
+  stagingoptimismgoerli_routers: InContextSdkMethod<Query['stagingoptimismgoerli_routers'], Querystagingoptimismgoerli_routersArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_routers: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_routers'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_routersArgs, MeshContext>,
+  stagingoptimismgoerli_setting: InContextSdkMethod<Query['stagingoptimismgoerli_setting'], Querystagingoptimismgoerli_settingArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_setting: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_setting'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_settingArgs, MeshContext>,
+  stagingoptimismgoerli_settings: InContextSdkMethod<Query['stagingoptimismgoerli_settings'], Querystagingoptimismgoerli_settingsArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_settings: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_settings'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_settingsArgs, MeshContext>,
+  stagingoptimismgoerli_relayer: InContextSdkMethod<Query['stagingoptimismgoerli_relayer'], Querystagingoptimismgoerli_relayerArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_relayer: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_relayer'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_relayerArgs, MeshContext>,
+  stagingoptimismgoerli_relayers: InContextSdkMethod<Query['stagingoptimismgoerli_relayers'], Querystagingoptimismgoerli_relayersArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_relayers: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_relayers'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_relayersArgs, MeshContext>,
+  stagingoptimismgoerli_sequencer: InContextSdkMethod<Query['stagingoptimismgoerli_sequencer'], Querystagingoptimismgoerli_sequencerArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_sequencer: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_sequencer'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_sequencerArgs, MeshContext>,
+  stagingoptimismgoerli_sequencers: InContextSdkMethod<Query['stagingoptimismgoerli_sequencers'], Querystagingoptimismgoerli_sequencersArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_sequencers: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_sequencers'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_sequencersArgs, MeshContext>,
+  stagingoptimismgoerli_stableSwap: InContextSdkMethod<Query['stagingoptimismgoerli_stableSwap'], Querystagingoptimismgoerli_stableSwapArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_stableSwap: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_stableSwap'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_stableSwapArgs, MeshContext>,
+  stagingoptimismgoerli_stableSwaps: InContextSdkMethod<Query['stagingoptimismgoerli_stableSwaps'], Querystagingoptimismgoerli_stableSwapsArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_stableSwaps: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_stableSwaps'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_stableSwapsArgs, MeshContext>,
+  stagingoptimismgoerli_originTransfer: InContextSdkMethod<Query['stagingoptimismgoerli_originTransfer'], Querystagingoptimismgoerli_originTransferArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_originTransfer: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_originTransfer'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_originTransferArgs, MeshContext>,
+  stagingoptimismgoerli_originTransfers: InContextSdkMethod<Query['stagingoptimismgoerli_originTransfers'], Querystagingoptimismgoerli_originTransfersArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_originTransfers: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_originTransfers'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_originTransfersArgs, MeshContext>,
+  stagingoptimismgoerli_destinationTransfer: InContextSdkMethod<Query['stagingoptimismgoerli_destinationTransfer'], Querystagingoptimismgoerli_destinationTransferArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_destinationTransfer: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_destinationTransfer'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_destinationTransferArgs, MeshContext>,
+  stagingoptimismgoerli_destinationTransfers: InContextSdkMethod<Query['stagingoptimismgoerli_destinationTransfers'], Querystagingoptimismgoerli_destinationTransfersArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_destinationTransfers: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_destinationTransfers'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_destinationTransfersArgs, MeshContext>,
+  stagingoptimismgoerli_originMessage: InContextSdkMethod<Query['stagingoptimismgoerli_originMessage'], Querystagingoptimismgoerli_originMessageArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_originMessage: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_originMessage'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_originMessageArgs, MeshContext>,
+  stagingoptimismgoerli_originMessages: InContextSdkMethod<Query['stagingoptimismgoerli_originMessages'], Querystagingoptimismgoerli_originMessagesArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_originMessages: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_originMessages'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_originMessagesArgs, MeshContext>,
+  stagingoptimismgoerli_destinationMessage: InContextSdkMethod<Query['stagingoptimismgoerli_destinationMessage'], Querystagingoptimismgoerli_destinationMessageArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_destinationMessage: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_destinationMessage'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_destinationMessageArgs, MeshContext>,
+  stagingoptimismgoerli_destinationMessages: InContextSdkMethod<Query['stagingoptimismgoerli_destinationMessages'], Querystagingoptimismgoerli_destinationMessagesArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_destinationMessages: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_destinationMessages'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_destinationMessagesArgs, MeshContext>,
+  stagingoptimismgoerli_aggregateRoot: InContextSdkMethod<Query['stagingoptimismgoerli_aggregateRoot'], Querystagingoptimismgoerli_aggregateRootArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_aggregateRoot: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_aggregateRoot'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_aggregateRootArgs, MeshContext>,
+  stagingoptimismgoerli_aggregateRoots: InContextSdkMethod<Query['stagingoptimismgoerli_aggregateRoots'], Querystagingoptimismgoerli_aggregateRootsArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_aggregateRoots: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_aggregateRoots'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_aggregateRootsArgs, MeshContext>,
+  stagingoptimismgoerli_connectorMeta: InContextSdkMethod<Query['stagingoptimismgoerli_connectorMeta'], Querystagingoptimismgoerli_connectorMetaArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_connectorMeta: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_connectorMeta'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_connectorMetaArgs, MeshContext>,
+  stagingoptimismgoerli_connectorMetas: InContextSdkMethod<Query['stagingoptimismgoerli_connectorMetas'], Querystagingoptimismgoerli_connectorMetasArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_connectorMetas: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_connectorMetas'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_connectorMetasArgs, MeshContext>,
+  stagingoptimismgoerli_rootCount: InContextSdkMethod<Query['stagingoptimismgoerli_rootCount'], Querystagingoptimismgoerli_rootCountArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_rootMessageSent: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_rootMessageSent'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_rootMessageSentArgs, MeshContext>,
+  stagingoptimismgoerli_rootCounts: InContextSdkMethod<Query['stagingoptimismgoerli_rootCounts'], Querystagingoptimismgoerli_rootCountsArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_rootMessageSents: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli_rootMessageSents'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli_rootMessageSentsArgs, MeshContext>,
+  stagingoptimismgoerli_rootMessageSent: InContextSdkMethod<Query['stagingoptimismgoerli_rootMessageSent'], Querystagingoptimismgoerli_rootMessageSentArgs, MeshContext>,
+  /** null **/
+  stagingoptimismgoerli_rootMessageSents: InContextSdkMethod<Query['stagingoptimismgoerli_rootMessageSents'], Querystagingoptimismgoerli_rootMessageSentsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  stagingoptimismgoerli__meta: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Query['stagingoptimismgoerli__meta'], ConnextStagingOptimismGoerliTypes.Querystagingoptimismgoerli__metaArgs, MeshContext>
-};
+  stagingoptimismgoerli__meta: InContextSdkMethod<Query['stagingoptimismgoerli__meta'], Querystagingoptimismgoerli__metaArgs, MeshContext>
+  };
 
-export type MutationConnextStagingOptimismGoerliSdk = {
+  export type MutationSdk = {
+    
+  };
 
-};
-
-export type SubscriptionConnextStagingOptimismGoerliSdk = {
+  export type SubscriptionSdk = {
+      /** null **/
+  stagingoptimismgoerli_asset: InContextSdkMethod<Subscription['stagingoptimismgoerli_asset'], Subscriptionstagingoptimismgoerli_assetArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_asset: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_asset'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_assetArgs, MeshContext>,
+  stagingoptimismgoerli_assets: InContextSdkMethod<Subscription['stagingoptimismgoerli_assets'], Subscriptionstagingoptimismgoerli_assetsArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_assets: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_assets'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_assetsArgs, MeshContext>,
+  stagingoptimismgoerli_assetBalance: InContextSdkMethod<Subscription['stagingoptimismgoerli_assetBalance'], Subscriptionstagingoptimismgoerli_assetBalanceArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_assetBalance: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_assetBalance'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_assetBalanceArgs, MeshContext>,
+  stagingoptimismgoerli_assetBalances: InContextSdkMethod<Subscription['stagingoptimismgoerli_assetBalances'], Subscriptionstagingoptimismgoerli_assetBalancesArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_assetBalances: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_assetBalances'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_assetBalancesArgs, MeshContext>,
+  stagingoptimismgoerli_router: InContextSdkMethod<Subscription['stagingoptimismgoerli_router'], Subscriptionstagingoptimismgoerli_routerArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_router: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_router'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_routerArgs, MeshContext>,
+  stagingoptimismgoerli_routers: InContextSdkMethod<Subscription['stagingoptimismgoerli_routers'], Subscriptionstagingoptimismgoerli_routersArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_routers: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_routers'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_routersArgs, MeshContext>,
+  stagingoptimismgoerli_setting: InContextSdkMethod<Subscription['stagingoptimismgoerli_setting'], Subscriptionstagingoptimismgoerli_settingArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_setting: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_setting'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_settingArgs, MeshContext>,
+  stagingoptimismgoerli_settings: InContextSdkMethod<Subscription['stagingoptimismgoerli_settings'], Subscriptionstagingoptimismgoerli_settingsArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_settings: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_settings'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_settingsArgs, MeshContext>,
+  stagingoptimismgoerli_relayer: InContextSdkMethod<Subscription['stagingoptimismgoerli_relayer'], Subscriptionstagingoptimismgoerli_relayerArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_relayer: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_relayer'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_relayerArgs, MeshContext>,
+  stagingoptimismgoerli_relayers: InContextSdkMethod<Subscription['stagingoptimismgoerli_relayers'], Subscriptionstagingoptimismgoerli_relayersArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_relayers: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_relayers'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_relayersArgs, MeshContext>,
+  stagingoptimismgoerli_sequencer: InContextSdkMethod<Subscription['stagingoptimismgoerli_sequencer'], Subscriptionstagingoptimismgoerli_sequencerArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_sequencer: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_sequencer'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_sequencerArgs, MeshContext>,
+  stagingoptimismgoerli_sequencers: InContextSdkMethod<Subscription['stagingoptimismgoerli_sequencers'], Subscriptionstagingoptimismgoerli_sequencersArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_sequencers: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_sequencers'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_sequencersArgs, MeshContext>,
+  stagingoptimismgoerli_stableSwap: InContextSdkMethod<Subscription['stagingoptimismgoerli_stableSwap'], Subscriptionstagingoptimismgoerli_stableSwapArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_stableSwap: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_stableSwap'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_stableSwapArgs, MeshContext>,
+  stagingoptimismgoerli_stableSwaps: InContextSdkMethod<Subscription['stagingoptimismgoerli_stableSwaps'], Subscriptionstagingoptimismgoerli_stableSwapsArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_stableSwaps: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_stableSwaps'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_stableSwapsArgs, MeshContext>,
+  stagingoptimismgoerli_originTransfer: InContextSdkMethod<Subscription['stagingoptimismgoerli_originTransfer'], Subscriptionstagingoptimismgoerli_originTransferArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_originTransfer: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_originTransfer'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_originTransferArgs, MeshContext>,
+  stagingoptimismgoerli_originTransfers: InContextSdkMethod<Subscription['stagingoptimismgoerli_originTransfers'], Subscriptionstagingoptimismgoerli_originTransfersArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_originTransfers: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_originTransfers'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_originTransfersArgs, MeshContext>,
+  stagingoptimismgoerli_destinationTransfer: InContextSdkMethod<Subscription['stagingoptimismgoerli_destinationTransfer'], Subscriptionstagingoptimismgoerli_destinationTransferArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_destinationTransfer: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_destinationTransfer'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_destinationTransferArgs, MeshContext>,
+  stagingoptimismgoerli_destinationTransfers: InContextSdkMethod<Subscription['stagingoptimismgoerli_destinationTransfers'], Subscriptionstagingoptimismgoerli_destinationTransfersArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_destinationTransfers: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_destinationTransfers'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_destinationTransfersArgs, MeshContext>,
+  stagingoptimismgoerli_originMessage: InContextSdkMethod<Subscription['stagingoptimismgoerli_originMessage'], Subscriptionstagingoptimismgoerli_originMessageArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_originMessage: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_originMessage'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_originMessageArgs, MeshContext>,
+  stagingoptimismgoerli_originMessages: InContextSdkMethod<Subscription['stagingoptimismgoerli_originMessages'], Subscriptionstagingoptimismgoerli_originMessagesArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_originMessages: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_originMessages'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_originMessagesArgs, MeshContext>,
+  stagingoptimismgoerli_destinationMessage: InContextSdkMethod<Subscription['stagingoptimismgoerli_destinationMessage'], Subscriptionstagingoptimismgoerli_destinationMessageArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_destinationMessage: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_destinationMessage'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_destinationMessageArgs, MeshContext>,
+  stagingoptimismgoerli_destinationMessages: InContextSdkMethod<Subscription['stagingoptimismgoerli_destinationMessages'], Subscriptionstagingoptimismgoerli_destinationMessagesArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_destinationMessages: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_destinationMessages'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_destinationMessagesArgs, MeshContext>,
+  stagingoptimismgoerli_aggregateRoot: InContextSdkMethod<Subscription['stagingoptimismgoerli_aggregateRoot'], Subscriptionstagingoptimismgoerli_aggregateRootArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_aggregateRoot: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_aggregateRoot'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_aggregateRootArgs, MeshContext>,
+  stagingoptimismgoerli_aggregateRoots: InContextSdkMethod<Subscription['stagingoptimismgoerli_aggregateRoots'], Subscriptionstagingoptimismgoerli_aggregateRootsArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_aggregateRoots: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_aggregateRoots'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_aggregateRootsArgs, MeshContext>,
+  stagingoptimismgoerli_connectorMeta: InContextSdkMethod<Subscription['stagingoptimismgoerli_connectorMeta'], Subscriptionstagingoptimismgoerli_connectorMetaArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_connectorMeta: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_connectorMeta'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_connectorMetaArgs, MeshContext>,
+  stagingoptimismgoerli_connectorMetas: InContextSdkMethod<Subscription['stagingoptimismgoerli_connectorMetas'], Subscriptionstagingoptimismgoerli_connectorMetasArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_connectorMetas: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_connectorMetas'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_connectorMetasArgs, MeshContext>,
+  stagingoptimismgoerli_rootCount: InContextSdkMethod<Subscription['stagingoptimismgoerli_rootCount'], Subscriptionstagingoptimismgoerli_rootCountArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_rootMessageSent: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_rootMessageSent'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_rootMessageSentArgs, MeshContext>,
+  stagingoptimismgoerli_rootCounts: InContextSdkMethod<Subscription['stagingoptimismgoerli_rootCounts'], Subscriptionstagingoptimismgoerli_rootCountsArgs, MeshContext>,
   /** null **/
-  stagingoptimismgoerli_rootMessageSents: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli_rootMessageSents'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli_rootMessageSentsArgs, MeshContext>,
+  stagingoptimismgoerli_rootMessageSent: InContextSdkMethod<Subscription['stagingoptimismgoerli_rootMessageSent'], Subscriptionstagingoptimismgoerli_rootMessageSentArgs, MeshContext>,
+  /** null **/
+  stagingoptimismgoerli_rootMessageSents: InContextSdkMethod<Subscription['stagingoptimismgoerli_rootMessageSents'], Subscriptionstagingoptimismgoerli_rootMessageSentsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  stagingoptimismgoerli__meta: InContextSdkMethod<ConnextStagingOptimismGoerliTypes.Subscription['stagingoptimismgoerli__meta'], ConnextStagingOptimismGoerliTypes.Subscriptionstagingoptimismgoerli__metaArgs, MeshContext>
-};
-export type ConnextStagingOptimismGoerliContext = {
-      ["Connext_Staging_OptimismGoerli"]: { Query: QueryConnextStagingOptimismGoerliSdk, Mutation: MutationConnextStagingOptimismGoerliSdk, Subscription: SubscriptionConnextStagingOptimismGoerliSdk },
+  stagingoptimismgoerli__meta: InContextSdkMethod<Subscription['stagingoptimismgoerli__meta'], Subscriptionstagingoptimismgoerli__metaArgs, MeshContext>
+  };
+
+  export type Context = {
+      ["Connext_Staging_OptimismGoerli"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
+}

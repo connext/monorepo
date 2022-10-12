@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
@@ -16,7 +17,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   testgoerli_BigDecimal: any;
-  BigInt: bigint;
+  BigInt: any;
   testgoerli_Bytes: any;
 };
 
@@ -1417,93 +1418,94 @@ export type _SubgraphErrorPolicy_ =
   /** If the subgraph has indexing errors, data will be omitted. The default. */
   | 'deny';
 
-}
-export type QueryConnextTestGoerliSdk = {
+  export type QuerySdk = {
+      /** null **/
+  testgoerli_asset: InContextSdkMethod<Query['testgoerli_asset'], Querytestgoerli_assetArgs, MeshContext>,
   /** null **/
-  testgoerli_asset: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_asset'], ConnextTestGoerliTypes.Querytestgoerli_assetArgs, MeshContext>,
+  testgoerli_assets: InContextSdkMethod<Query['testgoerli_assets'], Querytestgoerli_assetsArgs, MeshContext>,
   /** null **/
-  testgoerli_assets: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_assets'], ConnextTestGoerliTypes.Querytestgoerli_assetsArgs, MeshContext>,
+  testgoerli_assetBalance: InContextSdkMethod<Query['testgoerli_assetBalance'], Querytestgoerli_assetBalanceArgs, MeshContext>,
   /** null **/
-  testgoerli_assetBalance: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_assetBalance'], ConnextTestGoerliTypes.Querytestgoerli_assetBalanceArgs, MeshContext>,
+  testgoerli_assetBalances: InContextSdkMethod<Query['testgoerli_assetBalances'], Querytestgoerli_assetBalancesArgs, MeshContext>,
   /** null **/
-  testgoerli_assetBalances: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_assetBalances'], ConnextTestGoerliTypes.Querytestgoerli_assetBalancesArgs, MeshContext>,
+  testgoerli_router: InContextSdkMethod<Query['testgoerli_router'], Querytestgoerli_routerArgs, MeshContext>,
   /** null **/
-  testgoerli_router: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_router'], ConnextTestGoerliTypes.Querytestgoerli_routerArgs, MeshContext>,
+  testgoerli_routers: InContextSdkMethod<Query['testgoerli_routers'], Querytestgoerli_routersArgs, MeshContext>,
   /** null **/
-  testgoerli_routers: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_routers'], ConnextTestGoerliTypes.Querytestgoerli_routersArgs, MeshContext>,
+  testgoerli_setting: InContextSdkMethod<Query['testgoerli_setting'], Querytestgoerli_settingArgs, MeshContext>,
   /** null **/
-  testgoerli_setting: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_setting'], ConnextTestGoerliTypes.Querytestgoerli_settingArgs, MeshContext>,
+  testgoerli_settings: InContextSdkMethod<Query['testgoerli_settings'], Querytestgoerli_settingsArgs, MeshContext>,
   /** null **/
-  testgoerli_settings: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_settings'], ConnextTestGoerliTypes.Querytestgoerli_settingsArgs, MeshContext>,
+  testgoerli_relayer: InContextSdkMethod<Query['testgoerli_relayer'], Querytestgoerli_relayerArgs, MeshContext>,
   /** null **/
-  testgoerli_relayer: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_relayer'], ConnextTestGoerliTypes.Querytestgoerli_relayerArgs, MeshContext>,
+  testgoerli_relayers: InContextSdkMethod<Query['testgoerli_relayers'], Querytestgoerli_relayersArgs, MeshContext>,
   /** null **/
-  testgoerli_relayers: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_relayers'], ConnextTestGoerliTypes.Querytestgoerli_relayersArgs, MeshContext>,
+  testgoerli_stableSwap: InContextSdkMethod<Query['testgoerli_stableSwap'], Querytestgoerli_stableSwapArgs, MeshContext>,
   /** null **/
-  testgoerli_stableSwap: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_stableSwap'], ConnextTestGoerliTypes.Querytestgoerli_stableSwapArgs, MeshContext>,
+  testgoerli_stableSwaps: InContextSdkMethod<Query['testgoerli_stableSwaps'], Querytestgoerli_stableSwapsArgs, MeshContext>,
   /** null **/
-  testgoerli_stableSwaps: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_stableSwaps'], ConnextTestGoerliTypes.Querytestgoerli_stableSwapsArgs, MeshContext>,
+  testgoerli_sponsorVault: InContextSdkMethod<Query['testgoerli_sponsorVault'], Querytestgoerli_sponsorVaultArgs, MeshContext>,
   /** null **/
-  testgoerli_sponsorVault: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_sponsorVault'], ConnextTestGoerliTypes.Querytestgoerli_sponsorVaultArgs, MeshContext>,
+  testgoerli_sponsorVaults: InContextSdkMethod<Query['testgoerli_sponsorVaults'], Querytestgoerli_sponsorVaultsArgs, MeshContext>,
   /** null **/
-  testgoerli_sponsorVaults: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_sponsorVaults'], ConnextTestGoerliTypes.Querytestgoerli_sponsorVaultsArgs, MeshContext>,
+  testgoerli_originTransfer: InContextSdkMethod<Query['testgoerli_originTransfer'], Querytestgoerli_originTransferArgs, MeshContext>,
   /** null **/
-  testgoerli_originTransfer: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_originTransfer'], ConnextTestGoerliTypes.Querytestgoerli_originTransferArgs, MeshContext>,
+  testgoerli_originTransfers: InContextSdkMethod<Query['testgoerli_originTransfers'], Querytestgoerli_originTransfersArgs, MeshContext>,
   /** null **/
-  testgoerli_originTransfers: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_originTransfers'], ConnextTestGoerliTypes.Querytestgoerli_originTransfersArgs, MeshContext>,
+  testgoerli_destinationTransfer: InContextSdkMethod<Query['testgoerli_destinationTransfer'], Querytestgoerli_destinationTransferArgs, MeshContext>,
   /** null **/
-  testgoerli_destinationTransfer: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_destinationTransfer'], ConnextTestGoerliTypes.Querytestgoerli_destinationTransferArgs, MeshContext>,
-  /** null **/
-  testgoerli_destinationTransfers: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli_destinationTransfers'], ConnextTestGoerliTypes.Querytestgoerli_destinationTransfersArgs, MeshContext>,
+  testgoerli_destinationTransfers: InContextSdkMethod<Query['testgoerli_destinationTransfers'], Querytestgoerli_destinationTransfersArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  testgoerli__meta: InContextSdkMethod<ConnextTestGoerliTypes.Query['testgoerli__meta'], ConnextTestGoerliTypes.Querytestgoerli__metaArgs, MeshContext>
-};
+  testgoerli__meta: InContextSdkMethod<Query['testgoerli__meta'], Querytestgoerli__metaArgs, MeshContext>
+  };
 
-export type MutationConnextTestGoerliSdk = {
+  export type MutationSdk = {
+    
+  };
 
-};
-
-export type SubscriptionConnextTestGoerliSdk = {
+  export type SubscriptionSdk = {
+      /** null **/
+  testgoerli_asset: InContextSdkMethod<Subscription['testgoerli_asset'], Subscriptiontestgoerli_assetArgs, MeshContext>,
   /** null **/
-  testgoerli_asset: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_asset'], ConnextTestGoerliTypes.Subscriptiontestgoerli_assetArgs, MeshContext>,
+  testgoerli_assets: InContextSdkMethod<Subscription['testgoerli_assets'], Subscriptiontestgoerli_assetsArgs, MeshContext>,
   /** null **/
-  testgoerli_assets: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_assets'], ConnextTestGoerliTypes.Subscriptiontestgoerli_assetsArgs, MeshContext>,
+  testgoerli_assetBalance: InContextSdkMethod<Subscription['testgoerli_assetBalance'], Subscriptiontestgoerli_assetBalanceArgs, MeshContext>,
   /** null **/
-  testgoerli_assetBalance: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_assetBalance'], ConnextTestGoerliTypes.Subscriptiontestgoerli_assetBalanceArgs, MeshContext>,
+  testgoerli_assetBalances: InContextSdkMethod<Subscription['testgoerli_assetBalances'], Subscriptiontestgoerli_assetBalancesArgs, MeshContext>,
   /** null **/
-  testgoerli_assetBalances: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_assetBalances'], ConnextTestGoerliTypes.Subscriptiontestgoerli_assetBalancesArgs, MeshContext>,
+  testgoerli_router: InContextSdkMethod<Subscription['testgoerli_router'], Subscriptiontestgoerli_routerArgs, MeshContext>,
   /** null **/
-  testgoerli_router: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_router'], ConnextTestGoerliTypes.Subscriptiontestgoerli_routerArgs, MeshContext>,
+  testgoerli_routers: InContextSdkMethod<Subscription['testgoerli_routers'], Subscriptiontestgoerli_routersArgs, MeshContext>,
   /** null **/
-  testgoerli_routers: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_routers'], ConnextTestGoerliTypes.Subscriptiontestgoerli_routersArgs, MeshContext>,
+  testgoerli_setting: InContextSdkMethod<Subscription['testgoerli_setting'], Subscriptiontestgoerli_settingArgs, MeshContext>,
   /** null **/
-  testgoerli_setting: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_setting'], ConnextTestGoerliTypes.Subscriptiontestgoerli_settingArgs, MeshContext>,
+  testgoerli_settings: InContextSdkMethod<Subscription['testgoerli_settings'], Subscriptiontestgoerli_settingsArgs, MeshContext>,
   /** null **/
-  testgoerli_settings: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_settings'], ConnextTestGoerliTypes.Subscriptiontestgoerli_settingsArgs, MeshContext>,
+  testgoerli_relayer: InContextSdkMethod<Subscription['testgoerli_relayer'], Subscriptiontestgoerli_relayerArgs, MeshContext>,
   /** null **/
-  testgoerli_relayer: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_relayer'], ConnextTestGoerliTypes.Subscriptiontestgoerli_relayerArgs, MeshContext>,
+  testgoerli_relayers: InContextSdkMethod<Subscription['testgoerli_relayers'], Subscriptiontestgoerli_relayersArgs, MeshContext>,
   /** null **/
-  testgoerli_relayers: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_relayers'], ConnextTestGoerliTypes.Subscriptiontestgoerli_relayersArgs, MeshContext>,
+  testgoerli_stableSwap: InContextSdkMethod<Subscription['testgoerli_stableSwap'], Subscriptiontestgoerli_stableSwapArgs, MeshContext>,
   /** null **/
-  testgoerli_stableSwap: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_stableSwap'], ConnextTestGoerliTypes.Subscriptiontestgoerli_stableSwapArgs, MeshContext>,
+  testgoerli_stableSwaps: InContextSdkMethod<Subscription['testgoerli_stableSwaps'], Subscriptiontestgoerli_stableSwapsArgs, MeshContext>,
   /** null **/
-  testgoerli_stableSwaps: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_stableSwaps'], ConnextTestGoerliTypes.Subscriptiontestgoerli_stableSwapsArgs, MeshContext>,
+  testgoerli_sponsorVault: InContextSdkMethod<Subscription['testgoerli_sponsorVault'], Subscriptiontestgoerli_sponsorVaultArgs, MeshContext>,
   /** null **/
-  testgoerli_sponsorVault: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_sponsorVault'], ConnextTestGoerliTypes.Subscriptiontestgoerli_sponsorVaultArgs, MeshContext>,
+  testgoerli_sponsorVaults: InContextSdkMethod<Subscription['testgoerli_sponsorVaults'], Subscriptiontestgoerli_sponsorVaultsArgs, MeshContext>,
   /** null **/
-  testgoerli_sponsorVaults: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_sponsorVaults'], ConnextTestGoerliTypes.Subscriptiontestgoerli_sponsorVaultsArgs, MeshContext>,
+  testgoerli_originTransfer: InContextSdkMethod<Subscription['testgoerli_originTransfer'], Subscriptiontestgoerli_originTransferArgs, MeshContext>,
   /** null **/
-  testgoerli_originTransfer: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_originTransfer'], ConnextTestGoerliTypes.Subscriptiontestgoerli_originTransferArgs, MeshContext>,
+  testgoerli_originTransfers: InContextSdkMethod<Subscription['testgoerli_originTransfers'], Subscriptiontestgoerli_originTransfersArgs, MeshContext>,
   /** null **/
-  testgoerli_originTransfers: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_originTransfers'], ConnextTestGoerliTypes.Subscriptiontestgoerli_originTransfersArgs, MeshContext>,
+  testgoerli_destinationTransfer: InContextSdkMethod<Subscription['testgoerli_destinationTransfer'], Subscriptiontestgoerli_destinationTransferArgs, MeshContext>,
   /** null **/
-  testgoerli_destinationTransfer: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_destinationTransfer'], ConnextTestGoerliTypes.Subscriptiontestgoerli_destinationTransferArgs, MeshContext>,
-  /** null **/
-  testgoerli_destinationTransfers: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli_destinationTransfers'], ConnextTestGoerliTypes.Subscriptiontestgoerli_destinationTransfersArgs, MeshContext>,
+  testgoerli_destinationTransfers: InContextSdkMethod<Subscription['testgoerli_destinationTransfers'], Subscriptiontestgoerli_destinationTransfersArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  testgoerli__meta: InContextSdkMethod<ConnextTestGoerliTypes.Subscription['testgoerli__meta'], ConnextTestGoerliTypes.Subscriptiontestgoerli__metaArgs, MeshContext>
-};
-export type ConnextTestGoerliContext = {
-      ["Connext_Test_Goerli"]: { Query: QueryConnextTestGoerliSdk, Mutation: MutationConnextTestGoerliSdk, Subscription: SubscriptionConnextTestGoerliSdk },
+  testgoerli__meta: InContextSdkMethod<Subscription['testgoerli__meta'], Subscriptiontestgoerli__metaArgs, MeshContext>
+  };
+
+  export type Context = {
+      ["Connext_Test_Goerli"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
+}

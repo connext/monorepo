@@ -8,7 +8,6 @@ import {
   SubgraphQueryByTimestampMetaParams,
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
-  ConnectorMeta,
   mock,
 } from "@connext/nxtp-utils";
 import {
@@ -21,7 +20,6 @@ import {
 import { SubgraphReader } from "../src/reader";
 import * as ReaderFns from "../src/reader";
 import * as ParserFns from "../src/lib/helpers/parse";
-import * as MockableFns from "../src/mockable";
 
 import * as ExecuteFns from "../src/lib/helpers/execute";
 import { BigNumber } from "ethers";
@@ -460,15 +458,38 @@ describe("SubgraphReader", () => {
 
   describe("#getProcessedRootMessagesByDomain", () => {
     it("should return the processed root messages", async () => {
-      stub(ReaderFns, "DOMAIN_TO_HUB_MAPPING").value({ "1111": "https://hello.world" });
-
       const rootMessages = [mock.entity.rootMessage(), mock.entity.rootMessage()];
-      stub(MockableFns, "graphQlRequest").resolves({ rootMessageProcesseds: rootMessages });
+      response.set("1111", [rootMessages]);
+      executeStub.resolves(response);
 
       const processedRootMessages = await subgraphReader.getProcessedRootMessagesByDomain([
         { domain: "1111", limit: 100, offset: 0 },
       ]);
       expect(processedRootMessages).to.be.deep.eq(rootMessages);
+    });
+  });
+
+  describe("#getGetAggregatedRootsByDomain", () => {
+    it("should return the aggregated roots", async () => {
+      const roots = [mock.entity.aggregatedRoot({ domain: "1111" }), mock.entity.aggregatedRoot({ domain: "1111" })];
+      response.set("1111", [roots]);
+      executeStub.resolves(response);
+
+      const aggregatedRoots = await subgraphReader.getGetAggregatedRootsByDomain([
+        { domain: "1111", index: 0, limit: 100 },
+      ]);
+      expect(aggregatedRoots).to.be.deep.eq(roots);
+    });
+  });
+
+  describe("#getGetPropagatedRoots", () => {
+    it("should return the propagated roots", async () => {
+      const root = mock.entity.propagatedRoot({ domains: ["1111", "2222"] });
+      response.set("1111", [root]);
+      executeStub.resolves(response);
+
+      const propagatedRoots = await subgraphReader.getGetPropagatedRoots("1111", 0, 100);
+      expect(propagatedRoots).to.be.deep.eq([root]);
     });
   });
 
