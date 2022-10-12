@@ -1,23 +1,8 @@
-export const STAGING_INIT_CONFIG = {
-  hub: 5,
-  networks: [
-    {
-      chain: 5,
-      rpc: process.env.GOERLI_ETH_PROVIDER_URL || "https://goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
-    },
-    {
-      chain: 420,
-      rpc: "https://goerli.optimism.io",
-    },
-    {
-      chain: 80001,
-      rpc: "https://rpc.ankr.com/polygon_mumbai",
-    },
-    {
-      chain: 421613,
-      rpc: "https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
-    },
-  ],
+import { InitConfig } from "../../helpers";
+
+export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
+  hub: "1735353714",
+  supportedDomains: ["1735353714", "1735356532", "1734439522", "9991"],
   assets: [
     {
       name: "TEST",
@@ -70,7 +55,7 @@ export const STAGING_INIT_CONFIG = {
       whitelist: ["0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"],
     },
     sequencers: {
-      whitelist: ["0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C"],
+      whitelist: ["0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C", "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"],
     },
     relayers: {
       whitelist: [
