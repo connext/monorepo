@@ -15,7 +15,6 @@ import {
   RootMessage,
   ConnectorMeta,
 } from "@connext/nxtp-utils";
-import { gql } from "graphql-request";
 
 import { getHelpers } from "./lib/helpers";
 import {
@@ -44,15 +43,9 @@ import {
   getProcessedRootMessagesByDomainAndBlockQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
-import { graphQlRequest } from "./mockable";
 
 let context: { config: SubgraphMap };
 export const getContext = () => context;
-
-// TODO: VERY STUPID, graphclient is not working for this
-export const DOMAIN_TO_HUB_MAPPING: Record<string, string> = {
-  "1735353714": "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-hub-staging-goerli",
-};
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
@@ -656,7 +649,7 @@ export class SubgraphReader {
    * @param params - The fetch params
    * @returns - The array of `RootMessage`
    */
-  public async getProcessedRootMessagesByDomainTest(
+  public async getProcessedRootMessagesByDomain(
     params: { domain: string; offset: number; limit: number }[],
   ): Promise<RootMessage[]> {
     const { parser, execute } = getHelpers();
