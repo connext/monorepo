@@ -1,4 +1,5 @@
 import * as fs from "fs";
+
 import { config } from "dotenv";
 import { providers, Wallet, utils } from "ethers";
 import commandLineArgs from "command-line-args";
@@ -32,9 +33,7 @@ export const optionDefinitions = [
 ];
 
 /**
- * Call the core `initProtocol` method.
- * Sanitizer method to make sure config is set up correctly.
- * @param config - ProtocolStack, but as any/Partial.
+ * Make sure config is set up properly and start initializtion.
  */
 export const sanitizeAndInit = async () => {
   let cmdArgs: any;
