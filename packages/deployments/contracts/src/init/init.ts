@@ -15,6 +15,7 @@ import {
   HubMessagingDeployments,
   InitConfig,
   InitConfigSchema,
+  AssetStack,
 } from "./helpers";
 import { setupAsset } from "./helpers/assets";
 import { setupMessaging } from "./helpers/messaging";
@@ -41,8 +42,6 @@ export const sanitizeAndInit = async () => {
   } catch (err: any) {
     throw new Error(`Parsing arguments failed, cmdArgs: ${process.argv}`);
   }
-
-  console.log({ cmdArgs });
 
   // Validate command line arguments
   const { network, env, domains: _domains } = cmdArgs;
@@ -74,26 +73,42 @@ export const sanitizeAndInit = async () => {
     }
   }
 
-  // Sanitation checks
+  // Sanitation checks for hub domain and assets configuration
   const hubDomain = initConfig.hub;
   if (!supported.includes(hubDomain)) {
     throw new Error(`Supported domains MUST include the hub domain. hub: ${hubDomain}, supported: ${supported}`);
   }
 
-  const assets = initConfig.assets ?? [];
-  for (const asset of assets) {
+  const _assets = initConfig.assets ?? [];
+  for (const asset of _assets) {
     const assetDomains = [asset.canonical.domain].concat(Object.keys(asset.representations));
 
-    console.log({ assetDomains, representations: Object.keys(asset.representations) });
-
     const configuredDomains = supported.filter((domain) => assetDomains.includes(domain));
-
     if (JSON.stringify(configuredDomains) != JSON.stringify(supported)) {
       throw new Error(
         `Not configured asset domains, asset: ${asset.name}, canonical: (${asset.canonical.domain}, ${asset.canonical.address}), configured: ${configuredDomains}, parsed: ${domains}`,
       );
     }
   }
+
+  // get assets configuration for given domains
+  const assets = _assets.map((asset) => {
+    const _extracted: AssetStack = {
+      name: asset.name,
+      canonical: {
+        domain: asset.canonical.domain,
+        address: asset.canonical.address,
+      },
+      representations: {},
+    };
+
+    for (const domain of domains) {
+      if (domain === hubDomain) continue;
+      _extracted.representations[domain] = asset.representations[domain];
+    }
+
+    return _extracted;
+  });
 
   /// MARK - Deployer
   // Get deployer mnemonic, which should be provided in env if not in the config.
@@ -142,8 +157,6 @@ export const sanitizeAndInit = async () => {
       deployments,
     });
   }
-
-  // TODO: Sanity - check that every hub has a spoke and vice versa!
 
   const sanitized = {
     deployer,
