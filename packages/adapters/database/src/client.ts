@@ -7,11 +7,14 @@ import {
   RootMessage,
   convertFromDbMessage,
   convertFromDbRootMessage,
+  convertFromDbAggregatedRoot,
+  convertFromDbPropagatedRoot,
   AggregatedRoot,
   PropagatedRoot,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
+import { conditions as dc } from "zapatos/db";
 import type * as s from "zapatos/schema";
 import { BigNumber } from "ethers";
 
@@ -407,4 +410,111 @@ export const transaction = async (
   callback: (client: db.TxnClientForRepeatableRead) => Promise<void>,
 ): Promise<void> => {
   db.repeatableRead(pool, async (txnClient) => callback(txnClient));
+};
+
+export const getUnProcessedRootMessages = async (
+  limit = 100,
+  orderDirection: "ASC" | "DESC" = "ASC",
+): Promise<RootMessage[]> => {
+  const messages = await db
+    .select("root_messages", { processed: false }, { limit, order: { by: "block_number", direction: orderDirection } })
+    .run(pool);
+  return messages.map(convertFromDbRootMessage);
+};
+
+export const getUnProcessedMessages = async (
+  limit = 100,
+  orderDirection: "ASC" | "DESC" = "ASC",
+): Promise<XMessage[]> => {
+  const messages = await db
+    .select("messages", { processed: false }, { limit, order: { by: "index", direction: orderDirection } })
+    .run(pool);
+  return messages.map(convertFromDbMessage);
+};
+
+export const getAggregateRoot = async (messageRootIndex: number): Promise<string | undefined> => {
+  // Get the most recent unprocessed propagated root
+  const root: PropagatedRoot = convertFromDbPropagatedRoot(
+    await db
+      .selectOne(
+        "propagated_roots",
+        { leaf_count: dc.gte(messageRootIndex) },
+        { limit: 1, order: { by: "leaf_count", direction: "ASC" } },
+      )
+      .run(pool),
+  );
+  return root?.aggregate;
+};
+
+export const getAggregateRootCount = async (aggreateRoot: string): Promise<number | undefined> => {
+  // Get the leaf count at the aggregated root
+  const root: PropagatedRoot = convertFromDbPropagatedRoot(
+    await db.selectOne("propagated_roots", { aggregate_root: aggreateRoot }).run(pool),
+  );
+  return root?.count;
+};
+
+export const getMessageRootIndex = async (domain: string, messageRoot: string): Promise<number | undefined> => {
+  // Find the index emitted from the RootAggregated event
+  const root: AggregatedRoot = convertFromDbAggregatedRoot(
+    await db.selectOne("aggregated_roots", { domain: domain, received_root: messageRoot }).run(pool),
+  );
+  return root?.index;
+};
+
+export const getMessageRootFromIndex = async (domain: string, index: number): Promise<string | undefined> => {
+  // Find the first published outbound root that contains the index, for a given domain
+  const root: RootMessage = convertFromDbRootMessage(
+    await db
+      .selectOne(
+        "root_messages",
+        { leaf_count: dc.gte(index) },
+        { limit: 1, order: { by: "leaf_count", direction: "ASC" } },
+      )
+      .run(pool),
+  );
+  return root?.root;
+};
+
+export const getMessageRootCount = async (domain: string, messageRoot: string): Promise<number | undefined> => {
+  // Find the index of the last message in the published messageRoot.
+  // This will be the count at the time messageRoot was sent
+  const message: XMessage = convertFromDbMessage(await db.selectOne("messages", { root: messageRoot }).run(pool));
+  return message?.origin?.index;
+};
+
+export const getSpokeNode = async (domain: string, index: number): Promise<string | undefined> => {
+  const message: XMessage = convertFromDbMessage(
+    await db.selectOne("messages", { origin_domain: domain, index: index }).run(pool),
+  );
+  return message?.leaf;
+};
+
+export const getSpokeNodes = async (domain: string, start: number, end: number): Promise<string[]> => {
+  const messages = await db
+    .select("messages", { origin_domain: domain, index: dc.gte(start) && dc.lte(end) })
+    .run(pool);
+  return messages.map((message) => convertFromDbMessage(message).leaf);
+};
+
+export const getHubNode = async (index: number): Promise<string | undefined> => {
+  const root: AggregatedRoot = convertFromDbAggregatedRoot(
+    await db.selectOne("aggregated_roots", { domain_index: index }).run(pool),
+  );
+  return root?.receivedRoot;
+};
+
+export const getHubNodes = async (start: number, end: number): Promise<string[]> => {
+  const roots = await db.select("aggregated_roots", { domain_index: dc.gte(start) && dc.lte(end) }).run(pool);
+  return roots.map((root) => convertFromDbAggregatedRoot(root).receivedRoot);
+};
+
+export const getRoot = async (domain: string, path: string): Promise<string | undefined> => {
+  const root = await db.selectOne("merkle_cache", { domain: domain, domain_path: path }).run(pool);
+  return root?.tree_root;
+};
+
+export const putRoot = async (domain: string, path: string, hash: string): Promise<void> => {
+  const root = { domain: domain, domain_path: path, tree_root: hash };
+  await db.upsert("merkle_cache", root, ["domain", "domain_path"], { updateColumns: [] }).run(pool);
 };

@@ -5,7 +5,6 @@ import { mkAddress, Logger, mock as _mock, mkBytes32, createLoggingContext, XMes
 
 import { NxtpLighthouseConfig } from "../src/config";
 import { ProverContext } from "../src/tasks/prover/context";
-import { Cartographer } from "../src/tasks/prover/adapters";
 import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
 import { Database } from "@connext/nxtp-adapters-database";
 import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
@@ -33,7 +32,7 @@ export const mock = {
         chainreader: mock.adapters.chainreader(),
         contracts: mock.adapters.contracts(),
         relayer: mock.adapters.relayer(),
-        cartographer: mock.adapters.cartographer(),
+        database: mock.adapters.database(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -140,13 +139,6 @@ export const mock = {
       return {
         getRelayerAddress: stub().resolves(mockRelayerAddress),
         send: stub().resolves(mockTaskId),
-      };
-    },
-    cartographer: (): Cartographer => {
-      return {
-        getUnProcessedMessages: stub().resolves([mockXMessage1, mockXMessage2]),
-        getSentRootMessages: stub().resolves([]),
-        getUnProcessedRootMessages: stub().resolves([]),
       };
     },
     database: (): Database => {

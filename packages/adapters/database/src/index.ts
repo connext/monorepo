@@ -28,6 +28,19 @@ import {
   getRootMessages,
   saveAggregatedRoots,
   savePropagatedRoots,
+  getUnProcessedRootMessages,
+  getUnProcessedMessages,
+  getAggregateRoot,
+  getAggregateRootCount,
+  getMessageRootIndex,
+  getMessageRootFromIndex,
+  getMessageRootCount,
+  getSpokeNode,
+  getSpokeNodes,
+  getHubNode,
+  getHubNodes,
+  getRoot,
+  putRoot,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -74,6 +87,19 @@ export type Database = {
   transaction: (callback: (client: TxnClientForRepeatableRead) => Promise<void>) => Promise<void>;
   saveAggregatedRoots: (roots: AggregatedRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   savePropagatedRoots: (roots: PropagatedRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  getUnProcessedRootMessages: () => Promise<RootMessage[]>;
+  getUnProcessedMessages: () => Promise<XMessage[]>;
+  getAggregateRoot: (messageRootIndex: number) => Promise<string | undefined>;
+  getAggregateRootCount: (aggregateRoot: string) => Promise<number | undefined>;
+  getMessageRootIndex: (domain: string, messageRoot: string) => Promise<number | undefined>;
+  getMessageRootFromIndex: (domain: string, index: number) => Promise<string | undefined>;
+  getMessageRootCount: (domain: string, messageRoot: string) => Promise<number | undefined>;
+  getSpokeNode: (domain: string, index: number) => Promise<string | undefined>;
+  getSpokeNodes: (domain: string, start: number, end: number) => Promise<string[]>;
+  getHubNode: (index: number) => Promise<string | undefined>;
+  getHubNodes: (start: number, end: number) => Promise<string[]>;
+  getRoot: (domain: string, path: string) => Promise<string | undefined>;
+  putRoot: (domain: string, path: string, hash: string) => Promise<void>;
 };
 
 export let pool: Pool;
@@ -105,6 +131,19 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     transaction,
     saveAggregatedRoots,
     savePropagatedRoots,
+    getUnProcessedRootMessages,
+    getUnProcessedMessages,
+    getAggregateRoot,
+    getAggregateRootCount,
+    getMessageRootIndex,
+    getMessageRootFromIndex,
+    getMessageRootCount,
+    getSpokeNode,
+    getSpokeNodes,
+    getHubNode,
+    getHubNodes,
+    getRoot,
+    putRoot,
   };
 };
 

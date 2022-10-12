@@ -80,8 +80,8 @@ export const processMessage = async (message: XMessage) => {
     throw new NoAggregateRootCount(targetAggregateRoot);
   }
   // TODO: Move to per domain storage adapters in context
-  const spokeStore = new SpokeDBHelper(message.originDomain, messageRootCount) as DBHelper;
-  const hubStore = new HubDBHelper("hub", aggregateRootCount) as DBHelper;
+  const spokeStore = new SpokeDBHelper(message.originDomain, messageRootCount, database) as DBHelper;
+  const hubStore = new HubDBHelper("hub", aggregateRootCount, database) as DBHelper;
 
   const spokeSMT = new SparseMerkleTree(spokeStore);
   const hubSMT = new SparseMerkleTree(hubStore);

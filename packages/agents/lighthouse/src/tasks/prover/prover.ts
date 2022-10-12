@@ -1,11 +1,12 @@
 import { createLoggingContext, getChainData, Logger } from "@connext/nxtp-utils";
 import { getContractInterfaces, ChainReader, contractDeployments } from "@connext/nxtp-txservice";
+import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
 
 import { getConfig } from "../../config";
 
 import { ProverContext } from "./context";
 import { proveAndProcess } from "./operations";
-import { setupDbClient, setupRelayer } from "./adapters";
+import { setupRelayer } from "./adapters";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: ProverContext = {} as any;
@@ -43,7 +44,7 @@ export const makeProver = async () => {
       context.logger.child({ module: "ChainReader" }),
       context.config.chains,
     );
-    context.adapters.database = await setupDbClient();
+    context.adapters.database = await getDatabase(context.config.database.url, context.logger);
     context.adapters.relayer = await setupRelayer();
     context.adapters.contracts = getContractInterfaces();
 
@@ -66,6 +67,7 @@ export const makeProver = async () => {
     await proveAndProcess();
   } catch (e: unknown) {
     console.error("Error starting Prover. Sad! :(", e);
+    await closeDatabase();
     process.exit();
   }
 };

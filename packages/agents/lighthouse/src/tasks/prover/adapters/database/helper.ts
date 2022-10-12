@@ -1,65 +1,49 @@
-import { convertFromDbMessage, XMessage, convertFromDbAggregatedRoot, AggregatedRoot } from "@connext/nxtp-utils";
-
-import { dc, db, pool } from "./index";
+import { Database } from "@connext/nxtp-adapters-database";
 
 export class SpokeDBHelper {
-  constructor(private domain: string, private count: number) {}
+  constructor(private domain: string, private count: number, private db: Database) {}
 
   public async getCount(): Promise<number> {
     return this.count;
   }
 
   public async getNode(index: number): Promise<string | undefined> {
-    const message: XMessage = convertFromDbMessage(
-      await db.selectOne("messages", { origin_domain: this.domain, index: index }).run(pool),
-    );
-    return message?.leaf;
+    return await this.db.getSpokeNode(this.domain, index);
   }
 
   public async getNodes(start: number, end: number): Promise<string[]> {
-    const messages = await db
-      .select("messages", { origin_domain: this.domain, index: dc.gte(start) && dc.lte(end) })
-      .run(pool);
-    return messages.map((message) => convertFromDbMessage(message).leaf);
+    return await this.db.getSpokeNodes(this.domain, start, end);
   }
 
   public async getRoot(path: string): Promise<string | undefined> {
-    const root = await db.selectOne("merkle_cache", { domain: this.domain, domain_path: path }).run(pool);
-    return root?.tree_root;
+    return await this.db.getRoot(this.domain, path);
   }
 
   public async putRoot(path: string, hash: string): Promise<void> {
-    const root = { domain: this.domain, domain_path: path, tree_root: hash };
-    await db.upsert("merkle_cache", root, ["domain", "domain_path"], { updateColumns: [] }).run(pool);
+    return await this.db.putRoot(this.domain, path, hash);
   }
 }
 
 export class HubDBHelper {
-  constructor(private domain: string, private count: number) {}
+  constructor(private domain: string, private count: number, private db: Database) {}
 
   public async getCount(): Promise<number> {
     return this.count;
   }
 
   public async getNode(index: number): Promise<string | undefined> {
-    const root: AggregatedRoot = convertFromDbAggregatedRoot(
-      await db.selectOne("aggregated_roots", { index: index }).run(pool),
-    );
-    return root?.receivedRoot;
+    return await this.db.getHubNode(index);
   }
 
   public async getNodes(start: number, end: number): Promise<string[]> {
-    const roots = await db.select("aggregated_roots", { index: dc.gte(start) && dc.lte(end) }).run(pool);
-    return roots.map((root) => convertFromDbAggregatedRoot(root).receivedRoot);
+    return await this.db.getHubNodes(start, end);
   }
 
   public async getRoot(path: string): Promise<string | undefined> {
-    const root = await db.selectOne("merkle_cache", { domain: this.domain, domain_path: path }).run(pool);
-    return root?.tree_root;
+    return await this.db.getRoot(this.domain, path);
   }
 
   public async putRoot(path: string, hash: string): Promise<void> {
-    const root = { domain: this.domain, domain_path: path, tree_root: hash };
-    await db.upsert("merkle_cache", root, ["domain", "domain_path"], { updateColumns: [] }).run(pool);
+    return await this.db.putRoot(this.domain, path, hash);
   }
 }
