@@ -15,10 +15,10 @@ contract PolygonHubConnectorTest is ConnectorHelper {
   address _checkPointManager = address(88888);
 
   function setUp() public {
-    _l2Connector = address(3432123);
+    _l2Connector = address(123);
     // deploy
     _l1Connector = address(
-      new PolygonHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, _l2Connector, _mirrorGas, _checkPointManager)
+      new PolygonHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, address(0), _mirrorGas, _checkPointManager)
     );
   }
 
@@ -30,25 +30,29 @@ contract PolygonHubConnectorTest is ConnectorHelper {
 
   // ============ PolygonHubConnector.setFxChildTunnel ============
   function test_PolygonHubConnector__setFxChildTunnel_shouldWork() public {
-    address childTunnel = address(1);
-    PolygonHubConnector(_l1Connector).setFxChildTunnel(childTunnel);
-    assertEq(PolygonHubConnector(_l1Connector).fxChildTunnel(), childTunnel);
+    PolygonHubConnector(_l1Connector).setFxChildTunnel(_l2Connector);
+    assertEq(PolygonHubConnector(_l1Connector).fxChildTunnel(), _l2Connector);
+  }
+
+  function test_PolygonHubConnector__setMirrorConnector_shouldWork() public {
+    PolygonHubConnector(_l1Connector).setMirrorConnector(_l2Connector);
+    assertEq(PolygonHubConnector(_l1Connector).fxChildTunnel(), _l2Connector);
+    assertEq(PolygonHubConnector(_l1Connector).mirrorConnector(), _l2Connector);
   }
 
   function test_PolygonHubConnector__setFxChildTunnel_failedIfAlreadySet() public {
-    address childTunnel = address(1);
-    PolygonHubConnector(_l1Connector).setFxChildTunnel(childTunnel);
-    assertEq(PolygonHubConnector(_l1Connector).fxChildTunnel(), childTunnel);
+    PolygonHubConnector(_l1Connector).setFxChildTunnel(_l2Connector);
+    assertEq(PolygonHubConnector(_l1Connector).fxChildTunnel(), _l2Connector);
 
-    childTunnel = address(2);
+    _l2Connector = address(2);
     vm.expectRevert(bytes("FxBaseRootTunnel: CHILD_TUNNEL_ALREADY_SET"));
 
-    PolygonHubConnector(_l1Connector).setFxChildTunnel(childTunnel);
+    PolygonHubConnector(_l1Connector).setFxChildTunnel(_l2Connector);
   }
 
   // ============ PolygonHubConnector.sendMessage ============
   function test_PolygonHubConnector__sendMessage_works() public {
-    PolygonHubConnector(_l1Connector).setFxChildTunnel(_l2Connector);
+    PolygonHubConnector(_l1Connector).setMirrorConnector(_l2Connector);
 
     // setup mock
     vm.mockCall(_amb, abi.encodeWithSelector(IFxStateSender.sendMessageToChild.selector), abi.encode(123));
@@ -68,7 +72,7 @@ contract PolygonHubConnectorTest is ConnectorHelper {
   }
 
   function test_PolygonHubConnector__sendMessage_works_fuzz(bytes32 data) public {
-    PolygonHubConnector(_l1Connector).setFxChildTunnel(_l2Connector);
+    PolygonHubConnector(_l1Connector).setMirrorConnector(_l2Connector);
 
     // setup mock
     vm.mockCall(_amb, abi.encodeWithSelector(IFxStateSender.sendMessageToChild.selector), abi.encode(123));
