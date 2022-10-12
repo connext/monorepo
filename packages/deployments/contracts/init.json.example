@@ -1,16 +1,6 @@
 {
-  "deployer": "...",
-  "hub": 5,
-  "networks": [
-    {
-      "chain": 5,
-      "rpc": "https://goerli.infura.io/v3/..."
-    },
-    {
-      "chain": 420,
-      "rpc": "https://optimism-goerli.infura.io/v3/..."
-    }
-  ],
+  "hub": "1735353714",
+  "supportedDomains": ["1735353714", "1734439522"],
   "environment": "production",
   "assets": [
     {
