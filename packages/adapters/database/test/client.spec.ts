@@ -484,14 +484,6 @@ describe("Database client", () => {
 
     _messages = await getRootMessages(false, 100, "ASC", pool);
     expect(_messages).to.deep.eq(messages.slice(batchSize / 2 - 1));
-
-    _messages = await getRootMessages(undefined, 100, "ASC", pool);
-    expect(_messages).to.deep.eq(
-      messages
-        .slice(0, batchSize / 2 - 1)
-        .map((m) => ({ ...m, processed: true }))
-        .concat(messages.slice(batchSize / 2 - 1).map((m) => ({ ...m, processed: false }))),
-    );
   });
 
   it("should upsert multiple processed messages", async () => {
