@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import { config } from "dotenv";
 import { providers, Wallet, utils } from "ethers";
 import commandLineArgs from "command-line-args";
@@ -56,8 +57,17 @@ export const sanitizeAndInit = async () => {
   const useStaging = env === "staging";
   console.log(`USING ${useStaging ? "STAGING" : "PRODUCTION"} AS ENVIRONMENT`);
 
+  // Read init.json if exists
+  const path = process.env.INIT_CONFIG_FILE ?? "init.json";
+  let overrideConfig: any = {};
+  if (fs.existsSync(path)) {
+    const json = fs.readFileSync(path, { encoding: "utf-8" });
+    overrideConfig = JSON.parse(json);
+  }
+
   // Validate init config schema
-  const initConfig: InitConfig = (DEFAULT_INIT_CONFIG as any)[network as string][env];
+  const initConfig: InitConfig = overrideConfig ?? (DEFAULT_INIT_CONFIG as any)[network as string][env];
+  console.log(initConfig);
   const validate = ajv.compile(InitConfigSchema);
   const valid = validate(initConfig);
 
