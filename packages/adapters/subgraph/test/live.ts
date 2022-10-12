@@ -2,7 +2,7 @@ import { getChainData } from "@connext/nxtp-utils";
 import { SubgraphReader } from "../src/reader";
 
 export const livetest = async () => {
-  console.log("> starting dev test....");
+  console.log("> starting live test....");
   const chainData = await getChainData();
 
   const reader = await SubgraphReader.create(chainData, "staging");
@@ -20,7 +20,7 @@ export const livetest = async () => {
   console.log("> aggregatedRoots: ");
   console.log(aggregatedRoots);
 
-  const propagatedRoots = await reader.getGetPropagatedRoots("1735353714", 0, 10);
+  const propagatedRoots = await reader.getGetPropagatedRoots(hubDomain, 0, 10);
   console.log("> propagatedRoots: ");
   console.log(propagatedRoots);
 };
