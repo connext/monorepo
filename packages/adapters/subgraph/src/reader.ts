@@ -42,11 +42,9 @@ import {
   getOriginMessagesByDomainAndIndexQuery,
   getDestinationMessagesByDomainAndLeafQuery,
   getSentRootMessagesByDomainAndBlockQuery,
-  getProcessedRootMessagesByDomainAndBlockQuery,
-  getAggregatedRootsByDomainQuery,
-  getPropagatedRootsQuery,
   getConnectorMetaQuery,
 } from "./lib/operations";
+import { ROOT_PROPAGATED_ENTITY, ROOT_AGGREGATED_ENTITY } from "./lib/operations/queries";
 import { SubgraphMap } from "./lib/entities";
 import { graphQlRequest } from "./mockable";
 
@@ -684,7 +682,7 @@ export class SubgraphReader {
 
         const endpoint = DOMAIN_TO_HUB_MAPPING[param.domain];
         if (!endpoint) {
-          return [];
+          return "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-hub-staging-goerli";
         }
 
         const data = await graphQlRequest(endpoint, processedRootMessageQuery_, {
@@ -722,18 +720,35 @@ export class SubgraphReader {
   public async getGetAggregatedRootsByDomain(
     params: { domain: string; index: number; limit: number }[],
   ): Promise<AggregatedRoot[]> {
-    const { parser, execute } = getHelpers();
-    const aggregatedRootsQuery = getAggregatedRootsByDomainQuery(params);
-    const response = await execute(aggregatedRootsQuery);
-    const _roots: any[] = [];
-    for (const key of response.keys()) {
-      const value = response.get(key);
-      const flatten = value?.flat();
-      const _root = flatten?.map((x) => {
-        return { ...x, domain: key };
-      });
-      _roots.push(_root);
-    }
+    const { parser } = getHelpers();
+
+    const _roots = await Promise.all(
+      params.map(async (param) => {
+        const rootAggregatedsQuery_ = gql`
+          query GetAggregatedRoots($limit: Int!, domain: Int!, $index: Int!) {
+            rootAggregateds(
+              first: $limit, 
+              where: { domain: "$domain",index_gte: $index }, 
+              orderBy: index, 
+              orderDirection: asc) {
+                ${ROOT_AGGREGATED_ENTITY}
+            }
+          }
+        `;
+
+        const endpoint = DOMAIN_TO_HUB_MAPPING[param.domain];
+        if (!endpoint) {
+          return "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-hub-staging-goerli";
+        }
+
+        const data = await graphQlRequest(endpoint, rootAggregatedsQuery_, {
+          limit: param.limit,
+          domain: param.domain,
+          index: param.index,
+        });
+        return data?.rootMessageProcesseds ?? [];
+      }),
+    );
 
     const aggregatedRoots: AggregatedRoot[] = _roots
       .flat()
@@ -747,18 +762,27 @@ export class SubgraphReader {
    * Gets all the propagated rootsstarting with index for a given domain
    */
   public async getGetPropagatedRoots(prefix: string, count: number, limit: number): Promise<PropagatedRoot[]> {
-    const { parser, execute } = getHelpers();
-    const propagatedRootsQuery = getPropagatedRootsQuery(prefix, count, limit);
-    const response = await execute(propagatedRootsQuery);
-    const _roots: any[] = [];
-    for (const key of response.keys()) {
-      const value = response.get(key);
-      const flatten = value?.flat();
-      const _root = flatten?.map((x) => {
-        return { ...x, domain: key };
-      });
-      _roots.push(_root);
-    }
+    const { parser } = getHelpers();
+
+    const rootPropagatedsQuery_ = gql`
+      query GetPropagatedRoots($limit: Int!, $count: Int!) {
+        rootPropagateds(
+          first: $limit,
+          where: { count_gte: $count },
+          orderBy: count,
+          orderDirection: asc) {
+          ${ROOT_PROPAGATED_ENTITY}
+        }
+      }
+    `;
+
+    const endpoint = "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-hub-staging-goerli";
+
+    const data = await graphQlRequest(endpoint, rootPropagatedsQuery_, {
+      limit: limit,
+      count: count,
+    });
+    const _roots = data?.rootPropagateds ?? [];
 
     const propagatedRoots: PropagatedRoot[] = _roots
       .flat()
