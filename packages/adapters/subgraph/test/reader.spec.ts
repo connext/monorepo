@@ -469,6 +469,30 @@ describe("SubgraphReader", () => {
     });
   });
 
+  describe("#getGetAggregatedRootsByDomain", () => {
+    it("should return the aggregated roots", async () => {
+      const roots = [mock.entity.aggregatedRoot({ domain: "1111" }), mock.entity.aggregatedRoot({ domain: "1111" })];
+      response.set("1111", [roots]);
+      executeStub.resolves(response);
+
+      const aggregatedRoots = await subgraphReader.getGetAggregatedRootsByDomain([
+        { domain: "1111", index: 0, limit: 100 },
+      ]);
+      expect(aggregatedRoots).to.be.deep.eq(roots);
+    });
+  });
+
+  describe("#getGetPropagatedRoots", () => {
+    it("should return the propagated roots", async () => {
+      const root = mock.entity.propagatedRoot({ domains: ["1111", "2222"] });
+      response.set("1111", [root]);
+      executeStub.resolves(response);
+
+      const propagatedRoots = await subgraphReader.getGetPropagatedRoots("1111", 0, 100);
+      expect(propagatedRoots).to.be.deep.eq([root]);
+    });
+  });
+
   describe("#getLatestBlockNumber", () => {
     it("should return latestBlockNumber per domain", async () => {
       response.set("1111", [{ block: { number: 100 } }]);
