@@ -43,6 +43,12 @@ variable "full_image_name_cartographer_messages" {
   default     = "ghcr.io/connext/cartographer-messages:sha-67628e6"
 }
 
+variable "full_image_name_cartographer_roots" {
+  type        = string
+  description = "cartographer roots image name"
+  default     = "ghcr.io/connext/cartographer-roots:sha-67628e6"
+}
+
 variable "certificate_arn_testnet" {
   default = "arn:aws:acm:us-east-1:679752396206:certificate/45908dc4-137b-4366-8538-4f59ee6a914e"
 }
