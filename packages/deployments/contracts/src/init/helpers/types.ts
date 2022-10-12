@@ -123,9 +123,11 @@ export const InitHeaderConfigSchema = Type.Object({
   agents: AgentsSchema,
 });
 
-export const InitConfigSchema = Type.Object({
+export const InitConfigSchema = Type.Intersect([
   InitHeaderConfigSchema,
-  supportedDomains: Type.Array(Type.String()),
-});
+  Type.Object({
+    supportedDomains: Type.Array(Type.String()),
+  }),
+]);
 
 export type InitConfig = Static<typeof InitConfigSchema>;
