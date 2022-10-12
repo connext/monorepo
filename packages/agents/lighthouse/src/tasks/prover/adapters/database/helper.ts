@@ -1,6 +1,7 @@
 import { Database } from "@connext/nxtp-adapters-database";
+import { DBHelper } from "@connext/nxtp-utils";
 
-export class SpokeDBHelper {
+export class SpokeDBHelper implements DBHelper {
   constructor(private domain: string, private count: number, private db: Database) {}
 
   public async getCount(): Promise<number> {
@@ -24,7 +25,7 @@ export class SpokeDBHelper {
   }
 }
 
-export class HubDBHelper {
+export class HubDBHelper implements DBHelper {
   constructor(private domain: string, private count: number, private db: Database) {}
 
   public async getCount(): Promise<number> {
