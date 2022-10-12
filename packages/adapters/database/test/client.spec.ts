@@ -486,20 +486,7 @@ describe("Database client", () => {
     expect(_messages).to.deep.eq(messages.slice(batchSize / 2 - 1));
   });
 
-  it("should upsert multiple processed messages", async () => {
-    const messages: RootMessage[] = [];
-    for (var _i = 0; _i < batchSize; _i++) {
-      messages.push(mock.entity.rootMessage());
-    }
-    await saveProcessedRootMessages(messages, pool);
-
-    for (let message of messages) {
-      message.root = "0xroot";
-    }
-    await saveSentRootMessages(messages, pool);
-  });
-
-  it("should get sent root message", async () => {});
+  it("should upsert multiple processed messages", async () => {});
 
   it("should throw errors", async () => {
     await expect(getTransferByTransferId("")).to.eventually.not.be.rejected;
