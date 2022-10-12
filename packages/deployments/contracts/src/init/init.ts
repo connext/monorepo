@@ -82,14 +82,15 @@ export const sanitizeAndInit = async () => {
 
   const assets = initConfig.assets ?? [];
   for (const asset of assets) {
-    const assetDomains: string[] = [];
-    assetDomains.push(asset.canonical.domain);
-    assetDomains.concat(Object.keys(asset.representations));
+    const assetDomains = [asset.canonical.domain].concat(Object.keys(asset.representations));
 
-    const configuredDomains = assetDomains.filter((assetDomain) => supported.includes(assetDomain));
-    if (configuredDomains !== assetDomains) {
+    console.log({ assetDomains, representations: Object.keys(asset.representations) });
+
+    const configuredDomains = supported.filter((domain) => assetDomains.includes(domain));
+
+    if (JSON.stringify(configuredDomains) != JSON.stringify(supported)) {
       throw new Error(
-        `Not configured asset domains, asset: ${asset.name}, canonical: (${asset.canonical.domain}, ${asset.canonical.address}), configured: ${configuredDomains}, supported: ${supported}`,
+        `Not configured asset domains, asset: ${asset.name}, canonical: (${asset.canonical.domain}, ${asset.canonical.address}), configured: ${configuredDomains}, parsed: ${domains}`,
       );
     }
   }
@@ -146,6 +147,7 @@ export const sanitizeAndInit = async () => {
 
   const sanitized = {
     deployer,
+    hub: hubDomain,
     networks,
     assets,
     agents: initConfig.agents,
