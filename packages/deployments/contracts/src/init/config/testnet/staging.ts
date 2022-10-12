@@ -2,7 +2,7 @@ import { InitConfig } from "../../helpers";
 
 export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
   hub: "1735353714",
-  supportedDomains: ["1735353714", "1735356532", "1735356532", "9991"],
+  supportedDomains: ["1735353714", "1735356532", "1734439522", "9991"],
   assets: [
     {
       name: "TEST",
