@@ -17,7 +17,6 @@ import {
   PropagatedRoot,
   ConnectorMeta,
 } from "@connext/nxtp-utils";
-import { gql } from "graphql-request";
 
 import { getHelpers } from "./lib/helpers";
 import {
@@ -43,18 +42,13 @@ import {
   getDestinationMessagesByDomainAndLeafQuery,
   getSentRootMessagesByDomainAndBlockQuery,
   getConnectorMetaQuery,
+  getProcessedRootMessagesByDomainAndBlockQuery,
 } from "./lib/operations";
 import { ROOT_PROPAGATED_ENTITY, ROOT_AGGREGATED_ENTITY } from "./lib/operations/queries";
 import { SubgraphMap } from "./lib/entities";
-import { graphQlRequest } from "./mockable";
 
 let context: { config: SubgraphMap };
 export const getContext = () => context;
-
-// TODO: VERY STUPID, graphclient is not working for this
-export const DOMAIN_TO_HUB_MAPPING: Record<string, string> = {
-  "1735353714": "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-hub-staging-goerli",
-};
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
@@ -655,56 +649,25 @@ export class SubgraphReader {
 
   /**
    * Gets all the processed root messages starting with blocknumber for a given domain
+   * @param params - The fetch params
+   * @returns - The array of `RootMessage`
    */
   public async getProcessedRootMessagesByDomain(
     params: { domain: string; offset: number; limit: number }[],
   ): Promise<RootMessage[]> {
-    const { parser } = getHelpers();
+    const { parser, execute } = getHelpers();
 
-    const _messages = await Promise.all(
-      params.map(async (param) => {
-        const processedRootMessageQuery_ = gql`
-          query RootMessageProcesseds($limit: Int!, $offset: Int!) {
-            rootMessageProcesseds(first: $limit, where: { blockNumber_gt: $offset }) {
-              id
-              spokeDomain
-              hubDomain
-              root
-              caller
-              transactionHash
-              timestamp
-              gasPrice
-              gasLimit
-              blockNumber
-            }
-          }
-        `;
-
-        const endpoint = DOMAIN_TO_HUB_MAPPING[param.domain];
-        if (!endpoint) {
-          return "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-hub-staging-goerli";
-        }
-
-        const data = await graphQlRequest(endpoint, processedRootMessageQuery_, {
-          limit: param.limit,
-          offset: param.offset,
-        });
-        return data?.rootMessageProcesseds ?? [];
-      }),
-    );
-
-    // TOOD: THIS SHOULD WORK BUT DOESNT
-    // const processedRootMessageQuery = getProcessedRootMessagesByDomainAndBlockQuery(params);
-    // const response = await execute(processedRootMessageQuery);
-    // const _messages: any[] = [];
-    // for (const key of response.keys()) {
-    //   const value = response.get(key);
-    //   const flatten = value?.flat();
-    //   const _message = flatten?.map((x) => {
-    //     return { ...x, domain: key };
-    //   });
-    //   _messages.push(_message);
-    // }
+    const processedRootMessageQuery = getProcessedRootMessagesByDomainAndBlockQuery(params);
+    const response = await execute(processedRootMessageQuery);
+    const _messages: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _message = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _messages.push(_message);
+    }
 
     const processedRootMessages: RootMessage[] = _messages
       .flat()

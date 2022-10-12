@@ -8,7 +8,6 @@ import {
   SubgraphQueryByTimestampMetaParams,
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
-  ConnectorMeta,
   mock,
 } from "@connext/nxtp-utils";
 import {
@@ -21,7 +20,6 @@ import {
 import { SubgraphReader } from "../src/reader";
 import * as ReaderFns from "../src/reader";
 import * as ParserFns from "../src/lib/helpers/parse";
-import * as MockableFns from "../src/mockable";
 
 import * as ExecuteFns from "../src/lib/helpers/execute";
 import { BigNumber } from "ethers";
@@ -460,10 +458,9 @@ describe("SubgraphReader", () => {
 
   describe("#getProcessedRootMessagesByDomain", () => {
     it("should return the processed root messages", async () => {
-      stub(ReaderFns, "DOMAIN_TO_HUB_MAPPING").value({ "1111": "https://hello.world" });
-
       const rootMessages = [mock.entity.rootMessage(), mock.entity.rootMessage()];
-      stub(MockableFns, "graphQlRequest").resolves({ rootMessageProcesseds: rootMessages });
+      response.set("1111", [rootMessages]);
+      executeStub.resolves(response);
 
       const processedRootMessages = await subgraphReader.getProcessedRootMessagesByDomain([
         { domain: "1111", limit: 100, offset: 0 },

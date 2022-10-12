@@ -209,11 +209,11 @@ scalar staginggoerli_Bytes
 
 type staginggoerli_ConnectorMeta {
   id: ID!
-  spokeDomain: BigInt!
-  hubDomain: BigInt!
-  amb: staginggoerli_Bytes!
-  rootManager: staginggoerli_Bytes!
-  mirrorConnector: staginggoerli_Bytes!
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  amb: staginggoerli_Bytes
+  rootManager: staginggoerli_Bytes
+  mirrorConnector: staginggoerli_Bytes
 }
 
 input staginggoerli_ConnectorMeta_filter {
@@ -1441,7 +1441,7 @@ enum staginggoerli_Relayer_orderBy {
 
 type staginggoerli_RootCount {
   id: ID!
-  count: BigInt!
+  count: BigInt
 }
 
 input staginggoerli_RootCount_filter {

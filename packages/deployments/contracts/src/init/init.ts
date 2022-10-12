@@ -58,7 +58,7 @@ export const sanitizeAndInit = async () => {
 
   // Read init.json if exists
   const path = process.env.INIT_CONFIG_FILE ?? "init.json";
-  let overrideConfig: any = {};
+  let overrideConfig: any;
   if (fs.existsSync(path)) {
     const json = fs.readFileSync(path, { encoding: "utf-8" });
     overrideConfig = JSON.parse(json);
