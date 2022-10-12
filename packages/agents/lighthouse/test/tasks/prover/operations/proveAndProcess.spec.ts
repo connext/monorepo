@@ -27,14 +27,11 @@ describe("Operations: ProveAndProcess", () => {
       processMessageStub = stub(ProveAndProcessFns, "processMessage").resolves();
     });
 
-    it("should process messages", async () => {
-      // const getUnProcessedMessagesStub = stub(proverCtxMock.adapters.database, "getUnProcessedMessages").resolves([
-      //   mockXMessage1,
-      //   mockXMessage2,
-      // ]);
+    it.only("should process messages", async () => {
+      (proverCtxMock.adapters.database.getUnProcessedMessages as SinonStub).resolves([mockXMessage1, mockXMessage2]);
       await proveAndProcess();
-      // expect(processMessageStub).to.be.calledWithExactly(mockXMessage1);
-      // expect(processMessageStub).to.be.calledWithExactly(mockXMessage2);
+      expect(processMessageStub).to.be.calledWithExactly(mockXMessage1);
+      expect(processMessageStub).to.be.calledWithExactly(mockXMessage2);
     });
 
     it("should not process if error but still work", async () => {

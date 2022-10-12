@@ -712,10 +712,10 @@ export const getAggregatedRootsByDomainQuery = (params: { domain: string; index:
         domain: "${param.domain}",
         index_gte: ${param.index}
       }
+      orderBy: index, 
+      orderDirection: asc
     ) {
       ${ROOT_AGGREGATED_ENTITY}
-    orderBy: index, 
-    orderDirection: asc
     }`;
   }
 
@@ -734,10 +734,10 @@ export const getPropagatedRootsQuery = (prefix: string, count: number, limit: nu
     where: { 
       count_gte: ${count} 
     }
+    orderBy: count, 
+    orderDirection: asc
   ) {
     ${ROOT_PROPAGATED_ENTITY}
-  orderBy: count, 
-  orderDirection: asc
   }`;
 
   return gql`
