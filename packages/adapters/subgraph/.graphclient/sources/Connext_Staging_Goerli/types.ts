@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
@@ -16,7 +17,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   staginggoerli_BigDecimal: any;
-  BigInt: bigint;
+  BigInt: any;
   staginggoerli_Bytes: any;
 };
 
@@ -208,11 +209,11 @@ export type staginggoerli_Block_height = {
 
 export type staginggoerli_ConnectorMeta = {
   id: Scalars['ID'];
-  spokeDomain: Scalars['BigInt'];
-  hubDomain: Scalars['BigInt'];
-  amb: Scalars['staginggoerli_Bytes'];
-  rootManager: Scalars['staginggoerli_Bytes'];
-  mirrorConnector: Scalars['staginggoerli_Bytes'];
+  spokeDomain?: Maybe<Scalars['BigInt']>;
+  hubDomain?: Maybe<Scalars['BigInt']>;
+  amb?: Maybe<Scalars['staginggoerli_Bytes']>;
+  rootManager?: Maybe<Scalars['staginggoerli_Bytes']>;
+  mirrorConnector?: Maybe<Scalars['staginggoerli_Bytes']>;
 };
 
 export type staginggoerli_ConnectorMeta_filter = {
@@ -1357,7 +1358,7 @@ export type staginggoerli_Relayer_orderBy =
 
 export type staginggoerli_RootCount = {
   id: Scalars['ID'];
-  count: Scalars['BigInt'];
+  count?: Maybe<Scalars['BigInt']>;
 };
 
 export type staginggoerli_RootCount_filter = {
@@ -2037,141 +2038,142 @@ export type _SubgraphErrorPolicy_ =
   /** If the subgraph has indexing errors, data will be omitted. The default. */
   | 'deny';
 
-}
-export type QueryConnextStagingGoerliSdk = {
+  export type QuerySdk = {
+      /** null **/
+  staginggoerli_asset: InContextSdkMethod<Query['staginggoerli_asset'], Querystaginggoerli_assetArgs, MeshContext>,
   /** null **/
-  staginggoerli_asset: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_asset'], ConnextStagingGoerliTypes.Querystaginggoerli_assetArgs, MeshContext>,
+  staginggoerli_assets: InContextSdkMethod<Query['staginggoerli_assets'], Querystaginggoerli_assetsArgs, MeshContext>,
   /** null **/
-  staginggoerli_assets: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_assets'], ConnextStagingGoerliTypes.Querystaginggoerli_assetsArgs, MeshContext>,
+  staginggoerli_assetBalance: InContextSdkMethod<Query['staginggoerli_assetBalance'], Querystaginggoerli_assetBalanceArgs, MeshContext>,
   /** null **/
-  staginggoerli_assetBalance: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_assetBalance'], ConnextStagingGoerliTypes.Querystaginggoerli_assetBalanceArgs, MeshContext>,
+  staginggoerli_assetBalances: InContextSdkMethod<Query['staginggoerli_assetBalances'], Querystaginggoerli_assetBalancesArgs, MeshContext>,
   /** null **/
-  staginggoerli_assetBalances: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_assetBalances'], ConnextStagingGoerliTypes.Querystaginggoerli_assetBalancesArgs, MeshContext>,
+  staginggoerli_router: InContextSdkMethod<Query['staginggoerli_router'], Querystaginggoerli_routerArgs, MeshContext>,
   /** null **/
-  staginggoerli_router: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_router'], ConnextStagingGoerliTypes.Querystaginggoerli_routerArgs, MeshContext>,
+  staginggoerli_routers: InContextSdkMethod<Query['staginggoerli_routers'], Querystaginggoerli_routersArgs, MeshContext>,
   /** null **/
-  staginggoerli_routers: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_routers'], ConnextStagingGoerliTypes.Querystaginggoerli_routersArgs, MeshContext>,
+  staginggoerli_setting: InContextSdkMethod<Query['staginggoerli_setting'], Querystaginggoerli_settingArgs, MeshContext>,
   /** null **/
-  staginggoerli_setting: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_setting'], ConnextStagingGoerliTypes.Querystaginggoerli_settingArgs, MeshContext>,
+  staginggoerli_settings: InContextSdkMethod<Query['staginggoerli_settings'], Querystaginggoerli_settingsArgs, MeshContext>,
   /** null **/
-  staginggoerli_settings: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_settings'], ConnextStagingGoerliTypes.Querystaginggoerli_settingsArgs, MeshContext>,
+  staginggoerli_relayer: InContextSdkMethod<Query['staginggoerli_relayer'], Querystaginggoerli_relayerArgs, MeshContext>,
   /** null **/
-  staginggoerli_relayer: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_relayer'], ConnextStagingGoerliTypes.Querystaginggoerli_relayerArgs, MeshContext>,
+  staginggoerli_relayers: InContextSdkMethod<Query['staginggoerli_relayers'], Querystaginggoerli_relayersArgs, MeshContext>,
   /** null **/
-  staginggoerli_relayers: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_relayers'], ConnextStagingGoerliTypes.Querystaginggoerli_relayersArgs, MeshContext>,
+  staginggoerli_sequencer: InContextSdkMethod<Query['staginggoerli_sequencer'], Querystaginggoerli_sequencerArgs, MeshContext>,
   /** null **/
-  staginggoerli_sequencer: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_sequencer'], ConnextStagingGoerliTypes.Querystaginggoerli_sequencerArgs, MeshContext>,
+  staginggoerli_sequencers: InContextSdkMethod<Query['staginggoerli_sequencers'], Querystaginggoerli_sequencersArgs, MeshContext>,
   /** null **/
-  staginggoerli_sequencers: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_sequencers'], ConnextStagingGoerliTypes.Querystaginggoerli_sequencersArgs, MeshContext>,
+  staginggoerli_stableSwap: InContextSdkMethod<Query['staginggoerli_stableSwap'], Querystaginggoerli_stableSwapArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwap: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_stableSwap'], ConnextStagingGoerliTypes.Querystaginggoerli_stableSwapArgs, MeshContext>,
+  staginggoerli_stableSwaps: InContextSdkMethod<Query['staginggoerli_stableSwaps'], Querystaginggoerli_stableSwapsArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwaps: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_stableSwaps'], ConnextStagingGoerliTypes.Querystaginggoerli_stableSwapsArgs, MeshContext>,
+  staginggoerli_originTransfer: InContextSdkMethod<Query['staginggoerli_originTransfer'], Querystaginggoerli_originTransferArgs, MeshContext>,
   /** null **/
-  staginggoerli_originTransfer: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_originTransfer'], ConnextStagingGoerliTypes.Querystaginggoerli_originTransferArgs, MeshContext>,
+  staginggoerli_originTransfers: InContextSdkMethod<Query['staginggoerli_originTransfers'], Querystaginggoerli_originTransfersArgs, MeshContext>,
   /** null **/
-  staginggoerli_originTransfers: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_originTransfers'], ConnextStagingGoerliTypes.Querystaginggoerli_originTransfersArgs, MeshContext>,
+  staginggoerli_destinationTransfer: InContextSdkMethod<Query['staginggoerli_destinationTransfer'], Querystaginggoerli_destinationTransferArgs, MeshContext>,
   /** null **/
-  staginggoerli_destinationTransfer: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_destinationTransfer'], ConnextStagingGoerliTypes.Querystaginggoerli_destinationTransferArgs, MeshContext>,
+  staginggoerli_destinationTransfers: InContextSdkMethod<Query['staginggoerli_destinationTransfers'], Querystaginggoerli_destinationTransfersArgs, MeshContext>,
   /** null **/
-  staginggoerli_destinationTransfers: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_destinationTransfers'], ConnextStagingGoerliTypes.Querystaginggoerli_destinationTransfersArgs, MeshContext>,
+  staginggoerli_originMessage: InContextSdkMethod<Query['staginggoerli_originMessage'], Querystaginggoerli_originMessageArgs, MeshContext>,
   /** null **/
-  staginggoerli_originMessage: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_originMessage'], ConnextStagingGoerliTypes.Querystaginggoerli_originMessageArgs, MeshContext>,
+  staginggoerli_originMessages: InContextSdkMethod<Query['staginggoerli_originMessages'], Querystaginggoerli_originMessagesArgs, MeshContext>,
   /** null **/
-  staginggoerli_originMessages: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_originMessages'], ConnextStagingGoerliTypes.Querystaginggoerli_originMessagesArgs, MeshContext>,
+  staginggoerli_destinationMessage: InContextSdkMethod<Query['staginggoerli_destinationMessage'], Querystaginggoerli_destinationMessageArgs, MeshContext>,
   /** null **/
-  staginggoerli_destinationMessage: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_destinationMessage'], ConnextStagingGoerliTypes.Querystaginggoerli_destinationMessageArgs, MeshContext>,
+  staginggoerli_destinationMessages: InContextSdkMethod<Query['staginggoerli_destinationMessages'], Querystaginggoerli_destinationMessagesArgs, MeshContext>,
   /** null **/
-  staginggoerli_destinationMessages: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_destinationMessages'], ConnextStagingGoerliTypes.Querystaginggoerli_destinationMessagesArgs, MeshContext>,
+  staginggoerli_aggregateRoot: InContextSdkMethod<Query['staginggoerli_aggregateRoot'], Querystaginggoerli_aggregateRootArgs, MeshContext>,
   /** null **/
-  staginggoerli_aggregateRoot: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_aggregateRoot'], ConnextStagingGoerliTypes.Querystaginggoerli_aggregateRootArgs, MeshContext>,
+  staginggoerli_aggregateRoots: InContextSdkMethod<Query['staginggoerli_aggregateRoots'], Querystaginggoerli_aggregateRootsArgs, MeshContext>,
   /** null **/
-  staginggoerli_aggregateRoots: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_aggregateRoots'], ConnextStagingGoerliTypes.Querystaginggoerli_aggregateRootsArgs, MeshContext>,
+  staginggoerli_connectorMeta: InContextSdkMethod<Query['staginggoerli_connectorMeta'], Querystaginggoerli_connectorMetaArgs, MeshContext>,
   /** null **/
-  staginggoerli_connectorMeta: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_connectorMeta'], ConnextStagingGoerliTypes.Querystaginggoerli_connectorMetaArgs, MeshContext>,
+  staginggoerli_connectorMetas: InContextSdkMethod<Query['staginggoerli_connectorMetas'], Querystaginggoerli_connectorMetasArgs, MeshContext>,
   /** null **/
-  staginggoerli_connectorMetas: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_connectorMetas'], ConnextStagingGoerliTypes.Querystaginggoerli_connectorMetasArgs, MeshContext>,
+  staginggoerli_rootCount: InContextSdkMethod<Query['staginggoerli_rootCount'], Querystaginggoerli_rootCountArgs, MeshContext>,
   /** null **/
-  staginggoerli_rootCount: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_rootCount'], ConnextStagingGoerliTypes.Querystaginggoerli_rootCountArgs, MeshContext>,
+  staginggoerli_rootCounts: InContextSdkMethod<Query['staginggoerli_rootCounts'], Querystaginggoerli_rootCountsArgs, MeshContext>,
   /** null **/
-  staginggoerli_rootCounts: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_rootCounts'], ConnextStagingGoerliTypes.Querystaginggoerli_rootCountsArgs, MeshContext>,
+  staginggoerli_rootMessageSent: InContextSdkMethod<Query['staginggoerli_rootMessageSent'], Querystaginggoerli_rootMessageSentArgs, MeshContext>,
   /** null **/
-  staginggoerli_rootMessageSent: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_rootMessageSent'], ConnextStagingGoerliTypes.Querystaginggoerli_rootMessageSentArgs, MeshContext>,
-  /** null **/
-  staginggoerli_rootMessageSents: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli_rootMessageSents'], ConnextStagingGoerliTypes.Querystaginggoerli_rootMessageSentsArgs, MeshContext>,
+  staginggoerli_rootMessageSents: InContextSdkMethod<Query['staginggoerli_rootMessageSents'], Querystaginggoerli_rootMessageSentsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  staginggoerli__meta: InContextSdkMethod<ConnextStagingGoerliTypes.Query['staginggoerli__meta'], ConnextStagingGoerliTypes.Querystaginggoerli__metaArgs, MeshContext>
-};
+  staginggoerli__meta: InContextSdkMethod<Query['staginggoerli__meta'], Querystaginggoerli__metaArgs, MeshContext>
+  };
 
-export type MutationConnextStagingGoerliSdk = {
+  export type MutationSdk = {
+    
+  };
 
-};
-
-export type SubscriptionConnextStagingGoerliSdk = {
+  export type SubscriptionSdk = {
+      /** null **/
+  staginggoerli_asset: InContextSdkMethod<Subscription['staginggoerli_asset'], Subscriptionstaginggoerli_assetArgs, MeshContext>,
   /** null **/
-  staginggoerli_asset: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_asset'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_assetArgs, MeshContext>,
+  staginggoerli_assets: InContextSdkMethod<Subscription['staginggoerli_assets'], Subscriptionstaginggoerli_assetsArgs, MeshContext>,
   /** null **/
-  staginggoerli_assets: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_assets'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_assetsArgs, MeshContext>,
+  staginggoerli_assetBalance: InContextSdkMethod<Subscription['staginggoerli_assetBalance'], Subscriptionstaginggoerli_assetBalanceArgs, MeshContext>,
   /** null **/
-  staginggoerli_assetBalance: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_assetBalance'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_assetBalanceArgs, MeshContext>,
+  staginggoerli_assetBalances: InContextSdkMethod<Subscription['staginggoerli_assetBalances'], Subscriptionstaginggoerli_assetBalancesArgs, MeshContext>,
   /** null **/
-  staginggoerli_assetBalances: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_assetBalances'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_assetBalancesArgs, MeshContext>,
+  staginggoerli_router: InContextSdkMethod<Subscription['staginggoerli_router'], Subscriptionstaginggoerli_routerArgs, MeshContext>,
   /** null **/
-  staginggoerli_router: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_router'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_routerArgs, MeshContext>,
+  staginggoerli_routers: InContextSdkMethod<Subscription['staginggoerli_routers'], Subscriptionstaginggoerli_routersArgs, MeshContext>,
   /** null **/
-  staginggoerli_routers: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_routers'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_routersArgs, MeshContext>,
+  staginggoerli_setting: InContextSdkMethod<Subscription['staginggoerli_setting'], Subscriptionstaginggoerli_settingArgs, MeshContext>,
   /** null **/
-  staginggoerli_setting: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_setting'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_settingArgs, MeshContext>,
+  staginggoerli_settings: InContextSdkMethod<Subscription['staginggoerli_settings'], Subscriptionstaginggoerli_settingsArgs, MeshContext>,
   /** null **/
-  staginggoerli_settings: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_settings'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_settingsArgs, MeshContext>,
+  staginggoerli_relayer: InContextSdkMethod<Subscription['staginggoerli_relayer'], Subscriptionstaginggoerli_relayerArgs, MeshContext>,
   /** null **/
-  staginggoerli_relayer: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_relayer'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_relayerArgs, MeshContext>,
+  staginggoerli_relayers: InContextSdkMethod<Subscription['staginggoerli_relayers'], Subscriptionstaginggoerli_relayersArgs, MeshContext>,
   /** null **/
-  staginggoerli_relayers: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_relayers'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_relayersArgs, MeshContext>,
+  staginggoerli_sequencer: InContextSdkMethod<Subscription['staginggoerli_sequencer'], Subscriptionstaginggoerli_sequencerArgs, MeshContext>,
   /** null **/
-  staginggoerli_sequencer: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_sequencer'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_sequencerArgs, MeshContext>,
+  staginggoerli_sequencers: InContextSdkMethod<Subscription['staginggoerli_sequencers'], Subscriptionstaginggoerli_sequencersArgs, MeshContext>,
   /** null **/
-  staginggoerli_sequencers: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_sequencers'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_sequencersArgs, MeshContext>,
+  staginggoerli_stableSwap: InContextSdkMethod<Subscription['staginggoerli_stableSwap'], Subscriptionstaginggoerli_stableSwapArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwap: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_stableSwap'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_stableSwapArgs, MeshContext>,
+  staginggoerli_stableSwaps: InContextSdkMethod<Subscription['staginggoerli_stableSwaps'], Subscriptionstaginggoerli_stableSwapsArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwaps: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_stableSwaps'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_stableSwapsArgs, MeshContext>,
+  staginggoerli_originTransfer: InContextSdkMethod<Subscription['staginggoerli_originTransfer'], Subscriptionstaginggoerli_originTransferArgs, MeshContext>,
   /** null **/
-  staginggoerli_originTransfer: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_originTransfer'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_originTransferArgs, MeshContext>,
+  staginggoerli_originTransfers: InContextSdkMethod<Subscription['staginggoerli_originTransfers'], Subscriptionstaginggoerli_originTransfersArgs, MeshContext>,
   /** null **/
-  staginggoerli_originTransfers: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_originTransfers'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_originTransfersArgs, MeshContext>,
+  staginggoerli_destinationTransfer: InContextSdkMethod<Subscription['staginggoerli_destinationTransfer'], Subscriptionstaginggoerli_destinationTransferArgs, MeshContext>,
   /** null **/
-  staginggoerli_destinationTransfer: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_destinationTransfer'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_destinationTransferArgs, MeshContext>,
+  staginggoerli_destinationTransfers: InContextSdkMethod<Subscription['staginggoerli_destinationTransfers'], Subscriptionstaginggoerli_destinationTransfersArgs, MeshContext>,
   /** null **/
-  staginggoerli_destinationTransfers: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_destinationTransfers'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_destinationTransfersArgs, MeshContext>,
+  staginggoerli_originMessage: InContextSdkMethod<Subscription['staginggoerli_originMessage'], Subscriptionstaginggoerli_originMessageArgs, MeshContext>,
   /** null **/
-  staginggoerli_originMessage: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_originMessage'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_originMessageArgs, MeshContext>,
+  staginggoerli_originMessages: InContextSdkMethod<Subscription['staginggoerli_originMessages'], Subscriptionstaginggoerli_originMessagesArgs, MeshContext>,
   /** null **/
-  staginggoerli_originMessages: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_originMessages'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_originMessagesArgs, MeshContext>,
+  staginggoerli_destinationMessage: InContextSdkMethod<Subscription['staginggoerli_destinationMessage'], Subscriptionstaginggoerli_destinationMessageArgs, MeshContext>,
   /** null **/
-  staginggoerli_destinationMessage: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_destinationMessage'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_destinationMessageArgs, MeshContext>,
+  staginggoerli_destinationMessages: InContextSdkMethod<Subscription['staginggoerli_destinationMessages'], Subscriptionstaginggoerli_destinationMessagesArgs, MeshContext>,
   /** null **/
-  staginggoerli_destinationMessages: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_destinationMessages'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_destinationMessagesArgs, MeshContext>,
+  staginggoerli_aggregateRoot: InContextSdkMethod<Subscription['staginggoerli_aggregateRoot'], Subscriptionstaginggoerli_aggregateRootArgs, MeshContext>,
   /** null **/
-  staginggoerli_aggregateRoot: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_aggregateRoot'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_aggregateRootArgs, MeshContext>,
+  staginggoerli_aggregateRoots: InContextSdkMethod<Subscription['staginggoerli_aggregateRoots'], Subscriptionstaginggoerli_aggregateRootsArgs, MeshContext>,
   /** null **/
-  staginggoerli_aggregateRoots: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_aggregateRoots'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_aggregateRootsArgs, MeshContext>,
+  staginggoerli_connectorMeta: InContextSdkMethod<Subscription['staginggoerli_connectorMeta'], Subscriptionstaginggoerli_connectorMetaArgs, MeshContext>,
   /** null **/
-  staginggoerli_connectorMeta: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_connectorMeta'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_connectorMetaArgs, MeshContext>,
+  staginggoerli_connectorMetas: InContextSdkMethod<Subscription['staginggoerli_connectorMetas'], Subscriptionstaginggoerli_connectorMetasArgs, MeshContext>,
   /** null **/
-  staginggoerli_connectorMetas: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_connectorMetas'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_connectorMetasArgs, MeshContext>,
+  staginggoerli_rootCount: InContextSdkMethod<Subscription['staginggoerli_rootCount'], Subscriptionstaginggoerli_rootCountArgs, MeshContext>,
   /** null **/
-  staginggoerli_rootCount: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_rootCount'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_rootCountArgs, MeshContext>,
+  staginggoerli_rootCounts: InContextSdkMethod<Subscription['staginggoerli_rootCounts'], Subscriptionstaginggoerli_rootCountsArgs, MeshContext>,
   /** null **/
-  staginggoerli_rootCounts: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_rootCounts'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_rootCountsArgs, MeshContext>,
+  staginggoerli_rootMessageSent: InContextSdkMethod<Subscription['staginggoerli_rootMessageSent'], Subscriptionstaginggoerli_rootMessageSentArgs, MeshContext>,
   /** null **/
-  staginggoerli_rootMessageSent: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_rootMessageSent'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_rootMessageSentArgs, MeshContext>,
-  /** null **/
-  staginggoerli_rootMessageSents: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli_rootMessageSents'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli_rootMessageSentsArgs, MeshContext>,
+  staginggoerli_rootMessageSents: InContextSdkMethod<Subscription['staginggoerli_rootMessageSents'], Subscriptionstaginggoerli_rootMessageSentsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  staginggoerli__meta: InContextSdkMethod<ConnextStagingGoerliTypes.Subscription['staginggoerli__meta'], ConnextStagingGoerliTypes.Subscriptionstaginggoerli__metaArgs, MeshContext>
-};
-export type ConnextStagingGoerliContext = {
-      ["Connext_Staging_Goerli"]: { Query: QueryConnextStagingGoerliSdk, Mutation: MutationConnextStagingGoerliSdk, Subscription: SubscriptionConnextStagingGoerliSdk },
+  staginggoerli__meta: InContextSdkMethod<Subscription['staginggoerli__meta'], Subscriptionstaginggoerli__metaArgs, MeshContext>
+  };
+
+  export type Context = {
+      ["Connext_Staging_Goerli"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
+}

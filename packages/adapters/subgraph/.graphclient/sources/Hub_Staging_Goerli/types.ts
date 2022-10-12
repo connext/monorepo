@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
@@ -16,7 +17,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   staginggoerlihub_BigDecimal: any;
-  BigInt: bigint;
+  BigInt: any;
   staginggoerlihub_Bytes: any;
 };
 
@@ -612,61 +613,62 @@ export type _SubgraphErrorPolicy_ =
   /** If the subgraph has indexing errors, data will be omitted. The default. */
   | 'deny';
 
-}
-export type QueryHubStagingGoerliSdk = {
+  export type QuerySdk = {
+      /** null **/
+  staginggoerlihub_rootAggregated: InContextSdkMethod<Query['staginggoerlihub_rootAggregated'], Querystaginggoerlihub_rootAggregatedArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_rootAggregated: InContextSdkMethod<HubStagingGoerliTypes.Query['staginggoerlihub_rootAggregated'], HubStagingGoerliTypes.Querystaginggoerlihub_rootAggregatedArgs, MeshContext>,
+  staginggoerlihub_rootAggregateds: InContextSdkMethod<Query['staginggoerlihub_rootAggregateds'], Querystaginggoerlihub_rootAggregatedsArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_rootAggregateds: InContextSdkMethod<HubStagingGoerliTypes.Query['staginggoerlihub_rootAggregateds'], HubStagingGoerliTypes.Querystaginggoerlihub_rootAggregatedsArgs, MeshContext>,
+  staginggoerlihub_rootPropagated: InContextSdkMethod<Query['staginggoerlihub_rootPropagated'], Querystaginggoerlihub_rootPropagatedArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_rootPropagated: InContextSdkMethod<HubStagingGoerliTypes.Query['staginggoerlihub_rootPropagated'], HubStagingGoerliTypes.Querystaginggoerlihub_rootPropagatedArgs, MeshContext>,
+  staginggoerlihub_rootPropagateds: InContextSdkMethod<Query['staginggoerlihub_rootPropagateds'], Querystaginggoerlihub_rootPropagatedsArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_rootPropagateds: InContextSdkMethod<HubStagingGoerliTypes.Query['staginggoerlihub_rootPropagateds'], HubStagingGoerliTypes.Querystaginggoerlihub_rootPropagatedsArgs, MeshContext>,
+  staginggoerlihub_polygonConnectorMeta: InContextSdkMethod<Query['staginggoerlihub_polygonConnectorMeta'], Querystaginggoerlihub_polygonConnectorMetaArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_polygonConnectorMeta: InContextSdkMethod<HubStagingGoerliTypes.Query['staginggoerlihub_polygonConnectorMeta'], HubStagingGoerliTypes.Querystaginggoerlihub_polygonConnectorMetaArgs, MeshContext>,
+  staginggoerlihub_polygonConnectorMetas: InContextSdkMethod<Query['staginggoerlihub_polygonConnectorMetas'], Querystaginggoerlihub_polygonConnectorMetasArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_polygonConnectorMetas: InContextSdkMethod<HubStagingGoerliTypes.Query['staginggoerlihub_polygonConnectorMetas'], HubStagingGoerliTypes.Querystaginggoerlihub_polygonConnectorMetasArgs, MeshContext>,
+  staginggoerlihub_optimismConnectorMeta: InContextSdkMethod<Query['staginggoerlihub_optimismConnectorMeta'], Querystaginggoerlihub_optimismConnectorMetaArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_optimismConnectorMeta: InContextSdkMethod<HubStagingGoerliTypes.Query['staginggoerlihub_optimismConnectorMeta'], HubStagingGoerliTypes.Querystaginggoerlihub_optimismConnectorMetaArgs, MeshContext>,
+  staginggoerlihub_optimismConnectorMetas: InContextSdkMethod<Query['staginggoerlihub_optimismConnectorMetas'], Querystaginggoerlihub_optimismConnectorMetasArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_optimismConnectorMetas: InContextSdkMethod<HubStagingGoerliTypes.Query['staginggoerlihub_optimismConnectorMetas'], HubStagingGoerliTypes.Querystaginggoerlihub_optimismConnectorMetasArgs, MeshContext>,
+  staginggoerlihub_rootMessageProcessed: InContextSdkMethod<Query['staginggoerlihub_rootMessageProcessed'], Querystaginggoerlihub_rootMessageProcessedArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_rootMessageProcessed: InContextSdkMethod<HubStagingGoerliTypes.Query['staginggoerlihub_rootMessageProcessed'], HubStagingGoerliTypes.Querystaginggoerlihub_rootMessageProcessedArgs, MeshContext>,
-  /** null **/
-  staginggoerlihub_rootMessageProcesseds: InContextSdkMethod<HubStagingGoerliTypes.Query['staginggoerlihub_rootMessageProcesseds'], HubStagingGoerliTypes.Querystaginggoerlihub_rootMessageProcessedsArgs, MeshContext>,
+  staginggoerlihub_rootMessageProcesseds: InContextSdkMethod<Query['staginggoerlihub_rootMessageProcesseds'], Querystaginggoerlihub_rootMessageProcessedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  staginggoerlihub__meta: InContextSdkMethod<HubStagingGoerliTypes.Query['staginggoerlihub__meta'], HubStagingGoerliTypes.Querystaginggoerlihub__metaArgs, MeshContext>
-};
+  staginggoerlihub__meta: InContextSdkMethod<Query['staginggoerlihub__meta'], Querystaginggoerlihub__metaArgs, MeshContext>
+  };
 
-export type MutationHubStagingGoerliSdk = {
+  export type MutationSdk = {
+    
+  };
 
-};
-
-export type SubscriptionHubStagingGoerliSdk = {
+  export type SubscriptionSdk = {
+      /** null **/
+  staginggoerlihub_rootAggregated: InContextSdkMethod<Subscription['staginggoerlihub_rootAggregated'], Subscriptionstaginggoerlihub_rootAggregatedArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_rootAggregated: InContextSdkMethod<HubStagingGoerliTypes.Subscription['staginggoerlihub_rootAggregated'], HubStagingGoerliTypes.Subscriptionstaginggoerlihub_rootAggregatedArgs, MeshContext>,
+  staginggoerlihub_rootAggregateds: InContextSdkMethod<Subscription['staginggoerlihub_rootAggregateds'], Subscriptionstaginggoerlihub_rootAggregatedsArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_rootAggregateds: InContextSdkMethod<HubStagingGoerliTypes.Subscription['staginggoerlihub_rootAggregateds'], HubStagingGoerliTypes.Subscriptionstaginggoerlihub_rootAggregatedsArgs, MeshContext>,
+  staginggoerlihub_rootPropagated: InContextSdkMethod<Subscription['staginggoerlihub_rootPropagated'], Subscriptionstaginggoerlihub_rootPropagatedArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_rootPropagated: InContextSdkMethod<HubStagingGoerliTypes.Subscription['staginggoerlihub_rootPropagated'], HubStagingGoerliTypes.Subscriptionstaginggoerlihub_rootPropagatedArgs, MeshContext>,
+  staginggoerlihub_rootPropagateds: InContextSdkMethod<Subscription['staginggoerlihub_rootPropagateds'], Subscriptionstaginggoerlihub_rootPropagatedsArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_rootPropagateds: InContextSdkMethod<HubStagingGoerliTypes.Subscription['staginggoerlihub_rootPropagateds'], HubStagingGoerliTypes.Subscriptionstaginggoerlihub_rootPropagatedsArgs, MeshContext>,
+  staginggoerlihub_polygonConnectorMeta: InContextSdkMethod<Subscription['staginggoerlihub_polygonConnectorMeta'], Subscriptionstaginggoerlihub_polygonConnectorMetaArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_polygonConnectorMeta: InContextSdkMethod<HubStagingGoerliTypes.Subscription['staginggoerlihub_polygonConnectorMeta'], HubStagingGoerliTypes.Subscriptionstaginggoerlihub_polygonConnectorMetaArgs, MeshContext>,
+  staginggoerlihub_polygonConnectorMetas: InContextSdkMethod<Subscription['staginggoerlihub_polygonConnectorMetas'], Subscriptionstaginggoerlihub_polygonConnectorMetasArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_polygonConnectorMetas: InContextSdkMethod<HubStagingGoerliTypes.Subscription['staginggoerlihub_polygonConnectorMetas'], HubStagingGoerliTypes.Subscriptionstaginggoerlihub_polygonConnectorMetasArgs, MeshContext>,
+  staginggoerlihub_optimismConnectorMeta: InContextSdkMethod<Subscription['staginggoerlihub_optimismConnectorMeta'], Subscriptionstaginggoerlihub_optimismConnectorMetaArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_optimismConnectorMeta: InContextSdkMethod<HubStagingGoerliTypes.Subscription['staginggoerlihub_optimismConnectorMeta'], HubStagingGoerliTypes.Subscriptionstaginggoerlihub_optimismConnectorMetaArgs, MeshContext>,
+  staginggoerlihub_optimismConnectorMetas: InContextSdkMethod<Subscription['staginggoerlihub_optimismConnectorMetas'], Subscriptionstaginggoerlihub_optimismConnectorMetasArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_optimismConnectorMetas: InContextSdkMethod<HubStagingGoerliTypes.Subscription['staginggoerlihub_optimismConnectorMetas'], HubStagingGoerliTypes.Subscriptionstaginggoerlihub_optimismConnectorMetasArgs, MeshContext>,
+  staginggoerlihub_rootMessageProcessed: InContextSdkMethod<Subscription['staginggoerlihub_rootMessageProcessed'], Subscriptionstaginggoerlihub_rootMessageProcessedArgs, MeshContext>,
   /** null **/
-  staginggoerlihub_rootMessageProcessed: InContextSdkMethod<HubStagingGoerliTypes.Subscription['staginggoerlihub_rootMessageProcessed'], HubStagingGoerliTypes.Subscriptionstaginggoerlihub_rootMessageProcessedArgs, MeshContext>,
-  /** null **/
-  staginggoerlihub_rootMessageProcesseds: InContextSdkMethod<HubStagingGoerliTypes.Subscription['staginggoerlihub_rootMessageProcesseds'], HubStagingGoerliTypes.Subscriptionstaginggoerlihub_rootMessageProcessedsArgs, MeshContext>,
+  staginggoerlihub_rootMessageProcesseds: InContextSdkMethod<Subscription['staginggoerlihub_rootMessageProcesseds'], Subscriptionstaginggoerlihub_rootMessageProcessedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  staginggoerlihub__meta: InContextSdkMethod<HubStagingGoerliTypes.Subscription['staginggoerlihub__meta'], HubStagingGoerliTypes.Subscriptionstaginggoerlihub__metaArgs, MeshContext>
-};
-export type HubStagingGoerliContext = {
-      ["Hub_Staging_Goerli"]: { Query: QueryHubStagingGoerliSdk, Mutation: MutationHubStagingGoerliSdk, Subscription: SubscriptionHubStagingGoerliSdk },
+  staginggoerlihub__meta: InContextSdkMethod<Subscription['staginggoerlihub__meta'], Subscriptionstaginggoerlihub__metaArgs, MeshContext>
+  };
+
+  export type Context = {
+      ["Hub_Staging_Goerli"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
+}
