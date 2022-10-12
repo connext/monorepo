@@ -6,7 +6,6 @@ import { Database } from "../src/index";
 export const mockDatabase = (): Database => {
   return {
     getCheckPoint: stub().resolves(42),
-    getPendingMessages: stub().resolves([mock.entity.xMessage()]),
     getRootMessages: stub().resolves([mock.entity.rootMessage()]),
     getTransfersByStatus: stub().resolves([mock.entity.xtransfer()]),
     getTransfersWithDestinationPending: stub().resolves([mock.entity.xtransfer()]),
@@ -19,7 +18,6 @@ export const mockDatabase = (): Database => {
     saveTransfers: stub().resolves(),
     transaction: stub().yields(null),
     getUnProcessedMessages: stub().resolves([]),
-    getUnProcessedRootMessages: stub().resolves([]),
     getAggregateRoot: stub().resolves(),
     getAggregateRootCount: stub().resolves(),
     getMessageRootIndex: stub().resolves(),

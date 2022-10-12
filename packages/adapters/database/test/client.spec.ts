@@ -11,12 +11,14 @@ import {
   XMessage,
   RootMessage,
   AggregatedRoot,
+  PropagatedRoot,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { utils } from "ethers";
 
 import {
   getTransferByTransferId,
+  getTransfersByTransferIds,
   getTransfersByStatus,
   saveTransfers,
   saveCheckPoint,
@@ -27,15 +29,22 @@ import {
   saveMessages,
   saveSentRootMessages,
   saveProcessedRootMessages,
-  getPendingMessages,
   getRootMessages,
   getSpokeNodes,
   getSpokeNode,
   saveAggregatedRoots,
+  savePropagatedRoots,
   getHubNode,
   getHubNodes,
   putRoot,
   getRoot,
+  getMessageRootIndex,
+  getAggregateRootCount,
+  getUnProcessedMessages,
+  getAggregateRoot,
+  getMessageRootFromIndex,
+  getMessageRootCount,
+  transaction,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -59,6 +68,7 @@ describe("Database client", () => {
     await pool.query("DELETE FROM routers CASCADE");
     await pool.query("DELETE FROM checkpoints CASCADE");
     await pool.query("DELETE FROM aggregated_roots CASCADE");
+    await pool.query("DELETE FROM propagated_roots CASCADE");
     await pool.query("DELETE FROM merkle_cache CASCADE");
 
     restore();
@@ -338,6 +348,24 @@ describe("Database client", () => {
     expect(rb).to.deep.eq(routerBalances);
   });
 
+  it("should router balance when partial data", async () => {
+    const routerBalances: any = [
+      {
+        router: mkAddress("0xc"),
+        assets: [],
+      },
+      {
+        router: "",
+        assets: [],
+      },
+      { router: "0xaaa" },
+    ];
+    await saveRouterBalances(routerBalances as RouterBalance[], pool);
+    const res = await pool.query(`SELECT * FROM routers_with_balances`);
+    const rb = convertToRouterBalance(res.rows);
+    expect(rb.length).to.eq(0);
+  });
+
   it("should router balance when no data", async () => {
     const routerBalances: RouterBalance[] = [];
     await saveRouterBalances(routerBalances, pool);
@@ -428,10 +456,14 @@ describe("Database client", () => {
       message.destination!.processed = true;
     }
     await saveMessages(messages, pool);
-    const pendingMessages = await getPendingMessages(pool);
+    const pendingMessages = await getUnProcessedMessages(100, "ASC", pool);
     for (const message of pendingMessages) {
       expect(message.destination!.processed).equal(true);
     }
+    const firstCount = await getMessageRootCount(messages[0].originDomain, messages[0].origin.root, pool);
+    expect(firstCount).to.eq(messages[0].origin.index);
+    const lastCount = await getMessageRootCount(messages[0].originDomain, messages[batchSize - 1].origin.root, pool);
+    expect(lastCount).to.eq(messages[batchSize - 1].origin.index);
   });
 
   it("should save multiple sent root messages", async () => {
@@ -447,7 +479,9 @@ describe("Database client", () => {
   it("should upsert multiple processed messages on top of sent messages and set processed = true", async () => {
     const messages: RootMessage[] = [];
     for (let _i = 0; _i < batchSize; _i++) {
-      messages.push(mock.entity.rootMessage());
+      const _m = mock.entity.rootMessage();
+      _m.count = _i * 2;
+      messages.push(_m);
     }
 
     // processed should overwrite and set processed true
@@ -460,6 +494,12 @@ describe("Database client", () => {
         return { ...m, processed: true };
       }),
     );
+
+    const firstRoot = await getMessageRootFromIndex(messages[0].spokeDomain, 0, pool);
+    expect(firstRoot).to.eq(messages[0].root);
+    // Index the message leaf just after the count of the previous aggregate root
+    const lastRoot = await getMessageRootFromIndex(messages[batchSize - 1].spokeDomain, 2 * (batchSize - 2) + 1, pool);
+    expect(lastRoot).to.eq(messages[batchSize - 1].root);
   });
 
   it("should not set processed to false", async () => {
@@ -569,18 +609,85 @@ describe("Database client", () => {
     expect(root).to.eq(mkBytes32("0x7"));
   });
 
+  it("should save multiple aggregated roots", async () => {
+    const roots: AggregatedRoot[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const root = mock.entity.aggregatedRoot();
+      root.index = _i;
+      roots.push(root);
+    }
+    await saveAggregatedRoots(roots, pool);
+    const rootFirst = await getMessageRootIndex(roots[0].domain, roots[0].receivedRoot, pool);
+    expect(rootFirst).to.eq(roots[0].index);
+    const rootLast = await getMessageRootIndex(roots[batchSize - 1].domain, roots[batchSize - 1].receivedRoot, pool);
+    expect(rootLast).to.eq(roots[batchSize - 1].index);
+  });
+
+  it("should save multiple propagated roots", async () => {
+    const roots: PropagatedRoot[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const root = mock.entity.propagatedRoot();
+      root.count = _i;
+      roots.push(root);
+    }
+    await savePropagatedRoots(roots, pool);
+    const firstIndex = await getAggregateRootCount(roots[0].aggregate, pool);
+    expect(firstIndex).to.eq(roots[0].count);
+    const lastIndex = await getAggregateRootCount(roots[batchSize - 1].aggregate, pool);
+    expect(lastIndex).to.eq(roots[batchSize - 1].count);
+    const firstRoot = await getAggregateRoot(0, pool);
+    expect(firstRoot).to.eq(roots[0].aggregate);
+    const lastRoot = await getAggregateRoot(batchSize - 1, pool);
+    expect(lastRoot).to.eq(roots[batchSize - 1].aggregate);
+  });
+
+  it("should start a transaction", async () => {
+    await transaction(async (txnClient) => {
+      await saveMessages([mock.entity.xMessage()], txnClient);
+      // Reset offset at the end of the cycle.
+      await saveCheckPoint("message_" + "test", 1, txnClient);
+    });
+  });
+
+  it("should return undefined", async () => {
+    expect(await getTransferByTransferId("", pool)).to.eq(undefined);
+    expect(await getMessageRootFromIndex("", 10000000, pool)).to.eq(undefined);
+    expect(await getHubNode(10000000, pool)).to.eq(undefined);
+    expect(await getSpokeNode("", 10000000, pool)).to.eq(undefined);
+    expect(await getMessageRootCount("", "", pool)).to.eq(undefined);
+    expect(await getMessageRootIndex("", "", pool)).to.eq(undefined);
+    expect(await getAggregateRootCount("", pool)).to.eq(undefined);
+    expect(await getAggregateRoot(10000000, pool)).to.eq(undefined);
+  });
+
   it("should throw errors", async () => {
-    await expect(getTransferByTransferId("")).to.eventually.not.be.rejected;
+    await expect(getTransferByTransferId(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getTransfersByStatus(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(saveTransfers(undefined as any)).to.eventually.not.be.rejected;
     await expect(saveMessages(undefined as any)).to.eventually.not.be.rejected;
     await expect(saveSentRootMessages(undefined as any)).to.eventually.not.be.rejected;
     await expect(saveProcessedRootMessages(undefined as any)).to.eventually.not.be.rejected;
-    await expect(getPendingMessages(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(saveRouterBalances([])).to.eventually.not.be.rejected;
     await expect(getTransfersWithDestinationPending(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getTransfersWithOriginPending(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getCheckPoint(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(saveCheckPoint(undefined as any, undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getRootMessages(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually
+      .not.be.rejected;
+    await expect(saveAggregatedRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(savePropagatedRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getTransfersByTransferIds(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getUnProcessedMessages(undefined as any, undefined as any, undefined as any)).to.eventually;
+    await expect(getAggregateRoot(undefined as any, undefined as any)).to.eventually;
+    await expect(getAggregateRootCount(undefined as any, undefined as any)).to.eventually;
+    await expect(getMessageRootIndex(undefined as any, undefined as any, undefined as any)).to.eventually;
+    await expect(getMessageRootFromIndex(undefined as any, undefined as any, undefined as any)).to.eventually;
+    await expect(getMessageRootCount(undefined as any, undefined as any, undefined as any)).to.eventually;
+    await expect(getSpokeNode(undefined as any, undefined as any, undefined as any)).to.eventually;
+    await expect(getSpokeNodes(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually;
+    await expect(getHubNode(undefined as any, undefined as any)).to.eventually;
+    await expect(getHubNodes(undefined as any, undefined as any, undefined as any)).to.eventually;
+    await expect(getRoot(undefined as any, undefined as any, undefined as any)).to.eventually;
+    await expect(putRoot(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually;
   });
 });
