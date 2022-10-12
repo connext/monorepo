@@ -4,8 +4,8 @@ import commandLineArgs from "command-line-args";
 import { ajv, getChainData } from "@connext/nxtp-utils";
 import { HttpNetworkUserConfig } from "hardhat/types";
 
-import HardhatConfig from "../../hardhat.config";
 import { canonizeId, domainToChainId } from "../domain";
+import { hardhatNetworks } from "../config";
 
 import {
   ProtocolStack,
@@ -42,13 +42,15 @@ export const sanitizeAndInit = async () => {
     throw new Error(`Parsing arguments failed, cmdArgs: ${process.argv}`);
   }
 
+  console.log({ cmdArgs });
+
   // Validate command line arguments
-  const { network, env, domains } = cmdArgs;
+  const { network, env, domains: _domains } = cmdArgs;
   if (!["staging", "production"].includes(env as string)) {
     throw new Error(`Environment should be either staging or production, env: ${env}`);
   }
 
-  if (!["testnet", "mainnet"].includes(env as string)) {
+  if (!["testnet", "mainnet"].includes(network as string)) {
     throw new Error(`Network should be either testnet or mainnet, network: ${network}`);
   }
 
@@ -65,6 +67,7 @@ export const sanitizeAndInit = async () => {
   }
 
   const supported = initConfig.supportedDomains;
+  const domains = _domains ?? supported;
   for (const domain of domains) {
     if (!supported.includes(domain as string)) {
       throw new Error(`Unsupported domain parsed!, domain: ${domain}, supported: ${supported}`);
@@ -103,21 +106,20 @@ export const sanitizeAndInit = async () => {
   // Convert deployer from mnemonic to Wallet.
   const deployer = Wallet.fromMnemonic(mnemonic);
 
-  // Load hardhat config for setting up rpc urls
-  const hardhatNetworks = HardhatConfig.networks;
-  if (!hardhatNetworks) {
-    throw new Error(`Couldn't load networks config from hardhat.config.ts`);
-  }
-
   const networks: NetworkStack[] = [];
+  const filteredHardhatNetworks = Object.values(hardhatNetworks).filter(
+    (hardhatNetwork) => Object.keys(hardhatNetwork).includes("chainId") && Object.keys(hardhatNetwork).includes("url"),
+  );
+
   // Get deployments for each domain if not specified in the config.
   for (const _domain of domains) {
     const domain = _domain as string;
     const chainId = domainToChainId(Number(domain));
 
-    const chainConfig = Object.values(hardhatNetworks).find(
-      (networkConfig) => networkConfig?.chainId === chainId,
+    const chainConfig = Object.values(filteredHardhatNetworks).find(
+      (networkConfig: any) => networkConfig["chainId"] == chainId,
     ) as HttpNetworkUserConfig;
+
     if (!chainConfig || !chainConfig.url) {
       throw new Error(`Not configured network for chainId: ${chainId} in hardhat config`);
     }
