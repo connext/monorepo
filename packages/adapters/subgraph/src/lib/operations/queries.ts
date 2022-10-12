@@ -733,7 +733,7 @@ export const getPropagatedRootsQuery = (prefix: string, count: number, limit: nu
     first: ${limit}, 
     where: { 
       count_gte: ${count} 
-    }
+    },
     orderBy: count, 
     orderDirection: asc
   ) {
@@ -741,7 +741,7 @@ export const getPropagatedRootsQuery = (prefix: string, count: number, limit: nu
   }`;
 
   return gql`
-    query GetAggregatedRoots {
+    query GetPropagatedRoots {
       ${queryString}
     }
   `;
