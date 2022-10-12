@@ -27,7 +27,7 @@ describe("Operations: ProveAndProcess", () => {
       processMessageStub = stub(ProveAndProcessFns, "processMessage").resolves();
     });
 
-    it.only("should process messages", async () => {
+    it("should process messages", async () => {
       (proverCtxMock.adapters.database.getUnProcessedMessages as SinonStub).resolves([mockXMessage1, mockXMessage2]);
       await proveAndProcess();
       expect(processMessageStub).to.be.calledWithExactly(mockXMessage1);
