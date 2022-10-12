@@ -1,19 +1,8 @@
-export const PRODUCTION_INIT_CONFIG = {
-  hub: 5,
-  networks: [
-    {
-      chain: 5,
-      rpc: process.env.GOERLI_ETH_PROVIDER_URL || "https://goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
-    },
-    {
-      chain: 420,
-      rpc: "https://goerli.optimism.io",
-    },
-    {
-      chain: 80001,
-      rpc: "https://rpc.ankr.com/polygon_mumbai",
-    },
-  ],
+import { InitConfig } from "../../helpers";
+
+export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
+  hub: "1735353714",
+  supportedDomains: ["1735353714", "1735356532", "9991"],
   assets: [
     {
       name: "TEST",
