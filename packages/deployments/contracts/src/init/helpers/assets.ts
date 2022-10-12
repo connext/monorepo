@@ -3,7 +3,7 @@ import { constants, utils } from "ethers";
 import { canonizeId } from "../../domain";
 
 import { AssetStack, NetworkStack } from "./types";
-import { updateIfNeeded } from "./tx";
+import { getValue, updateIfNeeded } from "./tx";
 
 export const setupAsset = async (args: { asset: AssetStack; networks: NetworkStack[] }) => {
   const { asset, networks } = args;
@@ -67,10 +67,25 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
 
     // Run setupAsset.
     const desiredAdopted = representation.adopted ?? constants.AddressZero;
-    // TODO: If an asset has already been set up with local<>adopted mappings and this init script is being run
-    //       with a *different* desiredAdopted, then the call to `setupAssetWithDeployedRepresentation` will revert
-    //       on "TokenFacet__addAssetId_alreadyAdded". For this script to work correctly, we need to first call
-    //       `removeAssetId` in these cases.
+    try {
+      const adopted = await getValue({
+        deployment: network.deployments.Connext,
+        read: { method: "canonicalToAdopted(bytes32)", args: [key] },
+      });
+
+      if (adopted !== desiredAdopted) {
+        await updateIfNeeded({
+          deployment: network.deployments.Connext,
+          desired: false,
+          read: { method: "approvedAssets(bytes32)", args: [key] },
+          write: {
+            method: "removeAssetId((uint32,bytes32),address,address)",
+            args: [[canonical.domain, canonical.id], desiredAdopted, representation.local],
+          },
+        });
+      }
+    } catch {}
+
     await updateIfNeeded({
       deployment: network.deployments.Connext,
       desired: desiredAdopted,

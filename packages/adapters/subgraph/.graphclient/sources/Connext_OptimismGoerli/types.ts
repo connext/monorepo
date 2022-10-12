@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
@@ -16,7 +17,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   optimismgoerli_BigDecimal: any;
-  BigInt: bigint;
+  BigInt: any;
   optimismgoerli_Bytes: any;
 };
 
@@ -2037,141 +2038,142 @@ export type _SubgraphErrorPolicy_ =
   /** If the subgraph has indexing errors, data will be omitted. The default. */
   | 'deny';
 
-}
-export type QueryConnextOptimismGoerliSdk = {
+  export type QuerySdk = {
+      /** null **/
+  optimismgoerli_asset: InContextSdkMethod<Query['optimismgoerli_asset'], Queryoptimismgoerli_assetArgs, MeshContext>,
   /** null **/
-  optimismgoerli_asset: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_asset'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_assetArgs, MeshContext>,
+  optimismgoerli_assets: InContextSdkMethod<Query['optimismgoerli_assets'], Queryoptimismgoerli_assetsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assets: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_assets'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_assetsArgs, MeshContext>,
+  optimismgoerli_assetBalance: InContextSdkMethod<Query['optimismgoerli_assetBalance'], Queryoptimismgoerli_assetBalanceArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assetBalance: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_assetBalance'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_assetBalanceArgs, MeshContext>,
+  optimismgoerli_assetBalances: InContextSdkMethod<Query['optimismgoerli_assetBalances'], Queryoptimismgoerli_assetBalancesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assetBalances: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_assetBalances'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_assetBalancesArgs, MeshContext>,
+  optimismgoerli_router: InContextSdkMethod<Query['optimismgoerli_router'], Queryoptimismgoerli_routerArgs, MeshContext>,
   /** null **/
-  optimismgoerli_router: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_router'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_routerArgs, MeshContext>,
+  optimismgoerli_routers: InContextSdkMethod<Query['optimismgoerli_routers'], Queryoptimismgoerli_routersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_routers: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_routers'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_routersArgs, MeshContext>,
+  optimismgoerli_setting: InContextSdkMethod<Query['optimismgoerli_setting'], Queryoptimismgoerli_settingArgs, MeshContext>,
   /** null **/
-  optimismgoerli_setting: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_setting'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_settingArgs, MeshContext>,
+  optimismgoerli_settings: InContextSdkMethod<Query['optimismgoerli_settings'], Queryoptimismgoerli_settingsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_settings: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_settings'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_settingsArgs, MeshContext>,
+  optimismgoerli_relayer: InContextSdkMethod<Query['optimismgoerli_relayer'], Queryoptimismgoerli_relayerArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayer: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_relayer'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_relayerArgs, MeshContext>,
+  optimismgoerli_relayers: InContextSdkMethod<Query['optimismgoerli_relayers'], Queryoptimismgoerli_relayersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayers: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_relayers'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_relayersArgs, MeshContext>,
+  optimismgoerli_sequencer: InContextSdkMethod<Query['optimismgoerli_sequencer'], Queryoptimismgoerli_sequencerArgs, MeshContext>,
   /** null **/
-  optimismgoerli_sequencer: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_sequencer'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_sequencerArgs, MeshContext>,
+  optimismgoerli_sequencers: InContextSdkMethod<Query['optimismgoerli_sequencers'], Queryoptimismgoerli_sequencersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_sequencers: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_sequencers'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_sequencersArgs, MeshContext>,
+  optimismgoerli_stableSwap: InContextSdkMethod<Query['optimismgoerli_stableSwap'], Queryoptimismgoerli_stableSwapArgs, MeshContext>,
   /** null **/
-  optimismgoerli_stableSwap: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_stableSwap'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_stableSwapArgs, MeshContext>,
+  optimismgoerli_stableSwaps: InContextSdkMethod<Query['optimismgoerli_stableSwaps'], Queryoptimismgoerli_stableSwapsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_stableSwaps: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_stableSwaps'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_stableSwapsArgs, MeshContext>,
+  optimismgoerli_originTransfer: InContextSdkMethod<Query['optimismgoerli_originTransfer'], Queryoptimismgoerli_originTransferArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originTransfer: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_originTransfer'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_originTransferArgs, MeshContext>,
+  optimismgoerli_originTransfers: InContextSdkMethod<Query['optimismgoerli_originTransfers'], Queryoptimismgoerli_originTransfersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originTransfers: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_originTransfers'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_originTransfersArgs, MeshContext>,
+  optimismgoerli_destinationTransfer: InContextSdkMethod<Query['optimismgoerli_destinationTransfer'], Queryoptimismgoerli_destinationTransferArgs, MeshContext>,
   /** null **/
-  optimismgoerli_destinationTransfer: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_destinationTransfer'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_destinationTransferArgs, MeshContext>,
+  optimismgoerli_destinationTransfers: InContextSdkMethod<Query['optimismgoerli_destinationTransfers'], Queryoptimismgoerli_destinationTransfersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_destinationTransfers: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_destinationTransfers'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_destinationTransfersArgs, MeshContext>,
+  optimismgoerli_originMessage: InContextSdkMethod<Query['optimismgoerli_originMessage'], Queryoptimismgoerli_originMessageArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originMessage: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_originMessage'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_originMessageArgs, MeshContext>,
+  optimismgoerli_originMessages: InContextSdkMethod<Query['optimismgoerli_originMessages'], Queryoptimismgoerli_originMessagesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originMessages: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_originMessages'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_originMessagesArgs, MeshContext>,
+  optimismgoerli_destinationMessage: InContextSdkMethod<Query['optimismgoerli_destinationMessage'], Queryoptimismgoerli_destinationMessageArgs, MeshContext>,
   /** null **/
-  optimismgoerli_destinationMessage: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_destinationMessage'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_destinationMessageArgs, MeshContext>,
+  optimismgoerli_destinationMessages: InContextSdkMethod<Query['optimismgoerli_destinationMessages'], Queryoptimismgoerli_destinationMessagesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_destinationMessages: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_destinationMessages'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_destinationMessagesArgs, MeshContext>,
+  optimismgoerli_aggregateRoot: InContextSdkMethod<Query['optimismgoerli_aggregateRoot'], Queryoptimismgoerli_aggregateRootArgs, MeshContext>,
   /** null **/
-  optimismgoerli_aggregateRoot: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_aggregateRoot'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_aggregateRootArgs, MeshContext>,
+  optimismgoerli_aggregateRoots: InContextSdkMethod<Query['optimismgoerli_aggregateRoots'], Queryoptimismgoerli_aggregateRootsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_aggregateRoots: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_aggregateRoots'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_aggregateRootsArgs, MeshContext>,
+  optimismgoerli_connectorMeta: InContextSdkMethod<Query['optimismgoerli_connectorMeta'], Queryoptimismgoerli_connectorMetaArgs, MeshContext>,
   /** null **/
-  optimismgoerli_connectorMeta: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_connectorMeta'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_connectorMetaArgs, MeshContext>,
+  optimismgoerli_connectorMetas: InContextSdkMethod<Query['optimismgoerli_connectorMetas'], Queryoptimismgoerli_connectorMetasArgs, MeshContext>,
   /** null **/
-  optimismgoerli_connectorMetas: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_connectorMetas'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_connectorMetasArgs, MeshContext>,
+  optimismgoerli_rootCount: InContextSdkMethod<Query['optimismgoerli_rootCount'], Queryoptimismgoerli_rootCountArgs, MeshContext>,
   /** null **/
-  optimismgoerli_rootCount: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_rootCount'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_rootCountArgs, MeshContext>,
+  optimismgoerli_rootCounts: InContextSdkMethod<Query['optimismgoerli_rootCounts'], Queryoptimismgoerli_rootCountsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_rootCounts: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_rootCounts'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_rootCountsArgs, MeshContext>,
+  optimismgoerli_rootMessageSent: InContextSdkMethod<Query['optimismgoerli_rootMessageSent'], Queryoptimismgoerli_rootMessageSentArgs, MeshContext>,
   /** null **/
-  optimismgoerli_rootMessageSent: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_rootMessageSent'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_rootMessageSentArgs, MeshContext>,
-  /** null **/
-  optimismgoerli_rootMessageSents: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli_rootMessageSents'], ConnextOptimismGoerliTypes.Queryoptimismgoerli_rootMessageSentsArgs, MeshContext>,
+  optimismgoerli_rootMessageSents: InContextSdkMethod<Query['optimismgoerli_rootMessageSents'], Queryoptimismgoerli_rootMessageSentsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  optimismgoerli__meta: InContextSdkMethod<ConnextOptimismGoerliTypes.Query['optimismgoerli__meta'], ConnextOptimismGoerliTypes.Queryoptimismgoerli__metaArgs, MeshContext>
-};
+  optimismgoerli__meta: InContextSdkMethod<Query['optimismgoerli__meta'], Queryoptimismgoerli__metaArgs, MeshContext>
+  };
 
-export type MutationConnextOptimismGoerliSdk = {
+  export type MutationSdk = {
+    
+  };
 
-};
-
-export type SubscriptionConnextOptimismGoerliSdk = {
+  export type SubscriptionSdk = {
+      /** null **/
+  optimismgoerli_asset: InContextSdkMethod<Subscription['optimismgoerli_asset'], Subscriptionoptimismgoerli_assetArgs, MeshContext>,
   /** null **/
-  optimismgoerli_asset: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_asset'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_assetArgs, MeshContext>,
+  optimismgoerli_assets: InContextSdkMethod<Subscription['optimismgoerli_assets'], Subscriptionoptimismgoerli_assetsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assets: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_assets'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_assetsArgs, MeshContext>,
+  optimismgoerli_assetBalance: InContextSdkMethod<Subscription['optimismgoerli_assetBalance'], Subscriptionoptimismgoerli_assetBalanceArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assetBalance: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_assetBalance'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_assetBalanceArgs, MeshContext>,
+  optimismgoerli_assetBalances: InContextSdkMethod<Subscription['optimismgoerli_assetBalances'], Subscriptionoptimismgoerli_assetBalancesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assetBalances: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_assetBalances'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_assetBalancesArgs, MeshContext>,
+  optimismgoerli_router: InContextSdkMethod<Subscription['optimismgoerli_router'], Subscriptionoptimismgoerli_routerArgs, MeshContext>,
   /** null **/
-  optimismgoerli_router: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_router'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_routerArgs, MeshContext>,
+  optimismgoerli_routers: InContextSdkMethod<Subscription['optimismgoerli_routers'], Subscriptionoptimismgoerli_routersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_routers: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_routers'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_routersArgs, MeshContext>,
+  optimismgoerli_setting: InContextSdkMethod<Subscription['optimismgoerli_setting'], Subscriptionoptimismgoerli_settingArgs, MeshContext>,
   /** null **/
-  optimismgoerli_setting: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_setting'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_settingArgs, MeshContext>,
+  optimismgoerli_settings: InContextSdkMethod<Subscription['optimismgoerli_settings'], Subscriptionoptimismgoerli_settingsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_settings: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_settings'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_settingsArgs, MeshContext>,
+  optimismgoerli_relayer: InContextSdkMethod<Subscription['optimismgoerli_relayer'], Subscriptionoptimismgoerli_relayerArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayer: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_relayer'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_relayerArgs, MeshContext>,
+  optimismgoerli_relayers: InContextSdkMethod<Subscription['optimismgoerli_relayers'], Subscriptionoptimismgoerli_relayersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayers: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_relayers'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_relayersArgs, MeshContext>,
+  optimismgoerli_sequencer: InContextSdkMethod<Subscription['optimismgoerli_sequencer'], Subscriptionoptimismgoerli_sequencerArgs, MeshContext>,
   /** null **/
-  optimismgoerli_sequencer: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_sequencer'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_sequencerArgs, MeshContext>,
+  optimismgoerli_sequencers: InContextSdkMethod<Subscription['optimismgoerli_sequencers'], Subscriptionoptimismgoerli_sequencersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_sequencers: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_sequencers'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_sequencersArgs, MeshContext>,
+  optimismgoerli_stableSwap: InContextSdkMethod<Subscription['optimismgoerli_stableSwap'], Subscriptionoptimismgoerli_stableSwapArgs, MeshContext>,
   /** null **/
-  optimismgoerli_stableSwap: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_stableSwap'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_stableSwapArgs, MeshContext>,
+  optimismgoerli_stableSwaps: InContextSdkMethod<Subscription['optimismgoerli_stableSwaps'], Subscriptionoptimismgoerli_stableSwapsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_stableSwaps: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_stableSwaps'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_stableSwapsArgs, MeshContext>,
+  optimismgoerli_originTransfer: InContextSdkMethod<Subscription['optimismgoerli_originTransfer'], Subscriptionoptimismgoerli_originTransferArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originTransfer: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_originTransfer'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_originTransferArgs, MeshContext>,
+  optimismgoerli_originTransfers: InContextSdkMethod<Subscription['optimismgoerli_originTransfers'], Subscriptionoptimismgoerli_originTransfersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originTransfers: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_originTransfers'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_originTransfersArgs, MeshContext>,
+  optimismgoerli_destinationTransfer: InContextSdkMethod<Subscription['optimismgoerli_destinationTransfer'], Subscriptionoptimismgoerli_destinationTransferArgs, MeshContext>,
   /** null **/
-  optimismgoerli_destinationTransfer: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_destinationTransfer'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_destinationTransferArgs, MeshContext>,
+  optimismgoerli_destinationTransfers: InContextSdkMethod<Subscription['optimismgoerli_destinationTransfers'], Subscriptionoptimismgoerli_destinationTransfersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_destinationTransfers: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_destinationTransfers'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_destinationTransfersArgs, MeshContext>,
+  optimismgoerli_originMessage: InContextSdkMethod<Subscription['optimismgoerli_originMessage'], Subscriptionoptimismgoerli_originMessageArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originMessage: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_originMessage'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_originMessageArgs, MeshContext>,
+  optimismgoerli_originMessages: InContextSdkMethod<Subscription['optimismgoerli_originMessages'], Subscriptionoptimismgoerli_originMessagesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originMessages: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_originMessages'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_originMessagesArgs, MeshContext>,
+  optimismgoerli_destinationMessage: InContextSdkMethod<Subscription['optimismgoerli_destinationMessage'], Subscriptionoptimismgoerli_destinationMessageArgs, MeshContext>,
   /** null **/
-  optimismgoerli_destinationMessage: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_destinationMessage'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_destinationMessageArgs, MeshContext>,
+  optimismgoerli_destinationMessages: InContextSdkMethod<Subscription['optimismgoerli_destinationMessages'], Subscriptionoptimismgoerli_destinationMessagesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_destinationMessages: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_destinationMessages'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_destinationMessagesArgs, MeshContext>,
+  optimismgoerli_aggregateRoot: InContextSdkMethod<Subscription['optimismgoerli_aggregateRoot'], Subscriptionoptimismgoerli_aggregateRootArgs, MeshContext>,
   /** null **/
-  optimismgoerli_aggregateRoot: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_aggregateRoot'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_aggregateRootArgs, MeshContext>,
+  optimismgoerli_aggregateRoots: InContextSdkMethod<Subscription['optimismgoerli_aggregateRoots'], Subscriptionoptimismgoerli_aggregateRootsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_aggregateRoots: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_aggregateRoots'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_aggregateRootsArgs, MeshContext>,
+  optimismgoerli_connectorMeta: InContextSdkMethod<Subscription['optimismgoerli_connectorMeta'], Subscriptionoptimismgoerli_connectorMetaArgs, MeshContext>,
   /** null **/
-  optimismgoerli_connectorMeta: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_connectorMeta'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_connectorMetaArgs, MeshContext>,
+  optimismgoerli_connectorMetas: InContextSdkMethod<Subscription['optimismgoerli_connectorMetas'], Subscriptionoptimismgoerli_connectorMetasArgs, MeshContext>,
   /** null **/
-  optimismgoerli_connectorMetas: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_connectorMetas'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_connectorMetasArgs, MeshContext>,
+  optimismgoerli_rootCount: InContextSdkMethod<Subscription['optimismgoerli_rootCount'], Subscriptionoptimismgoerli_rootCountArgs, MeshContext>,
   /** null **/
-  optimismgoerli_rootCount: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_rootCount'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_rootCountArgs, MeshContext>,
+  optimismgoerli_rootCounts: InContextSdkMethod<Subscription['optimismgoerli_rootCounts'], Subscriptionoptimismgoerli_rootCountsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_rootCounts: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_rootCounts'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_rootCountsArgs, MeshContext>,
+  optimismgoerli_rootMessageSent: InContextSdkMethod<Subscription['optimismgoerli_rootMessageSent'], Subscriptionoptimismgoerli_rootMessageSentArgs, MeshContext>,
   /** null **/
-  optimismgoerli_rootMessageSent: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_rootMessageSent'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_rootMessageSentArgs, MeshContext>,
-  /** null **/
-  optimismgoerli_rootMessageSents: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli_rootMessageSents'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli_rootMessageSentsArgs, MeshContext>,
+  optimismgoerli_rootMessageSents: InContextSdkMethod<Subscription['optimismgoerli_rootMessageSents'], Subscriptionoptimismgoerli_rootMessageSentsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  optimismgoerli__meta: InContextSdkMethod<ConnextOptimismGoerliTypes.Subscription['optimismgoerli__meta'], ConnextOptimismGoerliTypes.Subscriptionoptimismgoerli__metaArgs, MeshContext>
-};
-export type ConnextOptimismGoerliContext = {
-      ["Connext_OptimismGoerli"]: { Query: QueryConnextOptimismGoerliSdk, Mutation: MutationConnextOptimismGoerliSdk, Subscription: SubscriptionConnextOptimismGoerliSdk },
+  optimismgoerli__meta: InContextSdkMethod<Subscription['optimismgoerli__meta'], Subscriptionoptimismgoerli__metaArgs, MeshContext>
+  };
+
+  export type Context = {
+      ["Connext_OptimismGoerli"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
+}

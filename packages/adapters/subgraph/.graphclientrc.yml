@@ -37,7 +37,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staginggoerlihub_
+          value: staginggoerli_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -164,6 +164,3 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-
-documents:
-  - ./example-query.graphql

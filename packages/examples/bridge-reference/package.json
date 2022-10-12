@@ -8,6 +8,8 @@
     "build": "parcel build src/index.html",
     "start:testnet": "cross-env NODE_ENV=test parcel serve src/index.html -p 8080 --open",
     "build:testnet": "cross-env NODE_ENV=test parcel build src/index.html",
+    "start:testnet-staging": "cross-env NODE_ENV=staging parcel serve src/index.html -p 8080 --open",
+    "build:testnet-staging": "cross-env NODE_ENV=staging parcel build src/index.html",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "purge": "yarn clean && rimraf ./node_modules"
   },

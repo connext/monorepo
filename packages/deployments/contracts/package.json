@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.2.0-alpha.25",
+  "version": "0.2.0-alpha.26",
   "description": "",
   "scripts": {
     "test": "yarn forge test --gas-report --no-match-contract 'LiveTest'",
@@ -48,9 +48,11 @@
     "@typechain/ethers-v5": "10.1.0",
     "@typechain/hardhat": "6.1.2",
     "@types/chai": "4.3.3",
+    "@types/command-line-args": "5.2.0",
     "@types/mocha": "9.1.1",
     "@types/node": "16.11.58",
     "chai": "4.3.6",
+    "command-line-args": "5.2.1",
     "ethereum-waffle": "3.4.4",
     "ethers": "5.7.0",
     "hardhat": "2.10.2",

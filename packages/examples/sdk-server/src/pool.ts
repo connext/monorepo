@@ -4,7 +4,7 @@ import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { getCanonicalHash } from "@connext/nxtp-utils";
 
 import {
-  getCanonicalFromLocalSchema,
+  getCanonicalTokenSchema,
   getLPTokenAddressSchema,
   getLPTokenUserBalanceSchema,
   getPoolTokenIndexSchema,
@@ -29,29 +29,29 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
   // ------------------- Read Operations ------------------- //
 
   s.get(
-    "/getCanonicalFromLocal/:domainId/:tokenAddress",
+    "/getCanonicalToken/:domainId/:tokenAddress",
     {
       schema: {
-        params: getCanonicalFromLocalSchema,
+        params: getCanonicalTokenSchema,
       },
     },
     async (request, reply) => {
       const { domainId, tokenAddress } = request.params;
-      const res = await sdkPoolInstance.getCanonicalFromLocal(domainId, tokenAddress);
+      const res = await sdkPoolInstance.getCanonicalToken(domainId, tokenAddress);
       reply.status(200).send(res);
     },
   );
 
   s.get(
-    "/getLPTokenAddress/:domainId/:key",
+    "/getLPTokenAddress/:domainId/:tokenAddress",
     {
       schema: {
         params: getLPTokenAddressSchema,
       },
     },
     async (request, reply) => {
-      const { domainId, key } = request.params;
-      const res = await sdkPoolInstance.getLPTokenAddress(domainId, key);
+      const { domainId, tokenAddress } = request.params;
+      const res = await sdkPoolInstance.getLPTokenAddress(domainId, tokenAddress);
       reply.status(200).send(res);
     },
   );
@@ -71,71 +71,71 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
   );
 
   s.get(
-    "/getPoolTokenIndex/:domainId/:key/:tokenAddress",
+    "/getPoolTokenIndex/:domainId/:tokenAddress/:poolTokenAddress",
     {
       schema: {
         params: getPoolTokenIndexSchema,
       },
     },
     async (request, reply) => {
-      const { domainId, key, tokenAddress } = request.params;
-      const res = await sdkPoolInstance.getPoolTokenIndex(domainId, key, tokenAddress);
+      const { domainId, tokenAddress, poolTokenAddress } = request.params;
+      const res = await sdkPoolInstance.getPoolTokenIndex(domainId, tokenAddress, poolTokenAddress);
       reply.status(200).send(res);
     },
   );
 
   s.get(
-    "/getPoolTokenBalance/:domainId/:key/:tokenAddress",
+    "/getPoolTokenBalance/:domainId/:tokenAddress/:poolTokenAddress",
     {
       schema: {
         params: getPoolTokenBalanceSchema,
       },
     },
     async (request, reply) => {
-      const { domainId, key, tokenAddress } = request.params;
-      const res = await sdkPoolInstance.getPoolTokenBalance(domainId, key, tokenAddress);
+      const { domainId, tokenAddress, poolTokenAddress } = request.params;
+      const res = await sdkPoolInstance.getPoolTokenBalance(domainId, tokenAddress, poolTokenAddress);
       reply.status(200).send(res);
     },
   );
 
   s.get(
-    "/getPoolTokenUserBalance/:domainId/:tokenAddress/:userAddress",
+    "/getPoolTokenUserBalance/:domainId/:poolTokenAddress/:userAddress",
     {
       schema: {
         params: getPoolTokenUserBalanceSchema,
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, userAddress } = request.params;
-      const res = await sdkPoolInstance.getPoolTokenUserBalance(domainId, tokenAddress, userAddress);
+      const { domainId, poolTokenAddress, userAddress } = request.params;
+      const res = await sdkPoolInstance.getPoolTokenUserBalance(domainId, poolTokenAddress, userAddress);
       reply.status(200).send(res);
     },
   );
 
   s.get(
-    "/getPoolTokenAddress/:domainId/:key/:index",
+    "/getPoolTokenAddress/:domainId/:tokenAddress/:index",
     {
       schema: {
         params: getPoolTokenAddressSchema,
       },
     },
     async (request, reply) => {
-      const { domainId, key, index } = request.params;
-      const res = await sdkPoolInstance.getPoolTokenAddress(domainId, key, index);
+      const { domainId, tokenAddress, index } = request.params;
+      const res = await sdkPoolInstance.getPoolTokenAddress(domainId, tokenAddress, index);
       reply.status(200).send(res);
     },
   );
 
   s.get(
-    "/getVirtualPrice/:domainId/:key",
+    "/getVirtualPrice/:domainId/:tokenAddress",
     {
       schema: {
         params: getVirtualPriceSchema,
       },
     },
     async (request, reply) => {
-      const { domainId, key } = request.params;
-      const res = await sdkPoolInstance.getVirtualPrice(domainId, key);
+      const { domainId, tokenAddress } = request.params;
+      const res = await sdkPoolInstance.getVirtualPrice(domainId, tokenAddress);
       reply.status(200).send(res);
     },
   );
@@ -148,8 +148,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
       },
     },
     async (request, reply) => {
-      const { domainId, key, tokenIndexFrom, tokenIndexTo, amount } = request.body;
-      const res = await sdkPoolInstance.calculateSwap(domainId, key, tokenIndexFrom, tokenIndexTo, amount);
+      const { domainId, tokenAddress, tokenIndexFrom, tokenIndexTo, amount } = request.body;
+      const res = await sdkPoolInstance.calculateSwap(domainId, tokenAddress, tokenIndexFrom, tokenIndexTo, amount);
       reply.status(200).send(res);
     },
   );
@@ -162,8 +162,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
       },
     },
     async (request, reply) => {
-      const { domainId, key, amounts } = request.body;
-      const res = await sdkPoolInstance.calculateTokenAmount(domainId, key, amounts);
+      const { domainId, tokenAddress, amounts } = request.body;
+      const res = await sdkPoolInstance.calculateTokenAmount(domainId, tokenAddress, amounts);
       reply.status(200).send(res);
     },
   );
@@ -176,8 +176,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
       },
     },
     async (request, reply) => {
-      const { domainId, key, amount } = request.body;
-      const res = await sdkPoolInstance.calculateRemoveSwapLiquidity(domainId, key, amount);
+      const { domainId, tokenAddress, amount } = request.body;
+      const res = await sdkPoolInstance.calculateRemoveSwapLiquidity(domainId, tokenAddress, amount);
       reply.status(200).send(res);
     },
   );
@@ -192,8 +192,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
       },
     },
     async (request, reply) => {
-      const { domainId, key, amounts } = request.body;
-      const res = await sdkPoolInstance.addLiquidity(domainId, key, amounts);
+      const { domainId, tokenAddress, amounts } = request.body;
+      const res = await sdkPoolInstance.addLiquidity(domainId, tokenAddress, amounts);
       reply.status(200).send(res);
     },
   );
@@ -206,8 +206,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
       },
     },
     async (request, reply) => {
-      const { domainId, key, amount } = request.body;
-      const res = await sdkPoolInstance.removeLiquidity(domainId, key, amount);
+      const { domainId, tokenAddress, amount } = request.body;
+      const res = await sdkPoolInstance.removeLiquidity(domainId, tokenAddress, amount);
       reply.status(200).send(res);
     },
   );
@@ -220,8 +220,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
       },
     },
     async (request, reply) => {
-      const { domainId, key, from, to, amount } = request.body;
-      const res = await sdkPoolInstance.swap(domainId, key, from, to, amount);
+      const { domainId, tokenAddress, from, to, amount } = request.body;
+      const res = await sdkPoolInstance.swap(domainId, tokenAddress, from, to, amount);
       reply.status(200).send(res);
     },
   );

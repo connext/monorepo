@@ -39,6 +39,26 @@ export function chainIdToDomain(chainId: number): number {
 }
 
 /**
+ * Converts a domain id  to a chain id. (listed at at chainlist.org)
+ *
+ * @param domainId A domain id number
+ * @returns A chain id
+ */
+export function domainToChainId(domainId: number): number {
+  const keys = chainIdToDomainMapping.keys();
+  let chainId;
+  for (const key of keys) {
+    if (chainIdToDomainMapping.get(key) == domainId) chainId = key;
+  }
+
+  if (!chainId) {
+    throw new Error(`Cannot find corresponding chainId for domain ${domainId}`);
+  }
+
+  return chainId;
+}
+
+/**
  * Converts a string (e.g. "eth" for Ethereum) to a Nomad domain displayed as
  * a hex string.
  * @dev Interprets string bytes as int.
