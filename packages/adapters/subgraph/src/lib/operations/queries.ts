@@ -706,7 +706,7 @@ export const getAggregatedRootsByDomainQuery = (params: { domain: string; index:
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
     combinedQuery += `
-    ${prefix}hub_rootAggregateds ( 
+    ${prefix}_rootAggregateds ( 
       first: ${param.limit}, 
       where: { 
         domain: "${param.domain}",
@@ -729,7 +729,7 @@ export const getAggregatedRootsByDomainQuery = (params: { domain: string; index:
 export const getPropagatedRootsQuery = (prefix: string, count: number, limit: number) => {
   const { config } = getContext();
   const queryString = `
-  ${prefix}hub_rootPropagateds ( 
+  ${prefix}_rootPropagateds ( 
     first: ${limit}, 
     where: { 
       count_gte: ${count} 
