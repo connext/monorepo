@@ -164,6 +164,3 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-
-documents:
-  - ./example-query.graphql
