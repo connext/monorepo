@@ -726,8 +726,9 @@ export const getAggregatedRootsByDomainQuery = (params: { domain: string; index:
   `;
 };
 
-export const getPropagatedRootsQuery = (prefix: string, count: number, limit: number) => {
+export const getPropagatedRootsQuery = (domain: string, count: number, limit: number) => {
   const { config } = getContext();
+  const prefix = config.sources[domain].prefix;
   const queryString = `
   ${prefix}_rootPropagateds ( 
     first: ${limit}, 
