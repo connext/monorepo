@@ -73,6 +73,16 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
     //       `removeAssetId` in these cases.
     await updateIfNeeded({
       deployment: network.deployments.Connext,
+      desired: false,
+      read: { method: "approvedAssets(bytes32)", args: [key] },
+      write: {
+        method: "removeAssetId",
+        args: [key, desiredAdopted, representation.local],
+      },
+    });
+
+    await updateIfNeeded({
+      deployment: network.deployments.Connext,
       desired: desiredAdopted,
       read: { method: "canonicalToAdopted(bytes32)", args: [key] },
       write: {
