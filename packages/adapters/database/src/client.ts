@@ -95,6 +95,7 @@ const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"
     caller: message.caller,
     sent_transaction_hash: type === "sent" ? message.transactionHash : undefined,
     processed_transaction_hash: type === "processed" ? message.transactionHash : undefined,
+    processed: type === "processed" ? true : message.processed,
     sent_timestamp: message.timestamp,
     gas_price: message.gasPrice as any,
     gas_limit: message.gasLimit as any,
@@ -165,16 +166,9 @@ export const saveProcessedRootMessages = async (
 
   // upsert to set processed tx hash and processed boolean only
   await db
-    .upsert(
-      "root_messages",
-      messages.map((m) => {
-        return { ...m, processed: true };
-      }),
-      ["id"],
-      {
-        updateColumns: ["processed_transaction_hash", "processed"],
-      },
-    )
+    .upsert("root_messages", messages, ["id"], {
+      updateColumns: ["processed_transaction_hash", "processed"],
+    })
     .run(poolToUse);
 };
 

@@ -2,11 +2,10 @@
 import {
   NewConnector,
   Dispatch,
-  AggregateRootsUpdated,
+  AggregateRootReceived,
   MessageSent,
-  MessageProcessed,
 } from "../../../generated/SpokeConnector/SpokeConnector";
-import { OriginMessage, AggregateRoot, RootMessageSent, ConnectorMeta } from "../../../generated/schema";
+import { OriginMessage, AggregateRoot, RootMessageSent, ConnectorMeta, RootCount } from "../../../generated/schema";
 
 const DEFAULT_CONNECTOR_META_ID = "CONNECTOR_META_ID";
 
@@ -24,17 +23,15 @@ export function handleDispatch(event: Dispatch): void {
   message.message = event.params.message;
   message.transactionHash = event.transaction.hash;
 
-  message.save();
-}
-
-export function handleAggregateRootUpdated(event: AggregateRootsUpdated): void {
-  let aggregateRoot = AggregateRoot.load(event.params.current.toHexString());
-  if (aggregateRoot == null) {
-    aggregateRoot = new AggregateRoot(event.params.current.toHexString());
+  let rootCount = RootCount.load(event.params.root.toHexString());
+  if (rootCount == null) {
+    rootCount = new RootCount(event.params.root.toHexString());
   }
 
-  aggregateRoot.root = event.params.current;
-  aggregateRoot.save();
+  rootCount.count = event.params.index;
+
+  rootCount.save();
+  message.save();
 }
 
 export function handleMessageSent(event: MessageSent): void {
@@ -52,7 +49,15 @@ export function handleMessageSent(event: MessageSent): void {
   message.hubDomain = meta.hubDomain;
 
   message.root = event.params.data;
-  message.caller = event.params.caller;
+
+  let rootCount = RootCount.load(event.params.data.toHexString());
+  if (rootCount == null) {
+    rootCount = new RootCount(event.params.data.toHexString());
+  }
+
+  message.count = rootCount.count;
+
+  message.caller = event.transaction.from;
   message.transactionHash = event.transaction.hash;
   message.timestamp = event.block.timestamp;
   message.gasPrice = event.transaction.gasPrice;
@@ -75,4 +80,14 @@ export function handleNewConnector(event: NewConnector): void {
   meta.mirrorConnector = event.params.mirrorConnector;
 
   meta.save();
+}
+
+export function handleAggregateRootReceived(event: AggregateRootReceived): void {
+  let aggregateRoot = AggregateRoot.load(event.params.root.toHexString());
+  if (aggregateRoot == null) {
+    aggregateRoot = new AggregateRoot(event.params.root.toHexString());
+  }
+
+  aggregateRoot.root = event.params.root;
+  aggregateRoot.save();
 }

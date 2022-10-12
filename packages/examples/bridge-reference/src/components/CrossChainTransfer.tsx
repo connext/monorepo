@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { constants, Contract, utils, providers, BigNumberish } from "ethers";
 
-import { Chain } from "../types/chain";
+import { Chain, ChainTerminus } from "../types/chain";
 import { useChains } from "../contexts/Chains";
 import { useAssets } from "../contexts/Assets";
 import { Contract as IContract } from "../types/asset";
@@ -114,7 +114,7 @@ export const CrossChainTransfer = () => {
           }}
           source_chain={bridge.source_chain}
           destination_chain={bridge.destination_chain}
-          origin={true}
+          chain_terminus={ChainTerminus.origin}
         />
         <SelectChain
           onSelect={(c) => {
@@ -132,6 +132,7 @@ export const CrossChainTransfer = () => {
           }}
           source_chain={bridge.source_chain}
           destination_chain={bridge.destination_chain}
+          chain_terminus={ChainTerminus.destination}
         />
       </div>
       <SelectAsset

@@ -1,38 +1,43 @@
+import { TAddress } from "@connext/nxtp-utils";
+import { Type, Static } from "@sinclair/typebox";
 import { Contract, providers, Wallet } from "ethers";
 
 // NOTE: Agents will currently be whitelisted/blacklisted respectively on ALL domains.
-export type AgentStack = {
-  // Arrays of addresses for each type of agent that requires whitelisting/blacklisting.
-  whitelist?: string[];
-  blacklist?: string[];
-};
+export const AgentStackSchema = Type.Object({
+  whitelist: Type.Optional(Type.Array(TAddress)),
+  blacklist: Type.Optional(Type.Array(TAddress)),
+});
+export type AgentStack = Static<typeof AgentStackSchema>;
 
-export type WhitelistAgents = {
-  relayers?: AgentStack; // NOTE: Relayers will be whitelisted for both `execute` and messaging calls.
-  sequencers?: AgentStack;
-  routers?: AgentStack;
-  watchers?: AgentStack;
-};
+export const AgentsSchema = Type.Object({
+  relayers: Type.Optional(AgentStackSchema), // // NOTE: Relayers will be whitelisted for both `execute` and messaging calls.
+  sequencers: Type.Optional(AgentStackSchema),
+  routers: Type.Optional(AgentStackSchema),
+  watchers: Type.Optional(AgentStackSchema),
+});
+export type Agents = Static<typeof AgentsSchema>;
 
-export type AssetStack = {
-  name: string;
-  canonical: {
+export const AssetStackSchema = Type.Object({
+  name: Type.String(),
+  canonical: Type.Object({
     // The canonical domain of the asset.
-    domain: string;
+    domain: Type.String(),
     // Address of the official canonical token on the canonical domain.
-    address: string;
-  };
-  representations: {
-    [domain: string]: {
+    address: Type.String(),
+  }),
+  representations: Type.Record(
+    Type.String(),
+    Type.Object({
       // Address of the bridged asset on this domain.
-      local: string;
+      local: Type.String(),
       // Address of the adopted asset on this domain.
       // NOTE: If adopted is specified, a stableswap will be initialized! If not
       // specified, then we assume the local asset is the adopted asset on this domain.
-      adopted?: string;
-    };
-  };
-};
+      adopted: Type.Optional(Type.String()),
+    }),
+  ),
+});
+export type AssetStack = Static<typeof AssetStackSchema>;
 
 export type Deployment = {
   proxy?: string;
@@ -91,7 +96,7 @@ export type ProtocolStack = {
   assets: AssetStack[];
   // Agents that need to be whitelisted (across all domains).
   // Leave undefined if no agents should be whitelisted in this setup.
-  agents?: WhitelistAgents;
+  agents?: Agents;
 };
 
 export type CallSchema<T> = {
@@ -110,3 +115,19 @@ export type CallSchema<T> = {
     args?: any[];
   };
 };
+
+// NOTE: Used to do a sanity check when loading default config from json files
+export const InitHeaderConfigSchema = Type.Object({
+  hub: Type.String(),
+  assets: Type.Array(AssetStackSchema),
+  agents: AgentsSchema,
+});
+
+export const InitConfigSchema = Type.Intersect([
+  InitHeaderConfigSchema,
+  Type.Object({
+    supportedDomains: Type.Array(Type.String()),
+  }),
+]);
+
+export type InitConfig = Static<typeof InitConfigSchema>;

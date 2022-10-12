@@ -8,6 +8,8 @@ import {
   SubgraphQueryByTimestampMetaParams,
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
+  ConnectorMeta,
+  mock,
 } from "@connext/nxtp-utils";
 import {
   mockChainData,
@@ -17,10 +19,13 @@ import {
   stubContext,
 } from "./mock";
 import { SubgraphReader } from "../src/reader";
+import * as ReaderFns from "../src/reader";
 import * as ParserFns from "../src/lib/helpers/parse";
+import * as MockableFns from "../src/mockable";
 
 import * as ExecuteFns from "../src/lib/helpers/execute";
 import { BigNumber } from "ethers";
+import { CONNECTOR_META_ID } from "../src/lib/operations";
 
 describe("SubgraphReader", () => {
   let subgraphReader: SubgraphReader;
@@ -453,6 +458,20 @@ describe("SubgraphReader", () => {
     });
   });
 
+  describe("#getProcessedRootMessagesByDomain", () => {
+    it("should return the processed root messages", async () => {
+      stub(ReaderFns, "DOMAIN_TO_HUB_MAPPING").value({ "1111": "https://hello.world" });
+
+      const rootMessages = [mock.entity.rootMessage(), mock.entity.rootMessage()];
+      stub(MockableFns, "graphQlRequest").resolves({ rootMessageProcesseds: rootMessages });
+
+      const processedRootMessages = await subgraphReader.getProcessedRootMessagesByDomain([
+        { domain: "1111", limit: 100, offset: 0 },
+      ]);
+      expect(processedRootMessages).to.be.deep.eq(rootMessages);
+    });
+  });
+
   describe("#getLatestBlockNumber", () => {
     it("should return latestBlockNumber per domain", async () => {
       response.set("1111", [{ block: { number: 100 } }]);
@@ -472,6 +491,33 @@ describe("SubgraphReader", () => {
       const res = await subgraphReader.getMaxRoutersPerTransfer(["1111", "3331"]);
       expect(res.get("1111")).to.be.eq(3);
       expect(res.get("3331")).to.be.eq(3);
+    });
+  });
+
+  describe("#getConnectorMeta", () => {
+    it("should return connector meta per domain", async () => {
+      const connectorMeta1111 = {
+        amb: mkAddress("0x1111"),
+        hubDomain: "1111",
+        spokeDomain: "1111",
+        id: CONNECTOR_META_ID,
+        mirrorConnector: mkAddress("0x2222"),
+        rootManager: mkAddress("0x3333"),
+      };
+
+      const connectorMeta3331 = {
+        amb: mkAddress("0x1111"),
+        hubDomain: "1111",
+        spokeDomain: "3331",
+        id: CONNECTOR_META_ID,
+        mirrorConnector: mkAddress("0x2222"),
+        rootManager: mkAddress("0x3333"),
+      };
+      response.set("1111", [connectorMeta1111]);
+      response.set("3331", [connectorMeta3331]);
+      executeStub.resolves(response);
+      const res = await subgraphReader.getConnectorMeta(["1111", "3331"]);
+      expect(res).to.deep.eq([ParserFns.connectorMeta(connectorMeta1111), ParserFns.connectorMeta(connectorMeta3331)]);
     });
   });
 });

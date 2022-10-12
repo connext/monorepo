@@ -2,6 +2,18 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.26
+
+- [sdk] sdkPool fixes
+- [contracts] bug fixes at connectors
+- [all] proof message support
+
+## Amarok 0.2.0-alpha.25
+
+- [all] new interface release
+- [contract] freeze for audits
+- [networks] supports goerli, opt-goerli & mumbai
+
 ## Amarok 0.2.0-alpha.24
 
 - [sdk] CanonicalHash as key for pools.

@@ -110,6 +110,12 @@ locals {
           limit      = 6
           queueLimit = 10000
           subscribe  = true
+        },
+        {
+          name       = "9991"
+          limit      = 6
+          queueLimit = 10000
+          subscribe  = true
         }
       ]
       bindings = [
@@ -122,6 +128,11 @@ locals {
           exchange = "sequencerX"
           target   = "1735353714"
           keys     = ["1735353714"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "9991"
+          keys     = ["9991"]
         }
       ]
       executerTimeout = 300000
@@ -213,5 +224,6 @@ locals {
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment = var.stage
+    databaseUrl = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.connext.ninja:5432/connext"
   })
 }

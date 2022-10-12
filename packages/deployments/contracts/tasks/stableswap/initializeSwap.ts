@@ -110,16 +110,14 @@ export default task("initialize-stableswap", "Initializes stable swap")
         throw new Error("Asset not approved");
       }
 
-      const [adopted] = connext.interface.decodeFunctionResult(
-        "canonicalToAdopted(bytes32)",
+      const [local, adopted] = connext.interface.decodeFunctionResult(
+        "getLocalAndAdoptedToken(bytes32,uint32)",
         await deployer.call({
           to: connext.address,
-          data: connext.interface.encodeFunctionData("canonicalToAdopted(bytes32)", [key]),
+          data: connext.interface.encodeFunctionData("getLocalAndAdoptedToken(bytes32,uint32)", [canonicalId, domain]),
         }),
       );
-      console.log("adopted asset ", adopted);
-
-      const local: string = await connext["canonicalToAdopted(bytes32)"](key);
+      console.log("adopted:", adopted);
       console.log("local:", local);
 
       if (adopted.toLowerCase() === local.toLowerCase()) {
@@ -146,6 +144,9 @@ export default task("initialize-stableswap", "Initializes stable swap")
         fee,
         adminFee,
         lpTokenTargetAddress,
+        {
+          gasLimit: 2_000_000,
+        },
       );
       console.log("initializeStableSwap tx: ", tx);
       const receipt = await tx.wait();

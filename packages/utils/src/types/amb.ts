@@ -54,3 +54,13 @@ export const RootMessageSchema = Type.Object({
   processed: Type.Boolean(),
 });
 export type RootMessage = Static<typeof RootMessageSchema>;
+
+export const ConnectorMetaSchema = Type.Object({
+  id: Type.String(),
+  spokeDomain: Type.String(),
+  hubDomain: Type.String(),
+  rootManager: Type.String(),
+  mirrorConnector: Type.String(),
+  amb: Type.String(),
+});
+export type ConnectorMeta = Static<typeof ConnectorMetaSchema>;

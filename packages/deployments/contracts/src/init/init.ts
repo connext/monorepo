@@ -1,44 +1,127 @@
 import * as fs from "fs";
 
-import { getChainData, getChainIdFromDomain } from "@connext/nxtp-utils";
+import { config } from "dotenv";
 import { providers, Wallet, utils } from "ethers";
+import commandLineArgs from "command-line-args";
+import { ajv, getChainData } from "@connext/nxtp-utils";
+import { HttpNetworkUserConfig } from "hardhat/types";
 
-import { canonizeId, chainIdToDomain } from "../domain";
+import { canonizeId, domainToChainId } from "../domain";
+import { hardhatNetworks } from "../config";
 
-import { ProtocolStack, getDeployments, updateIfNeeded, NetworkStack, HubMessagingDeployments } from "./helpers";
+import {
+  ProtocolStack,
+  getDeployments,
+  updateIfNeeded,
+  NetworkStack,
+  HubMessagingDeployments,
+  InitConfig,
+  InitConfigSchema,
+  AssetStack,
+} from "./helpers";
 import { setupAsset } from "./helpers/assets";
 import { setupMessaging } from "./helpers/messaging";
+import { DEFAULT_INIT_CONFIG } from "./config";
+
+config();
+
+export const optionDefinitions = [
+  { name: "name", defaultOption: true },
+  { name: "network", type: String },
+  { name: "env", type: String },
+  { name: "domains", type: String, multiple: true },
+];
 
 /**
- * Call the core `initProtocol` method using a JSON config file provided by the local environment.
+ * Make sure config is set up properly and start initializtion.
  */
-export const initWithEnv = async () => {
+export const sanitizeAndInit = async () => {
+  let cmdArgs: any;
+  try {
+    cmdArgs = commandLineArgs(optionDefinitions);
+  } catch (err: any) {
+    throw new Error(`Parsing arguments failed, cmdArgs: ${process.argv}`);
+  }
+
+  // Validate command line arguments
+  const { network, env, domains: _domains } = cmdArgs;
+  if (!["staging", "production"].includes(env as string)) {
+    throw new Error(`Environment should be either staging or production, env: ${env}`);
+  }
+
+  if (!["testnet", "mainnet"].includes(network as string)) {
+    throw new Error(`Network should be either testnet or mainnet, network: ${network}`);
+  }
+
+  const useStaging = env === "staging";
+  console.log(`USING ${useStaging ? "STAGING" : "PRODUCTION"} AS ENVIRONMENT`);
+
+  // Read init.json if exists
   const path = process.env.INIT_CONFIG_FILE ?? "init.json";
-  console.log(`Retrieving config file from ${path}...`);
-  if (!fs.existsSync(path)) {
-    throw new Error(
-      "No init config file was provided. Please set INIT_CONFIG_FILE in env or create init.json locally.",
-    );
-  }
-  const json = fs.readFileSync(path, { encoding: "utf-8" });
-  console.log("Parsing JSON config...");
-  // TODO: Use typebox and AJV parser for config to ensure params are correct?
-  const config = JSON.parse(json);
-  if (!config) {
-    throw new Error("Config was empty? Please ensure your JSON file has, like, stuff in it.");
+  let overrideConfig: any = {};
+  if (fs.existsSync(path)) {
+    const json = fs.readFileSync(path, { encoding: "utf-8" });
+    overrideConfig = JSON.parse(json);
   }
 
-  await sanitizeAndInit(config);
-};
+  // Validate init config schema
+  const initConfig: InitConfig = overrideConfig ?? (DEFAULT_INIT_CONFIG as any)[network as string][env];
+  console.log(initConfig);
+  const validate = ajv.compile(InitConfigSchema);
+  const valid = validate(initConfig);
 
-/**
- * Sanitizer method to make sure config is set up correctly.
- * @param config - ProtocolStack, but as any/Partial.
- */
-export const sanitizeAndInit = async (config: any) => {
+  if (!valid) {
+    throw new Error(validate.errors?.map((err: unknown) => JSON.stringify(err, null, 2)).join(","));
+  }
+
+  const supported = initConfig.supportedDomains;
+  const domains = _domains ?? supported;
+  for (const domain of domains) {
+    if (!supported.includes(domain as string)) {
+      throw new Error(`Unsupported domain parsed!, domain: ${domain}, supported: ${supported}`);
+    }
+  }
+
+  // Sanitation checks for hub domain and assets configuration
+  const hubDomain = initConfig.hub;
+  if (!supported.includes(hubDomain)) {
+    throw new Error(`Supported domains MUST include the hub domain. hub: ${hubDomain}, supported: ${supported}`);
+  }
+
+  const _assets = initConfig.assets ?? [];
+  for (const asset of _assets) {
+    const assetDomains = [asset.canonical.domain].concat(Object.keys(asset.representations));
+
+    const configuredDomains = supported.filter((domain) => assetDomains.includes(domain));
+    if (JSON.stringify(configuredDomains) != JSON.stringify(supported)) {
+      throw new Error(
+        `Not configured asset domains, asset: ${asset.name}, canonical: (${asset.canonical.domain}, ${asset.canonical.address}), configured: ${configuredDomains}, parsed: ${domains}`,
+      );
+    }
+  }
+
+  // get assets configuration for given domains
+  const assets = _assets.map((asset) => {
+    const _extracted: AssetStack = {
+      name: asset.name,
+      canonical: {
+        domain: asset.canonical.domain,
+        address: asset.canonical.address,
+      },
+      representations: {},
+    };
+
+    for (const domain of domains) {
+      if (domain === hubDomain) continue;
+      _extracted.representations[domain] = asset.representations[domain];
+    }
+
+    return _extracted;
+  });
+
   /// MARK - Deployer
   // Get deployer mnemonic, which should be provided in env if not in the config.
-  const mnemonic = config.deployer || process.env.DEPLOYER || process.env.DEPLOYER_MNEMONIC;
+  const mnemonic = process.env.DEPLOYER || process.env.DEPLOYER_MNEMONIC || process.env.MNEMONIC;
   if (!mnemonic) {
     throw new Error(
       "Deployer mnemonic was not specified. Please specify `deployer` in the config file, " +
@@ -46,134 +129,50 @@ export const sanitizeAndInit = async (config: any) => {
     );
   }
   // Convert deployer from mnemonic to Wallet.
-  const deployer = Wallet.fromMnemonic(mnemonic as string);
+  const deployer = Wallet.fromMnemonic(mnemonic);
 
-  /// MARK - Domains
-  // Make sure hub is specified.
-  if (!config.hub) {
-    throw new Error("`hub` was not specified in config. Please specify the Hub (L1) domain used for messaging.");
-  }
-  // Make sure hub domain is a string value.
-  let hub = (config.hub as string | number).toString();
-  // Make sure networks were specified.
-  if (!Array.isArray(config.networks) || config.networks.length === 0) {
-    throw new Error(
-      "Networks were not specified in the config, or the networks list was empty. " +
-        "Do you even want to init anything?",
-    );
-  }
-
-  /// MARK - Deployments
-  // Get deployment environment.
-  const env = config.environment || process.env.ENVIRONMENT;
-  if (!env) {
-    throw new Error(
-      "ENVIRONMENT was not specified in config or env. Please specify whether ENVIRONMENT (for deployments) is `staging` " +
-        "or `production`, etc.",
-    );
-  }
-  const useStaging = env === "staging";
-  console.log(`USING ${useStaging ? "STAGING" : "PRODUCTION"} AS ENVIRONMENT`);
+  const networks: NetworkStack[] = [];
+  const filteredHardhatNetworks = Object.values(hardhatNetworks).filter(
+    (hardhatNetwork) => Object.keys(hardhatNetwork).includes("chainId") && Object.keys(hardhatNetwork).includes("url"),
+  );
 
   // Get deployments for each domain if not specified in the config.
-  for (let i = 0; i < config.networks.length; i++) {
-    const network = config.networks[i];
-    // Make sure either domain or chain are specified.
-    if (!network.domain && !network.chain) {
-      throw new Error(
-        "One of the networks in config doesn't even have a `domain` or `chain` " +
-          "specified... bro, am I reading this right?",
-      );
-    } else if (network.domain) {
-      const domain = (network.domain as string | number).toString();
+  for (const _domain of domains) {
+    const domain = _domain as string;
+    const chainId = domainToChainId(Number(domain));
 
-      // Make sure domain is saved as a string.
-      network.domain = domain;
-      // Make sure correct chain ID is saved.
-      // NOTE: Even if chain was specified as well, we'll consult the Domain => Chain ID conversion table anyway.
-      network.chain = (await getChainIdFromDomain(domain)).toString();
-    } else if (network.chain) {
-      const chain = (network.chain as string | number).toString();
+    const chainConfig = Object.values(filteredHardhatNetworks).find(
+      (networkConfig: any) => networkConfig["chainId"] == chainId,
+    ) as HttpNetworkUserConfig;
 
-      // Make sure chain is saved as a string.
-      network.chain = chain;
-      // Make sure domain is specified.
-      // network.domain = await getDomainFromChainId(parseInt(chain, 10));
-      network.domain = chainIdToDomain(parseInt(chain, 10)).toString();
+    if (!chainConfig || !chainConfig.url) {
+      throw new Error(`Not configured network for chainId: ${chainId} in hardhat config`);
     }
 
-    // RPC provider is required.
-    if (!network.rpc) {
-      throw new Error(
-        `You didn't include an RPC provider for domain ${network.domain}. ` +
-          "I literally can't work in these conditions.",
-      );
-    }
-    // Convert RPC from URL string to JsonRpcProvider.
-    network.rpc = new providers.JsonRpcProvider(network.rpc as string);
+    const rpc = new providers.JsonRpcProvider(chainConfig.url);
 
-    // Get the deployments for this domain, if needed.
-    if (!network.deployments) {
-      let isHub = network.domain === hub;
-      if (network.chain === hub) {
-        // Consumer could have specified the hub by chain ID. If so, convert the hub to domain ID.
-        isHub = true;
-        hub = network.domain;
-      }
-      network.deployments = getDeployments({
-        deployer,
-        network,
-        isHub,
-        useStaging,
-      });
-    }
+    const isHub = domain === hubDomain;
+    const deployments = getDeployments({
+      deployer,
+      chainInfo: { chain: chainId.toString(), rpc },
+      isHub,
+      useStaging,
+    });
 
-    // Make sure the stack is set.
-    // TODO: Is this already performed in-place?
-    config.networks[i] = network;
+    networks.push({
+      chain: chainId.toString(),
+      domain,
+      rpc,
+      deployments,
+    });
   }
-
-  /// MARK - Hub
-  // Hub domain should be a domain ID and be included in the list of supported domains.
-  const supportedDomains = config.networks.map((d: any) => d.domain);
-  console.log({ supportedDomains });
-  if (!supportedDomains.includes(hub)) {
-    const supportedChains = config.networks.map((d: any) => d.chain);
-    throw new Error(
-      `Hub domain/chain ${hub} was not found among the networks in protocol config. Is this some kind of prank?` +
-        `Support domains: ${supportedDomains.join(",")}; Supported chains: ${supportedChains.join(",")}`,
-    );
-  }
-
-  /// MARK - Assets
-  // If assets are not specified, just set an empty array.
-  const assets = config.assets ?? [];
-  // All domains specified in AssetStack(s) must be included in domains.
-  for (const asset of assets) {
-    const domains = [asset.canonical.domain].concat(Object.keys(asset.representations as { [domain: string]: any }));
-    console.log({ domains });
-    for (const domain of domains) {
-      if (!supportedDomains.includes(domain)) {
-        throw new Error(
-          `Asset with canonical address of ${asset.canonical.local} and canonical domain ${asset.canonical.domain} included ` +
-            `an entry for a non-supported domain ${domain}. Please add the domain under the networks list in your config file.`,
-        );
-      }
-    }
-  }
-
-  // TODO: Sanitize assets - all addresses specified?
-
-  /// MARK - Agents
-  // TODO: Sanitize agents - all strings are addresses?
-
-  // TODO: Sanity - check that every hub has a spoke and vice versa!
 
   const sanitized = {
-    ...config,
     deployer,
-    hub,
+    hub: hubDomain,
+    networks,
     assets,
+    agents: initConfig.agents,
   } as ProtocolStack;
   console.log("Sanitized protocol config:", sanitized);
 

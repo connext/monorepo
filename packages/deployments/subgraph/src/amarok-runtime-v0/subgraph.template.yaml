@@ -86,9 +86,8 @@ dataSources:
         - name: SpokeConnector
           file: ./src/amarok-runtime-v0/abis/SpokeConnector.json
       eventHandlers:
-        #AggregateRootsUpdated(bytes32 current, bytes32 previous);
-        - event: AggregateRootsUpdated(bytes32,bytes32)
-          handler: handleAggregateRootsUpdated
+        - event: AggregateRootReceived(bytes32)
+          handler: handleAggregateRootReceived
         # Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
         - event: Dispatch(bytes32,uint256,bytes32,bytes)
           handler: handleDispatch
