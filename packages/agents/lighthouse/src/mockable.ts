@@ -6,6 +6,7 @@ import {
   isChainSupportedByGelato as _isChainSupportedByGelato,
   getTransactionHashFromGelato as _getTransactionHashFromGelato,
   gelatoSDKSend as _gelatoSDKSend,
+  generateExitPayload as _generateExitPayload,
 } from "@connext/nxtp-utils";
 import { CrossChainMessenger as _CrossChainMessenger } from "@eth-optimism/sdk";
 import axios from "axios";
@@ -28,3 +29,5 @@ export const gelatoSDKSend = _gelatoSDKSend;
 export const axiosGet = axios.get;
 
 export const CrossChainMessenger = _CrossChainMessenger;
+
+export const generateExitPayload = _generateExitPayload;
