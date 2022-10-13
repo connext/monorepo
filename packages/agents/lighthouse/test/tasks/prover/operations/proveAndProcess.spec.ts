@@ -1,11 +1,10 @@
-import { expect, mock } from "@connext/nxtp-utils";
+import { expect, SparseMerkleTree } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
 import { proveAndProcess, processMessage } from "../../../../src/tasks/prover/operations/proveAndProcess";
 import * as ProveAndProcessFns from "../../../../src/tasks/prover/operations/proveAndProcess";
-import { encodedDataMock, mockXMessage1, mockXMessage2 } from "../../../mock";
+import { mockXMessage1, mockXMessage2 } from "../../../mock";
 import { proverCtxMock } from "../../../globalTestHook";
-import { NoDestinationDomainForProof, NoTargetMessageRoot } from "../../../../src/errors";
 
 describe("Operations: ProveAndProcess", () => {
   describe("#proveAndProcess", () => {
@@ -41,19 +40,43 @@ describe("Operations: ProveAndProcess", () => {
   });
 
   describe("#processMessage", () => {
+    beforeEach(() => {
+      (proverCtxMock.adapters.database.getMessageRootFromIndex as SinonStub).resolves(mockXMessage1.origin.root);
+      (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(mockXMessage1.origin.index);
+      (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(mockXMessage1.origin.index);
+      (proverCtxMock.adapters.database.getAggregateRoot as SinonStub).resolves(mockXMessage1.origin.root);
+      (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(mockXMessage1.origin.index);
+      stub(SparseMerkleTree.prototype, "getProof").resolves([]);
+    });
+
     it("should error if spoke connector not found", async () => {
-      // await expect(processMessage({ ...mockXMessage1, destinationDomain: "1234" })).to.be.rejected;
-      // expect(await processMessage({ ...mockXMessage1, destinationDomain: "1234" })).to.be.eventually.rejected;
+      await expect(processMessage({ ...mockXMessage1, destinationDomain: "1234" })).to.be.rejected;
     });
 
     it("should process a message", async () => {
-      // await processMessage(mockXMessage1);
-      // expect(proverCtxMock.adapters.relayer.send).to.be.called;
-      // expect(proverCtxMock.adapters.relayer.send).to.be.calledOnceWith(
-      //   +mock.chain.B,
-      //   proverCtxMock.config.chains[mockXMessage1.destinationDomain].deployments.spokeConnector,
-      //   encodedDataMock,
-      // );
+      await processMessage(mockXMessage1);
+      expect(proverCtxMock.adapters.relayer.send).to.be.called;
+    });
+  });
+
+  describe("#processMessage with exceptions", () => {
+    it("should catch error", async () => {
+      await expect(processMessage(mockXMessage1)).to.eventually.be.rejectedWith(Error);
+
+      (proverCtxMock.adapters.database.getMessageRootFromIndex as SinonStub).resolves(mockXMessage1.origin.root);
+      await expect(processMessage(mockXMessage1)).to.eventually.be.rejectedWith(Error);
+
+      (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(mockXMessage1.origin.index);
+      await expect(processMessage(mockXMessage1)).to.eventually.be.rejectedWith(Error);
+      (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(mockXMessage1.origin.index);
+      await expect(processMessage(mockXMessage1)).to.eventually.be.rejectedWith(Error);
+      (proverCtxMock.adapters.database.getAggregateRoot as SinonStub).resolves(mockXMessage1.origin.root);
+      await expect(processMessage(mockXMessage1)).to.eventually.be.rejectedWith(Error);
+      (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(mockXMessage1.origin.index);
+      await expect(processMessage(mockXMessage1)).to.eventually.be.rejectedWith(Error);
+
+      stub(SparseMerkleTree.prototype, "getProof").resolves();
+      await expect(processMessage(mockXMessage1)).to.eventually.be.rejectedWith(Error);
     });
   });
 });
