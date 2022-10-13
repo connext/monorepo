@@ -10,8 +10,8 @@
       },
       {
         "name": "Connector",
-        "address": "0xabf059E0874411b4be686c7a54Fd24134596451d",
-        "startBlock": 7734516
+        "address": "0xFF2E6081577DbB6033b36a2856c337a4c70F9518",
+        "startBlock": 7745329
       }
     ]
   },
@@ -26,8 +26,8 @@
       },
       {
         "name": "Connector",
-        "address": "0x67Be25B950409412d74e482d657Dc7ad1C4B22ce",
-        "startBlock": 1802597
+        "address": "0x314034519FFF261DF23D6FD9198FBF992F731458",
+        "startBlock": 1857556
       }
     ]
   },
@@ -42,24 +42,8 @@
       },
       {
         "name": "Connector",
-        "address": "0x8AB9978E53df208b02ED69a96AE40200c8B74eF9",
-        "startBlock": 28563288
-      }
-    ]
-  },
-  {
-    "subgraphName": "connext/runtime-staging-arb-goerli",
-    "network": "arbitrum-goerli",
-    "source": [
-      {
-        "name": "Connext",
-        "address": "0xD135B85E868C4B02df3b328DCE917f34F76895dE",
-        "startBlock": 586288
-      },
-      {
-        "name": "Connector",
-        "address": "0xc3eaA2513Ab6D60B3c845378d2bD282555D5AfDC",
-        "startBlock": 586274
+        "address": "0xF21D6c7c9D54cce0D16928504Eea3561e941d0DA",
+        "startBlock": 28546396
       }
     ]
   }
