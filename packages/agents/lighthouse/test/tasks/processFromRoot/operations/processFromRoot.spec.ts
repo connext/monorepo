@@ -4,11 +4,14 @@ import { SinonStub, stub } from "sinon";
 import * as ProcessFromRootFns from "../../../../src/tasks/processFromRoot/operations/processFromRoot";
 import * as MockableFns from "../../../../src/mockable";
 import { processFromRootCtxMock } from "../../../globalTestHook";
+import { ProcessConfigNotAvailable } from "../../../../src/tasks/processFromRoot/errors";
 
 describe("Operations: ProcessFromRoot", () => {
   describe("#processSingleRootMessage", () => {
+    let configStub;
+
     beforeEach(() => {
-      stub(ProcessFromRootFns, "processorConfigs").value({
+      configStub = stub(ProcessFromRootFns, "processorConfigs").value({
         [mock.entity.rootMessage().spokeDomain]: {
           getArgs: () => Promise.resolve([]),
           hubConnectorPrefix: "Optimism",
@@ -26,6 +29,15 @@ describe("Operations: ProcessFromRoot", () => {
         processFromRootCtxMock.adapters.contracts.hubConnector(1, "Optimism")!.address,
         "0xfaded",
         processFromRootCtxMock.config.gelatoApiKey,
+      );
+    });
+
+    it.only("should error if no config", async () => {
+      configStub.value({});
+      const rootMsg = mock.entity.rootMessage();
+      const requestContext = createRequestContext("test");
+      await expect(ProcessFromRootFns.processSingleRootMessage(rootMsg, requestContext)).to.be.rejectedWith(
+        ProcessConfigNotAvailable,
       );
     });
   });
