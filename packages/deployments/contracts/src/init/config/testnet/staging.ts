@@ -56,7 +56,7 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
   ],
   agents: {
     watchers: {
-      whitelist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB"],
+      whitelist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
     },
     routers: {
       whitelist: ["0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"],
