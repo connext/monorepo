@@ -447,6 +447,24 @@ export const mock = {
           abi: "fakeAbi()",
         };
       },
+      stableSwap: function (_: number) {
+        return {
+          address: mkAddress("0x222222"),
+          abi: "fakeAbi()",
+        };
+      },
+      spokeConnector: function (_: number) {
+        return {
+          address: mkAddress("0x333333"),
+          abi: "fakeAbi()",
+        };
+      },
+      hubConnectorts: function (_: number) {
+        return {
+          address: mkAddress("0x444444"),
+          abi: "fakeAbi()",
+        };
+      },
     },
   },
 };
