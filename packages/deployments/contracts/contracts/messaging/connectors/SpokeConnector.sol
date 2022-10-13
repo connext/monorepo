@@ -383,6 +383,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * these roots.
    */
   function receiveAggregateRoot(bytes32 _newRoot) internal {
+    require(_newRoot != bytes32(""), "new root empty");
+    require(pendingAggregateRoots[_newRoot] == 0, "root already pending");
+    require(!provenAggregateRoots[_newRoot], "root already proven");
+
     pendingAggregateRoots[_newRoot] = block.number;
     emit AggregateRootReceived(_newRoot);
   }
