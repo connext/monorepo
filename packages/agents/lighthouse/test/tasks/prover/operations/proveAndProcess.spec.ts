@@ -62,19 +62,34 @@ describe("Operations: ProveAndProcess", () => {
   describe("#processMessage with exceptions", () => {
     it("should catch error", async () => {
       await expect(processMessage(mockXMessage1)).to.eventually.be.rejectedWith(Error);
+    });
 
+    it("should catch error", async () => {
       (proverCtxMock.adapters.database.getMessageRootFromIndex as SinonStub).resolves(mockXMessage1.origin.root);
       await expect(processMessage(mockXMessage1)).to.eventually.be.rejectedWith(Error);
+    });
 
+    it("should catch error", async () => {
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(mockXMessage1.origin.index);
       await expect(processMessage(mockXMessage1)).to.eventually.be.rejectedWith(Error);
+    });
+
+    it("should catch error", async () => {
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(mockXMessage1.origin.index);
       await expect(processMessage(mockXMessage1)).to.eventually.be.rejectedWith(Error);
+    });
+
+    it("should catch error", async () => {
       (proverCtxMock.adapters.database.getAggregateRoot as SinonStub).resolves(mockXMessage1.origin.root);
       await expect(processMessage(mockXMessage1)).to.eventually.be.rejectedWith(Error);
+    });
+
+    it("should catch error", async () => {
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(mockXMessage1.origin.index);
       await expect(processMessage(mockXMessage1)).to.eventually.be.rejectedWith(Error);
+    });
 
+    it("should catch error", async () => {
       stub(SparseMerkleTree.prototype, "getProof").resolves();
       await expect(processMessage(mockXMessage1)).to.eventually.be.rejectedWith(Error);
     });
