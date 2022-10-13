@@ -39,7 +39,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
     "mirrorGas()": FunctionFragment;
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
-    "processMessageFromRoot(address,uint32,uint256,bytes,bytes32[])": FunctionFragment;
+    "processMessageFromRoot(uint32,uint256,uint16,bytes,bytes32[])": FunctionFragment;
     "processed(bytes32)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
@@ -105,7 +105,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "processMessageFromRoot",
     values: [
-      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>,
@@ -364,9 +364,9 @@ export interface ZkSyncHubConnector extends BaseContract {
     ): Promise<ContractTransaction>;
 
     processMessageFromRoot(
-      _zkSyncAddress: PromiseOrValue<string>,
       _l2BlockNumber: PromiseOrValue<BigNumberish>,
-      _index: PromiseOrValue<BigNumberish>,
+      _l2MessageIndex: PromiseOrValue<BigNumberish>,
+      _l2TxNumberInBlock: PromiseOrValue<BigNumberish>,
       _message: PromiseOrValue<BytesLike>,
       _proof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -439,9 +439,9 @@ export interface ZkSyncHubConnector extends BaseContract {
   ): Promise<ContractTransaction>;
 
   processMessageFromRoot(
-    _zkSyncAddress: PromiseOrValue<string>,
     _l2BlockNumber: PromiseOrValue<BigNumberish>,
-    _index: PromiseOrValue<BigNumberish>,
+    _l2MessageIndex: PromiseOrValue<BigNumberish>,
+    _l2TxNumberInBlock: PromiseOrValue<BigNumberish>,
     _message: PromiseOrValue<BytesLike>,
     _proof: PromiseOrValue<BytesLike>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -512,9 +512,9 @@ export interface ZkSyncHubConnector extends BaseContract {
     ): Promise<void>;
 
     processMessageFromRoot(
-      _zkSyncAddress: PromiseOrValue<string>,
       _l2BlockNumber: PromiseOrValue<BigNumberish>,
-      _index: PromiseOrValue<BigNumberish>,
+      _l2MessageIndex: PromiseOrValue<BigNumberish>,
+      _l2TxNumberInBlock: PromiseOrValue<BigNumberish>,
       _message: PromiseOrValue<BytesLike>,
       _proof: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
@@ -649,9 +649,9 @@ export interface ZkSyncHubConnector extends BaseContract {
     ): Promise<BigNumber>;
 
     processMessageFromRoot(
-      _zkSyncAddress: PromiseOrValue<string>,
       _l2BlockNumber: PromiseOrValue<BigNumberish>,
-      _index: PromiseOrValue<BigNumberish>,
+      _l2MessageIndex: PromiseOrValue<BigNumberish>,
+      _l2TxNumberInBlock: PromiseOrValue<BigNumberish>,
       _message: PromiseOrValue<BytesLike>,
       _proof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -725,9 +725,9 @@ export interface ZkSyncHubConnector extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     processMessageFromRoot(
-      _zkSyncAddress: PromiseOrValue<string>,
       _l2BlockNumber: PromiseOrValue<BigNumberish>,
-      _index: PromiseOrValue<BigNumberish>,
+      _l2MessageIndex: PromiseOrValue<BigNumberish>,
+      _l2TxNumberInBlock: PromiseOrValue<BigNumberish>,
       _message: PromiseOrValue<BytesLike>,
       _proof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }

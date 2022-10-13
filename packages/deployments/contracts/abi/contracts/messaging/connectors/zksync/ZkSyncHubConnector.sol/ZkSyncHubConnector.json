@@ -25,7 +25,7 @@
   "function mirrorGas() view returns (uint256)",
   "function owner() view returns (address)",
   "function processMessage(bytes)",
-  "function processMessageFromRoot(address,uint32,uint256,bytes,bytes32[])",
+  "function processMessageFromRoot(uint32,uint256,uint16,bytes,bytes32[])",
   "function processed(bytes32) view returns (bool)",
   "function proposeNewOwner(address)",
   "function proposed() view returns (address)",

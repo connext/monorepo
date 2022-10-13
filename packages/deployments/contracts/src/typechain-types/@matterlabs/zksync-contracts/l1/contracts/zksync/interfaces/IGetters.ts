@@ -31,26 +31,6 @@ export declare namespace IGetters {
     addr: string;
     selectors: string[];
   };
-
-  export type SelectorExtendedStruct = {
-    selector: PromiseOrValue<BytesLike>;
-    isFreezable: PromiseOrValue<boolean>;
-  };
-
-  export type SelectorExtendedStructOutput = [string, boolean] & {
-    selector: string;
-    isFreezable: boolean;
-  };
-
-  export type FacetExtendedStruct = {
-    addr: PromiseOrValue<string>;
-    selectors: IGetters.SelectorExtendedStruct[];
-  };
-
-  export type FacetExtendedStructOutput = [
-    string,
-    IGetters.SelectorExtendedStructOutput[]
-  ] & { addr: string; selectors: IGetters.SelectorExtendedStructOutput[] };
 }
 
 export interface IGettersInterface extends utils.Interface {
@@ -59,14 +39,14 @@ export interface IGettersInterface extends utils.Interface {
     "facetAddresses()": FunctionFragment;
     "facetFunctionSelectors(address)": FunctionFragment;
     "facets()": FunctionFragment;
-    "facetsExtended()": FunctionFragment;
+    "getFirstUnprocessedPriorityTx()": FunctionFragment;
     "getGovernor()": FunctionFragment;
-    "getLastProcessedPriorityTx()": FunctionFragment;
     "getTotalBlocksCommitted()": FunctionFragment;
     "getTotalBlocksExecuted()": FunctionFragment;
     "getTotalBlocksVerified()": FunctionFragment;
     "getTotalPriorityTxs()": FunctionFragment;
     "getVerifier()": FunctionFragment;
+    "isFacetFreezable(address)": FunctionFragment;
     "isFunctionFreezable(bytes4)": FunctionFragment;
     "isValidator(address)": FunctionFragment;
     "l2LogsRootHash(uint32)": FunctionFragment;
@@ -78,14 +58,14 @@ export interface IGettersInterface extends utils.Interface {
       | "facetAddresses"
       | "facetFunctionSelectors"
       | "facets"
-      | "facetsExtended"
+      | "getFirstUnprocessedPriorityTx"
       | "getGovernor"
-      | "getLastProcessedPriorityTx"
       | "getTotalBlocksCommitted"
       | "getTotalBlocksExecuted"
       | "getTotalBlocksVerified"
       | "getTotalPriorityTxs"
       | "getVerifier"
+      | "isFacetFreezable"
       | "isFunctionFreezable"
       | "isValidator"
       | "l2LogsRootHash"
@@ -105,15 +85,11 @@ export interface IGettersInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "facets", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "facetsExtended",
+    functionFragment: "getFirstUnprocessedPriorityTx",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getGovernor",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getLastProcessedPriorityTx",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -135,6 +111,10 @@ export interface IGettersInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getVerifier",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isFacetFreezable",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "isFunctionFreezable",
@@ -163,15 +143,11 @@ export interface IGettersInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "facets", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "facetsExtended",
+    functionFragment: "getFirstUnprocessedPriorityTx",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "getGovernor",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getLastProcessedPriorityTx",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -192,6 +168,10 @@ export interface IGettersInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getVerifier",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isFacetFreezable",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -253,13 +233,11 @@ export interface IGetters extends BaseContract {
 
     facets(overrides?: CallOverrides): Promise<[IGetters.FacetStructOutput[]]>;
 
-    facetsExtended(
+    getFirstUnprocessedPriorityTx(
       overrides?: CallOverrides
-    ): Promise<[IGetters.FacetExtendedStructOutput[]]>;
+    ): Promise<[BigNumber]>;
 
     getGovernor(overrides?: CallOverrides): Promise<[string]>;
-
-    getLastProcessedPriorityTx(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getTotalBlocksCommitted(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -270,6 +248,11 @@ export interface IGetters extends BaseContract {
     getTotalPriorityTxs(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getVerifier(overrides?: CallOverrides): Promise<[string]>;
+
+    isFacetFreezable(
+      _facet: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     isFunctionFreezable(
       _selector: PromiseOrValue<BytesLike>,
@@ -301,13 +284,9 @@ export interface IGetters extends BaseContract {
 
   facets(overrides?: CallOverrides): Promise<IGetters.FacetStructOutput[]>;
 
-  facetsExtended(
-    overrides?: CallOverrides
-  ): Promise<IGetters.FacetExtendedStructOutput[]>;
+  getFirstUnprocessedPriorityTx(overrides?: CallOverrides): Promise<BigNumber>;
 
   getGovernor(overrides?: CallOverrides): Promise<string>;
-
-  getLastProcessedPriorityTx(overrides?: CallOverrides): Promise<BigNumber>;
 
   getTotalBlocksCommitted(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -318,6 +297,11 @@ export interface IGetters extends BaseContract {
   getTotalPriorityTxs(overrides?: CallOverrides): Promise<BigNumber>;
 
   getVerifier(overrides?: CallOverrides): Promise<string>;
+
+  isFacetFreezable(
+    _facet: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   isFunctionFreezable(
     _selector: PromiseOrValue<BytesLike>,
@@ -349,13 +333,11 @@ export interface IGetters extends BaseContract {
 
     facets(overrides?: CallOverrides): Promise<IGetters.FacetStructOutput[]>;
 
-    facetsExtended(
+    getFirstUnprocessedPriorityTx(
       overrides?: CallOverrides
-    ): Promise<IGetters.FacetExtendedStructOutput[]>;
+    ): Promise<BigNumber>;
 
     getGovernor(overrides?: CallOverrides): Promise<string>;
-
-    getLastProcessedPriorityTx(overrides?: CallOverrides): Promise<BigNumber>;
 
     getTotalBlocksCommitted(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -366,6 +348,11 @@ export interface IGetters extends BaseContract {
     getTotalPriorityTxs(overrides?: CallOverrides): Promise<BigNumber>;
 
     getVerifier(overrides?: CallOverrides): Promise<string>;
+
+    isFacetFreezable(
+      _facet: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     isFunctionFreezable(
       _selector: PromiseOrValue<BytesLike>,
@@ -400,11 +387,11 @@ export interface IGetters extends BaseContract {
 
     facets(overrides?: CallOverrides): Promise<BigNumber>;
 
-    facetsExtended(overrides?: CallOverrides): Promise<BigNumber>;
+    getFirstUnprocessedPriorityTx(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getGovernor(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getLastProcessedPriorityTx(overrides?: CallOverrides): Promise<BigNumber>;
 
     getTotalBlocksCommitted(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -415,6 +402,11 @@ export interface IGetters extends BaseContract {
     getTotalPriorityTxs(overrides?: CallOverrides): Promise<BigNumber>;
 
     getVerifier(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isFacetFreezable(
+      _facet: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     isFunctionFreezable(
       _selector: PromiseOrValue<BytesLike>,
@@ -447,13 +439,11 @@ export interface IGetters extends BaseContract {
 
     facets(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    facetsExtended(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getGovernor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getLastProcessedPriorityTx(
+    getFirstUnprocessedPriorityTx(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    getGovernor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getTotalBlocksCommitted(
       overrides?: CallOverrides
@@ -472,6 +462,11 @@ export interface IGetters extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getVerifier(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isFacetFreezable(
+      _facet: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     isFunctionFreezable(
       _selector: PromiseOrValue<BytesLike>,

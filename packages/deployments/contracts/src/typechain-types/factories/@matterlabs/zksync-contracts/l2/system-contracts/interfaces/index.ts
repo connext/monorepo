@@ -8,3 +8,4 @@ export { IImmutableSimulator__factory } from "./IImmutableSimulator__factory";
 export { IKnownCodesStorage__factory } from "./IKnownCodesStorage__factory";
 export { IL1Messenger__factory } from "./IL1Messenger__factory";
 export { INonceHolder__factory } from "./INonceHolder__factory";
+export { ISystemContext__factory } from "./ISystemContext__factory";

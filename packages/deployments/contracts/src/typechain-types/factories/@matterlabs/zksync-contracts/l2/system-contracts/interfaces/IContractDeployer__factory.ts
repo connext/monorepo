@@ -48,11 +48,6 @@ const _abi = [
         type: "bytes32",
       },
       {
-        internalType: "uint256",
-        name: "_value",
-        type: "uint256",
-      },
-      {
         internalType: "bytes",
         name: "_input",
         type: "bytes",
@@ -71,7 +66,7 @@ const _abi = [
         type: "bytes",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -85,11 +80,6 @@ const _abi = [
         internalType: "bytes32",
         name: "_bytecodeHash",
         type: "bytes32",
-      },
-      {
-        internalType: "uint256",
-        name: "_value",
-        type: "uint256",
       },
       {
         internalType: "bytes",
@@ -110,7 +100,7 @@ const _abi = [
         type: "bytes",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -124,11 +114,6 @@ const _abi = [
         internalType: "bytes32",
         name: "_bytecodeHash",
         type: "bytes32",
-      },
-      {
-        internalType: "uint256",
-        name: "_value",
-        type: "uint256",
       },
       {
         internalType: "bytes",
@@ -149,7 +134,7 @@ const _abi = [
         type: "bytes",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -163,11 +148,6 @@ const _abi = [
         internalType: "bytes32",
         name: "_bytecodeHash",
         type: "bytes32",
-      },
-      {
-        internalType: "uint256",
-        name: "_value",
-        type: "uint256",
       },
       {
         internalType: "bytes",
@@ -188,7 +168,7 @@ const _abi = [
         type: "bytes",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {

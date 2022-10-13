@@ -11,23 +11,23 @@ import type {
 
 const _abi = [
   {
+    anonymous: false,
     inputs: [
       {
+        indexed: true,
         internalType: "bytes32",
-        name: "_hash",
+        name: "bytecodeHash",
         type: "bytes32",
       },
-    ],
-    name: "checkIfKnown",
-    outputs: [
       {
+        indexed: true,
         internalType: "bool",
-        name: "",
+        name: "sendBytecodeToL1",
         type: "bool",
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    name: "MarkedAsKnown",
+    type: "event",
   },
   {
     inputs: [
@@ -51,38 +51,17 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes32[16]",
-        name: "_hash",
-        type: "bytes32[16]",
+        internalType: "bool",
+        name: "_shouldSendToL1",
+        type: "bool",
       },
-    ],
-    name: "markAsKnownCandidates",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
       {
-        internalType: "bytes32",
-        name: "_hash",
-        type: "bytes32",
+        internalType: "bytes32[]",
+        name: "_hashes",
+        type: "bytes32[]",
       },
     ],
-    name: "markAsRepublished",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_hash",
-        type: "bytes32",
-      },
-    ],
-    name: "removeUnusedKnownCandidate",
+    name: "markFactoryDeps",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

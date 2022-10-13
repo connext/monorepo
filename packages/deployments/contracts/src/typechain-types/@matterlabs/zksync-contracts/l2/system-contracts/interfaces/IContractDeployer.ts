@@ -8,7 +8,7 @@ import type {
   BytesLike,
   CallOverrides,
   ContractTransaction,
-  Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -29,10 +29,10 @@ import type {
 
 export interface IContractDeployerInterface extends utils.Interface {
   functions: {
-    "create(bytes32,bytes32,uint256,bytes)": FunctionFragment;
-    "create2(bytes32,bytes32,uint256,bytes)": FunctionFragment;
-    "create2Account(bytes32,bytes32,uint256,bytes)": FunctionFragment;
-    "createAccount(bytes32,bytes32,uint256,bytes)": FunctionFragment;
+    "create(bytes32,bytes32,bytes)": FunctionFragment;
+    "create2(bytes32,bytes32,bytes)": FunctionFragment;
+    "create2Account(bytes32,bytes32,bytes)": FunctionFragment;
+    "createAccount(bytes32,bytes32,bytes)": FunctionFragment;
     "getNewAddressCreate(address,uint256)": FunctionFragment;
     "getNewAddressCreate2(address,bytes32,bytes32,bytes)": FunctionFragment;
   };
@@ -52,7 +52,6 @@ export interface IContractDeployerInterface extends utils.Interface {
     values: [
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>
     ]
   ): string;
@@ -61,7 +60,6 @@ export interface IContractDeployerInterface extends utils.Interface {
     values: [
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>
     ]
   ): string;
@@ -70,7 +68,6 @@ export interface IContractDeployerInterface extends utils.Interface {
     values: [
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>
     ]
   ): string;
@@ -79,7 +76,6 @@ export interface IContractDeployerInterface extends utils.Interface {
     values: [
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>
     ]
   ): string;
@@ -166,33 +162,29 @@ export interface IContractDeployer extends BaseContract {
     create(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     create2(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     create2Account(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     createAccount(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     getNewAddressCreate(
@@ -213,33 +205,29 @@ export interface IContractDeployer extends BaseContract {
   create(
     _salt: PromiseOrValue<BytesLike>,
     _bytecodeHash: PromiseOrValue<BytesLike>,
-    _value: PromiseOrValue<BigNumberish>,
     _input: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   create2(
     _salt: PromiseOrValue<BytesLike>,
     _bytecodeHash: PromiseOrValue<BytesLike>,
-    _value: PromiseOrValue<BigNumberish>,
     _input: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   create2Account(
     _salt: PromiseOrValue<BytesLike>,
     _bytecodeHash: PromiseOrValue<BytesLike>,
-    _value: PromiseOrValue<BigNumberish>,
     _input: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   createAccount(
     _salt: PromiseOrValue<BytesLike>,
     _bytecodeHash: PromiseOrValue<BytesLike>,
-    _value: PromiseOrValue<BigNumberish>,
     _input: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   getNewAddressCreate(
@@ -260,7 +248,6 @@ export interface IContractDeployer extends BaseContract {
     create(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<
@@ -270,7 +257,6 @@ export interface IContractDeployer extends BaseContract {
     create2(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<
@@ -280,7 +266,6 @@ export interface IContractDeployer extends BaseContract {
     create2Account(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<
@@ -290,7 +275,6 @@ export interface IContractDeployer extends BaseContract {
     createAccount(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<
@@ -329,33 +313,29 @@ export interface IContractDeployer extends BaseContract {
     create(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     create2(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     create2Account(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     createAccount(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     getNewAddressCreate(
@@ -377,33 +357,29 @@ export interface IContractDeployer extends BaseContract {
     create(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     create2(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     create2Account(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     createAccount(
       _salt: PromiseOrValue<BytesLike>,
       _bytecodeHash: PromiseOrValue<BytesLike>,
-      _value: PromiseOrValue<BigNumberish>,
       _input: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     getNewAddressCreate(

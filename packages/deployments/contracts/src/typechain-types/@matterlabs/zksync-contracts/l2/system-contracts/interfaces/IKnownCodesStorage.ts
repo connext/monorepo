@@ -12,7 +12,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -24,63 +28,46 @@ import type {
 
 export interface IKnownCodesStorageInterface extends utils.Interface {
   functions: {
-    "checkIfKnown(bytes32)": FunctionFragment;
     "getMarker(bytes32)": FunctionFragment;
-    "markAsKnownCandidates(bytes32[16])": FunctionFragment;
-    "markAsRepublished(bytes32)": FunctionFragment;
-    "removeUnusedKnownCandidate(bytes32)": FunctionFragment;
+    "markFactoryDeps(bool,bytes32[])": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic:
-      | "checkIfKnown"
-      | "getMarker"
-      | "markAsKnownCandidates"
-      | "markAsRepublished"
-      | "removeUnusedKnownCandidate"
+    nameOrSignatureOrTopic: "getMarker" | "markFactoryDeps"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "checkIfKnown",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
   encodeFunctionData(
     functionFragment: "getMarker",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "markAsKnownCandidates",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "markAsRepublished",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeUnusedKnownCandidate",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "markFactoryDeps",
+    values: [PromiseOrValue<boolean>, PromiseOrValue<BytesLike>[]]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "checkIfKnown",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "getMarker", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "markAsKnownCandidates",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "markAsRepublished",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeUnusedKnownCandidate",
+    functionFragment: "markFactoryDeps",
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "MarkedAsKnown(bytes32,bool)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "MarkedAsKnown"): EventFragment;
 }
+
+export interface MarkedAsKnownEventObject {
+  bytecodeHash: string;
+  sendBytecodeToL1: boolean;
+}
+export type MarkedAsKnownEvent = TypedEvent<
+  [string, boolean],
+  MarkedAsKnownEventObject
+>;
+
+export type MarkedAsKnownEventFilter = TypedEventFilter<MarkedAsKnownEvent>;
 
 export interface IKnownCodesStorage extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -109,136 +96,75 @@ export interface IKnownCodesStorage extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    checkIfKnown(
-      _hash: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     getMarker(
       _hash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    markAsKnownCandidates(
-      _hash: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    markAsRepublished(
-      _hash: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    removeUnusedKnownCandidate(
-      _hash: PromiseOrValue<BytesLike>,
+    markFactoryDeps(
+      _shouldSendToL1: PromiseOrValue<boolean>,
+      _hashes: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
-
-  checkIfKnown(
-    _hash: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
 
   getMarker(
     _hash: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  markAsKnownCandidates(
-    _hash: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  markAsRepublished(
-    _hash: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  removeUnusedKnownCandidate(
-    _hash: PromiseOrValue<BytesLike>,
+  markFactoryDeps(
+    _shouldSendToL1: PromiseOrValue<boolean>,
+    _hashes: PromiseOrValue<BytesLike>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    checkIfKnown(
-      _hash: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     getMarker(
       _hash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    markAsKnownCandidates(
-      _hash: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    markAsRepublished(
-      _hash: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    removeUnusedKnownCandidate(
-      _hash: PromiseOrValue<BytesLike>,
+    markFactoryDeps(
+      _shouldSendToL1: PromiseOrValue<boolean>,
+      _hashes: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<void>;
   };
 
-  filters: {};
+  filters: {
+    "MarkedAsKnown(bytes32,bool)"(
+      bytecodeHash?: PromiseOrValue<BytesLike> | null,
+      sendBytecodeToL1?: PromiseOrValue<boolean> | null
+    ): MarkedAsKnownEventFilter;
+    MarkedAsKnown(
+      bytecodeHash?: PromiseOrValue<BytesLike> | null,
+      sendBytecodeToL1?: PromiseOrValue<boolean> | null
+    ): MarkedAsKnownEventFilter;
+  };
 
   estimateGas: {
-    checkIfKnown(
-      _hash: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     getMarker(
       _hash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    markAsKnownCandidates(
-      _hash: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    markAsRepublished(
-      _hash: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    removeUnusedKnownCandidate(
-      _hash: PromiseOrValue<BytesLike>,
+    markFactoryDeps(
+      _shouldSendToL1: PromiseOrValue<boolean>,
+      _hashes: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    checkIfKnown(
-      _hash: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     getMarker(
       _hash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    markAsKnownCandidates(
-      _hash: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    markAsRepublished(
-      _hash: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    removeUnusedKnownCandidate(
-      _hash: PromiseOrValue<BytesLike>,
+    markFactoryDeps(
+      _shouldSendToL1: PromiseOrValue<boolean>,
+      _hashes: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

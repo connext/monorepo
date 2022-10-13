@@ -14,6 +14,19 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "bool",
+        name: "isPorterAvailable",
+        type: "bool",
+      },
+    ],
+    name: "IsPorterAvailableStatusUpdate",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "address",
         name: "newGovernor",
@@ -21,6 +34,44 @@ const _abi = [
       },
     ],
     name: "NewGovernor",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "previousBytecodeHash",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "newBytecodeHash",
+        type: "bytes32",
+      },
+    ],
+    name: "NewL2BootloaderBytecodeHash",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "previousBytecodeHash",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "newBytecodeHash",
+        type: "bytes32",
+      },
+    ],
+    name: "NewL2DefaultAccountBytecodeHash",
     type: "event",
   },
   {
@@ -71,12 +122,51 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "_l2BootloaderBytecodeHash",
+        type: "bytes32",
+      },
+    ],
+    name: "setL2BootloaderBytecodeHash",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_l2DefaultAccountBytecodeHash",
+        type: "bytes32",
+      },
+    ],
+    name: "setL2DefaultAccountBytecodeHash",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "_newPendingGovernor",
         type: "address",
       },
     ],
     name: "setPendingGovernor",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "_isPorterAvailable",
+        type: "bool",
+      },
+    ],
+    name: "setPorterAvailability",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

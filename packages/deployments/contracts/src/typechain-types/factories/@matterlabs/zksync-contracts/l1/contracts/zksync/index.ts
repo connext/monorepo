@@ -3,5 +3,5 @@
 /* eslint-disable */
 export * as interfaces from "./interfaces";
 export * as libraries from "./libraries";
-export { KeysWithPlonkVerifier__factory } from "./KeysWithPlonkVerifier__factory";
+export { Plonk4VerifierWithAccessToDNext__factory } from "./Plonk4VerifierWithAccessToDNext__factory";
 export { Verifier__factory } from "./Verifier__factory";

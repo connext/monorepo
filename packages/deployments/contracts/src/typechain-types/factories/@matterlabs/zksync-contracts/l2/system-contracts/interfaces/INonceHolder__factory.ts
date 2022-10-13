@@ -11,8 +11,14 @@ import type {
 
 const _abi = [
   {
-    inputs: [],
-    name: "getAccountNonce",
+    inputs: [
+      {
+        internalType: "address",
+        name: "_address",
+        type: "address",
+      },
+    ],
+    name: "getDeploymentNonce",
     outputs: [
       {
         internalType: "uint256",
@@ -31,7 +37,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "getDeploymentNonce",
+    name: "getMinNonce",
     outputs: [
       {
         internalType: "uint256",
@@ -64,12 +70,31 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_address",
-        type: "address",
+        internalType: "uint256",
+        name: "_key",
+        type: "uint256",
       },
     ],
-    name: "incrementDeploymentNonce",
+    name: "getValueUnderNonce",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_value",
+        type: "uint256",
+      },
+    ],
+    name: "increaseMinNonce",
     outputs: [
       {
         internalType: "uint256",
@@ -81,8 +106,14 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "incrementNonce",
+    inputs: [
+      {
+        internalType: "address",
+        name: "_address",
+        type: "address",
+      },
+    ],
+    name: "incrementDeploymentNonce",
     outputs: [
       {
         internalType: "uint256",
@@ -101,9 +132,50 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "incrementNonceIfEquals",
+    name: "incrementMinNonceIfEquals",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_key",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_value",
+        type: "uint256",
+      },
+    ],
+    name: "setValueUnderNonce",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_address",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_key",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "_shouldBeUsed",
+        type: "bool",
+      },
+    ],
+    name: "validateNonceUsage",
+    outputs: [],
+    stateMutability: "view",
     type: "function",
   },
 ];

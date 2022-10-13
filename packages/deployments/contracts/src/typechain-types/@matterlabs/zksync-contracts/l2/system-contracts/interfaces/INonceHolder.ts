@@ -25,30 +25,36 @@ import type {
 
 export interface INonceHolderInterface extends utils.Interface {
   functions: {
-    "getAccountNonce()": FunctionFragment;
     "getDeploymentNonce(address)": FunctionFragment;
+    "getMinNonce(address)": FunctionFragment;
     "getRawNonce(address)": FunctionFragment;
+    "getValueUnderNonce(uint256)": FunctionFragment;
+    "increaseMinNonce(uint256)": FunctionFragment;
     "incrementDeploymentNonce(address)": FunctionFragment;
-    "incrementNonce()": FunctionFragment;
-    "incrementNonceIfEquals(uint256)": FunctionFragment;
+    "incrementMinNonceIfEquals(uint256)": FunctionFragment;
+    "setValueUnderNonce(uint256,uint256)": FunctionFragment;
+    "validateNonceUsage(address,uint256,bool)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "getAccountNonce"
       | "getDeploymentNonce"
+      | "getMinNonce"
       | "getRawNonce"
+      | "getValueUnderNonce"
+      | "increaseMinNonce"
       | "incrementDeploymentNonce"
-      | "incrementNonce"
-      | "incrementNonceIfEquals"
+      | "incrementMinNonceIfEquals"
+      | "setValueUnderNonce"
+      | "validateNonceUsage"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "getAccountNonce",
-    values?: undefined
+    functionFragment: "getDeploymentNonce",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getDeploymentNonce",
+    functionFragment: "getMinNonce",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -56,24 +62,40 @@ export interface INonceHolderInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "getValueUnderNonce",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "increaseMinNonce",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "incrementDeploymentNonce",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "incrementNonce",
-    values?: undefined
+    functionFragment: "incrementMinNonceIfEquals",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "incrementNonceIfEquals",
-    values: [PromiseOrValue<BigNumberish>]
+    functionFragment: "setValueUnderNonce",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "validateNonceUsage",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<boolean>
+    ]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "getAccountNonce",
+    functionFragment: "getDeploymentNonce",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getDeploymentNonce",
+    functionFragment: "getMinNonce",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -81,15 +103,27 @@ export interface INonceHolderInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getValueUnderNonce",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "increaseMinNonce",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "incrementDeploymentNonce",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "incrementNonce",
+    functionFragment: "incrementMinNonceIfEquals",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "incrementNonceIfEquals",
+    functionFragment: "setValueUnderNonce",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "validateNonceUsage",
     data: BytesLike
   ): Result;
 
@@ -123,9 +157,12 @@ export interface INonceHolder extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    getAccountNonce(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     getDeploymentNonce(
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    getMinNonce(
       _address: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -135,24 +172,46 @@ export interface INonceHolder extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    getValueUnderNonce(
+      _key: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    increaseMinNonce(
+      _value: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     incrementDeploymentNonce(
       _address: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    incrementNonce(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    incrementNonceIfEquals(
+    incrementMinNonceIfEquals(
       _expectedNonce: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    setValueUnderNonce(
+      _key: PromiseOrValue<BigNumberish>,
+      _value: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    validateNonceUsage(
+      _address: PromiseOrValue<string>,
+      _key: PromiseOrValue<BigNumberish>,
+      _shouldBeUsed: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
   };
 
-  getAccountNonce(overrides?: CallOverrides): Promise<BigNumber>;
-
   getDeploymentNonce(
+    _address: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  getMinNonce(
     _address: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -162,24 +221,46 @@ export interface INonceHolder extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  getValueUnderNonce(
+    _key: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  increaseMinNonce(
+    _value: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   incrementDeploymentNonce(
     _address: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  incrementNonce(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  incrementNonceIfEquals(
+  incrementMinNonceIfEquals(
     _expectedNonce: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  callStatic: {
-    getAccountNonce(overrides?: CallOverrides): Promise<BigNumber>;
+  setValueUnderNonce(
+    _key: PromiseOrValue<BigNumberish>,
+    _value: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
+  validateNonceUsage(
+    _address: PromiseOrValue<string>,
+    _key: PromiseOrValue<BigNumberish>,
+    _shouldBeUsed: PromiseOrValue<boolean>,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
+  callStatic: {
     getDeploymentNonce(
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getMinNonce(
       _address: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -189,15 +270,36 @@ export interface INonceHolder extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getValueUnderNonce(
+      _key: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    increaseMinNonce(
+      _value: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     incrementDeploymentNonce(
       _address: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    incrementNonce(overrides?: CallOverrides): Promise<BigNumber>;
-
-    incrementNonceIfEquals(
+    incrementMinNonceIfEquals(
       _expectedNonce: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setValueUnderNonce(
+      _key: PromiseOrValue<BigNumberish>,
+      _value: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    validateNonceUsage(
+      _address: PromiseOrValue<string>,
+      _key: PromiseOrValue<BigNumberish>,
+      _shouldBeUsed: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -205,9 +307,12 @@ export interface INonceHolder extends BaseContract {
   filters: {};
 
   estimateGas: {
-    getAccountNonce(overrides?: CallOverrides): Promise<BigNumber>;
-
     getDeploymentNonce(
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getMinNonce(
       _address: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -217,25 +322,47 @@ export interface INonceHolder extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getValueUnderNonce(
+      _key: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    increaseMinNonce(
+      _value: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     incrementDeploymentNonce(
       _address: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    incrementNonce(
+    incrementMinNonceIfEquals(
+      _expectedNonce: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    incrementNonceIfEquals(
-      _expectedNonce: PromiseOrValue<BigNumberish>,
+    setValueUnderNonce(
+      _key: PromiseOrValue<BigNumberish>,
+      _value: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    validateNonceUsage(
+      _address: PromiseOrValue<string>,
+      _key: PromiseOrValue<BigNumberish>,
+      _shouldBeUsed: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    getAccountNonce(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     getDeploymentNonce(
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getMinNonce(
       _address: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -245,18 +372,37 @@ export interface INonceHolder extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getValueUnderNonce(
+      _key: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    increaseMinNonce(
+      _value: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     incrementDeploymentNonce(
       _address: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    incrementNonce(
+    incrementMinNonceIfEquals(
+      _expectedNonce: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    incrementNonceIfEquals(
-      _expectedNonce: PromiseOrValue<BigNumberish>,
+    setValueUnderNonce(
+      _key: PromiseOrValue<BigNumberish>,
+      _value: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    validateNonceUsage(
+      _address: PromiseOrValue<string>,
+      _key: PromiseOrValue<BigNumberish>,
+      _shouldBeUsed: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

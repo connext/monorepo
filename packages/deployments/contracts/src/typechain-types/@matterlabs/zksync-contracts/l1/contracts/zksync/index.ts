@@ -5,5 +5,5 @@ import type * as interfaces from "./interfaces";
 export type { interfaces };
 import type * as libraries from "./libraries";
 export type { libraries };
-export type { KeysWithPlonkVerifier } from "./KeysWithPlonkVerifier";
+export type { Plonk4VerifierWithAccessToDNext } from "./Plonk4VerifierWithAccessToDNext";
 export type { Verifier } from "./Verifier";

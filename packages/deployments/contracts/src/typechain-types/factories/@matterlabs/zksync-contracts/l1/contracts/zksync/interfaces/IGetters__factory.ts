@@ -88,36 +88,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "facetsExtended",
+    name: "getFirstUnprocessedPriorityTx",
     outputs: [
       {
-        components: [
-          {
-            internalType: "address",
-            name: "addr",
-            type: "address",
-          },
-          {
-            components: [
-              {
-                internalType: "bytes4",
-                name: "selector",
-                type: "bytes4",
-              },
-              {
-                internalType: "bool",
-                name: "isFreezable",
-                type: "bool",
-              },
-            ],
-            internalType: "struct IGetters.SelectorExtended[]",
-            name: "selectors",
-            type: "tuple[]",
-          },
-        ],
-        internalType: "struct IGetters.FacetExtended[]",
+        internalType: "uint256",
         name: "",
-        type: "tuple[]",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -131,19 +107,6 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getLastProcessedPriorityTx",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -209,6 +172,25 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_facet",
+        type: "address",
+      },
+    ],
+    name: "isFacetFreezable",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",

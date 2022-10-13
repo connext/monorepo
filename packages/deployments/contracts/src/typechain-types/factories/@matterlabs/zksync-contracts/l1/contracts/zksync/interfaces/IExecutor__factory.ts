@@ -42,13 +42,19 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
+        name: "totalBlocksCommitted",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
         name: "totalBlocksVerified",
         type: "uint256",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "totalBlocksCommitted",
+        name: "totalBlocksExecuted",
         type: "uint256",
       },
     ],
@@ -60,14 +66,24 @@ const _abi = [
       {
         components: [
           {
-            internalType: "uint32",
+            internalType: "uint64",
             name: "blockNumber",
-            type: "uint32",
+            type: "uint64",
           },
           {
-            internalType: "uint16",
+            internalType: "bytes32",
+            name: "blockHash",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint64",
+            name: "indexRepeatedStorageChanges",
+            type: "uint64",
+          },
+          {
+            internalType: "uint256",
             name: "numberOfLayer1Txs",
-            type: "uint16",
+            type: "uint256",
           },
           {
             internalType: "bytes32",
@@ -80,9 +96,9 @@ const _abi = [
             type: "bytes32",
           },
           {
-            internalType: "bytes32",
-            name: "stateRoot",
-            type: "bytes32",
+            internalType: "uint256",
+            name: "timestamp",
+            type: "uint256",
           },
           {
             internalType: "bytes32",
@@ -97,29 +113,39 @@ const _abi = [
       {
         components: [
           {
+            internalType: "uint64",
+            name: "blockNumber",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "timestamp",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "indexRepeatedStorageChanges",
+            type: "uint64",
+          },
+          {
             internalType: "bytes32",
             name: "newStateRoot",
             type: "bytes32",
           },
           {
-            internalType: "uint32",
-            name: "blockNumber",
-            type: "uint32",
-          },
-          {
-            internalType: "address",
-            name: "feeAccount",
-            type: "address",
-          },
-          {
             internalType: "uint16",
+            name: "ergsPerCodeDecommittmentWord",
+            type: "uint16",
+          },
+          {
+            internalType: "uint256",
             name: "numberOfLayer1Txs",
-            type: "uint16",
+            type: "uint256",
           },
           {
-            internalType: "uint16",
-            name: "numberOfLayer2Txs",
-            type: "uint16",
+            internalType: "bytes32",
+            name: "l2LogsTreeRoot",
+            type: "bytes32",
           },
           {
             internalType: "bytes32",
@@ -127,9 +153,14 @@ const _abi = [
             type: "bytes32",
           },
           {
-            internalType: "bytes32",
-            name: "l2LogsTreeRoot",
-            type: "bytes32",
+            internalType: "bytes",
+            name: "initialStorageChanges",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes",
+            name: "repeatedStorageChanges",
+            type: "bytes",
           },
           {
             internalType: "bytes",
@@ -142,14 +173,9 @@ const _abi = [
             type: "bytes[]",
           },
           {
-            internalType: "bytes",
-            name: "deployedContracts",
-            type: "bytes",
-          },
-          {
-            internalType: "bytes",
-            name: "storageChanges",
-            type: "bytes",
+            internalType: "bytes[]",
+            name: "factoryDeps",
+            type: "bytes[]",
           },
         ],
         internalType: "struct IExecutor.CommitBlockInfo[]",
@@ -167,14 +193,24 @@ const _abi = [
       {
         components: [
           {
-            internalType: "uint32",
+            internalType: "uint64",
             name: "blockNumber",
-            type: "uint32",
+            type: "uint64",
           },
           {
-            internalType: "uint16",
+            internalType: "bytes32",
+            name: "blockHash",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint64",
+            name: "indexRepeatedStorageChanges",
+            type: "uint64",
+          },
+          {
+            internalType: "uint256",
             name: "numberOfLayer1Txs",
-            type: "uint16",
+            type: "uint256",
           },
           {
             internalType: "bytes32",
@@ -187,9 +223,9 @@ const _abi = [
             type: "bytes32",
           },
           {
-            internalType: "bytes32",
-            name: "stateRoot",
-            type: "bytes32",
+            internalType: "uint256",
+            name: "timestamp",
+            type: "uint256",
           },
           {
             internalType: "bytes32",
@@ -212,14 +248,24 @@ const _abi = [
       {
         components: [
           {
-            internalType: "uint32",
+            internalType: "uint64",
             name: "blockNumber",
-            type: "uint32",
+            type: "uint64",
           },
           {
-            internalType: "uint16",
+            internalType: "bytes32",
+            name: "blockHash",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint64",
+            name: "indexRepeatedStorageChanges",
+            type: "uint64",
+          },
+          {
+            internalType: "uint256",
             name: "numberOfLayer1Txs",
-            type: "uint16",
+            type: "uint256",
           },
           {
             internalType: "bytes32",
@@ -232,9 +278,56 @@ const _abi = [
             type: "bytes32",
           },
           {
+            internalType: "uint256",
+            name: "timestamp",
+            type: "uint256",
+          },
+          {
             internalType: "bytes32",
-            name: "stateRoot",
+            name: "commitment",
             type: "bytes32",
+          },
+        ],
+        internalType: "struct IExecutor.StoredBlockInfo",
+        name: "_prevBlock",
+        type: "tuple",
+      },
+      {
+        components: [
+          {
+            internalType: "uint64",
+            name: "blockNumber",
+            type: "uint64",
+          },
+          {
+            internalType: "bytes32",
+            name: "blockHash",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint64",
+            name: "indexRepeatedStorageChanges",
+            type: "uint64",
+          },
+          {
+            internalType: "uint256",
+            name: "numberOfLayer1Txs",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes32",
+            name: "priorityOperationsHash",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "l2LogsTreeRoot",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint256",
+            name: "timestamp",
+            type: "uint256",
           },
           {
             internalType: "bytes32",
@@ -250,28 +343,13 @@ const _abi = [
         components: [
           {
             internalType: "uint256[]",
-            name: "recursiveInput",
+            name: "recurisiveAggregationInput",
             type: "uint256[]",
           },
           {
             internalType: "uint256[]",
-            name: "proof",
+            name: "serializedProof",
             type: "uint256[]",
-          },
-          {
-            internalType: "uint256[]",
-            name: "commitments",
-            type: "uint256[]",
-          },
-          {
-            internalType: "uint8[]",
-            name: "vkIndexes",
-            type: "uint8[]",
-          },
-          {
-            internalType: "uint256[16]",
-            name: "subproofsLimbs",
-            type: "uint256[16]",
           },
         ],
         internalType: "struct IExecutor.ProofInput",

@@ -29,23 +29,38 @@ import type {
 } from "../../../../../../common";
 
 export type L2LogStruct = {
+  l2ShardId: PromiseOrValue<BigNumberish>;
+  isService: PromiseOrValue<boolean>;
+  txNumberInBlock: PromiseOrValue<BigNumberish>;
   sender: PromiseOrValue<string>;
   key: PromiseOrValue<BytesLike>;
   value: PromiseOrValue<BytesLike>;
 };
 
-export type L2LogStructOutput = [string, string, string] & {
+export type L2LogStructOutput = [
+  number,
+  boolean,
+  number,
+  string,
+  string,
+  string
+] & {
+  l2ShardId: number;
+  isService: boolean;
+  txNumberInBlock: number;
   sender: string;
   key: string;
   value: string;
 };
 
 export type L2MessageStruct = {
+  txNumberInBlock: PromiseOrValue<BigNumberish>;
   sender: PromiseOrValue<string>;
   data: PromiseOrValue<BytesLike>;
 };
 
-export type L2MessageStructOutput = [string, string] & {
+export type L2MessageStructOutput = [number, string, string] & {
+  txNumberInBlock: number;
   sender: string;
   data: string;
 };
@@ -136,89 +151,89 @@ export declare namespace IMailbox {
 export declare namespace IExecutor {
   export type StoredBlockInfoStruct = {
     blockNumber: PromiseOrValue<BigNumberish>;
+    blockHash: PromiseOrValue<BytesLike>;
+    indexRepeatedStorageChanges: PromiseOrValue<BigNumberish>;
     numberOfLayer1Txs: PromiseOrValue<BigNumberish>;
     priorityOperationsHash: PromiseOrValue<BytesLike>;
     l2LogsTreeRoot: PromiseOrValue<BytesLike>;
-    stateRoot: PromiseOrValue<BytesLike>;
+    timestamp: PromiseOrValue<BigNumberish>;
     commitment: PromiseOrValue<BytesLike>;
   };
 
   export type StoredBlockInfoStructOutput = [
-    number,
-    number,
+    BigNumber,
+    string,
+    BigNumber,
+    BigNumber,
     string,
     string,
-    string,
+    BigNumber,
     string
   ] & {
-    blockNumber: number;
-    numberOfLayer1Txs: number;
+    blockNumber: BigNumber;
+    blockHash: string;
+    indexRepeatedStorageChanges: BigNumber;
+    numberOfLayer1Txs: BigNumber;
     priorityOperationsHash: string;
     l2LogsTreeRoot: string;
-    stateRoot: string;
+    timestamp: BigNumber;
     commitment: string;
   };
 
   export type CommitBlockInfoStruct = {
-    newStateRoot: PromiseOrValue<BytesLike>;
     blockNumber: PromiseOrValue<BigNumberish>;
-    feeAccount: PromiseOrValue<string>;
+    timestamp: PromiseOrValue<BigNumberish>;
+    indexRepeatedStorageChanges: PromiseOrValue<BigNumberish>;
+    newStateRoot: PromiseOrValue<BytesLike>;
+    ergsPerCodeDecommittmentWord: PromiseOrValue<BigNumberish>;
     numberOfLayer1Txs: PromiseOrValue<BigNumberish>;
-    numberOfLayer2Txs: PromiseOrValue<BigNumberish>;
-    priorityOperationsHash: PromiseOrValue<BytesLike>;
     l2LogsTreeRoot: PromiseOrValue<BytesLike>;
+    priorityOperationsHash: PromiseOrValue<BytesLike>;
+    initialStorageChanges: PromiseOrValue<BytesLike>;
+    repeatedStorageChanges: PromiseOrValue<BytesLike>;
     l2Logs: PromiseOrValue<BytesLike>;
     l2ArbitraryLengthMessages: PromiseOrValue<BytesLike>[];
-    deployedContracts: PromiseOrValue<BytesLike>;
-    storageChanges: PromiseOrValue<BytesLike>;
+    factoryDeps: PromiseOrValue<BytesLike>[];
   };
 
   export type CommitBlockInfoStructOutput = [
+    BigNumber,
+    BigNumber,
+    BigNumber,
     string,
     number,
+    BigNumber,
     string,
-    number,
-    number,
+    string,
     string,
     string,
     string,
     string[],
-    string,
-    string
+    string[]
   ] & {
+    blockNumber: BigNumber;
+    timestamp: BigNumber;
+    indexRepeatedStorageChanges: BigNumber;
     newStateRoot: string;
-    blockNumber: number;
-    feeAccount: string;
-    numberOfLayer1Txs: number;
-    numberOfLayer2Txs: number;
-    priorityOperationsHash: string;
+    ergsPerCodeDecommittmentWord: number;
+    numberOfLayer1Txs: BigNumber;
     l2LogsTreeRoot: string;
+    priorityOperationsHash: string;
+    initialStorageChanges: string;
+    repeatedStorageChanges: string;
     l2Logs: string;
     l2ArbitraryLengthMessages: string[];
-    deployedContracts: string;
-    storageChanges: string;
+    factoryDeps: string[];
   };
 
   export type ProofInputStruct = {
-    recursiveInput: PromiseOrValue<BigNumberish>[];
-    proof: PromiseOrValue<BigNumberish>[];
-    commitments: PromiseOrValue<BigNumberish>[];
-    vkIndexes: PromiseOrValue<BigNumberish>[];
-    subproofsLimbs: PromiseOrValue<BigNumberish>[];
+    recurisiveAggregationInput: PromiseOrValue<BigNumberish>[];
+    serializedProof: PromiseOrValue<BigNumberish>[];
   };
 
-  export type ProofInputStructOutput = [
-    BigNumber[],
-    BigNumber[],
-    BigNumber[],
-    number[],
-    BigNumber[]
-  ] & {
-    recursiveInput: BigNumber[];
-    proof: BigNumber[];
-    commitments: BigNumber[];
-    vkIndexes: number[];
-    subproofsLimbs: BigNumber[];
+  export type ProofInputStructOutput = [BigNumber[], BigNumber[]] & {
+    recurisiveAggregationInput: BigNumber[];
+    serializedProof: BigNumber[];
   };
 }
 
@@ -232,26 +247,6 @@ export declare namespace IGetters {
     addr: string;
     selectors: string[];
   };
-
-  export type SelectorExtendedStruct = {
-    selector: PromiseOrValue<BytesLike>;
-    isFreezable: PromiseOrValue<boolean>;
-  };
-
-  export type SelectorExtendedStructOutput = [string, boolean] & {
-    selector: string;
-    isFreezable: boolean;
-  };
-
-  export type FacetExtendedStruct = {
-    addr: PromiseOrValue<string>;
-    selectors: IGetters.SelectorExtendedStruct[];
-  };
-
-  export type FacetExtendedStructOutput = [
-    string,
-    IGetters.SelectorExtendedStructOutput[]
-  ] & { addr: string; selectors: IGetters.SelectorExtendedStructOutput[] };
 }
 
 export interface IZkSyncInterface extends utils.Interface {
@@ -259,34 +254,37 @@ export interface IZkSyncInterface extends utils.Interface {
     "acceptGovernor()": FunctionFragment;
     "approveEmergencyDiamondCutAsSecurityCouncilMember(bytes32)": FunctionFragment;
     "cancelDiamondCutProposal()": FunctionFragment;
-    "commitBlocks((uint32,uint16,bytes32,bytes32,bytes32,bytes32),(bytes32,uint32,address,uint16,uint16,bytes32,bytes32,bytes,bytes[],bytes,bytes)[])": FunctionFragment;
+    "commitBlocks((uint64,bytes32,uint64,uint256,bytes32,bytes32,uint256,bytes32),(uint64,uint64,uint64,bytes32,uint16,uint256,bytes32,bytes32,bytes,bytes,bytes,bytes[],bytes[])[])": FunctionFragment;
     "emergencyFreezeDiamond()": FunctionFragment;
-    "executeBlocks((uint32,uint16,bytes32,bytes32,bytes32,bytes32)[])": FunctionFragment;
+    "executeBlocks((uint64,bytes32,uint64,uint256,bytes32,bytes32,uint256,bytes32)[])": FunctionFragment;
     "executeDiamondCutProposal(((address,uint8,bool,bytes4[])[],address,bytes))": FunctionFragment;
     "facetAddress(bytes4)": FunctionFragment;
     "facetAddresses()": FunctionFragment;
     "facetFunctionSelectors(address)": FunctionFragment;
     "facets()": FunctionFragment;
-    "facetsExtended()": FunctionFragment;
+    "getFirstUnprocessedPriorityTx()": FunctionFragment;
     "getGovernor()": FunctionFragment;
-    "getLastProcessedPriorityTx()": FunctionFragment;
     "getTotalBlocksCommitted()": FunctionFragment;
     "getTotalBlocksExecuted()": FunctionFragment;
     "getTotalBlocksVerified()": FunctionFragment;
     "getTotalPriorityTxs()": FunctionFragment;
     "getVerifier()": FunctionFragment;
+    "isFacetFreezable(address)": FunctionFragment;
     "isFunctionFreezable(bytes4)": FunctionFragment;
     "isValidator(address)": FunctionFragment;
     "l2LogsRootHash(uint32)": FunctionFragment;
     "l2TransactionBaseCost(uint256,uint256,uint32)": FunctionFragment;
     "proposeDiamondCut((address,uint8,bool,bytes4[])[],address)": FunctionFragment;
-    "proveBlocks((uint32,uint16,bytes32,bytes32,bytes32,bytes32)[],(uint256[],uint256[],uint256[],uint8[],uint256[16]))": FunctionFragment;
-    "proveL2LogInclusion(uint256,uint256,(address,bytes32,bytes32),bytes32[])": FunctionFragment;
-    "proveL2MessageInclusion(uint256,uint256,(address,bytes),bytes32[])": FunctionFragment;
+    "proveBlocks((uint64,bytes32,uint64,uint256,bytes32,bytes32,uint256,bytes32),(uint64,bytes32,uint64,uint256,bytes32,bytes32,uint256,bytes32)[],(uint256[],uint256[]))": FunctionFragment;
+    "proveL2LogInclusion(uint256,uint256,(uint8,bool,uint16,address,bytes32,bytes32),bytes32[])": FunctionFragment;
+    "proveL2MessageInclusion(uint256,uint256,(uint16,address,bytes),bytes32[])": FunctionFragment;
     "requestL2Transaction(address,uint256,bytes,uint256,bytes[])": FunctionFragment;
     "revertBlocks(uint256)": FunctionFragment;
     "serializeL2Transaction(uint256,uint256,address,address,bytes,uint256,bytes[])": FunctionFragment;
+    "setL2BootloaderBytecodeHash(bytes32)": FunctionFragment;
+    "setL2DefaultAccountBytecodeHash(bytes32)": FunctionFragment;
     "setPendingGovernor(address)": FunctionFragment;
+    "setPorterAvailability(bool)": FunctionFragment;
     "setValidator(address,bool)": FunctionFragment;
     "unfreezeDiamond()": FunctionFragment;
   };
@@ -304,14 +302,14 @@ export interface IZkSyncInterface extends utils.Interface {
       | "facetAddresses"
       | "facetFunctionSelectors"
       | "facets"
-      | "facetsExtended"
+      | "getFirstUnprocessedPriorityTx"
       | "getGovernor"
-      | "getLastProcessedPriorityTx"
       | "getTotalBlocksCommitted"
       | "getTotalBlocksExecuted"
       | "getTotalBlocksVerified"
       | "getTotalPriorityTxs"
       | "getVerifier"
+      | "isFacetFreezable"
       | "isFunctionFreezable"
       | "isValidator"
       | "l2LogsRootHash"
@@ -323,7 +321,10 @@ export interface IZkSyncInterface extends utils.Interface {
       | "requestL2Transaction"
       | "revertBlocks"
       | "serializeL2Transaction"
+      | "setL2BootloaderBytecodeHash"
+      | "setL2DefaultAccountBytecodeHash"
       | "setPendingGovernor"
+      | "setPorterAvailability"
       | "setValidator"
       | "unfreezeDiamond"
   ): FunctionFragment;
@@ -370,15 +371,11 @@ export interface IZkSyncInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "facets", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "facetsExtended",
+    functionFragment: "getFirstUnprocessedPriorityTx",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getGovernor",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getLastProcessedPriorityTx",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -400,6 +397,10 @@ export interface IZkSyncInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getVerifier",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isFacetFreezable",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "isFunctionFreezable",
@@ -427,7 +428,11 @@ export interface IZkSyncInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "proveBlocks",
-    values: [IExecutor.StoredBlockInfoStruct[], IExecutor.ProofInputStruct]
+    values: [
+      IExecutor.StoredBlockInfoStruct,
+      IExecutor.StoredBlockInfoStruct[],
+      IExecutor.ProofInputStruct
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "proveL2LogInclusion",
@@ -474,8 +479,20 @@ export interface IZkSyncInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "setL2BootloaderBytecodeHash",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setL2DefaultAccountBytecodeHash",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setPendingGovernor",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPorterAvailability",
+    values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
     functionFragment: "setValidator",
@@ -528,15 +545,11 @@ export interface IZkSyncInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "facets", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "facetsExtended",
+    functionFragment: "getFirstUnprocessedPriorityTx",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "getGovernor",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getLastProcessedPriorityTx",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -557,6 +570,10 @@ export interface IZkSyncInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getVerifier",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isFacetFreezable",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -604,7 +621,19 @@ export interface IZkSyncInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setL2BootloaderBytecodeHash",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setL2DefaultAccountBytecodeHash",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setPendingGovernor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setPorterAvailability",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -619,13 +648,16 @@ export interface IZkSyncInterface extends utils.Interface {
   events: {
     "BlockCommit(uint256)": EventFragment;
     "BlockExecution(uint256)": EventFragment;
-    "BlocksRevert(uint256,uint256)": EventFragment;
+    "BlocksRevert(uint256,uint256,uint256)": EventFragment;
     "DiamondCutProposal(tuple[],address)": EventFragment;
     "DiamondCutProposalCancelation()": EventFragment;
     "DiamondCutProposalExecution(tuple)": EventFragment;
     "EmergencyDiamondCutApproved(address)": EventFragment;
     "EmergencyFreeze()": EventFragment;
+    "IsPorterAvailableStatusUpdate(bool)": EventFragment;
     "NewGovernor(address)": EventFragment;
+    "NewL2BootloaderBytecodeHash(bytes32,bytes32)": EventFragment;
+    "NewL2DefaultAccountBytecodeHash(bytes32,bytes32)": EventFragment;
     "NewPendingGovernor(address,address)": EventFragment;
     "NewPriorityRequest(uint256,bytes32,uint64,tuple,bytes[])": EventFragment;
     "Unfreeze()": EventFragment;
@@ -646,7 +678,16 @@ export interface IZkSyncInterface extends utils.Interface {
     nameOrSignatureOrTopic: "EmergencyDiamondCutApproved"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "EmergencyFreeze"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "IsPorterAvailableStatusUpdate"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewGovernor"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "NewL2BootloaderBytecodeHash"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "NewL2DefaultAccountBytecodeHash"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewPendingGovernor"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewPriorityRequest"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unfreeze"): EventFragment;
@@ -671,11 +712,12 @@ export type BlockExecutionEvent = TypedEvent<
 export type BlockExecutionEventFilter = TypedEventFilter<BlockExecutionEvent>;
 
 export interface BlocksRevertEventObject {
-  totalBlocksVerified: BigNumber;
   totalBlocksCommitted: BigNumber;
+  totalBlocksVerified: BigNumber;
+  totalBlocksExecuted: BigNumber;
 }
 export type BlocksRevertEvent = TypedEvent<
-  [BigNumber, BigNumber],
+  [BigNumber, BigNumber, BigNumber],
   BlocksRevertEventObject
 >;
 
@@ -729,12 +771,47 @@ export type EmergencyFreezeEvent = TypedEvent<[], EmergencyFreezeEventObject>;
 
 export type EmergencyFreezeEventFilter = TypedEventFilter<EmergencyFreezeEvent>;
 
+export interface IsPorterAvailableStatusUpdateEventObject {
+  isPorterAvailable: boolean;
+}
+export type IsPorterAvailableStatusUpdateEvent = TypedEvent<
+  [boolean],
+  IsPorterAvailableStatusUpdateEventObject
+>;
+
+export type IsPorterAvailableStatusUpdateEventFilter =
+  TypedEventFilter<IsPorterAvailableStatusUpdateEvent>;
+
 export interface NewGovernorEventObject {
   newGovernor: string;
 }
 export type NewGovernorEvent = TypedEvent<[string], NewGovernorEventObject>;
 
 export type NewGovernorEventFilter = TypedEventFilter<NewGovernorEvent>;
+
+export interface NewL2BootloaderBytecodeHashEventObject {
+  previousBytecodeHash: string;
+  newBytecodeHash: string;
+}
+export type NewL2BootloaderBytecodeHashEvent = TypedEvent<
+  [string, string],
+  NewL2BootloaderBytecodeHashEventObject
+>;
+
+export type NewL2BootloaderBytecodeHashEventFilter =
+  TypedEventFilter<NewL2BootloaderBytecodeHashEvent>;
+
+export interface NewL2DefaultAccountBytecodeHashEventObject {
+  previousBytecodeHash: string;
+  newBytecodeHash: string;
+}
+export type NewL2DefaultAccountBytecodeHashEvent = TypedEvent<
+  [string, string],
+  NewL2DefaultAccountBytecodeHashEventObject
+>;
+
+export type NewL2DefaultAccountBytecodeHashEventFilter =
+  TypedEventFilter<NewL2DefaultAccountBytecodeHashEvent>;
 
 export interface NewPendingGovernorEventObject {
   oldPendingGovernor: string;
@@ -862,13 +939,11 @@ export interface IZkSync extends BaseContract {
 
     facets(overrides?: CallOverrides): Promise<[IGetters.FacetStructOutput[]]>;
 
-    facetsExtended(
+    getFirstUnprocessedPriorityTx(
       overrides?: CallOverrides
-    ): Promise<[IGetters.FacetExtendedStructOutput[]]>;
+    ): Promise<[BigNumber]>;
 
     getGovernor(overrides?: CallOverrides): Promise<[string]>;
-
-    getLastProcessedPriorityTx(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getTotalBlocksCommitted(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -879,6 +954,11 @@ export interface IZkSync extends BaseContract {
     getTotalPriorityTxs(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getVerifier(overrides?: CallOverrides): Promise<[string]>;
+
+    isFacetFreezable(
+      _facet: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     isFunctionFreezable(
       _selector: PromiseOrValue<BytesLike>,
@@ -909,6 +989,7 @@ export interface IZkSync extends BaseContract {
     ): Promise<ContractTransaction>;
 
     proveBlocks(
+      _prevBlock: IExecutor.StoredBlockInfoStruct,
       _committedBlocks: IExecutor.StoredBlockInfoStruct[],
       _proof: IExecutor.ProofInputStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -955,8 +1036,23 @@ export interface IZkSync extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[IMailbox.L2CanonicalTransactionStructOutput]>;
 
+    setL2BootloaderBytecodeHash(
+      _l2BootloaderBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setL2DefaultAccountBytecodeHash(
+      _l2DefaultAccountBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setPendingGovernor(
       _newPendingGovernor: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setPorterAvailability(
+      _isPorterAvailable: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1018,13 +1114,9 @@ export interface IZkSync extends BaseContract {
 
   facets(overrides?: CallOverrides): Promise<IGetters.FacetStructOutput[]>;
 
-  facetsExtended(
-    overrides?: CallOverrides
-  ): Promise<IGetters.FacetExtendedStructOutput[]>;
+  getFirstUnprocessedPriorityTx(overrides?: CallOverrides): Promise<BigNumber>;
 
   getGovernor(overrides?: CallOverrides): Promise<string>;
-
-  getLastProcessedPriorityTx(overrides?: CallOverrides): Promise<BigNumber>;
 
   getTotalBlocksCommitted(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1035,6 +1127,11 @@ export interface IZkSync extends BaseContract {
   getTotalPriorityTxs(overrides?: CallOverrides): Promise<BigNumber>;
 
   getVerifier(overrides?: CallOverrides): Promise<string>;
+
+  isFacetFreezable(
+    _facet: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   isFunctionFreezable(
     _selector: PromiseOrValue<BytesLike>,
@@ -1065,6 +1162,7 @@ export interface IZkSync extends BaseContract {
   ): Promise<ContractTransaction>;
 
   proveBlocks(
+    _prevBlock: IExecutor.StoredBlockInfoStruct,
     _committedBlocks: IExecutor.StoredBlockInfoStruct[],
     _proof: IExecutor.ProofInputStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1111,8 +1209,23 @@ export interface IZkSync extends BaseContract {
     overrides?: CallOverrides
   ): Promise<IMailbox.L2CanonicalTransactionStructOutput>;
 
+  setL2BootloaderBytecodeHash(
+    _l2BootloaderBytecodeHash: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setL2DefaultAccountBytecodeHash(
+    _l2DefaultAccountBytecodeHash: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setPendingGovernor(
     _newPendingGovernor: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setPorterAvailability(
+    _isPorterAvailable: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1168,13 +1281,11 @@ export interface IZkSync extends BaseContract {
 
     facets(overrides?: CallOverrides): Promise<IGetters.FacetStructOutput[]>;
 
-    facetsExtended(
+    getFirstUnprocessedPriorityTx(
       overrides?: CallOverrides
-    ): Promise<IGetters.FacetExtendedStructOutput[]>;
+    ): Promise<BigNumber>;
 
     getGovernor(overrides?: CallOverrides): Promise<string>;
-
-    getLastProcessedPriorityTx(overrides?: CallOverrides): Promise<BigNumber>;
 
     getTotalBlocksCommitted(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1185,6 +1296,11 @@ export interface IZkSync extends BaseContract {
     getTotalPriorityTxs(overrides?: CallOverrides): Promise<BigNumber>;
 
     getVerifier(overrides?: CallOverrides): Promise<string>;
+
+    isFacetFreezable(
+      _facet: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     isFunctionFreezable(
       _selector: PromiseOrValue<BytesLike>,
@@ -1215,6 +1331,7 @@ export interface IZkSync extends BaseContract {
     ): Promise<void>;
 
     proveBlocks(
+      _prevBlock: IExecutor.StoredBlockInfoStruct,
       _committedBlocks: IExecutor.StoredBlockInfoStruct[],
       _proof: IExecutor.ProofInputStruct,
       overrides?: CallOverrides
@@ -1261,8 +1378,23 @@ export interface IZkSync extends BaseContract {
       overrides?: CallOverrides
     ): Promise<IMailbox.L2CanonicalTransactionStructOutput>;
 
+    setL2BootloaderBytecodeHash(
+      _l2BootloaderBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setL2DefaultAccountBytecodeHash(
+      _l2DefaultAccountBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setPendingGovernor(
       _newPendingGovernor: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setPorterAvailability(
+      _isPorterAvailable: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1290,13 +1422,15 @@ export interface IZkSync extends BaseContract {
       blockNumber?: PromiseOrValue<BigNumberish> | null
     ): BlockExecutionEventFilter;
 
-    "BlocksRevert(uint256,uint256)"(
+    "BlocksRevert(uint256,uint256,uint256)"(
+      totalBlocksCommitted?: null,
       totalBlocksVerified?: null,
-      totalBlocksCommitted?: null
+      totalBlocksExecuted?: null
     ): BlocksRevertEventFilter;
     BlocksRevert(
+      totalBlocksCommitted?: null,
       totalBlocksVerified?: null,
-      totalBlocksCommitted?: null
+      totalBlocksExecuted?: null
     ): BlocksRevertEventFilter;
 
     "DiamondCutProposal(tuple[],address)"(
@@ -1328,12 +1462,37 @@ export interface IZkSync extends BaseContract {
     "EmergencyFreeze()"(): EmergencyFreezeEventFilter;
     EmergencyFreeze(): EmergencyFreezeEventFilter;
 
+    "IsPorterAvailableStatusUpdate(bool)"(
+      isPorterAvailable?: null
+    ): IsPorterAvailableStatusUpdateEventFilter;
+    IsPorterAvailableStatusUpdate(
+      isPorterAvailable?: null
+    ): IsPorterAvailableStatusUpdateEventFilter;
+
     "NewGovernor(address)"(
       newGovernor?: PromiseOrValue<string> | null
     ): NewGovernorEventFilter;
     NewGovernor(
       newGovernor?: PromiseOrValue<string> | null
     ): NewGovernorEventFilter;
+
+    "NewL2BootloaderBytecodeHash(bytes32,bytes32)"(
+      previousBytecodeHash?: PromiseOrValue<BytesLike> | null,
+      newBytecodeHash?: PromiseOrValue<BytesLike> | null
+    ): NewL2BootloaderBytecodeHashEventFilter;
+    NewL2BootloaderBytecodeHash(
+      previousBytecodeHash?: PromiseOrValue<BytesLike> | null,
+      newBytecodeHash?: PromiseOrValue<BytesLike> | null
+    ): NewL2BootloaderBytecodeHashEventFilter;
+
+    "NewL2DefaultAccountBytecodeHash(bytes32,bytes32)"(
+      previousBytecodeHash?: PromiseOrValue<BytesLike> | null,
+      newBytecodeHash?: PromiseOrValue<BytesLike> | null
+    ): NewL2DefaultAccountBytecodeHashEventFilter;
+    NewL2DefaultAccountBytecodeHash(
+      previousBytecodeHash?: PromiseOrValue<BytesLike> | null,
+      newBytecodeHash?: PromiseOrValue<BytesLike> | null
+    ): NewL2DefaultAccountBytecodeHashEventFilter;
 
     "NewPendingGovernor(address,address)"(
       oldPendingGovernor?: PromiseOrValue<string> | null,
@@ -1420,11 +1579,11 @@ export interface IZkSync extends BaseContract {
 
     facets(overrides?: CallOverrides): Promise<BigNumber>;
 
-    facetsExtended(overrides?: CallOverrides): Promise<BigNumber>;
+    getFirstUnprocessedPriorityTx(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getGovernor(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getLastProcessedPriorityTx(overrides?: CallOverrides): Promise<BigNumber>;
 
     getTotalBlocksCommitted(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1435,6 +1594,11 @@ export interface IZkSync extends BaseContract {
     getTotalPriorityTxs(overrides?: CallOverrides): Promise<BigNumber>;
 
     getVerifier(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isFacetFreezable(
+      _facet: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     isFunctionFreezable(
       _selector: PromiseOrValue<BytesLike>,
@@ -1465,6 +1629,7 @@ export interface IZkSync extends BaseContract {
     ): Promise<BigNumber>;
 
     proveBlocks(
+      _prevBlock: IExecutor.StoredBlockInfoStruct,
       _committedBlocks: IExecutor.StoredBlockInfoStruct[],
       _proof: IExecutor.ProofInputStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1511,8 +1676,23 @@ export interface IZkSync extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    setL2BootloaderBytecodeHash(
+      _l2BootloaderBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setL2DefaultAccountBytecodeHash(
+      _l2DefaultAccountBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setPendingGovernor(
       _newPendingGovernor: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setPorterAvailability(
+      _isPorterAvailable: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1575,13 +1755,11 @@ export interface IZkSync extends BaseContract {
 
     facets(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    facetsExtended(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getGovernor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getLastProcessedPriorityTx(
+    getFirstUnprocessedPriorityTx(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    getGovernor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getTotalBlocksCommitted(
       overrides?: CallOverrides
@@ -1600,6 +1778,11 @@ export interface IZkSync extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getVerifier(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isFacetFreezable(
+      _facet: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     isFunctionFreezable(
       _selector: PromiseOrValue<BytesLike>,
@@ -1630,6 +1813,7 @@ export interface IZkSync extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     proveBlocks(
+      _prevBlock: IExecutor.StoredBlockInfoStruct,
       _committedBlocks: IExecutor.StoredBlockInfoStruct[],
       _proof: IExecutor.ProofInputStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1676,8 +1860,23 @@ export interface IZkSync extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    setL2BootloaderBytecodeHash(
+      _l2BootloaderBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setL2DefaultAccountBytecodeHash(
+      _l2DefaultAccountBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setPendingGovernor(
       _newPendingGovernor: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setPorterAvailability(
+      _isPorterAvailable: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

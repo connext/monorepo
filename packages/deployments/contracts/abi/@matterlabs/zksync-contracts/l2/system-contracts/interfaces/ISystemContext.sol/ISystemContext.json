@@ -4,7 +4,6 @@
   "function blockHash(uint256) view returns (bytes32)",
   "function chainId() view returns (uint256)",
   "function coinbase() view returns (address)",
-  "function currentBlockInfo() view returns (uint256)",
   "function difficulty() view returns (uint256)",
   "function ergsPrice() view returns (uint256)",
   "function getBlockHashEVM(uint256) view returns (bytes32)",

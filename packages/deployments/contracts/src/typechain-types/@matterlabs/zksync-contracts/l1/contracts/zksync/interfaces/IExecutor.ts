@@ -30,97 +30,97 @@ import type {
 export declare namespace IExecutor {
   export type StoredBlockInfoStruct = {
     blockNumber: PromiseOrValue<BigNumberish>;
+    blockHash: PromiseOrValue<BytesLike>;
+    indexRepeatedStorageChanges: PromiseOrValue<BigNumberish>;
     numberOfLayer1Txs: PromiseOrValue<BigNumberish>;
     priorityOperationsHash: PromiseOrValue<BytesLike>;
     l2LogsTreeRoot: PromiseOrValue<BytesLike>;
-    stateRoot: PromiseOrValue<BytesLike>;
+    timestamp: PromiseOrValue<BigNumberish>;
     commitment: PromiseOrValue<BytesLike>;
   };
 
   export type StoredBlockInfoStructOutput = [
-    number,
-    number,
+    BigNumber,
+    string,
+    BigNumber,
+    BigNumber,
     string,
     string,
-    string,
+    BigNumber,
     string
   ] & {
-    blockNumber: number;
-    numberOfLayer1Txs: number;
+    blockNumber: BigNumber;
+    blockHash: string;
+    indexRepeatedStorageChanges: BigNumber;
+    numberOfLayer1Txs: BigNumber;
     priorityOperationsHash: string;
     l2LogsTreeRoot: string;
-    stateRoot: string;
+    timestamp: BigNumber;
     commitment: string;
   };
 
   export type CommitBlockInfoStruct = {
-    newStateRoot: PromiseOrValue<BytesLike>;
     blockNumber: PromiseOrValue<BigNumberish>;
-    feeAccount: PromiseOrValue<string>;
+    timestamp: PromiseOrValue<BigNumberish>;
+    indexRepeatedStorageChanges: PromiseOrValue<BigNumberish>;
+    newStateRoot: PromiseOrValue<BytesLike>;
+    ergsPerCodeDecommittmentWord: PromiseOrValue<BigNumberish>;
     numberOfLayer1Txs: PromiseOrValue<BigNumberish>;
-    numberOfLayer2Txs: PromiseOrValue<BigNumberish>;
-    priorityOperationsHash: PromiseOrValue<BytesLike>;
     l2LogsTreeRoot: PromiseOrValue<BytesLike>;
+    priorityOperationsHash: PromiseOrValue<BytesLike>;
+    initialStorageChanges: PromiseOrValue<BytesLike>;
+    repeatedStorageChanges: PromiseOrValue<BytesLike>;
     l2Logs: PromiseOrValue<BytesLike>;
     l2ArbitraryLengthMessages: PromiseOrValue<BytesLike>[];
-    deployedContracts: PromiseOrValue<BytesLike>;
-    storageChanges: PromiseOrValue<BytesLike>;
+    factoryDeps: PromiseOrValue<BytesLike>[];
   };
 
   export type CommitBlockInfoStructOutput = [
+    BigNumber,
+    BigNumber,
+    BigNumber,
     string,
     number,
+    BigNumber,
     string,
-    number,
-    number,
+    string,
     string,
     string,
     string,
     string[],
-    string,
-    string
+    string[]
   ] & {
+    blockNumber: BigNumber;
+    timestamp: BigNumber;
+    indexRepeatedStorageChanges: BigNumber;
     newStateRoot: string;
-    blockNumber: number;
-    feeAccount: string;
-    numberOfLayer1Txs: number;
-    numberOfLayer2Txs: number;
-    priorityOperationsHash: string;
+    ergsPerCodeDecommittmentWord: number;
+    numberOfLayer1Txs: BigNumber;
     l2LogsTreeRoot: string;
+    priorityOperationsHash: string;
+    initialStorageChanges: string;
+    repeatedStorageChanges: string;
     l2Logs: string;
     l2ArbitraryLengthMessages: string[];
-    deployedContracts: string;
-    storageChanges: string;
+    factoryDeps: string[];
   };
 
   export type ProofInputStruct = {
-    recursiveInput: PromiseOrValue<BigNumberish>[];
-    proof: PromiseOrValue<BigNumberish>[];
-    commitments: PromiseOrValue<BigNumberish>[];
-    vkIndexes: PromiseOrValue<BigNumberish>[];
-    subproofsLimbs: PromiseOrValue<BigNumberish>[];
+    recurisiveAggregationInput: PromiseOrValue<BigNumberish>[];
+    serializedProof: PromiseOrValue<BigNumberish>[];
   };
 
-  export type ProofInputStructOutput = [
-    BigNumber[],
-    BigNumber[],
-    BigNumber[],
-    number[],
-    BigNumber[]
-  ] & {
-    recursiveInput: BigNumber[];
-    proof: BigNumber[];
-    commitments: BigNumber[];
-    vkIndexes: number[];
-    subproofsLimbs: BigNumber[];
+  export type ProofInputStructOutput = [BigNumber[], BigNumber[]] & {
+    recurisiveAggregationInput: BigNumber[];
+    serializedProof: BigNumber[];
   };
 }
 
 export interface IExecutorInterface extends utils.Interface {
   functions: {
-    "commitBlocks((uint32,uint16,bytes32,bytes32,bytes32,bytes32),(bytes32,uint32,address,uint16,uint16,bytes32,bytes32,bytes,bytes[],bytes,bytes)[])": FunctionFragment;
-    "executeBlocks((uint32,uint16,bytes32,bytes32,bytes32,bytes32)[])": FunctionFragment;
-    "proveBlocks((uint32,uint16,bytes32,bytes32,bytes32,bytes32)[],(uint256[],uint256[],uint256[],uint8[],uint256[16]))": FunctionFragment;
+    "commitBlocks((uint64,bytes32,uint64,uint256,bytes32,bytes32,uint256,bytes32),(uint64,uint64,uint64,bytes32,uint16,uint256,bytes32,bytes32,bytes,bytes,bytes,bytes[],bytes[])[])": FunctionFragment;
+    "executeBlocks((uint64,bytes32,uint64,uint256,bytes32,bytes32,uint256,bytes32)[])": FunctionFragment;
+    "proveBlocks((uint64,bytes32,uint64,uint256,bytes32,bytes32,uint256,bytes32),(uint64,bytes32,uint64,uint256,bytes32,bytes32,uint256,bytes32)[],(uint256[],uint256[]))": FunctionFragment;
     "revertBlocks(uint256)": FunctionFragment;
   };
 
@@ -142,7 +142,11 @@ export interface IExecutorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "proveBlocks",
-    values: [IExecutor.StoredBlockInfoStruct[], IExecutor.ProofInputStruct]
+    values: [
+      IExecutor.StoredBlockInfoStruct,
+      IExecutor.StoredBlockInfoStruct[],
+      IExecutor.ProofInputStruct
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "revertBlocks",
@@ -169,7 +173,7 @@ export interface IExecutorInterface extends utils.Interface {
   events: {
     "BlockCommit(uint256)": EventFragment;
     "BlockExecution(uint256)": EventFragment;
-    "BlocksRevert(uint256,uint256)": EventFragment;
+    "BlocksRevert(uint256,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "BlockCommit"): EventFragment;
@@ -195,11 +199,12 @@ export type BlockExecutionEvent = TypedEvent<
 export type BlockExecutionEventFilter = TypedEventFilter<BlockExecutionEvent>;
 
 export interface BlocksRevertEventObject {
-  totalBlocksVerified: BigNumber;
   totalBlocksCommitted: BigNumber;
+  totalBlocksVerified: BigNumber;
+  totalBlocksExecuted: BigNumber;
 }
 export type BlocksRevertEvent = TypedEvent<
-  [BigNumber, BigNumber],
+  [BigNumber, BigNumber, BigNumber],
   BlocksRevertEventObject
 >;
 
@@ -244,6 +249,7 @@ export interface IExecutor extends BaseContract {
     ): Promise<ContractTransaction>;
 
     proveBlocks(
+      _prevBlock: IExecutor.StoredBlockInfoStruct,
       _committedBlocks: IExecutor.StoredBlockInfoStruct[],
       _proof: IExecutor.ProofInputStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -267,6 +273,7 @@ export interface IExecutor extends BaseContract {
   ): Promise<ContractTransaction>;
 
   proveBlocks(
+    _prevBlock: IExecutor.StoredBlockInfoStruct,
     _committedBlocks: IExecutor.StoredBlockInfoStruct[],
     _proof: IExecutor.ProofInputStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -290,6 +297,7 @@ export interface IExecutor extends BaseContract {
     ): Promise<void>;
 
     proveBlocks(
+      _prevBlock: IExecutor.StoredBlockInfoStruct,
       _committedBlocks: IExecutor.StoredBlockInfoStruct[],
       _proof: IExecutor.ProofInputStruct,
       overrides?: CallOverrides
@@ -316,13 +324,15 @@ export interface IExecutor extends BaseContract {
       blockNumber?: PromiseOrValue<BigNumberish> | null
     ): BlockExecutionEventFilter;
 
-    "BlocksRevert(uint256,uint256)"(
+    "BlocksRevert(uint256,uint256,uint256)"(
+      totalBlocksCommitted?: null,
       totalBlocksVerified?: null,
-      totalBlocksCommitted?: null
+      totalBlocksExecuted?: null
     ): BlocksRevertEventFilter;
     BlocksRevert(
+      totalBlocksCommitted?: null,
       totalBlocksVerified?: null,
-      totalBlocksCommitted?: null
+      totalBlocksExecuted?: null
     ): BlocksRevertEventFilter;
   };
 
@@ -339,6 +349,7 @@ export interface IExecutor extends BaseContract {
     ): Promise<BigNumber>;
 
     proveBlocks(
+      _prevBlock: IExecutor.StoredBlockInfoStruct,
       _committedBlocks: IExecutor.StoredBlockInfoStruct[],
       _proof: IExecutor.ProofInputStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -363,6 +374,7 @@ export interface IExecutor extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     proveBlocks(
+      _prevBlock: IExecutor.StoredBlockInfoStruct,
       _committedBlocks: IExecutor.StoredBlockInfoStruct[],
       _proof: IExecutor.ProofInputStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }

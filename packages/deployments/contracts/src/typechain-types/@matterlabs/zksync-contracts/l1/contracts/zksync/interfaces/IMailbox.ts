@@ -28,23 +28,38 @@ import type {
 } from "../../../../../../common";
 
 export type L2LogStruct = {
+  l2ShardId: PromiseOrValue<BigNumberish>;
+  isService: PromiseOrValue<boolean>;
+  txNumberInBlock: PromiseOrValue<BigNumberish>;
   sender: PromiseOrValue<string>;
   key: PromiseOrValue<BytesLike>;
   value: PromiseOrValue<BytesLike>;
 };
 
-export type L2LogStructOutput = [string, string, string] & {
+export type L2LogStructOutput = [
+  number,
+  boolean,
+  number,
+  string,
+  string,
+  string
+] & {
+  l2ShardId: number;
+  isService: boolean;
+  txNumberInBlock: number;
   sender: string;
   key: string;
   value: string;
 };
 
 export type L2MessageStruct = {
+  txNumberInBlock: PromiseOrValue<BigNumberish>;
   sender: PromiseOrValue<string>;
   data: PromiseOrValue<BytesLike>;
 };
 
-export type L2MessageStructOutput = [string, string] & {
+export type L2MessageStructOutput = [number, string, string] & {
+  txNumberInBlock: number;
   sender: string;
   data: string;
 };
@@ -103,8 +118,8 @@ export declare namespace IMailbox {
 export interface IMailboxInterface extends utils.Interface {
   functions: {
     "l2TransactionBaseCost(uint256,uint256,uint32)": FunctionFragment;
-    "proveL2LogInclusion(uint256,uint256,(address,bytes32,bytes32),bytes32[])": FunctionFragment;
-    "proveL2MessageInclusion(uint256,uint256,(address,bytes),bytes32[])": FunctionFragment;
+    "proveL2LogInclusion(uint256,uint256,(uint8,bool,uint16,address,bytes32,bytes32),bytes32[])": FunctionFragment;
+    "proveL2MessageInclusion(uint256,uint256,(uint16,address,bytes),bytes32[])": FunctionFragment;
     "requestL2Transaction(address,uint256,bytes,uint256,bytes[])": FunctionFragment;
     "serializeL2Transaction(uint256,uint256,address,address,bytes,uint256,bytes[])": FunctionFragment;
   };

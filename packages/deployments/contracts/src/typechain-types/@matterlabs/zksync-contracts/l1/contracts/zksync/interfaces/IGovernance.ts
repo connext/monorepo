@@ -29,14 +29,20 @@ import type {
 export interface IGovernanceInterface extends utils.Interface {
   functions: {
     "acceptGovernor()": FunctionFragment;
+    "setL2BootloaderBytecodeHash(bytes32)": FunctionFragment;
+    "setL2DefaultAccountBytecodeHash(bytes32)": FunctionFragment;
     "setPendingGovernor(address)": FunctionFragment;
+    "setPorterAvailability(bool)": FunctionFragment;
     "setValidator(address,bool)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "acceptGovernor"
+      | "setL2BootloaderBytecodeHash"
+      | "setL2DefaultAccountBytecodeHash"
       | "setPendingGovernor"
+      | "setPorterAvailability"
       | "setValidator"
   ): FunctionFragment;
 
@@ -45,8 +51,20 @@ export interface IGovernanceInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "setL2BootloaderBytecodeHash",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setL2DefaultAccountBytecodeHash",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setPendingGovernor",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPorterAvailability",
+    values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
     functionFragment: "setValidator",
@@ -58,7 +76,19 @@ export interface IGovernanceInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setL2BootloaderBytecodeHash",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setL2DefaultAccountBytecodeHash",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setPendingGovernor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setPorterAvailability",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -67,15 +97,38 @@ export interface IGovernanceInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "IsPorterAvailableStatusUpdate(bool)": EventFragment;
     "NewGovernor(address)": EventFragment;
+    "NewL2BootloaderBytecodeHash(bytes32,bytes32)": EventFragment;
+    "NewL2DefaultAccountBytecodeHash(bytes32,bytes32)": EventFragment;
     "NewPendingGovernor(address,address)": EventFragment;
     "ValidatorStatusUpdate(address,bool)": EventFragment;
   };
 
+  getEvent(
+    nameOrSignatureOrTopic: "IsPorterAvailableStatusUpdate"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewGovernor"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "NewL2BootloaderBytecodeHash"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "NewL2DefaultAccountBytecodeHash"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewPendingGovernor"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ValidatorStatusUpdate"): EventFragment;
 }
+
+export interface IsPorterAvailableStatusUpdateEventObject {
+  isPorterAvailable: boolean;
+}
+export type IsPorterAvailableStatusUpdateEvent = TypedEvent<
+  [boolean],
+  IsPorterAvailableStatusUpdateEventObject
+>;
+
+export type IsPorterAvailableStatusUpdateEventFilter =
+  TypedEventFilter<IsPorterAvailableStatusUpdateEvent>;
 
 export interface NewGovernorEventObject {
   newGovernor: string;
@@ -83,6 +136,30 @@ export interface NewGovernorEventObject {
 export type NewGovernorEvent = TypedEvent<[string], NewGovernorEventObject>;
 
 export type NewGovernorEventFilter = TypedEventFilter<NewGovernorEvent>;
+
+export interface NewL2BootloaderBytecodeHashEventObject {
+  previousBytecodeHash: string;
+  newBytecodeHash: string;
+}
+export type NewL2BootloaderBytecodeHashEvent = TypedEvent<
+  [string, string],
+  NewL2BootloaderBytecodeHashEventObject
+>;
+
+export type NewL2BootloaderBytecodeHashEventFilter =
+  TypedEventFilter<NewL2BootloaderBytecodeHashEvent>;
+
+export interface NewL2DefaultAccountBytecodeHashEventObject {
+  previousBytecodeHash: string;
+  newBytecodeHash: string;
+}
+export type NewL2DefaultAccountBytecodeHashEvent = TypedEvent<
+  [string, string],
+  NewL2DefaultAccountBytecodeHashEventObject
+>;
+
+export type NewL2DefaultAccountBytecodeHashEventFilter =
+  TypedEventFilter<NewL2DefaultAccountBytecodeHashEvent>;
 
 export interface NewPendingGovernorEventObject {
   oldPendingGovernor: string;
@@ -139,8 +216,23 @@ export interface IGovernance extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setL2BootloaderBytecodeHash(
+      _l2BootloaderBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setL2DefaultAccountBytecodeHash(
+      _l2DefaultAccountBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setPendingGovernor(
       _newPendingGovernor: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setPorterAvailability(
+      _isPorterAvailable: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -155,8 +247,23 @@ export interface IGovernance extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setL2BootloaderBytecodeHash(
+    _l2BootloaderBytecodeHash: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setL2DefaultAccountBytecodeHash(
+    _l2DefaultAccountBytecodeHash: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setPendingGovernor(
     _newPendingGovernor: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setPorterAvailability(
+    _isPorterAvailable: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -169,8 +276,23 @@ export interface IGovernance extends BaseContract {
   callStatic: {
     acceptGovernor(overrides?: CallOverrides): Promise<void>;
 
+    setL2BootloaderBytecodeHash(
+      _l2BootloaderBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setL2DefaultAccountBytecodeHash(
+      _l2DefaultAccountBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setPendingGovernor(
       _newPendingGovernor: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setPorterAvailability(
+      _isPorterAvailable: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -182,12 +304,37 @@ export interface IGovernance extends BaseContract {
   };
 
   filters: {
+    "IsPorterAvailableStatusUpdate(bool)"(
+      isPorterAvailable?: null
+    ): IsPorterAvailableStatusUpdateEventFilter;
+    IsPorterAvailableStatusUpdate(
+      isPorterAvailable?: null
+    ): IsPorterAvailableStatusUpdateEventFilter;
+
     "NewGovernor(address)"(
       newGovernor?: PromiseOrValue<string> | null
     ): NewGovernorEventFilter;
     NewGovernor(
       newGovernor?: PromiseOrValue<string> | null
     ): NewGovernorEventFilter;
+
+    "NewL2BootloaderBytecodeHash(bytes32,bytes32)"(
+      previousBytecodeHash?: PromiseOrValue<BytesLike> | null,
+      newBytecodeHash?: PromiseOrValue<BytesLike> | null
+    ): NewL2BootloaderBytecodeHashEventFilter;
+    NewL2BootloaderBytecodeHash(
+      previousBytecodeHash?: PromiseOrValue<BytesLike> | null,
+      newBytecodeHash?: PromiseOrValue<BytesLike> | null
+    ): NewL2BootloaderBytecodeHashEventFilter;
+
+    "NewL2DefaultAccountBytecodeHash(bytes32,bytes32)"(
+      previousBytecodeHash?: PromiseOrValue<BytesLike> | null,
+      newBytecodeHash?: PromiseOrValue<BytesLike> | null
+    ): NewL2DefaultAccountBytecodeHashEventFilter;
+    NewL2DefaultAccountBytecodeHash(
+      previousBytecodeHash?: PromiseOrValue<BytesLike> | null,
+      newBytecodeHash?: PromiseOrValue<BytesLike> | null
+    ): NewL2DefaultAccountBytecodeHashEventFilter;
 
     "NewPendingGovernor(address,address)"(
       oldPendingGovernor?: PromiseOrValue<string> | null,
@@ -213,8 +360,23 @@ export interface IGovernance extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setL2BootloaderBytecodeHash(
+      _l2BootloaderBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setL2DefaultAccountBytecodeHash(
+      _l2DefaultAccountBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setPendingGovernor(
       _newPendingGovernor: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setPorterAvailability(
+      _isPorterAvailable: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -230,8 +392,23 @@ export interface IGovernance extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    setL2BootloaderBytecodeHash(
+      _l2BootloaderBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setL2DefaultAccountBytecodeHash(
+      _l2DefaultAccountBytecodeHash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setPendingGovernor(
       _newPendingGovernor: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setPorterAvailability(
+      _isPorterAvailable: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

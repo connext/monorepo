@@ -350,12 +350,12 @@ export declare namespace Plonk4VerifierWithAccessToDNext {
   };
 }
 
-export interface VerifierInterface extends utils.Interface {
+export interface Plonk4VerifierWithAccessToDNextInterface
+  extends utils.Interface {
   functions: {
     "compute_powers_of_alpha(((uint256),(uint256),(uint256),(uint256),tuple[9],(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256,uint256)))": FunctionFragment;
     "prepare_queries((uint256,uint256,(uint256),tuple[2],tuple[7],tuple[4],(uint256,uint256),tuple[4],(uint256,uint256),tuple[3],tuple[2]),(uint256[],tuple[4],(uint256,uint256),tuple[4],tuple[4],tuple[1],tuple[1],tuple[3],(uint256),(uint256),(uint256),(uint256,uint256),(uint256,uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256,uint256),(uint256,uint256)),((uint256),(uint256),(uint256),(uint256),tuple[9],(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256,uint256)))": FunctionFragment;
     "rescue_custom_gate_linearization_contribution((uint256,uint256,(uint256),tuple[2],tuple[7],tuple[4],(uint256,uint256),tuple[4],(uint256,uint256),tuple[3],tuple[2]),(uint256[],tuple[4],(uint256,uint256),tuple[4],tuple[4],tuple[1],tuple[1],tuple[3],(uint256),(uint256),(uint256),(uint256,uint256),(uint256,uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256,uint256),(uint256,uint256)),((uint256),(uint256),(uint256),(uint256),tuple[9],(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256),(uint256,uint256)))": FunctionFragment;
-    "verify_serialized_proof(uint256[],uint256[])": FunctionFragment;
   };
 
   getFunction(
@@ -363,7 +363,6 @@ export interface VerifierInterface extends utils.Interface {
       | "compute_powers_of_alpha"
       | "prepare_queries"
       | "rescue_custom_gate_linearization_contribution"
-      | "verify_serialized_proof"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -386,10 +385,6 @@ export interface VerifierInterface extends utils.Interface {
       Plonk4VerifierWithAccessToDNext.PartialVerifierStateStruct
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "verify_serialized_proof",
-    values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<BigNumberish>[]]
-  ): string;
 
   decodeFunctionResult(
     functionFragment: "compute_powers_of_alpha",
@@ -403,20 +398,16 @@ export interface VerifierInterface extends utils.Interface {
     functionFragment: "rescue_custom_gate_linearization_contribution",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "verify_serialized_proof",
-    data: BytesLike
-  ): Result;
 
   events: {};
 }
 
-export interface Verifier extends BaseContract {
+export interface Plonk4VerifierWithAccessToDNext extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: VerifierInterface;
+  interface: Plonk4VerifierWithAccessToDNextInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -464,12 +455,6 @@ export interface Verifier extends BaseContract {
         result: PairingsBn254.G1PointStructOutput;
       }
     >;
-
-    verify_serialized_proof(
-      public_inputs: PromiseOrValue<BigNumberish>[],
-      serialized_proof: PromiseOrValue<BigNumberish>[],
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
   };
 
   compute_powers_of_alpha(
@@ -491,12 +476,6 @@ export interface Verifier extends BaseContract {
     overrides?: CallOverrides
   ): Promise<PairingsBn254.G1PointStructOutput>;
 
-  verify_serialized_proof(
-    public_inputs: PromiseOrValue<BigNumberish>[],
-    serialized_proof: PromiseOrValue<BigNumberish>[],
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   callStatic: {
     compute_powers_of_alpha(
       state: Plonk4VerifierWithAccessToDNext.PartialVerifierStateStruct,
@@ -516,12 +495,6 @@ export interface Verifier extends BaseContract {
       state: Plonk4VerifierWithAccessToDNext.PartialVerifierStateStruct,
       overrides?: CallOverrides
     ): Promise<PairingsBn254.G1PointStructOutput>;
-
-    verify_serialized_proof(
-      public_inputs: PromiseOrValue<BigNumberish>[],
-      serialized_proof: PromiseOrValue<BigNumberish>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
   };
 
   filters: {};
@@ -545,12 +518,6 @@ export interface Verifier extends BaseContract {
       state: Plonk4VerifierWithAccessToDNext.PartialVerifierStateStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    verify_serialized_proof(
-      public_inputs: PromiseOrValue<BigNumberish>[],
-      serialized_proof: PromiseOrValue<BigNumberish>[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -570,12 +537,6 @@ export interface Verifier extends BaseContract {
       vk: VerificationKeyStruct,
       proof: Plonk4VerifierWithAccessToDNext.ProofStruct,
       state: Plonk4VerifierWithAccessToDNext.PartialVerifierStateStruct,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    verify_serialized_proof(
-      public_inputs: PromiseOrValue<BigNumberish>[],
-      serialized_proof: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

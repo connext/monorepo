@@ -2,4 +2,3 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as interfaces from "./interfaces";
-export { SystemContext__factory } from "./SystemContext__factory";

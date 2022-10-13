@@ -163,6 +163,21 @@ const _abi = [
       {
         components: [
           {
+            internalType: "uint8",
+            name: "l2ShardId",
+            type: "uint8",
+          },
+          {
+            internalType: "bool",
+            name: "isService",
+            type: "bool",
+          },
+          {
+            internalType: "uint16",
+            name: "txNumberInBlock",
+            type: "uint16",
+          },
+          {
             internalType: "address",
             name: "sender",
             type: "address",
@@ -213,6 +228,11 @@ const _abi = [
       },
       {
         components: [
+          {
+            internalType: "uint16",
+            name: "txNumberInBlock",
+            type: "uint16",
+          },
           {
             internalType: "address",
             name: "sender",

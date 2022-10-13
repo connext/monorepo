@@ -42,13 +42,19 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
+        name: "totalBlocksCommitted",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
         name: "totalBlocksVerified",
         type: "uint256",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "totalBlocksCommitted",
+        name: "totalBlocksExecuted",
         type: "uint256",
       },
     ],
@@ -177,6 +183,19 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "bool",
+        name: "isPorterAvailable",
+        type: "bool",
+      },
+    ],
+    name: "IsPorterAvailableStatusUpdate",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "address",
         name: "newGovernor",
@@ -184,6 +203,44 @@ const _abi = [
       },
     ],
     name: "NewGovernor",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "previousBytecodeHash",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "newBytecodeHash",
+        type: "bytes32",
+      },
+    ],
+    name: "NewL2BootloaderBytecodeHash",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "previousBytecodeHash",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "newBytecodeHash",
+        type: "bytes32",
+      },
+    ],
+    name: "NewL2DefaultAccountBytecodeHash",
     type: "event",
   },
   {
@@ -371,14 +428,24 @@ const _abi = [
       {
         components: [
           {
-            internalType: "uint32",
+            internalType: "uint64",
             name: "blockNumber",
-            type: "uint32",
+            type: "uint64",
           },
           {
-            internalType: "uint16",
+            internalType: "bytes32",
+            name: "blockHash",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint64",
+            name: "indexRepeatedStorageChanges",
+            type: "uint64",
+          },
+          {
+            internalType: "uint256",
             name: "numberOfLayer1Txs",
-            type: "uint16",
+            type: "uint256",
           },
           {
             internalType: "bytes32",
@@ -391,9 +458,9 @@ const _abi = [
             type: "bytes32",
           },
           {
-            internalType: "bytes32",
-            name: "stateRoot",
-            type: "bytes32",
+            internalType: "uint256",
+            name: "timestamp",
+            type: "uint256",
           },
           {
             internalType: "bytes32",
@@ -408,29 +475,39 @@ const _abi = [
       {
         components: [
           {
+            internalType: "uint64",
+            name: "blockNumber",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "timestamp",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "indexRepeatedStorageChanges",
+            type: "uint64",
+          },
+          {
             internalType: "bytes32",
             name: "newStateRoot",
             type: "bytes32",
           },
           {
-            internalType: "uint32",
-            name: "blockNumber",
-            type: "uint32",
-          },
-          {
-            internalType: "address",
-            name: "feeAccount",
-            type: "address",
-          },
-          {
             internalType: "uint16",
+            name: "ergsPerCodeDecommittmentWord",
+            type: "uint16",
+          },
+          {
+            internalType: "uint256",
             name: "numberOfLayer1Txs",
-            type: "uint16",
+            type: "uint256",
           },
           {
-            internalType: "uint16",
-            name: "numberOfLayer2Txs",
-            type: "uint16",
+            internalType: "bytes32",
+            name: "l2LogsTreeRoot",
+            type: "bytes32",
           },
           {
             internalType: "bytes32",
@@ -438,9 +515,14 @@ const _abi = [
             type: "bytes32",
           },
           {
-            internalType: "bytes32",
-            name: "l2LogsTreeRoot",
-            type: "bytes32",
+            internalType: "bytes",
+            name: "initialStorageChanges",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes",
+            name: "repeatedStorageChanges",
+            type: "bytes",
           },
           {
             internalType: "bytes",
@@ -453,14 +535,9 @@ const _abi = [
             type: "bytes[]",
           },
           {
-            internalType: "bytes",
-            name: "deployedContracts",
-            type: "bytes",
-          },
-          {
-            internalType: "bytes",
-            name: "storageChanges",
-            type: "bytes",
+            internalType: "bytes[]",
+            name: "factoryDeps",
+            type: "bytes[]",
           },
         ],
         internalType: "struct IExecutor.CommitBlockInfo[]",
@@ -485,14 +562,24 @@ const _abi = [
       {
         components: [
           {
-            internalType: "uint32",
+            internalType: "uint64",
             name: "blockNumber",
-            type: "uint32",
+            type: "uint64",
           },
           {
-            internalType: "uint16",
+            internalType: "bytes32",
+            name: "blockHash",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint64",
+            name: "indexRepeatedStorageChanges",
+            type: "uint64",
+          },
+          {
+            internalType: "uint256",
             name: "numberOfLayer1Txs",
-            type: "uint16",
+            type: "uint256",
           },
           {
             internalType: "bytes32",
@@ -505,9 +592,9 @@ const _abi = [
             type: "bytes32",
           },
           {
-            internalType: "bytes32",
-            name: "stateRoot",
-            type: "bytes32",
+            internalType: "uint256",
+            name: "timestamp",
+            type: "uint256",
           },
           {
             internalType: "bytes32",
@@ -655,36 +742,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "facetsExtended",
+    name: "getFirstUnprocessedPriorityTx",
     outputs: [
       {
-        components: [
-          {
-            internalType: "address",
-            name: "addr",
-            type: "address",
-          },
-          {
-            components: [
-              {
-                internalType: "bytes4",
-                name: "selector",
-                type: "bytes4",
-              },
-              {
-                internalType: "bool",
-                name: "isFreezable",
-                type: "bool",
-              },
-            ],
-            internalType: "struct IGetters.SelectorExtended[]",
-            name: "selectors",
-            type: "tuple[]",
-          },
-        ],
-        internalType: "struct IGetters.FacetExtended[]",
+        internalType: "uint256",
         name: "",
-        type: "tuple[]",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -698,19 +761,6 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getLastProcessedPriorityTx",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -776,6 +826,25 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_facet",
+        type: "address",
+      },
+    ],
+    name: "isFacetFreezable",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -912,14 +981,24 @@ const _abi = [
       {
         components: [
           {
-            internalType: "uint32",
+            internalType: "uint64",
             name: "blockNumber",
-            type: "uint32",
+            type: "uint64",
           },
           {
-            internalType: "uint16",
+            internalType: "bytes32",
+            name: "blockHash",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint64",
+            name: "indexRepeatedStorageChanges",
+            type: "uint64",
+          },
+          {
+            internalType: "uint256",
             name: "numberOfLayer1Txs",
-            type: "uint16",
+            type: "uint256",
           },
           {
             internalType: "bytes32",
@@ -932,9 +1011,56 @@ const _abi = [
             type: "bytes32",
           },
           {
+            internalType: "uint256",
+            name: "timestamp",
+            type: "uint256",
+          },
+          {
             internalType: "bytes32",
-            name: "stateRoot",
+            name: "commitment",
             type: "bytes32",
+          },
+        ],
+        internalType: "struct IExecutor.StoredBlockInfo",
+        name: "_prevBlock",
+        type: "tuple",
+      },
+      {
+        components: [
+          {
+            internalType: "uint64",
+            name: "blockNumber",
+            type: "uint64",
+          },
+          {
+            internalType: "bytes32",
+            name: "blockHash",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint64",
+            name: "indexRepeatedStorageChanges",
+            type: "uint64",
+          },
+          {
+            internalType: "uint256",
+            name: "numberOfLayer1Txs",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes32",
+            name: "priorityOperationsHash",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "l2LogsTreeRoot",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint256",
+            name: "timestamp",
+            type: "uint256",
           },
           {
             internalType: "bytes32",
@@ -950,28 +1076,13 @@ const _abi = [
         components: [
           {
             internalType: "uint256[]",
-            name: "recursiveInput",
+            name: "recurisiveAggregationInput",
             type: "uint256[]",
           },
           {
             internalType: "uint256[]",
-            name: "proof",
+            name: "serializedProof",
             type: "uint256[]",
-          },
-          {
-            internalType: "uint256[]",
-            name: "commitments",
-            type: "uint256[]",
-          },
-          {
-            internalType: "uint8[]",
-            name: "vkIndexes",
-            type: "uint8[]",
-          },
-          {
-            internalType: "uint256[16]",
-            name: "subproofsLimbs",
-            type: "uint256[16]",
           },
         ],
         internalType: "struct IExecutor.ProofInput",
@@ -998,6 +1109,21 @@ const _abi = [
       },
       {
         components: [
+          {
+            internalType: "uint8",
+            name: "l2ShardId",
+            type: "uint8",
+          },
+          {
+            internalType: "bool",
+            name: "isService",
+            type: "bool",
+          },
+          {
+            internalType: "uint16",
+            name: "txNumberInBlock",
+            type: "uint16",
+          },
           {
             internalType: "address",
             name: "sender",
@@ -1049,6 +1175,11 @@ const _abi = [
       },
       {
         components: [
+          {
+            internalType: "uint16",
+            name: "txNumberInBlock",
+            type: "uint16",
+          },
           {
             internalType: "address",
             name: "sender",
@@ -1257,12 +1388,51 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "_l2BootloaderBytecodeHash",
+        type: "bytes32",
+      },
+    ],
+    name: "setL2BootloaderBytecodeHash",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_l2DefaultAccountBytecodeHash",
+        type: "bytes32",
+      },
+    ],
+    name: "setL2DefaultAccountBytecodeHash",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "_newPendingGovernor",
         type: "address",
       },
     ],
     name: "setPendingGovernor",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "_isPorterAvailable",
+        type: "bool",
+      },
+    ],
+    name: "setPorterAvailability",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
