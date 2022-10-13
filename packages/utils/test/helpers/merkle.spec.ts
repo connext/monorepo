@@ -37,7 +37,7 @@ export class DBImpl implements DBHelper {
 
 describe("Helpers: Merkle", () => {
   const TREE_HEIGHT = 32;
-  const SAMPLE_HASH_COUNT = 1_000;
+  const SAMPLE_HASH_COUNT = 1000;
   const SAMPLE_HASHES: string[] = [];
 
   before(() => {
@@ -214,11 +214,11 @@ describe("Helpers: Merkle", () => {
         expect(result.calculated).to.be.eq(mockBranchRoot);
       });
 
+      // TODO: @jakek the next two tests fail if the sanity check in Merkle is re-added
       it("should get merkle proof at boundry", async () => {
         const expectedRoot = mockle.root();
 
-        // Pick a random leaf for whom we want to get the proof.
-        const index = 999; // This index is definitely random, I generated it myself.
+        const index = 999; // Index is at the boundry of the tree.
         const leaf: string = (await db.getNode(index))!;
 
         const start = Date.now();
@@ -232,12 +232,42 @@ describe("Helpers: Merkle", () => {
         // Verify using the mock of the on-chain behavior for `branchRoot`:
         const mockBranchRoot = MockMerkleLib.branchRoot(leaf, proof, index);
 
-        // console.log({
-        //   ...result,
-        //   mockExpectedRoot: expectedRoot,
-        //   mockBranchRoot: mockBranchRoot,
-        //   proof,
-        // });
+        expect(result.verified).to.be.true;
+        expect(result.calculated).to.be.eq(expectedRoot);
+        expect(result.calculated).to.be.eq(mockBranchRoot);
+      });
+
+      it("should get merkle proof if inserted hashes are a power of 2", async () => {
+        db = new DBImpl();
+        mockle = new MockMerkleLib(TREE_HEIGHT);
+        const sampleHashes: string[] = [];
+        for (let i = 0; i < 2; i++) {
+          sampleHashes.push(getRandomBytes32());
+        }
+
+        for (let i = 0; i < 2; i++) {
+          // Insert ALL sample hashes into the DB.
+          db.push(SAMPLE_HASHES[i]);
+          // Insert ALL sample hashes into the mock MerkleLib.
+          mockle.insert(SAMPLE_HASHES[i]);
+        }
+
+        merkle = new SparseMerkleTree(db, TREE_HEIGHT);
+        const expectedRoot = mockle.root();
+
+        const index = 0;
+        const leaf: string = (await db.getNode(index))!;
+
+        const start = Date.now();
+        const proof = await merkle.getProof(index);
+        console.log(`Calculated proof. Took: ${Date.now() - start}ms`);
+
+        expect(proof.length).to.be.eq(TREE_HEIGHT);
+
+        // Verify using the same lib:
+        const result = merkle.verify(index, leaf, proof, expectedRoot);
+        // Verify using the mock of the on-chain behavior for `branchRoot`:
+        const mockBranchRoot = MockMerkleLib.branchRoot(leaf, proof, index);
 
         expect(result.verified).to.be.true;
         expect(result.calculated).to.be.eq(expectedRoot);
