@@ -4,6 +4,7 @@ import {
   Dispatch,
   AggregateRootReceived,
   MessageSent,
+  Process,
 } from "../../../generated/SpokeConnector/SpokeConnector";
 import { OriginMessage, AggregateRoot, RootMessageSent, ConnectorMeta, RootCount } from "../../../generated/schema";
 
@@ -90,4 +91,8 @@ export function handleAggregateRootReceived(event: AggregateRootReceived): void 
 
   aggregateRoot.root = event.params.root;
   aggregateRoot.save();
+}
+
+export function handleProcess(event: Process): void {
+  // TODO. We will have to add something here when its needed
 }
