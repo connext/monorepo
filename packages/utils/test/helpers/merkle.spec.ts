@@ -213,6 +213,36 @@ describe("Helpers: Merkle", () => {
         expect(result.calculated).to.be.eq(expectedRoot);
         expect(result.calculated).to.be.eq(mockBranchRoot);
       });
+
+      it("should get merkle proof at boundry", async () => {
+        const expectedRoot = mockle.root();
+
+        // Pick a random leaf for whom we want to get the proof.
+        const index = 999; // This index is definitely random, I generated it myself.
+        const leaf: string = (await db.getNode(index))!;
+
+        const start = Date.now();
+        const proof = await merkle.getProof(index);
+        console.log(`Calculated proof. Took: ${Date.now() - start}ms`);
+
+        expect(proof.length).to.be.eq(TREE_HEIGHT);
+
+        // Verify using the same lib:
+        const result = merkle.verify(index, leaf, proof, expectedRoot);
+        // Verify using the mock of the on-chain behavior for `branchRoot`:
+        const mockBranchRoot = MockMerkleLib.branchRoot(leaf, proof, index);
+
+        // console.log({
+        //   ...result,
+        //   mockExpectedRoot: expectedRoot,
+        //   mockBranchRoot: mockBranchRoot,
+        //   proof,
+        // });
+
+        expect(result.verified).to.be.true;
+        expect(result.calculated).to.be.eq(expectedRoot);
+        expect(result.calculated).to.be.eq(mockBranchRoot);
+      });
     });
   });
 });
