@@ -1,8 +1,13 @@
 import { InitConfig } from "../../helpers";
 
 export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
-  hub: "1735353714",
-  supportedDomains: ["1735353714", "1735356532", "1734439522", "9991"],
+  hub: "1735353714", /// GOERLI
+  supportedDomains: [
+    "1735353714",
+    "1735356532",
+    // "1734439522", /// ARBITRUM-GOERLI
+    "9991", /// MUMBAI
+  ],
   assets: [
     {
       name: "TEST",
@@ -19,10 +24,11 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
           local: "0xeDb95D8037f769B72AAab41deeC92903A98C9E16",
           adopted: "0xeDb95D8037f769B72AAab41deeC92903A98C9E16",
         },
-        "1734439522": {
-          local: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
-          adopted: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
-        },
+        /// ARBITRUM-GOERLI
+        // "1734439522": {
+        //   local: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
+        //   adopted: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
+        // },
       },
     },
     {
@@ -40,22 +46,27 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
           local: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
           adopted: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
         },
-        "1734439522": {
-          local: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
-          adopted: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
-        },
+        /// ARBITRUM-GOERLI
+        // "1734439522": {
+        //   local: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
+        //   adopted: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
+        // },
       },
     },
   ],
   agents: {
     watchers: {
-      whitelist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB"],
+      whitelist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
     },
     routers: {
       whitelist: ["0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"],
     },
     sequencers: {
-      whitelist: ["0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C", "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"],
+      whitelist: [
+        "0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C",
+        "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7",
+        "0x24D677f8A59A486BfC6d87E9453C4f1fEfcB0958",
+      ],
     },
     relayers: {
       whitelist: [

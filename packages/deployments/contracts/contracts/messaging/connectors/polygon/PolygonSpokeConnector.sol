@@ -74,4 +74,10 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
   }
 
   function _processMessage(bytes memory _data) internal override {}
+
+  function _setMirrorConnector(address _mirrorConnector) internal override {
+    super._setMirrorConnector(_mirrorConnector);
+
+    setFxRootTunnel(_mirrorConnector);
+  }
 }

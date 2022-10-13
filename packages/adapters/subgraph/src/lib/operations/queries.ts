@@ -137,6 +137,7 @@ export const ROOT_MESSAGE_SENT_ENTITY = `
       gasPrice
       gasLimit
       blockNumber
+      count
 `;
 export const ROOT_MESSAGE_PROCESSED_ENTITY = `
       id
@@ -149,6 +150,18 @@ export const ROOT_MESSAGE_PROCESSED_ENTITY = `
       gasPrice
       gasLimit
       blockNumber
+`;
+export const ROOT_AGGREGATED_ENTITY = `
+      id
+      domain
+      receivedRoot
+      index
+`;
+export const ROOT_PROPAGATED_ENTITY = `
+      id
+      aggregate
+      domains
+      count
 `;
 
 export const CONNECTOR_META_ENTITY = `
@@ -670,7 +683,7 @@ export const getProcessedRootMessagesByDomainAndBlockQuery = (
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
     combinedQuery += `
-    ${prefix}hub_rootMessageProcesseds ( 
+    ${prefix}_rootMessageProcesseds ( 
       first: ${param.limit}, 
       where: { 
         blockNumber_gt: ${param.offset} 
@@ -683,6 +696,54 @@ export const getProcessedRootMessagesByDomainAndBlockQuery = (
   return gql`
     query GetProcessedRootMessages {
       ${combinedQuery}
+    }
+  `;
+};
+
+export const getAggregatedRootsByDomainQuery = (params: { domain: string; index: number; limit: number }[]) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.domain].prefix;
+    combinedQuery += `
+    ${prefix}_rootAggregateds ( 
+      first: ${param.limit}, 
+      where: { 
+        domain: "${param.domain}",
+        index_gte: ${param.index}
+      }
+      orderBy: index, 
+      orderDirection: asc
+    ) {
+      ${ROOT_AGGREGATED_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetAggregatedRoots {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getPropagatedRootsQuery = (domain: string, count: number, limit: number) => {
+  const { config } = getContext();
+  const prefix = config.sources[domain].prefix;
+  const queryString = `
+  ${prefix}_rootPropagateds ( 
+    first: ${limit}, 
+    where: { 
+      count_gte: ${count} 
+    },
+    orderBy: count, 
+    orderDirection: asc
+  ) {
+    ${ROOT_PROPAGATED_ENTITY}
+  }`;
+
+  return gql`
+    query GetPropagatedRoots {
+      ${queryString}
     }
   `;
 };

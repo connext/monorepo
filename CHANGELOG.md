@@ -2,6 +2,15 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.28
+
+- [contracts] fresh staging deployments
+- [all] prove and process
+
+## Amarok 0.2.0-alpha.27
+
+- [sdk] getTransfers fixes
+
 ## Amarok 0.2.0-alpha.26
 
 - [sdk] sdkPool fixes

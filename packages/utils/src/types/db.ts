@@ -1,6 +1,6 @@
 import { BigNumber, constants } from "ethers";
 
-import { XMessage, RootMessage } from "./amb";
+import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot } from "./amb";
 import { AssetBalance, RouterBalance, XTransfer, XTransferStatus } from "./xtransfers";
 
 /**
@@ -8,7 +8,7 @@ import { AssetBalance, RouterBalance, XTransfer, XTransferStatus } from "./xtran
  * All BigNumbers are selected as text into JS.
  */
 export const transfersCastForUrl =
-  "select=transfer_id,nonce,to,call_data,origin_domain,destination_domain,receive_local,relayer_fee,destination_min_out,origin_chain,origin_transacting_asset,origin_transacting_amount::text,origin_bridged_asset,origin_bridged_amount::text,xcall_caller,xcall_transaction_hash,xcall_timestamp,xcall_gas_price::text,xcall_gas_limit::text,xcall_block_number,destination_chain,status,routers,destination_transacting_asset,destination_transacting_amount::text,destination_local_asset,destination_local_amount::text,execute_caller,execute_transaction_hash,execute_timestamp,execute_gas_price::text,execute_gas_limit::text,execute_block_number,execute_origin_sender,reconcile_caller,reconcile_transaction_hash,reconcile_timestamp,reconcile_gas_price::text,reconcile_gas_limit::text,reconcile_block_number";
+  "select=transfer_id,nonce,to,call_data,origin_domain,destination_domain,receive_local,relayer_fee,origin_chain,origin_transacting_asset,origin_transacting_amount::text,origin_bridged_asset,origin_bridged_amount::text,xcall_caller,xcall_transaction_hash,xcall_timestamp,xcall_gas_price::text,xcall_gas_limit::text,xcall_block_number,destination_chain,status,routers,destination_transacting_asset,destination_transacting_amount::text,destination_local_asset,destination_local_amount::text,execute_caller,execute_transaction_hash,execute_timestamp,execute_gas_price::text,execute_gas_limit::text,execute_block_number,execute_origin_sender,reconcile_caller,reconcile_transaction_hash,reconcile_timestamp,reconcile_gas_price::text,reconcile_gas_limit::text,reconcile_block_number";
 
 /**
  * Converts a transfer from the cartographer db through either DB queries or Postgrest into the XTransfer type
@@ -199,5 +199,36 @@ export const convertFromDbRootMessage = (message: any): RootMessage => {
     gasLimit: BigNumber.from(message.gas_limit).toString(),
     blockNumber: message.block_number,
     processed: message.processed,
+    count: message.leaf_count,
+  };
+};
+
+/**
+ * Converts a aggregated root message from the cartographer db through
+ * either DB queries or Postgrest into the AggregatedRoot type
+ * @param message - the message from the cartographer db as a JSON object
+ * @returns an AggregatedRoot object
+ */
+export const convertFromDbAggregatedRoot = (message: any): AggregatedRoot => {
+  return {
+    id: message.id,
+    domain: message.domain,
+    receivedRoot: message.received_root,
+    index: message.domain_index,
+  };
+};
+
+/**
+ * Converts a propagated root message from the cartographer db through
+ * either DB queries or Postgrest into the PropagatedRoot type
+ * @param message - the message from the cartographer db as a JSON object
+ * @returns an PropagatedRoot object
+ */
+export const convertFromDbPropagatedRoot = (message: any): PropagatedRoot => {
+  return {
+    id: message.id,
+    aggregate: message.aggregate_root,
+    domains: message.domains,
+    count: message.leaf_count,
   };
 };
