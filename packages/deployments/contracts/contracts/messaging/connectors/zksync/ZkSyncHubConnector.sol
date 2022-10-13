@@ -92,22 +92,25 @@ contract ZkSyncHubConnector is HubConnector {
    * @dev modified from: https://v2-docs.zksync.io/dev/developer-guides/Bridging/l2-l1.html#prove-inclusion-of-the-message-into-the-l2-block
    */
   function processMessageFromRoot(
-    // The address of the zkSync smart contract.
-    // It is not recommended to hardcode it during the alpha testnet as regenesis may happen.
-    address _zkSyncAddress,
     // zkSync block number in which the message was sent
     uint32 _l2BlockNumber,
     // Message index, that can be received via API
-    uint256 _index,
+    uint256 _l2MessageIndex,
+    // The L2 transaction number in a block, in which the log was sent
+    uint16 _l2TxNumberInBlock,
     // The message that was sent from l2
     bytes calldata _message,
     // Merkle proof for the message
     bytes32[] calldata _proof
   ) external {
-    IZkSync zksync = IZkSync(_zkSyncAddress);
-    L2Message memory message = L2Message({sender: mirrorConnector, data: _message});
+    IZkSync zksync = IZkSync(AMB);
+    L2Message memory message = L2Message({
+      txNumberInBlock: _l2TxNumberInBlock,
+      sender: mirrorConnector,
+      data: _message
+    });
 
-    bool success = zksync.proveL2MessageInclusion(_l2BlockNumber, _index, message, _proof);
+    bool success = zksync.proveL2MessageInclusion(_l2BlockNumber, _l2MessageIndex, message, _proof);
     require(success, "Failed to prove message inclusion");
 
     // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
