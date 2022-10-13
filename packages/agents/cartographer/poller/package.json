@@ -1,6 +1,6 @@
 {
   "name": "@connext/cartographer-poller",
-  "version": "0.2.0-alpha.26",
+  "version": "0.2.0-alpha.27",
   "description": "",
   "types": "dist/index.d.ts",
   "files": [
@@ -8,10 +8,11 @@
     "src/**/*"
   ],
   "scripts": {
-    "start:all": "concurrently -i -k -n 'transfers,routers,messages' -c 'green,cyan,yellow' 'node dist/entryTransfers.js' 'node dist/entryRouters.js' 'node dist/entryMessages.js'",
+    "start:all": "concurrently -i -k -n 'transfers,routers,messages' -c 'green,cyan,yellow' 'node dist/entryTransfers.js' 'node dist/entryRouters.js' 'node dist/entryMessages.js' 'node dist/entryRoots.js'",
     "start:transfers": "node dist/entryTransfers.js",
     "start:routers": "node dist/entryRouters.js",
     "start:messages": "node dist/entryMessages.js",
+    "start:roots": "node dist/entryRoots.js",
     "docker:start:postgrest": "docker run --name cartographer-postgrest --rm -p 3000:3000 -e PGRST_DB_URI=postgres://reader:3eadooor@host.docker.internal:5432/connext -e PGRST_DB_SCHEMA=public -e PGRST_DB_ANON_ROLE=query postgrest/postgrest",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",

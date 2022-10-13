@@ -185,7 +185,7 @@ abstract contract Connector is ProposedOwnable, IConnector {
 
   // ============ Private Functions ============
 
-  function _setMirrorConnector(address _mirrorConnector) internal {
+  function _setMirrorConnector(address _mirrorConnector) internal virtual {
     emit MirrorConnectorUpdated(mirrorConnector, _mirrorConnector);
     mirrorConnector = _mirrorConnector;
   }

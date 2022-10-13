@@ -147,7 +147,7 @@ describe("Message operations", () => {
     pendingMessages.push(firstMessage);
     pendingMessages.push(secondMessage);
 
-    (mockContext.adapters.database.getPendingMessages as SinonStub).resolves(pendingMessages);
+    (mockContext.adapters.database.getUnProcessedMessages as SinonStub).resolves(pendingMessages);
     await expect(bindMessages()).to.eventually.not.be.rejected;
   });
 
