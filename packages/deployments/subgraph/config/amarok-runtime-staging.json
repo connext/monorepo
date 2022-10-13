@@ -10,8 +10,8 @@
       },
       {
         "name": "Connector",
-        "address": "0xFF2E6081577DbB6033b36a2856c337a4c70F9518",
-        "startBlock": 7745329
+        "address": "0xa8D0562B63E53ccC2F8c7e69e6251b54569Ea62a",
+        "startBlock": 7760771
       }
     ]
   },
@@ -26,8 +26,8 @@
       },
       {
         "name": "Connector",
-        "address": "0x314034519FFF261DF23D6FD9198FBF992F731458",
-        "startBlock": 1857556
+        "address": "0xaE93E5afD13e58cd3e22f364B0Fb0f2F9B5EfB07",
+        "startBlock": 1936718
       }
     ]
   },
@@ -42,8 +42,8 @@
       },
       {
         "name": "Connector",
-        "address": "0xF21D6c7c9D54cce0D16928504Eea3561e941d0DA",
-        "startBlock": 28546396
+        "address": "0x4bc04c13229bAcad3599c797F948D7610040f711",
+        "startBlock": 28592303
       }
     ]
   }
