@@ -1,7 +1,39 @@
-import { expect, getRandomBytes32 } from "@connext/nxtp-utils";
+import { DBHelper, expect, getRandomBytes32 } from "@connext/nxtp-utils";
 import { constants } from "ethers";
 
-import { DBImpl, SparseMerkleTree, ZERO_HASHES } from "../../src/helpers/merkle";
+import { SparseMerkleTree, ZERO_HASHES } from "../../src/helpers/merkle";
+
+// TODO: Replace with real DB implementation: this is just a placeholder of stubs.
+export class DBImpl implements DBHelper {
+  private storage: string[] = [];
+
+  // Get the current number of nodes in the DB.
+  public async getCount(): Promise<number> {
+    return this.storage.length;
+  }
+
+  public async getNode(index: number): Promise<string | undefined> {
+    return this.storage[index];
+  }
+
+  // NOTE: is INCLUSIVE!
+  // NOTE: will NOT fill in missing values!
+  public async getNodes(start: number, end: number): Promise<string[]> {
+    return this.storage.slice(start, end + 1);
+  }
+
+  public async push(hash: string) {
+    this.storage.push(hash);
+  }
+
+  public async putRoot() {
+    // noop
+  }
+
+  public async getRoot() {
+    return undefined;
+  }
+}
 
 describe("Helpers: Merkle", () => {
   const TREE_HEIGHT = 32;

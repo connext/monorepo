@@ -10,7 +10,17 @@ import {
   ExecuteArgs,
   createLoggingContext,
 } from "..";
-import { Auction, ExecutorData, XMessage, RootMessage, XCallArgs, OriginMessage, DestinationMessage } from "../types";
+import {
+  Auction,
+  ExecutorData,
+  XMessage,
+  RootMessage,
+  XCallArgs,
+  OriginMessage,
+  DestinationMessage,
+  AggregatedRoot,
+  PropagatedRoot,
+} from "../types";
 import { getNtpTimeSeconds } from "../helpers";
 
 import { mkAddress, mkBytes32, mkSig } from ".";
@@ -385,6 +395,21 @@ export const mock = {
       gasLimit: "100000",
       blockNumber: Math.floor(Date.now() / 1000),
       processed: false,
+      count: Math.floor(Date.now() / 1000),
+      ...overrides,
+    }),
+    aggregatedRoot: (overrides: Partial<AggregatedRoot> = {}): AggregatedRoot => ({
+      id: getRandomBytes32(),
+      domain: mock.domain.A,
+      receivedRoot: getRandomBytes32(),
+      index: Math.floor(Date.now() / 1000),
+      ...overrides,
+    }),
+    propagatedRoot: (overrides: Partial<PropagatedRoot> = {}): PropagatedRoot => ({
+      id: getRandomBytes32(),
+      aggregate: getRandomBytes32(),
+      domains: [mock.domain.A, mock.domain.B],
+      count: Math.floor(Date.now() / 1000),
       ...overrides,
     }),
   },

@@ -6,6 +6,8 @@ import {
   XMessage,
   RootMessage,
   Logger,
+  AggregatedRoot,
+  PropagatedRoot,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -19,11 +21,24 @@ import {
   saveMessages,
   saveSentRootMessages,
   saveProcessedRootMessages,
-  getPendingMessages,
   saveCheckPoint,
   getCheckPoint,
   transaction,
   getRootMessages,
+  saveAggregatedRoots,
+  savePropagatedRoots,
+  getUnProcessedMessages,
+  getAggregateRoot,
+  getAggregateRootCount,
+  getMessageRootIndex,
+  getMessageRootFromIndex,
+  getMessageRootCount,
+  getSpokeNode,
+  getSpokeNodes,
+  getHubNode,
+  getHubNodes,
+  getRoot,
+  putRoot,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -64,10 +79,54 @@ export type Database = {
   ) => Promise<RootMessage[]>;
   saveSentRootMessages: (messages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveProcessedRootMessages: (messages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
-  getPendingMessages: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<XMessage[]>;
   saveCheckPoint: (check: string, point: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   getCheckPoint: (check_name: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<number>;
   transaction: (callback: (client: TxnClientForRepeatableRead) => Promise<void>) => Promise<void>;
+  saveAggregatedRoots: (roots: AggregatedRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  savePropagatedRoots: (roots: PropagatedRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  getUnProcessedMessages: (
+    limit?: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<XMessage[]>;
+  getAggregateRoot: (
+    messageRootIndex: number,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<string | undefined>;
+  getAggregateRootCount: (
+    aggregateRoot: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<number | undefined>;
+  getMessageRootIndex: (
+    domain: string,
+    messageRoot: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<number | undefined>;
+  getMessageRootFromIndex: (
+    domain: string,
+    index: number,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<string | undefined>;
+  getMessageRootCount: (
+    domain: string,
+    messageRoot: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<number | undefined>;
+  getSpokeNode: (
+    domain: string,
+    index: number,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<string | undefined>;
+  getSpokeNodes: (
+    domain: string,
+    start: number,
+    end: number,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<string[]>;
+  getHubNode: (index: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
+  getHubNodes: (start: number, end: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string[]>;
+  getRoot: (domain: string, path: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
+  putRoot: (domain: string, path: string, hash: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
 };
 
 export let pool: Pool;
@@ -93,10 +152,23 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getRootMessages,
     saveSentRootMessages,
     saveProcessedRootMessages,
-    getPendingMessages,
     saveCheckPoint,
     getCheckPoint,
     transaction,
+    saveAggregatedRoots,
+    savePropagatedRoots,
+    getUnProcessedMessages,
+    getAggregateRoot,
+    getAggregateRootCount,
+    getMessageRootIndex,
+    getMessageRootFromIndex,
+    getMessageRootCount,
+    getSpokeNode,
+    getSpokeNodes,
+    getHubNode,
+    getHubNodes,
+    getRoot,
+    putRoot,
   };
 };
 

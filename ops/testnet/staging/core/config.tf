@@ -82,19 +82,6 @@ locals {
           }
         ]
       }
-      "1734439522" = {
-        providers = ["https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f"
-          },
-          {
-            name    = "WETH"
-            address = "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2"
-          }
-        ]
-      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     environment   = var.stage
@@ -129,12 +116,6 @@ locals {
           limit      = 6
           queueLimit = 10000
           subscribe  = true
-        },
-        {
-          name       = "1734439522"
-          limit      = 6
-          queueLimit = 10000
-          subscribe  = true
         }
       ]
       bindings = [
@@ -152,11 +133,6 @@ locals {
           exchange = "sequencerX"
           target   = "9991"
           keys     = ["9991"]
-        },
-        {
-          exchange = "sequencerX"
-          target   = "1734439522"
-          keys     = ["1734439522"]
         }
       ]
       executerTimeout = 300000
@@ -222,19 +198,6 @@ locals {
             address = "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
           }
         ]
-      },
-      "1734439522" = {
-        providers = ["https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f"
-          },
-          {
-            name    = "WETH"
-            address = "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2"
-          }
-        ]
       }
     }
     cartographerUrl  = "https://postgrest.testnet.staging.connext.ninja"
@@ -257,9 +220,6 @@ locals {
       }
       "9991" = {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
-      }
-      "1734439522" = {
-        providers = ["https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
