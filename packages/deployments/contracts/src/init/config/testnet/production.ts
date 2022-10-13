@@ -41,7 +41,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
   ],
   agents: {
     watchers: {
-      whitelist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB"],
+      whitelist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
     },
     routers: {
       whitelist: ["0xD2aD711861ab345977B7379c81165708C8717fF1"],
