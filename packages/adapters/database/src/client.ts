@@ -492,7 +492,11 @@ export const getSpokeNodes = async (
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
   const messages = await db
-    .select("messages", { origin_domain: domain, index: dc.and(dc.gte(start), dc.lte(end)) })
+    .select(
+      "messages",
+      { origin_domain: domain, index: dc.and(dc.gte(start), dc.lte(end)) },
+      { order: { by: "index", direction: "ASC" } },
+    )
     .run(poolToUse);
   return messages.map((message) => convertFromDbMessage(message).leaf);
 };
@@ -513,7 +517,11 @@ export const getHubNodes = async (
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
   const roots = await db
-    .select("aggregated_roots", { domain_index: dc.and(dc.gte(start), dc.lte(end)) })
+    .select(
+      "aggregated_roots",
+      { domain_index: dc.and(dc.gte(start), dc.lte(end)) },
+      { order: { by: "domain_index", direction: "ASC" } },
+    )
     .run(poolToUse);
   return roots.map((root) => convertFromDbAggregatedRoot(root).receivedRoot);
 };
