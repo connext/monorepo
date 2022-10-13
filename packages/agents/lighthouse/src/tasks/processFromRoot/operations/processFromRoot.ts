@@ -75,11 +75,13 @@ export const processSingleRootMessage = async (
   const spokeProvider = config.chains[rootMessage.spokeDomain]?.providers?.[0];
   const hubProvider = config.chains[rootMessage.hubDomain]?.providers?.[0];
 
-  const hubConnector = contracts.hubConnector(
-    hubChainId ?? 0,
-    processorConfig.hubConnectorPrefix,
-    config.environment === "staging" ? "Staging" : "",
-  );
+  const hubConnector = processorConfig
+    ? contracts.hubConnector(
+        hubChainId ?? 0,
+        processorConfig.hubConnectorPrefix,
+        config.environment === "staging" ? "Staging" : "",
+      )
+    : undefined;
 
   if (!spokeChainId || !hubChainId || !processorConfig || !spokeProvider || !hubProvider || !hubConnector) {
     throw new ProcessConfigNotAvailable(rootMessage.spokeDomain, rootMessage.hubDomain, requestContext, methodContext, {
