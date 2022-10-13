@@ -50,7 +50,7 @@ export const updateMessages = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateMessages.name);
   logger.debug("Updating messages", requestContext, methodContext);
-  const pendingMessages = await database.getPendingMessages();
+  const pendingMessages = await database.getUnProcessedMessages();
   const messageLeavesByDomain: Map<string, string[]> = new Map();
   for (const pendingMessage of pendingMessages) {
     if (messageLeavesByDomain.has(pendingMessage.destinationDomain)) {

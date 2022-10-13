@@ -13,6 +13,8 @@ import {
   OriginMessage,
   DestinationMessage,
   RootMessage,
+  AggregatedRoot,
+  PropagatedRoot,
   ConnectorMeta,
 } from "@connext/nxtp-utils";
 
@@ -42,6 +44,7 @@ import {
   getConnectorMetaQuery,
   getProcessedRootMessagesByDomainAndBlockQuery,
 } from "./lib/operations";
+import { getAggregatedRootsByDomainQuery, getPropagatedRootsQuery } from "./lib/operations/queries";
 import { SubgraphMap } from "./lib/entities";
 
 let context: { config: SubgraphMap };
@@ -672,6 +675,60 @@ export class SubgraphReader {
       .map(parser.rootMessage);
 
     return processedRootMessages;
+  }
+
+  /**
+   * Gets all the aggregated rootsstarting with index for a given domain
+   */
+  public async getGetAggregatedRootsByDomain(
+    params: { domain: string; index: number; limit: number }[],
+  ): Promise<AggregatedRoot[]> {
+    const { parser, execute } = getHelpers();
+    const aggregatedRootsByDomainQuery = getAggregatedRootsByDomainQuery(params);
+    const response = await execute(aggregatedRootsByDomainQuery);
+
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const aggregatedRoots: AggregatedRoot[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.aggregatedRoot);
+
+    return aggregatedRoots;
+  }
+
+  /**
+   * Gets all the propagated rootsstarting with index for a given domain
+   */
+  public async getGetPropagatedRoots(domain: string, count: number, limit: number): Promise<PropagatedRoot[]> {
+    const { parser, execute } = getHelpers();
+
+    const propagatedRootsQuery = getPropagatedRootsQuery(domain, count, limit);
+    const response = await execute(propagatedRootsQuery);
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const propagatedRoots: PropagatedRoot[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.propagatedRoot);
+
+    return propagatedRoots;
   }
 
   public async getConnectorMeta(domains: string[]): Promise<ConnectorMeta[]> {
