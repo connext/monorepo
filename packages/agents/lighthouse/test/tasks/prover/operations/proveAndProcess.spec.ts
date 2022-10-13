@@ -59,7 +59,7 @@ describe("Operations: ProveAndProcess", () => {
     });
   });
 
-  describe("#processMessage with exceptions", () => {
+  describe.skip("#processMessage with exceptions", () => {
     it("should catch error", async () => {
       await expect(processMessage(mockXMessage1)).to.eventually.be.rejectedWith(Error);
 
