@@ -32,7 +32,7 @@ describe("Operations: ProcessFromRoot", () => {
       );
     });
 
-    it.only("should error if no config", async () => {
+    it("should error if no config", async () => {
       configStub.value({});
       const rootMsg = mock.entity.rootMessage();
       const requestContext = createRequestContext("test");
