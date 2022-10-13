@@ -81,6 +81,7 @@ export const mock = {
       publisher: "sequencerX",
       subscriber: mock.chain.A,
     },
+    gelatoApiKey: "foo",
   }),
   adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {
@@ -130,12 +131,17 @@ export const mock = {
       erc20.encodeFunctionData.returns(encodedDataMock);
       erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const spokeConnector = createStubInstance(utils.Interface);
+      spokeConnector.encodeFunctionData.returns(encodedDataMock);
+      spokeConnector.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       return {
         erc20: erc20 as any,
         connext: connext as unknown as ConnextInterface,
         priceOracle: priceOracle as unknown as ConnextPriceOracleInterface,
         stableSwap: stableSwap as unknown as StableSwapInterface,
         erc20Extended: erc20 as any,
+        spokeConnector: spokeConnector as any,
       };
     },
     relayer: () => {
