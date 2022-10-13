@@ -1,11 +1,4 @@
-import {
-  createLoggingContext,
-  jsonifyError,
-  NxtpError,
-  XMessage,
-  SparseMerkleTree,
-  DBHelper,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, NxtpError, XMessage, SparseMerkleTree } from "@connext/nxtp-utils";
 
 import {
   NoDestinationDomainForProof,

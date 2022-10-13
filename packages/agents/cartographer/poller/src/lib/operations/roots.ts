@@ -1,4 +1,4 @@
-import { createLoggingContext, XMessage, RootMessage, AggregatedRoot, PropagatedRoot } from "@connext/nxtp-utils";
+import { createLoggingContext, AggregatedRoot, PropagatedRoot } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
 
@@ -40,7 +40,6 @@ export const updatePropagatedRoots = async () => {
   const {
     adapters: { subgraph, database },
     logger,
-    domains,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updatePropagatedRoots.name);
 
