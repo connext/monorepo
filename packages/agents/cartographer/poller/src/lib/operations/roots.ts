@@ -59,11 +59,10 @@ export const updatePropagatedRoots = async () => {
   // Reset offset at the end of the cycle.
   const newOffset = propagatedRoots.length == 0 ? 0 : propagatedRoots[propagatedRoots.length - 1].count;
   if (offset === 0 || newOffset > offset) {
-    await database.transaction(async (txnClient) => {
-      await database.savePropagatedRoots(propagatedRoots, txnClient);
+    // TODO: Add a working transaction wraper
+    await database.savePropagatedRoots(propagatedRoots);
 
-      await database.saveCheckPoint("propagated_root_", newOffset, txnClient);
-    });
+    await database.saveCheckPoint("propagated_root_", newOffset);
     logger.debug("Saved propageted roots", requestContext, methodContext, { offset: newOffset });
   }
 };

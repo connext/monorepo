@@ -314,6 +314,7 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
       publisher: EXCHANGE_NAME,
       subscriber: QUEUE_NAME,
     },
+    gelatoApiKey: "foo",
   };
 })();
 

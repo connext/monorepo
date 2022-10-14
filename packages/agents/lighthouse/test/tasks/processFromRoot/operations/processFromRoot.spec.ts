@@ -1,19 +1,23 @@
-import { BaseRequestContext, createRequestContext, expect, mock } from "@connext/nxtp-utils";
+import { createRequestContext, expect, mock } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
 import * as ProcessFromRootFns from "../../../../src/tasks/processFromRoot/operations/processFromRoot";
+import * as MockableFns from "../../../../src/mockable";
 import { processFromRootCtxMock } from "../../../globalTestHook";
+import { ProcessConfigNotAvailable } from "../../../../src/tasks/processFromRoot/errors";
 
 describe("Operations: ProcessFromRoot", () => {
   describe("#processSingleRootMessage", () => {
+    let configStub;
+
     beforeEach(() => {
-      stub(ProcessFromRootFns, "processorConfigs").value({
+      configStub = stub(ProcessFromRootFns, "processorConfigs").value({
         [mock.entity.rootMessage().spokeDomain]: {
           getArgs: () => Promise.resolve([]),
           hubConnectorPrefix: "Optimism",
         },
       });
-      stub(ProcessFromRootFns, "encodeProcessMessageFromRoot").returns("0xfaded");
+      stub(MockableFns, "encodeProcessMessageFromRoot").returns("0xfaded");
     });
 
     it("should process message from root", async () => {
@@ -28,28 +32,18 @@ describe("Operations: ProcessFromRoot", () => {
       );
     });
 
-    it("should not process if error but still work", async () => {});
+    it("should error if no config", async () => {
+      configStub.value({});
+      const rootMsg = mock.entity.rootMessage();
+      const requestContext = createRequestContext("test");
+      await expect(ProcessFromRootFns.processSingleRootMessage(rootMsg, requestContext)).to.be.rejectedWith(
+        ProcessConfigNotAvailable,
+      );
+    });
   });
 
   describe("#processFromRoot", () => {
-    let processSingleRootMessageStub: SinonStub<
-      [
-        rootMessage: {
-          id: string;
-          spokeDomain: string;
-          hubDomain: string;
-          root: string;
-          caller: string;
-          transactionHash: string;
-          timestamp: number;
-          gasPrice: string;
-          gasLimit: string;
-          blockNumber: number;
-        },
-        requestContext: BaseRequestContext,
-      ],
-      Promise<string>
-    >;
+    let processSingleRootMessageStub;
     beforeEach(() => {
       processSingleRootMessageStub = stub(ProcessFromRootFns, "processSingleRootMessage").resolves("0xbeefee");
     });
@@ -63,6 +57,11 @@ describe("Operations: ProcessFromRoot", () => {
       expect(processSingleRootMessageStub).to.be.calledWith(rootMsgs[0]);
       expect(processSingleRootMessageStub).to.be.calledWith(rootMsgs[1]);
       expect(processSingleRootMessageStub).to.have.been.calledTwice;
+    });
+
+    it("should not process if error but still work", async () => {
+      processSingleRootMessageStub.rejects(new Error("test"));
+      await expect(ProcessFromRootFns.processFromRoot()).to.be.fulfilled;
     });
   });
 });

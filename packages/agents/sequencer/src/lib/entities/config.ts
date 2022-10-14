@@ -111,6 +111,7 @@ export const SequencerConfigSchema = Type.Object({
   auctionRoundDepth: Type.Number(),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   messageQueue: TMessageQueueConfig,
+  gelatoApiKey: Type.String(),
 });
 
 export type SequencerConfig = Static<typeof SequencerConfigSchema>;

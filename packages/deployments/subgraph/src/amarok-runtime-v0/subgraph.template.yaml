@@ -96,8 +96,6 @@ dataSources:
           handler: handleProcess
         - event: MessageSent(bytes,address)
           handler: handleMessageSent
-        - event: MessageProcessed(bytes,address)
-          handler: handleMessageProcessed
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleNewConnector
       file: ./src/amarok-runtime-v0/mapping/index.ts
