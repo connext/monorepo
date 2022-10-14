@@ -506,7 +506,10 @@ export const getHubNode = async (
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string | undefined> => {
   const poolToUse = _pool ?? pool;
-  const root = await db.selectOne("aggregated_roots", { domain_index: index }).run(poolToUse);
+  // Account for off by one nature of the index value emitted by contract
+  // This just tracks the position in the queue but not the actual index in the tree
+  // Off by one at best, can off by 1 + N, where N -> # of roots removed so far during verification
+  const root = await db.selectOne("aggregated_roots", { domain_index: index - 1 }).run(poolToUse);
   return root ? convertFromDbAggregatedRoot(root).receivedRoot : undefined;
 };
 
@@ -519,7 +522,7 @@ export const getHubNodes = async (
   const roots = await db
     .select(
       "aggregated_roots",
-      { domain_index: dc.and(dc.gte(start), dc.lte(end)) },
+      { domain_index: dc.and(dc.gte(start - 1), dc.lte(end - 1)) },
       { order: { by: "domain_index", direction: "ASC" } },
     )
     .run(poolToUse);
