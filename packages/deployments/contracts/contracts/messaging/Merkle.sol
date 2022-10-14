@@ -135,7 +135,8 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    */
   function insert(bytes32 leaf) public onlyArborist returns (bytes32 _root, uint256 _count) {
     // Insert the new node.
-    _count = tree.insert(leaf);
+    tree.insert(leaf);
+    _count = tree.count;
     _root = tree.root();
   }
 }
