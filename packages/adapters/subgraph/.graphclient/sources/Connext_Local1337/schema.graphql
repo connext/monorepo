@@ -643,6 +643,7 @@ type local1337_OriginMessage {
   root: local1337_Bytes
   message: local1337_Bytes
   transactionHash: local1337_Bytes
+  blockNumber: BigInt
   rootCount: local1337_RootCount
 }
 
@@ -701,6 +702,14 @@ input local1337_OriginMessage_filter {
   transactionHash_not_in: [local1337_Bytes!]
   transactionHash_contains: local1337_Bytes
   transactionHash_not_contains: local1337_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   rootCount: String
   rootCount_not: String
   rootCount_gt: String
@@ -735,6 +744,7 @@ enum local1337_OriginMessage_orderBy {
   root
   message
   transactionHash
+  blockNumber
   rootCount
 }
 

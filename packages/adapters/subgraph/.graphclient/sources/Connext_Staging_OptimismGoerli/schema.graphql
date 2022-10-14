@@ -643,6 +643,7 @@ type stagingoptimismgoerli_OriginMessage {
   root: stagingoptimismgoerli_Bytes
   message: stagingoptimismgoerli_Bytes
   transactionHash: stagingoptimismgoerli_Bytes
+  blockNumber: BigInt
   rootCount: stagingoptimismgoerli_RootCount
 }
 
@@ -701,6 +702,14 @@ input stagingoptimismgoerli_OriginMessage_filter {
   transactionHash_not_in: [stagingoptimismgoerli_Bytes!]
   transactionHash_contains: stagingoptimismgoerli_Bytes
   transactionHash_not_contains: stagingoptimismgoerli_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   rootCount: String
   rootCount_not: String
   rootCount_gt: String
@@ -735,6 +744,7 @@ enum stagingoptimismgoerli_OriginMessage_orderBy {
   root
   message
   transactionHash
+  blockNumber
   rootCount
 }
 

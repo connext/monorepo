@@ -643,6 +643,7 @@ type stagingmumbai_OriginMessage {
   root: stagingmumbai_Bytes
   message: stagingmumbai_Bytes
   transactionHash: stagingmumbai_Bytes
+  blockNumber: BigInt
   rootCount: stagingmumbai_RootCount
 }
 
@@ -701,6 +702,14 @@ input stagingmumbai_OriginMessage_filter {
   transactionHash_not_in: [stagingmumbai_Bytes!]
   transactionHash_contains: stagingmumbai_Bytes
   transactionHash_not_contains: stagingmumbai_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   rootCount: String
   rootCount_not: String
   rootCount_gt: String
@@ -735,6 +744,7 @@ enum stagingmumbai_OriginMessage_orderBy {
   root
   message
   transactionHash
+  blockNumber
   rootCount
 }
 
