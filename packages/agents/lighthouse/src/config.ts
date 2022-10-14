@@ -32,6 +32,7 @@ export const TPollingConfig = Type.Object({
 });
 
 export const NxtpLighthouseConfigSchema = Type.Object({
+  hubDomain: Type.String(),
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: TLogLevel,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
@@ -84,6 +85,7 @@ export const getEnvConfig = (
   }
 
   const nxtpConfig: NxtpLighthouseConfig = {
+    hubDomain: process.env.HUB_DOMAIN || configJson.hubDomain || configFile.hubDomain || "1735353714",
     chains: process.env.NXTP_CHAIN_CONFIG
       ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)
       : configJson.chains

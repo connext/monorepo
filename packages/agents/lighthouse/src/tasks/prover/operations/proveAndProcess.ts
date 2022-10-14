@@ -57,7 +57,8 @@ export const processMessage = async (message: XMessage) => {
     throw new NoMessageRootCount(message.originDomain, targetMessageRoot);
   }
   // Index of messageRoot leaf node in aggregate tree.
-  const messageRootIndex = await database.getMessageRootIndex(HUB_DOMAIN, targetMessageRoot);
+  // const messageRootIndex = await database.getMessageRootIndex(message.originDomain, targetMessageRoot);
+  const messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
   if (!messageRootIndex) {
     throw new NoMessageRootIndex(message.originDomain, targetMessageRoot);
   }
