@@ -18,7 +18,7 @@ contract MerkleTest is ForgeHelper {
     bytes32 _messageHash;
     uint256 _count;
     for (uint256 i = 0; i < 10; i++) {
-      keccak256(abi.encode(i));
+      _messageHash = keccak256(abi.encode(i));
       (, _count) = merkle.insert(_messageHash);
       assertEq(_count - 1, i);
     }
