@@ -5,12 +5,12 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0x88277e28730F4645F72D397F4acE4862dc30347C",
+        "address": "0xAb097967E6c666F0Eadc8c9f27DD4f3856342d57",
         "startBlock": 7767210
       },
       {
         "name": "Connector",
-        "address": "0x6837c81BfafA96Ace4ba56e0B1C365b23F7eeEd3",
+        "address": "0x6e53A2F7276a855C12D93c3f0607B708fFfBf6Ee",
         "startBlock": 7767193
       }
     ]
@@ -21,12 +21,12 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0x85b1fFF42d5eF320321535FCBEf80ca14079f05C",
+        "address": "0x4C6AC2e47B839ADF40646bd89E752Df4f794f55A",
         "startBlock": 1971542
       },
       {
         "name": "Connector",
-        "address": "0xe225C021fE0937AFB01df2D7BFCD24e936ADa925",
+        "address": "0x040151452Ce15F1dFacd746b54D85E3048f2f3Be",
         "startBlock": 1971522
       }
     ]
@@ -37,12 +37,12 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0x9c59e7a69dd9991b5c0a7e0bf1b30415bb880c46",
+        "address": "0xdAFeFeD6cb461D5204aD1CE9223bBC412762fFe5",
         "startBlock": 28601134
       },
       {
         "name": "Connector",
-        "address": "0x91083054a75563797AfD7CaC52B29d5AEC5F26DC",
+        "address": "0xeA5bFB62A348b925C13247Dd5F4Bf25f4d604025",
         "startBlock": 28601116
       }
     ]
