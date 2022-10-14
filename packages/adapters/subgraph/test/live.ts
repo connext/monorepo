@@ -16,7 +16,9 @@ export const livetest = async () => {
   console.log("> rootMessages: ");
   console.log(rootMessages);
 
-  const aggregatedRoots = await reader.getGetAggregatedRootsByDomain([{ domain: "1735353714", index: 0, limit: 100 }]);
+  const aggregatedRoots = await reader.getGetAggregatedRootsByDomain([
+    { hub: hubDomain, domain: "1735356532", index: 0, limit: 100 },
+  ]);
   console.log("> aggregatedRoots: ");
   console.log(aggregatedRoots);
 

@@ -155,6 +155,7 @@ type OriginMessage @entity {
   root: Bytes
   message: Bytes
   transactionHash: Bytes
+  blockNumber: BigInt
 
   # root count RD
   rootCount: RootCount

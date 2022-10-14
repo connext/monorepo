@@ -109,6 +109,8 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
   }
 
   function test_PolygonSpokeConnector__processMessage_works_fuzz(bytes32 data) public {
+    // data with bytes32 0 is not allowed by SpokeConnector.receiveAggregateRoot
+    if (data == bytes32("")) return;
     PolygonSpokeConnector(_l2Connector).setMirrorConnector(_l1Connector);
 
     // get outbound data
