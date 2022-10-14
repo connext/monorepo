@@ -476,7 +476,7 @@ describe("SubgraphReader", () => {
       executeStub.resolves(response);
 
       const aggregatedRoots = await subgraphReader.getGetAggregatedRootsByDomain([
-        { domain: "1111", index: 0, limit: 100 },
+        { hub: "1111", domain: "1111", index: 0, limit: 100 },
       ]);
       expect(aggregatedRoots).to.be.deep.eq(roots);
     });
