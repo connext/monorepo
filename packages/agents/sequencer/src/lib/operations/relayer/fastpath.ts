@@ -100,6 +100,12 @@ export const sendExecuteFastToRelayer = async (
     transferId: transfer.transferId,
   });
 
-  const taskId = await relayer.send(destinationChainId, destinationConnextAddress, encodedData, _requestContext);
+  const taskId = await relayer.send(
+    destinationChainId,
+    destinationConnextAddress,
+    encodedData,
+    config.gelatoApiKey,
+    _requestContext,
+  );
   return { taskId, relayer: RelayerType.Gelato };
 };

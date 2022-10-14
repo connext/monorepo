@@ -53,5 +53,6 @@
     ],
     "executerTimeout": 300000,
     "publisher": "sequencerX"
-  }
+  },
+  "gelatoApiKey": "foo"
 }
