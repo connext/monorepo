@@ -139,6 +139,7 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
   }
 
   function test_ArbitrumSpokeConnector__processMessage_works_fuzz(bytes32 data) public {
+    if (data == bytes32("")) return;
     utils_setSpokeConnectorVerifyMocks(_l1Connector, true);
 
     // get outbound data
