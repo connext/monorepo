@@ -578,7 +578,7 @@ describe("Database client", () => {
     await saveAggregatedRoots(roots, pool);
 
     const root = await getHubNode(5, pool);
-    expect(root).to.eq(roots[5].receivedRoot);
+    expect(root).to.eq(roots[5 - 1].receivedRoot);
   });
 
   it("should get hub nodes", async () => {
@@ -591,7 +591,7 @@ describe("Database client", () => {
     await saveAggregatedRoots(roots, pool);
 
     const root = await getHubNodes(3, 7, pool);
-    expect(root).to.deep.eq(roots.slice(3, 8).map((r) => r.receivedRoot));
+    expect(root).to.deep.eq(roots.slice(3 - 1, 8 - 1).map((r) => r.receivedRoot));
   });
 
   it("should upsert roots properly", async () => {
