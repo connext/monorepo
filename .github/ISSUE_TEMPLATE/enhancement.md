@@ -1,5 +1,5 @@
 ---
-name: Enhancement
+name: User Story (Enhancement)
 about: This is intentional new work. We want to intentionally add, improve, optimize
   something.
 title: As a [dev user / end user / router], I want ___ in order to ___
