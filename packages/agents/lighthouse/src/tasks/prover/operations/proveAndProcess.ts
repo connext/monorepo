@@ -92,16 +92,37 @@ export const processMessage = async (message: XMessage) => {
   }
 
   // Proof path for proving inclusion of messageRoot in aggregateRoot.
-  const messageRootProof = await hubSMT.getProof(messageRootIndex);
+  const messageRootProof = await hubSMT.getProof(messageRootIndex - 1);
   if (!messageRootProof) {
     throw new NoMessageRootProof(messageRootIndex, message.origin.root);
+  }
+
+  // Verify proof of inclusion of message in messageRoot.
+  const messageVerification = spokeSMT.verify(message.origin.index, message.leaf, messageProof.path, targetMessageRoot);
+  if (messageVerification && messageVerification.verified) {
+    logger.info("Message Verified successfully", requestContext, methodContext, {
+      messageVerification,
+    });
+  }
+
+  // Verify proof of inclusion of messageRoot in aggregateRoot.
+  const rootVerification = hubSMT.verify(
+    messageRootIndex - 1,
+    targetMessageRoot,
+    messageRootProof,
+    targetAggregateRoot,
+  );
+  if (rootVerification && rootVerification.verified) {
+    logger.info("MessageRoot Verified successfully", requestContext, methodContext, {
+      rootVerification,
+    });
   }
 
   const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
     [messageProof],
     targetAggregateRoot,
     messageRootProof,
-    messageRootIndex,
+    messageRootIndex - 1,
   ]);
 
   const destinationSpokeConnector = config.chains[message.destinationDomain]?.deployments.spokeConnector;
