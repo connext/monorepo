@@ -216,6 +216,14 @@ contract RootManagerTest is ForgeHelper {
     _rootManager.aggregate(_domains[0], inbound);
   }
 
+  function test_RootManager__aggregate_createsRootFromLiveTest() public {
+    utils_generateAndAddConnectors(1, false, false);
+
+    vm.prank(_connectors[0]);
+    _rootManager.aggregate(_domains[0], 0x33d4ac648bd8860730e721b77aebb68a37b6f3a6a3896a824994f84074712070);
+    emit log_named_bytes32("root", MerkleTreeManager(_merkle).root());
+  }
+
   // ============ RootManager.propagate ============
   function test_RootManager__propagate_shouldSendToSpoke(bytes32 inbound) public {
     utils_generateAndAddConnectors(1, true, true);
