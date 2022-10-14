@@ -136,6 +136,7 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
 
   // ============ Fuzz Tests ============
   function test_OptimismSpokeConnector__processMessage_works_fuzz(bytes32 data) public {
+    if (data == bytes32("")) return;
     utils_setSpokeConnectorVerifyMocks(_l1Connector);
 
     bytes memory _data = abi.encode(data);
