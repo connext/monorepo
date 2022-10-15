@@ -206,7 +206,7 @@ export const getTaskStatusFromBackupRelayer = async (
 ): Promise<RelayerTaskStatus> => {
   let result = RelayerTaskStatus.NotFound;
   try {
-    const apiEndpoint = `${url}/tasks/${taskId}`;
+    const apiEndpoint = `${url}/tasks/status/${taskId}`;
     const res = await axios.get(apiEndpoint);
     result = res.data[0]?.taskState as RelayerTaskStatus;
   } catch (error: unknown) {
