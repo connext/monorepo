@@ -944,6 +944,7 @@ __metadata:
     "@arbitrum/sdk": 3.0.0-beta.12
     "@connext/nxtp-utils": "workspace:*"
     "@eth-optimism/sdk": 1.6.4
+    "@matterlabs/zksync-contracts": ^0.4.2
     "@nomiclabs/hardhat-ethers": 2.1.1
     "@nomiclabs/hardhat-etherscan": 3.1.0
     "@nomiclabs/hardhat-waffle": 2.0.3
@@ -4141,6 +4142,16 @@ __metadata:
     merkle-patricia-tree: ^4.2.4
     node-fetch: ^2.6.1
   checksum: f98387d123ef055352c02229b2ba19caf0891cbad8864cb9a3bb5984b00dc0edf0de181c738ae1ec72c073e61047bdafd7263887f9b0b11aad982739d5d62e44
+  languageName: node
+  linkType: hard
+
+"@matterlabs/zksync-contracts@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "@matterlabs/zksync-contracts@npm:0.4.2"
+  peerDependencies:
+    "@openzeppelin/contracts": 4.6.0
+    "@openzeppelin/contracts-upgradeable": 4.6.0
+  checksum: 761ca87c6b3c6f6d5928d067bcb89abca8a8aa7433543652dae10e92cf9cdc7e54a654799277fa6124650390eedd7c5e98614f6051ed733f090dbd8bd16e6b6b
   languageName: node
   linkType: hard
 
@@ -12530,7 +12541,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
+  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
   languageName: node
   linkType: hard
 
@@ -14445,7 +14456,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 71abe7f31555f169a47510675596f79193c8f55e4beeb4e6efa06c22d41988fa9c747d5e398af7f8401cca22c08ffb7a6d57b03d764c14858513c9eba23b53b8
+  checksum: 39134821c7233bae61fa0d85bcc5ab4ccd2cbe00173c53cc3cab74c4f29d54de939809832fc4e9bedb896a0795313d28f854bc7d5abe7b154bf7d77c319398bd
   languageName: node
   linkType: hard
 

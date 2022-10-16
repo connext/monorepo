@@ -1,0 +1,4 @@
+[
+  "function getImmutable(address,uint256) view returns (bytes32)",
+  "function setImmutables(address,tuple(uint256,bytes32)[])"
+]

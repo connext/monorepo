@@ -4,7 +4,6 @@ pragma solidity 0.8.15;
 // Taken from: https://github.com/nomad-xyz/ExcessivelySafeCall
 // NOTE: There is a difference between npm latest and github main versions
 // where the latest github version allows you to specify an ether value.
-// TODO: Update to npm version when these changes are reflected
 
 library ExcessivelySafeCall {
   uint256 constant LOW_28_MASK = 0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff;

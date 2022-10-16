@@ -1,0 +1,15 @@
+[
+  "function baseFee() view returns (uint256)",
+  "function blockErgsLimit() view returns (uint256)",
+  "function blockHash(uint256) view returns (bytes32)",
+  "function chainId() view returns (uint256)",
+  "function coinbase() view returns (address)",
+  "function difficulty() view returns (uint256)",
+  "function ergsPrice() view returns (uint256)",
+  "function getBlockHashEVM(uint256) view returns (bytes32)",
+  "function getBlockNumber() view returns (uint256)",
+  "function getBlockNumberAndTimestamp() view returns (uint256, uint256)",
+  "function getBlockTimestamp() view returns (uint256)",
+  "function msize() view returns (uint256)",
+  "function origin() view returns (address)"
+]

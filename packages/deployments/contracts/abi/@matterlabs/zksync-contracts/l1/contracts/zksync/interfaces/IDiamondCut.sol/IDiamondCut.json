@@ -1,0 +1,14 @@
+[
+  "event DiamondCutProposal(tuple(address,uint8,bool,bytes4[])[],address)",
+  "event DiamondCutProposalCancelation()",
+  "event DiamondCutProposalExecution(tuple(tuple(address,uint8,bool,bytes4[])[],address,bytes))",
+  "event EmergencyDiamondCutApproved(address)",
+  "event EmergencyFreeze()",
+  "event Unfreeze()",
+  "function approveEmergencyDiamondCutAsSecurityCouncilMember(bytes32)",
+  "function cancelDiamondCutProposal()",
+  "function emergencyFreezeDiamond()",
+  "function executeDiamondCutProposal(tuple(tuple(address,uint8,bool,bytes4[])[],address,bytes))",
+  "function proposeDiamondCut(tuple(address,uint8,bool,bytes4[])[],address)",
+  "function unfreezeDiamond()"
+]

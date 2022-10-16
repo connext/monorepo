@@ -1,0 +1,17 @@
+[
+  "function facetAddress(bytes4) view returns (address)",
+  "function facetAddresses() view returns (address[])",
+  "function facetFunctionSelectors(address) view returns (bytes4[])",
+  "function facets() view returns (tuple(address,bytes4[])[])",
+  "function getFirstUnprocessedPriorityTx() view returns (uint256)",
+  "function getGovernor() view returns (address)",
+  "function getTotalBlocksCommitted() view returns (uint256)",
+  "function getTotalBlocksExecuted() view returns (uint256)",
+  "function getTotalBlocksVerified() view returns (uint256)",
+  "function getTotalPriorityTxs() view returns (uint256)",
+  "function getVerifier() view returns (address)",
+  "function isFacetFreezable(address) view returns (bool)",
+  "function isFunctionFreezable(bytes4) view returns (bool)",
+  "function isValidator(address) view returns (bool)",
+  "function l2LogsRootHash(uint32) view returns (bytes32)"
+]

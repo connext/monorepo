@@ -1,0 +1,17 @@
+[
+  "event NewOwner(address indexed)",
+  "event NewPendingOwner(address indexed,address indexed)",
+  "event UpdateCallPermission(address indexed,address indexed,bytes4 indexed,bool)",
+  "event UpdatePublicAccess(address indexed,bool)",
+  "function acceptOwner()",
+  "function canCall(address,address,bytes4) view returns (bool)",
+  "function hasSpecialAccessToCall(address,address,bytes4) view returns (bool)",
+  "function isAccessPublic(address) view returns (bool)",
+  "function owner() view returns (address)",
+  "function pendingOwner() view returns (address)",
+  "function setBatchPermissionToCall(address[],address[],bytes4[],bool[])",
+  "function setBatchPublicAccess(address[],bool[])",
+  "function setPendingOwner(address)",
+  "function setPermissionToCall(address,address,bytes4,bool)",
+  "function setPublicAccess(address,bool)"
+]
