@@ -39,8 +39,9 @@ contract ZkSyncSpokeConnector is SpokeConnector {
 
   // ============ Override Fns ============
   function _verifySender(address _expected) internal view override returns (bool) {
-    // TODO: verify sender
-    return true;
+    // NOTE: msg.sender is preserved for L1 -> L2 calls. See the L2 contract in the tutorial
+    // here: https://v2-docs.zksync.io/dev/tutorials/cross-chain-tutorial.html#l2-counter
+    return msg.sender == _expected;
   }
 
   /**
