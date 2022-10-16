@@ -166,7 +166,7 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
 export const getTaskStatusFromGelato = async (taskId: string, logger?: Logger): Promise<RelayerTaskStatus> => {
   let result = RelayerTaskStatus.NotFound;
   try {
-    const apiEndpoint = `${GELATO_SERVER}/tasks/${taskId}`;
+    const apiEndpoint = `${GELATO_SERVER}/tasks/status/${taskId}`;
     const res = await axios.get(apiEndpoint);
     result = res.data.data[0]?.taskState;
   } catch (error: unknown) {
@@ -227,7 +227,7 @@ export const getTaskStatusFromBackupRelayer = async (
 export const getTransactionHashFromGelato = async (taskId: string, logger?: Logger): Promise<string> => {
   let result;
   try {
-    const apiEndpoint = `${GELATO_SERVER}/tasks/${taskId}`;
+    const apiEndpoint = `${GELATO_SERVER}/tasks/status/${taskId}`;
     const res = await axios.get(apiEndpoint);
     result = res.data.data[0]?.transactionHash;
   } catch (error: unknown) {
