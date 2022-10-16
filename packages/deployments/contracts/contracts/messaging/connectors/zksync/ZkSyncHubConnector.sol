@@ -35,9 +35,12 @@ contract ZkSyncHubConnector is HubConnector {
   ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) {}
 
   // ============ Override Fns ============
-  function _verifySender(address _expected) internal view override returns (bool) {
-    // TODO: verify sender
-    return true;
+  function _verifySender(address) internal pure override returns (bool) {
+    // NOTE: sender from L2 is asserted in the `processMessageFromRoot` function. Cross domain
+    // sender is packed in with the L2Message struct, so you should not be verifying the
+    // sender using this method. Always return false.
+    // See docs here: https://v2-docs.zksync.io/dev/developer-guides/Bridging/l2-l1.html#prove-inclusion-of-the-message-into-the-l2-block
+    return false;
   }
 
   /**
@@ -70,25 +73,16 @@ contract ZkSyncHubConnector is HubConnector {
 
   /**
    * @notice Processes messages
-   * @param _data The message to process (should be an outbound root originating on
-   * spoke)
+   * @dev Should do nothing because all messages must be processed via `processMessageFromRoot`
+   * to enforce inclusion in the message root.
+   *
+   * @param _data Message sent from L2 (should be the outbound root)
    */
-  function _processMessage(bytes memory _data) internal override {
-    // sanity check root length
-    require(_data.length == 32, "!length");
-
-    // get root from data
-    bytes32 root = bytes32(_data);
-
-    if (!processed[root]) {
-      // set root to processed
-      processed[root] = true;
-      // update the root on the root manager
-      IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, root);
-    } // otherwise root was already sent to root manager
-  }
+  function _processMessage(bytes memory _data) internal override {}
 
   /**
+   * @notice Processes message and proves inclusion of that message in the root.
+   *
    * @dev modified from: https://v2-docs.zksync.io/dev/developer-guides/Bridging/l2-l1.html#prove-inclusion-of-the-message-into-the-l2-block
    */
   function processMessageFromRoot(
@@ -103,6 +97,9 @@ contract ZkSyncHubConnector is HubConnector {
     // Merkle proof for the message
     bytes32[] calldata _proof
   ) external {
+    // sanity check root length (fn selector + 32 bytes root)
+    require(_message.length == 36, "!length");
+
     IZkSync zksync = IZkSync(AMB);
     L2Message memory message = L2Message({
       txNumberInBlock: _l2TxNumberInBlock,
@@ -111,12 +108,20 @@ contract ZkSyncHubConnector is HubConnector {
     });
 
     bool success = zksync.proveL2MessageInclusion(_l2BlockNumber, _l2MessageIndex, message, _proof);
-    require(success, "Failed to prove message inclusion");
+    require(success, "!proven");
 
     // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
     bytes29 _view = _message.ref(0);
-    bytes32 _data = _view.index(_view.len() - 32, 32);
+    bytes32 _root = _view.index(_view.len() - 32, 32);
 
-    _processMessage(abi.encode(_data));
+    // NOTE: there are no guarantees the messages are processed once, so processed roots
+    // must be tracked within the connector. See:
+    // https://v2-docs.zksync.io/dev/developer-guides/Bridging/l2-l1.html#prove-inclusion-of-the-message-into-the-l2-block
+    if (!processed[_root]) {
+      // set root to processed
+      processed[_root] = true;
+      // update the root on the root manager
+      IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _root);
+    } // otherwise root was already sent to root manager
   }
 }
