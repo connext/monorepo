@@ -2,9 +2,11 @@
 pragma solidity 0.8.15;
 
 // ============ Internal Imports ============
+import {ProposedOwnable} from "../ProposedOwnable.sol";
+
 import {UpgradeBeacon} from "./UpgradeBeacon.sol";
+
 // ============ External Imports ============
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 /**
@@ -14,11 +16,15 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
  * @dev This implementation is a minimal version inspired by 0age's implementation:
  * https://github.com/dharma-eng/dharma-smart-wallet/blob/master/contracts/upgradeability/DharmaUpgradeBeaconController.sol
  */
-// TODO: upgrade to `ProposedOwnable`
-contract UpgradeBeaconController is Ownable {
+contract UpgradeBeaconController is ProposedOwnable {
   // ============ Events ============
 
   event BeaconUpgraded(address indexed beacon, address implementation);
+
+  // ============ Constructor ============
+  constructor() {
+    _setOwner(msg.sender);
+  }
 
   // ============ External Functions ============
 
