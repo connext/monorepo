@@ -281,7 +281,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     // Format the message into packed bytes.
     bytes memory _message = Message.formatMessage(
       DOMAIN,
-      bytes32(uint256(uint160(msg.sender))), // TODO necessary?
+      bytes32(uint256(uint160(msg.sender))),
       _nonce,
       _destinationDomain,
       _recipientAddress,
