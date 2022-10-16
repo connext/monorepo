@@ -137,7 +137,8 @@ locals {
       ]
       executerTimeout = 300000
       publisher       = "sequencerX"
-    }
+    },
+    gelatoApiKey = "${var.gelato_api_key}"
   })
 
   local_router_config = jsonencode({

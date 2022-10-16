@@ -136,10 +136,11 @@ export class SparseMerkleTree {
       // Get the subtree down the opposite path of the one to the target.
       const nodes = await this.getSubtreeNodes(depth + 1, siblingPath);
 
+      // TODO: @jakek verify that removing this check doesn't break anything.
       // Sanity check: nodes were returned (if not, then our starting depth was likely incorrect).
-      if (!nodes.length) {
-        throw new Error("No nodes...?");
-      }
+      // if (!nodes.length) {
+      //   throw new Error("No nodes...?");
+      // }
 
       // The sibling at this depth will be the root of that subtree.
       siblings[depth] = this.getSubtreeRoot(depth + 1, nodes);
@@ -178,7 +179,7 @@ export class SparseMerkleTree {
         depth,
         ": (",
         lowerBound,
-        "-",
+        "->",
         upperBound,
         ") :",
         t,

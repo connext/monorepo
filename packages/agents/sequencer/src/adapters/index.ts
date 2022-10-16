@@ -7,6 +7,7 @@ export type Relayer = {
     chainId: number,
     destinationAddress: string,
     encodedData: string,
+    gelatoApiKey: string,
     _requestContext: RequestContext,
   ) => Promise<string>;
   getRelayerAddress: (chainId: number) => Promise<string>;

@@ -10,28 +10,33 @@ export const updateAggregatedRoots = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateAggregatedRoots.name);
 
+  const metas = await subgraph.getConnectorMeta(domains);
+  const hubs = new Set(metas.map((m) => m.hubDomain));
+
   for (const domain of domains) {
-    const offset = await database.getCheckPoint("aggregated_root_" + domain);
-    const limit = 100;
-    logger.debug("Retrieving aggregated roots", requestContext, methodContext, {
-      domain: domain,
-      offset: offset,
-      limit: limit,
-    });
-
-    const aggregatedRoots: AggregatedRoot[] = await subgraph.getGetAggregatedRootsByDomain([
-      { domain, index: offset, limit },
-    ]);
-
-    // Reset offset at the end of the cycle.
-    const newOffset = aggregatedRoots.length == 0 ? 0 : aggregatedRoots[aggregatedRoots.length - 1].index;
-    if (offset === 0 || newOffset > offset) {
-      await database.transaction(async (txnClient) => {
-        await database.saveAggregatedRoots(aggregatedRoots, txnClient);
-
-        await database.saveCheckPoint("aggregated_root_" + domain, newOffset, txnClient);
+    for (const hub of [...hubs]) {
+      const offset = await database.getCheckPoint("aggregated_root_" + domain + "_" + hub);
+      const limit = 100;
+      logger.debug("Retrieving aggregated roots", requestContext, methodContext, {
+        domain: domain,
+        offset: offset,
+        limit: limit,
       });
-      logger.debug("Saved aggregated roots", requestContext, methodContext, { domain: domain, offset: newOffset });
+
+      const aggregatedRoots: AggregatedRoot[] = await subgraph.getGetAggregatedRootsByDomain([
+        { hub, domain, index: 0, limit },
+      ]);
+
+      // Reset offset at the end of the cycle.
+      const newOffset = aggregatedRoots.length == 0 ? 0 : aggregatedRoots[aggregatedRoots.length - 1].index;
+      if (offset === 0 || newOffset > offset) {
+        await database.transaction(async (txnClient) => {
+          await database.saveAggregatedRoots(aggregatedRoots, txnClient);
+
+          await database.saveCheckPoint("aggregated_root_" + domain + "_" + hub, newOffset, txnClient);
+        });
+        logger.debug("Saved aggregated roots", requestContext, methodContext, { domain: domain, offset: newOffset });
+      }
     }
   }
 };
@@ -59,11 +64,10 @@ export const updatePropagatedRoots = async () => {
   // Reset offset at the end of the cycle.
   const newOffset = propagatedRoots.length == 0 ? 0 : propagatedRoots[propagatedRoots.length - 1].count;
   if (offset === 0 || newOffset > offset) {
-    await database.transaction(async (txnClient) => {
-      await database.savePropagatedRoots(propagatedRoots, txnClient);
+    // TODO: Add a working transaction wraper
+    await database.savePropagatedRoots(propagatedRoots);
 
-      await database.saveCheckPoint("propagated_root_", newOffset, txnClient);
-    });
+    await database.saveCheckPoint("propagated_root_", newOffset);
     logger.debug("Saved propageted roots", requestContext, methodContext, { offset: newOffset });
   }
 };

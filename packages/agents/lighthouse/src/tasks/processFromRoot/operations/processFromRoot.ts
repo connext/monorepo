@@ -7,8 +7,8 @@ import {
   RequestContext,
   RootMessage,
 } from "@connext/nxtp-utils";
-import { Interface } from "ethers/lib/utils";
 
+import { encodeProcessMessageFromRoot } from "../../../mockable";
 import { ProcessConfigNotAvailable } from "../errors";
 import { GetProcessArgsParams, getProcessFromOptimismRootArgs, getProcessFromPolygonRootArgs } from "../helpers";
 import { getContext } from "../processFromRoot";
@@ -30,11 +30,6 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     hubConnectorPrefix: "Polygon",
     processorFunctionName: "receiveMessage",
   },
-};
-
-export const encodeProcessMessageFromRoot = (abi: any[], args: any[], functionName: string): string => {
-  const encodedData = new Interface(abi as string[]).encodeFunctionData(functionName, args);
-  return encodedData;
 };
 
 export const processFromRoot = async () => {

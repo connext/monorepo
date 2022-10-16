@@ -55,19 +55,30 @@ describe("Helpers: Optimism", () => {
   it("should throw error if undefined", async () => {
     getMessageStateRootStub.resolves(undefined);
     await expect(
-      getProcessFromOptimismRootArgs(1, 2, {} as any, {} as any, mkHash("0xbaa"), createRequestContext("foo")),
+      getProcessFromOptimismRootArgs({
+        spokeChainId: 1,
+        spokeDomainId: "1",
+        spokeProvider: "world",
+        hubChainId: 2,
+        hubDomainId: "2",
+        hubProvider: "hello",
+        sendHash: mkHash("0xbaa"),
+        _requestContext: createRequestContext("foo"),
+      }),
     ).to.be.rejectedWith(NoRootAvailable);
   });
 
   it("should work", async () => {
-    const args = await getProcessFromOptimismRootArgs(
-      1,
-      2,
-      {} as any,
-      {} as any,
-      mkHash("0xbaa"),
-      createRequestContext("foo"),
-    );
+    const args = await getProcessFromOptimismRootArgs({
+      spokeChainId: 1,
+      spokeDomainId: "1",
+      spokeProvider: "world",
+      hubChainId: 2,
+      hubDomainId: "2",
+      hubProvider: "hello",
+      sendHash: mkHash("0xbaa"),
+      _requestContext: createRequestContext("foo"),
+    });
     expect(args).to.deep.eq([
       mockCrossChainMessage.target,
       mockCrossChainMessage.sender,

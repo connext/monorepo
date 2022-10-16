@@ -1,5 +1,5 @@
 import {
-  gelatoSend,
+  gelatoSDKSend,
   isChainSupportedByGelato,
   getGelatoRelayerAddress,
   getTaskStatusFromGelato,
@@ -17,7 +17,7 @@ import {
 export const getHelpers = () => {
   return {
     relayer: {
-      gelatoSend,
+      gelatoSDKSend,
       isChainSupportedByGelato,
       getGelatoRelayerAddress,
       getTaskStatusFromGelato,

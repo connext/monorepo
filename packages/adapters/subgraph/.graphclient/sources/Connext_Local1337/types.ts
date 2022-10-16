@@ -648,6 +648,7 @@ export type local1337_OriginMessage = {
   root?: Maybe<Scalars['local1337_Bytes']>;
   message?: Maybe<Scalars['local1337_Bytes']>;
   transactionHash?: Maybe<Scalars['local1337_Bytes']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
   rootCount?: Maybe<local1337_RootCount>;
 };
 
@@ -706,6 +707,14 @@ export type local1337_OriginMessage_filter = {
   transactionHash_not_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['local1337_Bytes']>;
   transactionHash_not_contains?: InputMaybe<Scalars['local1337_Bytes']>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   rootCount?: InputMaybe<Scalars['String']>;
   rootCount_not?: InputMaybe<Scalars['String']>;
   rootCount_gt?: InputMaybe<Scalars['String']>;
@@ -740,6 +749,7 @@ export type local1337_OriginMessage_orderBy =
   | 'root'
   | 'message'
   | 'transactionHash'
+  | 'blockNumber'
   | 'rootCount';
 
 export type local1337_OriginTransfer = {

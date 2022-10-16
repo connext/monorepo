@@ -1,5 +1,5 @@
 import {
-  gelatoSend as _gelatoSend,
+  gelatoSDKSend as _gelatoSDKSend,
   isChainSupportedByGelato as _isChainSupportedByGelato,
   getGelatoRelayerAddress as _getGelatoRelayerAddress,
   getTaskStatusFromGelato as _getTaskStatusFromGelato,
@@ -7,7 +7,7 @@ import {
   connextRelayerSend as _connextRelayerSend,
 } from "@connext/nxtp-utils";
 
-export const gelatoSend = _gelatoSend;
+export const gelatoSDKSend = _gelatoSDKSend;
 
 export const isChainSupportedByGelato = _isChainSupportedByGelato;
 

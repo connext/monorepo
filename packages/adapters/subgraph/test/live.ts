@@ -12,15 +12,17 @@ export const livetest = async () => {
   console.log("> latest blocknumber: ");
   console.log(res);
 
-  const rootMessages = await reader.getProcessedRootMessagesByDomain([{ domain: "1735353714", offset: 0, limit: 10 }]);
+  const rootMessages = await reader.getProcessedRootMessagesByDomain([{ domain: "1735353714", offset: 0, limit: 100 }]);
   console.log("> rootMessages: ");
   console.log(rootMessages);
 
-  const aggregatedRoots = await reader.getGetAggregatedRootsByDomain([{ domain: "1735353714", index: 0, limit: 10 }]);
+  const aggregatedRoots = await reader.getGetAggregatedRootsByDomain([
+    { hub: hubDomain, domain: "1735356532", index: 0, limit: 100 },
+  ]);
   console.log("> aggregatedRoots: ");
   console.log(aggregatedRoots);
 
-  const propagatedRoots = await reader.getGetPropagatedRoots(hubDomain, 0, 10);
+  const propagatedRoots = await reader.getGetPropagatedRoots(hubDomain, 0, 100);
   console.log("> propagatedRoots: ");
   console.log(propagatedRoots);
 };
