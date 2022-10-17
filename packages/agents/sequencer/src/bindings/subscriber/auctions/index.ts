@@ -72,8 +72,8 @@ export const bindSubscriber = async (queueName: string) => {
             await cache.auctions.pruneAuctionData(message.transferId);
           } else {
             // No ack and requeue if child exits with error
-            msg.nack();
-            logger.info("Error executing transfer. NACKed", requestContext, methodContext, {
+            msg.reject();
+            logger.info("Error executing transfer. Message dropped", requestContext, methodContext, {
               transferId: message.transferId,
             });
           }
