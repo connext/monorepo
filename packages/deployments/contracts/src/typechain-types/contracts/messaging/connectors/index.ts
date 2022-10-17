@@ -13,6 +13,8 @@ import type * as optimism from "./optimism";
 export type { optimism };
 import type * as polygon from "./polygon";
 export type { polygon };
+import type * as zksync from "./zksync";
+export type { zksync };
 export type { Connector } from "./Connector";
 export type { ConnectorManager } from "./ConnectorManager";
 export type { HubConnector } from "./HubConnector";

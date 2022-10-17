@@ -129,7 +129,12 @@ contract ArbitrumHubConnector is HubConnector {
     Node memory node = rollup.getNode(_nodeNum);
     require(node.confirmData == confirmData, "!confirmData");
 
-    // TODO: Validate the node is staked / not in dispute
+    // Validate the node is staked / not in dispute
+    // NOTE: a dispute can happen at any point within the timeout window, so the closest
+    // we can get is to ensure the staker count > 0 and that there have been stakes on child
+    // nodes as well, meaning the node is less likely to be staked incorrectly (and thus less
+    // likely to be disputed)
+    require(node.stakerCount > 0 && node.childStakerCount > 0, "!staked");
   }
 
   // prove the message was included in the given send root

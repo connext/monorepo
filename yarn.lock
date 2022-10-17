@@ -944,6 +944,7 @@ __metadata:
     "@arbitrum/sdk": 3.0.0-beta.12
     "@connext/nxtp-utils": "workspace:*"
     "@eth-optimism/sdk": 1.6.4
+    "@matterlabs/zksync-contracts": ^0.4.2
     "@nomiclabs/hardhat-ethers": 2.1.1
     "@nomiclabs/hardhat-etherscan": 3.1.0
     "@nomiclabs/hardhat-waffle": 2.0.3
@@ -4141,6 +4142,16 @@ __metadata:
     merkle-patricia-tree: ^4.2.4
     node-fetch: ^2.6.1
   checksum: f98387d123ef055352c02229b2ba19caf0891cbad8864cb9a3bb5984b00dc0edf0de181c738ae1ec72c073e61047bdafd7263887f9b0b11aad982739d5d62e44
+  languageName: node
+  linkType: hard
+
+"@matterlabs/zksync-contracts@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "@matterlabs/zksync-contracts@npm:0.4.2"
+  peerDependencies:
+    "@openzeppelin/contracts": 4.6.0
+    "@openzeppelin/contracts-upgradeable": 4.6.0
+  checksum: 761ca87c6b3c6f6d5928d067bcb89abca8a8aa7433543652dae10e92cf9cdc7e54a654799277fa6124650390eedd7c5e98614f6051ed733f090dbd8bd16e6b6b
   languageName: node
   linkType: hard
 

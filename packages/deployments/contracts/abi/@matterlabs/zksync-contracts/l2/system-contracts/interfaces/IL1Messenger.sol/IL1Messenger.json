@@ -1,0 +1,4 @@
+[
+  "event L1MessageSent(address indexed,bytes32 indexed,bytes)",
+  "function sendToL1(bytes) returns (bytes32)"
+]

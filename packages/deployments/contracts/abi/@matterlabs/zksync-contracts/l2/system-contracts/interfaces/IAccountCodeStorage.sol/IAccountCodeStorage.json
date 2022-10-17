@@ -1,0 +1,6 @@
+[
+  "function getCodeHash(uint256) returns (bytes32)",
+  "function getCodeSize(uint256) returns (uint256)",
+  "function getRawCodeHash(address) view returns (bytes32)",
+  "function storeCodeHash(address,bytes32)"
+]
