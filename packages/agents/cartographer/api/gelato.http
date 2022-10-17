@@ -5,4 +5,4 @@
 # just a few examples, more examples here: https://postgrest.org/en/stable/api.html#horizontal-filtering-rows
 
 ### query taskId response
-GET {{Url}}/tasks/{{taskId}}
+GET {{Url}}/tasks/status/{{taskId}}
