@@ -98,9 +98,18 @@ export const processMessage = async (message: XMessage) => {
   }
 
   // Verify proof of inclusion of message in messageRoot.
-  const messageVerification = spokeSMT.verify(message.origin.index, message.leaf, messageProof.path, targetMessageRoot);
+  const messageVerification = spokeSMT.verify(
+    message.origin.index,
+    message.leaf,
+    messageProof.path,
+    message.origin.root,
+  );
   if (messageVerification && messageVerification.verified) {
     logger.info("Message Verified successfully", requestContext, methodContext, {
+      messageVerification,
+    });
+  } else {
+    logger.info("Message verification failed", requestContext, methodContext, {
       messageVerification,
     });
   }
@@ -114,6 +123,10 @@ export const processMessage = async (message: XMessage) => {
   );
   if (rootVerification && rootVerification.verified) {
     logger.info("MessageRoot Verified successfully", requestContext, methodContext, {
+      rootVerification,
+    });
+  } else {
+    logger.info("MessageRoot verification failed", requestContext, methodContext, {
       rootVerification,
     });
   }
