@@ -10,8 +10,6 @@ contract RelayerFacet is BaseConnextFacet {
   error RelayerFacet__setRelayerFeeVault_invalidRelayerFeeVault();
   error RelayerFacet__addRelayer_alreadyApproved();
   error RelayerFacet__removeRelayer_notApproved();
-  error RelayerFacet__initiateClaim_emptyClaim();
-  error RelayerFacet__initiateClaim_notRelayer(bytes32 transferId);
 
   // ========== Events ===========
   /**
