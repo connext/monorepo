@@ -40,7 +40,9 @@ export const gelatoSend = async (
     output = res.data;
   } catch (error: unknown) {
     if (logger)
-      logger.error("Error sending request to Gelato Relay", undefined, undefined, jsonifyError(error as Error));
+      logger.error("Error sending request to Gelato Relay", undefined, undefined, jsonifyError(error as Error), {
+        params,
+      });
     throw new NxtpError("Error sending request to Gelato Relay", { error: jsonifyError(error as Error) });
   }
   return output;
@@ -250,8 +252,15 @@ export const gelatoSDKSend = async (
     response = await GelatoRelaySDK.relayWithSponsoredCall(request, sponsorApiKey, options);
   } catch (error: unknown) {
     if (logger)
-      logger.error("Error sending request to Gelato Relay", undefined, undefined, jsonifyError(error as Error));
-    throw new NxtpError("Error sending request to Gelato Relay", { error: jsonifyError(error as Error) });
+      logger.error("Error sending request to Gelato Relay", undefined, undefined, jsonifyError(error as Error), {
+        options,
+        request,
+      });
+    throw new NxtpError("Error sending request to Gelato Relay", {
+      error: jsonifyError(error as Error),
+      options,
+      request,
+    });
   }
   return response;
 };
