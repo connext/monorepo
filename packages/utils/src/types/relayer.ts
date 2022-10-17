@@ -66,7 +66,7 @@ export type RelayResponse = {
 // Gelato SDK send request options.
 export type RelayRequestOptions = {
   // Gas limit of the relay call. This effectively sets an upper price limit for the relay call.
-  gasLimit?: BigNumber;
+  gasLimit?: string;
   // Number of retries that Gelato should attempt before discarding this relay call
   retries?: number;
 };
