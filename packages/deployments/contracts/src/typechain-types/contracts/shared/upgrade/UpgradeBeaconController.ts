@@ -28,51 +28,85 @@ import type {
 
 export interface UpgradeBeaconControllerInterface extends utils.Interface {
   functions: {
+    "acceptProposedOwner()": FunctionFragment;
+    "delay()": FunctionFragment;
     "owner()": FunctionFragment;
+    "proposeNewOwner(address)": FunctionFragment;
+    "proposed()": FunctionFragment;
+    "proposedTimestamp()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
+    "renounced()": FunctionFragment;
     "upgrade(address,address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "acceptProposedOwner"
+      | "delay"
       | "owner"
+      | "proposeNewOwner"
+      | "proposed"
+      | "proposedTimestamp"
       | "renounceOwnership"
-      | "transferOwnership"
+      | "renounced"
       | "upgrade"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "acceptProposedOwner",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proposeNewOwner",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proposedTimestamp",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "upgrade",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "acceptProposedOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeNewOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposedTimestamp",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "upgrade", data: BytesLike): Result;
 
   events: {
     "BeaconUpgraded(address,address)": EventFragment;
+    "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "BeaconUpgraded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
 
@@ -86,6 +120,17 @@ export type BeaconUpgradedEvent = TypedEvent<
 >;
 
 export type BeaconUpgradedEventFilter = TypedEventFilter<BeaconUpgradedEvent>;
+
+export interface OwnershipProposedEventObject {
+  proposedOwner: string;
+}
+export type OwnershipProposedEvent = TypedEvent<
+  [string],
+  OwnershipProposedEventObject
+>;
+
+export type OwnershipProposedEventFilter =
+  TypedEventFilter<OwnershipProposedEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
@@ -126,16 +171,28 @@ export interface UpgradeBeaconController extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    delay(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
+
+    proposeNewOwner(
+      newlyProposed: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    proposed(overrides?: CallOverrides): Promise<[string]>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     upgrade(
       _beacon: PromiseOrValue<string>,
@@ -144,16 +201,28 @@ export interface UpgradeBeaconController extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  acceptProposedOwner(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  delay(overrides?: CallOverrides): Promise<BigNumber>;
+
   owner(overrides?: CallOverrides): Promise<string>;
+
+  proposeNewOwner(
+    newlyProposed: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  proposed(overrides?: CallOverrides): Promise<string>;
+
+  proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   renounceOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  transferOwnership(
-    newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  renounced(overrides?: CallOverrides): Promise<boolean>;
 
   upgrade(
     _beacon: PromiseOrValue<string>,
@@ -162,14 +231,24 @@ export interface UpgradeBeaconController extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
+
+    delay(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<string>;
+
+    proposeNewOwner(
+      newlyProposed: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    proposed(overrides?: CallOverrides): Promise<string>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    renounced(overrides?: CallOverrides): Promise<boolean>;
 
     upgrade(
       _beacon: PromiseOrValue<string>,
@@ -188,6 +267,13 @@ export interface UpgradeBeaconController extends BaseContract {
       implementation?: null
     ): BeaconUpgradedEventFilter;
 
+    "OwnershipProposed(address)"(
+      proposedOwner?: PromiseOrValue<string> | null
+    ): OwnershipProposedEventFilter;
+    OwnershipProposed(
+      proposedOwner?: PromiseOrValue<string> | null
+    ): OwnershipProposedEventFilter;
+
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
@@ -199,16 +285,28 @@ export interface UpgradeBeaconController extends BaseContract {
   };
 
   estimateGas: {
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    delay(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    proposeNewOwner(
+      newlyProposed: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    proposed(overrides?: CallOverrides): Promise<BigNumber>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     upgrade(
       _beacon: PromiseOrValue<string>,
@@ -218,16 +316,28 @@ export interface UpgradeBeaconController extends BaseContract {
   };
 
   populateTransaction: {
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    proposeNewOwner(
+      newlyProposed: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     upgrade(
       _beacon: PromiseOrValue<string>,
