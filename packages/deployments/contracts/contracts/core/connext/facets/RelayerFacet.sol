@@ -34,23 +34,6 @@ contract RelayerFacet is BaseConnextFacet {
    */
   event RelayerRemoved(address relayer, address caller);
 
-  /**
-   * @notice Emitted when `initiateClaim` is called on the destination chain
-   * @param domain - Domain to claim funds on
-   * @param recipient - Address on origin chain to send claimed funds to
-   * @param caller - The account that called the function
-   * @param transferIds - TransferIds to claim
-   */
-  event InitiatedClaim(uint32 indexed domain, address indexed recipient, address caller, bytes32[] transferIds);
-
-  /**
-   * @notice Emitted when `claim` is called on the origin domain
-   * @param recipient - Address on origin chain to send claimed funds to
-   * @param total - Total amount claimed
-   * @param transferIds - TransferIds to claim
-   */
-  event Claimed(address indexed recipient, uint256 total, bytes32[] transferIds);
-
   // ============ Modifiers ============
 
   // ============ Getters ============
