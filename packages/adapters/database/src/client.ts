@@ -100,7 +100,7 @@ const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"
     caller: message.caller,
     sent_transaction_hash: type === "sent" ? message.transactionHash : undefined,
     processed_transaction_hash: type === "processed" ? message.transactionHash : undefined,
-    processed: type === "processed" ? true : message.processed,
+    processed: type === "processed" || message.spokeDomain === message.hubDomain ? true : message.processed,
     sent_timestamp: message.timestamp,
     gas_price: message.gasPrice as any,
     gas_limit: message.gasLimit as any,

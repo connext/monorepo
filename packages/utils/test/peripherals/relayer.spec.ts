@@ -1,6 +1,6 @@
 import { restore, reset, stub, SinonStub } from "sinon";
 import axios from "axios";
-import { BigNumber, constants } from "ethers";
+import { BigNumber } from "ethers";
 
 import {
   gelatoSend,
@@ -211,17 +211,10 @@ describe("Peripherals:Gelato", () => {
       reset();
     });
     it("happy: should return address", async () => {
-      axiosGetStub.resolves({
-        status: 200,
-        data: {
-          address: mkAddress("0x111"),
-        },
-      });
-
-      expect(await getGelatoRelayerAddress(1337)).to.be.eq(mkAddress("0x111"));
+      expect(await getGelatoRelayerAddress(1337)).to.be.eq(relayer.GELATO_RELAYER_ADDRESS);
     });
 
-    it("should return zero address if the request fails", async () => {
+    it.skip("should return zero address if the request fails", async () => {
       axiosGetStub.throws(new Error("Request failed!"));
 
       await expect(getGelatoRelayerAddress(1337)).to.be.rejectedWith("Error in getGelatoRelayerAddress");
@@ -307,11 +300,9 @@ describe("Peripherals:Gelato", () => {
       axiosGetStub.resolves({
         status: 200,
         data: {
-          data: [
-            {
-              taskState: "CheckPending",
-            },
-          ],
+          task: {
+            taskState: "CheckPending",
+          },
         },
       });
 
