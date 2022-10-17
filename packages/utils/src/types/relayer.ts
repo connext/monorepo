@@ -1,5 +1,4 @@
 import { Type, Static } from "@sinclair/typebox";
-import { BigNumber } from "ethers";
 
 import { TIntegerString } from "./primitives";
 
