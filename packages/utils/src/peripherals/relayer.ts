@@ -19,6 +19,7 @@ import {
 /// Docs: https://relay.gelato.digital/api-docs/
 
 const GELATO_SERVER = "https://relay.gelato.digital";
+const GELATO_RELAYER_ADDRESS = "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92";
 
 /// MARK - This is used for testnets which aren't being supported by gelato
 const EquivalentChainsForGelato: Record<number, number> = {
@@ -53,17 +54,8 @@ export const isChainSupportedByGelato = async (chainId: number): Promise<boolean
   return chainsSupportedByGelato.includes(chainId.toString());
 };
 
-export const getGelatoRelayerAddress = async (chainId: number, logger?: Logger): Promise<string> => {
-  let result = constants.AddressZero;
-  try {
-    const res = await axios.get(`${GELATO_SERVER}/relays/${chainId}/address`);
-    result = res.data.address;
-  } catch (error: unknown) {
-    if (logger) logger.error("Error in getGelatoRelayerAddress", undefined, undefined, jsonifyError(error as Error));
-    throw new Error("Error in getGelatoRelayerAddress");
-  }
-
-  return result;
+export const getGelatoRelayerAddress = async (_chainId: number, _logger?: Logger): Promise<string> => {
+  return GELATO_RELAYER_ADDRESS;
 };
 
 export const getGelatoRelayChains = async (logger?: Logger): Promise<string[]> => {
