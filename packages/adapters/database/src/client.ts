@@ -477,10 +477,13 @@ export const getMessageRootCount = async (
 export const getSpokeNode = async (
   domain: string,
   index: number,
+  count: number,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string | undefined> => {
   const poolToUse = _pool ?? pool;
-  const message = await db.selectOne("messages", { origin_domain: domain, index: index }).run(poolToUse);
+  const message = await db
+    .selectOne("messages", { origin_domain: domain, index: dc.and(dc.eq(index), dc.lt(count)) })
+    .run(poolToUse);
   return message ? convertFromDbMessage(message).leaf : undefined;
 };
 
@@ -488,13 +491,14 @@ export const getSpokeNodes = async (
   domain: string,
   start: number,
   end: number,
+  count: number,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
   const messages = await db
     .select(
       "messages",
-      { origin_domain: domain, index: dc.and(dc.gte(start), dc.lte(end)) },
+      { origin_domain: domain, index: dc.and(dc.gte(start), dc.lte(end), dc.lt(count)) },
       { order: { by: "index", direction: "ASC" } },
     )
     .run(poolToUse);
@@ -503,26 +507,30 @@ export const getSpokeNodes = async (
 
 export const getHubNode = async (
   index: number,
+  count: number,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string | undefined> => {
   const poolToUse = _pool ?? pool;
   // Account for off by one nature of the index value emitted by contract
   // This just tracks the position in the queue but not the actual index in the tree
   // Off by one at best, can off by 1 + N, where N -> # of roots removed so far during verification
-  const root = await db.selectOne("aggregated_roots", { domain_index: index + 1 }).run(poolToUse);
+  const root = await db
+    .selectOne("aggregated_roots", { domain_index: dc.and(dc.eq(index + 1), dc.lte(count)) })
+    .run(poolToUse);
   return root ? convertFromDbAggregatedRoot(root).receivedRoot : undefined;
 };
 
 export const getHubNodes = async (
   start: number,
   end: number,
+  count: number,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
   const roots = await db
     .select(
       "aggregated_roots",
-      { domain_index: dc.and(dc.gte(start + 1), dc.lte(end + 1)) },
+      { domain_index: dc.and(dc.gte(start + 1), dc.lte(end + 1), dc.lte(count)) },
       { order: { by: "domain_index", direction: "ASC" } },
     )
     .run(poolToUse);

@@ -9,11 +9,11 @@ export class SpokeDBHelper implements DBHelper {
   }
 
   public async getNode(index: number): Promise<string | undefined> {
-    return await this.db.getSpokeNode(this.domain, index);
+    return await this.db.getSpokeNode(this.domain, index, this.count);
   }
 
   public async getNodes(start: number, end: number): Promise<string[]> {
-    return await this.db.getSpokeNodes(this.domain, start, end);
+    return await this.db.getSpokeNodes(this.domain, start, end, this.count);
   }
 
   public async getRoot(path: string): Promise<string | undefined> {
@@ -33,11 +33,11 @@ export class HubDBHelper implements DBHelper {
   }
 
   public async getNode(index: number): Promise<string | undefined> {
-    return await this.db.getHubNode(index);
+    return await this.db.getHubNode(index, this.count);
   }
 
   public async getNodes(start: number, end: number): Promise<string[]> {
-    return await this.db.getHubNodes(start, end);
+    return await this.db.getHubNodes(start, end, this.count);
   }
 
   public async getRoot(path: string): Promise<string | undefined> {
