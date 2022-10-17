@@ -9,7 +9,6 @@ type TaskArgs = {
   adoptedAmount: string;
   minToMint?: string;
   connextAddress?: string;
-  tokenRegistryAddress?: string;
   env?: Env;
 };
 
@@ -19,7 +18,6 @@ export default task("add-swap-liquidity", "Add liquidity to the stable swap pool
   .addParam("adoptedAmount", "Amount of the adopted token")
   .addOptionalParam("minToMint", "The minimum LP tokens adding this amount of liquidity")
   .addOptionalParam("connextAddress", "Override connext address")
-  .addOptionalParam("tokenRegistryAddress", "Override token registry address")
   .addOptionalParam("env", "Environment of contracts")
   .setAction(
     async (
@@ -29,7 +27,6 @@ export default task("add-swap-liquidity", "Add liquidity to the stable swap pool
         adoptedAmount: _adoptedAmount,
         minToMint: _minToMint,
         connextAddress: _connextAddress,
-        tokenRegistryAddress: _tokenRegistryAddress,
         env: _env,
       }: TaskArgs,
       { deployments, ethers },
@@ -45,21 +42,14 @@ export default task("add-swap-liquidity", "Add liquidity to the stable swap pool
       console.log("adopted amount: ", _adoptedAmount);
       console.log("minToMint: ", _minToMint);
 
-      const connextName = getDeploymentName("ConnextHandler", env);
+      const connextName = getDeploymentName("Connext", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       console.log("connextAddress: ", connextAddress);
 
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
 
-      const tokenDeployment = await deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env));
-      const tokenRegistry = new Contract(
-        _tokenRegistryAddress ?? tokenDeployment.address,
-        (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
-        deployer,
-      );
-      console.log("tokenRegistryAddress:", tokenRegistry.address);
-      const [domain, canonicalId] = await tokenRegistry.getTokenId(canonical);
+      const [domain, canonicalId] = await connext.getTokenId(canonical);
       console.log("domain: ", domain);
       console.log("canonicalId: ", canonicalId);
 

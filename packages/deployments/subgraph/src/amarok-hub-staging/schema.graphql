@@ -1,0 +1,53 @@
+# ROOT MANAGER
+type RootAggregated @entity {
+  id: ID! # "RootAggregated"
+  domain: BigInt!
+  receivedRoot: Bytes!
+  index: BigInt!
+}
+
+type RootPropagated @entity {
+  id: ID! # "RootPropagated"
+  aggregate: Bytes!
+  domains: [BigInt!]
+  count: BigInt!
+}
+
+# POLYGON
+type PolygonConnectorMeta @entity {
+  id: ID! # "PolygonConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# OPTIMISM
+type OptimismConnectorMeta @entity {
+  id: ID! # "OptimismConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# HUB CONNECTOR COMMAN
+type RootMessageProcessed @entity {
+  id: ID!
+
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+  root: Bytes
+
+  # MessageProcessed Transaction
+  caller: Bytes
+  transactionHash: Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}

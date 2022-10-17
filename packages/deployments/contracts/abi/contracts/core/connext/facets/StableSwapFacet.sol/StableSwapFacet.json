@@ -1,6 +1,11 @@
 [
+  "error BaseConnextFacet__getAdoptedAsset_notWhitelisted()",
+  "error BaseConnextFacet__getApprovedCanonicalId_notWhitelisted()",
   "error BaseConnextFacet__nonReentrant_reentrantCall()",
   "error BaseConnextFacet__onlyBridgeRouter_notBridgeRouter()",
+  "error BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin()",
+  "error BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter()",
+  "error BaseConnextFacet__onlyOwnerOrWatcher_notOwnerOrWatcher()",
   "error BaseConnextFacet__onlyOwner_notOwner()",
   "error BaseConnextFacet__onlyProposed_notProposedOwner()",
   "error BaseConnextFacet__whenNotPaused_paused()",

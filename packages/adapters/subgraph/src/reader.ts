@@ -12,6 +12,10 @@ import {
   SubgraphQueryByTimestampMetaParams,
   OriginMessage,
   DestinationMessage,
+  RootMessage,
+  AggregatedRoot,
+  PropagatedRoot,
+  ConnectorMeta,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -36,7 +40,11 @@ import {
   getDestinationTransfersByDomainAndReconcileTimestampQuery,
   getOriginMessagesByDomainAndIndexQuery,
   getDestinationMessagesByDomainAndLeafQuery,
+  getSentRootMessagesByDomainAndBlockQuery,
+  getConnectorMetaQuery,
+  getProcessedRootMessagesByDomainAndBlockQuery,
 } from "./lib/operations";
+import { getAggregatedRootsByDomainQuery, getPropagatedRootsQuery } from "./lib/operations/queries";
 import { SubgraphMap } from "./lib/entities";
 
 let context: { config: SubgraphMap };
@@ -134,10 +142,11 @@ export class SubgraphReader {
 
     const query = getAssetBalanceQuery(prefix, router.toLowerCase(), local.toLowerCase());
     const response = await execute(query);
-    if (![...response.values()][0] || [...response.values()][0].length == 0) {
+    const values = [...response.values()];
+    if (!values[0] || values[0].length == 0 || values[0][0] == null) {
       return BigNumber.from("0");
     }
-    return BigNumber.from([...response.values()][0][0].amount);
+    return BigNumber.from(values[0][0].amount);
   }
 
   /**
@@ -153,10 +162,11 @@ export class SubgraphReader {
 
     const query = getAssetBalancesQuery(prefix, router.toLowerCase());
     const response = await execute(query);
+    const values = [...response.values()];
 
-    const assetBalances = [...response.values()][0] ? [...response.values()][0][0] : [];
+    const assetBalances = values[0] ? values[0][0] : [];
     const balances: Record<string, BigNumber> = {};
-    assetBalances.forEach((bal: any) => (balances[bal.asset.local as string] = BigNumber.from(bal.amount)));
+    assetBalances.forEach((bal: any) => (balances[bal.asset.id as string] = BigNumber.from(bal.amount)));
     return balances;
   }
 
@@ -188,7 +198,9 @@ export class SubgraphReader {
             canonicalDomain: a.asset.canonicalDomain,
             canonicalId: a.asset.canonicalId,
             domain,
-            local: a.asset.local,
+            localAsset: a.asset.id,
+            id: a.asset.id,
+            key: a.asset.key,
           } as AssetBalance;
         }),
         router: router.id,
@@ -302,7 +314,9 @@ export class SubgraphReader {
     const query = getDestinationTransfersByIdsQuery(prefix, [`"${transferId}"`]);
     const response = await execute(query);
     const transfers = [...response.values()][0][0];
-    return transfers.length === 1 ? parser.destinationTransfer(transfers[0]) : undefined;
+    return transfers.length === 1
+      ? parser.destinationTransfer({ ...transfers[0], destinationDomain: domain })
+      : undefined;
   }
 
   /**
@@ -355,7 +369,13 @@ export class SubgraphReader {
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      transfers.push(value?.flat());
+      const domainTransfers = value?.flat();
+
+      transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, destinationDomain: key };
+        }),
+      );
     }
 
     const destinationTransfers: XTransfer[] = transfers
@@ -395,7 +415,12 @@ export class SubgraphReader {
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      transfers.push(value?.flat());
+      const domainTransfers = value?.flat();
+      transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, destinationDomain: key };
+        }),
+      );
     }
 
     const destinationTransfers: XTransfer[] = transfers
@@ -409,7 +434,7 @@ export class SubgraphReader {
   public async getDestinationTransfersByDomainAndReconcileTimestamp(
     param: SubgraphQueryByTimestampMetaParams,
     domain: string,
-  ): Promise<XTransfer[]> {
+  ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
     const xcalledXQuery = getDestinationTransfersByDomainAndReconcileTimestampQuery(param, domain);
     const response = await execute(xcalledXQuery);
@@ -417,10 +442,15 @@ export class SubgraphReader {
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      transfers.push(value?.flat());
+      const domainTransfers = value?.flat();
+      transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, destinationDomain: key };
+        }),
+      );
     }
 
-    const destinationTransfers: XTransfer[] = transfers
+    const destinationTransfers: DestinationTransfer[] = transfers
       .flat()
       .filter((x: any) => !!x)
       .map(parser.destinationTransfer);
@@ -462,7 +492,12 @@ export class SubgraphReader {
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      transfers.push(value?.flat());
+      const domainTransfers = value?.flat();
+      transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, destinationDomain: key };
+        }),
+      );
     }
 
     const destinationTransfers: XTransfer[] = transfers
@@ -505,7 +540,12 @@ export class SubgraphReader {
     const _transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      _transfers.push(value?.flat());
+      const domainTransfers = value?.flat();
+      _transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, destinationDomain: key };
+        }),
+      );
     }
 
     const destinationTransfers: XTransfer[] = _transfers
@@ -556,7 +596,7 @@ export class SubgraphReader {
     const { parser, execute } = getHelpers();
 
     let destinationMessages: DestinationMessage[] = [];
-    if (!params || params.values.length == 0) {
+    if (!params || params.size === 0) {
       return destinationMessages;
     }
 
@@ -578,5 +618,138 @@ export class SubgraphReader {
       .map(parser.destinationMessage);
 
     return destinationMessages;
+  }
+
+  /**
+   * Gets all the sent root messages starting with blocknumber for a given domain
+   */
+  public async getSentRootMessagesByDomain(
+    params: { domain: string; offset: number; limit: number }[],
+  ): Promise<RootMessage[]> {
+    const { parser, execute } = getHelpers();
+    const sentRootMessageQuery = getSentRootMessagesByDomainAndBlockQuery(params);
+    const response = await execute(sentRootMessageQuery);
+    const _messages: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _message = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _messages.push(_message);
+    }
+
+    const sentRootMessages: RootMessage[] = _messages
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.rootMessage);
+
+    return sentRootMessages;
+  }
+
+  /**
+   * Gets all the processed root messages starting with blocknumber for a given domain
+   * @param params - The fetch params
+   * @returns - The array of `RootMessage`
+   */
+  public async getProcessedRootMessagesByDomain(
+    params: { domain: string; offset: number; limit: number }[],
+  ): Promise<RootMessage[]> {
+    const { parser, execute } = getHelpers();
+
+    const processedRootMessageQuery = getProcessedRootMessagesByDomainAndBlockQuery(params);
+    const response = await execute(processedRootMessageQuery);
+    const _messages: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _message = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _messages.push(_message);
+    }
+
+    const processedRootMessages: RootMessage[] = _messages
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.rootMessage);
+
+    return processedRootMessages;
+  }
+
+  /**
+   * Gets all the aggregated rootsstarting with index for a given domain
+   */
+  public async getGetAggregatedRootsByDomain(
+    params: { hub: string; domain: string; index: number; limit: number }[],
+  ): Promise<AggregatedRoot[]> {
+    const { parser, execute } = getHelpers();
+    const aggregatedRootsByDomainQuery = getAggregatedRootsByDomainQuery(params);
+    const response = await execute(aggregatedRootsByDomainQuery);
+
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const aggregatedRoots: AggregatedRoot[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.aggregatedRoot);
+
+    return aggregatedRoots;
+  }
+
+  /**
+   * Gets all the propagated rootsstarting with index for a given domain
+   */
+  public async getGetPropagatedRoots(domain: string, count: number, limit: number): Promise<PropagatedRoot[]> {
+    const { parser, execute } = getHelpers();
+
+    const propagatedRootsQuery = getPropagatedRootsQuery(domain, count, limit);
+    const response = await execute(propagatedRootsQuery);
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const propagatedRoots: PropagatedRoot[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.propagatedRoot);
+
+    return propagatedRoots;
+  }
+
+  public async getConnectorMeta(domains: string[]): Promise<ConnectorMeta[]> {
+    const { parser, execute } = getHelpers();
+    const connectorMetaQuery = getConnectorMetaQuery(domains);
+    const response = await execute(connectorMetaQuery);
+    const _metas: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _message = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _metas.push(_message);
+    }
+
+    const connectorMetas: ConnectorMeta[] = _metas
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.connectorMeta);
+
+    return connectorMetas;
   }
 }

@@ -3,17 +3,15 @@ import _contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import {
   IERC20 as TIERC20Minimal,
   IERC20Extended as TIERC20Extended,
-  ConnextHandler as TConnext,
+  Connext as TConnext,
   ConnextPriceOracle as TConnextPriceOracle,
-  TokenRegistry as TTokenRegistry,
   StableSwap as TStableSwap,
   SpokeConnector as TSpokeConnector,
 } from "@connext/nxtp-contracts";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
-import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-abi/HardhatDiamondABI.sol/ConnextHandler.json";
+import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-abi/HardhatDiamondABI.sol/Connext.json";
 import ERC20ExtendedArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/interfaces/IERC20Extended.sol/IERC20Extended.json";
 import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
-import ITokenRegistryArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/interfaces/ITokenRegistry.sol/ITokenRegistry.json";
 import SpokeConnectorArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/connectors/SpokeConnector.sol/SpokeConnector.json";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
@@ -39,7 +37,7 @@ export const getDeployedConnextContract = (
   postfix: ContractPostfix = "",
 ): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const contract = record[0]?.contracts ? record[0]?.contracts[`ConnextHandler${postfix}`] : undefined;
+  const contract = record[0]?.contracts ? record[0]?.contracts[`Connext${postfix}`] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -50,6 +48,16 @@ export const getDeployedSpokeConnecterContract = (
 ): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
   const contract = record[0]?.contracts ? record[0]?.contracts[`${prefix}SpokeConnector${postfix}`] : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+export const getDeployedHubConnecterContract = (
+  chainId: number,
+  prefix: string,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  const contract = record[0]?.contracts ? record[0]?.contracts[`${prefix}HubConnector${postfix}`] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -96,23 +104,6 @@ export const getDeployedPriceOracleContract = (
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
-export const getDeployedTokenRegistryContract = (
-  chainId: number,
-  postfix: ContractPostfix = "",
-  proxy = false,
-): { address: string; abi: any } | undefined => {
-  const _contractDeployments = _getContractDeployments();
-  const record = _contractDeployments[chainId.toString()] ?? {};
-  const name = Object.keys(record)[0] as string | undefined;
-  if (!name) {
-    return undefined;
-  }
-  const contract = record[name]?.contracts
-    ? record[name]?.contracts[`TokenRegistry${proxy ? "UpgradeBeaconProxy" : ""}${postfix}`]
-    : undefined;
-  return contract ? { address: contract.address, abi: contract.abi } : undefined;
-};
-
 export const getDeployedStableSwapContract = (
   chainId: number,
   postfix: ContractPostfix = "",
@@ -139,20 +130,26 @@ export type SpokeConnectorDeploymentGetter = (
   postfix?: ContractPostfix,
 ) => { address: string; abi: any } | undefined;
 
+export type HubConnectorDeploymentGetter = (
+  chainId: number,
+  prefix: string,
+  postfix?: ContractPostfix,
+) => { address: string; abi: any } | undefined;
+
 export type ConnextContractDeployments = {
   connext: ConnextContractDeploymentGetter;
   priceOracle: ConnextContractDeploymentGetter;
-  tokenRegistry: ConnextContractDeploymentGetter;
   stableSwap: ConnextContractDeploymentGetter;
   spokeConnector: SpokeConnectorDeploymentGetter;
+  hubConnector: HubConnectorDeploymentGetter;
 };
 
 export const contractDeployments: ConnextContractDeployments = {
   connext: getDeployedConnextContract,
   priceOracle: getDeployedPriceOracleContract,
-  tokenRegistry: getDeployedTokenRegistryContract,
   stableSwap: getDeployedStableSwapContract,
   spokeConnector: getDeployedSpokeConnecterContract,
+  hubConnector: getDeployedHubConnecterContract,
 };
 
 /// MARK - CONTRACT INTERFACES
@@ -173,9 +170,6 @@ export const getConnextInterface = () => new utils.Interface(ConnextArtifact.abi
 export const getPriceOracleInterface = () =>
   new utils.Interface(PriceOracleArtifact.abi) as TConnextPriceOracle["interface"];
 
-export const getTokenRegistryInterface = () =>
-  new utils.Interface(ITokenRegistryArtifact.abi) as TTokenRegistry["interface"];
-
 export const getStableSwapInterface = () => new utils.Interface(StableSwapArtifact.abi) as TStableSwap["interface"];
 
 export const getSpokeConnectorInterface = () =>
@@ -186,7 +180,6 @@ export type ConnextContractInterfaces = {
   erc20Extended: TIERC20Extended["interface"];
   connext: TConnext["interface"];
   priceOracle: TConnextPriceOracle["interface"];
-  tokenRegistry: TTokenRegistry["interface"];
   stableSwap: TStableSwap["interface"];
   spokeConnector: TSpokeConnector["interface"];
 };
@@ -196,7 +189,6 @@ export const getContractInterfaces = (): ConnextContractInterfaces => ({
   erc20Extended: getErc20ExtendedInterface(),
   connext: getConnextInterface(),
   priceOracle: getPriceOracleInterface(),
-  tokenRegistry: getTokenRegistryInterface(),
   stableSwap: getStableSwapInterface(),
   spokeConnector: getSpokeConnectorInterface(),
 });

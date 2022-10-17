@@ -1,5 +1,5 @@
 [
-  "constructor(uint32,uint32,address,address,address,uint256)",
+  "constructor(uint32,uint32,address,address,address,uint256,address)",
   "error ProposedOwnable__acceptProposedOwner_delayNotElapsed()",
   "error ProposedOwnable__onlyOwner_notOwner()",
   "error ProposedOwnable__onlyProposed_notProposedOwner()",
@@ -12,6 +12,7 @@
   "event MessageSent(bytes,address)",
   "event MirrorConnectorUpdated(address,address)",
   "event MirrorGasUpdated(uint256,uint256)",
+  "event NewConnector(uint32 indexed,uint32 indexed,address,address,address)",
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "function AMB() view returns (address)",
@@ -24,6 +25,8 @@
   "function mirrorGas() view returns (uint256)",
   "function owner() view returns (address)",
   "function processMessage(bytes)",
+  "function processMessageFromRoot(address,address,bytes,uint256,tuple(bytes32,tuple(uint256,bytes32,uint256,uint256,bytes),tuple(uint256,bytes32[]),bytes,bytes))",
+  "function processed(bytes32) view returns (bool)",
   "function proposeNewOwner(address)",
   "function proposed() view returns (address)",
   "function proposedTimestamp() view returns (uint256)",
@@ -32,5 +35,6 @@
   "function sendMessage(bytes)",
   "function setMirrorConnector(address)",
   "function setMirrorGas(uint256)",
+  "function stateCommitmentChain() view returns (address)",
   "function verifySender(address) returns (bool)"
 ]

@@ -20,15 +20,13 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
   )
     HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
     FxBaseRootTunnel(_checkPointManager, _amb)
-  {
-    setFxChildTunnel(_mirrorConnector);
-  }
+  {}
 
   // ============ Private fns ============
 
   function _verifySender(address _expected) internal view override returns (bool) {
-    // FIXME: doesnt check sender on polygon
-    return true;
+    // NOTE: always return false on polygon
+    return false;
   }
 
   function _sendMessage(bytes memory _data) internal override {
@@ -36,13 +34,23 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
   }
 
   function _processMessageFromChild(bytes memory message) internal override {
+    // NOTE: crosschain sender is not directly exposed by the child message
+
+    // do not need any additional sender or origin checks here since the proof contains inclusion proofs of the snapshots
+
     // get the data (should be the aggregate root)
     require(message.length == 32, "!length");
     // update the root on the root manager
-    IRootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, bytes32(message));
+    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(message));
 
     emit MessageProcessed(message, msg.sender);
   }
 
   function _processMessage(bytes memory _data) internal override {}
+
+  function _setMirrorConnector(address _mirrorConnector) internal override {
+    super._setMirrorConnector(_mirrorConnector);
+
+    setFxChildTunnel(_mirrorConnector);
+  }
 }

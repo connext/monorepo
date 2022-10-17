@@ -51,23 +51,21 @@ describe("Helpers:Auctions", () => {
         params: {
           originDomain: transfer.xparams.originDomain,
           destinationDomain: transfer.xparams.destinationDomain,
+          canonicalDomain: transfer.xparams.canonicalDomain,
           to: transfer.xparams.to,
-          callData: transfer.xparams.callData,
-          callback: constants.AddressZero,
-          callbackFee: "0",
-          recovery: transfer.xparams.recovery,
-          forceSlow: transfer.xparams.forceSlow,
+
+          delegate: transfer.xparams.delegate,
           receiveLocal: transfer.xparams.receiveLocal,
-          agent: transfer.xparams.agent,
-          relayerFee: transfer.xparams.relayerFee,
-          destinationMinOut: transfer.xparams.destinationMinOut,
+          callData: transfer.xparams.callData,
+          slippage: transfer.xparams.slippage,
+          originSender: transfer.xparams.originSender,
+          bridgedAmt: transfer.xparams.bridgedAmt,
+          normalizedIn: transfer.xparams.normalizedIn,
+          nonce: transfer.xparams.nonce,
+          canonicalId: transfer.xparams.canonicalId,
         },
-        local: mockLocalAsset,
         routers: bids.map((b) => b.router),
         routerSignatures: bids.map((b) => b.signatures[round.toString()]),
-        amount: transfer.origin.assets.bridged.amount,
-        nonce: transfer.nonce,
-        originSender: transfer.origin.xcall.caller,
         sequencer: mockSequencer,
         sequencerSignature: mock.signature,
       };
@@ -92,13 +90,27 @@ describe("Helpers:Auctions", () => {
       const canonicalId = "0x123";
       const mockLocalAsset = "0x456";
       (ctxMock.adapters.subgraph as any).getAssetByLocal.resolves({ canonicalId });
-      (ctxMock.adapters.subgraph as any).getAssetByCanonicalId.resolves({ local: mockLocalAsset });
+      (ctxMock.adapters.subgraph as any).getAssetByCanonicalId.resolves({ localAsset: mockLocalAsset });
       const origin = mock.domain.A;
       const originLocal = mock.asset.A.address;
       const destination = mock.domain.B;
 
       const localAsset = await getDestinationLocalAsset(origin, originLocal, destination);
       expect(localAsset).to.be.eq(mockLocalAsset);
+      expect((ctxMock.adapters.subgraph as any).getAssetByLocal).calledOnceWithExactly(origin, originLocal);
+      expect((ctxMock.adapters.subgraph as any).getAssetByCanonicalId).calledOnceWithExactly(destination, canonicalId);
+    });
+    it("should return native asset if origin transacting asset is native asset", async () => {
+      const canonicalId = "0x123";
+      const mockLocalAsset = constants.AddressZero;
+      (ctxMock.adapters.subgraph as any).getAssetByLocal.resolves({ canonicalId });
+      (ctxMock.adapters.subgraph as any).getAssetByCanonicalId.resolves({ localAsset: mockLocalAsset });
+      const origin = mock.domain.A;
+      const originLocal = mock.asset.A.address;
+      const destination = mock.domain.B;
+
+      const localAsset = await getDestinationLocalAsset(origin, originLocal, destination);
+      expect(localAsset).to.be.eq(constants.AddressZero);
       expect((ctxMock.adapters.subgraph as any).getAssetByLocal).calledOnceWithExactly(origin, originLocal);
       expect((ctxMock.adapters.subgraph as any).getAssetByCanonicalId).calledOnceWithExactly(destination, canonicalId);
     });

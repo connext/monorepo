@@ -9,31 +9,39 @@ import { ctxMock, getHelpersStub } from "../../globalTestHook";
 const mockTransfers: XTransfer[] = [
   {
     ...mock.entity.xtransfer(),
-    params: {
-      to: mkAddress("0xbeefdead"),
-      callData: "0x0",
+    xparams: {
       originDomain: "1337",
       destinationDomain: "1338",
+      canonicalDomain: "1337",
+      to: mkAddress("0xbeefdead"),
+      delegate: mkAddress("0xdelegate"),
+      receiveLocal: false,
+      callData: "0x0",
+      slippage: "0",
+      originSender: mkAddress("0xoriginsender"),
+      bridgedAmt: "100",
+      normalizedIn: "100",
+      nonce: 1,
+      canonicalId: "0xcanonical",
     },
-    local: mkAddress("0xdedddddddddddddd"),
-    relayerFee: "0.1",
-    amount: "10",
-    nonce: 0,
-    originSender: mkAddress("0xsenderorigin"),
   },
   {
     ...mock.entity.xtransfer(),
-    params: {
-      to: mkAddress("0xbeefdead"),
-      callData: "0x0",
+    xparams: {
       originDomain: "1337",
       destinationDomain: "1338",
+      canonicalDomain: "1337",
+      to: mkAddress("0xbeefdead"),
+      delegate: mkAddress("0xdelegate"),
+      receiveLocal: false,
+      callData: "0x0",
+      slippage: "0",
+      originSender: mkAddress("0xoriginsender"),
+      bridgedAmt: "100",
+      normalizedIn: "100",
+      nonce: 2,
+      canonicalId: "0xcanonical",
     },
-    local: mkAddress("0xdedddddddddddddd"),
-    relayerFee: "0.1",
-    amount: "10",
-    nonce: 7,
-    originSender: mkAddress("0xoriginsender"),
   },
 ];
 
@@ -43,19 +51,19 @@ const mockAxiosErrorResponse = { isAxiosError: true, code: 500, response: "Inval
 const mockAxiosSuccessResponse = { taskId: 1, msg: "success" };
 const loggingContext = mock.loggingContext("RELAYER-TEST");
 describe("Adapters: Gelato", () => {
-  let gelatoSendStub: SinonStub;
+  let gelatoSDKSendStub: SinonStub;
   let isChainSupportedByGelatoStub: SinonStub;
   let encodeExecuteFromBidsStub: SinonStub;
   let getGelatoRelayerAddressStub: SinonStub;
   beforeEach(() => {
-    gelatoSendStub = stub();
+    gelatoSDKSendStub = stub();
     isChainSupportedByGelatoStub = stub();
     encodeExecuteFromBidsStub = stub();
     getGelatoRelayerAddressStub = stub();
 
     getHelpersStub.returns({
       relayer: {
-        gelatoSend: gelatoSendStub.resolves(mockAxiosSuccessResponse),
+        gelatoSDKSend: gelatoSDKSendStub.resolves(mockAxiosSuccessResponse),
         isChainSupportedByGelato: isChainSupportedByGelatoStub.resolves(true),
         getGelatoRelayerAddress: getGelatoRelayerAddressStub.resolves(mkAddress("0xrelayer")),
       },
@@ -74,12 +82,13 @@ describe("Adapters: Gelato", () => {
 
   describe("#send", () => {
     it("should error if gelato returns error", async () => {
-      gelatoSendStub.resolves(mockAxiosErrorResponse);
+      gelatoSDKSendStub.resolves(mockAxiosErrorResponse);
       expect(
         send(
           Number(mock.chain.A),
           ctxMock.config.chains[mock.domain.A].deployments.connext,
           "0xbeed",
+          ctxMock.config.gelatoApiKey,
           loggingContext.requestContext,
         ),
       ).to.eventually.be.rejectedWith(RelayerSendFailed);
@@ -92,6 +101,7 @@ describe("Adapters: Gelato", () => {
           Number(mock.chain.A),
           ctxMock.config.chains[mock.domain.A].deployments.connext,
           "0xbeed",
+          ctxMock.config.gelatoApiKey,
           loggingContext.requestContext,
         ),
       ).to.eventually.be.rejectedWith(Error);
@@ -102,9 +112,10 @@ describe("Adapters: Gelato", () => {
         Number(mock.chain.A),
         ctxMock.config.chains[mock.domain.A].deployments.connext,
         "0xbeed",
+        ctxMock.config.gelatoApiKey,
         loggingContext.requestContext,
       );
-      expect(gelatoSendStub).to.be.calledOnce;
+      expect(gelatoSDKSendStub).to.be.calledOnce;
       expect(taskId).to.eq(mockAxiosSuccessResponse.taskId);
     });
   });

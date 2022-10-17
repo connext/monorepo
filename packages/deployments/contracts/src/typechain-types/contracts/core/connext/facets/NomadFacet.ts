@@ -29,19 +29,11 @@ import type {
 
 export interface NomadFacetInterface extends utils.Interface {
   functions: {
-    "bridgeRouter()": FunctionFragment;
     "onReceive(uint32,bytes32,uint32,bytes32,address,uint256,bytes)": FunctionFragment;
-    "setBridgeRouter(address)": FunctionFragment;
   };
 
-  getFunction(
-    nameOrSignatureOrTopic: "bridgeRouter" | "onReceive" | "setBridgeRouter"
-  ): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "onReceive"): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "bridgeRouter",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "onReceive",
     values: [
@@ -54,24 +46,12 @@ export interface NomadFacetInterface extends utils.Interface {
       PromiseOrValue<BytesLike>
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setBridgeRouter",
-    values: [PromiseOrValue<string>]
-  ): string;
 
-  decodeFunctionResult(
-    functionFragment: "bridgeRouter",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "onReceive", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setBridgeRouter",
-    data: BytesLike
-  ): Result;
 
   events: {
     "BridgeRouterUpdated(address,address,address)": EventFragment;
-    "Reconciled(bytes32,address[],address,uint256,address)": EventFragment;
+    "Reconciled(bytes32,uint32,address[],address,uint256,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "BridgeRouterUpdated"): EventFragment;
@@ -93,13 +73,14 @@ export type BridgeRouterUpdatedEventFilter =
 
 export interface ReconciledEventObject {
   transferId: string;
+  originDomain: number;
   routers: string[];
   asset: string;
   amount: BigNumber;
   caller: string;
 }
 export type ReconciledEvent = TypedEvent<
-  [string, string[], string, BigNumber, string],
+  [string, number, string[], string, BigNumber, string],
   ReconciledEventObject
 >;
 
@@ -132,59 +113,38 @@ export interface NomadFacet extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    bridgeRouter(overrides?: CallOverrides): Promise<[string]>;
-
     onReceive(
       _origin: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       _localToken: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
       _extraData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    setBridgeRouter(
-      _bridgeRouter: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
   };
-
-  bridgeRouter(overrides?: CallOverrides): Promise<string>;
 
   onReceive(
     _origin: PromiseOrValue<BigNumberish>,
     _sender: PromiseOrValue<BytesLike>,
-    _tokenDomain: PromiseOrValue<BigNumberish>,
-    _tokenAddress: PromiseOrValue<BytesLike>,
+    arg2: PromiseOrValue<BigNumberish>,
+    arg3: PromiseOrValue<BytesLike>,
     _localToken: PromiseOrValue<string>,
     _amount: PromiseOrValue<BigNumberish>,
     _extraData: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setBridgeRouter(
-    _bridgeRouter: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
-    bridgeRouter(overrides?: CallOverrides): Promise<string>;
-
     onReceive(
       _origin: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       _localToken: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
       _extraData: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setBridgeRouter(
-      _bridgeRouter: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -201,8 +161,9 @@ export interface NomadFacet extends BaseContract {
       caller?: null
     ): BridgeRouterUpdatedEventFilter;
 
-    "Reconciled(bytes32,address[],address,uint256,address)"(
+    "Reconciled(bytes32,uint32,address[],address,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
+      originDomain?: null,
       routers?: null,
       asset?: null,
       amount?: null,
@@ -210,6 +171,7 @@ export interface NomadFacet extends BaseContract {
     ): ReconciledEventFilter;
     Reconciled(
       transferId?: PromiseOrValue<BytesLike> | null,
+      originDomain?: null,
       routers?: null,
       asset?: null,
       amount?: null,
@@ -218,41 +180,27 @@ export interface NomadFacet extends BaseContract {
   };
 
   estimateGas: {
-    bridgeRouter(overrides?: CallOverrides): Promise<BigNumber>;
-
     onReceive(
       _origin: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       _localToken: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
       _extraData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setBridgeRouter(
-      _bridgeRouter: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    bridgeRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     onReceive(
       _origin: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       _localToken: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
       _extraData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setBridgeRouter(
-      _bridgeRouter: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

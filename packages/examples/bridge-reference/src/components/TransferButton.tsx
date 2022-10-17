@@ -99,33 +99,23 @@ export const TransferButton = ({
       const destination_chain_data = chains?.find((c) => c?.id === destination_chain?.id);
 
       const xcallParams = {
-        params: {
-          to: address!,
-          callData: "0x",
-          originDomain: source_chain_data!.domain_id!,
-          destinationDomain: destination_chain_data!.domain_id!,
-          agent: address!,
-          callback: constants.AddressZero,
-          recovery: address!,
-          forceSlow: false,
-          receiveLocal: false,
-          relayerFee: "0",
-          destinationMinOut: utils
-            .parseUnits(min_amount_out.toString(), source_contract_data?.decimals || 18)
-            .toString(),
-        },
-        transactingAsset: source_contract_data!.contract_address!,
-        transactingAmount: utils.parseUnits(amount?.toString() || "0", source_contract_data?.decimals || 18).toString(),
-        originMinOut: utils.parseUnits(min_amount_out.toString(), source_contract_data?.decimals || 18).toString(),
+        destination: destination_chain_data!.domain_id!,
+        to: address!,
+        asset: source_contract_data!.contract_address!,
+        delegate: address!,
+        amount: utils.parseUnits(amount?.toString() || "0", source_contract_data?.decimals || 18).toString(),
+        slippage: utils.parseUnits(min_amount_out.toString(), source_contract_data?.decimals || 18).toString(),
+        callData: "0x",
+        origin: source_chain_data!.domain_id!,
       };
 
       let failed = false;
 
       try {
         const approve_request = await sdk.nxtpSdkBase.approveIfNeeded(
-          xcallParams.params.originDomain,
-          xcallParams.transactingAsset,
-          xcallParams.transactingAmount,
+          xcallParams.origin,
+          xcallParams.asset,
+          xcallParams.amount,
           false,
         );
 

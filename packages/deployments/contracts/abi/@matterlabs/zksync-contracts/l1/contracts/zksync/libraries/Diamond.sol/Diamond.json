@@ -1,0 +1,3 @@
+[
+  "event DiamondCut(tuple(address,uint8,bool,bytes4[])[],address,bytes)"
+]

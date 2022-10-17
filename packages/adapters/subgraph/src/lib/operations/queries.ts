@@ -1,44 +1,68 @@
 import { gql } from "graphql-request";
 import {
   SubgraphQueryMetaParams,
-  XTransferStatus,
   SubgraphQueryByTransferIDsMetaParams,
   SubgraphQueryByTimestampMetaParams,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../reader";
 
+export const ASSET_ENTITY = `
+      id,
+      key,
+      canonicalId,
+      canonicalDomain,
+      adoptedAsset,
+      localAsset,
+      blockNumber,
+`;
+export const ORIGIN_MESSAGE_ENTITY = `
+      id
+      leaf
+      index
+      root
+      message
+      transferId
+      destinationDomain
+      transactionHash
+`;
+export const DESTINATION_MESSAGE_ENTITY = `
+      id
+      leaf
+      processed
+      returnData
+`;
 export const ORIGIN_TRANSFER_ENTITY = `
       id
-      # Meta Data
       chainId
       transferId
       nonce
-
-      # call params
-      to
-      callData
+      status
+      messageHash
+    
+      # TransferInfo
       originDomain
       destinationDomain
-      forceSlow
+      canonicalDomain
+      to
+      delegate
       receiveLocal
-      recovery
-      agent
-      callback
-      callbackFee
-      relayerFee
-      slippageTol
-      destinationMinOut
-      
-      # Asset Data
-      transactingAsset
-      transactingAmount
-      originMinOut
-      bridgedAsset
-      bridgedAmount
+      callData
+      slippage
+      originSender
+      bridgedAmt
+      normalizedIn
+      canonicalId
+    
+      # Asset
+      asset {
+        ${ASSET_ENTITY}
+      }
 
-      # Event Data
-      message
+      # Message
+      message { 
+        ${ORIGIN_MESSAGE_ENTITY}
+      }
 
       # XCalled Transaction
       caller
@@ -52,40 +76,33 @@ export const ORIGIN_TRANSFER_ENTITY = `
 export const DESTINATION_TRANSFER_ENTITY = `
       id
 
-      # Meta Data
+      # Meta
       chainId
       transferId
       nonce
-
-      # call params
-      to
-      callData
-      originDomain
-      destinationDomain
-      forceSlow
-      receiveLocal
-      recovery
-      agent
-      callback
-      callbackFee
-      relayerFee
-      slippageTol
-      destinationMinOut
-
-      # Asset Data
-      localAsset
-      localAmount
-      originMinOut
-      transactingAsset
-      transactingAmount
-      sponsorVaultRelayerFee
-
-      # Executed event Data
       status
       routers {
         id
       }
+
+      # TransferInfo
+      originDomain
+      destinationDomain
+      canonicalDomain
+      to
+      delegate
+      receiveLocal
+      callData
+      slippage
       originSender
+      bridgedAmt
+      normalizedIn
+      canonicalId
+
+      # Asset
+      asset {
+        ${ASSET_ENTITY}
+      }
 
       # Executed Transaction
       executedCaller
@@ -109,21 +126,53 @@ export const BLOCK_NUMBER_ENTITY = `
         number
       }
 `;
-
-export const ORIGIN_MESSAGE_ENTITY = `
+export const ROOT_MESSAGE_SENT_ENTITY = `
       id
-      leaf
-      index
+      spokeDomain
+      hubDomain
       root
-      message
-      destinationDomain
+      caller
+      transactionHash
+      timestamp
+      gasPrice
+      gasLimit
+      blockNumber
+      count
 `;
-export const DESTINATION_MESSAGE_ENTITY = `
+export const ROOT_MESSAGE_PROCESSED_ENTITY = `
       id
-      leaf
-      processed
-      returnData
+      spokeDomain
+      hubDomain
+      root
+      caller
+      transactionHash
+      timestamp
+      gasPrice
+      gasLimit
+      blockNumber
 `;
+export const ROOT_AGGREGATED_ENTITY = `
+      id
+      domain
+      receivedRoot
+      index
+`;
+export const ROOT_PROPAGATED_ENTITY = `
+      id
+      aggregate
+      domains
+      count
+`;
+
+export const CONNECTOR_META_ENTITY = `
+      amb
+      hubDomain
+      id
+      mirrorConnector
+      rootManager
+      spokeDomain
+`;
+
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };
@@ -160,11 +209,7 @@ export const getAssetBalanceQuery = (prefix: string, router: string, local: stri
     ${prefix}_assetBalance(id: "${local}-${router}") {
       amount
       asset {
-        canonicalId
-        canonicalDomain
-        local
-        adoptedAsset
-        blockNumber
+        ${ASSET_ENTITY}
       }
     }`;
   return gql`
@@ -179,11 +224,7 @@ export const getAssetBalancesQuery = (prefix: string, router: string): string =>
     ${prefix}_assetBalances(where: { router: "${router}" }) {
       amount
       asset {
-          canonicalId
-          canonicalDomain
-          local
-          adoptedAsset
-          blockNumber
+        ${ASSET_ENTITY}
       }
     }`;
 
@@ -208,13 +249,10 @@ export const getAssetBalancesRoutersQuery = (
     orderDirection: ${orderDirection}) {
       id
       assetBalances {
+        id
         amount
         asset {
-          local
-          adoptedAsset
-          canonicalId
-          canonicalDomain
-          blockNumber
+          ${ASSET_ENTITY}
         }
       }
     }`;
@@ -241,13 +279,8 @@ export const getRouterQuery = (prefix: string, router: string): string => {
 
 export const getAssetByLocalQuery = (prefix: string, local: string): string => {
   const queryString = `
-    ${prefix}_assets(where: { local: "${local}" }) {
-      id
-      local
-      adoptedAsset
-      canonicalId
-      canonicalDomain
-      blockNumber
+    ${prefix}_assets(where: { id: "${local}" }) {
+      ${ASSET_ENTITY}
     }`;
   return gql`
     query GetAssetByLocal {
@@ -259,14 +292,8 @@ export const getAssetByLocalQuery = (prefix: string, local: string): string => {
 export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string): string => {
   const str = `
     ${prefix}_assets(where: { canonicalId: "${canonicalId}" }, orderBy: blockNumber, orderDirection: desc) {
-            id
-            local
-            adoptedAsset
-            canonicalId
-            canonicalDomain
-            blockNumber
-        }
-    `;
+          ${ASSET_ENTITY}
+        }`;
 
   return gql`
     query GetAssetByCanonicalId {
@@ -300,13 +327,11 @@ const originTransferQueryString = (
   originDomain: string,
   fromNonce: number,
   destinationDomains: string[],
-  forceSlow: boolean,
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "desc",
 ) => {
   return `${prefix}_originTransfers(
     where: {
-      forceSlow: ${forceSlow},
       originDomain: ${originDomain},
       nonce_gte: ${fromNonce},
       destinationDomain_in: [${destinationDomains}]
@@ -330,7 +355,6 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
         domain,
         agents.get(domain)!.latestNonce,
         domains,
-        agents.get(domain)?.forceSlow ?? false,
         agents.get(domain)!.maxBlockNumber,
         agents.get(domain)!.orderDirection,
       );
@@ -531,20 +555,28 @@ export const getDestinationTransfersByDomainAndReconcileTimestampQuery = (
   `;
 };
 
-const destinationTransfersByIdsQueryString = (
-  prefix: string,
-  transferIds: string[],
-  maxBlockNumber?: number,
-  status?: XTransferStatus,
-) => {
-  return `${prefix}_destinationTransfers ( where: { transferId_in: [${transferIds}] ${
-    maxBlockNumber ? `, executedBlockNumber_lte: ${maxBlockNumber}, reconciledBlockNumber_lte: ${maxBlockNumber}` : ""
-  } ${status ? `, status: ${status}` : ""}}, orderBy: nonce, orderDirection: desc) {${DESTINATION_TRANSFER_ENTITY}}`;
+const destinationTransfersByIdsQueryString = (prefix: string, transferIds: string[]) => {
+  return `
+  ${prefix}_destinationTransfers ( 
+    where: { 
+      transferId_in: [${transferIds}]
+    }, 
+    orderBy: nonce, 
+    orderDirection: desc
+  ) {
+    ${DESTINATION_TRANSFER_ENTITY}
+  }`;
 };
 
 export const getDestinationTransfersByIdsQuery = (prefix: string, transferIds: string[]): string => {
   const queryStr = `
-    ${prefix}_destinationTransfers(where: { transferId_in: [${transferIds}] }) {${DESTINATION_TRANSFER_ENTITY}}`;
+    ${prefix}_destinationTransfers(
+      where: { 
+        transferId_in: [${transferIds}] 
+      }
+    ) {
+      ${DESTINATION_TRANSFER_ENTITY}
+    }`;
   return gql`
     query GetDestinationTransfers {
       ${queryStr}
@@ -573,7 +605,19 @@ export const getOriginMessagesByDomainAndIndexQuery = (
   let combinedQuery = "";
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
-    combinedQuery += `${prefix}_originMessages ( first: ${param.limit}, where: { index_gte: ${param.offset}}) {${ORIGIN_MESSAGE_ENTITY}} orderBy: index, orderDirection: asc`;
+    combinedQuery += `
+    ${prefix}_originMessages ( 
+      first: ${param.limit}, 
+      where: { 
+        index_gte: ${param.offset}, 
+        transferId_not: null, 
+        destinationDomain_not: null
+      }
+    ) {
+      ${ORIGIN_MESSAGE_ENTITY}
+    } 
+    orderBy: index, 
+    orderDirection: asc`;
   }
 
   return gql`
@@ -588,13 +632,139 @@ export const getDestinationMessagesByDomainAndLeafQuery = (params: Map<string, s
   let combinedQuery = "";
   for (const domain of params.keys()) {
     const prefix = config.sources[domain].prefix;
-    combinedQuery += `${prefix}_destinationMessages ( where: { leaf_id: [${params.get(
-      domain,
-    )}] }) {${DESTINATION_MESSAGE_ENTITY}}`;
+    const leafs = [...params.get(domain)!.map((leaf) => `"${leaf}"`)];
+    combinedQuery += `
+    ${prefix}_destinationMessages ( 
+      where: { 
+        leaf_in: [${leafs}] 
+      }
+    ) {
+      ${DESTINATION_MESSAGE_ENTITY}
+    }`;
   }
 
   return gql`
     query GetOriginMessages {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getSentRootMessagesByDomainAndBlockQuery = (
+  params: { domain: string; offset: number; limit: number }[],
+) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.domain].prefix;
+    combinedQuery += `
+    ${prefix}_rootMessageSents ( 
+      first: ${param.limit}, 
+      where: { 
+        blockNumber_gt: ${param.offset} 
+      }
+    ) {
+      ${ROOT_MESSAGE_SENT_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetSentRootMessages {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getProcessedRootMessagesByDomainAndBlockQuery = (
+  params: { domain: string; offset: number; limit: number }[],
+) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.domain].prefix;
+    combinedQuery += `
+    ${prefix}_rootMessageProcesseds ( 
+      first: ${param.limit}, 
+      where: { 
+        blockNumber_gt: ${param.offset} 
+      }
+    ) {
+      ${ROOT_MESSAGE_PROCESSED_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetProcessedRootMessages {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getAggregatedRootsByDomainQuery = (
+  params: { hub: string; domain: string; index: number; limit: number }[],
+) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.hub].prefix;
+    combinedQuery += `
+    ${prefix}_rootAggregateds ( 
+      first: ${param.limit}, 
+      where: { 
+        domain: "${param.domain}",
+        index_gte: ${param.index}
+      }
+      orderBy: index, 
+      orderDirection: asc
+    ) {
+      ${ROOT_AGGREGATED_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetAggregatedRoots {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getPropagatedRootsQuery = (domain: string, count: number, limit: number) => {
+  const { config } = getContext();
+  const prefix = config.sources[domain].prefix;
+  const queryString = `
+  ${prefix}_rootPropagateds ( 
+    first: ${limit}, 
+    where: { 
+      count_gte: ${count} 
+    },
+    orderBy: count, 
+    orderDirection: asc
+  ) {
+    ${ROOT_PROPAGATED_ENTITY}
+  }`;
+
+  return gql`
+    query GetPropagatedRoots {
+      ${queryString}
+    }
+  `;
+};
+
+export const CONNECTOR_META_ID = "CONNECTOR_META_ID";
+
+export const getConnectorMetaQuery = (domains: string[]) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    combinedQuery += `
+    ${prefix}_connectorMeta (id: "${CONNECTOR_META_ID}") {
+      ${CONNECTOR_META_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetConnectorMeta {
       ${combinedQuery}
     }
   `;

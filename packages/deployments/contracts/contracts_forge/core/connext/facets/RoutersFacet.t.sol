@@ -5,12 +5,9 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
-import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
-import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {RoutersFacet, BaseConnextFacet} from "../../../../contracts/core/connext/facets/RoutersFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
-import {MockTokenRegistry} from "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
 
 contract RoutersFacetTest is RoutersFacet, FacetHelper {
@@ -36,11 +33,14 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   address _asset0 = address(333000111);
   address _asset1 = address(333001111);
 
+  bytes32 _key;
+
   // ============ Test set up ============
   function setUp() public {
     setOwner(_owner);
     utils_deployAssetContracts();
     utils_setupAsset(true, false);
+    _key = keccak256(abi.encode(_canonicalId, _canonicalDomain));
   }
 
   // ============ Utils ==============
@@ -134,8 +134,8 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // ============ Admin methods ==============
 
-  function test_RoutersFacet__setupRouter_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+  function test_RoutersFacet__setupRouter_failsIfNotOwnerOrRouter() public {
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter.selector);
     vm.prank(address(123456123));
     this.setupRouter(address(0), _routerOwner0, _routerRecipient0);
   }
@@ -237,8 +237,8 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     assertEq(s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0], false);
   }
 
-  function test_RoutersFacet__removeRouter_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+  function test_RoutersFacet__removeRouter_failsIfNotOwnerOrRouter() public {
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter.selector);
     vm.prank(address(123456123));
     this.removeRouter(address(0));
   }
@@ -332,7 +332,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__setMaxRoutersPerTransfer_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     vm.prank(address(123456654321));
     this.setMaxRoutersPerTransfer(10);
   }
@@ -367,7 +367,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__setLiquidityFeeNumerator_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
     vm.prank(address(123456654321));
     this.setLiquidityFeeNumerator(9995);
   }
@@ -680,6 +680,15 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     this.addRouterLiquidityFor(amount, _local, address(0));
   }
 
+  function test_RoutersFacet__addLiquidityForRouter_failsIfHitsCap() public {
+    uint256 amount = 10;
+    utils_setupAsset(true, true);
+    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.caps[utils_calculateCanonicalHash()] = 1;
+    vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_capReached.selector);
+    this.addRouterLiquidityFor(amount, _local, _routerAgent0);
+  }
+
   function test_RoutersFacet__addLiquidityForRouter_failsIfNoAmount() public {
     uint256 amount = 0;
     vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_amountIsZero.selector);
@@ -695,9 +704,9 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   function test_RoutersFacet__addLiquidityForRouter_failsIfAssetUnapproved() public {
     s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.approvedAssets[_canonicalId] = false;
+    s.approvedAssets[utils_calculateCanonicalHash()] = false;
     uint256 amount = 10000;
-    vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_badAsset.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notWhitelisted.selector);
     this.addRouterLiquidityFor(amount, _local, _routerAgent0);
   }
 
@@ -770,7 +779,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 initBalance = IERC20(_local).balanceOf(to);
 
     vm.expectEmit(true, true, true, true);
-    emit RouterLiquidityRemoved(_routerAgent0, to, _local, amount, _routerAgent0);
+    emit RouterLiquidityRemoved(_routerAgent0, to, _local, _key, amount, _routerAgent0);
     vm.prank(_routerAgent0);
     this.removeRouterLiquidityFor(amount, _local, payable(to), _routerAgent0);
 
@@ -823,7 +832,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 initBalance = IERC20(_local).balanceOf(_routerRecipient0);
 
     vm.expectEmit(true, true, true, true);
-    emit RouterLiquidityRemoved(_routerAgent0, _routerRecipient0, _local, amount, _routerAgent0);
+    emit RouterLiquidityRemoved(_routerAgent0, _routerRecipient0, _local, _key, amount, _routerAgent0);
     vm.prank(_routerAgent0);
     this.removeRouterLiquidity(amount, _local, payable(to));
 
@@ -843,7 +852,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 initBalance = IERC20(_local).balanceOf(to);
 
     vm.expectEmit(true, true, true, true);
-    emit RouterLiquidityRemoved(_routerAgent0, to, _local, amount, _routerAgent0);
+    emit RouterLiquidityRemoved(_routerAgent0, to, _local, _key, amount, _routerAgent0);
     vm.prank(_routerAgent0);
     this.removeRouterLiquidity(amount, _local, payable(to));
 

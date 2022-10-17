@@ -1,19 +1,19 @@
-import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
+import { createLoggingContext, getChainData, Logger } from "@connext/nxtp-utils";
 import { getContractInterfaces, ChainReader, contractDeployments } from "@connext/nxtp-txservice";
+import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
 
 import { getConfig } from "../../config";
 
 import { ProverContext } from "./context";
 import { proveAndProcess } from "./operations";
-import { setupCartographer, setupRelayer } from "./adapters";
+import { setupRelayer } from "./adapters";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: ProverContext = {} as any;
 export const getContext = () => context;
 
 export const makeProver = async () => {
-  const requestContext = createRequestContext(makeProver.name);
-  const methodContext = createMethodContext(makeProver.name);
+  const { requestContext, methodContext } = createLoggingContext(makeProver.name);
 
   try {
     // Get ChainData and parse out configuration.
@@ -44,7 +44,7 @@ export const makeProver = async () => {
       context.logger.child({ module: "ChainReader" }),
       context.config.chains,
     );
-    context.adapters.cartographer = await setupCartographer();
+    context.adapters.database = await getDatabase(context.config.database.url, context.logger);
     context.adapters.relayer = await setupRelayer();
     context.adapters.contracts = getContractInterfaces();
 
@@ -67,6 +67,7 @@ export const makeProver = async () => {
     await proveAndProcess();
   } catch (e: unknown) {
     console.error("Error starting Prover. Sad! :(", e);
+    await closeDatabase();
     process.exit();
   }
 };

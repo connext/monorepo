@@ -39,7 +39,6 @@ abstract contract HubConnector is Connector {
    * @notice Sends a message over the amb
    * @dev This is called by the root manager *only* on mainnet to propagate the aggregate root
    */
-  // TODO: make more opinionated (i.e. sendAggregateRoot)
   function sendMessage(bytes memory _data) external onlyRootManager {
     _sendMessage(_data);
     emit MessageSent(_data, msg.sender);

@@ -16,7 +16,7 @@ import Broker from "foo-foo-mq";
 
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../../globalTestHook";
 import { mock } from "../../../mock";
-import { AuctionExpired, BidVersionInvalid, MissingXCall, ParamsInvalid } from "../../../../src/lib/errors";
+import { AuctionExpired, RouterVersionInvalid, MissingXCall, ParamsInvalid } from "../../../../src/lib/errors";
 import { executeFastPathData, storeFastPathData } from "../../../../src/lib/operations/execute";
 import { getAllSubsets, getBidsRoundMap, getMinimumBidsCountForRound } from "../../../../src/lib/helpers/auctions";
 
@@ -135,7 +135,7 @@ describe("Operations:Execute:FastPath", () => {
         ...mock.entity.bid(),
         routerVersion: "0.0",
       };
-      await expect(storeFastPathData(invalidBid1, requestContext)).to.be.rejectedWith(BidVersionInvalid);
+      await expect(storeFastPathData(invalidBid1, requestContext)).to.be.rejectedWith(RouterVersionInvalid);
     });
 
     it("should error if the auction has expired", async () => {
@@ -649,6 +649,149 @@ describe("Operations:Execute:FastPath", () => {
     it("does nothing if none queued", async () => {
       getQueuedTransfersStub.resolves([]);
       await executeFastPathData(requestContext);
+    });
+
+    it("should succeed with 0-value amount", async () => {
+      getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
+      const taskId = getRandomBytes32();
+      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
+      const transferId = getRandomBytes32();
+      getQueuedTransfersStub.resolves([transferId]);
+
+      const amount = "0";
+
+      const router1 = mkAddress("0x111");
+      const router2 = mkAddress("0x112");
+      const router3 = mkAddress("0x113");
+      const bids: Record<string, Bid> = {};
+      bids[router1] = {
+        routerVersion: "0.0.0",
+        transferId: transferId,
+        origin: "1111",
+        router: router1,
+        signatures: {
+          "1": mkSig("0xrouter1_1"),
+        },
+      };
+      bids[router2] = {
+        routerVersion: "0.0.0",
+        transferId: transferId,
+        origin: "1111",
+        router: router2,
+        signatures: {
+          "1": mkSig("0xrouter2_1"),
+          "2": mkSig("0xrouter2_2"),
+          "4": mkSig("0xrouter2_4"),
+        },
+      };
+      bids[router3] = {
+        routerVersion: "0.0.0",
+        transferId: transferId,
+        origin: "1111",
+        router: router3,
+        signatures: {
+          "1": mkSig("0xrouter3_1"),
+          "2": mkSig("0xrouter3_2"),
+          "3": mkSig("0xrouter3_3"),
+        },
+      };
+
+      const auction = mock.entity.auction({
+        timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
+        bids,
+      });
+      getAuctionStub.resolves(auction);
+
+      const transfer = mock.entity.xtransfer({ transferId, amount });
+      getTransferStub.resolves(transfer);
+      await executeFastPathData(transferId, requestContext);
+      expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(1);
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[0]).to.be.eq(1);
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
+        {
+          routerVersion: "0.0.0",
+          transferId: transferId,
+          origin: "1111",
+          router: router1,
+          signatures: {
+            "1": mkSig("0xrouter1_1"),
+          },
+        },
+      ]);
+      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
+      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId, relayer: RelayerType.Mock }]);
+    });
+
+    it("should succeed with native asset", async () => {
+      getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
+      const taskId = getRandomBytes32();
+      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
+      const transferId = getRandomBytes32();
+      getQueuedTransfersStub.resolves([transferId]);
+
+      const asset = constants.AddressZero;
+      const amount = "0";
+
+      const router1 = mkAddress("0x111");
+      const router2 = mkAddress("0x112");
+      const router3 = mkAddress("0x113");
+      const bids: Record<string, Bid> = {};
+      bids[router1] = {
+        routerVersion: "0.0.0",
+        transferId: transferId,
+        origin: "1111",
+        router: router1,
+        signatures: {
+          "1": mkSig("0xrouter1_1"),
+        },
+      };
+      bids[router2] = {
+        routerVersion: "0.0.0",
+        transferId: transferId,
+        origin: "1111",
+        router: router2,
+        signatures: {
+          "1": mkSig("0xrouter2_1"),
+          "2": mkSig("0xrouter2_2"),
+          "4": mkSig("0xrouter2_4"),
+        },
+      };
+      bids[router3] = {
+        routerVersion: "0.0.0",
+        transferId: transferId,
+        origin: "1111",
+        router: router3,
+        signatures: {
+          "1": mkSig("0xrouter3_1"),
+          "2": mkSig("0xrouter3_2"),
+          "3": mkSig("0xrouter3_3"),
+        },
+      };
+
+      const auction = mock.entity.auction({
+        timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
+        bids,
+      });
+      getAuctionStub.resolves(auction);
+
+      const transfer = mock.entity.xtransfer({ transferId, amount, asset });
+      getTransferStub.resolves(transfer);
+      await executeFastPathData(transferId, requestContext);
+      expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(1);
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[0]).to.be.eq(1);
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
+        {
+          routerVersion: "0.0.0",
+          transferId: transferId,
+          origin: "1111",
+          router: router1,
+          signatures: {
+            "1": mkSig("0xrouter1_1"),
+          },
+        },
+      ]);
+      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
+      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId, relayer: RelayerType.Mock }]);
     });
   });
 });

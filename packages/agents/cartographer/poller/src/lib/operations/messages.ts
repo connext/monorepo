@@ -1,4 +1,5 @@
-import { createLoggingContext, XMessage } from "@connext/nxtp-utils";
+import { createLoggingContext, XMessage, RootMessage } from "@connext/nxtp-utils";
+
 import { getContext } from "../../shared";
 
 export const retrieveOriginMessages = async () => {
@@ -25,14 +26,18 @@ export const retrieveOriginMessages = async () => {
         leaf: _message.leaf,
         originDomain: _message.domain,
         destinationDomain: _message.destinationDomain,
+        transferId: _message.transferId,
         origin: { index: _message.index, root: _message.root, message: _message.message },
       };
     });
-    await database.saveMessages(xMessages);
 
-    // Reset offset at the end of the cycle.
     const newOffset = originMessages.length == 0 ? 0 : originMessages[originMessages.length - 1].index;
-    await database.saveCheckPoint("message_" + domain, newOffset);
+    await database.transaction(async (txnClient) => {
+      await database.saveMessages(xMessages, txnClient);
+
+      // Reset offset at the end of the cycle.
+      await database.saveCheckPoint("message_" + domain, newOffset, txnClient);
+    });
 
     logger.debug("Saved messages", requestContext, methodContext, { domain: domain, offset: newOffset });
   }
@@ -45,11 +50,11 @@ export const updateMessages = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateMessages.name);
   logger.debug("Updating messages", requestContext, methodContext);
-  const pendingMessages = await database.getPendingMessages();
+  const pendingMessages = await database.getUnProcessedMessages();
   const messageLeavesByDomain: Map<string, string[]> = new Map();
   for (const pendingMessage of pendingMessages) {
     if (messageLeavesByDomain.has(pendingMessage.destinationDomain)) {
-      messageLeavesByDomain.get(pendingMessage.destinationDomain);
+      messageLeavesByDomain.get(pendingMessage.destinationDomain)?.push(pendingMessage.leaf);
     } else {
       messageLeavesByDomain.set(pendingMessage.destinationDomain, [pendingMessage.leaf]);
     }
@@ -71,4 +76,79 @@ export const updateMessages = async () => {
 
   await database.saveMessages(xMessages);
   logger.debug("Updated messages", requestContext, methodContext, { count: xMessages.length });
+};
+
+export const retrieveSentRootMessages = async () => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(retrieveSentRootMessages.name);
+
+  for (const domain of domains) {
+    const offset = await database.getCheckPoint("sent_root_message_" + domain);
+    const limit = 100;
+    logger.debug("Retrieving sent root messages", requestContext, methodContext, {
+      domain: domain,
+      offset: offset,
+      limit: limit,
+    });
+
+    const sentRootMessages: RootMessage[] = await subgraph.getSentRootMessagesByDomain([{ domain, offset, limit }]);
+
+    // Reset offset at the end of the cycle.
+    const newOffset =
+      sentRootMessages.length == 0 ? 0 : Math.max(...sentRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
+
+    await database.transaction(async (txnClient) => {
+      await database.saveSentRootMessages(sentRootMessages, txnClient);
+
+      if (sentRootMessages.length > 0 && newOffset > offset) {
+        await database.saveCheckPoint("sent_root_message_" + domain, newOffset, txnClient);
+      }
+    });
+
+    logger.debug("Saved sent root messages", requestContext, methodContext, { domain: domain, offset: newOffset });
+  }
+};
+
+export const retrieveProcessedRootMessages = async () => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(retrieveProcessedRootMessages.name);
+
+  const connectorMetas = await subgraph.getConnectorMeta(domains);
+  const hubDomains = new Set(connectorMetas.map((meta) => meta.hubDomain));
+
+  for (const domain of [...hubDomains]) {
+    const offset = await database.getCheckPoint("processed_root_message_" + domain);
+    const limit = 100;
+    logger.debug("Retrieving processed root messages", requestContext, methodContext, {
+      domain: domain,
+      offset: offset,
+      limit: limit,
+    });
+
+    const processedRootMessages: RootMessage[] = await subgraph.getProcessedRootMessagesByDomain([
+      { domain, offset, limit },
+    ]);
+
+    // Reset offset at the end of the cycle.
+    const newOffset =
+      processedRootMessages.length == 0
+        ? 0
+        : Math.max(...processedRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
+
+    await database.saveProcessedRootMessages(processedRootMessages);
+
+    if (processedRootMessages.length > 0 && newOffset > offset) {
+      await database.saveCheckPoint("processed_root_message_" + domain, newOffset);
+    }
+
+    logger.debug("Saved processed root messages", requestContext, methodContext, { domain: domain, offset: newOffset });
+  }
 };

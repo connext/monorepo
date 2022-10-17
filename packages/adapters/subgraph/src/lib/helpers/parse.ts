@@ -1,4 +1,14 @@
-import { NxtpError, DestinationTransfer, OriginTransfer, OriginMessage, DestinationMessage } from "@connext/nxtp-utils";
+import {
+  NxtpError,
+  DestinationTransfer,
+  OriginMessage,
+  DestinationMessage,
+  RootMessage,
+  AggregatedRoot,
+  PropagatedRoot,
+  OriginTransfer,
+  ConnectorMeta,
+} from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
 import { XQueryResultParseError } from "../errors";
@@ -36,22 +46,22 @@ export const originTransfer = (entity: any): OriginTransfer => {
   return {
     // Meta Data
     transferId: entity.transferId,
-    nonce: BigNumber.from(entity.nonce).toNumber(),
 
     // Call Params
     xparams: {
-      to: entity.to,
-      callData: entity.callData,
-      callback: entity.callback,
-      callbackFee: entity.callbackFee,
-      relayerFee: entity.relayerFee,
-      forceSlow: entity.forceSlow,
-      receiveLocal: entity.receiveLocal,
       originDomain: entity.originDomain,
       destinationDomain: entity.destinationDomain,
-      recovery: entity.recovery,
-      agent: entity.agent,
-      destinationMinOut: entity.destinationMinOut,
+      canonicalDomain: entity.canonicalDomain,
+      to: entity.to,
+      delegate: entity.delegate,
+      receiveLocal: entity.receiveLocal,
+      callData: entity.callData,
+      slippage: entity.slippage,
+      originSender: entity.originSender,
+      bridgedAmt: entity.bridgedAmt,
+      normalizedIn: entity.normalizedIn,
+      nonce: BigNumber.from(entity.nonce).toNumber(),
+      canonicalId: entity.canonicalId,
     },
 
     // Origin Info
@@ -59,17 +69,17 @@ export const originTransfer = (entity: any): OriginTransfer => {
       chain: entity.chainId,
 
       // Event Data
-      originMinOut: entity.originMinOut,
+      messageHash: entity.messageHash,
 
       // Assets
       assets: {
         transacting: {
-          asset: entity.transactingAsset,
-          amount: entity.transactingAmount,
+          asset: entity.asset.adoptedAsset,
+          amount: entity.normalizedIn,
         },
         bridged: {
-          asset: entity.bridgedAsset,
-          amount: entity.bridgedAmount,
+          asset: entity.asset.id,
+          amount: entity.bridgedAmt,
         },
       },
 
@@ -101,10 +111,8 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
   }
   for (const field of [
     ...SHARED_TRANSFER_ENTITY_REQUIREMENTS,
-    // NOTE: destinationDomain is not emitted by Reconciled event, it could be undefined.
+    "destinationDomain",
     "originDomain",
-    "localAmount",
-    "localAsset",
     "status",
     "routers",
   ]) {
@@ -118,24 +126,23 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
 
   return {
     // Meta Data
-
     transferId: entity.transferId,
-    nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : undefined,
 
     // Call Params
     xparams: {
-      to: entity.to,
-      callData: entity.callData,
-      callback: entity.callback,
-      callbackFee: entity.callbackFee,
-      relayerFee: entity.relayerFee,
-      forceSlow: entity.forceSlow,
-      receiveLocal: entity.receiveLocal,
-      destinationDomain: entity.destinationDomain,
       originDomain: entity.originDomain,
-      recovery: entity.recovery,
-      agent: entity.agent,
-      destinationMinOut: entity.destinationMinOut,
+      destinationDomain: entity.destinationDomain,
+      canonicalDomain: entity.canonicalDomain,
+      to: entity.to,
+      delegate: entity.delegate,
+      receiveLocal: entity.receiveLocal,
+      callData: entity.callData,
+      slippage: entity.slippage,
+      originSender: entity.originSender,
+      bridgedAmt: entity.bridgedAmt,
+      normalizedIn: entity.normalizedIn,
+      nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : 0,
+      canonicalId: entity.canonicalId,
     },
 
     // Origin Info
@@ -152,15 +159,15 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
       // Assets
       assets: {
         transacting:
-          entity.transactingAmount && entity.transactingAsset
+          entity.amountOut && entity.asset
             ? {
-                asset: entity.transactingAsset,
-                amount: entity.transactingAmount,
+                asset: entity.asset.adoptedAsset,
+                amount: entity.amountOut,
               }
             : undefined,
         local: {
-          asset: entity.localAsset,
-          amount: entity.localAmount,
+          asset: entity.asset.id,
+          amount: entity.bridgedAmt,
         },
       },
 
@@ -200,7 +207,7 @@ export const originMessage = (entity: any): OriginMessage => {
   if (!entity) {
     throw new NxtpError("Subgraph `OriginMessage` entity parser: OriginMessage entity is `undefined`.");
   }
-  for (const field of ["index", "leaf", "root", "message", "domain"]) {
+  for (const field of ["index", "leaf", "root", "message", "domain", "destinationDomain", "transferId"]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `OriginMessage` entity parser: Message entity missing required field", {
         missingField: field,
@@ -212,6 +219,7 @@ export const originMessage = (entity: any): OriginMessage => {
   return {
     domain: entity.domain,
     destinationDomain: entity.destinationDomain,
+    transferId: entity.transferId,
     index: entity.index,
     leaf: entity.leaf,
     root: entity.root,
@@ -225,7 +233,7 @@ export const destinationMessage = (entity: any): DestinationMessage => {
     throw new NxtpError("Subgraph `DestinationMessage` entity parser: DestinationMessage entity is `undefined`.");
   }
   for (const field of ["leaf", "processed", "returnData", "domain"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined) {
       throw new NxtpError("Subgraph `DestinationMessage` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -267,4 +275,102 @@ export const xquery = (response: any): Map<string, any[]> => {
   } else {
     throw new XQueryResultParseError({ response });
   }
+};
+
+export const rootMessage = (entity: any): RootMessage => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `RootMessage` entity parser: RootMessage, entity is `undefined`.");
+  }
+  for (const field of ["id", "spokeDomain", "hubDomain", "root", "timestamp", "gasPrice", "gasLimit", "blockNumber"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `RootMessage` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    spokeDomain: entity.spokeDomain,
+    hubDomain: entity.hubDomain,
+    root: entity.root,
+    caller: entity.caller,
+    transactionHash: entity.transactionHash,
+    timestamp: entity.timestamp,
+    gasPrice: entity.gasPrice,
+    gasLimit: entity.gasLimit,
+    blockNumber: entity.blockNumber,
+    processed: entity.processed,
+    count: entity.count || undefined,
+  };
+};
+
+export const aggregatedRoot = (entity: any): AggregatedRoot => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `AggregatedRoot` entity parser: AggregatedRoot, entity is `undefined`.");
+  }
+  for (const field of ["id", "domain", "receivedRoot", "index"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `AggregatedRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    domain: entity.domain,
+    receivedRoot: entity.receivedRoot,
+    index: entity.index,
+  };
+};
+
+export const propagatedRoot = (entity: any): PropagatedRoot => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `PropagatedRoot` entity parser: PropagatedRoot, entity is `undefined`.");
+  }
+  for (const field of ["id", "aggregate", "domains", "count"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `PropagatedRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    aggregate: entity.aggregate,
+    domains: entity.domains,
+    count: entity.count,
+  };
+};
+
+export const connectorMeta = (entity: any): ConnectorMeta => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `ConnectorMeta` entity parser: ConnectorMeta, entity is `undefined`.");
+  }
+  for (const field of ["id", "spokeDomain", "hubDomain", "rootManager", "mirrorConnector", "amb"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `ConnectorMeta` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    spokeDomain: entity.spokeDomain,
+    hubDomain: entity.hubDomain,
+    amb: entity.amb,
+    mirrorConnector: entity.mirrorConnector,
+    rootManager: entity.rootManager,
+  };
 };

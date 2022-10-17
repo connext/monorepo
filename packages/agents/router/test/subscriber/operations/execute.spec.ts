@@ -28,10 +28,18 @@ describe("Operations:Execute", () => {
     it("should return the local asset for the destination chain", async () => {
       const mockLocalAsset = "0x456";
       (mockSubContext.adapters.subgraph.getAssetByLocal as SinonStub).resolves({ canonicalId: "0x123" });
-      (mockSubContext.adapters.subgraph.getAssetByCanonicalId as SinonStub).resolves({ local: mockLocalAsset });
+      (mockSubContext.adapters.subgraph.getAssetByCanonicalId as SinonStub).resolves({ localAsset: mockLocalAsset });
 
       const localAsset = await getDestinationLocalAsset(mock.chain.A, mock.asset.A.address, mock.chain.B);
       expect(localAsset).to.be.eq(mockLocalAsset);
+    });
+    it("should return native asset if origin transacting asset is native asset", async () => {
+      const mockLocalAsset = constants.AddressZero;
+      (mockSubContext.adapters.subgraph.getAssetByLocal as SinonStub).resolves({ canonicalId: "0x123" });
+      (mockSubContext.adapters.subgraph.getAssetByCanonicalId as SinonStub).resolves({ localAsset: mockLocalAsset });
+
+      const localAsset = await getDestinationLocalAsset(mock.chain.A, mock.asset.A.address, mock.chain.B);
+      expect(localAsset).to.be.eq(constants.AddressZero);
     });
   });
 
@@ -193,7 +201,6 @@ describe("Operations:Execute", () => {
         xparams: {
           to: 1234,
           callData: 5678,
-          forceSlow: false,
           receiveLocal: false,
         },
       };
@@ -247,12 +254,6 @@ describe("Operations:Execute", () => {
     it("should return early if transfer exists", async () => {
       (mockSubContext.adapters.subgraph.getDestinationTransferById as SinonStub).resolves({ hello: "world" });
       await execute(mockXTransfer, requestContext);
-      expect(mockSubContext.adapters.subgraph.getAssetBalance).to.not.be.called;
-      expect(mockSendBid).to.not.be.called;
-    });
-
-    it("should return early if slow path", async () => {
-      await execute({ ...mockXTransfer, xparams: { ...mockXTransfer.xparams, forceSlow: true } }, requestContext);
       expect(mockSubContext.adapters.subgraph.getAssetBalance).to.not.be.called;
       expect(mockSendBid).to.not.be.called;
     });

@@ -25,25 +25,25 @@ import type {
 
 export interface IRootManagerInterface extends utils.Interface {
   functions: {
-    "propagate()": FunctionFragment;
-    "setOutboundRoot(uint32,bytes32)": FunctionFragment;
+    "aggregate(uint32,bytes32)": FunctionFragment;
+    "propagate(uint32[],address[])": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "propagate" | "setOutboundRoot"
+    nameOrSignatureOrTopic: "aggregate" | "propagate"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "propagate", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "setOutboundRoot",
+    functionFragment: "aggregate",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "propagate",
+    values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<string>[]]
+  ): string;
 
+  decodeFunctionResult(functionFragment: "aggregate", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "propagate", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setOutboundRoot",
-    data: BytesLike
-  ): Result;
 
   events: {};
 }
@@ -75,33 +75,41 @@ export interface IRootManager extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    propagate(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setOutboundRoot(
+    aggregate(
       _domain: PromiseOrValue<BigNumberish>,
       _outbound: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    propagate(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
-  propagate(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setOutboundRoot(
+  aggregate(
     _domain: PromiseOrValue<BigNumberish>,
     _outbound: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  callStatic: {
-    propagate(overrides?: CallOverrides): Promise<void>;
+  propagate(
+    _domains: PromiseOrValue<BigNumberish>[],
+    _connectors: PromiseOrValue<string>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-    setOutboundRoot(
+  callStatic: {
+    aggregate(
       _domain: PromiseOrValue<BigNumberish>,
       _outbound: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    propagate(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -109,25 +117,29 @@ export interface IRootManager extends BaseContract {
   filters: {};
 
   estimateGas: {
-    propagate(
+    aggregate(
+      _domain: PromiseOrValue<BigNumberish>,
+      _outbound: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setOutboundRoot(
-      _domain: PromiseOrValue<BigNumberish>,
-      _outbound: PromiseOrValue<BytesLike>,
+    propagate(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    propagate(
+    aggregate(
+      _domain: PromiseOrValue<BigNumberish>,
+      _outbound: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setOutboundRoot(
-      _domain: PromiseOrValue<BigNumberish>,
-      _outbound: PromiseOrValue<BytesLike>,
+    propagate(
+      _domains: PromiseOrValue<BigNumberish>[],
+      _connectors: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

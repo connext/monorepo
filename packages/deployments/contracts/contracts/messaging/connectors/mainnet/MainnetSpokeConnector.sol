@@ -16,9 +16,24 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
-    uint256 _reserveGas
+    uint256 _reserveGas,
+    uint256 _delayBlocks,
+    address _merkle,
+    address _watcherManager
   )
-    SpokeConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas, _processGas, _reserveGas)
+    SpokeConnector(
+      _domain,
+      _mirrorDomain,
+      _amb,
+      _rootManager,
+      _mirrorConnector,
+      _mirrorGas,
+      _processGas,
+      _reserveGas,
+      _delayBlocks,
+      _merkle,
+      _watcherManager
+    )
   {}
 
   // ============ Public fns ============
@@ -27,7 +42,6 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
    * @dev This is called by the root manager *only* on mainnet to propagate the aggregate root
    * @dev Get 'Base constructor arguments given twice' when trying to inherit
    */
-  // TODO: make more opinionated (i.e. sendAggregateRoot)
   function sendMessage(bytes memory _data) external onlyRootManager {
     _sendMessage(_data);
     emit MessageSent(_data, msg.sender);
@@ -51,11 +65,11 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
     require(_data.length == 32, "!length");
     if (msg.sender == ROOT_MANAGER) {
       // update the aggregate root
-      updateAggregateRoot(bytes32(_data));
+      receiveAggregateRoot(bytes32(_data));
       return;
     }
     // otherwise is relayer, update the outbound root on the root manager
-    IRootManager(ROOT_MANAGER).setOutboundRoot(DOMAIN, bytes32(_data));
+    IRootManager(ROOT_MANAGER).aggregate(DOMAIN, bytes32(_data));
   }
 
   /**

@@ -36,7 +36,6 @@ export default task("enroll-handlers", "Add a remote router")
 
     const names = [
       "BridgeRouterUpgradeBeaconProxy",
-      "PromiseRouterUpgradeBeaconProxy",
       "RelayerFeeRouterUpgradeBeaconProxy",
     ]
       .filter((name) => {

@@ -1,6 +1,14 @@
-import { expect, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
-import { destinationTransfer, originTransfer, xquery } from "../../../src/lib/helpers/parse";
+import { expect, mkAddress, mkBytes32, OriginMessage, DestinationMessage, RootMessage } from "@connext/nxtp-utils";
+import {
+  destinationTransfer,
+  originMessage,
+  destinationMessage,
+  rootMessage,
+  originTransfer,
+  xquery,
+} from "../../../src/lib/helpers/parse";
 import { stubContext, mockOriginTransferEntity, mockDestinationTransferEntity } from "../../mock";
+import { mock } from "@connext/nxtp-utils";
 import { restore, reset } from "sinon";
 
 describe("Helpers:parse", () => {
@@ -44,27 +52,27 @@ describe("Helpers:parse", () => {
     it("happy-1: should parse the originTransfer entity", () => {
       expect(originTransfer(mockOriginTransferEntity)).to.be.deep.eq({
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
-        nonce: 0,
         xparams: {
-          destinationMinOut: "456",
-          destinationDomain: "3331",
           originDomain: "1111",
+          destinationDomain: "3331",
+          canonicalDomain: undefined,
           to: "0x1000000000000000000000000000000000000000",
-          callData: "0x",
-          callback: "0xaaa0000000000000000000000000000000000000",
-          callbackFee: "0",
-          recovery: "0x1000000000000000000000000000000000000000",
-          forceSlow: false,
+          delegate: undefined,
           receiveLocal: false,
-          agent: "foo",
-          relayerFee: "1",
+          callData: "0x",
+          slippage: undefined,
+          originSender: undefined,
+          bridgedAmt: undefined,
+          normalizedIn: undefined,
+          nonce: 0,
+          canonicalId: undefined,
         },
         origin: {
           chain: 4,
-          originMinOut: "123",
+          messageHash: undefined,
           assets: {
-            transacting: { asset: mkAddress("0x11"), amount: "100" },
-            bridged: { asset: mkAddress("0x12"), amount: "100" },
+            transacting: { asset: undefined, amount: undefined },
+            bridged: { asset: undefined, amount: undefined }
           },
           xcall: {
             caller: "0x2000000000000000000000000000000000000000",
@@ -83,27 +91,27 @@ describe("Helpers:parse", () => {
         originTransfer({ ...mockOriginTransferEntity, timestamp: undefined, blockNumber: undefined }),
       ).to.be.deep.eq({
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
-        nonce: 0,
         xparams: {
-          destinationDomain: "3331",
           originDomain: "1111",
+          destinationDomain: "3331",
+          canonicalDomain: undefined,
           to: "0x1000000000000000000000000000000000000000",
-          callData: "0x",
-          callback: "0xaaa0000000000000000000000000000000000000",
-          callbackFee: "0",
-          recovery: "0x1000000000000000000000000000000000000000",
-          forceSlow: false,
+          delegate: undefined,
           receiveLocal: false,
-          agent: "foo",
-          relayerFee: "1",
-          destinationMinOut: "456",
+          callData: "0x",
+          slippage: undefined,
+          originSender: undefined,
+          bridgedAmt: undefined,
+          normalizedIn: undefined,
+          nonce: 0,
+          canonicalId: undefined,
         },
         origin: {
           chain: 4,
-          originMinOut: "123",
+          messageHash: undefined,
           assets: {
-            transacting: { asset: mkAddress("0x11"), amount: "100" },
-            bridged: { asset: mkAddress("0x12"), amount: "100" },
+            transacting: { asset: undefined, amount: undefined },
+            bridged: { asset: undefined, amount: undefined }
           },
           xcall: {
             caller: "0x2000000000000000000000000000000000000000",
@@ -151,54 +159,48 @@ describe("Helpers:parse", () => {
 
     it("happy-1: should parse the destination transfer entity", () => {
       expect(destinationTransfer(mockDestinationTransferEntity)).to.be.deep.eq({
-        destination: {
-          assets: {
-            local: {
-              amount: "100",
-              asset: "0x1200000000000000000000000000000000000000",
-            },
-            transacting: {
-              amount: "100",
-              asset: "0x1100000000000000000000000000000000000000",
-            },
-          },
-          chain: 42,
-          execute: {
-            blockNumber: 5000,
-            caller: "0x1400000000000000000000000000000000000000",
-            gasLimit: "1000000",
-            gasPrice: "10000000000",
-            originSender: "0x1300000000000000000000000000000000000000",
-            timestamp: 1000000,
-            transactionHash: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
-          },
-          reconcile: {
-            blockNumber: 5000,
-            caller: "0x1500000000000000000000000000000000000000",
-            gasLimit: "1000000",
-            gasPrice: "10000000000",
-            timestamp: 1000000,
-            transactionHash: "0xbbb0000000000000000000000000000000000000000000000000000000000000",
-          },
-          routers: [mkAddress("0x111"), mkAddress("0x112")],
-          status: "Executed",
-        },
-        nonce: 0,
-        origin: undefined,
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         xparams: {
-          destinationDomain: "3331",
           originDomain: "1111",
-          callData: "0x",
-          callback: "0xaaa0000000000000000000000000000000000000",
-          callbackFee: "0",
-          forceSlow: false,
-          receiveLocal: false,
-          recovery: "0x1000000000000000000000000000000000000000",
+          destinationDomain: "3331",
+          canonicalDomain: undefined,
           to: "0x1000000000000000000000000000000000000000",
-          agent: "foo",
-          relayerFee: "1",
-          destinationMinOut: "456",
+          delegate: undefined,
+          receiveLocal: false,
+          callData: "0x",
+          slippage: undefined,
+          originSender: "0x1300000000000000000000000000000000000000",
+          bridgedAmt: undefined,
+          normalizedIn: undefined,
+          nonce: 0,
+          canonicalId: undefined,
+        },
+        origin: undefined,
+        destination: {
+          chain: 42,
+          status: "Executed",
+          routers: ["0x1110000000000000000000000000000000000000", "0x1120000000000000000000000000000000000000"],
+          assets: {
+            transacting: undefined,
+            local: { asset: undefined, amount: undefined }
+          },
+          execute: {
+            originSender: "0x1300000000000000000000000000000000000000",
+            caller: "0x1400000000000000000000000000000000000000",
+            transactionHash: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
+            timestamp: 1000000,
+            gasPrice: "10000000000",
+            gasLimit: "1000000",
+            blockNumber: 5000,
+          },
+          reconcile: {
+            caller: "0x1500000000000000000000000000000000000000",
+            transactionHash: "0xbbb0000000000000000000000000000000000000000000000000000000000000",
+            timestamp: 1000000,
+            gasPrice: "10000000000",
+            gasLimit: "1000000",
+            blockNumber: 5000,
+          },
         },
       });
     });
@@ -208,59 +210,55 @@ describe("Helpers:parse", () => {
           ...mockDestinationTransferEntity,
 
           to: undefined,
-          transactingAmount: undefined,
+          amount: undefined,
           executedTimestamp: undefined,
           executedBlockNumber: undefined,
           reconciledTimestamp: undefined,
           reconciledBlockNumber: undefined,
         }),
       ).to.be.deep.eq({
-        destination: {
-          assets: {
-            local: {
-              amount: "100",
-              asset: "0x1200000000000000000000000000000000000000",
-            },
-            transacting: undefined,
-          },
-          chain: 42,
-          execute: {
-            blockNumber: 0,
-            caller: "0x1400000000000000000000000000000000000000",
-            gasLimit: "1000000",
-            gasPrice: "10000000000",
-            originSender: "0x1300000000000000000000000000000000000000",
-            timestamp: 0,
-            transactionHash: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
-          },
-          reconcile: {
-            blockNumber: 0,
-            caller: "0x1500000000000000000000000000000000000000",
-            gasLimit: "1000000",
-            gasPrice: "10000000000",
-            timestamp: 0,
-            transactionHash: "0xbbb0000000000000000000000000000000000000000000000000000000000000",
-          },
-          routers: ["0x1110000000000000000000000000000000000000", "0x1120000000000000000000000000000000000000"],
-          status: "Executed",
-        },
-
-        nonce: 0,
-        origin: undefined,
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         xparams: {
-          agent: "foo",
-          callData: "0x",
-          callback: "0xaaa0000000000000000000000000000000000000",
-          callbackFee: "0",
-          destinationDomain: "3331",
-          forceSlow: false,
           originDomain: "1111",
-          receiveLocal: false,
-          recovery: "0x1000000000000000000000000000000000000000",
-          relayerFee: "1",
+          destinationDomain: "3331",
+          canonicalDomain: undefined,
           to: undefined,
-          destinationMinOut: "456",
+          delegate: undefined,
+          receiveLocal: false,
+          callData: "0x",
+          slippage: undefined,
+          originSender: "0x1300000000000000000000000000000000000000",
+          bridgedAmt: undefined,
+          normalizedIn: undefined,
+          nonce: 0,
+          canonicalId: undefined,
+        },
+        origin: undefined,
+        destination: {
+          chain: 42,
+          status: "Executed",
+          routers: ["0x1110000000000000000000000000000000000000", "0x1120000000000000000000000000000000000000"],
+          assets: {
+              transacting: undefined,
+              local: { asset: undefined, amount: undefined }
+          },
+          execute: {
+            originSender: "0x1300000000000000000000000000000000000000",
+            caller: "0x1400000000000000000000000000000000000000",
+            transactionHash: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
+            timestamp: 0,
+            gasPrice: "10000000000",
+            gasLimit: "1000000",
+            blockNumber: 0,
+          },
+          reconcile: {
+            caller: "0x1500000000000000000000000000000000000000",
+            transactionHash: "0xbbb0000000000000000000000000000000000000000000000000000000000000",
+            timestamp: 0,
+            gasPrice: "10000000000",
+            gasLimit: "1000000",
+            blockNumber: 0,
+          },
         },
       });
     });
@@ -343,6 +341,90 @@ describe("Helpers:parse", () => {
           },
         ],
       ]);
+    });
+  });
+  describe("#originMessage", () => {
+    it("should throw if the entity is undefined", () => {
+      const entity = undefined;
+      expect(() => {
+        originMessage(entity);
+      }).to.throw("Subgraph `OriginMessage` entity parser: OriginMessage entity is `undefined`.");
+    });
+
+    it("should throw if wrong message type", () => {
+      const entity: OriginMessage = mock.entity.destinationMessage();
+      expect(() => {
+        originMessage(entity);
+      }).to.throw("Subgraph `OriginMessage` entity parser: Message entity missing required field");
+    });
+
+    it("should throw if a required field is missing", () => {
+      const entity: OriginMessage = {};
+
+      expect(() => {
+        originMessage(entity);
+      }).to.throw("Subgraph `OriginMessage` entity parser: Message entity missing required field");
+    });
+
+    it("should parse valid origin message", () => {
+      const entity: OriginMessage = mock.entity.originMessage();
+      expect(originMessage(entity)).to.be.deep.eq(entity);
+    });
+  });
+  describe("#destinationMessage", () => {
+    it("should throw if the entity is undefined", () => {
+      const entity = undefined;
+      expect(() => {
+        destinationMessage(entity);
+      }).to.throw("Subgraph `DestinationMessage` entity parser: DestinationMessage entity is `undefined`.");
+    });
+
+    it("should throw if wrong message type", () => {
+      const entity: DestinationMessage = mock.entity.originMessage();
+      expect(() => {
+        destinationMessage(entity);
+      }).to.throw("Subgraph `DestinationMessage` entity parser: Message entity missing required field");
+    });
+
+    it("should throw if a required field is missing", () => {
+      const entity: DestinationMessage = {};
+
+      expect(() => {
+        destinationMessage(entity);
+      }).to.throw("Subgraph `DestinationMessage` entity parser: Message entity missing required field");
+    });
+
+    it("should parse valid destination message", () => {
+      const entity: DestinationMessage = mock.entity.destinationMessage();
+      expect(destinationMessage(entity)).to.be.deep.eq(entity);
+    });
+  });
+  describe("#rootMessage", () => {
+    it("should throw if the entity is undefined", () => {
+      const entity = undefined;
+      expect(() => {
+        rootMessage(entity);
+      }).to.throw("Subgraph `RootMessage` entity parser: RootMessage, entity is `undefined`.");
+    });
+
+    it("should throw if wrong message type", () => {
+      const entity: RootMessage = mock.entity.destinationMessage();
+      expect(() => {
+        rootMessage(entity);
+      }).to.throw("Subgraph `RootMessage` entity parser: Message entity missing required field");
+    });
+
+    it("should throw if a required field is missing", () => {
+      const entity: RootMessage = {};
+
+      expect(() => {
+        rootMessage(entity);
+      }).to.throw("Subgraph `RootMessage` entity parser: Message entity missing required field");
+    });
+
+    it("should parse valid root message", () => {
+      const entity: RootMessage = mock.entity.rootMessage();
+      expect(rootMessage(entity)).to.be.deep.eq(entity);
     });
   });
 });

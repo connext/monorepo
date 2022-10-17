@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-cache",
-  "version": "0.2.0-beta.22",
+  "version": "0.2.0-alpha.28",
   "description": "adapter for handling communication with Redis cache for nxtp protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,8 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "docker:redis:up": "docker-compose -f ./ops/start-redis.docker-compose.yml up -d"
+    "docker:redis:up": "docker-compose -f ./ops/start-redis.docker-compose.yml up -d",
+    "version": "yarn version"
   },
   "nodemonConfig": {
     "exec": "node --enable-source-maps ./dist/index.js | pino-pretty",
@@ -51,6 +52,5 @@
     "tslib": "2.4.0",
     "typescript": "4.8.3"
   },
-  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
-  "stableVersion": ""
+  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6"
 }

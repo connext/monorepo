@@ -1,21 +1,20 @@
-import { Contract, utils, Wallet } from "ethers";
+import { Contract, ethers, Wallet } from "ethers";
 
 import _Deployments from "../../../deployments.json";
-import { ConnextHandlerInterface } from "../../contracts";
-import { Router__factory } from "../../typechain-types";
+import { ConnextInterface } from "../../contracts";
 
-import { Deployment, DomainDeployments, NetworkStack } from "./types";
+import { Deployment, DomainDeployments } from "./types";
 
 const Deployments = _Deployments as any;
 
 export const getDeployments = (args: {
   deployer: Wallet;
-  network: NetworkStack;
+  chainInfo: { chain: string; rpc: ethers.providers.JsonRpcProvider };
   isHub: boolean;
   useStaging: boolean;
 }): DomainDeployments => {
-  const { network, isHub, useStaging, deployer: _deployer } = args;
-  const chain = network.chain;
+  const { chainInfo, isHub, useStaging, deployer: _deployer } = args;
+  const chain = chainInfo.chain;
   const deployments = Deployments[chain];
   if (!deployments) {
     throw new Error(`No deployments found for chain ${chain}!`);
@@ -26,7 +25,7 @@ export const getDeployments = (args: {
   }
   const env = useStaging ? "Staging" : "";
 
-  const deployer = _deployer.connect(network.rpc);
+  const deployer = _deployer.connect(chainInfo.rpc);
 
   // Get all the Hub connectors, if applicable.
   const connectors: Deployment[] = [];
@@ -69,8 +68,8 @@ export const getDeployments = (args: {
 
   // Custom function to format lookup by env and double check that the contract retrieved is not null.
   const getContract = (contract: string): any => {
-    const isConnextHandler = contract.includes("ConnextHandler");
-    const key = isConnextHandler ? `ConnextHandler${env}_DiamondProxy` : contract + env;
+    const isConnext = contract.includes("Connext");
+    const key = isConnext ? `Connext${env}_DiamondProxy` : contract + env;
     const result = contracts[key];
     if (!result) {
       throw new Error(`Contract ${key} was not found in deployments.json!`);
@@ -83,48 +82,44 @@ export const getDeployments = (args: {
     const implementation = contract.includes("UpgradeBeaconProxy")
       ? contract.replace("UpgradeBeaconProxy", "")
       : undefined;
+
     if (implementation) {
-      const found = contracts[implementation];
+      const implementation_with_env = useStaging ? implementation?.concat("Staging") : implementation;
+      const found = contracts[implementation_with_env];
       if (found && found.abi) {
         abi = found.abi as any[];
       }
     }
 
-    // If this is a Router/Handler contract, append the core Router ABI.
-    if (contract.includes("Router")) {
-      abi = abi.concat((Router__factory.createInterface() as utils.Interface).fragments);
-    }
-
     return {
       proxy: key,
-      name: isConnextHandler ? "Connext" : implementation ?? contract,
+      name: isConnext ? "Connext" : implementation ?? contract,
       address: result.address,
       abi,
       contract: new Contract(
         result.address as string,
         // Special case if this is the Connext diamond.
-        isConnextHandler ? ConnextHandlerInterface : abi,
+        isConnext ? ConnextInterface : abi,
         deployer,
       ),
     };
   };
 
   return {
-    Connext: getContract("ConnextHandler_DiamondProxy"),
-    handlers: {
-      BridgeRouter: getContract("BridgeRouterUpgradeBeaconProxy"),
-      PromiseRouter: getContract("PromiseRouterUpgradeBeaconProxy"),
-      RelayerFeeRouter: getContract("RelayerFeeRouterUpgradeBeaconProxy"),
-    },
+    Connext: getContract("Connext_DiamondProxy"),
     messaging: isHub
       ? {
           RootManager: getContract("RootManager"),
           MainnetConnector: getContract("MainnetSpokeConnector"),
+          WatcherManager: getContract("WatcherManager"),
           HubConnectors: connectors,
+          MerkleTreeManagerForRoot: getContract("MerkleTreeManagerRootUpgradeBeaconProxy"),
+          MerkleTreeManagerForSpoke: getContract("MerkleTreeManagerSpokeUpgradeBeaconProxy"),
         }
       : {
           SpokeConnector: connectors[0],
+          MerkleTreeManager: getContract("MerkleTreeManagerUpgradeBeaconProxy"),
+          WatcherManager: getContract("WatcherManager"),
         },
-    TokenRegistry: getContract("TokenRegistryUpgradeBeaconProxy"),
   };
 };

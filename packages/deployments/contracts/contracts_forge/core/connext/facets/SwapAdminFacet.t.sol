@@ -41,8 +41,10 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
   function setUp() public {
     utils_deployAssetContracts();
 
-    // we are on the origin domain where local == canonical
-    utils_setupAsset(false, true);
+    // we are on the origin domain where local != canonical
+    s.domain = _originDomain;
+    utils_setupAsset(false, false);
+    console.log("setup asset");
 
     // set the owner to this contract
     setOwner(_owner);
@@ -50,7 +52,9 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     // _stableSwapFacet = address(new StableSwapFacet());
 
     utils_initializeSwap();
+    console.log("setup swap");
     utils_addLiquidity(1 ether, 1 ether);
+    console.log("setup swap funds");
   }
 
   // ============ Utils ==============
@@ -154,7 +158,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     assertTrue(_owner != address(1));
 
     vm.prank(address(1));
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
     this.initializeSwap(
       key,
@@ -431,7 +435,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     assertTrue(_owner != address(1));
 
     vm.prank(address(1));
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
     this.withdrawSwapAdminFees(_canonicalKey);
   }
@@ -478,7 +482,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     assertTrue(_owner != address(1));
 
     vm.prank(address(1));
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
     this.setSwapAdminFee(_canonicalKey, 1e8);
   }
@@ -508,7 +512,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     assertTrue(_owner != address(1));
 
     vm.prank(address(1));
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
     this.setSwapFee(_canonicalKey, 1e8);
   }
@@ -538,7 +542,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     assertTrue(_owner != address(1));
 
     vm.prank(address(1));
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
     this.rampA(_canonicalKey, 100, blockTimestamp + 14 days + 1);
   }
@@ -613,7 +617,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     assertTrue(_owner != address(1));
 
     vm.prank(address(1));
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
     this.stopRampA(_canonicalKey);
   }

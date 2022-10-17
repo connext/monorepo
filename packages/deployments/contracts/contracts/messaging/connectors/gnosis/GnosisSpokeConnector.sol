@@ -19,9 +19,24 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
-    uint256 _reserveGas
+    uint256 _reserveGas,
+    uint256 _delayBlocks,
+    address _merkle,
+    address _watcherManager
   )
-    SpokeConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas, _processGas, _reserveGas)
+    SpokeConnector(
+      _domain,
+      _mirrorDomain,
+      _amb,
+      _rootManager,
+      _mirrorConnector,
+      _mirrorGas,
+      _processGas,
+      _reserveGas,
+      _delayBlocks,
+      _merkle,
+      _watcherManager
+    )
     GnosisBase()
   {}
 
@@ -40,7 +55,7 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
     // send the message to the l1 connector by calling `processMessage`
     GnosisAmb(AMB).requireToPassMessage(
       mirrorConnector,
-      abi.encodeWithSelector(Connector.processMessage.selector, address(this), _data),
+      abi.encodeWithSelector(Connector.processMessage.selector, _data),
       mirrorGas
     );
   }
@@ -50,12 +65,10 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
    */
   function _processMessage(bytes memory _data) internal override {
     // ensure the l1 connector sent the message
-    require(_verifySender(mirrorConnector), "!l1Connector");
+    require(_verifySender(mirrorConnector), "!mirrorConnector");
     // ensure it is headed to this domain
     require(GnosisAmb(AMB).destinationChainId() == block.chainid, "!destinationChain");
-    // ensure it came from mainnet
-    require(GnosisAmb(AMB).sourceChainId() == 1, "!sourceChainId");
     // update the aggregate root on the domain
-    updateAggregateRoot(bytes32(_data));
+    receiveAggregateRoot(bytes32(_data));
   }
 }

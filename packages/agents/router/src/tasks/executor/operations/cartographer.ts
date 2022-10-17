@@ -29,28 +29,11 @@ export const pollCartographer = async () => {
         const xTransfer = convertFromDbTransfer(transaction);
 
         const executeParams: ExecuteArgs = {
-          params: {
-            originDomain: xTransfer.xparams?.originDomain ?? "",
-            destinationDomain: xTransfer.xparams?.destinationDomain ?? "",
-            to: xTransfer.xparams!.to,
-            callData: xTransfer.xparams!.callData,
-            callback: xTransfer.xparams!.callback,
-            callbackFee: xTransfer.xparams!.callbackFee,
-            receiveLocal: xTransfer.xparams!.receiveLocal,
-            forceSlow: xTransfer.xparams!.forceSlow,
-            recovery: xTransfer.xparams!.recovery,
-            destinationMinOut: xTransfer.xparams!.destinationMinOut,
-            agent: xTransfer.xparams!.agent,
-            relayerFee: xTransfer.xparams!.relayerFee,
-          },
-          local: xTransfer.destination!.assets.local.asset,
+          params: xTransfer.xparams,
           routers: [],
           routerSignatures: [],
           sequencer: constants.AddressZero,
-          sequencerSignature: "",
-          amount: xTransfer.destination!.assets.local.amount.toString(),
-          nonce: xTransfer.nonce!,
-          originSender: xTransfer.origin!.xcall.caller,
+          sequencerSignature: "0x",
         };
 
         const transferId = xTransfer.transferId;

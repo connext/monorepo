@@ -59,6 +59,18 @@ variable "full_image_name_sequencer_subscriber" {
   default     = "ghcr.io/connext/sequencer-subscriber:sha-229b6dd"
 }
 
+variable "full_image_name_lighthouse_prover" {
+  type        = string
+  description = "sequencer image name"
+  default     = "ghcr.io/connext/lighthouse-prover:sha-229b6dd"
+}
+
+variable "full_image_name_lighthouse_process_from_root" {
+  type        = string
+  description = "lighthouse process from root image name"
+  default     = "ghcr.io/connext/lighthouse-process-from-root:latest"
+}
+
 variable "mnemonic" {
   type        = string
   description = "mnemonic"
@@ -117,4 +129,17 @@ variable "sequencer_web3_signer_private_key" {
 
 variable "dd_api_key" {
   type = string
+}
+
+variable "gelato_api_key" {
+  type = string
+}
+
+variable "postgres_password" {
+  type = string
+}
+
+variable "postgres_user" {
+  type    = string
+  default = "connext"
 }

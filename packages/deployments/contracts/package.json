@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.2.0-beta.22",
+  "version": "0.2.0-alpha.28",
   "description": "",
   "scripts": {
     "test": "yarn forge test --gas-report --no-match-contract 'LiveTest'",
@@ -21,7 +21,8 @@
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
     "hardhat": "hardhat",
     "size": "hardhat size-contracts",
-    "init": "ts-node ./src/init/main.ts"
+    "initialize": "ts-node ./src/init/main.ts",
+    "version": "yarn version"
   },
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -35,7 +36,9 @@
   "author": "Connext",
   "license": "ISC",
   "devDependencies": {
-    "@eth-optimism/sdk": "1.6.0",
+    "@arbitrum/sdk": "3.0.0-beta.12",
+    "@eth-optimism/sdk": "1.6.4",
+    "@matterlabs/zksync-contracts": "^0.4.2",
     "@nomiclabs/hardhat-ethers": "2.1.1",
     "@nomiclabs/hardhat-etherscan": "3.1.0",
     "@nomiclabs/hardhat-waffle": "2.0.3",
@@ -46,9 +49,11 @@
     "@typechain/ethers-v5": "10.1.0",
     "@typechain/hardhat": "6.1.2",
     "@types/chai": "4.3.3",
+    "@types/command-line-args": "5.2.0",
     "@types/mocha": "9.1.1",
     "@types/node": "16.11.58",
     "chai": "4.3.6",
+    "command-line-args": "5.2.1",
     "ethereum-waffle": "3.4.4",
     "ethers": "5.7.0",
     "hardhat": "2.10.2",

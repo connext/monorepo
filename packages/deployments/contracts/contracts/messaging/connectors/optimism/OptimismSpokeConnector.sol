@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
-import {OptimismAmb} from "../../interfaces/ambs/OptimismAmb.sol";
+import {OptimismAmb} from "../../interfaces/ambs/optimism/OptimismAmb.sol";
 
 import {SpokeConnector} from "../SpokeConnector.sol";
 import {Connector} from "../Connector.sol";
@@ -19,9 +19,24 @@ contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
     address _mirrorConnector,
     uint256 _mirrorGas,
     uint256 _processGas,
-    uint256 _reserveGas
+    uint256 _reserveGas,
+    uint256 _delayBlocks,
+    address _merkle,
+    address _watcherManager
   )
-    SpokeConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas, _processGas, _reserveGas)
+    SpokeConnector(
+      _domain,
+      _mirrorDomain,
+      _amb,
+      _rootManager,
+      _mirrorConnector,
+      _mirrorGas,
+      _processGas,
+      _reserveGas,
+      _delayBlocks,
+      _merkle,
+      _watcherManager
+    )
     BaseOptimism()
   {}
 
@@ -44,10 +59,10 @@ contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
    */
   function _processMessage(bytes memory _data) internal override {
     // enforce this came from connector on l2
-    require(_verifySender(mirrorConnector), "!l1Connector");
+    require(_verifySender(mirrorConnector), "!mirrorConnector");
     // get the data (should be the aggregate root)
     require(_data.length == 32, "!length");
     // set the aggregate root
-    updateAggregateRoot(bytes32(_data));
+    receiveAggregateRoot(bytes32(_data));
   }
 }

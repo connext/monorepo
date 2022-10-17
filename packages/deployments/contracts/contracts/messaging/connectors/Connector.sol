@@ -16,11 +16,21 @@ import {IConnector} from "../interfaces/IConnector.sol";
  */
 abstract contract Connector is ProposedOwnable, IConnector {
   // ============ Events ============
+
+  event NewConnector(
+    uint32 indexed domain,
+    uint32 indexed mirrorDomain,
+    address amb,
+    address rootManager,
+    address mirrorConnector
+  );
+
   event MirrorConnectorUpdated(address previous, address current);
 
   event MirrorGasUpdated(uint256 previous, uint256 current);
 
-  // ============ Public storage ============
+  // ============ Public Storage ============
+
   /**
    * @notice The domain of this Messaging (i.e. Connector) contract.
    */
@@ -71,6 +81,8 @@ abstract contract Connector is ProposedOwnable, IConnector {
     _;
   }
 
+  // ============ Constructor ============
+
   /**
    * @notice Creates a new HubConnector instance
    * @dev The connectors are deployed such that there is one on each side of an AMB (i.e.
@@ -111,9 +123,12 @@ abstract contract Connector is ProposedOwnable, IConnector {
     if (_mirrorGas != 0) {
       _setMirrorGas(_mirrorGas);
     }
+
+    emit NewConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector);
   }
 
-  // ============ Admin fns ============
+  // ============ Admin Functions ============
+
   /**
    * @notice Sets the address of the l2Connector for this domain
    */
@@ -128,13 +143,12 @@ abstract contract Connector is ProposedOwnable, IConnector {
     _setMirrorGas(_mirrorGas);
   }
 
-  // ============ Public fns ============
+  // ============ Public Functions ============
 
   /**
    * @notice Processes a message received by an AMB
    * @dev This is called by AMBs to process messages originating from mirror connector
    */
-  // TODO: make more opinionated (i.e. processOutboundMessage)
   function processMessage(bytes memory _data) external onlyAMB {
     _processMessage(_data);
     emit MessageProcessed(_data, msg.sender);
@@ -147,7 +161,8 @@ abstract contract Connector is ProposedOwnable, IConnector {
     return _verifySender(_expected);
   }
 
-  // ============ Virtual fns ============
+  // ============ Virtual Functions ============
+
   /**
    * @notice This function is used by the Connext contract on the l2 domain to send a message to the
    * l1 domain (i.e. called by Connext on optimism to send a message to mainnet with roots)
@@ -167,8 +182,9 @@ abstract contract Connector is ProposedOwnable, IConnector {
    */
   function _verifySender(address _expected) internal virtual returns (bool);
 
-  // ============ Private fns ============
-  function _setMirrorConnector(address _mirrorConnector) internal {
+  // ============ Private Functions ============
+
+  function _setMirrorConnector(address _mirrorConnector) internal virtual {
     emit MirrorConnectorUpdated(mirrorConnector, _mirrorConnector);
     mirrorConnector = _mirrorConnector;
   }

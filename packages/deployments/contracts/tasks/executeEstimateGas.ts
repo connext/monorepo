@@ -22,7 +22,7 @@ export default task("execute-eg", "Prepare a cross-chain tx")
   .setAction(async ({ connextAddress: _connextAddress, env: _env }: TaskArgs, { deployments, ethers }) => {
     const env = mustGetEnv(_env);
     console.log("env:", env);
-    const connextName = getDeploymentName("ConnextHandler", env);
+    const connextName = getDeploymentName("Connext", env);
     let connextAddress = _connextAddress ?? process.env.EG_CONNEXT_ADDRESS;
     if (!connextAddress) {
       const connextDeployment = await deployments.get(connextName);
@@ -56,8 +56,8 @@ export default task("execute-eg", "Prepare a cross-chain tx")
       (callParams as any).destinationDomain = destinationDomain;
 
       // Get the transacting asset ID.
-      let transactingAssetId = process.env.TRANSFER_ASSET;
-      if (!transactingAssetId) {
+      let assetId = process.env.TRANSFER_ASSET;
+      if (!assetId) {
         // Alternatively, try defaulting to using the canonical token from the .env (if present) as the transacting asset ID,
         // deriving the local asset using the token registry if applicable.
         const canonicalDomain = process.env.CANONICAL_DOMAIN;
@@ -70,25 +70,16 @@ export default task("execute-eg", "Prepare a cross-chain tx")
         // Retrieve the local asset from the token registry, if applicable.
         if (canonicalDomain === originDomain) {
           // Use the canonical asset as the local asset since we're on the canonical network.
-          transactingAssetId = canonicalAsset;
+          assetId = canonicalAsset;
         } else {
           // Current network's domain is not canonical domain, so we need to get the local asset representation.
-          const tokenRegistryAddress = (
-            await deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env))
-          ).address;
-          const tokenRegistry = await ethers.getContractAt(
-            (
-              await deployments.get(getDeploymentName("TokenRegistry", env))
-            ).abi,
-            tokenRegistryAddress,
-          );
-          transactingAssetId = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
-          if (transactingAssetId === constants.AddressZero) {
-            throw new Error("Empty transactingAssetId on registry");
+          assetId = await connext.canonicalToRepresentation(canonicalDomain, canonicalTokenId);
+          if (assetId === constants.AddressZero) {
+            throw new Error("Empty assetId on registry");
           }
         }
       }
-      if (!transactingAssetId) {
+      if (!assetId) {
         // If the above attempt fails, then we default to telling the user to just specify the transacting asset ID.
         throw new Error("Transfer asset ID must be specified as param or from env (TRANSFER_ASSET)");
       }
@@ -109,7 +100,7 @@ export default task("execute-eg", "Prepare a cross-chain tx")
       (executeArgs as any).params = callParams;
       const feePercentage = "1";
       (executeArgs as any).feePercentage = feePercentage;
-      (executeArgs as any).local = transactingAssetId;
+      (executeArgs as any).local = assetId;
       (executeArgs as any).routers = [executeArgs.routers];
 
       let transferId: string | undefined = process.env.EXECUTE_TRANSFER_ID;

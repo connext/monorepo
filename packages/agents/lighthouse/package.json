@@ -1,6 +1,6 @@
 {
   "name": "@connext/lighthouse",
-  "version": "0.2.0-beta.22",
+  "version": "0.2.0-alpha.28",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,30 +10,23 @@
   ],
   "scripts": {
     "start:prover": "node --enable-source-maps dist/tasks/prover/index.js",
+    "start:process": "node --enable-source-maps dist/tasks/processFromRoot/index.js",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
-    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)"
-  },
-  "nodemonConfig": {
-    "exec": "node --enable-source-maps ./dist/index.js | pino-pretty",
-    "delay": "500",
-    "ext": "js,json",
-    "watch": [
-      ".env",
-      "./dist",
-      "../@connext/nxtp-txservice/dist",
-      "../@connext/nxtp-utils/dist"
-    ]
+    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
+    "version": "yarn version"
   },
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
+    "@connext/nxtp-adapters-database": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
+    "@eth-optimism/sdk": "^1.6.6",
     "@sinclair/typebox": "0.24.39",
     "axios": "0.27.2",
     "dd-trace": "^3.2.0",
@@ -41,11 +34,14 @@
     "ethers": "5.7.0",
     "fastify": "4.5.3",
     "graphql": "16.6.0",
-    "prom-client": "14.1.0"
+    "pg": "^8.8.0",
+    "prom-client": "14.1.0",
+    "zapatos": "^6.1.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "2.12.0",
     "@types/mocha": "9.1.1",
+    "@types/pg": "^8",
     "@types/sinon": "10.0.13",
     "concurrently": "7.4.0",
     "eslint": "8.23.0",

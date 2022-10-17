@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import "../../../utils/FacetHelper.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
-import {IConnextHandler} from "../../../../contracts/core/connext/interfaces/IConnextHandler.sol";
+import {IConnext} from "../../../../contracts/core/connext/interfaces/IConnext.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "../../../../contracts/core/connext/facets/StableSwapFacet.sol";
@@ -31,8 +31,9 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
   function setUp() public {
     utils_deployAssetContracts();
 
-    // we are on the origin domain where local == canonical
-    utils_setupAsset(false, true);
+    // we are on the origin domain where local != canonical
+    s.domain = _originDomain;
+    utils_setupAsset(false, false);
 
     // set the owner to this contract
     setOwner(_owner);
@@ -87,7 +88,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     vm.prank(_owner);
     this.initializeSwap(
-      _canonicalId,
+      utils_calculateCanonicalHash(),
       _pooledTokens,
       _decimals,
       LP_TOKEN_NAME,
@@ -98,7 +99,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
       address(_lpTokenTarget)
     );
 
-    assertEq(this.getSwapVirtualPrice(_canonicalId), 0);
+    assertEq(this.getSwapVirtualPrice(utils_calculateCanonicalHash()), 0);
   }
 
   function utils_addLiquidity(uint256 amount1, uint256 amount2) public {
@@ -109,10 +110,10 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     amounts[1] = amount2;
 
     vm.startPrank(_owner);
-    IERC20(s.swapStorages[_canonicalId].pooledTokens[0]).approve(address(this), 100 ether);
-    IERC20(s.swapStorages[_canonicalId].pooledTokens[1]).approve(address(this), 100 ether);
+    IERC20(s.swapStorages[utils_calculateCanonicalHash()].pooledTokens[0]).approve(address(this), 100 ether);
+    IERC20(s.swapStorages[utils_calculateCanonicalHash()].pooledTokens[1]).approve(address(this), 100 ether);
 
-    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 10);
+    this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 10);
     vm.stopPrank();
   }
 
@@ -123,7 +124,8 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     uint256 minAmountOut
   ) public returns (uint256) {
     vm.warp(blockTimestamp);
-    return this.swapExact(_canonicalId, amountIn, assetIn, assetOut, minAmountOut, blockTimestamp + 10);
+    return
+      this.swapExact(utils_calculateCanonicalHash(), amountIn, assetIn, assetOut, minAmountOut, blockTimestamp + 10);
   }
 
   function utils_swapExactOut(
@@ -133,14 +135,15 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     uint256 maxAmountIn
   ) public returns (uint256) {
     vm.warp(blockTimestamp);
-    return this.swapExactOut(_canonicalId, amountOut, assetIn, assetOut, maxAmountIn, blockTimestamp + 10);
+    return
+      this.swapExactOut(utils_calculateCanonicalHash(), amountOut, assetIn, assetOut, maxAmountIn, blockTimestamp + 10);
   }
 
   // ============ Tests ============
 
   // ============ View Functions ============
   function test_StableSwapFacet__getSwapStorage_shouldWork() public {
-    SwapUtils.Swap memory swapStorage = this.getSwapStorage(_canonicalId);
+    SwapUtils.Swap memory swapStorage = this.getSwapStorage(utils_calculateCanonicalHash());
 
     assertEq(swapStorage.initialA, INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
     assertEq(swapStorage.futureA, INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
@@ -149,7 +152,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
   }
 
   function test_StableSwapFacet__getSwapLPToken_shouldWork() public {
-    address lpToken = this.getSwapLPToken(_canonicalId);
+    address lpToken = this.getSwapLPToken(utils_calculateCanonicalHash());
 
     assertTrue(AddressUpgradeable.isContract(lpToken));
     assertEq(LPToken(lpToken).name(), LP_TOKEN_NAME);
@@ -157,38 +160,50 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
   }
 
   function test_StableSwapFacet__getSwapA_shouldWork() public {
-    assertEq(this.getSwapA(_canonicalId), AmplificationUtils.getA(s.swapStorages[_canonicalId]));
+    assertEq(
+      this.getSwapA(utils_calculateCanonicalHash()),
+      AmplificationUtils.getA(s.swapStorages[utils_calculateCanonicalHash()])
+    );
   }
 
   function test_StableSwapFacet__getSwapAPrecise() public {
-    assertEq(this.getSwapAPrecise(_canonicalId), AmplificationUtils.getAPrecise(s.swapStorages[_canonicalId]));
+    assertEq(
+      this.getSwapAPrecise(utils_calculateCanonicalHash()),
+      AmplificationUtils.getAPrecise(s.swapStorages[utils_calculateCanonicalHash()])
+    );
   }
 
   function test_StableSwapFacet__getSwapToken_shouldWork() public {
-    assertEq(address(this.getSwapToken(_canonicalId, 0)), address(_local));
-    assertEq(address(this.getSwapToken(_canonicalId, 1)), address(_adopted));
+    assertEq(address(this.getSwapToken(utils_calculateCanonicalHash(), 0)), address(_local));
+    assertEq(address(this.getSwapToken(utils_calculateCanonicalHash(), 1)), address(_adopted));
 
     vm.expectRevert(StableSwapFacet.StableSwapFacet__getSwapToken_outOfRange.selector);
-    this.getSwapToken(_canonicalId, 2);
+    this.getSwapToken(utils_calculateCanonicalHash(), 2);
   }
 
   function test_StableSwapFacet__getSwapTokenIndex_shouldWork() public {
-    assertEq(this.getSwapTokenIndex(_canonicalId, _local), 0);
-    assertEq(this.getSwapTokenIndex(_canonicalId, _adopted), 1);
+    assertEq(this.getSwapTokenIndex(utils_calculateCanonicalHash(), _local), 0);
+    assertEq(this.getSwapTokenIndex(utils_calculateCanonicalHash(), _adopted), 1);
 
     vm.expectRevert(StableSwapFacet.StableSwapFacet__getSwapTokenIndex_notExist.selector);
-    this.getSwapTokenIndex(_canonicalId, address(1111));
+    this.getSwapTokenIndex(utils_calculateCanonicalHash(), address(1111));
   }
 
   function test_StableSwapFacet__getSwapTokenBalance_shouldWork() public {
-    assertEq(this.getSwapTokenBalance(_canonicalId, 0), this.getSwapStorage(_canonicalId).balances[0]);
+    assertEq(
+      this.getSwapTokenBalance(utils_calculateCanonicalHash(), 0),
+      this.getSwapStorage(utils_calculateCanonicalHash()).balances[0]
+    );
 
     vm.expectRevert(StableSwapFacet.StableSwapFacet__getSwapTokenBalance_indexOutOfRange.selector);
-    this.getSwapTokenBalance(_canonicalId, 2);
+    this.getSwapTokenBalance(utils_calculateCanonicalHash(), 2);
   }
 
   function test_StableSwapFacet__getSwapVirtualPrice_shouldWork() public {
-    assertEq(this.getSwapVirtualPrice(_canonicalId), SwapUtils.getVirtualPrice(s.swapStorages[_canonicalId]));
+    assertEq(
+      this.getSwapVirtualPrice(utils_calculateCanonicalHash()),
+      SwapUtils.getVirtualPrice(s.swapStorages[utils_calculateCanonicalHash()])
+    );
   }
 
   function test_StableSwapFacet__calculateSwap_shouldWork() public {
@@ -198,8 +213,8 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     this.calculateSwap(bytes32(0), 0, 1, dx);
 
     assertEq(
-      this.calculateSwap(_canonicalId, 0, 1, dx),
-      SwapUtils.calculateSwap(s.swapStorages[_canonicalId], 0, 1, dx)
+      this.calculateSwap(utils_calculateCanonicalHash(), 0, 1, dx),
+      SwapUtils.calculateSwap(s.swapStorages[utils_calculateCanonicalHash()], 0, 1, dx)
     );
   }
 
@@ -211,31 +226,34 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     vm.expectRevert();
     this.calculateSwapTokenAmount(bytes32(0), _amounts, true);
 
-    _amounts[0] = this.getSwapTokenBalance(_canonicalId, 0) + 1;
+    _amounts[0] = this.getSwapTokenBalance(utils_calculateCanonicalHash(), 0) + 1;
     vm.expectRevert(stdError.arithmeticError);
-    this.calculateSwapTokenAmount(_canonicalId, _amounts, false);
+    this.calculateSwapTokenAmount(utils_calculateCanonicalHash(), _amounts, false);
   }
 
   function test_StableSwapFacet__calculateRemoveSwapLiquidity_shouldWork() public {
     assertEq(
-      this.calculateRemoveSwapLiquidity(_canonicalId, 100)[0],
-      SwapUtils.calculateRemoveLiquidity(s.swapStorages[_canonicalId], 100)[0]
+      this.calculateRemoveSwapLiquidity(utils_calculateCanonicalHash(), 100)[0],
+      SwapUtils.calculateRemoveLiquidity(s.swapStorages[utils_calculateCanonicalHash()], 100)[0]
     );
     assertEq(
-      this.calculateRemoveSwapLiquidity(_canonicalId, 100)[1],
-      SwapUtils.calculateRemoveLiquidity(s.swapStorages[_canonicalId], 100)[1]
+      this.calculateRemoveSwapLiquidity(utils_calculateCanonicalHash(), 100)[1],
+      SwapUtils.calculateRemoveLiquidity(s.swapStorages[utils_calculateCanonicalHash()], 100)[1]
     );
   }
 
   function test_StableSwapFacet__calculateRemoveSwapLiquidityOneToken_shouldWork() public {
     assertEq(
-      this.calculateRemoveSwapLiquidityOneToken(_canonicalId, 100, 0),
-      SwapUtils.calculateWithdrawOneToken(s.swapStorages[_canonicalId], 100, 0)
+      this.calculateRemoveSwapLiquidityOneToken(utils_calculateCanonicalHash(), 100, 0),
+      SwapUtils.calculateWithdrawOneToken(s.swapStorages[utils_calculateCanonicalHash()], 100, 0)
     );
   }
 
   function test_StableSwapFacet__getSwapAdminBalance_shouldWork() public {
-    assertEq(this.getSwapAdminBalance(_canonicalId, 0), SwapUtils.getAdminBalance(s.swapStorages[_canonicalId], 0));
+    assertEq(
+      this.getSwapAdminBalance(utils_calculateCanonicalHash(), 0),
+      SwapUtils.getAdminBalance(s.swapStorages[utils_calculateCanonicalHash()], 0)
+    );
   }
 
   // ======= State-Modifying Functions ========
@@ -245,27 +263,27 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     vm.prank(_user1);
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
-    this.swap(_canonicalId, 0, 1, 1 ether, 0, blockTimestamp + 10);
+    this.swap(utils_calculateCanonicalHash(), 0, 1, 1 ether, 0, blockTimestamp + 10);
   }
 
   function test_StableSwapFacet__swap_failIfMoreThanBalance() public {
-    uint256 fromTokenBalance = this.getSwapToken(_canonicalId, 0).balanceOf(_user1);
+    uint256 fromTokenBalance = this.getSwapToken(utils_calculateCanonicalHash(), 0).balanceOf(_user1);
     vm.startPrank(_user1);
     vm.expectRevert("swap more than you own");
-    this.swap(_canonicalId, 0, 1, fromTokenBalance + 10, 0, blockTimestamp + 10);
+    this.swap(utils_calculateCanonicalHash(), 0, 1, fromTokenBalance + 10, 0, blockTimestamp + 10);
     vm.stopPrank();
   }
 
   function test_StableSwapFacet__swap_shouldWork() public {
     uint256 amount = 1e17;
-    uint256 calculatedSwapReturn = this.calculateSwap(_canonicalId, 0, 1, amount);
+    uint256 calculatedSwapReturn = this.calculateSwap(utils_calculateCanonicalHash(), 0, 1, amount);
     assertEq(calculatedSwapReturn, 99702611562565289);
 
     uint256 tokenFromBalanceBefore = IERC20(_local).balanceOf(_user1);
     uint256 tokenToBalanceBefore = IERC20(_adopted).balanceOf(_user1);
 
     vm.startPrank(_user1);
-    this.swap(_canonicalId, 0, 1, amount, calculatedSwapReturn, blockTimestamp + 10);
+    this.swap(utils_calculateCanonicalHash(), 0, 1, amount, calculatedSwapReturn, blockTimestamp + 10);
     vm.stopPrank();
 
     assertEq(tokenFromBalanceBefore - amount, IERC20(_local).balanceOf(_user1));
@@ -274,16 +292,16 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
   function test_StableSwapFacet__swap_failIfNotMinDy() public {
     uint256 amount = 1e17;
-    uint256 calculatedSwapReturn = this.calculateSwap(_canonicalId, 0, 1, amount);
+    uint256 calculatedSwapReturn = this.calculateSwap(utils_calculateCanonicalHash(), 0, 1, amount);
     assertEq(calculatedSwapReturn, 99702611562565289);
 
     vm.startPrank(_user2);
-    this.swap(_canonicalId, 0, 1, amount, 0, blockTimestamp + 10);
+    this.swap(utils_calculateCanonicalHash(), 0, 1, amount, 0, blockTimestamp + 10);
     vm.stopPrank();
 
     vm.startPrank(_user1);
     vm.expectRevert("dy < minDy");
-    this.swap(_canonicalId, 0, 1, amount, calculatedSwapReturn, blockTimestamp + 10);
+    this.swap(utils_calculateCanonicalHash(), 0, 1, amount, calculatedSwapReturn, blockTimestamp + 10);
     vm.stopPrank();
   }
 
@@ -293,27 +311,27 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     vm.prank(_user1);
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
-    this.swapExact(_canonicalId, 1 ether, _local, _adopted, 0, blockTimestamp + 10);
+    this.swapExact(utils_calculateCanonicalHash(), 1 ether, _local, _adopted, 0, blockTimestamp + 10);
   }
 
   function test_StableSwapFacet__swapExact_failIfMoreThanBalance() public {
-    uint256 fromTokenBalance = this.getSwapToken(_canonicalId, 0).balanceOf(_user1);
+    uint256 fromTokenBalance = this.getSwapToken(utils_calculateCanonicalHash(), 0).balanceOf(_user1);
     vm.startPrank(_user1);
     vm.expectRevert("swap more than you own");
-    this.swapExact(_canonicalId, fromTokenBalance + 10, _local, _adopted, 0, blockTimestamp + 10);
+    this.swapExact(utils_calculateCanonicalHash(), fromTokenBalance + 10, _local, _adopted, 0, blockTimestamp + 10);
     vm.stopPrank();
   }
 
   function test_StableSwapFacet__swapExact_shouldWork() public {
     uint256 amount = 1e17;
-    uint256 calculatedSwapReturn = this.calculateSwap(_canonicalId, 0, 1, amount);
+    uint256 calculatedSwapReturn = this.calculateSwap(utils_calculateCanonicalHash(), 0, 1, amount);
     assertEq(calculatedSwapReturn, 99702611562565289);
 
     uint256 tokenFromBalanceBefore = IERC20(_local).balanceOf(_user1);
     uint256 tokenToBalanceBefore = IERC20(_adopted).balanceOf(_user1);
 
     vm.startPrank(_user1);
-    this.swapExact(_canonicalId, amount, _local, _adopted, calculatedSwapReturn, blockTimestamp + 10);
+    this.swapExact(utils_calculateCanonicalHash(), amount, _local, _adopted, calculatedSwapReturn, blockTimestamp + 10);
     vm.stopPrank();
 
     assertEq(tokenFromBalanceBefore - amount, IERC20(_local).balanceOf(_user1));
@@ -322,16 +340,16 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
   function test_StableSwapFacet__swapExact_failIfNotMinDy() public {
     uint256 amount = 1e17;
-    uint256 calculatedSwapReturn = this.calculateSwap(_canonicalId, 0, 1, amount);
+    uint256 calculatedSwapReturn = this.calculateSwap(utils_calculateCanonicalHash(), 0, 1, amount);
     assertEq(calculatedSwapReturn, 99702611562565289);
 
     vm.startPrank(_user2);
-    this.swapExact(_canonicalId, amount, _local, _adopted, 0, blockTimestamp + 10);
+    this.swapExact(utils_calculateCanonicalHash(), amount, _local, _adopted, 0, blockTimestamp + 10);
     vm.stopPrank();
 
     vm.startPrank(_user1);
     vm.expectRevert("dy < minDy");
-    this.swapExact(_canonicalId, amount, _local, _adopted, calculatedSwapReturn, blockTimestamp + 10);
+    this.swapExact(utils_calculateCanonicalHash(), amount, _local, _adopted, calculatedSwapReturn, blockTimestamp + 10);
     vm.stopPrank();
   }
 
@@ -345,7 +363,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     vm.prank(_user1);
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
-    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+    this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 1);
   }
 
   function test_StableSwapFacet__addSwapLiquidity_failIfNotMatchPooledToken() public {
@@ -354,7 +372,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     vm.prank(_user1);
     vm.expectRevert("mismatch pooled tokens");
-    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+    this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 1);
   }
 
   function test_StableSwapFacet__addSwapLiquidity_shouldWork() public {
@@ -363,12 +381,17 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     amounts[0] = 1 ether;
     amounts[1] = 3 ether;
 
-    uint256 calculatedPoolTokenAmount = this.calculateSwapTokenAmount(_canonicalId, amounts, true);
+    uint256 calculatedPoolTokenAmount = this.calculateSwapTokenAmount(utils_calculateCanonicalHash(), amounts, true);
     uint256 calculatedPoolTokenAmountWithSlippage = (calculatedPoolTokenAmount * 999) / 1000;
 
-    this.addSwapLiquidity(_canonicalId, amounts, calculatedPoolTokenAmountWithSlippage, blockTimestamp + 1);
+    this.addSwapLiquidity(
+      utils_calculateCanonicalHash(),
+      amounts,
+      calculatedPoolTokenAmountWithSlippage,
+      blockTimestamp + 1
+    );
 
-    uint256 actualPoolTokenAmount = IERC20(this.getSwapLPToken(_canonicalId)).balanceOf(_user1);
+    uint256 actualPoolTokenAmount = IERC20(this.getSwapLPToken(utils_calculateCanonicalHash())).balanceOf(_user1);
 
     // The actual pool token amount is less than 4e18 due to the imbalance of the underlying tokens
     assertEq(actualPoolTokenAmount, 3991672211258374952);
@@ -385,7 +408,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     vm.prank(_user1);
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
-    this.removeSwapLiquidity(_canonicalId, 2 ether, minAmounts, blockTimestamp + 1);
+    this.removeSwapLiquidity(utils_calculateCanonicalHash(), 2 ether, minAmounts, blockTimestamp + 1);
   }
 
   function test_StableSwapFacet__removeSwapLiquidity_failIfNotMatchPooledToken() public {
@@ -394,7 +417,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     vm.prank(_owner);
     vm.expectRevert("mismatch poolTokens");
-    this.removeSwapLiquidity(_canonicalId, 1 ether, minAmounts, blockTimestamp + 1);
+    this.removeSwapLiquidity(utils_calculateCanonicalHash(), 1 ether, minAmounts, blockTimestamp + 1);
   }
 
   function test_StableSwapFacet__removeSwapLiquidity_shouldWork() public {
@@ -404,9 +427,9 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     amounts[0] = 2 ether;
     amounts[1] = 0.01 ether;
 
-    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+    this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 1);
 
-    address swapToken = this.getSwapLPToken(_canonicalId);
+    address swapToken = this.getSwapLPToken(utils_calculateCanonicalHash());
     uint256 firstTokenBalanceBefore = IERC20(_local).balanceOf(_user1);
     uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_user1);
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
@@ -414,14 +437,19 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     assertEq(poolTokenBalanceBefore, 1996275270169645723);
 
     uint256[] memory expectedAmounts = new uint256[](2);
-    expectedAmounts = this.calculateRemoveSwapLiquidity(_canonicalId, poolTokenBalanceBefore);
+    expectedAmounts = this.calculateRemoveSwapLiquidity(utils_calculateCanonicalHash(), poolTokenBalanceBefore);
 
     assertEq(expectedAmounts[0], 1498601924450190405);
     assertEq(expectedAmounts[1], 504529314564897436);
 
     IERC20(swapToken).approve(address(this), poolTokenBalanceBefore);
 
-    this.removeSwapLiquidity(_canonicalId, poolTokenBalanceBefore, expectedAmounts, blockTimestamp + 1);
+    this.removeSwapLiquidity(
+      utils_calculateCanonicalHash(),
+      poolTokenBalanceBefore,
+      expectedAmounts,
+      blockTimestamp + 1
+    );
 
     assertEq(firstTokenBalanceBefore + expectedAmounts[0], IERC20(_local).balanceOf(_user1));
     assertEq(secondTokenBalanceBefore + expectedAmounts[1], IERC20(_adopted).balanceOf(_user1));
@@ -434,7 +462,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     vm.prank(_user1);
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
-    this.removeSwapLiquidityOneToken(_canonicalId, 2 ether, 0, 0, blockTimestamp + 1);
+    this.removeSwapLiquidityOneToken(utils_calculateCanonicalHash(), 2 ether, 0, 0, blockTimestamp + 1);
   }
 
   function test_StableSwapFacet__removeSwapLiquidityOneToken_failIfMoreThanLpBalance() public {
@@ -443,9 +471,9 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     amounts[0] = 2 ether;
     amounts[1] = 0.01 ether;
 
-    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+    this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 1);
 
-    address swapToken = this.getSwapLPToken(_canonicalId);
+    address swapToken = this.getSwapLPToken(utils_calculateCanonicalHash());
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
 
     assertEq(poolTokenBalanceBefore, 1996275270169645723);
@@ -453,7 +481,13 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     IERC20(swapToken).approve(address(this), poolTokenBalanceBefore + 10);
 
     vm.expectRevert(">LP.balanceOf");
-    this.removeSwapLiquidityOneToken(_canonicalId, poolTokenBalanceBefore + 10, 0, 0, blockTimestamp + 1);
+    this.removeSwapLiquidityOneToken(
+      utils_calculateCanonicalHash(),
+      poolTokenBalanceBefore + 10,
+      0,
+      0,
+      blockTimestamp + 1
+    );
 
     vm.stopPrank();
   }
@@ -465,9 +499,9 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     amounts[0] = 2 ether;
     amounts[1] = 0.01 ether;
 
-    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+    this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 1);
 
-    address swapToken = this.getSwapLPToken(_canonicalId);
+    address swapToken = this.getSwapLPToken(utils_calculateCanonicalHash());
     uint256 firstTokenBalanceBefore = IERC20(_local).balanceOf(_user1);
     uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_user1);
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
@@ -476,7 +510,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     // User 1 calculates the amount of underlying token to receive.
     uint256 calculatedFirstTokenAmount = this.calculateRemoveSwapLiquidityOneToken(
-      _canonicalId,
+      utils_calculateCanonicalHash(),
       poolTokenBalanceBefore,
       0
     );
@@ -485,7 +519,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     IERC20(swapToken).approve(address(this), poolTokenBalanceBefore);
 
     this.removeSwapLiquidityOneToken(
-      _canonicalId,
+      utils_calculateCanonicalHash(),
       poolTokenBalanceBefore,
       0,
       calculatedFirstTokenAmount,
@@ -504,9 +538,9 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     amounts[0] = 2 ether;
     amounts[1] = 0.01 ether;
 
-    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+    this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 1);
 
-    address swapToken = this.getSwapLPToken(_canonicalId);
+    address swapToken = this.getSwapLPToken(utils_calculateCanonicalHash());
     uint256 firstTokenBalanceBefore = IERC20(_local).balanceOf(_user1);
     uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_user1);
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
@@ -515,7 +549,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     // User 1 calculates the amount of underlying token to receive.
     uint256 calculatedFirstTokenAmount = this.calculateRemoveSwapLiquidityOneToken(
-      _canonicalId,
+      utils_calculateCanonicalHash(),
       poolTokenBalanceBefore,
       0
     );
@@ -525,7 +559,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     vm.startPrank(_user2);
     amounts[0] = 0.01 ether;
     amounts[1] = 10 ether;
-    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 10);
+    this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 10);
     vm.stopPrank();
 
     vm.startPrank(_user1);
@@ -533,7 +567,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     vm.expectRevert("dy < minAmount");
     this.removeSwapLiquidityOneToken(
-      _canonicalId,
+      utils_calculateCanonicalHash(),
       poolTokenBalanceBefore,
       0,
       calculatedFirstTokenAmount,
@@ -550,9 +584,9 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     amounts[0] = 2 ether;
     amounts[1] = 0.01 ether;
 
-    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+    this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 1);
 
-    address swapToken = this.getSwapLPToken(_canonicalId);
+    address swapToken = this.getSwapLPToken(utils_calculateCanonicalHash());
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
 
     assertEq(poolTokenBalanceBefore, 1996275270169645723);
@@ -566,7 +600,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     s._paused = true;
 
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
-    this.removeSwapLiquidityImbalance(_canonicalId, removeAmounts, 100 ether, blockTimestamp + 1);
+    this.removeSwapLiquidityImbalance(utils_calculateCanonicalHash(), removeAmounts, 100 ether, blockTimestamp + 1);
 
     vm.stopPrank();
   }
@@ -578,7 +612,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     removeAmounts[0] = 1 ether;
 
     vm.expectRevert("mismatch pool tokens");
-    this.removeSwapLiquidityImbalance(_canonicalId, removeAmounts, 100 ether, blockTimestamp + 1);
+    this.removeSwapLiquidityImbalance(utils_calculateCanonicalHash(), removeAmounts, 100 ether, blockTimestamp + 1);
 
     vm.stopPrank();
   }
@@ -589,9 +623,9 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     amounts[0] = 2 ether;
     amounts[1] = 0.01 ether;
 
-    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+    this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 1);
 
-    address swapToken = this.getSwapLPToken(_canonicalId);
+    address swapToken = this.getSwapLPToken(utils_calculateCanonicalHash());
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
 
     assertEq(poolTokenBalanceBefore, 1996275270169645723);
@@ -603,7 +637,12 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     IERC20(swapToken).approve(address(this), poolTokenBalanceBefore);
 
     vm.expectRevert(">LP.balanceOf");
-    this.removeSwapLiquidityImbalance(_canonicalId, removeAmounts, poolTokenBalanceBefore + 1, blockTimestamp + 1);
+    this.removeSwapLiquidityImbalance(
+      utils_calculateCanonicalHash(),
+      removeAmounts,
+      poolTokenBalanceBefore + 1,
+      blockTimestamp + 1
+    );
 
     vm.stopPrank();
   }
@@ -619,9 +658,9 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     removeAmounts[0] = 1 ether;
     removeAmounts[1] = 0.01 ether;
 
-    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+    this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 1);
 
-    address swapToken = this.getSwapLPToken(_canonicalId);
+    address swapToken = this.getSwapLPToken(utils_calculateCanonicalHash());
     uint256 firstTokenBalanceBefore = IERC20(_local).balanceOf(_user1);
     uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_user1);
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
@@ -629,7 +668,11 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     assertEq(poolTokenBalanceBefore, 1996275270169645723);
 
     // User 1 calculates amount of pool token to be burned
-    uint256 maxPoolTokenAmountToBeBurned = this.calculateSwapTokenAmount(_canonicalId, removeAmounts, false);
+    uint256 maxPoolTokenAmountToBeBurned = this.calculateSwapTokenAmount(
+      utils_calculateCanonicalHash(),
+      removeAmounts,
+      false
+    );
 
     // ±0.1% range of pool token to be burned
     uint256 maxPoolTokenAmountToBeBurnedNegativeSlippage = (maxPoolTokenAmountToBeBurned * 1001) / 1000;
@@ -638,7 +681,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     IERC20(swapToken).approve(address(this), maxPoolTokenAmountToBeBurnedNegativeSlippage);
 
     this.removeSwapLiquidityImbalance(
-      _canonicalId,
+      utils_calculateCanonicalHash(),
       removeAmounts,
       maxPoolTokenAmountToBeBurnedNegativeSlippage,
       blockTimestamp + 1
@@ -667,9 +710,9 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     removeAmounts[0] = 1 ether;
     removeAmounts[1] = 0.01 ether;
 
-    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+    this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 1);
 
-    address swapToken = this.getSwapLPToken(_canonicalId);
+    address swapToken = this.getSwapLPToken(utils_calculateCanonicalHash());
     uint256 firstTokenBalanceBefore = IERC20(_local).balanceOf(_user1);
     uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_user1);
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
@@ -677,7 +720,11 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     assertEq(poolTokenBalanceBefore, 1996275270169645723);
 
     // User 1 calculates amount of pool token to be burned
-    uint256 maxPoolTokenAmountToBeBurned = this.calculateSwapTokenAmount(_canonicalId, removeAmounts, false);
+    uint256 maxPoolTokenAmountToBeBurned = this.calculateSwapTokenAmount(
+      utils_calculateCanonicalHash(),
+      removeAmounts,
+      false
+    );
 
     // ±0.1% range of pool token to be burned
     uint256 maxPoolTokenAmountToBeBurnedNegativeSlippage = (maxPoolTokenAmountToBeBurned * 1001) / 1000;
@@ -692,7 +739,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     vm.expectRevert("tokenAmount > maxBurnAmount");
     this.removeSwapLiquidityImbalance(
-      _canonicalId,
+      utils_calculateCanonicalHash(),
       removeAmounts,
       maxPoolTokenAmountToBeBurnedNegativeSlippage,
       blockTimestamp + 1

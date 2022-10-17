@@ -6,7 +6,6 @@ use(solidity);
 import {
   Home,
   TestERC20,
-  TokenRegistry,
   WETH,
   UpgradeBeaconController,
   XAppConnectionManager,
@@ -15,16 +14,15 @@ import {
   TestSponsorVault,
   DiamondCutFacet,
   DiamondLoupeFacet,
-  AssetFacet,
+  TokenFacet,
   BridgeFacet,
   NomadFacet,
   ProposedOwnableFacet,
   RelayerFacet,
   RoutersFacet,
   StableSwapFacet,
-  ConnextHandler,
+  Connext,
   DiamondInit,
-  PromiseRouter,
   PortalFacet,
 } from "../src/typechain-types";
 
@@ -96,8 +94,6 @@ describe("Connext", () => {
   let upgradeBeaconController: UpgradeBeaconController;
   let originXappConnectionManager: XAppConnectionManager;
   let destinationXappConnectionManager: XAppConnectionManager;
-  let originTokenRegistry: TokenRegistry;
-  let destinationTokenRegistry: TokenRegistry;
   let originAdopted: TestERC20;
   let destinationAdopted: TestERC20;
   let canonical: TestERC20;
@@ -105,16 +101,14 @@ describe("Connext", () => {
   let weth: WETH;
   let bridgeFacet: BridgeFacet;
   let nomadFacet: NomadFacet;
-  let assetFacet: AssetFacet;
+  let tokenFacet: TokenFacet;
   let routersFacet: RoutersFacet;
   let portalFacet: PortalFacet;
-  let originBridge: ConnextHandler;
-  let destinationBridge: ConnextHandler;
+  let originBridge: Connext;
+  let destinationBridge: Connext;
   let stableSwap: DummySwap;
   let originRelayerFeeRouter: RelayerFeeRouter;
   let destinationRelayerFeeRouter: RelayerFeeRouter;
-  let originPromiseRouter: PromiseRouter;
-  let destinationPromiseRouter: PromiseRouter;
   let home: Home;
   let destinationHome: Home;
   let snapshot: number;
@@ -137,21 +131,14 @@ describe("Connext", () => {
     // Deploy xapp connection manager
     originXappConnectionManager = await deployContract<XAppConnectionManager>("XAppConnectionManager");
     destinationXappConnectionManager = await deployContract<XAppConnectionManager>("XAppConnectionManager");
-    //Deploy token registry
-    originTokenRegistry = await deployUpgradeableBeaconProxy<TokenRegistry>(
-      "TokenRegistry",
-      [upgradeBeaconController.address, originXappConnectionManager.address],
-      upgradeBeaconController.address,
-    );
-    destinationTokenRegistry = await deployUpgradeableBeaconProxy<TokenRegistry>(
-      "TokenRegistry",
-      [upgradeBeaconController.address, destinationXappConnectionManager.address],
-      upgradeBeaconController.address,
-    );
-
     // Deploy dummy stable swap
     stableSwap = await deployContract<DummySwap>("DummySwap");
-
+    // Deploy token beacon
+    const tokenBeacon = await deployUpgradeableBeaconProxy(
+      "BridgeToken",
+      [18, "nextTest", "TestNXT"],
+      upgradeBeaconController.address,
+    );
     // Deploy RelayerFeeRouters
     originRelayerFeeRouter = await deployUpgradeableProxy<RelayerFeeRouter>("RelayerFeeRouter", proxyOwner.address, [
       originXappConnectionManager.address,
@@ -163,20 +150,11 @@ describe("Connext", () => {
       [destinationXappConnectionManager.address],
     );
 
-    // Deploy PromiseRouters
-    originPromiseRouter = await deployUpgradeableProxy<PromiseRouter>("PromiseRouter", proxyOwner.address, [
-      originXappConnectionManager.address,
-    ]);
-
-    destinationPromiseRouter = await deployUpgradeableProxy<PromiseRouter>("PromiseRouter", proxyOwner.address, [
-      destinationXappConnectionManager.address,
-    ]);
-
     // Deploy facets
     const diamondCutFacet = await deployContract<DiamondCutFacet>("DiamondCutFacet");
     const diamondLoupeFacet = await deployContract<DiamondLoupeFacet>("DiamondLoupeFacet");
 
-    assetFacet = await deployContract<AssetFacet>("AssetFacet");
+    tokenFacet = await deployContract<TokenFacet>("TokenFacet");
     bridgeFacet = await deployContract<BridgeFacet>("BridgeFacet");
     routersFacet = await deployContract<RoutersFacet>("RoutersFacet");
     portalFacet = await deployContract<PortalFacet>("PortalFacet");
@@ -188,12 +166,12 @@ describe("Connext", () => {
     const diamondInit = await deployContract<DiamondInit>("DiamondInit");
 
     // Deploy origin diamond
-    originBridge = await deployDiamond<ConnextHandler>(
+    originBridge = await deployDiamond<Connext>(
       "Connext",
       [
         diamondCutFacet,
         diamondLoupeFacet,
-        assetFacet,
+        tokenFacet,
         bridgeFacet,
         nomadFacet,
         proposedOwnableFacet,
@@ -206,22 +184,22 @@ describe("Connext", () => {
       diamondInit.address,
       diamondInit.interface.encodeFunctionData("init", [
         originDomain,
-        originXappConnectionManager.address,
-        originTokenRegistry.address,
-        weth.address,
+        tokenBeacon.address,
         originRelayerFeeRouter.address,
-        originPromiseRouter.address,
+        originXappConnectionManager.address,
+        0,
+        0,
       ]),
-      "ConnextHandler",
+      "Connext",
     );
 
     // Deploy destination diamond
-    destinationBridge = await deployDiamond<ConnextHandler>(
+    destinationBridge = await deployDiamond<Connext>(
       "Connext",
       [
         diamondCutFacet,
         diamondLoupeFacet,
-        assetFacet,
+        tokenFacet,
         bridgeFacet,
         nomadFacet,
         proposedOwnableFacet,
@@ -238,9 +216,8 @@ describe("Connext", () => {
         destinationTokenRegistry.address,
         weth.address,
         destinationRelayerFeeRouter.address,
-        destinationPromiseRouter.address,
       ]),
-      "ConnextHandler",
+      "Connext",
     );
 
     // Deploy home in origin domain
@@ -524,7 +501,7 @@ describe("Connext", () => {
 
       const receipt = await tx.wait();
 
-      const stableSwapAddedEvent = assetFacet.interface.parseLog(receipt.logs[0]);
+      const stableSwapAddedEvent = tokenFacet.interface.parseLog(receipt.logs[0]);
       expect(stableSwapAddedEvent.args.caller).to.eq(admin.address);
       expect(stableSwapAddedEvent.args.canonicalId).to.eq(addressToBytes32(canonical.address).toLowerCase());
       expect(stableSwapAddedEvent.args.domain).to.eq(originDomain);
@@ -569,7 +546,7 @@ describe("Connext", () => {
           originAdopted.address,
           stableSwap.address,
         ),
-      ).to.be.revertedWith("AssetFacet__addAssetId_alreadyAdded");
+      ).to.be.revertedWith("TokenFacet__addAssetId_alreadyAdded");
     });
 
     it("should work", async () => {
@@ -582,7 +559,7 @@ describe("Connext", () => {
       const receipt = await tx.wait();
       const supported = originAdopted.address == ZERO_ADDRESS ? weth.address : originAdopted.address;
 
-      const assetAddedEvent = assetFacet.interface.parseLog(receipt.logs[0]);
+      const assetAddedEvent = tokenFacet.interface.parseLog(receipt.logs[0]);
       expect(assetAddedEvent.args.caller).to.eq(admin.address);
       expect(assetAddedEvent.args.canonicalId).to.eq(addressToBytes32(toAdd).toLowerCase());
       expect(assetAddedEvent.args.domain).to.eq(originDomain);
@@ -602,7 +579,7 @@ describe("Connext", () => {
     it("should fail if it is not approved canonical", async () => {
       const toRemove = Wallet.createRandom().address;
       await expect(originBridge.removeAssetId(addressToBytes32(toRemove), originAdopted.address)).to.be.revertedWith(
-        "AssetFacet__removeAssetId_notAdded",
+        "TokenFacet__removeAssetId_notAdded",
       );
     });
 
@@ -618,7 +595,7 @@ describe("Connext", () => {
       const tx = await originBridge.removeAssetId(addressToBytes32(toRemove), originAdopted.address);
       const receipt = await tx.wait();
 
-      const assetRemovedEvent = assetFacet.interface.parseLog(receipt.logs[0]);
+      const assetRemovedEvent = tokenFacet.interface.parseLog(receipt.logs[0]);
       expect(assetRemovedEvent.args.caller).to.eq(admin.address);
       expect(assetRemovedEvent.args.canonicalId).to.eq(
         addressToBytes32(addressToBytes32(toRemove).toLowerCase()).toLowerCase(),
@@ -909,16 +886,15 @@ describe("Connext", () => {
       destinationDomain,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
-      forceSlow: false,
       receiveLocal: false,
       recovery: user.address,
     };
-    const transactingAssetId = originAdopted.address;
+    const asset = originAdopted.address;
     const amount = utils.parseEther("0.0001");
     const relayerFee = utils.parseEther("0.00000001");
     const prepare = await originBridge
       .connect(user)
-      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
+      .xcall({ params, asset, amount, relayerFee }, { value: relayerFee });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -1012,15 +988,14 @@ describe("Connext", () => {
       callback: ZERO_ADDRESS,
       callbackFee: 0,
       recovery: user.address,
-      forceSlow: false,
       receiveLocal: false,
     };
-    const transactingAssetId = constants.AddressZero;
+    const asset = constants.AddressZero;
     const amount = utils.parseEther("0.0001");
     const relayerFee = utils.parseEther("0.00000001");
     const prepare = await originBridge
       .connect(user)
-      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: amount.add(relayerFee) });
+      .xcall({ params, asset, amount, relayerFee }, { value: amount.add(relayerFee) });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -1120,16 +1095,15 @@ describe("Connext", () => {
       destinationDomain,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
-      forceSlow: false,
       recovery: user.address,
       receiveLocal: false,
     };
-    const transactingAssetId = originAdopted.address;
+    const asset = originAdopted.address;
     const amount = utils.parseEther("0.0001");
     const relayerFee = utils.parseEther("0.00000001");
     const prepare = await originBridge
       .connect(user)
-      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
+      .xcall({ params, asset, amount, relayerFee }, { value: relayerFee });
     const prepareReceipt = await prepare.wait();
 
     const xcalledTopic = bridgeFacet.filters.XCalled().topics as string[];
@@ -1206,7 +1180,6 @@ describe("Connext", () => {
       destinationDomain,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
-      forceSlow: false,
       receiveLocal: false,
     };
     const amount = utils.parseEther("0.001");
@@ -1246,11 +1219,11 @@ describe("Connext", () => {
       await originAdopted.connect(user).approve(originBridge.address, parseEther("100000"));
 
       // Prepare from the user
-      const transactingAssetId = originAdopted.address;
+      const asset = originAdopted.address;
       relayerFee = utils.parseEther("0.00000001");
       const prepare = await originBridge
         .connect(user)
-        .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
+        .xcall({ params, asset, amount, relayerFee }, { value: relayerFee });
       const prepareReceipt = await prepare.wait();
 
       const xcalledTopic = bridgeFacet.filters.XCalled().topics as string[];
@@ -1434,7 +1407,6 @@ describe("Connext", () => {
       destinationDomain,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
-      forceSlow: false,
       receiveLocal: false,
     };
 
@@ -1552,7 +1524,7 @@ describe("Connext", () => {
     let relayerFee: any;
     let routerAmount: any;
     let liquidityFee: any;
-    let transactingAssetId: any;
+    let asset: any;
     let nonce: any;
     let message: any;
     let transferId: any;
@@ -1596,15 +1568,14 @@ describe("Connext", () => {
         destinationDomain,
         callback: ZERO_ADDRESS,
         callbackFee: 0,
-        forceSlow: false,
         receiveLocal: false,
         recovery: user.address,
       };
-      transactingAssetId = originAdopted.address;
+      asset = originAdopted.address;
 
       const prepare = await originBridge
         .connect(user)
-        .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
+        .xcall({ params, asset, amount, relayerFee }, { value: relayerFee });
       const prepareReceipt = await prepare.wait();
       const xcalledTopic = bridgeFacet.filters.XCalled().topics as string[];
       const originBridgeEvent = bridgeFacet.interface.parseLog(

@@ -9,7 +9,7 @@ import {
   getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
   OriginTransferSchema,
 } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import axios, { AxiosResponse } from "axios";
 
 import {
@@ -23,6 +23,7 @@ import {
   RetryableBidPostError,
   SequencerResponseInvalid,
   UnableToGetAsset,
+  RouterVersionInvalid,
 } from "../../../errors";
 // @ts-ignore
 import { version } from "../../../../package.json";
@@ -45,8 +46,12 @@ export const getDestinationLocalAsset = async (
   const {
     adapters: { subgraph },
   } = getContext();
+  // handle address(0) default case
+  if (_originLocalAsset === ethers.constants.AddressZero) {
+    return ethers.constants.AddressZero;
+  }
 
-  // get canonical asset from orgin domain.
+  // get canonical asset from origin domain.
   const sendingDomainAsset = await subgraph.getAssetByLocal(_originDomain, _originLocalAsset);
 
   const canonicalId = sendingDomainAsset?.canonicalId;
@@ -56,8 +61,7 @@ export const getDestinationLocalAsset = async (
   }
 
   const destinationDomainAsset = await subgraph.getAssetByCanonicalId(_destinationDomain, canonicalId);
-
-  const localAddress = destinationDomainAsset?.local;
+  const localAddress = destinationDomainAsset?.localAsset;
 
   return localAddress;
 };
@@ -88,12 +92,15 @@ export const sendBid = async (bid: Bid, _requestContext: RequestContext): Promis
     if (error.response?.data?.message === "AuctionExpired") {
       // TODO: Should we mark this transfer as expired? Technically speaking, it *could* become unexpired
       // if the sequencer decides relayer execution has timed out.
-      throw new AuctionExpired({ transferId });
-    }
-    if (error.response?.data?.message === "MissingXCall") {
+      throw new AuctionExpired({ transferId, requestContext, methodContext, data: error.response.data });
+    } else if (error.response?.data?.message === "MissingXCall") {
       // TODO: Should we mark this transfer as expired? Technically speaking, it *could* become unexpired
       // if the sequencer decides relayer execution has timed out.
-      throw new RetryableBidPostError({ transferId, requestContext, methodContext });
+      throw new RetryableBidPostError({ transferId, requestContext, methodContext, data: error.response.data });
+    } else if (error.response?.data?.message === "RouterVersionInvalid") {
+      // TODO: Should we mark this transfer as expired? Technically speaking, it *could* become unexpired
+      // if the sequencer decides relayer execution has timed out.
+      throw new RouterVersionInvalid({ transferId, requestContext, methodContext, data: error.response.data });
     } else {
       const errorObj: any = {};
       if (error.response) {
@@ -175,13 +182,8 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
   const {
     origin,
     transferId,
-    xparams: { callData, to, forceSlow, originDomain, destinationDomain },
+    xparams: { callData, to, originDomain, destinationDomain },
   } = params;
-
-  if (forceSlow) {
-    logger.debug("Opt for slow path", requestContext, methodContext, {});
-    return;
-  }
 
   const dest = await subgraph.getDestinationTransferById(destinationDomain, transferId);
   if (dest) {
@@ -232,7 +234,10 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
   // Produce the router path signatures for each auction round we want to bid on.
 
   // Make a list of signatures that reflect which auction rounds we want to bid on.
-  const balance = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
+  const balance =
+    executeLocalAsset === ethers.constants.AddressZero
+      ? 0
+      : await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
   const signatures: Record<string, string> = {};
   for (let roundIdx = 1; roundIdx <= config.auctionRoundDepth; roundIdx++) {
     const amountForRound = getAuctionAmount(roundIdx, BigNumber.from(receivingAmount));

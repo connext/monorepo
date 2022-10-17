@@ -13,6 +13,11 @@ export interface Chain {
   group: string;
 }
 
+export enum ChainTerminus {
+  origin = "Origin",
+  destination = "Destination",
+  none = "Chain",
+}
 export interface Explorer {
   name: string;
   url: string;

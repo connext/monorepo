@@ -18,7 +18,6 @@ export const encodeExecuteFromBids = async (
   round: number,
   bids: Bid[],
   transfer: OriginTransfer,
-  local: string,
   _requestContext: RequestContext,
 ): Promise<string> => {
   const {
@@ -35,28 +34,11 @@ export const encodeExecuteFromBids = async (
   // Format arguments from XTransfer.
   const routers = bids.map((b) => b.router);
   const args: ExecuteArgs = {
-    params: {
-      originDomain: transfer.xparams.originDomain,
-      destinationDomain: transfer.xparams.destinationDomain,
-      to: transfer.xparams.to,
-      callData: transfer.xparams.callData,
-      callback: transfer.xparams.callback ?? constants.AddressZero,
-      callbackFee: transfer.xparams.callbackFee ?? "0",
-      relayerFee: transfer.xparams.relayerFee ?? "0",
-      forceSlow: transfer.xparams.forceSlow,
-      receiveLocal: transfer.xparams.receiveLocal,
-      recovery: transfer.xparams.recovery,
-      agent: transfer.xparams.agent,
-      destinationMinOut: transfer.xparams.destinationMinOut,
-    },
-    local,
+    params: transfer.xparams,
     routers,
     routerSignatures: bids.map((b) => b.signatures[round.toString()]),
     sequencer: await wallet.getAddress(),
     sequencerSignature: await signSequencerPermitPayload(transfer.transferId, routers, wallet),
-    amount: transfer.origin.assets.bridged.amount,
-    nonce: transfer.nonce,
-    originSender: transfer.origin.xcall.caller,
   };
   logger.debug("Encoded execute args", requestContext, methodContext, { args });
   return contracts.connext.encodeFunctionData("execute", [args]);
@@ -78,6 +60,10 @@ export const getDestinationLocalAsset = async (
   const {
     adapters: { subgraph },
   } = getContext();
+  // handle address(0) default case
+  if (_originLocalAsset === constants.AddressZero) {
+    return constants.AddressZero;
+  }
 
   // get canonical asset from orgin domain.
   const sendingDomainAsset = await subgraph.getAssetByLocal(_originDomain, _originLocalAsset);
@@ -86,7 +72,7 @@ export const getDestinationLocalAsset = async (
 
   const destinationDomainAsset = await subgraph.getAssetByCanonicalId(_destinationDomain, canonicalId);
 
-  const localAddress = destinationDomainAsset!.local;
+  const localAddress = destinationDomainAsset!.localAsset;
   return localAddress;
 };
 

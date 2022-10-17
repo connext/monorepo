@@ -1,15 +1,15 @@
 type Asset @entity {
-  id: ID!
-  key: Bytes
-  local: Bytes!
-  adoptedAsset: Bytes!
+  id: ID! # local asset address
+  key: Bytes!
   canonicalId: Bytes!
   canonicalDomain: BigInt!
+  adoptedAsset: Bytes!
+  localAsset: Bytes!
   blockNumber: BigInt! # needed in case multiple locals are stored under the same canonicalId
 }
 
 type AssetBalance @entity {
-  id: ID!
+  id: ID! # `key-router_address`
   amount: BigInt!
   router: Router!
   asset: Asset!
@@ -38,16 +38,17 @@ type Relayer @entity {
   relayer: Bytes
 }
 
+type Sequencer @entity {
+  id: ID!
+  isActive: Boolean!
+  sequencer: Bytes
+}
+
 type StableSwap @entity {
   id: ID!
   canonicalId: Bytes!
   domain: BigInt
   swapPool: Bytes!
-}
-
-type SponsorVault @entity {
-  id: ID!
-  sponsorVault: Bytes!
 }
 
 enum TransferStatus {
@@ -65,34 +66,25 @@ type OriginTransfer @entity {
   chainId: BigInt
   transferId: Bytes
   nonce: BigInt
+  status: TransferStatus
+  messageHash: Bytes
 
   # CallParams
-  to: Bytes
-  callData: Bytes
   originDomain: BigInt
   destinationDomain: BigInt
-  agent: Bytes
-  recovery: Bytes
-  forceSlow: Boolean
+  canonicalDomain: BigInt
+  to: Bytes
+  delegate: Bytes
   receiveLocal: Boolean
-  callback: Bytes
-  callbackFee: BigInt
-  relayerFee: BigInt
-  destinationMinOut: BigInt
-
-  # Event Data
-  status: TransferStatus
-  originMinOut: BigInt
+  callData: Bytes
+  slippage: BigInt
+  originSender: Bytes
+  bridgedAmt: BigInt
+  normalizedIn: BigInt
+  canonicalId: Bytes
 
   # Asset
-  # The asset that gets sent in.
-  transactingAsset: Bytes
-  # Amount of asset sent in.
-  transactingAmount: BigInt
-  # asset being bridged.
-  bridgedAsset: Bytes
-  # Amount of bridged nomad asset.
-  bridgedAmount: BigInt
+  asset: Asset
 
   # Message
   message: OriginMessage
@@ -113,37 +105,25 @@ type DestinationTransfer @entity {
   chainId: BigInt
   transferId: Bytes
   nonce: BigInt
-
-  # CallParams
-  to: Bytes
-  callData: Bytes
-  originDomain: BigInt
-  destinationDomain: BigInt
-  agent: Bytes
-  recovery: Bytes
-  forceSlow: Boolean
-  receiveLocal: Boolean
-  callback: Bytes
-  callbackFee: BigInt
-  relayerFee: BigInt
-  destinationMinOut: BigInt
-
-  # Event Data
   status: TransferStatus
   routers: [Router!]
+
+  # CallParams
+  originDomain: BigInt
+  destinationDomain: BigInt
+  canonicalDomain: BigInt
+  to: Bytes
+  delegate: Bytes
+  receiveLocal: Boolean
+  callData: Bytes
+  slippage: BigInt
   originSender: Bytes
+  bridgedAmt: BigInt
+  normalizedIn: BigInt
+  canonicalId: Bytes
 
   # Asset
-  # The asset that gets delivered.
-  transactingAsset: Bytes
-  # Amount of delivered asset.
-  transactingAmount: BigInt
-  # The local version of the bridged asset.
-  localAsset: Bytes
-  # The amount of the local asset.
-  localAmount: BigInt
-
-  sponsorVaultRelayerFee: BigInt
+  asset: Asset
 
   # Executed Transaction
   executedCaller: Bytes
@@ -165,11 +145,19 @@ type DestinationTransfer @entity {
 type OriginMessage @entity {
   id: ID!
 
+  # origin transfer data
+  transferId: Bytes
+  destinationDomain: BigInt
+
   # Dispatch Transaction
   leaf: Bytes
   index: BigInt
   root: Bytes
   message: Bytes
+  transactionHash: Bytes
+
+  # root count RD
+  rootCount: RootCount
 }
 
 type DestinationMessage @entity {
@@ -179,9 +167,42 @@ type DestinationMessage @entity {
   leaf: Bytes
   processed: Boolean
   returnData: Bytes
+  transactionHash: Bytes
 }
 
 type AggregateRoot @entity {
   id: ID!
   root: Bytes!
+}
+
+type ConnectorMeta @entity {
+  id: ID! # "ConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+type RootCount @entity {
+  id: ID!
+  count: BigInt!
+}
+
+type RootMessageSent @entity {
+  id: ID!
+
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  root: Bytes
+  count: BigInt
+
+  # MessageSent Transaction
+  caller: Bytes
+  transactionHash: Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
 }

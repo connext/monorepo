@@ -1,0 +1,9 @@
+[
+  "function balanceOf(address) view returns (uint256)",
+  "function burn(address,uint256)",
+  "function decimals() view returns (uint8)",
+  "function mint(address,uint256)",
+  "function name() returns (string)",
+  "function setDetails(string,string)",
+  "function symbol() view returns (string)"
+]

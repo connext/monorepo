@@ -36,7 +36,7 @@ export const sendExecuteFastToRelayer = async (
 
   const destinationConnextAddress = config.chains[transfer.xparams.destinationDomain].deployments.connext;
 
-  const encodedData = await encodeExecuteFromBids(round, bids, transfer, local, _requestContext);
+  const encodedData = await encodeExecuteFromBids(round, bids, transfer, requestContext);
 
   const relayerFee = {
     // TODO: Is this correct?
@@ -100,6 +100,12 @@ export const sendExecuteFastToRelayer = async (
     transferId: transfer.transferId,
   });
 
-  const taskId = await relayer.send(destinationChainId, destinationConnextAddress, encodedData, _requestContext);
+  const taskId = await relayer.send(
+    destinationChainId,
+    destinationConnextAddress,
+    encodedData,
+    config.gelatoApiKey,
+    _requestContext,
+  );
   return { taskId, relayer: RelayerType.Gelato };
 };

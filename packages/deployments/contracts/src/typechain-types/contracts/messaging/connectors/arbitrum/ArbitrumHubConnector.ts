@@ -27,6 +27,34 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
+export type L2MessageStruct = {
+  l2Sender: PromiseOrValue<string>;
+  to: PromiseOrValue<string>;
+  l2Block: PromiseOrValue<BigNumberish>;
+  l1Block: PromiseOrValue<BigNumberish>;
+  l2Timestamp: PromiseOrValue<BigNumberish>;
+  value: PromiseOrValue<BigNumberish>;
+  callData: PromiseOrValue<BytesLike>;
+};
+
+export type L2MessageStructOutput = [
+  string,
+  string,
+  BigNumber,
+  BigNumber,
+  BigNumber,
+  BigNumber,
+  string
+] & {
+  l2Sender: string;
+  to: string;
+  l2Block: BigNumber;
+  l1Block: BigNumber;
+  l2Timestamp: BigNumber;
+  value: BigNumber;
+  callData: string;
+};
+
 export interface ArbitrumHubConnectorInterface extends utils.Interface {
   functions: {
     "AMB()": FunctionFragment;
@@ -38,13 +66,17 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
     "mirrorGas()": FunctionFragment;
+    "outbox()": FunctionFragment;
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
+    "processMessageFromRoot(uint64,bytes32,bytes32,bytes32[],uint256,(address,address,uint256,uint256,uint256,uint256,bytes))": FunctionFragment;
+    "processed(uint256)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
+    "rollup()": FunctionFragment;
     "sendMessage(bytes)": FunctionFragment;
     "setDefaultGasPrice(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
@@ -63,13 +95,17 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
       | "delay"
       | "mirrorConnector"
       | "mirrorGas"
+      | "outbox"
       | "owner"
       | "processMessage"
+      | "processMessageFromRoot"
+      | "processed"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
       | "renounceOwnership"
       | "renounced"
+      | "rollup"
       | "sendMessage"
       | "setDefaultGasPrice"
       | "setMirrorConnector"
@@ -101,10 +137,26 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "mirrorGas", values?: undefined): string;
+  encodeFunctionData(functionFragment: "outbox", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processMessage",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "processMessageFromRoot",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>[],
+      PromiseOrValue<BigNumberish>,
+      L2MessageStruct
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "processed",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
@@ -120,6 +172,7 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
+  encodeFunctionData(functionFragment: "rollup", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "sendMessage",
     values: [PromiseOrValue<BytesLike>]
@@ -165,11 +218,17 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "mirrorGas", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "outbox", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processMessage",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "processMessageFromRoot",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "processed", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
@@ -184,6 +243,7 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "rollup", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "sendMessage",
     data: BytesLike
@@ -211,6 +271,7 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     "MessageSent(bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
     "MirrorGasUpdated(uint256,uint256)": EventFragment;
+    "NewConnector(uint32,uint32,address,address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
@@ -220,6 +281,7 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorGasUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "NewConnector"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
@@ -282,6 +344,20 @@ export type MirrorGasUpdatedEvent = TypedEvent<
 
 export type MirrorGasUpdatedEventFilter =
   TypedEventFilter<MirrorGasUpdatedEvent>;
+
+export interface NewConnectorEventObject {
+  domain: number;
+  mirrorDomain: number;
+  amb: string;
+  rootManager: string;
+  mirrorConnector: string;
+}
+export type NewConnectorEvent = TypedEvent<
+  [number, number, string, string, string],
+  NewConnectorEventObject
+>;
+
+export type NewConnectorEventFilter = TypedEventFilter<NewConnectorEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -353,12 +429,29 @@ export interface ArbitrumHubConnector extends BaseContract {
 
     mirrorGas(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    outbox(overrides?: CallOverrides): Promise<[string]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    processMessageFromRoot(
+      _nodeNum: PromiseOrValue<BigNumberish>,
+      _sendRoot: PromiseOrValue<BytesLike>,
+      _blockHash: PromiseOrValue<BytesLike>,
+      _proof: PromiseOrValue<BytesLike>[],
+      _index: PromiseOrValue<BigNumberish>,
+      _message: L2MessageStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    processed(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -374,6 +467,8 @@ export interface ArbitrumHubConnector extends BaseContract {
     ): Promise<ContractTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
+
+    rollup(overrides?: CallOverrides): Promise<[string]>;
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
@@ -421,12 +516,29 @@ export interface ArbitrumHubConnector extends BaseContract {
 
   mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
+  outbox(overrides?: CallOverrides): Promise<string>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   processMessage(
     _data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  processMessageFromRoot(
+    _nodeNum: PromiseOrValue<BigNumberish>,
+    _sendRoot: PromiseOrValue<BytesLike>,
+    _blockHash: PromiseOrValue<BytesLike>,
+    _proof: PromiseOrValue<BytesLike>[],
+    _index: PromiseOrValue<BigNumberish>,
+    _message: L2MessageStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  processed(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
@@ -442,6 +554,8 @@ export interface ArbitrumHubConnector extends BaseContract {
   ): Promise<ContractTransaction>;
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
+
+  rollup(overrides?: CallOverrides): Promise<string>;
 
   sendMessage(
     _data: PromiseOrValue<BytesLike>,
@@ -487,12 +601,29 @@ export interface ArbitrumHubConnector extends BaseContract {
 
     mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
+    outbox(overrides?: CallOverrides): Promise<string>;
+
     owner(overrides?: CallOverrides): Promise<string>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    processMessageFromRoot(
+      _nodeNum: PromiseOrValue<BigNumberish>,
+      _sendRoot: PromiseOrValue<BytesLike>,
+      _blockHash: PromiseOrValue<BytesLike>,
+      _proof: PromiseOrValue<BytesLike>[],
+      _index: PromiseOrValue<BigNumberish>,
+      _message: L2MessageStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    processed(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -506,6 +637,8 @@ export interface ArbitrumHubConnector extends BaseContract {
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
+
+    rollup(overrides?: CallOverrides): Promise<string>;
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
@@ -573,6 +706,21 @@ export interface ArbitrumHubConnector extends BaseContract {
       current?: null
     ): MirrorGasUpdatedEventFilter;
 
+    "NewConnector(uint32,uint32,address,address,address)"(
+      domain?: PromiseOrValue<BigNumberish> | null,
+      mirrorDomain?: PromiseOrValue<BigNumberish> | null,
+      amb?: null,
+      rootManager?: null,
+      mirrorConnector?: null
+    ): NewConnectorEventFilter;
+    NewConnector(
+      domain?: PromiseOrValue<BigNumberish> | null,
+      mirrorDomain?: PromiseOrValue<BigNumberish> | null,
+      amb?: null,
+      rootManager?: null,
+      mirrorConnector?: null
+    ): NewConnectorEventFilter;
+
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
     ): OwnershipProposedEventFilter;
@@ -611,11 +759,28 @@ export interface ArbitrumHubConnector extends BaseContract {
 
     mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
+    outbox(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    processMessageFromRoot(
+      _nodeNum: PromiseOrValue<BigNumberish>,
+      _sendRoot: PromiseOrValue<BytesLike>,
+      _blockHash: PromiseOrValue<BytesLike>,
+      _proof: PromiseOrValue<BytesLike>[],
+      _index: PromiseOrValue<BigNumberish>,
+      _message: L2MessageStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    processed(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     proposeNewOwner(
@@ -632,6 +797,8 @@ export interface ArbitrumHubConnector extends BaseContract {
     ): Promise<BigNumber>;
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
+
+    rollup(overrides?: CallOverrides): Promise<BigNumber>;
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
@@ -680,11 +847,28 @@ export interface ArbitrumHubConnector extends BaseContract {
 
     mirrorGas(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    outbox(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    processMessageFromRoot(
+      _nodeNum: PromiseOrValue<BigNumberish>,
+      _sendRoot: PromiseOrValue<BytesLike>,
+      _blockHash: PromiseOrValue<BytesLike>,
+      _proof: PromiseOrValue<BytesLike>[],
+      _index: PromiseOrValue<BigNumberish>,
+      _message: L2MessageStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    processed(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
@@ -701,6 +885,8 @@ export interface ArbitrumHubConnector extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    rollup(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
