@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BigNumber, constants } from "ethers";
+import { BigNumber } from "ethers";
 import { GelatoRelaySDK } from "@gelatonetwork/relay-sdk";
 
 import { Logger } from "../logging";
@@ -19,7 +19,7 @@ import {
 /// Docs: https://relay.gelato.digital/api-docs/
 
 const GELATO_SERVER = "https://relay.gelato.digital";
-const GELATO_RELAYER_ADDRESS = "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92";
+export const GELATO_RELAYER_ADDRESS = "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92";
 
 /// MARK - This is used for testnets which aren't being supported by gelato
 const EquivalentChainsForGelato: Record<number, number> = {
