@@ -1,8 +1,11 @@
 import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
 
 import { RelayerSendFailed } from "../../lib/errors";
 import { getHelpers } from "../../lib/helpers";
 import { getContext } from "../../sequencer";
+
+const GAS_LIMIT_FOR_RELAYER = 950_000;
 
 export const getRelayerAddress = async (chainId: number): Promise<string> => {
   const { logger } = getContext();
@@ -43,7 +46,12 @@ export const send = async (
     data: encodedData,
   };
 
-  const response = await gelatoSDKSend(request, gelatoApiKey, {}, logger);
+  const response = await gelatoSDKSend(
+    request,
+    gelatoApiKey,
+    { gasLimit: BigNumber.from(GAS_LIMIT_FOR_RELAYER) },
+    logger,
+  );
 
   if (!response) {
     throw new RelayerSendFailed({ response: response });
