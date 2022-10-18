@@ -7,9 +7,9 @@ import { RootAggregated, RootPropagated } from "../../../generated/schema";
 
 /// MARK - ROOT MANAGER
 export function handleRootAggregated(event: RootAggregatedEvent): void {
-  let instance = RootAggregated.load(event.params.receivedRoot.toHexString());
+  let instance = RootAggregated.load(event.params.index.toString());
   if (instance == null) {
-    instance = new RootAggregated(event.params.receivedRoot.toHexString());
+    instance = new RootAggregated(event.params.index.toString());
   }
 
   instance.domain = event.params.domain;
