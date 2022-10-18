@@ -2379,22 +2379,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "RelayerFacet__initiateClaim_emptyClaim",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "transferId",
-        type: "bytes32",
-      },
-    ],
-    name: "RelayerFacet__initiateClaim_notRelayer",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "RelayerFacet__removeRelayer_notApproved",
     type: "error",
   },
@@ -2402,62 +2386,6 @@ const _abi = [
     inputs: [],
     name: "RelayerFacet__setRelayerFeeVault_invalidRelayerFeeVault",
     type: "error",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "recipient",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "total",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32[]",
-        name: "transferIds",
-        type: "bytes32[]",
-      },
-    ],
-    name: "Claimed",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "uint32",
-        name: "domain",
-        type: "uint32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "recipient",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32[]",
-        name: "transferIds",
-        type: "bytes32[]",
-      },
-    ],
-    name: "InitiatedClaim",
-    type: "event",
   },
   {
     anonymous: false,
