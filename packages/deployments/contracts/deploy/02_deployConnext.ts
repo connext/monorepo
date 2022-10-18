@@ -37,7 +37,6 @@ const proposeDiamondUpgrade = async (
     }
   }
 
-  console.log(await hre.deployments.getExtendedArtifact("LPToken"));
   const diamondArtifact: ExtendedArtifact = await hre.deployments.getExtendedArtifact("ConnextDiamond");
   let abi: any[] = diamondArtifact.abi.concat([]);
 

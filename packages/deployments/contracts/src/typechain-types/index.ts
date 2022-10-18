@@ -132,6 +132,8 @@ export type { DiamondInit } from "./contracts/core/connext/facets/upgrade-initia
 export { DiamondInit__factory } from "./factories/contracts/core/connext/facets/upgrade-initializers/DiamondInit__factory";
 export type { BridgeToken } from "./contracts/core/connext/helpers/BridgeToken";
 export { BridgeToken__factory } from "./factories/contracts/core/connext/helpers/BridgeToken__factory";
+export type { ConnextDiamond } from "./contracts/core/connext/helpers/ConnextDiamond";
+export { ConnextDiamond__factory } from "./factories/contracts/core/connext/helpers/ConnextDiamond__factory";
 export type { AggregatorV3Interface } from "./contracts/core/connext/helpers/ConnextPriceOracle.sol/AggregatorV3Interface";
 export { AggregatorV3Interface__factory } from "./factories/contracts/core/connext/helpers/ConnextPriceOracle.sol/AggregatorV3Interface__factory";
 export type { ConnextPriceOracle } from "./contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle";
