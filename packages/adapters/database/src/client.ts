@@ -221,8 +221,8 @@ export const saveAggregatedRoots = async (
   const poolToUse = _pool ?? pool;
   const roots: s.aggregated_roots.Insertable[] = _roots.map((r) => convertToDbAggregatedRoot(r)).map(sanitizeNull);
 
-  // use upsert here. if the root exists, we don't want to overwrite anything
-  await db.upsert("aggregated_roots", roots, ["id"], { updateColumns: [] }).run(poolToUse);
+  // If the root exists, we don't want to overwrite anything
+  await db.upsert("aggregated_roots", roots, ["domain", "domain_index"], { updateColumns: [] }).run(poolToUse);
 };
 
 export const savePropagatedRoots = async (

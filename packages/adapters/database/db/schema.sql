@@ -307,27 +307,11 @@ CREATE VIEW public.transfer_volume AS
 
 
 --
--- Name: aggregated_roots aggregated_roots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.aggregated_roots
-    ADD CONSTRAINT aggregated_roots_id_key UNIQUE (id);
-
-
---
 -- Name: aggregated_roots aggregated_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.aggregated_roots
     ADD CONSTRAINT aggregated_roots_pkey PRIMARY KEY (domain_index, domain);
-
-
---
--- Name: aggregated_roots aggregated_roots_received_root_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.aggregated_roots
-    ADD CONSTRAINT aggregated_roots_received_root_key UNIQUE (received_root);
 
 
 --
@@ -499,4 +483,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20221009051415'),
     ('20221010233716'),
     ('20221011065150'),
-    ('20221018124227');
+    ('20221018124227'),
+    ('20221018190949');
