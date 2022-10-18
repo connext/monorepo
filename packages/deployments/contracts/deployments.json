@@ -86020,7 +86020,7 @@
           ]
         },
         "BridgeFacetStaging": {
-          "address": "0x38e98a995f9ad8Cf27961aB26Cdda29472C912bC",
+          "address": "0xf679F6E518762429789d3f3acd083a77f359c12C",
           "abi": [
             {
               "inputs": [],
@@ -92246,7 +92246,7 @@
                       "type": "bytes"
                     }
                   ],
-                  "internalType": "struct Diamond.Initialization[]",
+                  "internalType": "struct ConnextDiamond.Initialization[]",
                   "name": "_initializations",
                   "type": "tuple[]"
                 }
