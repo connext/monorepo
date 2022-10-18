@@ -143,11 +143,13 @@ export const saveTransfers = async (
     poolToUse,
   );
 
-  transfers = transfers.map((transfer) => {
-    const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === transfer.transfer_id);
-    if (transfer.status === undefined) {
-      transfer.status = dbTransfer?.status ? dbTransfer.status : XTransferStatus.XCalled;
+  transfers = transfers.map((_transfer) => {
+    const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === _transfer.transfer_id);
+    if (_transfer.status === undefined) {
+      _transfer.status = dbTransfer?.status ? dbTransfer.status : XTransferStatus.XCalled;
     }
+
+    const transfer: any = { ...dbTransfer, ..._transfer };
     return transfer;
   });
 
