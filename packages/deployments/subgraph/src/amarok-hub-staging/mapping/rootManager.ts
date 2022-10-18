@@ -1,13 +1,9 @@
 /* eslint-disable prefer-const */
-import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
-
 import {
   RootAggregated as RootAggregatedEvent,
   RootPropagated as RootPropagatedEvent,
 } from "../../../generated/RootManager/RootManager";
 import { RootAggregated, RootPropagated } from "../../../generated/schema";
-
-const DEFAULT_OPTIMISM_HUB_CONNECTOR_META_ID = "OPTIMISM_HUB_CONNECTOR_META_ID";
 
 /// MARK - ROOT MANAGER
 export function handleRootAggregated(event: RootAggregatedEvent): void {
