@@ -71,7 +71,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       delegate: transfer.delegate || constants.AddressZero,
       receiveLocal: transfer.receive_local || false,
       callData: transfer.call_data || "0x",
-      slippage: transfer.slippage == "NaN" ? "0" : transfer.slippage || "0",
+      slippage: transfer.slippage == "NaN" ? "0" : transfer.slippage.toString() || "0",
       originSender: transfer.origin_sender,
       bridgedAmt: transfer.bridged_amt.toString(),
       normalizedIn: transfer.normalized_in.toString(),
