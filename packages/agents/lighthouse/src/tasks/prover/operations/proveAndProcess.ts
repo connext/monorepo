@@ -13,7 +13,7 @@ import {
 import { getContext } from "../prover";
 import { SpokeDBHelper, HubDBHelper } from "../adapters/database/helper";
 
-export const HUB_DOMAIN: string = "1735353714";
+export const HUB_DOMAIN = "1735353714";
 
 export const proveAndProcess = async () => {
   const { requestContext, methodContext } = createLoggingContext(proveAndProcess.name);
@@ -58,7 +58,7 @@ export const processMessage = async (message: XMessage) => {
   }
   // Index of messageRoot leaf node in aggregate tree.
   // const messageRootIndex = await database.getMessageRootIndex(message.originDomain, targetMessageRoot);
-  const messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
+  const messageRootIndex = await database.getMessageRootIndex(config.hubDomain as string, targetMessageRoot);
   if (!messageRootIndex) {
     throw new NoMessageRootIndex(message.originDomain, targetMessageRoot);
   }
