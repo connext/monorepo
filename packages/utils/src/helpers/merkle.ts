@@ -36,29 +36,13 @@ export const getMerkleProof = async (params: {
   return hexProof;
 };
 
-// TODO: Replace with real DB implementation: this is just a placeholder of stubs.
-export class DBImpl {
-  private storage: string[] = [];
-
-  // Get the current number of nodes in the DB.
-  public async getCount(): Promise<number> {
-    return this.storage.length;
-  }
-
-  public async getNode(index: number): Promise<string | undefined> {
-    return this.storage[index];
-  }
-
-  // NOTE: is INCLUSIVE!
-  // NOTE: will NOT fill in missing values!
-  public async getNodes(start: number, end: number): Promise<string[]> {
-    return this.storage.slice(start, end + 1);
-  }
-
-  public async push(hash: string) {
-    this.storage.push(hash);
-  }
-}
+export type DBHelper = {
+  getCount: () => Promise<number>;
+  getNode: (index: number) => Promise<string | undefined>;
+  getNodes: (start: number, end: number) => Promise<string[]>;
+  putRoot: (path: string, hash: string) => Promise<void>;
+  getRoot: (path: string) => Promise<string | undefined>;
+};
 
 const ZERO_BYTES = mkBytes32("0x");
 
@@ -73,7 +57,7 @@ export class SparseMerkleTree {
     return utils.solidityKeccak256(["bytes32", "bytes32"], [a, b]);
   };
 
-  constructor(private db: DBImpl, private height: number = 32, private _debugLog = false) {}
+  constructor(private db: DBHelper, private height: number = 32, private _debugLog = false) {}
 
   // Get the tree's current root.
   public async getRoot(): Promise<string> {
@@ -152,10 +136,11 @@ export class SparseMerkleTree {
       // Get the subtree down the opposite path of the one to the target.
       const nodes = await this.getSubtreeNodes(depth + 1, siblingPath);
 
+      // TODO: @jakek verify that removing this check doesn't break anything.
       // Sanity check: nodes were returned (if not, then our starting depth was likely incorrect).
-      if (!nodes.length) {
-        throw new Error("No nodes...?");
-      }
+      // if (!nodes.length) {
+      //   throw new Error("No nodes...?");
+      // }
 
       // The sibling at this depth will be the root of that subtree.
       siblings[depth] = this.getSubtreeRoot(depth + 1, nodes);
@@ -194,7 +179,7 @@ export class SparseMerkleTree {
         depth,
         ": (",
         lowerBound,
-        "-",
+        "->",
         upperBound,
         ") :",
         t,

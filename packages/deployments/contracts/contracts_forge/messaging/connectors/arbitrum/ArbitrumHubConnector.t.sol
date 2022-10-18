@@ -24,9 +24,15 @@ contract MockArbitrumRollup {
     return _node;
   }
 
-  function setNode(bytes32 _confirmData) public {
+  function setNode(
+    bytes32 _confirmData,
+    uint64 _stakerCount,
+    uint64 _childStakerCount
+  ) public {
     Node memory node;
     node.confirmData = _confirmData;
+    node.stakerCount = _stakerCount;
+    node.childStakerCount = _childStakerCount;
     _node = node;
   }
 }
@@ -134,7 +140,7 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     utils_setHubConnectorVerifyMocks(_sender);
     // call to get node and validate confirmData
     // - set the confirm data on the node
-    MockArbitrumRollup(_rollup).setNode(keccak256(abi.encodePacked(_blockHash, _sendRoot)));
+    MockArbitrumRollup(_rollup).setNode(keccak256(abi.encodePacked(_blockHash, _sendRoot)), 1, 1);
 
     // call to get the item hash -- fn implemented on mock outbox
 
@@ -307,9 +313,43 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     utils_setHubConnectorProcessMocks(_l2Connector);
 
     // set confirmdata
-    MockArbitrumRollup(_rollup).setNode(keccak256(abi.encodePacked("failure")));
+    MockArbitrumRollup(_rollup).setNode(keccak256(abi.encodePacked("failure")), 1, 1);
 
     vm.expectRevert("!confirmData");
+    ArbitrumHubConnector(_l1Connector).processMessageFromRoot(
+      _nodeNum,
+      _sendRoot,
+      _blockHash,
+      _proof,
+      _index,
+      _message
+    );
+  }
+
+  function test_ArbitrumHubConnector__processMessageFromRoot_failsIfNoStaker() public {
+    utils_setHubConnectorProcessMocks(_l2Connector);
+
+    // set confirmdata
+    MockArbitrumRollup(_rollup).setNode(keccak256(abi.encodePacked(_blockHash, _sendRoot)), 0, 1);
+
+    vm.expectRevert("!staked");
+    ArbitrumHubConnector(_l1Connector).processMessageFromRoot(
+      _nodeNum,
+      _sendRoot,
+      _blockHash,
+      _proof,
+      _index,
+      _message
+    );
+  }
+
+  function test_ArbitrumHubConnector__processMessageFromRoot_failsIfNoChildStaker() public {
+    utils_setHubConnectorProcessMocks(_l2Connector);
+
+    // set confirmdata
+    MockArbitrumRollup(_rollup).setNode(keccak256(abi.encodePacked(_blockHash, _sendRoot)), 1, 0);
+
+    vm.expectRevert("!staked");
     ArbitrumHubConnector(_l1Connector).processMessageFromRoot(
       _nodeNum,
       _sendRoot,

@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
@@ -16,7 +17,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   mumbai_BigDecimal: any;
-  BigInt: bigint;
+  BigInt: any;
   mumbai_Bytes: any;
 };
 
@@ -2037,141 +2038,142 @@ export type _SubgraphErrorPolicy_ =
   /** If the subgraph has indexing errors, data will be omitted. The default. */
   | 'deny';
 
-}
-export type QueryConnextMumbaiSdk = {
+  export type QuerySdk = {
+      /** null **/
+  mumbai_asset: InContextSdkMethod<Query['mumbai_asset'], Querymumbai_assetArgs, MeshContext>,
   /** null **/
-  mumbai_asset: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_asset'], ConnextMumbaiTypes.Querymumbai_assetArgs, MeshContext>,
+  mumbai_assets: InContextSdkMethod<Query['mumbai_assets'], Querymumbai_assetsArgs, MeshContext>,
   /** null **/
-  mumbai_assets: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_assets'], ConnextMumbaiTypes.Querymumbai_assetsArgs, MeshContext>,
+  mumbai_assetBalance: InContextSdkMethod<Query['mumbai_assetBalance'], Querymumbai_assetBalanceArgs, MeshContext>,
   /** null **/
-  mumbai_assetBalance: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_assetBalance'], ConnextMumbaiTypes.Querymumbai_assetBalanceArgs, MeshContext>,
+  mumbai_assetBalances: InContextSdkMethod<Query['mumbai_assetBalances'], Querymumbai_assetBalancesArgs, MeshContext>,
   /** null **/
-  mumbai_assetBalances: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_assetBalances'], ConnextMumbaiTypes.Querymumbai_assetBalancesArgs, MeshContext>,
+  mumbai_router: InContextSdkMethod<Query['mumbai_router'], Querymumbai_routerArgs, MeshContext>,
   /** null **/
-  mumbai_router: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_router'], ConnextMumbaiTypes.Querymumbai_routerArgs, MeshContext>,
+  mumbai_routers: InContextSdkMethod<Query['mumbai_routers'], Querymumbai_routersArgs, MeshContext>,
   /** null **/
-  mumbai_routers: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_routers'], ConnextMumbaiTypes.Querymumbai_routersArgs, MeshContext>,
+  mumbai_setting: InContextSdkMethod<Query['mumbai_setting'], Querymumbai_settingArgs, MeshContext>,
   /** null **/
-  mumbai_setting: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_setting'], ConnextMumbaiTypes.Querymumbai_settingArgs, MeshContext>,
+  mumbai_settings: InContextSdkMethod<Query['mumbai_settings'], Querymumbai_settingsArgs, MeshContext>,
   /** null **/
-  mumbai_settings: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_settings'], ConnextMumbaiTypes.Querymumbai_settingsArgs, MeshContext>,
+  mumbai_relayer: InContextSdkMethod<Query['mumbai_relayer'], Querymumbai_relayerArgs, MeshContext>,
   /** null **/
-  mumbai_relayer: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_relayer'], ConnextMumbaiTypes.Querymumbai_relayerArgs, MeshContext>,
+  mumbai_relayers: InContextSdkMethod<Query['mumbai_relayers'], Querymumbai_relayersArgs, MeshContext>,
   /** null **/
-  mumbai_relayers: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_relayers'], ConnextMumbaiTypes.Querymumbai_relayersArgs, MeshContext>,
+  mumbai_sequencer: InContextSdkMethod<Query['mumbai_sequencer'], Querymumbai_sequencerArgs, MeshContext>,
   /** null **/
-  mumbai_sequencer: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_sequencer'], ConnextMumbaiTypes.Querymumbai_sequencerArgs, MeshContext>,
+  mumbai_sequencers: InContextSdkMethod<Query['mumbai_sequencers'], Querymumbai_sequencersArgs, MeshContext>,
   /** null **/
-  mumbai_sequencers: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_sequencers'], ConnextMumbaiTypes.Querymumbai_sequencersArgs, MeshContext>,
+  mumbai_stableSwap: InContextSdkMethod<Query['mumbai_stableSwap'], Querymumbai_stableSwapArgs, MeshContext>,
   /** null **/
-  mumbai_stableSwap: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_stableSwap'], ConnextMumbaiTypes.Querymumbai_stableSwapArgs, MeshContext>,
+  mumbai_stableSwaps: InContextSdkMethod<Query['mumbai_stableSwaps'], Querymumbai_stableSwapsArgs, MeshContext>,
   /** null **/
-  mumbai_stableSwaps: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_stableSwaps'], ConnextMumbaiTypes.Querymumbai_stableSwapsArgs, MeshContext>,
+  mumbai_originTransfer: InContextSdkMethod<Query['mumbai_originTransfer'], Querymumbai_originTransferArgs, MeshContext>,
   /** null **/
-  mumbai_originTransfer: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_originTransfer'], ConnextMumbaiTypes.Querymumbai_originTransferArgs, MeshContext>,
+  mumbai_originTransfers: InContextSdkMethod<Query['mumbai_originTransfers'], Querymumbai_originTransfersArgs, MeshContext>,
   /** null **/
-  mumbai_originTransfers: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_originTransfers'], ConnextMumbaiTypes.Querymumbai_originTransfersArgs, MeshContext>,
+  mumbai_destinationTransfer: InContextSdkMethod<Query['mumbai_destinationTransfer'], Querymumbai_destinationTransferArgs, MeshContext>,
   /** null **/
-  mumbai_destinationTransfer: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_destinationTransfer'], ConnextMumbaiTypes.Querymumbai_destinationTransferArgs, MeshContext>,
+  mumbai_destinationTransfers: InContextSdkMethod<Query['mumbai_destinationTransfers'], Querymumbai_destinationTransfersArgs, MeshContext>,
   /** null **/
-  mumbai_destinationTransfers: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_destinationTransfers'], ConnextMumbaiTypes.Querymumbai_destinationTransfersArgs, MeshContext>,
+  mumbai_originMessage: InContextSdkMethod<Query['mumbai_originMessage'], Querymumbai_originMessageArgs, MeshContext>,
   /** null **/
-  mumbai_originMessage: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_originMessage'], ConnextMumbaiTypes.Querymumbai_originMessageArgs, MeshContext>,
+  mumbai_originMessages: InContextSdkMethod<Query['mumbai_originMessages'], Querymumbai_originMessagesArgs, MeshContext>,
   /** null **/
-  mumbai_originMessages: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_originMessages'], ConnextMumbaiTypes.Querymumbai_originMessagesArgs, MeshContext>,
+  mumbai_destinationMessage: InContextSdkMethod<Query['mumbai_destinationMessage'], Querymumbai_destinationMessageArgs, MeshContext>,
   /** null **/
-  mumbai_destinationMessage: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_destinationMessage'], ConnextMumbaiTypes.Querymumbai_destinationMessageArgs, MeshContext>,
+  mumbai_destinationMessages: InContextSdkMethod<Query['mumbai_destinationMessages'], Querymumbai_destinationMessagesArgs, MeshContext>,
   /** null **/
-  mumbai_destinationMessages: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_destinationMessages'], ConnextMumbaiTypes.Querymumbai_destinationMessagesArgs, MeshContext>,
+  mumbai_aggregateRoot: InContextSdkMethod<Query['mumbai_aggregateRoot'], Querymumbai_aggregateRootArgs, MeshContext>,
   /** null **/
-  mumbai_aggregateRoot: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_aggregateRoot'], ConnextMumbaiTypes.Querymumbai_aggregateRootArgs, MeshContext>,
+  mumbai_aggregateRoots: InContextSdkMethod<Query['mumbai_aggregateRoots'], Querymumbai_aggregateRootsArgs, MeshContext>,
   /** null **/
-  mumbai_aggregateRoots: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_aggregateRoots'], ConnextMumbaiTypes.Querymumbai_aggregateRootsArgs, MeshContext>,
+  mumbai_connectorMeta: InContextSdkMethod<Query['mumbai_connectorMeta'], Querymumbai_connectorMetaArgs, MeshContext>,
   /** null **/
-  mumbai_connectorMeta: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_connectorMeta'], ConnextMumbaiTypes.Querymumbai_connectorMetaArgs, MeshContext>,
+  mumbai_connectorMetas: InContextSdkMethod<Query['mumbai_connectorMetas'], Querymumbai_connectorMetasArgs, MeshContext>,
   /** null **/
-  mumbai_connectorMetas: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_connectorMetas'], ConnextMumbaiTypes.Querymumbai_connectorMetasArgs, MeshContext>,
+  mumbai_rootCount: InContextSdkMethod<Query['mumbai_rootCount'], Querymumbai_rootCountArgs, MeshContext>,
   /** null **/
-  mumbai_rootCount: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_rootCount'], ConnextMumbaiTypes.Querymumbai_rootCountArgs, MeshContext>,
+  mumbai_rootCounts: InContextSdkMethod<Query['mumbai_rootCounts'], Querymumbai_rootCountsArgs, MeshContext>,
   /** null **/
-  mumbai_rootCounts: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_rootCounts'], ConnextMumbaiTypes.Querymumbai_rootCountsArgs, MeshContext>,
+  mumbai_rootMessageSent: InContextSdkMethod<Query['mumbai_rootMessageSent'], Querymumbai_rootMessageSentArgs, MeshContext>,
   /** null **/
-  mumbai_rootMessageSent: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_rootMessageSent'], ConnextMumbaiTypes.Querymumbai_rootMessageSentArgs, MeshContext>,
-  /** null **/
-  mumbai_rootMessageSents: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai_rootMessageSents'], ConnextMumbaiTypes.Querymumbai_rootMessageSentsArgs, MeshContext>,
+  mumbai_rootMessageSents: InContextSdkMethod<Query['mumbai_rootMessageSents'], Querymumbai_rootMessageSentsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  mumbai__meta: InContextSdkMethod<ConnextMumbaiTypes.Query['mumbai__meta'], ConnextMumbaiTypes.Querymumbai__metaArgs, MeshContext>
-};
+  mumbai__meta: InContextSdkMethod<Query['mumbai__meta'], Querymumbai__metaArgs, MeshContext>
+  };
 
-export type MutationConnextMumbaiSdk = {
+  export type MutationSdk = {
+    
+  };
 
-};
-
-export type SubscriptionConnextMumbaiSdk = {
+  export type SubscriptionSdk = {
+      /** null **/
+  mumbai_asset: InContextSdkMethod<Subscription['mumbai_asset'], Subscriptionmumbai_assetArgs, MeshContext>,
   /** null **/
-  mumbai_asset: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_asset'], ConnextMumbaiTypes.Subscriptionmumbai_assetArgs, MeshContext>,
+  mumbai_assets: InContextSdkMethod<Subscription['mumbai_assets'], Subscriptionmumbai_assetsArgs, MeshContext>,
   /** null **/
-  mumbai_assets: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_assets'], ConnextMumbaiTypes.Subscriptionmumbai_assetsArgs, MeshContext>,
+  mumbai_assetBalance: InContextSdkMethod<Subscription['mumbai_assetBalance'], Subscriptionmumbai_assetBalanceArgs, MeshContext>,
   /** null **/
-  mumbai_assetBalance: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_assetBalance'], ConnextMumbaiTypes.Subscriptionmumbai_assetBalanceArgs, MeshContext>,
+  mumbai_assetBalances: InContextSdkMethod<Subscription['mumbai_assetBalances'], Subscriptionmumbai_assetBalancesArgs, MeshContext>,
   /** null **/
-  mumbai_assetBalances: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_assetBalances'], ConnextMumbaiTypes.Subscriptionmumbai_assetBalancesArgs, MeshContext>,
+  mumbai_router: InContextSdkMethod<Subscription['mumbai_router'], Subscriptionmumbai_routerArgs, MeshContext>,
   /** null **/
-  mumbai_router: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_router'], ConnextMumbaiTypes.Subscriptionmumbai_routerArgs, MeshContext>,
+  mumbai_routers: InContextSdkMethod<Subscription['mumbai_routers'], Subscriptionmumbai_routersArgs, MeshContext>,
   /** null **/
-  mumbai_routers: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_routers'], ConnextMumbaiTypes.Subscriptionmumbai_routersArgs, MeshContext>,
+  mumbai_setting: InContextSdkMethod<Subscription['mumbai_setting'], Subscriptionmumbai_settingArgs, MeshContext>,
   /** null **/
-  mumbai_setting: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_setting'], ConnextMumbaiTypes.Subscriptionmumbai_settingArgs, MeshContext>,
+  mumbai_settings: InContextSdkMethod<Subscription['mumbai_settings'], Subscriptionmumbai_settingsArgs, MeshContext>,
   /** null **/
-  mumbai_settings: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_settings'], ConnextMumbaiTypes.Subscriptionmumbai_settingsArgs, MeshContext>,
+  mumbai_relayer: InContextSdkMethod<Subscription['mumbai_relayer'], Subscriptionmumbai_relayerArgs, MeshContext>,
   /** null **/
-  mumbai_relayer: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_relayer'], ConnextMumbaiTypes.Subscriptionmumbai_relayerArgs, MeshContext>,
+  mumbai_relayers: InContextSdkMethod<Subscription['mumbai_relayers'], Subscriptionmumbai_relayersArgs, MeshContext>,
   /** null **/
-  mumbai_relayers: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_relayers'], ConnextMumbaiTypes.Subscriptionmumbai_relayersArgs, MeshContext>,
+  mumbai_sequencer: InContextSdkMethod<Subscription['mumbai_sequencer'], Subscriptionmumbai_sequencerArgs, MeshContext>,
   /** null **/
-  mumbai_sequencer: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_sequencer'], ConnextMumbaiTypes.Subscriptionmumbai_sequencerArgs, MeshContext>,
+  mumbai_sequencers: InContextSdkMethod<Subscription['mumbai_sequencers'], Subscriptionmumbai_sequencersArgs, MeshContext>,
   /** null **/
-  mumbai_sequencers: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_sequencers'], ConnextMumbaiTypes.Subscriptionmumbai_sequencersArgs, MeshContext>,
+  mumbai_stableSwap: InContextSdkMethod<Subscription['mumbai_stableSwap'], Subscriptionmumbai_stableSwapArgs, MeshContext>,
   /** null **/
-  mumbai_stableSwap: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_stableSwap'], ConnextMumbaiTypes.Subscriptionmumbai_stableSwapArgs, MeshContext>,
+  mumbai_stableSwaps: InContextSdkMethod<Subscription['mumbai_stableSwaps'], Subscriptionmumbai_stableSwapsArgs, MeshContext>,
   /** null **/
-  mumbai_stableSwaps: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_stableSwaps'], ConnextMumbaiTypes.Subscriptionmumbai_stableSwapsArgs, MeshContext>,
+  mumbai_originTransfer: InContextSdkMethod<Subscription['mumbai_originTransfer'], Subscriptionmumbai_originTransferArgs, MeshContext>,
   /** null **/
-  mumbai_originTransfer: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_originTransfer'], ConnextMumbaiTypes.Subscriptionmumbai_originTransferArgs, MeshContext>,
+  mumbai_originTransfers: InContextSdkMethod<Subscription['mumbai_originTransfers'], Subscriptionmumbai_originTransfersArgs, MeshContext>,
   /** null **/
-  mumbai_originTransfers: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_originTransfers'], ConnextMumbaiTypes.Subscriptionmumbai_originTransfersArgs, MeshContext>,
+  mumbai_destinationTransfer: InContextSdkMethod<Subscription['mumbai_destinationTransfer'], Subscriptionmumbai_destinationTransferArgs, MeshContext>,
   /** null **/
-  mumbai_destinationTransfer: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_destinationTransfer'], ConnextMumbaiTypes.Subscriptionmumbai_destinationTransferArgs, MeshContext>,
+  mumbai_destinationTransfers: InContextSdkMethod<Subscription['mumbai_destinationTransfers'], Subscriptionmumbai_destinationTransfersArgs, MeshContext>,
   /** null **/
-  mumbai_destinationTransfers: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_destinationTransfers'], ConnextMumbaiTypes.Subscriptionmumbai_destinationTransfersArgs, MeshContext>,
+  mumbai_originMessage: InContextSdkMethod<Subscription['mumbai_originMessage'], Subscriptionmumbai_originMessageArgs, MeshContext>,
   /** null **/
-  mumbai_originMessage: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_originMessage'], ConnextMumbaiTypes.Subscriptionmumbai_originMessageArgs, MeshContext>,
+  mumbai_originMessages: InContextSdkMethod<Subscription['mumbai_originMessages'], Subscriptionmumbai_originMessagesArgs, MeshContext>,
   /** null **/
-  mumbai_originMessages: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_originMessages'], ConnextMumbaiTypes.Subscriptionmumbai_originMessagesArgs, MeshContext>,
+  mumbai_destinationMessage: InContextSdkMethod<Subscription['mumbai_destinationMessage'], Subscriptionmumbai_destinationMessageArgs, MeshContext>,
   /** null **/
-  mumbai_destinationMessage: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_destinationMessage'], ConnextMumbaiTypes.Subscriptionmumbai_destinationMessageArgs, MeshContext>,
+  mumbai_destinationMessages: InContextSdkMethod<Subscription['mumbai_destinationMessages'], Subscriptionmumbai_destinationMessagesArgs, MeshContext>,
   /** null **/
-  mumbai_destinationMessages: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_destinationMessages'], ConnextMumbaiTypes.Subscriptionmumbai_destinationMessagesArgs, MeshContext>,
+  mumbai_aggregateRoot: InContextSdkMethod<Subscription['mumbai_aggregateRoot'], Subscriptionmumbai_aggregateRootArgs, MeshContext>,
   /** null **/
-  mumbai_aggregateRoot: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_aggregateRoot'], ConnextMumbaiTypes.Subscriptionmumbai_aggregateRootArgs, MeshContext>,
+  mumbai_aggregateRoots: InContextSdkMethod<Subscription['mumbai_aggregateRoots'], Subscriptionmumbai_aggregateRootsArgs, MeshContext>,
   /** null **/
-  mumbai_aggregateRoots: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_aggregateRoots'], ConnextMumbaiTypes.Subscriptionmumbai_aggregateRootsArgs, MeshContext>,
+  mumbai_connectorMeta: InContextSdkMethod<Subscription['mumbai_connectorMeta'], Subscriptionmumbai_connectorMetaArgs, MeshContext>,
   /** null **/
-  mumbai_connectorMeta: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_connectorMeta'], ConnextMumbaiTypes.Subscriptionmumbai_connectorMetaArgs, MeshContext>,
+  mumbai_connectorMetas: InContextSdkMethod<Subscription['mumbai_connectorMetas'], Subscriptionmumbai_connectorMetasArgs, MeshContext>,
   /** null **/
-  mumbai_connectorMetas: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_connectorMetas'], ConnextMumbaiTypes.Subscriptionmumbai_connectorMetasArgs, MeshContext>,
+  mumbai_rootCount: InContextSdkMethod<Subscription['mumbai_rootCount'], Subscriptionmumbai_rootCountArgs, MeshContext>,
   /** null **/
-  mumbai_rootCount: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_rootCount'], ConnextMumbaiTypes.Subscriptionmumbai_rootCountArgs, MeshContext>,
+  mumbai_rootCounts: InContextSdkMethod<Subscription['mumbai_rootCounts'], Subscriptionmumbai_rootCountsArgs, MeshContext>,
   /** null **/
-  mumbai_rootCounts: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_rootCounts'], ConnextMumbaiTypes.Subscriptionmumbai_rootCountsArgs, MeshContext>,
+  mumbai_rootMessageSent: InContextSdkMethod<Subscription['mumbai_rootMessageSent'], Subscriptionmumbai_rootMessageSentArgs, MeshContext>,
   /** null **/
-  mumbai_rootMessageSent: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_rootMessageSent'], ConnextMumbaiTypes.Subscriptionmumbai_rootMessageSentArgs, MeshContext>,
-  /** null **/
-  mumbai_rootMessageSents: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai_rootMessageSents'], ConnextMumbaiTypes.Subscriptionmumbai_rootMessageSentsArgs, MeshContext>,
+  mumbai_rootMessageSents: InContextSdkMethod<Subscription['mumbai_rootMessageSents'], Subscriptionmumbai_rootMessageSentsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  mumbai__meta: InContextSdkMethod<ConnextMumbaiTypes.Subscription['mumbai__meta'], ConnextMumbaiTypes.Subscriptionmumbai__metaArgs, MeshContext>
-};
-export type ConnextMumbaiContext = {
-      ["Connext_Mumbai"]: { Query: QueryConnextMumbaiSdk, Mutation: MutationConnextMumbaiSdk, Subscription: SubscriptionConnextMumbaiSdk },
+  mumbai__meta: InContextSdkMethod<Subscription['mumbai__meta'], Subscriptionmumbai__metaArgs, MeshContext>
+  };
+
+  export type Context = {
+      ["Connext_Mumbai"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
+}

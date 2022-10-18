@@ -43,19 +43,6 @@ locals {
 
     logLevel = "debug"
     chains = {
-      "1735356532" = {
-        providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_0}", "https://goerli.optimism.io"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF"
-          },
-          {
-            name    = "WETH"
-            address = "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E"
-          }
-        ]
-      }
       "1735353714" = {
         providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
         assets = [
@@ -66,6 +53,19 @@ locals {
           {
             name    = "WETH"
             address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
+          }
+        ]
+      }
+      "1735356532" = {
+        providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_0}", "https://goerli.optimism.io"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF"
+          },
+          {
+            name    = "WETH"
+            address = "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E"
           }
         ]
       }
@@ -100,13 +100,13 @@ locals {
       ]
       queues = [
         {
-          name       = "1735356532"
+          name       = "1735353714"
           limit      = 6
           queueLimit = 10000
           subscribe  = true
         },
         {
-          name       = "1735353714"
+          name       = "1735356532"
           limit      = 6
           queueLimit = 10000
           subscribe  = true
@@ -121,13 +121,13 @@ locals {
       bindings = [
         {
           exchange = "sequencerX"
-          target   = "1735356532"
-          keys     = ["1735356532"]
+          target   = "1735353714"
+          keys     = ["1735353714"]
         },
         {
           exchange = "sequencerX"
-          target   = "1735353714"
-          keys     = ["1735353714"]
+          target   = "1735356532"
+          keys     = ["1735356532"]
         },
         {
           exchange = "sequencerX"
@@ -137,7 +137,8 @@ locals {
       ]
       executerTimeout = 300000
       publisher       = "sequencerX"
-    }
+    },
+    gelatoApiKey = "${var.gelato_api_key}"
   })
 
   local_router_config = jsonencode({
@@ -160,19 +161,6 @@ locals {
       }
     }
     chains = {
-      "1735356532" = {
-        providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF"
-          },
-          {
-            name    = "WETH"
-            address = "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E"
-          }
-        ]
-      }
       "1735353714" = {
         providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
         assets = [
@@ -183,6 +171,19 @@ locals {
           {
             name    = "WETH"
             address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
+          }
+        ]
+      }
+      "1735356532" = {
+        providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF"
+          },
+          {
+            name    = "WETH"
+            address = "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E"
           }
         ]
       }
@@ -212,11 +213,11 @@ locals {
   local_lighthouse_config = jsonencode({
     logLevel = "debug"
     chains = {
-      "1735356532" = {
-        providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
-      }
       "1735353714" = {
         providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
+      }
+      "1735356532" = {
+        providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
       }
       "9991" = {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]

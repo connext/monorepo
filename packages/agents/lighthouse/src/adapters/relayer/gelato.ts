@@ -8,6 +8,8 @@ import {
   gelatoSDKSend,
 } from "../../mockable";
 
+const GAS_LIMIT_FOR_RELAYER = "950000";
+
 export const getRelayerAddress = async (chainId: number, logger: Logger): Promise<string> => {
   const relayerAddress = await getGelatoRelayerAddress(chainId, logger);
   return relayerAddress;
@@ -36,7 +38,7 @@ export const send = async (
 
   logger.info("Sending to Gelato network", requestContext, methodContext, request);
 
-  const response = await gelatoSDKSend(request, gelatoApiKey, {}, logger);
+  const response = await gelatoSDKSend(request, gelatoApiKey, { gasLimit: GAS_LIMIT_FOR_RELAYER }, logger);
 
   if (!response) {
     throw new RelayerSendFailed({ response: response });

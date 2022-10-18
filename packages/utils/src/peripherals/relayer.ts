@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BigNumber, constants } from "ethers";
+import { BigNumber } from "ethers";
 import { GelatoRelaySDK } from "@gelatonetwork/relay-sdk";
 
 import { Logger } from "../logging";
@@ -19,6 +19,7 @@ import {
 /// Docs: https://relay.gelato.digital/api-docs/
 
 const GELATO_SERVER = "https://relay.gelato.digital";
+export const GELATO_RELAYER_ADDRESS = "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92";
 
 /// MARK - This is used for testnets which aren't being supported by gelato
 const EquivalentChainsForGelato: Record<number, number> = {
@@ -40,7 +41,9 @@ export const gelatoSend = async (
     output = res.data;
   } catch (error: unknown) {
     if (logger)
-      logger.error("Error sending request to Gelato Relay", undefined, undefined, jsonifyError(error as Error));
+      logger.error("Error sending request to Gelato Relay", undefined, undefined, jsonifyError(error as Error), {
+        params,
+      });
     throw new NxtpError("Error sending request to Gelato Relay", { error: jsonifyError(error as Error) });
   }
   return output;
@@ -51,17 +54,8 @@ export const isChainSupportedByGelato = async (chainId: number): Promise<boolean
   return chainsSupportedByGelato.includes(chainId.toString());
 };
 
-export const getGelatoRelayerAddress = async (chainId: number, logger?: Logger): Promise<string> => {
-  let result = constants.AddressZero;
-  try {
-    const res = await axios.get(`${GELATO_SERVER}/relays/${chainId}/address`);
-    result = res.data.address;
-  } catch (error: unknown) {
-    if (logger) logger.error("Error in getGelatoRelayerAddress", undefined, undefined, jsonifyError(error as Error));
-    throw new Error("Error in getGelatoRelayerAddress");
-  }
-
-  return result;
+export const getGelatoRelayerAddress = async (_chainId: number, _logger?: Logger): Promise<string> => {
+  return GELATO_RELAYER_ADDRESS;
 };
 
 export const getGelatoRelayChains = async (logger?: Logger): Promise<string[]> => {
@@ -166,7 +160,7 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
 export const getTaskStatusFromGelato = async (taskId: string, logger?: Logger): Promise<RelayerTaskStatus> => {
   let result = RelayerTaskStatus.NotFound;
   try {
-    const apiEndpoint = `${GELATO_SERVER}/tasks/${taskId}`;
+    const apiEndpoint = `${GELATO_SERVER}/tasks/status/${taskId}`;
     const res = await axios.get(apiEndpoint);
     result = res.data.data[0]?.taskState;
   } catch (error: unknown) {
@@ -206,7 +200,7 @@ export const getTaskStatusFromBackupRelayer = async (
 ): Promise<RelayerTaskStatus> => {
   let result = RelayerTaskStatus.NotFound;
   try {
-    const apiEndpoint = `${url}/tasks/${taskId}`;
+    const apiEndpoint = `${url}/tasks/status/${taskId}`;
     const res = await axios.get(apiEndpoint);
     result = res.data[0]?.taskState as RelayerTaskStatus;
   } catch (error: unknown) {
@@ -227,7 +221,7 @@ export const getTaskStatusFromBackupRelayer = async (
 export const getTransactionHashFromGelato = async (taskId: string, logger?: Logger): Promise<string> => {
   let result;
   try {
-    const apiEndpoint = `${GELATO_SERVER}/tasks/${taskId}`;
+    const apiEndpoint = `${GELATO_SERVER}/tasks/status/${taskId}`;
     const res = await axios.get(apiEndpoint);
     result = res.data.data[0]?.transactionHash;
   } catch (error: unknown) {
@@ -250,8 +244,15 @@ export const gelatoSDKSend = async (
     response = await GelatoRelaySDK.relayWithSponsoredCall(request, sponsorApiKey, options);
   } catch (error: unknown) {
     if (logger)
-      logger.error("Error sending request to Gelato Relay", undefined, undefined, jsonifyError(error as Error));
-    throw new NxtpError("Error sending request to Gelato Relay", { error: jsonifyError(error as Error) });
+      logger.error("Error sending request to Gelato Relay", undefined, undefined, jsonifyError(error as Error), {
+        options,
+        request,
+      });
+    throw new NxtpError("Error sending request to Gelato Relay", {
+      error: jsonifyError(error as Error),
+      options,
+      request,
+    });
   }
   return response;
 };

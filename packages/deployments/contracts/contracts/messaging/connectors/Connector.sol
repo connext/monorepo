@@ -149,7 +149,6 @@ abstract contract Connector is ProposedOwnable, IConnector {
    * @notice Processes a message received by an AMB
    * @dev This is called by AMBs to process messages originating from mirror connector
    */
-  // TODO: make more opinionated (i.e. processOutboundMessage)
   function processMessage(bytes memory _data) external onlyAMB {
     _processMessage(_data);
     emit MessageProcessed(_data, msg.sender);
@@ -185,7 +184,7 @@ abstract contract Connector is ProposedOwnable, IConnector {
 
   // ============ Private Functions ============
 
-  function _setMirrorConnector(address _mirrorConnector) internal {
+  function _setMirrorConnector(address _mirrorConnector) internal virtual {
     emit MirrorConnectorUpdated(mirrorConnector, _mirrorConnector);
     mirrorConnector = _mirrorConnector;
   }

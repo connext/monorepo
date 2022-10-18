@@ -52,8 +52,25 @@ export const RootMessageSchema = Type.Object({
   gasLimit: TIntegerString,
   blockNumber: Type.Number(),
   processed: Type.Boolean(),
+  count: Type.Number({ minimum: 0 }),
 });
 export type RootMessage = Static<typeof RootMessageSchema>;
+
+export const AggregatedRootSchema = Type.Object({
+  id: Type.String(),
+  domain: Type.String(),
+  receivedRoot: Type.String(),
+  index: Type.Number({ minimum: 0 }),
+});
+export type AggregatedRoot = Static<typeof AggregatedRootSchema>;
+
+export const PropagatedRootSchema = Type.Object({
+  id: Type.String(),
+  aggregate: Type.String(),
+  domains: Type.Array(Type.String()),
+  count: Type.Number({ minimum: 0 }),
+});
+export type PropagatedRoot = Static<typeof PropagatedRootSchema>;
 
 export const ConnectorMetaSchema = Type.Object({
   id: Type.String(),

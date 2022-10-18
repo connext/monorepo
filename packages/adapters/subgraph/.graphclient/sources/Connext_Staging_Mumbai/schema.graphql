@@ -209,11 +209,11 @@ scalar stagingmumbai_Bytes
 
 type stagingmumbai_ConnectorMeta {
   id: ID!
-  spokeDomain: BigInt!
-  hubDomain: BigInt!
-  amb: stagingmumbai_Bytes!
-  rootManager: stagingmumbai_Bytes!
-  mirrorConnector: stagingmumbai_Bytes!
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  amb: stagingmumbai_Bytes
+  rootManager: stagingmumbai_Bytes
+  mirrorConnector: stagingmumbai_Bytes
 }
 
 input stagingmumbai_ConnectorMeta_filter {
@@ -643,6 +643,7 @@ type stagingmumbai_OriginMessage {
   root: stagingmumbai_Bytes
   message: stagingmumbai_Bytes
   transactionHash: stagingmumbai_Bytes
+  blockNumber: BigInt
   rootCount: stagingmumbai_RootCount
 }
 
@@ -701,6 +702,14 @@ input stagingmumbai_OriginMessage_filter {
   transactionHash_not_in: [stagingmumbai_Bytes!]
   transactionHash_contains: stagingmumbai_Bytes
   transactionHash_not_contains: stagingmumbai_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   rootCount: String
   rootCount_not: String
   rootCount_gt: String
@@ -735,6 +744,7 @@ enum stagingmumbai_OriginMessage_orderBy {
   root
   message
   transactionHash
+  blockNumber
   rootCount
 }
 
@@ -1441,7 +1451,7 @@ enum stagingmumbai_Relayer_orderBy {
 
 type stagingmumbai_RootCount {
   id: ID!
-  count: BigInt!
+  count: BigInt
 }
 
 input stagingmumbai_RootCount_filter {

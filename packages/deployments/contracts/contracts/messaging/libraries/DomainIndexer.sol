@@ -133,6 +133,7 @@ abstract contract DomainIndexer {
       // item to the target index's place so we can conveniently pop the last item.
       // Replace domain in domains array with the domain in the final index.
       domains[_index] = domains[_lastIndex];
+      connectors[_index] = connectors[_lastIndex];
     }
 
     // Pop the last item in the arrays.

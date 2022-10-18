@@ -36,6 +36,9 @@ contract RootManagerTest is ForgeHelper {
     _domains.push(1000);
     _connectors.push(address(1000));
 
+    _domains.push(1001);
+    _connectors.push(address(1001));
+
     _merkle = address(new MerkleTreeManager());
     MerkleTreeManager(_merkle).initialize(address(_rootManager));
 
@@ -84,8 +87,12 @@ contract RootManagerTest is ForgeHelper {
 
   // ============ RootManager.addConnector ============
   function test_RootManager__addConnector_shouldWork() public {
+    uint32[] memory domains = new uint32[](1);
+    address[] memory connectors = new address[](1);
+    domains[0] = _domains[0];
+    connectors[0] = _connectors[0];
     vm.expectEmit(true, true, true, true);
-    emit ConnectorAdded(_domains[0], _connectors[0], _domains, _connectors);
+    emit ConnectorAdded(_domains[0], _connectors[0], domains, connectors);
 
     vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
@@ -116,6 +123,16 @@ contract RootManagerTest is ForgeHelper {
     _rootManager.addConnector(_domains[0], _connectors[0]);
   }
 
+  function test_RootManager__addConnector_shouldFailIfDomainAlreadyAdded() public {
+    vm.prank(owner);
+    _rootManager.addConnector(_domains[0], _connectors[0]);
+
+    vm.expectRevert(bytes("exists"));
+
+    vm.prank(owner);
+    _rootManager.addConnector(_domains[0], _connectors[1]);
+  }
+
   function test_RootManager__addConnector_shouldFailIfAddressZero() public {
     vm.expectRevert(bytes("!connector"));
 
@@ -127,10 +144,14 @@ contract RootManagerTest is ForgeHelper {
   function test_RootManager__removeConnector_shouldWork() public {
     vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
+    vm.prank(owner);
+    _rootManager.addConnector(_domains[1], _connectors[1]);
 
-    uint32[] memory emitted = new uint32[](0);
-    address[] memory emittedConnectors = new address[](0);
+    uint32[] memory emitted = new uint32[](1);
+    address[] memory emittedConnectors = new address[](1);
 
+    emitted[0] = _domains[1];
+    emittedConnectors[0] = _connectors[1];
     vm.expectEmit(true, true, true, true);
     emit ConnectorRemoved(_domains[0], _connectors[0], emitted, emittedConnectors, address(this));
 

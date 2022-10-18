@@ -35,7 +35,8 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
 
   function _processMessageFromChild(bytes memory message) internal override {
     // NOTE: crosschain sender is not directly exposed by the child message
-    require(msg.sender == AMB, "!amb");
+
+    // do not need any additional sender or origin checks here since the proof contains inclusion proofs of the snapshots
 
     // get the data (should be the aggregate root)
     require(message.length == 32, "!length");
@@ -46,4 +47,10 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
   }
 
   function _processMessage(bytes memory _data) internal override {}
+
+  function _setMirrorConnector(address _mirrorConnector) internal override {
+    super._setMirrorConnector(_mirrorConnector);
+
+    setFxChildTunnel(_mirrorConnector);
+  }
 }

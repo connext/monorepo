@@ -18,7 +18,7 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
   // ============ Test set up ============
   function setUp() public {
     // deploy
-    _l1Connector = address(123321123);
+    _l1Connector = address(123);
 
     _merkle = address(new MerkleTreeManager());
 
@@ -28,7 +28,7 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
         _l1Domain,
         _amb,
         _rootManager,
-        _l1Connector,
+        address(0),
         _mirrorGas,
         _processGas,
         _reserveGas,
@@ -52,6 +52,12 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
   // ============ PolygonSpokeConnector.setFxRootTunnel ============
   function test_PolygonSpokeConnector__setFxRootTunnel_shouldWork() public {
     PolygonSpokeConnector(_l2Connector).setFxRootTunnel(_l1Connector);
+    assertEq(PolygonSpokeConnector(_l2Connector).fxRootTunnel(), _l1Connector);
+  }
+
+  function test_PolygonSpokeConnector__setMirrorConnector_shouldWork() public {
+    PolygonSpokeConnector(_l2Connector).setMirrorConnector(_l1Connector);
+    assertEq(PolygonSpokeConnector(_l2Connector).mirrorConnector(), _l1Connector);
     assertEq(PolygonSpokeConnector(_l2Connector).fxRootTunnel(), _l1Connector);
   }
 
@@ -83,7 +89,7 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
 
   // ============ PolygonSpokeConnector.processMessage ============
   function test_PolygonSpokeConnector__processMessage_works() public {
-    PolygonSpokeConnector(_l2Connector).setFxRootTunnel(_l1Connector);
+    PolygonSpokeConnector(_l2Connector).setMirrorConnector(_l1Connector);
 
     // get outbound data
     bytes memory _data = abi.encode(bytes32("test"));
@@ -103,7 +109,9 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
   }
 
   function test_PolygonSpokeConnector__processMessage_works_fuzz(bytes32 data) public {
-    PolygonSpokeConnector(_l2Connector).setFxRootTunnel(_l1Connector);
+    // data with bytes32 0 is not allowed by SpokeConnector.receiveAggregateRoot
+    if (data == bytes32("")) return;
+    PolygonSpokeConnector(_l2Connector).setMirrorConnector(_l1Connector);
 
     // get outbound data
     bytes memory _data = abi.encode(data);
@@ -123,7 +131,7 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
   }
 
   function test_PolygonSpokeConnector__processMessage_failsIfNotAmb() public {
-    PolygonSpokeConnector(_l2Connector).setFxRootTunnel(_l1Connector);
+    PolygonSpokeConnector(_l2Connector).setMirrorConnector(_l1Connector);
 
     bytes memory _data = abi.encode(bytes32("test"));
     uint256 stateId = 1;
@@ -136,7 +144,7 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
   }
 
   function test_PolygonSpokeConnector__processMessage_failsIfNotMirrorConnector() public {
-    PolygonSpokeConnector(_l2Connector).setFxRootTunnel(_l1Connector);
+    PolygonSpokeConnector(_l2Connector).setMirrorConnector(_l1Connector);
 
     bytes memory _data = abi.encode(bytes32("test"));
     uint256 stateId = 1;
@@ -150,7 +158,7 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
   }
 
   function test_PolygonSpokeConnector__processMessage_failsIfNot32Bytes() public {
-    PolygonSpokeConnector(_l2Connector).setFxRootTunnel(_l1Connector);
+    PolygonSpokeConnector(_l2Connector).setMirrorConnector(_l1Connector);
 
     // get outbound data
     bytes memory _data = abi.encode(bytes32("test"), 123123123);

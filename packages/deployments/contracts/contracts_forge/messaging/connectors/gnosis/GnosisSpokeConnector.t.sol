@@ -116,6 +116,7 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
   }
 
   function test_GnosisSpokeConnector__processMessage_shouldUpdateAggregateRoot_fuzz(bytes32 data) public {
+    if (data == bytes32("")) return;
     utils_setSpokeConnectorVerifyMocks(_l1Connector);
 
     // data

@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
@@ -16,7 +17,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   goerli_BigDecimal: any;
-  BigInt: bigint;
+  BigInt: any;
   goerli_Bytes: any;
 };
 
@@ -2037,141 +2038,142 @@ export type _SubgraphErrorPolicy_ =
   /** If the subgraph has indexing errors, data will be omitted. The default. */
   | 'deny';
 
-}
-export type QueryConnextGoerliSdk = {
+  export type QuerySdk = {
+      /** null **/
+  goerli_asset: InContextSdkMethod<Query['goerli_asset'], Querygoerli_assetArgs, MeshContext>,
   /** null **/
-  goerli_asset: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_asset'], ConnextGoerliTypes.Querygoerli_assetArgs, MeshContext>,
+  goerli_assets: InContextSdkMethod<Query['goerli_assets'], Querygoerli_assetsArgs, MeshContext>,
   /** null **/
-  goerli_assets: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_assets'], ConnextGoerliTypes.Querygoerli_assetsArgs, MeshContext>,
+  goerli_assetBalance: InContextSdkMethod<Query['goerli_assetBalance'], Querygoerli_assetBalanceArgs, MeshContext>,
   /** null **/
-  goerli_assetBalance: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_assetBalance'], ConnextGoerliTypes.Querygoerli_assetBalanceArgs, MeshContext>,
+  goerli_assetBalances: InContextSdkMethod<Query['goerli_assetBalances'], Querygoerli_assetBalancesArgs, MeshContext>,
   /** null **/
-  goerli_assetBalances: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_assetBalances'], ConnextGoerliTypes.Querygoerli_assetBalancesArgs, MeshContext>,
+  goerli_router: InContextSdkMethod<Query['goerli_router'], Querygoerli_routerArgs, MeshContext>,
   /** null **/
-  goerli_router: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_router'], ConnextGoerliTypes.Querygoerli_routerArgs, MeshContext>,
+  goerli_routers: InContextSdkMethod<Query['goerli_routers'], Querygoerli_routersArgs, MeshContext>,
   /** null **/
-  goerli_routers: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_routers'], ConnextGoerliTypes.Querygoerli_routersArgs, MeshContext>,
+  goerli_setting: InContextSdkMethod<Query['goerli_setting'], Querygoerli_settingArgs, MeshContext>,
   /** null **/
-  goerli_setting: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_setting'], ConnextGoerliTypes.Querygoerli_settingArgs, MeshContext>,
+  goerli_settings: InContextSdkMethod<Query['goerli_settings'], Querygoerli_settingsArgs, MeshContext>,
   /** null **/
-  goerli_settings: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_settings'], ConnextGoerliTypes.Querygoerli_settingsArgs, MeshContext>,
+  goerli_relayer: InContextSdkMethod<Query['goerli_relayer'], Querygoerli_relayerArgs, MeshContext>,
   /** null **/
-  goerli_relayer: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_relayer'], ConnextGoerliTypes.Querygoerli_relayerArgs, MeshContext>,
+  goerli_relayers: InContextSdkMethod<Query['goerli_relayers'], Querygoerli_relayersArgs, MeshContext>,
   /** null **/
-  goerli_relayers: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_relayers'], ConnextGoerliTypes.Querygoerli_relayersArgs, MeshContext>,
+  goerli_sequencer: InContextSdkMethod<Query['goerli_sequencer'], Querygoerli_sequencerArgs, MeshContext>,
   /** null **/
-  goerli_sequencer: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_sequencer'], ConnextGoerliTypes.Querygoerli_sequencerArgs, MeshContext>,
+  goerli_sequencers: InContextSdkMethod<Query['goerli_sequencers'], Querygoerli_sequencersArgs, MeshContext>,
   /** null **/
-  goerli_sequencers: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_sequencers'], ConnextGoerliTypes.Querygoerli_sequencersArgs, MeshContext>,
+  goerli_stableSwap: InContextSdkMethod<Query['goerli_stableSwap'], Querygoerli_stableSwapArgs, MeshContext>,
   /** null **/
-  goerli_stableSwap: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_stableSwap'], ConnextGoerliTypes.Querygoerli_stableSwapArgs, MeshContext>,
+  goerli_stableSwaps: InContextSdkMethod<Query['goerli_stableSwaps'], Querygoerli_stableSwapsArgs, MeshContext>,
   /** null **/
-  goerli_stableSwaps: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_stableSwaps'], ConnextGoerliTypes.Querygoerli_stableSwapsArgs, MeshContext>,
+  goerli_originTransfer: InContextSdkMethod<Query['goerli_originTransfer'], Querygoerli_originTransferArgs, MeshContext>,
   /** null **/
-  goerli_originTransfer: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_originTransfer'], ConnextGoerliTypes.Querygoerli_originTransferArgs, MeshContext>,
+  goerli_originTransfers: InContextSdkMethod<Query['goerli_originTransfers'], Querygoerli_originTransfersArgs, MeshContext>,
   /** null **/
-  goerli_originTransfers: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_originTransfers'], ConnextGoerliTypes.Querygoerli_originTransfersArgs, MeshContext>,
+  goerli_destinationTransfer: InContextSdkMethod<Query['goerli_destinationTransfer'], Querygoerli_destinationTransferArgs, MeshContext>,
   /** null **/
-  goerli_destinationTransfer: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_destinationTransfer'], ConnextGoerliTypes.Querygoerli_destinationTransferArgs, MeshContext>,
+  goerli_destinationTransfers: InContextSdkMethod<Query['goerli_destinationTransfers'], Querygoerli_destinationTransfersArgs, MeshContext>,
   /** null **/
-  goerli_destinationTransfers: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_destinationTransfers'], ConnextGoerliTypes.Querygoerli_destinationTransfersArgs, MeshContext>,
+  goerli_originMessage: InContextSdkMethod<Query['goerli_originMessage'], Querygoerli_originMessageArgs, MeshContext>,
   /** null **/
-  goerli_originMessage: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_originMessage'], ConnextGoerliTypes.Querygoerli_originMessageArgs, MeshContext>,
+  goerli_originMessages: InContextSdkMethod<Query['goerli_originMessages'], Querygoerli_originMessagesArgs, MeshContext>,
   /** null **/
-  goerli_originMessages: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_originMessages'], ConnextGoerliTypes.Querygoerli_originMessagesArgs, MeshContext>,
+  goerli_destinationMessage: InContextSdkMethod<Query['goerli_destinationMessage'], Querygoerli_destinationMessageArgs, MeshContext>,
   /** null **/
-  goerli_destinationMessage: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_destinationMessage'], ConnextGoerliTypes.Querygoerli_destinationMessageArgs, MeshContext>,
+  goerli_destinationMessages: InContextSdkMethod<Query['goerli_destinationMessages'], Querygoerli_destinationMessagesArgs, MeshContext>,
   /** null **/
-  goerli_destinationMessages: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_destinationMessages'], ConnextGoerliTypes.Querygoerli_destinationMessagesArgs, MeshContext>,
+  goerli_aggregateRoot: InContextSdkMethod<Query['goerli_aggregateRoot'], Querygoerli_aggregateRootArgs, MeshContext>,
   /** null **/
-  goerli_aggregateRoot: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_aggregateRoot'], ConnextGoerliTypes.Querygoerli_aggregateRootArgs, MeshContext>,
+  goerli_aggregateRoots: InContextSdkMethod<Query['goerli_aggregateRoots'], Querygoerli_aggregateRootsArgs, MeshContext>,
   /** null **/
-  goerli_aggregateRoots: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_aggregateRoots'], ConnextGoerliTypes.Querygoerli_aggregateRootsArgs, MeshContext>,
+  goerli_connectorMeta: InContextSdkMethod<Query['goerli_connectorMeta'], Querygoerli_connectorMetaArgs, MeshContext>,
   /** null **/
-  goerli_connectorMeta: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_connectorMeta'], ConnextGoerliTypes.Querygoerli_connectorMetaArgs, MeshContext>,
+  goerli_connectorMetas: InContextSdkMethod<Query['goerli_connectorMetas'], Querygoerli_connectorMetasArgs, MeshContext>,
   /** null **/
-  goerli_connectorMetas: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_connectorMetas'], ConnextGoerliTypes.Querygoerli_connectorMetasArgs, MeshContext>,
+  goerli_rootCount: InContextSdkMethod<Query['goerli_rootCount'], Querygoerli_rootCountArgs, MeshContext>,
   /** null **/
-  goerli_rootCount: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_rootCount'], ConnextGoerliTypes.Querygoerli_rootCountArgs, MeshContext>,
+  goerli_rootCounts: InContextSdkMethod<Query['goerli_rootCounts'], Querygoerli_rootCountsArgs, MeshContext>,
   /** null **/
-  goerli_rootCounts: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_rootCounts'], ConnextGoerliTypes.Querygoerli_rootCountsArgs, MeshContext>,
+  goerli_rootMessageSent: InContextSdkMethod<Query['goerli_rootMessageSent'], Querygoerli_rootMessageSentArgs, MeshContext>,
   /** null **/
-  goerli_rootMessageSent: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_rootMessageSent'], ConnextGoerliTypes.Querygoerli_rootMessageSentArgs, MeshContext>,
-  /** null **/
-  goerli_rootMessageSents: InContextSdkMethod<ConnextGoerliTypes.Query['goerli_rootMessageSents'], ConnextGoerliTypes.Querygoerli_rootMessageSentsArgs, MeshContext>,
+  goerli_rootMessageSents: InContextSdkMethod<Query['goerli_rootMessageSents'], Querygoerli_rootMessageSentsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  goerli__meta: InContextSdkMethod<ConnextGoerliTypes.Query['goerli__meta'], ConnextGoerliTypes.Querygoerli__metaArgs, MeshContext>
-};
+  goerli__meta: InContextSdkMethod<Query['goerli__meta'], Querygoerli__metaArgs, MeshContext>
+  };
 
-export type MutationConnextGoerliSdk = {
+  export type MutationSdk = {
+    
+  };
 
-};
-
-export type SubscriptionConnextGoerliSdk = {
+  export type SubscriptionSdk = {
+      /** null **/
+  goerli_asset: InContextSdkMethod<Subscription['goerli_asset'], Subscriptiongoerli_assetArgs, MeshContext>,
   /** null **/
-  goerli_asset: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_asset'], ConnextGoerliTypes.Subscriptiongoerli_assetArgs, MeshContext>,
+  goerli_assets: InContextSdkMethod<Subscription['goerli_assets'], Subscriptiongoerli_assetsArgs, MeshContext>,
   /** null **/
-  goerli_assets: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_assets'], ConnextGoerliTypes.Subscriptiongoerli_assetsArgs, MeshContext>,
+  goerli_assetBalance: InContextSdkMethod<Subscription['goerli_assetBalance'], Subscriptiongoerli_assetBalanceArgs, MeshContext>,
   /** null **/
-  goerli_assetBalance: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_assetBalance'], ConnextGoerliTypes.Subscriptiongoerli_assetBalanceArgs, MeshContext>,
+  goerli_assetBalances: InContextSdkMethod<Subscription['goerli_assetBalances'], Subscriptiongoerli_assetBalancesArgs, MeshContext>,
   /** null **/
-  goerli_assetBalances: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_assetBalances'], ConnextGoerliTypes.Subscriptiongoerli_assetBalancesArgs, MeshContext>,
+  goerli_router: InContextSdkMethod<Subscription['goerli_router'], Subscriptiongoerli_routerArgs, MeshContext>,
   /** null **/
-  goerli_router: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_router'], ConnextGoerliTypes.Subscriptiongoerli_routerArgs, MeshContext>,
+  goerli_routers: InContextSdkMethod<Subscription['goerli_routers'], Subscriptiongoerli_routersArgs, MeshContext>,
   /** null **/
-  goerli_routers: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_routers'], ConnextGoerliTypes.Subscriptiongoerli_routersArgs, MeshContext>,
+  goerli_setting: InContextSdkMethod<Subscription['goerli_setting'], Subscriptiongoerli_settingArgs, MeshContext>,
   /** null **/
-  goerli_setting: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_setting'], ConnextGoerliTypes.Subscriptiongoerli_settingArgs, MeshContext>,
+  goerli_settings: InContextSdkMethod<Subscription['goerli_settings'], Subscriptiongoerli_settingsArgs, MeshContext>,
   /** null **/
-  goerli_settings: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_settings'], ConnextGoerliTypes.Subscriptiongoerli_settingsArgs, MeshContext>,
+  goerli_relayer: InContextSdkMethod<Subscription['goerli_relayer'], Subscriptiongoerli_relayerArgs, MeshContext>,
   /** null **/
-  goerli_relayer: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_relayer'], ConnextGoerliTypes.Subscriptiongoerli_relayerArgs, MeshContext>,
+  goerli_relayers: InContextSdkMethod<Subscription['goerli_relayers'], Subscriptiongoerli_relayersArgs, MeshContext>,
   /** null **/
-  goerli_relayers: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_relayers'], ConnextGoerliTypes.Subscriptiongoerli_relayersArgs, MeshContext>,
+  goerli_sequencer: InContextSdkMethod<Subscription['goerli_sequencer'], Subscriptiongoerli_sequencerArgs, MeshContext>,
   /** null **/
-  goerli_sequencer: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_sequencer'], ConnextGoerliTypes.Subscriptiongoerli_sequencerArgs, MeshContext>,
+  goerli_sequencers: InContextSdkMethod<Subscription['goerli_sequencers'], Subscriptiongoerli_sequencersArgs, MeshContext>,
   /** null **/
-  goerli_sequencers: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_sequencers'], ConnextGoerliTypes.Subscriptiongoerli_sequencersArgs, MeshContext>,
+  goerli_stableSwap: InContextSdkMethod<Subscription['goerli_stableSwap'], Subscriptiongoerli_stableSwapArgs, MeshContext>,
   /** null **/
-  goerli_stableSwap: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_stableSwap'], ConnextGoerliTypes.Subscriptiongoerli_stableSwapArgs, MeshContext>,
+  goerli_stableSwaps: InContextSdkMethod<Subscription['goerli_stableSwaps'], Subscriptiongoerli_stableSwapsArgs, MeshContext>,
   /** null **/
-  goerli_stableSwaps: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_stableSwaps'], ConnextGoerliTypes.Subscriptiongoerli_stableSwapsArgs, MeshContext>,
+  goerli_originTransfer: InContextSdkMethod<Subscription['goerli_originTransfer'], Subscriptiongoerli_originTransferArgs, MeshContext>,
   /** null **/
-  goerli_originTransfer: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_originTransfer'], ConnextGoerliTypes.Subscriptiongoerli_originTransferArgs, MeshContext>,
+  goerli_originTransfers: InContextSdkMethod<Subscription['goerli_originTransfers'], Subscriptiongoerli_originTransfersArgs, MeshContext>,
   /** null **/
-  goerli_originTransfers: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_originTransfers'], ConnextGoerliTypes.Subscriptiongoerli_originTransfersArgs, MeshContext>,
+  goerli_destinationTransfer: InContextSdkMethod<Subscription['goerli_destinationTransfer'], Subscriptiongoerli_destinationTransferArgs, MeshContext>,
   /** null **/
-  goerli_destinationTransfer: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_destinationTransfer'], ConnextGoerliTypes.Subscriptiongoerli_destinationTransferArgs, MeshContext>,
+  goerli_destinationTransfers: InContextSdkMethod<Subscription['goerli_destinationTransfers'], Subscriptiongoerli_destinationTransfersArgs, MeshContext>,
   /** null **/
-  goerli_destinationTransfers: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_destinationTransfers'], ConnextGoerliTypes.Subscriptiongoerli_destinationTransfersArgs, MeshContext>,
+  goerli_originMessage: InContextSdkMethod<Subscription['goerli_originMessage'], Subscriptiongoerli_originMessageArgs, MeshContext>,
   /** null **/
-  goerli_originMessage: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_originMessage'], ConnextGoerliTypes.Subscriptiongoerli_originMessageArgs, MeshContext>,
+  goerli_originMessages: InContextSdkMethod<Subscription['goerli_originMessages'], Subscriptiongoerli_originMessagesArgs, MeshContext>,
   /** null **/
-  goerli_originMessages: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_originMessages'], ConnextGoerliTypes.Subscriptiongoerli_originMessagesArgs, MeshContext>,
+  goerli_destinationMessage: InContextSdkMethod<Subscription['goerli_destinationMessage'], Subscriptiongoerli_destinationMessageArgs, MeshContext>,
   /** null **/
-  goerli_destinationMessage: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_destinationMessage'], ConnextGoerliTypes.Subscriptiongoerli_destinationMessageArgs, MeshContext>,
+  goerli_destinationMessages: InContextSdkMethod<Subscription['goerli_destinationMessages'], Subscriptiongoerli_destinationMessagesArgs, MeshContext>,
   /** null **/
-  goerli_destinationMessages: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_destinationMessages'], ConnextGoerliTypes.Subscriptiongoerli_destinationMessagesArgs, MeshContext>,
+  goerli_aggregateRoot: InContextSdkMethod<Subscription['goerli_aggregateRoot'], Subscriptiongoerli_aggregateRootArgs, MeshContext>,
   /** null **/
-  goerli_aggregateRoot: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_aggregateRoot'], ConnextGoerliTypes.Subscriptiongoerli_aggregateRootArgs, MeshContext>,
+  goerli_aggregateRoots: InContextSdkMethod<Subscription['goerli_aggregateRoots'], Subscriptiongoerli_aggregateRootsArgs, MeshContext>,
   /** null **/
-  goerli_aggregateRoots: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_aggregateRoots'], ConnextGoerliTypes.Subscriptiongoerli_aggregateRootsArgs, MeshContext>,
+  goerli_connectorMeta: InContextSdkMethod<Subscription['goerli_connectorMeta'], Subscriptiongoerli_connectorMetaArgs, MeshContext>,
   /** null **/
-  goerli_connectorMeta: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_connectorMeta'], ConnextGoerliTypes.Subscriptiongoerli_connectorMetaArgs, MeshContext>,
+  goerli_connectorMetas: InContextSdkMethod<Subscription['goerli_connectorMetas'], Subscriptiongoerli_connectorMetasArgs, MeshContext>,
   /** null **/
-  goerli_connectorMetas: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_connectorMetas'], ConnextGoerliTypes.Subscriptiongoerli_connectorMetasArgs, MeshContext>,
+  goerli_rootCount: InContextSdkMethod<Subscription['goerli_rootCount'], Subscriptiongoerli_rootCountArgs, MeshContext>,
   /** null **/
-  goerli_rootCount: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_rootCount'], ConnextGoerliTypes.Subscriptiongoerli_rootCountArgs, MeshContext>,
+  goerli_rootCounts: InContextSdkMethod<Subscription['goerli_rootCounts'], Subscriptiongoerli_rootCountsArgs, MeshContext>,
   /** null **/
-  goerli_rootCounts: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_rootCounts'], ConnextGoerliTypes.Subscriptiongoerli_rootCountsArgs, MeshContext>,
+  goerli_rootMessageSent: InContextSdkMethod<Subscription['goerli_rootMessageSent'], Subscriptiongoerli_rootMessageSentArgs, MeshContext>,
   /** null **/
-  goerli_rootMessageSent: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_rootMessageSent'], ConnextGoerliTypes.Subscriptiongoerli_rootMessageSentArgs, MeshContext>,
-  /** null **/
-  goerli_rootMessageSents: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli_rootMessageSents'], ConnextGoerliTypes.Subscriptiongoerli_rootMessageSentsArgs, MeshContext>,
+  goerli_rootMessageSents: InContextSdkMethod<Subscription['goerli_rootMessageSents'], Subscriptiongoerli_rootMessageSentsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  goerli__meta: InContextSdkMethod<ConnextGoerliTypes.Subscription['goerli__meta'], ConnextGoerliTypes.Subscriptiongoerli__metaArgs, MeshContext>
-};
-export type ConnextGoerliContext = {
-      ["Connext_Goerli"]: { Query: QueryConnextGoerliSdk, Mutation: MutationConnextGoerliSdk, Subscription: SubscriptionConnextGoerliSdk },
+  goerli__meta: InContextSdkMethod<Subscription['goerli__meta'], Subscriptiongoerli__metaArgs, MeshContext>
+  };
+
+  export type Context = {
+      ["Connext_Goerli"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
+}

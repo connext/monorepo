@@ -7,9 +7,14 @@ import {
   RootMessage,
   convertFromDbMessage,
   convertFromDbRootMessage,
+  convertFromDbAggregatedRoot,
+  convertFromDbPropagatedRoot,
+  AggregatedRoot,
+  PropagatedRoot,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
+import { conditions as dc } from "zapatos/db";
 import type * as s from "zapatos/schema";
 import { BigNumber } from "ethers";
 
@@ -95,11 +100,30 @@ const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"
     caller: message.caller,
     sent_transaction_hash: type === "sent" ? message.transactionHash : undefined,
     processed_transaction_hash: type === "processed" ? message.transactionHash : undefined,
-    processed: type === "processed" ? true : message.processed,
+    processed: type === "processed" || message.spokeDomain === message.hubDomain ? true : message.processed,
     sent_timestamp: message.timestamp,
     gas_price: message.gasPrice as any,
     gas_limit: message.gasLimit as any,
     block_number: message.blockNumber,
+    leaf_count: message.count,
+  };
+};
+
+const convertToDbAggregatedRoot = (root: AggregatedRoot): s.aggregated_roots.Insertable => {
+  return {
+    id: root.id,
+    domain: root.domain,
+    received_root: root.receivedRoot,
+    domain_index: root.index,
+  };
+};
+
+const convertToDbPropagatedRoot = (root: PropagatedRoot): s.propagated_roots.Insertable => {
+  return {
+    id: root.id,
+    aggregate_root: root.aggregate,
+    domains: root.domains,
+    leaf_count: root.count,
   };
 };
 
@@ -188,20 +212,26 @@ export const getRootMessages = async (
   return messages.map(convertFromDbRootMessage);
 };
 
-export const getPendingMessages = async (
+export const saveAggregatedRoots = async (
+  _roots: AggregatedRoot[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
-  limit = 100,
-  orderDirection: "ASC" | "DESC" = "ASC",
-): Promise<XMessage[]> => {
-  // Get the messages in which `processed` is false
+): Promise<void> => {
   const poolToUse = _pool ?? pool;
-  const processed = false;
+  const roots: s.aggregated_roots.Insertable[] = _roots.map((r) => convertToDbAggregatedRoot(r)).map(sanitizeNull);
 
-  const x = await db
-    .select("messages", { processed }, { limit, order: { by: "index", direction: orderDirection, nulls: "LAST" } })
-    .run(poolToUse);
+  // use upsert here. if the root exists, we don't want to overwrite anything
+  await db.upsert("aggregated_roots", roots, ["id"], { updateColumns: [] }).run(poolToUse);
+};
 
-  return x.map(convertFromDbMessage);
+export const savePropagatedRoots = async (
+  _roots: PropagatedRoot[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const roots: s.propagated_roots.Insertable[] = _roots.map((r) => convertToDbPropagatedRoot(r)).map(sanitizeNull);
+
+  // use upsert here. if the root exists, we don't want to overwrite anything
+  await db.upsert("propagated_roots", roots, ["id"], { updateColumns: [] }).run(poolToUse);
 };
 
 export const saveCheckPoint = async (
@@ -364,4 +394,158 @@ export const transaction = async (
   callback: (client: db.TxnClientForRepeatableRead) => Promise<void>,
 ): Promise<void> => {
   db.repeatableRead(pool, async (txnClient) => callback(txnClient));
+};
+
+export const getUnProcessedMessages = async (
+  limit = 100,
+  orderDirection: "ASC" | "DESC" = "ASC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XMessage[]> => {
+  const poolToUse = _pool ?? pool;
+  const messages = await db
+    .select("messages", { processed: false }, { limit, order: { by: "index", direction: orderDirection } })
+    .run(poolToUse);
+  return messages.map(convertFromDbMessage);
+};
+
+export const getAggregateRoot = async (
+  messageRootIndex: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string | undefined> => {
+  const poolToUse = _pool ?? pool;
+  // Get the most recent unprocessed propagated root
+  const root = await db
+    .selectOne(
+      "propagated_roots",
+      { leaf_count: dc.gte(messageRootIndex) },
+      { limit: 1, order: { by: "leaf_count", direction: "ASC" } },
+    )
+    .run(poolToUse);
+  return root ? convertFromDbPropagatedRoot(root).aggregate : undefined;
+};
+
+export const getAggregateRootCount = async (
+  aggreateRoot: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<number | undefined> => {
+  const poolToUse = _pool ?? pool;
+  // Get the leaf count at the aggregated root
+  const root = await db.selectOne("propagated_roots", { aggregate_root: aggreateRoot }).run(poolToUse);
+  return root ? convertFromDbPropagatedRoot(root).count : undefined;
+};
+
+export const getMessageRootIndex = async (
+  domain: string,
+  messageRoot: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<number | undefined> => {
+  const poolToUse = _pool ?? pool;
+  // Find the index emitted from the RootAggregated event
+  const root = await db.selectOne("aggregated_roots", { domain: domain, received_root: messageRoot }).run(poolToUse);
+  return root ? convertFromDbAggregatedRoot(root).index : undefined;
+};
+
+export const getMessageRootFromIndex = async (
+  domain: string,
+  index: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string | undefined> => {
+  const poolToUse = _pool ?? pool;
+  // Find the first published outbound root that contains the index, for a given domain
+  const dbRoot = await db
+    .selectOne(
+      "root_messages",
+      { spoke_domain: domain, leaf_count: dc.gte(index) },
+      { limit: 1, order: { by: "leaf_count", direction: "ASC" } },
+    )
+    .run(poolToUse);
+  return dbRoot ? convertFromDbRootMessage(dbRoot).root : undefined;
+};
+
+export const getMessageRootCount = async (
+  domain: string,
+  messageRoot: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<number | undefined> => {
+  const poolToUse = _pool ?? pool;
+  // Find the index of the last message in the published messageRoot.
+  // This will be the count at the time messageRoot was sent
+  const message = await db.selectOne("messages", { origin_domain: domain, root: messageRoot }).run(poolToUse);
+  return message ? convertFromDbMessage(message).origin?.index : undefined;
+};
+
+export const getSpokeNode = async (
+  domain: string,
+  index: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const message = await db.selectOne("messages", { origin_domain: domain, index: index }).run(poolToUse);
+  return message ? convertFromDbMessage(message).leaf : undefined;
+};
+
+export const getSpokeNodes = async (
+  domain: string,
+  start: number,
+  end: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string[]> => {
+  const poolToUse = _pool ?? pool;
+  const messages = await db
+    .select(
+      "messages",
+      { origin_domain: domain, index: dc.and(dc.gte(start), dc.lte(end)) },
+      { order: { by: "index", direction: "ASC" } },
+    )
+    .run(poolToUse);
+  return messages.map((message) => convertFromDbMessage(message).leaf);
+};
+
+export const getHubNode = async (
+  index: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string | undefined> => {
+  const poolToUse = _pool ?? pool;
+  // Account for off by one nature of the index value emitted by contract
+  // This just tracks the position in the queue but not the actual index in the tree
+  // Off by one at best, can off by 1 + N, where N -> # of roots removed so far during verification
+  const root = await db.selectOne("aggregated_roots", { domain_index: index + 1 }).run(poolToUse);
+  return root ? convertFromDbAggregatedRoot(root).receivedRoot : undefined;
+};
+
+export const getHubNodes = async (
+  start: number,
+  end: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string[]> => {
+  const poolToUse = _pool ?? pool;
+  const roots = await db
+    .select(
+      "aggregated_roots",
+      { domain_index: dc.and(dc.gte(start + 1), dc.lte(end + 1)) },
+      { order: { by: "domain_index", direction: "ASC" } },
+    )
+    .run(poolToUse);
+  return roots.map((root) => convertFromDbAggregatedRoot(root).receivedRoot);
+};
+
+export const getRoot = async (
+  domain: string,
+  path: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const root = await db.selectOne("merkle_cache", { domain: domain, domain_path: path }).run(poolToUse);
+  return root?.tree_root;
+};
+
+export const putRoot = async (
+  domain: string,
+  path: string,
+  hash: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const root = { domain: domain, domain_path: path, tree_root: hash };
+  await db.upsert("merkle_cache", root, ["domain", "domain_path"], { updateColumns: [] }).run(poolToUse);
 };

@@ -1,9 +1,10 @@
 import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
-import { AxiosError } from "axios";
 
 import { RelayerSendFailed } from "../../lib/errors";
 import { getHelpers } from "../../lib/helpers";
 import { getContext } from "../../sequencer";
+
+const GAS_LIMIT_FOR_RELAYER = "950000";
 
 export const getRelayerAddress = async (chainId: number): Promise<string> => {
   const { logger } = getContext();
@@ -18,11 +19,12 @@ export const send = async (
   chainId: number,
   destinationAddress: string,
   encodedData: string,
+  gelatoApiKey: string,
   _requestContext: RequestContext,
 ): Promise<string> => {
   const { logger } = getContext();
   const {
-    relayer: { gelatoSend, isChainSupportedByGelato },
+    relayer: { gelatoSDKSend, isChainSupportedByGelato },
   } = getHelpers();
 
   const { requestContext, methodContext } = createLoggingContext(send.name, _requestContext);
@@ -37,19 +39,20 @@ export const send = async (
     chainId,
   });
 
-  const result = await gelatoSend(chainId, {
-    dest: destinationAddress,
+  const request = {
+    chainId: chainId,
+    target: destinationAddress,
     data: encodedData,
-    token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-    relayerFee: "0",
-  });
+  };
 
-  if ((result as AxiosError).isAxiosError) {
-    throw new RelayerSendFailed({ result });
+  const response = await gelatoSDKSend(request, gelatoApiKey, { gasLimit: GAS_LIMIT_FOR_RELAYER }, logger);
+
+  if (!response) {
+    throw new RelayerSendFailed({ response: response });
   } else {
-    const { taskId } = result;
+    const { taskId } = response;
     logger.info("Sent to Gelato network", requestContext, methodContext, {
-      result,
+      response,
       taskId,
       // response: response.data,
     });

@@ -4,6 +4,7 @@ import {
   Dispatch,
   AggregateRootReceived,
   MessageSent,
+  Process,
 } from "../../../generated/SpokeConnector/SpokeConnector";
 import { OriginMessage, AggregateRoot, RootMessageSent, ConnectorMeta, RootCount } from "../../../generated/schema";
 
@@ -22,6 +23,7 @@ export function handleDispatch(event: Dispatch): void {
   message.root = event.params.root;
   message.message = event.params.message;
   message.transactionHash = event.transaction.hash;
+  message.blockNumber = event.block.number;
 
   let rootCount = RootCount.load(event.params.root.toHexString());
   if (rootCount == null) {
@@ -57,7 +59,7 @@ export function handleMessageSent(event: MessageSent): void {
 
   message.count = rootCount.count;
 
-  message.caller = message.caller;
+  message.caller = event.transaction.from;
   message.transactionHash = event.transaction.hash;
   message.timestamp = event.block.timestamp;
   message.gasPrice = event.transaction.gasPrice;
@@ -90,4 +92,8 @@ export function handleAggregateRootReceived(event: AggregateRootReceived): void 
 
   aggregateRoot.root = event.params.root;
   aggregateRoot.save();
+}
+
+export function handleProcess(event: Process): void {
+  // TODO. We will have to add something here when its needed
 }

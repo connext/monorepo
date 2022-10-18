@@ -1,0 +1,14 @@
+[
+  "event IsPorterAvailableStatusUpdate(bool)",
+  "event NewGovernor(address indexed)",
+  "event NewL2BootloaderBytecodeHash(bytes32 indexed,bytes32 indexed)",
+  "event NewL2DefaultAccountBytecodeHash(bytes32 indexed,bytes32 indexed)",
+  "event NewPendingGovernor(address indexed,address indexed)",
+  "event ValidatorStatusUpdate(address indexed,bool)",
+  "function acceptGovernor()",
+  "function setL2BootloaderBytecodeHash(bytes32)",
+  "function setL2DefaultAccountBytecodeHash(bytes32)",
+  "function setPendingGovernor(address)",
+  "function setPorterAvailability(bool)",
+  "function setValidator(address,bool)"
+]

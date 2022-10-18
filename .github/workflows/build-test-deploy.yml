@@ -421,6 +421,47 @@ jobs:
     outputs:
       json: ${{ steps.meta.outputs.json }}
 
+  build-and-push-cartographer-roots-image:
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: connext/cartographer-roots
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=short
+            type=semver,pattern={{raw}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: docker/cartographer/roots/Dockerfile
+
+    outputs:
+      json: ${{ steps.meta.outputs.json }}
+
   build-and-push-lighthouse-prover-image:
     env:
       REGISTRY: ghcr.io
@@ -556,6 +597,7 @@ jobs:
         build-and-push-cartographer-routers-image,
         build-and-push-cartographer-transfers-image,
         build-and-push-cartographer-messages-image,
+        build-and-push-cartographer-roots-image,
         build-and-push-lighthouse-prover-image,
         build-and-push-lighthouse-process-from-root-image,
         build-and-push-relayer-image,
@@ -569,6 +611,7 @@ jobs:
       CARTOGRAPHER_TRANSFERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-transfers-image.outputs.json).tags[0]}}
       CARTOGRAPHER_ROUTERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-routers-image.outputs.json).tags[0]}}
       CARTOGRAPHER_MESSAGES_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-messages-image.outputs.json).tags[0]}}
+      CARTOGRAPHER_ROOTS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-roots-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROVER_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-prover-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROCESS_FROM_ROOT_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-process-from-root-image.outputs.json).tags[0]}}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
@@ -596,6 +639,7 @@ jobs:
       cartographer-routers-tags: ${{ needs.build-and-push-cartographer-routers-image.outputs.json }}
       cartographer-transfers-tags: ${{ needs.build-and-push-cartographer-transfers-image.outputs.json }}
       cartographer-messages-tags: ${{ needs.build-and-push-cartographer-messages-image.outputs.json }}
+      cartographer-roots-tags: ${{ needs.build-and-push-cartographer-roots-image.outputs.json }}
       lighthouse-prover-tags: ${{ needs.build-and-push-lighthouse-prover-image.outputs.json }}
       lighthouse-process-from-root-tags: ${{ needs.build-and-push-lighthouse-process-from-root-image.outputs.json }}
 
@@ -613,6 +657,7 @@ jobs:
         build-and-push-cartographer-routers-image,
         build-and-push-cartographer-transfers-image,
         build-and-push-cartographer-messages-image,
+        build-and-push-cartographer-roots-image,
         build-and-push-lighthouse-prover-image,
         build-and-push-lighthouse-process-from-root-image,
         build-and-push-relayer-image,
@@ -626,6 +671,7 @@ jobs:
       CARTOGRAPHER_TRANSFERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-transfers-image.outputs.json).tags[0]}}
       CARTOGRAPHER_ROUTERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-routers-image.outputs.json).tags[0]}}
       CARTOGRAPHER_MESSAGES_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-messages-image.outputs.json).tags[0]}}
+      CARTOGRAPHER_ROOTS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-roots-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROVER_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-prover-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROCESS_FROM_ROOT_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-process-from-root-image.outputs.json).tags[0]}}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
@@ -663,6 +709,7 @@ jobs:
       cartographer-routers-tags: ${{ needs.build-and-push-cartographer-routers-image.outputs.json }}
       cartographer-transfers-tags: ${{ needs.build-and-push-cartographer-transfers-image.outputs.json }}
       cartographer-messages-tags: ${{ needs.build-and-push-cartographer-messages-image.outputs.json }}
+      cartographer-roots-tags: ${{ needs.build-and-push-cartographer-roots-image.outputs.json }}
       lighthouse-prover-tags: ${{ needs.build-and-push-lighthouse-prover-image.outputs.json }}
       lighthouse-process-from-root-tags: ${{ needs.build-and-push-lighthouse-process-from-root-image.outputs.json }}
 
@@ -711,6 +758,7 @@ jobs:
       TF_VAR_full_image_name_cartographer_routers: ${{ fromJSON(needs.smoke-tests.outputs.cartographer-routers-tags).tags[0] }}
       TF_VAR_full_image_name_cartographer_transfers: ${{ fromJSON(needs.smoke-tests.outputs.cartographer-transfers-tags).tags[0] }}
       TF_VAR_full_image_name_cartographer_messages: ${{ fromJSON(needs.smoke-tests.outputs.cartographer-messages-tags).tags[0] }}
+      TF_VAR_full_image_name_cartographer_roots: ${{ fromJSON(needs.smoke-tests.outputs.cartographer-roots-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -766,6 +814,7 @@ jobs:
       cartographer-routers-tags: ${{ needs.smoke-tests.outputs.cartographer-routers-tags }}
       cartographer-transfers-tags: ${{ needs.smoke-tests.outputs.cartographer-transfers-tags }}
       cartographer-messages-tags: ${{ needs.smoke-tests.outputs.cartographer-messages-tags }}
+      cartographer-roots-tags: ${{ needs.smoke-tests.outputs.cartographer-roots-tags }}
 
   terraform-services-core-staging-testnet:
     needs: [smoke-tests, terraform-infra]
@@ -916,6 +965,7 @@ jobs:
       TF_VAR_full_image_name_cartographer_routers: ${{ fromJSON(needs.e2e-tests.outputs.cartographer-routers-tags).tags[0] }}
       TF_VAR_full_image_name_cartographer_transfers: ${{ fromJSON(needs.e2e-tests.outputs.cartographer-transfers-tags).tags[0] }}
       TF_VAR_full_image_name_cartographer_messages: ${{ fromJSON(needs.e2e-tests.outputs.cartographer-messages-tags).tags[0] }}
+      TF_VAR_full_image_name_cartographer_roots: ${{ fromJSON(needs.e2e-tests.outputs.cartographer-roots-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -977,6 +1027,7 @@ jobs:
       cartographer-routers-tags: ${{ needs.e2e-tests.outputs.cartographer-routers-tags }}
       cartographer-transfers-tags: ${{ needs.e2e-tests.outputs.cartographer-transfers-tags }}
       cartographer-messages-tags: ${{ needs.e2e-tests.outputs.cartographer-messages-tags }}
+      cartographer-roots-tags: ${{ needs.e2e-tests.outputs.cartographer-roots-tags }}
 
   terraform-services-backend-prod-mainnet:
     if: github.ref == 'refs/heads/prod'
@@ -986,6 +1037,7 @@ jobs:
       TF_VAR_full_image_name_cartographer_routers: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.cartographer-routers-tags).tags[0] }}
       TF_VAR_full_image_name_cartographer_transfers: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.cartographer-transfers-tags).tags[0] }}
       TF_VAR_full_image_name_cartographer_messages: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.cartographer-messages-tags).tags[0] }}
+      TF_VAR_full_image_name_cartographer_roots: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.cartographer-roots-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:

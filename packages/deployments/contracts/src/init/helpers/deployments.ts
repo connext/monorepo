@@ -1,20 +1,20 @@
-import { Contract, Wallet } from "ethers";
+import { Contract, ethers, Wallet } from "ethers";
 
 import _Deployments from "../../../deployments.json";
 import { ConnextInterface } from "../../contracts";
 
-import { Deployment, DomainDeployments, NetworkStack } from "./types";
+import { Deployment, DomainDeployments } from "./types";
 
 const Deployments = _Deployments as any;
 
 export const getDeployments = (args: {
   deployer: Wallet;
-  network: NetworkStack;
+  chainInfo: { chain: string; rpc: ethers.providers.JsonRpcProvider };
   isHub: boolean;
   useStaging: boolean;
 }): DomainDeployments => {
-  const { network, isHub, useStaging, deployer: _deployer } = args;
-  const chain = network.chain;
+  const { chainInfo, isHub, useStaging, deployer: _deployer } = args;
+  const chain = chainInfo.chain;
   const deployments = Deployments[chain];
   if (!deployments) {
     throw new Error(`No deployments found for chain ${chain}!`);
@@ -25,7 +25,7 @@ export const getDeployments = (args: {
   }
   const env = useStaging ? "Staging" : "";
 
-  const deployer = _deployer.connect(network.rpc);
+  const deployer = _deployer.connect(chainInfo.rpc);
 
   // Get all the Hub connectors, if applicable.
   const connectors: Deployment[] = [];

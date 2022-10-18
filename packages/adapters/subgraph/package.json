@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-subgraph",
-  "version": "0.2.0-alpha.25",
+  "version": "0.2.0-alpha.28",
   "description": "adapter for subgraph interaction of nxtp protocol",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -12,6 +12,7 @@
     "start": "",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 120000 './test/**/*.spec.ts'",
+    "live:test": "ts-node ./test/live.ts",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
     "build-client": "graphclient build --tsOnly",
@@ -34,7 +35,7 @@
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
-    "@graphprotocol/client-cli": "2.2.8",
+    "@graphprotocol/client-cli": "^2.2.12",
     "@graphql-mesh/transform-prefix": "0.11.77",
     "@graphql-mesh/transform-rename": "0.12.78",
     "@graphql-mesh/transform-type-merging": "0.4.32",

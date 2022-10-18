@@ -46,7 +46,6 @@ interface IConnector is IProposedOwnable {
    * @param data The contents of the message
    * @param caller Who called the function (sent the message)
    */
-  // TODO: should this be more specific, i.e. AggregateRootSent v OutboundRootSent ?
   event MessageSent(bytes data, address caller);
 
   /**
