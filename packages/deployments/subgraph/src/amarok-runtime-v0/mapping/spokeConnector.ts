@@ -23,6 +23,7 @@ export function handleDispatch(event: Dispatch): void {
   message.root = event.params.root;
   message.message = event.params.message;
   message.transactionHash = event.transaction.hash;
+  message.blockNumber = event.block.number;
 
   let rootCount = RootCount.load(event.params.root.toHexString());
   if (rootCount == null) {

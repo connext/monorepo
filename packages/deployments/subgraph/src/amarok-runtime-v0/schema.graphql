@@ -1,11 +1,11 @@
 type Asset @entity {
   id: ID! # local asset address
-  key: Bytes!
-  canonicalId: Bytes!
-  canonicalDomain: BigInt!
-  adoptedAsset: Bytes!
-  localAsset: Bytes!
-  blockNumber: BigInt! # needed in case multiple locals are stored under the same canonicalId
+  key: Bytes
+  canonicalId: Bytes
+  canonicalDomain: BigInt
+  adoptedAsset: Bytes
+  localAsset: Bytes
+  blockNumber: BigInt # needed in case multiple locals are stored under the same canonicalId
 }
 
 type AssetBalance @entity {
@@ -155,6 +155,7 @@ type OriginMessage @entity {
   root: Bytes
   message: Bytes
   transactionHash: Bytes
+  blockNumber: BigInt
 
   # root count RD
   rootCount: RootCount
@@ -177,17 +178,17 @@ type AggregateRoot @entity {
 
 type ConnectorMeta @entity {
   id: ID! # "ConnectorMeta"
-  spokeDomain: BigInt!
-  hubDomain: BigInt!
+  spokeDomain: BigInt
+  hubDomain: BigInt
 
-  amb: Bytes!
-  rootManager: Bytes!
-  mirrorConnector: Bytes!
+  amb: Bytes
+  rootManager: Bytes
+  mirrorConnector: Bytes
 }
 
 type RootCount @entity {
   id: ID!
-  count: BigInt!
+  count: BigInt
 }
 
 type RootMessageSent @entity {
