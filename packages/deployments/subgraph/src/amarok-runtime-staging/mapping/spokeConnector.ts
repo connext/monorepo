@@ -116,4 +116,5 @@ export function handleProcess(event: Process): void {
   message.processed = true; // always true, todo: remove from schema
 
   message.blockNumber = event.block.number;
+  message.save();
 }
