@@ -162,7 +162,7 @@ declare module 'zapatos/schema' {
       */
       domain_index?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
     }
-    export type UniqueIndex = 'aggregated_roots_id_key' | 'aggregated_roots_pkey' | 'aggregated_roots_received_root_key';
+    export type UniqueIndex = 'aggregated_roots_pkey';
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
     export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
