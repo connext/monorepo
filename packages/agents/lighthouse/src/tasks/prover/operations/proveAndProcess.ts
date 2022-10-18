@@ -76,7 +76,7 @@ export const processMessage = async (message: XMessage) => {
     throw new NoAggregateRootCount(targetAggregateRoot);
   }
   // TODO: Move to per domain storage adapters in context
-  const spokeStore = new SpokeDBHelper(message.originDomain, messageRootCount, database);
+  const spokeStore = new SpokeDBHelper(message.originDomain, messageRootCount + 1, database);
   const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
 
   const spokeSMT = new SparseMerkleTree(spokeStore);
@@ -103,6 +103,10 @@ export const processMessage = async (message: XMessage) => {
     logger.info("Message Verified successfully", requestContext, methodContext, {
       messageVerification,
     });
+  } else {
+    logger.info("Message verification failed", requestContext, methodContext, {
+      messageVerification,
+    });
   }
 
   // Verify proof of inclusion of messageRoot in aggregateRoot.
@@ -114,6 +118,10 @@ export const processMessage = async (message: XMessage) => {
   );
   if (rootVerification && rootVerification.verified) {
     logger.info("MessageRoot Verified successfully", requestContext, methodContext, {
+      rootVerification,
+    });
+  } else {
+    logger.info("MessageRoot verification failed", requestContext, methodContext, {
       rootVerification,
     });
   }

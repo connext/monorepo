@@ -300,11 +300,9 @@ describe("Peripherals:Gelato", () => {
       axiosGetStub.resolves({
         status: 200,
         data: {
-          data: [
-            {
-              taskState: "CheckPending",
-            },
-          ],
+          task: {
+            taskState: "CheckPending",
+          },
         },
       });
 
