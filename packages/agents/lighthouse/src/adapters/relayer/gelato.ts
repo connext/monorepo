@@ -8,7 +8,7 @@ import {
   gelatoSDKSend,
 } from "../../mockable";
 
-const GAS_LIMIT_FOR_RELAYER = "950000";
+const GAS_LIMIT_FOR_RELAYER = "2000000";
 
 export const getRelayerAddress = async (chainId: number, logger: Logger): Promise<string> => {
   const relayerAddress = await getGelatoRelayerAddress(chainId, logger);
