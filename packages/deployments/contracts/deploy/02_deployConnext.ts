@@ -37,7 +37,7 @@ const proposeDiamondUpgrade = async (
     }
   }
 
-  const diamondArtifact: ExtendedArtifact = await hre.deployments.getExtendedArtifact("Diamond");
+  const diamondArtifact: ExtendedArtifact = await hre.deployments.getExtendedArtifact("ConnextDiamond");
   let abi: any[] = diamondArtifact.abi.concat([]);
 
   // Add DiamondLoupeFacet

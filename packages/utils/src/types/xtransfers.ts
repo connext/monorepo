@@ -128,7 +128,21 @@ export type OriginTransfer = Static<typeof OriginTransferSchema>;
 export const DestinationTransferSchema = Type.Intersect([
   Type.Object({
     transferId: Type.String(),
-    xparams: TransferIdInformationSchema,
+    xparams: Type.Object({
+      originDomain: Type.String(),
+      destinationDomain: Type.String(),
+      canonicalDomain: Type.String(),
+      to: TAddress,
+      delegate: TAddress,
+      receiveLocal: Type.Boolean(),
+      callData: Type.String(),
+      slippage: TIntegerString,
+      originSender: TAddress,
+      bridgedAmt: Type.String(),
+      normalizedIn: TIntegerString,
+      nonce: Type.Optional(Type.Number()),
+      canonicalId: Type.String(),
+    }),
   }),
   Type.Object({
     origin: Type.Optional(XTransferOriginSchema),
