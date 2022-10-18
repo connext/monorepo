@@ -141,7 +141,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
       originSender: entity.originSender,
       bridgedAmt: entity.bridgedAmt,
       normalizedIn: entity.normalizedIn,
-      nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : 0,
+      nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : undefined,
       canonicalId: entity.canonicalId,
     },
 

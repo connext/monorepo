@@ -74,7 +74,7 @@ export const getXCalls = async () => {
             logger.debug("Published transfer to mq", _requestContext, _methodContext, { transfer });
 
             // TODO: once per transfer instead
-            await cache.transfers.setLatestNonce(transfer.xparams.originDomain, transfer.xparams.nonce);
+            await cache.transfers.setLatestNonce(transfer.xparams.originDomain, transfer.xparams.nonce ?? 0);
           } catch (err: unknown) {
             logger.error("Error publishing to mq", _requestContext, _methodContext, jsonifyError(err as Error));
           }

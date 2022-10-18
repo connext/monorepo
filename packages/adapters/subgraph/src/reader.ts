@@ -361,7 +361,9 @@ export class SubgraphReader {
     return originTransfers;
   }
 
-  public async getDestinationTransfersByNonce(params: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
+  public async getDestinationTransfersByNonce(
+    params: Map<string, SubgraphQueryMetaParams>,
+  ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
     const xcalledXQuery = getDestinationTransfersByNonceQuery(params);
     const response = await execute(xcalledXQuery);
@@ -378,7 +380,7 @@ export class SubgraphReader {
       );
     }
 
-    const destinationTransfers: XTransfer[] = transfers
+    const destinationTransfers: DestinationTransfer[] = transfers
       .flat()
       .filter((x: any) => !!x)
       .map(parser.destinationTransfer);
@@ -407,7 +409,7 @@ export class SubgraphReader {
 
   public async getDestinationTransfersById(
     params: Map<string, SubgraphQueryByTransferIDsMetaParams>,
-  ): Promise<XTransfer[]> {
+  ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
     const xcalledXQuery = getDestinationTransfersByIDsCombinedQuery(params);
     const response = await execute(xcalledXQuery);
@@ -423,7 +425,7 @@ export class SubgraphReader {
       );
     }
 
-    const destinationTransfers: XTransfer[] = transfers
+    const destinationTransfers: DestinationTransfer[] = transfers
       .flat()
       .filter((x: any) => !!x)
       .map(parser.destinationTransfer);
@@ -463,7 +465,7 @@ export class SubgraphReader {
    * @param agents - The reference parameters.
    * @returns an array of XTransfers.
    */
-  public async getXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
+  public async getXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
     const xcalledXQuery = getOriginTransfersQuery(agents);
     let response = await execute(xcalledXQuery);
@@ -500,7 +502,7 @@ export class SubgraphReader {
       );
     }
 
-    const destinationTransfers: XTransfer[] = transfers
+    const destinationTransfers: DestinationTransfer[] = transfers
       .flat()
       .filter((x: any) => !!x)
       .map(parser.destinationTransfer);
@@ -510,7 +512,7 @@ export class SubgraphReader {
     });
 
     // create array of all transactions by status
-    return [...allTxById.values()];
+    return [...allTxById.values()] as DestinationTransfer[];
   }
 
   /**
@@ -518,7 +520,7 @@ export class SubgraphReader {
    * @param transfers - The xtransfers you're going to get the status for
    * @returns Executed/Reconciled xtransfers
    */
-  public async getDestinationTransfers(transfers: OriginTransfer[]): Promise<XTransfer[]> {
+  public async getDestinationTransfers(transfers: OriginTransfer[]): Promise<DestinationTransfer[]> {
     const { parser, execute } = getHelpers();
     if (transfers.length == 0) return [];
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
@@ -548,7 +550,7 @@ export class SubgraphReader {
       );
     }
 
-    const destinationTransfers: XTransfer[] = _transfers
+    const destinationTransfers: DestinationTransfer[] = _transfers
       .flat()
       .filter((x: any) => !!x)
       .map(parser.destinationTransfer);
@@ -559,7 +561,7 @@ export class SubgraphReader {
       allTxById.set(tx.transferId, inMap);
     });
 
-    return [...allTxById.values()].filter((xTransfer) => !!xTransfer.destination);
+    return [...allTxById.values()].filter((xTransfer) => !!xTransfer.destination) as DestinationTransfer[];
   }
 
   /**
