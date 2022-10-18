@@ -11,7 +11,7 @@ pragma solidity 0.8.15;
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
 
-contract Diamond {
+contract ConnextDiamond {
   struct Initialization {
     address initContract;
     bytes initData;

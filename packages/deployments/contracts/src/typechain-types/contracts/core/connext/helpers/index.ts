@@ -6,6 +6,7 @@ export type { connextPriceOracleSol };
 import type * as ozerc20Sol from "./OZERC20.sol";
 export type { ozerc20Sol };
 export type { BridgeToken } from "./BridgeToken";
+export type { ConnextDiamond } from "./ConnextDiamond";
 export type { ConnextProxyAdmin } from "./ConnextProxyAdmin";
 export type { Diamond } from "./Diamond";
 export type { LPToken } from "./LPToken";
