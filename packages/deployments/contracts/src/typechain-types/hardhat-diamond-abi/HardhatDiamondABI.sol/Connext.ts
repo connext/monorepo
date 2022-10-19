@@ -1488,8 +1488,6 @@ export interface ConnextInterface extends utils.Interface {
     "RouterWhitelistRemovalProposed(uint256)": EventFragment;
     "RouterWhitelistRemoved(bool)": EventFragment;
     "Unpaused()": EventFragment;
-    "Claimed(address,uint256,bytes32[])": EventFragment;
-    "InitiatedClaim(uint32,address,address,bytes32[])": EventFragment;
     "RelayerAdded(address,address)": EventFragment;
     "RelayerFeeVaultUpdated(address,address,address)": EventFragment;
     "RelayerRemoved(address,address)": EventFragment;
@@ -1542,8 +1540,6 @@ export interface ConnextInterface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterWhitelistRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Claimed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "InitiatedClaim"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerFeeVaultUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerRemoved"): EventFragment;
@@ -1868,31 +1864,6 @@ export interface UnpausedEventObject {}
 export type UnpausedEvent = TypedEvent<[], UnpausedEventObject>;
 
 export type UnpausedEventFilter = TypedEventFilter<UnpausedEvent>;
-
-export interface ClaimedEventObject {
-  recipient: string;
-  total: BigNumber;
-  transferIds: string[];
-}
-export type ClaimedEvent = TypedEvent<
-  [string, BigNumber, string[]],
-  ClaimedEventObject
->;
-
-export type ClaimedEventFilter = TypedEventFilter<ClaimedEvent>;
-
-export interface InitiatedClaimEventObject {
-  domain: number;
-  recipient: string;
-  caller: string;
-  transferIds: string[];
-}
-export type InitiatedClaimEvent = TypedEvent<
-  [number, string, string, string[]],
-  InitiatedClaimEventObject
->;
-
-export type InitiatedClaimEventFilter = TypedEventFilter<InitiatedClaimEvent>;
 
 export interface RelayerAddedEventObject {
   relayer: string;
@@ -4326,30 +4297,6 @@ export interface Connext extends BaseContract {
 
     "Unpaused()"(): UnpausedEventFilter;
     Unpaused(): UnpausedEventFilter;
-
-    "Claimed(address,uint256,bytes32[])"(
-      recipient?: PromiseOrValue<string> | null,
-      total?: null,
-      transferIds?: null
-    ): ClaimedEventFilter;
-    Claimed(
-      recipient?: PromiseOrValue<string> | null,
-      total?: null,
-      transferIds?: null
-    ): ClaimedEventFilter;
-
-    "InitiatedClaim(uint32,address,address,bytes32[])"(
-      domain?: PromiseOrValue<BigNumberish> | null,
-      recipient?: PromiseOrValue<string> | null,
-      caller?: null,
-      transferIds?: null
-    ): InitiatedClaimEventFilter;
-    InitiatedClaim(
-      domain?: PromiseOrValue<BigNumberish> | null,
-      recipient?: PromiseOrValue<string> | null,
-      caller?: null,
-      transferIds?: null
-    ): InitiatedClaimEventFilter;
 
     "RelayerAdded(address,address)"(
       relayer?: null,

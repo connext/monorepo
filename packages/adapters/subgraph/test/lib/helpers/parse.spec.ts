@@ -10,6 +10,7 @@ import {
 import { stubContext, mockOriginTransferEntity, mockDestinationTransferEntity } from "../../mock";
 import { mock } from "@connext/nxtp-utils";
 import { restore, reset } from "sinon";
+import { constants } from "ethers";
 
 describe("Helpers:parse", () => {
   describe("#originTransfer", () => {
@@ -71,8 +72,8 @@ describe("Helpers:parse", () => {
           chain: 4,
           messageHash: undefined,
           assets: {
-            transacting: { asset: undefined, amount: undefined },
-            bridged: { asset: undefined, amount: undefined }
+            transacting: { asset: constants.AddressZero, amount: undefined },
+            bridged: { asset: constants.AddressZero, amount: undefined },
           },
           xcall: {
             caller: "0x2000000000000000000000000000000000000000",
@@ -110,8 +111,8 @@ describe("Helpers:parse", () => {
           chain: 4,
           messageHash: undefined,
           assets: {
-            transacting: { asset: undefined, amount: undefined },
-            bridged: { asset: undefined, amount: undefined }
+            transacting: { asset: constants.AddressZero, amount: undefined },
+            bridged: { asset: constants.AddressZero, amount: undefined },
           },
           xcall: {
             caller: "0x2000000000000000000000000000000000000000",
@@ -182,7 +183,7 @@ describe("Helpers:parse", () => {
           routers: ["0x1110000000000000000000000000000000000000", "0x1120000000000000000000000000000000000000"],
           assets: {
             transacting: undefined,
-            local: { asset: undefined, amount: undefined }
+            local: { asset: constants.AddressZero, amount: undefined },
           },
           execute: {
             originSender: "0x1300000000000000000000000000000000000000",
@@ -239,8 +240,8 @@ describe("Helpers:parse", () => {
           status: "Executed",
           routers: ["0x1110000000000000000000000000000000000000", "0x1120000000000000000000000000000000000000"],
           assets: {
-              transacting: undefined,
-              local: { asset: undefined, amount: undefined }
+            transacting: undefined,
+            local: { asset: constants.AddressZero, amount: undefined },
           },
           execute: {
             originSender: "0x1300000000000000000000000000000000000000",

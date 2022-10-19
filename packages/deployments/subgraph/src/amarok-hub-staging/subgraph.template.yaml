@@ -26,7 +26,7 @@ dataSources:
       eventHandlers:
         - event: RootAggregated(uint32,bytes32,uint256)
           handler: handleRootAggregated
-        - event: RootPropagated(bytes32,uint32[],uint256)
+        - event: RootPropagated(bytes32,uint256,uint32[],bytes32[])
           handler: handleRootPropagated
       file: ./src/amarok-hub-staging/mapping/rootManager.ts
   # PolygonHubConnector.sol events

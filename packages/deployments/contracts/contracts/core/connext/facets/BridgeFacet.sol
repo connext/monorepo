@@ -805,8 +805,6 @@ contract BridgeFacet is BaseConnextFacet {
       // - transfer id is returned
       // -> reserve 10K gas
 
-      // FIXME: should the values used here be settable constants?
-
       // Use SafeCall here
       (success, returnData) = ExcessivelySafeCall.excessivelySafeCall(
         _params.to,

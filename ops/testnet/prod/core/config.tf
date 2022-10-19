@@ -18,7 +18,10 @@ locals {
   lighthouse_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
     { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage }
+    { name = "STAGE", value = var.stage },
+    { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = var.stage },
+    { name = "DD_SERVICE", value = "router-${var.environment}" }
   ]
   router_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
@@ -224,7 +227,7 @@ locals {
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
-    environment = var.stage
-    databaseUrl = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.connext.ninja:5432/connext"
+    environment  = var.stage
+    databaseUrl  = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.connext.ninja:5432/connext"
   })
 }

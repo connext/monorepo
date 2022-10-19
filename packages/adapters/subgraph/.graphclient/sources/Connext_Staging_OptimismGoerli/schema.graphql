@@ -43,12 +43,12 @@ enum stagingoptimismgoerli_AggregateRoot_orderBy {
 
 type stagingoptimismgoerli_Asset {
   id: ID!
-  key: stagingoptimismgoerli_Bytes!
-  canonicalId: stagingoptimismgoerli_Bytes!
-  canonicalDomain: BigInt!
-  adoptedAsset: stagingoptimismgoerli_Bytes!
-  localAsset: stagingoptimismgoerli_Bytes!
-  blockNumber: BigInt!
+  key: stagingoptimismgoerli_Bytes
+  canonicalId: stagingoptimismgoerli_Bytes
+  canonicalDomain: BigInt
+  adoptedAsset: stagingoptimismgoerli_Bytes
+  localAsset: stagingoptimismgoerli_Bytes
+  blockNumber: BigInt
 }
 
 type stagingoptimismgoerli_AssetBalance {
@@ -277,7 +277,9 @@ type stagingoptimismgoerli_DestinationMessage {
   leaf: stagingoptimismgoerli_Bytes
   processed: Boolean
   returnData: stagingoptimismgoerli_Bytes
+  success: Boolean
   transactionHash: stagingoptimismgoerli_Bytes
+  blockNumber: BigInt
 }
 
 input stagingoptimismgoerli_DestinationMessage_filter {
@@ -305,12 +307,24 @@ input stagingoptimismgoerli_DestinationMessage_filter {
   returnData_not_in: [stagingoptimismgoerli_Bytes!]
   returnData_contains: stagingoptimismgoerli_Bytes
   returnData_not_contains: stagingoptimismgoerli_Bytes
+  success: Boolean
+  success_not: Boolean
+  success_in: [Boolean!]
+  success_not_in: [Boolean!]
   transactionHash: stagingoptimismgoerli_Bytes
   transactionHash_not: stagingoptimismgoerli_Bytes
   transactionHash_in: [stagingoptimismgoerli_Bytes!]
   transactionHash_not_in: [stagingoptimismgoerli_Bytes!]
   transactionHash_contains: stagingoptimismgoerli_Bytes
   transactionHash_not_contains: stagingoptimismgoerli_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: stagingoptimismgoerli_BlockChangedFilter
 }
@@ -320,7 +334,9 @@ enum stagingoptimismgoerli_DestinationMessage_orderBy {
   leaf
   processed
   returnData
+  success
   transactionHash
+  blockNumber
 }
 
 type stagingoptimismgoerli_DestinationTransfer {

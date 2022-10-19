@@ -51,12 +51,12 @@ export type staginggoerli_AggregateRoot_orderBy =
 
 export type staginggoerli_Asset = {
   id: Scalars['ID'];
-  key: Scalars['staginggoerli_Bytes'];
-  canonicalId: Scalars['staginggoerli_Bytes'];
-  canonicalDomain: Scalars['BigInt'];
-  adoptedAsset: Scalars['staginggoerli_Bytes'];
-  localAsset: Scalars['staginggoerli_Bytes'];
-  blockNumber: Scalars['BigInt'];
+  key?: Maybe<Scalars['staginggoerli_Bytes']>;
+  canonicalId?: Maybe<Scalars['staginggoerli_Bytes']>;
+  canonicalDomain?: Maybe<Scalars['BigInt']>;
+  adoptedAsset?: Maybe<Scalars['staginggoerli_Bytes']>;
+  localAsset?: Maybe<Scalars['staginggoerli_Bytes']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type staginggoerli_AssetBalance = {
@@ -276,7 +276,9 @@ export type staginggoerli_DestinationMessage = {
   leaf?: Maybe<Scalars['staginggoerli_Bytes']>;
   processed?: Maybe<Scalars['Boolean']>;
   returnData?: Maybe<Scalars['staginggoerli_Bytes']>;
+  success?: Maybe<Scalars['Boolean']>;
   transactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type staginggoerli_DestinationMessage_filter = {
@@ -304,12 +306,24 @@ export type staginggoerli_DestinationMessage_filter = {
   returnData_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
   returnData_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   returnData_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  success?: InputMaybe<Scalars['Boolean']>;
+  success_not?: InputMaybe<Scalars['Boolean']>;
+  success_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   transactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   transactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
 };
@@ -319,7 +333,9 @@ export type staginggoerli_DestinationMessage_orderBy =
   | 'leaf'
   | 'processed'
   | 'returnData'
-  | 'transactionHash';
+  | 'success'
+  | 'transactionHash'
+  | 'blockNumber';
 
 export type staginggoerli_DestinationTransfer = {
   id: Scalars['ID'];

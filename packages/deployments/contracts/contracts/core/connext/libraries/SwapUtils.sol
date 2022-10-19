@@ -802,8 +802,7 @@ library SwapUtils {
     uint256 dx,
     uint256 minDy
   ) internal returns (uint256) {
-    IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
-    require(dx <= tokenFrom.balanceOf(msg.sender), "more than you own");
+    require(dx <= self.balances[tokenIndexFrom], "more than pool balance");
 
     uint256 dy;
     uint256 dyFee;

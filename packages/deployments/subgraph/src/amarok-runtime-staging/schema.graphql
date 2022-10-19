@@ -1,11 +1,11 @@
 type Asset @entity {
   id: ID! # local asset address
-  key: Bytes!
-  canonicalId: Bytes!
-  canonicalDomain: BigInt!
-  adoptedAsset: Bytes!
-  localAsset: Bytes!
-  blockNumber: BigInt! # needed in case multiple locals are stored under the same canonicalId
+  key: Bytes
+  canonicalId: Bytes
+  canonicalDomain: BigInt
+  adoptedAsset: Bytes
+  localAsset: Bytes
+  blockNumber: BigInt # needed in case multiple locals are stored under the same canonicalId
 }
 
 type AssetBalance @entity {
@@ -168,7 +168,10 @@ type DestinationMessage @entity {
   leaf: Bytes
   processed: Boolean
   returnData: Bytes
+  success: Boolean
+
   transactionHash: Bytes
+  blockNumber: BigInt
 }
 
 type AggregateRoot @entity {

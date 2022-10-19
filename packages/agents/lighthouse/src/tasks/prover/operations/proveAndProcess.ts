@@ -53,19 +53,19 @@ export const processMessage = async (message: XMessage) => {
   }
   // Count of leaf nodes in origin domain`s outbound tree
   const messageRootCount = await database.getMessageRootCount(message.originDomain, targetMessageRoot);
-  if (!messageRootCount) {
+  if (messageRootCount === undefined) {
     throw new NoMessageRootCount(message.originDomain, targetMessageRoot);
   }
   // Index of messageRoot leaf node in aggregate tree.
   // const messageRootIndex = await database.getMessageRootIndex(message.originDomain, targetMessageRoot);
-  const messageRootIndex = await database.getMessageRootIndex(config.hubDomain as string, targetMessageRoot);
-  if (!messageRootIndex) {
+  const messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
+  if (messageRootIndex === undefined) {
     throw new NoMessageRootIndex(message.originDomain, targetMessageRoot);
   }
 
   // Get the currentAggregateRoot from on-chain state (or pending, if the validation period
   // has elapsed!) to determine which tree snapshot we should be generating the proof from.
-  const targetAggregateRoot = await database.getAggregateRoot(messageRootIndex);
+  const targetAggregateRoot = await database.getAggregateRoot(targetMessageRoot);
   if (!targetAggregateRoot) {
     throw new NoAggregatedRoot();
   }
@@ -76,7 +76,7 @@ export const processMessage = async (message: XMessage) => {
     throw new NoAggregateRootCount(targetAggregateRoot);
   }
   // TODO: Move to per domain storage adapters in context
-  const spokeStore = new SpokeDBHelper(message.originDomain, messageRootCount, database);
+  const spokeStore = new SpokeDBHelper(message.originDomain, messageRootCount + 1, database);
   const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
 
   const spokeSMT = new SparseMerkleTree(spokeStore);
@@ -92,7 +92,7 @@ export const processMessage = async (message: XMessage) => {
   }
 
   // Proof path for proving inclusion of messageRoot in aggregateRoot.
-  const messageRootProof = await hubSMT.getProof(messageRootIndex - 1);
+  const messageRootProof = await hubSMT.getProof(messageRootIndex);
   if (!messageRootProof) {
     throw new NoMessageRootProof(messageRootIndex, message.origin.root);
   }
@@ -101,19 +101,35 @@ export const processMessage = async (message: XMessage) => {
   const messageVerification = spokeSMT.verify(message.origin.index, message.leaf, messageProof.path, targetMessageRoot);
   if (messageVerification && messageVerification.verified) {
     logger.info("Message Verified successfully", requestContext, methodContext, {
+      messageIndex: message.origin.index,
+      lef: message.leaf,
+      targetMessageRoot,
+      messageVerification,
+    });
+  } else {
+    logger.info("Message verification failed", requestContext, methodContext, {
+      messageIndex: message.origin.index,
+      lef: message.leaf,
+      targetMessageRoot,
       messageVerification,
     });
   }
 
   // Verify proof of inclusion of messageRoot in aggregateRoot.
-  const rootVerification = hubSMT.verify(
-    messageRootIndex - 1,
-    targetMessageRoot,
-    messageRootProof,
-    targetAggregateRoot,
-  );
+  const rootVerification = hubSMT.verify(messageRootIndex, targetMessageRoot, messageRootProof, targetAggregateRoot);
   if (rootVerification && rootVerification.verified) {
     logger.info("MessageRoot Verified successfully", requestContext, methodContext, {
+      targetMessageRoot,
+      targetAggregateRoot,
+      messageRootProof,
+      rootVerification,
+    });
+  } else {
+    logger.info("MessageRoot verification failed", requestContext, methodContext, {
+      messageRootIndex,
+      targetMessageRoot,
+      targetAggregateRoot,
+      messageRootProof,
       rootVerification,
     });
   }
@@ -122,7 +138,7 @@ export const processMessage = async (message: XMessage) => {
     [messageProof],
     targetAggregateRoot,
     messageRootProof,
-    messageRootIndex - 1,
+    messageRootIndex,
   ]);
 
   const destinationSpokeConnector = config.chains[message.destinationDomain]?.deployments.spokeConnector;

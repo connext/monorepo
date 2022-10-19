@@ -1,4 +1,0 @@
-[
-  "function getInGivenExpectedOut(address,uint256) returns (uint256)",
-  "function swapExactIn(address,address) payable returns (uint256)"
-]

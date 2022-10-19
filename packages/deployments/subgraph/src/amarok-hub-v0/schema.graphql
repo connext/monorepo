@@ -1,3 +1,25 @@
+# ROOT MANAGER
+type RootAggregated @entity {
+  id: ID! # "RootAggregated"
+  domain: BigInt!
+  receivedRoot: Bytes!
+  index: BigInt!
+}
+
+type RootPropagated @entity {
+  id: ID! # "RootPropagated"
+  aggregate: Bytes!
+  domains: [BigInt!]
+  count: BigInt!
+}
+
+type AggregatedMessageRoot @entity {
+  id: ID! # Same as index.
+  index: BigInt! # Index in the aggregate tree.
+  receivedRoot: Bytes! # The actual leaf hash; the 32-byte message root.
+  domain: BigInt!
+}
+
 # POLYGON
 type PolygonConnectorMeta @entity {
   id: ID! # "PolygonConnectorMeta"
@@ -20,7 +42,7 @@ type OptimismConnectorMeta @entity {
   mirrorConnector: Bytes!
 }
 
-# Common
+# HUB CONNECTOR
 type RootMessageProcessed @entity {
   id: ID!
 

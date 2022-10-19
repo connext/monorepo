@@ -275,7 +275,7 @@ export interface RootManagerInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused(address)": EventFragment;
     "RootAggregated(uint32,bytes32,uint256)": EventFragment;
-    "RootPropagated(bytes32,uint32[],uint256)": EventFragment;
+    "RootPropagated(bytes32,uint256,uint32[],bytes32[])": EventFragment;
     "Unpaused(address)": EventFragment;
     "WatcherManagerChanged(address)": EventFragment;
   };
@@ -365,7 +365,7 @@ export type PausedEventFilter = TypedEventFilter<PausedEvent>;
 export interface RootAggregatedEventObject {
   domain: number;
   receivedRoot: string;
-  index: BigNumber;
+  queueIndex: BigNumber;
 }
 export type RootAggregatedEvent = TypedEvent<
   [number, string, BigNumber],
@@ -375,12 +375,13 @@ export type RootAggregatedEvent = TypedEvent<
 export type RootAggregatedEventFilter = TypedEventFilter<RootAggregatedEvent>;
 
 export interface RootPropagatedEventObject {
-  aggregate: string;
-  domains: number[];
+  aggregateRoot: string;
   count: BigNumber;
+  domains: number[];
+  aggregatedMessageRoots: string[];
 }
 export type RootPropagatedEvent = TypedEvent<
-  [string, number[], BigNumber],
+  [string, BigNumber, number[], string[]],
   RootPropagatedEventObject
 >;
 
@@ -821,23 +822,25 @@ export interface RootManager extends BaseContract {
     "RootAggregated(uint32,bytes32,uint256)"(
       domain?: null,
       receivedRoot?: null,
-      index?: null
+      queueIndex?: null
     ): RootAggregatedEventFilter;
     RootAggregated(
       domain?: null,
       receivedRoot?: null,
-      index?: null
+      queueIndex?: null
     ): RootAggregatedEventFilter;
 
-    "RootPropagated(bytes32,uint32[],uint256)"(
-      aggregate?: null,
+    "RootPropagated(bytes32,uint256,uint32[],bytes32[])"(
+      aggregateRoot?: null,
+      count?: null,
       domains?: null,
-      count?: null
+      aggregatedMessageRoots?: null
     ): RootPropagatedEventFilter;
     RootPropagated(
-      aggregate?: null,
+      aggregateRoot?: null,
+      count?: null,
       domains?: null,
-      count?: null
+      aggregatedMessageRoots?: null
     ): RootPropagatedEventFilter;
 
     "Unpaused(address)"(account?: null): UnpausedEventFilter;

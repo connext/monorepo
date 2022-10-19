@@ -6,7 +6,14 @@ import {
   MessageSent,
   Process,
 } from "../../../generated/SpokeConnector/SpokeConnector";
-import { OriginMessage, AggregateRoot, RootMessageSent, ConnectorMeta, RootCount } from "../../../generated/schema";
+import {
+  OriginMessage,
+  AggregateRoot,
+  RootMessageSent,
+  ConnectorMeta,
+  RootCount,
+  DestinationMessage,
+} from "../../../generated/schema";
 
 const DEFAULT_CONNECTOR_META_ID = "CONNECTOR_META_ID";
 
@@ -23,6 +30,7 @@ export function handleDispatch(event: Dispatch): void {
   message.root = event.params.root;
   message.message = event.params.message;
   message.transactionHash = event.transaction.hash;
+  message.blockNumber = event.block.number;
 
   let rootCount = RootCount.load(event.params.root.toHexString());
   if (rootCount == null) {
@@ -94,5 +102,19 @@ export function handleAggregateRootReceived(event: AggregateRootReceived): void 
 }
 
 export function handleProcess(event: Process): void {
-  // TODO. We will have to add something here when its needed
+  // Process(bytes32 leaf, bool success, bytes returnData);
+  let message = DestinationMessage.load(event.params.leaf.toHexString());
+  if (message == null) {
+    message = new DestinationMessage(event.params.leaf.toHexString());
+  }
+
+  message.leaf = event.params.leaf;
+  message.success = event.params.success;
+  message.returnData = event.params.returnData;
+
+  message.transactionHash = event.transaction.hash;
+  message.processed = true; // always true, todo: remove from schema
+
+  message.blockNumber = event.block.number;
+  message.save();
 }
