@@ -113,10 +113,16 @@ export const processMessage = async (message: XMessage) => {
   const rootVerification = hubSMT.verify(messageRootIndex, targetMessageRoot, messageRootProof, targetAggregateRoot);
   if (rootVerification && rootVerification.verified) {
     logger.info("MessageRoot Verified successfully", requestContext, methodContext, {
+      targetMessageRoot,
+      targetAggregateRoot,
+      messageRootProof,
       rootVerification,
     });
   } else {
     logger.info("MessageRoot verification failed", requestContext, methodContext, {
+      targetMessageRoot,
+      targetAggregateRoot,
+      messageRootProof,
       rootVerification,
     });
   }
