@@ -104,7 +104,7 @@ export const processMessage = async (message: XMessage) => {
       messageVerification,
     });
   } else {
-    logger.info("Message verification failed", requestContext, methodContext, {
+    logger.warn("Message verification failed", requestContext, methodContext, {
       messageVerification,
     });
   }
@@ -116,7 +116,7 @@ export const processMessage = async (message: XMessage) => {
       rootVerification,
     });
   } else {
-    logger.info("MessageRoot verification failed", requestContext, methodContext, {
+    logger.warn("MessageRoot verification failed", requestContext, methodContext, {
       rootVerification,
     });
   }
