@@ -1,11 +1,7 @@
 /* eslint-disable prefer-const */
 import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 
-import {
-  Asset,
-  AssetBalance,
-  Router,
-} from "../../../../generated/schema";
+import { Asset, AssetBalance, Router } from "../../../../generated/schema";
 
 /// MARK - Helpers
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -60,10 +56,11 @@ export function getOrCreateAsset(local: Address): Asset {
   let asset = Asset.load(id);
   if (asset == null) {
     asset = new Asset(id);
+    asset.key = new Bytes(32);
     asset.canonicalId = new Bytes(32);
     asset.canonicalDomain = new BigInt(0);
     asset.adoptedAsset = new Bytes(20);
-    asset.key = new Bytes(32);
+    asset.localAsset = new Bytes(20);
     asset.blockNumber = new BigInt(0);
     asset.save();
   }
