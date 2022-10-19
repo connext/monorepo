@@ -25,9 +25,9 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   event DelayBlocksUpdated(uint256 previous, uint256 updated);
 
-  event RootAggregated(uint32 domain, bytes32 receivedRoot, uint256 index);
+  event RootAggregated(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
 
-  event RootPropagated(bytes32 aggregate, uint32[] domains, uint256 count);
+  event RootPropagated(bytes32 aggregateRoot, uint256 count, uint32[] domains, bytes32[] aggregatedMessageRoots);
 
   event ConnectorAdded(uint32 domain, address connector, uint32[] domains, address[] connectors);
 
@@ -169,7 +169,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
       }
     }
 
-    emit RootPropagated(_aggregateRoot, _domains, _count);
+    emit RootPropagated(_aggregateRoot, _count, _domains, _verifiedInboundRoots);
   }
 
   /**
