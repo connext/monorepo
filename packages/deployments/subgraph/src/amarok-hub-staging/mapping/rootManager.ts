@@ -1,23 +1,24 @@
 /* eslint-disable prefer-const */
-import { RootPropagated as RootPropagatedEvent } from "../../../generated/RootManager/RootManager";
-import { RootPropagated, AggregatedMessageRoot } from "../../../generated/schema";
+import { RootPropagated as RootPropagatedEvent, RootAggregatedEvent } from "../../../generated/RootManager/RootManager";
+import { RootPropagated, AggregatedMessageRoot, RootAggregated } from "../../../generated/schema";
 
 /// MARK - ROOT MANAGER
 // TODO: Needed?
-// export function handleRootAggregated(event: RootAggregatedEvent): void {
-//   let instance = RootAggregated.load(event.params.index.toString());
-//   if (instance == null) {
-//     instance = new RootAggregated(event.params.index.toString());
-//   }
+export function handleRootAggregated(event: RootAggregatedEvent): void {
+  let instance = RootAggregated.load(event.params.receivedRoot.toHexString());
+  if (instance == null) {
+    instance = new RootAggregated(event.params.receivedRoot.toHexString());
+  }
 
-//   instance.domain = event.params.domain;
-//   instance.receivedRoot = event.params.receivedRoot;
-//   instance.index = event.params.index;
+  instance.domain = event.params.domain;
+  instance.receivedRoot = event.params.receivedRoot;
+  instance.index = event.params.index;
 
-//   instance.save();
-// }
+  instance.save();
+}
 
 export function handleRootPropagated(event: RootPropagatedEvent): void {
+  const key = event.params.aggregate.toHexString();
   const numMessageRootsAggregated = event.params.aggregatedMessageRoots.length;
   // Pre-count = the number of nodes in the tree *before* we inserted these message root nodes.
   const aggregateTreePreCount = event.params.count - numMessageRootsAggregated;
@@ -27,22 +28,20 @@ export function handleRootPropagated(event: RootPropagatedEvent): void {
     // insertion of all these message roots) + index in the array of message roots.
     const index = aggregateTreePreCount + i;
 
-    let instance = AggregatedMessageRoot.load(index); // Should ALWAYS be null.
+    let instance = AggregatedMessageRoot.load(`${key}-${index}`); // Should ALWAYS be null.
     if (instance == null) {
-      instance = new AggregatedMessageRoot(index);
-    } else {
-      // If the instance was already defined, then that would mean this index has been used
-      // before in the aggregate tree! This block should be unreachable.
-      throw new Error(`Index ${index} already used for AggregatedMessageRoot!`);
+      instance = new AggregatedMessageRoot(`${key}-${index}`);
     }
+
+    const rootAggregatedInstance = RootAggregated.load(leaf);
+    instance.domain = rootAggregatedInstance.domain;
     instance.index = index;
-    instance.leaf = leaf;
+    instance.receivedRoot = leaf;
     instance.save();
   }
 
   // Create the RootPropagated entity: this is used to track aggregate roots / propagated
   // snapshots for the sake of proof generation off-chain.
-  const key = event.params.aggregate.toHexString();
   // This should ALWAYS be null. Sending the same agg root twice is not possible in current
   // construction.
   let instance = RootPropagated.load(key);

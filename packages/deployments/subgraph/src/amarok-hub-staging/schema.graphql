@@ -16,7 +16,8 @@ type RootPropagated @entity {
 type AggregatedMessageRoot @entity {
   id: ID! # Same as index.
   index: BigInt! # Index in the aggregate tree.
-  leaf: Bytes! # The actual leaf hash; the 32-byte message root.
+  receivedRoot: Bytes! # The actual leaf hash; the 32-byte message root.
+  domain: BigInt!
 }
 
 # POLYGON
