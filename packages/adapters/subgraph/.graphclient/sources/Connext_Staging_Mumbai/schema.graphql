@@ -43,12 +43,12 @@ enum stagingmumbai_AggregateRoot_orderBy {
 
 type stagingmumbai_Asset {
   id: ID!
-  key: stagingmumbai_Bytes!
-  canonicalId: stagingmumbai_Bytes!
-  canonicalDomain: BigInt!
-  adoptedAsset: stagingmumbai_Bytes!
-  localAsset: stagingmumbai_Bytes!
-  blockNumber: BigInt!
+  key: stagingmumbai_Bytes
+  canonicalId: stagingmumbai_Bytes
+  canonicalDomain: BigInt
+  adoptedAsset: stagingmumbai_Bytes
+  localAsset: stagingmumbai_Bytes
+  blockNumber: BigInt
 }
 
 type stagingmumbai_AssetBalance {
@@ -277,7 +277,9 @@ type stagingmumbai_DestinationMessage {
   leaf: stagingmumbai_Bytes
   processed: Boolean
   returnData: stagingmumbai_Bytes
+  success: Boolean
   transactionHash: stagingmumbai_Bytes
+  blockNumber: BigInt
 }
 
 input stagingmumbai_DestinationMessage_filter {
@@ -305,12 +307,24 @@ input stagingmumbai_DestinationMessage_filter {
   returnData_not_in: [stagingmumbai_Bytes!]
   returnData_contains: stagingmumbai_Bytes
   returnData_not_contains: stagingmumbai_Bytes
+  success: Boolean
+  success_not: Boolean
+  success_in: [Boolean!]
+  success_not_in: [Boolean!]
   transactionHash: stagingmumbai_Bytes
   transactionHash_not: stagingmumbai_Bytes
   transactionHash_in: [stagingmumbai_Bytes!]
   transactionHash_not_in: [stagingmumbai_Bytes!]
   transactionHash_contains: stagingmumbai_Bytes
   transactionHash_not_contains: stagingmumbai_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: stagingmumbai_BlockChangedFilter
 }
@@ -320,7 +334,9 @@ enum stagingmumbai_DestinationMessage_orderBy {
   leaf
   processed
   returnData
+  success
   transactionHash
+  blockNumber
 }
 
 type stagingmumbai_DestinationTransfer {

@@ -51,12 +51,12 @@ export type local1337_AggregateRoot_orderBy =
 
 export type local1337_Asset = {
   id: Scalars['ID'];
-  key: Scalars['local1337_Bytes'];
-  canonicalId: Scalars['local1337_Bytes'];
-  canonicalDomain: Scalars['BigInt'];
-  adoptedAsset: Scalars['local1337_Bytes'];
-  localAsset: Scalars['local1337_Bytes'];
-  blockNumber: Scalars['BigInt'];
+  key?: Maybe<Scalars['local1337_Bytes']>;
+  canonicalId?: Maybe<Scalars['local1337_Bytes']>;
+  canonicalDomain?: Maybe<Scalars['BigInt']>;
+  adoptedAsset?: Maybe<Scalars['local1337_Bytes']>;
+  localAsset?: Maybe<Scalars['local1337_Bytes']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type local1337_AssetBalance = {
@@ -276,7 +276,9 @@ export type local1337_DestinationMessage = {
   leaf?: Maybe<Scalars['local1337_Bytes']>;
   processed?: Maybe<Scalars['Boolean']>;
   returnData?: Maybe<Scalars['local1337_Bytes']>;
+  success?: Maybe<Scalars['Boolean']>;
   transactionHash?: Maybe<Scalars['local1337_Bytes']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type local1337_DestinationMessage_filter = {
@@ -304,12 +306,24 @@ export type local1337_DestinationMessage_filter = {
   returnData_not_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
   returnData_contains?: InputMaybe<Scalars['local1337_Bytes']>;
   returnData_not_contains?: InputMaybe<Scalars['local1337_Bytes']>;
+  success?: InputMaybe<Scalars['Boolean']>;
+  success_not?: InputMaybe<Scalars['Boolean']>;
+  success_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   transactionHash?: InputMaybe<Scalars['local1337_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['local1337_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['local1337_Bytes']>;
   transactionHash_not_contains?: InputMaybe<Scalars['local1337_Bytes']>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<local1337_BlockChangedFilter>;
 };
@@ -319,7 +333,9 @@ export type local1337_DestinationMessage_orderBy =
   | 'leaf'
   | 'processed'
   | 'returnData'
-  | 'transactionHash';
+  | 'success'
+  | 'transactionHash'
+  | 'blockNumber';
 
 export type local1337_DestinationTransfer = {
   id: Scalars['ID'];

@@ -43,12 +43,12 @@ enum local1337_AggregateRoot_orderBy {
 
 type local1337_Asset {
   id: ID!
-  key: local1337_Bytes!
-  canonicalId: local1337_Bytes!
-  canonicalDomain: BigInt!
-  adoptedAsset: local1337_Bytes!
-  localAsset: local1337_Bytes!
-  blockNumber: BigInt!
+  key: local1337_Bytes
+  canonicalId: local1337_Bytes
+  canonicalDomain: BigInt
+  adoptedAsset: local1337_Bytes
+  localAsset: local1337_Bytes
+  blockNumber: BigInt
 }
 
 type local1337_AssetBalance {
@@ -277,7 +277,9 @@ type local1337_DestinationMessage {
   leaf: local1337_Bytes
   processed: Boolean
   returnData: local1337_Bytes
+  success: Boolean
   transactionHash: local1337_Bytes
+  blockNumber: BigInt
 }
 
 input local1337_DestinationMessage_filter {
@@ -305,12 +307,24 @@ input local1337_DestinationMessage_filter {
   returnData_not_in: [local1337_Bytes!]
   returnData_contains: local1337_Bytes
   returnData_not_contains: local1337_Bytes
+  success: Boolean
+  success_not: Boolean
+  success_in: [Boolean!]
+  success_not_in: [Boolean!]
   transactionHash: local1337_Bytes
   transactionHash_not: local1337_Bytes
   transactionHash_in: [local1337_Bytes!]
   transactionHash_not_in: [local1337_Bytes!]
   transactionHash_contains: local1337_Bytes
   transactionHash_not_contains: local1337_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: local1337_BlockChangedFilter
 }
@@ -320,7 +334,9 @@ enum local1337_DestinationMessage_orderBy {
   leaf
   processed
   returnData
+  success
   transactionHash
+  blockNumber
 }
 
 type local1337_DestinationTransfer {
