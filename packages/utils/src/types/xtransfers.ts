@@ -136,7 +136,7 @@ export const DestinationTransferSchema = Type.Intersect([
       delegate: TAddress,
       receiveLocal: Type.Boolean(),
       callData: Type.String(),
-      slippage: TIntegerString,
+      slippage: Type.Optional(TIntegerString),
       originSender: TAddress,
       bridgedAmt: Type.String(),
       normalizedIn: TIntegerString,
