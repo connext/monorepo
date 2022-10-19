@@ -45,7 +45,7 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.aggregated_roots (
-    id character(66) NOT NULL,
+    id text NOT NULL,
     domain character varying(255) NOT NULL,
     received_root character(66) NOT NULL,
     domain_index numeric NOT NULL
@@ -484,4 +484,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20221010233716'),
     ('20221011065150'),
     ('20221018124227'),
-    ('20221018190949');
+    ('20221018190949'),
+    ('20221019094510');
