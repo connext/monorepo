@@ -210,7 +210,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "index",
+        "name": "queueIndex",
         "type": "uint256"
       }
     ],
@@ -223,8 +223,14 @@
       {
         "indexed": false,
         "internalType": "bytes32",
-        "name": "aggregate",
+        "name": "aggregateRoot",
         "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "count",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -234,9 +240,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "count",
-        "type": "uint256"
+        "internalType": "bytes32[]",
+        "name": "aggregatedMessageRoots",
+        "type": "bytes32[]"
       }
     ],
     "name": "RootPropagated",

@@ -6,7 +6,7 @@ export class ExecuteError extends NxtpError {
     public readonly context: any = {},
     public readonly type = ExecuteError.name,
     public readonly level: "debug" | "info" | "warn" | "error" = "error",
-    public readonly retryable = true,
+    public readonly retryable = false,
   ) {
     super(msg, context, type, level);
   }
@@ -77,49 +77,43 @@ export class NotEnoughAmount extends ExecuteError {
 
 export class CallDataForNonContract extends ExecuteError {
   constructor(context: any = {}) {
-    super(
-      "Calldata specified for an address that is not a contract",
-      context,
-      CallDataForNonContract.name,
-      undefined,
-      false,
-    );
+    super("Calldata specified for an address that is not a contract", context, CallDataForNonContract.name);
   }
 }
 
 export class RouterNotApproved extends ExecuteError {
   constructor(context: any = {}) {
-    super("Router not approved", context, RouterNotApproved.name, undefined, false);
+    super("Router not approved", context, RouterNotApproved.name);
   }
 }
 
 export class SequencerResponseInvalid extends ExecuteError {
   constructor(context: any = {}) {
-    super("Sequencer POST request returned invalid response", context, SequencerResponseInvalid.name);
+    super("Sequencer POST request returned invalid response", context, SequencerResponseInvalid.name, undefined, false);
   }
 }
 
 export class AuctionExpired extends ExecuteError {
   constructor(context: any = {}) {
-    super("Auction has already expired for this transfer.", context, AuctionExpired.name, undefined, false);
+    super("Auction has already expired for this transfer.", context, AuctionExpired.name);
   }
 }
 
 export class SanityCheckFailed extends ExecuteError {
   constructor(context: any = {}) {
-    super("Sanity check failed", context, SanityCheckFailed.name, undefined, false);
+    super("Sanity check failed", context, SanityCheckFailed.name);
   }
 }
 
 export class InvalidAuctionRound extends ExecuteError {
   constructor(context: any = {}) {
-    super("Invalid auction round", context, InvalidAuctionRound.name, undefined, false);
+    super("Invalid auction round", context, InvalidAuctionRound.name);
   }
 }
 
 export class UnableToGetAsset extends ExecuteError {
   constructor(context: any = {}) {
-    super("Unable to get asset", context, UnableToGetAsset.name, undefined, false);
+    super("Unable to get asset", context, UnableToGetAsset.name);
   }
 }
 
@@ -155,6 +149,6 @@ export class DomainNotSupported extends ExecuteError {
 
 export class SequencerPostFailed extends ExecuteError {
   constructor(context: any = {}) {
-    super("Sequencer POST request failed", context, SequencerPostFailed.name);
+    super("Sequencer POST request failed", context, SequencerPostFailed.name, undefined, true);
   }
 }

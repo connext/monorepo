@@ -58,7 +58,7 @@ export const processMessage = async (message: XMessage) => {
   }
   // Index of messageRoot leaf node in aggregate tree.
   // const messageRootIndex = await database.getMessageRootIndex(message.originDomain, targetMessageRoot);
-  const messageRootIndex = await database.getMessageRootIndex(config.hubDomain as string, targetMessageRoot);
+  const messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
   if (!messageRootIndex) {
     throw new NoMessageRootIndex(message.originDomain, targetMessageRoot);
   }
@@ -92,7 +92,7 @@ export const processMessage = async (message: XMessage) => {
   }
 
   // Proof path for proving inclusion of messageRoot in aggregateRoot.
-  const messageRootProof = await hubSMT.getProof(messageRootIndex - 1);
+  const messageRootProof = await hubSMT.getProof(messageRootIndex);
   if (!messageRootProof) {
     throw new NoMessageRootProof(messageRootIndex, message.origin.root);
   }
@@ -110,12 +110,7 @@ export const processMessage = async (message: XMessage) => {
   }
 
   // Verify proof of inclusion of messageRoot in aggregateRoot.
-  const rootVerification = hubSMT.verify(
-    messageRootIndex - 1,
-    targetMessageRoot,
-    messageRootProof,
-    targetAggregateRoot,
-  );
+  const rootVerification = hubSMT.verify(messageRootIndex, targetMessageRoot, messageRootProof, targetAggregateRoot);
   if (rootVerification && rootVerification.verified) {
     logger.info("MessageRoot Verified successfully", requestContext, methodContext, {
       rootVerification,
@@ -130,7 +125,7 @@ export const processMessage = async (message: XMessage) => {
     [messageProof],
     targetAggregateRoot,
     messageRootProof,
-    messageRootIndex - 1,
+    messageRootIndex,
   ]);
 
   const destinationSpokeConnector = config.chains[message.destinationDomain]?.deployments.spokeConnector;
