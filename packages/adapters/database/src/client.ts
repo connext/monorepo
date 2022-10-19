@@ -33,7 +33,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     delegate: transfer.xparams?.delegate,
     receive_local: transfer.xparams?.receiveLocal,
     call_data: transfer.xparams?.callData,
-    slippage: parseInt(transfer.xparams!.slippage),
+    slippage: transfer.xparams?.slippage as any,
     origin_sender: transfer.xparams?.originSender,
     bridged_amt: transfer.xparams?.bridgedAmt as any,
     normalized_in: transfer.xparams?.normalizedIn as any,

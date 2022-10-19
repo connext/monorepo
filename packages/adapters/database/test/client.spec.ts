@@ -635,10 +635,6 @@ describe("Database client", () => {
     expect(firstIndex).to.eq(roots[0].count);
     const lastIndex = await getAggregateRootCount(roots[batchSize - 1].aggregate, pool);
     expect(lastIndex).to.eq(roots[batchSize - 1].count);
-    const firstRoot = await getAggregateRoot(0, pool);
-    expect(firstRoot).to.eq(roots[0].aggregate);
-    const lastRoot = await getAggregateRoot(batchSize - 1, pool);
-    expect(lastRoot).to.eq(roots[batchSize - 1].aggregate);
   });
 
   it("should start a transaction", async () => {
@@ -657,7 +653,7 @@ describe("Database client", () => {
     expect(await getMessageRootCount("", "", pool)).to.eq(undefined);
     expect(await getMessageRootIndex("", "", pool)).to.eq(undefined);
     expect(await getAggregateRootCount("", pool)).to.eq(undefined);
-    expect(await getAggregateRoot(10000000, pool)).to.eq(undefined);
+    expect(await getAggregateRoot("", pool)).to.eq(undefined);
   });
 
   it("should throw errors", async () => {
