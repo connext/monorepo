@@ -65,7 +65,7 @@ export const processMessage = async (message: XMessage) => {
 
   // Get the currentAggregateRoot from on-chain state (or pending, if the validation period
   // has elapsed!) to determine which tree snapshot we should be generating the proof from.
-  const targetAggregateRoot = await database.getAggregateRoot(messageRootIndex);
+  const targetAggregateRoot = await database.getAggregateRoot(targetMessageRoot);
   if (!targetAggregateRoot) {
     throw new NoAggregatedRoot();
   }
@@ -101,10 +101,16 @@ export const processMessage = async (message: XMessage) => {
   const messageVerification = spokeSMT.verify(message.origin.index, message.leaf, messageProof.path, targetMessageRoot);
   if (messageVerification && messageVerification.verified) {
     logger.info("Message Verified successfully", requestContext, methodContext, {
+      messageIndex: message.origin.index,
+      lef: message.leaf,
+      targetMessageRoot,
       messageVerification,
     });
   } else {
     logger.info("Message verification failed", requestContext, methodContext, {
+      messageIndex: message.origin.index,
+      lef: message.leaf,
+      targetMessageRoot,
       messageVerification,
     });
   }
@@ -120,6 +126,7 @@ export const processMessage = async (message: XMessage) => {
     });
   } else {
     logger.info("MessageRoot verification failed", requestContext, methodContext, {
+      messageRootIndex,
       targetMessageRoot,
       targetAggregateRoot,
       messageRootProof,

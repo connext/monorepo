@@ -411,19 +411,17 @@ export const getUnProcessedMessages = async (
 };
 
 export const getAggregateRoot = async (
-  messageRootIndex: number,
+  messageRoot: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string | undefined> => {
   const poolToUse = _pool ?? pool;
   // Get the most recent unprocessed propagated root
-  const root = await db
-    .selectOne(
-      "propagated_roots",
-      { leaf_count: dc.gte(messageRootIndex) },
-      { limit: 1, order: { by: "leaf_count", direction: "ASC" } },
-    )
-    .run(poolToUse);
-  return root ? convertFromDbPropagatedRoot(root).aggregate : undefined;
+  const root = await db.selectOne("aggregated_roots", { received_root: messageRoot }).run(poolToUse);
+  if (!root) return undefined;
+
+  // NOTE: id is made up of propagated_root and aggregateRoot index in subgraph ==> id = `${propagated_root}-${index}`
+  const aggregateRootId = convertFromDbAggregatedRoot(root).id;
+  return aggregateRootId.split("-")[0] ?? undefined;
 };
 
 export const getAggregateRootCount = async (
