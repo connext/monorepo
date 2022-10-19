@@ -168,7 +168,10 @@ type DestinationMessage @entity {
   leaf: Bytes
   processed: Boolean
   returnData: Bytes
+  success: Boolean
+
   transactionHash: Bytes
+  blockNumber: BigInt
 }
 
 type AggregateRoot @entity {
