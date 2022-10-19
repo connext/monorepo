@@ -44,13 +44,6 @@ type Sequencer @entity {
   sequencer: Bytes
 }
 
-type StableSwap @entity {
-  id: ID!
-  canonicalId: Bytes!
-  domain: BigInt
-  swapPool: Bytes!
-}
-
 enum TransferStatus {
   XCalled
   Executed
@@ -209,4 +202,32 @@ type RootMessageSent @entity {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+}
+
+type StableSwap @entity {
+  id: ID!
+  canonicalId: Bytes!
+  domain: BigInt
+  swapPool: Bytes!
+}
+
+type MetaData @entity {
+  id: ID!
+  lpTokenName: String!
+  lpTokenAddress: Bytes!
+  pooledTokens: [PoolToken!]!
+  initialA: BigInt!
+  futureA: BigInt!
+  adminFee: BigInt!
+  swapFee: BigInt!
+  withdrawFee: BigInt!
+  paused: Boolean!
+}
+
+type PoolToken @entity {
+  id: ID!
+  address: Bytes!
+  precisionMultiplier: BigInt!
+  tokenAdminFee: BigInt!
+  balance: BigInt!
 }
