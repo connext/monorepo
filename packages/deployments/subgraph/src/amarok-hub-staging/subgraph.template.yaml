@@ -24,6 +24,8 @@ dataSources:
         - name: RootManager
           file: ./src/amarok-hub-staging/abis/RootManager.json
       eventHandlers:
+        - event: RootAggregated(uint32,bytes32,uint256)
+          handler: handleRootAggregated
         - event: RootPropagated(bytes32,uint256,uint32[],bytes32[])
           handler: handleRootPropagated
       file: ./src/amarok-hub-staging/mapping/rootManager.ts
