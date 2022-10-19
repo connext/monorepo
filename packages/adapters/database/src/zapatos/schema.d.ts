@@ -35,7 +35,7 @@ declare module 'zapatos/schema' {
     export interface Selectable {
       /**
       * **aggregated_roots.id**
-      * - `bpchar` in database
+      * - `text` in database
       * - `NOT NULL`, no default
       */
       id: string;
@@ -61,7 +61,7 @@ declare module 'zapatos/schema' {
     export interface JSONSelectable {
       /**
       * **aggregated_roots.id**
-      * - `bpchar` in database
+      * - `text` in database
       * - `NOT NULL`, no default
       */
       id: string;
@@ -87,7 +87,7 @@ declare module 'zapatos/schema' {
     export interface Whereable {
       /**
       * **aggregated_roots.id**
-      * - `bpchar` in database
+      * - `text` in database
       * - `NOT NULL`, no default
       */
       id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
@@ -113,7 +113,7 @@ declare module 'zapatos/schema' {
     export interface Insertable {
       /**
       * **aggregated_roots.id**
-      * - `bpchar` in database
+      * - `text` in database
       * - `NOT NULL`, no default
       */
       id: string | db.Parameter<string> | db.SQLFragment;
@@ -139,7 +139,7 @@ declare module 'zapatos/schema' {
     export interface Updatable {
       /**
       * **aggregated_roots.id**
-      * - `bpchar` in database
+      * - `text` in database
       * - `NOT NULL`, no default
       */
       id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
