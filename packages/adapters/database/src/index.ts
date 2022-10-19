@@ -89,10 +89,7 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage[]>;
-  getAggregateRoot: (
-    messageRootIndex: number,
-    _pool?: Pool | TxnClientForRepeatableRead,
-  ) => Promise<string | undefined>;
+  getAggregateRoot: (messageRoot: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   getAggregateRootCount: (
     aggregateRoot: string,
     _pool?: Pool | TxnClientForRepeatableRead,
