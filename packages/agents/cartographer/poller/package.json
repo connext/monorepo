@@ -8,7 +8,7 @@
     "src/**/*"
   ],
   "scripts": {
-    "start:all": "concurrently -i -k -n 'transfers,routers,messages' -c 'green,cyan,yellow' 'node dist/entryTransfers.js' 'node dist/entryRouters.js' 'node dist/entryMessages.js' 'node dist/entryRoots.js'",
+    "start:all": "concurrently -i -k -n 'transfers,routers,messages,roots' -c 'green,cyan,yellow,red' 'node dist/entryTransfers.js' 'node dist/entryRouters.js' 'node dist/entryMessages.js' 'node dist/entryRoots.js'",
     "start:transfers": "node dist/entryTransfers.js",
     "start:routers": "node dist/entryRouters.js",
     "start:messages": "node dist/entryMessages.js",
