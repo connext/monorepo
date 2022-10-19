@@ -1,5 +1,9 @@
 /* eslint-disable prefer-const */
-import { RootPropagated as RootPropagatedEvent, RootAggregatedEvent } from "../../../generated/RootManager/RootManager";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import {
+  RootPropagated as RootPropagatedEvent,
+  RootAggregated as RootAggregatedEvent,
+} from "../../../generated/RootManager/RootManager";
 import { RootPropagated, AggregatedMessageRoot, RootAggregated } from "../../../generated/schema";
 
 /// MARK - ROOT MANAGER
@@ -12,31 +16,31 @@ export function handleRootAggregated(event: RootAggregatedEvent): void {
 
   instance.domain = event.params.domain;
   instance.receivedRoot = event.params.receivedRoot;
-  instance.index = event.params.index;
+  instance.index = event.params.queueIndex;
 
   instance.save();
 }
 
 export function handleRootPropagated(event: RootPropagatedEvent): void {
-  const key = event.params.aggregate.toHexString();
+  const key = event.params.aggregateRoot.toHexString();
   const numMessageRootsAggregated = event.params.aggregatedMessageRoots.length;
   // Pre-count = the number of nodes in the tree *before* we inserted these message root nodes.
-  const aggregateTreePreCount = event.params.count - numMessageRootsAggregated;
+  const aggregateTreePreCount = event.params.count.minus(BigInt.fromI32(numMessageRootsAggregated));
   for (let i = 0; i < numMessageRootsAggregated; i++) {
     const leaf = event.params.aggregatedMessageRoots[i].toHexString();
     // Index of insertion for each leaf will be (whatever the aggregate tree count was before
     // insertion of all these message roots) + index in the array of message roots.
-    const index = aggregateTreePreCount + i;
+    const index = aggregateTreePreCount.plus(BigInt.fromI32(i));
 
     let instance = AggregatedMessageRoot.load(`${key}-${index}`); // Should ALWAYS be null.
     if (instance == null) {
       instance = new AggregatedMessageRoot(`${key}-${index}`);
     }
 
-    const rootAggregatedInstance = RootAggregated.load(leaf);
-    instance.domain = rootAggregatedInstance.domain;
+    let rootAggregatedInstance = RootAggregated.load(leaf);
+    instance.domain = rootAggregatedInstance!.domain;
     instance.index = index;
-    instance.receivedRoot = leaf;
+    instance.receivedRoot = Bytes.fromHexString(leaf);
     instance.save();
   }
 
@@ -48,7 +52,7 @@ export function handleRootPropagated(event: RootPropagatedEvent): void {
   if (instance == null) {
     instance = new RootPropagated(key);
   }
-  instance.aggregate = event.params.aggregate;
+  instance.aggregate = event.params.aggregateRoot;
   instance.domains = event.params.domains;
   instance.count = event.params.count;
 
