@@ -53,13 +53,13 @@ export const processMessage = async (message: XMessage) => {
   }
   // Count of leaf nodes in origin domain`s outbound tree
   const messageRootCount = await database.getMessageRootCount(message.originDomain, targetMessageRoot);
-  if (!messageRootCount) {
+  if (messageRootCount === undefined) {
     throw new NoMessageRootCount(message.originDomain, targetMessageRoot);
   }
   // Index of messageRoot leaf node in aggregate tree.
   // const messageRootIndex = await database.getMessageRootIndex(message.originDomain, targetMessageRoot);
   const messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
-  if (!messageRootIndex) {
+  if (messageRootIndex === undefined) {
     throw new NoMessageRootIndex(message.originDomain, targetMessageRoot);
   }
 
