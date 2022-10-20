@@ -116,7 +116,7 @@ library AssetLogic {
   ) internal returns (uint256) {
     // If there's no amount, no need to swap.
     if (_amount == 0) {
-      return _amount;
+      return 0;
     }
 
     // Check the case where the adopted asset *is* the local asset. If so, no need to swap.
