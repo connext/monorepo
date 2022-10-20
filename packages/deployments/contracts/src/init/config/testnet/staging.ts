@@ -62,12 +62,7 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
       whitelist: ["0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"],
     },
     sequencers: {
-      whitelist: [
-        "0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C",
-        "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7",
-        "0x24D677f8A59A486BfC6d87E9453C4f1fEfcB0958",
-        "0xAFCBcdF90776bCFBcB334a6908fdEDa02A75B983",
-      ],
+      whitelist: ["0xAFCBcdF90776bCFBcB334a6908fdEDa02A75B983"],
     },
     relayers: {
       whitelist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92"],

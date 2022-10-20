@@ -59,15 +59,10 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       whitelist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
     },
     routers: {
-      whitelist: ["0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"],
+      whitelist: ["0xD2aD711861ab345977B7379c81165708C8717fF1"],
     },
     sequencers: {
-      whitelist: [
-        "0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C",
-        "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7",
-        "0x24D677f8A59A486BfC6d87E9453C4f1fEfcB0958",
-        "0xAFCBcdF90776bCFBcB334a6908fdEDa02A75B983",
-      ],
+      whitelist: ["0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C"],
     },
     relayers: {
       whitelist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92"],
