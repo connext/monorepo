@@ -32,10 +32,6 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    */
   mapping(address => bool) public arborists;
 
-  // ============ Upgrade Gap ============
-
-  uint256[49] private __GAP; // gap for upgrade safety
-
   // ============ Modifiers ============
 
   modifier onlyArborist() {
@@ -139,4 +135,7 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     _count = tree.count;
     _root = tree.root();
   }
+
+  // ============ Upgrade Gap ============
+  uint256[48] private __GAP; // gap for upgrade safety
 }

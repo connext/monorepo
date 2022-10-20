@@ -85,10 +85,6 @@ contract LPToken is ERC20Upgradeable, OwnableUpgradeable {
     require(to != address(this), "LPToken: cannot send to itself");
   }
 
-  /**
-   * @dev This empty reserved space is put in place to allow future versions to add new
-   * variables without shifting down storage in the inheritance chain.
-   * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-   */
-  uint256[50] private __gap;
+  // ============ Upgrade Gap ============
+  uint256[50] private __GAP; // gap for upgrade safety
 }
