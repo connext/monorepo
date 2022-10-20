@@ -524,7 +524,7 @@ library AssetLogic {
     if (_amountIn == 0) {
       return 0;
     }
-    // Get the min recieved (in same decimals as _amountIn)
+    // Get the min received (in same decimals as _amountIn)
     uint256 min = (_amountIn * (10_000 - _slippage)) / 10_000;
     return normalizeDecimals(_in, _out, min);
   }
