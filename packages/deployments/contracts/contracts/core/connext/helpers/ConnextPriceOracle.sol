@@ -96,7 +96,9 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
     // get price from ChainLink Oracle
     tokenPrice = getPriceFromOracle(tokenAddress);
-    source = PriceSource.CHAINLINK;
+    if (tokenPrice != 0) {
+      source = PriceSource.CHAINLINK;
+    }
 
     // get price from v1 Price oracle contract
     if (tokenPrice == 0 && v1PriceOracle != address(0)) {
