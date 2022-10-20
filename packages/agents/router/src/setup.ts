@@ -30,9 +30,11 @@ export const setupCache = async (
 
 export const setupMq = async (uri: string, logger: Logger, requestContext: RequestContext): Promise<typeof rabbit> => {
   const methodContext = createMethodContext("setupMq");
+  // Disable reply queues
+  const replyQueue = false;
   logger.info("Message queue setup in progress...", requestContext, methodContext, { uri });
   await rabbit.configure({
-    connection: { uri },
+    connection: { uri, replyQueue },
     queues: [{ name: XCALL_QUEUE }],
     exchanges: [{ name: MQ_EXCHANGE, type: "direct" }],
     bindings: [{ exchange: MQ_EXCHANGE, target: XCALL_QUEUE, keys: [XCALL_QUEUE] }],
