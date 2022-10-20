@@ -105,19 +105,19 @@ locals {
         {
           name       = "1735356532"
           limit      = 6
-          queueLimit = 10000
+          queueLimit = 1000
           subscribe  = true
         },
         {
           name       = "1735353714"
           limit      = 6
-          queueLimit = 10000
+          queueLimit = 1000
           subscribe  = true
         },
         {
           name       = "9991"
           limit      = 6
-          queueLimit = 10000
+          queueLimit = 1000
           subscribe  = true
         }
       ]

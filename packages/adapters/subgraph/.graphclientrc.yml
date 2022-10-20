@@ -44,6 +44,21 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+  - name: Hub_Goerli
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-hub-v0-goerli
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: goerli_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
   - name: Connext_Test_Goerli
     handler:
       graphql:

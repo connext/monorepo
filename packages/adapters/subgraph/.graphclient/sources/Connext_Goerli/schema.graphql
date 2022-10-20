@@ -43,12 +43,12 @@ enum goerli_AggregateRoot_orderBy {
 
 type goerli_Asset {
   id: ID!
-  key: goerli_Bytes!
-  canonicalId: goerli_Bytes!
-  canonicalDomain: BigInt!
-  adoptedAsset: goerli_Bytes!
-  localAsset: goerli_Bytes!
-  blockNumber: BigInt!
+  key: goerli_Bytes
+  canonicalId: goerli_Bytes
+  canonicalDomain: BigInt
+  adoptedAsset: goerli_Bytes
+  localAsset: goerli_Bytes
+  blockNumber: BigInt
 }
 
 type goerli_AssetBalance {
@@ -209,11 +209,11 @@ scalar goerli_Bytes
 
 type goerli_ConnectorMeta {
   id: ID!
-  spokeDomain: BigInt!
-  hubDomain: BigInt!
-  amb: goerli_Bytes!
-  rootManager: goerli_Bytes!
-  mirrorConnector: goerli_Bytes!
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  amb: goerli_Bytes
+  rootManager: goerli_Bytes
+  mirrorConnector: goerli_Bytes
 }
 
 input goerli_ConnectorMeta_filter {
@@ -277,7 +277,9 @@ type goerli_DestinationMessage {
   leaf: goerli_Bytes
   processed: Boolean
   returnData: goerli_Bytes
+  success: Boolean
   transactionHash: goerli_Bytes
+  blockNumber: BigInt
 }
 
 input goerli_DestinationMessage_filter {
@@ -305,12 +307,24 @@ input goerli_DestinationMessage_filter {
   returnData_not_in: [goerli_Bytes!]
   returnData_contains: goerli_Bytes
   returnData_not_contains: goerli_Bytes
+  success: Boolean
+  success_not: Boolean
+  success_in: [Boolean!]
+  success_not_in: [Boolean!]
   transactionHash: goerli_Bytes
   transactionHash_not: goerli_Bytes
   transactionHash_in: [goerli_Bytes!]
   transactionHash_not_in: [goerli_Bytes!]
   transactionHash_contains: goerli_Bytes
   transactionHash_not_contains: goerli_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
 }
@@ -320,7 +334,9 @@ enum goerli_DestinationMessage_orderBy {
   leaf
   processed
   returnData
+  success
   transactionHash
+  blockNumber
 }
 
 type goerli_DestinationTransfer {
@@ -643,6 +659,7 @@ type goerli_OriginMessage {
   root: goerli_Bytes
   message: goerli_Bytes
   transactionHash: goerli_Bytes
+  blockNumber: BigInt
   rootCount: goerli_RootCount
 }
 
@@ -701,6 +718,14 @@ input goerli_OriginMessage_filter {
   transactionHash_not_in: [goerli_Bytes!]
   transactionHash_contains: goerli_Bytes
   transactionHash_not_contains: goerli_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   rootCount: String
   rootCount_not: String
   rootCount_gt: String
@@ -735,6 +760,7 @@ enum goerli_OriginMessage_orderBy {
   root
   message
   transactionHash
+  blockNumber
   rootCount
 }
 
@@ -1441,7 +1467,7 @@ enum goerli_Relayer_orderBy {
 
 type goerli_RootCount {
   id: ID!
-  count: BigInt!
+  count: BigInt
 }
 
 input goerli_RootCount_filter {
