@@ -93,6 +93,9 @@ export const getEnvConfig = (
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
 
+  // Disable default reply queues if not provided
+  _sequencerConfig.messageQueue.connection.replyQueue = _sequencerConfig.messageQueue.connection.replyQueue ?? false;
+
   const contractPostfix: ContractPostfix =
     _sequencerConfig.environment === "production"
       ? ""
