@@ -51,12 +51,12 @@ export type goerli_AggregateRoot_orderBy =
 
 export type goerli_Asset = {
   id: Scalars['ID'];
-  key: Scalars['goerli_Bytes'];
-  canonicalId: Scalars['goerli_Bytes'];
-  canonicalDomain: Scalars['BigInt'];
-  adoptedAsset: Scalars['goerli_Bytes'];
-  localAsset: Scalars['goerli_Bytes'];
-  blockNumber: Scalars['BigInt'];
+  key?: Maybe<Scalars['goerli_Bytes']>;
+  canonicalId?: Maybe<Scalars['goerli_Bytes']>;
+  canonicalDomain?: Maybe<Scalars['BigInt']>;
+  adoptedAsset?: Maybe<Scalars['goerli_Bytes']>;
+  localAsset?: Maybe<Scalars['goerli_Bytes']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type goerli_AssetBalance = {
@@ -209,11 +209,11 @@ export type goerli_Block_height = {
 
 export type goerli_ConnectorMeta = {
   id: Scalars['ID'];
-  spokeDomain: Scalars['BigInt'];
-  hubDomain: Scalars['BigInt'];
-  amb: Scalars['goerli_Bytes'];
-  rootManager: Scalars['goerli_Bytes'];
-  mirrorConnector: Scalars['goerli_Bytes'];
+  spokeDomain?: Maybe<Scalars['BigInt']>;
+  hubDomain?: Maybe<Scalars['BigInt']>;
+  amb?: Maybe<Scalars['goerli_Bytes']>;
+  rootManager?: Maybe<Scalars['goerli_Bytes']>;
+  mirrorConnector?: Maybe<Scalars['goerli_Bytes']>;
 };
 
 export type goerli_ConnectorMeta_filter = {
@@ -276,7 +276,9 @@ export type goerli_DestinationMessage = {
   leaf?: Maybe<Scalars['goerli_Bytes']>;
   processed?: Maybe<Scalars['Boolean']>;
   returnData?: Maybe<Scalars['goerli_Bytes']>;
+  success?: Maybe<Scalars['Boolean']>;
   transactionHash?: Maybe<Scalars['goerli_Bytes']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type goerli_DestinationMessage_filter = {
@@ -304,12 +306,24 @@ export type goerli_DestinationMessage_filter = {
   returnData_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   returnData_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   returnData_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
+  success?: InputMaybe<Scalars['Boolean']>;
+  success_not?: InputMaybe<Scalars['Boolean']>;
+  success_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   transactionHash?: InputMaybe<Scalars['goerli_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['goerli_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   transactionHash_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
 };
@@ -319,7 +333,9 @@ export type goerli_DestinationMessage_orderBy =
   | 'leaf'
   | 'processed'
   | 'returnData'
-  | 'transactionHash';
+  | 'success'
+  | 'transactionHash'
+  | 'blockNumber';
 
 export type goerli_DestinationTransfer = {
   id: Scalars['ID'];
@@ -648,6 +664,7 @@ export type goerli_OriginMessage = {
   root?: Maybe<Scalars['goerli_Bytes']>;
   message?: Maybe<Scalars['goerli_Bytes']>;
   transactionHash?: Maybe<Scalars['goerli_Bytes']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
   rootCount?: Maybe<goerli_RootCount>;
 };
 
@@ -706,6 +723,14 @@ export type goerli_OriginMessage_filter = {
   transactionHash_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   transactionHash_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   rootCount?: InputMaybe<Scalars['String']>;
   rootCount_not?: InputMaybe<Scalars['String']>;
   rootCount_gt?: InputMaybe<Scalars['String']>;
@@ -740,6 +765,7 @@ export type goerli_OriginMessage_orderBy =
   | 'root'
   | 'message'
   | 'transactionHash'
+  | 'blockNumber'
   | 'rootCount';
 
 export type goerli_OriginTransfer = {
@@ -1358,7 +1384,7 @@ export type goerli_Relayer_orderBy =
 
 export type goerli_RootCount = {
   id: Scalars['ID'];
-  count: Scalars['BigInt'];
+  count?: Maybe<Scalars['BigInt']>;
 };
 
 export type goerli_RootCount_filter = {

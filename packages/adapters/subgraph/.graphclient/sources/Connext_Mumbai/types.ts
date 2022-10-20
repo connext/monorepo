@@ -51,12 +51,12 @@ export type mumbai_AggregateRoot_orderBy =
 
 export type mumbai_Asset = {
   id: Scalars['ID'];
-  key: Scalars['mumbai_Bytes'];
-  canonicalId: Scalars['mumbai_Bytes'];
-  canonicalDomain: Scalars['BigInt'];
-  adoptedAsset: Scalars['mumbai_Bytes'];
-  localAsset: Scalars['mumbai_Bytes'];
-  blockNumber: Scalars['BigInt'];
+  key?: Maybe<Scalars['mumbai_Bytes']>;
+  canonicalId?: Maybe<Scalars['mumbai_Bytes']>;
+  canonicalDomain?: Maybe<Scalars['BigInt']>;
+  adoptedAsset?: Maybe<Scalars['mumbai_Bytes']>;
+  localAsset?: Maybe<Scalars['mumbai_Bytes']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type mumbai_AssetBalance = {
@@ -209,11 +209,11 @@ export type mumbai_Block_height = {
 
 export type mumbai_ConnectorMeta = {
   id: Scalars['ID'];
-  spokeDomain: Scalars['BigInt'];
-  hubDomain: Scalars['BigInt'];
-  amb: Scalars['mumbai_Bytes'];
-  rootManager: Scalars['mumbai_Bytes'];
-  mirrorConnector: Scalars['mumbai_Bytes'];
+  spokeDomain?: Maybe<Scalars['BigInt']>;
+  hubDomain?: Maybe<Scalars['BigInt']>;
+  amb?: Maybe<Scalars['mumbai_Bytes']>;
+  rootManager?: Maybe<Scalars['mumbai_Bytes']>;
+  mirrorConnector?: Maybe<Scalars['mumbai_Bytes']>;
 };
 
 export type mumbai_ConnectorMeta_filter = {
@@ -276,7 +276,9 @@ export type mumbai_DestinationMessage = {
   leaf?: Maybe<Scalars['mumbai_Bytes']>;
   processed?: Maybe<Scalars['Boolean']>;
   returnData?: Maybe<Scalars['mumbai_Bytes']>;
+  success?: Maybe<Scalars['Boolean']>;
   transactionHash?: Maybe<Scalars['mumbai_Bytes']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type mumbai_DestinationMessage_filter = {
@@ -304,12 +306,24 @@ export type mumbai_DestinationMessage_filter = {
   returnData_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
   returnData_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
   returnData_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  success?: InputMaybe<Scalars['Boolean']>;
+  success_not?: InputMaybe<Scalars['Boolean']>;
+  success_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   transactionHash?: InputMaybe<Scalars['mumbai_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['mumbai_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
   transactionHash_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
 };
@@ -319,7 +333,9 @@ export type mumbai_DestinationMessage_orderBy =
   | 'leaf'
   | 'processed'
   | 'returnData'
-  | 'transactionHash';
+  | 'success'
+  | 'transactionHash'
+  | 'blockNumber';
 
 export type mumbai_DestinationTransfer = {
   id: Scalars['ID'];
@@ -648,6 +664,7 @@ export type mumbai_OriginMessage = {
   root?: Maybe<Scalars['mumbai_Bytes']>;
   message?: Maybe<Scalars['mumbai_Bytes']>;
   transactionHash?: Maybe<Scalars['mumbai_Bytes']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
   rootCount?: Maybe<mumbai_RootCount>;
 };
 
@@ -706,6 +723,14 @@ export type mumbai_OriginMessage_filter = {
   transactionHash_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
   transactionHash_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   rootCount?: InputMaybe<Scalars['String']>;
   rootCount_not?: InputMaybe<Scalars['String']>;
   rootCount_gt?: InputMaybe<Scalars['String']>;
@@ -740,6 +765,7 @@ export type mumbai_OriginMessage_orderBy =
   | 'root'
   | 'message'
   | 'transactionHash'
+  | 'blockNumber'
   | 'rootCount';
 
 export type mumbai_OriginTransfer = {
@@ -1358,7 +1384,7 @@ export type mumbai_Relayer_orderBy =
 
 export type mumbai_RootCount = {
   id: Scalars['ID'];
-  count: Scalars['BigInt'];
+  count?: Maybe<Scalars['BigInt']>;
 };
 
 export type mumbai_RootCount_filter = {

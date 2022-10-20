@@ -5,7 +5,7 @@ export const livetest = async () => {
   console.log("> starting live test....");
   const chainData = await getChainData();
 
-  const reader = await SubgraphReader.create(chainData, "staging");
+  const reader = await SubgraphReader.create(chainData, "production");
   const hubDomain = "1735353714"; // 9991 => mumbai, 1735356532 => optimism-goerli
 
   const res = await reader.getLatestBlockNumber(["9991", "1735353714"]);
