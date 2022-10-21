@@ -145,7 +145,7 @@ export const SPOKE_PREFIX = "Spoke";
 
 const DEFAULT_PROCESS_GAS = BigNumber.from("850000");
 const DEFAULT_RESERVE_GAS = BigNumber.from("15000");
-const DEFAULT_DELAY_BLOCKS = 10;
+const DEFAULT_DELAY_BLOCKS = 0;
 
 export type RelayerConfig = {
   [chain: number]: {
@@ -343,6 +343,16 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
   mainnet: {
     hub: 1,
     configs: {
+      1: {
+        prefix: "Mainnet",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+      },
       10: {
         prefix: "Optimism",
         ambs: {
@@ -358,32 +368,45 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
-      100: {
-        prefix: "Gnosis",
+      // 100: {
+      //   prefix: "Gnosis",
+      //   ambs: {
+      //     // https://etherscan.io/address/0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e
+      //     hub: "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e",
+      //     // https://blockscout.com/xdai/mainnet/address/0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59
+      //     spoke: "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59",
+      //   },
+      //   processGas: DEFAULT_PROCESS_GAS,
+      //   reserveGas: DEFAULT_RESERVE_GAS,
+      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
+      // },
+      // Polygon
+      137: {
+        prefix: "Polygon",
         ambs: {
-          // https://etherscan.io/address/0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e
-          hub: "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e",
-          // https://blockscout.com/xdai/mainnet/address/0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59
-          spoke: "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59",
+          // FxRoot on mainnet
+          // https://static.matic.network/network/mainnet/v1/index.json
+          hub: "0xfe5e5D361b2ad62c541bAb87C45a0B9B018389a2",
+          spoke: "0x8397259c983751DAf40400790063935a11afa28a",
         },
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
-      // Arbitrum one: TODO: nitro??????
+      // Arbitrum one
       // https://developer.offchainlabs.com/docs/Useful_Addresses
-      42161: {
-        prefix: "Arbitrum",
-        ambs: {
-          // https://etherscan.io/address/0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f
-          hub: "0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f",
-          // https://arbiscan.io/address/0x0000000000000000000000000000000000000064
-          spoke: "0x0000000000000000000000000000000000000064",
-        },
-        processGas: DEFAULT_PROCESS_GAS,
-        reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: DEFAULT_DELAY_BLOCKS,
-      },
+      // 42161: {
+      //   prefix: "Arbitrum",
+      //   ambs: {
+      //     // https://etherscan.io/address/0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f
+      //     hub: "0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f",
+      //     // https://arbiscan.io/address/0x0000000000000000000000000000000000000064
+      //     spoke: "0x0000000000000000000000000000000000000064",
+      //   },
+      //   processGas: DEFAULT_PROCESS_GAS,
+      //   reserveGas: DEFAULT_RESERVE_GAS,
+      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
+      // },
     },
   },
 };
