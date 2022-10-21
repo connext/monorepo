@@ -1,5 +1,7 @@
 import { config as envConfig } from "dotenv";
 import { utils } from "ethers";
+import { NetworksUserConfig } from "hardhat/types";
+
 envConfig();
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
@@ -11,7 +13,7 @@ const mnemonic =
 
 const mainnetMnemonic = process.env.MAINNET_MNEMONIC;
 
-export const hardhatNetworks = {
+export const hardhatNetworks: NetworksUserConfig = {
   hardhat: {
     allowUnlimitedContractSize: true,
   },
@@ -66,7 +68,10 @@ export const hardhatNetworks = {
   optimism: {
     accounts: { mnemonic },
     chainId: 10,
-    url: "https://mainnet.optimism.io",
+    url: "https://rpc.ankr.com/optimism",
+    companionNetworks: {
+      hub: "mainnet",
+    },
   },
   kovan: {
     accounts: { mnemonic },
@@ -122,6 +127,10 @@ export const hardhatNetworks = {
     accounts: { mnemonic },
     chainId: 137,
     url: urlOverride || process.env.MATIC_PROVIDER_URL || "https://polygon-rpc.com",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    gasPrice: utils.parseUnits("200", "gwei").toNumber(),
   },
   ftm: {
     accounts: { mnemonic },
