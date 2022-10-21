@@ -29,6 +29,7 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
         "the configured list of networks!",
     );
   }
+
   await updateIfNeeded({
     deployment: home.deployments.Connext,
     desired: asset.canonical.address,

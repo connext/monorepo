@@ -29,11 +29,11 @@ export const AssetStackSchema = Type.Object({
     Type.String(),
     Type.Object({
       // Address of the bridged asset on this domain.
-      local: Type.String(),
+      local: Type.Optional(Type.String()),
       // Address of the adopted asset on this domain.
       // NOTE: If adopted is specified, a stableswap will be initialized! If not
       // specified, then we assume the local asset is the adopted asset on this domain.
-      adopted: Type.Optional(Type.String()),
+      adopted: Type.String(),
     }),
   ),
 });

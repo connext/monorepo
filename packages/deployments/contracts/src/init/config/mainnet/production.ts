@@ -16,11 +16,9 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
       representations: {
         "1869640809": {
-          local: "",
           adopted: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
         },
         "1886350457": {
-          local: "",
           adopted: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         },
       },
@@ -33,11 +31,9 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
       representations: {
         "1869640809": {
-          local: "",
           adopted: "0x4200000000000000000000000000000000000006",
         },
         "1886350457": {
-          local: "",
           adopted: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
         },
       },
