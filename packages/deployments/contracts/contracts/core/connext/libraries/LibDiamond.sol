@@ -109,10 +109,17 @@ library LibDiamond {
     bytes memory _calldata
   ) internal {
     DiamondStorage storage ds = diamondStorage();
+    bytes32 key = keccak256(abi.encode(_diamondCut, _init, _calldata));
     if (ds.facetAddresses.length != 0) {
-      uint256 time = ds.acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))];
+      uint256 time = ds.acceptanceTimes[key];
       require(time != 0 && time <= block.timestamp, "LibDiamond: delay not elapsed");
+
+      // Reset the acceptance time to ensure the same set of updates cannot be replayed
+      // without going through a proposal window
+      ds.acceptanceTimes[key] = 0;
     } // Otherwise, this is the first instance of deployment and it can be set automatically
+
+    // Perform a diamond cut
     for (uint256 facetIndex; facetIndex < _diamondCut.length; facetIndex++) {
       IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;
       if (action == IDiamondCut.FacetCutAction.Add) {
