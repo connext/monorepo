@@ -1,12 +1,17 @@
 import { constants, utils } from "ethers";
+import { ChainData } from "@connext/nxtp-utils";
 
-import { canonizeId } from "../../domain";
+import { canonizeId, chainIdToDomain } from "../../domain";
 
 import { AssetStack, NetworkStack } from "./types";
 import { getValue, updateIfNeeded } from "./tx";
 
-export const setupAsset = async (args: { asset: AssetStack; networks: NetworkStack[] }) => {
-  const { asset, networks } = args;
+export const setupAsset = async (args: {
+  asset: AssetStack;
+  networks: NetworkStack[];
+  chainData: Map<string, ChainData>;
+}) => {
+  const { asset, networks, chainData } = args;
 
   // Derive the global asset key using the (canonized) canonical address and the canonical domain.
   const canonical = {
@@ -46,6 +51,14 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
     },
   });
 
+  const chainInfo = chainData.get(asset.canonical.domain);
+  const canonicalDecimals = chainInfo?.assetId[asset.canonical.address]?.decimals;
+  if (!canonicalDecimals) {
+    throw new Error(
+      `Could not get the decimals for asset ${asset.canonical.address} on domain ${asset.canonical.domain}`,
+    );
+  }
+
   // Set up all the representational assets on their respective domains.
   for (const [domain, representation] of Object.entries(asset.representations)) {
     const stableswapPool = constants.AddressZero;
@@ -67,7 +80,7 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
     }
 
     // Run setupAsset.
-    const desiredAdopted = representation.adopted ?? constants.AddressZero;
+    const desiredAdopted = representation.adopted;
     try {
       const adopted = await getValue({
         deployment: network.deployments.Connext,
@@ -87,14 +100,37 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
       }
     } catch {}
 
-    await updateIfNeeded({
-      deployment: network.deployments.Connext,
-      desired: desiredAdopted,
-      read: { method: "canonicalToAdopted(bytes32)", args: [key] },
-      write: {
-        method: "setupAssetWithDeployedRepresentation",
-        args: [[canonical.domain, canonical.id], representation.local, desiredAdopted, stableswapPool, 0],
-      },
-    });
+    if (representation.local) {
+      await updateIfNeeded({
+        deployment: network.deployments.Connext,
+        desired: desiredAdopted,
+        read: { method: "canonicalToAdopted(bytes32)", args: [key] },
+        write: {
+          method: "setupAssetWithDeployedRepresentation",
+          args: [[canonical.domain, canonical.id], representation.local, desiredAdopted, stableswapPool, 0],
+        },
+      });
+    } else {
+      const tokenName = `next${asset.name.toUpperCase()}`;
+      const tokenSymbol = tokenName;
+
+      await updateIfNeeded({
+        deployment: network.deployments.Connext,
+        desired: desiredAdopted,
+        read: { method: "canonicalToAdopted(bytes32)", args: [key] },
+        write: {
+          method: "setupAsset",
+          args: [
+            [canonical.domain, canonical.id],
+            canonicalDecimals,
+            tokenName,
+            tokenSymbol,
+            desiredAdopted,
+            stableswapPool,
+            0,
+          ],
+        },
+      });
+    }
   }
 };
