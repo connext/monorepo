@@ -133,7 +133,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   function setUp() public {
     // Deploy all the contracts
     utils_deployAssets();
-    utils_deployNomad();
+    utils_deployMessaging();
     utils_deployConnext();
   }
 
@@ -148,7 +148,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     _destinationAdopted = address(new TestERC20("Test Token", "TEST"));
   }
 
-  function utils_deployNomad() public {
+  function utils_deployMessaging() public {
     // Deploy mock home
     MockHome originHome = new MockHome(_origin);
     MockHome destinationHome = new MockHome(_destination);

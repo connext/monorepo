@@ -416,12 +416,11 @@ contract BridgeFacet is BaseConnextFacet {
   // ============ Internal: Bridge ============
 
   /**
-   * @notice Initiates a cross-chain transfer of funds, calldata, and/or various named properties using the nomad
-   * network.
+   * @notice Initiates a cross-chain transfer of funds and/or calldata
    *
    * @dev For ERC20 transfers, this contract must have approval to transfer the input (transacting) assets. The adopted
-   * assets will be swapped for their local nomad asset counterparts (i.e. bridgeable tokens) via the configured AMM if
-   * necessary. In the event that the adopted assets *are* local nomad assets, no swap is needed. The local tokens will
+   * assets will be swapped for their local asset counterparts (i.e. bridgeable tokens) via the configured AMM if
+   * necessary. In the event that the adopted assets *are* local bridge assets, no swap is needed. The local tokens will
    * then be sent via the bridge router. If the local assets are representational for an asset on another chain, we will
    * burn the tokens here. If the local assets are canonical (meaning that the adopted<>local asset pairing is native
    * to this chain), we will custody the tokens here.
