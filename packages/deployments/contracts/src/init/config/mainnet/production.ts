@@ -48,13 +48,13 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       whitelist: ["", ""],
     },
     routers: {
-      whitelist: [""],
+      whitelist: ["0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c"],
     },
     sequencers: {
-      whitelist: [""],
+      whitelist: ["0x4fFA5968857a6C8242E4A6Ded2418155D33e82E7"],
     },
     relayers: {
-      whitelist: [""],
+      whitelist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92"],
     },
   },
 };
