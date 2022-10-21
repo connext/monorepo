@@ -12,8 +12,12 @@ export type Address = string;
 
 // Hex domains calculated using `getHexDomainFromString`
 const chainIdToDomainMapping: Map<number, number> = new Map([
+  // mainnets
   [1, 0x657468], // Ethereum ('eth interpreted as int) 6648936
+  [10, 0x6f707469], // Optimism (opti interpreted as int) 1869640809
+  [137, 0x706f6c79], // Polygon (poly interpreted as int) 1886350457
   [1284, 0x6265616d], // Moonbeam ('beam interpreted as int) 1650811245
+  // testnets
   [42, 0x6b6f7661], // Kovan (kovan interpreted as int) 1802466913
   [5, 0x676f6572], // Goerli (goerli interpreted as int) 1735353714
   [420, 0x676f7074], // optimism-goerli (gopti interpreted as int) 1735356532
@@ -21,6 +25,7 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
   [80001, 0x2707], // mumbai 9991
   [421613, 0x67617262], // arbitrum-goerli (garb interpreted as int) 1734439522
   [10200, 0x63686961], // gnosis-chiado (chiado interpreted as int) 1667787105
+  // local
   [1337, 1337],
   [1338, 1338],
 ]);
