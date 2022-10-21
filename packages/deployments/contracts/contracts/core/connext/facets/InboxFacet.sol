@@ -84,7 +84,7 @@ contract InboxFacet is BaseConnextFacet {
   // ============ Modifiers ============
 
   /**
-   * @notice Only accept messages from an Nomad Replica contract.
+   * @notice Only accept messages from a registered inbox contract.
    */
   modifier onlyReplica() {
     if (!_isReplica(msg.sender)) {

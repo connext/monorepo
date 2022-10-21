@@ -76,12 +76,12 @@ The Connext architecture can be seen as a layered system, as follows:
 | `Application Layer`     | `Crosschain Applications (xApps)` |
 | `Liquidity Layer`       | `NXTP`                            |
 | `Gateway/Routing Layer` | `Interchain Gateway Protocol`     |
-| `Messaging Layer`       | `Nomad`                           |
+| `Verification Layer`    | `AMBs`                            |
 | `Transport Layer`       | `Connext Routers`                 |
 
 ## About NXTP
 
-**Nxtp** is a liquidity layer and a developer interface on top of the [nomad](nomad-url) optimisitic briding protocol.
+**Nxtp** is a liquidity layer and a developer interface on top of an optimisitic messaging protocol.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -113,12 +113,12 @@ Initiate the transaction by calling a `xcall` function on our contracts, passing
 
 **Our contracts will:**
 
--If needed, swap the passed in token to the Nomad version of the same asset.
-Call the Nomad contracts with a hash of the tx details to initiate the 30-60m message across chains.
+-If needed, swap the passed in token to the minted version of the same asset.
+Call the messaging contracts with a hash of the tx details to initiate the 30-60m message across chains.
 
 -Emit an event with the tx details.
 Routers observing the origin chain with funds on the destination chain will:
-Simulate the transaction (if this fails, the assumption is that this is a more "expressive" crosschain message that requires authentication of the call and verification of the data, and so it must go through the slow Nomad process only).
+Simulate the transaction (if this fails, the assumption is that this is a more "expressive" crosschain message that requires authentication of the call and verification of the data, and so it must go through the slow process only).
 
 **Routers (Active Liquidity Providers) will:**
 
@@ -131,16 +131,16 @@ Note: if the router does not have enough funds for the transfer, they may also p
 -When a given bid is submitted to chain, the contracts will do the following:
 Check that there are enough funds available for the transaction.
 
--Swap the router's Nomad-flavored funds for the canonical asset of the chain if needed.
+-Swap the router's Connext-flavored funds for the canonical asset of the chain if needed.
 Send the swapped funds to the correct target (if it is a contract, this will also execute calldata against the target).
 
 -Hash the router's params and store a mapping of this hash to the router's address in the contract.
 
 --> At this point, the user's tx has already been completed!
 
-Later, when the Nomad message arrives, a heavily batched tx can be submitted to take all pending hashes received over Nomad and look up whether they have corresponding router addresses in the hash -> router address mapping. If they do, then Nomad assets are minted and given to the router.
+Later, when the message arrives, a heavily batched tx can be submitted to take all pending hashes received and look up whether they have corresponding router addresses in the hash -> router address mapping. If they do, then bridge assets are minted and given to the router.
 
-Note: if the router gives the incorrect amount of funds to a user or if they execute the wrong calldata, then the router's param hash will not match the hash coming over Nomad and the router will not get reimbursed. This is the core security mechanism that ensures that routers behave correctly.
+Note: if the router gives the incorrect amount of funds to a user or if they execute the wrong calldata, then the router's param hash will not match the hash coming over the messaging layer and the router will not get reimbursed. This is the core security mechanism that ensures that routers behave correctly.
 
 Note 2: Routers will take a 30-60 minute lockup on their funds when relaying transactions. While this theoretically reduces capital efficiency compared to the existing system, in practice the lack of need to rebalance will mean that routers have more capital available more often regardless.
 
@@ -312,7 +312,7 @@ const nxtpConfig: NxtpSdkConfig = {
 };
 ```
 
-> Not sure where those IDs came from? They refer to the [Nomad Domain IDs](../testing-against-testnet#nomad-domain-ids) which are a custom mapping of ID to specific execution environment (not always equivalent to "chain", hence we have Domain IDs).
+> Not sure where those IDs came from? They refer to the [Domain IDs](../testing-against-testnet#nomad-domain-ids) which are a custom mapping of ID to specific execution environment (not always equivalent to "chain", hence we have Domain IDs).
 
 #### 6. Create the SDK
 
@@ -322,29 +322,20 @@ Simply call `create()` with the config from above.
 const { nxtpSdkBase } = await create(nxtpConfig);
 ```
 
-#### 7. Construct the `xCallArgs`
+#### 7. Construct the `xcall`
 
 Now, we construct the arguments that will be passed into the `xcall`.
 
 ```ts
-const callParams = {
-  to: "<destination_address>", // the address that should receive the funds
-  callData: "0x", // empty calldata for a simple transfer
-  originDomain: "2221", // send from Kovan
-  destinationDomain: "1111", // to Rinkeby
-  recovery: "<destination_address>", // fallback address to send funds to if execution fails on destination side
-  callback: ethers.constants.AddressZero, // zero address because we don't expect a callback for a simple transfer
-  callbackFee: "0", // relayers on testnet don't take a fee
-  forceSlow: false, // option that allows users to take the Nomad slow path (~30 mins) instead of paying routers a 0.05% fee on their transaction
-  receiveLocal: false, // option for users to receive the local Nomad-flavored asset instead of the adopted asset on the destination side
-};
-
-const xCallArgs = {
-  params: callParams,
-  asset: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F", // the Kovan Test Token
-  amount: "1000000000000000000", // amount to send (1 TEST)
-  relayerFee: "0", // relayers on testnet don't take a fee
-};
+function xcall(
+    uint32 _destination, // destination domain identifier
+    address _to, // the address that should receive the funds
+    address _asset, // token to bridge with
+    address _delegate, // address that can take action on user's behalf on destination domain to handle slippage conditions
+    uint256 _amount, // amount to transfer
+    uint256 _slippage, // slippage allowed from amount transferred in BPS
+    bytes calldata _callData // empty calldata for a simple transfer
+) external payable returns (bytes32)
 ```
 
 #### 8. Approve the asset transfer
@@ -427,8 +418,8 @@ const callParams = {
   callData: calldata,
   originDomain: "2221", // send from Kovan
   destinationDomain: "1111", // to Rinkeby
-  forceSlow: false, // option that allows users to take the Nomad slow path (~30 mins) instead of paying routers a 0.05% fee on their transaction
-  receiveLocal: false, // option for users to receive the local Nomad-flavored asset instead of the adopted asset on the destination side
+  forceSlow: false, // option that allows users to take the slow path (~30 mins) instead of paying routers a 0.05% fee on their transaction
+  receiveLocal: false, // option for users to receive the local bridge-flavored asset instead of the adopted asset on the destination side
 };
 
 const xCallArgs = {
@@ -741,4 +732,3 @@ When you are done, you can run `yarn docker:stop:all` to halt all running servic
 [discord-url]: https://discord.gg/m93Sqf4
 [twitter-shield]: https://img.shields.io/twitter/follow/ConnextNetwork?style=social
 [twitter-url]: https://twitter.com/ConnextNetwork
-[nomad-url]: https://www.nomad.xyz/

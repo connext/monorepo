@@ -530,7 +530,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @dev The liquidity will be held in the local asset, which is the representation if you
    * are *not* on the canonical domain, and the canonical asset otherwise.
    * @param _amount - The amount of liquidity to add for the router
-   * @param _local - The address of the nomad representation of the asset
+   * @param _local - The address of the bridge representation of the asset
    * @param _router - The router you are adding liquidity on behalf of
    */
   function _addLiquidityForRouter(
