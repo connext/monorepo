@@ -143,7 +143,7 @@ library SwapUtils {
     Swap storage self,
     uint256 tokenAmount,
     uint8 tokenIndex
-  ) internal view returns (uint256) {
+  ) external view returns (uint256) {
     (uint256 availableTokenAmount, ) = _calculateWithdrawOneToken(
       self,
       tokenAmount,
@@ -400,7 +400,7 @@ library SwapUtils {
    * @param self Swap struct to read from
    * @return the virtual price, scaled to precision of POOL_PRECISION_DECIMALS
    */
-  function getVirtualPrice(Swap storage self) internal view returns (uint256) {
+  function getVirtualPrice(Swap storage self) external view returns (uint256) {
     uint256 d = getD(_xp(self), _getAPrecise(self));
     LPToken lpToken = self.lpToken;
     uint256 supply = lpToken.totalSupply();
