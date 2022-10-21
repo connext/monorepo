@@ -8,6 +8,7 @@ export type { ozerc20Sol };
 export type { BridgeToken } from "./BridgeToken";
 export type { ConnextDiamond } from "./ConnextDiamond";
 export type { ConnextProxyAdmin } from "./ConnextProxyAdmin";
+export type { Diamond } from "./Diamond";
 export type { LPToken } from "./LPToken";
 export type { Multicall } from "./Multicall";
 export type { OwnerPausableUpgradeable } from "./OwnerPausableUpgradeable";
