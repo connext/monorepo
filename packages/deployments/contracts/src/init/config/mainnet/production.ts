@@ -1,9 +1,9 @@
 import { InitConfig } from "../../helpers";
 
 export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
-  hub: "6648936", /// MAINNET
+  hub: "1735353714", /// GOERLI
   supportedDomains: [
-    "6648936",
+    "1735353714",
     "1735356532",
     // "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
