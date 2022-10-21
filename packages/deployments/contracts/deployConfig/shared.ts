@@ -367,6 +367,12 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         processGas: BigNumber.from("2000000"),
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        custom: {
+          hub: {
+            // https://github.com/ethereum-optimism/optimism/tree/develop/packages/contracts/deployments/mainnet
+            stateCommitmentChain: "0xBe5dAb4A2e9cd0F27300dB4aB94BeE3A233AEB19",
+          },
+        },
       },
       // 100: {
       //   prefix: "Gnosis",
@@ -392,6 +398,13 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         delayBlocks: DEFAULT_DELAY_BLOCKS,
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {
+          hub: {
+            // https://static.matic.network/network/mainnet/v1/index.json
+            // RootChainProxy
+            checkpointManager: "0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287",
+          },
+        },
       },
       // Arbitrum one
       // https://developer.offchainlabs.com/docs/Useful_Addresses
