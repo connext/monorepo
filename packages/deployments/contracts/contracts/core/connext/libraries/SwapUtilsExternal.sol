@@ -749,7 +749,7 @@ library SwapUtilsExternal {
       tokenFrom.safeTransferFrom(msg.sender, address(this), dx);
 
       // Use the actual transferred amount for AMM math
-      dx = tokenFrom.balanceOf(address(this)) - beforeBalance;
+      require(dx == tokenFrom.balanceOf(address(this)) - beforeBalance, "fee token");
     }
 
     uint256 dy;
