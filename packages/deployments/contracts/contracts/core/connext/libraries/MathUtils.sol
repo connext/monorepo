@@ -16,7 +16,7 @@ library MathUtils {
    *         otherwise return false
    */
   function within1(uint256 a, uint256 b) internal pure returns (bool) {
-    return (difference(a, b) <= 1);
+    return (difference(a, b) < 2);
   }
 
   /**
