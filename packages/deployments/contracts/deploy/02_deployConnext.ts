@@ -8,7 +8,7 @@ import { mergeABIs } from "hardhat-deploy/dist/src/utils";
 import { SKIP_SETUP } from "../src/constants";
 import { getConnectorName, getDeploymentName, getProtocolNetwork } from "../src/utils";
 import { chainIdToDomain } from "../src";
-import { MESSAGING_PROTOCOL_CONFIGS, RELAYER_CONFIGS } from "../deployConfig/shared";
+import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
 
 function sigsFromABI(abi: any[]): string[] {
   return abi

@@ -133,7 +133,9 @@ export const sanitizeAndInit = async () => {
 
   const networks: NetworkStack[] = [];
   const filteredHardhatNetworks = Object.values(hardhatNetworks).filter(
-    (hardhatNetwork) => Object.keys(hardhatNetwork).includes("chainId") && Object.keys(hardhatNetwork).includes("url"),
+    (hardhatNetwork) =>
+      Object.keys(hardhatNetwork as object).includes("chainId") &&
+      Object.keys(hardhatNetwork as object).includes("url"),
   );
 
   // Get deployments for each domain if not specified in the config.
