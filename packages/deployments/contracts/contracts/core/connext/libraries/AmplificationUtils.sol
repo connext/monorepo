@@ -105,7 +105,7 @@ library AmplificationUtils {
    * @param self Swap struct to update
    */
   function stopRampA(SwapUtils.Swap storage self) internal {
-    require(self.futureATime > block.timestamp, "Ramp is already stopped");
+    require(self.futureATime >= block.timestamp, "Ramp is already stopped");
 
     uint256 currentA = _getAPrecise(self);
     self.initialA = currentA;
