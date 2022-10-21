@@ -45,7 +45,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
   ],
   agents: {
     watchers: {
-      whitelist: ["", ""],
+      whitelist: ["0xade09131C6f43fe22C2CbABb759636C43cFc181e"],
     },
     routers: {
       whitelist: ["0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c"],
