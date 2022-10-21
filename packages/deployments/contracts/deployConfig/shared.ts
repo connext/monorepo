@@ -343,16 +343,6 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
   mainnet: {
     hub: 1,
     configs: {
-      1: {
-        prefix: "Eth",
-        ambs: {
-          hub: "",
-          spoke: "",
-        },
-        processGas: DEFAULT_PROCESS_GAS,
-        reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: DEFAULT_DELAY_BLOCKS,
-      },
       10: {
         prefix: "Optimism",
         ambs: {
