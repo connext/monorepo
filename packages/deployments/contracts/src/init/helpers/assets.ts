@@ -81,6 +81,7 @@ export const setupAsset = async (args: {
 
     // Run setupAsset.
     const desiredAdopted = representation.adopted;
+    let setupAssetDone = true;
     try {
       const adopted = await getValue({
         deployment: network.deployments.Connext,
@@ -97,8 +98,13 @@ export const setupAsset = async (args: {
             args: [[canonical.domain, canonical.id], desiredAdopted, representation.local],
           },
         });
+
+        setupAssetDone = false;
       }
-    } catch {}
+    } catch {
+      // `canonicalToAdopted` function reverts if `key` didn't get whitelisted
+      setupAssetDone = false;
+    }
 
     if (representation.local) {
       await updateIfNeeded({
@@ -111,26 +117,28 @@ export const setupAsset = async (args: {
         },
       });
     } else {
-      const tokenName = `next${asset.name.toUpperCase()}`;
-      const tokenSymbol = tokenName;
+      if (!setupAssetDone) {
+        const tokenName = `next${asset.name.toUpperCase()}`;
+        const tokenSymbol = tokenName;
 
-      await updateIfNeeded({
-        deployment: network.deployments.Connext,
-        desired: desiredAdopted,
-        read: { method: "canonicalToAdopted(bytes32)", args: [key] },
-        write: {
-          method: "setupAsset",
-          args: [
-            [canonical.domain, canonical.id],
-            canonicalDecimals,
-            tokenName,
-            tokenSymbol,
-            desiredAdopted,
-            stableswapPool,
-            0,
-          ],
-        },
-      });
+        await updateIfNeeded({
+          deployment: network.deployments.Connext,
+          desired: desiredAdopted,
+          read: { method: "canonicalToAdopted(bytes32)", args: [key] },
+          write: {
+            method: "setupAsset",
+            args: [
+              [canonical.domain, canonical.id],
+              canonicalDecimals,
+              tokenName,
+              tokenSymbol,
+              desiredAdopted,
+              stableswapPool,
+              0,
+            ],
+          },
+        });
+      }
     }
   }
 };
