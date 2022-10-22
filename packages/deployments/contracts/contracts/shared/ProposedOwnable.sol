@@ -186,9 +186,14 @@ abstract contract ProposedOwnableUpgradeable is Initializable, ProposedOwnable {
   }
 
   /**
-   * @dev This empty reserved space is put in place to allow future versions to add new
+   * @notice This empty reserved space is put in place to allow future versions to add new
    * variables without shifting down storage in the inheritance chain.
    * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+   *
+   * @dev Is 47 to account for the following 3 globals:
+   * - address private _owner;
+   * - address private _proposed;
+   * - uint256 private _proposedOwnershipTimestamp;
    */
-  uint256[49] private __GAP;
+  uint256[47] private __GAP;
 }
