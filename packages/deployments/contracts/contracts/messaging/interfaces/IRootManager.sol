@@ -7,7 +7,7 @@ interface IRootManager {
    * spoke domains.
    * @dev This must read information for the root from the registered AMBs.
    */
-  function propagate(uint32[] calldata _domains, address[] calldata _connectors) external;
+  function propagate(address[] calldata _connectors) external;
 
   /**
    * @notice Called by the connectors for various domains on the hub to aggregate their latest
