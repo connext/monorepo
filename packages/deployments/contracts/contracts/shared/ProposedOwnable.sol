@@ -132,7 +132,7 @@ abstract contract ProposedOwnable is IProposedOwnable {
     if (_proposed != address(0)) revert ProposedOwnable__renounceOwnership_invalidProposal();
 
     // Emit event, set new owner, reset timestamp
-    _setOwner(_proposed);
+    _setOwner(address(0));
   }
 
   /**
