@@ -28,21 +28,18 @@ import {IProposedOwnable} from "../../../shared/interfaces/IProposedOwnable.sol"
  */
 contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   // ========== Custom Errors ===========
+  error ProposedOwnableFacet__delayElapsed_delayNotElapsed();
   error ProposedOwnableFacet__proposeRouterWhitelistRemoval_noOwnershipChange();
   error ProposedOwnableFacet__removeRouterWhitelist_noOwnershipChange();
   error ProposedOwnableFacet__removeRouterWhitelist_noProposal();
-  error ProposedOwnableFacet__removeRouterWhitelist_delayNotElapsed();
   error ProposedOwnableFacet__proposeAssetWhitelistRemoval_noOwnershipChange();
   error ProposedOwnableFacet__removeAssetWhitelist_noOwnershipChange();
   error ProposedOwnableFacet__removeAssetWhitelist_noProposal();
-  error ProposedOwnableFacet__removeAssetWhitelist_delayNotElapsed();
   error ProposedOwnableFacet__proposeNewOwner_invalidProposal();
   error ProposedOwnableFacet__proposeNewOwner_noOwnershipChange();
   error ProposedOwnableFacet__renounceOwnership_noProposal();
-  error ProposedOwnableFacet__renounceOwnership_delayNotElapsed();
   error ProposedOwnableFacet__renounceOwnership_invalidProposal();
   error ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
-  error ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed();
   error ProposedOwnableFacet__revokeRole_invalidInput();
   error ProposedOwnableFacet__assignRoleRouter_invalidInput();
   error ProposedOwnableFacet__assignRoleWatcher_invalidInput();
@@ -69,6 +66,17 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   event Paused();
 
   event Unpaused();
+
+  // ============ External: Modifiers ============
+
+  /**
+   * @notice Throws if called before the delay has elapsed
+   */
+  modifier delayElapsed(uint256 timestamp) {
+    // Ensure delay has elapsed
+    if ((block.timestamp - timestamp) <= delay()) revert ProposedOwnableFacet__delayElapsed_delayNotElapsed();
+    _;
+  }
 
   // ============ External: Getters ============
 
@@ -156,17 +164,13 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * @notice Indicates if the ownership of the asset whitelist has
    * been renounced
    */
-  function removeRouterWhitelist() public onlyOwnerOrAdmin {
+  function removeRouterWhitelist() public onlyOwnerOrAdmin delayElapsed(s._routerWhitelistTimestamp) {
     // Contract as sounce of truth
     // Will fail if all ownership is renounced by modifier
     if (s._routerWhitelistRemoved) revert ProposedOwnableFacet__removeRouterWhitelist_noOwnershipChange();
 
     // Ensure there has been a proposal cycle started
     if (s._routerWhitelistTimestamp == 0) revert ProposedOwnableFacet__removeRouterWhitelist_noProposal();
-
-    // Delay has elapsed
-    if ((block.timestamp - s._routerWhitelistTimestamp) <= delay())
-      revert ProposedOwnableFacet__removeRouterWhitelist_delayNotElapsed();
 
     // Set renounced, emit event, reset timestamp to 0
     _setRouterWhitelistRemoved(true);
@@ -189,17 +193,13 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * @notice Indicates if the ownership of the asset whitelist has
    * been renounced
    */
-  function removeAssetWhitelist() public onlyOwnerOrAdmin {
+  function removeAssetWhitelist() public onlyOwnerOrAdmin delayElapsed(s._assetWhitelistTimestamp) {
     // Contract as source of truth
     // Will fail if all ownership is renounced by modifier
     if (s._assetWhitelistRemoved) revert ProposedOwnableFacet__removeAssetWhitelist_noOwnershipChange();
 
     // Ensure there has been a proposal cycle started
     if (s._assetWhitelistTimestamp == 0) revert ProposedOwnableFacet__removeAssetWhitelist_noProposal();
-
-    // Ensure delay has elapsed
-    if ((block.timestamp - s._assetWhitelistTimestamp) <= delay())
-      revert ProposedOwnableFacet__removeAssetWhitelist_delayNotElapsed();
 
     // Set ownership, reset timestamp, emit event
     _setAssetWhitelistRemoved(true);
@@ -231,13 +231,9 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   /**
    * @notice Renounces ownership of the contract after a delay
    */
-  function renounceOwnership() public onlyOwner {
+  function renounceOwnership() public onlyOwner delayElapsed(s._proposedOwnershipTimestamp) {
     // Ensure there has been a proposal cycle started
     if (s._proposedOwnershipTimestamp == 0) revert ProposedOwnableFacet__renounceOwnership_noProposal();
-
-    // Ensure delay has elapsed
-    if ((block.timestamp - s._proposedOwnershipTimestamp) <= delay())
-      revert ProposedOwnableFacet__renounceOwnership_delayNotElapsed();
 
     // Require proposed is set to 0
     if (s._proposed != address(0)) revert ProposedOwnableFacet__renounceOwnership_invalidProposal();
@@ -250,7 +246,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * @notice Transfers ownership of the contract to a new account (`newOwner`).
    * Can only be called by the proposed owner.
    */
-  function acceptProposedOwner() public onlyProposed {
+  function acceptProposedOwner() public onlyProposed delayElapsed(s._proposedOwnershipTimestamp) {
     // Contract as source of truth
     if (owner() == s._proposed) revert ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
 
@@ -258,10 +254,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     // the only time this would happen is if the _proposed was never
     // set (will fail from modifier) or if the owner == _proposed (checked
     // above)
-
-    // Ensure delay has elapsed
-    if ((block.timestamp - s._proposedOwnershipTimestamp) <= delay())
-      revert ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed();
 
     // Emit event, set new owner, reset timestamp
     _setOwner(s._proposed);

@@ -30,12 +30,11 @@ abstract contract ProposedOwnable is IProposedOwnable {
 
   error ProposedOwnable__onlyOwner_notOwner();
   error ProposedOwnable__onlyProposed_notProposedOwner();
+  error ProposedOwnable__delayElapsed_delayNotElapsed();
   error ProposedOwnable__proposeNewOwner_invalidProposal();
   error ProposedOwnable__proposeNewOwner_noOwnershipChange();
   error ProposedOwnable__renounceOwnership_noProposal();
-  error ProposedOwnable__renounceOwnership_delayNotElapsed();
   error ProposedOwnable__renounceOwnership_invalidProposal();
-  error ProposedOwnable__acceptProposedOwner_delayNotElapsed();
 
   // ============ Properties ============
 
@@ -45,6 +44,34 @@ abstract contract ProposedOwnable is IProposedOwnable {
   uint256 private _proposedOwnershipTimestamp;
 
   uint256 private constant _delay = 7 days;
+
+  // ============ Modifiers ============
+
+  /**
+   * @notice Throws if called by any account other than the owner.
+   */
+  modifier onlyOwner() {
+    if (_owner != msg.sender) revert ProposedOwnable__onlyOwner_notOwner();
+    _;
+  }
+
+  /**
+   * @notice Throws if called by any account other than the proposed owner.
+   */
+  modifier onlyProposed() {
+    if (_proposed != msg.sender) revert ProposedOwnable__onlyProposed_notProposedOwner();
+    _;
+  }
+
+  /**
+   * @notice Throws if called before the delay has elapsed
+   */
+  modifier delayElapsed() {
+    // Ensure delay has elapsed
+    if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay)
+      revert ProposedOwnable__delayElapsed_delayNotElapsed();
+    _;
+  }
 
   // ======== Getters =========
 
@@ -77,22 +104,6 @@ abstract contract ProposedOwnable is IProposedOwnable {
   }
 
   /**
-   * @notice Throws if called by any account other than the owner.
-   */
-  modifier onlyOwner() {
-    if (_owner != msg.sender) revert ProposedOwnable__onlyOwner_notOwner();
-    _;
-  }
-
-  /**
-   * @notice Throws if called by any account other than the proposed owner.
-   */
-  modifier onlyProposed() {
-    if (_proposed != msg.sender) revert ProposedOwnable__onlyProposed_notProposedOwner();
-    _;
-  }
-
-  /**
    * @notice Indicates if the ownership has been renounced() by
    * checking if current owner is address(0)
    */
@@ -120,13 +131,9 @@ abstract contract ProposedOwnable is IProposedOwnable {
   /**
    * @notice Renounces ownership of the contract after a delay
    */
-  function renounceOwnership() public virtual onlyOwner {
+  function renounceOwnership() public virtual onlyOwner delayElapsed {
     // Ensure there has been a proposal cycle started
     if (_proposedOwnershipTimestamp == 0) revert ProposedOwnable__renounceOwnership_noProposal();
-
-    // Ensure delay has elapsed
-    if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay)
-      revert ProposedOwnable__renounceOwnership_delayNotElapsed();
 
     // Require proposed is set to 0
     if (_proposed != address(0)) revert ProposedOwnable__renounceOwnership_invalidProposal();
@@ -139,7 +146,7 @@ abstract contract ProposedOwnable is IProposedOwnable {
    * @notice Transfers ownership of the contract to a new account (`newOwner`).
    * Can only be called by the current owner.
    */
-  function acceptProposedOwner() public virtual onlyProposed {
+  function acceptProposedOwner() public virtual onlyProposed delayElapsed {
     // NOTE: no need to check if _owner == _proposed, because the _proposed
     // is 0-d out and this check is implicitly enforced by modifier
 
@@ -147,10 +154,6 @@ abstract contract ProposedOwnable is IProposedOwnable {
     // the only time this would happen is if the _proposed was never
     // set (will fail from modifier) or if the owner == _proposed (checked
     // above)
-
-    // Ensure delay has elapsed
-    if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay)
-      revert ProposedOwnable__acceptProposedOwner_delayNotElapsed();
 
     // Emit event, set new owner, reset timestamp
     _setOwner(_proposed);
