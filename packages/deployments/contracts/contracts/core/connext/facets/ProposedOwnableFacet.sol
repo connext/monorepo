@@ -243,7 +243,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     if (s._proposed != address(0)) revert ProposedOwnableFacet__renounceOwnership_invalidProposal();
 
     // Emit event, set new owner, reset timestamp
-    _setOwner(s._proposed);
+    _setOwner(address(0));
   }
 
   /**
