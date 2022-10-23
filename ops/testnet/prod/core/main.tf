@@ -126,7 +126,7 @@ module "router_web3signer" {
   vpc_id                   = module.network.vpc_id
   private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
-  docker_image             = "ghcr.io/connext/web3signer:21.10.6"
+  docker_image             = "ghcr.io/connext/web3signer:latest"
   container_family         = "router-web3signer"
   health_check_path        = "/upcheck"
   container_port           = 9000
@@ -239,7 +239,7 @@ module "sequencer_web3signer" {
   vpc_id                   = module.network.vpc_id
   private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
-  docker_image             = "ghcr.io/connext/web3signer:21.10.6"
+  docker_image             = "ghcr.io/connext/web3signer:latest"
   container_family         = "sequencer-web3signer"
   health_check_path        = "/upcheck"
   container_port           = 9000
