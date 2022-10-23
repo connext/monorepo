@@ -46,7 +46,7 @@ locals {
 
     logLevel = "debug"
     chains = {
-      "1" = {
+      "6648936" = {
         providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://rpc.ankr.com/eth_mainnet"]
         assets = [{
           name    = "USDC"
@@ -143,7 +143,7 @@ locals {
       }
     }
     chains = {
-      "1" = {
+      "6648936" = {
         providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_1}", "https://rpc.ankr.com/eth_mainnet"]
         assets = [{
           name    = "USDC"
@@ -153,11 +153,11 @@ locals {
           address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
         }]
       },
-      "10" = {
+      "1869640809" = {
         providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_1}", "https://rpc.ankr.com/polygon"]
         assets    = []
       },
-      "137" = {
+      "1886350457" = {
         providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_1}", "https://rpc.ankr.com/optimism"]
         assets    = []
       }
@@ -174,13 +174,13 @@ locals {
   local_lighthouse_config = jsonencode({
     logLevel = "debug"
     chains = {
-      "1" = {
+      "6648936" = {
         providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://rpc.ankr.com/eth_mainnet"]
       },
-      "10" = {
+      "1869640809" = {
         providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_1}", "https://rpc.ankr.com/polygon"]
       },
-      "137" = {
+      "1886350457" = {
         providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_1}", "https://rpc.ankr.com/optimism"]
       }
     }

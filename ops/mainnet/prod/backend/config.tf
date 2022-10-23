@@ -21,9 +21,9 @@ locals {
   local_cartographer_config = jsonencode({
     logLevel = "debug"
     chains = {
-      "1"   = {}
-      "10"  = {}
-      "137" = {}
+      "6648936"   = {}
+      "1869640809"  = {}
+      "1886350457" = {}
     }
     environment = var.stage
   })
