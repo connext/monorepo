@@ -64,7 +64,7 @@ services:
 
   signer-router:
     container_name: signer-router
-    image: "ghcr.io/connext/web3signer:latest"
+    image: "ghcr.io/connext/web3signer:21.10.6"
     restart: always
     environment:
       - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY_ROUTER
@@ -121,7 +121,7 @@ services:
 
   signer-sequencer:
     container_name: signer-sequencer
-    image: "ghcr.io/connext/web3signer:latest"
+    image: "ghcr.io/connext/web3signer:21.10.6"
     restart: always
     environment:
       - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY_SEQUENCER
@@ -163,7 +163,7 @@ services:
 
   signer-relayer:
     container_name: signer-relayer
-    image: "ghcr.io/connext/web3signer:latest"
+    image: "ghcr.io/connext/web3signer:21.10.6"
     restart: always
     environment:
       - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY_RELAYER
