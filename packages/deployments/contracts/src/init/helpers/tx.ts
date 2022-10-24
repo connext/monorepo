@@ -15,6 +15,7 @@ type WaitForTxArguments = {
     desired?: any;
   };
 };
+
 export const waitForTx = async (
   args: WaitForTxArguments,
 ): Promise<{ receipt: providers.TransactionReceipt; result?: any }> => {
@@ -30,9 +31,9 @@ export const waitForTx = async (
   console.log(`${prefix}Transaction mined:`, receipt.transactionHash);
 
   let value: any | undefined = undefined;
-  if (checkResult && typeof checkResult.method === "function") {
+  if (checkResult?.desired != undefined && typeof checkResult.method === "function") {
     value = await checkResult.method();
-    if (checkResult.desired && value !== checkResult.desired) {
+    if (value !== checkResult.desired) {
       throw new Error(`${prefix}Checking result of update failed: ${value} !== ${checkResult.desired}`);
     }
   }
