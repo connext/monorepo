@@ -191,7 +191,7 @@ export const getEnvConfig = (
     subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     nomadEnvironment:
-      process.env.NXTP_NOMAD_ENVIRONMENT || configJson.nomadEnvironment || configFile.nomadEnvironment || "staging",
+      process.env.NXTP_NOMAD_ENVIRONMENT || configJson.nomadEnvironment || configFile.nomadEnvironment || "none",
     messageQueue: {
       uri:
         process.env.NXTP_MESSAGE_QUEUE_URI ||
