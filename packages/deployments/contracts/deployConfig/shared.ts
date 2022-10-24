@@ -201,11 +201,7 @@ export type MessagingProtocolConfig = {
   };
 };
 
-export const MESSAGING_PROTOCOL_CONFIGS: {
-  local: MessagingProtocolConfig;
-  testnet: MessagingProtocolConfig;
-  mainnet: MessagingProtocolConfig;
-} = {
+export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig> = {
   local: {
     hub: 1337,
     configs: {
