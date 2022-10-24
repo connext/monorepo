@@ -135,7 +135,7 @@ export const setupAsset = async (args: {
               tokenSymbol,
               desiredAdopted,
               stableswapPool,
-              0,
+              asset.canonical.cap ?? 0,
             ],
           },
         });

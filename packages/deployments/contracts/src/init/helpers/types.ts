@@ -26,6 +26,9 @@ export const AssetStackSchema = Type.Object({
     address: Type.String(),
     // Decimals of the canonical token on the canonical domain
     decimals: Type.Optional(Type.Number()),
+    // Liquidity cap -- lock on the amount custodied on mainnet + router liquidity
+    // in wei units. If not defined, will not have a cap enforced
+    cap: Type.Optional(Type.String()),
   }),
   representations: Type.Record(
     Type.String(),
