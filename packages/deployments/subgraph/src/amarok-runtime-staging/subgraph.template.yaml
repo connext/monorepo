@@ -99,15 +99,13 @@ dataSources:
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleNewConnector
       file: ./src/amarok-runtime-staging/mapping/index.ts
+templates:
   # STABLE SWAP events
   - kind: ethereum/contract
     name: StableSwap
     network: "{{network}}"
     source:
-      address: "{{address}}"
       abi: StableSwap
-      # prettier-ignore
-      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
