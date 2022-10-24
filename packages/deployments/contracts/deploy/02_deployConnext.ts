@@ -58,6 +58,7 @@ const proposeDiamondUpgrade = async (
       args: facet.args,
       from: deployer.address,
       log: true,
+      deterministicDeployment: true,
     });
 
     // Update selectors and snapshot
