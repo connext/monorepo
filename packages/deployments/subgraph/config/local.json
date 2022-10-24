@@ -11,11 +11,6 @@
         "name": "ConnextHandler",
         "address": "0x8664bE4C5C12c718838b5dCd8748B66F3A0f6A18",
         "startBlock": 7426310
-      },
-      {
-        "name": "ConnextHandler",
-        "address": "0x8664bE4C5C12c718838b5dCd8748B66F3A0f6A18",
-        "startBlock": 7426310
       }
     ]
   }
