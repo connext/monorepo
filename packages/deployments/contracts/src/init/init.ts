@@ -224,27 +224,27 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
   /// ********************* Messaging **********************
   /// MARK - Messaging
-  await setupMessaging(protocol);
+  // await setupMessaging(protocol);
 
   // ********************* CONNEXT *********************
   /// MARK - Enroll Handlers
-  console.log("\n\nEnrolling handlers");
-  for (let i = 0; i < protocol.networks.length; i++) {
-    const targetNetwork = protocol.networks[i];
-    const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
-    for (const remoteNetwork of remoteNetworks) {
-      const desiredConnextion = remoteNetwork.deployments.Connext.address;
-      await updateIfNeeded({
-        deployment: targetNetwork.deployments.Connext,
-        desired: desiredConnextion,
-        read: { method: "remote", args: [remoteNetwork.domain] },
-        write: {
-          method: "enrollRemoteRouter",
-          args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
-        },
-      });
-    }
-  }
+  // console.log("\n\nEnrolling handlers");
+  // for (let i = 0; i < protocol.networks.length; i++) {
+  //   const targetNetwork = protocol.networks[i];
+  //   const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
+  //   for (const remoteNetwork of remoteNetworks) {
+  //     const desiredConnextion = remoteNetwork.deployments.Connext.address;
+  //     await updateIfNeeded({
+  //       deployment: targetNetwork.deployments.Connext,
+  //       desired: desiredConnextion,
+  //       read: { method: "remote", args: [remoteNetwork.domain] },
+  //       write: {
+  //         method: "enrollRemoteRouter",
+  //         args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
+  //       },
+  //     });
+  //   }
+  // }
 
   /// ********************* ASSETS **********************
   /// MARK - Register Assets
