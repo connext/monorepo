@@ -24,6 +24,8 @@ export const AssetStackSchema = Type.Object({
     domain: Type.String(),
     // Address of the official canonical token on the canonical domain.
     address: Type.String(),
+    // Decimals of the canonical token on the canonical domain
+    decimals: Type.Optional(Type.Number()),
   }),
   representations: Type.Record(
     Type.String(),

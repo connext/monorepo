@@ -14,6 +14,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       canonical: {
         domain: "1735353714",
         address: "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
+        decimals: 18,
       },
       representations: {
         "1735356532": {
@@ -36,6 +37,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       canonical: {
         domain: "1735353714",
         address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+        decimals: 18,
       },
       representations: {
         "1735356532": {

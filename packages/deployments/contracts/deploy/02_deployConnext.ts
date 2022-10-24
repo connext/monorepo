@@ -305,6 +305,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     });
     console.log("TestERC20: ", deployment.address);
 
+    deployment = await hre.deployments.deploy("TestAdopted", {
+      contract: "TestERC20",
+      from: deployer.address,
+      log: true,
+      skipIfAlreadyDeployed: true,
+      args: ["Test Adopted", "TEST2"],
+    });
+
     deployment = await hre.deployments.deploy("TestWETH", {
       contract: "TestERC20",
       from: deployer.address,
@@ -312,6 +320,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       skipIfAlreadyDeployed: true,
       args: ["Test Wrapped Ether", "TWETH"],
     });
+
     console.log("TestERC20: ", deployment.address);
   } else {
     console.log("Skipping test setup on chainId: ", chainId);

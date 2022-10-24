@@ -1,7 +1,7 @@
 import { constants, utils } from "ethers";
 import { ChainData } from "@connext/nxtp-utils";
 
-import { canonizeId, chainIdToDomain } from "../../domain";
+import { canonizeId } from "../../domain";
 
 import { AssetStack, NetworkStack } from "./types";
 import { getValue, updateIfNeeded } from "./tx";
@@ -35,29 +35,38 @@ export const setupAsset = async (args: {
     );
   }
 
-  await updateIfNeeded({
-    deployment: home.deployments.Connext,
-    desired: asset.canonical.address,
-    read: { method: "canonicalToAdopted(bytes32)", args: [key] },
-    write: {
-      method: "setupAssetWithDeployedRepresentation",
-      args: [
-        [canonical.domain, canonical.id],
-        asset.canonical.address,
-        constants.AddressZero,
-        constants.AddressZero,
-        0,
-      ],
-    },
-  });
+  let canonicalDecimals = asset.canonical.decimals;
+  if (canonicalDecimals === undefined || canonicalDecimals === null) {
+    const chainInfo = chainData.get(asset.canonical.domain);
+    canonicalDecimals = chainInfo?.assetId[asset.canonical.address]?.decimals;
+  }
 
-  const chainInfo = chainData.get(asset.canonical.domain);
-  const canonicalDecimals = chainInfo?.assetId[asset.canonical.address]?.decimals;
+  const tokenName = `next${asset.name.toUpperCase()}`;
+  const tokenSymbol = tokenName;
+
   if (!canonicalDecimals) {
     throw new Error(
       `Could not get the decimals for asset ${asset.canonical.address} on domain ${asset.canonical.domain}`,
     );
   }
+
+  await updateIfNeeded({
+    deployment: home.deployments.Connext,
+    desired: asset.canonical.address,
+    read: { method: "canonicalToAdopted(bytes32)", args: [key] },
+    write: {
+      method: "setupAsset",
+      args: [
+        [canonical.domain, canonical.id],
+        canonicalDecimals,
+        tokenName,
+        tokenSymbol,
+        asset.canonical.address,
+        constants.AddressZero,
+        0,
+      ],
+    },
+  });
 
   // Set up all the representational assets on their respective domains.
   for (const [domain, representation] of Object.entries(asset.representations)) {
@@ -70,12 +79,6 @@ export const setupAsset = async (args: {
     if (!network) {
       throw new Error(
         `Could not find network ${domain} for asset ${asset.canonical.address} in the configured list of networks!`,
-      );
-    }
-
-    if (!representation.local) {
-      throw new Error(
-        "Can't call `setupAsset` for an asset with no local representations! No `local` bridge token was provided.",
       );
     }
 
@@ -118,9 +121,6 @@ export const setupAsset = async (args: {
       });
     } else {
       if (!setupAssetDone) {
-        const tokenName = `next${asset.name.toUpperCase()}`;
-        const tokenSymbol = tokenName;
-
         await updateIfNeeded({
           deployment: network.deployments.Connext,
           desired: desiredAdopted,
