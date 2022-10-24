@@ -55,8 +55,6 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
   mapping(address => Price) public assetPrices;
 
-  event NewAdmin(address oldAdmin, address newAdmin);
-  event PriceRecordUpdated(address token, address baseToken, address lpToken, bool _active);
   event DirectPriceUpdated(address token, uint256 oldPrice, uint256 newPrice);
   event AggregatorUpdated(address tokenAddress, address source);
   event V1PriceOracleUpdated(address oldAddress, address newAddress);
