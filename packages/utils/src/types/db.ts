@@ -33,6 +33,7 @@ export const transfersCastForUrl =
     "xcall_gas_limit::text",
     "xcall_block_number",
     "destination_chain",
+    "receive_local",
     "status",
     "routers",
     "delegate",
@@ -62,6 +63,13 @@ export const transfersCastForUrl =
  * @returns an XTransfer object
  */
 export const convertFromDbTransfer = (transfer: any): XTransfer => {
+  console.log("> convertFromDbTranfer.......................................");
+  console.log(`> receive_local: ${transfer.receive_local}, transfer_id: ${transfer.transfer_id}`);
+  if (transfer.receive_local) {
+    console.log("receiving local....");
+  } else {
+    console.log("wtf................");
+  }
   return {
     xparams: {
       originDomain: transfer.origin_domain,
@@ -73,8 +81,8 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       callData: transfer.call_data || "0x",
       slippage: transfer.slippage.toString(),
       originSender: transfer.origin_sender,
-      bridgedAmt: transfer.bridged_amt.toString(),
-      normalizedIn: transfer.normalized_in.toString(),
+      bridgedAmt: BigNumber.from(BigInt((transfer.bridged_amt as string) ?? "0")).toString(),
+      normalizedIn: BigNumber.from(BigInt((transfer.normalized_in as string) ?? "0")).toString(),
       nonce: BigNumber.from(transfer.nonce).toNumber(),
       canonicalId: transfer.canonical_id,
     },
