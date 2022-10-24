@@ -41,9 +41,11 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
       },
       representations: {
         "1735356532": {
+          local: "0x387d74037a7b691e8f6203b8c7589ea9d0b7d3c0",
           adopted: "0x154284B2Fa68AB299fa40F144b6D0983163cd108",
         },
         "9991": {
+          local: "0xaa52c1e21428e1a081d77c869276100be1db9aee",
           adopted: "0x6c6F2Ed3283124eA2C861100ED044f4d0F434Fc1",
         },
       },
