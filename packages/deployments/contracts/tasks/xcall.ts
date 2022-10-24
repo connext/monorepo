@@ -191,7 +191,10 @@ export default task("xcall", "Prepare a cross-chain tx")
           senders.map(async (sender) => {
             const to = _to ?? process.env.TRANSFER_TO ?? sender.address;
             const args = [destinationDomain, to, asset, delegate, amount, slippage, callData];
-            const encoded = connext.interface.encodeFunctionData("xcall", args);
+            const encoded = receiveLocal
+              ? connext.interface.encodeFunctionData("xcallIntoLocal", args)
+              : connext.interface.encodeFunctionData("xcall", args);
+
             if (showArgs) {
               console.log("  destinationDomain: ", destinationDomain);
               console.log("  asset: ", asset);
@@ -206,13 +209,24 @@ export default task("xcall", "Prepare a cross-chain tx")
             }
 
             // TODO: For receiveLocal calls, use xcallIntoLocal.
-            const tx = await connext
-              .connect(sender)
-              .functions.xcall(destinationDomain, to, asset, delegate, amount, slippage, callData, {
-                from: sender.address,
-                gasLimit: 2_000_000,
-                value: relayerFee,
-              });
+            let tx;
+            if (receiveLocal) {
+              tx = await connext
+                .connect(sender)
+                .functions.xcallIntoLocal(destinationDomain, to, asset, delegate, amount, slippage, callData, {
+                  from: sender.address,
+                  gasLimit: 2_000_000,
+                  value: relayerFee,
+                });
+            } else {
+              tx = await connext
+                .connect(sender)
+                .functions.xcall(destinationDomain, to, asset, delegate, amount, slippage, callData, {
+                  from: sender.address,
+                  gasLimit: 2_000_000,
+                  value: relayerFee,
+                });
+            }
             console.log(`Transaction from sender: ${sender.address}`);
             console.log("  Tx: ", tx.hash);
 
