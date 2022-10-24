@@ -104,7 +104,8 @@ export const setupAsset = async (args: {
 
         setupAssetDone = false;
       }
-    } catch {
+    } catch (e: any) {
+      console.log(`Failed to lookup canonical to adopted, or remove asset:`, e.message);
       // `canonicalToAdopted` function reverts if `key` didn't get whitelisted
       setupAssetDone = false;
     }
