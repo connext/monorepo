@@ -18,16 +18,32 @@ export const mustGetEnv = (_env?: string) => {
   return env;
 };
 
-export const getProtocolNetwork = (_chain: string | number): "mainnet" | "testnet" | "local" => {
+export enum ProtocolNetwork {
+  MAINNET = "mainnet",
+  TESTNET = "testnet",
+  LOCAL = "local",
+}
+
+export const ProtocolNetworks: Record<string, string> = {
+  // local networks
+  "1337": ProtocolNetwork.LOCAL,
+  "1338": ProtocolNetwork.LOCAL,
+
+  // testnets
+  "5": ProtocolNetwork.TESTNET,
+  "420": ProtocolNetwork.TESTNET,
+  "80001": ProtocolNetwork.TESTNET,
+
+  // mainnets
+  "1": ProtocolNetwork.MAINNET,
+  "10": ProtocolNetwork.MAINNET,
+  "137": ProtocolNetwork.MAINNET,
+};
+
+export const getProtocolNetwork = (_chain: string | number): string => {
   const chain = _chain.toString();
   // If chain 1337 or 1338, use local network.
-  return chain === "1337" || chain === "1338"
-    ? "local"
-    : // add mainnets
-    chain === "1" || chain === "137" || chain === "10"
-    ? "mainnet"
-    : // Default to testnet otherwise.
-      "local";
+  return ProtocolNetworks[chain] ?? ProtocolNetwork.LOCAL;
 };
 
 export const getConnectorName = (
