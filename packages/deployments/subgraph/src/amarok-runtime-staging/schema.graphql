@@ -204,31 +204,29 @@ type RootMessageSent @entity {
   blockNumber: BigInt
 }
 
+### STABLE SWAP
 type StableSwap @entity {
   id: ID!
-  canonicalId: Bytes!
+
+  # StableSwapAdded
+  key: Bytes
+  canonicalId: Bytes
   domain: BigInt
-  swapPool: Bytes!
+  swapPool: Bytes
 
-  lpTokenName: String!
-  lpTokenAddress: Bytes!
-  pooledTokens: [PoolToken!]!
-  initialA: BigInt!
-  futureA: BigInt!
-  adminFee: BigInt!
-  swapFee: BigInt!
-  withdrawFee: BigInt!
-  paused: Boolean!
-}
+  # SwapInitialized
+  lpToken: Bytes
 
-type MetaData @entity {
-  id: ID!
-}
+  initialA: BigInt
+  futureA: BigInt
 
-type PoolToken @entity {
-  id: ID!
-  address: Bytes!
-  precisionMultiplier: BigInt!
-  tokenAdminFee: BigInt!
-  balance: BigInt!
+  initialATime: BigInt
+  futureATime: BigInt
+
+  swapFee: BigInt
+  adminFee: BigInt
+  pooledTokens: [Bytes]
+  tokenPrecisionMultipliers: [BigInt]
+  balances: [BigInt]
+  adminFees: [BigInt]
 }
