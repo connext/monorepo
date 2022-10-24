@@ -36,19 +36,19 @@ export const setupAsset = async (args: {
   }
 
   let canonicalDecimals = asset.canonical.decimals;
-  if (canonicalDecimals === undefined || canonicalDecimals === null) {
+  if (!canonicalDecimals) {
     const chainInfo = chainData.get(asset.canonical.domain);
     canonicalDecimals = chainInfo?.assetId[asset.canonical.address]?.decimals;
   }
-
-  const tokenName = `next${asset.name.toUpperCase()}`;
-  const tokenSymbol = tokenName;
 
   if (!canonicalDecimals) {
     throw new Error(
       `Could not get the decimals for asset ${asset.canonical.address} on domain ${asset.canonical.domain}`,
     );
   }
+
+  const tokenName = `next${asset.name.toUpperCase()}`;
+  const tokenSymbol = tokenName;
 
   await updateIfNeeded({
     deployment: home.deployments.Connext,
