@@ -1,38 +1,44 @@
 /* eslint-disable prefer-const */
+import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 import { StableSwapAdded } from "../../../generated/Connext/Connext";
 import { AddLiquidity, OwnershipTransferred, SwapInitialized } from "../../../generated/StableSwap/StableSwap";
 
 import { StableSwap } from "../../../generated/schema";
+// import { Asset, AssetBalance, Router} from "../../../generated/schema";
 
 export function handleStableSwapAdded(event: StableSwapAdded): void {
-  // StableSwapAdded: bytes32 canonicalId, uint32 domain, address swapPool, address caller
-  let stableSwapId = `${event.params.canonicalId.toHex()}-${event.params.domain.toHex()}-${event.params.swapPool.toHex()}`;
-  let stableSwap = StableSwap.load(stableSwapId);
+  let stableSwap = getOrCreateStableSwap(event.params.swapPool);
 
-  if (stableSwap == null) {
-    stableSwap = new StableSwap(stableSwapId);
-    stableSwap.canonicalId = event.params.canonicalId;
-    stableSwap.domain = event.params.domain;
-    stableSwap.swapPool = event.params.swapPool;
-    stableSwap.save();
-  }
+  stableSwap.key = event.params.key;
+  stableSwap.canonicalId = event.params.canonicalId;
+  stableSwap.domain = event.params.domain;
+  stableSwap.swapPool = event.params.swapPool;
+
+  stableSwap.save();
 }
 
 export function handleSwapInitialized(event: SwapInitialized): void {
-  let metaDataId = DEFAULT_META_ID;
-  let metaData = MetaData.load(metaDataId);
+  let stableSwap = getOrCreateStableSwap(event.address);
 
-  if (metaData == null) {
-    metaData = new MetaData(metaDataId);
-    relayer.isActive = true;
-    relayer.relayer = event.params.relayer;
-    relayer.save();
-  }
+  stableSwap.lpToken = event.params.swap.lpToken;
+  stableSwap.initialA = event.params.swap.initialA;
+  stableSwap.futureA = event.params.swap.futureA;
+
+  stableSwap.initialATime = event.params.swap.initialATime;
+  stableSwap.futureATime = event.params.swap.futureATime;
+
+  stableSwap.swapFee = event.params.swap.swapFee;
+  stableSwap.adminFee = event.params.swap.adminFee;
+  stableSwap.pooledTokens = event.params.swap.pooledTokens;
+  stableSwap.tokenPrecisionMultipliers = event.params.swap.tokenPrecisionMultipliers;
+  stableSwap.balances = event.params.swap.balances;
+  stableSwap.adminFees = event.params.swap.adminFees;
+
+  stableSwap.save();
 }
 
 export function handleAddLiquidity(event: AddLiquidity): void {
-  let metaDataId = DEFAULT_META_ID;
-  let metaData = MetaData.load(metaDataId);
+  let stableSwap = getOrCreateStableSwap(event.address);
 
   if (metaData == null) {
     metaData = new MetaData(metaDataId);
@@ -177,4 +183,21 @@ function getOrCreateMetaData(): MetaData {
     metaData.save();
   }
   return metaData;
+}
+
+export function getOrCreateStableSwap(_stableSwap: Address): StableSwap {
+  let stableSwapId = _stableSwap.toHex();
+  let stableSwap = StableSwap.load(stableSwapId);
+
+  if (stableSwap == null) {
+    stableSwap = new StableSwap(stableSwapId);
+    stableSwap.key = new Bytes(32);
+    stableSwap.canonicalId = new Bytes(32);
+    stableSwap.domain = new BigInt(0);
+    stableSwap.swapPool = _stableSwap.toHex();
+
+    stableSwap.save();
+  }
+
+  return stableSwap;
 }
