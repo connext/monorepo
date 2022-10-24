@@ -18,20 +18,15 @@ export const mustGetEnv = (_env?: string) => {
   return env;
 };
 
-export const getProtocolNetwork = (_chain: string | number, _env?: string): "mainnet" | "testnet" | "local" => {
+export const getProtocolNetwork = (_chain: string | number): "mainnet" | "testnet" | "local" => {
   const chain = _chain.toString();
-  const env = _env ?? mustGetEnv();
   // If chain 1337 or 1338, use local network.
   return chain === "1337" || chain === "1338"
     ? "local"
-    : // TODO: we need production testnet and mainnet
-    // @jake pls take another look at this
-    env === "production"
-    ? "testnet"
-    : // 'staging' env => testnet
-    env === "staging"
-    ? "testnet"
-    : // Default to local otherwise.
+    : // add mainnets
+    chain === "1" || chain === "137" || chain === "10"
+    ? "mainnet"
+    : // Default to testnet otherwise.
       "local";
 };
 
