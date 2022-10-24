@@ -62,6 +62,16 @@ contract SpokeConnectorTest is ForgeHelper {
     vm.mockCall(address(_watcherManager), abi.encodeWithSelector(WatcherManager.isWatcher.selector), abi.encode(true));
   }
 
+  function test_SpokeConnector__setRateLimitBlocks_works() public {
+    // Is 0 (disabled) by default.
+    assertEq(spokeConnector.rateLimitBlocks(), 0);
+
+    vm.prank(owner);
+    spokeConnector.setRateLimitBlocks(123);
+
+    assertEq(spokeConnector.rateLimitBlocks(), 123);
+  }
+
   function test_SpokeConnector__setWatcherPaused_failsIfNotWatcher(address caller) public {
     // vm.mockCall(address(_watcherManager), abi.encodeWithSelector(WatcherManager.isWatcher.selector), abi.encode(false));
     vm.expectRevert("!watcher");
