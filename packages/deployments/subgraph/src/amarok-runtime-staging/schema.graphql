@@ -209,10 +209,7 @@ type StableSwap @entity {
   canonicalId: Bytes!
   domain: BigInt
   swapPool: Bytes!
-}
 
-type MetaData @entity {
-  id: ID!
   lpTokenName: String!
   lpTokenAddress: Bytes!
   pooledTokens: [PoolToken!]!
@@ -222,6 +219,10 @@ type MetaData @entity {
   swapFee: BigInt!
   withdrawFee: BigInt!
   paused: Boolean!
+}
+
+type MetaData @entity {
+  id: ID!
 }
 
 type PoolToken @entity {
