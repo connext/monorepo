@@ -6,10 +6,13 @@ import {SpokeConnector} from "../../../contracts/messaging/connectors/SpokeConne
 import {WatcherManager} from "../../../contracts/messaging/WatcherManager.sol";
 import {MerkleTreeManager} from "../../../contracts/messaging/Merkle.sol";
 import {Message} from "../../../contracts/messaging/libraries/Message.sol";
+import {RateLimited} from "../../../contracts/messaging/libraries/RateLimited.sol";
 
 import "../../utils/ForgeHelper.sol";
 
 contract SpokeConnectorTest is ForgeHelper {
+  event MessageSent(bytes data, address caller);
+
   // ============ Storage ============
   SpokeConnector spokeConnector;
   address owner = address(1);
@@ -72,6 +75,36 @@ contract SpokeConnectorTest is ForgeHelper {
     vm.prank(watcher);
     spokeConnector.pause();
     assertTrue(spokeConnector.paused());
+  }
+
+  function test_SpokeConnector__send_works() public {
+    bytes32 root = bytes32(bytes("test123"));
+    vm.mockCall(address(_merkle), abi.encodeWithSelector(MerkleTreeManager.root.selector), abi.encode(root));
+    bytes memory data = abi.encodePacked(root);
+
+    vm.expectEmit(true, true, true, true);
+    emit MessageSent(data, address(this));
+
+    spokeConnector.send();
+
+    assertEq(MockSpokeConnector(address(spokeConnector)).lastOutbound(), keccak256(data));
+  }
+
+  function test_SpokeConnector__send_failsIfPaused() public {
+    utils_mockIsWatcher_true();
+    spokeConnector.pause();
+    assertTrue(spokeConnector.paused());
+
+    vm.expectRevert("Pausable: paused");
+    spokeConnector.send();
+  }
+
+  function test_SpokeConnector__send_failsIfRateLimitExceeded() public {
+    vm.prank(owner);
+    spokeConnector.setRateLimitBlocks(10);
+
+    vm.expectRevert(RateLimited.RateLimited__rateLimited_messageSendRateExceeded.selector);
+    spokeConnector.send();
   }
 
   function test_SpokeConnector__proveAndProcess_failsIfPaused() public {
