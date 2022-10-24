@@ -63,13 +63,6 @@ export const transfersCastForUrl =
  * @returns an XTransfer object
  */
 export const convertFromDbTransfer = (transfer: any): XTransfer => {
-  console.log("> convertFromDbTranfer.......................................");
-  console.log(`> receive_local: ${transfer.receive_local}, transfer_id: ${transfer.transfer_id}`);
-  if (transfer.receive_local) {
-    console.log("receiving local....");
-  } else {
-    console.log("wtf................");
-  }
   return {
     xparams: {
       originDomain: transfer.origin_domain,
