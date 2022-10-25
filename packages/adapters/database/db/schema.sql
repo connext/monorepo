@@ -116,8 +116,8 @@ CREATE VIEW public.routers_with_balances AS
     assets.key,
     assets.id
    FROM ((public.routers
-     JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
-     JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
+     LEFT JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
+     LEFT JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
 
 
 --
@@ -485,4 +485,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20221011065150'),
     ('20221018124227'),
     ('20221018190949'),
-    ('20221019094510');
+    ('20221019094510'),
+    ('20221025060119');

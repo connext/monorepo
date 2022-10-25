@@ -96,6 +96,15 @@ const run = async () => {
       };
     });
 
+    if (jsonFile.templates) {
+      jsonFile.templates = (jsonFile.templates ?? []).map((ds: any, index: number) => {
+        return {
+          ...ds,
+          network: n.network,
+        };
+      });
+    }
+
     const stringFile = JSON.stringify(jsonFile);
 
     const doc = new YAML.Document();

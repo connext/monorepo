@@ -355,15 +355,14 @@ describe("Database client", () => {
         assets: [],
       },
       {
-        router: "",
+        router: mkAddress("0xa"),
         assets: [],
       },
-      { router: "0xaaa" },
     ];
     await saveRouterBalances(routerBalances as RouterBalance[], pool);
     const res = await pool.query(`SELECT * FROM routers_with_balances`);
     const rb = convertToRouterBalance(res.rows);
-    expect(rb.length).to.eq(0);
+    expect(rb).to.deep.eq(routerBalances.map((r) => ({ ...r, assets: [] })));
   });
 
   it("should router balance when no data", async () => {
