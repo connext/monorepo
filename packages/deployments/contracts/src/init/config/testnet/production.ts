@@ -3,8 +3,8 @@ import { InitConfig } from "../../helpers";
 export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
   hub: "1735353714", /// GOERLI
   supportedDomains: [
-    "1735353714",
-    "1735356532",
+    "1735353714", /// GOERLI
+    "1735356532", /// OPTIMISM-GOERLI
     // "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
   ],
@@ -14,6 +14,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       canonical: {
         domain: "1735353714",
         address: "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
+        decimals: 18,
       },
       representations: {
         "1735356532": {
@@ -36,6 +37,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       canonical: {
         domain: "1735353714",
         address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+        decimals: 18,
       },
       representations: {
         "1735356532": {
@@ -59,15 +61,10 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       whitelist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
     },
     routers: {
-      whitelist: ["0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"],
+      whitelist: ["0xD2aD711861ab345977B7379c81165708C8717fF1"],
     },
     sequencers: {
-      whitelist: [
-        "0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C",
-        "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7",
-        "0x24D677f8A59A486BfC6d87E9453C4f1fEfcB0958",
-        "0xAFCBcdF90776bCFBcB334a6908fdEDa02A75B983",
-      ],
+      whitelist: ["0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C"],
     },
     relayers: {
       whitelist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92"],
