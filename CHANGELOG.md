@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.1-beta.0
+
+- [all] working prod, mainnet in progress
+
 ## Amarok 0.2.0-alpha.29
 
 - [contracts] fresh deployment for prod-testnet

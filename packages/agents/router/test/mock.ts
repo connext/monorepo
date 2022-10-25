@@ -109,7 +109,6 @@ export const mock = {
     },
     auctionRoundDepth: 4,
     environment: "staging",
-    nomadEnvironment: "staging",
     messageQueue: {},
   }),
   bridgeContext: (): any => {

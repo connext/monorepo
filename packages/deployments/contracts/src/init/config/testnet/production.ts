@@ -3,8 +3,8 @@ import { InitConfig } from "../../helpers";
 export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
   hub: "1735353714", /// GOERLI
   supportedDomains: [
-    "1735353714",
-    "1735356532",
+    "1735353714", /// GOERLI
+    "1735356532", /// OPTIMISM-GOERLI
     // "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
   ],
@@ -14,6 +14,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       canonical: {
         domain: "1735353714",
         address: "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
+        decimals: 18,
       },
       representations: {
         "1735356532": {
@@ -36,6 +37,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       canonical: {
         domain: "1735353714",
         address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+        decimals: 18,
       },
       representations: {
         "1735356532": {

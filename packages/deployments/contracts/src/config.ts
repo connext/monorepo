@@ -1,6 +1,5 @@
 import { config as envConfig } from "dotenv";
 import { utils } from "ethers";
-import { NetworksUserConfig } from "hardhat/types";
 
 envConfig();
 const urlOverride = process.env.ETH_PROVIDER_URL;
@@ -13,7 +12,7 @@ const mnemonic =
 
 const mainnetMnemonic = process.env.MAINNET_MNEMONIC;
 
-export const hardhatNetworks: NetworksUserConfig = {
+export const hardhatNetworks = {
   hardhat: {
     allowUnlimitedContractSize: true,
   },
