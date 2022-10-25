@@ -68,7 +68,6 @@ export type DomainDeployments = {
 
   // Messaging Layer.
   // ConnectorManager
-  // SendOutboundRootResolver
 
   // The messaging layer deployments are different depending on whether this
   // is the hub domain or spoke domain.
