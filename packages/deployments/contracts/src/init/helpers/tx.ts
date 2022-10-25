@@ -49,10 +49,9 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
   if (!_write) {
     throw new Error("Cannot update if no write method is provided!");
   }
-  // Sanity check: desired is specified.
-  // if (desired === undefined || desired === null) {
-  //   throw new Error("Desired value not specified for `updateIfNeeded` call.");
-  // }
+
+  // Check if desired is defined
+  const desiredExists = desired != undefined;
 
   const write = {
     ..._write,
@@ -91,7 +90,7 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
   let value;
   let valid = false;
 
-  if (desired) {
+  if (desiredExists) {
     try {
       value = await readCall();
       valid = value === desired;
@@ -107,7 +106,7 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
       name: write.method,
     };
 
-    if (desired) {
+    if (desiredExists) {
       waitForTxParam.checkResult = {
         method: readCall,
         desired,
