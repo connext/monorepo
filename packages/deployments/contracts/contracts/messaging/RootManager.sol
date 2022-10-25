@@ -27,7 +27,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   event RootAggregated(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
 
-  event RootPropagated(bytes32 aggregateRoot, uint256 count, uint32[] domains, bytes32[] aggregatedMessageRoots);
+  event RootPropagated(bytes32 aggregateRoot, uint256 count, bytes32 domainsHash, bytes32[] aggregatedMessageRoots);
 
   event ConnectorAdded(uint32 domain, address connector, uint32[] domains, address[] connectors);
 
@@ -139,17 +139,12 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * spoke domains (via their respective hub connectors).
    * @dev Should be called by relayers at a regular interval.
    *
-   * @param _domains Array of domains: should match exactly the array of `domains` in storage; used here
-   * to reduce gas costs, and keep them static regardless of number of supported domains.
-   * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage
-   * (see `_domains` param's info on reducing gas costs).
+   * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage;
+   * used here to reduce gas costs, and keep them static regardless of number of supported domains.
    */
-  function propagate(uint32[] calldata _domains, address[] calldata _connectors) external whenNotPaused {
-    uint256 _numDomains = _domains.length;
-
-    // Sanity check: domains length matches connectors length.
-    require(_connectors.length == _numDomains, "invalid lengths");
-    validateDomains(_domains, _connectors);
+  function propagate(address[] calldata _connectors) external whenNotPaused {
+    uint256 _numDomains = _connectors.length;
+    validateConnectors(_connectors);
 
     // Get all of the verified roots from the queue.
     bytes32[] memory _verifiedInboundRoots = pendingInboundRoots.dequeueVerified(delayBlocks);
@@ -169,7 +164,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
       }
     }
 
-    emit RootPropagated(_aggregateRoot, _count, _domains, _verifiedInboundRoots);
+    emit RootPropagated(_aggregateRoot, _count, domainsHash, _verifiedInboundRoots);
   }
 
   /**
