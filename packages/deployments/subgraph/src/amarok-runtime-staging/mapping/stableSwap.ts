@@ -85,10 +85,15 @@ export function handleRampA(event: RampA): void {}
 export function handleRemoveLiquidity(event: RemoveLiquidity): void {
   let stableSwapLiquidity = getOrCreateStableSwapLiquidity(event.params.provider);
 
+  let stableSwap = getOrCreateStableSwap(event.address);
+
   const num = event.params.tokenAmounts.length;
   for (let i = 0; i < num; i++) {
     stableSwapLiquidity.tokenAmounts[i] = stableSwapLiquidity.tokenAmounts[i].minus(event.params.tokenAmounts[i]);
+
+    stableSwap.balances[i] = stableSwap.balances[i].minus(event.params.tokenAmounts[i]);
   }
+
   stableSwapLiquidity.lpTokenSupply = event.params.lpTokenSupply;
 
   stableSwapLiquidity.save();
@@ -97,9 +102,13 @@ export function handleRemoveLiquidity(event: RemoveLiquidity): void {
 export function handleRemoveLiquidityImbalance(event: RemoveLiquidityImbalance): void {
   let stableSwapLiquidity = getOrCreateStableSwapLiquidity(event.params.provider);
 
+  let stableSwap = getOrCreateStableSwap(event.address);
+
   const num = event.params.tokenAmounts.length;
   for (let i = 0; i < num; i++) {
     stableSwapLiquidity.tokenAmounts[i] = stableSwapLiquidity.tokenAmounts[i].minus(event.params.tokenAmounts[i]);
+
+    stableSwap.balances[i] = stableSwap.balances[i].minus(event.params.tokenAmounts[i]);
   }
   stableSwapLiquidity.lpTokenSupply = event.params.lpTokenSupply;
   stableSwapLiquidity.invariant = event.params.invariant;
