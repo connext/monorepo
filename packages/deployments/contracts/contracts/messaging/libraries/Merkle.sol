@@ -76,11 +76,9 @@ library MerkleLib {
    * @return Tree Updated tree.
    **/
   function memInsert(Tree memory tree, bytes32 node) internal pure returns (Tree memory) {
-    uint256 size = tree.count + 1; // Add 1 since we'll be including a new node.
+    // Update tree.count to increase the current count by 1 since we'll be including a new node.
+    uint256 size = ++tree.count;
     if (size >= MAX_LEAVES) revert MerkleLib__insert_treeIsFull();
-
-    // Update tree.count to increase the current count by 1.
-    tree.count = size;
 
     // Loop starting at 0, ending when we've finished inserting the node (i.e. hashing it) into
     // the active branch. Each loop we cut size in half, hashing the inserted node up the active
@@ -114,11 +112,9 @@ library MerkleLib {
    * @param node Element to insert into tree.
    **/
   function insert(Tree storage tree, bytes32 node) internal {
-    uint256 size = tree.count + 1; // Add 1 since we'll be including a new node.
+    // Update tree.count to increase the current count by 1 since we'll be including a new node.
+    uint256 size = ++tree.count;
     if (size >= MAX_LEAVES) revert MerkleLib__insert_treeIsFull();
-
-    // Update tree.count to increase the current count by 1.
-    tree.count = size;
 
     // Loop starting at 0, ending when we've finished inserting the node (i.e. hashing it) into
     // the active branch. Each loop we cut size in half, hashing the inserted node up the active
