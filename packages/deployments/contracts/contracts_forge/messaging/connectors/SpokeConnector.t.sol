@@ -117,6 +117,19 @@ contract SpokeConnectorTest is ForgeHelper {
     spokeConnector.send();
   }
 
+  function test_SpokeConnector__send_failsIfRootAlreadySent() public {
+    bytes32 root = bytes32(bytes("test123"));
+    vm.mockCall(address(_merkle), abi.encodeWithSelector(MerkleTreeManager.root.selector), abi.encode(root));
+    bytes memory data = abi.encodePacked(root);
+
+    spokeConnector.send();
+    assertEq(MockSpokeConnector(address(spokeConnector)).lastOutbound(), keccak256(data));
+
+    vm.expectRevert("root already sent");
+    spokeConnector.send();
+    assertEq(MockSpokeConnector(address(spokeConnector)).lastOutbound(), keccak256(data));
+  }
+
   function test_SpokeConnector__proveAndProcess_failsIfPaused() public {
     utils_mockIsWatcher_true();
     spokeConnector.pause();
