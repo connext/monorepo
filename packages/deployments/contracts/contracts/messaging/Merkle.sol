@@ -118,12 +118,12 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
         ++i;
       }
     }
-
-    // Get return details for convenience.
-    _root = tree.root();
-    _count = tree.count;
-
     // Write the newly updated tree to storage.
     tree = _tree;
+
+    // Get return details for convenience.
+    _count = _tree.count;
+    // NOTE: Root calculation method currently reads from storage only.
+    _root = tree.root();
   }
 }
