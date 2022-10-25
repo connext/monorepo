@@ -43,7 +43,6 @@
   },
   "web3SignerUrl": "http://signer-router:9000",
   "environment": "production",
-  "nomadEnvironment": "none",
   "messageQueue": {
     "uri": "amqp://guest:guest@message-queue:5672"
   }

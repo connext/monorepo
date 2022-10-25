@@ -207,7 +207,6 @@ locals {
     cartographerUrl  = "https://postgrest.testnet.staging.connext.ninja"
     web3SignerUrl    = "https://${module.router_web3signer.service_endpoint}"
     environment      = var.stage
-    nomadEnvironment = "none"
     messageQueue = {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }

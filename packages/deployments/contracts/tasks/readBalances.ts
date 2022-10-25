@@ -26,7 +26,7 @@ export default task("read-balances", "Read balances of accounts")
         balance = await hre.ethers.provider.getBalance(accounts[i].address);
         console.log(`  Balance of ${accounts[i].address}: ${utils.formatEther(balance)}`);
       } else {
-        const erc20 = await hre.ethers.getContractAt("IERC20", asset, accounts[i]);
+        const erc20 = await hre.ethers.getContractAt("TestERC20", asset, accounts[i]);
         balance = await erc20.balanceOf(accounts[i].address);
         console.log(`  Balance of ${accounts[i].address}: ${utils.formatUnits(balance)}`);
       }
