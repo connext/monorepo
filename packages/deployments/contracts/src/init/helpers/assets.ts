@@ -1,12 +1,17 @@
 import { constants, utils } from "ethers";
+import { ChainData } from "@connext/nxtp-utils";
 
 import { canonizeId } from "../../domain";
 
 import { AssetStack, NetworkStack } from "./types";
 import { getValue, updateIfNeeded } from "./tx";
 
-export const setupAsset = async (args: { asset: AssetStack; networks: NetworkStack[] }) => {
-  const { asset, networks } = args;
+export const setupAsset = async (args: {
+  asset: AssetStack;
+  networks: NetworkStack[];
+  chainData: Map<string, ChainData>;
+}) => {
+  const { asset, networks, chainData } = args;
 
   // Derive the global asset key using the (canonized) canonical address and the canonical domain.
   const canonical = {
@@ -29,16 +34,34 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
         "the configured list of networks!",
     );
   }
+
+  let canonicalDecimals = asset.canonical.decimals;
+  if (!canonicalDecimals) {
+    const chainInfo = chainData.get(asset.canonical.domain);
+    canonicalDecimals = chainInfo?.assetId[asset.canonical.address]?.decimals;
+  }
+
+  if (!canonicalDecimals) {
+    throw new Error(
+      `Could not get the decimals for asset ${asset.canonical.address} on domain ${asset.canonical.domain}`,
+    );
+  }
+
+  const tokenName = `next${asset.name.toUpperCase()}`;
+  const tokenSymbol = tokenName;
+
   await updateIfNeeded({
     deployment: home.deployments.Connext,
     desired: asset.canonical.address,
     read: { method: "canonicalToAdopted(bytes32)", args: [key] },
     write: {
-      method: "setupAssetWithDeployedRepresentation",
+      method: "setupAsset",
       args: [
         [canonical.domain, canonical.id],
+        canonicalDecimals,
+        tokenName,
+        tokenSymbol,
         asset.canonical.address,
-        constants.AddressZero,
         constants.AddressZero,
         0,
       ],
@@ -59,14 +82,9 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
       );
     }
 
-    if (!representation.local) {
-      throw new Error(
-        "Can't call `setupAsset` for an asset with no local representations! No `local` bridge token was provided.",
-      );
-    }
-
     // Run setupAsset.
-    const desiredAdopted = representation.adopted ?? constants.AddressZero;
+    const desiredAdopted = representation.adopted;
+    let setupAssetDone = true;
     try {
       const adopted = await getValue({
         deployment: network.deployments.Connext,
@@ -83,17 +101,45 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
             args: [[canonical.domain, canonical.id], desiredAdopted, representation.local],
           },
         });
-      }
-    } catch {}
 
-    await updateIfNeeded({
-      deployment: network.deployments.Connext,
-      desired: desiredAdopted,
-      read: { method: "canonicalToAdopted(bytes32)", args: [key] },
-      write: {
-        method: "setupAssetWithDeployedRepresentation",
-        args: [[canonical.domain, canonical.id], representation.local, desiredAdopted, stableswapPool, 0],
-      },
-    });
+        setupAssetDone = false;
+      }
+    } catch (e: any) {
+      console.log(`Failed to lookup canonical to adopted, or remove asset:`, e.message);
+      // `canonicalToAdopted` function reverts if `key` didn't get whitelisted
+      setupAssetDone = false;
+    }
+
+    if (representation.local) {
+      await updateIfNeeded({
+        deployment: network.deployments.Connext,
+        desired: desiredAdopted,
+        read: { method: "canonicalToAdopted(bytes32)", args: [key] },
+        write: {
+          method: "setupAssetWithDeployedRepresentation",
+          args: [[canonical.domain, canonical.id], representation.local, desiredAdopted, stableswapPool, 0],
+        },
+      });
+    } else {
+      if (!setupAssetDone) {
+        await updateIfNeeded({
+          deployment: network.deployments.Connext,
+          desired: desiredAdopted,
+          read: { method: "canonicalToAdopted(bytes32)", args: [key] },
+          write: {
+            method: "setupAsset",
+            args: [
+              [canonical.domain, canonical.id],
+              canonicalDecimals,
+              tokenName,
+              tokenSymbol,
+              desiredAdopted,
+              stableswapPool,
+              asset.canonical.cap ?? 0,
+            ],
+          },
+        });
+      }
+    }
   }
 };

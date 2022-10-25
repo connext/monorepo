@@ -4,7 +4,7 @@ import { RelayerSendFailed } from "../../lib/errors";
 import { getHelpers } from "../../lib/helpers";
 import { getContext } from "../../sequencer";
 
-const GAS_LIMIT_FOR_RELAYER = "950000";
+const GAS_LIMIT_FOR_RELAYER = "2000000";
 
 export const getRelayerAddress = async (chainId: number): Promise<string> => {
   const { logger } = getContext();
