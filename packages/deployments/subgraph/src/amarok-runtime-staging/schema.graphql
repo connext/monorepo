@@ -208,6 +208,8 @@ type RootMessageSent @entity {
 type StableSwap @entity {
   id: ID!
 
+  isActive: Boolean
+
   # StableSwapAdded
   key: Bytes
   canonicalId: Bytes
@@ -225,18 +227,23 @@ type StableSwap @entity {
 
   swapFee: BigInt
   adminFee: BigInt
-  pooledTokens: [Bytes]
-  tokenPrecisionMultipliers: [BigInt]
-  balances: [BigInt]
-  adminFees: [BigInt]
+  pooledTokens: [PooledToken!]!
+  tokenPrecisionMultipliers: [BigInt!]
+  balances: [BigInt!]!
+  adminFees: [BigInt!]
+}
+
+type PooledToken @entity {
+  id: ID!
+  asset: Bytes!
 }
 
 type StableSwapLiquidity @entity {
   id: ID!
   provider: Bytes!
   stableSwap: StableSwap!
-  tokenAmounts: [BigInt]
-  fees: [BigInt]
+  tokenAmounts: [BigInt!]!
+  fees: [BigInt!]!
   invariant: BigInt
-  lptokenSupply: BigInt
+  lpTokenSupply: BigInt
 }
