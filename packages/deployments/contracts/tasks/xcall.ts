@@ -208,25 +208,15 @@ export default task("xcall", "Prepare a cross-chain tx")
               console.log("to: ", connext.address);
             }
 
-            // TODO: For receiveLocal calls, use xcallIntoLocal.
-            let tx;
-            if (receiveLocal) {
-              tx = await connext
-                .connect(sender)
-                .functions.xcallIntoLocal(destinationDomain, to, asset, delegate, amount, slippage, callData, {
-                  from: sender.address,
-                  gasLimit: 2_000_000,
-                  value: relayerFee,
-                });
-            } else {
-              tx = await connext
-                .connect(sender)
-                .functions.xcall(destinationDomain, to, asset, delegate, amount, slippage, callData, {
-                  from: sender.address,
-                  gasLimit: 2_000_000,
-                  value: relayerFee,
-                });
-            }
+            const functionName = receiveLocal ? "xcallIntoLocal" : "xcall";
+            const tx = await connext
+              .connect(sender)
+              .functions[functionName](destinationDomain, to, asset, delegate, amount, slippage, callData, {
+                from: sender.address,
+                gasLimit: 2_000_000,
+                value: relayerFee,
+              });
+
             console.log(`Transaction from sender: ${sender.address}`);
             console.log("  Tx: ", tx.hash);
 
