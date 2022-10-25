@@ -129,8 +129,6 @@ templates:
           handler: handleNewSwapFee
         - event: NewWithdrawFee(uint256)
           handler: handleNewWithdrawFee
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
         - event: Paused(address)
           handler: handlePaused
         - event: RampA(uint256,uint256,uint256,uint256)
