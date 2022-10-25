@@ -230,3 +230,13 @@ type StableSwap @entity {
   balances: [BigInt]
   adminFees: [BigInt]
 }
+
+type StableSwapLiquidity @entity {
+  id: ID!
+  provider: Bytes!
+  stableSwap: StableSwap!
+  tokenAmounts: [BigInt]
+  fees: [BigInt]
+  invariant: BigInt
+  lptokenSupply: BigInt
+}
