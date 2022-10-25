@@ -106,13 +106,15 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    * provided for convenience.
    */
   function insert(bytes32[] memory leaves) public onlyArborist returns (bytes32 _root, uint256 _count) {
-    // TODO: Considerably more efficient to put this tree into memory, conduct operations,
+    // For > 1 leaf, considerably more efficient to put this tree into memory, conduct operations,
     // then re-assign it to storage - *especially* if we have multiple leaves to insert.
-    // MerkleLib.Tree memory _tree = tree;
+    MerkleLib.Tree memory _tree = tree;
 
-    for (uint256 i; i < leaves.length; ) {
-      // Insert the new node.
-      tree.insert(leaves[i]);
+    uint256 leafCount = leaves.length;
+
+    for (uint256 i; i < leafCount; ) {
+      // Insert the new node (using in-memory method).
+      _tree.insert(leaves[i]);
       unchecked {
         ++i;
       }
@@ -122,21 +124,7 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     _root = tree.root();
     _count = tree.count;
 
-    // TODO: IFF using tree assigned to memory, write the newly updated tree to storage.
-    // tree = _tree;
-  }
-
-  /**
-   * @notice Inserts the given leaf into the tree.
-   * @param leaf The leaf to be inserted into the tree.
-   * @return _root Current root for convenience.
-   * @return _count Current node count (i.e. number of indices) AFTER the insertion of the new leaf,
-   * provided for convenience.
-   */
-  function insert(bytes32 leaf) public onlyArborist returns (bytes32 _root, uint256 _count) {
-    // Insert the new node.
-    tree.insert(leaf);
-    _count = tree.count;
-    _root = tree.root();
+    // Write the newly updated tree to storage.
+    tree = _tree;
   }
 }

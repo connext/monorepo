@@ -67,7 +67,7 @@ library MerkleLib {
     uint256 count;
   }
 
-  // ========= In-Memory Methods =========
+  // ========= Write Methods =========
 
   /**
    * @notice Inserts a given node (leaf) into merkle tree. Operates on an in-memory tree and
@@ -76,7 +76,7 @@ library MerkleLib {
    * @param node Element to insert into tree.
    * @return Tree Updated tree.
    **/
-  function memInsert(Tree memory tree, bytes32 node) internal pure returns (Tree memory) {
+  function insert(Tree memory tree, bytes32 node) internal pure returns (Tree memory) {
     // Update tree.count to increase the current count by 1 since we'll be including a new node.
     uint256 size = ++tree.count;
     if (size >= MAX_LEAVES) revert MerkleLib__insert_treeIsFull();
@@ -105,43 +105,7 @@ library MerkleLib {
     revert MerkleLib__insert_treeIsFull();
   }
 
-  // ========= Storage Methods =========
-
-  /**
-   * @notice Inserts a given node (leaf) into merkle tree.
-   * @dev Reverts if the tree is already full.
-   * @param node Element to insert into tree.
-   **/
-  function insert(Tree storage tree, bytes32 node) internal {
-    // Update tree.count to increase the current count by 1 since we'll be including a new node.
-    uint256 size = ++tree.count;
-    if (size >= MAX_LEAVES) revert MerkleLib__insert_treeIsFull();
-
-    // Loop starting at 0, ending when we've finished inserting the node (i.e. hashing it) into
-    // the active branch. Each loop we cut size in half, hashing the inserted node up the active
-    // branch along the way.
-    for (uint256 i; i < TREE_DEPTH; ) {
-      // Check if the current size is odd; if so, we set this index in the branch to be the node.
-      if ((size & 1) == 1) {
-        // If i > 0, then this node will be a hash of the original node with every layer up
-        // until layer `i`.
-        tree.branch[i] = node;
-        return;
-      }
-      // If the size is not yet odd, we hash the current index in the tree branch with the node.
-      node = keccak256(abi.encodePacked(tree.branch[i], node));
-      size >>= 1; // Cut size in half (statement equivalent to: `size /= 2`).
-
-      unchecked {
-        ++i;
-      }
-    }
-    // As the loop should always end prematurely with the `return` statement, this code should
-    // be unreachable. We revert here just to be safe.
-    revert MerkleLib__insert_treeIsFull();
-  }
-
-  // ========= Helper Methods =========
+  // ========= Read Methods =========
 
   /**
    * @notice Calculates and returns tree's current root.
@@ -1044,42 +1008,5 @@ library MerkleLib {
       mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 31))))
       _current := keccak256(0, 0x40)
     }
-  }
-
-  /// @notice Returns array of TREE_DEPTH zero hashes
-  /// @return _zeroes Array of TREE_DEPTH zero hashes
-  function zeroHashes() internal pure returns (bytes32[TREE_DEPTH] memory _zeroes) {
-    _zeroes[0] = Z_0;
-    _zeroes[1] = Z_1;
-    _zeroes[2] = Z_2;
-    _zeroes[3] = Z_3;
-    _zeroes[4] = Z_4;
-    _zeroes[5] = Z_5;
-    _zeroes[6] = Z_6;
-    _zeroes[7] = Z_7;
-    _zeroes[8] = Z_8;
-    _zeroes[9] = Z_9;
-    _zeroes[10] = Z_10;
-    _zeroes[11] = Z_11;
-    _zeroes[12] = Z_12;
-    _zeroes[13] = Z_13;
-    _zeroes[14] = Z_14;
-    _zeroes[15] = Z_15;
-    _zeroes[16] = Z_16;
-    _zeroes[17] = Z_17;
-    _zeroes[18] = Z_18;
-    _zeroes[19] = Z_19;
-    _zeroes[20] = Z_20;
-    _zeroes[21] = Z_21;
-    _zeroes[22] = Z_22;
-    _zeroes[23] = Z_23;
-    _zeroes[24] = Z_24;
-    _zeroes[25] = Z_25;
-    _zeroes[26] = Z_26;
-    _zeroes[27] = Z_27;
-    _zeroes[28] = Z_28;
-    _zeroes[29] = Z_29;
-    _zeroes[30] = Z_30;
-    _zeroes[31] = Z_31;
   }
 }
