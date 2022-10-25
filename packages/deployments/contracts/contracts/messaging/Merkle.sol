@@ -111,7 +111,6 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     MerkleLib.Tree memory _tree = tree;
 
     uint256 leafCount = leaves.length;
-
     for (uint256 i; i < leafCount; ) {
       // Insert the new node (using in-memory method).
       _tree.insert(leaves[i]);
