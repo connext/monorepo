@@ -273,8 +273,11 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * all outbound messages)
    */
   function send() external whenNotPaused rateLimited {
-    bytes memory _data = abi.encodePacked(MERKLE.root());
+    bytes32 root = MERKLE.root();
+    require(sentMessageRoots[root] == false, "root already sent");
+    bytes memory _data = abi.encodePacked(root);
     _sendMessage(_data);
+    sentMessageRoots[root] = true;
     emit MessageSent(_data, msg.sender);
   }
 
