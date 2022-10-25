@@ -176,6 +176,13 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
 export const convertToRouterBalance = (routerBalanceRows: any[]): RouterBalance[] => {
   const routerBalances: RouterBalance[] = [];
   routerBalanceRows.forEach((routerBalanceRow) => {
+    if (!routerBalanceRow.balance) {
+      routerBalances.push({
+        router: routerBalanceRow.address,
+        assets: [],
+      });
+      return;
+    }
     const assetBalance: AssetBalance = {
       adoptedAsset: routerBalanceRow.adopted,
       balance: BigNumber.from(BigInt(routerBalanceRow.balance as string)).toString(),
