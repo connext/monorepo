@@ -54,6 +54,7 @@ library MerkleLib {
   bytes32 internal constant Z_29 = hex"388ab20e2573d171a88108e79d820e98f26c0b84aa8b2f4aa4968dbb818ea322";
   bytes32 internal constant Z_30 = hex"93237c50ba75ee485f4c22adf2f741400bdf8d6a9cc7df7ecae576221665d735";
   bytes32 internal constant Z_31 = hex"8448818bb4ae4562849e949e17ac16e0be16688e156b5cf15e098c627c0056a9";
+  bytes32 internal constant Z_32 = hex"27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757";
 
   // ============= Structs ==============
 
@@ -150,7 +151,7 @@ library MerkleLib {
     uint256 _index = tree.count;
 
     if(_index == 0) {
-      return Z_31;
+      return Z_32;
     }
 
     uint256 i;
@@ -406,16 +407,16 @@ library MerkleLib {
               break
           }
 
-          // TODO: ???
-          // if and(_index, shl(31, 1)) {
-          //     mstore(0, sload(add(TREE_SLOT, 31)))
-          //     mstore(0x20, Z_31)
-          //     _current := keccak256(0, 0x40)
-          //     i := 31
-          //     break
-          // }
 
-          _current := Z_31
+          if and(_index, shl(31, 1)) {
+              mstore(0, sload(add(TREE_SLOT, 31)))
+              mstore(0x20, Z_31)
+              _current := keccak256(0, 0x40)
+              i := 31
+              break
+          }
+
+          _current := Z_32
           i := 32
           break
         }
