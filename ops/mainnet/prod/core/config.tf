@@ -106,7 +106,6 @@ locals {
     }
     web3SignerUrl    = "https://${module.web3signer.service_endpoint}"
     environment      = var.stage
-    nomadEnvironment = var.nomad_environment
     messageQueue = {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }

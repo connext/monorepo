@@ -99,3 +99,50 @@ dataSources:
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleNewConnector
       file: ./src/amarok-runtime-v0/mapping/index.ts
+templates:
+  # STABLE SWAP events
+  - kind: ethereum/contract
+    name: StableSwap
+    network: "{{network}}"
+    source:
+      abi: StableSwap
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: StableSwap
+          file: ./src/amarok-runtime-v0/abis/StableSwap.json
+      eventHandlers:
+        - event: AddLiquidity(indexed address,uint256[],uint256[],uint256,uint256)
+          handler: handleAddLiquidity
+        - event: Initialized(uint8)
+          handler: handleInitialized
+        - event: NewAdminFee(uint256)
+          handler: handleNewAdminFee
+        - event: NewSwapFee(uint256)
+          handler: handleNewSwapFee
+        - event: NewWithdrawFee(uint256)
+          handler: handleNewWithdrawFee
+        - event: Paused(address)
+          handler: handlePaused
+        - event: RampA(uint256,uint256,uint256,uint256)
+          handler: handleRampA
+        - event: RemoveLiquidity(indexed address,uint256[],uint256)
+          handler: handleRemoveLiquidity
+        - event: RemoveLiquidityImbalance(indexed address,uint256[],uint256[],uint256,uint256)
+          handler: handleRemoveLiquidityImbalance
+        - event: StopRampA(uint256,uint256)
+          handler: handleStopRampA
+        - event: SwapInitialized((uint256,uint256,uint256,uint256,uint256,uint256,address,address[],uint256[],uint256[],uint256[]),address)
+          handler: handleSwapInitialized
+        - event: TokenSwap(indexed address,uint256,uint256,uint128,uint128)
+          handler: handleTokenSwap
+        - event: Unpaused(address)
+          handler: handleUnpaused
+      file: ./src/amarok-runtime-v0/mapping/index.ts

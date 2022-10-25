@@ -71,7 +71,6 @@ export const NxtpRouterConfigSchema = Type.Object({
   auctionRoundDepth: Type.Integer(),
   subgraphPrefix: Type.Optional(Type.String()),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
-  nomadEnvironment: Type.Union([Type.Literal("staging"), Type.Literal("production"), Type.Literal("none")]),
   messageQueue: TRequiredPeripheralConfig,
 });
 
@@ -190,8 +189,6 @@ export const getEnvConfig = (
       DEFAULT_AUCTION_ROUND_DEPTH,
     subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
-    nomadEnvironment:
-      process.env.NXTP_NOMAD_ENVIRONMENT || configJson.nomadEnvironment || configFile.nomadEnvironment || "staging",
     messageQueue: {
       uri:
         process.env.NXTP_MESSAGE_QUEUE_URI ||

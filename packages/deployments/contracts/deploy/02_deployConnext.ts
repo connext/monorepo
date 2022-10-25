@@ -8,7 +8,7 @@ import { mergeABIs } from "hardhat-deploy/dist/src/utils";
 import { SKIP_SETUP } from "../src/constants";
 import { getConnectorName, getDeploymentName, getProtocolNetwork } from "../src/utils";
 import { chainIdToDomain } from "../src";
-import { MESSAGING_PROTOCOL_CONFIGS, RELAYER_CONFIGS } from "../deployConfig/shared";
+import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
 
 function sigsFromABI(abi: any[]): string[] {
   return abi
@@ -58,6 +58,7 @@ const proposeDiamondUpgrade = async (
       args: facet.args,
       from: deployer.address,
       log: true,
+      deterministicDeployment: true,
     });
 
     // Update selectors and snapshot
@@ -304,6 +305,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     });
     console.log("TestERC20: ", deployment.address);
 
+    deployment = await hre.deployments.deploy("TestAdopted", {
+      contract: "TestERC20",
+      from: deployer.address,
+      log: true,
+      skipIfAlreadyDeployed: true,
+      args: ["Test Adopted", "TEST2"],
+    });
+
     deployment = await hre.deployments.deploy("TestWETH", {
       contract: "TestERC20",
       from: deployer.address,
@@ -311,6 +320,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       skipIfAlreadyDeployed: true,
       args: ["Test Wrapped Ether", "TWETH"],
     });
+
     console.log("TestERC20: ", deployment.address);
   } else {
     console.log("Skipping test setup on chainId: ", chainId);
