@@ -1,9 +1,24 @@
 /* eslint-disable prefer-const */
 import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 import { StableSwapAdded } from "../../../generated/Connext/Connext";
-import { AddLiquidity, OwnershipTransferred, SwapInitialized } from "../../../generated/StableSwap/StableSwap";
+import {
+  AddLiquidity,
+  OwnershipTransferred,
+  SwapInitialized,
+  RampA,
+  StopRampA,
+  RemoveLiquidityOne,
+  RemoveLiquidity,
+  RemoveLiquidityImbalance,
+  Paused,
+  Unpaused,
+  NewWithdrawFee,
+  NewSwapFee,
+  NewAdminFee,
+  TokenSwap,
+} from "../../../generated/StableSwap/StableSwap";
 
-import { StableSwap } from "../../../generated/schema";
+import { StableSwap, StableSwapLiquidity } from "../../../generated/schema";
 // import { Asset, AssetBalance, Router} from "../../../generated/schema";
 
 export function handleStableSwapAdded(event: StableSwapAdded): void {
@@ -38,27 +53,22 @@ export function handleSwapInitialized(event: SwapInitialized): void {
 }
 
 export function handleAddLiquidity(event: AddLiquidity): void {
-  let stableSwap = getOrCreateStableSwap(event.address);
+  let stableSwapLiquidity = getOrCreateStableSwapLiquidity(event.params.provider);
 
-  if (metaData == null) {
-    metaData = new MetaData(metaDataId);
-    relayer.isActive = true;
-    relayer.relayer = event.params.relayer;
-    relayer.save();
+  stableSwapLiquidity.provider = event.params.provider;
+  stableSwapLiquidity.stableSwap = getOrCreateStableSwap(event.address);
+  const num = event.params.tokenAmounts.length;
+  for (let i = 0; i < num; i++) {
+    stableSwapLiquidity.tokenAmounts[i] = stableSwapLiquidity.tokenAmounts[i] + event.params.tokenAmounts[i];
+    stableSwapLiquidity.fees[i] = stableSwapLiquidity.fees[i] + event.params.fees[i];
   }
+  stableSwapLiquidity.invariant = event.params.invariant;
+  stableSwapLiquidity.lpTokenSupply = event.params.lpTokenSupply;
+
+  stableSwapLiquidity.save();
 }
 
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {
-  let metaDataId = event.params.relayer.toHex();
-  // let relayer = Relayer.load(relayerId);
-
-  // if (relayer == null) {
-  //   relayer = new Relayer(relayerId);
-  //   relayer.isActive = true;
-  //   relayer.relayer = event.params.relayer;
-  //   relayer.save();
-  // }
-}
+// export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
 
 export function handleRampA(event: RampA): void {
   let metaDataId = event.params.relayer.toHex();
@@ -73,15 +83,15 @@ export function handleRampA(event: RampA): void {
 }
 
 export function handleRemoveLiquidity(event: RemoveLiquidity): void {
-  let metaDataId = event.params.relayer.toHex();
-  // let relayer = Relayer.load(relayerId);
+  let stableSwapLiquidity = getOrCreateStableSwapLiquidity(event.params.provider);
 
-  // if (relayer == null) {
-  //   relayer = new Relayer(relayerId);
-  //   relayer.isActive = true;
-  //   relayer.relayer = event.params.relayer;
-  //   relayer.save();
-  // }
+  const num = event.params.tokenAmounts.length;
+  for (let i = 0; i < num; i++) {
+    stableSwapLiquidity.tokenAmounts[i] = stableSwapLiquidity.tokenAmounts[i].minus(event.params.tokenAmounts[i]);
+  }
+  stableSwapLiquidity.lpTokenSupply = event.params.lpTokenSupply;
+
+  stableSwapLiquidity.save();
 }
 
 export function handleRemoveLiquidityImbalance(event: RemoveLiquidityImbalance): void {
@@ -133,56 +143,38 @@ export function handleTokenSwap(event: TokenSwap): void {
 }
 
 export function handleNewAdminFee(event: NewAdminFee): void {
-  let metaData = getOrCreateMetaData();
+  let stableSwap = getOrCreateStableSwap(event.address);
 
-  metaData.adminFee = event.params.newAdminFee;
-  metaData.save();
+  stableSwap.adminFee = event.params.newAdminFee;
+  stableSwap.save();
 }
 
 export function handleNewSwapFee(event: NewSwapFee): void {
-  let metaData = getOrCreateMetaData();
+  let stableSwap = getOrCreateStableSwap(event.address);
 
-  metaData.swapFee = event.params.newSwapFee;
-  metaData.save();
+  stableSwap.swapFee = event.params.newSwapFee;
+  stableSwap.save();
 }
 
-export function handleNewWithdrawFee(event: NewWithdrawFee): void {
-  let metaData = getOrCreateMetaData();
+// export function handleNewWithdrawFee(event: NewWithdrawFee): void {
+//   let stableSwap = getOrCreateStableSwap(event.address);
 
-  metaData.withdrawFee = event.params.newWithdrawFee;
-  metaData.save();
+//   stableSwap.withdrawFee = false;
+//   stableSwap.save();
+// }
+
+export function handlePaused(event: Paused): void {
+  let stableSwap = getOrCreateStableSwap(event.address);
+
+  stableSwap.paused = true;
+  stableSwap.save();
 }
 
-export function handlePaused(): void {
-  let metaData = getOrCreateMetaData();
+export function handleUnpaused(event: Unpaused): void {
+  let stableSwap = getOrCreateStableSwap(event.address);
 
-  metaData.paused = true;
-  metaData.save();
-}
-
-export function handleUnpaused(): void {
-  let metaData = getOrCreateMetaData();
-
-  metaData.paused = false;
-  metaData.save();
-}
-
-function getOrCreateMetaData(): MetaData {
-  let metaDataId = DEFAULT_META_ID;
-  let metaData = MetaData.load(metaDataId);
-
-  if (metaData == null) {
-    metaData = new MetaData(metaDataId);
-
-    metaData.adminFee = new BigInt(0);
-    metaData.swapFee = new BigInt(0);
-    metaData.withdrawFee = new BigInt(0);
-
-    metaData.paused = false;
-
-    metaData.save();
-  }
-  return metaData;
+  stableSwap.paused = false;
+  stableSwap.save();
 }
 
 export function getOrCreateStableSwap(_stableSwap: Address): StableSwap {
@@ -194,10 +186,22 @@ export function getOrCreateStableSwap(_stableSwap: Address): StableSwap {
     stableSwap.key = new Bytes(32);
     stableSwap.canonicalId = new Bytes(32);
     stableSwap.domain = new BigInt(0);
-    stableSwap.swapPool = _stableSwap.toHex();
+    stableSwap.swapPool = _stableSwap;
 
     stableSwap.save();
   }
 
   return stableSwap;
+}
+
+export function getOrCreateStableSwapLiquidity(provider: Address): StableSwapLiquidity {
+  let stableSwapLiquidityId = provider.toHex();
+  let stableSwapLiquidity = StableSwapLiquidity.load(stableSwapLiquidityId);
+
+  if (stableSwapLiquidity == null) {
+    stableSwapLiquidity = new stableSwapLiquidity(stableSwapLiquidityId);
+    stableSwapLiquidity.save();
+  }
+
+  return stableSwapLiquidity;
 }
