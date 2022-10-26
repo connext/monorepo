@@ -89,7 +89,31 @@ variable "mainnet_alchemy_key_0" {
   type = string
 }
 
-variable "web3_signer_private_key" {
+variable "mainnet_alchemy_key_1" {
+  type = string
+}
+
+variable "optimism_alchemy_key_0" {
+  type = string
+}
+
+variable "optimism_alchemy_key_1" {
+  type = string
+}
+
+variable "polygon_alchemy_key_0" {
+  type = string
+}
+
+variable "polygon_alchemy_key_1" {
+  type = string
+}
+
+variable "router_web3_signer_private_key" {
+  type = string
+}
+
+variable "sequencer_web3_signer_private_key" {
   type = string
 }
 
