@@ -3,7 +3,7 @@
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
 
-export namespace ConnextStagingMumbaiTypes {
+export namespace ConnextOptimismTypes {
   export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -16,17 +16,17 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  stagingmumbai_BigDecimal: any;
+  optimism_BigDecimal: any;
   BigInt: any;
-  stagingmumbai_Bytes: any;
+  optimism_Bytes: any;
 };
 
-export type stagingmumbai_AggregateRoot = {
+export type optimism_AggregateRoot = {
   id: Scalars['ID'];
-  root: Scalars['stagingmumbai_Bytes'];
+  root: Scalars['optimism_Bytes'];
 };
 
-export type stagingmumbai_AggregateRoot_filter = {
+export type optimism_AggregateRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -35,38 +35,38 @@ export type stagingmumbai_AggregateRoot_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  root?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  root?: InputMaybe<Scalars['optimism_Bytes']>;
+  root_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_AggregateRoot_orderBy =
+export type optimism_AggregateRoot_orderBy =
   | 'id'
   | 'root';
 
-export type stagingmumbai_Asset = {
+export type optimism_Asset = {
   id: Scalars['ID'];
-  key?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  key?: Maybe<Scalars['optimism_Bytes']>;
+  canonicalId?: Maybe<Scalars['optimism_Bytes']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  adoptedAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  localAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  adoptedAsset?: Maybe<Scalars['optimism_Bytes']>;
+  localAsset?: Maybe<Scalars['optimism_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type stagingmumbai_AssetBalance = {
+export type optimism_AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
-  router: stagingmumbai_Router;
-  asset: stagingmumbai_Asset;
+  router: optimism_Router;
+  asset: optimism_Asset;
 };
 
-export type stagingmumbai_AssetBalance_filter = {
+export type optimism_AssetBalance_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -103,7 +103,7 @@ export type stagingmumbai_AssetBalance_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<stagingmumbai_Router_filter>;
+  router_?: InputMaybe<optimism_Router_filter>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -124,18 +124,18 @@ export type stagingmumbai_AssetBalance_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<stagingmumbai_Asset_filter>;
+  asset_?: InputMaybe<optimism_Asset_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_AssetBalance_orderBy =
+export type optimism_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'router'
   | 'asset';
 
-export type stagingmumbai_Asset_filter = {
+export type optimism_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -144,18 +144,18 @@ export type stagingmumbai_Asset_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  key?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  key_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  key?: InputMaybe<Scalars['optimism_Bytes']>;
+  key_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  key_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  key_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  key_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  key_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['optimism_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   canonicalDomain?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -164,18 +164,18 @@ export type stagingmumbai_Asset_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adoptedAsset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  adoptedAsset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  adoptedAsset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  adoptedAsset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  adoptedAsset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  adoptedAsset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  localAsset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  localAsset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  localAsset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  localAsset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  localAsset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  localAsset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  adoptedAsset?: InputMaybe<Scalars['optimism_Bytes']>;
+  adoptedAsset_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  adoptedAsset_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  localAsset?: InputMaybe<Scalars['optimism_Bytes']>;
+  localAsset_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  localAsset_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  localAsset_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  localAsset_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  localAsset_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -185,10 +185,10 @@ export type stagingmumbai_Asset_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_Asset_orderBy =
+export type optimism_Asset_orderBy =
   | 'id'
   | 'key'
   | 'canonicalId'
@@ -197,26 +197,26 @@ export type stagingmumbai_Asset_orderBy =
   | 'localAsset'
   | 'blockNumber';
 
-export type stagingmumbai_BlockChangedFilter = {
+export type optimism_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
 
-export type stagingmumbai_Block_height = {
-  hash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+export type optimism_Block_height = {
+  hash?: InputMaybe<Scalars['optimism_Bytes']>;
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
-export type stagingmumbai_ConnectorMeta = {
+export type optimism_ConnectorMeta = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
   hubDomain?: Maybe<Scalars['BigInt']>;
-  amb?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  rootManager?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  mirrorConnector?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  amb?: Maybe<Scalars['optimism_Bytes']>;
+  rootManager?: Maybe<Scalars['optimism_Bytes']>;
+  mirrorConnector?: Maybe<Scalars['optimism_Bytes']>;
 };
 
-export type stagingmumbai_ConnectorMeta_filter = {
+export type optimism_ConnectorMeta_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -241,29 +241,29 @@ export type stagingmumbai_ConnectorMeta_filter = {
   hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
   hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amb?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  amb_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  amb_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  amb_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  amb_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  amb_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  rootManager?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  rootManager_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  rootManager_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  rootManager_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  rootManager_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  rootManager_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  mirrorConnector?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  mirrorConnector_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  mirrorConnector_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  mirrorConnector_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  mirrorConnector_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  mirrorConnector_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  amb?: InputMaybe<Scalars['optimism_Bytes']>;
+  amb_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  rootManager?: InputMaybe<Scalars['optimism_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['optimism_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_ConnectorMeta_orderBy =
+export type optimism_ConnectorMeta_orderBy =
   | 'id'
   | 'spokeDomain'
   | 'hubDomain'
@@ -271,17 +271,17 @@ export type stagingmumbai_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type stagingmumbai_DestinationMessage = {
+export type optimism_DestinationMessage = {
   id: Scalars['ID'];
-  leaf?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  leaf?: Maybe<Scalars['optimism_Bytes']>;
   processed?: Maybe<Scalars['Boolean']>;
-  returnData?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  returnData?: Maybe<Scalars['optimism_Bytes']>;
   success?: Maybe<Scalars['Boolean']>;
-  transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash?: Maybe<Scalars['optimism_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type stagingmumbai_DestinationMessage_filter = {
+export type optimism_DestinationMessage_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -290,32 +290,32 @@ export type stagingmumbai_DestinationMessage_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  leaf?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  leaf?: InputMaybe<Scalars['optimism_Bytes']>;
+  leaf_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  leaf_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  leaf_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  leaf_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  leaf_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   processed?: InputMaybe<Scalars['Boolean']>;
   processed_not?: InputMaybe<Scalars['Boolean']>;
   processed_in?: InputMaybe<Array<Scalars['Boolean']>>;
   processed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  returnData?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  returnData_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  returnData_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  returnData_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  returnData_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  returnData_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  returnData?: InputMaybe<Scalars['optimism_Bytes']>;
+  returnData_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  returnData_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  returnData_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  returnData_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  returnData_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   success?: InputMaybe<Scalars['Boolean']>;
   success_not?: InputMaybe<Scalars['Boolean']>;
   success_in?: InputMaybe<Array<Scalars['Boolean']>>;
   success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['optimism_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -325,10 +325,10 @@ export type stagingmumbai_DestinationMessage_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_DestinationMessage_orderBy =
+export type optimism_DestinationMessage_orderBy =
   | 'id'
   | 'leaf'
   | 'processed'
@@ -337,34 +337,34 @@ export type stagingmumbai_DestinationMessage_orderBy =
   | 'transactionHash'
   | 'blockNumber';
 
-export type stagingmumbai_DestinationTransfer = {
+export type optimism_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  transferId?: Maybe<Scalars['optimism_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<stagingmumbai_TransferStatus>;
-  routers?: Maybe<Array<stagingmumbai_Router>>;
+  status?: Maybe<optimism_TransferStatus>;
+  routers?: Maybe<Array<optimism_Router>>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  delegate?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  to?: Maybe<Scalars['optimism_Bytes']>;
+  delegate?: Maybe<Scalars['optimism_Bytes']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callData?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  callData?: Maybe<Scalars['optimism_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
-  originSender?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  originSender?: Maybe<Scalars['optimism_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  asset?: Maybe<stagingmumbai_Asset>;
-  executedCaller?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  canonicalId?: Maybe<Scalars['optimism_Bytes']>;
+  asset?: Maybe<optimism_Asset>;
+  executedCaller?: Maybe<Scalars['optimism_Bytes']>;
+  executedTransactionHash?: Maybe<Scalars['optimism_Bytes']>;
   executedTimestamp?: Maybe<Scalars['BigInt']>;
   executedGasPrice?: Maybe<Scalars['BigInt']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledTransactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  reconciledCaller?: Maybe<Scalars['optimism_Bytes']>;
+  reconciledTransactionHash?: Maybe<Scalars['optimism_Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledGasPrice?: Maybe<Scalars['BigInt']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
@@ -372,15 +372,15 @@ export type stagingmumbai_DestinationTransfer = {
 };
 
 
-export type stagingmumbai_DestinationTransferroutersArgs = {
+export type optimism_DestinationTransferroutersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Router_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Router_filter>;
+  orderBy?: InputMaybe<optimism_Router_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_Router_filter>;
 };
 
-export type stagingmumbai_DestinationTransfer_filter = {
+export type optimism_DestinationTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -397,12 +397,12 @@ export type stagingmumbai_DestinationTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transferId?: InputMaybe<Scalars['optimism_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -411,17 +411,17 @@ export type stagingmumbai_DestinationTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<stagingmumbai_TransferStatus>;
-  status_not?: InputMaybe<stagingmumbai_TransferStatus>;
-  status_in?: InputMaybe<Array<stagingmumbai_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<stagingmumbai_TransferStatus>>;
+  status?: InputMaybe<optimism_TransferStatus>;
+  status_not?: InputMaybe<optimism_TransferStatus>;
+  status_in?: InputMaybe<Array<optimism_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<optimism_TransferStatus>>;
   routers?: InputMaybe<Array<Scalars['String']>>;
   routers_not?: InputMaybe<Array<Scalars['String']>>;
   routers_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  routers_?: InputMaybe<stagingmumbai_Router_filter>;
+  routers_?: InputMaybe<optimism_Router_filter>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -446,28 +446,28 @@ export type stagingmumbai_DestinationTransfer_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  to_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  delegate?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  delegate_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  delegate_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  delegate_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  delegate_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  delegate_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  to?: InputMaybe<Scalars['optimism_Bytes']>;
+  to_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  delegate?: InputMaybe<Scalars['optimism_Bytes']>;
+  delegate_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  delegate_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  delegate_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  delegate_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  delegate_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   receiveLocal?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callData?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callData_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callData?: InputMaybe<Scalars['optimism_Bytes']>;
+  callData_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -476,12 +476,12 @@ export type stagingmumbai_DestinationTransfer_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originSender?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  originSender?: InputMaybe<Scalars['optimism_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   bridgedAmt?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_not?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_gt?: InputMaybe<Scalars['BigInt']>;
@@ -498,12 +498,12 @@ export type stagingmumbai_DestinationTransfer_filter = {
   normalizedIn_lte?: InputMaybe<Scalars['BigInt']>;
   normalizedIn_in?: InputMaybe<Array<Scalars['BigInt']>>;
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['optimism_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -524,19 +524,19 @@ export type stagingmumbai_DestinationTransfer_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<stagingmumbai_Asset_filter>;
-  executedCaller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  executedCaller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  executedCaller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  executedTransactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  executedTransactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_?: InputMaybe<optimism_Asset_filter>;
+  executedCaller?: InputMaybe<Scalars['optimism_Bytes']>;
+  executedCaller_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  executedCaller_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  executedTransactionHash?: InputMaybe<Scalars['optimism_Bytes']>;
+  executedTransactionHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   executedTimestamp?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -569,18 +569,18 @@ export type stagingmumbai_DestinationTransfer_filter = {
   executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledCaller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  reconciledCaller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledTransactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  reconciledCaller?: InputMaybe<Scalars['optimism_Bytes']>;
+  reconciledCaller_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  reconciledCaller_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  reconciledTransactionHash?: InputMaybe<Scalars['optimism_Bytes']>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -614,10 +614,10 @@ export type stagingmumbai_DestinationTransfer_filter = {
   reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_DestinationTransfer_orderBy =
+export type optimism_DestinationTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -651,24 +651,24 @@ export type stagingmumbai_DestinationTransfer_orderBy =
   | 'reconciledBlockNumber';
 
 /** Defines the order direction, either ascending or descending */
-export type stagingmumbai_OrderDirection =
+export type optimism_OrderDirection =
   | 'asc'
   | 'desc';
 
-export type stagingmumbai_OriginMessage = {
+export type optimism_OriginMessage = {
   id: Scalars['ID'];
-  transferId?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  transferId?: Maybe<Scalars['optimism_Bytes']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
-  leaf?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  leaf?: Maybe<Scalars['optimism_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  message?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  root?: Maybe<Scalars['optimism_Bytes']>;
+  message?: Maybe<Scalars['optimism_Bytes']>;
+  transactionHash?: Maybe<Scalars['optimism_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  rootCount?: Maybe<stagingmumbai_RootCount>;
+  rootCount?: Maybe<optimism_RootCount>;
 };
 
-export type stagingmumbai_OriginMessage_filter = {
+export type optimism_OriginMessage_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -677,12 +677,12 @@ export type stagingmumbai_OriginMessage_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  transferId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transferId?: InputMaybe<Scalars['optimism_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   destinationDomain?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -691,12 +691,12 @@ export type stagingmumbai_OriginMessage_filter = {
   destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  leaf?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  leaf?: InputMaybe<Scalars['optimism_Bytes']>;
+  leaf_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  leaf_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  leaf_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  leaf_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  leaf_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   index?: InputMaybe<Scalars['BigInt']>;
   index_not?: InputMaybe<Scalars['BigInt']>;
   index_gt?: InputMaybe<Scalars['BigInt']>;
@@ -705,24 +705,24 @@ export type stagingmumbai_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  message?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  message_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  message_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  message_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  message_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  message_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  root?: InputMaybe<Scalars['optimism_Bytes']>;
+  root_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  message?: InputMaybe<Scalars['optimism_Bytes']>;
+  message_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  message_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  message_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  message_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  message_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['optimism_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -751,12 +751,12 @@ export type stagingmumbai_OriginMessage_filter = {
   rootCount_ends_with_nocase?: InputMaybe<Scalars['String']>;
   rootCount_not_ends_with?: InputMaybe<Scalars['String']>;
   rootCount_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  rootCount_?: InputMaybe<stagingmumbai_RootCount_filter>;
+  rootCount_?: InputMaybe<optimism_RootCount_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_OriginMessage_orderBy =
+export type optimism_OriginMessage_orderBy =
   | 'id'
   | 'transferId'
   | 'destinationDomain'
@@ -768,36 +768,36 @@ export type stagingmumbai_OriginMessage_orderBy =
   | 'blockNumber'
   | 'rootCount';
 
-export type stagingmumbai_OriginTransfer = {
+export type optimism_OriginTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  transferId?: Maybe<Scalars['optimism_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<stagingmumbai_TransferStatus>;
-  messageHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  status?: Maybe<optimism_TransferStatus>;
+  messageHash?: Maybe<Scalars['optimism_Bytes']>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  delegate?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  to?: Maybe<Scalars['optimism_Bytes']>;
+  delegate?: Maybe<Scalars['optimism_Bytes']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callData?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  callData?: Maybe<Scalars['optimism_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
-  originSender?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  originSender?: Maybe<Scalars['optimism_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  asset?: Maybe<stagingmumbai_Asset>;
-  message?: Maybe<stagingmumbai_OriginMessage>;
-  caller?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  canonicalId?: Maybe<Scalars['optimism_Bytes']>;
+  asset?: Maybe<optimism_Asset>;
+  message?: Maybe<optimism_OriginMessage>;
+  caller?: Maybe<Scalars['optimism_Bytes']>;
+  transactionHash?: Maybe<Scalars['optimism_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type stagingmumbai_OriginTransfer_filter = {
+export type optimism_OriginTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -814,12 +814,12 @@ export type stagingmumbai_OriginTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transferId?: InputMaybe<Scalars['optimism_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -828,16 +828,16 @@ export type stagingmumbai_OriginTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<stagingmumbai_TransferStatus>;
-  status_not?: InputMaybe<stagingmumbai_TransferStatus>;
-  status_in?: InputMaybe<Array<stagingmumbai_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<stagingmumbai_TransferStatus>>;
-  messageHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  messageHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  messageHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  messageHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  messageHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  messageHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  status?: InputMaybe<optimism_TransferStatus>;
+  status_not?: InputMaybe<optimism_TransferStatus>;
+  status_in?: InputMaybe<Array<optimism_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<optimism_TransferStatus>>;
+  messageHash?: InputMaybe<Scalars['optimism_Bytes']>;
+  messageHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  messageHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  messageHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  messageHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  messageHash_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -862,28 +862,28 @@ export type stagingmumbai_OriginTransfer_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  to_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  delegate?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  delegate_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  delegate_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  delegate_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  delegate_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  delegate_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  to?: InputMaybe<Scalars['optimism_Bytes']>;
+  to_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  delegate?: InputMaybe<Scalars['optimism_Bytes']>;
+  delegate_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  delegate_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  delegate_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  delegate_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  delegate_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   receiveLocal?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callData?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callData_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callData?: InputMaybe<Scalars['optimism_Bytes']>;
+  callData_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -892,12 +892,12 @@ export type stagingmumbai_OriginTransfer_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originSender?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  originSender?: InputMaybe<Scalars['optimism_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   bridgedAmt?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_not?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_gt?: InputMaybe<Scalars['BigInt']>;
@@ -914,12 +914,12 @@ export type stagingmumbai_OriginTransfer_filter = {
   normalizedIn_lte?: InputMaybe<Scalars['BigInt']>;
   normalizedIn_in?: InputMaybe<Array<Scalars['BigInt']>>;
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['optimism_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -940,7 +940,7 @@ export type stagingmumbai_OriginTransfer_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<stagingmumbai_Asset_filter>;
+  asset_?: InputMaybe<optimism_Asset_filter>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -961,19 +961,19 @@ export type stagingmumbai_OriginTransfer_filter = {
   message_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  message_?: InputMaybe<stagingmumbai_OriginMessage_filter>;
-  caller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  message_?: InputMaybe<optimism_OriginMessage_filter>;
+  caller?: InputMaybe<Scalars['optimism_Bytes']>;
+  caller_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['optimism_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1007,10 +1007,10 @@ export type stagingmumbai_OriginTransfer_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_OriginTransfer_orderBy =
+export type optimism_OriginTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -1038,12 +1038,12 @@ export type stagingmumbai_OriginTransfer_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type stagingmumbai_PooledToken = {
+export type optimism_PooledToken = {
   id: Scalars['ID'];
-  asset: Scalars['stagingmumbai_Bytes'];
+  asset: Scalars['optimism_Bytes'];
 };
 
-export type stagingmumbai_PooledToken_filter = {
+export type optimism_PooledToken_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1052,377 +1052,377 @@ export type stagingmumbai_PooledToken_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  asset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  asset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_PooledToken_orderBy =
+export type optimism_PooledToken_orderBy =
   | 'id'
   | 'asset';
 
 export type Query = {
-  stagingmumbai_asset?: Maybe<stagingmumbai_Asset>;
-  stagingmumbai_assets: Array<stagingmumbai_Asset>;
-  stagingmumbai_assetBalance?: Maybe<stagingmumbai_AssetBalance>;
-  stagingmumbai_assetBalances: Array<stagingmumbai_AssetBalance>;
-  stagingmumbai_router?: Maybe<stagingmumbai_Router>;
-  stagingmumbai_routers: Array<stagingmumbai_Router>;
-  stagingmumbai_setting?: Maybe<stagingmumbai_Setting>;
-  stagingmumbai_settings: Array<stagingmumbai_Setting>;
-  stagingmumbai_relayer?: Maybe<stagingmumbai_Relayer>;
-  stagingmumbai_relayers: Array<stagingmumbai_Relayer>;
-  stagingmumbai_sequencer?: Maybe<stagingmumbai_Sequencer>;
-  stagingmumbai_sequencers: Array<stagingmumbai_Sequencer>;
-  stagingmumbai_originTransfer?: Maybe<stagingmumbai_OriginTransfer>;
-  stagingmumbai_originTransfers: Array<stagingmumbai_OriginTransfer>;
-  stagingmumbai_destinationTransfer?: Maybe<stagingmumbai_DestinationTransfer>;
-  stagingmumbai_destinationTransfers: Array<stagingmumbai_DestinationTransfer>;
-  stagingmumbai_originMessage?: Maybe<stagingmumbai_OriginMessage>;
-  stagingmumbai_originMessages: Array<stagingmumbai_OriginMessage>;
-  stagingmumbai_destinationMessage?: Maybe<stagingmumbai_DestinationMessage>;
-  stagingmumbai_destinationMessages: Array<stagingmumbai_DestinationMessage>;
-  stagingmumbai_aggregateRoot?: Maybe<stagingmumbai_AggregateRoot>;
-  stagingmumbai_aggregateRoots: Array<stagingmumbai_AggregateRoot>;
-  stagingmumbai_connectorMeta?: Maybe<stagingmumbai_ConnectorMeta>;
-  stagingmumbai_connectorMetas: Array<stagingmumbai_ConnectorMeta>;
-  stagingmumbai_rootCount?: Maybe<stagingmumbai_RootCount>;
-  stagingmumbai_rootCounts: Array<stagingmumbai_RootCount>;
-  stagingmumbai_rootMessageSent?: Maybe<stagingmumbai_RootMessageSent>;
-  stagingmumbai_rootMessageSents: Array<stagingmumbai_RootMessageSent>;
-  stagingmumbai_stableSwap?: Maybe<stagingmumbai_StableSwap>;
-  stagingmumbai_stableSwaps: Array<stagingmumbai_StableSwap>;
-  stagingmumbai_pooledToken?: Maybe<stagingmumbai_PooledToken>;
-  stagingmumbai_pooledTokens: Array<stagingmumbai_PooledToken>;
-  stagingmumbai_stableSwapLiquidity?: Maybe<stagingmumbai_StableSwapLiquidity>;
-  stagingmumbai_stableSwapLiquidities: Array<stagingmumbai_StableSwapLiquidity>;
+  optimism_asset?: Maybe<optimism_Asset>;
+  optimism_assets: Array<optimism_Asset>;
+  optimism_assetBalance?: Maybe<optimism_AssetBalance>;
+  optimism_assetBalances: Array<optimism_AssetBalance>;
+  optimism_router?: Maybe<optimism_Router>;
+  optimism_routers: Array<optimism_Router>;
+  optimism_setting?: Maybe<optimism_Setting>;
+  optimism_settings: Array<optimism_Setting>;
+  optimism_relayer?: Maybe<optimism_Relayer>;
+  optimism_relayers: Array<optimism_Relayer>;
+  optimism_sequencer?: Maybe<optimism_Sequencer>;
+  optimism_sequencers: Array<optimism_Sequencer>;
+  optimism_originTransfer?: Maybe<optimism_OriginTransfer>;
+  optimism_originTransfers: Array<optimism_OriginTransfer>;
+  optimism_destinationTransfer?: Maybe<optimism_DestinationTransfer>;
+  optimism_destinationTransfers: Array<optimism_DestinationTransfer>;
+  optimism_originMessage?: Maybe<optimism_OriginMessage>;
+  optimism_originMessages: Array<optimism_OriginMessage>;
+  optimism_destinationMessage?: Maybe<optimism_DestinationMessage>;
+  optimism_destinationMessages: Array<optimism_DestinationMessage>;
+  optimism_aggregateRoot?: Maybe<optimism_AggregateRoot>;
+  optimism_aggregateRoots: Array<optimism_AggregateRoot>;
+  optimism_connectorMeta?: Maybe<optimism_ConnectorMeta>;
+  optimism_connectorMetas: Array<optimism_ConnectorMeta>;
+  optimism_rootCount?: Maybe<optimism_RootCount>;
+  optimism_rootCounts: Array<optimism_RootCount>;
+  optimism_rootMessageSent?: Maybe<optimism_RootMessageSent>;
+  optimism_rootMessageSents: Array<optimism_RootMessageSent>;
+  optimism_stableSwap?: Maybe<optimism_StableSwap>;
+  optimism_stableSwaps: Array<optimism_StableSwap>;
+  optimism_pooledToken?: Maybe<optimism_PooledToken>;
+  optimism_pooledTokens: Array<optimism_PooledToken>;
+  optimism_stableSwapLiquidity?: Maybe<optimism_StableSwapLiquidity>;
+  optimism_stableSwapLiquidities: Array<optimism_StableSwapLiquidity>;
   /** Access to subgraph metadata */
-  stagingmumbai__meta?: Maybe<stagingmumbai__Meta_>;
+  optimism__meta?: Maybe<optimism__Meta_>;
 };
 
 
-export type Querystagingmumbai_assetArgs = {
+export type Queryoptimism_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_assetsArgs = {
+export type Queryoptimism_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Asset_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Asset_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_Asset_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_Asset_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_assetBalanceArgs = {
+export type Queryoptimism_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_assetBalancesArgs = {
+export type Queryoptimism_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_AssetBalance_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_AssetBalance_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_routerArgs = {
+export type Queryoptimism_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_routersArgs = {
+export type Queryoptimism_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Router_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Router_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_Router_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_Router_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_settingArgs = {
+export type Queryoptimism_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_settingsArgs = {
+export type Queryoptimism_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Setting_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Setting_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_Setting_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_Setting_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_relayerArgs = {
+export type Queryoptimism_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_relayersArgs = {
+export type Queryoptimism_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Relayer_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Relayer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_Relayer_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_Relayer_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_sequencerArgs = {
+export type Queryoptimism_sequencerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_sequencersArgs = {
+export type Queryoptimism_sequencersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Sequencer_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Sequencer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_Sequencer_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_originTransferArgs = {
+export type Queryoptimism_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_originTransfersArgs = {
+export type Queryoptimism_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_OriginTransfer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_OriginTransfer_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_destinationTransferArgs = {
+export type Queryoptimism_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_destinationTransfersArgs = {
+export type Queryoptimism_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_DestinationTransfer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_DestinationTransfer_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_originMessageArgs = {
+export type Queryoptimism_originMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_originMessagesArgs = {
+export type Queryoptimism_originMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_OriginMessage_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_OriginMessage_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_destinationMessageArgs = {
+export type Queryoptimism_destinationMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_destinationMessagesArgs = {
+export type Queryoptimism_destinationMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_DestinationMessage_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_DestinationMessage_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_DestinationMessage_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_aggregateRootArgs = {
+export type Queryoptimism_aggregateRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_aggregateRootsArgs = {
+export type Queryoptimism_aggregateRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_AggregateRoot_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_AggregateRoot_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_connectorMetaArgs = {
+export type Queryoptimism_connectorMetaArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_connectorMetasArgs = {
+export type Queryoptimism_connectorMetasArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_ConnectorMeta_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_ConnectorMeta_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_rootCountArgs = {
+export type Queryoptimism_rootCountArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_rootCountsArgs = {
+export type Queryoptimism_rootCountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_RootCount_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_RootCount_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_RootCount_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_RootCount_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_rootMessageSentArgs = {
+export type Queryoptimism_rootMessageSentArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_rootMessageSentsArgs = {
+export type Queryoptimism_rootMessageSentsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_RootMessageSent_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_RootMessageSent_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_stableSwapArgs = {
+export type Queryoptimism_stableSwapArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_stableSwapsArgs = {
+export type Queryoptimism_stableSwapsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_StableSwap_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_StableSwap_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_pooledTokenArgs = {
+export type Queryoptimism_pooledTokenArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_pooledTokensArgs = {
+export type Queryoptimism_pooledTokensArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_PooledToken_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_PooledToken_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_PooledToken_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_stableSwapLiquidityArgs = {
+export type Queryoptimism_stableSwapLiquidityArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai_stableSwapLiquiditiesArgs = {
+export type Queryoptimism_stableSwapLiquiditiesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_StableSwapLiquidity_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_StableSwapLiquidity_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_StableSwapLiquidity_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_StableSwapLiquidity_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystagingmumbai__metaArgs = {
-  block?: InputMaybe<stagingmumbai_Block_height>;
+export type Queryoptimism__metaArgs = {
+  block?: InputMaybe<optimism_Block_height>;
 };
 
-export type stagingmumbai_Relayer = {
+export type optimism_Relayer = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  relayer?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  relayer?: Maybe<Scalars['optimism_Bytes']>;
 };
 
-export type stagingmumbai_Relayer_filter = {
+export type optimism_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1435,27 +1435,27 @@ export type stagingmumbai_Relayer_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  relayer?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  relayer_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  relayer_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  relayer_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  relayer_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  relayer_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  relayer?: InputMaybe<Scalars['optimism_Bytes']>;
+  relayer_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  relayer_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  relayer_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  relayer_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  relayer_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_Relayer_orderBy =
+export type optimism_Relayer_orderBy =
   | 'id'
   | 'isActive'
   | 'relayer';
 
-export type stagingmumbai_RootCount = {
+export type optimism_RootCount = {
   id: Scalars['ID'];
   count?: Maybe<Scalars['BigInt']>;
 };
 
-export type stagingmumbai_RootCount_filter = {
+export type optimism_RootCount_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1473,28 +1473,28 @@ export type stagingmumbai_RootCount_filter = {
   count_in?: InputMaybe<Array<Scalars['BigInt']>>;
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_RootCount_orderBy =
+export type optimism_RootCount_orderBy =
   | 'id'
   | 'count';
 
-export type stagingmumbai_RootMessageSent = {
+export type optimism_RootMessageSent = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
   hubDomain?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  root?: Maybe<Scalars['optimism_Bytes']>;
   count?: Maybe<Scalars['BigInt']>;
-  caller?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  caller?: Maybe<Scalars['optimism_Bytes']>;
+  transactionHash?: Maybe<Scalars['optimism_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type stagingmumbai_RootMessageSent_filter = {
+export type optimism_RootMessageSent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1519,12 +1519,12 @@ export type stagingmumbai_RootMessageSent_filter = {
   hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
   hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  root?: InputMaybe<Scalars['optimism_Bytes']>;
+  root_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   count?: InputMaybe<Scalars['BigInt']>;
   count_not?: InputMaybe<Scalars['BigInt']>;
   count_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1533,18 +1533,18 @@ export type stagingmumbai_RootMessageSent_filter = {
   count_lte?: InputMaybe<Scalars['BigInt']>;
   count_in?: InputMaybe<Array<Scalars['BigInt']>>;
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller?: InputMaybe<Scalars['optimism_Bytes']>;
+  caller_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['optimism_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1578,10 +1578,10 @@ export type stagingmumbai_RootMessageSent_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_RootMessageSent_orderBy =
+export type optimism_RootMessageSent_orderBy =
   | 'id'
   | 'spokeDomain'
   | 'hubDomain'
@@ -1594,26 +1594,26 @@ export type stagingmumbai_RootMessageSent_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type stagingmumbai_Router = {
+export type optimism_Router = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  owner?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  recipient?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  proposedOwner?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  owner?: Maybe<Scalars['optimism_Bytes']>;
+  recipient?: Maybe<Scalars['optimism_Bytes']>;
+  proposedOwner?: Maybe<Scalars['optimism_Bytes']>;
   proposedTimestamp?: Maybe<Scalars['BigInt']>;
-  assetBalances: Array<stagingmumbai_AssetBalance>;
+  assetBalances: Array<optimism_AssetBalance>;
 };
 
 
-export type stagingmumbai_RouterassetBalancesArgs = {
+export type optimism_RouterassetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_AssetBalance_filter>;
+  orderBy?: InputMaybe<optimism_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_AssetBalance_filter>;
 };
 
-export type stagingmumbai_Router_filter = {
+export type optimism_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1626,24 +1626,24 @@ export type stagingmumbai_Router_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  owner?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  owner_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recipient?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recipient_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recipient_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  recipient_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  recipient_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recipient_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  proposedOwner?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  proposedOwner_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  proposedOwner_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  proposedOwner_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  proposedOwner_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  proposedOwner_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  owner?: InputMaybe<Scalars['optimism_Bytes']>;
+  owner_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  owner_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  owner_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  recipient?: InputMaybe<Scalars['optimism_Bytes']>;
+  recipient_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  recipient_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  recipient_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  proposedOwner?: InputMaybe<Scalars['optimism_Bytes']>;
+  proposedOwner_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  proposedOwner_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1652,12 +1652,12 @@ export type stagingmumbai_Router_filter = {
   proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  assetBalances_?: InputMaybe<stagingmumbai_AssetBalance_filter>;
+  assetBalances_?: InputMaybe<optimism_AssetBalance_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_Router_orderBy =
+export type optimism_Router_orderBy =
   | 'id'
   | 'isActive'
   | 'owner'
@@ -1666,13 +1666,13 @@ export type stagingmumbai_Router_orderBy =
   | 'proposedTimestamp'
   | 'assetBalances';
 
-export type stagingmumbai_Sequencer = {
+export type optimism_Sequencer = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  sequencer?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  sequencer?: Maybe<Scalars['optimism_Bytes']>;
 };
 
-export type stagingmumbai_Sequencer_filter = {
+export type optimism_Sequencer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1685,28 +1685,28 @@ export type stagingmumbai_Sequencer_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  sequencer?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  sequencer_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  sequencer_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  sequencer_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  sequencer_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  sequencer_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  sequencer?: InputMaybe<Scalars['optimism_Bytes']>;
+  sequencer_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  sequencer_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  sequencer_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  sequencer_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  sequencer_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_Sequencer_orderBy =
+export type optimism_Sequencer_orderBy =
   | 'id'
   | 'isActive'
   | 'sequencer';
 
-export type stagingmumbai_Setting = {
+export type optimism_Setting = {
   id: Scalars['ID'];
   maxRoutersPerTransfer: Scalars['BigInt'];
-  caller: Scalars['stagingmumbai_Bytes'];
+  caller: Scalars['optimism_Bytes'];
 };
 
-export type stagingmumbai_Setting_filter = {
+export type optimism_Setting_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1723,61 +1723,61 @@ export type stagingmumbai_Setting_filter = {
   maxRoutersPerTransfer_lte?: InputMaybe<Scalars['BigInt']>;
   maxRoutersPerTransfer_in?: InputMaybe<Array<Scalars['BigInt']>>;
   maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller?: InputMaybe<Scalars['optimism_Bytes']>;
+  caller_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_Setting_orderBy =
+export type optimism_Setting_orderBy =
   | 'id'
   | 'maxRoutersPerTransfer'
   | 'caller';
 
-export type stagingmumbai_StableSwap = {
+export type optimism_StableSwap = {
   id: Scalars['ID'];
   isActive?: Maybe<Scalars['Boolean']>;
-  key?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  key?: Maybe<Scalars['optimism_Bytes']>;
+  canonicalId?: Maybe<Scalars['optimism_Bytes']>;
   domain?: Maybe<Scalars['BigInt']>;
-  swapPool?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  lpToken?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  swapPool?: Maybe<Scalars['optimism_Bytes']>;
+  lpToken?: Maybe<Scalars['optimism_Bytes']>;
   initialA?: Maybe<Scalars['BigInt']>;
   futureA?: Maybe<Scalars['BigInt']>;
   initialATime?: Maybe<Scalars['BigInt']>;
   futureATime?: Maybe<Scalars['BigInt']>;
   swapFee?: Maybe<Scalars['BigInt']>;
   adminFee?: Maybe<Scalars['BigInt']>;
-  pooledTokens: Array<stagingmumbai_PooledToken>;
+  pooledTokens: Array<optimism_PooledToken>;
   tokenPrecisionMultipliers?: Maybe<Array<Scalars['BigInt']>>;
   balances: Array<Scalars['BigInt']>;
   adminFees?: Maybe<Array<Scalars['BigInt']>>;
 };
 
 
-export type stagingmumbai_StableSwappooledTokensArgs = {
+export type optimism_StableSwappooledTokensArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_PooledToken_filter>;
+  orderBy?: InputMaybe<optimism_PooledToken_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_PooledToken_filter>;
 };
 
-export type stagingmumbai_StableSwapLiquidity = {
+export type optimism_StableSwapLiquidity = {
   id: Scalars['ID'];
-  provider: Scalars['stagingmumbai_Bytes'];
-  stableSwap: stagingmumbai_StableSwap;
+  provider: Scalars['optimism_Bytes'];
+  stableSwap: optimism_StableSwap;
   tokenAmounts: Array<Scalars['BigInt']>;
   fees: Array<Scalars['BigInt']>;
   invariant?: Maybe<Scalars['BigInt']>;
   lpTokenSupply?: Maybe<Scalars['BigInt']>;
 };
 
-export type stagingmumbai_StableSwapLiquidity_filter = {
+export type optimism_StableSwapLiquidity_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1786,12 +1786,12 @@ export type stagingmumbai_StableSwapLiquidity_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  provider?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  provider_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  provider_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  provider_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  provider_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  provider_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  provider?: InputMaybe<Scalars['optimism_Bytes']>;
+  provider_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  provider_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  provider_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  provider_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  provider_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   stableSwap?: InputMaybe<Scalars['String']>;
   stableSwap_not?: InputMaybe<Scalars['String']>;
   stableSwap_gt?: InputMaybe<Scalars['String']>;
@@ -1812,7 +1812,7 @@ export type stagingmumbai_StableSwapLiquidity_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<stagingmumbai_StableSwap_filter>;
+  stableSwap_?: InputMaybe<optimism_StableSwap_filter>;
   tokenAmounts?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenAmounts_not?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenAmounts_contains?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -1842,10 +1842,10 @@ export type stagingmumbai_StableSwapLiquidity_filter = {
   lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_StableSwapLiquidity_orderBy =
+export type optimism_StableSwapLiquidity_orderBy =
   | 'id'
   | 'provider'
   | 'stableSwap'
@@ -1854,7 +1854,7 @@ export type stagingmumbai_StableSwapLiquidity_orderBy =
   | 'invariant'
   | 'lpTokenSupply';
 
-export type stagingmumbai_StableSwap_filter = {
+export type optimism_StableSwap_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1867,18 +1867,18 @@ export type stagingmumbai_StableSwap_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  key?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  key_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  key?: InputMaybe<Scalars['optimism_Bytes']>;
+  key_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  key_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  key_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  key_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  key_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['optimism_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   domain?: InputMaybe<Scalars['BigInt']>;
   domain_not?: InputMaybe<Scalars['BigInt']>;
   domain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1887,18 +1887,18 @@ export type stagingmumbai_StableSwap_filter = {
   domain_lte?: InputMaybe<Scalars['BigInt']>;
   domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapPool?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  swapPool_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  swapPool_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  swapPool_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  swapPool_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  swapPool_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  lpToken?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  lpToken_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  lpToken_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  lpToken_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  lpToken_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  lpToken_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  swapPool?: InputMaybe<Scalars['optimism_Bytes']>;
+  swapPool_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  swapPool_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  swapPool_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  swapPool_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  swapPool_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  lpToken?: InputMaybe<Scalars['optimism_Bytes']>;
+  lpToken_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  lpToken_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  lpToken_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  lpToken_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  lpToken_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   initialA?: InputMaybe<Scalars['BigInt']>;
   initialA_not?: InputMaybe<Scalars['BigInt']>;
   initialA_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1953,7 +1953,7 @@ export type stagingmumbai_StableSwap_filter = {
   pooledTokens_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   pooledTokens_not_contains?: InputMaybe<Array<Scalars['String']>>;
   pooledTokens_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_?: InputMaybe<stagingmumbai_PooledToken_filter>;
+  pooledTokens_?: InputMaybe<optimism_PooledToken_filter>;
   tokenPrecisionMultipliers?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenPrecisionMultipliers_not?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenPrecisionMultipliers_contains?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -1973,10 +1973,10 @@ export type stagingmumbai_StableSwap_filter = {
   adminFees_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
   adminFees_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
 
-export type stagingmumbai_StableSwap_orderBy =
+export type optimism_StableSwap_orderBy =
   | 'id'
   | 'isActive'
   | 'key'
@@ -1996,365 +1996,365 @@ export type stagingmumbai_StableSwap_orderBy =
   | 'adminFees';
 
 export type Subscription = {
-  stagingmumbai_asset?: Maybe<stagingmumbai_Asset>;
-  stagingmumbai_assets: Array<stagingmumbai_Asset>;
-  stagingmumbai_assetBalance?: Maybe<stagingmumbai_AssetBalance>;
-  stagingmumbai_assetBalances: Array<stagingmumbai_AssetBalance>;
-  stagingmumbai_router?: Maybe<stagingmumbai_Router>;
-  stagingmumbai_routers: Array<stagingmumbai_Router>;
-  stagingmumbai_setting?: Maybe<stagingmumbai_Setting>;
-  stagingmumbai_settings: Array<stagingmumbai_Setting>;
-  stagingmumbai_relayer?: Maybe<stagingmumbai_Relayer>;
-  stagingmumbai_relayers: Array<stagingmumbai_Relayer>;
-  stagingmumbai_sequencer?: Maybe<stagingmumbai_Sequencer>;
-  stagingmumbai_sequencers: Array<stagingmumbai_Sequencer>;
-  stagingmumbai_originTransfer?: Maybe<stagingmumbai_OriginTransfer>;
-  stagingmumbai_originTransfers: Array<stagingmumbai_OriginTransfer>;
-  stagingmumbai_destinationTransfer?: Maybe<stagingmumbai_DestinationTransfer>;
-  stagingmumbai_destinationTransfers: Array<stagingmumbai_DestinationTransfer>;
-  stagingmumbai_originMessage?: Maybe<stagingmumbai_OriginMessage>;
-  stagingmumbai_originMessages: Array<stagingmumbai_OriginMessage>;
-  stagingmumbai_destinationMessage?: Maybe<stagingmumbai_DestinationMessage>;
-  stagingmumbai_destinationMessages: Array<stagingmumbai_DestinationMessage>;
-  stagingmumbai_aggregateRoot?: Maybe<stagingmumbai_AggregateRoot>;
-  stagingmumbai_aggregateRoots: Array<stagingmumbai_AggregateRoot>;
-  stagingmumbai_connectorMeta?: Maybe<stagingmumbai_ConnectorMeta>;
-  stagingmumbai_connectorMetas: Array<stagingmumbai_ConnectorMeta>;
-  stagingmumbai_rootCount?: Maybe<stagingmumbai_RootCount>;
-  stagingmumbai_rootCounts: Array<stagingmumbai_RootCount>;
-  stagingmumbai_rootMessageSent?: Maybe<stagingmumbai_RootMessageSent>;
-  stagingmumbai_rootMessageSents: Array<stagingmumbai_RootMessageSent>;
-  stagingmumbai_stableSwap?: Maybe<stagingmumbai_StableSwap>;
-  stagingmumbai_stableSwaps: Array<stagingmumbai_StableSwap>;
-  stagingmumbai_pooledToken?: Maybe<stagingmumbai_PooledToken>;
-  stagingmumbai_pooledTokens: Array<stagingmumbai_PooledToken>;
-  stagingmumbai_stableSwapLiquidity?: Maybe<stagingmumbai_StableSwapLiquidity>;
-  stagingmumbai_stableSwapLiquidities: Array<stagingmumbai_StableSwapLiquidity>;
+  optimism_asset?: Maybe<optimism_Asset>;
+  optimism_assets: Array<optimism_Asset>;
+  optimism_assetBalance?: Maybe<optimism_AssetBalance>;
+  optimism_assetBalances: Array<optimism_AssetBalance>;
+  optimism_router?: Maybe<optimism_Router>;
+  optimism_routers: Array<optimism_Router>;
+  optimism_setting?: Maybe<optimism_Setting>;
+  optimism_settings: Array<optimism_Setting>;
+  optimism_relayer?: Maybe<optimism_Relayer>;
+  optimism_relayers: Array<optimism_Relayer>;
+  optimism_sequencer?: Maybe<optimism_Sequencer>;
+  optimism_sequencers: Array<optimism_Sequencer>;
+  optimism_originTransfer?: Maybe<optimism_OriginTransfer>;
+  optimism_originTransfers: Array<optimism_OriginTransfer>;
+  optimism_destinationTransfer?: Maybe<optimism_DestinationTransfer>;
+  optimism_destinationTransfers: Array<optimism_DestinationTransfer>;
+  optimism_originMessage?: Maybe<optimism_OriginMessage>;
+  optimism_originMessages: Array<optimism_OriginMessage>;
+  optimism_destinationMessage?: Maybe<optimism_DestinationMessage>;
+  optimism_destinationMessages: Array<optimism_DestinationMessage>;
+  optimism_aggregateRoot?: Maybe<optimism_AggregateRoot>;
+  optimism_aggregateRoots: Array<optimism_AggregateRoot>;
+  optimism_connectorMeta?: Maybe<optimism_ConnectorMeta>;
+  optimism_connectorMetas: Array<optimism_ConnectorMeta>;
+  optimism_rootCount?: Maybe<optimism_RootCount>;
+  optimism_rootCounts: Array<optimism_RootCount>;
+  optimism_rootMessageSent?: Maybe<optimism_RootMessageSent>;
+  optimism_rootMessageSents: Array<optimism_RootMessageSent>;
+  optimism_stableSwap?: Maybe<optimism_StableSwap>;
+  optimism_stableSwaps: Array<optimism_StableSwap>;
+  optimism_pooledToken?: Maybe<optimism_PooledToken>;
+  optimism_pooledTokens: Array<optimism_PooledToken>;
+  optimism_stableSwapLiquidity?: Maybe<optimism_StableSwapLiquidity>;
+  optimism_stableSwapLiquidities: Array<optimism_StableSwapLiquidity>;
   /** Access to subgraph metadata */
-  stagingmumbai__meta?: Maybe<stagingmumbai__Meta_>;
+  optimism__meta?: Maybe<optimism__Meta_>;
 };
 
 
-export type Subscriptionstagingmumbai_assetArgs = {
+export type Subscriptionoptimism_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_assetsArgs = {
+export type Subscriptionoptimism_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Asset_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Asset_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_Asset_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_Asset_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_assetBalanceArgs = {
+export type Subscriptionoptimism_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_assetBalancesArgs = {
+export type Subscriptionoptimism_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_AssetBalance_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_AssetBalance_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_routerArgs = {
+export type Subscriptionoptimism_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_routersArgs = {
+export type Subscriptionoptimism_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Router_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Router_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_Router_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_Router_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_settingArgs = {
+export type Subscriptionoptimism_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_settingsArgs = {
+export type Subscriptionoptimism_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Setting_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Setting_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_Setting_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_Setting_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_relayerArgs = {
+export type Subscriptionoptimism_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_relayersArgs = {
+export type Subscriptionoptimism_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Relayer_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Relayer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_Relayer_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_Relayer_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_sequencerArgs = {
+export type Subscriptionoptimism_sequencerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_sequencersArgs = {
+export type Subscriptionoptimism_sequencersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Sequencer_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Sequencer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_Sequencer_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_originTransferArgs = {
+export type Subscriptionoptimism_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_originTransfersArgs = {
+export type Subscriptionoptimism_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_OriginTransfer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_OriginTransfer_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_destinationTransferArgs = {
+export type Subscriptionoptimism_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_destinationTransfersArgs = {
+export type Subscriptionoptimism_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_DestinationTransfer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_DestinationTransfer_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_originMessageArgs = {
+export type Subscriptionoptimism_originMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_originMessagesArgs = {
+export type Subscriptionoptimism_originMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_OriginMessage_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_OriginMessage_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_destinationMessageArgs = {
+export type Subscriptionoptimism_destinationMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_destinationMessagesArgs = {
+export type Subscriptionoptimism_destinationMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_DestinationMessage_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_DestinationMessage_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_DestinationMessage_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_aggregateRootArgs = {
+export type Subscriptionoptimism_aggregateRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_aggregateRootsArgs = {
+export type Subscriptionoptimism_aggregateRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_AggregateRoot_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_AggregateRoot_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_connectorMetaArgs = {
+export type Subscriptionoptimism_connectorMetaArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_connectorMetasArgs = {
+export type Subscriptionoptimism_connectorMetasArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_ConnectorMeta_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_ConnectorMeta_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_rootCountArgs = {
+export type Subscriptionoptimism_rootCountArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_rootCountsArgs = {
+export type Subscriptionoptimism_rootCountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_RootCount_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_RootCount_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_RootCount_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_RootCount_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_rootMessageSentArgs = {
+export type Subscriptionoptimism_rootMessageSentArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_rootMessageSentsArgs = {
+export type Subscriptionoptimism_rootMessageSentsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_RootMessageSent_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_RootMessageSent_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_stableSwapArgs = {
+export type Subscriptionoptimism_stableSwapArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_stableSwapsArgs = {
+export type Subscriptionoptimism_stableSwapsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_StableSwap_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_StableSwap_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_pooledTokenArgs = {
+export type Subscriptionoptimism_pooledTokenArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_pooledTokensArgs = {
+export type Subscriptionoptimism_pooledTokensArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_PooledToken_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_PooledToken_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_PooledToken_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_stableSwapLiquidityArgs = {
+export type Subscriptionoptimism_stableSwapLiquidityArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai_stableSwapLiquiditiesArgs = {
+export type Subscriptionoptimism_stableSwapLiquiditiesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_StableSwapLiquidity_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_StableSwapLiquidity_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
+  orderBy?: InputMaybe<optimism_StableSwapLiquidity_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_StableSwapLiquidity_filter>;
+  block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstagingmumbai__metaArgs = {
-  block?: InputMaybe<stagingmumbai_Block_height>;
+export type Subscriptionoptimism__metaArgs = {
+  block?: InputMaybe<optimism_Block_height>;
 };
 
-export type stagingmumbai_TransferStatus =
+export type optimism_TransferStatus =
   | 'XCalled'
   | 'Executed'
   | 'Reconciled'
   | 'CompletedSlow'
   | 'CompletedFast';
 
-export type stagingmumbai__Block_ = {
+export type optimism__Block_ = {
   /** The hash of the block */
-  hash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  hash?: Maybe<Scalars['optimism_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
@@ -2362,7 +2362,7 @@ export type stagingmumbai__Block_ = {
 };
 
 /** The type for the top-level _meta field */
-export type stagingmumbai__Meta_ = {
+export type optimism__Meta_ = {
   /**
    * Information about a specific subgraph block. The hash of the block
    * will be null if the _meta field has a block constraint that asks for
@@ -2370,7 +2370,7 @@ export type stagingmumbai__Meta_ = {
    * and therefore asks for the latest  block
    *
    */
-  block: stagingmumbai__Block_;
+  block: optimism__Block_;
   /** The deployment ID */
   deployment: Scalars['String'];
   /** If `true`, the subgraph encountered indexing errors at some past block */
@@ -2385,75 +2385,75 @@ export type _SubgraphErrorPolicy_ =
 
   export type QuerySdk = {
       /** null **/
-  stagingmumbai_asset: InContextSdkMethod<Query['stagingmumbai_asset'], Querystagingmumbai_assetArgs, MeshContext>,
+  optimism_asset: InContextSdkMethod<Query['optimism_asset'], Queryoptimism_assetArgs, MeshContext>,
   /** null **/
-  stagingmumbai_assets: InContextSdkMethod<Query['stagingmumbai_assets'], Querystagingmumbai_assetsArgs, MeshContext>,
+  optimism_assets: InContextSdkMethod<Query['optimism_assets'], Queryoptimism_assetsArgs, MeshContext>,
   /** null **/
-  stagingmumbai_assetBalance: InContextSdkMethod<Query['stagingmumbai_assetBalance'], Querystagingmumbai_assetBalanceArgs, MeshContext>,
+  optimism_assetBalance: InContextSdkMethod<Query['optimism_assetBalance'], Queryoptimism_assetBalanceArgs, MeshContext>,
   /** null **/
-  stagingmumbai_assetBalances: InContextSdkMethod<Query['stagingmumbai_assetBalances'], Querystagingmumbai_assetBalancesArgs, MeshContext>,
+  optimism_assetBalances: InContextSdkMethod<Query['optimism_assetBalances'], Queryoptimism_assetBalancesArgs, MeshContext>,
   /** null **/
-  stagingmumbai_router: InContextSdkMethod<Query['stagingmumbai_router'], Querystagingmumbai_routerArgs, MeshContext>,
+  optimism_router: InContextSdkMethod<Query['optimism_router'], Queryoptimism_routerArgs, MeshContext>,
   /** null **/
-  stagingmumbai_routers: InContextSdkMethod<Query['stagingmumbai_routers'], Querystagingmumbai_routersArgs, MeshContext>,
+  optimism_routers: InContextSdkMethod<Query['optimism_routers'], Queryoptimism_routersArgs, MeshContext>,
   /** null **/
-  stagingmumbai_setting: InContextSdkMethod<Query['stagingmumbai_setting'], Querystagingmumbai_settingArgs, MeshContext>,
+  optimism_setting: InContextSdkMethod<Query['optimism_setting'], Queryoptimism_settingArgs, MeshContext>,
   /** null **/
-  stagingmumbai_settings: InContextSdkMethod<Query['stagingmumbai_settings'], Querystagingmumbai_settingsArgs, MeshContext>,
+  optimism_settings: InContextSdkMethod<Query['optimism_settings'], Queryoptimism_settingsArgs, MeshContext>,
   /** null **/
-  stagingmumbai_relayer: InContextSdkMethod<Query['stagingmumbai_relayer'], Querystagingmumbai_relayerArgs, MeshContext>,
+  optimism_relayer: InContextSdkMethod<Query['optimism_relayer'], Queryoptimism_relayerArgs, MeshContext>,
   /** null **/
-  stagingmumbai_relayers: InContextSdkMethod<Query['stagingmumbai_relayers'], Querystagingmumbai_relayersArgs, MeshContext>,
+  optimism_relayers: InContextSdkMethod<Query['optimism_relayers'], Queryoptimism_relayersArgs, MeshContext>,
   /** null **/
-  stagingmumbai_sequencer: InContextSdkMethod<Query['stagingmumbai_sequencer'], Querystagingmumbai_sequencerArgs, MeshContext>,
+  optimism_sequencer: InContextSdkMethod<Query['optimism_sequencer'], Queryoptimism_sequencerArgs, MeshContext>,
   /** null **/
-  stagingmumbai_sequencers: InContextSdkMethod<Query['stagingmumbai_sequencers'], Querystagingmumbai_sequencersArgs, MeshContext>,
+  optimism_sequencers: InContextSdkMethod<Query['optimism_sequencers'], Queryoptimism_sequencersArgs, MeshContext>,
   /** null **/
-  stagingmumbai_originTransfer: InContextSdkMethod<Query['stagingmumbai_originTransfer'], Querystagingmumbai_originTransferArgs, MeshContext>,
+  optimism_originTransfer: InContextSdkMethod<Query['optimism_originTransfer'], Queryoptimism_originTransferArgs, MeshContext>,
   /** null **/
-  stagingmumbai_originTransfers: InContextSdkMethod<Query['stagingmumbai_originTransfers'], Querystagingmumbai_originTransfersArgs, MeshContext>,
+  optimism_originTransfers: InContextSdkMethod<Query['optimism_originTransfers'], Queryoptimism_originTransfersArgs, MeshContext>,
   /** null **/
-  stagingmumbai_destinationTransfer: InContextSdkMethod<Query['stagingmumbai_destinationTransfer'], Querystagingmumbai_destinationTransferArgs, MeshContext>,
+  optimism_destinationTransfer: InContextSdkMethod<Query['optimism_destinationTransfer'], Queryoptimism_destinationTransferArgs, MeshContext>,
   /** null **/
-  stagingmumbai_destinationTransfers: InContextSdkMethod<Query['stagingmumbai_destinationTransfers'], Querystagingmumbai_destinationTransfersArgs, MeshContext>,
+  optimism_destinationTransfers: InContextSdkMethod<Query['optimism_destinationTransfers'], Queryoptimism_destinationTransfersArgs, MeshContext>,
   /** null **/
-  stagingmumbai_originMessage: InContextSdkMethod<Query['stagingmumbai_originMessage'], Querystagingmumbai_originMessageArgs, MeshContext>,
+  optimism_originMessage: InContextSdkMethod<Query['optimism_originMessage'], Queryoptimism_originMessageArgs, MeshContext>,
   /** null **/
-  stagingmumbai_originMessages: InContextSdkMethod<Query['stagingmumbai_originMessages'], Querystagingmumbai_originMessagesArgs, MeshContext>,
+  optimism_originMessages: InContextSdkMethod<Query['optimism_originMessages'], Queryoptimism_originMessagesArgs, MeshContext>,
   /** null **/
-  stagingmumbai_destinationMessage: InContextSdkMethod<Query['stagingmumbai_destinationMessage'], Querystagingmumbai_destinationMessageArgs, MeshContext>,
+  optimism_destinationMessage: InContextSdkMethod<Query['optimism_destinationMessage'], Queryoptimism_destinationMessageArgs, MeshContext>,
   /** null **/
-  stagingmumbai_destinationMessages: InContextSdkMethod<Query['stagingmumbai_destinationMessages'], Querystagingmumbai_destinationMessagesArgs, MeshContext>,
+  optimism_destinationMessages: InContextSdkMethod<Query['optimism_destinationMessages'], Queryoptimism_destinationMessagesArgs, MeshContext>,
   /** null **/
-  stagingmumbai_aggregateRoot: InContextSdkMethod<Query['stagingmumbai_aggregateRoot'], Querystagingmumbai_aggregateRootArgs, MeshContext>,
+  optimism_aggregateRoot: InContextSdkMethod<Query['optimism_aggregateRoot'], Queryoptimism_aggregateRootArgs, MeshContext>,
   /** null **/
-  stagingmumbai_aggregateRoots: InContextSdkMethod<Query['stagingmumbai_aggregateRoots'], Querystagingmumbai_aggregateRootsArgs, MeshContext>,
+  optimism_aggregateRoots: InContextSdkMethod<Query['optimism_aggregateRoots'], Queryoptimism_aggregateRootsArgs, MeshContext>,
   /** null **/
-  stagingmumbai_connectorMeta: InContextSdkMethod<Query['stagingmumbai_connectorMeta'], Querystagingmumbai_connectorMetaArgs, MeshContext>,
+  optimism_connectorMeta: InContextSdkMethod<Query['optimism_connectorMeta'], Queryoptimism_connectorMetaArgs, MeshContext>,
   /** null **/
-  stagingmumbai_connectorMetas: InContextSdkMethod<Query['stagingmumbai_connectorMetas'], Querystagingmumbai_connectorMetasArgs, MeshContext>,
+  optimism_connectorMetas: InContextSdkMethod<Query['optimism_connectorMetas'], Queryoptimism_connectorMetasArgs, MeshContext>,
   /** null **/
-  stagingmumbai_rootCount: InContextSdkMethod<Query['stagingmumbai_rootCount'], Querystagingmumbai_rootCountArgs, MeshContext>,
+  optimism_rootCount: InContextSdkMethod<Query['optimism_rootCount'], Queryoptimism_rootCountArgs, MeshContext>,
   /** null **/
-  stagingmumbai_rootCounts: InContextSdkMethod<Query['stagingmumbai_rootCounts'], Querystagingmumbai_rootCountsArgs, MeshContext>,
+  optimism_rootCounts: InContextSdkMethod<Query['optimism_rootCounts'], Queryoptimism_rootCountsArgs, MeshContext>,
   /** null **/
-  stagingmumbai_rootMessageSent: InContextSdkMethod<Query['stagingmumbai_rootMessageSent'], Querystagingmumbai_rootMessageSentArgs, MeshContext>,
+  optimism_rootMessageSent: InContextSdkMethod<Query['optimism_rootMessageSent'], Queryoptimism_rootMessageSentArgs, MeshContext>,
   /** null **/
-  stagingmumbai_rootMessageSents: InContextSdkMethod<Query['stagingmumbai_rootMessageSents'], Querystagingmumbai_rootMessageSentsArgs, MeshContext>,
+  optimism_rootMessageSents: InContextSdkMethod<Query['optimism_rootMessageSents'], Queryoptimism_rootMessageSentsArgs, MeshContext>,
   /** null **/
-  stagingmumbai_stableSwap: InContextSdkMethod<Query['stagingmumbai_stableSwap'], Querystagingmumbai_stableSwapArgs, MeshContext>,
+  optimism_stableSwap: InContextSdkMethod<Query['optimism_stableSwap'], Queryoptimism_stableSwapArgs, MeshContext>,
   /** null **/
-  stagingmumbai_stableSwaps: InContextSdkMethod<Query['stagingmumbai_stableSwaps'], Querystagingmumbai_stableSwapsArgs, MeshContext>,
+  optimism_stableSwaps: InContextSdkMethod<Query['optimism_stableSwaps'], Queryoptimism_stableSwapsArgs, MeshContext>,
   /** null **/
-  stagingmumbai_pooledToken: InContextSdkMethod<Query['stagingmumbai_pooledToken'], Querystagingmumbai_pooledTokenArgs, MeshContext>,
+  optimism_pooledToken: InContextSdkMethod<Query['optimism_pooledToken'], Queryoptimism_pooledTokenArgs, MeshContext>,
   /** null **/
-  stagingmumbai_pooledTokens: InContextSdkMethod<Query['stagingmumbai_pooledTokens'], Querystagingmumbai_pooledTokensArgs, MeshContext>,
+  optimism_pooledTokens: InContextSdkMethod<Query['optimism_pooledTokens'], Queryoptimism_pooledTokensArgs, MeshContext>,
   /** null **/
-  stagingmumbai_stableSwapLiquidity: InContextSdkMethod<Query['stagingmumbai_stableSwapLiquidity'], Querystagingmumbai_stableSwapLiquidityArgs, MeshContext>,
+  optimism_stableSwapLiquidity: InContextSdkMethod<Query['optimism_stableSwapLiquidity'], Queryoptimism_stableSwapLiquidityArgs, MeshContext>,
   /** null **/
-  stagingmumbai_stableSwapLiquidities: InContextSdkMethod<Query['stagingmumbai_stableSwapLiquidities'], Querystagingmumbai_stableSwapLiquiditiesArgs, MeshContext>,
+  optimism_stableSwapLiquidities: InContextSdkMethod<Query['optimism_stableSwapLiquidities'], Queryoptimism_stableSwapLiquiditiesArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  stagingmumbai__meta: InContextSdkMethod<Query['stagingmumbai__meta'], Querystagingmumbai__metaArgs, MeshContext>
+  optimism__meta: InContextSdkMethod<Query['optimism__meta'], Queryoptimism__metaArgs, MeshContext>
   };
 
   export type MutationSdk = {
@@ -2462,79 +2462,79 @@ export type _SubgraphErrorPolicy_ =
 
   export type SubscriptionSdk = {
       /** null **/
-  stagingmumbai_asset: InContextSdkMethod<Subscription['stagingmumbai_asset'], Subscriptionstagingmumbai_assetArgs, MeshContext>,
+  optimism_asset: InContextSdkMethod<Subscription['optimism_asset'], Subscriptionoptimism_assetArgs, MeshContext>,
   /** null **/
-  stagingmumbai_assets: InContextSdkMethod<Subscription['stagingmumbai_assets'], Subscriptionstagingmumbai_assetsArgs, MeshContext>,
+  optimism_assets: InContextSdkMethod<Subscription['optimism_assets'], Subscriptionoptimism_assetsArgs, MeshContext>,
   /** null **/
-  stagingmumbai_assetBalance: InContextSdkMethod<Subscription['stagingmumbai_assetBalance'], Subscriptionstagingmumbai_assetBalanceArgs, MeshContext>,
+  optimism_assetBalance: InContextSdkMethod<Subscription['optimism_assetBalance'], Subscriptionoptimism_assetBalanceArgs, MeshContext>,
   /** null **/
-  stagingmumbai_assetBalances: InContextSdkMethod<Subscription['stagingmumbai_assetBalances'], Subscriptionstagingmumbai_assetBalancesArgs, MeshContext>,
+  optimism_assetBalances: InContextSdkMethod<Subscription['optimism_assetBalances'], Subscriptionoptimism_assetBalancesArgs, MeshContext>,
   /** null **/
-  stagingmumbai_router: InContextSdkMethod<Subscription['stagingmumbai_router'], Subscriptionstagingmumbai_routerArgs, MeshContext>,
+  optimism_router: InContextSdkMethod<Subscription['optimism_router'], Subscriptionoptimism_routerArgs, MeshContext>,
   /** null **/
-  stagingmumbai_routers: InContextSdkMethod<Subscription['stagingmumbai_routers'], Subscriptionstagingmumbai_routersArgs, MeshContext>,
+  optimism_routers: InContextSdkMethod<Subscription['optimism_routers'], Subscriptionoptimism_routersArgs, MeshContext>,
   /** null **/
-  stagingmumbai_setting: InContextSdkMethod<Subscription['stagingmumbai_setting'], Subscriptionstagingmumbai_settingArgs, MeshContext>,
+  optimism_setting: InContextSdkMethod<Subscription['optimism_setting'], Subscriptionoptimism_settingArgs, MeshContext>,
   /** null **/
-  stagingmumbai_settings: InContextSdkMethod<Subscription['stagingmumbai_settings'], Subscriptionstagingmumbai_settingsArgs, MeshContext>,
+  optimism_settings: InContextSdkMethod<Subscription['optimism_settings'], Subscriptionoptimism_settingsArgs, MeshContext>,
   /** null **/
-  stagingmumbai_relayer: InContextSdkMethod<Subscription['stagingmumbai_relayer'], Subscriptionstagingmumbai_relayerArgs, MeshContext>,
+  optimism_relayer: InContextSdkMethod<Subscription['optimism_relayer'], Subscriptionoptimism_relayerArgs, MeshContext>,
   /** null **/
-  stagingmumbai_relayers: InContextSdkMethod<Subscription['stagingmumbai_relayers'], Subscriptionstagingmumbai_relayersArgs, MeshContext>,
+  optimism_relayers: InContextSdkMethod<Subscription['optimism_relayers'], Subscriptionoptimism_relayersArgs, MeshContext>,
   /** null **/
-  stagingmumbai_sequencer: InContextSdkMethod<Subscription['stagingmumbai_sequencer'], Subscriptionstagingmumbai_sequencerArgs, MeshContext>,
+  optimism_sequencer: InContextSdkMethod<Subscription['optimism_sequencer'], Subscriptionoptimism_sequencerArgs, MeshContext>,
   /** null **/
-  stagingmumbai_sequencers: InContextSdkMethod<Subscription['stagingmumbai_sequencers'], Subscriptionstagingmumbai_sequencersArgs, MeshContext>,
+  optimism_sequencers: InContextSdkMethod<Subscription['optimism_sequencers'], Subscriptionoptimism_sequencersArgs, MeshContext>,
   /** null **/
-  stagingmumbai_originTransfer: InContextSdkMethod<Subscription['stagingmumbai_originTransfer'], Subscriptionstagingmumbai_originTransferArgs, MeshContext>,
+  optimism_originTransfer: InContextSdkMethod<Subscription['optimism_originTransfer'], Subscriptionoptimism_originTransferArgs, MeshContext>,
   /** null **/
-  stagingmumbai_originTransfers: InContextSdkMethod<Subscription['stagingmumbai_originTransfers'], Subscriptionstagingmumbai_originTransfersArgs, MeshContext>,
+  optimism_originTransfers: InContextSdkMethod<Subscription['optimism_originTransfers'], Subscriptionoptimism_originTransfersArgs, MeshContext>,
   /** null **/
-  stagingmumbai_destinationTransfer: InContextSdkMethod<Subscription['stagingmumbai_destinationTransfer'], Subscriptionstagingmumbai_destinationTransferArgs, MeshContext>,
+  optimism_destinationTransfer: InContextSdkMethod<Subscription['optimism_destinationTransfer'], Subscriptionoptimism_destinationTransferArgs, MeshContext>,
   /** null **/
-  stagingmumbai_destinationTransfers: InContextSdkMethod<Subscription['stagingmumbai_destinationTransfers'], Subscriptionstagingmumbai_destinationTransfersArgs, MeshContext>,
+  optimism_destinationTransfers: InContextSdkMethod<Subscription['optimism_destinationTransfers'], Subscriptionoptimism_destinationTransfersArgs, MeshContext>,
   /** null **/
-  stagingmumbai_originMessage: InContextSdkMethod<Subscription['stagingmumbai_originMessage'], Subscriptionstagingmumbai_originMessageArgs, MeshContext>,
+  optimism_originMessage: InContextSdkMethod<Subscription['optimism_originMessage'], Subscriptionoptimism_originMessageArgs, MeshContext>,
   /** null **/
-  stagingmumbai_originMessages: InContextSdkMethod<Subscription['stagingmumbai_originMessages'], Subscriptionstagingmumbai_originMessagesArgs, MeshContext>,
+  optimism_originMessages: InContextSdkMethod<Subscription['optimism_originMessages'], Subscriptionoptimism_originMessagesArgs, MeshContext>,
   /** null **/
-  stagingmumbai_destinationMessage: InContextSdkMethod<Subscription['stagingmumbai_destinationMessage'], Subscriptionstagingmumbai_destinationMessageArgs, MeshContext>,
+  optimism_destinationMessage: InContextSdkMethod<Subscription['optimism_destinationMessage'], Subscriptionoptimism_destinationMessageArgs, MeshContext>,
   /** null **/
-  stagingmumbai_destinationMessages: InContextSdkMethod<Subscription['stagingmumbai_destinationMessages'], Subscriptionstagingmumbai_destinationMessagesArgs, MeshContext>,
+  optimism_destinationMessages: InContextSdkMethod<Subscription['optimism_destinationMessages'], Subscriptionoptimism_destinationMessagesArgs, MeshContext>,
   /** null **/
-  stagingmumbai_aggregateRoot: InContextSdkMethod<Subscription['stagingmumbai_aggregateRoot'], Subscriptionstagingmumbai_aggregateRootArgs, MeshContext>,
+  optimism_aggregateRoot: InContextSdkMethod<Subscription['optimism_aggregateRoot'], Subscriptionoptimism_aggregateRootArgs, MeshContext>,
   /** null **/
-  stagingmumbai_aggregateRoots: InContextSdkMethod<Subscription['stagingmumbai_aggregateRoots'], Subscriptionstagingmumbai_aggregateRootsArgs, MeshContext>,
+  optimism_aggregateRoots: InContextSdkMethod<Subscription['optimism_aggregateRoots'], Subscriptionoptimism_aggregateRootsArgs, MeshContext>,
   /** null **/
-  stagingmumbai_connectorMeta: InContextSdkMethod<Subscription['stagingmumbai_connectorMeta'], Subscriptionstagingmumbai_connectorMetaArgs, MeshContext>,
+  optimism_connectorMeta: InContextSdkMethod<Subscription['optimism_connectorMeta'], Subscriptionoptimism_connectorMetaArgs, MeshContext>,
   /** null **/
-  stagingmumbai_connectorMetas: InContextSdkMethod<Subscription['stagingmumbai_connectorMetas'], Subscriptionstagingmumbai_connectorMetasArgs, MeshContext>,
+  optimism_connectorMetas: InContextSdkMethod<Subscription['optimism_connectorMetas'], Subscriptionoptimism_connectorMetasArgs, MeshContext>,
   /** null **/
-  stagingmumbai_rootCount: InContextSdkMethod<Subscription['stagingmumbai_rootCount'], Subscriptionstagingmumbai_rootCountArgs, MeshContext>,
+  optimism_rootCount: InContextSdkMethod<Subscription['optimism_rootCount'], Subscriptionoptimism_rootCountArgs, MeshContext>,
   /** null **/
-  stagingmumbai_rootCounts: InContextSdkMethod<Subscription['stagingmumbai_rootCounts'], Subscriptionstagingmumbai_rootCountsArgs, MeshContext>,
+  optimism_rootCounts: InContextSdkMethod<Subscription['optimism_rootCounts'], Subscriptionoptimism_rootCountsArgs, MeshContext>,
   /** null **/
-  stagingmumbai_rootMessageSent: InContextSdkMethod<Subscription['stagingmumbai_rootMessageSent'], Subscriptionstagingmumbai_rootMessageSentArgs, MeshContext>,
+  optimism_rootMessageSent: InContextSdkMethod<Subscription['optimism_rootMessageSent'], Subscriptionoptimism_rootMessageSentArgs, MeshContext>,
   /** null **/
-  stagingmumbai_rootMessageSents: InContextSdkMethod<Subscription['stagingmumbai_rootMessageSents'], Subscriptionstagingmumbai_rootMessageSentsArgs, MeshContext>,
+  optimism_rootMessageSents: InContextSdkMethod<Subscription['optimism_rootMessageSents'], Subscriptionoptimism_rootMessageSentsArgs, MeshContext>,
   /** null **/
-  stagingmumbai_stableSwap: InContextSdkMethod<Subscription['stagingmumbai_stableSwap'], Subscriptionstagingmumbai_stableSwapArgs, MeshContext>,
+  optimism_stableSwap: InContextSdkMethod<Subscription['optimism_stableSwap'], Subscriptionoptimism_stableSwapArgs, MeshContext>,
   /** null **/
-  stagingmumbai_stableSwaps: InContextSdkMethod<Subscription['stagingmumbai_stableSwaps'], Subscriptionstagingmumbai_stableSwapsArgs, MeshContext>,
+  optimism_stableSwaps: InContextSdkMethod<Subscription['optimism_stableSwaps'], Subscriptionoptimism_stableSwapsArgs, MeshContext>,
   /** null **/
-  stagingmumbai_pooledToken: InContextSdkMethod<Subscription['stagingmumbai_pooledToken'], Subscriptionstagingmumbai_pooledTokenArgs, MeshContext>,
+  optimism_pooledToken: InContextSdkMethod<Subscription['optimism_pooledToken'], Subscriptionoptimism_pooledTokenArgs, MeshContext>,
   /** null **/
-  stagingmumbai_pooledTokens: InContextSdkMethod<Subscription['stagingmumbai_pooledTokens'], Subscriptionstagingmumbai_pooledTokensArgs, MeshContext>,
+  optimism_pooledTokens: InContextSdkMethod<Subscription['optimism_pooledTokens'], Subscriptionoptimism_pooledTokensArgs, MeshContext>,
   /** null **/
-  stagingmumbai_stableSwapLiquidity: InContextSdkMethod<Subscription['stagingmumbai_stableSwapLiquidity'], Subscriptionstagingmumbai_stableSwapLiquidityArgs, MeshContext>,
+  optimism_stableSwapLiquidity: InContextSdkMethod<Subscription['optimism_stableSwapLiquidity'], Subscriptionoptimism_stableSwapLiquidityArgs, MeshContext>,
   /** null **/
-  stagingmumbai_stableSwapLiquidities: InContextSdkMethod<Subscription['stagingmumbai_stableSwapLiquidities'], Subscriptionstagingmumbai_stableSwapLiquiditiesArgs, MeshContext>,
+  optimism_stableSwapLiquidities: InContextSdkMethod<Subscription['optimism_stableSwapLiquidities'], Subscriptionoptimism_stableSwapLiquiditiesArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  stagingmumbai__meta: InContextSdkMethod<Subscription['stagingmumbai__meta'], Subscriptionstagingmumbai__metaArgs, MeshContext>
+  optimism__meta: InContextSdkMethod<Subscription['optimism__meta'], Subscriptionoptimism__metaArgs, MeshContext>
   };
 
   export type Context = {
-      ["Connext_Staging_Mumbai"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
+      ["Connext_Optimism"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
 }
