@@ -49,9 +49,9 @@ export function handleMessageSent(event: MessageSent): void {
     meta = new ConnectorMeta(DEFAULT_CONNECTOR_META_ID);
   }
 
-  let message = RootMessageSent.load(`${event.params.data.toHexString()}-${meta.spokeDomain}`);
+  let message = RootMessageSent.load(`${event.params.data.toHexString()}-${meta.spokeDomain!.toString()}`);
   if (message == null) {
-    message = new RootMessageSent(`${event.params.data.toHexString()}-${meta.spokeDomain}`);
+    message = new RootMessageSent(`${event.params.data.toHexString()}-${meta.spokeDomain!.toString()}`);
   }
 
   message.spokeDomain = meta.spokeDomain;
