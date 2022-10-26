@@ -43,12 +43,12 @@ enum staginggoerli_AggregateRoot_orderBy {
 
 type staginggoerli_Asset {
   id: ID!
-  key: staginggoerli_Bytes!
-  canonicalId: staginggoerli_Bytes!
-  canonicalDomain: BigInt!
-  adoptedAsset: staginggoerli_Bytes!
-  localAsset: staginggoerli_Bytes!
-  blockNumber: BigInt!
+  key: staginggoerli_Bytes
+  canonicalId: staginggoerli_Bytes
+  canonicalDomain: BigInt
+  adoptedAsset: staginggoerli_Bytes
+  localAsset: staginggoerli_Bytes
+  blockNumber: BigInt
 }
 
 type staginggoerli_AssetBalance {
@@ -277,7 +277,9 @@ type staginggoerli_DestinationMessage {
   leaf: staginggoerli_Bytes
   processed: Boolean
   returnData: staginggoerli_Bytes
+  success: Boolean
   transactionHash: staginggoerli_Bytes
+  blockNumber: BigInt
 }
 
 input staginggoerli_DestinationMessage_filter {
@@ -305,12 +307,24 @@ input staginggoerli_DestinationMessage_filter {
   returnData_not_in: [staginggoerli_Bytes!]
   returnData_contains: staginggoerli_Bytes
   returnData_not_contains: staginggoerli_Bytes
+  success: Boolean
+  success_not: Boolean
+  success_in: [Boolean!]
+  success_not_in: [Boolean!]
   transactionHash: staginggoerli_Bytes
   transactionHash_not: staginggoerli_Bytes
   transactionHash_in: [staginggoerli_Bytes!]
   transactionHash_not_in: [staginggoerli_Bytes!]
   transactionHash_contains: staginggoerli_Bytes
   transactionHash_not_contains: staginggoerli_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
 }
@@ -320,7 +334,9 @@ enum staginggoerli_DestinationMessage_orderBy {
   leaf
   processed
   returnData
+  success
   transactionHash
+  blockNumber
 }
 
 type staginggoerli_DestinationTransfer {

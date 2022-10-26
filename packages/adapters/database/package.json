@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-database",
-  "version": "0.2.0-alpha.28",
+  "version": "0.2.1-beta.0",
   "description": "adapter for handling communication with Redis cache for nxtp protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -41,5 +41,6 @@
     "tslib": "2.4.0",
     "typescript": "4.8.3"
   },
-  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6"
+  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
+  "stableVersion": "0.2.0-alpha.29"
 }

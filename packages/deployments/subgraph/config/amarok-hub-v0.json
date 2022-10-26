@@ -1,22 +1,43 @@
 [
   {
+    "subgraphName": "connext/amarok-hub-v0-mainnet",
+    "network": "mainnet",
+    "source": [
+      {
+        "name": "RootManager",
+        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
+        "startBlock": 15795862
+      },
+      {
+        "name": "PolygonHubConnector",
+        "address": "0x6f8537dbaE3cE2a83547eBA87Ce2Bbe65a9a14C4",
+        "startBlock": 15795946
+      },
+      {
+        "name": "OptimismHubConnector",
+        "address": "0xd2ceB2a4D219438C3850CeA4E643FebB66116F96",
+        "startBlock": 15795944
+      }
+    ]
+  },
+  {
     "subgraphName": "connext/nxtp-amarok-hub-v0-goerli",
     "network": "goerli",
     "source": [
       {
         "name": "RootManager",
-        "address": "0x08840aBBB945C2b8a1c53A569078BB642eD1C333",
-        "startBlock": 7769623
+        "address": "0x8Ea7D3855ffB7b41e68934555751d239a64cA7B9",
+        "startBlock": 7797609
       },
       {
         "name": "PolygonHubConnector",
-        "address": "0xCC5dE7541fB4460865c965E8ed4e2F727398cEBA",
-        "startBlock": 7769638
+        "address": "0x7e3E85B7CBBA50D17C0e116928726cdD2Dd200Ba",
+        "startBlock": 7797625
       },
       {
         "name": "OptimismHubConnector",
-        "address": "0x7302624684025150BDe15f9C5d02B5DdE9ed34b7",
-        "startBlock": 7769636
+        "address": "0xC6FF904c84E7A6fb3499E92D4A202Ef193f1Ac04",
+        "startBlock": 7797621
       }
     ]
   }

@@ -89,10 +89,7 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage[]>;
-  getAggregateRoot: (
-    messageRootIndex: number,
-    _pool?: Pool | TxnClientForRepeatableRead,
-  ) => Promise<string | undefined>;
+  getAggregateRoot: (messageRoot: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   getAggregateRootCount: (
     aggregateRoot: string,
     _pool?: Pool | TxnClientForRepeatableRead,
@@ -115,16 +112,23 @@ export type Database = {
   getSpokeNode: (
     domain: string,
     index: number,
+    count: number,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<string | undefined>;
   getSpokeNodes: (
     domain: string,
     start: number,
     end: number,
+    count: number,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<string[]>;
-  getHubNode: (index: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
-  getHubNodes: (start: number, end: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string[]>;
+  getHubNode: (index: number, count: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
+  getHubNodes: (
+    start: number,
+    end: number,
+    count: number,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<string[]>;
   getRoot: (domain: string, path: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   putRoot: (domain: string, path: string, hash: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
 };

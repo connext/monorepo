@@ -104,7 +104,7 @@ library AssetLogic {
    * @param _key - The hash of canonical id and domain.
    * @param _asset - The address of the adopted asset to swap into the local asset.
    * @param _amount - The amount of the adopted asset to swap.
-   * @param _slippage - The minimum amount of slippage user will take on from _amount in BPS.
+   * @param _slippage - The maximum amount of slippage user will take on from _amount in BPS.
    * @return uint256 The amount of local asset received from swap.
    */
   function swapToLocalAssetIfNeeded(

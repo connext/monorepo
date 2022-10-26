@@ -708,7 +708,7 @@ export const getAggregatedRootsByDomainQuery = (
   for (const param of params) {
     const prefix = config.sources[param.hub].prefix;
     combinedQuery += `
-    ${prefix}_rootAggregateds ( 
+    ${prefix}_aggregatedMessageRoots ( 
       first: ${param.limit}, 
       where: { 
         domain: "${param.domain}",

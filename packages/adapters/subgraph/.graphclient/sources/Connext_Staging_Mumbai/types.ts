@@ -51,12 +51,12 @@ export type stagingmumbai_AggregateRoot_orderBy =
 
 export type stagingmumbai_Asset = {
   id: Scalars['ID'];
-  key: Scalars['stagingmumbai_Bytes'];
-  canonicalId: Scalars['stagingmumbai_Bytes'];
-  canonicalDomain: Scalars['BigInt'];
-  adoptedAsset: Scalars['stagingmumbai_Bytes'];
-  localAsset: Scalars['stagingmumbai_Bytes'];
-  blockNumber: Scalars['BigInt'];
+  key?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  canonicalId?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  canonicalDomain?: Maybe<Scalars['BigInt']>;
+  adoptedAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  localAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type stagingmumbai_AssetBalance = {
@@ -276,7 +276,9 @@ export type stagingmumbai_DestinationMessage = {
   leaf?: Maybe<Scalars['stagingmumbai_Bytes']>;
   processed?: Maybe<Scalars['Boolean']>;
   returnData?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  success?: Maybe<Scalars['Boolean']>;
   transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type stagingmumbai_DestinationMessage_filter = {
@@ -304,12 +306,24 @@ export type stagingmumbai_DestinationMessage_filter = {
   returnData_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
   returnData_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   returnData_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  success?: InputMaybe<Scalars['Boolean']>;
+  success_not?: InputMaybe<Scalars['Boolean']>;
+  success_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
 };
@@ -319,7 +333,9 @@ export type stagingmumbai_DestinationMessage_orderBy =
   | 'leaf'
   | 'processed'
   | 'returnData'
-  | 'transactionHash';
+  | 'success'
+  | 'transactionHash'
+  | 'blockNumber';
 
 export type stagingmumbai_DestinationTransfer = {
   id: Scalars['ID'];

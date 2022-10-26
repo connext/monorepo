@@ -41,7 +41,9 @@ import "./tasks/stableswap/addSwapLiquidity";
 import "./tasks/stableswap/removeSwapLiquidity";
 import "./tasks/stableswap/setSwapFees";
 import "./tasks/connector/send";
+import "./tasks/connector/setDelayBlocks";
 import "./tasks/rootmanager/propagate";
+import "./tasks/rootmanager/setDelayBlocks";
 import "./tasks/setMirrorConnectors";
 import "./tasks/addSequencer";
 import "./tasks/setXAppConnectionManager";
@@ -88,14 +90,18 @@ const config: HardhatUserConfig = {
   networks: hardhatNetworks,
   etherscan: {
     apiKey: {
+      // testnets
       rinkeby: process.env.ETHERSCAN_API_KEY!,
       kovan: process.env.ETHERSCAN_API_KEY!,
-      mainnet: process.env.ETHERSCAN_API_KEY!,
       ropsten: process.env.ETHERSCAN_API_KEY!,
       goerli: process.env.ETHERSCAN_API_KEY!,
       "optimism-goerli": process.env.ETHERSCAN_API_KEY!,
       "gnosis-testnet": process.env.ETHERSCAN_API_KEY!,
       mumbai: process.env.POLYGONSCAN_API_KEY!,
+      // mainnets
+      mainnet: process.env.ETHERSCAN_API_KEY!,
+      matic: process.env.POLYGONSCAN_API_KEY!,
+      optimism: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
     },
     customChains: [
       {

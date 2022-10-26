@@ -43,12 +43,12 @@ enum mumbai_AggregateRoot_orderBy {
 
 type mumbai_Asset {
   id: ID!
-  key: mumbai_Bytes!
-  canonicalId: mumbai_Bytes!
-  canonicalDomain: BigInt!
-  adoptedAsset: mumbai_Bytes!
-  localAsset: mumbai_Bytes!
-  blockNumber: BigInt!
+  key: mumbai_Bytes
+  canonicalId: mumbai_Bytes
+  canonicalDomain: BigInt
+  adoptedAsset: mumbai_Bytes
+  localAsset: mumbai_Bytes
+  blockNumber: BigInt
 }
 
 type mumbai_AssetBalance {
@@ -209,11 +209,11 @@ scalar mumbai_Bytes
 
 type mumbai_ConnectorMeta {
   id: ID!
-  spokeDomain: BigInt!
-  hubDomain: BigInt!
-  amb: mumbai_Bytes!
-  rootManager: mumbai_Bytes!
-  mirrorConnector: mumbai_Bytes!
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  amb: mumbai_Bytes
+  rootManager: mumbai_Bytes
+  mirrorConnector: mumbai_Bytes
 }
 
 input mumbai_ConnectorMeta_filter {
@@ -277,7 +277,9 @@ type mumbai_DestinationMessage {
   leaf: mumbai_Bytes
   processed: Boolean
   returnData: mumbai_Bytes
+  success: Boolean
   transactionHash: mumbai_Bytes
+  blockNumber: BigInt
 }
 
 input mumbai_DestinationMessage_filter {
@@ -305,12 +307,24 @@ input mumbai_DestinationMessage_filter {
   returnData_not_in: [mumbai_Bytes!]
   returnData_contains: mumbai_Bytes
   returnData_not_contains: mumbai_Bytes
+  success: Boolean
+  success_not: Boolean
+  success_in: [Boolean!]
+  success_not_in: [Boolean!]
   transactionHash: mumbai_Bytes
   transactionHash_not: mumbai_Bytes
   transactionHash_in: [mumbai_Bytes!]
   transactionHash_not_in: [mumbai_Bytes!]
   transactionHash_contains: mumbai_Bytes
   transactionHash_not_contains: mumbai_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
 }
@@ -320,7 +334,9 @@ enum mumbai_DestinationMessage_orderBy {
   leaf
   processed
   returnData
+  success
   transactionHash
+  blockNumber
 }
 
 type mumbai_DestinationTransfer {
@@ -643,6 +659,7 @@ type mumbai_OriginMessage {
   root: mumbai_Bytes
   message: mumbai_Bytes
   transactionHash: mumbai_Bytes
+  blockNumber: BigInt
   rootCount: mumbai_RootCount
 }
 
@@ -701,6 +718,14 @@ input mumbai_OriginMessage_filter {
   transactionHash_not_in: [mumbai_Bytes!]
   transactionHash_contains: mumbai_Bytes
   transactionHash_not_contains: mumbai_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   rootCount: String
   rootCount_not: String
   rootCount_gt: String
@@ -735,6 +760,7 @@ enum mumbai_OriginMessage_orderBy {
   root
   message
   transactionHash
+  blockNumber
   rootCount
 }
 
@@ -1441,7 +1467,7 @@ enum mumbai_Relayer_orderBy {
 
 type mumbai_RootCount {
   id: ID!
-  count: BigInt!
+  count: BigInt
 }
 
 input mumbai_RootCount_filter {

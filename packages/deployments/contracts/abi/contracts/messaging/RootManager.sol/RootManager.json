@@ -15,7 +15,7 @@
   "event OwnershipTransferred(address indexed,address indexed)",
   "event Paused(address)",
   "event RootAggregated(uint32,bytes32,uint256)",
-  "event RootPropagated(bytes32,uint32[],uint256)",
+  "event RootPropagated(bytes32,uint256,uint32[],bytes32[])",
   "event Unpaused(address)",
   "event WatcherManagerChanged(address)",
   "function MERKLE() view returns (address)",

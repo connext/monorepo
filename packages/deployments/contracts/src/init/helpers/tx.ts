@@ -6,15 +6,19 @@ import { CallSchema, Deployment } from "./types";
 
 const DEFAULT_CONFIRMATIONS = 3;
 
-export const waitForTx = async (args: {
+type WaitForTxArguments = {
   deployment: Deployment;
   tx: providers.TransactionResponse;
   name: string;
   checkResult?: {
     method: () => Promise<any>;
-    desired: any;
+    desired?: any;
   };
-}): Promise<{ receipt: providers.TransactionReceipt; result?: any }> => {
+};
+
+export const waitForTx = async (
+  args: WaitForTxArguments,
+): Promise<{ receipt: providers.TransactionReceipt; result?: any }> => {
   const { tx, name: _name, checkResult, deployment } = args;
   // Try to get the desired amount of confirmations from chain data.
   const chainData = await getChainData(true, true);
@@ -27,7 +31,7 @@ export const waitForTx = async (args: {
   console.log(`${prefix}Transaction mined:`, receipt.transactionHash);
 
   let value: any | undefined = undefined;
-  if (checkResult && typeof checkResult.method === "function") {
+  if (checkResult?.desired != undefined && typeof checkResult.method === "function") {
     value = await checkResult.method();
     if (value !== checkResult.desired) {
       throw new Error(`${prefix}Checking result of update failed: ${value} !== ${checkResult.desired}`);
@@ -45,10 +49,9 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
   if (!_write) {
     throw new Error("Cannot update if no write method is provided!");
   }
-  // Sanity check: desired is specified.
-  if (desired === undefined || desired === null) {
-    throw new Error("Desired value not specified for `updateIfNeeded` call.");
-  }
+
+  // Check if desired is defined
+  const desiredExists = desired != undefined;
 
   const write = {
     ..._write,
@@ -77,8 +80,11 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
   const readCall = async (): Promise<T> => {
     return await contract.callStatic[read.method](...read.args);
   };
-  const writeCall = async (): Promise<providers.TransactionResponse> => {
-    return await contract[write.method](...write.args, { gasLimit: 2000000 });
+  const writeCall = async (chain: number): Promise<providers.TransactionResponse> => {
+    return await contract[write.method](...write.args, {
+      gasLimit: 2000000,
+      gasPrice: chain === 137 ? "300000000000" : "30000000000", // TODO: need to put gasPrice properly for each chain
+    });
   };
 
   const network = await contract.provider.getNetwork();
@@ -86,23 +92,31 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
 
   let value;
   let valid = false;
-  try {
-    value = await readCall();
-    valid = value === desired;
-  } catch {}
+
+  if (desiredExists) {
+    try {
+      value = await readCall();
+      valid = value === desired;
+    } catch {}
+  }
 
   log.info.value({ chain, deployment, call: read, value, valid });
   if (!valid) {
-    const tx = await writeCall();
-    const res = await waitForTx({
+    const tx = await writeCall(chain);
+    const waitForTxParam: WaitForTxArguments = {
       deployment,
       tx,
       name: write.method,
-      checkResult: {
+    };
+
+    if (desiredExists) {
+      waitForTxParam.checkResult = {
         method: readCall,
         desired,
-      },
-    });
+      };
+    }
+
+    const res = await waitForTx(waitForTxParam);
     log.info.value({ chain, deployment, call: read, value: res.result, updated: true });
   }
 };

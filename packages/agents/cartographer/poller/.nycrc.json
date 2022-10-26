@@ -5,6 +5,7 @@
     "src/zapatos/schema.d.ts",
     "src/entryMessages.ts",
     "src/entryRouters.ts",
+    "src/shared.ts",
     "src/entryTransfers.ts",
     "src/bindings/index.ts",
     "src/bindings/routers/index.ts",

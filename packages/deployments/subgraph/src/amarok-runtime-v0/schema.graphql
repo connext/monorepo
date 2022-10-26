@@ -1,11 +1,11 @@
 type Asset @entity {
   id: ID! # local asset address
-  key: Bytes!
-  canonicalId: Bytes!
-  canonicalDomain: BigInt!
-  adoptedAsset: Bytes!
-  localAsset: Bytes!
-  blockNumber: BigInt! # needed in case multiple locals are stored under the same canonicalId
+  key: Bytes
+  canonicalId: Bytes
+  canonicalDomain: BigInt
+  adoptedAsset: Bytes
+  localAsset: Bytes
+  blockNumber: BigInt # needed in case multiple locals are stored under the same canonicalId
 }
 
 type AssetBalance @entity {
@@ -42,13 +42,6 @@ type Sequencer @entity {
   id: ID!
   isActive: Boolean!
   sequencer: Bytes
-}
-
-type StableSwap @entity {
-  id: ID!
-  canonicalId: Bytes!
-  domain: BigInt
-  swapPool: Bytes!
 }
 
 enum TransferStatus {
@@ -155,6 +148,7 @@ type OriginMessage @entity {
   root: Bytes
   message: Bytes
   transactionHash: Bytes
+  blockNumber: BigInt
 
   # root count RD
   rootCount: RootCount
@@ -167,7 +161,10 @@ type DestinationMessage @entity {
   leaf: Bytes
   processed: Boolean
   returnData: Bytes
+  success: Boolean
+
   transactionHash: Bytes
+  blockNumber: BigInt
 }
 
 type AggregateRoot @entity {
@@ -177,17 +174,17 @@ type AggregateRoot @entity {
 
 type ConnectorMeta @entity {
   id: ID! # "ConnectorMeta"
-  spokeDomain: BigInt!
-  hubDomain: BigInt!
+  spokeDomain: BigInt
+  hubDomain: BigInt
 
-  amb: Bytes!
-  rootManager: Bytes!
-  mirrorConnector: Bytes!
+  amb: Bytes
+  rootManager: Bytes
+  mirrorConnector: Bytes
 }
 
 type RootCount @entity {
   id: ID!
-  count: BigInt!
+  count: BigInt
 }
 
 type RootMessageSent @entity {
@@ -205,4 +202,48 @@ type RootMessageSent @entity {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+}
+
+### STABLE SWAP
+type StableSwap @entity {
+  id: ID!
+
+  isActive: Boolean
+
+  # StableSwapAdded
+  key: Bytes
+  canonicalId: Bytes
+  domain: BigInt
+  swapPool: Bytes
+
+  # SwapInitialized
+  lpToken: Bytes
+
+  initialA: BigInt
+  futureA: BigInt
+
+  initialATime: BigInt
+  futureATime: BigInt
+
+  swapFee: BigInt
+  adminFee: BigInt
+  pooledTokens: [PooledToken!]!
+  tokenPrecisionMultipliers: [BigInt!]
+  balances: [BigInt!]!
+  adminFees: [BigInt!]
+}
+
+type PooledToken @entity {
+  id: ID!
+  asset: Bytes!
+}
+
+type StableSwapLiquidity @entity {
+  id: ID!
+  provider: Bytes!
+  stableSwap: StableSwap!
+  tokenAmounts: [BigInt!]!
+  fees: [BigInt!]!
+  invariant: BigInt
+  lpTokenSupply: BigInt
 }

@@ -22,7 +22,7 @@ variable "environment" {
 
 variable "nomad_environment" {
   description = "nomad environment type"
-  default     = "staging"
+  default     = "none"
 }
 
 variable "domain" {
@@ -32,31 +32,43 @@ variable "domain" {
 variable "full_image_name_router_publisher" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-publisher:0.2.0-beta.17"
+  default     = "ghcr.io/connext/router-publisher:0.2.1-beta.0"
 }
 
 variable "full_image_name_router_subscriber" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-subscriber:0.2.0-beta.17"
+  default     = "ghcr.io/connext/router-subscriber:0.2.1-beta.0"
+}
+
+variable "full_image_name_router_executor" {
+  type        = string
+  description = "router image name"
+  default     = "ghcr.io/connext/router-executor:sha-229b6dd"
 }
 
 variable "full_image_name_sequencer_publisher" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer-publisher:0.2.0-beta.17"
+  default     = "ghcr.io/connext/sequencer-publisher:0.2.1-beta.0"
 }
 
 variable "full_image_name_sequencer_subscriber" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer-subscriber:0.2.0-beta.17"
+  default     = "ghcr.io/connext/sequencer-subscriber:0.2.1-beta.0"
 }
 
-variable "full_image_name_lighthouse" {
+variable "full_image_name_lighthouse_prover" {
   type        = string
-  description = "router image name"
-  default     = "ghcr.io/connext/lighthouse:0.2.0-beta.17"
+  description = "sequencer image name"
+  default     = "ghcr.io/connext/lighthouse-prover:sha-229b6dd"
+}
+
+variable "full_image_name_lighthouse_process_from_root" {
+  type        = string
+  description = "lighthouse process from root image name"
+  default     = "ghcr.io/connext/lighthouse-process-from-root:latest"
 }
 
 variable "mnemonic" {
@@ -89,10 +101,47 @@ variable "mainnet_alchemy_key_0" {
   type = string
 }
 
-variable "web3_signer_private_key" {
+variable "mainnet_alchemy_key_1" {
+  type = string
+}
+
+variable "optimism_alchemy_key_0" {
+  type = string
+}
+
+variable "optimism_alchemy_key_1" {
+  type = string
+}
+
+variable "polygon_alchemy_key_0" {
+  type = string
+}
+
+variable "polygon_alchemy_key_1" {
+  type = string
+}
+
+variable "router_web3_signer_private_key" {
+  type = string
+}
+
+variable "sequencer_web3_signer_private_key" {
   type = string
 }
 
 variable "dd_api_key" {
   type = string
+}
+
+variable "gelato_api_key" {
+  type = string
+}
+
+variable "postgres_password" {
+  type = string
+}
+
+variable "postgres_user" {
+  type    = string
+  default = "connext"
 }

@@ -15,11 +15,12 @@ export const transfersCastForUrl =
     "to",
     "call_data",
     "origin_domain",
+    "canonical_domain",
+    "canonical_id",
     "destination_domain",
-    "recovery",
-    "callback",
-    "callback_fee",
-    "relayer_fee",
+    "bridged_amt",
+    "normalized_in",
+    "origin_sender",
     "origin_chain",
     "origin_transacting_asset",
     "origin_transacting_amount::text",
@@ -32,6 +33,7 @@ export const transfersCastForUrl =
     "xcall_gas_limit::text",
     "xcall_block_number",
     "destination_chain",
+    "receive_local",
     "status",
     "routers",
     "delegate",
@@ -70,10 +72,10 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       delegate: transfer.delegate || constants.AddressZero,
       receiveLocal: transfer.receive_local || false,
       callData: transfer.call_data || "0x",
-      slippage: transfer.slippage || "0",
+      slippage: transfer.slippage.toString(),
       originSender: transfer.origin_sender,
-      bridgedAmt: transfer.bridged_amount,
-      normalizedIn: transfer.normalized_in,
+      bridgedAmt: BigNumber.from(BigInt((transfer.bridged_amt as string) ?? "0")).toString(),
+      normalizedIn: BigNumber.from(BigInt((transfer.normalized_in as string) ?? "0")).toString(),
       nonce: BigNumber.from(transfer.nonce).toNumber(),
       canonicalId: transfer.canonical_id,
     },
@@ -174,6 +176,13 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
 export const convertToRouterBalance = (routerBalanceRows: any[]): RouterBalance[] => {
   const routerBalances: RouterBalance[] = [];
   routerBalanceRows.forEach((routerBalanceRow) => {
+    if (!routerBalanceRow.balance) {
+      routerBalances.push({
+        router: routerBalanceRow.address,
+        assets: [],
+      });
+      return;
+    }
     const assetBalance: AssetBalance = {
       adoptedAsset: routerBalanceRow.adopted,
       balance: BigNumber.from(BigInt(routerBalanceRow.balance as string)).toString(),

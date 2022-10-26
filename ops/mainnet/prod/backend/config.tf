@@ -17,13 +17,13 @@ locals {
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage }
   ]
-}
 
-locals {
   local_cartographer_config = jsonencode({
     logLevel = "debug"
     chains = {
-      "1" = {}
+      "6648936"   = {}
+      "1869640809"  = {}
+      "1886350457" = {}
     }
     environment = var.stage
   })

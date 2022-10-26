@@ -24,6 +24,10 @@ output "router-publisher-service-endpoint" {
   value = module.router_publisher.service_endpoint
 }
 
+output "router-executor-service-endpoint" {
+  value = module.router_executor.service_endpoint
+}
+
 output "router-subscriber-service-endpoint" {
   value = module.router_subscriber.service_endpoint
 }
@@ -34,6 +38,14 @@ output "lighthouse-prover-dns" {
 
 output "lighthouse-prover-service-name" {
   value = module.lighthouse_prover_cron.daemon_service_name
+}
+
+output "lighthouse-process-from-root-service-name" {
+  value = module.lighthouse_process_from_root_cron.daemon_service_name
+}
+
+output "lighthouse-process-from-root-dns" {
+  value = module.lighthouse_process_from_root_cron.daemon_service_name
 }
 
 output "rmq-management-endpoint" {

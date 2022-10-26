@@ -9,7 +9,7 @@ import {
   OriginTransfer,
   ConnectorMeta,
 } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 
 import { XQueryResultParseError } from "../errors";
 
@@ -74,11 +74,11 @@ export const originTransfer = (entity: any): OriginTransfer => {
       // Assets
       assets: {
         transacting: {
-          asset: entity.asset.adoptedAsset,
+          asset: entity.asset?.adoptedAsset ?? constants.AddressZero,
           amount: entity.normalizedIn,
         },
         bridged: {
-          asset: entity.asset.id,
+          asset: entity.asset?.id ?? constants.AddressZero,
           amount: entity.bridgedAmt,
         },
       },
@@ -141,7 +141,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
       originSender: entity.originSender,
       bridgedAmt: entity.bridgedAmt,
       normalizedIn: entity.normalizedIn,
-      nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : 0,
+      nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : undefined,
       canonicalId: entity.canonicalId,
     },
 
@@ -161,12 +161,12 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
         transacting:
           entity.amountOut && entity.asset
             ? {
-                asset: entity.asset.adoptedAsset,
+                asset: entity.asset?.adoptedAsset ?? constants.AddressZero,
                 amount: entity.amountOut,
               }
             : undefined,
         local: {
-          asset: entity.asset.id,
+          asset: entity.asset?.id ?? constants.AddressZero,
           amount: entity.bridgedAmt,
         },
       },
