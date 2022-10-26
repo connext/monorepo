@@ -74,7 +74,8 @@ library QueueLib {
     // NOTE: `first <= last` rephrased here to `!(first > last)` as it's a cheaper condition.
     while (!(first > last)) {
       uint256 commitBlock = queue.commitBlock[last];
-      if (commitBlock <= highestAcceptableCommitBlock) {
+      // NOTE: Same as `commitBlock <= highestAcceptableCommitBlock`.
+      if (!(commitBlock > highestAcceptableCommitBlock)) {
         containsVerified = true;
         break;
       }
