@@ -102,7 +102,7 @@ contract ConnextPriceOracleTest is ForgeHelper {
   function test_ConnextPriceOracle__getTokenPrice_fails() public {
     (uint256 price, uint256 source) = priceOracle.getTokenPrice(address(12345));
     assertEq(price, 0);
-    assertEq(source, 4);
+    assertEq(source, 0);
   }
 
   // ============ getPriceFromOracle ============
