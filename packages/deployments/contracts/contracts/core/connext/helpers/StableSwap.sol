@@ -34,10 +34,6 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
   // ============ Events ============
   event SwapInitialized(SwapUtils.Swap swap, address caller);
 
-  // ============ Upgrade Gap ============
-
-  uint256[49] private __GAP; // gap for upgrade safety
-
   // ============ Storage ============
 
   // Struct storing data responsible for automatic market maker functionalities. In order to
@@ -487,4 +483,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
   function stopRampA() external onlyOwner {
     swapStorage.stopRampA();
   }
+
+  // ============ Upgrade Gap ============
+  uint256[48] private __GAP; // gap for upgrade safety
 }
