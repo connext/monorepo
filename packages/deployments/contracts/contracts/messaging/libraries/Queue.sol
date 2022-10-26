@@ -61,15 +61,20 @@ library QueueLib {
     uint128 last = queue.last;
     require(last >= first, "queue empty");
 
+    // Commit block must be below this block to be considered verified.
+    // NOTE: It's assumed that block number is a higher value than delay (i.e. delay is reasonable).
+    uint256 highestAcceptableCommitBlock = block.number - delay;
+
     // To determine the last item index in the queue we want to return, iterate backwards until we
     // find a `commitBlock` that has surpassed the delay period.
     // NOTE: We iterate backwards as an optimization; as soon as we find an item whose verified,
     // we know that all items before it in the queue are already verified.
     // TODO: The most efficient way to determine the split index here should be using a binary search!
     bool containsVerified;
-    for (last; last >= first; ) {
+    // NOTE: `first <= last` rephrased here to `!(first > last)` as it's a cheaper condition.
+    while (!(first > last)) {
       uint256 commitBlock = queue.commitBlock[last];
-      if (block.number - commitBlock >= delay) {
+      if (commitBlock <= highestAcceptableCommitBlock) {
         containsVerified = true;
         break;
       }
@@ -77,15 +82,15 @@ library QueueLib {
         --last;
       }
     }
-    // IFF no verified items were found (i.e. first == last and first item is NOT yet verified), then
-    // we can return an empty array.
+    // IFF no verified items were found, then we can return an empty array.
     if (!containsVerified) {
       return new bytes32[](0);
     }
 
     bytes32[] memory items = new bytes32[](last + 1 - first);
     uint256 index; // Cursor for index in the batch of `items`.
-    for (first; first <= last; ) {
+    // NOTE: `first <= last` rephrased here to `!(first > last)` as it's a cheaper condition.
+    while (!(first > last)) {
       items[index] = queue.data[first];
       // Delete the item and the commitBlock.
       delete queue.data[first];

@@ -45,6 +45,10 @@ contract RootManagerTest is ForgeHelper {
     vm.prank(owner);
     _rootManager = new RootManager(_delayBlocks, _merkle, watcherManager);
     MerkleTreeManager(_merkle).setArborist(address(_rootManager));
+
+    // Env: roll ahead to an arbitrary block so we don't start at block zero.
+    // For dequeuing roots in `propagate`, this will make the delay number we pass in acceptable.
+    vm.roll(123456789);
   }
 
   // ============ Utils ============
