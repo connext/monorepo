@@ -22,14 +22,13 @@ export function handlePolygonNewConnector(event: NewConnector): void {
 }
 
 export function handlePolygonMessageProcessed(event: MessageProcessed): void {
-  let message = RootMessageProcessed.load(`${event.params.data.toHexString()}-${event.params.mirrorDomain.toString()}`);
-  if (message == null) {
-    message = new RootMessageProcessed(`${event.params.data.toHexString()}-${event.params.mirrorDomain.toString()}`);
-  }
-
   let meta = PolygonConnectorMeta.load(DEFAULT_POLYGON_HUB_CONNECTOR_META_ID);
   if (meta == null) {
     meta = new PolygonConnectorMeta(DEFAULT_POLYGON_HUB_CONNECTOR_META_ID);
+  }
+  let message = RootMessageProcessed.load(`${event.params.data.toHexString()}-${meta.spokeDomain.toString()}`);
+  if (message == null) {
+    message = new RootMessageProcessed(`${event.params.data.toHexString()}-${meta.spokeDomain.toString()}`);
   }
 
   message.spokeDomain = meta.spokeDomain;
