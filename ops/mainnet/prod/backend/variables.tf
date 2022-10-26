@@ -39,7 +39,7 @@ variable "full_image_name_cartographer_transfers" {
 
 
 variable "certificate_arn" {
-  default = "arn:aws:acm:us-east-2:679752396206:certificate/369a9591-204c-4d73-aaf0-4a38e7484326"
+  default = "arn:aws:acm:us-east-2:679752396206:certificate/eecbb4dd-f537-40f0-afdb-233ee066ba80"
 }
 
 variable "postgres_password" {
