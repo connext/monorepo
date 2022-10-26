@@ -66,28 +66,32 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
   function getTokenPrice(address _tokenAddress) public view override returns (uint256, uint256) {
     address tokenAddress = _tokenAddress;
-    PriceSource source = PriceSource.NA;
 
     if (_tokenAddress == address(0)) {
       tokenAddress = wrapped;
     }
+
     uint256 tokenPrice = assetPrices[tokenAddress].price;
     if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) <= VALID_PERIOD)) {
+      // From the current contract storage / directly. Data set by the owner
       return (tokenPrice, uint256(PriceSource.DIRECT));
-    } else {
-      tokenPrice = 0;
     }
 
-    if (tokenPrice == 0) {
-      tokenPrice = getPriceFromOracle(tokenAddress);
-      source = PriceSource.CHAINLINK;
+    tokenPrice = getPriceFromOracle(tokenAddress);
+    if (tokenPrice != 0) {
+      // From a chainlink aggregator
+      return (tokenPrice, uint256(PriceSource.CHAINLINK));
     }
-    if (tokenPrice == 0 && v1PriceOracle != address(0)) {
+
+    if (v1PriceOracle != address(0)) {
       tokenPrice = IPriceOracle(v1PriceOracle).getTokenPrice(tokenAddress);
-      source = PriceSource.V1_ORACLE;
+      if (tokenPrice != 0) {
+        // From the v1PriceOracle if set
+        return (tokenPrice, uint256(PriceSource.V1_ORACLE));
+      }
     }
 
-    return (tokenPrice, uint256(source));
+    return (0, uint256(PriceSource.NA));
   }
 
   function getPriceFromOracle(address _tokenAddress) public view returns (uint256) {
