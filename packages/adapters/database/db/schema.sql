@@ -237,7 +237,7 @@ CREATE TABLE public.propagated_roots (
 --
 
 CREATE TABLE public.root_messages (
-    id character(66) NOT NULL,
+    id text NOT NULL,
     spoke_domain character varying(255),
     hub_domain character varying(255),
     root character(66),
@@ -486,4 +486,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20221018124227'),
     ('20221018190949'),
     ('20221019094510'),
-    ('20221025060119');
+    ('20221025060119'),
+    ('20221026084236');
