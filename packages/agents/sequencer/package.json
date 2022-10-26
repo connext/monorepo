@@ -40,6 +40,7 @@
     "@sinclair/typebox": "0.24.39",
     "axios": "0.27.2",
     "dd-trace": "3.2.0",
+    "dotenv": "^16.0.3",
     "ethers": "5.7.0",
     "fastify": "4.5.3",
     "foo-foo-mq": "7.1.0",

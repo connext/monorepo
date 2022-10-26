@@ -2,6 +2,7 @@ import * as fs from "fs";
 
 import { ajv, ChainData } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
+import { config as dotEnvConfig } from "dotenv";
 
 // @ts-ignore
 import { version } from "../package.json";
@@ -10,6 +11,8 @@ import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
 const DEFAULT_AUCTION_WAIT_TIME = 30_000;
 const DEFAULT_AUCTION_ROUND_DEPTH = 3;
+
+dotEnvConfig();
 
 export const getEnvConfig = (
   chainData: Map<string, ChainData>,
@@ -27,6 +30,8 @@ export const getEnvConfig = (
     let json: string;
 
     const path = process.env.SEQ_CONFIG_FILE ?? "config.json";
+    console.log("process.env.SEQ_CONFIG_FILE: ", process.env.SEQ_CONFIG_FILE);
+    console.log("path: ", path);
     if (fs.existsSync(path)) {
       json = fs.readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
