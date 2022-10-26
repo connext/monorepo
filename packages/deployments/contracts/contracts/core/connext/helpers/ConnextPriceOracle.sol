@@ -165,7 +165,10 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
   function setAggregators(address[] calldata tokenAddresses, address[] calldata sources) external onlyOwner {
     uint256 numTokens = tokenAddresses.length;
+    require(numTokens == sources.length, "bad array length");
     for (uint256 i; i < numTokens; ) {
+      require(tokenAddresses[i] != address(0) && sources[i] != address(0), "bad address");
+
       aggregators[tokenAddresses[i]] = AggregatorV3Interface(sources[i]);
       emit AggregatorUpdated(tokenAddresses[i], sources[i]);
 
