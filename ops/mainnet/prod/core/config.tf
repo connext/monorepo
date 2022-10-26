@@ -56,13 +56,25 @@ locals {
           address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
         }]
       },
-      "10" = {
+      "1869640809" = {
         providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_0}", "https://rpc.ankr.com/polygon"]
-        assets    = []
+        assets = [{
+          name    = "USDC"
+          address = "0x85FB8e2903Ad92A2ab0C6a725806636666ee2Ab4"
+          }, {
+          name    = "WETH"
+          address = "0xfD5C16a50b717338Cbcb44e34e10d735709E9Cb9"
+        }]
       },
-      "137" = {
+      "1886350457" = {
         providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://rpc.ankr.com/optimism"]
-        assets    = []
+        assets = [{
+          name    = "USDC"
+          address = "0x2ABe2d4F09ea3124DE56AD91ae0950A3B71eCD11"
+          }, {
+          name    = "WETH"
+          address = "0x2BD5B3cfB2b16F2B10e7BA41dc1cb93d61B36bB8"
+        }]
       }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
@@ -155,16 +167,28 @@ locals {
       },
       "1869640809" = {
         providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_1}", "https://rpc.ankr.com/polygon"]
-        assets    = []
+        assets = [{
+          name    = "USDC"
+          address = "0x85FB8e2903Ad92A2ab0C6a725806636666ee2Ab4"
+          }, {
+          name    = "WETH"
+          address = "0xfD5C16a50b717338Cbcb44e34e10d735709E9Cb9"
+        }]
       },
       "1886350457" = {
         providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_1}", "https://rpc.ankr.com/optimism"]
-        assets    = []
+        assets = [{
+          name    = "USDC"
+          address = "0x2ABe2d4F09ea3124DE56AD91ae0950A3B71eCD11"
+          }, {
+          name    = "WETH"
+          address = "0x2BD5B3cfB2b16F2B10e7BA41dc1cb93d61B36bB8"
+        }]
       }
     }
-    cartographerUrl  = "https://postgrest.mainnet.connext.ninja"
-    web3SignerUrl    = "https://${module.router_web3signer.service_endpoint}"
-    environment      = var.stage
+    cartographerUrl = "https://postgrest.mainnet.connext.ninja"
+    web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
+    environment     = var.stage
     messageQueue = {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }
