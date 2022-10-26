@@ -47,7 +47,7 @@ locals {
     logLevel = "debug"
     chains = {
       "6648936" = {
-        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://rpc.ankr.com/eth_mainnet"]
+        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://rpc.ankr.com/eth"]
         assets = [{
           name    = "USDC"
           address = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
@@ -156,7 +156,7 @@ locals {
     }
     chains = {
       "6648936" = {
-        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_1}", "https://rpc.ankr.com/eth_mainnet"]
+        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_1}", "https://rpc.ankr.com/eth"]
         assets = [{
           name    = "USDC"
           address = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
@@ -198,7 +198,7 @@ locals {
     logLevel = "debug"
     chains = {
       "6648936" = {
-        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://rpc.ankr.com/eth_mainnet"]
+        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://rpc.ankr.com/eth"]
       },
       "1869640809" = {
         providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_0}", "https://rpc.ankr.com/polygon"]

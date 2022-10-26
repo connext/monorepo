@@ -12,18 +12,26 @@ export const livetest = async () => {
   console.log("> latest blocknumber: ");
   console.log(res);
 
+  const rootMessageSents = await reader.getSentRootMessagesByDomain([
+    { domain: "1735353714", offset: 0, limit: 10 },
+    { domain: "9991", offset: 0, limit: 10 },
+    { domain: "1735356532", offset: 0, limit: 10 },
+  ]);
+  console.log("> rootMessageSents: ");
+  console.log(rootMessageSents);
+
   const rootMessages = await reader.getProcessedRootMessagesByDomain([
-    { domain: "1735353714", offset: 0, limit: 100 },
-    { domain: "9991", offset: 0, limit: 100 },
-    { domain: "1735356532", offset: 0, limit: 100 },
+    { domain: "1735353714", offset: 0, limit: 10 },
+    { domain: "9991", offset: 0, limit: 10 },
+    { domain: "1735356532", offset: 0, limit: 10 },
   ]);
   console.log("> rootMessages: ");
   console.log(rootMessages);
 
   const aggregatedRoots = await reader.getGetAggregatedRootsByDomain([
-    { hub: hubDomain, domain: "1735353714", index: 0, limit: 100 },
-    { hub: hubDomain, domain: "9991", index: 0, limit: 100 },
-    { hub: hubDomain, domain: "1735356532", index: 0, limit: 100 },
+    { hub: hubDomain, domain: "1735353714", index: 0, limit: 10 },
+    { hub: hubDomain, domain: "9991", index: 0, limit: 10 },
+    { hub: hubDomain, domain: "1735356532", index: 0, limit: 10 },
   ]);
   console.log("> aggregatedRoots: ");
   console.log(aggregatedRoots);

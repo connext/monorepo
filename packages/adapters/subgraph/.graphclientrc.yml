@@ -1,4 +1,5 @@
 sources:
+  # TESTNETS
   - name: Connext_Goerli
     handler:
       graphql:
@@ -149,6 +150,53 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+  # MAINNETS
+  - name: Connext_Mainnet
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-mainnet
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: mainnet_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_Optimism
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-optimism
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: optimism_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_Polygon
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-polygon
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: polygon_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  # LOCAL
   - name: Connext_Local1337
     handler:
       graphql:
