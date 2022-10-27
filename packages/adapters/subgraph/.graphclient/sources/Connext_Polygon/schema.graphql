@@ -12,12 +12,12 @@ directive @subgraphId(id: String!) on OBJECT
 "creates a virtual field on the entity that may be queried but cannot be set manually through the mappings API."
 directive @derivedFrom(field: String!) on FIELD_DEFINITION
 
-type staginggoerli_AggregateRoot {
+type polygon_AggregateRoot {
   id: ID!
-  root: staginggoerli_Bytes!
+  root: polygon_Bytes!
 }
 
-input staginggoerli_AggregateRoot_filter {
+input polygon_AggregateRoot_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -26,39 +26,39 @@ input staginggoerli_AggregateRoot_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  root: staginggoerli_Bytes
-  root_not: staginggoerli_Bytes
-  root_in: [staginggoerli_Bytes!]
-  root_not_in: [staginggoerli_Bytes!]
-  root_contains: staginggoerli_Bytes
-  root_not_contains: staginggoerli_Bytes
+  root: polygon_Bytes
+  root_not: polygon_Bytes
+  root_in: [polygon_Bytes!]
+  root_not_in: [polygon_Bytes!]
+  root_contains: polygon_Bytes
+  root_not_contains: polygon_Bytes
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_AggregateRoot_orderBy {
+enum polygon_AggregateRoot_orderBy {
   id
   root
 }
 
-type staginggoerli_Asset {
+type polygon_Asset {
   id: ID!
-  key: staginggoerli_Bytes
-  canonicalId: staginggoerli_Bytes
+  key: polygon_Bytes
+  canonicalId: polygon_Bytes
   canonicalDomain: BigInt
-  adoptedAsset: staginggoerli_Bytes
-  localAsset: staginggoerli_Bytes
+  adoptedAsset: polygon_Bytes
+  localAsset: polygon_Bytes
   blockNumber: BigInt
 }
 
-type staginggoerli_AssetBalance {
+type polygon_AssetBalance {
   id: ID!
   amount: BigInt!
-  router: staginggoerli_Router!
-  asset: staginggoerli_Asset!
+  router: polygon_Router!
+  asset: polygon_Asset!
 }
 
-input staginggoerli_AssetBalance_filter {
+input polygon_AssetBalance_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -95,7 +95,7 @@ input staginggoerli_AssetBalance_filter {
   router_ends_with_nocase: String
   router_not_ends_with: String
   router_not_ends_with_nocase: String
-  router_: staginggoerli_Router_filter
+  router_: polygon_Router_filter
   asset: String
   asset_not: String
   asset_gt: String
@@ -116,19 +116,19 @@ input staginggoerli_AssetBalance_filter {
   asset_ends_with_nocase: String
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
-  asset_: staginggoerli_Asset_filter
+  asset_: polygon_Asset_filter
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_AssetBalance_orderBy {
+enum polygon_AssetBalance_orderBy {
   id
   amount
   router
   asset
 }
 
-input staginggoerli_Asset_filter {
+input polygon_Asset_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -137,18 +137,18 @@ input staginggoerli_Asset_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  key: staginggoerli_Bytes
-  key_not: staginggoerli_Bytes
-  key_in: [staginggoerli_Bytes!]
-  key_not_in: [staginggoerli_Bytes!]
-  key_contains: staginggoerli_Bytes
-  key_not_contains: staginggoerli_Bytes
-  canonicalId: staginggoerli_Bytes
-  canonicalId_not: staginggoerli_Bytes
-  canonicalId_in: [staginggoerli_Bytes!]
-  canonicalId_not_in: [staginggoerli_Bytes!]
-  canonicalId_contains: staginggoerli_Bytes
-  canonicalId_not_contains: staginggoerli_Bytes
+  key: polygon_Bytes
+  key_not: polygon_Bytes
+  key_in: [polygon_Bytes!]
+  key_not_in: [polygon_Bytes!]
+  key_contains: polygon_Bytes
+  key_not_contains: polygon_Bytes
+  canonicalId: polygon_Bytes
+  canonicalId_not: polygon_Bytes
+  canonicalId_in: [polygon_Bytes!]
+  canonicalId_not_in: [polygon_Bytes!]
+  canonicalId_contains: polygon_Bytes
+  canonicalId_not_contains: polygon_Bytes
   canonicalDomain: BigInt
   canonicalDomain_not: BigInt
   canonicalDomain_gt: BigInt
@@ -157,18 +157,18 @@ input staginggoerli_Asset_filter {
   canonicalDomain_lte: BigInt
   canonicalDomain_in: [BigInt!]
   canonicalDomain_not_in: [BigInt!]
-  adoptedAsset: staginggoerli_Bytes
-  adoptedAsset_not: staginggoerli_Bytes
-  adoptedAsset_in: [staginggoerli_Bytes!]
-  adoptedAsset_not_in: [staginggoerli_Bytes!]
-  adoptedAsset_contains: staginggoerli_Bytes
-  adoptedAsset_not_contains: staginggoerli_Bytes
-  localAsset: staginggoerli_Bytes
-  localAsset_not: staginggoerli_Bytes
-  localAsset_in: [staginggoerli_Bytes!]
-  localAsset_not_in: [staginggoerli_Bytes!]
-  localAsset_contains: staginggoerli_Bytes
-  localAsset_not_contains: staginggoerli_Bytes
+  adoptedAsset: polygon_Bytes
+  adoptedAsset_not: polygon_Bytes
+  adoptedAsset_in: [polygon_Bytes!]
+  adoptedAsset_not_in: [polygon_Bytes!]
+  adoptedAsset_contains: polygon_Bytes
+  adoptedAsset_not_contains: polygon_Bytes
+  localAsset: polygon_Bytes
+  localAsset_not: polygon_Bytes
+  localAsset_in: [polygon_Bytes!]
+  localAsset_not_in: [polygon_Bytes!]
+  localAsset_contains: polygon_Bytes
+  localAsset_not_contains: polygon_Bytes
   blockNumber: BigInt
   blockNumber_not: BigInt
   blockNumber_gt: BigInt
@@ -178,10 +178,10 @@ input staginggoerli_Asset_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_Asset_orderBy {
+enum polygon_Asset_orderBy {
   id
   key
   canonicalId
@@ -191,32 +191,32 @@ enum staginggoerli_Asset_orderBy {
   blockNumber
 }
 
-scalar staginggoerli_BigDecimal
+scalar polygon_BigDecimal
 
 scalar BigInt
 
-input staginggoerli_BlockChangedFilter {
+input polygon_BlockChangedFilter {
   number_gte: Int!
 }
 
-input staginggoerli_Block_height {
-  hash: staginggoerli_Bytes
+input polygon_Block_height {
+  hash: polygon_Bytes
   number: Int
   number_gte: Int
 }
 
-scalar staginggoerli_Bytes
+scalar polygon_Bytes
 
-type staginggoerli_ConnectorMeta {
+type polygon_ConnectorMeta {
   id: ID!
   spokeDomain: BigInt
   hubDomain: BigInt
-  amb: staginggoerli_Bytes
-  rootManager: staginggoerli_Bytes
-  mirrorConnector: staginggoerli_Bytes
+  amb: polygon_Bytes
+  rootManager: polygon_Bytes
+  mirrorConnector: polygon_Bytes
 }
 
-input staginggoerli_ConnectorMeta_filter {
+input polygon_ConnectorMeta_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -241,29 +241,29 @@ input staginggoerli_ConnectorMeta_filter {
   hubDomain_lte: BigInt
   hubDomain_in: [BigInt!]
   hubDomain_not_in: [BigInt!]
-  amb: staginggoerli_Bytes
-  amb_not: staginggoerli_Bytes
-  amb_in: [staginggoerli_Bytes!]
-  amb_not_in: [staginggoerli_Bytes!]
-  amb_contains: staginggoerli_Bytes
-  amb_not_contains: staginggoerli_Bytes
-  rootManager: staginggoerli_Bytes
-  rootManager_not: staginggoerli_Bytes
-  rootManager_in: [staginggoerli_Bytes!]
-  rootManager_not_in: [staginggoerli_Bytes!]
-  rootManager_contains: staginggoerli_Bytes
-  rootManager_not_contains: staginggoerli_Bytes
-  mirrorConnector: staginggoerli_Bytes
-  mirrorConnector_not: staginggoerli_Bytes
-  mirrorConnector_in: [staginggoerli_Bytes!]
-  mirrorConnector_not_in: [staginggoerli_Bytes!]
-  mirrorConnector_contains: staginggoerli_Bytes
-  mirrorConnector_not_contains: staginggoerli_Bytes
+  amb: polygon_Bytes
+  amb_not: polygon_Bytes
+  amb_in: [polygon_Bytes!]
+  amb_not_in: [polygon_Bytes!]
+  amb_contains: polygon_Bytes
+  amb_not_contains: polygon_Bytes
+  rootManager: polygon_Bytes
+  rootManager_not: polygon_Bytes
+  rootManager_in: [polygon_Bytes!]
+  rootManager_not_in: [polygon_Bytes!]
+  rootManager_contains: polygon_Bytes
+  rootManager_not_contains: polygon_Bytes
+  mirrorConnector: polygon_Bytes
+  mirrorConnector_not: polygon_Bytes
+  mirrorConnector_in: [polygon_Bytes!]
+  mirrorConnector_not_in: [polygon_Bytes!]
+  mirrorConnector_contains: polygon_Bytes
+  mirrorConnector_not_contains: polygon_Bytes
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_ConnectorMeta_orderBy {
+enum polygon_ConnectorMeta_orderBy {
   id
   spokeDomain
   hubDomain
@@ -272,17 +272,17 @@ enum staginggoerli_ConnectorMeta_orderBy {
   mirrorConnector
 }
 
-type staginggoerli_DestinationMessage {
+type polygon_DestinationMessage {
   id: ID!
-  leaf: staginggoerli_Bytes
+  leaf: polygon_Bytes
   processed: Boolean
-  returnData: staginggoerli_Bytes
+  returnData: polygon_Bytes
   success: Boolean
-  transactionHash: staginggoerli_Bytes
+  transactionHash: polygon_Bytes
   blockNumber: BigInt
 }
 
-input staginggoerli_DestinationMessage_filter {
+input polygon_DestinationMessage_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -291,32 +291,32 @@ input staginggoerli_DestinationMessage_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  leaf: staginggoerli_Bytes
-  leaf_not: staginggoerli_Bytes
-  leaf_in: [staginggoerli_Bytes!]
-  leaf_not_in: [staginggoerli_Bytes!]
-  leaf_contains: staginggoerli_Bytes
-  leaf_not_contains: staginggoerli_Bytes
+  leaf: polygon_Bytes
+  leaf_not: polygon_Bytes
+  leaf_in: [polygon_Bytes!]
+  leaf_not_in: [polygon_Bytes!]
+  leaf_contains: polygon_Bytes
+  leaf_not_contains: polygon_Bytes
   processed: Boolean
   processed_not: Boolean
   processed_in: [Boolean!]
   processed_not_in: [Boolean!]
-  returnData: staginggoerli_Bytes
-  returnData_not: staginggoerli_Bytes
-  returnData_in: [staginggoerli_Bytes!]
-  returnData_not_in: [staginggoerli_Bytes!]
-  returnData_contains: staginggoerli_Bytes
-  returnData_not_contains: staginggoerli_Bytes
+  returnData: polygon_Bytes
+  returnData_not: polygon_Bytes
+  returnData_in: [polygon_Bytes!]
+  returnData_not_in: [polygon_Bytes!]
+  returnData_contains: polygon_Bytes
+  returnData_not_contains: polygon_Bytes
   success: Boolean
   success_not: Boolean
   success_in: [Boolean!]
   success_not_in: [Boolean!]
-  transactionHash: staginggoerli_Bytes
-  transactionHash_not: staginggoerli_Bytes
-  transactionHash_in: [staginggoerli_Bytes!]
-  transactionHash_not_in: [staginggoerli_Bytes!]
-  transactionHash_contains: staginggoerli_Bytes
-  transactionHash_not_contains: staginggoerli_Bytes
+  transactionHash: polygon_Bytes
+  transactionHash_not: polygon_Bytes
+  transactionHash_in: [polygon_Bytes!]
+  transactionHash_not_in: [polygon_Bytes!]
+  transactionHash_contains: polygon_Bytes
+  transactionHash_not_contains: polygon_Bytes
   blockNumber: BigInt
   blockNumber_not: BigInt
   blockNumber_gt: BigInt
@@ -326,10 +326,10 @@ input staginggoerli_DestinationMessage_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_DestinationMessage_orderBy {
+enum polygon_DestinationMessage_orderBy {
   id
   leaf
   processed
@@ -339,41 +339,41 @@ enum staginggoerli_DestinationMessage_orderBy {
   blockNumber
 }
 
-type staginggoerli_DestinationTransfer {
+type polygon_DestinationTransfer {
   id: ID!
   chainId: BigInt
-  transferId: staginggoerli_Bytes
+  transferId: polygon_Bytes
   nonce: BigInt
-  status: staginggoerli_TransferStatus
-  routers(skip: Int = 0, first: Int = 100, orderBy: staginggoerli_Router_orderBy, orderDirection: staginggoerli_OrderDirection, where: staginggoerli_Router_filter): [staginggoerli_Router!]
+  status: polygon_TransferStatus
+  routers(skip: Int = 0, first: Int = 100, orderBy: polygon_Router_orderBy, orderDirection: polygon_OrderDirection, where: polygon_Router_filter): [polygon_Router!]
   originDomain: BigInt
   destinationDomain: BigInt
   canonicalDomain: BigInt
-  to: staginggoerli_Bytes
-  delegate: staginggoerli_Bytes
+  to: polygon_Bytes
+  delegate: polygon_Bytes
   receiveLocal: Boolean
-  callData: staginggoerli_Bytes
+  callData: polygon_Bytes
   slippage: BigInt
-  originSender: staginggoerli_Bytes
+  originSender: polygon_Bytes
   bridgedAmt: BigInt
   normalizedIn: BigInt
-  canonicalId: staginggoerli_Bytes
-  asset: staginggoerli_Asset
-  executedCaller: staginggoerli_Bytes
-  executedTransactionHash: staginggoerli_Bytes
+  canonicalId: polygon_Bytes
+  asset: polygon_Asset
+  executedCaller: polygon_Bytes
+  executedTransactionHash: polygon_Bytes
   executedTimestamp: BigInt
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
-  reconciledCaller: staginggoerli_Bytes
-  reconciledTransactionHash: staginggoerli_Bytes
+  reconciledCaller: polygon_Bytes
+  reconciledTransactionHash: polygon_Bytes
   reconciledTimestamp: BigInt
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
 }
 
-input staginggoerli_DestinationTransfer_filter {
+input polygon_DestinationTransfer_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -390,12 +390,12 @@ input staginggoerli_DestinationTransfer_filter {
   chainId_lte: BigInt
   chainId_in: [BigInt!]
   chainId_not_in: [BigInt!]
-  transferId: staginggoerli_Bytes
-  transferId_not: staginggoerli_Bytes
-  transferId_in: [staginggoerli_Bytes!]
-  transferId_not_in: [staginggoerli_Bytes!]
-  transferId_contains: staginggoerli_Bytes
-  transferId_not_contains: staginggoerli_Bytes
+  transferId: polygon_Bytes
+  transferId_not: polygon_Bytes
+  transferId_in: [polygon_Bytes!]
+  transferId_not_in: [polygon_Bytes!]
+  transferId_contains: polygon_Bytes
+  transferId_not_contains: polygon_Bytes
   nonce: BigInt
   nonce_not: BigInt
   nonce_gt: BigInt
@@ -404,17 +404,17 @@ input staginggoerli_DestinationTransfer_filter {
   nonce_lte: BigInt
   nonce_in: [BigInt!]
   nonce_not_in: [BigInt!]
-  status: staginggoerli_TransferStatus
-  status_not: staginggoerli_TransferStatus
-  status_in: [staginggoerli_TransferStatus!]
-  status_not_in: [staginggoerli_TransferStatus!]
+  status: polygon_TransferStatus
+  status_not: polygon_TransferStatus
+  status_in: [polygon_TransferStatus!]
+  status_not_in: [polygon_TransferStatus!]
   routers: [String!]
   routers_not: [String!]
   routers_contains: [String!]
   routers_contains_nocase: [String!]
   routers_not_contains: [String!]
   routers_not_contains_nocase: [String!]
-  routers_: staginggoerli_Router_filter
+  routers_: polygon_Router_filter
   originDomain: BigInt
   originDomain_not: BigInt
   originDomain_gt: BigInt
@@ -439,28 +439,28 @@ input staginggoerli_DestinationTransfer_filter {
   canonicalDomain_lte: BigInt
   canonicalDomain_in: [BigInt!]
   canonicalDomain_not_in: [BigInt!]
-  to: staginggoerli_Bytes
-  to_not: staginggoerli_Bytes
-  to_in: [staginggoerli_Bytes!]
-  to_not_in: [staginggoerli_Bytes!]
-  to_contains: staginggoerli_Bytes
-  to_not_contains: staginggoerli_Bytes
-  delegate: staginggoerli_Bytes
-  delegate_not: staginggoerli_Bytes
-  delegate_in: [staginggoerli_Bytes!]
-  delegate_not_in: [staginggoerli_Bytes!]
-  delegate_contains: staginggoerli_Bytes
-  delegate_not_contains: staginggoerli_Bytes
+  to: polygon_Bytes
+  to_not: polygon_Bytes
+  to_in: [polygon_Bytes!]
+  to_not_in: [polygon_Bytes!]
+  to_contains: polygon_Bytes
+  to_not_contains: polygon_Bytes
+  delegate: polygon_Bytes
+  delegate_not: polygon_Bytes
+  delegate_in: [polygon_Bytes!]
+  delegate_not_in: [polygon_Bytes!]
+  delegate_contains: polygon_Bytes
+  delegate_not_contains: polygon_Bytes
   receiveLocal: Boolean
   receiveLocal_not: Boolean
   receiveLocal_in: [Boolean!]
   receiveLocal_not_in: [Boolean!]
-  callData: staginggoerli_Bytes
-  callData_not: staginggoerli_Bytes
-  callData_in: [staginggoerli_Bytes!]
-  callData_not_in: [staginggoerli_Bytes!]
-  callData_contains: staginggoerli_Bytes
-  callData_not_contains: staginggoerli_Bytes
+  callData: polygon_Bytes
+  callData_not: polygon_Bytes
+  callData_in: [polygon_Bytes!]
+  callData_not_in: [polygon_Bytes!]
+  callData_contains: polygon_Bytes
+  callData_not_contains: polygon_Bytes
   slippage: BigInt
   slippage_not: BigInt
   slippage_gt: BigInt
@@ -469,12 +469,12 @@ input staginggoerli_DestinationTransfer_filter {
   slippage_lte: BigInt
   slippage_in: [BigInt!]
   slippage_not_in: [BigInt!]
-  originSender: staginggoerli_Bytes
-  originSender_not: staginggoerli_Bytes
-  originSender_in: [staginggoerli_Bytes!]
-  originSender_not_in: [staginggoerli_Bytes!]
-  originSender_contains: staginggoerli_Bytes
-  originSender_not_contains: staginggoerli_Bytes
+  originSender: polygon_Bytes
+  originSender_not: polygon_Bytes
+  originSender_in: [polygon_Bytes!]
+  originSender_not_in: [polygon_Bytes!]
+  originSender_contains: polygon_Bytes
+  originSender_not_contains: polygon_Bytes
   bridgedAmt: BigInt
   bridgedAmt_not: BigInt
   bridgedAmt_gt: BigInt
@@ -491,12 +491,12 @@ input staginggoerli_DestinationTransfer_filter {
   normalizedIn_lte: BigInt
   normalizedIn_in: [BigInt!]
   normalizedIn_not_in: [BigInt!]
-  canonicalId: staginggoerli_Bytes
-  canonicalId_not: staginggoerli_Bytes
-  canonicalId_in: [staginggoerli_Bytes!]
-  canonicalId_not_in: [staginggoerli_Bytes!]
-  canonicalId_contains: staginggoerli_Bytes
-  canonicalId_not_contains: staginggoerli_Bytes
+  canonicalId: polygon_Bytes
+  canonicalId_not: polygon_Bytes
+  canonicalId_in: [polygon_Bytes!]
+  canonicalId_not_in: [polygon_Bytes!]
+  canonicalId_contains: polygon_Bytes
+  canonicalId_not_contains: polygon_Bytes
   asset: String
   asset_not: String
   asset_gt: String
@@ -517,19 +517,19 @@ input staginggoerli_DestinationTransfer_filter {
   asset_ends_with_nocase: String
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
-  asset_: staginggoerli_Asset_filter
-  executedCaller: staginggoerli_Bytes
-  executedCaller_not: staginggoerli_Bytes
-  executedCaller_in: [staginggoerli_Bytes!]
-  executedCaller_not_in: [staginggoerli_Bytes!]
-  executedCaller_contains: staginggoerli_Bytes
-  executedCaller_not_contains: staginggoerli_Bytes
-  executedTransactionHash: staginggoerli_Bytes
-  executedTransactionHash_not: staginggoerli_Bytes
-  executedTransactionHash_in: [staginggoerli_Bytes!]
-  executedTransactionHash_not_in: [staginggoerli_Bytes!]
-  executedTransactionHash_contains: staginggoerli_Bytes
-  executedTransactionHash_not_contains: staginggoerli_Bytes
+  asset_: polygon_Asset_filter
+  executedCaller: polygon_Bytes
+  executedCaller_not: polygon_Bytes
+  executedCaller_in: [polygon_Bytes!]
+  executedCaller_not_in: [polygon_Bytes!]
+  executedCaller_contains: polygon_Bytes
+  executedCaller_not_contains: polygon_Bytes
+  executedTransactionHash: polygon_Bytes
+  executedTransactionHash_not: polygon_Bytes
+  executedTransactionHash_in: [polygon_Bytes!]
+  executedTransactionHash_not_in: [polygon_Bytes!]
+  executedTransactionHash_contains: polygon_Bytes
+  executedTransactionHash_not_contains: polygon_Bytes
   executedTimestamp: BigInt
   executedTimestamp_not: BigInt
   executedTimestamp_gt: BigInt
@@ -562,18 +562,18 @@ input staginggoerli_DestinationTransfer_filter {
   executedBlockNumber_lte: BigInt
   executedBlockNumber_in: [BigInt!]
   executedBlockNumber_not_in: [BigInt!]
-  reconciledCaller: staginggoerli_Bytes
-  reconciledCaller_not: staginggoerli_Bytes
-  reconciledCaller_in: [staginggoerli_Bytes!]
-  reconciledCaller_not_in: [staginggoerli_Bytes!]
-  reconciledCaller_contains: staginggoerli_Bytes
-  reconciledCaller_not_contains: staginggoerli_Bytes
-  reconciledTransactionHash: staginggoerli_Bytes
-  reconciledTransactionHash_not: staginggoerli_Bytes
-  reconciledTransactionHash_in: [staginggoerli_Bytes!]
-  reconciledTransactionHash_not_in: [staginggoerli_Bytes!]
-  reconciledTransactionHash_contains: staginggoerli_Bytes
-  reconciledTransactionHash_not_contains: staginggoerli_Bytes
+  reconciledCaller: polygon_Bytes
+  reconciledCaller_not: polygon_Bytes
+  reconciledCaller_in: [polygon_Bytes!]
+  reconciledCaller_not_in: [polygon_Bytes!]
+  reconciledCaller_contains: polygon_Bytes
+  reconciledCaller_not_contains: polygon_Bytes
+  reconciledTransactionHash: polygon_Bytes
+  reconciledTransactionHash_not: polygon_Bytes
+  reconciledTransactionHash_in: [polygon_Bytes!]
+  reconciledTransactionHash_not_in: [polygon_Bytes!]
+  reconciledTransactionHash_contains: polygon_Bytes
+  reconciledTransactionHash_not_contains: polygon_Bytes
   reconciledTimestamp: BigInt
   reconciledTimestamp_not: BigInt
   reconciledTimestamp_gt: BigInt
@@ -607,10 +607,10 @@ input staginggoerli_DestinationTransfer_filter {
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_DestinationTransfer_orderBy {
+enum polygon_DestinationTransfer_orderBy {
   id
   chainId
   transferId
@@ -645,25 +645,25 @@ enum staginggoerli_DestinationTransfer_orderBy {
 }
 
 """Defines the order direction, either ascending or descending"""
-enum staginggoerli_OrderDirection {
+enum polygon_OrderDirection {
   asc
   desc
 }
 
-type staginggoerli_OriginMessage {
+type polygon_OriginMessage {
   id: ID!
-  transferId: staginggoerli_Bytes
+  transferId: polygon_Bytes
   destinationDomain: BigInt
-  leaf: staginggoerli_Bytes
+  leaf: polygon_Bytes
   index: BigInt
-  root: staginggoerli_Bytes
-  message: staginggoerli_Bytes
-  transactionHash: staginggoerli_Bytes
+  root: polygon_Bytes
+  message: polygon_Bytes
+  transactionHash: polygon_Bytes
   blockNumber: BigInt
-  rootCount: staginggoerli_RootCount
+  rootCount: polygon_RootCount
 }
 
-input staginggoerli_OriginMessage_filter {
+input polygon_OriginMessage_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -672,12 +672,12 @@ input staginggoerli_OriginMessage_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  transferId: staginggoerli_Bytes
-  transferId_not: staginggoerli_Bytes
-  transferId_in: [staginggoerli_Bytes!]
-  transferId_not_in: [staginggoerli_Bytes!]
-  transferId_contains: staginggoerli_Bytes
-  transferId_not_contains: staginggoerli_Bytes
+  transferId: polygon_Bytes
+  transferId_not: polygon_Bytes
+  transferId_in: [polygon_Bytes!]
+  transferId_not_in: [polygon_Bytes!]
+  transferId_contains: polygon_Bytes
+  transferId_not_contains: polygon_Bytes
   destinationDomain: BigInt
   destinationDomain_not: BigInt
   destinationDomain_gt: BigInt
@@ -686,12 +686,12 @@ input staginggoerli_OriginMessage_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
-  leaf: staginggoerli_Bytes
-  leaf_not: staginggoerli_Bytes
-  leaf_in: [staginggoerli_Bytes!]
-  leaf_not_in: [staginggoerli_Bytes!]
-  leaf_contains: staginggoerli_Bytes
-  leaf_not_contains: staginggoerli_Bytes
+  leaf: polygon_Bytes
+  leaf_not: polygon_Bytes
+  leaf_in: [polygon_Bytes!]
+  leaf_not_in: [polygon_Bytes!]
+  leaf_contains: polygon_Bytes
+  leaf_not_contains: polygon_Bytes
   index: BigInt
   index_not: BigInt
   index_gt: BigInt
@@ -700,24 +700,24 @@ input staginggoerli_OriginMessage_filter {
   index_lte: BigInt
   index_in: [BigInt!]
   index_not_in: [BigInt!]
-  root: staginggoerli_Bytes
-  root_not: staginggoerli_Bytes
-  root_in: [staginggoerli_Bytes!]
-  root_not_in: [staginggoerli_Bytes!]
-  root_contains: staginggoerli_Bytes
-  root_not_contains: staginggoerli_Bytes
-  message: staginggoerli_Bytes
-  message_not: staginggoerli_Bytes
-  message_in: [staginggoerli_Bytes!]
-  message_not_in: [staginggoerli_Bytes!]
-  message_contains: staginggoerli_Bytes
-  message_not_contains: staginggoerli_Bytes
-  transactionHash: staginggoerli_Bytes
-  transactionHash_not: staginggoerli_Bytes
-  transactionHash_in: [staginggoerli_Bytes!]
-  transactionHash_not_in: [staginggoerli_Bytes!]
-  transactionHash_contains: staginggoerli_Bytes
-  transactionHash_not_contains: staginggoerli_Bytes
+  root: polygon_Bytes
+  root_not: polygon_Bytes
+  root_in: [polygon_Bytes!]
+  root_not_in: [polygon_Bytes!]
+  root_contains: polygon_Bytes
+  root_not_contains: polygon_Bytes
+  message: polygon_Bytes
+  message_not: polygon_Bytes
+  message_in: [polygon_Bytes!]
+  message_not_in: [polygon_Bytes!]
+  message_contains: polygon_Bytes
+  message_not_contains: polygon_Bytes
+  transactionHash: polygon_Bytes
+  transactionHash_not: polygon_Bytes
+  transactionHash_in: [polygon_Bytes!]
+  transactionHash_not_in: [polygon_Bytes!]
+  transactionHash_contains: polygon_Bytes
+  transactionHash_not_contains: polygon_Bytes
   blockNumber: BigInt
   blockNumber_not: BigInt
   blockNumber_gt: BigInt
@@ -746,12 +746,12 @@ input staginggoerli_OriginMessage_filter {
   rootCount_ends_with_nocase: String
   rootCount_not_ends_with: String
   rootCount_not_ends_with_nocase: String
-  rootCount_: staginggoerli_RootCount_filter
+  rootCount_: polygon_RootCount_filter
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_OriginMessage_orderBy {
+enum polygon_OriginMessage_orderBy {
   id
   transferId
   destinationDomain
@@ -764,36 +764,36 @@ enum staginggoerli_OriginMessage_orderBy {
   rootCount
 }
 
-type staginggoerli_OriginTransfer {
+type polygon_OriginTransfer {
   id: ID!
   chainId: BigInt
-  transferId: staginggoerli_Bytes
+  transferId: polygon_Bytes
   nonce: BigInt
-  status: staginggoerli_TransferStatus
-  messageHash: staginggoerli_Bytes
+  status: polygon_TransferStatus
+  messageHash: polygon_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
   canonicalDomain: BigInt
-  to: staginggoerli_Bytes
-  delegate: staginggoerli_Bytes
+  to: polygon_Bytes
+  delegate: polygon_Bytes
   receiveLocal: Boolean
-  callData: staginggoerli_Bytes
+  callData: polygon_Bytes
   slippage: BigInt
-  originSender: staginggoerli_Bytes
+  originSender: polygon_Bytes
   bridgedAmt: BigInt
   normalizedIn: BigInt
-  canonicalId: staginggoerli_Bytes
-  asset: staginggoerli_Asset
-  message: staginggoerli_OriginMessage
-  caller: staginggoerli_Bytes
-  transactionHash: staginggoerli_Bytes
+  canonicalId: polygon_Bytes
+  asset: polygon_Asset
+  message: polygon_OriginMessage
+  caller: polygon_Bytes
+  transactionHash: polygon_Bytes
   timestamp: BigInt
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
 }
 
-input staginggoerli_OriginTransfer_filter {
+input polygon_OriginTransfer_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -810,12 +810,12 @@ input staginggoerli_OriginTransfer_filter {
   chainId_lte: BigInt
   chainId_in: [BigInt!]
   chainId_not_in: [BigInt!]
-  transferId: staginggoerli_Bytes
-  transferId_not: staginggoerli_Bytes
-  transferId_in: [staginggoerli_Bytes!]
-  transferId_not_in: [staginggoerli_Bytes!]
-  transferId_contains: staginggoerli_Bytes
-  transferId_not_contains: staginggoerli_Bytes
+  transferId: polygon_Bytes
+  transferId_not: polygon_Bytes
+  transferId_in: [polygon_Bytes!]
+  transferId_not_in: [polygon_Bytes!]
+  transferId_contains: polygon_Bytes
+  transferId_not_contains: polygon_Bytes
   nonce: BigInt
   nonce_not: BigInt
   nonce_gt: BigInt
@@ -824,16 +824,16 @@ input staginggoerli_OriginTransfer_filter {
   nonce_lte: BigInt
   nonce_in: [BigInt!]
   nonce_not_in: [BigInt!]
-  status: staginggoerli_TransferStatus
-  status_not: staginggoerli_TransferStatus
-  status_in: [staginggoerli_TransferStatus!]
-  status_not_in: [staginggoerli_TransferStatus!]
-  messageHash: staginggoerli_Bytes
-  messageHash_not: staginggoerli_Bytes
-  messageHash_in: [staginggoerli_Bytes!]
-  messageHash_not_in: [staginggoerli_Bytes!]
-  messageHash_contains: staginggoerli_Bytes
-  messageHash_not_contains: staginggoerli_Bytes
+  status: polygon_TransferStatus
+  status_not: polygon_TransferStatus
+  status_in: [polygon_TransferStatus!]
+  status_not_in: [polygon_TransferStatus!]
+  messageHash: polygon_Bytes
+  messageHash_not: polygon_Bytes
+  messageHash_in: [polygon_Bytes!]
+  messageHash_not_in: [polygon_Bytes!]
+  messageHash_contains: polygon_Bytes
+  messageHash_not_contains: polygon_Bytes
   originDomain: BigInt
   originDomain_not: BigInt
   originDomain_gt: BigInt
@@ -858,28 +858,28 @@ input staginggoerli_OriginTransfer_filter {
   canonicalDomain_lte: BigInt
   canonicalDomain_in: [BigInt!]
   canonicalDomain_not_in: [BigInt!]
-  to: staginggoerli_Bytes
-  to_not: staginggoerli_Bytes
-  to_in: [staginggoerli_Bytes!]
-  to_not_in: [staginggoerli_Bytes!]
-  to_contains: staginggoerli_Bytes
-  to_not_contains: staginggoerli_Bytes
-  delegate: staginggoerli_Bytes
-  delegate_not: staginggoerli_Bytes
-  delegate_in: [staginggoerli_Bytes!]
-  delegate_not_in: [staginggoerli_Bytes!]
-  delegate_contains: staginggoerli_Bytes
-  delegate_not_contains: staginggoerli_Bytes
+  to: polygon_Bytes
+  to_not: polygon_Bytes
+  to_in: [polygon_Bytes!]
+  to_not_in: [polygon_Bytes!]
+  to_contains: polygon_Bytes
+  to_not_contains: polygon_Bytes
+  delegate: polygon_Bytes
+  delegate_not: polygon_Bytes
+  delegate_in: [polygon_Bytes!]
+  delegate_not_in: [polygon_Bytes!]
+  delegate_contains: polygon_Bytes
+  delegate_not_contains: polygon_Bytes
   receiveLocal: Boolean
   receiveLocal_not: Boolean
   receiveLocal_in: [Boolean!]
   receiveLocal_not_in: [Boolean!]
-  callData: staginggoerli_Bytes
-  callData_not: staginggoerli_Bytes
-  callData_in: [staginggoerli_Bytes!]
-  callData_not_in: [staginggoerli_Bytes!]
-  callData_contains: staginggoerli_Bytes
-  callData_not_contains: staginggoerli_Bytes
+  callData: polygon_Bytes
+  callData_not: polygon_Bytes
+  callData_in: [polygon_Bytes!]
+  callData_not_in: [polygon_Bytes!]
+  callData_contains: polygon_Bytes
+  callData_not_contains: polygon_Bytes
   slippage: BigInt
   slippage_not: BigInt
   slippage_gt: BigInt
@@ -888,12 +888,12 @@ input staginggoerli_OriginTransfer_filter {
   slippage_lte: BigInt
   slippage_in: [BigInt!]
   slippage_not_in: [BigInt!]
-  originSender: staginggoerli_Bytes
-  originSender_not: staginggoerli_Bytes
-  originSender_in: [staginggoerli_Bytes!]
-  originSender_not_in: [staginggoerli_Bytes!]
-  originSender_contains: staginggoerli_Bytes
-  originSender_not_contains: staginggoerli_Bytes
+  originSender: polygon_Bytes
+  originSender_not: polygon_Bytes
+  originSender_in: [polygon_Bytes!]
+  originSender_not_in: [polygon_Bytes!]
+  originSender_contains: polygon_Bytes
+  originSender_not_contains: polygon_Bytes
   bridgedAmt: BigInt
   bridgedAmt_not: BigInt
   bridgedAmt_gt: BigInt
@@ -910,12 +910,12 @@ input staginggoerli_OriginTransfer_filter {
   normalizedIn_lte: BigInt
   normalizedIn_in: [BigInt!]
   normalizedIn_not_in: [BigInt!]
-  canonicalId: staginggoerli_Bytes
-  canonicalId_not: staginggoerli_Bytes
-  canonicalId_in: [staginggoerli_Bytes!]
-  canonicalId_not_in: [staginggoerli_Bytes!]
-  canonicalId_contains: staginggoerli_Bytes
-  canonicalId_not_contains: staginggoerli_Bytes
+  canonicalId: polygon_Bytes
+  canonicalId_not: polygon_Bytes
+  canonicalId_in: [polygon_Bytes!]
+  canonicalId_not_in: [polygon_Bytes!]
+  canonicalId_contains: polygon_Bytes
+  canonicalId_not_contains: polygon_Bytes
   asset: String
   asset_not: String
   asset_gt: String
@@ -936,7 +936,7 @@ input staginggoerli_OriginTransfer_filter {
   asset_ends_with_nocase: String
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
-  asset_: staginggoerli_Asset_filter
+  asset_: polygon_Asset_filter
   message: String
   message_not: String
   message_gt: String
@@ -957,19 +957,19 @@ input staginggoerli_OriginTransfer_filter {
   message_ends_with_nocase: String
   message_not_ends_with: String
   message_not_ends_with_nocase: String
-  message_: staginggoerli_OriginMessage_filter
-  caller: staginggoerli_Bytes
-  caller_not: staginggoerli_Bytes
-  caller_in: [staginggoerli_Bytes!]
-  caller_not_in: [staginggoerli_Bytes!]
-  caller_contains: staginggoerli_Bytes
-  caller_not_contains: staginggoerli_Bytes
-  transactionHash: staginggoerli_Bytes
-  transactionHash_not: staginggoerli_Bytes
-  transactionHash_in: [staginggoerli_Bytes!]
-  transactionHash_not_in: [staginggoerli_Bytes!]
-  transactionHash_contains: staginggoerli_Bytes
-  transactionHash_not_contains: staginggoerli_Bytes
+  message_: polygon_OriginMessage_filter
+  caller: polygon_Bytes
+  caller_not: polygon_Bytes
+  caller_in: [polygon_Bytes!]
+  caller_not_in: [polygon_Bytes!]
+  caller_contains: polygon_Bytes
+  caller_not_contains: polygon_Bytes
+  transactionHash: polygon_Bytes
+  transactionHash_not: polygon_Bytes
+  transactionHash_in: [polygon_Bytes!]
+  transactionHash_not_in: [polygon_Bytes!]
+  transactionHash_contains: polygon_Bytes
+  transactionHash_not_contains: polygon_Bytes
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -1003,10 +1003,10 @@ input staginggoerli_OriginTransfer_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_OriginTransfer_orderBy {
+enum polygon_OriginTransfer_orderBy {
   id
   chainId
   transferId
@@ -1035,12 +1035,12 @@ enum staginggoerli_OriginTransfer_orderBy {
   blockNumber
 }
 
-type staginggoerli_PooledToken {
+type polygon_PooledToken {
   id: ID!
-  asset: staginggoerli_Bytes!
+  asset: polygon_Bytes!
 }
 
-input staginggoerli_PooledToken_filter {
+input polygon_PooledToken_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1049,475 +1049,475 @@ input staginggoerli_PooledToken_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  asset: staginggoerli_Bytes
-  asset_not: staginggoerli_Bytes
-  asset_in: [staginggoerli_Bytes!]
-  asset_not_in: [staginggoerli_Bytes!]
-  asset_contains: staginggoerli_Bytes
-  asset_not_contains: staginggoerli_Bytes
+  asset: polygon_Bytes
+  asset_not: polygon_Bytes
+  asset_in: [polygon_Bytes!]
+  asset_not_in: [polygon_Bytes!]
+  asset_contains: polygon_Bytes
+  asset_not_contains: polygon_Bytes
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_PooledToken_orderBy {
+enum polygon_PooledToken_orderBy {
   id
   asset
 }
 
 type Query {
-  staginggoerli_asset(
+  polygon_asset(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_Asset
-  staginggoerli_assets(
+  ): polygon_Asset
+  polygon_assets(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_Asset_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_Asset_filter
+    orderBy: polygon_Asset_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Asset_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_Asset!]!
-  staginggoerli_assetBalance(
+  ): [polygon_Asset!]!
+  polygon_assetBalance(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_AssetBalance
-  staginggoerli_assetBalances(
+  ): polygon_AssetBalance
+  polygon_assetBalances(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_AssetBalance_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_AssetBalance_filter
+    orderBy: polygon_AssetBalance_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_AssetBalance_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_AssetBalance!]!
-  staginggoerli_router(
+  ): [polygon_AssetBalance!]!
+  polygon_router(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_Router
-  staginggoerli_routers(
+  ): polygon_Router
+  polygon_routers(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_Router_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_Router_filter
+    orderBy: polygon_Router_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Router_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_Router!]!
-  staginggoerli_setting(
+  ): [polygon_Router!]!
+  polygon_setting(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_Setting
-  staginggoerli_settings(
+  ): polygon_Setting
+  polygon_settings(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_Setting_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_Setting_filter
+    orderBy: polygon_Setting_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Setting_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_Setting!]!
-  staginggoerli_relayer(
+  ): [polygon_Setting!]!
+  polygon_relayer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_Relayer
-  staginggoerli_relayers(
+  ): polygon_Relayer
+  polygon_relayers(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_Relayer_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_Relayer_filter
+    orderBy: polygon_Relayer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Relayer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_Relayer!]!
-  staginggoerli_sequencer(
+  ): [polygon_Relayer!]!
+  polygon_sequencer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_Sequencer
-  staginggoerli_sequencers(
+  ): polygon_Sequencer
+  polygon_sequencers(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_Sequencer_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_Sequencer_filter
+    orderBy: polygon_Sequencer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Sequencer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_Sequencer!]!
-  staginggoerli_originTransfer(
+  ): [polygon_Sequencer!]!
+  polygon_originTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_OriginTransfer
-  staginggoerli_originTransfers(
+  ): polygon_OriginTransfer
+  polygon_originTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_OriginTransfer_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_OriginTransfer_filter
+    orderBy: polygon_OriginTransfer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_OriginTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_OriginTransfer!]!
-  staginggoerli_destinationTransfer(
+  ): [polygon_OriginTransfer!]!
+  polygon_destinationTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_DestinationTransfer
-  staginggoerli_destinationTransfers(
+  ): polygon_DestinationTransfer
+  polygon_destinationTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_DestinationTransfer_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_DestinationTransfer_filter
+    orderBy: polygon_DestinationTransfer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_DestinationTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_DestinationTransfer!]!
-  staginggoerli_originMessage(
+  ): [polygon_DestinationTransfer!]!
+  polygon_originMessage(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_OriginMessage
-  staginggoerli_originMessages(
+  ): polygon_OriginMessage
+  polygon_originMessages(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_OriginMessage_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_OriginMessage_filter
+    orderBy: polygon_OriginMessage_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_OriginMessage_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_OriginMessage!]!
-  staginggoerli_destinationMessage(
+  ): [polygon_OriginMessage!]!
+  polygon_destinationMessage(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_DestinationMessage
-  staginggoerli_destinationMessages(
+  ): polygon_DestinationMessage
+  polygon_destinationMessages(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_DestinationMessage_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_DestinationMessage_filter
+    orderBy: polygon_DestinationMessage_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_DestinationMessage_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_DestinationMessage!]!
-  staginggoerli_aggregateRoot(
+  ): [polygon_DestinationMessage!]!
+  polygon_aggregateRoot(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_AggregateRoot
-  staginggoerli_aggregateRoots(
+  ): polygon_AggregateRoot
+  polygon_aggregateRoots(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_AggregateRoot_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_AggregateRoot_filter
+    orderBy: polygon_AggregateRoot_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_AggregateRoot_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_AggregateRoot!]!
-  staginggoerli_connectorMeta(
+  ): [polygon_AggregateRoot!]!
+  polygon_connectorMeta(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_ConnectorMeta
-  staginggoerli_connectorMetas(
+  ): polygon_ConnectorMeta
+  polygon_connectorMetas(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_ConnectorMeta_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_ConnectorMeta_filter
+    orderBy: polygon_ConnectorMeta_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_ConnectorMeta_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_ConnectorMeta!]!
-  staginggoerli_rootCount(
+  ): [polygon_ConnectorMeta!]!
+  polygon_rootCount(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_RootCount
-  staginggoerli_rootCounts(
+  ): polygon_RootCount
+  polygon_rootCounts(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_RootCount_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_RootCount_filter
+    orderBy: polygon_RootCount_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_RootCount_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_RootCount!]!
-  staginggoerli_rootMessageSent(
+  ): [polygon_RootCount!]!
+  polygon_rootMessageSent(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_RootMessageSent
-  staginggoerli_rootMessageSents(
+  ): polygon_RootMessageSent
+  polygon_rootMessageSents(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_RootMessageSent_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_RootMessageSent_filter
+    orderBy: polygon_RootMessageSent_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_RootMessageSent_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_RootMessageSent!]!
-  staginggoerli_stableSwap(
+  ): [polygon_RootMessageSent!]!
+  polygon_stableSwap(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_StableSwap
-  staginggoerli_stableSwaps(
+  ): polygon_StableSwap
+  polygon_stableSwaps(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_StableSwap_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_StableSwap_filter
+    orderBy: polygon_StableSwap_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_StableSwap_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_StableSwap!]!
-  staginggoerli_pooledToken(
+  ): [polygon_StableSwap!]!
+  polygon_pooledToken(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_PooledToken
-  staginggoerli_pooledTokens(
+  ): polygon_PooledToken
+  polygon_pooledTokens(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_PooledToken_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_PooledToken_filter
+    orderBy: polygon_PooledToken_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_PooledToken_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_PooledToken!]!
-  staginggoerli_stableSwapLiquidity(
+  ): [polygon_PooledToken!]!
+  polygon_stableSwapLiquidity(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_StableSwapLiquidity
-  staginggoerli_stableSwapLiquidities(
+  ): polygon_StableSwapLiquidity
+  polygon_stableSwapLiquidities(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_StableSwapLiquidity_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_StableSwapLiquidity_filter
+    orderBy: polygon_StableSwapLiquidity_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_StableSwapLiquidity_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_StableSwapLiquidity!]!
+  ): [polygon_StableSwapLiquidity!]!
   """Access to subgraph metadata"""
-  staginggoerli__meta(block: staginggoerli_Block_height): staginggoerli__Meta_
+  polygon__meta(block: polygon_Block_height): polygon__Meta_
 }
 
-type staginggoerli_Relayer {
+type polygon_Relayer {
   id: ID!
   isActive: Boolean!
-  relayer: staginggoerli_Bytes
+  relayer: polygon_Bytes
 }
 
-input staginggoerli_Relayer_filter {
+input polygon_Relayer_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1530,28 +1530,28 @@ input staginggoerli_Relayer_filter {
   isActive_not: Boolean
   isActive_in: [Boolean!]
   isActive_not_in: [Boolean!]
-  relayer: staginggoerli_Bytes
-  relayer_not: staginggoerli_Bytes
-  relayer_in: [staginggoerli_Bytes!]
-  relayer_not_in: [staginggoerli_Bytes!]
-  relayer_contains: staginggoerli_Bytes
-  relayer_not_contains: staginggoerli_Bytes
+  relayer: polygon_Bytes
+  relayer_not: polygon_Bytes
+  relayer_in: [polygon_Bytes!]
+  relayer_not_in: [polygon_Bytes!]
+  relayer_contains: polygon_Bytes
+  relayer_not_contains: polygon_Bytes
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_Relayer_orderBy {
+enum polygon_Relayer_orderBy {
   id
   isActive
   relayer
 }
 
-type staginggoerli_RootCount {
+type polygon_RootCount {
   id: ID!
   count: BigInt
 }
 
-input staginggoerli_RootCount_filter {
+input polygon_RootCount_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1569,29 +1569,29 @@ input staginggoerli_RootCount_filter {
   count_in: [BigInt!]
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_RootCount_orderBy {
+enum polygon_RootCount_orderBy {
   id
   count
 }
 
-type staginggoerli_RootMessageSent {
+type polygon_RootMessageSent {
   id: ID!
   spokeDomain: BigInt
   hubDomain: BigInt
-  root: staginggoerli_Bytes
+  root: polygon_Bytes
   count: BigInt
-  caller: staginggoerli_Bytes
-  transactionHash: staginggoerli_Bytes
+  caller: polygon_Bytes
+  transactionHash: polygon_Bytes
   timestamp: BigInt
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
 }
 
-input staginggoerli_RootMessageSent_filter {
+input polygon_RootMessageSent_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1616,12 +1616,12 @@ input staginggoerli_RootMessageSent_filter {
   hubDomain_lte: BigInt
   hubDomain_in: [BigInt!]
   hubDomain_not_in: [BigInt!]
-  root: staginggoerli_Bytes
-  root_not: staginggoerli_Bytes
-  root_in: [staginggoerli_Bytes!]
-  root_not_in: [staginggoerli_Bytes!]
-  root_contains: staginggoerli_Bytes
-  root_not_contains: staginggoerli_Bytes
+  root: polygon_Bytes
+  root_not: polygon_Bytes
+  root_in: [polygon_Bytes!]
+  root_not_in: [polygon_Bytes!]
+  root_contains: polygon_Bytes
+  root_not_contains: polygon_Bytes
   count: BigInt
   count_not: BigInt
   count_gt: BigInt
@@ -1630,18 +1630,18 @@ input staginggoerli_RootMessageSent_filter {
   count_lte: BigInt
   count_in: [BigInt!]
   count_not_in: [BigInt!]
-  caller: staginggoerli_Bytes
-  caller_not: staginggoerli_Bytes
-  caller_in: [staginggoerli_Bytes!]
-  caller_not_in: [staginggoerli_Bytes!]
-  caller_contains: staginggoerli_Bytes
-  caller_not_contains: staginggoerli_Bytes
-  transactionHash: staginggoerli_Bytes
-  transactionHash_not: staginggoerli_Bytes
-  transactionHash_in: [staginggoerli_Bytes!]
-  transactionHash_not_in: [staginggoerli_Bytes!]
-  transactionHash_contains: staginggoerli_Bytes
-  transactionHash_not_contains: staginggoerli_Bytes
+  caller: polygon_Bytes
+  caller_not: polygon_Bytes
+  caller_in: [polygon_Bytes!]
+  caller_not_in: [polygon_Bytes!]
+  caller_contains: polygon_Bytes
+  caller_not_contains: polygon_Bytes
+  transactionHash: polygon_Bytes
+  transactionHash_not: polygon_Bytes
+  transactionHash_in: [polygon_Bytes!]
+  transactionHash_not_in: [polygon_Bytes!]
+  transactionHash_contains: polygon_Bytes
+  transactionHash_not_contains: polygon_Bytes
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -1675,10 +1675,10 @@ input staginggoerli_RootMessageSent_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_RootMessageSent_orderBy {
+enum polygon_RootMessageSent_orderBy {
   id
   spokeDomain
   hubDomain
@@ -1692,17 +1692,17 @@ enum staginggoerli_RootMessageSent_orderBy {
   blockNumber
 }
 
-type staginggoerli_Router {
+type polygon_Router {
   id: ID!
   isActive: Boolean!
-  owner: staginggoerli_Bytes
-  recipient: staginggoerli_Bytes
-  proposedOwner: staginggoerli_Bytes
+  owner: polygon_Bytes
+  recipient: polygon_Bytes
+  proposedOwner: polygon_Bytes
   proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: staginggoerli_AssetBalance_orderBy, orderDirection: staginggoerli_OrderDirection, where: staginggoerli_AssetBalance_filter): [staginggoerli_AssetBalance!]!
+  assetBalances(skip: Int = 0, first: Int = 100, orderBy: polygon_AssetBalance_orderBy, orderDirection: polygon_OrderDirection, where: polygon_AssetBalance_filter): [polygon_AssetBalance!]!
 }
 
-input staginggoerli_Router_filter {
+input polygon_Router_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1715,24 +1715,24 @@ input staginggoerli_Router_filter {
   isActive_not: Boolean
   isActive_in: [Boolean!]
   isActive_not_in: [Boolean!]
-  owner: staginggoerli_Bytes
-  owner_not: staginggoerli_Bytes
-  owner_in: [staginggoerli_Bytes!]
-  owner_not_in: [staginggoerli_Bytes!]
-  owner_contains: staginggoerli_Bytes
-  owner_not_contains: staginggoerli_Bytes
-  recipient: staginggoerli_Bytes
-  recipient_not: staginggoerli_Bytes
-  recipient_in: [staginggoerli_Bytes!]
-  recipient_not_in: [staginggoerli_Bytes!]
-  recipient_contains: staginggoerli_Bytes
-  recipient_not_contains: staginggoerli_Bytes
-  proposedOwner: staginggoerli_Bytes
-  proposedOwner_not: staginggoerli_Bytes
-  proposedOwner_in: [staginggoerli_Bytes!]
-  proposedOwner_not_in: [staginggoerli_Bytes!]
-  proposedOwner_contains: staginggoerli_Bytes
-  proposedOwner_not_contains: staginggoerli_Bytes
+  owner: polygon_Bytes
+  owner_not: polygon_Bytes
+  owner_in: [polygon_Bytes!]
+  owner_not_in: [polygon_Bytes!]
+  owner_contains: polygon_Bytes
+  owner_not_contains: polygon_Bytes
+  recipient: polygon_Bytes
+  recipient_not: polygon_Bytes
+  recipient_in: [polygon_Bytes!]
+  recipient_not_in: [polygon_Bytes!]
+  recipient_contains: polygon_Bytes
+  recipient_not_contains: polygon_Bytes
+  proposedOwner: polygon_Bytes
+  proposedOwner_not: polygon_Bytes
+  proposedOwner_in: [polygon_Bytes!]
+  proposedOwner_not_in: [polygon_Bytes!]
+  proposedOwner_contains: polygon_Bytes
+  proposedOwner_not_contains: polygon_Bytes
   proposedTimestamp: BigInt
   proposedTimestamp_not: BigInt
   proposedTimestamp_gt: BigInt
@@ -1741,12 +1741,12 @@ input staginggoerli_Router_filter {
   proposedTimestamp_lte: BigInt
   proposedTimestamp_in: [BigInt!]
   proposedTimestamp_not_in: [BigInt!]
-  assetBalances_: staginggoerli_AssetBalance_filter
+  assetBalances_: polygon_AssetBalance_filter
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_Router_orderBy {
+enum polygon_Router_orderBy {
   id
   isActive
   owner
@@ -1756,13 +1756,13 @@ enum staginggoerli_Router_orderBy {
   assetBalances
 }
 
-type staginggoerli_Sequencer {
+type polygon_Sequencer {
   id: ID!
   isActive: Boolean!
-  sequencer: staginggoerli_Bytes
+  sequencer: polygon_Bytes
 }
 
-input staginggoerli_Sequencer_filter {
+input polygon_Sequencer_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1775,29 +1775,29 @@ input staginggoerli_Sequencer_filter {
   isActive_not: Boolean
   isActive_in: [Boolean!]
   isActive_not_in: [Boolean!]
-  sequencer: staginggoerli_Bytes
-  sequencer_not: staginggoerli_Bytes
-  sequencer_in: [staginggoerli_Bytes!]
-  sequencer_not_in: [staginggoerli_Bytes!]
-  sequencer_contains: staginggoerli_Bytes
-  sequencer_not_contains: staginggoerli_Bytes
+  sequencer: polygon_Bytes
+  sequencer_not: polygon_Bytes
+  sequencer_in: [polygon_Bytes!]
+  sequencer_not_in: [polygon_Bytes!]
+  sequencer_contains: polygon_Bytes
+  sequencer_not_contains: polygon_Bytes
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_Sequencer_orderBy {
+enum polygon_Sequencer_orderBy {
   id
   isActive
   sequencer
 }
 
-type staginggoerli_Setting {
+type polygon_Setting {
   id: ID!
   maxRoutersPerTransfer: BigInt!
-  caller: staginggoerli_Bytes!
+  caller: polygon_Bytes!
 }
 
-input staginggoerli_Setting_filter {
+input polygon_Setting_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1814,53 +1814,53 @@ input staginggoerli_Setting_filter {
   maxRoutersPerTransfer_lte: BigInt
   maxRoutersPerTransfer_in: [BigInt!]
   maxRoutersPerTransfer_not_in: [BigInt!]
-  caller: staginggoerli_Bytes
-  caller_not: staginggoerli_Bytes
-  caller_in: [staginggoerli_Bytes!]
-  caller_not_in: [staginggoerli_Bytes!]
-  caller_contains: staginggoerli_Bytes
-  caller_not_contains: staginggoerli_Bytes
+  caller: polygon_Bytes
+  caller_not: polygon_Bytes
+  caller_in: [polygon_Bytes!]
+  caller_not_in: [polygon_Bytes!]
+  caller_contains: polygon_Bytes
+  caller_not_contains: polygon_Bytes
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_Setting_orderBy {
+enum polygon_Setting_orderBy {
   id
   maxRoutersPerTransfer
   caller
 }
 
-type staginggoerli_StableSwap {
+type polygon_StableSwap {
   id: ID!
   isActive: Boolean
-  key: staginggoerli_Bytes
-  canonicalId: staginggoerli_Bytes
+  key: polygon_Bytes
+  canonicalId: polygon_Bytes
   domain: BigInt
-  swapPool: staginggoerli_Bytes
-  lpToken: staginggoerli_Bytes
+  swapPool: polygon_Bytes
+  lpToken: polygon_Bytes
   initialA: BigInt
   futureA: BigInt
   initialATime: BigInt
   futureATime: BigInt
   swapFee: BigInt
   adminFee: BigInt
-  pooledTokens(skip: Int = 0, first: Int = 100, orderBy: staginggoerli_PooledToken_orderBy, orderDirection: staginggoerli_OrderDirection, where: staginggoerli_PooledToken_filter): [staginggoerli_PooledToken!]!
+  pooledTokens(skip: Int = 0, first: Int = 100, orderBy: polygon_PooledToken_orderBy, orderDirection: polygon_OrderDirection, where: polygon_PooledToken_filter): [polygon_PooledToken!]!
   tokenPrecisionMultipliers: [BigInt!]
   balances: [BigInt!]!
   adminFees: [BigInt!]
 }
 
-type staginggoerli_StableSwapLiquidity {
+type polygon_StableSwapLiquidity {
   id: ID!
-  provider: staginggoerli_Bytes!
-  stableSwap: staginggoerli_StableSwap!
+  provider: polygon_Bytes!
+  stableSwap: polygon_StableSwap!
   tokenAmounts: [BigInt!]!
   fees: [BigInt!]!
   invariant: BigInt
   lpTokenSupply: BigInt
 }
 
-input staginggoerli_StableSwapLiquidity_filter {
+input polygon_StableSwapLiquidity_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1869,12 +1869,12 @@ input staginggoerli_StableSwapLiquidity_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  provider: staginggoerli_Bytes
-  provider_not: staginggoerli_Bytes
-  provider_in: [staginggoerli_Bytes!]
-  provider_not_in: [staginggoerli_Bytes!]
-  provider_contains: staginggoerli_Bytes
-  provider_not_contains: staginggoerli_Bytes
+  provider: polygon_Bytes
+  provider_not: polygon_Bytes
+  provider_in: [polygon_Bytes!]
+  provider_not_in: [polygon_Bytes!]
+  provider_contains: polygon_Bytes
+  provider_not_contains: polygon_Bytes
   stableSwap: String
   stableSwap_not: String
   stableSwap_gt: String
@@ -1895,7 +1895,7 @@ input staginggoerli_StableSwapLiquidity_filter {
   stableSwap_ends_with_nocase: String
   stableSwap_not_ends_with: String
   stableSwap_not_ends_with_nocase: String
-  stableSwap_: staginggoerli_StableSwap_filter
+  stableSwap_: polygon_StableSwap_filter
   tokenAmounts: [BigInt!]
   tokenAmounts_not: [BigInt!]
   tokenAmounts_contains: [BigInt!]
@@ -1925,10 +1925,10 @@ input staginggoerli_StableSwapLiquidity_filter {
   lpTokenSupply_in: [BigInt!]
   lpTokenSupply_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_StableSwapLiquidity_orderBy {
+enum polygon_StableSwapLiquidity_orderBy {
   id
   provider
   stableSwap
@@ -1938,7 +1938,7 @@ enum staginggoerli_StableSwapLiquidity_orderBy {
   lpTokenSupply
 }
 
-input staginggoerli_StableSwap_filter {
+input polygon_StableSwap_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1951,18 +1951,18 @@ input staginggoerli_StableSwap_filter {
   isActive_not: Boolean
   isActive_in: [Boolean!]
   isActive_not_in: [Boolean!]
-  key: staginggoerli_Bytes
-  key_not: staginggoerli_Bytes
-  key_in: [staginggoerli_Bytes!]
-  key_not_in: [staginggoerli_Bytes!]
-  key_contains: staginggoerli_Bytes
-  key_not_contains: staginggoerli_Bytes
-  canonicalId: staginggoerli_Bytes
-  canonicalId_not: staginggoerli_Bytes
-  canonicalId_in: [staginggoerli_Bytes!]
-  canonicalId_not_in: [staginggoerli_Bytes!]
-  canonicalId_contains: staginggoerli_Bytes
-  canonicalId_not_contains: staginggoerli_Bytes
+  key: polygon_Bytes
+  key_not: polygon_Bytes
+  key_in: [polygon_Bytes!]
+  key_not_in: [polygon_Bytes!]
+  key_contains: polygon_Bytes
+  key_not_contains: polygon_Bytes
+  canonicalId: polygon_Bytes
+  canonicalId_not: polygon_Bytes
+  canonicalId_in: [polygon_Bytes!]
+  canonicalId_not_in: [polygon_Bytes!]
+  canonicalId_contains: polygon_Bytes
+  canonicalId_not_contains: polygon_Bytes
   domain: BigInt
   domain_not: BigInt
   domain_gt: BigInt
@@ -1971,18 +1971,18 @@ input staginggoerli_StableSwap_filter {
   domain_lte: BigInt
   domain_in: [BigInt!]
   domain_not_in: [BigInt!]
-  swapPool: staginggoerli_Bytes
-  swapPool_not: staginggoerli_Bytes
-  swapPool_in: [staginggoerli_Bytes!]
-  swapPool_not_in: [staginggoerli_Bytes!]
-  swapPool_contains: staginggoerli_Bytes
-  swapPool_not_contains: staginggoerli_Bytes
-  lpToken: staginggoerli_Bytes
-  lpToken_not: staginggoerli_Bytes
-  lpToken_in: [staginggoerli_Bytes!]
-  lpToken_not_in: [staginggoerli_Bytes!]
-  lpToken_contains: staginggoerli_Bytes
-  lpToken_not_contains: staginggoerli_Bytes
+  swapPool: polygon_Bytes
+  swapPool_not: polygon_Bytes
+  swapPool_in: [polygon_Bytes!]
+  swapPool_not_in: [polygon_Bytes!]
+  swapPool_contains: polygon_Bytes
+  swapPool_not_contains: polygon_Bytes
+  lpToken: polygon_Bytes
+  lpToken_not: polygon_Bytes
+  lpToken_in: [polygon_Bytes!]
+  lpToken_not_in: [polygon_Bytes!]
+  lpToken_contains: polygon_Bytes
+  lpToken_not_contains: polygon_Bytes
   initialA: BigInt
   initialA_not: BigInt
   initialA_gt: BigInt
@@ -2037,7 +2037,7 @@ input staginggoerli_StableSwap_filter {
   pooledTokens_contains_nocase: [String!]
   pooledTokens_not_contains: [String!]
   pooledTokens_not_contains_nocase: [String!]
-  pooledTokens_: staginggoerli_PooledToken_filter
+  pooledTokens_: polygon_PooledToken_filter
   tokenPrecisionMultipliers: [BigInt!]
   tokenPrecisionMultipliers_not: [BigInt!]
   tokenPrecisionMultipliers_contains: [BigInt!]
@@ -2057,10 +2057,10 @@ input staginggoerli_StableSwap_filter {
   adminFees_not_contains: [BigInt!]
   adminFees_not_contains_nocase: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: staginggoerli_BlockChangedFilter
+  _change_block: polygon_BlockChangedFilter
 }
 
-enum staginggoerli_StableSwap_orderBy {
+enum polygon_StableSwap_orderBy {
   id
   isActive
   key
@@ -2081,453 +2081,453 @@ enum staginggoerli_StableSwap_orderBy {
 }
 
 type Subscription {
-  staginggoerli_asset(
+  polygon_asset(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_Asset
-  staginggoerli_assets(
+  ): polygon_Asset
+  polygon_assets(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_Asset_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_Asset_filter
+    orderBy: polygon_Asset_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Asset_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_Asset!]!
-  staginggoerli_assetBalance(
+  ): [polygon_Asset!]!
+  polygon_assetBalance(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_AssetBalance
-  staginggoerli_assetBalances(
+  ): polygon_AssetBalance
+  polygon_assetBalances(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_AssetBalance_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_AssetBalance_filter
+    orderBy: polygon_AssetBalance_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_AssetBalance_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_AssetBalance!]!
-  staginggoerli_router(
+  ): [polygon_AssetBalance!]!
+  polygon_router(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_Router
-  staginggoerli_routers(
+  ): polygon_Router
+  polygon_routers(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_Router_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_Router_filter
+    orderBy: polygon_Router_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Router_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_Router!]!
-  staginggoerli_setting(
+  ): [polygon_Router!]!
+  polygon_setting(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_Setting
-  staginggoerli_settings(
+  ): polygon_Setting
+  polygon_settings(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_Setting_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_Setting_filter
+    orderBy: polygon_Setting_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Setting_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_Setting!]!
-  staginggoerli_relayer(
+  ): [polygon_Setting!]!
+  polygon_relayer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_Relayer
-  staginggoerli_relayers(
+  ): polygon_Relayer
+  polygon_relayers(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_Relayer_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_Relayer_filter
+    orderBy: polygon_Relayer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Relayer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_Relayer!]!
-  staginggoerli_sequencer(
+  ): [polygon_Relayer!]!
+  polygon_sequencer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_Sequencer
-  staginggoerli_sequencers(
+  ): polygon_Sequencer
+  polygon_sequencers(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_Sequencer_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_Sequencer_filter
+    orderBy: polygon_Sequencer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Sequencer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_Sequencer!]!
-  staginggoerli_originTransfer(
+  ): [polygon_Sequencer!]!
+  polygon_originTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_OriginTransfer
-  staginggoerli_originTransfers(
+  ): polygon_OriginTransfer
+  polygon_originTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_OriginTransfer_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_OriginTransfer_filter
+    orderBy: polygon_OriginTransfer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_OriginTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_OriginTransfer!]!
-  staginggoerli_destinationTransfer(
+  ): [polygon_OriginTransfer!]!
+  polygon_destinationTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_DestinationTransfer
-  staginggoerli_destinationTransfers(
+  ): polygon_DestinationTransfer
+  polygon_destinationTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_DestinationTransfer_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_DestinationTransfer_filter
+    orderBy: polygon_DestinationTransfer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_DestinationTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_DestinationTransfer!]!
-  staginggoerli_originMessage(
+  ): [polygon_DestinationTransfer!]!
+  polygon_originMessage(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_OriginMessage
-  staginggoerli_originMessages(
+  ): polygon_OriginMessage
+  polygon_originMessages(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_OriginMessage_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_OriginMessage_filter
+    orderBy: polygon_OriginMessage_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_OriginMessage_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_OriginMessage!]!
-  staginggoerli_destinationMessage(
+  ): [polygon_OriginMessage!]!
+  polygon_destinationMessage(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_DestinationMessage
-  staginggoerli_destinationMessages(
+  ): polygon_DestinationMessage
+  polygon_destinationMessages(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_DestinationMessage_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_DestinationMessage_filter
+    orderBy: polygon_DestinationMessage_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_DestinationMessage_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_DestinationMessage!]!
-  staginggoerli_aggregateRoot(
+  ): [polygon_DestinationMessage!]!
+  polygon_aggregateRoot(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_AggregateRoot
-  staginggoerli_aggregateRoots(
+  ): polygon_AggregateRoot
+  polygon_aggregateRoots(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_AggregateRoot_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_AggregateRoot_filter
+    orderBy: polygon_AggregateRoot_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_AggregateRoot_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_AggregateRoot!]!
-  staginggoerli_connectorMeta(
+  ): [polygon_AggregateRoot!]!
+  polygon_connectorMeta(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_ConnectorMeta
-  staginggoerli_connectorMetas(
+  ): polygon_ConnectorMeta
+  polygon_connectorMetas(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_ConnectorMeta_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_ConnectorMeta_filter
+    orderBy: polygon_ConnectorMeta_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_ConnectorMeta_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_ConnectorMeta!]!
-  staginggoerli_rootCount(
+  ): [polygon_ConnectorMeta!]!
+  polygon_rootCount(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_RootCount
-  staginggoerli_rootCounts(
+  ): polygon_RootCount
+  polygon_rootCounts(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_RootCount_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_RootCount_filter
+    orderBy: polygon_RootCount_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_RootCount_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_RootCount!]!
-  staginggoerli_rootMessageSent(
+  ): [polygon_RootCount!]!
+  polygon_rootMessageSent(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_RootMessageSent
-  staginggoerli_rootMessageSents(
+  ): polygon_RootMessageSent
+  polygon_rootMessageSents(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_RootMessageSent_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_RootMessageSent_filter
+    orderBy: polygon_RootMessageSent_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_RootMessageSent_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_RootMessageSent!]!
-  staginggoerli_stableSwap(
+  ): [polygon_RootMessageSent!]!
+  polygon_stableSwap(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_StableSwap
-  staginggoerli_stableSwaps(
+  ): polygon_StableSwap
+  polygon_stableSwaps(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_StableSwap_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_StableSwap_filter
+    orderBy: polygon_StableSwap_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_StableSwap_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_StableSwap!]!
-  staginggoerli_pooledToken(
+  ): [polygon_StableSwap!]!
+  polygon_pooledToken(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_PooledToken
-  staginggoerli_pooledTokens(
+  ): polygon_PooledToken
+  polygon_pooledTokens(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_PooledToken_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_PooledToken_filter
+    orderBy: polygon_PooledToken_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_PooledToken_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_PooledToken!]!
-  staginggoerli_stableSwapLiquidity(
+  ): [polygon_PooledToken!]!
+  polygon_stableSwapLiquidity(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): staginggoerli_StableSwapLiquidity
-  staginggoerli_stableSwapLiquidities(
+  ): polygon_StableSwapLiquidity
+  polygon_stableSwapLiquidities(
     skip: Int = 0
     first: Int = 100
-    orderBy: staginggoerli_StableSwapLiquidity_orderBy
-    orderDirection: staginggoerli_OrderDirection
-    where: staginggoerli_StableSwapLiquidity_filter
+    orderBy: polygon_StableSwapLiquidity_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_StableSwapLiquidity_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: staginggoerli_Block_height
+    block: polygon_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [staginggoerli_StableSwapLiquidity!]!
+  ): [polygon_StableSwapLiquidity!]!
   """Access to subgraph metadata"""
-  staginggoerli__meta(block: staginggoerli_Block_height): staginggoerli__Meta_
+  polygon__meta(block: polygon_Block_height): polygon__Meta_
 }
 
-enum staginggoerli_TransferStatus {
+enum polygon_TransferStatus {
   XCalled
   Executed
   Reconciled
@@ -2535,9 +2535,9 @@ enum staginggoerli_TransferStatus {
   CompletedFast
 }
 
-type staginggoerli__Block_ {
+type polygon__Block_ {
   """The hash of the block"""
-  hash: staginggoerli_Bytes
+  hash: polygon_Bytes
   """The block number"""
   number: Int!
   """Integer representation of the timestamp stored in blocks for the chain"""
@@ -2545,7 +2545,7 @@ type staginggoerli__Block_ {
 }
 
 """The type for the top-level _meta field"""
-type staginggoerli__Meta_ {
+type polygon__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
@@ -2553,7 +2553,7 @@ type staginggoerli__Meta_ {
   and therefore asks for the latest  block
   
   """
-  block: staginggoerli__Block_!
+  block: polygon__Block_!
   """The deployment ID"""
   deployment: String!
   """If `true`, the subgraph encountered indexing errors at some past block"""

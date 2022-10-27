@@ -1038,6 +1038,34 @@ export type stagingmumbai_OriginTransfer_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
+export type stagingmumbai_PooledToken = {
+  id: Scalars['ID'];
+  asset: Scalars['stagingmumbai_Bytes'];
+};
+
+export type stagingmumbai_PooledToken_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  asset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_PooledToken_orderBy =
+  | 'id'
+  | 'asset';
+
 export type Query = {
   stagingmumbai_asset?: Maybe<stagingmumbai_Asset>;
   stagingmumbai_assets: Array<stagingmumbai_Asset>;
@@ -1051,8 +1079,6 @@ export type Query = {
   stagingmumbai_relayers: Array<stagingmumbai_Relayer>;
   stagingmumbai_sequencer?: Maybe<stagingmumbai_Sequencer>;
   stagingmumbai_sequencers: Array<stagingmumbai_Sequencer>;
-  stagingmumbai_stableSwap?: Maybe<stagingmumbai_StableSwap>;
-  stagingmumbai_stableSwaps: Array<stagingmumbai_StableSwap>;
   stagingmumbai_originTransfer?: Maybe<stagingmumbai_OriginTransfer>;
   stagingmumbai_originTransfers: Array<stagingmumbai_OriginTransfer>;
   stagingmumbai_destinationTransfer?: Maybe<stagingmumbai_DestinationTransfer>;
@@ -1069,6 +1095,12 @@ export type Query = {
   stagingmumbai_rootCounts: Array<stagingmumbai_RootCount>;
   stagingmumbai_rootMessageSent?: Maybe<stagingmumbai_RootMessageSent>;
   stagingmumbai_rootMessageSents: Array<stagingmumbai_RootMessageSent>;
+  stagingmumbai_stableSwap?: Maybe<stagingmumbai_StableSwap>;
+  stagingmumbai_stableSwaps: Array<stagingmumbai_StableSwap>;
+  stagingmumbai_pooledToken?: Maybe<stagingmumbai_PooledToken>;
+  stagingmumbai_pooledTokens: Array<stagingmumbai_PooledToken>;
+  stagingmumbai_stableSwapLiquidity?: Maybe<stagingmumbai_StableSwapLiquidity>;
+  stagingmumbai_stableSwapLiquidities: Array<stagingmumbai_StableSwapLiquidity>;
   /** Access to subgraph metadata */
   stagingmumbai__meta?: Maybe<stagingmumbai__Meta_>;
 };
@@ -1177,24 +1209,6 @@ export type Querystagingmumbai_sequencersArgs = {
   orderBy?: InputMaybe<stagingmumbai_Sequencer_orderBy>;
   orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
   where?: InputMaybe<stagingmumbai_Sequencer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_StableSwap_filter>;
   block?: InputMaybe<stagingmumbai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1339,6 +1353,60 @@ export type Querystagingmumbai_rootMessageSentsArgs = {
   orderBy?: InputMaybe<stagingmumbai_RootMessageSent_orderBy>;
   orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
   where?: InputMaybe<stagingmumbai_RootMessageSent_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_stableSwapArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_stableSwapsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_StableSwap_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_pooledTokenArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_pooledTokensArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_PooledToken_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_PooledToken_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_stableSwapLiquidityArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_stableSwapLiquiditiesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_StableSwapLiquidity_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_StableSwapLiquidity_filter>;
   block?: InputMaybe<stagingmumbai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1672,10 +1740,119 @@ export type stagingmumbai_Setting_orderBy =
 
 export type stagingmumbai_StableSwap = {
   id: Scalars['ID'];
-  canonicalId: Scalars['stagingmumbai_Bytes'];
+  isActive?: Maybe<Scalars['Boolean']>;
+  key?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  canonicalId?: Maybe<Scalars['stagingmumbai_Bytes']>;
   domain?: Maybe<Scalars['BigInt']>;
-  swapPool: Scalars['stagingmumbai_Bytes'];
+  swapPool?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  lpToken?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  initialA?: Maybe<Scalars['BigInt']>;
+  futureA?: Maybe<Scalars['BigInt']>;
+  initialATime?: Maybe<Scalars['BigInt']>;
+  futureATime?: Maybe<Scalars['BigInt']>;
+  swapFee?: Maybe<Scalars['BigInt']>;
+  adminFee?: Maybe<Scalars['BigInt']>;
+  pooledTokens: Array<stagingmumbai_PooledToken>;
+  tokenPrecisionMultipliers?: Maybe<Array<Scalars['BigInt']>>;
+  balances: Array<Scalars['BigInt']>;
+  adminFees?: Maybe<Array<Scalars['BigInt']>>;
 };
+
+
+export type stagingmumbai_StableSwappooledTokensArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_PooledToken_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_PooledToken_filter>;
+};
+
+export type stagingmumbai_StableSwapLiquidity = {
+  id: Scalars['ID'];
+  provider: Scalars['stagingmumbai_Bytes'];
+  stableSwap: stagingmumbai_StableSwap;
+  tokenAmounts: Array<Scalars['BigInt']>;
+  fees: Array<Scalars['BigInt']>;
+  invariant?: Maybe<Scalars['BigInt']>;
+  lpTokenSupply?: Maybe<Scalars['BigInt']>;
+};
+
+export type stagingmumbai_StableSwapLiquidity_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  provider?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  provider_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  provider_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  provider_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  provider_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  provider_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  stableSwap?: InputMaybe<Scalars['String']>;
+  stableSwap_not?: InputMaybe<Scalars['String']>;
+  stableSwap_gt?: InputMaybe<Scalars['String']>;
+  stableSwap_lt?: InputMaybe<Scalars['String']>;
+  stableSwap_gte?: InputMaybe<Scalars['String']>;
+  stableSwap_lte?: InputMaybe<Scalars['String']>;
+  stableSwap_in?: InputMaybe<Array<Scalars['String']>>;
+  stableSwap_not_in?: InputMaybe<Array<Scalars['String']>>;
+  stableSwap_contains?: InputMaybe<Scalars['String']>;
+  stableSwap_contains_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_not_contains?: InputMaybe<Scalars['String']>;
+  stableSwap_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_starts_with?: InputMaybe<Scalars['String']>;
+  stableSwap_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_not_starts_with?: InputMaybe<Scalars['String']>;
+  stableSwap_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_ends_with?: InputMaybe<Scalars['String']>;
+  stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
+  stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_?: InputMaybe<stagingmumbai_StableSwap_filter>;
+  tokenAmounts?: InputMaybe<Array<Scalars['BigInt']>>;
+  tokenAmounts_not?: InputMaybe<Array<Scalars['BigInt']>>;
+  tokenAmounts_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  tokenAmounts_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  tokenAmounts_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  tokenAmounts_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  fees?: InputMaybe<Array<Scalars['BigInt']>>;
+  fees_not?: InputMaybe<Array<Scalars['BigInt']>>;
+  fees_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  fees_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  fees_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  fees_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  invariant?: InputMaybe<Scalars['BigInt']>;
+  invariant_not?: InputMaybe<Scalars['BigInt']>;
+  invariant_gt?: InputMaybe<Scalars['BigInt']>;
+  invariant_lt?: InputMaybe<Scalars['BigInt']>;
+  invariant_gte?: InputMaybe<Scalars['BigInt']>;
+  invariant_lte?: InputMaybe<Scalars['BigInt']>;
+  invariant_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  invariant_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lpTokenSupply?: InputMaybe<Scalars['BigInt']>;
+  lpTokenSupply_not?: InputMaybe<Scalars['BigInt']>;
+  lpTokenSupply_gt?: InputMaybe<Scalars['BigInt']>;
+  lpTokenSupply_lt?: InputMaybe<Scalars['BigInt']>;
+  lpTokenSupply_gte?: InputMaybe<Scalars['BigInt']>;
+  lpTokenSupply_lte?: InputMaybe<Scalars['BigInt']>;
+  lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_StableSwapLiquidity_orderBy =
+  | 'id'
+  | 'provider'
+  | 'stableSwap'
+  | 'tokenAmounts'
+  | 'fees'
+  | 'invariant'
+  | 'lpTokenSupply';
 
 export type stagingmumbai_StableSwap_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -1686,6 +1863,16 @@ export type stagingmumbai_StableSwap_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  isActive?: InputMaybe<Scalars['Boolean']>;
+  isActive_not?: InputMaybe<Scalars['Boolean']>;
+  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  key?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  key_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  key_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  key_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  key_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  key_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   canonicalId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   canonicalId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
@@ -1706,15 +1893,107 @@ export type stagingmumbai_StableSwap_filter = {
   swapPool_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
   swapPool_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   swapPool_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  lpToken?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  lpToken_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  lpToken_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  lpToken_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  lpToken_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  lpToken_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  initialA?: InputMaybe<Scalars['BigInt']>;
+  initialA_not?: InputMaybe<Scalars['BigInt']>;
+  initialA_gt?: InputMaybe<Scalars['BigInt']>;
+  initialA_lt?: InputMaybe<Scalars['BigInt']>;
+  initialA_gte?: InputMaybe<Scalars['BigInt']>;
+  initialA_lte?: InputMaybe<Scalars['BigInt']>;
+  initialA_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  initialA_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  futureA?: InputMaybe<Scalars['BigInt']>;
+  futureA_not?: InputMaybe<Scalars['BigInt']>;
+  futureA_gt?: InputMaybe<Scalars['BigInt']>;
+  futureA_lt?: InputMaybe<Scalars['BigInt']>;
+  futureA_gte?: InputMaybe<Scalars['BigInt']>;
+  futureA_lte?: InputMaybe<Scalars['BigInt']>;
+  futureA_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  futureA_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  initialATime?: InputMaybe<Scalars['BigInt']>;
+  initialATime_not?: InputMaybe<Scalars['BigInt']>;
+  initialATime_gt?: InputMaybe<Scalars['BigInt']>;
+  initialATime_lt?: InputMaybe<Scalars['BigInt']>;
+  initialATime_gte?: InputMaybe<Scalars['BigInt']>;
+  initialATime_lte?: InputMaybe<Scalars['BigInt']>;
+  initialATime_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  initialATime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  futureATime?: InputMaybe<Scalars['BigInt']>;
+  futureATime_not?: InputMaybe<Scalars['BigInt']>;
+  futureATime_gt?: InputMaybe<Scalars['BigInt']>;
+  futureATime_lt?: InputMaybe<Scalars['BigInt']>;
+  futureATime_gte?: InputMaybe<Scalars['BigInt']>;
+  futureATime_lte?: InputMaybe<Scalars['BigInt']>;
+  futureATime_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  futureATime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  swapFee?: InputMaybe<Scalars['BigInt']>;
+  swapFee_not?: InputMaybe<Scalars['BigInt']>;
+  swapFee_gt?: InputMaybe<Scalars['BigInt']>;
+  swapFee_lt?: InputMaybe<Scalars['BigInt']>;
+  swapFee_gte?: InputMaybe<Scalars['BigInt']>;
+  swapFee_lte?: InputMaybe<Scalars['BigInt']>;
+  swapFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  swapFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adminFee?: InputMaybe<Scalars['BigInt']>;
+  adminFee_not?: InputMaybe<Scalars['BigInt']>;
+  adminFee_gt?: InputMaybe<Scalars['BigInt']>;
+  adminFee_lt?: InputMaybe<Scalars['BigInt']>;
+  adminFee_gte?: InputMaybe<Scalars['BigInt']>;
+  adminFee_lte?: InputMaybe<Scalars['BigInt']>;
+  adminFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adminFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  pooledTokens?: InputMaybe<Array<Scalars['String']>>;
+  pooledTokens_not?: InputMaybe<Array<Scalars['String']>>;
+  pooledTokens_contains?: InputMaybe<Array<Scalars['String']>>;
+  pooledTokens_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  pooledTokens_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  pooledTokens_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  pooledTokens_?: InputMaybe<stagingmumbai_PooledToken_filter>;
+  tokenPrecisionMultipliers?: InputMaybe<Array<Scalars['BigInt']>>;
+  tokenPrecisionMultipliers_not?: InputMaybe<Array<Scalars['BigInt']>>;
+  tokenPrecisionMultipliers_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  tokenPrecisionMultipliers_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  tokenPrecisionMultipliers_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  tokenPrecisionMultipliers_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_not?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  adminFees?: InputMaybe<Array<Scalars['BigInt']>>;
+  adminFees_not?: InputMaybe<Array<Scalars['BigInt']>>;
+  adminFees_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  adminFees_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  adminFees_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  adminFees_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
 };
 
 export type stagingmumbai_StableSwap_orderBy =
   | 'id'
+  | 'isActive'
+  | 'key'
   | 'canonicalId'
   | 'domain'
-  | 'swapPool';
+  | 'swapPool'
+  | 'lpToken'
+  | 'initialA'
+  | 'futureA'
+  | 'initialATime'
+  | 'futureATime'
+  | 'swapFee'
+  | 'adminFee'
+  | 'pooledTokens'
+  | 'tokenPrecisionMultipliers'
+  | 'balances'
+  | 'adminFees';
 
 export type Subscription = {
   stagingmumbai_asset?: Maybe<stagingmumbai_Asset>;
@@ -1729,8 +2008,6 @@ export type Subscription = {
   stagingmumbai_relayers: Array<stagingmumbai_Relayer>;
   stagingmumbai_sequencer?: Maybe<stagingmumbai_Sequencer>;
   stagingmumbai_sequencers: Array<stagingmumbai_Sequencer>;
-  stagingmumbai_stableSwap?: Maybe<stagingmumbai_StableSwap>;
-  stagingmumbai_stableSwaps: Array<stagingmumbai_StableSwap>;
   stagingmumbai_originTransfer?: Maybe<stagingmumbai_OriginTransfer>;
   stagingmumbai_originTransfers: Array<stagingmumbai_OriginTransfer>;
   stagingmumbai_destinationTransfer?: Maybe<stagingmumbai_DestinationTransfer>;
@@ -1747,6 +2024,12 @@ export type Subscription = {
   stagingmumbai_rootCounts: Array<stagingmumbai_RootCount>;
   stagingmumbai_rootMessageSent?: Maybe<stagingmumbai_RootMessageSent>;
   stagingmumbai_rootMessageSents: Array<stagingmumbai_RootMessageSent>;
+  stagingmumbai_stableSwap?: Maybe<stagingmumbai_StableSwap>;
+  stagingmumbai_stableSwaps: Array<stagingmumbai_StableSwap>;
+  stagingmumbai_pooledToken?: Maybe<stagingmumbai_PooledToken>;
+  stagingmumbai_pooledTokens: Array<stagingmumbai_PooledToken>;
+  stagingmumbai_stableSwapLiquidity?: Maybe<stagingmumbai_StableSwapLiquidity>;
+  stagingmumbai_stableSwapLiquidities: Array<stagingmumbai_StableSwapLiquidity>;
   /** Access to subgraph metadata */
   stagingmumbai__meta?: Maybe<stagingmumbai__Meta_>;
 };
@@ -1855,24 +2138,6 @@ export type Subscriptionstagingmumbai_sequencersArgs = {
   orderBy?: InputMaybe<stagingmumbai_Sequencer_orderBy>;
   orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
   where?: InputMaybe<stagingmumbai_Sequencer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_StableSwap_filter>;
   block?: InputMaybe<stagingmumbai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2022,6 +2287,60 @@ export type Subscriptionstagingmumbai_rootMessageSentsArgs = {
 };
 
 
+export type Subscriptionstagingmumbai_stableSwapArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_stableSwapsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_StableSwap_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_pooledTokenArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_pooledTokensArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_PooledToken_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_PooledToken_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_stableSwapLiquidityArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_stableSwapLiquiditiesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_StableSwapLiquidity_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_StableSwapLiquidity_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionstagingmumbai__metaArgs = {
   block?: InputMaybe<stagingmumbai_Block_height>;
 };
@@ -2090,10 +2409,6 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   stagingmumbai_sequencers: InContextSdkMethod<Query['stagingmumbai_sequencers'], Querystagingmumbai_sequencersArgs, MeshContext>,
   /** null **/
-  stagingmumbai_stableSwap: InContextSdkMethod<Query['stagingmumbai_stableSwap'], Querystagingmumbai_stableSwapArgs, MeshContext>,
-  /** null **/
-  stagingmumbai_stableSwaps: InContextSdkMethod<Query['stagingmumbai_stableSwaps'], Querystagingmumbai_stableSwapsArgs, MeshContext>,
-  /** null **/
   stagingmumbai_originTransfer: InContextSdkMethod<Query['stagingmumbai_originTransfer'], Querystagingmumbai_originTransferArgs, MeshContext>,
   /** null **/
   stagingmumbai_originTransfers: InContextSdkMethod<Query['stagingmumbai_originTransfers'], Querystagingmumbai_originTransfersArgs, MeshContext>,
@@ -2125,6 +2440,18 @@ export type _SubgraphErrorPolicy_ =
   stagingmumbai_rootMessageSent: InContextSdkMethod<Query['stagingmumbai_rootMessageSent'], Querystagingmumbai_rootMessageSentArgs, MeshContext>,
   /** null **/
   stagingmumbai_rootMessageSents: InContextSdkMethod<Query['stagingmumbai_rootMessageSents'], Querystagingmumbai_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_stableSwap: InContextSdkMethod<Query['stagingmumbai_stableSwap'], Querystagingmumbai_stableSwapArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_stableSwaps: InContextSdkMethod<Query['stagingmumbai_stableSwaps'], Querystagingmumbai_stableSwapsArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_pooledToken: InContextSdkMethod<Query['stagingmumbai_pooledToken'], Querystagingmumbai_pooledTokenArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_pooledTokens: InContextSdkMethod<Query['stagingmumbai_pooledTokens'], Querystagingmumbai_pooledTokensArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_stableSwapLiquidity: InContextSdkMethod<Query['stagingmumbai_stableSwapLiquidity'], Querystagingmumbai_stableSwapLiquidityArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_stableSwapLiquidities: InContextSdkMethod<Query['stagingmumbai_stableSwapLiquidities'], Querystagingmumbai_stableSwapLiquiditiesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   stagingmumbai__meta: InContextSdkMethod<Query['stagingmumbai__meta'], Querystagingmumbai__metaArgs, MeshContext>
   };
@@ -2159,10 +2486,6 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   stagingmumbai_sequencers: InContextSdkMethod<Subscription['stagingmumbai_sequencers'], Subscriptionstagingmumbai_sequencersArgs, MeshContext>,
   /** null **/
-  stagingmumbai_stableSwap: InContextSdkMethod<Subscription['stagingmumbai_stableSwap'], Subscriptionstagingmumbai_stableSwapArgs, MeshContext>,
-  /** null **/
-  stagingmumbai_stableSwaps: InContextSdkMethod<Subscription['stagingmumbai_stableSwaps'], Subscriptionstagingmumbai_stableSwapsArgs, MeshContext>,
-  /** null **/
   stagingmumbai_originTransfer: InContextSdkMethod<Subscription['stagingmumbai_originTransfer'], Subscriptionstagingmumbai_originTransferArgs, MeshContext>,
   /** null **/
   stagingmumbai_originTransfers: InContextSdkMethod<Subscription['stagingmumbai_originTransfers'], Subscriptionstagingmumbai_originTransfersArgs, MeshContext>,
@@ -2194,6 +2517,18 @@ export type _SubgraphErrorPolicy_ =
   stagingmumbai_rootMessageSent: InContextSdkMethod<Subscription['stagingmumbai_rootMessageSent'], Subscriptionstagingmumbai_rootMessageSentArgs, MeshContext>,
   /** null **/
   stagingmumbai_rootMessageSents: InContextSdkMethod<Subscription['stagingmumbai_rootMessageSents'], Subscriptionstagingmumbai_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_stableSwap: InContextSdkMethod<Subscription['stagingmumbai_stableSwap'], Subscriptionstagingmumbai_stableSwapArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_stableSwaps: InContextSdkMethod<Subscription['stagingmumbai_stableSwaps'], Subscriptionstagingmumbai_stableSwapsArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_pooledToken: InContextSdkMethod<Subscription['stagingmumbai_pooledToken'], Subscriptionstagingmumbai_pooledTokenArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_pooledTokens: InContextSdkMethod<Subscription['stagingmumbai_pooledTokens'], Subscriptionstagingmumbai_pooledTokensArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_stableSwapLiquidity: InContextSdkMethod<Subscription['stagingmumbai_stableSwapLiquidity'], Subscriptionstagingmumbai_stableSwapLiquidityArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_stableSwapLiquidities: InContextSdkMethod<Subscription['stagingmumbai_stableSwapLiquidities'], Subscriptionstagingmumbai_stableSwapLiquiditiesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   stagingmumbai__meta: InContextSdkMethod<Subscription['stagingmumbai__meta'], Subscriptionstagingmumbai__metaArgs, MeshContext>
   };
