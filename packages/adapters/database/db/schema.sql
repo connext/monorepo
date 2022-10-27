@@ -115,7 +115,8 @@ CREATE VIEW public.routers_with_balances AS
     assets.canonical_domain,
     assets.domain,
     assets.key,
-    assets.id
+    assets.id,
+    asset_balances.fees_earned
    FROM ((public.routers
      LEFT JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
      LEFT JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
