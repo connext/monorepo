@@ -132,6 +132,7 @@ describe("SubgraphReader", () => {
               localAsset: mkAddress("0x222"),
               domain: "1111",
               balance: "100",
+              feesEarned: 0,
             },
           ],
         },

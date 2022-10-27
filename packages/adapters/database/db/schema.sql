@@ -60,7 +60,8 @@ CREATE TABLE public.asset_balances (
     asset_canonical_id character(66) NOT NULL,
     asset_domain character varying(255) NOT NULL,
     router_address character(42) NOT NULL,
-    balance numeric DEFAULT 0 NOT NULL
+    balance numeric DEFAULT 0 NOT NULL,
+    fees_earned numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -114,7 +115,8 @@ CREATE VIEW public.routers_with_balances AS
     assets.canonical_domain,
     assets.domain,
     assets.key,
-    assets.id
+    assets.id,
+    asset_balances.fees_earned
    FROM ((public.routers
      LEFT JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
      LEFT JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
@@ -171,7 +173,8 @@ CREATE TABLE public.transfers (
     origin_sender character(42),
     bridged_amt numeric,
     normalized_in numeric,
-    canonical_id character(66)
+    canonical_id character(66),
+    router_fee numeric
 );
 
 
@@ -487,4 +490,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20221018190949'),
     ('20221019094510'),
     ('20221025060119'),
-    ('20221026084236');
+    ('20221026084236'),
+    ('20221027123722');

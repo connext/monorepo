@@ -103,9 +103,13 @@ export function handleExecuted(event: Executed): void {
 
       // Update router's liquidity
       const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.args.routers[i]);
+
+      assetBalance.feesEarned = assetBalance.feesEarned.plus(feesTaken.div(BigInt.fromI32(num)));
       assetBalance.amount = assetBalance.amount.minus(routerAmount);
       assetBalance.save();
     }
+
+    transfer.routersFee = feesTaken;
   } // otherwise no routers used
 
   // Meta
