@@ -8,22 +8,41 @@ import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 type TaskArgs = {
   canonical: string;
   domain: string;
-  adopted: string;
+  decimals: string;
+  representationName: string;
+  representationSymbol: string;
+  adopted?: string;
   pool?: string;
+  cap?: string;
   connextAddress?: string;
   env?: Env;
 };
 
 export default task("setup-asset", "Configures an asset")
   .addParam("canonical", "Canonical token address")
-  .addParam("domain", "Canonical domain of token")
-  .addParam("adopted", "Adopted token address")
+  .addParam("domain", "Canonical token domain")
+  .addParam("decimals", "Canonical token decimals")
+  .addParam("representationName", "Representation token name")
+  .addParam("representationSymbol", "Representation token symbol")
+  .addOptionalParam("adopted", "Adopted token address")
   .addOptionalParam("pool", "Stable swap pool for adopted <> local asset")
+  .addOptionalParam("cap", "Cap for the token")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("env", "Environment of contracts")
   .setAction(
     async (
-      { pool, adopted, canonical, domain, connextAddress: _connextAddress, env: _env }: TaskArgs,
+      {
+        canonical,
+        domain,
+        decimals,
+        representationName,
+        representationSymbol,
+        adopted: _adopted,
+        pool: _pool,
+        cap: _cap,
+        connextAddress: _connextAddress,
+        env: _env,
+      }: TaskArgs,
       { deployments, ethers },
     ) => {
       let { deployer } = await ethers.getNamedSigners();
@@ -32,18 +51,29 @@ export default task("setup-asset", "Configures an asset")
       }
 
       const env = mustGetEnv(_env);
-      console.log("env:", env);
-      console.log("pool: ", pool);
-      console.log("adopted: ", adopted);
-      console.log("canonical: ", canonical);
-      console.log("domain: ", domain);
-      console.log("deployer: ", deployer.address);
+
+      // defaults
+      const adopted = _adopted ?? canonical;
+      const pool = _pool ?? constants.AddressZero;
+      const cap = _cap ?? 0;
       let connextAddress = _connextAddress;
       if (!connextAddress) {
         const connextName = getDeploymentName("Connext", env);
         const connextDeployment = await deployments.get(connextName);
         connextAddress = connextDeployment.address;
       }
+
+      console.log("canonical:", canonical);
+      console.log("domain:", domain);
+      console.log("decimals:", decimals);
+      console.log("representation name:", representationName);
+      console.log("representation symbol:", representationSymbol);
+      console.log("adopted: ", adopted);
+      console.log("pool: ", pool);
+      console.log("cap: ", cap);
+      console.log("canonical: ", canonical);
+      console.log("domain: ", domain);
+      console.log("deployer: ", deployer.address);
       const connext = await ethers.getContractAt("Connext", connextAddress);
       console.log("connextAddress: ", connextAddress);
 
@@ -114,7 +144,15 @@ export default task("setup-asset", "Configures an asset")
         const receipt = await remove.wait();
         console.log("remove tx mined:", receipt.transactionHash);
       }
-      const tx = await connext.setupAsset(canonicalTokenId, adopted, pool ?? constants.AddressZero);
+      const tx = await connext.setupAsset(
+        canonicalTokenId,
+        decimals,
+        representationName,
+        representationSymbol,
+        adopted,
+        pool,
+        cap,
+      );
 
       console.log("setupAsset tx: ", tx);
       const receipt = await tx.wait(1);
