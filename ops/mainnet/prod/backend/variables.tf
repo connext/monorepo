@@ -37,9 +37,20 @@ variable "full_image_name_cartographer_transfers" {
   default     = "ghcr.io/connext/cartographer-transfers:0.2.0-beta.10"
 }
 
+variable "full_image_name_cartographer_messages" {
+  type        = string
+  description = "cartographer messages image name"
+  default     = "ghcr.io/connext/cartographer-messages:0.2.0-beta.17"
+}
+
+variable "full_image_name_cartographer_roots" {
+  type        = string
+  description = "cartographer roots image name"
+  default     = "ghcr.io/connext/cartographer-roots:0.2.0-beta.17"
+}
 
 variable "certificate_arn" {
-  default = "arn:aws:acm:us-east-2:679752396206:certificate/369a9591-204c-4d73-aaf0-4a38e7484326"
+  default = "arn:aws:acm:us-east-2:679752396206:certificate/eecbb4dd-f537-40f0-afdb-233ee066ba80"
 }
 
 variable "postgres_password" {
