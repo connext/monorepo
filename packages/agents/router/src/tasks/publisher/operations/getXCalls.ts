@@ -1,5 +1,4 @@
 import { createLoggingContext, jsonifyError, OriginTransfer, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
 
 import { XCALL_MESSAGE_TYPE, MQ_EXCHANGE, XCALL_QUEUE } from "../../../setup";
 import { getContext } from "../publisher";
