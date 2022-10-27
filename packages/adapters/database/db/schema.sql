@@ -60,7 +60,8 @@ CREATE TABLE public.asset_balances (
     asset_canonical_id character(66) NOT NULL,
     asset_domain character varying(255) NOT NULL,
     router_address character(42) NOT NULL,
-    balance numeric DEFAULT 0 NOT NULL
+    balance numeric DEFAULT 0 NOT NULL,
+    feesearned numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -171,7 +172,8 @@ CREATE TABLE public.transfers (
     origin_sender character(42),
     bridged_amt numeric,
     normalized_in numeric,
-    canonical_id character(66)
+    canonical_id character(66),
+    routerfee numeric
 );
 
 
@@ -487,4 +489,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20221018190949'),
     ('20221019094510'),
     ('20221025060119'),
-    ('20221026084236');
+    ('20221026084236'),
+    ('20221027123722');
