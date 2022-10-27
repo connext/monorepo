@@ -51,6 +51,7 @@ module "cartographer_db" {
   environment                = var.environment
   db_security_group_id       = module.sgs.rds_sg_id
   db_subnet_group_subnet_ids = module.network.public_subnets
+  publicly_accessible        = true
 }
 
 module "postgrest" {
