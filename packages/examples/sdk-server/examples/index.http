@@ -42,13 +42,17 @@ Content-Type: application/json
 
 ##############
 ### GET getCanonicalToken
-GET {{baseUrl}}/getCanonicalToken/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
+GET {{baseUrl}}/getCanonicalToken/9991/0xaED6e134ACc6e1144f75678e0df3BF79cfE96E7A
 
 ##############
 ### GET getLPTokenAddress
 GET {{baseUrl}}/getLPTokenAddress/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
 
 ##############
+### GET getCanonicalKey
+GET {{baseUrl}}/getCanonicalKey/9991/0x000000000000000000000000aed6e134acc6e1144f75678e0df3bf79cfe96e7a
+##############
+
 ### GET getLPTokenUserBalance
 GET {{baseUrl}}/getLPTokenUserBalance/9991/0x3267676443A68f74B58f591D98ebBC839593263e/{{yourAddress}}
 
