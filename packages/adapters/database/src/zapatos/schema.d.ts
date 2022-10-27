@@ -1898,6 +1898,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       id: string | null;
+      /**
+      * **routers_with_balances.fees_earned**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fees_earned: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -1972,6 +1978,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       id: string | null;
+      /**
+      * **routers_with_balances.fees_earned**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fees_earned: number | null;
     }
     export interface Whereable {
       /**
@@ -2046,6 +2058,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **routers_with_balances.fees_earned**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fees_earned?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
