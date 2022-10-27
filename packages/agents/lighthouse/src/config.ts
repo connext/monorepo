@@ -49,9 +49,14 @@ export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
 
 // map spoke connector contract names to domains, i.e. MainnetSpokeConnector
 export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
+  // TESTNET
   "1735356532": "Optimism",
   "1735353714": "Mainnet",
   "9991": "Polygon",
+  // MAINNET
+  "1869640809": "Optimism",
+  "6648936": "Mainnet",
+  "1886350457": "Polygon",
 };
 
 /**
@@ -141,7 +146,9 @@ export const getEnvConfig = (
             ? deployments.spokeConnector(chainDataForChain.chainId, prefix, contractPostfix)
             : undefined;
           if (!res) {
-            throw new Error(`No ${prefix}SpokeConnector${contractPostfix} contract address for domain ${domainId}`);
+            throw new Error(
+              `No ${prefix}SpokeConnector${contractPostfix} contract address for domain ${domainId}, chain ${chainDataForChain?.chainId}`,
+            );
           }
           return res.address;
         })(),
