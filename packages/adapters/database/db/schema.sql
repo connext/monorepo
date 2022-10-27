@@ -61,7 +61,7 @@ CREATE TABLE public.asset_balances (
     asset_domain character varying(255) NOT NULL,
     router_address character(42) NOT NULL,
     balance numeric DEFAULT 0 NOT NULL,
-    feesearned numeric DEFAULT 0 NOT NULL
+    fees_earned numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -173,7 +173,7 @@ CREATE TABLE public.transfers (
     bridged_amt numeric,
     normalized_in numeric,
     canonical_id character(66),
-    routerfee numeric
+    router_fee numeric
 );
 
 
