@@ -36,13 +36,16 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: TLogLevel,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
-  cartographerUrl: Type.String(),
+  cartographerUrl: Type.String({ format: "uri" }),
   mode: TModeConfig,
   polling: TPollingConfig,
   gelatoApiKey: Type.String(),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   relayerUrl: Type.Optional(Type.String({ format: "uri" })),
   database: TDatabaseConfig,
+  healthUrls: Type.Partial(
+    Type.Object({ prover: Type.String({ format: "uri" }), processor: Type.String({ format: "uri" }) }),
+  ),
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
@@ -115,6 +118,7 @@ export const getEnvConfig = (
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
     relayerUrl: process.env.NXTP_RELAYER_URL || configJson.relayerUrl || configFile.relayerUrl,
+    healthUrls: process.env.NXTP_HEALTH_URLS || configJson.healthUrls || configFile.healthUrls || {},
   };
 
   nxtpConfig.cartographerUrl =

@@ -1,5 +1,5 @@
 import { ChainReader, contractDeployments } from "@connext/nxtp-txservice";
-import { createLoggingContext, getChainData, Logger } from "@connext/nxtp-utils";
+import { createLoggingContext, getChainData, Logger, sendHeartbeat } from "@connext/nxtp-utils";
 import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
 
 import { setupRelayer } from "../../adapters";
@@ -64,6 +64,9 @@ export const makeProcessFromRoot = async () => {
 
     // Start the prover.
     await processFromRoot();
+    if (context.config.healthUrls.processor) {
+      await sendHeartbeat(context.config.healthUrls.processor, context.logger);
+    }
   } catch (e: unknown) {
     console.error("Error starting Prover. Sad! :(", e);
   } finally {

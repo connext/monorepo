@@ -65,3 +65,19 @@ variable "postgres_user" {
 variable "dd_api_key" {
   type = string
 }
+
+variable "carto_messages_heartbeat" {
+  type = string
+}
+
+variable "carto_roots_heartbeat" {
+  type = string
+}
+
+variable "carto_routers_heartbeat" {
+  type = string
+}
+
+variable "carto_transfers_heartbeat" {
+  type = string
+}

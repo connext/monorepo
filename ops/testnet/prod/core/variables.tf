@@ -143,3 +143,11 @@ variable "postgres_user" {
   type    = string
   default = "connext"
 }
+
+variable "lighthouse_prover_heartbeat" {
+  type = string
+}
+
+variable "lighthouse_processor_heartbeat" {
+  type = string
+}

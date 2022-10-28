@@ -360,5 +360,6 @@ export const CARTOGRAPHER_CONFIG: Promise<CartographerConfig> = (async (): Promi
       [ORIGIN.domain]: {},
       [DESTINATION.domain]: {},
     },
+    healthUrls: {},
   };
 })();
