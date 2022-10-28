@@ -18,6 +18,14 @@ export const Cartographer = Type.Object({
   subgraphPrefix: Type.Optional(Type.String()),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   chains: TChains,
+  healthUrls: Type.Partial(
+    Type.Object({
+      messages: Type.String({ format: "uri" }),
+      roots: Type.String({ format: "uri" }),
+      routers: Type.String({ format: "uri" }),
+      transfers: Type.String({ format: "uri" }),
+    }),
+  ),
 });
 
 export type CartographerConfig = Static<typeof Cartographer>;
@@ -66,6 +74,7 @@ export const getEnvConfig = (): CartographerConfig => {
     environment:
       process.env.CARTOGRAPHER_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     chains: process.env.CARTOGRAPHER_CHAINS || configJson.chains || configFile.chains || {},
+    healthUrls: process.env.CARTOGRAPHER_HEALTH_URLS || configJson.healthUrls || configFile.healthUrls || {},
   };
 
   const validate = ajv.compile(Cartographer);
