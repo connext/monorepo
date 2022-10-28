@@ -3,19 +3,21 @@ import { Contract } from "ethers";
 import { generateExitPayload } from "@connext/nxtp-utils";
 
 import hardhatConfig from "../hardhat.config";
-import { Env, getConnectorDeployments, getDeploymentName, mustGetEnv } from "../src/utils";
+import { Env, getConnectorDeployments, getDeploymentName, mustGetEnv, ProtocolNetwork } from "../src/utils";
 import { HUB_PREFIX, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
 import { chainIdToDomain } from "../src";
 
 type TaskArgs = {
   txHash: string;
   env?: Env;
+  networkType?: ProtocolNetwork;
 };
 
 export default task("submit-exit-proof", "Submit Exit proof to L2 chain")
   .addParam("txHash", "Burn Tx Hash on L2 chain")
   .addOptionalParam("env", "Environment of contracts")
-  .setAction(async ({ txHash, env: _env }: TaskArgs, hre) => {
+  .addOptionalParam("networkType", "Type of network of contracts")
+  .setAction(async ({ txHash, env: _env, networkType: _network }: TaskArgs, hre) => {
     const chain = await hre.getChainId();
     let { deployer } = await hre.ethers.getNamedSigners();
     if (!deployer) {
@@ -27,16 +29,18 @@ export default task("submit-exit-proof", "Submit Exit proof to L2 chain")
     console.log("deployer: ", deployer.address);
 
     // get messaging config
-    const network = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
+    const network = _network ?? ProtocolNetwork.TESTNET;
     const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
     if (!protocol || !protocol.configs[protocol.hub]) {
       throw new Error(`Network ${network} is not supported! (no messaging config)`);
     }
+    console.log("protocol.hub: ", protocol.hub);
+    console.log("+chain: ", +chain);
     if (protocol.hub !== +chain) {
       throw new Error(`Current network is not hub`);
     }
 
-    const deployments = getConnectorDeployments(env);
+    const deployments = getConnectorDeployments(env, network);
     const L1ConnectorDeployment = deployments.find(
       ({ name }) => name === getDeploymentName(`Polygon${HUB_PREFIX}Connector`),
     );

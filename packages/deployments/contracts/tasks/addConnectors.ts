@@ -10,31 +10,36 @@ import {
   getDeploymentName,
   getMessagingProtocolConfig,
   mustGetEnv,
+  ProtocolNetwork,
 } from "../src/utils";
 import { HUB_PREFIX } from "../deployConfig/shared";
 
 type TaskArgs = {
   env?: Env;
   remove?: boolean;
+  networkType?: ProtocolNetwork;
 };
 
 export default task("add-connectors", "Add all connectors to the root manager")
   .addOptionalParam("env", "Environment of contracts")
+  .addOptionalParam("networkType", "Type of network of contracts")
   .addFlag("remove", "Whether or not to remove connectors that exist")
-  .setAction(async ({ env: _env, remove: _remove }: TaskArgs, hre) => {
+  .setAction(async ({ env: _env, remove: _remove, networkType: _networkType }: TaskArgs, hre) => {
     const chain = await hre.getChainId();
     const networkConfig = Object.values(hardhatConfig.networks!).find((n) => n?.chainId === +chain)!;
     const deployer = Wallet.fromMnemonic((networkConfig.accounts as any).mnemonic as unknown as string);
 
     const env = mustGetEnv(_env);
     const remove = _remove;
+    const networkType = _networkType ?? ProtocolNetwork.TESTNET;
+    console.log("networkType: ", networkType);
     console.log("env:", env);
     console.log("remove:", remove);
     console.log("deployer: ", deployer.address);
 
     const network = await hre.ethers.provider.getNetwork();
 
-    const config = getMessagingProtocolConfig(env);
+    const config = getMessagingProtocolConfig(networkType);
 
     if (+network.chainId != config.hub) {
       throw new Error(`Should be on ${config.hub}, not ${network.chainId}`);
@@ -53,6 +58,7 @@ export default task("add-connectors", "Add all connectors to the root manager")
     await executeOnAllConnectors(
       hardhatConfig,
       env,
+      networkType,
       async (deployment: ConnectorDeployment, _provider: providers.JsonRpcProvider) => {
         const { name, address, chain, mirrorChain } = deployment;
         if (!name.includes(HUB_PREFIX) && !name.includes("Mainnet")) {
