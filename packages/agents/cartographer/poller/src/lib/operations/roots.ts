@@ -30,11 +30,9 @@ export const updateAggregatedRoots = async () => {
       // Reset offset at the end of the cycle.
       const newOffset = aggregatedRoots.length == 0 ? 0 : aggregatedRoots[aggregatedRoots.length - 1].index;
       if (offset === 0 || newOffset > offset) {
-        await database.transaction(async (txnClient) => {
-          await database.saveAggregatedRoots(aggregatedRoots, txnClient);
+        await database.saveAggregatedRoots(aggregatedRoots);
 
-          await database.saveCheckPoint("aggregated_root_" + domain + "_" + hub, newOffset, txnClient);
-        });
+        await database.saveCheckPoint("aggregated_root_" + domain + "_" + hub, newOffset);
         logger.debug("Saved aggregated roots", requestContext, methodContext, { domain: domain, offset: newOffset });
       }
     }
