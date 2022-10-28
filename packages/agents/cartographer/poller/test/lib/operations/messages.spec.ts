@@ -38,7 +38,7 @@ describe("Message operations", () => {
   });
 
   describe("#updateMessages", () => {
-    it.only("should work", async () => {
+    it("should work", async () => {
       (mockContext.adapters.database.getUnProcessedMessages as SinonStub).resolves([
         mock.entity.xMessage(),
         mock.entity.xMessage(),
