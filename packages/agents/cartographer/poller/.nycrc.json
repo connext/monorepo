@@ -12,6 +12,7 @@
     "src/bindings/messages/index.ts",
     "src/bindings/transfers/index.ts",
     "src/lib/operations/index.ts",
+    "src/lib/operations/roots.ts",
     "src/pollers/messagePollers.ts",
     "src/pollers/transfersPollers.ts",
     "src/pollers/routersPollers.ts"
