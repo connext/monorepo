@@ -1,4 +1,4 @@
-import { createLoggingContext, getChainData, Logger } from "@connext/nxtp-utils";
+import { createLoggingContext, getChainData, Logger, sendHeartbeat } from "@connext/nxtp-utils";
 import { getContractInterfaces, ChainReader, contractDeployments } from "@connext/nxtp-txservice";
 import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
 
@@ -65,8 +65,12 @@ export const makeProver = async () => {
 
     // Start the prover.
     await proveAndProcess();
+    if (context.config.healthUrls.prover) {
+      await sendHeartbeat(context.config.healthUrls.prover, context.logger);
+    }
   } catch (e: unknown) {
     console.error("Error starting Prover. Sad! :(", e);
+  } finally {
     await closeDatabase();
     process.exit();
   }
