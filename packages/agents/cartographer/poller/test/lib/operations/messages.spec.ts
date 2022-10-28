@@ -1,5 +1,5 @@
 import { SinonStub } from "sinon";
-import { expect } from "@connext/nxtp-utils";
+import { expect, mock } from "@connext/nxtp-utils";
 
 import { mockConnectorMeta, mockOriginMessageSubgraphResponse, mockRootSubgraphResponse } from "../../mock";
 import { mockContext } from "../../globalTestHook";
@@ -38,7 +38,11 @@ describe("Message operations", () => {
   });
 
   describe("#updateMessages", () => {
-    it("should work", async () => {
+    it.only("should work", async () => {
+      (mockContext.adapters.database.getUnProcessedMessages as SinonStub).resolves([
+        mock.entity.xMessage(),
+        mock.entity.xMessage(),
+      ]);
       await updateMessages();
       expect(mockContext.adapters.database.saveMessages as SinonStub).to.be.calledOnce;
     });
