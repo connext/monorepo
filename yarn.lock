@@ -830,7 +830,7 @@ __metadata:
     "@connext/nxtp-adapters-database": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
-    "@eth-optimism/sdk": ^1.6.6
+    "@eth-optimism/sdk": ^1.6.9
     "@graphql-codegen/cli": 2.12.0
     "@sinclair/typebox": 0.24.39
     "@types/mocha": 9.1.1
@@ -1478,16 +1478,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eth-optimism/contracts-bedrock@npm:0.8.0":
-  version: 0.8.0
-  resolution: "@eth-optimism/contracts-bedrock@npm:0.8.0"
+"@eth-optimism/contracts-bedrock@npm:0.8.3":
+  version: 0.8.3
+  resolution: "@eth-optimism/contracts-bedrock@npm:0.8.3"
   dependencies:
     "@eth-optimism/core-utils": ^0.10.1
     "@openzeppelin/contracts": 4.7.3
     "@openzeppelin/contracts-upgradeable": 4.7.3
     ethers: ^5.7.0
     hardhat: ^2.9.6
-  checksum: cda0d053be6d9c12b1125e2b178689d8094ba1a709ed0a00dd7ea1586c40260d4c66c7fd0e7bfc8f3da38435f49d46ac86efc8fc27381b8453d6a0dc6328618c
+  checksum: 4d8cef14b0fa4cd3c363cd175411450625113b1701890e67b5ac3bd5ae93124cda68f5e33cfeded85d85516c0b91d30c8e067323992fabe913369ce2c2c843ac
   languageName: node
   linkType: hard
 
@@ -1557,19 +1557,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eth-optimism/sdk@npm:^1.6.6":
-  version: 1.6.6
-  resolution: "@eth-optimism/sdk@npm:1.6.6"
+"@eth-optimism/sdk@npm:^1.6.9":
+  version: 1.6.9
+  resolution: "@eth-optimism/sdk@npm:1.6.9"
   dependencies:
     "@eth-optimism/contracts": 0.5.37
-    "@eth-optimism/contracts-bedrock": 0.8.0
+    "@eth-optimism/contracts-bedrock": 0.8.3
     "@eth-optimism/core-utils": 0.10.1
     lodash: ^4.17.21
     merkletreejs: ^0.2.27
     rlp: ^2.2.7
   peerDependencies:
     ethers: ^5
-  checksum: be6558cf7f81c35cf1e85d2ec99bd9bc7cf95c81102a41df927e18c984fdbbc57a6bde9c20b4a93d38d87c0a46733a3c833e6dfe4f0d14ccaf5213ab1c20f3f9
+  checksum: 1a80591e7ae4eb144d84c65689bb6f019996f8dab223150384030c08b26c1ccaf815ecd79490404b47b9447190b0dedd270294e758acae081c142199fd53d308
   languageName: node
   linkType: hard
 
@@ -12542,7 +12542,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
+  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
   languageName: node
   linkType: hard
 
