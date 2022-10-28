@@ -37,7 +37,7 @@ describe("Roots operations", () => {
         mockPropagatedRootSubgraphResponse,
       );
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledOnceWithExactly(
-        "propagated_root_",
+        "propagated_root_" + mockConnectorMeta[0].hubDomain,
         mockPropagatedRootSubgraphResponse[1].count,
       );
     });
