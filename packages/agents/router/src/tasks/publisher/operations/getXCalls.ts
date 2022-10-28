@@ -1,5 +1,4 @@
 import { createLoggingContext, jsonifyError, OriginTransfer, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
 
 import { XCALL_MESSAGE_TYPE, MQ_EXCHANGE, XCALL_QUEUE } from "../../../setup";
 import { getContext } from "../publisher";
@@ -67,16 +66,12 @@ export const getXCalls = async () => {
             transfer.transferId,
           );
           try {
-            if (BigNumber.from(transfer.xparams.bridgedAmt).gt(0)) {
-              await mqClient.publish<OriginTransfer>(MQ_EXCHANGE, {
-                body: transfer as OriginTransfer,
-                type: XCALL_MESSAGE_TYPE,
-                routingKey: XCALL_QUEUE,
-              });
-              logger.debug("Published transfer to mq", _requestContext, _methodContext, { transfer });
-            } else {
-              logger.debug("Skipping zero amount transfer", _requestContext, _methodContext, { transfer });
-            }
+            await mqClient.publish<OriginTransfer>(MQ_EXCHANGE, {
+              body: transfer as OriginTransfer,
+              type: XCALL_MESSAGE_TYPE,
+              routingKey: XCALL_QUEUE,
+            });
+            logger.debug("Published transfer to mq", _requestContext, _methodContext, { transfer });
 
             // TODO: once per transfer instead
             await cache.transfers.setLatestNonce(transfer.xparams.originDomain, transfer.xparams.nonce ?? 0);

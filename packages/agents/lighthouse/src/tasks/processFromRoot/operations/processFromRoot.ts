@@ -30,6 +30,16 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     hubConnectorPrefix: "Polygon",
     processorFunctionName: "receiveMessage",
   },
+  "1869640809": {
+    getArgs: getProcessFromOptimismRootArgs,
+    hubConnectorPrefix: "Optimism",
+    processorFunctionName: "processMessageFromRoot",
+  },
+  "1886350457": {
+    getArgs: getProcessFromPolygonRootArgs,
+    hubConnectorPrefix: "Polygon",
+    processorFunctionName: "receiveMessage",
+  },
 };
 
 export const processFromRoot = async () => {
