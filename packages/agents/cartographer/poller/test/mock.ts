@@ -10,6 +10,9 @@ import {
   OriginTransfer,
   DestinationTransfer,
   XTransferStatus,
+  RouterBalance,
+  mkAddress,
+  mkBytes32,
 } from "@connext/nxtp-utils";
 
 import { CartographerConfig } from "../src/config";
@@ -73,10 +76,12 @@ export const mockRootSubgraphResponse = [
   mock.entity.rootMessage() as RootMessage,
   mock.entity.rootMessage() as RootMessage,
 ];
+
 export const mockOriginMessageSubgraphResponse = [
   mock.entity.originMessage() as OriginMessage,
   mock.entity.originMessage() as OriginMessage,
 ];
+
 export const mockDestinationMessageSubgraphResponse = [
   mock.entity.destinationMessage() as DestinationMessage,
   mock.entity.destinationMessage() as DestinationMessage,
@@ -86,6 +91,7 @@ export const mockAggregatedRootSubgraphResponse = [
   mock.entity.aggregatedRoot() as AggregatedRoot,
   mock.entity.aggregatedRoot() as AggregatedRoot,
 ];
+
 export const mockPropagatedRootSubgraphResponse = [
   mock.entity.propagatedRoot() as PropagatedRoot,
   mock.entity.propagatedRoot() as PropagatedRoot,
@@ -121,6 +127,7 @@ export const mockOriginSubgraphResponse = [
   mock.entity.xtransfer({ originDomain: "1337", destinationDomain: "1338" }) as OriginTransfer,
   mock.entity.xtransfer({ originDomain: "1337", destinationDomain: "1338" }) as OriginTransfer,
 ];
+
 export const mockDestinationSubgraphResponse = [
   mock.entity.xtransfer({
     originDomain: "1337",
@@ -133,4 +140,24 @@ export const mockDestinationSubgraphResponse = [
     status: XTransferStatus.Reconciled,
   }) as DestinationTransfer,
 ];
-export const mockRouterResponse = [{}, {}];
+
+export const mockRouterResponse: RouterBalance[] = [
+  { assets: [], router: mkAddress("0xa") },
+  {
+    assets: [
+      {
+        adoptedAsset: mkAddress(),
+        balance: "123",
+        blockNumber: "42",
+        canonicalDomain: "1337",
+        canonicalId: mkBytes32(),
+        domain: "1337",
+        feesEarned: "12",
+        id: mkBytes32(),
+        key: mkBytes32(),
+        localAsset: mkAddress(),
+      },
+    ],
+    router: mkBytes32("0xb"),
+  },
+];
