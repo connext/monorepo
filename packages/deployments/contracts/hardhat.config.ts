@@ -120,6 +120,14 @@ const config: HardhatUserConfig = {
           browserURL: "https://blockscout.chiadochain.net",
         },
       },
+      {
+        network: "cronos-testnet",
+        chainId: 338,
+        urls: {
+          apiURL: "https://evm-t3.cronos.org/api",
+          browserURL: "https://testnet.cronoscan.com",
+        },
+      },
     ],
   },
   gasReporter: {
