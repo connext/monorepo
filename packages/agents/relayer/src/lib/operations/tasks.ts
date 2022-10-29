@@ -26,60 +26,16 @@ export const createTask = async (
 ): Promise<string> => {
   const {
     logger,
-    config,
-    adapters: {
-      cache,
-      contracts: { connext },
-    },
+    adapters: { cache },
     chainToDomainMap,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(createTask.name, _requestContext);
 
-  const { data, fee } = params;
+  const { data, fee, to } = params;
 
   // TODO: Allow alternative shitcoins.
   if (fee.token !== constants.AddressZero) {
     throw new Error("Only ETH is supported for now.");
-  }
-
-  let args: ExecuteArgs;
-  let decoded: any;
-  try {
-    decoded = connext.decodeFunctionData("execute", data)[0];
-    if (!decoded) {
-      throw new Error("Decoded data is null");
-    }
-    args = {
-      params: decoded.params,
-      routers: decoded.routers,
-      routerSignatures: decoded.routerSignatures,
-      sequencer: decoded.sequencer,
-      sequencerSignature: decoded.sequencerSignature,
-    };
-    logger.debug("Parsed execute arguments", requestContext, methodContext, { args });
-  } catch (error: unknown) {
-    throw new DecodeExecuteError({
-      decoded,
-      error,
-    });
-  }
-
-  // Validate execute arguments.
-  const validateInput = ajv.compile(ExecuteArgsSchema);
-  const validInput = validateInput(args);
-  if (!validInput) {
-    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    throw new ParamsInvalid({
-      paramsError: msg,
-      args,
-    });
-  }
-
-  const connextAddress =
-    config.chains[chain].deployments.connext ??
-    getDeployedConnextContract(chain, config.environment === "staging" ? "Staging" : "")?.address;
-  if (!connextAddress) {
-    throw new ContractDeploymentMissing(ContractDeploymentMissing.contracts.connext, chain);
   }
 
   if (!chainToDomainMap.has(chain)) {
@@ -90,7 +46,7 @@ export const createTask = async (
 
   const taskId: string = await cache.tasks.createTask({
     chain,
-    to: connextAddress,
+    to,
     data,
     fee,
   });
