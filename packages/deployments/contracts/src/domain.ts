@@ -25,7 +25,7 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
   [80001, 0x2707], // mumbai 9991
   [421613, 0x67617262], // arbitrum-goerli (garb interpreted as int) 1734439522
   [10200, 0x63686961], // gnosis-chiado (chiado interpreted as int) 1667787105
-  [338, 0x7463726f], // cronos-testnet (tcro interpreted as int)
+  [338, 0x7463726f], // cronos-testnet (tcro interpreted as int) 1952674415
   // local
   [1337, 1337],
   [1338, 1338],
