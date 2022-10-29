@@ -94,7 +94,7 @@ variable "rmq_mgt_user" {
 }
 
 variable "certificate_arn" {
-  default = "arn:aws:acm:us-east-2:679752396206:certificate/369a9591-204c-4d73-aaf0-4a38e7484326"
+  default = "arn:aws:acm:us-east-2:679752396206:certificate/eecbb4dd-f537-40f0-afdb-233ee066ba80"
 }
 
 variable "mainnet_alchemy_key_0" {
@@ -144,4 +144,12 @@ variable "postgres_password" {
 variable "postgres_user" {
   type    = string
   default = "connext"
+}
+
+variable "lighthouse_prover_heartbeat" {
+  type = string
+}
+
+variable "lighthouse_processor_heartbeat" {
+  type = string
 }

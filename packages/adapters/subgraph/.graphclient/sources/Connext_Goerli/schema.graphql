@@ -56,6 +56,7 @@ type goerli_AssetBalance {
   amount: BigInt!
   router: goerli_Router!
   asset: goerli_Asset!
+  feesEarned: BigInt!
 }
 
 input goerli_AssetBalance_filter {
@@ -117,6 +118,14 @@ input goerli_AssetBalance_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: goerli_Asset_filter
+  feesEarned: BigInt
+  feesEarned_not: BigInt
+  feesEarned_gt: BigInt
+  feesEarned_lt: BigInt
+  feesEarned_gte: BigInt
+  feesEarned_lte: BigInt
+  feesEarned_in: [BigInt!]
+  feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
 }
@@ -126,6 +135,7 @@ enum goerli_AssetBalance_orderBy {
   amount
   router
   asset
+  feesEarned
 }
 
 input goerli_Asset_filter {
@@ -359,6 +369,7 @@ type goerli_DestinationTransfer {
   normalizedIn: BigInt
   canonicalId: goerli_Bytes
   asset: goerli_Asset
+  routersFee: BigInt
   executedCaller: goerli_Bytes
   executedTransactionHash: goerli_Bytes
   executedTimestamp: BigInt
@@ -518,6 +529,14 @@ input goerli_DestinationTransfer_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: goerli_Asset_filter
+  routersFee: BigInt
+  routersFee_not: BigInt
+  routersFee_gt: BigInt
+  routersFee_lt: BigInt
+  routersFee_gte: BigInt
+  routersFee_lte: BigInt
+  routersFee_in: [BigInt!]
+  routersFee_not_in: [BigInt!]
   executedCaller: goerli_Bytes
   executedCaller_not: goerli_Bytes
   executedCaller_in: [goerli_Bytes!]
@@ -630,6 +649,7 @@ enum goerli_DestinationTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  routersFee
   executedCaller
   executedTransactionHash
   executedTimestamp

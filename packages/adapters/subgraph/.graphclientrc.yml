@@ -151,6 +151,21 @@ sources:
           validateSchema: true
           limitOfRecords: 250
   # MAINNETS
+  - name: Hub_Mainnet
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-hub-v0-mainnet
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: mainnet_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
   - name: Connext_Mainnet
     handler:
       graphql:

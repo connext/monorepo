@@ -16,6 +16,18 @@ export const ASSET_ENTITY = `
       localAsset,
       blockNumber,
 `;
+
+export const ASSET_BALANCE_ENTITY = `
+    id
+    amount
+    feesEarned
+
+    # Asset
+    asset {
+      ${ASSET_ENTITY}
+    }
+`;
+
 export const ORIGIN_MESSAGE_ENTITY = `
       id
       leaf
@@ -207,10 +219,7 @@ export const getMaxRoutersPerTransferQuery = (prefixes: string[]): string => {
 export const getAssetBalanceQuery = (prefix: string, router: string, local: string): string => {
   const queryString = `
     ${prefix}_assetBalance(id: "${local}-${router}") {
-      amount
-      asset {
-        ${ASSET_ENTITY}
-      }
+      ${ASSET_BALANCE_ENTITY}
     }`;
   return gql`
     query GetAssetBalance {
@@ -222,10 +231,7 @@ export const getAssetBalanceQuery = (prefix: string, router: string, local: stri
 export const getAssetBalancesQuery = (prefix: string, router: string): string => {
   const queryString = `
     ${prefix}_assetBalances(where: { router: "${router}" }) {
-      amount
-      asset {
-        ${ASSET_ENTITY}
-      }
+      ${ASSET_BALANCE_ENTITY}
     }`;
 
   return gql`
@@ -248,12 +254,8 @@ export const getAssetBalancesRoutersQuery = (
     orderBy: id,
     orderDirection: ${orderDirection}) {
       id
-      assetBalances {
-        id
-        amount
-        asset {
-          ${ASSET_ENTITY}
-        }
+      assetBalances{
+        ${ASSET_BALANCE_ENTITY}
       }
     }`;
 

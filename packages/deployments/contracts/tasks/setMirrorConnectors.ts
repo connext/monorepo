@@ -2,15 +2,17 @@ import { task } from "hardhat/config";
 import { Contract, providers, Wallet } from "ethers";
 
 import hardhatConfig from "../hardhat.config";
-import { ConnectorDeployment, Env, executeOnAllConnectors, mustGetEnv } from "../src/utils";
+import { ConnectorDeployment, Env, executeOnAllConnectors, mustGetEnv, ProtocolNetwork } from "../src/utils";
 
 type TaskArgs = {
   env?: Env;
+  networkType?: ProtocolNetwork;
 };
 
 export default task("set-mirror-connectors", "Add a remote router")
   .addOptionalParam("env", "Environment of contracts")
-  .setAction(async ({ env: _env }: TaskArgs, hre) => {
+  .addOptionalParam("networkType", "Type of network of contracts")
+  .setAction(async ({ env: _env, networkType }: TaskArgs, hre) => {
     const chain = await hre.getChainId();
     const networkConfig = Object.values(hardhatConfig.networks!).find((n) => n?.chainId === +chain)!;
     const deployer = Wallet.fromMnemonic((networkConfig.accounts as any).mnemonic as unknown as string);
@@ -22,6 +24,7 @@ export default task("set-mirror-connectors", "Add a remote router")
     await executeOnAllConnectors(
       hardhatConfig,
       env,
+      networkType ?? ProtocolNetwork.TESTNET,
       async (deployment: ConnectorDeployment, provider: providers.JsonRpcProvider) => {
         const { name, address, abi, mirrorConnector } = deployment;
         // Create the connector contract

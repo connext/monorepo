@@ -64,6 +64,7 @@ export type mumbai_AssetBalance = {
   amount: Scalars['BigInt'];
   router: mumbai_Router;
   asset: mumbai_Asset;
+  feesEarned: Scalars['BigInt'];
 };
 
 export type mumbai_AssetBalance_filter = {
@@ -125,6 +126,14 @@ export type mumbai_AssetBalance_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<mumbai_Asset_filter>;
+  feesEarned?: InputMaybe<Scalars['BigInt']>;
+  feesEarned_not?: InputMaybe<Scalars['BigInt']>;
+  feesEarned_gt?: InputMaybe<Scalars['BigInt']>;
+  feesEarned_lt?: InputMaybe<Scalars['BigInt']>;
+  feesEarned_gte?: InputMaybe<Scalars['BigInt']>;
+  feesEarned_lte?: InputMaybe<Scalars['BigInt']>;
+  feesEarned_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  feesEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
 };
@@ -133,7 +142,8 @@ export type mumbai_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'router'
-  | 'asset';
+  | 'asset'
+  | 'feesEarned';
 
 export type mumbai_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -357,6 +367,7 @@ export type mumbai_DestinationTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['mumbai_Bytes']>;
   asset?: Maybe<mumbai_Asset>;
+  routersFee?: Maybe<Scalars['BigInt']>;
   executedCaller?: Maybe<Scalars['mumbai_Bytes']>;
   executedTransactionHash?: Maybe<Scalars['mumbai_Bytes']>;
   executedTimestamp?: Maybe<Scalars['BigInt']>;
@@ -525,6 +536,14 @@ export type mumbai_DestinationTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<mumbai_Asset_filter>;
+  routersFee?: InputMaybe<Scalars['BigInt']>;
+  routersFee_not?: InputMaybe<Scalars['BigInt']>;
+  routersFee_gt?: InputMaybe<Scalars['BigInt']>;
+  routersFee_lt?: InputMaybe<Scalars['BigInt']>;
+  routersFee_gte?: InputMaybe<Scalars['BigInt']>;
+  routersFee_lte?: InputMaybe<Scalars['BigInt']>;
+  routersFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  routersFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedCaller?: InputMaybe<Scalars['mumbai_Bytes']>;
   executedCaller_not?: InputMaybe<Scalars['mumbai_Bytes']>;
   executedCaller_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
@@ -637,6 +656,7 @@ export type mumbai_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'routersFee'
   | 'executedCaller'
   | 'executedTransactionHash'
   | 'executedTimestamp'

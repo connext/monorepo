@@ -256,6 +256,7 @@ describe("Database client", () => {
             key: mkBytes32("0xb"),
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
+            feesEarned: utils.parseEther("100").toString(),
           },
           {
             canonicalId: mkBytes32("0xbb"),
@@ -267,6 +268,7 @@ describe("Database client", () => {
             key: mkBytes32("0xb"),
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("99").toString(),
+            feesEarned: utils.parseEther("100").toString(),
           },
           {
             canonicalId: mkBytes32("0xb"),
@@ -278,6 +280,7 @@ describe("Database client", () => {
             key: mkBytes32("0xb"),
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("98").toString(),
+            feesEarned: utils.parseEther("100").toString(),
           },
           {
             canonicalId: mkBytes32("0xbb"),
@@ -289,6 +292,7 @@ describe("Database client", () => {
             key: mkBytes32("0xb"),
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("97").toString(),
+            feesEarned: utils.parseEther("100").toString(),
           },
         ],
       },
@@ -305,6 +309,7 @@ describe("Database client", () => {
             key: mkBytes32("0xb"),
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
+            feesEarned: utils.parseEther("100").toString(),
           },
           {
             canonicalId: mkBytes32("0xbb"),
@@ -316,6 +321,7 @@ describe("Database client", () => {
             key: mkBytes32("0xb"),
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("99").toString(),
+            feesEarned: utils.parseEther("100").toString(),
           },
           {
             canonicalId: mkBytes32("0xb"),
@@ -327,6 +333,7 @@ describe("Database client", () => {
             key: mkBytes32("0xb"),
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("98").toString(),
+            feesEarned: utils.parseEther("100").toString(),
           },
           {
             canonicalId: mkBytes32("0xbb"),
@@ -338,6 +345,7 @@ describe("Database client", () => {
             key: mkBytes32("0xb"),
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("97").toString(),
+            feesEarned: utils.parseEther("100").toString(),
           },
         ],
       },
