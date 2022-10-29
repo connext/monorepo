@@ -63,6 +63,7 @@ export const pollCache = async () => {
     const signer = wallet.connect(provider);
 
     for (const task of tasksByChain[chain]) {
+      // TODO: Sanity check: should have enough balance to pay for gas on the specified chain.
       const taskId = task.id;
       const status = await cache.tasks.getStatus(taskId);
       if (status !== RelayerTaskStatus.ExecPending) {

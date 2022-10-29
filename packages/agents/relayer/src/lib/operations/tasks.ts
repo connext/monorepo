@@ -1,8 +1,14 @@
 import { constants } from "ethers";
-import { RequestContext, createLoggingContext, RelayerApiPostTaskRequestParams } from "@connext/nxtp-utils";
+import {
+  RequestContext,
+  createLoggingContext,
+  RelayerApiPostTaskRequestParams,
+  ajv,
+  RelayerApiPostTaskRequestParamsSchema,
+} from "@connext/nxtp-utils";
 
 import { getContext } from "../../relayer";
-import { ChainNotSupported } from "../errors/tasks";
+import { ChainNotSupported, ParamsInvalid } from "../errors/tasks";
 
 /**
  * Creates a task based on passed-in params (assuming task doesn't already exist), and returns the taskId.
@@ -22,10 +28,21 @@ export const createTask = async (
     chainToDomainMap,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(createTask.name, _requestContext);
+  logger.info("Method start", requestContext, methodContext, { chain, params });
 
   const { data, fee, to } = params;
 
-  // TODO: Allow alternative shitcoins.
+  // Validate execute arguments.
+  const validateInput = ajv.compile(RelayerApiPostTaskRequestParamsSchema);
+  const validInput = validateInput(params);
+  if (!validInput) {
+    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+    throw new ParamsInvalid({
+      paramsError: msg,
+      params,
+    });
+  }
+
   if (fee.token !== constants.AddressZero) {
     throw new Error("Only ETH is supported for now.");
   }
@@ -33,8 +50,6 @@ export const createTask = async (
   if (!chainToDomainMap.has(chain)) {
     throw new ChainNotSupported(chain);
   }
-
-  // TODO: Sanity check: should have enough balance to pay for gas on the specified chain.
 
   const taskId: string = await cache.tasks.createTask({
     chain,
