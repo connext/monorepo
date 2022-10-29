@@ -221,4 +221,18 @@ export const hardhatNetworks = {
       },
     },
   },
+  "cronos-testnet": {
+    accounts: { mnemonic },
+    chainId: 338,
+    url: urlOverride || process.env.CRONOS_TESTNET_PROVIDER_URL || "https://evm-t3.cronos.org",
+    companionNetworks: {
+      hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.ETHERSCAN_API_KEY!,
+        apiUrl: "https://testnet.cronoscan.com/api",
+      },
+    },
+  },
 };
