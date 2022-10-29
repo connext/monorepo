@@ -325,13 +325,13 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         },
       },
       338: {
-        prefix: "Cronos",
+        prefix: "Multichain",
         ambs: {
           // FxRoot on goerli
-          // https://goerli.etherscan.io/address/0x3d1d3E34f7fB6D26245E6640E1c50710eFFf15bA
-          hub: "0x3d1d3E34f7fB6D26245E6640E1c50710eFFf15bA",
-          // FxChild on mumbai
-          // https://mumbai.polygonscan.com/address/0xCf73231F28B7331BBe3124B907840A94851f9f11
+          // https://goerli.etherscan.io/address/0x965f84D915a9eFa2dD81b653e3AE736555d945f4
+          hub: "0x965f84D915a9eFa2dD81b653e3AE736555d945f4",
+          // FxChild on cronos
+          // TODO
           spoke: "0xCf73231F28B7331BBe3124B907840A94851f9f11",
         },
         processGas: DEFAULT_PROCESS_GAS,
@@ -340,7 +340,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         custom: {
           hub: {
             // https://goerli.etherscan.io/address/0x2890ba17efe978480615e330ecb65333b880928e
-            checkpointManager: "0x2890bA17EfE978480615e330ecB65333b880928e",
+            mirrorChainId: "338",
           },
         },
       },
