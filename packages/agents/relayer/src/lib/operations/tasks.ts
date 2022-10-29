@@ -1,16 +1,8 @@
 import { constants } from "ethers";
-import {
-  RequestContext,
-  createLoggingContext,
-  RelayerApiPostTaskRequestParams,
-  ExecuteArgs,
-  ajv,
-  ExecuteArgsSchema,
-} from "@connext/nxtp-utils";
-import { getDeployedConnextContract } from "@connext/nxtp-txservice";
+import { RequestContext, createLoggingContext, RelayerApiPostTaskRequestParams } from "@connext/nxtp-utils";
 
 import { getContext } from "../../relayer";
-import { ChainNotSupported, ContractDeploymentMissing, DecodeExecuteError, ParamsInvalid } from "../errors/tasks";
+import { ChainNotSupported } from "../errors/tasks";
 
 /**
  * Creates a task based on passed-in params (assuming task doesn't already exist), and returns the taskId.
