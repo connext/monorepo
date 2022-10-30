@@ -1,61 +1,49 @@
 {
-  "name": "@connext/lighthouse",
+  "name": "@connext/nxtp-adapters-relayer",
   "version": "0.2.1-beta.1",
-  "description": "",
+  "description": "adapter for handling communication with relayer",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist/**/*",
-    "src/**/*"
+    "dist/**/*"
   ],
   "scripts": {
-    "start:prover": "node --enable-source-maps dist/tasks/prover/index.js",
-    "start:process": "node --enable-source-maps dist/tasks/processFromRoot/index.js",
+    "dev": "",
+    "start": "",
     "lint": "eslint ./src --ext .ts --env node",
+    "lint:fix": "eslint ./src --ext .ts --env node --fix",
     "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
+    "docker:start:postgres": "docker run --name cartographer-db --rm -p 5432:5432 -e POSTGRES_PASSWORD=qwerty postgres",
+    "zapatos": "zapatos",
+    "dbmate": "dbmate",
     "version": "yarn version"
   },
+  "eslintIgnore": [],
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@connext/nxtp-adapters-database": "workspace:*",
-    "@connext/nxtp-adapters-relayer": "workspace:*",
+    "@connext/nxtp-relayer": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@eth-optimism/sdk": "^1.6.9",
-    "@sinclair/typebox": "0.24.39",
-    "axios": "0.27.2",
-    "dd-trace": "^3.2.0",
-    "dotenv": "16.0.2",
-    "ethers": "5.7.0",
-    "fastify": "4.5.3",
-    "graphql": "16.6.0",
-    "pg": "^8.8.0",
-    "prom-client": "14.1.0",
-    "zapatos": "^6.1.1"
+    "axios": "^1.1.3",
+    "ethers": "^5.7.2",
+    "interval-promise": "^1.4.0"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "2.12.0",
     "@types/mocha": "9.1.1",
-    "@types/pg": "^8",
-    "@types/sinon": "10.0.13",
-    "concurrently": "7.4.0",
     "eslint": "8.23.0",
-    "interval-promise": "1.4.0",
     "mocha": "10.0.0",
-    "nodemon": "2.0.19",
     "nyc": "15.1.0",
-    "pino-pretty": "9.1.0",
-    "rimraf": "3.0.2",
-    "sinon": "14.0.0",
     "ts-mocha": "10.0.0",
+    "ts-node": "10.9.1",
+    "tslib": "2.4.0",
     "typescript": "4.8.3"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
-  "stableVersion": "0.1.25"
+  "stableVersion": "0.2.0-alpha.29"
 }

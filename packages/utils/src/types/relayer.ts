@@ -27,8 +27,8 @@ export enum RelayerTaskStatus {
 }
 
 export enum RelayerType {
-  Gelato = "Gelato",
-  BackupRelayer = "BackupRelayer",
+  Primary = "Primary",
+  Backup = "Backup",
   Mock = "Mock",
 }
 
@@ -38,8 +38,6 @@ export type MetaTxTask = {
   timestamp: string;
   // task ID.
   taskId: string;
-  // The relayer type which can be one of both Backup | Gelato
-  relayer: RelayerType;
   // Number of meta tx attempts sent. Should be 1 in 99% of cases.
   attempts: number;
 };

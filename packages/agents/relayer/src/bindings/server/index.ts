@@ -20,12 +20,17 @@ export const bindServer = () =>
     const {
       config,
       logger,
-      adapters: { cache },
+      adapters: { cache, wallet },
     } = getContext();
     const server = fastify({ logger: pino({ level: config.logLevel === "debug" ? "debug" : "warn" }) });
 
     server.get("/ping", async (_req, res) => {
       return res.code(200).send("pong\n");
+    });
+
+    server.get("/address", async (_req, res) => {
+      const address = await wallet.getAddress();
+      return res.code(200).send(address);
     });
 
     server.post<{

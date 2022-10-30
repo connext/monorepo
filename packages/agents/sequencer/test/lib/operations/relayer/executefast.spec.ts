@@ -1,16 +1,17 @@
 import { stub, restore, reset, SinonStub } from "sinon";
-import { mkAddress, expect, OriginTransfer, XTransfer } from "@connext/nxtp-utils";
+import { mkAddress, expect, OriginTransfer, XTransfer, RelayerTaskStatus } from "@connext/nxtp-utils";
 
-import { mock, mockRelayerAddress } from "../../../mock";
+import { mock } from "../../../mock";
 import { sendExecuteFastToRelayer } from "../../../../src/lib/operations/relayer";
-import { ctxMock, getHelpersStub } from "../../../globalTestHook";
+import { getHelpersStub } from "../../../globalTestHook";
+import * as MockableFns from "../../../../src/mockable";
+import { mockTaskId } from "@connext/nxtp-adapters-relayer/test/mock";
 
 const mockTransfers: XTransfer[] = [
   mock.entity.xtransfer({
     originDomain: "13337",
     destinationDomain: "13338",
     asset: mkAddress("0xdedddddddddddddd"),
-    relayerFee: "0.1",
     amount: "10",
     nonce: 0,
   }),
@@ -18,26 +19,11 @@ const mockTransfers: XTransfer[] = [
     originDomain: "13337",
     destinationDomain: "13338",
     asset: mkAddress("0xdedddddddddddddd"),
-    relayerFee: "0.1",
     amount: "10",
     nonce: 0,
   }),
   {
-    ...mock.entity.xtransfer(),
-    xparams: {
-      to: mkAddress("0xbeefdead"),
-      callData: "0x0",
-      receiveLocal: false,
-      callback: mkAddress("0x"),
-      callbackFee: "0",
-      relayerFee: "0",
-      recovery: mkAddress("0x"),
-      agent: mkAddress("0x"),
-      destinationMinOut: "0",
-      destinationDomain: "13338",
-      originDomain: "13337",
-    },
-    nonce: 7,
+    ...mock.entity.xtransfer({ nonce: 7 }),
   },
 ];
 
@@ -52,6 +38,7 @@ const loggingContext = mock.loggingContext("RELAYER-TEST");
 describe("Operations:ExecuteFast", () => {
   describe("#sendExecuteFastToRelayer", () => {
     let encodeExecuteFromBidsStub: SinonStub;
+    let sendWithRelayerWithBackupStub: SinonStub;
     beforeEach(() => {
       encodeExecuteFromBidsStub = stub();
       getHelpersStub.returns({
@@ -59,32 +46,23 @@ describe("Operations:ExecuteFast", () => {
           encodeExecuteFromBids: encodeExecuteFromBidsStub.returns("0xbeef"),
         },
       });
-    });
-    afterEach(() => {
-      restore();
-      reset();
+      sendWithRelayerWithBackupStub = stub(MockableFns, "sendWithRelayerWithBackup").resolves({
+        taskId: mockTaskId,
+        taskStatus: RelayerTaskStatus.ExecSuccess,
+      });
     });
 
     it("should send the bid to the relayer", async () => {
-      await sendExecuteFastToRelayer(
+      const { taskId, taskStatus } = await sendExecuteFastToRelayer(
         1,
         mockBids.slice(0, 1),
         mockTransfers[0] as OriginTransfer,
         mockLocalAsset,
         loggingContext.requestContext,
       );
-      expect(ctxMock.adapters.chainreader.getGasEstimateWithRevertCode).to.be.calledOnceWith(Number(mock.domain.B));
-      expect((ctxMock.adapters.chainreader.getGasEstimateWithRevertCode as SinonStub).getCall(0).args[1]).to.deep.eq({
-        chainId: Number(mock.chain.B),
-        to: ctxMock.config.chains[mock.domain.B].deployments.connext,
-        data: "0xbeef",
-        from: mockRelayerAddress,
-      });
-      expect(ctxMock.adapters.relayer.send).to.be.calledOnceWith(
-        Number(mock.chain.B),
-        ctxMock.config.chains[mock.domain.B].deployments.connext,
-        "0xbeef",
-      );
+      expect(taskId).to.be.eq(mockTaskId);
+      expect(taskStatus).to.be.eq(RelayerTaskStatus.ExecSuccess);
+      expect(sendWithRelayerWithBackupStub).to.be.calledOnce;
     });
   });
 });

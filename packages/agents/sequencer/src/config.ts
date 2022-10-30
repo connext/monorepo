@@ -30,8 +30,6 @@ export const getEnvConfig = (
     let json: string;
 
     const path = process.env.SEQ_CONFIG_FILE ?? "config.json";
-    console.log("process.env.SEQ_CONFIG_FILE: ", process.env.SEQ_CONFIG_FILE);
-    console.log("path: ", path);
     if (fs.existsSync(path)) {
       json = fs.readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);

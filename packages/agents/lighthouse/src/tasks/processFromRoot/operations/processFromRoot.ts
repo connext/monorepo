@@ -8,7 +8,7 @@ import {
   RootMessage,
 } from "@connext/nxtp-utils";
 
-import { encodeProcessMessageFromRoot } from "../../../mockable";
+import { encodeProcessMessageFromRoot, sendWithRelayerWithBackup } from "../../../mockable";
 import { ProcessConfigNotAvailable } from "../errors";
 import { GetProcessArgsParams, getProcessFromOptimismRootArgs, getProcessFromPolygonRootArgs } from "../helpers";
 import { getContext } from "../processFromRoot";
@@ -72,7 +72,7 @@ export const processSingleRootMessage = async (
   requestContext: RequestContext,
 ): Promise<string> => {
   const {
-    adapters: { relayer, chainreader, contracts },
+    adapters: { relayer, contracts, chainreader, backupRelayer },
     logger,
     chainData,
     config,
@@ -127,38 +127,20 @@ export const processSingleRootMessage = async (
     hubChain: hubChainId,
   });
 
-  // TODO: wrap this stuff up behind relayer interface, ideally behind tx service
-  const relayerAddress = await relayer.getRelayerAddress(hubChainId, logger);
-  logger.debug("Getting gas estimate", requestContext, methodContext, {
-    chainId: hubChainId,
-    to: hubConnector.address,
-    data: encodedData,
-    from: relayerAddress,
-  });
-
-  const gas = await chainreader.getGasEstimateWithRevertCode(Number(rootMessage.hubDomain), {
-    chainId: hubChainId,
-    to: hubConnector.address,
-    data: encodedData,
-    from: relayerAddress,
-  });
-
-  logger.info("Sending meta tx to relayer", requestContext, methodContext, {
-    relayer: relayerAddress,
-    hubConnector: hubConnector.address,
-    domain: rootMessage.hubDomain,
-    gas: gas.toString(),
-  });
-
-  const taskId = await relayer.send(
+  const { taskId, taskStatus } = await sendWithRelayerWithBackup(
     hubChainId,
+    rootMessage.hubDomain,
     hubConnector.address,
     encodedData,
+    relayer,
     config.gelatoApiKey,
+    backupRelayer,
+    config.gelatoApiKey,
+    chainreader,
     logger,
     requestContext,
   );
 
-  logger.info("Sent meta tx to relayer", requestContext, methodContext, { taskId });
+  logger.info("Sent meta tx to relayer", requestContext, methodContext, { taskId, taskStatus });
   return taskId;
 };
