@@ -224,7 +224,10 @@ export const hardhatNetworks = {
   "cronos-testnet": {
     accounts: { mnemonic },
     chainId: 338,
-    url: urlOverride || process.env.CRONOS_TESTNET_PROVIDER_URL || "https://evm-t3.cronos.org",
+    url:
+      urlOverride ||
+      process.env.CRONOS_TESTNET_PROVIDER_URL ||
+      "https://testnet.cronoslabs.com/v1/320a9adc6ac7a081240762ce00843d49",
     companionNetworks: {
       hub: "goerli",
     },
