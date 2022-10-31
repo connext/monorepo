@@ -60,3 +60,20 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
   }
   return result;
 };
+
+export const isOracleActive = async (chainId: number): Promise<boolean> => {
+  const oracles = await getGelatoOracles();
+  return oracles.includes(chainId.toString());
+};
+
+export const getGelatoOracles = async (logger?: Logger): Promise<string[]> => {
+  let result = [];
+  try {
+    const res = await axios.get(`${GELATO_SERVER}/oracles/`);
+    result = res.data.oracles;
+  } catch (error: unknown) {
+    if (logger) logger.error("Error in getGelatoOracles", undefined, undefined, jsonifyError(error as Error));
+  }
+
+  return result;
+};
