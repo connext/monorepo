@@ -1,7 +1,7 @@
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader } from "@connext/nxtp-txservice";
-import { Logger, mkAddress } from "@connext/nxtp-utils";
+import { DestinationTransfer, Logger, mkAddress } from "@connext/nxtp-utils";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
@@ -27,11 +27,11 @@ export const mochaHooks = {
       mock.entity.xtransfer({
         originDomain: "1000",
         destinationDomain: "2000",
-      }),
+      }) as DestinationTransfer,
       mock.entity.xtransfer({
         originDomain: "1000",
         destinationDomain: "2000",
-      }),
+      }) as DestinationTransfer,
     ]);
 
     // setup cache
@@ -62,6 +62,7 @@ export const mochaHooks = {
         relayer: mock.context().adapters.relayer,
         mqClient: mock.context().adapters.mqClient,
         wallet: mock.context().adapters.wallet,
+        backupRelayer: mock.context().adapters.backupRelayer,
       },
       config: mock.config(),
       chainData: mock.context().chainData,

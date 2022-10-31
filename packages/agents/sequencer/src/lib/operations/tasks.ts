@@ -1,24 +1,7 @@
-import { createLoggingContext, ExecStatus, RelayerType, RelayerTaskStatus } from "@connext/nxtp-utils";
+import { createLoggingContext, ExecStatus, RelayerTaskStatus } from "@connext/nxtp-utils";
 
 import { getContext } from "../../sequencer";
 import { MessageType } from "../entities";
-import { getHelpers } from "../helpers";
-
-export const getTaskStatus = async (taskId: string, relayer: RelayerType): Promise<RelayerTaskStatus> => {
-  const { config } = getContext();
-  const {
-    relayer: { getTaskStatusFromGelato, getTaskStatusFromBackupRelayer },
-  } = getHelpers();
-  let taskStatus = RelayerTaskStatus.NotFound;
-  if (relayer === RelayerType.BackupRelayer) {
-    if (!config.relayerUrl) throw new Error("No configured backup relayer endpoint");
-    taskStatus = await getTaskStatusFromBackupRelayer(config.relayerUrl, taskId);
-  } else if (relayer === RelayerType.Gelato) {
-    taskStatus = await getTaskStatusFromGelato(taskId);
-  }
-
-  return taskStatus;
-};
 
 export const updateTask = async (
   transferId: string,

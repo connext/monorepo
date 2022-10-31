@@ -12,7 +12,6 @@ describe("Operations:Sequencer", () => {
   let axiosPostStub: SinonStub;
   beforeEach(() => {
     axiosPostStub = stub(axios, "post");
-    stub(MockableFns, "getGelatoRelayerAddress").resolves(mkAddress("0x123"));
   });
   afterEach(() => {
     restore();

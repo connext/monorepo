@@ -63,6 +63,7 @@ export const pollCache = async () => {
     const signer = wallet.connect(provider);
 
     for (const task of tasksByChain[chain]) {
+      // TODO: Sanity check: should have enough balance to pay for gas on the specified chain.
       const taskId = task.id;
       const status = await cache.tasks.getStatus(taskId);
       if (status !== RelayerTaskStatus.ExecPending) {
@@ -77,7 +78,7 @@ export const pollCache = async () => {
       // TODO: Queue up fee claiming for this transfer after this (assuming transaction is successful)!
       try {
         // Execute the calldata.
-        // TODO: Debugging, remove and use txservice.
+        const { confirmations } = config.chains[domain];
         const tx = await signer.sendTransaction({
           chainId: chain,
           to,
@@ -88,20 +89,9 @@ export const pollCache = async () => {
           chain,
           taskId,
           hash: tx.hash,
-          confirmations: config.chains[domain].confirmations,
+          confirmations,
         });
-        const receipt = await tx.wait(config.chains[domain].confirmations);
-        // const receipt = await txservice.sendTx(
-        //   {
-        //     chainId: chain,
-        //     to,
-        //     data,
-        //     from: await wallet.getAddress(),
-        //     value: BigNumber.from("0"),
-        //   },
-        //   requestContext,
-        //   chainToDomainMap.get(chain),
-        // );
+        const receipt = await tx.wait(confirmations);
         await cache.tasks.setHash(taskId, receipt.transactionHash);
         logger.info("Transaction confirmed.", requestContext, methodContext, {
           chain,

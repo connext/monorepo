@@ -3,16 +3,14 @@ import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, RoutersCache, StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, mkBytes32, mockSequencer } from "@connext/nxtp-utils";
+import { mkAddress, Logger, mock as _mock, mockSequencer } from "@connext/nxtp-utils";
 import { ConnextInterface } from "@connext/nxtp-contracts/typechain-types/Connext";
 import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
 import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/StableSwap";
 
 import { SequencerConfig } from "../src/lib/entities";
 import { AppContext } from "../src/lib/entities/context";
-
-export const mockTaskId = mkBytes32("0xabcdef123");
-export const mockRelayerAddress = mkAddress("0xabcdef123");
+import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
 
 export const mock = {
   ..._mock,
@@ -26,6 +24,7 @@ export const mock = {
         relayer: mock.adapters.relayer(),
         mqClient: mock.adapters.mqClient() as any,
         wallet: createStubInstance(Wallet, { getAddress: Promise.resolve(mockSequencer) }),
+        backupRelayer: mock.adapters.relayer(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -82,6 +81,7 @@ export const mock = {
       subscriber: mock.chain.A,
     },
     gelatoApiKey: "foo",
+    relayerUrl: "http://example.com",
   }),
   adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {
@@ -144,12 +144,7 @@ export const mock = {
         spokeConnector: spokeConnector as any,
       };
     },
-    relayer: () => {
-      return {
-        getRelayerAddress: stub().resolves(mockRelayerAddress),
-        send: stub().resolves(mockTaskId),
-      };
-    },
+    relayer: () => mockRelayer(),
     mqClient: () => {
       return {
         publish: stub(),

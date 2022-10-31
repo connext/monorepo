@@ -299,7 +299,7 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     network: "testnet",
     supportedVersion: routerPackageVersion,
     environment: ENVIRONMENT.toString() as "staging" | "production",
-    relayerUrl: LOCAL_RELAYER_ENABLED ? `http://${LOCALHOST}:8082` : undefined,
+    relayerUrl: `http://${LOCALHOST}:8082`,
     messageQueue: {
       connection: {
         uri: "amqp://guest:guest@localhost:5672",
