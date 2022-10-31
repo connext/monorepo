@@ -90,6 +90,7 @@ locals {
       }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
+    relayerUrl = "https://${module.relayer.service_endpoint}"
     environment   = var.stage
     messageQueue = {
       connection = {
@@ -222,6 +223,7 @@ locals {
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
     databaseUrl  = "postgresql://${var.postgres_user}:${var.postgres_password}@db.mainnet.connext.ninja:5432/connext"
+    relayerUrl = "https://${module.relayer.service_endpoint}"
     healthUrls = {
       prover    = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_prover_heartbeat}"
       processor = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_processor_heartbeat}"
