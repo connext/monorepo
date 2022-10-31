@@ -28,6 +28,7 @@ COPY package.json /tmp/build/
 COPY packages/agents/lighthouse/package.json /tmp/build/packages/agents/lighthouse/
 COPY packages/agents/relayer/package.json /tmp/build/packages/agents/relayer/
 COPY packages/adapters/txservice/package.json /tmp/build/packages/adapters/txservice/
+COPY packages/adapters/cache/package.json /tmp/build/packages/adapters/cache/
 COPY packages/deployments/contracts/package.json /tmp/build/packages/deployments/contracts/
 COPY packages/adapters/database/package.json /tmp/build/packages/adapters/database/
 COPY packages/adapters/relayer/package.json /tmp/build/packages/adapters/relayer/
@@ -43,6 +44,7 @@ COPY config config/
 COPY packages/agents/lighthouse/ /tmp/build/packages/agents/lighthouse/
 COPY packages/agents/relayer /tmp/build/packages/agents/relayer
 COPY packages/adapters/txservice /tmp/build/packages/adapters/txservice
+COPY packages/adapters/cache /tmp/build/packages/adapters/cache
 COPY packages/deployments/contracts /tmp/build/packages/deployments/contracts/
 COPY packages/adapters/database /tmp/build/packages/adapters/database
 COPY packages/adapters/relayer /tmp/build/packages/adapters/relayer
