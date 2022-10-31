@@ -33,6 +33,7 @@ COPY packages/adapters/web3signer/package.json /tmp/build/packages/adapters/web3
 COPY packages/deployments/contracts/package.json /tmp/build/packages/deployments/contracts/
 COPY packages/adapters/database/package.json /tmp/build/packages/adapters/database/
 COPY packages/adapters/relayer/package.json /tmp/build/packages/adapters/relayer/
+COPY packages/adapters/web3signer/package.json /tmp/build/packages/adapters/web3signer/
 COPY packages/utils/package.json /tmp/build/packages/utils/
 COPY yarn.lock /tmp/build/
 
