@@ -5,7 +5,7 @@ import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
 import axios from "axios";
 import { constants } from "ethers";
 
-import { connextRelayerSend } from "../../src/connext/connext";
+import { connextRelayerSend, getRelayerAddress } from "../../src/connext/connext";
 import * as RelayerFns from "../../src/connext/connext";
 import * as RelayerIndexFns from "../../src/connext/index";
 
@@ -13,20 +13,19 @@ const loggingContext = mock.loggingContext("RELAYER-TEST");
 const logger = new Logger({ name: "test", level: process.env.LOG_LEVEL || "silent" });
 describe("Connext Relayer", () => {
   let axiosPostStub: SinonStub;
+  let axiosGetStub: SinonStub;
   let chainReaderMock: SinonStubbedInstance<ChainReader>;
 
   beforeEach(() => {
     axiosPostStub = stub(axios, "post");
+    axiosGetStub = stub(axios, "get");
     chainReaderMock = mockChainReader() as any;
     stub(RelayerIndexFns, "url").value("http://example.com");
   });
 
   describe("#connextRelayerSend", () => {
-    beforeEach(() => {
-      stub(RelayerFns, "getRelayerAddress").resolves(mkAddress("0xaaa"));
-    });
-
     it("happy: should post data successfully", async () => {
+      axiosGetStub.resolves({ data: mkAddress("0xaaa") });
       axiosPostStub.resolves({ data: { taskId: "foo" } });
       const params: RelayerApiPostTaskRequestParams = {
         to: mkAddress(),
@@ -55,6 +54,7 @@ describe("Connext Relayer", () => {
     });
 
     it("should throw if post fails", async () => {
+      axiosGetStub.resolves({ data: mkAddress("0xaaa") });
       axiosPostStub.throws(new Error("Request failed!"));
       await expect(
         connextRelayerSend(
@@ -68,6 +68,17 @@ describe("Connext Relayer", () => {
           loggingContext.requestContext,
         ),
       ).to.be.rejectedWith(NxtpError);
+    });
+  });
+
+  describe("#getRelayerAddress", () => {
+    it("happy: should get relayer address successfully", async () => {
+      axiosGetStub.resolves({ data: mkAddress("0xaaa") });
+      expect(await getRelayerAddress()).to.be.eq(mkAddress("0xaaa"));
+    });
+    it("should throw if get fails", async () => {
+      axiosGetStub.throws();
+      await expect(getRelayerAddress()).to.be.rejected;
     });
   });
 });
