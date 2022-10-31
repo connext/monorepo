@@ -135,6 +135,13 @@ describe("Connext Relayer", () => {
       restore();
       reset();
     });
+    it("should timeout", async () => {
+      const mockTaskId = mkBytes32("0xaaa");
+      axiosGetStub.onFirstCall().throws();
+      await expect(waitForTaskCompletion(mockTaskId, logger, loggingContext.requestContext, 1_000)).to.be.rejectedWith(
+        TransactionHashTimeout,
+      );
+    });
     it("should wait until getting finalized task status", async () => {
       const mockTaskId = mkBytes32("0xaaa");
       axiosGetStub
@@ -146,13 +153,7 @@ describe("Connext Relayer", () => {
       const taskStatus = await waitForTaskCompletion(mockTaskId, logger, loggingContext.requestContext, 12_000);
       expect(taskStatus).to.be.eq(RelayerTaskStatus.ExecSuccess);
     });
-    it("should timeout", async () => {
-      const mockTaskId = mkBytes32("0xaaa");
-      axiosGetStub.onFirstCall().throws();
-      await expect(waitForTaskCompletion(mockTaskId, logger, loggingContext.requestContext, 1_000)).to.be.rejectedWith(
-        TransactionHashTimeout,
-      );
-    });
+
     it("happy: should return taskStatus successfully", async () => {
       const mockTaskId = mkBytes32("0xaaa");
       axiosGetStub.resolves({ data: { task: { taskId: mockTaskId, taskState: RelayerTaskStatus.ExecSuccess } } });
