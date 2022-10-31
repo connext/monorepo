@@ -9,7 +9,6 @@ import {
   jsonifyError,
   BaseRequestContext,
   MethodContext,
-  RelayerTaskStatus,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -145,7 +144,7 @@ export const execute = async (_configOverride?: SequencerConfig) => {
         : await executeSlowPathData(transferId, messageType, requestContext);
 
     if (taskId && taskStatus) {
-      await updateTask(transferId, taskStatus as RelayerTaskStatus, messageType);
+      await updateTask(transferId, taskStatus, messageType);
     }
   } catch (error: any) {
     const { requestContext, methodContext } = createLoggingContext(execute.name);

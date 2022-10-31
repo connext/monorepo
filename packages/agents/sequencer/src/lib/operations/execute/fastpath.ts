@@ -128,7 +128,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
 export const executeFastPathData = async (
   transferId: string,
   _requestContext: RequestContext,
-): Promise<{ taskId: string | undefined; taskStatus: RelayerTaskStatus | undefined }> => {
+): Promise<{ taskId: string | undefined; taskStatus: RelayerTaskStatus }> => {
   const {
     config,
     logger,
@@ -139,7 +139,7 @@ export const executeFastPathData = async (
     relayer: { sendExecuteFastToRelayer },
   } = getOperations();
   let taskId: string | undefined;
-  let taskStatus: RelayerTaskStatus | undefined;
+  let taskStatus: RelayerTaskStatus = RelayerTaskStatus.NotFound;
   const {
     auctions: { getDestinationLocalAsset, getBidsRoundMap, getAllSubsets, getMinimumBidsCountForRound },
   } = getHelpers();

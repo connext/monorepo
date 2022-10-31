@@ -1,6 +1,6 @@
 import { RequestContext, ExecutorData, getChainIdFromDomain, RelayerTaskStatus } from "@connext/nxtp-utils";
-import { sendWithRelayerWithBackup } from "../../../mockable";
 
+import { sendWithRelayerWithBackup } from "../../../mockable";
 import { getContext } from "../../../sequencer";
 import { MissingTransfer } from "../../errors";
 

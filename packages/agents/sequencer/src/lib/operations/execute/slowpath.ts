@@ -143,7 +143,7 @@ export const executeSlowPathData = async (
   transferId: string,
   type: string,
   _requestContext: RequestContext,
-): Promise<{ taskId: string | undefined; taskStatus: RelayerTaskStatus | undefined }> => {
+): Promise<{ taskId: string | undefined; taskStatus: RelayerTaskStatus }> => {
   const {
     logger,
     adapters: { cache },
@@ -176,7 +176,7 @@ export const executeSlowPathData = async (
   }
 
   let taskId: string | undefined;
-  let taskStatus: RelayerTaskStatus | undefined;
+  let taskStatus: RelayerTaskStatus = RelayerTaskStatus.NotFound;
   try {
     const result = await sendExecuteSlowToRelayer(executorData, requestContext);
     taskId = result.taskId;
