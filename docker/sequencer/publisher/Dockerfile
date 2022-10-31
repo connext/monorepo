@@ -26,6 +26,7 @@ COPY .yarn /tmp/build/.yarn/
 COPY .yarnrc.yml /tmp/build/
 COPY package.json /tmp/build/
 COPY packages/agents/sequencer/package.json /tmp/build/packages/agents/sequencer/
+COPY packages/agents/relayer/package.json /tmp/build/packages/agents/relayer/
 COPY packages/adapters/cache/package.json /tmp/build/packages/adapters/cache/
 COPY packages/adapters/subgraph/package.json /tmp/build/packages/adapters/subgraph/
 COPY packages/adapters/web3signer/package.json /tmp/build/packages/adapters/web3signer/
@@ -42,6 +43,7 @@ RUN yarn install
 # ----- Copy source and all other files that affect lint, test, build -----
 COPY config config/
 COPY packages/agents/sequencer /tmp/build/packages/agents/sequencer
+COPY packages/agents/relayer /tmp/build/packages/agents/relayer
 COPY packages/adapters/cache /tmp/build/packages/adapters/cache
 COPY packages/adapters/subgraph /tmp/build/packages/adapters/subgraph
 COPY packages/adapters/web3signer /tmp/build/packages/adapters/web3signer
