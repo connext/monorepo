@@ -19,6 +19,7 @@
     "packages/adapters/txservice",
     "packages/adapters/cache",
     "packages/adapters/database",
+    "packages/adapters/relayer",
     "packages/adapters/subgraph",
     "packages/adapters/web3signer",
     "packages/agents/router",

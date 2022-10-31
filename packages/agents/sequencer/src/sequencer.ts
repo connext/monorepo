@@ -1,4 +1,4 @@
-import { logger, Wallet } from "ethers";
+import { Wallet } from "ethers";
 import {
   Logger,
   getChainData,
@@ -9,22 +9,19 @@ import {
   jsonifyError,
   BaseRequestContext,
   MethodContext,
-  NxtpError,
-  RelayerTaskStatus,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
-import interval from "interval-promise";
+import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 
 import { MessageType, SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
 import { bindHealthServer, bindSubscriber } from "./bindings/subscriber";
 import { bindServer } from "./bindings/publisher";
-import { setupRelayer } from "./adapters";
 import { getHelpers } from "./lib/helpers";
 import { getOperations } from "./lib/operations";
 
@@ -127,7 +124,7 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
 export const execute = async (_configOverride?: SequencerConfig) => {
   const {
     execute: { executeFastPathData, executeSlowPathData },
-    tasks: { updateTask, getTaskStatus },
+    tasks: { updateTask },
   } = getOperations();
   try {
     // Transfer ID is a CLI argument. Always provided by the parent
@@ -141,41 +138,13 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     // TODO: Setting up the context every time for this execution is non-ideal.
     await setupContext(requestContext, methodContext, _configOverride);
 
-    const { taskId, relayer } =
+    const { taskId, taskStatus } =
       messageType === MessageType.ExecuteFast
         ? await executeFastPathData(transferId, requestContext)
         : await executeSlowPathData(transferId, messageType, requestContext);
 
-    let taskStatus = RelayerTaskStatus.NotFound;
-    if (taskId && relayer) {
-      await new Promise((res) => {
-        interval(async (_, stop) => {
-          try {
-            taskStatus = await getTaskStatus(taskId, relayer);
-            logger.debug("Task status", requestContext, methodContext, { taskStatus, taskId });
-            if (
-              taskStatus === RelayerTaskStatus.ExecSuccess ||
-              taskStatus === RelayerTaskStatus.ExecReverted ||
-              taskStatus === RelayerTaskStatus.Cancelled ||
-              taskStatus === RelayerTaskStatus.Blacklisted
-            ) {
-              stop();
-              res(undefined);
-            }
-          } catch (error: unknown) {
-            context.logger.error(
-              "Error getting gelato task status, waiting for next loop",
-              requestContext,
-              methodContext,
-              jsonifyError(error as NxtpError),
-            );
-          }
-        }, 5_000);
-      });
-
-      if (taskStatus !== RelayerTaskStatus.NotFound) {
-        await updateTask(transferId, taskStatus, messageType);
-      }
+    if (taskId && taskStatus) {
+      await updateTask(transferId, taskStatus, messageType);
     }
   } catch (error: any) {
     const { requestContext, methodContext } = createLoggingContext(execute.name);
@@ -238,7 +207,8 @@ export const setupContext = async (
     context.config.chains,
   );
   context.adapters.contracts = getContractInterfaces();
-  context.adapters.relayer = await setupRelayer();
+  context.adapters.relayer = await setupGelatoRelayer();
+  context.adapters.backupRelayer = await setupConnextRelayer(context.config.relayerUrl);
   context.adapters.mqClient = await setupPublisher(requestContext);
 };
 

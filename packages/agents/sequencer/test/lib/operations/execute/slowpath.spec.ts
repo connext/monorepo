@@ -196,8 +196,6 @@ describe("Operations:Execute:SlowPath", () => {
       upsertTaskStub.resolves();
       await expect(executeSlowPathData(mockTransferId, MessageType.ExecuteSlow, requestContext)).to.not.rejected;
       expect(sendExecuteSlowToRelayerStub.callCount).to.be.eq(3);
-      expect(setExecStatusStub.callCount).to.be.eq(1);
-      expect(upsertTaskStub.callCount).to.be.eq(1);
     });
 
     it("should prune all the executor data if fails", async () => {

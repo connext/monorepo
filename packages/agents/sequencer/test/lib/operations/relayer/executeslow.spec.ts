@@ -1,9 +1,11 @@
-import { expect, mkAddress, mkBytes32, RelayerType } from "@connext/nxtp-utils";
+import { expect, mkAddress, mkBytes32, RelayerTaskStatus, RelayerType } from "@connext/nxtp-utils";
 import { stub, SinonStub } from "sinon";
 import { MissingTransfer } from "../../../../src/lib/errors";
+import * as MockableFns from "../../../../src/mockable";
 import { sendExecuteSlowToRelayer } from "../../../../src/lib/operations/relayer";
 import { ctxMock, getHelpersStub } from "../../../globalTestHook";
 import { mock } from "../../../mock";
+import { mockTaskId } from "@connext/nxtp-adapters-relayer/test/mock";
 
 const { requestContext } = mock.loggingContext("RELAYER-TEST");
 describe("Operations:ExecuteSlow", () => {
@@ -11,6 +13,7 @@ describe("Operations:ExecuteSlow", () => {
   let connextRelayerSendStub: SinonStub;
   let getRelayerAddressStub: SinonStub;
   let sendStub: SinonStub;
+  let sendWithRelayerWithBackupStub: SinonStub;
   beforeEach(() => {
     const { transfers } = ctxMock.adapters.cache;
     getTransferStub = stub(transfers, "getTransfer");
@@ -24,32 +27,23 @@ describe("Operations:ExecuteSlow", () => {
         connextRelayerSend: connextRelayerSendStub,
       },
     });
+    sendWithRelayerWithBackupStub = stub(MockableFns, "sendWithRelayerWithBackup").resolves({
+      taskId: mockTaskId,
+      taskStatus: RelayerTaskStatus.ExecSuccess,
+    });
   });
+
   describe("#sendExecuteSlowToRelayer", () => {
     it("should throw if transfer is missing", async () => {
       getTransferStub.resolves(undefined);
       const mockExecutorData = mock.entity.executorData();
       await expect(sendExecuteSlowToRelayer(mockExecutorData, requestContext)).to.be.rejectedWith(MissingTransfer);
     });
-    it("should send the data to the backup relayer if configured", async () => {
+
+    it("should send the data", async () => {
       ctxMock.config.relayerUrl = "http://mock-relayer.com";
       const mockTransferId = mkBytes32("0x100");
       const mockTransfer = mock.entity.xtransfer({ transferId: mockTransferId });
-      const mockTaskId = mkBytes32("0x111");
-      const mockExecutorData = mock.entity.executorData({ transferId: mockTransferId });
-      getTransferStub.resolves(mockTransfer);
-      connextRelayerSendStub.resolves({ taskId: mockTaskId, relayer: RelayerType.BackupRelayer });
-      const { taskId, relayer } = await sendExecuteSlowToRelayer(mockExecutorData, requestContext);
-      expect(relayer).to.be.deep.eq(RelayerType.BackupRelayer);
-      expect(taskId).to.be.eq(mockTaskId);
-      expect(getTransferStub).to.have.been.calledOnceWithExactly(mockTransferId);
-      expect(connextRelayerSendStub.callCount).to.be.eq(1);
-    });
-    it("should send the data to the gelato if it fails to send to the backup relayer", async () => {
-      ctxMock.config.relayerUrl = "http://mock-relayer.com";
-      const mockTransferId = mkBytes32("0x100");
-      const mockTransfer = mock.entity.xtransfer({ transferId: mockTransferId });
-      const mockTaskId = mkBytes32("0x111");
       const mockExecutorData = mock.entity.executorData({ transferId: mockTransferId });
       const mockRelayerAddress = mkAddress("0xabc");
       getTransferStub.resolves(mockTransfer);
@@ -57,13 +51,10 @@ describe("Operations:ExecuteSlow", () => {
       getRelayerAddressStub.resolves(mockRelayerAddress);
       sendStub.resolves(mockTaskId);
 
-      const { taskId, relayer } = await sendExecuteSlowToRelayer(mockExecutorData, requestContext);
+      const { taskId, taskStatus } = await sendExecuteSlowToRelayer(mockExecutorData, requestContext);
       expect(taskId).to.be.eq(mockTaskId);
-      expect(relayer).to.be.deep.eq(RelayerType.Gelato);
-      expect(getTransferStub).to.have.been.calledOnceWithExactly(mockTransferId);
-      expect(connextRelayerSendStub.callCount).to.be.eq(1);
-      expect(getRelayerAddressStub.callCount).to.be.eq(1);
-      expect(ctxMock.adapters.chainreader.getGasEstimateWithRevertCode as SinonStub).to.be.calledOnce;
+      expect(taskStatus).to.be.eq(RelayerTaskStatus.ExecSuccess);
+      expect(sendWithRelayerWithBackupStub).to.be.calledOnce;
     });
   });
 });

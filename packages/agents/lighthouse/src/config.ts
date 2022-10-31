@@ -41,7 +41,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   polling: TPollingConfig,
   gelatoApiKey: Type.String(),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
-  relayerUrl: Type.Optional(Type.String({ format: "uri" })),
+  relayerUrl: Type.String({ format: "uri" }),
   database: TDatabaseConfig,
   healthUrls: Type.Partial(
     Type.Object({ prover: Type.String({ format: "uri" }), processor: Type.String({ format: "uri" }) }),

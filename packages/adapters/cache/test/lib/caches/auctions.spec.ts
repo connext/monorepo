@@ -213,14 +213,12 @@ describe("AuctionCache", () => {
         const resOne = await cache.upsertMetaTxTask({
           transferId,
           taskId,
-          relayer: RelayerType.Mock,
         });
         expect(resOne).to.eq(1);
 
         const { timestamp: firstCallTimestamp, ...firstEntry } = await mockRedisHelpers.getMetaTxTask(transferId);
         expect(firstEntry).to.deep.eq({
           taskId,
-          relayer: RelayerType.Mock,
           attempts: 1,
         });
 
@@ -229,7 +227,6 @@ describe("AuctionCache", () => {
         await mockRedisHelpers.setMetaTxTask(transferId, {
           timestamp,
           taskId,
-          relayer: RelayerType.Mock,
           attempts: 1,
         });
 
@@ -237,14 +234,12 @@ describe("AuctionCache", () => {
         const resTwo = await cache.upsertMetaTxTask({
           transferId,
           taskId: updatedTaskId,
-          relayer: RelayerType.Mock,
         });
         expect(resTwo).to.eq(0);
 
         const { timestamp: secondCallTimestamp, ...secondEntry } = await mockRedisHelpers.getMetaTxTask(transferId);
         expect(secondEntry).to.deep.eq({
           taskId: updatedTaskId,
-          relayer: RelayerType.Mock,
           attempts: 2,
         });
         // Ts should be overwritten with latest in this case.

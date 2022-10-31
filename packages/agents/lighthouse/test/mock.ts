@@ -6,8 +6,9 @@ import { mkAddress, Logger, mock as _mock, mkBytes32, createLoggingContext, XMes
 import { NxtpLighthouseConfig } from "../src/config";
 import { ProverContext } from "../src/tasks/prover/context";
 import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
-import { Database } from "@connext/nxtp-adapters-database";
 import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
+import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
+import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
 
 export const mockTaskId = mkBytes32("0xabcdef123");
 export const mockRelayerAddress = mkAddress("0xabcdef123");
@@ -33,6 +34,7 @@ export const mock = {
         contracts: mock.adapters.contracts(),
         relayer: mock.adapters.relayer(),
         database: mock.adapters.database(),
+        backupRelayer: mock.adapters.relayer(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -46,6 +48,7 @@ export const mock = {
         contracts: mock.adapters.deployments(),
         relayer: mock.adapters.relayer(),
         database: mock.adapters.database(),
+        backupRelayer: mock.adapters.relayer(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -80,22 +83,11 @@ export const mock = {
     relayerUrl: "http://www.example.com",
     database: { url: "postgres://localhost:5432/lighthouse" },
     gelatoApiKey: "foo",
+    healthUrls: {},
+    hubDomain: "1337",
   }),
   adapters: {
-    chainreader: (): SinonStubbedInstance<ChainReader> => {
-      const chainreader = createStubInstance(ChainReader);
-      chainreader.getBalance.resolves(utils.parseEther("1"));
-
-      chainreader.getDecimalsForAsset.resolves(18);
-      chainreader.getBlockTime.resolves(Math.floor(Date.now() / 1000));
-      chainreader.getTokenPrice.resolves(BigNumber.from(1));
-      chainreader.getGasEstimate.resolves(BigNumber.from(24001));
-      chainreader.getGasEstimateWithRevertCode.resolves(BigNumber.from(1));
-
-      const mockReceipt = mock.ethers.receipt();
-      chainreader.getTransactionReceipt.resolves(mockReceipt);
-      return chainreader;
-    },
+    chainreader: () => mockChainReader(),
     contracts: (): SinonStubbedInstance<ConnextContractInterfaces> => {
       const connext = createStubInstance(utils.Interface);
       connext.encodeFunctionData.returns(encodedDataMock);
@@ -135,15 +127,8 @@ export const mock = {
         stableSwap: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
       };
     },
-    relayer: () => {
-      return {
-        getRelayerAddress: stub().resolves(mockRelayerAddress),
-        send: stub().resolves(mockTaskId),
-      };
-    },
-    database: (): Database => {
-      return mockDatabase();
-    },
+    relayer: () => mockRelayer(),
+    database: () => mockDatabase(),
   },
   contracts: {
     deployments: (): ConnextContractDeployments => {

@@ -20,12 +20,17 @@ export const bindServer = () =>
     const {
       config,
       logger,
-      adapters: { cache },
+      adapters: { cache, wallet },
     } = getContext();
     const server = fastify({ logger: pino({ level: config.logLevel === "debug" ? "debug" : "warn" }) });
 
     server.get("/ping", async (_req, res) => {
       return res.code(200).send("pong\n");
+    });
+
+    server.get("/address", async (_req, res) => {
+      const address = await wallet.getAddress();
+      return res.code(200).send(address);
     });
 
     server.post<{
@@ -78,12 +83,18 @@ export const bindServer = () =>
       }
     });
 
-    server.listen(config.server.port, config.server.host, (err, address) => {
-      if (err) {
-        console.error(err);
-        process.exit(1);
-      }
-      logger.info(`Server listening at ${address}`);
-      res(server);
-    });
+    server.listen(
+      {
+        host: config.server.host,
+        port: config.server.port,
+      },
+      (err, address) => {
+        if (err) {
+          console.error(err);
+          process.exit(1);
+        }
+        logger.info(`Server listening at ${address}`);
+        res(server);
+      },
+    );
   });

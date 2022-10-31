@@ -24,6 +24,7 @@
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-adapters-database": "workspace:*",
+    "@connext/nxtp-adapters-relayer": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@eth-optimism/sdk": "^1.6.9",
