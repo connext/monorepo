@@ -125,7 +125,7 @@ mockNoBlockNumber.set("99999", 1234567);
 
 export const mockOriginSubgraphResponse = [
   mock.entity.xtransfer({ originDomain: "1337", destinationDomain: "1338" }) as OriginTransfer,
-  mock.entity.xtransfer({ originDomain: "1337", destinationDomain: "1338" }) as OriginTransfer,
+  mock.entity.xtransfer({ originDomain: "1338", destinationDomain: "1337" }) as OriginTransfer,
 ];
 
 export const mockDestinationSubgraphResponse = [
@@ -135,8 +135,8 @@ export const mockDestinationSubgraphResponse = [
     status: XTransferStatus.Reconciled,
   }) as DestinationTransfer,
   mock.entity.xtransfer({
-    originDomain: "1337",
-    destinationDomain: "1338",
+    originDomain: "1338",
+    destinationDomain: "1337",
     status: XTransferStatus.Reconciled,
   }) as DestinationTransfer,
 ];
