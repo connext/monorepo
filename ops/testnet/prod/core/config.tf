@@ -270,6 +270,6 @@ locals {
       }
     }
     environment   = var.stage
-    web3SignerUrl = "https://${module.relayer.service_endpoint}"
+    web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
   })
 }
