@@ -1,4 +1,4 @@
-import { ExecStatus, ExecutorData, MetaTxTask, getNtpTimeSeconds, RelayerType } from "@connext/nxtp-utils";
+import { ExecStatus, ExecutorData, MetaTxTask, getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
 

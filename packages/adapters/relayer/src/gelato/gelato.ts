@@ -12,7 +12,6 @@ import {
   GELATO_RELAYER_ADDRESS,
 } from "@connext/nxtp-utils";
 import axios from "axios";
-import { GelatoRelaySDK } from "@gelatonetwork/relay-sdk";
 import interval from "interval-promise";
 
 import {
@@ -22,6 +21,7 @@ import {
   UnableToGetTransactionHash,
 } from "../errors";
 import { ChainReader } from "../../../txservice/dist";
+import { gelatoRelayWithSponsoredCall } from "../mockable";
 
 /// MARK - Gelato Relay API
 /// Docs: https://relay.gelato.digital/api-docs/
@@ -100,12 +100,14 @@ export const waitForTaskCompletion = async (
       try {
         taskStatus = await getTaskStatus(taskId);
         logger.debug("Task status", requestContext, methodContext, { taskStatus, taskId });
-        if (
-          taskStatus === RelayerTaskStatus.ExecSuccess ||
-          taskStatus === RelayerTaskStatus.ExecReverted ||
-          taskStatus === RelayerTaskStatus.Cancelled ||
-          taskStatus === RelayerTaskStatus.Blacklisted
-        ) {
+        const finalTaskStatuses = [
+          RelayerTaskStatus.ExecSuccess,
+          RelayerTaskStatus.ExecReverted,
+          RelayerTaskStatus.Cancelled,
+          RelayerTaskStatus.Blacklisted,
+        ];
+
+        if (finalTaskStatuses.includes(taskStatus)) {
           stop();
           res(undefined);
         }
@@ -151,7 +153,7 @@ export const gelatoSDKSend = async (
 ): Promise<RelayResponse> => {
   let response;
   try {
-    response = await GelatoRelaySDK.relayWithSponsoredCall(request, sponsorApiKey, options);
+    response = await gelatoRelayWithSponsoredCall(request, sponsorApiKey, options);
   } catch (error: unknown) {
     throw new RelayerSendFailed({
       error: jsonifyError(error as Error),
