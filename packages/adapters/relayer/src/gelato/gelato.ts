@@ -95,6 +95,7 @@ export const waitForTaskCompletion = async (
     interval(async (_, stop) => {
       if (Date.now() - startTime > _timeout) {
         stop();
+        res(undefined);
       }
       try {
         taskStatus = await getTaskStatus(taskId);
