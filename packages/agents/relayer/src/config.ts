@@ -77,7 +77,7 @@ export const getEnvConfig = (
         process.env.SEQ_SERVER_PORT ||
         configJson.server?.port ||
         configFile.server?.port ||
-        8081,
+        8080,
       host:
         process.env.RELAYER_SERVER_HOST ||
         process.env.SEQ_SERVER_HOST ||
