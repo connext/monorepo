@@ -37,7 +37,7 @@ locals {
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = var.stage },
-    { name = "DD_SERVICE", value = "router-${var.environment}" }
+    { name = "DD_SERVICE", value = "relayer-${var.environment}" }
   ]
   relayer_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.relayer_web3_signer_private_key },
