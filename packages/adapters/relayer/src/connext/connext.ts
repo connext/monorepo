@@ -110,22 +110,24 @@ export const waitForTaskCompletion = async (
     interval(async (_, stop) => {
       if (Date.now() - startTime > _timeout) {
         stop();
+        res(undefined);
       }
       try {
         taskStatus = await getTaskStatus(taskId);
         logger.debug("Task status", requestContext, methodContext, { taskStatus, taskId });
-        if (
-          taskStatus === RelayerTaskStatus.ExecSuccess ||
-          taskStatus === RelayerTaskStatus.ExecReverted ||
-          taskStatus === RelayerTaskStatus.Cancelled ||
-          taskStatus === RelayerTaskStatus.Blacklisted
-        ) {
+        const finalTaskStatuses = [
+          RelayerTaskStatus.ExecSuccess,
+          RelayerTaskStatus.ExecReverted,
+          RelayerTaskStatus.Cancelled,
+          RelayerTaskStatus.Blacklisted,
+        ];
+        if (finalTaskStatuses.includes(taskStatus)) {
           stop();
           res(undefined);
         }
       } catch (error: unknown) {
         logger.error(
-          "Error getting gelato task status, waiting for next loop",
+          "Error getting connext task status, waiting for next loop",
           requestContext,
           methodContext,
           jsonifyError(error as NxtpError),

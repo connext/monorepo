@@ -1,13 +1,28 @@
-import { stub, SinonStub, SinonStubbedInstance } from "sinon";
-import { mkAddress, expect, mock, Logger, RelayerApiPostTaskRequestParams, NxtpError } from "@connext/nxtp-utils";
+import { stub, SinonStub, SinonStubbedInstance, restore, reset } from "sinon";
+import {
+  mkAddress,
+  expect,
+  mock,
+  Logger,
+  RelayerApiPostTaskRequestParams,
+  NxtpError,
+  mkBytes32,
+  RelayerTaskStatus,
+} from "@connext/nxtp-utils";
 import { ChainReader } from "@connext/nxtp-txservice";
 import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
 import axios from "axios";
 import { constants } from "ethers";
 
-import { connextRelayerSend, getRelayerAddress } from "../../src/connext/connext";
-import * as RelayerFns from "../../src/connext/connext";
+import {
+  connextRelayerSend,
+  getRelayerAddress,
+  getTaskStatus,
+  getTransactionHash,
+  waitForTaskCompletion,
+} from "../../src/connext/connext";
 import * as RelayerIndexFns from "../../src/connext/index";
+import { TransactionHashTimeout, UnableToGetTaskStatus, UnableToGetTransactionHash } from "../../src/errors";
 
 const loggingContext = mock.loggingContext("RELAYER-TEST");
 const logger = new Logger({ name: "test", level: process.env.LOG_LEVEL || "silent" });
@@ -79,6 +94,70 @@ describe("Connext Relayer", () => {
     it("should throw if get fails", async () => {
       axiosGetStub.throws();
       await expect(getRelayerAddress()).to.be.rejected;
+    });
+  });
+
+  describe("#getTaskStatus", () => {
+    it("happy should return NotFound status", async () => {
+      const mockTaskId = mkBytes32("0xaaa");
+      axiosGetStub.resolves({ data: { task: { taskId: mockTaskId } } });
+      expect(await getTaskStatus(mockTaskId)).to.be.eq(RelayerTaskStatus.NotFound);
+    });
+    it("happy should get task status successfully", async () => {
+      const mockTaskId = mkBytes32("0xaaa");
+      axiosGetStub.resolves({ data: { task: { taskId: mockTaskId, taskState: RelayerTaskStatus.CheckPending } } });
+      expect(await getTaskStatus(mockTaskId)).to.be.eq(RelayerTaskStatus.CheckPending);
+    });
+    it("should throw if fails", async () => {
+      const mockTaskId = mkBytes32("0xaaa");
+      axiosGetStub.throws();
+      await expect(getTaskStatus(mockTaskId)).to.be.rejectedWith(UnableToGetTaskStatus);
+    });
+  });
+
+  describe("#getTransactionHash", () => {
+    it("happy should return transaction hash successfully", async () => {
+      const mockTaskId = mkBytes32("0xaaa");
+      const mockTxHash = mkBytes32("0xbbb");
+      axiosGetStub.resolves({ data: { data: [{ transactionHash: mockTxHash }] } });
+      expect(await getTransactionHash(mockTaskId)).to.be.eq(mockTxHash);
+    });
+    it("should throw if fails", async () => {
+      const mockTaskId = mkBytes32("0xaaa");
+      axiosGetStub.throws();
+      await expect(getTransactionHash(mockTaskId)).to.be.rejectedWith(UnableToGetTransactionHash);
+    });
+  });
+
+  describe("#waitForTaskCompletion", () => {
+    beforeEach(() => {});
+    afterEach(() => {
+      restore();
+      reset();
+    });
+    it("should wait until getting finalized task status", async () => {
+      const mockTaskId = mkBytes32("0xaaa");
+      axiosGetStub
+        .onFirstCall()
+        .resolves({ data: { task: { taskId: mockTaskId, taskState: RelayerTaskStatus.CheckPending } } });
+      axiosGetStub
+        .onSecondCall()
+        .resolves({ data: { task: { taskId: mockTaskId, taskState: RelayerTaskStatus.ExecSuccess } } });
+      const taskStatus = await waitForTaskCompletion(mockTaskId, logger, loggingContext.requestContext, 12_000);
+      expect(taskStatus).to.be.eq(RelayerTaskStatus.ExecSuccess);
+    });
+    it("should timeout", async () => {
+      const mockTaskId = mkBytes32("0xaaa");
+      axiosGetStub.onFirstCall().throws();
+      await expect(waitForTaskCompletion(mockTaskId, logger, loggingContext.requestContext, 1_000)).to.be.rejectedWith(
+        TransactionHashTimeout,
+      );
+    });
+    it("happy: should return taskStatus successfully", async () => {
+      const mockTaskId = mkBytes32("0xaaa");
+      axiosGetStub.resolves({ data: { task: { taskId: mockTaskId, taskState: RelayerTaskStatus.ExecSuccess } } });
+      const taskStatus = await waitForTaskCompletion(mockTaskId, logger, loggingContext.requestContext, 6_000);
+      expect(taskStatus).to.be.eq(RelayerTaskStatus.ExecSuccess);
     });
   });
 });
