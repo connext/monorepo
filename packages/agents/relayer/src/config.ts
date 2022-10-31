@@ -13,14 +13,14 @@ export const getEnvConfig = (
   let configFile: any = {};
 
   try {
-    configJson = JSON.parse(process.env.RELAYER_CONFIG || process.env.SEQ_CONFIG || "");
+    configJson = JSON.parse(process.env.NXTP_CONFIG || process.env.RELAYER_CONFIG || "");
   } catch (e: unknown) {
-    console.info("No RELAYER_CONFIG or SEQ_CONFIG exists; using config file and individual env vars.");
+    console.info("No RELAYER_CONFIG or NXTP_CONFIG exists; using config file and individual env vars.");
   }
   try {
     let json: string;
 
-    const path = process.env.RELAYER_CONFIG_FILE ?? process.env.SEQ_CONFIG_FILE ?? "config.json";
+    const path = process.env.NXTP_CONFIG_FILE ?? process.env.RELAYER_CONFIG_FILE ?? "config.json";
     if (fs.existsSync(path)) {
       json = fs.readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
