@@ -18,9 +18,6 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "docker:start:postgres": "docker run --name cartographer-db --rm -p 5432:5432 -e POSTGRES_PASSWORD=qwerty postgres",
-    "zapatos": "zapatos",
-    "dbmate": "dbmate",
     "version": "yarn version"
   },
   "eslintIgnore": [],

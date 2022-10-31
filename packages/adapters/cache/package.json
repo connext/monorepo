@@ -18,7 +18,7 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "docker:redis:up": "docker-compose -f ./ops/start-redis.docker-compose.yml up -d",
+    "docker:redis:up": "docker run -it --rm --name redis -p 6379:6379 redis",
     "version": "yarn version"
   },
   "nodemonConfig": {
