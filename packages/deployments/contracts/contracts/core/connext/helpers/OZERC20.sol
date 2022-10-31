@@ -381,10 +381,7 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
    */
   function DOMAIN_SEPARATOR() external view override returns (bytes32) {
     // See {EIP712._buildDomainSeparator}
-    return
-      keccak256(
-        abi.encode(_TYPE_HASH, keccak256(abi.encode(token.name)), _HASHED_VERSION, block.chainid, address(this))
-      );
+    return _domainSeparatorV4();
   }
 
   /**
