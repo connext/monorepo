@@ -29,6 +29,7 @@ COPY packages/agents/lighthouse/package.json /tmp/build/packages/agents/lighthou
 COPY packages/adapters/txservice/package.json /tmp/build/packages/adapters/txservice/
 COPY packages/deployments/contracts/package.json /tmp/build/packages/deployments/contracts/
 COPY packages/adapters/database/package.json /tmp/build/packages/adapters/database/
+COPY packages/adapters/relayer/package.json /tmp/build/packages/adapters/relayer/
 COPY packages/utils/package.json /tmp/build/packages/utils/
 COPY yarn.lock /tmp/build/
 
@@ -42,6 +43,7 @@ COPY packages/agents/lighthouse/ /tmp/build/packages/agents/lighthouse/
 COPY packages/adapters/txservice /tmp/build/packages/adapters/txservice
 COPY packages/deployments/contracts /tmp/build/packages/deployments/contracts/
 COPY packages/adapters/database /tmp/build/packages/adapters/database
+COPY packages/adapters/relayer /tmp/build/packages/adapters/relayer
 COPY packages/utils /tmp/build/packages/utils
 COPY .eslintignore /tmp/build/
 COPY .eslintrc.js /tmp/build/

@@ -30,6 +30,7 @@ COPY packages/adapters/cache/package.json /tmp/build/packages/adapters/cache/
 COPY packages/adapters/subgraph/package.json /tmp/build/packages/adapters/subgraph/
 COPY packages/adapters/web3signer/package.json /tmp/build/packages/adapters/web3signer/
 COPY packages/adapters/txservice/package.json /tmp/build/packages/adapters/txservice/
+COPY packages/adapters/relayer/package.json /tmp/build/packages/adapters/relayer/
 COPY packages/deployments/contracts/package.json /tmp/build/packages/deployments/contracts/
 COPY packages/utils/package.json /tmp/build/packages/utils/
 COPY yarn.lock /tmp/build/
@@ -45,6 +46,7 @@ COPY packages/adapters/cache /tmp/build/packages/adapters/cache
 COPY packages/adapters/subgraph /tmp/build/packages/adapters/subgraph
 COPY packages/adapters/web3signer /tmp/build/packages/adapters/web3signer
 COPY packages/adapters/txservice /tmp/build/packages/adapters/txservice
+COPY packages/adapters/relayer /tmp/build/packages/adapters/relayer
 COPY packages/deployments/contracts /tmp/build/packages/deployments/contracts/
 COPY packages/utils /tmp/build/packages/utils
 COPY .eslintignore /tmp/build/
