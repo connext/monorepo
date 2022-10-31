@@ -97,7 +97,7 @@ export const retrieveSentRootMessages = async () => {
 
     // Reset offset at the end of the cycle.
     const newOffset =
-      sentRootMessages.length == 0 ? 0 : Math.max(...sentRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
+      sentRootMessages.length == 0 ? 0 : Math.max(...sentRootMessages.map((message) => message.blockNumber ?? 0));
 
     await database.saveSentRootMessages(sentRootMessages);
 
@@ -137,7 +137,7 @@ export const retrieveProcessedRootMessages = async () => {
     const newOffset =
       processedRootMessages.length == 0
         ? 0
-        : Math.max(...processedRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
+        : Math.max(...processedRootMessages.map((message) => message.blockNumber ?? 0));
 
     await database.saveProcessedRootMessages(processedRootMessages);
 
