@@ -39,7 +39,7 @@ export const proveAndProcess = async () => {
 export const processMessage = async (message: XMessage) => {
   const {
     logger,
-    adapters: { contracts, relayer, database, chainreader, backupRelayer },
+    adapters: { contracts, relayers, database, chainreader },
     config,
     chainData,
   } = getContext();
@@ -156,10 +156,7 @@ export const processMessage = async (message: XMessage) => {
     message.destinationDomain,
     destinationSpokeConnector,
     data,
-    relayer,
-    config.gelatoApiKey,
-    backupRelayer,
-    config.gelatoApiKey,
+    relayers,
     chainreader,
     logger,
     requestContext,

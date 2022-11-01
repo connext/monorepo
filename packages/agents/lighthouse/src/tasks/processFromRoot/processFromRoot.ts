@@ -1,7 +1,7 @@
 import { ChainReader, contractDeployments } from "@connext/nxtp-txservice";
-import { createLoggingContext, getChainData, Logger, sendHeartbeat } from "@connext/nxtp-utils";
+import { createLoggingContext, getChainData, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
 import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
-import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
+import { Relayer, setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 
 import { getConfig } from "../../config";
 
@@ -44,8 +44,25 @@ export const makeProcessFromRoot = async () => {
       context.config.chains,
     );
     context.adapters.database = await getDatabase(context.config.database.url, context.logger);
-    context.adapters.relayer = await setupGelatoRelayer();
-    context.adapters.backupRelayer = await setupConnextRelayer(context.config.relayerUrl);
+    for (const relayerConfing of context.config.relayers) {
+      const setupFunc =
+        relayerConfing.type == RelayerType.Primary
+          ? setupGelatoRelayer
+          : RelayerType.Backup
+          ? setupConnextRelayer
+          : undefined;
+
+      if (!setupFunc) {
+        throw new Error(`Unknown relayer configured, relayer: ${relayerConfing}`);
+      }
+
+      const relayer = await setupFunc(relayerConfing.url);
+      context.adapters.relayers.push({
+        instance: relayer,
+        apiKey: relayerConfing.apiKey,
+        type: relayerConfing.type as RelayerType,
+      });
+    }
     context.adapters.contracts = contractDeployments;
 
     context.logger.info("Process from root boot complete!", requestContext, methodContext, {

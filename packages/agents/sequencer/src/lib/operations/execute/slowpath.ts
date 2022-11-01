@@ -29,7 +29,7 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
     logger,
     config,
     chainData,
-    adapters: { cache, subgraph, mqClient, chainreader, relayer },
+    adapters: { cache, subgraph, mqClient, chainreader, relayers },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(storeSlowPathData.name, _requestContext);
   logger.debug(`Method start: ${storeSlowPathData.name}`, requestContext, methodContext, { executorData });

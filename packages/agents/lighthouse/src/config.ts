@@ -39,9 +39,14 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   cartographerUrl: Type.String({ format: "uri" }),
   mode: TModeConfig,
   polling: TPollingConfig,
-  gelatoApiKey: Type.String(),
+  relayers: Type.Array(
+    Type.Object({
+      type: Type.Union([Type.Literal("Primary"), Type.Literal("Backup")]),
+      url: Type.String({ format: "uri" }),
+      apiKey: Type.String(),
+    }),
+  ),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
-  relayerUrl: Type.String({ format: "uri" }),
   database: TDatabaseConfig,
   healthUrls: Type.Partial(
     Type.Object({ prover: Type.String({ format: "uri" }), processor: Type.String({ format: "uri" }) }),
@@ -113,11 +118,14 @@ export const getEnvConfig = (
         configFile.polling?.cache ||
         DEFAULT_CARTOGRAPHER_POLL_INTERVAL,
     },
-    gelatoApiKey: process.env.NXTP_GELATO_API_KEY || configJson.gelatoApiKey || configFile.gelatoApiKey || "xxx",
+    relayers: process.env.NXTP_RELAYERS
+      ? JSON.parse(process.env.NXTP_RELAYERS)
+      : configJson.relayers
+      ? configJson.relayers
+      : configFile.relayers,
     database: { url: process.env.DATABASE_URL || configJson.databaseUrl || configFile.databaseUrl },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
-    relayerUrl: process.env.NXTP_RELAYER_URL || configJson.relayerUrl || configFile.relayerUrl,
     healthUrls: process.env.NXTP_HEALTH_URLS || configJson.healthUrls || configFile.healthUrls || {},
   };
 

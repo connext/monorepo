@@ -42,7 +42,7 @@ export const sendWithRelayerWithBackup = async (
   domain: string,
   destinationAddress: string,
   data: string,
-  instances: { relayer: Relayer; apiKey: string; type: RelayerType }[],
+  relayers: { instance: Relayer; apiKey: string; type: RelayerType }[],
   chainReader: ChainReader,
   logger: Logger,
   _requestContext: RequestContext,
@@ -50,28 +50,28 @@ export const sendWithRelayerWithBackup = async (
   const { methodContext, requestContext } = createLoggingContext(sendWithRelayerWithBackup.name, _requestContext);
   let taskRes: { taskId: string; taskStatus: RelayerTaskStatus } = {} as any;
 
-  for (const instance of instances) {
-    logger.info(`Sending tx with ${instance.type} relayer`, requestContext, methodContext, {
+  for (const relayer of relayers) {
+    logger.info(`Sending tx with ${relayer.type} relayer`, requestContext, methodContext, {
       chainId,
       domain,
       destinationAddress,
       data,
     });
     try {
-      const taskId = await instance.relayer.send(
+      const taskId = await relayer.instance.send(
         chainId,
         domain,
         destinationAddress,
         data,
-        instance.apiKey,
+        relayer.apiKey,
         chainReader,
         logger,
         requestContext,
       );
-      const status = await instance.relayer.waitForTaskCompletion(taskId, logger, _requestContext);
+      const status = await relayer.instance.waitForTaskCompletion(taskId, logger, _requestContext);
       taskRes = { taskId, taskStatus: status };
       if (status === RelayerTaskStatus.ExecSuccess) {
-        logger.info(`Successfully sent data with ${instance.relayer} relayer`, requestContext, methodContext, {
+        logger.info(`Successfully sent data with ${relayer.type} relayer`, requestContext, methodContext, {
           taskId,
         });
 
@@ -79,7 +79,7 @@ export const sendWithRelayerWithBackup = async (
       }
     } catch (err: unknown) {
       logger.error(
-        `Failed to sent data with ${instance.type}`,
+        `Failed to sent data with ${relayer.type}`,
         requestContext,
         methodContext,
         jsonifyError(err as NxtpError),
@@ -88,7 +88,7 @@ export const sendWithRelayerWithBackup = async (
   }
 
   if (!taskRes) {
-    throw new RelayerSendFailed({ relayers: instances.map((instance) => instance.type) });
+    throw new RelayerSendFailed({ relayers: relayers.map((relayer) => relayer.type) });
   }
 
   return taskRes;
