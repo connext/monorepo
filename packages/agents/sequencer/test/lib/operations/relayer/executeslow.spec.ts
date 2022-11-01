@@ -11,15 +11,10 @@ const { requestContext } = mock.loggingContext("RELAYER-TEST");
 describe("Operations:ExecuteSlow", () => {
   let getTransferStub: SinonStub;
   let connextRelayerSendStub: SinonStub;
-  let getRelayerAddressStub: SinonStub;
-  let sendStub: SinonStub;
   let sendWithRelayerWithBackupStub: SinonStub;
   beforeEach(() => {
     const { transfers } = ctxMock.adapters.cache;
     getTransferStub = stub(transfers, "getTransfer");
-
-    getRelayerAddressStub = ctxMock.adapters.relayer.getRelayerAddress as SinonStub;
-    sendStub = ctxMock.adapters.relayer.send as SinonStub;
 
     connextRelayerSendStub = stub();
     getHelpersStub.returns({
@@ -41,16 +36,12 @@ describe("Operations:ExecuteSlow", () => {
     });
 
     it("should send the data", async () => {
-      ctxMock.config.relayerUrl = "http://mock-relayer.com";
       const mockTransferId = mkBytes32("0x100");
       const mockTransfer = mock.entity.xtransfer({ transferId: mockTransferId });
       const mockExecutorData = mock.entity.executorData({ transferId: mockTransferId });
       const mockRelayerAddress = mkAddress("0xabc");
       getTransferStub.resolves(mockTransfer);
       connextRelayerSendStub.throws();
-      getRelayerAddressStub.resolves(mockRelayerAddress);
-      sendStub.resolves(mockTaskId);
-
       const { taskId, taskStatus } = await sendExecuteSlowToRelayer(mockExecutorData, requestContext);
       expect(taskId).to.be.eq(mockTaskId);
       expect(taskStatus).to.be.eq(RelayerTaskStatus.ExecSuccess);

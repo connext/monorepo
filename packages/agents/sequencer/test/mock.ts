@@ -80,8 +80,13 @@ export const mock = {
       publisher: "sequencerX",
       subscriber: mock.chain.A,
     },
-    gelatoApiKey: "foo",
-    relayerUrl: "http://example.com",
+    relayers: [
+      {
+        type: "Backup",
+        apiKey: "foo",
+        url: "http://example.com",
+      },
+    ],
   }),
   adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {

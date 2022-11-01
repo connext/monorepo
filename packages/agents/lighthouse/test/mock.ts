@@ -32,9 +32,8 @@ export const mock = {
       adapters: {
         chainreader: mock.adapters.chainreader(),
         contracts: mock.adapters.contracts(),
-        relayer: mock.adapters.relayer(),
+        relayers: mock.adapters.relayers(),
         database: mock.adapters.database(),
-        backupRelayer: mock.adapters.relayer(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -46,9 +45,8 @@ export const mock = {
       adapters: {
         chainreader: mock.adapters.chainreader(),
         contracts: mock.adapters.deployments(),
-        relayer: mock.adapters.relayer(),
+        relayers: mock.adapters.relayers(),
         database: mock.adapters.database(),
-        backupRelayer: mock.adapters.relayer(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -80,11 +78,16 @@ export const mock = {
       cartographer: 10_000,
     },
     environment: "staging",
-    relayerUrl: "http://www.example.com",
     database: { url: "postgres://localhost:5432/lighthouse" },
-    gelatoApiKey: "foo",
     healthUrls: {},
     hubDomain: "1337",
+    relayers: [
+      {
+        type: "Backup",
+        url: "https://relayer-backup.com",
+        apiKey: "foo",
+      },
+    ],
   }),
   adapters: {
     chainreader: () => mockChainReader(),
@@ -127,7 +130,7 @@ export const mock = {
         stableSwap: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
       };
     },
-    relayer: () => mockRelayer(),
+    relayers: () => [{ instance: mockRelayer(), type: "Backup", apiKey: "foo" }],
     database: () => mockDatabase(),
   },
   contracts: {
