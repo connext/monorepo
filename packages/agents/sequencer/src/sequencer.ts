@@ -9,6 +9,7 @@ import {
   jsonifyError,
   BaseRequestContext,
   MethodContext,
+  RelayerType,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -207,8 +208,26 @@ export const setupContext = async (
     context.config.chains,
   );
   context.adapters.contracts = getContractInterfaces();
-  context.adapters.relayer = await setupGelatoRelayer();
-  context.adapters.backupRelayer = await setupConnextRelayer(context.config.relayerUrl);
+  context.adapters.relayers = [];
+  for (const relayerConfig of context.config.relayers) {
+    const setupFunc =
+      relayerConfig.type == RelayerType.Gelato
+        ? setupGelatoRelayer
+        : RelayerType.Connext
+        ? setupConnextRelayer
+        : undefined;
+
+    if (!setupFunc) {
+      throw new Error(`Unknown relayer configured, relayer: ${relayerConfig}`);
+    }
+
+    const relayer = await setupFunc(relayerConfig.url);
+    context.adapters.relayers.push({
+      instance: relayer,
+      apiKey: relayerConfig.apiKey,
+      type: relayerConfig.type as RelayerType,
+    });
+  }
   context.adapters.mqClient = await setupPublisher(requestContext);
 };
 

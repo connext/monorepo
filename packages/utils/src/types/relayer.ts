@@ -27,8 +27,8 @@ export enum RelayerTaskStatus {
 }
 
 export enum RelayerType {
-  Primary = "Primary",
-  Backup = "Backup",
+  Gelato = "Gelato",
+  Connext = "Connext",
   Mock = "Mock",
 }
 

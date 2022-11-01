@@ -106,12 +106,17 @@ export const SequencerConfigSchema = Type.Object({
   mode: TModeConfig,
   auctionWaitTime: Type.Number({ minimum: 1000, maximum: 500_000 }),
   supportedVersion: Type.Optional(Type.String()),
-  relayerUrl: Type.String({ format: "uri" }),
   subgraphPrefix: Type.Optional(Type.String()),
   auctionRoundDepth: Type.Number(),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   messageQueue: TMessageQueueConfig,
-  gelatoApiKey: Type.String(),
+  relayers: Type.Array(
+    Type.Object({
+      type: Type.Union([Type.Literal("Gelato"), Type.Literal("Connext")]),
+      url: Type.String({ format: "uri" }),
+      apiKey: Type.String(),
+    }),
+  ),
 });
 
 export type SequencerConfig = Static<typeof SequencerConfigSchema>;
