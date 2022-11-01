@@ -70,8 +70,8 @@ export const bindServer = () =>
       },
     );
 
-    server.get<{ Params: { taskId: string } }>("/tasks/:taskId", async (request, response) => {
-      const { requestContext, methodContext } = createLoggingContext("GET /tasks/:taskId endpoint");
+    server.get<{ Params: { taskId: string } }>("/tasks/status/:taskId", async (request, response) => {
+      const { requestContext, methodContext } = createLoggingContext("GET /tasks/status/:taskId endpoint");
 
       try {
         const { taskId } = request.params;
