@@ -249,7 +249,18 @@ locals {
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
-    relayerUrl = "https://${module.relayer.service_endpoint}"
+    relayers = [
+      {
+        type    = "Gelato",
+        apiKey  = "${var.gelato_api_key}",
+        url     = "https://relay.gelato.digital"
+      },
+      {
+        type    = "Connext",
+        apiKey  = "foo",
+        url     = "https://${module.relayer.service_endpoint}"
+      }
+    ]
     environment  = var.stage
     databaseUrl  = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.staging.connext.ninja:5432/connext"
     hubDomain    = "1735353714"
