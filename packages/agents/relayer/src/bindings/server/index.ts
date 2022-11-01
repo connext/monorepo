@@ -1,5 +1,4 @@
 import fastify, { FastifyInstance } from "fastify";
-import pino from "pino";
 import {
   RelayerApiPostTaskRequestParams,
   RelayerApiPostTaskResponse,
@@ -22,7 +21,7 @@ export const bindServer = () =>
       logger,
       adapters: { cache, wallet },
     } = getContext();
-    const server = fastify({ logger: pino({ level: config.logLevel === "debug" ? "debug" : "warn" }) });
+    const server = fastify();
 
     server.get("/ping", async (_req, res) => {
       return res.code(200).send("pong\n");

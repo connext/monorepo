@@ -36,24 +36,24 @@
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
-    "@graphprotocol/client-cli": "^2.2.12",
-    "@graphql-mesh/transform-prefix": "0.11.77",
-    "@graphql-mesh/transform-rename": "0.12.78",
-    "@graphql-mesh/transform-type-merging": "0.4.32",
-    "@sinclair/typebox": "0.24.39",
-    "@typescript-eslint/eslint-plugin": "5.36.2",
-    "ethers": "5.7.0",
+    "@graphprotocol/client-cli": "2.2.15",
+    "@graphql-mesh/transform-prefix": "0.11.99",
+    "@graphql-mesh/transform-rename": "0.12.100",
+    "@graphql-mesh/transform-type-merging": "0.4.52",
+    "@sinclair/typebox": "0.25.2",
+    "@typescript-eslint/eslint-plugin": "5.42.0",
+    "ethers": "5.7.2",
     "graphql": "16.6.0",
     "graphql-request": "5.0.0",
     "graphql-tag": "2.12.6"
   },
   "devDependencies": {
-    "eslint": "8.23.0",
+    "eslint": "8.26.0",
     "nyc": "15.1.0",
     "ts-mocha": "10.0.0",
     "ts-node": "10.9.1",
     "tslib": "2.4.0",
-    "typescript": "4.8.3"
+    "typescript": "4.8.4"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "stableVersion": "0.2.0-alpha.29"

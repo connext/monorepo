@@ -1,19 +1,23 @@
-@relayerUrl = http://localhost:8082
+@relayerUrl = http://localhost:8080
+@relayerUrl = https://relayer.testnet.staging.connext.ninja
 @adminToken = bar
 
 ### PING
 GET {{relayerUrl}}/ping
 
+### STATUS
+GET {{relayerUrl}}/tasks/status/0x40e7b4d29d2abbd8707356b9e4ba30c32751d54809e1b3565b6ee14a310f31c2
+
 ### RELAY
-POST {{relayerUrl}}/relays/:chainId
+POST {{relayerUrl}}/relays/5
 Content-Type: application/json
 
 {
-  "to": "0x0000000000000000000000000000000000000000",
-  "data": "0x1234567890",
+  "to": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
+  "data": "0x095ea7b30000000000000000000000005a9e792143bf2708b4765c144451dca54f559a190000000000000000000000000000000000000000000000000000000000000001",
   "fee": {
-    "chain": 4,
+    "chain": 5,
     "token": "0x0000000000000000000000000000000000000000",
-    "amount": "1000"
+    "amount": "0"
   }
 }
