@@ -12,7 +12,7 @@ export const sendExecuteSlowToRelayer = async (
     logger,
     chainData,
     config,
-    adapters: { chainreader, relayer, cache, backupRelayer },
+    adapters: { chainreader, relayers, cache },
   } = getContext();
 
   const { transferId, encodedData } = executorData;
@@ -29,10 +29,7 @@ export const sendExecuteSlowToRelayer = async (
     transfer.xparams.destinationDomain,
     destinationConnextAddress,
     encodedData,
-    relayer,
-    config.gelatoApiKey,
-    backupRelayer,
-    config.gelatoApiKey,
+    relayers,
     chainreader,
     logger,
     _requestContext,

@@ -15,7 +15,7 @@ export const sendExecuteFastToRelayer = async (
     logger,
     chainData,
     config,
-    adapters: { chainreader, relayer, backupRelayer },
+    adapters: { chainreader, relayers },
   } = getContext();
   const {
     auctions: { encodeExecuteFromBids },
@@ -35,10 +35,7 @@ export const sendExecuteFastToRelayer = async (
     transfer.xparams.destinationDomain,
     destinationConnextAddress,
     encodedData,
-    relayer,
-    config.gelatoApiKey,
-    backupRelayer,
-    config.gelatoApiKey,
+    relayers,
     chainreader,
     logger,
     _requestContext,

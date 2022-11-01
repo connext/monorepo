@@ -72,7 +72,7 @@ export const processSingleRootMessage = async (
   requestContext: RequestContext,
 ): Promise<string> => {
   const {
-    adapters: { relayer, contracts, chainreader, backupRelayer },
+    adapters: { relayers, contracts, chainreader },
     logger,
     chainData,
     config,
@@ -132,10 +132,7 @@ export const processSingleRootMessage = async (
     rootMessage.hubDomain,
     hubConnector.address,
     encodedData,
-    relayer,
-    config.gelatoApiKey,
-    backupRelayer,
-    config.gelatoApiKey,
+    relayers,
     chainreader,
     logger,
     requestContext,

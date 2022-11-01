@@ -1,5 +1,5 @@
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { ChainData, Logger } from "@connext/nxtp-utils";
+import { ChainData, Logger, RelayerType } from "@connext/nxtp-utils";
 import { Database } from "@connext/nxtp-adapters-database";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
 
@@ -11,8 +11,7 @@ export type ProverContext = {
     // Stateful interfaces for peripherals.
     chainreader: ChainReader; // For reading and executing txs on blockchain using RPC providers.
     contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
-    relayer: Relayer; // Used to send txs to relayer.
-    backupRelayer: Relayer; // Used to send txs to backup relayer.
+    relayers: { instance: Relayer; apiKey: string; type: RelayerType }[]; // Used to send txs to relayer.
     database: Database;
   };
   config: NxtpLighthouseConfig;

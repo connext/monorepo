@@ -4,6 +4,7 @@ import {
   Logger,
   NxtpError,
   RelayerTaskStatus,
+  RelayerType,
   RequestContext,
 } from "@connext/nxtp-utils";
 import { ChainReader } from "@connext/nxtp-txservice";
@@ -42,75 +43,54 @@ export const sendWithRelayerWithBackup = async (
   domain: string,
   destinationAddress: string,
   data: string,
-  relayer: Relayer,
-  relayerApiKey: string,
-  backupRelayer: Relayer,
-  backupRelayerApiKey: string,
+  relayers: { instance: Relayer; apiKey: string; type: RelayerType }[],
   chainReader: ChainReader,
   logger: Logger,
   _requestContext: RequestContext,
 ) => {
   const { methodContext, requestContext } = createLoggingContext(sendWithRelayerWithBackup.name, _requestContext);
-  let taskId: string;
+  let taskRes: { taskId: string; taskStatus: RelayerTaskStatus } = {} as any;
 
-  logger.info("Sending tx with primary relayer", requestContext, methodContext, {
-    chainId,
-    domain,
-    destinationAddress,
-    data,
-  });
-  try {
-    taskId = await relayer.send(
-      chainId,
-      domain,
-      destinationAddress,
-      data,
-      relayerApiKey,
-      chainReader,
-      logger,
-      requestContext,
-    );
-    const status = await relayer.waitForTaskCompletion(taskId, logger, _requestContext);
-    if (status === RelayerTaskStatus.ExecSuccess) {
-      logger.info("Successfully executed fast with primary relayer", requestContext, methodContext, { taskId });
-      return { taskId, taskStatus: status };
-    }
-  } catch (err: unknown) {
-    logger.error(
-      "Failed to execute fast with primary relayer",
-      requestContext,
-      methodContext,
-      jsonifyError(err as NxtpError),
-    );
-  }
-
-  let status = RelayerTaskStatus.NotFound;
-  try {
-    logger.info("Attempting execute with backup relayer", requestContext, methodContext, {
+  for (const relayer of relayers) {
+    logger.info(`Sending tx with ${relayer.type} relayer`, requestContext, methodContext, {
       chainId,
       domain,
       destinationAddress,
       data,
     });
-    taskId = await backupRelayer.send(
-      chainId,
-      domain,
-      destinationAddress,
-      data,
-      backupRelayerApiKey,
-      chainReader,
-      logger,
-      requestContext,
-    );
-    status = await backupRelayer.waitForTaskCompletion(taskId, logger, _requestContext);
-  } catch (err: unknown) {
-    throw new RelayerSendFailed({ relayer: "backup", error: jsonifyError(err as NxtpError) });
-  }
-  if (status === RelayerTaskStatus.ExecSuccess) {
-    logger.info("Successfully executed slow with backup relayer", requestContext, methodContext, { taskId });
-  } else {
-    logger.warn("Received unsuccessful status from backup relayer", requestContext, methodContext, { taskId, status });
+    try {
+      const taskId = await relayer.instance.send(
+        chainId,
+        domain,
+        destinationAddress,
+        data,
+        relayer.apiKey,
+        chainReader,
+        logger,
+        requestContext,
+      );
+      const status = await relayer.instance.waitForTaskCompletion(taskId, logger, _requestContext);
+      taskRes = { taskId, taskStatus: status };
+      if (status === RelayerTaskStatus.ExecSuccess) {
+        logger.info(`Successfully sent data with ${relayer.type} relayer`, requestContext, methodContext, {
+          taskId,
+        });
+
+        break;
+      }
+    } catch (err: unknown) {
+      logger.error(
+        `Failed to sent data with ${relayer.type}`,
+        requestContext,
+        methodContext,
+        jsonifyError(err as NxtpError),
+      );
+    }
   }
 
-  return { taskId, taskStatus: status };
+  if (!taskRes) {
+    throw new RelayerSendFailed({ relayers: relayers.map((relayer) => relayer.type) });
+  }
+
+  return taskRes;
 };
