@@ -322,7 +322,7 @@ module "relayer" {
   memory                   = 512
   instance_count           = 1
   timeout                  = 180
-  internal_lb              = true
+  internal_lb              = false
   ingress_cdir_blocks      = [module.network.vpc_cdir_block]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])

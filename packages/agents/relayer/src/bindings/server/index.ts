@@ -1,5 +1,4 @@
 import fastify, { FastifyInstance } from "fastify";
-import pino from "pino";
 import {
   RelayerApiPostTaskRequestParams,
   RelayerApiPostTaskResponse,
@@ -22,7 +21,7 @@ export const bindServer = () =>
       logger,
       adapters: { cache, wallet },
     } = getContext();
-    const server = fastify({ logger: pino({ level: config.logLevel === "debug" ? "debug" : "warn" }) });
+    const server = fastify();
 
     server.get("/ping", async (_req, res) => {
       return res.code(200).send("pong\n");
@@ -76,7 +75,7 @@ export const bindServer = () =>
       try {
         const { taskId } = request.params;
         const status = await cache.tasks.getStatus(taskId);
-        return response.status(200).send([{ taskId, taskState: status }]);
+        return response.status(200).send({ taskId, taskState: status });
       } catch (error: unknown) {
         logger.error(`Error getting task status`, requestContext, methodContext);
         return response.code(500).send({ message: `Error getting task status`, error: jsonifyError(error as Error) });

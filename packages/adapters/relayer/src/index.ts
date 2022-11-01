@@ -31,6 +31,7 @@ export type Relayer = {
     logger: Logger,
     _requestContext: RequestContext,
     _timeout?: number,
+    _pollInterval?: number,
   ) => Promise<RelayerTaskStatus>;
 };
 

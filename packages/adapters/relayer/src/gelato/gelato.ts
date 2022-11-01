@@ -88,6 +88,7 @@ export const waitForTaskCompletion = async (
   logger: Logger,
   _requestContext: RequestContext,
   _timeout = 600_000,
+  _pollInterval = 5_000,
 ): Promise<RelayerTaskStatus> => {
   const { requestContext, methodContext } = createLoggingContext(waitForTaskCompletion.name, _requestContext);
   let taskStatus: RelayerTaskStatus | undefined;
@@ -120,7 +121,7 @@ export const waitForTaskCompletion = async (
           jsonifyError(error as NxtpError),
         );
       }
-    }, 5_000);
+    }, _pollInterval);
   });
 
   if (!taskStatus) {
