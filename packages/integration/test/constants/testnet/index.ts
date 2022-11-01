@@ -299,7 +299,6 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     network: "testnet",
     supportedVersion: routerPackageVersion,
     environment: ENVIRONMENT.toString() as "staging" | "production",
-    relayerUrl: `http://${LOCALHOST}:8082`,
     messageQueue: {
       connection: {
         uri: "amqp://guest:guest@localhost:5672",
@@ -311,7 +310,13 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
       publisher: EXCHANGE_NAME,
       subscriber: QUEUE_NAME,
     },
-    gelatoApiKey: "foo",
+    relayers: [
+      {
+        type: "Backup",
+        apiKey: "foo",
+        url: `http://${LOCALHOST}:8082`,
+      },
+    ],
   };
 })();
 
