@@ -4,8 +4,7 @@ import { BigNumber } from "ethers";
 import { Logger } from "../logging/logger";
 import { jsonifyError } from "../types";
 
-// export const GELATO_SERVER = "https://relay.gelato.digital";
-export const GELATO_SERVER = "https://relay.gelato.digital2";
+export const GELATO_SERVER = "https://relay.gelato.digital";
 
 export const GELATO_RELAYER_ADDRESS = "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92";
 

@@ -8,7 +8,6 @@ import {
   RelayerRequest,
   RelayResponse,
   RelayRequestOptions,
-  GELATO_SERVER,
   GELATO_RELAYER_ADDRESS,
 } from "@connext/nxtp-utils";
 import axios from "axios";
@@ -22,6 +21,8 @@ import {
 } from "../errors";
 import { ChainReader } from "../../../txservice/dist";
 import { gelatoRelayWithSponsoredCall } from "../mockable";
+
+import { url } from ".";
 
 /// MARK - Gelato Relay API
 /// Docs: https://relay.gelato.digital/api-docs/
@@ -38,7 +39,7 @@ export const getGelatoRelayerAddress = async (_chainId: number, _logger?: Logger
 export const getGelatoRelayChains = async (logger?: Logger): Promise<string[]> => {
   let result = [];
   try {
-    const res = await axios.get(`${GELATO_SERVER}/relays/`);
+    const res = await axios.get(`${url}/relays/`);
     result = res.data.relays;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getGelatoRelayChains", undefined, undefined, jsonifyError(error as Error));
@@ -58,7 +59,7 @@ export const isPaymentTokenSupported = async (chainId: number, token: string): P
 export const getPaymentTokens = async (chainId: number, logger?: Logger): Promise<string[]> => {
   let result = [];
   try {
-    const res = await axios.get(`${GELATO_SERVER}/oracles/${chainId}/paymentTokens/`);
+    const res = await axios.get(`${url}/oracles/${chainId}/paymentTokens/`);
     result = res.data.paymentTokens;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getPaymentTokens", undefined, undefined, jsonifyError(error as Error));
@@ -74,7 +75,7 @@ export const getPaymentTokens = async (chainId: number, logger?: Logger): Promis
  */
 export const getTaskStatus = async (taskId: string): Promise<RelayerTaskStatus> => {
   try {
-    const apiEndpoint = `${GELATO_SERVER}/tasks/status/${taskId}`;
+    const apiEndpoint = `${url}/tasks/status/${taskId}`;
     const res = await axios.get(apiEndpoint);
     return res.data.task?.taskState ?? RelayerTaskStatus.NotFound;
   } catch (error: unknown) {
@@ -136,7 +137,7 @@ export const waitForTaskCompletion = async (
 export const getTransactionHash = async (taskId: string): Promise<string> => {
   let result;
   try {
-    const apiEndpoint = `${GELATO_SERVER}/tasks/status/${taskId}`;
+    const apiEndpoint = `${url}/tasks/status/${taskId}`;
     const res = await axios.get(apiEndpoint);
     result = res.data.data[0]?.transactionHash;
   } catch (error: unknown) {
