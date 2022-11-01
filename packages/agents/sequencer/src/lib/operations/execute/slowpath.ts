@@ -6,7 +6,6 @@ import {
   ajv,
   ExecutorDataSchema,
   ExecStatus,
-  getChainIdFromDomain,
   RelayerTaskStatus,
 } from "@connext/nxtp-utils";
 
@@ -16,7 +15,6 @@ import {
   ExecutorVersionInvalid,
   ExecutorDataExpired,
   MissingXCall,
-  GasEstimationFailed,
   MissingTransfer,
   MissingExecutorData,
   ExecuteSlowCompleted,
@@ -28,7 +26,6 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
   const {
     logger,
     config,
-    chainData,
     adapters: { cache, subgraph, mqClient },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(storeSlowPathData.name, _requestContext);

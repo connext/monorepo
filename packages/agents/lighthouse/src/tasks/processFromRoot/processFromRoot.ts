@@ -1,7 +1,7 @@
 import { ChainReader, contractDeployments } from "@connext/nxtp-txservice";
 import { createLoggingContext, getChainData, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
 import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
-import { Relayer, setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
+import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 
 import { getConfig } from "../../config";
 
