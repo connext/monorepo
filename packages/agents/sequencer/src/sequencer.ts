@@ -208,23 +208,23 @@ export const setupContext = async (
     context.config.chains,
   );
   context.adapters.contracts = getContractInterfaces();
-  for (const relayerConfing of context.config.relayers) {
+  for (const relayerConfig of context.config.relayers) {
     const setupFunc =
-      relayerConfing.type == RelayerType.Gelato
+      relayerConfig.type == RelayerType.Gelato
         ? setupGelatoRelayer
         : RelayerType.Connext
         ? setupConnextRelayer
         : undefined;
 
     if (!setupFunc) {
-      throw new Error(`Unknown relayer configured, relayer: ${relayerConfing}`);
+      throw new Error(`Unknown relayer configured, relayer: ${relayerConfig}`);
     }
 
-    const relayer = await setupFunc(relayerConfing.url);
+    const relayer = await setupFunc(relayerConfig.url);
     context.adapters.relayers.push({
       instance: relayer,
-      apiKey: relayerConfing.apiKey,
-      type: relayerConfing.type as RelayerType,
+      apiKey: relayerConfig.apiKey,
+      type: relayerConfig.type as RelayerType,
     });
   }
   context.adapters.mqClient = await setupPublisher(requestContext);
