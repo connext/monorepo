@@ -112,7 +112,7 @@ export const SequencerConfigSchema = Type.Object({
   messageQueue: TMessageQueueConfig,
   relayers: Type.Array(
     Type.Object({
-      type: Type.Union([Type.Literal("Primary"), Type.Literal("Backup")]),
+      type: Type.Union([Type.Literal("Gelato"), Type.Literal("Connext")]),
       url: Type.String({ format: "uri" }),
       apiKey: Type.String(),
     }),

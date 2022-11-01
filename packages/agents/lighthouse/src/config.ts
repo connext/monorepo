@@ -41,7 +41,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   polling: TPollingConfig,
   relayers: Type.Array(
     Type.Object({
-      type: Type.Union([Type.Literal("Primary"), Type.Literal("Backup")]),
+      type: Type.Union([Type.Literal("Gelato"), Type.Literal("Connext")]),
       url: Type.String({ format: "uri" }),
       apiKey: Type.String(),
     }),
