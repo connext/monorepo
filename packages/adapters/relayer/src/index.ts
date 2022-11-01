@@ -85,6 +85,12 @@ export const sendWithRelayerWithBackup = async (
 
   let status = RelayerTaskStatus.NotFound;
   try {
+    logger.info("Attempting execute with backup relayer", requestContext, methodContext, {
+      chainId,
+      domain,
+      destinationAddress,
+      data,
+    });
     taskId = await backupRelayer.send(
       chainId,
       domain,
