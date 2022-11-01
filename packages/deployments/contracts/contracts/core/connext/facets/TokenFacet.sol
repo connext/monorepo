@@ -22,6 +22,7 @@ contract TokenFacet is BaseConnextFacet {
   error TokenFacet__addAssetId_alreadyAdded();
   error TokenFacet__removeAssetId_notAdded();
   error TokenFacet__updateDetails_localNotFound();
+  error TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
 
   // ============ Events ============
 
@@ -275,6 +276,11 @@ contract TokenFacet is BaseConnextFacet {
     address _stableSwapPool,
     TokenId calldata _canonical
   ) internal returns (bytes32 _key) {
+    // Sanity check: canonical ID and domain are not 0.
+    if (_canonical.domain == 0 || _canonical.id == bytes32("")) {
+      revert TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
+    }
+
     // Get the key
     _key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
 
@@ -287,7 +293,7 @@ contract TokenFacet is BaseConnextFacet {
     // Update approved assets mapping
     s.approvedAssets[_key] = true;
 
-    // Update the adopted mapping using convention of local == adopted iff (_adooted == address(0))
+    // Update the adopted mapping using convention of local == adopted iff (_adopted == address(0))
     s.adoptedToCanonical[adopted].domain = _canonical.domain;
     s.adoptedToCanonical[adopted].id = _canonical.id;
 
