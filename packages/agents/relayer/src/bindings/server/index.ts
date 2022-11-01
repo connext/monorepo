@@ -75,7 +75,7 @@ export const bindServer = () =>
       try {
         const { taskId } = request.params;
         const status = await cache.tasks.getStatus(taskId);
-        return response.status(200).send([{ taskId, taskState: status }]);
+        return response.status(200).send({ taskId, taskState: status });
       } catch (error: unknown) {
         logger.error(`Error getting task status`, requestContext, methodContext);
         return response.code(500).send({ message: `Error getting task status`, error: jsonifyError(error as Error) });

@@ -159,9 +159,9 @@ describe("Adapters: Gelato", () => {
     it("should timeout", async () => {
       const mockTaskId = mkBytes32("0xaaa");
       axiosGetStub.onFirstCall().throws();
-      await expect(waitForTaskCompletion(mockTaskId, logger, loggingContext.requestContext, 1_000)).to.be.rejectedWith(
-        TransactionHashTimeout,
-      );
+      await expect(
+        waitForTaskCompletion(mockTaskId, logger, loggingContext.requestContext, 1_000, 200),
+      ).to.be.rejectedWith(TransactionHashTimeout);
     });
     it("should wait until getting finalized task status", async () => {
       const mockTaskId = mkBytes32("0xaaa");
@@ -171,13 +171,13 @@ describe("Adapters: Gelato", () => {
       axiosGetStub
         .onSecondCall()
         .resolves({ data: { task: { taskId: mockTaskId, taskState: RelayerTaskStatus.ExecSuccess } } });
-      const taskStatus = await waitForTaskCompletion(mockTaskId, logger, loggingContext.requestContext, 12_000);
+      const taskStatus = await waitForTaskCompletion(mockTaskId, logger, loggingContext.requestContext, 12_000, 200);
       expect(taskStatus).to.be.eq(RelayerTaskStatus.ExecSuccess);
     });
     it("happy: should return taskStatus successfully", async () => {
       const mockTaskId = mkBytes32("0xaaa");
       axiosGetStub.resolves({ data: { task: { taskId: mockTaskId, taskState: RelayerTaskStatus.ExecSuccess } } });
-      const taskStatus = await waitForTaskCompletion(mockTaskId, logger, loggingContext.requestContext, 6_000);
+      const taskStatus = await waitForTaskCompletion(mockTaskId, logger, loggingContext.requestContext, 6_000, 200);
       expect(taskStatus).to.be.eq(RelayerTaskStatus.ExecSuccess);
     });
   });
