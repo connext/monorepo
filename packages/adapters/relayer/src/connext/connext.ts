@@ -91,7 +91,7 @@ export const getTaskStatus = async (taskId: string): Promise<RelayerTaskStatus> 
   try {
     const apiEndpoint = `${url}/tasks/status/${taskId}`;
     const res = await axios.get(apiEndpoint);
-    return res.data.task?.taskState ?? RelayerTaskStatus.NotFound;
+    return res.data.taskState ?? RelayerTaskStatus.NotFound;
   } catch (error: unknown) {
     throw new UnableToGetTaskStatus(taskId, { err: jsonifyError(error as Error) });
   }
@@ -102,6 +102,7 @@ export const waitForTaskCompletion = async (
   logger: Logger,
   _requestContext: RequestContext,
   _timeout = 600_000,
+  _pollInterval = 5_000,
 ): Promise<RelayerTaskStatus> => {
   const { requestContext, methodContext } = createLoggingContext(waitForTaskCompletion.name, _requestContext);
   let taskStatus: RelayerTaskStatus | undefined;
@@ -134,7 +135,7 @@ export const waitForTaskCompletion = async (
           jsonifyError(error as NxtpError),
         );
       }
-    }, 5_000);
+    }, _pollInterval);
   });
 
   if (!taskStatus) {
