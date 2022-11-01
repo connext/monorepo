@@ -122,6 +122,7 @@ export const waitForTaskCompletion = async (
           RelayerTaskStatus.Blacklisted,
         ];
         if (finalTaskStatuses.includes(taskStatus)) {
+          logger.debug("Received finalized task status", requestContext, methodContext, { taskStatus, taskId });
           stop();
           res(undefined);
         }
