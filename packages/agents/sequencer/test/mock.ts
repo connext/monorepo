@@ -21,10 +21,9 @@ export const mock = {
         cache: mock.adapters.cache(),
         chainreader: mock.adapters.chainreader(),
         contracts: mock.adapters.contracts(),
-        relayer: mock.adapters.relayer(),
+        relayers: mock.adapters.relayers(),
         mqClient: mock.adapters.mqClient() as any,
         wallet: createStubInstance(Wallet, { getAddress: Promise.resolve(mockSequencer) }),
-        backupRelayer: mock.adapters.relayer(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -82,7 +81,7 @@ export const mock = {
     },
     relayers: [
       {
-        type: "Backup",
+        type: "Connext",
         apiKey: "foo",
         url: "http://example.com",
       },
@@ -149,7 +148,13 @@ export const mock = {
         spokeConnector: spokeConnector as any,
       };
     },
-    relayer: () => mockRelayer(),
+    relayers: () => [
+      {
+        instance: mockRelayer(),
+        apiKey: "foo",
+        url: "http://localhost:8080",
+      },
+    ],
     mqClient: () => {
       return {
         publish: stub(),

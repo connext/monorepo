@@ -83,7 +83,7 @@ export const mock = {
     hubDomain: "1337",
     relayers: [
       {
-        type: "Backup",
+        type: "Connext",
         url: "https://relayer-backup.com",
         apiKey: "foo",
       },

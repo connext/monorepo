@@ -312,7 +312,7 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     },
     relayers: [
       {
-        type: "Backup",
+        type: "Connext",
         apiKey: "foo",
         url: `http://${LOCALHOST}:8082`,
       },
