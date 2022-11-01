@@ -208,6 +208,7 @@ export const setupContext = async (
     context.config.chains,
   );
   context.adapters.contracts = getContractInterfaces();
+  context.adapters.relayers = [];
   for (const relayerConfig of context.config.relayers) {
     const setupFunc =
       relayerConfig.type == RelayerType.Gelato
