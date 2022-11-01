@@ -54,7 +54,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       whitelist: ["0x4fFA5968857a6C8242E4A6Ded2418155D33e82E7"],
     },
     relayers: {
-      whitelist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92"],
+      whitelist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", "0x935AaAe0f5b02007c08512F0629a9d37Af2E1A47"],
     },
   },
 };
