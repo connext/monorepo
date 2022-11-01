@@ -1,5 +1,4 @@
 import fastify, { FastifyInstance } from "fastify";
-import pino from "pino";
 import {
   RelayerApiPostTaskRequestParams,
   RelayerApiPostTaskResponse,
