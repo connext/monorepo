@@ -44,6 +44,8 @@ export const makeProcessFromRoot = async () => {
       context.config.chains,
     );
     context.adapters.database = await getDatabase(context.config.database.url, context.logger);
+
+    context.adapters.relayers = [];
     for (const relayerConfig of context.config.relayers) {
       const setupFunc =
         relayerConfig.type == RelayerType.Gelato
