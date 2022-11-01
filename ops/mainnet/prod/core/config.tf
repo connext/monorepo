@@ -90,7 +90,18 @@ locals {
       }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
-    relayerUrl = "https://${module.relayer.service_endpoint}"
+    relayers = [
+      {
+        type    = "Gelato",
+        apiKey  = "${var.gelato_api_key}",
+        url     = "https://relay.gelato.digital"
+      },
+      {
+        type    = "Connext",
+        apiKey  = "foo",
+        url     = "https://${module.relayer.service_endpoint}"
+      }
+    ]
     environment   = var.stage
     messageQueue = {
       connection = {
@@ -144,8 +155,7 @@ locals {
       ]
       executerTimeout = 300000
       publisher       = "sequencerX"
-    },
-    gelatoApiKey = "${var.gelato_api_key}"
+    }
   })
 
   local_router_config = jsonencode({
