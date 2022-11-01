@@ -25,9 +25,11 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   event DelayBlocksUpdated(uint256 previous, uint256 updated);
 
-  event RootAggregated(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
+  event RootReceived(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
 
-  event RootPropagated(bytes32 aggregateRoot, uint256 count, uint32[] domains, bytes32[] aggregatedMessageRoots);
+  event RootsAggregated(bytes32 aggregateRoot, uint256 count, bytes32[] aggregatedMessageRoots);
+
+  event RootPropagated(bytes32 aggregateRoot, uint256 count, uint32[] domains);
 
   event ConnectorAdded(uint32 domain, address connector, uint32[] domains, address[] connectors);
 
@@ -151,16 +153,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     require(_connectors.length == _numDomains, "invalid lengths");
     validateDomains(_domains, _connectors);
 
-    // Get all of the verified roots from the queue.
-    bytes32[] memory _verifiedInboundRoots = pendingInboundRoots.dequeueVerified(delayBlocks);
-
-    // Sanity check: there must be some verified roots to aggregate and send: otherwise we would be
-    // propagating a redundant aggregate root.
-    require(_verifiedInboundRoots.length != 0, "no verified roots");
-
-    // Insert the leaves into the aggregator tree (method will also calculate and return the current
-    // aggregate root and count).
-    (bytes32 _aggregateRoot, uint256 _count) = MERKLE.insert(_verifiedInboundRoots);
+    // Dequeue verified roots from the queue and insert into the tree.
+    (bytes32 _aggregateRoot, uint256 _count) = dequeue();
 
     for (uint32 i; i < _numDomains; ) {
       IHubConnector(_connectors[i]).sendMessage(abi.encodePacked(_aggregateRoot));
@@ -169,7 +163,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
       }
     }
 
-    emit RootPropagated(_aggregateRoot, _count, _domains, _verifiedInboundRoots);
+    emit RootPropagated(_aggregateRoot, _count, _domains);
   }
 
   /**
@@ -184,6 +178,32 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    */
   function aggregate(uint32 _domain, bytes32 _inbound) external whenNotPaused onlyConnector(_domain) {
     uint128 lastIndex = pendingInboundRoots.enqueue(_inbound);
-    emit RootAggregated(_domain, _inbound, lastIndex);
+    emit RootReceived(_domain, _inbound, lastIndex);
+  }
+
+  /**
+   * @notice Dequeue verified inbound roots and insert them into the aggregator tree.
+   * @dev Will dequeue a fixed maximum amount of roots to prevent out of gas errors. As such, this
+   * method is public and separate from `propagate` so we can curtail an overloaded queue as needed.
+   * @dev Reverts if no verified inbound roots are found.
+   *
+   * @return bytes32 The new aggregate root.
+   * @return uint256 The updated count (number of leaves).
+   */
+  function dequeue() public whenNotPaused returns (bytes32, uint256) {
+    // Get all of the verified roots from the queue.
+    bytes32[] memory _verifiedInboundRoots = pendingInboundRoots.dequeueVerified(delayBlocks);
+
+    // Sanity check: there must be some verified roots to aggregate and send: otherwise we would be
+    // propagating a redundant aggregate root.
+    require(_verifiedInboundRoots.length != 0, "no verified roots");
+
+    // Insert the leaves into the aggregator tree (method will also calculate and return the current
+    // aggregate root and count).
+    (bytes32 _aggregateRoot, uint256 _count) = MERKLE.insert(_verifiedInboundRoots);
+
+    emit RootsAggregated(_aggregateRoot, _count, _verifiedInboundRoots);
+
+    return (_aggregateRoot, _count);
   }
 }
