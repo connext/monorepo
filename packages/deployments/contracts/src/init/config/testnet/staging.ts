@@ -7,6 +7,7 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
     "1735356532",
     // "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
+    "1667787105", /// CHIADO
   ],
   assets: [
     {
@@ -24,6 +25,10 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
         "9991": {
           local: "0xeDb95D8037f769B72AAab41deeC92903A98C9E16",
           adopted: "0xeDb95D8037f769B72AAab41deeC92903A98C9E16",
+        },
+        "1667787105": {
+          local: "0xE7F28345A296Cf7ad502faEc18ad9Dadef43c385",
+          adopted: "0xE7F28345A296Cf7ad502faEc18ad9Dadef43c385",
         },
         /// ARBITRUM-GOERLI
         // "1734439522": {
@@ -48,6 +53,9 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
           local: "0xaa52c1e21428e1a081d77c869276100be1db9aee",
           adopted: "0x6c6F2Ed3283124eA2C861100ED044f4d0F434Fc1",
         },
+        "1667787105": {
+          adopted: "0x0E110a35D452f342c8C7A402B7D52e1b7E0F3132",
+        },
       },
     },
     {
@@ -65,6 +73,9 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
         "9991": {
           local: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
           adopted: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
+        },
+        "1667787105": {
+          adopted: "0xAF9F2425646C49D0d4D2fCCb795bbde7398dCC3b",
         },
         /// ARBITRUM-GOERLI
         // "1734439522": {
