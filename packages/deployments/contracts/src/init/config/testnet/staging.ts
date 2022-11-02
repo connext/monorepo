@@ -35,9 +35,6 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
           local: "0x246AcF98b6f97d90bCA245E7C1d633779983cd3F",
           adopted: "0x246AcF98b6f97d90bCA245E7C1d633779983cd3F",
         },
-        "1667787105": {
-          adopted: "0x0E110a35D452f342c8C7A402B7D52e1b7E0F3132",
-        },
       },
     },
     // {
@@ -81,6 +78,7 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
         },
         "1667787105": {
           adopted: "0xAF9F2425646C49D0d4D2fCCb795bbde7398dCC3b",
+          local: "0xAF9F2425646C49D0d4D2fCCb795bbde7398dCC3b",
         },
         /// ARBITRUM-GOERLI
         "1734439522": {
