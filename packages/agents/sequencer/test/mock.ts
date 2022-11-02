@@ -100,7 +100,7 @@ export const mock = {
     },
     subgraph: (): SinonStubbedInstance<SubgraphReader> => {
       const subgraph = createStubInstance(SubgraphReader);
-      subgraph.getXCalls.resolves([]);
+      subgraph.getDestinationXCalls.resolves([]);
       return subgraph;
     },
     chainreader: (): SinonStubbedInstance<ChainReader> => {
