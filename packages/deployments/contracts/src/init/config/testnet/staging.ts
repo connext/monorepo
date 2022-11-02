@@ -5,7 +5,7 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
   supportedDomains: [
     "1735353714",
     "1735356532",
-    // "1734439522", /// ARBITRUM-GOERLI
+    "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
   ],
   assets: [
@@ -26,30 +26,35 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
           adopted: "0xeDb95D8037f769B72AAab41deeC92903A98C9E16",
         },
         /// ARBITRUM-GOERLI
-        // "1734439522": {
-        //   local: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
-        //   adopted: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
-        // },
-      },
-    },
-    {
-      name: "TEST2",
-      canonical: {
-        domain: "1735353714",
-        address: "0x681B5f54B936F2cBb52C41C2CaCbdb4f3A805e77",
-        decimals: 18,
-      },
-      representations: {
-        "1735356532": {
-          local: "0x387d74037a7b691e8f6203b8c7589ea9d0b7d3c0",
-          adopted: "0x154284B2Fa68AB299fa40F144b6D0983163cd108",
-        },
-        "9991": {
-          local: "0xaa52c1e21428e1a081d77c869276100be1db9aee",
-          adopted: "0x6c6F2Ed3283124eA2C861100ED044f4d0F434Fc1",
+        "1734439522": {
+          local: "0x246AcF98b6f97d90bCA245E7C1d633779983cd3F",
+          adopted: "0x246AcF98b6f97d90bCA245E7C1d633779983cd3F",
         },
       },
     },
+    // {
+    //   name: "TEST2",
+    //   canonical: {
+    //     domain: "1735353714",
+    //     address: "0x681B5f54B936F2cBb52C41C2CaCbdb4f3A805e77",
+    //     decimals: 18,
+    //   },
+    //   representations: {
+    //     "1735356532": {
+    //       local: "0x387d74037a7b691e8f6203b8c7589ea9d0b7d3c0",
+    //       adopted: "0x154284B2Fa68AB299fa40F144b6D0983163cd108",
+    //     },
+    //     "9991": {
+    //       local: "0xaa52c1e21428e1a081d77c869276100be1db9aee",
+    //       adopted: "0x6c6F2Ed3283124eA2C861100ED044f4d0F434Fc1",
+    //     },
+    //     /// ARBITRUM-GOERLI
+    //     // "1734439522": {
+    //     //   local: "0x246AcF98b6f97d90bCA245E7C1d633779983cd3F",
+    //     //   adopted: "0x246AcF98b6f97d90bCA245E7C1d633779983cd3F",
+    //     // },
+    //   },
+    // },
     {
       name: "WETH",
       canonical: {
