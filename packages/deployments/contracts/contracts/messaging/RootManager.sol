@@ -38,6 +38,12 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   // ============ Properties ============
 
   /**
+   * @notice Maximum number of values to dequeue from the queue in one sitting (one call of `propagate`
+   * or `dequeue`). Used to cap gas requirements.
+   */
+  uint256 public constant DEQUEUE_MAX = 100;
+
+  /**
    * @notice Number of blocks to delay the processing of a message to allow for watchers to verify
    * the validity and pause if necessary.
    */
@@ -192,7 +198,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    */
   function dequeue() public whenNotPaused returns (bytes32, uint256) {
     // Get all of the verified roots from the queue.
-    bytes32[] memory _verifiedInboundRoots = pendingInboundRoots.dequeueVerified(delayBlocks);
+    bytes32[] memory _verifiedInboundRoots = pendingInboundRoots.dequeueVerified(delayBlocks, DEQUEUE_MAX);
 
     // Sanity check: there must be some verified roots to aggregate and send: otherwise we would be
     // propagating a redundant aggregate root.

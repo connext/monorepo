@@ -54,18 +54,21 @@ library QueueLib {
    * @param queue QueueStorage struct from contract.
    * @param delay The required delay that must have been surpassed in order to merit dequeuing
    * the element.
+   * @param max The maximum number of elements we are allowed to dequeue in this call.
    * @return item Dequeued element IFF delay period has been surpassed; otherwise, empty bytes32.
    **/
-  function dequeueVerified(Queue storage queue, uint256 delay) internal returns (bytes32[] memory) {
+  function dequeueVerified(
+    Queue storage queue,
+    uint256 delay,
+    uint256 max
+  ) internal returns (bytes32[] memory) {
     uint128 first = queue.first;
     uint128 last = queue.last;
     require(last >= first, "queue empty");
 
     // To determine the last item index in the queue we want to return, iterate backwards until we
     // find a `commitBlock` that has surpassed the delay period.
-    // NOTE: We iterate backwards as an optimization; as soon as we find an item whose verified,
-    // we know that all items before it in the queue are already verified.
-    // TODO: The most efficient way to determine the split index here should be using a binary search!
+    // TODO: The most efficient way to determine the split index here should be using a binary search.
     bool containsVerified;
     for (last; last >= first; ) {
       uint256 commitBlock = queue.commitBlock[last];
