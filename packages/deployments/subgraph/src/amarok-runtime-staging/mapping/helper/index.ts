@@ -36,6 +36,8 @@ export function getChainId(): BigInt {
     chainId = BigInt.fromI32(10);
   } else if (network == "mbase") {
     chainId = BigInt.fromI32(1287);
+  } else if (network == "chiado") {
+    chainId = BigInt.fromI32(10200);
   } else if (network == "arbitrum-one") {
     chainId = BigInt.fromI32(42161);
   } else if (network == "fuji") {
@@ -46,6 +48,8 @@ export function getChainId(): BigInt {
     chainId = BigInt.fromI32(80001);
   } else if (network == "arbitrum-rinkeby") {
     chainId = BigInt.fromI32(421611);
+  } else if (network == "arbitrum-goerli") {
+    chainId = BigInt.fromI32(421613);
   } else {
     throw new Error(`No chainName for network ${network}`);
   }
