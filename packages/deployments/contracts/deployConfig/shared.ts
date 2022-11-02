@@ -271,18 +271,20 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       //   processGas: DEFAULT_PROCESS_GAS,
       //   reserveGas: DEFAULT_RESERVE_GAS,
       // },
+
       // Gnosis Chiado chain
-      // 100100: {
-      //   prefix: "Gnosis",
-      //   ambs: {
-      //     // https://docs.gnosischain.com/about/networks/chiado
-      //     hub: "0x5816D9EdC3D30F501A098bC26A313Ae8BeB7B8ad",
-      //     spoke: "0x2f018c1118B0DC28E395d054e80fE44c61904892",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
-      // },
+      10200: {
+        prefix: "Gnosis",
+        ambs: {
+          // https://docs.gnosischain.com/about/networks/chiado
+          hub: "0x87A19d769D875964E9Cd41dDBfc397B2543764E",
+          spoke: "0x99Ca51a3534785ED619f46A79C7Ad65Fa8d85e7a",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+      },
+
       // Arbitrum nitro goerli testnet:
       // https://developer.offchainlabs.com/docs/Useful_Addresses
       // 421613: {
