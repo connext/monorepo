@@ -1,10 +1,11 @@
-import { providers } from "ethers";
+import { BigNumber, providers } from "ethers";
 import { createLoggingContext, jsonifyError, RelayerTaskStatus } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 import { CachedTaskData } from "@connext/nxtp-adapters-cache/dist/lib/caches/tasks";
 
 import { getContext } from "../../relayer";
 
+export const MIN_GAS_LIMIT = BigNumber.from(2_000_000);
 export const DEFAULT_POLL_INTERVAL = 1_000;
 
 export const bindRelays = async (_pollInterval?: number) => {
@@ -77,14 +78,27 @@ export const pollCache = async () => {
 
       // TODO: Queue up fee claiming for this transfer after this (assuming transaction is successful)!
       try {
-        // Execute the calldata.
-        const { confirmations } = config.chains[domain];
-        const tx = await signer.sendTransaction({
+        const transaction = {
           chainId: chain,
           to,
           data,
           from: await wallet.getAddress(),
+        };
+        // Estimate gas limit.
+        // TODO: For `proveAndProcess` calls, we should be providing:
+        // gas limit = expected gas cost + PROCESS_GAS + RESERVE_GAS
+        // We need to read those values from on-chain IFF this is a `proveAndProcess` call.
+        const gasLimit = await signer.estimateGas(transaction);
+
+        // Execute the calldata.
+        // TODO: Debugging, remove and use txservice.
+        const tx = await signer.sendTransaction({
+          ...transaction,
+          gasLimit: gasLimit.gt(MIN_GAS_LIMIT) ? gasLimit : MIN_GAS_LIMIT,
         });
+
+        // Wait for confirmation.
+        const { confirmations } = config.chains[domain];
         logger.debug("Sent transaction to network. Awaiting confirmations...", requestContext, methodContext, {
           chain,
           taskId,
