@@ -181,8 +181,10 @@ const handleDeployHub = async (
 
     const contract = getConnectorName(protocol, mirrorChainId, protocol.hub);
 
+    const deploymentName = getDeploymentName(contract, undefined, protocol.configs[mirrorChainId].networkName);
+
     console.log(`Deploying ${contract}...`);
-    const deployment = await hre.deployments.deploy(getDeploymentName(contract), {
+    const deployment = await hre.deployments.deploy(deploymentName, {
       contract,
       from: deployer.address,
       args: formatConnectorArgs(protocol, {
@@ -196,8 +198,14 @@ const handleDeployHub = async (
     });
     console.log(`${contract} deployed to ${deployment.address}`);
 
+    const resolverDeploymentName = getDeploymentName(
+      `${contract}SendOutboundRootResolver`,
+      undefined,
+      protocol.configs[mirrorChainId].networkName,
+    );
+
     console.log(`Deploying ${contract} SendOutboundRootResolver...`);
-    const resolverDeployment = await hre.deployments.deploy(getDeploymentName(`${contract}SendOutboundRootResolver`), {
+    const resolverDeployment = await hre.deployments.deploy(resolverDeploymentName, {
       contract: "SendOutboundRootResolver",
       from: deployer.address,
       args: [deployment.address, 30 * 60],
