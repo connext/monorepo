@@ -64,7 +64,7 @@
     ]
   },
   {
-    "subgraphName": "",
+    "subgraphName": "connext/amarok-runtime-staging-chiado",
     "network": "chiado",
     "source": [
       {
