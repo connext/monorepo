@@ -5,14 +5,14 @@ import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-
 
 import { getConfig } from "../../config";
 
-import { ProcessFromRootContext } from "./context";
-import { processFromRoot } from "./operations";
+import { ReceiveSpokeRootContext } from "./context";
+import { receiveSpokeRoot } from "./operations";
 
-const context: ProcessFromRootContext = {} as any;
+const context: ReceiveSpokeRootContext = {} as any;
 export const getContext = () => context;
 
-export const makeProcessFromRoot = async () => {
-  const { requestContext, methodContext } = createLoggingContext(makeProcessFromRoot.name);
+export const makeReceiveSpokeRoot = async () => {
+  const { requestContext, methodContext } = createLoggingContext(makeReceiveSpokeRoot.name);
 
   try {
     // Get ChainData and parse out configuration.
@@ -83,7 +83,7 @@ export const makeProcessFromRoot = async () => {
     );
 
     // Start the prover.
-    await processFromRoot();
+    await receiveSpokeRoot();
     if (context.config.healthUrls.processor) {
       await sendHeartbeat(context.config.healthUrls.processor, context.logger);
     }

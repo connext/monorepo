@@ -1,12 +1,12 @@
 import { createLoggingContext } from "@connext/nxtp-utils";
 
-import { getContext } from "../processFromRoot";
+import { getContext } from "../receiveSpokeRoot";
 import { NoRootAvailable } from "../errors";
 import { generateExitPayload } from "../../../mockable";
 
-import { GetProcessArgsParams } from ".";
+import { GetReceiveArgsParams } from ".";
 
-export const getProcessFromPolygonRootArgs = async ({
+export const getReceiveFromPolygonArgs = async ({
   spokeDomainId,
   hubDomainId,
   spokeChainId,
@@ -15,10 +15,10 @@ export const getProcessFromPolygonRootArgs = async ({
   hubProvider,
   sendHash,
   _requestContext,
-}: GetProcessArgsParams): Promise<[string]> => {
+}: GetReceiveArgsParams): Promise<[string]> => {
   const { logger } = getContext();
-  const { requestContext, methodContext } = createLoggingContext("getProcessFromPolygonRootArgs", _requestContext);
-  logger.info("getProcessFromPolygonRootArgs method start", requestContext, methodContext);
+  const { requestContext, methodContext } = createLoggingContext("getReceiveFromPolygonArgs", _requestContext);
+  logger.info("getReceiveFromPolygonArgs method start", requestContext, methodContext);
 
   const SEND_MESSAGE_EVENT_SIG = "0x8c5261668696ce22758910d05bab8f186d6eb247ceac2af2e82c7dc17669b036"; // keccak256(MessageSent(bytes))
 

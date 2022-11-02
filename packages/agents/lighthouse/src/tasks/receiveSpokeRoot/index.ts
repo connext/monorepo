@@ -1,6 +1,6 @@
 import tracer from "dd-trace";
 
-import { makeProcessFromRoot } from "./processFromRoot";
+import { makeReceiveSpokeRoot } from "./receiveSpokeRoot";
 
 tracer.init({ profiling: true, runtimeMetrics: true });
-makeProcessFromRoot();
+makeReceiveSpokeRoot();

@@ -10,39 +10,39 @@ import {
 
 import { encodeProcessMessageFromRoot, sendWithRelayerWithBackup } from "../../../mockable";
 import { ProcessConfigNotAvailable } from "../errors";
-import { GetProcessArgsParams, getProcessFromOptimismRootArgs, getProcessFromPolygonRootArgs } from "../helpers";
-import { getContext } from "../processFromRoot";
+import { GetReceiveArgsParams, getReceiveFromOptimismArgs, getReceiveFromPolygonArgs } from "../helpers";
+import { getContext } from "../receiveSpokeRoot";
 
-export type ProcessConfig = {
-  getArgs: (params: GetProcessArgsParams) => Promise<any[]>;
+export type ReceiveConfig = {
+  getArgs: (params: GetReceiveArgsParams) => Promise<any[]>;
   hubConnectorPrefix: string;
   processorFunctionName: string;
 };
 
-export const processorConfigs: Record<string, ProcessConfig> = {
+export const processorConfigs: Record<string, ReceiveConfig> = {
   "1735356532": {
-    getArgs: getProcessFromOptimismRootArgs,
+    getArgs: getReceiveFromOptimismArgs,
     hubConnectorPrefix: "Optimism",
     processorFunctionName: "processMessageFromRoot",
   },
   "9991": {
-    getArgs: getProcessFromPolygonRootArgs,
+    getArgs: getReceiveFromPolygonArgs,
     hubConnectorPrefix: "Polygon",
     processorFunctionName: "receiveMessage",
   },
   "1869640809": {
-    getArgs: getProcessFromOptimismRootArgs,
+    getArgs: getReceiveFromOptimismArgs,
     hubConnectorPrefix: "Optimism",
     processorFunctionName: "processMessageFromRoot",
   },
   "1886350457": {
-    getArgs: getProcessFromPolygonRootArgs,
+    getArgs: getReceiveFromPolygonArgs,
     hubConnectorPrefix: "Polygon",
     processorFunctionName: "receiveMessage",
   },
 };
 
-export const processFromRoot = async () => {
+export const receiveSpokeRoot = async () => {
   const {
     adapters: { database },
     logger,

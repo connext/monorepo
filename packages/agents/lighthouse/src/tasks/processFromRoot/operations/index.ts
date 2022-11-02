@@ -1,1 +1,0 @@
-export { processFromRoot } from "./processFromRoot";

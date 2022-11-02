@@ -80,4 +80,4 @@ WORKDIR /home/node/packages/agents/lighthouse
 
 EXPOSE 8080
 
-CMD ["node", "--trace-warnings", "dist/tasks/processFromRoot/index.js"]
+CMD ["node", "--trace-warnings", "dist/tasks/receiveSpokeRoot/index.js"]

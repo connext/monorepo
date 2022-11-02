@@ -1,9 +1,9 @@
 import { RequestContext } from "@connext/nxtp-utils";
 
-export { getProcessFromOptimismRootArgs } from "./optimism";
-export { getProcessFromPolygonRootArgs } from "./polygon";
+export { getReceiveFromOptimismArgs } from "./optimism";
+export { getReceiveFromPolygonArgs } from "./polygon";
 
-export type GetProcessArgsParams = {
+export type GetReceiveArgsParams = {
   spokeChainId: number;
   hubChainId: number;
   spokeDomainId: string;

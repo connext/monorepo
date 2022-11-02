@@ -4,21 +4,21 @@ import { BigNumber, providers } from "ethers";
 
 import { CrossChainMessenger } from "../../../mockable";
 import { NoRootAvailable } from "../errors";
-import { getContext } from "../processFromRoot";
+import { getContext } from "../receiveSpokeRoot";
 
-import { GetProcessArgsParams } from ".";
+import { GetReceiveArgsParams } from ".";
 
-export const getProcessFromOptimismRootArgs = async ({
+export const getReceiveFromOptimismArgs = async ({
   spokeChainId,
   hubChainId,
   spokeProvider,
   hubProvider,
   sendHash,
   _requestContext,
-}: GetProcessArgsParams): Promise<[string, string, string, BigNumber, CrossChainMessageProof]> => {
+}: GetReceiveArgsParams): Promise<[string, string, string, BigNumber, CrossChainMessageProof]> => {
   const { logger } = getContext();
-  const { requestContext, methodContext } = createLoggingContext("getProcessFromOptimismRootArgs", _requestContext);
-  logger.info("getProcessFromOptimismRootArgs method start", requestContext, methodContext);
+  const { requestContext, methodContext } = createLoggingContext("getReceiveFromOptimismArgs", _requestContext);
+  logger.info("getReceiveFromOptimismArgs method start", requestContext, methodContext);
   // When processing from root on optimism, you need the following information:
   //   address _target, -> connector
   //   address _sender, -> mirror connector

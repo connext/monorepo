@@ -5,7 +5,7 @@ import { Relayer } from "@connext/nxtp-adapters-relayer";
 
 import { NxtpLighthouseConfig } from "../../config";
 
-export type ProcessFromRootContext = {
+export type ReceiveSpokeRootContext = {
   logger: Logger;
   adapters: {
     // Stateful interfaces for peripherals.
