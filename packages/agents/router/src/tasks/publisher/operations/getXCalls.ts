@@ -20,6 +20,7 @@ export const getXCalls = async () => {
   const allowedDomains = Object.keys(config.chains);
   const latestBlockNumbers = await subgraph.getLatestBlockNumber(allowedDomains);
   for (const domain of allowedDomains) {
+    console.log("domain: ", domain);
     try {
       let latestBlockNumber = 0;
       if (latestBlockNumbers.has(domain)) {
@@ -32,6 +33,7 @@ export const getXCalls = async () => {
 
       const safeConfirmations = config.chains[domain].confirmations ?? DEFAULT_SAFE_CONFIRMATIONS;
       const latestNonce = await cache.transfers.getLatestNonce(domain);
+      console.log("latestNonce: ", latestNonce);
 
       subgraphQueryMetaParams.set(domain, {
         maxBlockNumber: latestBlockNumber - safeConfirmations,
@@ -51,7 +53,16 @@ export const getXCalls = async () => {
   }
 
   if ([...subgraphQueryMetaParams.keys()].length > 0) {
-    const transfers = await subgraph.getXCalls(subgraphQueryMetaParams);
+    const { txIdsByDestinationDomain, allTxById, latestNonces } = await subgraph.getOriginXCalls(
+      subgraphQueryMetaParams,
+    );
+
+    for (const [domain, nonce] of latestNonces.entries()) {
+      // set nonce now so we don't requery the same transfers
+      await cache.transfers.setLatestNonce(domain as string, (nonce as number) ?? 0);
+    }
+
+    const transfers = await subgraph.getDestinationXCalls(txIdsByDestinationDomain, allTxById);
     if (transfers.length === 0) {
       logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
         subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
@@ -72,9 +83,6 @@ export const getXCalls = async () => {
               routingKey: XCALL_QUEUE,
             });
             logger.debug("Published transfer to mq", _requestContext, _methodContext, { transfer });
-
-            // TODO: once per transfer instead
-            await cache.transfers.setLatestNonce(transfer.xparams.originDomain, transfer.xparams.nonce ?? 0);
           } catch (err: unknown) {
             logger.error("Error publishing to mq", _requestContext, _methodContext, jsonifyError(err as Error));
           }
