@@ -287,7 +287,7 @@ module "lighthouse_process_from_root_cron" {
   vpc_id                  = module.network.vpc_id
   private_subnets         = module.network.private_subnets
   docker_image            = var.full_image_name_lighthouse_process_from_root
-  container_family        = "lighthouse_process_from_root_cron"
+  container_family        = "lighthouse_process_cron"
   container_port          = 8080
   cpu                     = 256
   memory                  = 512
