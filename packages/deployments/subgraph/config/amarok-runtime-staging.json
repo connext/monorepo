@@ -46,5 +46,42 @@
         "startBlock": 28695656
       }
     ]
+  },
+  {
+    "subgraphName": "connext/nxtp-amarok-staging-arbi-goerl",
+    "network": "arbitrum-goerli",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x7B0420fD5B640ab335b98280C6Ae061040639418",
+        "startBlock": 953111
+      },
+      {
+        "name": "Connector",
+        "address": "0xf861C3B745AE8bdAb832eF495719D40EaEf1fb50",
+        "startBlock": 953078
+      }
+    ]
+  },
+  {
+    "subgraphName": "",
+    "network": "chiado",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x29fBdcF834D3f85DD5D25aDedBA19380837cDF21",
+        "startBlock": 643867
+      },
+      {
+        "name": "Connector",
+        "address": "0xA8f09113dDCc95c0492230a4eE1ddfEA80c34F83",
+        "startBlock": 643776
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/amarok-runtime-staging-chapel",
+    "network": "chapel",
+    "source": []
   }
 ]

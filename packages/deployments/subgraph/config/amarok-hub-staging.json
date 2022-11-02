@@ -17,6 +17,16 @@
         "name": "OptimismHubConnector",
         "address": "0x7D9c146cEdEb97d9161b0f2E4E73255E78dc10cd",
         "startBlock": 7795147
+      },
+      {
+        "name": "GnosisHubConnector",
+        "address": "0x680B55a9E9D674BdD3f24938b772FCaC66E435Cc",
+        "startBlock": 7877863
+      },
+      {
+        "name": "ArbitrumHubConnector",
+        "address": "0x8B9Be9FAa60197665F9Cb75f049574613743A468",
+        "startBlock": 7877895
       }
     ]
   }
