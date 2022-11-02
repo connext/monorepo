@@ -101,14 +101,14 @@ export const processMessage = async (message: XMessage) => {
   if (messageVerification && messageVerification.verified) {
     logger.info("Message Verified successfully", requestContext, methodContext, {
       messageIndex: message.origin.index,
-      lef: message.leaf,
+      leaf: message.leaf,
       targetMessageRoot,
       messageVerification,
     });
   } else {
     logger.info("Message verification failed", requestContext, methodContext, {
       messageIndex: message.origin.index,
-      lef: message.leaf,
+      leaf: message.leaf,
       targetMessageRoot,
       messageVerification,
     });
