@@ -77,6 +77,12 @@ export const sendWithRelayerWithBackup = async (
         });
 
         break;
+      } else {
+        // waitForTaskCompletion returned without throwing, but the task was not successful
+        logger.info(`Task status with ${relayer.type} relayer`, requestContext, methodContext, {
+          taskId,
+          status,
+        });
       }
     } catch (err: unknown) {
       logger.error(
