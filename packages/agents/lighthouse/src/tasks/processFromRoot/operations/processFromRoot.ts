@@ -51,7 +51,9 @@ export const processFromRoot = async () => {
   const { requestContext: _requestContext, methodContext } = createLoggingContext("processFromRoot");
   logger.info("processFromRoot method start", _requestContext, methodContext);
   const unprocessed = await database.getRootMessages(false);
-  logger.info("Got unprocessed root messages", _requestContext, methodContext, { unprocessed });
+  if (unprocessed.length > 0) {
+    logger.info("Got unprocessed root messages", _requestContext, methodContext, { unprocessed });
+  }
 
   await Promise.all(
     unprocessed.map(async (msg) => {
