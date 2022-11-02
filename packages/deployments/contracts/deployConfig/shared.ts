@@ -277,7 +277,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         prefix: "Gnosis",
         ambs: {
           // https://docs.gnosischain.com/about/networks/chiado
-          hub: "0x87A19d769D875964E9Cd41dDBfc397B2543764E",
+          hub: "0x87A19d769D875964E9Cd41dDBfc397B2543764E6",
           spoke: "0x99Ca51a3534785ED619f46A79C7Ad65Fa8d85e7a",
         },
         processGas: DEFAULT_PROCESS_GAS,
