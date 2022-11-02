@@ -34,6 +34,7 @@ export const ProtocolNetworks: Record<string, string> = {
   "420": ProtocolNetwork.TESTNET,
   "80001": ProtocolNetwork.TESTNET,
   "421613": ProtocolNetwork.TESTNET,
+  "10200": ProtocolNetwork.TESTNET,
 
   // mainnets
   "1": ProtocolNetwork.MAINNET,

@@ -207,7 +207,7 @@ export const hardhatNetworks = {
       },
     },
   },
-  "gnosis-testnet": {
+  chiado: {
     accounts: { mnemonic },
     chainId: 10200,
     url: urlOverride || process.env.GNOSIS_TESTNET_PROVIDER_URL || "https://rpc.chiadochain.net",
