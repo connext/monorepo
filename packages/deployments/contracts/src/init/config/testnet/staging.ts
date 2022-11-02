@@ -67,10 +67,10 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
           adopted: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
         },
         /// ARBITRUM-GOERLI
-        // "1734439522": {
-        //   local: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
-        //   adopted: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
-        // },
+        "1734439522": {
+          local: "0x949891ca2C36Ad949c46b30cfc150a1507E2556A",
+          adopted: "0xC033378c6eEa969C001CE9438973ca4d6460999a",
+        },
       },
     },
   ],
