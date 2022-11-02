@@ -128,19 +128,19 @@ locals {
       queues = [
         {
           name       = "1735356532"
-          limit      = 6
+          limit      = 4
           queueLimit = 10000
           subscribe  = true
         },
         {
           name       = "1735353714"
-          limit      = 6
+          limit      = 4
           queueLimit = 10000
           subscribe  = true
         },
         {
           name       = "9991"
-          limit      = 6
+          limit      = 4
           queueLimit = 10000
           subscribe  = true
         }
