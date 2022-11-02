@@ -48,6 +48,14 @@ output "lighthouse-process-from-root-dns" {
   value = module.lighthouse_process_from_root_cron.daemon_service_name
 }
 
+output "relayer-service-endpoint" {
+  value = module.relayer.service_endpoint
+}
+
+output "relayer-dns" {
+  value = module.relayer.dns_name
+}
+
 output "rmq-management-endpoint" {
   value = module.centralised_message_queue.aws_mq_broker_console
 }

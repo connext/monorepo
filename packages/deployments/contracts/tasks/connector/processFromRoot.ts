@@ -34,32 +34,27 @@ const processFromArbitrumRoot = async (
   hubProvider: providers.JsonRpcProvider,
   deployer: Wallet,
 ) => {
-  // // Things that are needed:
-  // uint64 _nodeNum, x
-  // bytes32 _sendRoot, x
-  // bytes32 _blockHash, x
-  // bytes32[] calldata _proof, x
-  // uint256 _index, x
-  // L2Message calldata _message x
-
-  // get the tx
+  // // // Things that are needed:
+  // // uint64 _nodeNum, x
+  // // bytes32 _sendRoot, x
+  // // bytes32 _blockHash, x
+  // // bytes32[] calldata _proof, x
+  // // uint256 _index, x
+  // // L2Message calldata _message x
+  // // get the tx
   const l2TxnReceipt = new L2TransactionReceipt(await spokeProvider.getTransactionReceipt(sendHash));
-
   // @ts-ignore
   const dataIsOnL1 = await l2TxnReceipt.isDataAvailable(spokeProvider);
   if (!dataIsOnL1) {
     throw new Error(`tx data not yet posted to l1`);
   }
-
   // get the proof
   const [msg] = await l2TxnReceipt.getL2ToL1Messages(hubProvider);
   const proof = await msg.getOutboxProof(spokeProvider);
   console.log("proof", proof);
-
   // get the index
   const index = msg.event.position;
   console.log("index", index.toNumber());
-
   // construct the l2 message information
   const l2Message = {
     l2Sender: msg.event.caller,
@@ -71,7 +66,6 @@ const processFromArbitrumRoot = async (
     callData: msg.event.data,
   };
   console.log("l2Message", l2Message);
-
   // get the node number by finding the node created event with matching send
   // root.
   // a node is the bit of data that includes the l2 state that will eventually
@@ -98,9 +92,7 @@ const processFromArbitrumRoot = async (
       toBlock: "latest",
     },
   );
-
   const outbox = Outbox__factory.connect(arbNetwork.ethBridge.outbox, hubProvider);
-
   const expectedSendRoot = await outbox.calculateMerkleRoot(
     proof,
     index,
@@ -125,7 +117,6 @@ const processFromArbitrumRoot = async (
   );
   const event = blocksForLog.filter((l) => l.sendRoot == expectedSendRoot).sort((a, b) => a.number - b.number)[0];
   console.log("event", event);
-
   // verify confirm data to ensure the node is correct
   const node = await RollupUserLogic__factory.connect(arbNetwork.ethBridge.rollup, deployer).getNode(
     event.nodeNum as BigNumberish,
@@ -136,11 +127,9 @@ const processFromArbitrumRoot = async (
   ) {
     throw new Error(`something went wrong -- confirm data does not match`);
   }
-
   // generate the args to submit
   const args = [event.nodeNum, event.sendRoot, event.hash, proof, index, l2Message];
   console.log("args", args);
-
   return args;
 };
 

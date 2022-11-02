@@ -10,10 +10,9 @@ import {
   NoMessageProof,
   NoTargetMessageRoot,
 } from "../../../errors";
+import { sendWithRelayerWithBackup } from "../../../mockable";
+import { HubDBHelper, SpokeDBHelper } from "../adapters";
 import { getContext } from "../prover";
-import { SpokeDBHelper, HubDBHelper } from "../adapters/database/helper";
-
-export const HUB_DOMAIN = "1735353714";
 
 export const proveAndProcess = async () => {
   const { requestContext, methodContext } = createLoggingContext(proveAndProcess.name);
@@ -40,7 +39,7 @@ export const proveAndProcess = async () => {
 export const processMessage = async (message: XMessage) => {
   const {
     logger,
-    adapters: { contracts, relayer, chainreader, database },
+    adapters: { contracts, relayers, database, chainreader },
     config,
     chainData,
   } = getContext();
@@ -102,14 +101,14 @@ export const processMessage = async (message: XMessage) => {
   if (messageVerification && messageVerification.verified) {
     logger.info("Message Verified successfully", requestContext, methodContext, {
       messageIndex: message.origin.index,
-      lef: message.leaf,
+      leaf: message.leaf,
       targetMessageRoot,
       messageVerification,
     });
   } else {
     logger.info("Message verification failed", requestContext, methodContext, {
       messageIndex: message.origin.index,
-      lef: message.leaf,
+      leaf: message.leaf,
       targetMessageRoot,
       messageVerification,
     });
@@ -152,36 +151,15 @@ export const processMessage = async (message: XMessage) => {
   });
   const chainId = chainData.get(message.destinationDomain)!.chainId;
 
-  const relayerAddress = await relayer.getRelayerAddress(chainId, logger);
-  logger.debug("Getting gas estimate", requestContext, methodContext, {
+  const { taskId, taskStatus } = await sendWithRelayerWithBackup(
     chainId,
-    to: destinationSpokeConnector,
-    data,
-    from: relayerAddress,
-    transferId: message.transferId,
-  });
-  const gas = await chainreader.getGasEstimateWithRevertCode(Number(message.destinationDomain), {
-    chainId,
-    to: destinationSpokeConnector,
-    data,
-    from: relayerAddress,
-  });
-
-  logger.info("Sending meta tx to relayer", requestContext, methodContext, {
-    relayer: relayerAddress,
-    spokeConnector: destinationSpokeConnector,
-    domain: message.destinationDomain,
-    gas: gas.toString(),
-    transferId: message.transferId,
-  });
-
-  const taskId = await relayer.send(
-    chainId,
+    message.destinationDomain,
     destinationSpokeConnector,
     data,
-    config.gelatoApiKey,
+    relayers,
+    chainreader,
     logger,
     requestContext,
   );
-  logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
+  logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId, taskStatus });
 };

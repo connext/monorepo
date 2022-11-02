@@ -5,9 +5,9 @@
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",
     "@jtbennett/ts-project-scripts": "1.0.0-rc.4",
-    "@typescript-eslint/eslint-plugin": "5.36.2",
-    "@typescript-eslint/parser": "5.36.2",
-    "eslint": "8.23.0",
+    "@typescript-eslint/eslint-plugin": "5.42.0",
+    "@typescript-eslint/parser": "5.42.0",
+    "eslint": "8.26.0",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-node": "11.1.0",
     "rimraf": "3.0.2"
@@ -19,6 +19,7 @@
     "packages/adapters/txservice",
     "packages/adapters/cache",
     "packages/adapters/database",
+    "packages/adapters/relayer",
     "packages/adapters/subgraph",
     "packages/adapters/web3signer",
     "packages/agents/router",

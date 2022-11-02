@@ -3,16 +3,14 @@ import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, RoutersCache, StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, mkBytes32, mockSequencer } from "@connext/nxtp-utils";
+import { mkAddress, Logger, mock as _mock, mockSequencer } from "@connext/nxtp-utils";
 import { ConnextInterface } from "@connext/nxtp-contracts/typechain-types/Connext";
 import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
 import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/StableSwap";
 
 import { SequencerConfig } from "../src/lib/entities";
 import { AppContext } from "../src/lib/entities/context";
-
-export const mockTaskId = mkBytes32("0xabcdef123");
-export const mockRelayerAddress = mkAddress("0xabcdef123");
+import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
 
 export const mock = {
   ..._mock,
@@ -23,7 +21,7 @@ export const mock = {
         cache: mock.adapters.cache(),
         chainreader: mock.adapters.chainreader(),
         contracts: mock.adapters.contracts(),
-        relayer: mock.adapters.relayer(),
+        relayers: mock.adapters.relayers(),
         mqClient: mock.adapters.mqClient() as any,
         wallet: createStubInstance(Wallet, { getAddress: Promise.resolve(mockSequencer) }),
       },
@@ -81,7 +79,13 @@ export const mock = {
       publisher: "sequencerX",
       subscriber: mock.chain.A,
     },
-    gelatoApiKey: "foo",
+    relayers: [
+      {
+        type: "Connext",
+        apiKey: "foo",
+        url: "http://example.com",
+      },
+    ],
   }),
   adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {
@@ -144,12 +148,13 @@ export const mock = {
         spokeConnector: spokeConnector as any,
       };
     },
-    relayer: () => {
-      return {
-        getRelayerAddress: stub().resolves(mockRelayerAddress),
-        send: stub().resolves(mockTaskId),
-      };
-    },
+    relayers: () => [
+      {
+        instance: mockRelayer(),
+        apiKey: "foo",
+        url: "http://localhost:8080",
+      },
+    ],
     mqClient: () => {
       return {
         publish: stub(),

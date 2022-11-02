@@ -67,7 +67,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       whitelist: ["0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C"],
     },
     relayers: {
-      whitelist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92"],
+      whitelist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", "0x7198C77022566F8F1f8A9A41C7B9C084bD18F934"],
     },
   },
 };

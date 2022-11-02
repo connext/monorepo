@@ -9,7 +9,7 @@ import {
   getNtpTimeSeconds,
   jsonifyError,
   OriginTransfer,
-  RelayerType,
+  RelayerTaskStatus,
 } from "@connext/nxtp-utils";
 import { compare } from "compare-versions";
 
@@ -128,7 +128,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
 export const executeFastPathData = async (
   transferId: string,
   _requestContext: RequestContext,
-): Promise<{ taskId: string | undefined; relayer: RelayerType | undefined }> => {
+): Promise<{ taskId: string | undefined; taskStatus: RelayerTaskStatus }> => {
   const {
     config,
     logger,
@@ -139,7 +139,7 @@ export const executeFastPathData = async (
     relayer: { sendExecuteFastToRelayer },
   } = getOperations();
   let taskId: string | undefined;
-  let relayer: RelayerType = RelayerType.Gelato;
+  let taskStatus: RelayerTaskStatus = RelayerTaskStatus.NotFound;
   const {
     auctions: { getDestinationLocalAsset, getBidsRoundMap, getAllSubsets, getMinimumBidsCountForRound },
   } = getHelpers();
@@ -148,7 +148,7 @@ export const executeFastPathData = async (
 
   if (!transferId) {
     logger.debug("No auction to execute", requestContext, methodContext);
-    return { taskId, relayer };
+    return { taskId, taskStatus };
   }
 
   // Validate if transfer has exceeded the auction period and merits execution.
@@ -171,7 +171,7 @@ export const executeFastPathData = async (
     logger.error("Auction data not found for transfer!", requestContext, methodContext, undefined, {
       transferId: transferId,
     });
-    return { taskId, relayer };
+    return { taskId, taskStatus };
   }
 
   // Handling each domain in parallel, but each individual transfer synchronously. This is to account
@@ -197,7 +197,7 @@ export const executeFastPathData = async (
       destination,
       bids,
     });
-    return { taskId, relayer };
+    return { taskId, taskStatus };
   } else if (!transfer.origin) {
     // TODO: Same as above!
     // Again, shouldn't happen: sequencer should not have accepted an auction for a transfer with no xcall.
@@ -206,7 +206,7 @@ export const executeFastPathData = async (
       transfer,
       bids,
     });
-    return { taskId, relayer };
+    return { taskId, taskStatus };
   }
 
   const destTx = await subgraph.getDestinationTransferById(transfer.xparams!.destinationDomain!, transferId);
@@ -217,7 +217,7 @@ export const executeFastPathData = async (
       bids,
     });
     await cache.auctions.setExecStatus(transferId, ExecStatus.Completed);
-    return { taskId, relayer };
+    return { taskId, taskStatus };
   }
 
   const bidsRoundMap = getBidsRoundMap(bids, config.auctionRoundDepth);
@@ -228,7 +228,7 @@ export const executeFastPathData = async (
       transferId,
     });
 
-    return { taskId, relayer };
+    return { taskId, taskStatus };
   }
 
   for (const roundIdx of availableRoundIds) {
@@ -320,7 +320,7 @@ export const executeFastPathData = async (
           },
         });
         // Send the relayer request based on chosen bids.
-        const { taskId: _taskId, relayer: _relayer } = await sendExecuteFastToRelayer(
+        const { taskId: _taskId, taskStatus: _taskStatus } = await sendExecuteFastToRelayer(
           roundIdInNum,
           randomCombination,
           transfer,
@@ -328,11 +328,11 @@ export const executeFastPathData = async (
           requestContext,
         );
         taskId = _taskId;
-        relayer = _relayer;
+        taskStatus = _taskStatus;
+
         logger.info("Sent bid to relayer", requestContext, methodContext, {
           transferId,
           taskId,
-          relayer,
           origin,
           destination,
         });
@@ -387,10 +387,10 @@ export const executeFastPathData = async (
     });
 
     await cache.auctions.setExecStatus(transferId, ExecStatus.Sent);
-    await cache.auctions.upsertMetaTxTask({ transferId, taskId, relayer: relayer });
+    await cache.auctions.upsertMetaTxTask({ transferId, taskId });
 
-    return { taskId, relayer };
+    return { taskId, taskStatus };
   }
 
-  return { taskId, relayer };
+  return { taskId, taskStatus };
 };

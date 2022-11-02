@@ -6,8 +6,7 @@ import {
   ajv,
   ExecutorDataSchema,
   ExecStatus,
-  getChainIdFromDomain,
-  RelayerType,
+  RelayerTaskStatus,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../../sequencer";
@@ -16,12 +15,10 @@ import {
   ExecutorVersionInvalid,
   ExecutorDataExpired,
   MissingXCall,
-  GasEstimationFailed,
   MissingTransfer,
   MissingExecutorData,
   ExecuteSlowCompleted,
 } from "../../errors";
-import { getHelpers } from "../../helpers";
 import { Message, MessageType } from "../../entities";
 import { getOperations } from "..";
 
@@ -29,16 +26,12 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
   const {
     logger,
     config,
-    chainData,
-    adapters: { cache, subgraph, mqClient, chainreader },
+    adapters: { cache, subgraph, mqClient },
   } = getContext();
-  const {
-    relayer: { getGelatoRelayerAddress },
-  } = getHelpers();
   const { requestContext, methodContext } = createLoggingContext(storeSlowPathData.name, _requestContext);
   logger.debug(`Method start: ${storeSlowPathData.name}`, requestContext, methodContext, { executorData });
 
-  const { transferId, relayerFee, encodedData, executorVersion, origin } = executorData;
+  const { transferId, executorVersion, origin } = executorData;
 
   // Validate Input schema
   const validateInput = ajv.compile(ExecutorDataSchema);
@@ -73,33 +66,6 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
     // Store the transfer locally. We will use this as a reference later when we execute this transfer
     // in the cycle, for both encoding data and passing relayer fee to the relayer.
     await cache.transfers.storeTransfers([transfer]);
-  }
-
-  // Lighthouse data needs to be transferred to relayer directly
-  // so we need to estimate tx here to make sure it will not revert
-  try {
-    const destinationDomain = transfer.xparams.destinationDomain;
-    const destinationChainId = await getChainIdFromDomain(destinationDomain, chainData);
-    const relayerAddress = await getGelatoRelayerAddress(destinationChainId);
-    const destinationConnextAddress = config.chains[destinationDomain].deployments.connext;
-
-    const gas = await chainreader.getGasEstimateWithRevertCode(Number(destinationDomain), {
-      chainId: destinationChainId,
-      to: destinationConnextAddress,
-      data: encodedData,
-      from: relayerAddress,
-    });
-
-    logger.info("Estimating a tx success!", requestContext, methodContext, {
-      relayer: relayerAddress,
-      connext: destinationConnextAddress,
-      domain: destinationDomain,
-      gas: gas.toString(),
-      relayerFee,
-      transferId: transferId,
-    });
-  } catch (error: unknown) {
-    throw new GasEstimationFailed({ transferId, executorData });
   }
 
   // Ensure that the executor data for this transfer hasn't expired.
@@ -147,7 +113,7 @@ export const executeSlowPathData = async (
   transferId: string,
   type: string,
   _requestContext: RequestContext,
-): Promise<{ taskId: string | undefined; relayer: RelayerType | undefined }> => {
+): Promise<{ taskId: string | undefined; taskStatus: RelayerTaskStatus }> => {
   const {
     logger,
     adapters: { cache },
@@ -180,11 +146,11 @@ export const executeSlowPathData = async (
   }
 
   let taskId: string | undefined;
-  let relayer: RelayerType | undefined;
+  let taskStatus: RelayerTaskStatus = RelayerTaskStatus.NotFound;
   try {
     const result = await sendExecuteSlowToRelayer(executorData, requestContext);
     taskId = result.taskId;
-    relayer = result.relayer;
+    taskStatus = result.taskStatus;
   } catch (error: unknown) {
     // TODO: If the first slow-liq transfer fails, we'll try to send backup data one by one
     // If any of backup data succeeds, we'll make the data status `sent`.
@@ -194,17 +160,17 @@ export const executeSlowPathData = async (
     for (const backupSlowTx of backupSlowTxs) {
       const result = await sendExecuteSlowToRelayer(backupSlowTx, requestContext);
       taskId = result.taskId;
-      relayer = result.relayer;
+      taskStatus = result.taskStatus;
       if (taskId) break;
     }
   }
-  if (taskId && relayer) {
+  if (taskId && taskStatus) {
     await cache.executors.setExecStatus(transferId, ExecStatus.Completed);
-    await cache.executors.upsertMetaTxTask({ transferId, taskId, relayer });
+    await cache.executors.upsertMetaTxTask({ transferId, taskId });
   } else {
     // Prunes all the executor data for a given transferId
     await cache.executors.pruneExecutorData(transferId);
   }
 
-  return { taskId, relayer };
+  return { taskId, taskStatus };
 };
