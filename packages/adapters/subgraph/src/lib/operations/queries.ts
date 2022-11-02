@@ -614,12 +614,12 @@ export const getOriginMessagesByDomainAndIndexQuery = (
         index_gte: ${param.offset}, 
         transferId_not: null, 
         destinationDomain_not: null
-      }
+      },
+      orderBy: index, 
+      orderDirection: asc
     ) {
       ${ORIGIN_MESSAGE_ENTITY}
-    } 
-    orderBy: index, 
-    orderDirection: asc`;
+    }`;
   }
 
   return gql`
