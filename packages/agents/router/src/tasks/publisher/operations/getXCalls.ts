@@ -62,32 +62,38 @@ export const getXCalls = async () => {
       await cache.transfers.setLatestNonce(domain as string, (nonce as number) ?? 0);
     }
 
-    const transfers = await subgraph.getDestinationXCalls(txIdsByDestinationDomain, allTxById);
-    if (transfers.length === 0) {
+    if (txIdsByDestinationDomain.size > 0) {
+      const transfers = await subgraph.getDestinationXCalls(txIdsByDestinationDomain, allTxById);
+      if (transfers.length === 0) {
+        logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
+          subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
+        });
+      } else {
+        await Promise.all(
+          transfers.map(async (transfer) => {
+            // new request context with the transfer id
+            const { requestContext: _requestContext, methodContext: _methodContext } = createLoggingContext(
+              "pollSubgraph",
+              undefined,
+              transfer.transferId,
+            );
+            try {
+              await mqClient.publish<OriginTransfer>(MQ_EXCHANGE, {
+                body: transfer as OriginTransfer,
+                type: XCALL_MESSAGE_TYPE,
+                routingKey: XCALL_QUEUE,
+              });
+              logger.debug("Published transfer to mq", _requestContext, _methodContext, { transfer });
+            } catch (err: unknown) {
+              logger.error("Error publishing to mq", _requestContext, _methodContext, jsonifyError(err as Error));
+            }
+          }),
+        );
+      }
+    } else {
       logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
         subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
       });
-    } else {
-      await Promise.all(
-        transfers.map(async (transfer) => {
-          // new request context with the transfer id
-          const { requestContext: _requestContext, methodContext: _methodContext } = createLoggingContext(
-            "pollSubgraph",
-            undefined,
-            transfer.transferId,
-          );
-          try {
-            await mqClient.publish<OriginTransfer>(MQ_EXCHANGE, {
-              body: transfer as OriginTransfer,
-              type: XCALL_MESSAGE_TYPE,
-              routingKey: XCALL_QUEUE,
-            });
-            logger.debug("Published transfer to mq", _requestContext, _methodContext, { transfer });
-          } catch (err: unknown) {
-            logger.error("Error publishing to mq", _requestContext, _methodContext, jsonifyError(err as Error));
-          }
-        }),
-      );
     }
   }
 };
