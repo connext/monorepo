@@ -36,7 +36,7 @@ describe("Operations:GetXCalls", () => {
         mock.entity.xtransfer({ transferId: mkBytes32("0x2"), nonce: 10 }) as OriginTransfer,
       ];
       (mockPubContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockBlockNumber);
-      (mockPubContext.adapters.subgraph.getXCalls as SinonStub).resolves(mockSubgraphResponse);
+      (mockPubContext.adapters.subgraph.getDestinationXCalls as SinonStub).resolves(mockSubgraphResponse);
     });
 
     it("happy: should retrieve xcalls from the subgraph and publish them", async () => {
@@ -55,7 +55,7 @@ describe("Operations:GetXCalls", () => {
     });
 
     it("should not publish if nothing available", async () => {
-      (mockPubContext.adapters.subgraph.getXCalls as SinonStub).resolves([]);
+      (mockPubContext.adapters.subgraph.getDestinationXCalls as SinonStub).resolves([]);
 
       await getXCalls();
 
