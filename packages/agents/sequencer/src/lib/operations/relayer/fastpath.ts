@@ -1,4 +1,4 @@
-import { RequestContext, createLoggingContext, Bid, OriginTransfer, RelayerTaskStatus } from "@connext/nxtp-utils";
+import { RequestContext, createLoggingContext, Bid, OriginTransfer } from "@connext/nxtp-utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { getContext } from "../../../sequencer";
