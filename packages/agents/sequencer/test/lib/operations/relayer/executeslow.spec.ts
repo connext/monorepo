@@ -24,7 +24,6 @@ describe("Operations:ExecuteSlow", () => {
     });
     sendWithRelayerWithBackupStub = stub(MockableFns, "sendWithRelayerWithBackup").resolves({
       taskId: mockTaskId,
-      taskStatus: RelayerTaskStatus.ExecSuccess,
     });
   });
 
@@ -39,12 +38,10 @@ describe("Operations:ExecuteSlow", () => {
       const mockTransferId = mkBytes32("0x100");
       const mockTransfer = mock.entity.xtransfer({ transferId: mockTransferId });
       const mockExecutorData = mock.entity.executorData({ transferId: mockTransferId });
-      const mockRelayerAddress = mkAddress("0xabc");
       getTransferStub.resolves(mockTransfer);
       connextRelayerSendStub.throws();
-      const { taskId, taskStatus } = await sendExecuteSlowToRelayer(mockExecutorData, requestContext);
+      const { taskId } = await sendExecuteSlowToRelayer(mockExecutorData, requestContext);
       expect(taskId).to.be.eq(mockTaskId);
-      expect(taskStatus).to.be.eq(RelayerTaskStatus.ExecSuccess);
       expect(sendWithRelayerWithBackupStub).to.be.calledOnce;
     });
   });

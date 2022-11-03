@@ -48,12 +48,11 @@ describe("Operations:ExecuteFast", () => {
       });
       sendWithRelayerWithBackupStub = stub(MockableFns, "sendWithRelayerWithBackup").resolves({
         taskId: mockTaskId,
-        taskStatus: RelayerTaskStatus.ExecSuccess,
       });
     });
 
     it("should send the bid to the relayer", async () => {
-      const { taskId, taskStatus } = await sendExecuteFastToRelayer(
+      const { taskId } = await sendExecuteFastToRelayer(
         1,
         mockBids.slice(0, 1),
         mockTransfers[0] as OriginTransfer,
@@ -61,7 +60,6 @@ describe("Operations:ExecuteFast", () => {
         loggingContext.requestContext,
       );
       expect(taskId).to.be.eq(mockTaskId);
-      expect(taskStatus).to.be.eq(RelayerTaskStatus.ExecSuccess);
       expect(sendWithRelayerWithBackupStub).to.be.calledOnce;
     });
   });

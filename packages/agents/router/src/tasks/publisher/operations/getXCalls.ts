@@ -33,7 +33,6 @@ export const getXCalls = async () => {
 
       const safeConfirmations = config.chains[domain].confirmations ?? DEFAULT_SAFE_CONFIRMATIONS;
       const latestNonce = await cache.transfers.getLatestNonce(domain);
-      console.log("latestNonce: ", latestNonce);
 
       subgraphQueryMetaParams.set(domain, {
         maxBlockNumber: latestBlockNumber - safeConfirmations,
@@ -59,7 +58,7 @@ export const getXCalls = async () => {
 
     for (const [domain, nonce] of latestNonces.entries()) {
       // set nonce now so we don't requery the same transfers
-      await cache.transfers.setLatestNonce(domain as string, (nonce as number) ?? 0);
+      await cache.transfers.setLatestNonce(domain, nonce ?? 0);
     }
 
     if (txIdsByDestinationDomain.size > 0) {

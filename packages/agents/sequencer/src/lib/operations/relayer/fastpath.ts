@@ -10,7 +10,7 @@ export const sendExecuteFastToRelayer = async (
   transfer: OriginTransfer,
   _local: string,
   _requestContext: RequestContext,
-): Promise<{ taskId: string; taskStatus: RelayerTaskStatus }> => {
+): Promise<{ taskId: string }> => {
   const {
     logger,
     chainData,
