@@ -14,21 +14,13 @@ describe("Roots operations", () => {
   describe("#updateAggregatedRoots", () => {
     it("should work", async () => {
       await updateAggregatedRoots();
-      expect(mockContext.adapters.database.saveAggregatedRoots as SinonStub).callCount(
-        mockContext.domains.length * mockConnectorMeta.length,
-      );
+      expect(mockContext.adapters.database.saveAggregatedRoots as SinonStub).callCount(mockConnectorMeta.length);
       expect(mockContext.adapters.database.saveAggregatedRoots as SinonStub).to.be.calledWithExactly(
         mockAggregatedRootSubgraphResponse,
       );
-      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(
-        mockContext.domains.length * mockConnectorMeta.length,
-      );
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(mockConnectorMeta.length);
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledWithExactly(
-        "aggregated_root_" + mockContext.domains[0] + "_" + mockConnectorMeta[0].hubDomain,
-        mockOriginMessageSubgraphResponse[1].index,
-      );
-      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledWithExactly(
-        "aggregated_root_" + mockContext.domains[1] + "_" + mockConnectorMeta[0].hubDomain,
+        "aggregated_root_" + mockConnectorMeta[0].hubDomain,
         mockOriginMessageSubgraphResponse[1].index,
       );
     });

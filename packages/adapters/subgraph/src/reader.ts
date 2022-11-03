@@ -692,7 +692,7 @@ export class SubgraphReader {
    * Gets all the aggregated rootsstarting with index for a given domain
    */
   public async getGetAggregatedRootsByDomain(
-    params: { hub: string; domain: string; index: number; limit: number }[],
+    params: { hub: string; index: number; limit: number }[],
   ): Promise<AggregatedRoot[]> {
     const { parser, execute } = getHelpers();
     const aggregatedRootsByDomainQuery = getAggregatedRootsByDomainQuery(params);
