@@ -702,9 +702,7 @@ export const getProcessedRootMessagesByDomainAndBlockQuery = (
   `;
 };
 
-export const getAggregatedRootsByDomainQuery = (
-  params: { hub: string; domain: string; index: number; limit: number }[],
-) => {
+export const getAggregatedRootsByDomainQuery = (params: { hub: string; index: number; limit: number }[]) => {
   const { config } = getContext();
   let combinedQuery = "";
   for (const param of params) {
@@ -713,7 +711,6 @@ export const getAggregatedRootsByDomainQuery = (
     ${prefix}_aggregatedMessageRoots ( 
       first: ${param.limit}, 
       where: { 
-        domain: "${param.domain}",
         index_gte: ${param.index}
       }
       orderBy: index, 
