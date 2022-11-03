@@ -428,18 +428,18 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       },
       // Arbitrum one
       // https://developer.offchainlabs.com/docs/Useful_Addresses
-      // 42161: {
-      //   prefix: "Arbitrum",
-      //   ambs: {
-      //     // https://etherscan.io/address/0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f
-      //     hub: "0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f",
-      //     // https://arbiscan.io/address/0x0000000000000000000000000000000000000064
-      //     spoke: "0x0000000000000000000000000000000000000064",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
-      // },
+      42161: {
+        prefix: "Arbitrum",
+        ambs: {
+          // https://etherscan.io/address/0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f
+          hub: "0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f",
+          // https://arbiscan.io/address/0x0000000000000000000000000000000000000064
+          spoke: "0x0000000000000000000000000000000000000064",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+      },
     },
   },
 };

@@ -169,6 +169,9 @@ export const hardhatNetworks = {
     accounts: { mnemonic },
     chainId: 42161,
     url: "https://arb1.arbitrum.io/rpc",
+    companionNetworks: {
+      hub: "mainnet",
+    },
   },
   fuji: {
     accounts: { mnemonic },
