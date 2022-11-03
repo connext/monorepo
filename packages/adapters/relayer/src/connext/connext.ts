@@ -57,7 +57,7 @@ export const connextRelayerSend = async (
     from: relayerAddress,
   });
 
-  logger.info("Sending tx to relayer", requestContext, methodContext, {
+  logger.info("Sending tx to Connext relayer", requestContext, methodContext, {
     relayer: relayerAddress,
     connext: destinationAddress,
     domain,
@@ -66,6 +66,12 @@ export const connextRelayerSend = async (
 
   try {
     const res = await axios.post(`${url}/relays/${chainId}`, params);
+    logger.info("Sent tx to Connext relayer", requestContext, methodContext, {
+      relayer: relayerAddress,
+      connext: destinationAddress,
+      domain,
+      response: res.data,
+    });
     output = (res.data as RelayerApiPostTaskResponse)?.taskId;
   } catch (error: unknown) {
     throw new RelayerSendFailed({ error: jsonifyError(error as Error) });
