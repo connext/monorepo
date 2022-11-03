@@ -47,9 +47,8 @@ export const sendWithRelayerWithBackup = async (
   chainReader: ChainReader,
   logger: Logger,
   _requestContext: RequestContext,
-) => {
+): Promise<{ taskId: string }> => {
   const { methodContext, requestContext } = createLoggingContext(sendWithRelayerWithBackup.name, _requestContext);
-  let taskRes: { taskId: string; taskStatus: RelayerTaskStatus } = {} as any;
 
   for (const relayer of relayers) {
     logger.info(`Sending tx with ${relayer.type} relayer`, requestContext, methodContext, {
@@ -69,21 +68,7 @@ export const sendWithRelayerWithBackup = async (
         logger,
         requestContext,
       );
-      const status = await relayer.instance.waitForTaskCompletion(taskId, logger, _requestContext);
-      taskRes = { taskId, taskStatus: status };
-      if (status === RelayerTaskStatus.ExecSuccess) {
-        logger.info(`Successfully sent data with ${relayer.type} relayer`, requestContext, methodContext, {
-          taskId,
-        });
-
-        break;
-      } else {
-        // waitForTaskCompletion returned without throwing, but the task was not successful
-        logger.info(`Task status with ${relayer.type} relayer`, requestContext, methodContext, {
-          taskId,
-          status,
-        });
-      }
+      return { taskId };
     } catch (err: unknown) {
       logger.error(
         `Failed to sent data with ${relayer.type}`,
@@ -94,9 +79,13 @@ export const sendWithRelayerWithBackup = async (
     }
   }
 
-  if (!taskRes) {
-    throw new RelayerSendFailed({ relayers: relayers.map((relayer) => relayer.type) });
-  }
-
-  return taskRes;
+  throw new RelayerSendFailed({
+    requestContext,
+    methodContext,
+    chainId,
+    domain,
+    data,
+    destinationAddress,
+    relayers: relayers.map((relayer) => relayer.type),
+  });
 };

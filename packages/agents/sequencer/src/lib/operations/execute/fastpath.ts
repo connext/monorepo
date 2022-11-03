@@ -320,7 +320,7 @@ export const executeFastPathData = async (
           },
         });
         // Send the relayer request based on chosen bids.
-        const { taskId: _taskId, taskStatus: _taskStatus } = await sendExecuteFastToRelayer(
+        const { taskId: _taskId } = await sendExecuteFastToRelayer(
           roundIdInNum,
           randomCombination,
           transfer,
@@ -328,7 +328,6 @@ export const executeFastPathData = async (
           requestContext,
         );
         taskId = _taskId;
-        taskStatus = _taskStatus;
 
         logger.info("Sent bid to relayer", requestContext, methodContext, {
           transferId,

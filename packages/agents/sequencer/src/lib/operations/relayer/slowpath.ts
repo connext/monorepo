@@ -7,7 +7,7 @@ import { MissingTransfer } from "../../errors";
 export const sendExecuteSlowToRelayer = async (
   executorData: ExecutorData,
   _requestContext: RequestContext,
-): Promise<{ taskId: string; taskStatus: RelayerTaskStatus }> => {
+): Promise<{ taskId: string }> => {
   const {
     logger,
     chainData,

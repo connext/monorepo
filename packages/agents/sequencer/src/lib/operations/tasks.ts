@@ -3,13 +3,10 @@ import { createLoggingContext, ExecStatus, RelayerTaskStatus } from "@connext/nx
 import { getContext } from "../../sequencer";
 import { MessageType } from "../entities";
 
-export const updateTask = async (
-  transferId: string,
-  status: RelayerTaskStatus,
-  messageType: MessageType,
-): Promise<void> => {
+export const updateTask = async (transferId: string, messageType: MessageType): Promise<void> => {
   const { logger } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateTask.name);
+  const status = RelayerTaskStatus.ExecSuccess;
   logger.info("Method start", requestContext, methodContext, { transferId, status, messageType });
 
   let execStatus = ExecStatus.Sent;
