@@ -1,4 +1,4 @@
-import { RequestContext, createLoggingContext, Bid, OriginTransfer, RelayerTaskStatus } from "@connext/nxtp-utils";
+import { RequestContext, createLoggingContext, Bid, OriginTransfer } from "@connext/nxtp-utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { getContext } from "../../../sequencer";
@@ -10,7 +10,7 @@ export const sendExecuteFastToRelayer = async (
   transfer: OriginTransfer,
   _local: string,
   _requestContext: RequestContext,
-): Promise<{ taskId: string; taskStatus: RelayerTaskStatus }> => {
+): Promise<{ taskId: string }> => {
   const {
     logger,
     chainData,

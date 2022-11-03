@@ -26,7 +26,7 @@ describe("Operations: ProcessFromRoot", () => {
         logger: Logger,
         _requestContext: BaseRequestContext,
       ],
-      Promise<{ taskId: string; taskStatus: RelayerTaskStatus }>
+      Promise<{ taskId: string }>
     >;
 
     beforeEach(() => {
@@ -39,7 +39,6 @@ describe("Operations: ProcessFromRoot", () => {
       stub(MockableFns, "encodeProcessMessageFromRoot").returns("0xfaded");
       sendWithRelayerWithBackupStub = stub(MockableFns, "sendWithRelayerWithBackup").resolves({
         taskId: mockTaskId,
-        taskStatus: RelayerTaskStatus.ExecSuccess,
       });
     });
 

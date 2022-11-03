@@ -23,7 +23,7 @@ export const mochaHooks = {
     subgraphMock = createStubInstance(SubgraphReader);
     subgraphMock.getAssetBalance.resolves(parseEther("10000"));
     subgraphMock.getAssetBalances.resolves({ [mkAddress("0xaaa")]: parseEther("10000") });
-    subgraphMock.getXCalls.resolves([
+    subgraphMock.getDestinationXCalls.resolves([
       mock.entity.xtransfer({
         originDomain: "1000",
         destinationDomain: "2000",
@@ -59,10 +59,9 @@ export const mochaHooks = {
         cache: cacheInstance,
         chainreader: chainReaderMock,
         contracts: mock.context().adapters.contracts,
-        relayer: mock.context().adapters.relayer,
+        relayers: mock.context().adapters.relayers,
         mqClient: mock.context().adapters.mqClient,
         wallet: mock.context().adapters.wallet,
-        backupRelayer: mock.context().adapters.backupRelayer,
       },
       config: mock.config(),
       chainData: mock.context().chainData,

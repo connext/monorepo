@@ -151,7 +151,7 @@ export const processMessage = async (message: XMessage) => {
   });
   const chainId = chainData.get(message.destinationDomain)!.chainId;
 
-  const { taskId, taskStatus } = await sendWithRelayerWithBackup(
+  const { taskId } = await sendWithRelayerWithBackup(
     chainId,
     message.destinationDomain,
     destinationSpokeConnector,
@@ -161,5 +161,5 @@ export const processMessage = async (message: XMessage) => {
     logger,
     requestContext,
   );
-  logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId, taskStatus });
+  logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
 };
