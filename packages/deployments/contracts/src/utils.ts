@@ -40,6 +40,7 @@ export const ProtocolNetworks: Record<string, string> = {
   "10": ProtocolNetwork.MAINNET,
   "137": ProtocolNetwork.MAINNET,
   "42161": ProtocolNetwork.MAINNET,
+  "100": ProtocolNetwork.MAINNET,
 };
 
 export const getProtocolNetwork = (_chain: string | number): string => {
