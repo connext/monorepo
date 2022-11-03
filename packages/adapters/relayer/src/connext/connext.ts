@@ -115,7 +115,7 @@ export const waitForTaskCompletion = async (
       }
       try {
         taskStatus = await getTaskStatus(taskId);
-        logger.debug("Task status", requestContext, methodContext, { taskStatus, taskId });
+        logger.debug("Task status from Connext relayer", requestContext, methodContext, { taskStatus, taskId });
         const finalTaskStatuses = [
           RelayerTaskStatus.ExecSuccess,
           RelayerTaskStatus.ExecReverted,
