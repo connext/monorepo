@@ -84,11 +84,6 @@ describe("Operations:Execute:FastPath", () => {
     publishStub = stub(Broker, "publish").resolves();
   });
 
-  afterEach(() => {
-    restore();
-    reset();
-  });
-
   describe("#storeFastPathData", () => {
     it("happy: should store bid in auction cache", async () => {
       const transfer: XTransfer = mock.entity.xtransfer();

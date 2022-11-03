@@ -129,7 +129,7 @@ export const processSingleRootMessage = async (
     hubChain: hubChainId,
   });
 
-  const { taskId, taskStatus } = await sendWithRelayerWithBackup(
+  const { taskId } = await sendWithRelayerWithBackup(
     hubChainId,
     rootMessage.hubDomain,
     hubConnector.address,
@@ -140,6 +140,6 @@ export const processSingleRootMessage = async (
     requestContext,
   );
 
-  logger.info("Sent meta tx to relayer", requestContext, methodContext, { taskId, taskStatus });
+  logger.info("Sent meta tx to relayer", requestContext, methodContext, { taskId });
   return taskId;
 };

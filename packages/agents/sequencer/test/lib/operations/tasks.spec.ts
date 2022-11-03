@@ -45,7 +45,7 @@ describe("Operations:Tasks", () => {
 
       auctionsGetTaskStub.resolves(mockMetaTxTask);
       auctionsSetExecStatusStub.resolves();
-      await updateTask(mockTransferId1, RelayerTaskStatus.ExecSuccess, MessageType.ExecuteFast);
+      await updateTask(mockTransferId1, MessageType.ExecuteFast);
       expect(auctionsGetTaskStub.callCount).to.be.eq(1);
       expect(auctionsSetExecStatusStub.callCount).to.be.eq(1);
     });
@@ -63,7 +63,7 @@ describe("Operations:Tasks", () => {
     executorGetTaskStub.resolves(mockMetaTxTask);
     executorSetExecStatusStub.resolves();
     executorPruneExecutorDataStub.resolves();
-    await updateTask(mockTransferId1, RelayerTaskStatus.ExecSuccess, MessageType.ExecuteSlow);
+    await updateTask(mockTransferId1, MessageType.ExecuteSlow);
     expect(executorGetTaskStub.callCount).to.be.eq(1);
     expect(executorSetExecStatusStub.callCount).to.be.eq(1);
     expect(executorPruneExecutorDataStub.callCount).to.be.eq(1);
