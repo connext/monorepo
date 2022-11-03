@@ -146,3 +146,37 @@ templates:
         - event: Unpaused(address)
           handler: handleUnpaused
       file: ./src/amarok-runtime-staging/mapping/index.ts
+  # INTERNAL STABLE SWAP events
+  - kind: ethereum/contract
+    name: StableSwapFacet
+    network: "{{network}}"
+    source:
+      abi: StableSwapFacet
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: StableSwapFacet
+          file: ./src/amarok-runtime-staging/abis/StableSwapFacet.json
+      eventHandlers:
+        - event: AddLiquidity(bytes32 indexed,address indexed,uint256[],uint256[],uint256,uint256)
+          handler: handleAddLiquidity
+        - event: NewAdminFee(bytes32 indexed,uint256)
+          handler: handleNewAdminFee
+        - event: NewSwapFee(bytes32 indexed,uint256)
+          handler: handleNewSwapFee
+        - event: RemoveLiquidity(bytes32 indexed,address indexed,uint256[],uint256)
+          handler: handleRemoveLiquidity
+        - event: RemoveLiquidityImbalance(bytes32 indexed,address indexed,uint256[],uint256[],uint256,uint256)
+          handler: handleRemoveLiquidityImbalance
+        - event: RemoveLiquidityOne(bytes32 indexed,address indexed,uint256,uint256,uint256,uint256)
+          handler: handleRemoveLiquidityOne
+        - event: TokenSwap(bytes32 indexed,address indexed,uint256,uint256,uint128,uint128
+          handler: handleTokenSwap
+      file: ./src/amarok-runtime-staging/mapping/index.ts
