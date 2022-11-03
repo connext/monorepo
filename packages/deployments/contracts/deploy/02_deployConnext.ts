@@ -186,7 +186,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   }
 
   const connectorName = getConnectorName(protocol, +chainId);
-  const connectorManagerDeployment = await hre.deployments.getOrNull(getDeploymentName(connectorName));
+  const connectorManagerDeployment = await hre.deployments.getOrNull(
+    getDeploymentName(connectorName, undefined, protocol.configs[Number(chainId)].networkName),
+  );
   if (!connectorManagerDeployment) {
     throw new Error(`${connectorName} not deployed`);
   }
