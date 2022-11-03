@@ -118,6 +118,9 @@ export const hardhatNetworks = {
   xdai: {
     accounts: { mnemonic },
     chainId: 100,
+    companionNetworks: {
+      hub: "mainnet",
+    },
     url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://xdai.poanetwork.dev/",
   },
   fuse: {
