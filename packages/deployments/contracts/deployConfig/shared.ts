@@ -332,7 +332,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           // FxRoot on goerli
           // https://goerli.etherscan.io/address/0x965f84D915a9eFa2dD81b653e3AE736555d945f4
           hub: "0x965f84D915a9eFa2dD81b653e3AE736555d945f4",
-          // FxChild on mumbai
+          // FxChild on chapel/bsc testnet
           // https://testnet.bscscan.com/address/0x484ff472d8b592E46EBC39964e84f7F758C49045
           spoke: "0x484ff472d8b592E46EBC39964e84f7F758C49045",
         },
@@ -342,6 +342,9 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         custom: {
           hub: {
             mirrorChainId: "97",
+          },
+          spoke: {
+            mirrorChainId: "5",
           },
         },
       },
