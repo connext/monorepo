@@ -6,7 +6,6 @@ import {
   ajv,
   ExecutorDataSchema,
   ExecStatus,
-  RelayerTaskStatus,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../../sequencer";
