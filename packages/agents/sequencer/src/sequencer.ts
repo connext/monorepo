@@ -139,13 +139,13 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     // TODO: Setting up the context every time for this execution is non-ideal.
     await setupContext(requestContext, methodContext, _configOverride);
 
-    const { taskId, taskStatus } =
+    const { taskId } =
       messageType === MessageType.ExecuteFast
         ? await executeFastPathData(transferId, requestContext)
         : await executeSlowPathData(transferId, messageType, requestContext);
 
-    if (taskId && taskStatus) {
-      await updateTask(transferId, taskStatus, messageType);
+    if (taskId) {
+      await updateTask(transferId, messageType);
     }
   } catch (error: any) {
     const { requestContext, methodContext } = createLoggingContext(execute.name);

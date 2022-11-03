@@ -6,7 +6,6 @@ import {
   ajv,
   ExecutorDataSchema,
   ExecStatus,
-  RelayerTaskStatus,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../../sequencer";
@@ -113,7 +112,7 @@ export const executeSlowPathData = async (
   transferId: string,
   type: string,
   _requestContext: RequestContext,
-): Promise<{ taskId: string | undefined; taskStatus: RelayerTaskStatus }> => {
+): Promise<{ taskId: string | undefined }> => {
   const {
     logger,
     adapters: { cache },
@@ -146,11 +145,9 @@ export const executeSlowPathData = async (
   }
 
   let taskId: string | undefined;
-  let taskStatus: RelayerTaskStatus = RelayerTaskStatus.NotFound;
   try {
     const result = await sendExecuteSlowToRelayer(executorData, requestContext);
     taskId = result.taskId;
-    taskStatus = result.taskStatus;
   } catch (error: unknown) {
     // TODO: If the first slow-liq transfer fails, we'll try to send backup data one by one
     // If any of backup data succeeds, we'll make the data status `sent`.
@@ -160,11 +157,10 @@ export const executeSlowPathData = async (
     for (const backupSlowTx of backupSlowTxs) {
       const result = await sendExecuteSlowToRelayer(backupSlowTx, requestContext);
       taskId = result.taskId;
-      taskStatus = result.taskStatus;
       if (taskId) break;
     }
   }
-  if (taskId && taskStatus) {
+  if (taskId) {
     await cache.executors.setExecStatus(transferId, ExecStatus.Completed);
     await cache.executors.upsertMetaTxTask({ transferId, taskId });
   } else {
@@ -172,5 +168,5 @@ export const executeSlowPathData = async (
     await cache.executors.pruneExecutorData(transferId);
   }
 
-  return { taskId, taskStatus };
+  return { taskId };
 };

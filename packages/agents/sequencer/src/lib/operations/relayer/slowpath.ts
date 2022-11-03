@@ -1,4 +1,4 @@
-import { RequestContext, ExecutorData, getChainIdFromDomain, RelayerTaskStatus } from "@connext/nxtp-utils";
+import { RequestContext, ExecutorData, getChainIdFromDomain } from "@connext/nxtp-utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { getContext } from "../../../sequencer";
@@ -7,7 +7,7 @@ import { MissingTransfer } from "../../errors";
 export const sendExecuteSlowToRelayer = async (
   executorData: ExecutorData,
   _requestContext: RequestContext,
-): Promise<{ taskId: string; taskStatus: RelayerTaskStatus }> => {
+): Promise<{ taskId: string }> => {
   const {
     logger,
     chainData,
