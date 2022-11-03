@@ -6,6 +6,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "6648936", // MAINNET
     "1869640809", // OPTIMISM
     "1886350457", // POLYGON
+    "1634886255", // ARBITRUM ONE
   ],
   assets: [
     {
@@ -23,6 +24,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x2ABe2d4F09ea3124DE56AD91ae0950A3B71eCD11",
           adopted: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         },
+        "1634886255": { adopted: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8" },
       },
     },
     {

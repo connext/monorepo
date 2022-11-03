@@ -439,6 +439,13 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        custom: {
+          hub: {
+            defaultGasPrice: DEFAULT_RESERVE_GAS,
+            // https://etherscan.io/address/0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840
+            outbox: "0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840",
+          },
+        },
       },
     },
   },
