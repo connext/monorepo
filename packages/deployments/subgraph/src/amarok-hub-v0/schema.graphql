@@ -64,6 +64,17 @@ type ArbitrumConnectorMeta @entity {
   mirrorConnector: Bytes!
 }
 
+# GNOSIS
+type GnosisConnectorMeta @entity {
+  id: ID! # "GnosisConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
 # HUB CONNECTOR
 type RootMessageProcessed @entity {
   id: ID!
