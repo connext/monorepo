@@ -16,20 +16,6 @@ interface AggregatorV3Interface {
 
   function version() external view returns (uint256);
 
-  // getRoundData and latestRoundData should both raise "No data present"
-  // if they do not have data to report, instead of returning unset values
-  // which could be misinterpreted as actual reported values.
-  function getRoundData(uint80 _roundId)
-    external
-    view
-    returns (
-      uint80 roundId,
-      int256 answer,
-      uint256 startedAt,
-      uint256 updatedAt,
-      uint80 answeredInRound
-    );
-
   function latestRoundData()
     external
     view
@@ -69,8 +55,6 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
   mapping(address => Price) public assetPrices;
 
-  event NewAdmin(address oldAdmin, address newAdmin);
-  event PriceRecordUpdated(address token, address baseToken, address lpToken, bool _active);
   event DirectPriceUpdated(address token, uint256 oldPrice, uint256 newPrice);
   event AggregatorUpdated(address tokenAddress, address source);
   event V1PriceOracleUpdated(address oldAddress, address newAddress);
@@ -82,28 +66,32 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
   function getTokenPrice(address _tokenAddress) public view override returns (uint256, uint256) {
     address tokenAddress = _tokenAddress;
-    PriceSource source = PriceSource.NA;
 
     if (_tokenAddress == address(0)) {
       tokenAddress = wrapped;
     }
+
     uint256 tokenPrice = assetPrices[tokenAddress].price;
     if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) <= VALID_PERIOD)) {
+      // From the current contract storage / directly. Data set by the owner
       return (tokenPrice, uint256(PriceSource.DIRECT));
-    } else {
-      tokenPrice = 0;
     }
 
-    if (tokenPrice == 0) {
-      tokenPrice = getPriceFromOracle(tokenAddress);
-      source = PriceSource.CHAINLINK;
+    tokenPrice = getPriceFromOracle(tokenAddress);
+    if (tokenPrice != 0) {
+      // From a chainlink aggregator
+      return (tokenPrice, uint256(PriceSource.CHAINLINK));
     }
-    if (tokenPrice == 0 && v1PriceOracle != address(0)) {
+
+    if (v1PriceOracle != address(0)) {
       tokenPrice = IPriceOracle(v1PriceOracle).getTokenPrice(tokenAddress);
-      source = PriceSource.V1_ORACLE;
+      if (tokenPrice != 0) {
+        // From the v1PriceOracle if set
+        return (tokenPrice, uint256(PriceSource.V1_ORACLE));
+      }
     }
 
-    return (tokenPrice, uint256(source));
+    return (0, uint256(PriceSource.NA));
   }
 
   function getPriceFromOracle(address _tokenAddress) public view returns (uint256) {
@@ -123,7 +111,7 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
       ) {
         // It's fine for price to be 0. We have more price feeds.
         if (answer == 0 || answeredInRound < roundId || updateAt == 0 || block.timestamp > updateAt + VALID_PERIOD) {
-          // answeredInRound > roundId ===> ChainLink Error: Stale price
+          // answeredInRound < roundId ===> ChainLink Error: Stale price
           // updatedAt = 0 ===> ChainLink Error: Round not complete
           // block.timestamp - updateAt > VALID_PERIOD ===> too old data
           return 0;
@@ -177,7 +165,10 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
   function setAggregators(address[] calldata tokenAddresses, address[] calldata sources) external onlyOwner {
     uint256 numTokens = tokenAddresses.length;
+    require(numTokens == sources.length, "bad array length");
     for (uint256 i; i < numTokens; ) {
+      require(tokenAddresses[i] != address(0) && sources[i] != address(0), "bad address");
+
       aggregators[tokenAddresses[i]] = AggregatorV3Interface(sources[i]);
       emit AggregatorUpdated(tokenAddresses[i], sources[i]);
 
