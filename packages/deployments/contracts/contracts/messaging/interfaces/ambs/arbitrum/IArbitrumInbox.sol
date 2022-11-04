@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 /**
- * @notice Interface for sending L1 -> L2 messagesto Arbitrum.
+ * @notice Interface for sending L1 -> L2 messages to Arbitrum.
  * @dev Arbitrum uses an inbox to aggregate messages going from L1 -> L2, source:
  * https://github.com/OffchainLabs/nitro/blob/master/contracts/src/bridge/Inbox.sol
  *
