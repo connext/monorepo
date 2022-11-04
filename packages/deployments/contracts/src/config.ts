@@ -109,12 +109,6 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "mainnet",
     },
-    verify: {
-      etherscan: {
-        apiKey: process.env.BNBSCAN_API_KEY!,
-        apiUrl: "https://api.bscscan.com/api",
-      },
-    },
   },
   chapel: {
     accounts: { mnemonic },
@@ -131,6 +125,12 @@ export const hardhatNetworks = {
       hub: "mainnet",
     },
     url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://xdai.poanetwork.dev/",
+    verify: {
+      etherscan: {
+        apiKey: process.env.ETHERSCAN_API_KEY!,
+        apiUrl: "https://api.gnosisscan.io",
+      },
+    },
   },
   fuse: {
     accounts: { mnemonic },
