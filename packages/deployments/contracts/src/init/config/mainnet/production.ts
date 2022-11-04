@@ -26,10 +26,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           adopted: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         },
         "1634886255": {
-          adopted: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
           local: "0x85fb8e2903ad92a2ab0c6a725806636666ee2ab4",
+          adopted: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
         },
         "6450786": {
+          local: "0xe0eb7ad53cb500bfb742c6145dbd077b6cc334a5",
           adopted: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
         },
       },
@@ -50,10 +51,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           adopted: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
         },
         "1634886255": {
-          adopted: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
           local: "0xfd5c16a50b717338cbcb44e34e10d735709e9cb9",
+          adopted: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
         },
         "6450786": {
+          local: "0x8acdfd3f309706e87929d4c57fb6f7f1040dee9a",
           adopted: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
         },
       },
