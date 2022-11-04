@@ -34,5 +34,26 @@
         "startBlock": 15891331
       }
     ]
+  },
+  {
+    "subgraphName": "connext/nxtp-amarok-hub-v0-goerli",
+    "network": "goerli",
+    "source": [
+      {
+        "name": "RootManager",
+        "address": "0x8Ea7D3855ffB7b41e68934555751d239a64cA7B9",
+        "startBlock": 7797609
+      },
+      {
+        "name": "PolygonHubConnector",
+        "address": "0x7e3E85B7CBBA50D17C0e116928726cdD2Dd200Ba",
+        "startBlock": 7797625
+      },
+      {
+        "name": "OptimismHubConnector",
+        "address": "0xC6FF904c84E7A6fb3499E92D4A202Ef193f1Ac04",
+        "startBlock": 7797621
+      }
+    ]
   }
 ]
