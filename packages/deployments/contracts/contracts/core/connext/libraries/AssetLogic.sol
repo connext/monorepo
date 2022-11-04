@@ -390,7 +390,7 @@ library AssetLogic {
 
     // If the asset is the local asset, no swap needed
     if (_asset == _local) {
-      return (_amount, _local);
+      return (_amount, _asset);
     }
 
     SwapUtils.Swap storage ipool = s.swapStorages[_key];
