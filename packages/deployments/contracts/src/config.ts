@@ -102,10 +102,19 @@ export const hardhatNetworks = {
       },
     },
   },
-  bsc: {
+  bnb: {
     accounts: { mnemonic },
     chainId: 56,
-    url: urlOverride || process.env.BSC_PROVIDER_URL || "https://bsc-dataseed.binance.org/",
+    url: urlOverride || process.env.BNB_PROVIDER_URL || "https://bsc-dataseed.binance.org/",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.BNBSCAN_API_KEY!,
+        apiUrl: "https://api.bscscan.com/api",
+      },
+    },
   },
   chapel: {
     accounts: { mnemonic },
