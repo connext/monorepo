@@ -33,6 +33,8 @@ contract SwapAdminFacet is BaseConnextFacet {
   error SwapAdminFacet__initializeSwap_feeExceedMax();
   error SwapAdminFacet__initializeSwap_adminFeeExceedMax();
   error SwapAdminFacet__initializeSwap_failedInitLpTokenClone();
+  error SwapAdminFacet__removeSwap_notInitialized();
+  error SwapAdminFacet__removeSwap_NonZeroBalance();
 
   // ============ Properties ============
 
@@ -45,6 +47,13 @@ contract SwapAdminFacet is BaseConnextFacet {
    * @param caller - The caller of the function
    */
   event SwapInitialized(bytes32 indexed key, SwapUtils.Swap swap, address caller);
+
+  /**
+   * @notice Emitted when the owner calls `removeSwap`
+   * @param key - Identifier for asset
+   * @param caller - The caller of the function
+   */
+  event SwapRemoved(bytes32 indexed key, address caller);
 
   /**
    * @notice Emitted when the owner withdraws admin fees
@@ -174,6 +183,34 @@ contract SwapAdminFacet is BaseConnextFacet {
     });
     s.swapStorages[_key] = entry;
     emit SwapInitialized(_key, entry, msg.sender);
+  }
+
+  /**
+   * @notice remove Swap Struct for key
+   *
+   * @param _key the hash of the canonical id and domain for token
+   */
+  function removeSwap(bytes32 _key) external onlyOwnerOrAdmin {
+    uint8 numPooledTokens = uint8(s.swapStorages[_key].pooledTokens.length);
+
+    if (numPooledTokens == 0) revert SwapAdminFacet__removeSwap_notInitialized();
+
+    for (uint8 i; i < numPooledTokens; ) {
+      if (s.swapStorages[_key].balances[i] > 0) {
+        revert SwapAdminFacet__removeSwap_NonZeroBalance();
+      }
+
+      if (s.swapStorages[_key].adminFees[i] > 0) {
+        s.swapStorages[_key].withdrawAdminFees(msg.sender);
+      }
+
+      unchecked {
+        ++i;
+      }
+    }
+
+    delete s.swapStorages[_key];
+    emit SwapRemoved(_key, msg.sender);
   }
 
   /**
