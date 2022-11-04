@@ -64,6 +64,22 @@
     ]
   },
   {
+    "subgraphName": "connext/amarok-runtime-v0-bnb",
+    "network": "bsc",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xB20c7f8aDe683C1ad7F5b76435D9345059b1ed3F",
+        "startBlock": 22763177
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
+        "startBlock": 22763099
+      }
+    ]
+  },
+  {
     "subgraphName": "connext/nxtp-amarok-runtime-v0-goerli",
     "network": "goerli",
     "source": [
