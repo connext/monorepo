@@ -11,7 +11,6 @@ import "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol";
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -46,8 +45,6 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * allowances. See {IERC20-approve}.
  */
 contract ERC20 is IERC20, IERC20Permit, EIP712 {
-  using SafeMath for uint256;
-
   mapping(address => uint256) private balances;
 
   mapping(address => mapping(address => uint256)) private allowances;
@@ -97,23 +94,26 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
    *
    * Requirements:
    *
-   * - `_recipient` cannot be the zero address.
-   * - the caller must have a balance of at least `_amount`.
+   * - `to` cannot be the zero address.
+   * - the caller must have a balance of at least `amount`.
    */
-  function transfer(address _recipient, uint256 _amount) public virtual override returns (bool) {
-    _transfer(msg.sender, _recipient, _amount);
+  function transfer(address to, uint256 amount) public virtual override returns (bool) {
+    _transfer(msg.sender, to, amount);
     return true;
   }
 
   /**
    * @dev See {IERC20-approve}.
    *
+   * NOTE: If `amount` is the maximum `uint256`, the allowance is not updated on
+   * `transferFrom`. This is semantically equivalent to an infinite approval.
+   *
    * Requirements:
    *
-   * - `_spender` cannot be the zero address.
+   * - `spender` cannot be the zero address.
    */
-  function approve(address _spender, uint256 _amount) public virtual override returns (bool) {
-    _approve(msg.sender, _spender, _amount);
+  function approve(address spender, uint256 amount) public virtual override returns (bool) {
+    _approve(msg.sender, spender, amount);
     return true;
   }
 
@@ -135,12 +135,8 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
     address _recipient,
     uint256 _amount
   ) public virtual override returns (bool) {
+    _spendAllowance(_sender, msg.sender, _amount);
     _transfer(_sender, _recipient, _amount);
-    _approve(
-      _sender,
-      msg.sender,
-      allowances[_sender][msg.sender].sub(_amount, "ERC20: transfer amount exceeds allowance")
-    );
     return true;
   }
 
@@ -157,7 +153,7 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
    * - `_spender` cannot be the zero address.
    */
   function increaseAllowance(address _spender, uint256 _addedValue) public virtual returns (bool) {
-    _approve(msg.sender, _spender, allowances[msg.sender][_spender].add(_addedValue));
+    _approve(msg.sender, _spender, allowances[msg.sender][_spender] + _addedValue);
     return true;
   }
 
@@ -176,11 +172,12 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
    * `_subtractedValue`.
    */
   function decreaseAllowance(address _spender, uint256 _subtractedValue) public virtual returns (bool) {
-    _approve(
-      msg.sender,
-      _spender,
-      allowances[msg.sender][_spender].sub(_subtractedValue, "ERC20: decreased allowance below zero")
-    );
+    uint256 currentAllowance = allowance(msg.sender, _spender);
+    require(currentAllowance >= _subtractedValue, "ERC20: decreased allowance below zero");
+    unchecked {
+      _approve(msg.sender, _spender, currentAllowance - _subtractedValue);
+    }
+
     return true;
   }
 
@@ -229,8 +226,13 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
 
     _beforeTokenTransfer(_sender, _recipient, amount);
 
-    balances[_sender] = balances[_sender].sub(amount, "ERC20: transfer amount exceeds balance");
-    balances[_recipient] = balances[_recipient].add(amount);
+    uint256 fromBalance = balances[_sender];
+    require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
+    unchecked {
+      balances[_sender] = fromBalance - amount;
+    }
+    balances[_recipient] += amount;
+
     emit Transfer(_sender, _recipient, amount);
   }
 
@@ -248,8 +250,8 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
 
     _beforeTokenTransfer(address(0), _account, _amount);
 
-    supply = supply.add(_amount);
-    balances[_account] = balances[_account].add(_amount);
+    supply = supply + _amount;
+    balances[_account] = balances[_account] + _amount;
     emit Transfer(address(0), _account, _amount);
   }
 
@@ -269,8 +271,13 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
 
     _beforeTokenTransfer(_account, address(0), _amount);
 
-    balances[_account] = balances[_account].sub(_amount, "ERC20: burn amount exceeds balance");
-    supply = supply.sub(_amount);
+    uint256 accountBalance = balances[_account];
+    require(accountBalance >= _amount, "ERC20: burn amount exceeds balance");
+    unchecked {
+      balances[_account] = accountBalance - _amount;
+    }
+    supply -= _amount;
+
     emit Transfer(_account, address(0), _amount);
   }
 
@@ -297,6 +304,28 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
 
     allowances[_owner][_spender] = _amount;
     emit Approval(_owner, _spender, _amount);
+  }
+
+  /**
+   * @dev Updates `_owner` s allowance for `_spender` based on spent `_amount`.
+   *
+   * Does not update the allowance amount in case of infinite allowance.
+   * Revert if not enough allowance is available.
+   *
+   * Might emit an {Approval} event.
+   */
+  function _spendAllowance(
+    address _owner,
+    address _spender,
+    uint256 _amount
+  ) internal virtual {
+    uint256 currentAllowance = allowance(_owner, _spender);
+    if (currentAllowance != type(uint256).max) {
+      require(currentAllowance >= _amount, "ERC20: insufficient allowance");
+      unchecked {
+        _approve(_owner, _spender, currentAllowance - _amount);
+      }
+    }
   }
 
   /**
