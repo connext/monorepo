@@ -159,7 +159,7 @@ library AssetLogic {
     // If the adopted asset is the local asset, no need to swap.
     address adopted = s.canonicalToAdopted[_key];
     if (adopted == _asset) {
-      return (_amount, _asset);
+      return (_amount, adopted);
     }
 
     // If there's no amount, no need to swap.
@@ -209,7 +209,7 @@ library AssetLogic {
     // If the adopted asset is the local asset, no need to swap.
     address adopted = s.canonicalToAdopted[_key];
     if (adopted == _asset) {
-      return (true, _amount, _asset);
+      return (true, _amount, adopted);
     }
 
     return _swapAssetOut(_key, _asset, adopted, _amount, _maxIn);
@@ -352,7 +352,7 @@ library AssetLogic {
     // If the adopted asset is the local asset, no need to swap.
     address adopted = s.canonicalToAdopted[_key];
     if (adopted == _asset) {
-      return (_amount, _asset);
+      return (_amount, adopted);
     }
 
     SwapUtils.Swap storage ipool = s.swapStorages[_key];
