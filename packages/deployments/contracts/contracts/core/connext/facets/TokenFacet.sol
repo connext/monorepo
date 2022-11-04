@@ -287,7 +287,7 @@ contract TokenFacet is BaseConnextFacet {
     // Update approved assets mapping
     s.approvedAssets[_key] = true;
 
-    // Update the adopted mapping using convention of local == adopted iff (_adooted == address(0))
+    // Update the adopted mapping using convention of local == adopted iff (_adopted == address(0))
     s.adoptedToCanonical[adopted].domain = _canonical.domain;
     s.adoptedToCanonical[adopted].id = _canonical.id;
 
