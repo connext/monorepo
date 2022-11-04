@@ -7,6 +7,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "1869640809", // OPTIMISM
     "1886350457", // POLYGON
     "1634886255", // ARBITRUM ONE
+    "6450786", // BNB
   ],
   assets: [
     {
@@ -25,6 +26,9 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           adopted: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         },
         "1634886255": { adopted: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8" },
+        "6450786": {
+          adopted: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+        },
       },
     },
     {
@@ -43,6 +47,9 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           adopted: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
         },
         "1634886255": { adopted: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1" },
+        "6450786": {
+          adopted: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+        },
       },
     },
   ],
