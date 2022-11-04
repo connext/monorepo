@@ -95,7 +95,7 @@ library LibDiamond {
     bytes memory _calldata
   ) internal {
     // NOTE: you can always rescind a proposed facet cut as the owner, even if outside of the validity
-    // period or before the delay elpases
+    // period or before the delay elapses
     diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = 0;
     emit DiamondCutRescinded(_diamondCut, _init, _calldata);
   }
