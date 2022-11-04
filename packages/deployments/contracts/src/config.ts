@@ -109,6 +109,12 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "mainnet",
     },
+    verify: {
+      etherscan: {
+        apiKey: process.env.BNBSCAN_API_KEY!,
+        apiUrl: "https://api.bscscan.com/api",
+      },
+    },
   },
   chapel: {
     accounts: { mnemonic },
