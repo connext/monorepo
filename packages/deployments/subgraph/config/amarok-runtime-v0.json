@@ -48,6 +48,22 @@
     ]
   },
   {
+    "subgraphName": "connext/amarok-runtime-v0-arbitrum-one",
+    "network": "arbitrum-one",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x9963a1E4fD60ba4a89E92930c8D8686514705BB6",
+        "startBlock": 35021501
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
+        "startBlock": 35021115
+      }
+    ]
+  },
+  {
     "subgraphName": "connext/nxtp-amarok-runtime-v0-goerli",
     "network": "goerli",
     "source": [
