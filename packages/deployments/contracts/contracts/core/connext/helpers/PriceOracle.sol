@@ -8,9 +8,9 @@ abstract contract PriceOracle {
   /**
    * @notice Get the price of a token
    * @param token The token to get the price of
-   * @return price The asset price mantissa (scaled by 1e18).
+   * @return The asset price mantissa (scaled by 1e18).
    *  Zero means the price is unavailable.
-   * @return source The source of the price. enum (NA, DIRECT, CHAINLINK, DEX, V1_ORACLE)
+   * @return The source of the price. enum (NA, DIRECT, CHAINLINK, DEX, V1_ORACLE)
    */
-  function getTokenPrice(address token) external view virtual returns (uint256 price, uint256 source);
+  function getTokenPrice(address token) external view virtual returns (uint256, uint256);
 }
