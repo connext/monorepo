@@ -17,27 +17,16 @@
         "name": "OptimismHubConnector",
         "address": "0xd2ceB2a4D219438C3850CeA4E643FebB66116F96",
         "startBlock": 15795944
-      }
-    ]
-  },
-  {
-    "subgraphName": "connext/nxtp-amarok-hub-v0-goerli",
-    "network": "goerli",
-    "source": [
-      {
-        "name": "RootManager",
-        "address": "0x8Ea7D3855ffB7b41e68934555751d239a64cA7B9",
-        "startBlock": 7797609
       },
       {
-        "name": "PolygonHubConnector",
-        "address": "0x7e3E85B7CBBA50D17C0e116928726cdD2Dd200Ba",
-        "startBlock": 7797625
+        "name": "BnbHubConnector",
+        "address": "0x172F55db1ec560Ea877FEC0B4AfE9a780E5FD52A",
+        "startBlock": 15891342
       },
       {
-        "name": "OptimismHubConnector",
-        "address": "0xC6FF904c84E7A6fb3499E92D4A202Ef193f1Ac04",
-        "startBlock": 7797621
+        "name": "ArbitrumHubConnector",
+        "address": "0x803aBa13C15fA0cd8D858d42f8D68D9736dFbA6A",
+        "startBlock": 15891175
       }
     ]
   }
