@@ -27,6 +27,11 @@
         "name": "ArbitrumHubConnector",
         "address": "0x803aBa13C15fA0cd8D858d42f8D68D9736dFbA6A",
         "startBlock": 15891175
+      },
+      {
+        "name": "GnosisHubConnector",
+        "address": "0xc92FC5A968886C09668d3128A2802C88d9eB9CEB",
+        "startBlock": 15891331
       }
     ]
   }
