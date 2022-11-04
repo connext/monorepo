@@ -42,6 +42,28 @@ type OptimismConnectorMeta @entity {
   mirrorConnector: Bytes!
 }
 
+# BNB
+type BnbConnectorMeta @entity {
+  id: ID! # "BnbConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# ARBITRUM
+type ArbitrumConnectorMeta @entity {
+  id: ID! # "ArbitrumConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
 # HUB CONNECTOR
 type RootMessageProcessed @entity {
   id: ID!
