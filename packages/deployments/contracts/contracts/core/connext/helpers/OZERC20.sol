@@ -135,6 +135,9 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
     address _recipient,
     uint256 _amount
   ) public virtual override returns (bool) {
+    if (_sender == _recipient) {
+      return true;
+    }
     _transfer(_sender, _recipient, _amount);
     _approve(
       _sender,
