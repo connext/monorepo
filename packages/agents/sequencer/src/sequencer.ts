@@ -39,12 +39,9 @@ export const msgContentType = "application/json";
  */
 export const makePublisher = async (_configOverride?: SequencerConfig) => {
   const { requestContext, methodContext } = createLoggingContext(makePublisher.name);
+
+  context.logger.info("Method Start", requestContext, methodContext, {});
   try {
-    context.adapters = {} as any;
-
-    /// MARK - Context
-    await setupContext(requestContext, methodContext, _configOverride);
-
     /// MARK - Bindings
     // Create server, set up routes, and start listening.
     await bindServer();
@@ -80,14 +77,11 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
  *
  * @param _configOverride - Overrides for configuration; normally only used for testing.
  */
-export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
+export const makeSubscriber = async () => {
   const { requestContext, methodContext } = createLoggingContext(makeSubscriber.name);
+
+  context.logger.info("Method Start", requestContext, methodContext, {});
   try {
-    context.adapters = {} as any;
-
-    /// MARK - Context
-    await setupContext(requestContext, methodContext, _configOverride);
-
     if (context.config.messageQueue.subscriber) {
       bindSubscriber(context.config.messageQueue.subscriber);
     } else {
@@ -126,12 +120,6 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     const messageType = process.argv[3] as MessageType;
     const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
 
-    context.adapters = {} as any;
-
-    /// MARK - Config
-    // TODO: Setting up the context every time for this execution is non-ideal.
-    await setupContext(requestContext, methodContext, _configOverride);
-
     const { taskId } =
       messageType === MessageType.ExecuteFast
         ? await executeFastPathData(transferId, requestContext)
@@ -152,11 +140,10 @@ export const execute = async (_configOverride?: SequencerConfig) => {
 };
 
 /// MARK - Context Setup
-export const setupContext = async (
-  requestContext: BaseRequestContext,
-  methodContext: MethodContext,
-  _configOverride?: SequencerConfig,
-) => {
+export const setupContext = async (_configOverride?: SequencerConfig) => {
+  const { requestContext, methodContext } = createLoggingContext(setupContext.name);
+  context.adapters = {} as any;
+
   /// MARK - Config
   // Get ChainData and parse out configuration.
   context.chainData = await getChainData();
