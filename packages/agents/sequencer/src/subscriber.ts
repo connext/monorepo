@@ -1,6 +1,6 @@
 import tracer from "dd-trace";
 
-import { makeSubscriber } from "./sequencer";
+import { makeSubscriber } from "./make";
 
 export { SequencerConfig, ChainConfig } from "./lib/entities";
 export { makeSubscriber };
