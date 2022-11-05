@@ -95,7 +95,8 @@ contract SwapAdminFacet is BaseConnextFacet {
    * only this contract is allowed to mint/burn tokens.
    *
    * @param _key the hash of the canonical id and domain for token
-   * @param _pooledTokens an array of ERC20s this pool will accept
+   * @param _pooledTokens an array of ERC20s this pool will accept. 
+   * length of this array should be 2. [local, adopted]. ex: [nextUSDC, USDC]
    * @param decimals the decimals to use for each pooled token,
    * eg 8 for WBTC. Cannot be larger than POOL_PRECISION_DECIMALS
    * @param lpTokenName the long-form name of the token to be deployed
@@ -120,7 +121,8 @@ contract SwapAdminFacet is BaseConnextFacet {
     if (s.swapStorages[_key].pooledTokens.length != 0) revert SwapAdminFacet__initializeSwap_alreadyInitialized();
 
     // Check _pooledTokens and precisions parameter
-    if (_pooledTokens.length <= 1 || _pooledTokens.length > 32)
+    // _pooledTokens length should be 2. So local / adopted asset, ie: nextUSDC/USDC
+    if (_pooledTokens.length != 2)
       revert SwapAdminFacet__initializeSwap_invalidPooledTokens();
 
     uint8 numPooledTokens = uint8(_pooledTokens.length);
