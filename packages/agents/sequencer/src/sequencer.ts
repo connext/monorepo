@@ -88,8 +88,6 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
     /// MARK - Context
     await setupContext(requestContext, methodContext, _configOverride);
 
-    context.adapters.mqClient = await setupSubscriber(requestContext);
-
     if (context.config.messageQueue.subscriber) {
       bindSubscriber(context.config.messageQueue.subscriber);
     } else {
@@ -226,7 +224,7 @@ export const setupContext = async (
       type: relayerConfig.type as RelayerType,
     });
   }
-  context.adapters.mqClient = await setupPublisher(requestContext);
+  context.adapters.mqClient = await setupMQ(requestContext);
 };
 
 export const setupCache = async (
@@ -303,35 +301,21 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
   return subgraphReader;
 };
 
-export const setupPublisher = async (requestContext: RequestContext): Promise<typeof Broker> => {
+export const setupMQ = async (requestContext: RequestContext): Promise<typeof Broker> => {
   const { logger, config } = context;
-  const methodContext = createMethodContext(setupPublisher.name);
 
-  logger.info("MQ publisher setup in progress...", requestContext, methodContext, {});
-  const client = await setupMQ(config);
-  logger.info("MQ publisher setup is done!", requestContext, methodContext, {});
+  const methodContext = createMethodContext(setupMQ.name);
 
-  return client;
-};
+  logger.info("MQ setup in progress...", requestContext, methodContext, {});
 
-export const setupSubscriber = async (requestContext: RequestContext): Promise<typeof Broker> => {
-  const { logger, config } = context;
-  const methodContext = createMethodContext(setupSubscriber.name);
-
-  logger.info("MQ subscriber setup in progress...", requestContext, methodContext, {});
-  const client = await setupMQ(config);
-  logger.info("MQ subscriber setup is done!", requestContext, methodContext, {});
-
-  return client;
-};
-
-export const setupMQ = async (_config: SequencerConfig): Promise<typeof Broker> => {
   const mqConfig: Broker.ConfigurationOptions = {
-    connection: _config.messageQueue.connection,
-    exchanges: _config.messageQueue.exchanges,
-    queues: _config.messageQueue.queues,
-    bindings: _config.messageQueue.bindings,
+    connection: config.messageQueue.connection,
+    exchanges: config.messageQueue.exchanges,
+    queues: config.messageQueue.queues,
+    bindings: config.messageQueue.bindings,
   };
   await Broker.configure(mqConfig);
+
+  logger.info("MQ setup is done!", requestContext, methodContext, {});
   return Broker;
 };
