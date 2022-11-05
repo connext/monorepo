@@ -88,11 +88,6 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
     /// MARK - Context
     await setupContext(requestContext, methodContext, _configOverride);
 
-    // Message queues must be present in the config.
-    if (context.config.messageQueue.queues.length === 0) throw new Error("No queues found in config.");
-
-    context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
-
     context.adapters.mqClient = await setupSubscriber(requestContext);
 
     if (context.config.messageQueue.subscriber) {
@@ -179,14 +174,19 @@ export const setupContext = async (
     },
   });
 
-  // Publisher must be specified in the config.
-  if (!context.config.messageQueue.publisher) throw new Error(`No publisher found in config`);
-
   context.logger.info("Sequencer config generated.", requestContext, methodContext, {
     config: { ...context.config, mnemonic: context.config.mnemonic ? "*****" : "N/A" },
   });
 
-  /// MARK - Signer
+  /// Mark - Sanity Check
+  // Publisher must be specified in the config.
+  if (!context.config.messageQueue.publisher) throw new Error(`No publisher found in config`);
+
+  // Message queues must be present in the config.
+  if (context.config.messageQueue.queues.length === 0) throw new Error("No queues found in config.");
+
+  /// MARK - Adapters
+  // Set up all adapters, peripherals, etc.
   // Either a mnemonic or a web3signer must be configured for the sequencer.
   // The signer is used for signing approvals for router paths.
   if (!context.config.mnemonic && !context.config.web3SignerUrl) {
@@ -199,8 +199,6 @@ export const setupContext = async (
     ? Wallet.fromMnemonic(context.config.mnemonic)
     : new Web3Signer(context.config.web3SignerUrl!);
 
-  /// MARK - Adapters
-  // Set up all adapters, peripherals, etc.
   context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
   context.adapters.subgraph = await setupSubgraphReader(requestContext);
   context.adapters.chainreader = new ChainReader(
