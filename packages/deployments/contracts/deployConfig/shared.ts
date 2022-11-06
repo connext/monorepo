@@ -186,6 +186,7 @@ export type MessagingProtocolConfig = {
     [chain: number]: {
       prefix: string; // The chain's name and the Connector name prefix.
       // Official AMB contract addresses.
+      networkName?: string;
       ambs: {
         hub: string;
         spoke: string;
@@ -321,6 +322,29 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           hub: {
             // https://goerli.etherscan.io/address/0x2890ba17efe978480615e330ecb65333b880928e
             checkpointManager: "0x2890bA17EfE978480615e330ecB65333b880928e",
+          },
+        },
+      },
+      97: {
+        prefix: "Multichain",
+        networkName: "Chapel",
+        ambs: {
+          // FxRoot on goerli
+          // https://goerli.etherscan.io/address/0x965f84D915a9eFa2dD81b653e3AE736555d945f4
+          hub: "0x965f84D915a9eFa2dD81b653e3AE736555d945f4",
+          // FxChild on chapel/bsc testnet
+          // https://testnet.bscscan.com/address/0x484ff472d8b592E46EBC39964e84f7F758C49045
+          spoke: "0x484ff472d8b592E46EBC39964e84f7F758C49045",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        custom: {
+          hub: {
+            mirrorChainId: "97",
+          },
+          spoke: {
+            mirrorChainId: "5",
           },
         },
       },

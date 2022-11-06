@@ -33,6 +33,7 @@ export const ProtocolNetworks: Record<string, string> = {
   "5": ProtocolNetwork.TESTNET,
   "420": ProtocolNetwork.TESTNET,
   "80001": ProtocolNetwork.TESTNET,
+  "97": ProtocolNetwork.TESTNET,
 
   // mainnets
   "1": ProtocolNetwork.MAINNET,
@@ -66,8 +67,14 @@ export const getConnectorName = (
 // These contracts do not have a `Staging` deployment
 const NON_STAGING_CONTRACTS = ["TestERC20", "TestWETH", "LPToken"];
 
-export const getDeploymentName = (contractName: string, _env?: string) => {
+export const getDeploymentName = (_contractName: string, _env?: string, _networkName?: string) => {
   const env = mustGetEnv(_env);
+  let contractName = _contractName;
+
+  if (contractName.includes("Multichain")) {
+    const networkName = _networkName!.charAt(0).toUpperCase() + _networkName!.slice(1).toLowerCase();
+    contractName = contractName.replace("Multichain", networkName);
+  }
 
   if (env !== "staging" || NON_STAGING_CONTRACTS.includes(contractName)) {
     return contractName;

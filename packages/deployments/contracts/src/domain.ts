@@ -25,6 +25,7 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
   [80001, 0x2707], // mumbai 9991
   [421613, 0x67617262], // arbitrum-goerli (garb interpreted as int) 1734439522
   [10200, 0x63686961], // gnosis-chiado (chiado interpreted as int) 1667787105
+  [97, 0x63686170], // chapel (chapel interpreted as int) 1667785072
   // local
   [1337, 1337],
   [1338, 1338],
