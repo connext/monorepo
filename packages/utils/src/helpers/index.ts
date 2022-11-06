@@ -2,6 +2,7 @@ export * from "./address";
 export * from "./asset";
 export * from "./encode";
 export * from "./env";
+export * from "./health";
 export * from "./hex";
 export * from "./math";
 export * from "./merkle";

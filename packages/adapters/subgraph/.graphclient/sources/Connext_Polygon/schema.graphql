@@ -56,6 +56,7 @@ type polygon_AssetBalance {
   amount: BigInt!
   router: polygon_Router!
   asset: polygon_Asset!
+  feesEarned: BigInt!
 }
 
 input polygon_AssetBalance_filter {
@@ -117,6 +118,14 @@ input polygon_AssetBalance_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: polygon_Asset_filter
+  feesEarned: BigInt
+  feesEarned_not: BigInt
+  feesEarned_gt: BigInt
+  feesEarned_lt: BigInt
+  feesEarned_gte: BigInt
+  feesEarned_lte: BigInt
+  feesEarned_in: [BigInt!]
+  feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: polygon_BlockChangedFilter
 }
@@ -126,6 +135,7 @@ enum polygon_AssetBalance_orderBy {
   amount
   router
   asset
+  feesEarned
 }
 
 input polygon_Asset_filter {
@@ -359,6 +369,7 @@ type polygon_DestinationTransfer {
   normalizedIn: BigInt
   canonicalId: polygon_Bytes
   asset: polygon_Asset
+  routersFee: BigInt
   executedCaller: polygon_Bytes
   executedTransactionHash: polygon_Bytes
   executedTimestamp: BigInt
@@ -518,6 +529,14 @@ input polygon_DestinationTransfer_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: polygon_Asset_filter
+  routersFee: BigInt
+  routersFee_not: BigInt
+  routersFee_gt: BigInt
+  routersFee_lt: BigInt
+  routersFee_gte: BigInt
+  routersFee_lte: BigInt
+  routersFee_in: [BigInt!]
+  routersFee_not_in: [BigInt!]
   executedCaller: polygon_Bytes
   executedCaller_not: polygon_Bytes
   executedCaller_in: [polygon_Bytes!]
@@ -630,6 +649,7 @@ enum polygon_DestinationTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  routersFee
   executedCaller
   executedTransactionHash
   executedTimestamp

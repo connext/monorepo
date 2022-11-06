@@ -1,5 +1,5 @@
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
+import { createMethodContext, createRequestContext, getChainData, Logger, sendHeartbeat } from "@connext/nxtp-utils";
 import { getDatabase, closeDatabase } from "@connext/nxtp-adapters-database";
 
 import { bindTransfers } from "../bindings";
@@ -58,4 +58,7 @@ export const makeTransfersPoller = async (_configOverride?: CartographerConfig) 
 
   await bindTransfers();
   await closeDatabase();
+  if (context.config.healthUrls.transfers) {
+    await sendHeartbeat(context.config.healthUrls.transfers, context.logger);
+  }
 };

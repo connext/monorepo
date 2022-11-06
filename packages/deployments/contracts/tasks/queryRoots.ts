@@ -9,6 +9,7 @@ import {
   getMessagingProtocolConfig,
   getProviderFromHardhatConfig,
   mustGetEnv,
+  ProtocolNetwork,
   queryOptimismMessageStatus,
 } from "../src/utils";
 
@@ -16,13 +17,15 @@ type TaskArgs = {
   env?: Env;
   hash?: string;
   relay?: string;
+  networkType?: ProtocolNetwork;
 };
 
 export default task("query-roots", "Read balances of accounts")
   .addOptionalParam("env", "Environment of contracts")
   .addOptionalParam("hash", "Tx hash of `propagate` function (where messages sent)")
   .addOptionalParam("relay", "Whether the message should be relayed if possible")
-  .setAction(async ({ env: _env, hash, relay: _relay }: TaskArgs, hre) => {
+  .addOptionalParam("networkType", "Type of network of contracts")
+  .setAction(async ({ env: _env, hash, relay: _relay, networkType }: TaskArgs, hre) => {
     let { deployer } = await hre.ethers.getNamedSigners();
     if (!deployer) {
       [deployer] = await hre.ethers.getUnnamedSigners();
@@ -36,11 +39,12 @@ export default task("query-roots", "Read balances of accounts")
     console.log("hash: ", hash);
     console.log("relay:", relay);
 
-    const protocol = getMessagingProtocolConfig(env);
+    const protocol = getMessagingProtocolConfig(networkType ?? ProtocolNetwork.TESTNET);
 
     await executeOnAllConnectors(
       config,
       env,
+      ProtocolNetwork.TESTNET,
       async (deployment: ConnectorDeployment, provider: providers.JsonRpcProvider) => {
         const { name, address, abi, chain } = deployment;
         // Create the connector contract

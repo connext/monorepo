@@ -1,0 +1,23 @@
+{
+  "server": {
+    "adminToken": "foobar"
+  },
+  "redis": {
+    "host": "127.0.0.1",
+    "port": 6379
+  },
+  "logLevel": "debug",
+  "chains": {
+    "1735356532": {
+      "providers": ["https://goerli.optimism.io"]
+    },
+    "1735353714": {
+      "providers": ["https://rpc.ankr.com/eth_goerli"]
+    },
+    "9991": {
+      "providers": ["https://rpc.ankr.com/polygon_mumbai"]
+    }
+  },
+  "environment": "production",
+  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+}

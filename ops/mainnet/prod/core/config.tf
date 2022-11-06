@@ -31,6 +31,18 @@ locals {
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.sequencer_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
   ]
+  relayer_env_vars = [
+    { name = "NXTP_CONFIG", value = local.local_relayer_config },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage },
+    { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = var.stage },
+    { name = "DD_SERVICE", value = "relayer-${var.environment}" }
+  ]
+  relayer_web3signer_env_vars = [
+    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.relayer_web3_signer_private_key },
+    { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
+  ]
 }
 
 locals {
@@ -57,7 +69,7 @@ locals {
         }]
       },
       "1869640809" = {
-        providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_0}", "https://rpc.ankr.com/polygon"]
+        providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_0}", "https://rpc.ankr.com/optimism"]
         assets = [{
           name    = "USDC"
           address = "0x85FB8e2903Ad92A2ab0C6a725806636666ee2Ab4"
@@ -67,7 +79,7 @@ locals {
         }]
       },
       "1886350457" = {
-        providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://rpc.ankr.com/optimism"]
+        providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://rpc.ankr.com/polygon"]
         assets = [{
           name    = "USDC"
           address = "0x2ABe2d4F09ea3124DE56AD91ae0950A3B71eCD11"
@@ -78,6 +90,18 @@ locals {
       }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
+    relayers = [
+      {
+        type    = "Gelato",
+        apiKey  = "${var.gelato_api_key}",
+        url     = "https://relay.gelato.digital"
+      },
+      {
+        type    = "Connext",
+        apiKey  = "foo",
+        url     = "https://${module.relayer.service_endpoint}"
+      }
+    ]
     environment   = var.stage
     messageQueue = {
       connection = {
@@ -95,19 +119,19 @@ locals {
       queues = [
         {
           name       = "1"
-          limit      = 6
+          limit      = 1
           queueLimit = 10000
           subscribe  = true
         },
         {
           name       = "10"
-          limit      = 6
+          limit      = 1
           queueLimit = 10000
           subscribe  = true
         },
         {
           name       = "137"
-          limit      = 6
+          limit      = 1
           queueLimit = 10000
           subscribe  = true
         }
@@ -131,8 +155,7 @@ locals {
       ]
       executerTimeout = 300000
       publisher       = "sequencerX"
-    },
-    gelatoApiKey = "${var.gelato_api_key}"
+    }
   })
 
   local_router_config = jsonencode({
@@ -166,7 +189,7 @@ locals {
         }]
       },
       "1869640809" = {
-        providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_1}", "https://rpc.ankr.com/polygon"]
+        providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_1}", "https://rpc.ankr.com/optimism"]
         assets = [{
           name    = "USDC"
           address = "0x85FB8e2903Ad92A2ab0C6a725806636666ee2Ab4"
@@ -176,7 +199,7 @@ locals {
         }]
       },
       "1886350457" = {
-        providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_1}", "https://rpc.ankr.com/optimism"]
+        providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_1}", "https://rpc.ankr.com/polygon"]
         assets = [{
           name    = "USDC"
           address = "0x2ABe2d4F09ea3124DE56AD91ae0950A3B71eCD11"
@@ -201,14 +224,55 @@ locals {
         providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://rpc.ankr.com/eth"]
       },
       "1869640809" = {
-        providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_0}", "https://rpc.ankr.com/polygon"]
+        providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_0}", "https://rpc.ankr.com/optimism"]
       },
       "1886350457" = {
-        providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://rpc.ankr.com/optimism"]
+        providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://rpc.ankr.com/polygon"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
     databaseUrl  = "postgresql://${var.postgres_user}:${var.postgres_password}@db.mainnet.connext.ninja:5432/connext"
+    relayers = [
+      {
+        type    = "Gelato",
+        apiKey  = "${var.gelato_api_key}",
+        url     = "https://relay.gelato.digital"
+      },
+      {
+        type    = "Connext",
+        apiKey  = "foo",
+        url     = "https://${module.relayer.service_endpoint}"
+      }
+    ]
+    healthUrls = {
+      prover    = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_prover_heartbeat}"
+      processor = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_processor_heartbeat}"
+    }
+    hubDomain = "6648936"
+  })
+
+  local_relayer_config = jsonencode({
+    redis = {
+      host = module.sequencer_cache.redis_instance_address,
+      port = module.sequencer_cache.redis_instance_port
+    }
+    server = {
+      adminToken = var.admin_token_relayer
+    }
+    logLevel = "debug"
+    chains = {
+      "6648936" = {
+        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://rpc.ankr.com/eth"]
+      },
+      "1869640809" = {
+        providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_0}", "https://rpc.ankr.com/optimism"]
+      },
+      "1886350457" = {
+        providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://rpc.ankr.com/polygon"]
+      }
+    }
+    environment   = var.stage
+    web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
   })
 }

@@ -64,6 +64,7 @@ export type optimism_AssetBalance = {
   amount: Scalars['BigInt'];
   router: optimism_Router;
   asset: optimism_Asset;
+  feesEarned: Scalars['BigInt'];
 };
 
 export type optimism_AssetBalance_filter = {
@@ -125,6 +126,14 @@ export type optimism_AssetBalance_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<optimism_Asset_filter>;
+  feesEarned?: InputMaybe<Scalars['BigInt']>;
+  feesEarned_not?: InputMaybe<Scalars['BigInt']>;
+  feesEarned_gt?: InputMaybe<Scalars['BigInt']>;
+  feesEarned_lt?: InputMaybe<Scalars['BigInt']>;
+  feesEarned_gte?: InputMaybe<Scalars['BigInt']>;
+  feesEarned_lte?: InputMaybe<Scalars['BigInt']>;
+  feesEarned_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  feesEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
 };
@@ -133,7 +142,8 @@ export type optimism_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'router'
-  | 'asset';
+  | 'asset'
+  | 'feesEarned';
 
 export type optimism_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -357,6 +367,7 @@ export type optimism_DestinationTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['optimism_Bytes']>;
   asset?: Maybe<optimism_Asset>;
+  routersFee?: Maybe<Scalars['BigInt']>;
   executedCaller?: Maybe<Scalars['optimism_Bytes']>;
   executedTransactionHash?: Maybe<Scalars['optimism_Bytes']>;
   executedTimestamp?: Maybe<Scalars['BigInt']>;
@@ -525,6 +536,14 @@ export type optimism_DestinationTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<optimism_Asset_filter>;
+  routersFee?: InputMaybe<Scalars['BigInt']>;
+  routersFee_not?: InputMaybe<Scalars['BigInt']>;
+  routersFee_gt?: InputMaybe<Scalars['BigInt']>;
+  routersFee_lt?: InputMaybe<Scalars['BigInt']>;
+  routersFee_gte?: InputMaybe<Scalars['BigInt']>;
+  routersFee_lte?: InputMaybe<Scalars['BigInt']>;
+  routersFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  routersFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedCaller?: InputMaybe<Scalars['optimism_Bytes']>;
   executedCaller_not?: InputMaybe<Scalars['optimism_Bytes']>;
   executedCaller_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
@@ -637,6 +656,7 @@ export type optimism_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'routersFee'
   | 'executedCaller'
   | 'executedTransactionHash'
   | 'executedTimestamp'

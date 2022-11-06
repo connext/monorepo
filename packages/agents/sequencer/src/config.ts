@@ -30,8 +30,6 @@ export const getEnvConfig = (
     let json: string;
 
     const path = process.env.SEQ_CONFIG_FILE ?? "config.json";
-    console.log("process.env.SEQ_CONFIG_FILE: ", process.env.SEQ_CONFIG_FILE);
-    console.log("path: ", path);
     if (fs.existsSync(path)) {
       json = fs.readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
@@ -92,8 +90,11 @@ export const getEnvConfig = (
       : configJson.messageQueue
       ? configJson.messageQueue
       : configFile.messageQueue,
-    relayerUrl: process.env.SEQ_RELAYER_URL || configJson.relayerUrl || configFile.relayerUrl,
-    gelatoApiKey: process.env.NXTP_GELATO_API_KEY || configJson.gelatoApiKey || configFile.gelatoApiKey || "xxx",
+    relayers: process.env.NXTP_RELAYERS
+      ? JSON.parse(process.env.NXTP_RELAYERS)
+      : configJson.relayers
+      ? configJson.relayers
+      : configFile.relayers,
   };
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);

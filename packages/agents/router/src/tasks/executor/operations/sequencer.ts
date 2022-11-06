@@ -8,10 +8,10 @@ import {
   formatUrl,
   getChainIdFromDomain,
   ExecutorPostDataRequest,
+  GELATO_RELAYER_ADDRESS,
 } from "@connext/nxtp-utils";
 import axios, { AxiosResponse } from "axios";
 
-import { getGelatoRelayerAddress } from "../../../mockable";
 import { getContext } from "../executor";
 // @ts-ignore
 import { version } from "../../../../package.json";
@@ -43,7 +43,8 @@ export const sendExecuteSlowToSequencer = async (
   };
 
   // Validate the bid's fulfill call will succeed on chain.
-  const relayerAddress = await getGelatoRelayerAddress(destinationChainId);
+  // note: using gelato's relayer address since it will be whitelisted everywhere
+  const relayerAddress = GELATO_RELAYER_ADDRESS;
 
   logger.debug("Getting gas estimate", requestContext, methodContext, {
     chainId: destinationChainId,

@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
 import { EventFetcher, L2TransactionReceipt } from "@arbitrum/sdk";
-import { Contract, providers, Wallet } from "ethers";
+import { BigNumberish, Contract, providers, Wallet } from "ethers";
 import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
 import { l2Networks } from "@arbitrum/sdk/dist/lib/dataEntities/networks";
 import { CrossChainMessenger } from "@eth-optimism/sdk";
@@ -13,6 +13,7 @@ import {
   getMessagingProtocolConfig,
   getProviderFromHardhatConfig,
   mustGetEnv,
+  ProtocolNetwork,
 } from "../../src/utils";
 import { RollupUserLogic__factory } from "../abis/RollupUserLogic__factory";
 import { Outbox__factory } from "../abis/Outbox__factory";
@@ -23,6 +24,7 @@ type TaskArgs = {
   tx: string;
   spoke: string;
   env?: Env;
+  networkType?: ProtocolNetwork;
 };
 
 const processFromArbitrumRoot = async (
@@ -32,32 +34,27 @@ const processFromArbitrumRoot = async (
   hubProvider: providers.JsonRpcProvider,
   deployer: Wallet,
 ) => {
-  // // Things that are needed:
-  // uint64 _nodeNum, x
-  // bytes32 _sendRoot, x
-  // bytes32 _blockHash, x
-  // bytes32[] calldata _proof, x
-  // uint256 _index, x
-  // L2Message calldata _message x
-
-  // get the tx
+  // // // Things that are needed:
+  // // uint64 _nodeNum, x
+  // // bytes32 _sendRoot, x
+  // // bytes32 _blockHash, x
+  // // bytes32[] calldata _proof, x
+  // // uint256 _index, x
+  // // L2Message calldata _message x
+  // // get the tx
   const l2TxnReceipt = new L2TransactionReceipt(await spokeProvider.getTransactionReceipt(sendHash));
-
   // @ts-ignore
   const dataIsOnL1 = await l2TxnReceipt.isDataAvailable(spokeProvider);
   if (!dataIsOnL1) {
     throw new Error(`tx data not yet posted to l1`);
   }
-
   // get the proof
   const [msg] = await l2TxnReceipt.getL2ToL1Messages(hubProvider);
   const proof = await msg.getOutboxProof(spokeProvider);
   console.log("proof", proof);
-
   // get the index
   const index = msg.event.position;
   console.log("index", index.toNumber());
-
   // construct the l2 message information
   const l2Message = {
     l2Sender: msg.event.caller,
@@ -69,7 +66,6 @@ const processFromArbitrumRoot = async (
     callData: msg.event.data,
   };
   console.log("l2Message", l2Message);
-
   // get the node number by finding the node created event with matching send
   // root.
   // a node is the bit of data that includes the l2 state that will eventually
@@ -96,9 +92,7 @@ const processFromArbitrumRoot = async (
       toBlock: "latest",
     },
   );
-
   const outbox = Outbox__factory.connect(arbNetwork.ethBridge.outbox, hubProvider);
-
   const expectedSendRoot = await outbox.calculateMerkleRoot(
     proof,
     index,
@@ -123,20 +117,19 @@ const processFromArbitrumRoot = async (
   );
   const event = blocksForLog.filter((l) => l.sendRoot == expectedSendRoot).sort((a, b) => a.number - b.number)[0];
   console.log("event", event);
-
   // verify confirm data to ensure the node is correct
-  const node = await RollupUserLogic__factory.connect(arbNetwork.ethBridge.rollup, deployer).getNode(event.nodeNum);
+  const node = await RollupUserLogic__factory.connect(arbNetwork.ethBridge.rollup, deployer).getNode(
+    event.nodeNum as BigNumberish,
+  );
   if (
     node.confirmData.toLowerCase() !==
     keccak256(defaultAbiCoder.encode(["bytes32", "bytes32"], [event.hash, event.sendRoot])).toLowerCase()
   ) {
     throw new Error(`something went wrong -- confirm data does not match`);
   }
-
   // generate the args to submit
   const args = [event.nodeNum, event.sendRoot, event.hash, proof, index, l2Message];
   console.log("args", args);
-
   return args;
 };
 
@@ -191,50 +184,55 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
   .addParam("tx", "The transaction hash that sent the L2 -> L1 message that should be processed")
   .addParam("spoke", "The chainId for the spoke")
   .addOptionalParam("env", "Environment of contracts")
-  .setAction(async ({ env: _env, tx: sendHash, spoke: _spoke }: TaskArgs, { deployments }) => {
-    const deployer = Wallet.fromMnemonic(process.env.MNEMONIC!);
+  .addOptionalParam("networkType", "Type of network of contracts")
+  .setAction(
+    async ({ env: _env, tx: sendHash, spoke: _spoke, networkType: _networkType }: TaskArgs, { deployments }) => {
+      const deployer = Wallet.fromMnemonic(process.env.MNEMONIC!);
 
-    const env = mustGetEnv(_env);
-    const spoke = +_spoke;
-    console.log("env:", env);
-    console.log("spoke", spoke);
-    console.log("sendHash", sendHash);
-    console.log("deployer", deployer.address);
+      const env = mustGetEnv(_env);
+      const spoke = +_spoke;
+      const networkType = _networkType ?? ProtocolNetwork.TESTNET;
+      console.log("networkType: ", networkType);
+      console.log("env:", env);
+      console.log("spoke", spoke);
+      console.log("sendHash", sendHash);
+      console.log("deployer", deployer.address);
 
-    // get config
-    const protocolConfig = getMessagingProtocolConfig(env);
+      // get config
+      const protocolConfig = getMessagingProtocolConfig(networkType);
 
-    // get the l2 provider
-    const l2Provider = getProviderFromHardhatConfig(hardhatConfig, spoke);
-    // get the l1 provider
-    const l1Provider = getProviderFromHardhatConfig(hardhatConfig, protocolConfig.hub);
+      // get the l2 provider
+      const l2Provider = getProviderFromHardhatConfig(hardhatConfig, spoke);
+      // get the l1 provider
+      const l1Provider = getProviderFromHardhatConfig(hardhatConfig, protocolConfig.hub);
 
-    // see what prerfix this spoke is
-    const prefix = protocolConfig.configs[spoke].prefix;
+      // see what prerfix this spoke is
+      const prefix = protocolConfig.configs[spoke].prefix;
 
-    let args: any[];
-    switch (prefix) {
-      case "Optimism":
-        args = await processFromOptimismRoot(spoke, sendHash, protocolConfig, l2Provider, l1Provider);
-        break;
-      case "Arbitrum":
-        args = await processFromArbitrumRoot(spoke, sendHash, l2Provider, l1Provider, deployer);
-        break;
-      default:
-        throw new Error(`${prefix} is not supported`);
-    }
+      let args: any[];
+      switch (prefix) {
+        case "Optimism":
+          args = await processFromOptimismRoot(spoke, sendHash, protocolConfig, l2Provider, l1Provider);
+          break;
+        case "Arbitrum":
+          args = await processFromArbitrumRoot(spoke, sendHash, l2Provider, l1Provider, deployer);
+          break;
+        default:
+          throw new Error(`${prefix} is not supported`);
+      }
 
-    // try to call process from root on hub connector
-    const deploymentName = getDeploymentName(getConnectorName(protocolConfig, spoke, protocolConfig.hub), env);
-    const deployment = await deployments.get(deploymentName);
-    const address = deployment.address;
-    console.log(deploymentName, "connector:", address);
+      // try to call process from root on hub connector
+      const deploymentName = getDeploymentName(getConnectorName(protocolConfig, spoke, protocolConfig.hub), env);
+      const deployment = await deployments.get(deploymentName);
+      const address = deployment.address;
+      console.log(deploymentName, "connector:", address);
 
-    const connector = new Contract(address, deployment.abi, deployer.connect(l1Provider));
-    console.log("created connector");
+      const connector = new Contract(address, deployment.abi, deployer.connect(l1Provider));
+      console.log("created connector");
 
-    const tx = await connector.processMessageFromRoot(...args);
-    console.log("tx", tx.hash);
-    await tx.wait();
-    console.log("tx mined");
-  });
+      const tx = await connector.processMessageFromRoot(...args);
+      console.log("tx", tx.hash);
+      await tx.wait();
+      console.log("tx mined");
+    },
+  );

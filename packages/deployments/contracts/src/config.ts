@@ -111,6 +111,9 @@ export const hardhatNetworks = {
     accounts: { mnemonic },
     chainId: 97,
     url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
+    companionNetworks: {
+      hub: "goerli",
+    },
   },
   xdai: {
     accounts: { mnemonic },
