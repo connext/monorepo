@@ -527,6 +527,7 @@ library SwapUtils {
    * @param tokenIndexTo the token to buy
    * @param dx the number of tokens to sell. If the token charges a fee on transfers,
    * use the amount that gets transferred after the fee.
+   * in case dx = 0, this function will be reverted! because xp[tokenIndexTo] = y
    * @return dy the number of tokens the user will get in the token's precision. ex WBTC -> 8
    * @return dyFee the associated fee in multiplied precision (POOL_PRECISION_DECIMALS)
    */
