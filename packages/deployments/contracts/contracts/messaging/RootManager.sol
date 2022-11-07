@@ -14,7 +14,8 @@ import {WatcherClient} from "./WatcherClient.sol";
 
 /**
  * @notice This contract exists at cluster hubs, and aggregates all transfer roots from messaging
- * spokes into a single merkle root
+ * spokes into a single merkle tree. Regularly broadcasts the root of the aggregator tree back out
+ * to all the messaging spokes.
  */
 contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainIndexer {
   // ============ Libraries ============
