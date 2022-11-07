@@ -156,19 +156,6 @@ const handleDeployHub = async (
     await tx.wait();
   }
 
-  console.log(`Deploying ${connectorName} SendOutboundRootResolver...`);
-  const resolverDeployment = await hre.deployments.deploy(
-    getDeploymentName(`${connectorName}SendOutboundRootResolver`),
-    {
-      contract: "SendOutboundRootResolver",
-      from: deployer.address,
-      args: [deployment.address, 30 * 60], // 30 min
-      skipIfAlreadyDeployed: true,
-      log: true,
-    },
-  );
-  console.log(`${connectorName} SendOutboundRootResolver deployed to ${resolverDeployment.address}`);
-
   /// HUBCONNECTOR DEPLOYMENT
   // Loop through every HubConnector configuration (except for the actual hub's) and deploy.
   const { configs } = protocol;
@@ -297,15 +284,6 @@ const handleDeploySpoke = async (
     await tx.wait();
   }
 
-  console.log(`Deploying ${contract} SendOutboundRootResolver...`);
-  const resolverDeployment = await hre.deployments.deploy(getDeploymentName(`${contract}SendOutboundRootResolver`), {
-    contract: "SendOutboundRootResolver",
-    from: deployer.address,
-    args: [deployment.address, 30 * 60], // 30 min
-    skipIfAlreadyDeployed: true,
-    log: true,
-  });
-  console.log(`${contract} SendOutboundRootResolver deployed to ${resolverDeployment.address}`);
   return deployment;
 };
 
