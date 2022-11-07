@@ -135,6 +135,10 @@ export class NxtpSdkPool {
     return [tokenId.domain, tokenId.id];
   }
 
+  async getCanonicalKey(domainId: string, tokenId: string): Promise<string> {
+    return getCanonicalHash(domainId, tokenId);
+  }
+
   async getLPTokenAddress(domainId: string, tokenAddress: string): Promise<string> {
     const connextContract = this.config.chains[domainId].deployments?.connext;
     if (!connextContract) {

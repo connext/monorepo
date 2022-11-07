@@ -32,6 +32,8 @@ export function getChainId(): BigInt {
     chainId = BigInt.fromI32(250);
   } else if (network == "optimism-goerli") {
     chainId = BigInt.fromI32(420);
+  } else if (network == "optimism") {
+    chainId = BigInt.fromI32(10);
   } else if (network == "mbase") {
     chainId = BigInt.fromI32(1287);
   } else if (network == "arbitrum-one") {
@@ -86,6 +88,7 @@ export function getOrCreateAssetBalance(local: Address, routerAddress: Address):
     assetBalance.asset = asset.id;
     assetBalance.router = router.id;
     assetBalance.amount = new BigInt(0);
+    assetBalance.feesEarned = new BigInt(0);
   }
   return assetBalance;
 }

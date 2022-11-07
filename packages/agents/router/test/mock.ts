@@ -43,7 +43,6 @@ export const mock = {
       chainData: mock.chainData(),
       routerAddress: mock.address.router,
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
-      bridgeContext: mock.bridgeContext(),
     };
   },
   executorContext: (): ExecutorAppContext => {
@@ -84,6 +83,7 @@ export const mock = {
     sequencerUrl: "http://localhost:8081",
     cartographerUrl: "http://localhost:3000",
     server: {
+      exec: { host: "0.0.0.0", port: 8080 },
       pub: {
         host: "0.0.0.0",
         port: 3001,
@@ -109,7 +109,6 @@ export const mock = {
     },
     auctionRoundDepth: 4,
     environment: "staging",
-    nomadEnvironment: "staging",
     messageQueue: {},
   }),
   bridgeContext: (): any => {
@@ -138,7 +137,12 @@ export const mock = {
     },
     subgraph: (): SinonStubbedInstance<SubgraphReader> => {
       const subgraph = createStubInstance(SubgraphReader);
-      subgraph.getXCalls.resolves([]);
+      subgraph.getDestinationXCalls.resolves([]);
+      subgraph.getOriginXCalls.resolves({
+        allTxById: new Map(),
+        latestNonces: new Map(),
+        txIdsByDestinationDomain: new Map(),
+      });
       subgraph.getOriginTransferById.resolves(mock.entity.xtransfer() as OriginTransfer);
       subgraph.getDestinationTransfers.resolves([]);
       subgraph.isRouterApproved.resolves(true);
@@ -195,12 +199,17 @@ export const mock = {
       erc20.encodeFunctionData.returns(encodedDataMock);
       erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const spokeConnector = createStubInstance(utils.Interface);
+      erc20.encodeFunctionData.returns(encodedDataMock);
+      erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       return {
         erc20: erc20 as any,
         connext: connext as unknown as ConnextContractInterfaces["connext"],
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
         erc20Extended: erc20 as unknown as ConnextContractInterfaces["erc20Extended"],
+        spokeConnector: spokeConnector as unknown as ConnextContractInterfaces["spokeConnector"],
       };
     },
     deployments: (): ConnextContractDeployments => {
@@ -211,6 +220,8 @@ export const mock = {
         }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
+        hubConnector: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
+        spokeConnector: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
       };
     },
   },

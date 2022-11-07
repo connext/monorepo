@@ -3,8 +3,8 @@ import { InitConfig } from "../../helpers";
 export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
   hub: "1735353714", /// GOERLI
   supportedDomains: [
-    "1735353714",
-    "1735356532",
+    "1735353714", /// GOERLI
+    "1735356532", /// OPTIMISM-GOERLI
     // "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
   ],
@@ -14,6 +14,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       canonical: {
         domain: "1735353714",
         address: "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
+        decimals: 18,
       },
       representations: {
         "1735356532": {
@@ -36,6 +37,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       canonical: {
         domain: "1735353714",
         address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+        decimals: 18,
       },
       representations: {
         "1735356532": {
@@ -65,7 +67,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       whitelist: ["0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C"],
     },
     relayers: {
-      whitelist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92"],
+      whitelist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", "0x7198C77022566F8F1f8A9A41C7B9C084bD18F934"],
     },
   },
 };

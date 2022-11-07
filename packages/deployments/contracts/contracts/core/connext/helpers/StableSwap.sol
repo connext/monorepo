@@ -87,7 +87,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
 
     uint256[] memory precisionMultipliers = new uint256[](decimals.length);
 
-    for (uint8 i = 0; i < _pooledTokens.length; i++) {
+    for (uint256 i = 0; i < _pooledTokens.length; i++) {
       if (i != 0) {
         // Check if index is already used. Check if 0th element is a duplicate.
         require(

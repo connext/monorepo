@@ -1,6 +1,5 @@
 import { config as envConfig } from "dotenv";
 import { utils } from "ethers";
-import { NetworksUserConfig } from "hardhat/types";
 
 envConfig();
 const urlOverride = process.env.ETH_PROVIDER_URL;
@@ -13,7 +12,7 @@ const mnemonic =
 
 const mainnetMnemonic = process.env.MAINNET_MNEMONIC;
 
-export const hardhatNetworks: NetworksUserConfig = {
+export const hardhatNetworks = {
   hardhat: {
     allowUnlimitedContractSize: true,
   },
@@ -112,6 +111,9 @@ export const hardhatNetworks: NetworksUserConfig = {
     accounts: { mnemonic },
     chainId: 97,
     url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
+    companionNetworks: {
+      hub: "goerli",
+    },
   },
   xdai: {
     accounts: { mnemonic },

@@ -29,8 +29,6 @@ export const ENVIRONMENT: "staging" | "production" = (process.env.ENV ||
   process.env.ENVIRONMENT ||
   Environment.Staging) as "staging" | "production";
 
-export const NOMAD_ENVIRONMENT: "staging" | "production" = (process.env.NXTP_NOMAD_ENVIRONMENT ||
-  Environment.Staging) as "staging" | "production";
 // Whether or not to run certain agents locally.
 export const LOCAL_RELAYER_ENABLED = process.env.LOCAL_RELAYER_ENABLED === "true";
 export const LOCAL_CARTOGRAPHER_ENABLED = process.env.LOCAL_CARTOGRAPHER_ENABLED === "true";
@@ -258,7 +256,6 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
     },
     auctionRoundDepth: 3,
     environment,
-    nomadEnvironment: NOMAD_ENVIRONMENT,
     messageQueue: {
       host: LOCALHOST,
     },
@@ -302,7 +299,6 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     network: "testnet",
     supportedVersion: routerPackageVersion,
     environment: ENVIRONMENT.toString() as "staging" | "production",
-    relayerUrl: LOCAL_RELAYER_ENABLED ? `http://${LOCALHOST}:8082` : undefined,
     messageQueue: {
       connection: {
         uri: "amqp://guest:guest@localhost:5672",
@@ -314,7 +310,13 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
       publisher: EXCHANGE_NAME,
       subscriber: QUEUE_NAME,
     },
-    gelatoApiKey: "foo",
+    relayers: [
+      {
+        type: "Connext",
+        apiKey: "foo",
+        url: `http://${LOCALHOST}:8082`,
+      },
+    ],
   };
 })();
 
@@ -363,5 +365,6 @@ export const CARTOGRAPHER_CONFIG: Promise<CartographerConfig> = (async (): Promi
       [ORIGIN.domain]: {},
       [DESTINATION.domain]: {},
     },
+    healthUrls: {},
   };
 })();

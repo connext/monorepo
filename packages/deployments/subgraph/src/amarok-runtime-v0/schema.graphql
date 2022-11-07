@@ -13,6 +13,7 @@ type AssetBalance @entity {
   amount: BigInt!
   router: Router!
   asset: Asset!
+  feesEarned: BigInt!
 }
 
 # Router represents a router and its associated liquidity
@@ -42,13 +43,6 @@ type Sequencer @entity {
   id: ID!
   isActive: Boolean!
   sequencer: Bytes
-}
-
-type StableSwap @entity {
-  id: ID!
-  canonicalId: Bytes!
-  domain: BigInt
-  swapPool: Bytes!
 }
 
 enum TransferStatus {
@@ -124,6 +118,9 @@ type DestinationTransfer @entity {
 
   # Asset
   asset: Asset
+
+  # calculated
+  routersFee: BigInt
 
   # Executed Transaction
   executedCaller: Bytes
@@ -209,4 +206,48 @@ type RootMessageSent @entity {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+}
+
+### STABLE SWAP
+type StableSwap @entity {
+  id: ID!
+
+  isActive: Boolean
+
+  # StableSwapAdded
+  key: Bytes
+  canonicalId: Bytes
+  domain: BigInt
+  swapPool: Bytes
+
+  # SwapInitialized
+  lpToken: Bytes
+
+  initialA: BigInt
+  futureA: BigInt
+
+  initialATime: BigInt
+  futureATime: BigInt
+
+  swapFee: BigInt
+  adminFee: BigInt
+  pooledTokens: [PooledToken!]!
+  tokenPrecisionMultipliers: [BigInt!]
+  balances: [BigInt!]!
+  adminFees: [BigInt!]
+}
+
+type PooledToken @entity {
+  id: ID!
+  asset: Bytes!
+}
+
+type StableSwapLiquidity @entity {
+  id: ID!
+  provider: Bytes!
+  stableSwap: StableSwap!
+  tokenAmounts: [BigInt!]!
+  fees: [BigInt!]!
+  invariant: BigInt
+  lpTokenSupply: BigInt
 }

@@ -1,12 +1,12 @@
-import { createLoggingContext, getChainData, Logger } from "@connext/nxtp-utils";
+import { createLoggingContext, getChainData, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
 import { getContractInterfaces, ChainReader, contractDeployments } from "@connext/nxtp-txservice";
 import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
+import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 
 import { getConfig } from "../../config";
 
 import { ProverContext } from "./context";
 import { proveAndProcess } from "./operations";
-import { setupRelayer } from "./adapters";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: ProverContext = {} as any;
@@ -45,7 +45,27 @@ export const makeProver = async () => {
       context.config.chains,
     );
     context.adapters.database = await getDatabase(context.config.database.url, context.logger);
-    context.adapters.relayer = await setupRelayer();
+
+    context.adapters.relayers = [];
+    for (const relayerConfig of context.config.relayers) {
+      const setupFunc =
+        relayerConfig.type == RelayerType.Gelato
+          ? setupGelatoRelayer
+          : RelayerType.Connext
+          ? setupConnextRelayer
+          : undefined;
+
+      if (!setupFunc) {
+        throw new Error(`Unknown relayer configured, relayer: ${relayerConfig}`);
+      }
+
+      const relayer = await setupFunc(relayerConfig.url);
+      context.adapters.relayers.push({
+        instance: relayer,
+        apiKey: relayerConfig.apiKey,
+        type: relayerConfig.type as RelayerType,
+      });
+    }
     context.adapters.contracts = getContractInterfaces();
 
     context.logger.info("Prover boot complete!", requestContext, methodContext, {
@@ -65,8 +85,12 @@ export const makeProver = async () => {
 
     // Start the prover.
     await proveAndProcess();
+    if (context.config.healthUrls.prover) {
+      await sendHeartbeat(context.config.healthUrls.prover, context.logger);
+    }
   } catch (e: unknown) {
     console.error("Error starting Prover. Sad! :(", e);
+  } finally {
     await closeDatabase();
     process.exit();
   }

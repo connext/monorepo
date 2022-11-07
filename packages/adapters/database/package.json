@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-database",
-  "version": "0.2.0-alpha.29",
+  "version": "0.2.1-beta.1",
   "description": "adapter for handling communication with Redis cache for nxtp protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -28,18 +28,19 @@
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
-    "dbmate": "^1.0.3",
-    "zapatos": "^6.1.1"
+    "dbmate": "1.0.3",
+    "zapatos": "6.1.1"
   },
   "devDependencies": {
-    "@types/mocha": "9.1.1",
-    "eslint": "8.23.0",
-    "mocha": "10.0.0",
+    "@types/mocha": "10.0.0",
+    "eslint": "8.26.0",
+    "mocha": "10.1.0",
     "nyc": "15.1.0",
     "ts-mocha": "10.0.0",
     "ts-node": "10.9.1",
     "tslib": "2.4.0",
-    "typescript": "4.8.3"
+    "typescript": "4.8.4"
   },
-  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6"
+  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
+  "stableVersion": "0.2.0-alpha.29"
 }

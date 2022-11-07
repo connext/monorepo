@@ -14,6 +14,7 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
       canonical: {
         domain: "1735353714",
         address: "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
+        decimals: 18,
       },
       representations: {
         "1735356532": {
@@ -32,10 +33,29 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      name: "TEST2",
+      canonical: {
+        domain: "1735353714",
+        address: "0x681B5f54B936F2cBb52C41C2CaCbdb4f3A805e77",
+        decimals: 18,
+      },
+      representations: {
+        "1735356532": {
+          local: "0x387d74037a7b691e8f6203b8c7589ea9d0b7d3c0",
+          adopted: "0x154284B2Fa68AB299fa40F144b6D0983163cd108",
+        },
+        "9991": {
+          local: "0xaa52c1e21428e1a081d77c869276100be1db9aee",
+          adopted: "0x6c6F2Ed3283124eA2C861100ED044f4d0F434Fc1",
+        },
+      },
+    },
+    {
       name: "WETH",
       canonical: {
         domain: "1735353714",
         address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+        decimals: 18,
       },
       representations: {
         "1735356532": {
@@ -65,7 +85,7 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
       whitelist: ["0xAFCBcdF90776bCFBcB334a6908fdEDa02A75B983"],
     },
     relayers: {
-      whitelist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92"],
+      whitelist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", "0xED6fbBB952F5dA88bE9B507A9b2289B1ec07d494"],
     },
   },
 };

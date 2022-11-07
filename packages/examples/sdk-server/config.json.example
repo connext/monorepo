@@ -37,7 +37,8 @@
           "symbol": "TWETH",
           "address": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
         }
-      ]
+      ],
+      "providers": ["https://rpc.ankr.com/polygon_mumbai"]
     }
   },
   "logLevel": "debug",

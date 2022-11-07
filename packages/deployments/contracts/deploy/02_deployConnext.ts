@@ -186,7 +186,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   }
 
   const connectorName = getConnectorName(protocol, +chainId);
-  const connectorManagerDeployment = await hre.deployments.getOrNull(getDeploymentName(connectorName));
+  const connectorManagerDeployment = await hre.deployments.getOrNull(
+    getDeploymentName(connectorName, undefined, protocol.configs[Number(chainId)].networkName),
+  );
   if (!connectorManagerDeployment) {
     throw new Error(`${connectorName} not deployed`);
   }
@@ -305,6 +307,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     });
     console.log("TestERC20: ", deployment.address);
 
+    deployment = await hre.deployments.deploy("TestAdopted", {
+      contract: "TestERC20",
+      from: deployer.address,
+      log: true,
+      skipIfAlreadyDeployed: true,
+      args: ["Test Adopted", "TEST2"],
+    });
+
     deployment = await hre.deployments.deploy("TestWETH", {
       contract: "TestERC20",
       from: deployer.address,
@@ -312,6 +322,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       skipIfAlreadyDeployed: true,
       args: ["Test Wrapped Ether", "TWETH"],
     });
+
     console.log("TestERC20: ", deployment.address);
   } else {
     console.log("Skipping test setup on chainId: ", chainId);

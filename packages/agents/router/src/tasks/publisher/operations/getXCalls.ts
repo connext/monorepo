@@ -1,5 +1,4 @@
 import { createLoggingContext, jsonifyError, OriginTransfer, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
 
 import { XCALL_MESSAGE_TYPE, MQ_EXCHANGE, XCALL_QUEUE } from "../../../setup";
 import { getContext } from "../publisher";
@@ -21,6 +20,7 @@ export const getXCalls = async () => {
   const allowedDomains = Object.keys(config.chains);
   const latestBlockNumbers = await subgraph.getLatestBlockNumber(allowedDomains);
   for (const domain of allowedDomains) {
+    console.log("domain: ", domain);
     try {
       let latestBlockNumber = 0;
       if (latestBlockNumbers.has(domain)) {
@@ -52,39 +52,47 @@ export const getXCalls = async () => {
   }
 
   if ([...subgraphQueryMetaParams.keys()].length > 0) {
-    const transfers = await subgraph.getXCalls(subgraphQueryMetaParams);
-    if (transfers.length === 0) {
-      logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
-        subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
-      });
-    } else {
-      await Promise.all(
-        transfers.map(async (transfer) => {
-          // new request context with the transfer id
-          const { requestContext: _requestContext, methodContext: _methodContext } = createLoggingContext(
-            "pollSubgraph",
-            undefined,
-            transfer.transferId,
-          );
-          try {
-            if (BigNumber.from(transfer.xparams.bridgedAmt).gt(0)) {
+    const { txIdsByDestinationDomain, allTxById, latestNonces } = await subgraph.getOriginXCalls(
+      subgraphQueryMetaParams,
+    );
+
+    for (const [domain, nonce] of latestNonces.entries()) {
+      // set nonce now so we don't requery the same transfers
+      await cache.transfers.setLatestNonce(domain, nonce ?? 0);
+    }
+
+    if (txIdsByDestinationDomain.size > 0) {
+      const transfers = await subgraph.getDestinationXCalls(txIdsByDestinationDomain, allTxById);
+      if (transfers.length === 0) {
+        logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
+          subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
+        });
+      } else {
+        await Promise.all(
+          transfers.map(async (transfer) => {
+            // new request context with the transfer id
+            const { requestContext: _requestContext, methodContext: _methodContext } = createLoggingContext(
+              "pollSubgraph",
+              undefined,
+              transfer.transferId,
+            );
+            try {
               await mqClient.publish<OriginTransfer>(MQ_EXCHANGE, {
                 body: transfer as OriginTransfer,
                 type: XCALL_MESSAGE_TYPE,
                 routingKey: XCALL_QUEUE,
               });
               logger.debug("Published transfer to mq", _requestContext, _methodContext, { transfer });
-            } else {
-              logger.debug("Skipping zero amount transfer", _requestContext, _methodContext, { transfer });
+            } catch (err: unknown) {
+              logger.error("Error publishing to mq", _requestContext, _methodContext, jsonifyError(err as Error));
             }
-
-            // TODO: once per transfer instead
-            await cache.transfers.setLatestNonce(transfer.xparams.originDomain, transfer.xparams.nonce ?? 0);
-          } catch (err: unknown) {
-            logger.error("Error publishing to mq", _requestContext, _methodContext, jsonifyError(err as Error));
-          }
-        }),
-      );
+          }),
+        );
+      }
+    } else {
+      logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
+        subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
+      });
     }
   }
 };

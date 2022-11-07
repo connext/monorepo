@@ -6,7 +6,6 @@ import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
 import "hardhat-deploy";
 import "solidity-coverage";
-import "@tenderly/hardhat-tenderly";
 import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-contract-sizer";
