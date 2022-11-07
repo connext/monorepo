@@ -242,7 +242,7 @@ contract SwapUtilsTest is ForgeHelper {
     uint256 x = dx * swapStorage.tokenPrecisionMultipliers[0] + xp[0];
     uint256 y = SwapUtils.getY(swapStorage.getAPrecise(), 0, 1, x, xp);
 
-    assertEq(y, uint256(xp[0]));
+    assertEq(y, uint256(xp[1]));
   }
 
   // ============ calculateSwap ============
