@@ -114,12 +114,14 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     execute: { executeFastPathData, executeSlowPathData },
     tasks: { updateTask },
   } = getOperations();
-  try {
-    // Transfer ID is a CLI argument. Always provided by the parent
-    const transferId = process.argv[2];
-    const messageType = process.argv[3] as MessageType;
-    const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
 
+  // Transfer ID is a CLI argument. Always provided by the parent
+  const transferId = process.argv[2];
+  const messageType = process.argv[3] as MessageType;
+
+  const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
+
+  try {
     const { taskId } =
       messageType === MessageType.ExecuteFast
         ? await executeFastPathData(transferId, requestContext)
@@ -129,10 +131,7 @@ export const execute = async (_configOverride?: SequencerConfig) => {
       await updateTask(transferId, messageType);
     }
   } catch (error: any) {
-    const { requestContext, methodContext } = createLoggingContext(execute.name);
-    if (context.logger)
-      context.logger.error("Error executing:", requestContext, methodContext, jsonifyError(error as Error));
-    else console.error("Error executing:", error);
+    context.logger.error("Error executing:", requestContext, methodContext, jsonifyError(error as Error));
     process.exit(1);
   }
 
