@@ -282,6 +282,8 @@ library SwapUtils {
 
     uint256 b = s + ((d * AmplificationUtils.A_PRECISION) / nA);
     uint256 yPrev;
+    // Select d as the starting point of the Newton method. Because y < D
+    // D is the best option as the starting point in case the pool is very imbalanced.
     uint256 y = d;
     for (uint256 i; i < MAX_LOOP_LIMIT; ) {
       yPrev = y;
