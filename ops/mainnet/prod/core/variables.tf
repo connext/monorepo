@@ -44,7 +44,7 @@ variable "full_image_name_router_subscriber" {
 variable "full_image_name_router_executor" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-executor:sha-229b6dd"
+  default     = "ghcr.io/connext/router-executor:0.2.1-beta.0"
 }
 
 variable "full_image_name_sequencer_publisher" {
@@ -62,13 +62,13 @@ variable "full_image_name_sequencer_subscriber" {
 variable "full_image_name_lighthouse_prover" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/lighthouse-prover:sha-229b6dd"
+  default     = "ghcr.io/connext/lighthouse-prover:0.2.1-beta.0"
 }
 
 variable "full_image_name_lighthouse_process_from_root" {
   type        = string
   description = "lighthouse process from root image name"
-  default     = "ghcr.io/connext/lighthouse-process-from-root:latest"
+  default     = "ghcr.io/connext/lighthouse-process-from-root:0.2.1-beta.0"
 }
 
 variable "mnemonic" {
@@ -157,7 +157,7 @@ variable "lighthouse_processor_heartbeat" {
 variable "full_image_name_relayer" {
   type        = string
   description = "relayer image name"
-  default     = "ghcr.io/connext/relayer:0.2.1-beta.1"
+  default     = "ghcr.io/connext/relayer:0.2.1-beta.0"
 }
 variable "relayer_web3_signer_private_key" {
   type = string
