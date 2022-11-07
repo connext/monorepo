@@ -67,6 +67,8 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
    * spoke)
    */
   function _processMessage(bytes memory _data) internal override {
+    require(_verifySender(mirrorConnector), "!mirrorConnector");
+
     // sanity check root length
     require(_data.length == 32, "!length");
 
