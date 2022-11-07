@@ -55,7 +55,7 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
   }
 
   function _sendMessage(bytes memory _data) internal override {
-    _sendMessage(AMB, _data);
+    _sendMessage(AMB, mirrorConnector, _data);
   }
 
   function _verifySender(address _expected) internal view override returns (bool) {
