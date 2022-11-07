@@ -232,6 +232,19 @@ contract SwapUtilsTest is ForgeHelper {
     assertEq(y, uint256(900197586023458169));
   }
 
+  function test_SwapUtils__getY_zeroForZero(uint256 liq1, uint256 liq2) public {
+    vm.assume(liq1 < 10 ether && liq2 < 10 ether);
+    vm.assume(liq1 != liq2);
+
+    utils_addLiquidity(liq1, liq2);
+    uint256[] memory xp = SwapUtils._xp(swapStorage);
+    uint256 dx = 0;
+    uint256 x = dx * swapStorage.tokenPrecisionMultipliers[0] + xp[0];
+    uint256 y = SwapUtils.getY(swapStorage.getAPrecise(), 0, 1, x, xp);
+
+    assertEq(y, uint256(xp[0]));
+  }
+
   // ============ calculateSwap ============
 
   // Should work
