@@ -143,7 +143,7 @@ library TypedMemView {
    * @return      second - The bottom 16 bytes
    */
   function encodeHex(uint256 _b) internal pure returns (uint256 first, uint256 second) {
-    for (uint8 i = 31; i > 15; ) {
+    for (uint256 i = 31; i > 15; ) {
       uint8 _byte = uint8(_b >> (i * 8));
       first |= byteHex(_byte);
       if (i != 16) {
@@ -155,7 +155,7 @@ library TypedMemView {
     }
 
     // abusing underflow here =_=
-    for (uint8 i = 15; i < 255; ) {
+    for (uint256 i = 15; i < 255; ) {
       uint8 _byte = uint8(_b >> (i * 8));
       second |= byteHex(_byte);
       if (i != 0) {
