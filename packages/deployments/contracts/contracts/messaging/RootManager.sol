@@ -42,7 +42,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @notice Maximum number of values to dequeue from the queue in one sitting (one call of `propagate`
    * or `dequeue`). Used to cap gas requirements.
    */
-  uint256 public constant DEQUEUE_MAX = 100;
+  uint128 public constant DEQUEUE_MAX = 100;
 
   /**
    * @notice Number of blocks to delay the processing of a message to allow for watchers to verify

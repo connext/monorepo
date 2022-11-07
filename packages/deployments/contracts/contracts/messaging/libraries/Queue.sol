@@ -60,11 +60,20 @@ library QueueLib {
   function dequeueVerified(
     Queue storage queue,
     uint256 delay,
-    uint256 max
+    uint128 max
   ) internal returns (bytes32[] memory) {
     uint128 first = queue.first;
     uint128 last = queue.last;
     require(last >= first, "queue empty");
+
+    {
+      // If we would otherwise be searching beyond the maximum amount we are allowed to dequeue in this
+      // call, reduce `last` to artificially shrink the available queue within the scope of this method.
+      uint128 highestAllowed = first + max;
+      if (last > highestAllowed) {
+        last = highestAllowed;
+      }
+    }
 
     // Commit block must be below this block to be considered verified.
     // NOTE: It's assumed that block number is a higher value than delay (i.e. delay is reasonable).
