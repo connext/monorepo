@@ -1,11 +1,16 @@
 import { createLoggingContext } from "@connext/nxtp-utils";
-import { BigNumberish, providers, utils } from "ethers";
-import { EventFetcher, L2TransactionReceipt } from "@arbitrum/sdk";
+import { BigNumberish, utils } from "ethers";
 import { l2Networks } from "@arbitrum/sdk/dist/lib/dataEntities/networks";
-import { RollupUserLogic__factory, Outbox__factory } from "@connext/nxtp-contracts";
 
 import { getContext } from "../processFromRoot";
 import { ConfirmDataDoesNotMatch, NoRootAvailable } from "../errors";
+import {
+  EventFetcher,
+  JsonRpcProvider,
+  L2TransactionReceipt,
+  Outbox__factory,
+  RollupUserLogic__factory,
+} from "../../../mockable";
 
 import { GetProcessArgsParams } from ".";
 
@@ -31,7 +36,7 @@ export const getProcessFromArbitrumRootArgs = async ({
   // // uint256 _index, x
   // // L2Message calldata _message x
   // // get the tx
-  const spokeJsonProvider = new providers.JsonRpcProvider(spokeProvider);
+  const spokeJsonProvider = new JsonRpcProvider(spokeProvider);
   const tx = await spokeJsonProvider.getTransactionReceipt(sendHash);
   const l2TxnReceipt = new L2TransactionReceipt(tx);
   // @ts-ignore
@@ -40,7 +45,7 @@ export const getProcessFromArbitrumRootArgs = async ({
     throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext);
   }
   // get the proof
-  const hubJsonProvider = new providers.JsonRpcProvider(hubProvider);
+  const hubJsonProvider = new JsonRpcProvider(hubProvider);
   const [msg] = await l2TxnReceipt.getL2ToL1Messages(hubJsonProvider);
   const proof = await msg.getOutboxProof(spokeJsonProvider);
   logger.info("Got proof", requestContext, methodContext, { proof });
@@ -74,7 +79,7 @@ export const getProcessFromArbitrumRootArgs = async ({
   //    sendRoot. Find the nodeNum from this event, and submit to chain (seen below)
   const arbNetwork = l2Networks[spokeChainId];
   const fetcher = new EventFetcher(hubJsonProvider);
-  console.log("searching for node created events at", arbNetwork.ethBridge.rollup);
+  logger.info("Fetching events", requestContext, methodContext, { arbNetworkRollup: arbNetwork.ethBridge.rollup });
   const logs = await fetcher.getEvents(
     arbNetwork.ethBridge.rollup,
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -101,7 +106,8 @@ export const getProcessFromArbitrumRootArgs = async ({
   );
   const blocksForLog = await Promise.all(
     logs.map(async (l) => {
-      const ret = await (msg as any).getBlockFromNodeLog(spokeProvider, l);
+      console.log("l: ", l);
+      const ret = await (msg as any).getBlockFromNodeLog(spokeJsonProvider, l);
       return {
         ...ret,
         nodeNum: l.event.nodeNum,
