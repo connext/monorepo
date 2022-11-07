@@ -36,9 +36,13 @@ abstract contract BaseMultichain {
   /**
    * @dev Sends `outboundRoot` to root manager on the mirror chain
    */
-  function _sendMessage(address _amb, bytes memory _data) internal {
+  function _sendMessage(
+    address _amb,
+    address _mirrorConnector,
+    bytes memory _data
+  ) internal {
     Multichain(_amb).anyCall(
-      _amb, // Same address on every chain, using AMB as it is immutable
+      _mirrorConnector, // Same address on every chain, using AMB as it is immutable
       _data,
       address(0), // fallback address on origin chain
       MIRROR_CHAIN_ID,
