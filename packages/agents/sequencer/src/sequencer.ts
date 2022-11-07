@@ -7,8 +7,6 @@ import {
   createMethodContext,
   ChainData,
   jsonifyError,
-  BaseRequestContext,
-  MethodContext,
   RelayerType,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
