@@ -121,6 +121,14 @@ variable "polygon_alchemy_key_1" {
   type = string
 }
 
+variable "arbitrum_alchemy_key_0" {
+  type = string
+}
+
+variable "arbitrum_alchemy_key_1" {
+  type = string
+}
+
 variable "router_web3_signer_private_key" {
   type = string
 }
@@ -135,6 +143,11 @@ variable "dd_api_key" {
 
 variable "gelato_api_key" {
   type = string
+}
+
+variable "connext_relayer_api_key" {
+  type    = string
+  default = "foo"
 }
 
 variable "postgres_password" {

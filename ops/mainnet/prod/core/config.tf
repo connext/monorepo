@@ -88,21 +88,31 @@ locals {
           address = "0x2BD5B3cfB2b16F2B10e7BA41dc1cb93d61B36bB8"
         }]
       }
+      "1634886255" = {
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
+        assets = [{
+          name    = "USDC"
+          address = "0x85fb8e2903ad92a2ab0c6a725806636666ee2ab4"
+          }, {
+          name    = "WETH"
+          address = "0xfd5c16a50b717338cbcb44e34e10d735709e9cb9"
+        }]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
       {
-        type    = "Gelato",
-        apiKey  = "${var.gelato_api_key}",
-        url     = "https://relay.gelato.digital"
+        type   = "Gelato",
+        apiKey = "${var.gelato_api_key}",
+        url    = "https://relay.gelato.digital"
       },
       {
-        type    = "Connext",
-        apiKey  = "foo",
-        url     = "https://${module.relayer.service_endpoint}"
+        type   = "Connext",
+        apiKey = "foo",
+        url    = "https://${module.relayer.service_endpoint}"
       }
     ]
-    environment   = var.stage
+    environment = var.stage
     messageQueue = {
       connection = {
         uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
@@ -118,19 +128,25 @@ locals {
       ]
       queues = [
         {
-          name       = "1"
+          name       = "6648936"
           limit      = 1
           queueLimit = 10000
           subscribe  = true
         },
         {
-          name       = "10"
+          name       = "1869640809"
           limit      = 1
           queueLimit = 10000
           subscribe  = true
         },
         {
-          name       = "137"
+          name       = "1886350457"
+          limit      = 1
+          queueLimit = 10000
+          subscribe  = true
+        },
+        {
+          name       = "1634886255"
           limit      = 1
           queueLimit = 10000
           subscribe  = true
@@ -139,18 +155,23 @@ locals {
       bindings = [
         {
           exchange = "sequencerX"
-          target   = "1"
-          keys     = ["1"]
+          target   = "6648936"
+          keys     = ["6648936"]
         },
         {
           exchange = "sequencerX"
-          target   = "10"
-          keys     = ["10"]
+          target   = "1869640809"
+          keys     = ["1869640809"]
         },
         {
           exchange = "sequencerX"
-          target   = "137"
-          keys     = ["137"]
+          target   = "1886350457"
+          keys     = ["1886350457"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1634886255"
+          keys     = ["1634886255"]
         }
       ]
       executerTimeout = 300000
@@ -207,6 +228,16 @@ locals {
           name    = "WETH"
           address = "0x2BD5B3cfB2b16F2B10e7BA41dc1cb93d61B36bB8"
         }]
+      },
+      "1634886255" = {
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_1}", "https://rpc.ankr.com/arbitrum"]
+        assets = [{
+          name    = "USDC"
+          address = "0x85fb8e2903ad92a2ab0c6a725806636666ee2ab4"
+          }, {
+          name    = "WETH"
+          address = "0xfd5c16a50b717338cbcb44e34e10d735709e9cb9"
+        }]
       }
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
@@ -228,6 +259,9 @@ locals {
       },
       "1886350457" = {
         providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://rpc.ankr.com/polygon"]
+      },
+      "1634886255" = {
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
@@ -235,14 +269,14 @@ locals {
     databaseUrl  = "postgresql://${var.postgres_user}:${var.postgres_password}@db.mainnet.connext.ninja:5432/connext"
     relayers = [
       {
-        type    = "Gelato",
-        apiKey  = "${var.gelato_api_key}",
-        url     = "https://relay.gelato.digital"
+        type   = "Gelato",
+        apiKey = "${var.gelato_api_key}",
+        url    = "https://relay.gelato.digital"
       },
       {
-        type    = "Connext",
-        apiKey  = "foo",
-        url     = "https://${module.relayer.service_endpoint}"
+        type   = "Connext",
+        apiKey = "${var.connext_relayer_api_key}",
+        url    = "https://${module.relayer.service_endpoint}"
       }
     ]
     healthUrls = {
@@ -270,6 +304,9 @@ locals {
       },
       "1886350457" = {
         providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://rpc.ankr.com/polygon"]
+      },
+      "1634886255" = {
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
       }
     }
     environment   = var.stage
