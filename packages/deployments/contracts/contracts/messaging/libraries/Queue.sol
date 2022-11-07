@@ -65,11 +65,12 @@ library QueueLib {
     uint128 first = queue.first;
     uint128 last = queue.last;
     require(last >= first, "queue empty");
+    require(max > 0, "!acceptable max");
 
     {
       // If we would otherwise be searching beyond the maximum amount we are allowed to dequeue in this
       // call, reduce `last` to artificially shrink the available queue within the scope of this method.
-      uint128 highestAllowed = first + max;
+      uint128 highestAllowed = first + max - 1;
       if (last > highestAllowed) {
         last = highestAllowed;
       }
