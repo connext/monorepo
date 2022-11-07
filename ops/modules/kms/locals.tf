@@ -8,6 +8,7 @@ locals {
     "arn:aws:iam::679752396206:user/sanchay",
     "arn:aws:iam::679752396206:user/arjun",
     "arn:aws:iam::679752396206:user/preetham",
+    "arn:aws:iam::679752396206:user/wang"
   ]
 }
 

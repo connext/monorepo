@@ -1,5 +1,26 @@
 [
   {
+    "subgraphName": "connext/amarok-hub-v0-mainnet",
+    "network": "mainnet",
+    "source": [
+      {
+        "name": "RootManager",
+        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
+        "startBlock": 15795862
+      },
+      {
+        "name": "PolygonHubConnector",
+        "address": "0x6f8537dbaE3cE2a83547eBA87Ce2Bbe65a9a14C4",
+        "startBlock": 15795946
+      },
+      {
+        "name": "OptimismHubConnector",
+        "address": "0xd2ceB2a4D219438C3850CeA4E643FebB66116F96",
+        "startBlock": 15795944
+      }
+    ]
+  },
+  {
     "subgraphName": "connext/nxtp-amarok-hub-v0-goerli",
     "network": "goerli",
     "source": [

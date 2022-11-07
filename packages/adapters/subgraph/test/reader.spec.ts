@@ -132,6 +132,7 @@ describe("SubgraphReader", () => {
               localAsset: mkAddress("0x222"),
               domain: "1111",
               balance: "100",
+              feesEarned: 0,
             },
           ],
         },
@@ -353,7 +354,7 @@ describe("SubgraphReader", () => {
     });
   });
 
-  describe("#getXCalls", () => {
+  describe("#getOriginXCalls", () => {
     it("should not throw if the response is empty", async () => {
       const agents: Map<string, SubgraphQueryMetaParams> = new Map();
       agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0 });
@@ -362,15 +363,15 @@ describe("SubgraphReader", () => {
       response.set("1111", [[]]);
       response.set("3331", [[]]);
       executeStub.resolves(response);
-      expect(() => subgraphReader.getXCalls(agents)).to.not.throw;
-      expect(await subgraphReader.getXCalls(agents)).to.be.deep.eq([]);
+      expect(() => subgraphReader.getOriginXCalls(agents)).to.not.throw;
     });
+  });
 
+  describe("#getDestinationXCalls", () => {
     it("should return the calls which are xcalled on the originDomain and not executed/reconciled on the destinationDomain", async () => {
       const agents: Map<string, SubgraphQueryMetaParams> = new Map();
       agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0 });
       agents.set("3331", { maxBlockNumber: 99999999, latestNonce: 0 });
-      const originCallsResponse: Map<string, any[]> = new Map();
       const destinationCallsResponse: Map<string, any[]> = new Map();
       const originTransferEntity1 = {
         ...mockOriginTransferEntity,
@@ -398,8 +399,6 @@ describe("SubgraphReader", () => {
         originDomain: "3331",
         destinationDomain: "1111",
       };
-      originCallsResponse.set("1111", [[originTransferEntity1, originTransferEntity2]]);
-      originCallsResponse.set("3331", [[originTransferEntity3, originTransferEntity4]]);
 
       const destinationTransferEntity1 = {
         ...mockDestinationTransferEntity,
@@ -412,9 +411,16 @@ describe("SubgraphReader", () => {
       destinationCallsResponse.set("3331", [[destinationTransferEntity1]]);
       destinationCallsResponse.set("1111", [[destinationTransferEntity2]]);
 
-      executeStub.onFirstCall().resolves(originCallsResponse);
-      executeStub.onSecondCall().resolves(destinationCallsResponse);
-      const xcalledTransfers = await subgraphReader.getXCalls(agents);
+      executeStub.resolves(destinationCallsResponse);
+      const txIdsByDestinationDomain = new Map<string, string[]>();
+      txIdsByDestinationDomain.set("3331", [mkBytes32("0xaaa111"), mkBytes32("0xaaa222")]);
+      txIdsByDestinationDomain.set("1111", [mkBytes32("0xbbb111"), mkBytes32("0xbbb222")]);
+      const allTxById = new Map<string, XTransfer>();
+      allTxById.set(mkBytes32("0xaaa111"), ParserFns.originTransfer(originTransferEntity1));
+      allTxById.set(mkBytes32("0xaaa222"), ParserFns.originTransfer(originTransferEntity2));
+      allTxById.set(mkBytes32("0xbbb111"), ParserFns.originTransfer(originTransferEntity3));
+      allTxById.set(mkBytes32("0xbbb222"), ParserFns.originTransfer(originTransferEntity4));
+      const xcalledTransfers = await subgraphReader.getDestinationXCalls(txIdsByDestinationDomain, allTxById);
       expect(xcalledTransfers.length).to.be.eq(2);
       expect(xcalledTransfers).to.be.deep.eq([
         ParserFns.originTransfer(originTransferEntity2),

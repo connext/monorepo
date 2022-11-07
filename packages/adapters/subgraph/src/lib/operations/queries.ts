@@ -16,6 +16,18 @@ export const ASSET_ENTITY = `
       localAsset,
       blockNumber,
 `;
+
+export const ASSET_BALANCE_ENTITY = `
+    id
+    amount
+    feesEarned
+
+    # Asset
+    asset {
+      ${ASSET_ENTITY}
+    }
+`;
+
 export const ORIGIN_MESSAGE_ENTITY = `
       id
       leaf
@@ -207,10 +219,7 @@ export const getMaxRoutersPerTransferQuery = (prefixes: string[]): string => {
 export const getAssetBalanceQuery = (prefix: string, router: string, local: string): string => {
   const queryString = `
     ${prefix}_assetBalance(id: "${local}-${router}") {
-      amount
-      asset {
-        ${ASSET_ENTITY}
-      }
+      ${ASSET_BALANCE_ENTITY}
     }`;
   return gql`
     query GetAssetBalance {
@@ -222,10 +231,7 @@ export const getAssetBalanceQuery = (prefix: string, router: string, local: stri
 export const getAssetBalancesQuery = (prefix: string, router: string): string => {
   const queryString = `
     ${prefix}_assetBalances(where: { router: "${router}" }) {
-      amount
-      asset {
-        ${ASSET_ENTITY}
-      }
+      ${ASSET_BALANCE_ENTITY}
     }`;
 
   return gql`
@@ -248,12 +254,8 @@ export const getAssetBalancesRoutersQuery = (
     orderBy: id,
     orderDirection: ${orderDirection}) {
       id
-      assetBalances {
-        id
-        amount
-        asset {
-          ${ASSET_ENTITY}
-        }
+      assetBalances{
+        ${ASSET_BALANCE_ENTITY}
       }
     }`;
 
@@ -612,12 +614,12 @@ export const getOriginMessagesByDomainAndIndexQuery = (
         index_gte: ${param.offset}, 
         transferId_not: null, 
         destinationDomain_not: null
-      }
+      },
+      orderBy: index, 
+      orderDirection: asc
     ) {
       ${ORIGIN_MESSAGE_ENTITY}
-    } 
-    orderBy: index, 
-    orderDirection: asc`;
+    }`;
   }
 
   return gql`
@@ -700,9 +702,7 @@ export const getProcessedRootMessagesByDomainAndBlockQuery = (
   `;
 };
 
-export const getAggregatedRootsByDomainQuery = (
-  params: { hub: string; domain: string; index: number; limit: number }[],
-) => {
+export const getAggregatedRootsByDomainQuery = (params: { hub: string; index: number; limit: number }[]) => {
   const { config } = getContext();
   let combinedQuery = "";
   for (const param of params) {
@@ -711,7 +711,6 @@ export const getAggregatedRootsByDomainQuery = (
     ${prefix}_aggregatedMessageRoots ( 
       first: ${param.limit}, 
       where: { 
-        domain: "${param.domain}",
         index_gte: ${param.index}
       }
       orderBy: index, 

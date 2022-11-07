@@ -22,12 +22,10 @@ export const updateRouters = async () => {
     const balances = await subgraph.getAssetBalancesRouters(domain, offset, limit, "asc");
 
     const newOffset = balances.length == 0 ? 0 : offset + balances.length;
-    await database.transaction(async (txnClient) => {
-      await database.saveRouterBalances(balances, txnClient);
+    await database.saveRouterBalances(balances);
 
-      // Reset offset at the end of the cycle.
-      await database.saveCheckPoint("router_" + domain, newOffset, txnClient);
-    });
+    // Reset offset at the end of the cycle.
+    await database.saveCheckPoint("router_" + domain, newOffset);
 
     logger.debug("Saved balances", requestContext, methodContext, { domain: domain, offset: newOffset });
   }

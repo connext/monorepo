@@ -1,6 +1,6 @@
 import { storeFastPathData, executeFastPathData, executeSlowPathData, storeSlowPathData } from "./execute";
 import { sendExecuteFastToRelayer, sendExecuteSlowToRelayer } from "./relayer";
-import { updateTask, getTaskStatus } from "./tasks";
+import { updateTask } from "./tasks";
 
 export const getOperations = () => {
   return {
@@ -16,7 +16,6 @@ export const getOperations = () => {
     },
     tasks: {
       updateTask,
-      getTaskStatus,
     },
   };
 };

@@ -1,14 +1,33 @@
-import { createRequestContext, expect, mock } from "@connext/nxtp-utils";
+import { BaseRequestContext, createRequestContext, expect, Logger, mock, RelayerTaskStatus } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
 import * as ProcessFromRootFns from "../../../../src/tasks/processFromRoot/operations/processFromRoot";
 import * as MockableFns from "../../../../src/mockable";
 import { processFromRootCtxMock } from "../../../globalTestHook";
 import { ProcessConfigNotAvailable } from "../../../../src/tasks/processFromRoot/errors";
+import { mockTaskId } from "@connext/nxtp-adapters-relayer/test/mock";
+import { Relayer } from "@connext/nxtp-adapters-relayer";
+import { ChainReader } from "@connext/nxtp-txservice";
 
 describe("Operations: ProcessFromRoot", () => {
   describe("#processSingleRootMessage", () => {
-    let configStub;
+    let configStub: SinonStub<any[], any>;
+    let sendWithRelayerWithBackupStub: SinonStub<
+      [
+        chainId: number,
+        domain: string,
+        destinationAddress: string,
+        data: string,
+        relayer: Relayer,
+        relayerApiKey: string,
+        backupRelayer: Relayer,
+        backupRelayerApiKey: string,
+        chainReader: ChainReader,
+        logger: Logger,
+        _requestContext: BaseRequestContext,
+      ],
+      Promise<{ taskId: string }>
+    >;
 
     beforeEach(() => {
       configStub = stub(ProcessFromRootFns, "processorConfigs").value({
@@ -18,18 +37,16 @@ describe("Operations: ProcessFromRoot", () => {
         },
       });
       stub(MockableFns, "encodeProcessMessageFromRoot").returns("0xfaded");
+      sendWithRelayerWithBackupStub = stub(MockableFns, "sendWithRelayerWithBackup").resolves({
+        taskId: mockTaskId,
+      });
     });
 
     it("should process message from root", async () => {
       const rootMsg = mock.entity.rootMessage();
       const requestContext = createRequestContext("test");
       await ProcessFromRootFns.processSingleRootMessage(rootMsg, requestContext);
-      expect(processFromRootCtxMock.adapters.relayer.send).to.have.been.calledOnceWith(
-        +mock.chain.B,
-        processFromRootCtxMock.adapters.contracts.hubConnector(1, "Optimism")!.address,
-        "0xfaded",
-        processFromRootCtxMock.config.gelatoApiKey,
-      );
+      expect(sendWithRelayerWithBackupStub).to.have.been.calledOnce;
     });
 
     it("should error if no config", async () => {

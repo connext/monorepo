@@ -1,0 +1,2590 @@
+schema {
+  query: Query
+  subscription: Subscription
+}
+
+"Marks the GraphQL type as indexable entity.  Each type that should be an entity is required to be annotated with this directive."
+directive @entity on OBJECT
+
+"Defined a Subgraph ID for an object type"
+directive @subgraphId(id: String!) on OBJECT
+
+"creates a virtual field on the entity that may be queried but cannot be set manually through the mappings API."
+directive @derivedFrom(field: String!) on FIELD_DEFINITION
+
+type polygon_AggregateRoot {
+  id: ID!
+  root: polygon_Bytes!
+}
+
+input polygon_AggregateRoot_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  root: polygon_Bytes
+  root_not: polygon_Bytes
+  root_in: [polygon_Bytes!]
+  root_not_in: [polygon_Bytes!]
+  root_contains: polygon_Bytes
+  root_not_contains: polygon_Bytes
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_AggregateRoot_orderBy {
+  id
+  root
+}
+
+type polygon_Asset {
+  id: ID!
+  key: polygon_Bytes
+  canonicalId: polygon_Bytes
+  canonicalDomain: BigInt
+  adoptedAsset: polygon_Bytes
+  localAsset: polygon_Bytes
+  blockNumber: BigInt
+}
+
+type polygon_AssetBalance {
+  id: ID!
+  amount: BigInt!
+  router: polygon_Router!
+  asset: polygon_Asset!
+  feesEarned: BigInt!
+}
+
+input polygon_AssetBalance_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  amount: BigInt
+  amount_not: BigInt
+  amount_gt: BigInt
+  amount_lt: BigInt
+  amount_gte: BigInt
+  amount_lte: BigInt
+  amount_in: [BigInt!]
+  amount_not_in: [BigInt!]
+  router: String
+  router_not: String
+  router_gt: String
+  router_lt: String
+  router_gte: String
+  router_lte: String
+  router_in: [String!]
+  router_not_in: [String!]
+  router_contains: String
+  router_contains_nocase: String
+  router_not_contains: String
+  router_not_contains_nocase: String
+  router_starts_with: String
+  router_starts_with_nocase: String
+  router_not_starts_with: String
+  router_not_starts_with_nocase: String
+  router_ends_with: String
+  router_ends_with_nocase: String
+  router_not_ends_with: String
+  router_not_ends_with_nocase: String
+  router_: polygon_Router_filter
+  asset: String
+  asset_not: String
+  asset_gt: String
+  asset_lt: String
+  asset_gte: String
+  asset_lte: String
+  asset_in: [String!]
+  asset_not_in: [String!]
+  asset_contains: String
+  asset_contains_nocase: String
+  asset_not_contains: String
+  asset_not_contains_nocase: String
+  asset_starts_with: String
+  asset_starts_with_nocase: String
+  asset_not_starts_with: String
+  asset_not_starts_with_nocase: String
+  asset_ends_with: String
+  asset_ends_with_nocase: String
+  asset_not_ends_with: String
+  asset_not_ends_with_nocase: String
+  asset_: polygon_Asset_filter
+  feesEarned: BigInt
+  feesEarned_not: BigInt
+  feesEarned_gt: BigInt
+  feesEarned_lt: BigInt
+  feesEarned_gte: BigInt
+  feesEarned_lte: BigInt
+  feesEarned_in: [BigInt!]
+  feesEarned_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_AssetBalance_orderBy {
+  id
+  amount
+  router
+  asset
+  feesEarned
+}
+
+input polygon_Asset_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  key: polygon_Bytes
+  key_not: polygon_Bytes
+  key_in: [polygon_Bytes!]
+  key_not_in: [polygon_Bytes!]
+  key_contains: polygon_Bytes
+  key_not_contains: polygon_Bytes
+  canonicalId: polygon_Bytes
+  canonicalId_not: polygon_Bytes
+  canonicalId_in: [polygon_Bytes!]
+  canonicalId_not_in: [polygon_Bytes!]
+  canonicalId_contains: polygon_Bytes
+  canonicalId_not_contains: polygon_Bytes
+  canonicalDomain: BigInt
+  canonicalDomain_not: BigInt
+  canonicalDomain_gt: BigInt
+  canonicalDomain_lt: BigInt
+  canonicalDomain_gte: BigInt
+  canonicalDomain_lte: BigInt
+  canonicalDomain_in: [BigInt!]
+  canonicalDomain_not_in: [BigInt!]
+  adoptedAsset: polygon_Bytes
+  adoptedAsset_not: polygon_Bytes
+  adoptedAsset_in: [polygon_Bytes!]
+  adoptedAsset_not_in: [polygon_Bytes!]
+  adoptedAsset_contains: polygon_Bytes
+  adoptedAsset_not_contains: polygon_Bytes
+  localAsset: polygon_Bytes
+  localAsset_not: polygon_Bytes
+  localAsset_in: [polygon_Bytes!]
+  localAsset_not_in: [polygon_Bytes!]
+  localAsset_contains: polygon_Bytes
+  localAsset_not_contains: polygon_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_Asset_orderBy {
+  id
+  key
+  canonicalId
+  canonicalDomain
+  adoptedAsset
+  localAsset
+  blockNumber
+}
+
+scalar polygon_BigDecimal
+
+scalar BigInt
+
+input polygon_BlockChangedFilter {
+  number_gte: Int!
+}
+
+input polygon_Block_height {
+  hash: polygon_Bytes
+  number: Int
+  number_gte: Int
+}
+
+scalar polygon_Bytes
+
+type polygon_ConnectorMeta {
+  id: ID!
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  amb: polygon_Bytes
+  rootManager: polygon_Bytes
+  mirrorConnector: polygon_Bytes
+}
+
+input polygon_ConnectorMeta_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  hubDomain: BigInt
+  hubDomain_not: BigInt
+  hubDomain_gt: BigInt
+  hubDomain_lt: BigInt
+  hubDomain_gte: BigInt
+  hubDomain_lte: BigInt
+  hubDomain_in: [BigInt!]
+  hubDomain_not_in: [BigInt!]
+  amb: polygon_Bytes
+  amb_not: polygon_Bytes
+  amb_in: [polygon_Bytes!]
+  amb_not_in: [polygon_Bytes!]
+  amb_contains: polygon_Bytes
+  amb_not_contains: polygon_Bytes
+  rootManager: polygon_Bytes
+  rootManager_not: polygon_Bytes
+  rootManager_in: [polygon_Bytes!]
+  rootManager_not_in: [polygon_Bytes!]
+  rootManager_contains: polygon_Bytes
+  rootManager_not_contains: polygon_Bytes
+  mirrorConnector: polygon_Bytes
+  mirrorConnector_not: polygon_Bytes
+  mirrorConnector_in: [polygon_Bytes!]
+  mirrorConnector_not_in: [polygon_Bytes!]
+  mirrorConnector_contains: polygon_Bytes
+  mirrorConnector_not_contains: polygon_Bytes
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_ConnectorMeta_orderBy {
+  id
+  spokeDomain
+  hubDomain
+  amb
+  rootManager
+  mirrorConnector
+}
+
+type polygon_DestinationMessage {
+  id: ID!
+  leaf: polygon_Bytes
+  processed: Boolean
+  returnData: polygon_Bytes
+  success: Boolean
+  transactionHash: polygon_Bytes
+  blockNumber: BigInt
+}
+
+input polygon_DestinationMessage_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  leaf: polygon_Bytes
+  leaf_not: polygon_Bytes
+  leaf_in: [polygon_Bytes!]
+  leaf_not_in: [polygon_Bytes!]
+  leaf_contains: polygon_Bytes
+  leaf_not_contains: polygon_Bytes
+  processed: Boolean
+  processed_not: Boolean
+  processed_in: [Boolean!]
+  processed_not_in: [Boolean!]
+  returnData: polygon_Bytes
+  returnData_not: polygon_Bytes
+  returnData_in: [polygon_Bytes!]
+  returnData_not_in: [polygon_Bytes!]
+  returnData_contains: polygon_Bytes
+  returnData_not_contains: polygon_Bytes
+  success: Boolean
+  success_not: Boolean
+  success_in: [Boolean!]
+  success_not_in: [Boolean!]
+  transactionHash: polygon_Bytes
+  transactionHash_not: polygon_Bytes
+  transactionHash_in: [polygon_Bytes!]
+  transactionHash_not_in: [polygon_Bytes!]
+  transactionHash_contains: polygon_Bytes
+  transactionHash_not_contains: polygon_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_DestinationMessage_orderBy {
+  id
+  leaf
+  processed
+  returnData
+  success
+  transactionHash
+  blockNumber
+}
+
+type polygon_DestinationTransfer {
+  id: ID!
+  chainId: BigInt
+  transferId: polygon_Bytes
+  nonce: BigInt
+  status: polygon_TransferStatus
+  routers(skip: Int = 0, first: Int = 100, orderBy: polygon_Router_orderBy, orderDirection: polygon_OrderDirection, where: polygon_Router_filter): [polygon_Router!]
+  originDomain: BigInt
+  destinationDomain: BigInt
+  canonicalDomain: BigInt
+  to: polygon_Bytes
+  delegate: polygon_Bytes
+  receiveLocal: Boolean
+  callData: polygon_Bytes
+  slippage: BigInt
+  originSender: polygon_Bytes
+  bridgedAmt: BigInt
+  normalizedIn: BigInt
+  canonicalId: polygon_Bytes
+  asset: polygon_Asset
+  routersFee: BigInt
+  executedCaller: polygon_Bytes
+  executedTransactionHash: polygon_Bytes
+  executedTimestamp: BigInt
+  executedGasPrice: BigInt
+  executedGasLimit: BigInt
+  executedBlockNumber: BigInt
+  reconciledCaller: polygon_Bytes
+  reconciledTransactionHash: polygon_Bytes
+  reconciledTimestamp: BigInt
+  reconciledGasPrice: BigInt
+  reconciledGasLimit: BigInt
+  reconciledBlockNumber: BigInt
+}
+
+input polygon_DestinationTransfer_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  chainId: BigInt
+  chainId_not: BigInt
+  chainId_gt: BigInt
+  chainId_lt: BigInt
+  chainId_gte: BigInt
+  chainId_lte: BigInt
+  chainId_in: [BigInt!]
+  chainId_not_in: [BigInt!]
+  transferId: polygon_Bytes
+  transferId_not: polygon_Bytes
+  transferId_in: [polygon_Bytes!]
+  transferId_not_in: [polygon_Bytes!]
+  transferId_contains: polygon_Bytes
+  transferId_not_contains: polygon_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
+  status: polygon_TransferStatus
+  status_not: polygon_TransferStatus
+  status_in: [polygon_TransferStatus!]
+  status_not_in: [polygon_TransferStatus!]
+  routers: [String!]
+  routers_not: [String!]
+  routers_contains: [String!]
+  routers_contains_nocase: [String!]
+  routers_not_contains: [String!]
+  routers_not_contains_nocase: [String!]
+  routers_: polygon_Router_filter
+  originDomain: BigInt
+  originDomain_not: BigInt
+  originDomain_gt: BigInt
+  originDomain_lt: BigInt
+  originDomain_gte: BigInt
+  originDomain_lte: BigInt
+  originDomain_in: [BigInt!]
+  originDomain_not_in: [BigInt!]
+  destinationDomain: BigInt
+  destinationDomain_not: BigInt
+  destinationDomain_gt: BigInt
+  destinationDomain_lt: BigInt
+  destinationDomain_gte: BigInt
+  destinationDomain_lte: BigInt
+  destinationDomain_in: [BigInt!]
+  destinationDomain_not_in: [BigInt!]
+  canonicalDomain: BigInt
+  canonicalDomain_not: BigInt
+  canonicalDomain_gt: BigInt
+  canonicalDomain_lt: BigInt
+  canonicalDomain_gte: BigInt
+  canonicalDomain_lte: BigInt
+  canonicalDomain_in: [BigInt!]
+  canonicalDomain_not_in: [BigInt!]
+  to: polygon_Bytes
+  to_not: polygon_Bytes
+  to_in: [polygon_Bytes!]
+  to_not_in: [polygon_Bytes!]
+  to_contains: polygon_Bytes
+  to_not_contains: polygon_Bytes
+  delegate: polygon_Bytes
+  delegate_not: polygon_Bytes
+  delegate_in: [polygon_Bytes!]
+  delegate_not_in: [polygon_Bytes!]
+  delegate_contains: polygon_Bytes
+  delegate_not_contains: polygon_Bytes
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
+  callData: polygon_Bytes
+  callData_not: polygon_Bytes
+  callData_in: [polygon_Bytes!]
+  callData_not_in: [polygon_Bytes!]
+  callData_contains: polygon_Bytes
+  callData_not_contains: polygon_Bytes
+  slippage: BigInt
+  slippage_not: BigInt
+  slippage_gt: BigInt
+  slippage_lt: BigInt
+  slippage_gte: BigInt
+  slippage_lte: BigInt
+  slippage_in: [BigInt!]
+  slippage_not_in: [BigInt!]
+  originSender: polygon_Bytes
+  originSender_not: polygon_Bytes
+  originSender_in: [polygon_Bytes!]
+  originSender_not_in: [polygon_Bytes!]
+  originSender_contains: polygon_Bytes
+  originSender_not_contains: polygon_Bytes
+  bridgedAmt: BigInt
+  bridgedAmt_not: BigInt
+  bridgedAmt_gt: BigInt
+  bridgedAmt_lt: BigInt
+  bridgedAmt_gte: BigInt
+  bridgedAmt_lte: BigInt
+  bridgedAmt_in: [BigInt!]
+  bridgedAmt_not_in: [BigInt!]
+  normalizedIn: BigInt
+  normalizedIn_not: BigInt
+  normalizedIn_gt: BigInt
+  normalizedIn_lt: BigInt
+  normalizedIn_gte: BigInt
+  normalizedIn_lte: BigInt
+  normalizedIn_in: [BigInt!]
+  normalizedIn_not_in: [BigInt!]
+  canonicalId: polygon_Bytes
+  canonicalId_not: polygon_Bytes
+  canonicalId_in: [polygon_Bytes!]
+  canonicalId_not_in: [polygon_Bytes!]
+  canonicalId_contains: polygon_Bytes
+  canonicalId_not_contains: polygon_Bytes
+  asset: String
+  asset_not: String
+  asset_gt: String
+  asset_lt: String
+  asset_gte: String
+  asset_lte: String
+  asset_in: [String!]
+  asset_not_in: [String!]
+  asset_contains: String
+  asset_contains_nocase: String
+  asset_not_contains: String
+  asset_not_contains_nocase: String
+  asset_starts_with: String
+  asset_starts_with_nocase: String
+  asset_not_starts_with: String
+  asset_not_starts_with_nocase: String
+  asset_ends_with: String
+  asset_ends_with_nocase: String
+  asset_not_ends_with: String
+  asset_not_ends_with_nocase: String
+  asset_: polygon_Asset_filter
+  routersFee: BigInt
+  routersFee_not: BigInt
+  routersFee_gt: BigInt
+  routersFee_lt: BigInt
+  routersFee_gte: BigInt
+  routersFee_lte: BigInt
+  routersFee_in: [BigInt!]
+  routersFee_not_in: [BigInt!]
+  executedCaller: polygon_Bytes
+  executedCaller_not: polygon_Bytes
+  executedCaller_in: [polygon_Bytes!]
+  executedCaller_not_in: [polygon_Bytes!]
+  executedCaller_contains: polygon_Bytes
+  executedCaller_not_contains: polygon_Bytes
+  executedTransactionHash: polygon_Bytes
+  executedTransactionHash_not: polygon_Bytes
+  executedTransactionHash_in: [polygon_Bytes!]
+  executedTransactionHash_not_in: [polygon_Bytes!]
+  executedTransactionHash_contains: polygon_Bytes
+  executedTransactionHash_not_contains: polygon_Bytes
+  executedTimestamp: BigInt
+  executedTimestamp_not: BigInt
+  executedTimestamp_gt: BigInt
+  executedTimestamp_lt: BigInt
+  executedTimestamp_gte: BigInt
+  executedTimestamp_lte: BigInt
+  executedTimestamp_in: [BigInt!]
+  executedTimestamp_not_in: [BigInt!]
+  executedGasPrice: BigInt
+  executedGasPrice_not: BigInt
+  executedGasPrice_gt: BigInt
+  executedGasPrice_lt: BigInt
+  executedGasPrice_gte: BigInt
+  executedGasPrice_lte: BigInt
+  executedGasPrice_in: [BigInt!]
+  executedGasPrice_not_in: [BigInt!]
+  executedGasLimit: BigInt
+  executedGasLimit_not: BigInt
+  executedGasLimit_gt: BigInt
+  executedGasLimit_lt: BigInt
+  executedGasLimit_gte: BigInt
+  executedGasLimit_lte: BigInt
+  executedGasLimit_in: [BigInt!]
+  executedGasLimit_not_in: [BigInt!]
+  executedBlockNumber: BigInt
+  executedBlockNumber_not: BigInt
+  executedBlockNumber_gt: BigInt
+  executedBlockNumber_lt: BigInt
+  executedBlockNumber_gte: BigInt
+  executedBlockNumber_lte: BigInt
+  executedBlockNumber_in: [BigInt!]
+  executedBlockNumber_not_in: [BigInt!]
+  reconciledCaller: polygon_Bytes
+  reconciledCaller_not: polygon_Bytes
+  reconciledCaller_in: [polygon_Bytes!]
+  reconciledCaller_not_in: [polygon_Bytes!]
+  reconciledCaller_contains: polygon_Bytes
+  reconciledCaller_not_contains: polygon_Bytes
+  reconciledTransactionHash: polygon_Bytes
+  reconciledTransactionHash_not: polygon_Bytes
+  reconciledTransactionHash_in: [polygon_Bytes!]
+  reconciledTransactionHash_not_in: [polygon_Bytes!]
+  reconciledTransactionHash_contains: polygon_Bytes
+  reconciledTransactionHash_not_contains: polygon_Bytes
+  reconciledTimestamp: BigInt
+  reconciledTimestamp_not: BigInt
+  reconciledTimestamp_gt: BigInt
+  reconciledTimestamp_lt: BigInt
+  reconciledTimestamp_gte: BigInt
+  reconciledTimestamp_lte: BigInt
+  reconciledTimestamp_in: [BigInt!]
+  reconciledTimestamp_not_in: [BigInt!]
+  reconciledGasPrice: BigInt
+  reconciledGasPrice_not: BigInt
+  reconciledGasPrice_gt: BigInt
+  reconciledGasPrice_lt: BigInt
+  reconciledGasPrice_gte: BigInt
+  reconciledGasPrice_lte: BigInt
+  reconciledGasPrice_in: [BigInt!]
+  reconciledGasPrice_not_in: [BigInt!]
+  reconciledGasLimit: BigInt
+  reconciledGasLimit_not: BigInt
+  reconciledGasLimit_gt: BigInt
+  reconciledGasLimit_lt: BigInt
+  reconciledGasLimit_gte: BigInt
+  reconciledGasLimit_lte: BigInt
+  reconciledGasLimit_in: [BigInt!]
+  reconciledGasLimit_not_in: [BigInt!]
+  reconciledBlockNumber: BigInt
+  reconciledBlockNumber_not: BigInt
+  reconciledBlockNumber_gt: BigInt
+  reconciledBlockNumber_lt: BigInt
+  reconciledBlockNumber_gte: BigInt
+  reconciledBlockNumber_lte: BigInt
+  reconciledBlockNumber_in: [BigInt!]
+  reconciledBlockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_DestinationTransfer_orderBy {
+  id
+  chainId
+  transferId
+  nonce
+  status
+  routers
+  originDomain
+  destinationDomain
+  canonicalDomain
+  to
+  delegate
+  receiveLocal
+  callData
+  slippage
+  originSender
+  bridgedAmt
+  normalizedIn
+  canonicalId
+  asset
+  routersFee
+  executedCaller
+  executedTransactionHash
+  executedTimestamp
+  executedGasPrice
+  executedGasLimit
+  executedBlockNumber
+  reconciledCaller
+  reconciledTransactionHash
+  reconciledTimestamp
+  reconciledGasPrice
+  reconciledGasLimit
+  reconciledBlockNumber
+}
+
+"""Defines the order direction, either ascending or descending"""
+enum polygon_OrderDirection {
+  asc
+  desc
+}
+
+type polygon_OriginMessage {
+  id: ID!
+  transferId: polygon_Bytes
+  destinationDomain: BigInt
+  leaf: polygon_Bytes
+  index: BigInt
+  root: polygon_Bytes
+  message: polygon_Bytes
+  transactionHash: polygon_Bytes
+  blockNumber: BigInt
+  rootCount: polygon_RootCount
+}
+
+input polygon_OriginMessage_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transferId: polygon_Bytes
+  transferId_not: polygon_Bytes
+  transferId_in: [polygon_Bytes!]
+  transferId_not_in: [polygon_Bytes!]
+  transferId_contains: polygon_Bytes
+  transferId_not_contains: polygon_Bytes
+  destinationDomain: BigInt
+  destinationDomain_not: BigInt
+  destinationDomain_gt: BigInt
+  destinationDomain_lt: BigInt
+  destinationDomain_gte: BigInt
+  destinationDomain_lte: BigInt
+  destinationDomain_in: [BigInt!]
+  destinationDomain_not_in: [BigInt!]
+  leaf: polygon_Bytes
+  leaf_not: polygon_Bytes
+  leaf_in: [polygon_Bytes!]
+  leaf_not_in: [polygon_Bytes!]
+  leaf_contains: polygon_Bytes
+  leaf_not_contains: polygon_Bytes
+  index: BigInt
+  index_not: BigInt
+  index_gt: BigInt
+  index_lt: BigInt
+  index_gte: BigInt
+  index_lte: BigInt
+  index_in: [BigInt!]
+  index_not_in: [BigInt!]
+  root: polygon_Bytes
+  root_not: polygon_Bytes
+  root_in: [polygon_Bytes!]
+  root_not_in: [polygon_Bytes!]
+  root_contains: polygon_Bytes
+  root_not_contains: polygon_Bytes
+  message: polygon_Bytes
+  message_not: polygon_Bytes
+  message_in: [polygon_Bytes!]
+  message_not_in: [polygon_Bytes!]
+  message_contains: polygon_Bytes
+  message_not_contains: polygon_Bytes
+  transactionHash: polygon_Bytes
+  transactionHash_not: polygon_Bytes
+  transactionHash_in: [polygon_Bytes!]
+  transactionHash_not_in: [polygon_Bytes!]
+  transactionHash_contains: polygon_Bytes
+  transactionHash_not_contains: polygon_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  rootCount: String
+  rootCount_not: String
+  rootCount_gt: String
+  rootCount_lt: String
+  rootCount_gte: String
+  rootCount_lte: String
+  rootCount_in: [String!]
+  rootCount_not_in: [String!]
+  rootCount_contains: String
+  rootCount_contains_nocase: String
+  rootCount_not_contains: String
+  rootCount_not_contains_nocase: String
+  rootCount_starts_with: String
+  rootCount_starts_with_nocase: String
+  rootCount_not_starts_with: String
+  rootCount_not_starts_with_nocase: String
+  rootCount_ends_with: String
+  rootCount_ends_with_nocase: String
+  rootCount_not_ends_with: String
+  rootCount_not_ends_with_nocase: String
+  rootCount_: polygon_RootCount_filter
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_OriginMessage_orderBy {
+  id
+  transferId
+  destinationDomain
+  leaf
+  index
+  root
+  message
+  transactionHash
+  blockNumber
+  rootCount
+}
+
+type polygon_OriginTransfer {
+  id: ID!
+  chainId: BigInt
+  transferId: polygon_Bytes
+  nonce: BigInt
+  status: polygon_TransferStatus
+  messageHash: polygon_Bytes
+  originDomain: BigInt
+  destinationDomain: BigInt
+  canonicalDomain: BigInt
+  to: polygon_Bytes
+  delegate: polygon_Bytes
+  receiveLocal: Boolean
+  callData: polygon_Bytes
+  slippage: BigInt
+  originSender: polygon_Bytes
+  bridgedAmt: BigInt
+  normalizedIn: BigInt
+  canonicalId: polygon_Bytes
+  asset: polygon_Asset
+  message: polygon_OriginMessage
+  caller: polygon_Bytes
+  transactionHash: polygon_Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}
+
+input polygon_OriginTransfer_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  chainId: BigInt
+  chainId_not: BigInt
+  chainId_gt: BigInt
+  chainId_lt: BigInt
+  chainId_gte: BigInt
+  chainId_lte: BigInt
+  chainId_in: [BigInt!]
+  chainId_not_in: [BigInt!]
+  transferId: polygon_Bytes
+  transferId_not: polygon_Bytes
+  transferId_in: [polygon_Bytes!]
+  transferId_not_in: [polygon_Bytes!]
+  transferId_contains: polygon_Bytes
+  transferId_not_contains: polygon_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
+  status: polygon_TransferStatus
+  status_not: polygon_TransferStatus
+  status_in: [polygon_TransferStatus!]
+  status_not_in: [polygon_TransferStatus!]
+  messageHash: polygon_Bytes
+  messageHash_not: polygon_Bytes
+  messageHash_in: [polygon_Bytes!]
+  messageHash_not_in: [polygon_Bytes!]
+  messageHash_contains: polygon_Bytes
+  messageHash_not_contains: polygon_Bytes
+  originDomain: BigInt
+  originDomain_not: BigInt
+  originDomain_gt: BigInt
+  originDomain_lt: BigInt
+  originDomain_gte: BigInt
+  originDomain_lte: BigInt
+  originDomain_in: [BigInt!]
+  originDomain_not_in: [BigInt!]
+  destinationDomain: BigInt
+  destinationDomain_not: BigInt
+  destinationDomain_gt: BigInt
+  destinationDomain_lt: BigInt
+  destinationDomain_gte: BigInt
+  destinationDomain_lte: BigInt
+  destinationDomain_in: [BigInt!]
+  destinationDomain_not_in: [BigInt!]
+  canonicalDomain: BigInt
+  canonicalDomain_not: BigInt
+  canonicalDomain_gt: BigInt
+  canonicalDomain_lt: BigInt
+  canonicalDomain_gte: BigInt
+  canonicalDomain_lte: BigInt
+  canonicalDomain_in: [BigInt!]
+  canonicalDomain_not_in: [BigInt!]
+  to: polygon_Bytes
+  to_not: polygon_Bytes
+  to_in: [polygon_Bytes!]
+  to_not_in: [polygon_Bytes!]
+  to_contains: polygon_Bytes
+  to_not_contains: polygon_Bytes
+  delegate: polygon_Bytes
+  delegate_not: polygon_Bytes
+  delegate_in: [polygon_Bytes!]
+  delegate_not_in: [polygon_Bytes!]
+  delegate_contains: polygon_Bytes
+  delegate_not_contains: polygon_Bytes
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
+  callData: polygon_Bytes
+  callData_not: polygon_Bytes
+  callData_in: [polygon_Bytes!]
+  callData_not_in: [polygon_Bytes!]
+  callData_contains: polygon_Bytes
+  callData_not_contains: polygon_Bytes
+  slippage: BigInt
+  slippage_not: BigInt
+  slippage_gt: BigInt
+  slippage_lt: BigInt
+  slippage_gte: BigInt
+  slippage_lte: BigInt
+  slippage_in: [BigInt!]
+  slippage_not_in: [BigInt!]
+  originSender: polygon_Bytes
+  originSender_not: polygon_Bytes
+  originSender_in: [polygon_Bytes!]
+  originSender_not_in: [polygon_Bytes!]
+  originSender_contains: polygon_Bytes
+  originSender_not_contains: polygon_Bytes
+  bridgedAmt: BigInt
+  bridgedAmt_not: BigInt
+  bridgedAmt_gt: BigInt
+  bridgedAmt_lt: BigInt
+  bridgedAmt_gte: BigInt
+  bridgedAmt_lte: BigInt
+  bridgedAmt_in: [BigInt!]
+  bridgedAmt_not_in: [BigInt!]
+  normalizedIn: BigInt
+  normalizedIn_not: BigInt
+  normalizedIn_gt: BigInt
+  normalizedIn_lt: BigInt
+  normalizedIn_gte: BigInt
+  normalizedIn_lte: BigInt
+  normalizedIn_in: [BigInt!]
+  normalizedIn_not_in: [BigInt!]
+  canonicalId: polygon_Bytes
+  canonicalId_not: polygon_Bytes
+  canonicalId_in: [polygon_Bytes!]
+  canonicalId_not_in: [polygon_Bytes!]
+  canonicalId_contains: polygon_Bytes
+  canonicalId_not_contains: polygon_Bytes
+  asset: String
+  asset_not: String
+  asset_gt: String
+  asset_lt: String
+  asset_gte: String
+  asset_lte: String
+  asset_in: [String!]
+  asset_not_in: [String!]
+  asset_contains: String
+  asset_contains_nocase: String
+  asset_not_contains: String
+  asset_not_contains_nocase: String
+  asset_starts_with: String
+  asset_starts_with_nocase: String
+  asset_not_starts_with: String
+  asset_not_starts_with_nocase: String
+  asset_ends_with: String
+  asset_ends_with_nocase: String
+  asset_not_ends_with: String
+  asset_not_ends_with_nocase: String
+  asset_: polygon_Asset_filter
+  message: String
+  message_not: String
+  message_gt: String
+  message_lt: String
+  message_gte: String
+  message_lte: String
+  message_in: [String!]
+  message_not_in: [String!]
+  message_contains: String
+  message_contains_nocase: String
+  message_not_contains: String
+  message_not_contains_nocase: String
+  message_starts_with: String
+  message_starts_with_nocase: String
+  message_not_starts_with: String
+  message_not_starts_with_nocase: String
+  message_ends_with: String
+  message_ends_with_nocase: String
+  message_not_ends_with: String
+  message_not_ends_with_nocase: String
+  message_: polygon_OriginMessage_filter
+  caller: polygon_Bytes
+  caller_not: polygon_Bytes
+  caller_in: [polygon_Bytes!]
+  caller_not_in: [polygon_Bytes!]
+  caller_contains: polygon_Bytes
+  caller_not_contains: polygon_Bytes
+  transactionHash: polygon_Bytes
+  transactionHash_not: polygon_Bytes
+  transactionHash_in: [polygon_Bytes!]
+  transactionHash_not_in: [polygon_Bytes!]
+  transactionHash_contains: polygon_Bytes
+  transactionHash_not_contains: polygon_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  gasPrice: BigInt
+  gasPrice_not: BigInt
+  gasPrice_gt: BigInt
+  gasPrice_lt: BigInt
+  gasPrice_gte: BigInt
+  gasPrice_lte: BigInt
+  gasPrice_in: [BigInt!]
+  gasPrice_not_in: [BigInt!]
+  gasLimit: BigInt
+  gasLimit_not: BigInt
+  gasLimit_gt: BigInt
+  gasLimit_lt: BigInt
+  gasLimit_gte: BigInt
+  gasLimit_lte: BigInt
+  gasLimit_in: [BigInt!]
+  gasLimit_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_OriginTransfer_orderBy {
+  id
+  chainId
+  transferId
+  nonce
+  status
+  messageHash
+  originDomain
+  destinationDomain
+  canonicalDomain
+  to
+  delegate
+  receiveLocal
+  callData
+  slippage
+  originSender
+  bridgedAmt
+  normalizedIn
+  canonicalId
+  asset
+  message
+  caller
+  transactionHash
+  timestamp
+  gasPrice
+  gasLimit
+  blockNumber
+}
+
+type polygon_PooledToken {
+  id: ID!
+  asset: polygon_Bytes!
+}
+
+input polygon_PooledToken_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  asset: polygon_Bytes
+  asset_not: polygon_Bytes
+  asset_in: [polygon_Bytes!]
+  asset_not_in: [polygon_Bytes!]
+  asset_contains: polygon_Bytes
+  asset_not_contains: polygon_Bytes
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_PooledToken_orderBy {
+  id
+  asset
+}
+
+type Query {
+  polygon_asset(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_Asset
+  polygon_assets(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_Asset_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Asset_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_Asset!]!
+  polygon_assetBalance(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_AssetBalance
+  polygon_assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_AssetBalance_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_AssetBalance_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_AssetBalance!]!
+  polygon_router(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_Router
+  polygon_routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_Router_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Router_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_Router!]!
+  polygon_setting(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_Setting
+  polygon_settings(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_Setting_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Setting_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_Setting!]!
+  polygon_relayer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_Relayer
+  polygon_relayers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_Relayer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Relayer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_Relayer!]!
+  polygon_sequencer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_Sequencer
+  polygon_sequencers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_Sequencer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Sequencer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_Sequencer!]!
+  polygon_originTransfer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_OriginTransfer
+  polygon_originTransfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_OriginTransfer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_OriginTransfer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_OriginTransfer!]!
+  polygon_destinationTransfer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_DestinationTransfer
+  polygon_destinationTransfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_DestinationTransfer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_DestinationTransfer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_DestinationTransfer!]!
+  polygon_originMessage(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_OriginMessage
+  polygon_originMessages(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_OriginMessage_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_OriginMessage_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_OriginMessage!]!
+  polygon_destinationMessage(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_DestinationMessage
+  polygon_destinationMessages(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_DestinationMessage_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_DestinationMessage_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_DestinationMessage!]!
+  polygon_aggregateRoot(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_AggregateRoot
+  polygon_aggregateRoots(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_AggregateRoot_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_AggregateRoot_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_AggregateRoot!]!
+  polygon_connectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_ConnectorMeta
+  polygon_connectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_ConnectorMeta_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_ConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_ConnectorMeta!]!
+  polygon_rootCount(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_RootCount
+  polygon_rootCounts(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_RootCount_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_RootCount_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_RootCount!]!
+  polygon_rootMessageSent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_RootMessageSent
+  polygon_rootMessageSents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_RootMessageSent_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_RootMessageSent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_RootMessageSent!]!
+  polygon_stableSwap(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_StableSwap
+  polygon_stableSwaps(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_StableSwap_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_StableSwap_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_StableSwap!]!
+  polygon_pooledToken(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_PooledToken
+  polygon_pooledTokens(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_PooledToken_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_PooledToken_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_PooledToken!]!
+  polygon_stableSwapLiquidity(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_StableSwapLiquidity
+  polygon_stableSwapLiquidities(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_StableSwapLiquidity_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_StableSwapLiquidity_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_StableSwapLiquidity!]!
+  """Access to subgraph metadata"""
+  polygon__meta(block: polygon_Block_height): polygon__Meta_
+}
+
+type polygon_Relayer {
+  id: ID!
+  isActive: Boolean!
+  relayer: polygon_Bytes
+}
+
+input polygon_Relayer_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  isActive: Boolean
+  isActive_not: Boolean
+  isActive_in: [Boolean!]
+  isActive_not_in: [Boolean!]
+  relayer: polygon_Bytes
+  relayer_not: polygon_Bytes
+  relayer_in: [polygon_Bytes!]
+  relayer_not_in: [polygon_Bytes!]
+  relayer_contains: polygon_Bytes
+  relayer_not_contains: polygon_Bytes
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_Relayer_orderBy {
+  id
+  isActive
+  relayer
+}
+
+type polygon_RootCount {
+  id: ID!
+  count: BigInt
+}
+
+input polygon_RootCount_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  count: BigInt
+  count_not: BigInt
+  count_gt: BigInt
+  count_lt: BigInt
+  count_gte: BigInt
+  count_lte: BigInt
+  count_in: [BigInt!]
+  count_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_RootCount_orderBy {
+  id
+  count
+}
+
+type polygon_RootMessageSent {
+  id: ID!
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  root: polygon_Bytes
+  count: BigInt
+  caller: polygon_Bytes
+  transactionHash: polygon_Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}
+
+input polygon_RootMessageSent_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  hubDomain: BigInt
+  hubDomain_not: BigInt
+  hubDomain_gt: BigInt
+  hubDomain_lt: BigInt
+  hubDomain_gte: BigInt
+  hubDomain_lte: BigInt
+  hubDomain_in: [BigInt!]
+  hubDomain_not_in: [BigInt!]
+  root: polygon_Bytes
+  root_not: polygon_Bytes
+  root_in: [polygon_Bytes!]
+  root_not_in: [polygon_Bytes!]
+  root_contains: polygon_Bytes
+  root_not_contains: polygon_Bytes
+  count: BigInt
+  count_not: BigInt
+  count_gt: BigInt
+  count_lt: BigInt
+  count_gte: BigInt
+  count_lte: BigInt
+  count_in: [BigInt!]
+  count_not_in: [BigInt!]
+  caller: polygon_Bytes
+  caller_not: polygon_Bytes
+  caller_in: [polygon_Bytes!]
+  caller_not_in: [polygon_Bytes!]
+  caller_contains: polygon_Bytes
+  caller_not_contains: polygon_Bytes
+  transactionHash: polygon_Bytes
+  transactionHash_not: polygon_Bytes
+  transactionHash_in: [polygon_Bytes!]
+  transactionHash_not_in: [polygon_Bytes!]
+  transactionHash_contains: polygon_Bytes
+  transactionHash_not_contains: polygon_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  gasPrice: BigInt
+  gasPrice_not: BigInt
+  gasPrice_gt: BigInt
+  gasPrice_lt: BigInt
+  gasPrice_gte: BigInt
+  gasPrice_lte: BigInt
+  gasPrice_in: [BigInt!]
+  gasPrice_not_in: [BigInt!]
+  gasLimit: BigInt
+  gasLimit_not: BigInt
+  gasLimit_gt: BigInt
+  gasLimit_lt: BigInt
+  gasLimit_gte: BigInt
+  gasLimit_lte: BigInt
+  gasLimit_in: [BigInt!]
+  gasLimit_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_RootMessageSent_orderBy {
+  id
+  spokeDomain
+  hubDomain
+  root
+  count
+  caller
+  transactionHash
+  timestamp
+  gasPrice
+  gasLimit
+  blockNumber
+}
+
+type polygon_Router {
+  id: ID!
+  isActive: Boolean!
+  owner: polygon_Bytes
+  recipient: polygon_Bytes
+  proposedOwner: polygon_Bytes
+  proposedTimestamp: BigInt
+  assetBalances(skip: Int = 0, first: Int = 100, orderBy: polygon_AssetBalance_orderBy, orderDirection: polygon_OrderDirection, where: polygon_AssetBalance_filter): [polygon_AssetBalance!]!
+}
+
+input polygon_Router_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  isActive: Boolean
+  isActive_not: Boolean
+  isActive_in: [Boolean!]
+  isActive_not_in: [Boolean!]
+  owner: polygon_Bytes
+  owner_not: polygon_Bytes
+  owner_in: [polygon_Bytes!]
+  owner_not_in: [polygon_Bytes!]
+  owner_contains: polygon_Bytes
+  owner_not_contains: polygon_Bytes
+  recipient: polygon_Bytes
+  recipient_not: polygon_Bytes
+  recipient_in: [polygon_Bytes!]
+  recipient_not_in: [polygon_Bytes!]
+  recipient_contains: polygon_Bytes
+  recipient_not_contains: polygon_Bytes
+  proposedOwner: polygon_Bytes
+  proposedOwner_not: polygon_Bytes
+  proposedOwner_in: [polygon_Bytes!]
+  proposedOwner_not_in: [polygon_Bytes!]
+  proposedOwner_contains: polygon_Bytes
+  proposedOwner_not_contains: polygon_Bytes
+  proposedTimestamp: BigInt
+  proposedTimestamp_not: BigInt
+  proposedTimestamp_gt: BigInt
+  proposedTimestamp_lt: BigInt
+  proposedTimestamp_gte: BigInt
+  proposedTimestamp_lte: BigInt
+  proposedTimestamp_in: [BigInt!]
+  proposedTimestamp_not_in: [BigInt!]
+  assetBalances_: polygon_AssetBalance_filter
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_Router_orderBy {
+  id
+  isActive
+  owner
+  recipient
+  proposedOwner
+  proposedTimestamp
+  assetBalances
+}
+
+type polygon_Sequencer {
+  id: ID!
+  isActive: Boolean!
+  sequencer: polygon_Bytes
+}
+
+input polygon_Sequencer_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  isActive: Boolean
+  isActive_not: Boolean
+  isActive_in: [Boolean!]
+  isActive_not_in: [Boolean!]
+  sequencer: polygon_Bytes
+  sequencer_not: polygon_Bytes
+  sequencer_in: [polygon_Bytes!]
+  sequencer_not_in: [polygon_Bytes!]
+  sequencer_contains: polygon_Bytes
+  sequencer_not_contains: polygon_Bytes
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_Sequencer_orderBy {
+  id
+  isActive
+  sequencer
+}
+
+type polygon_Setting {
+  id: ID!
+  maxRoutersPerTransfer: BigInt!
+  caller: polygon_Bytes!
+}
+
+input polygon_Setting_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  maxRoutersPerTransfer: BigInt
+  maxRoutersPerTransfer_not: BigInt
+  maxRoutersPerTransfer_gt: BigInt
+  maxRoutersPerTransfer_lt: BigInt
+  maxRoutersPerTransfer_gte: BigInt
+  maxRoutersPerTransfer_lte: BigInt
+  maxRoutersPerTransfer_in: [BigInt!]
+  maxRoutersPerTransfer_not_in: [BigInt!]
+  caller: polygon_Bytes
+  caller_not: polygon_Bytes
+  caller_in: [polygon_Bytes!]
+  caller_not_in: [polygon_Bytes!]
+  caller_contains: polygon_Bytes
+  caller_not_contains: polygon_Bytes
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_Setting_orderBy {
+  id
+  maxRoutersPerTransfer
+  caller
+}
+
+type polygon_StableSwap {
+  id: ID!
+  isActive: Boolean
+  key: polygon_Bytes
+  canonicalId: polygon_Bytes
+  domain: BigInt
+  swapPool: polygon_Bytes
+  lpToken: polygon_Bytes
+  initialA: BigInt
+  futureA: BigInt
+  initialATime: BigInt
+  futureATime: BigInt
+  swapFee: BigInt
+  adminFee: BigInt
+  pooledTokens(skip: Int = 0, first: Int = 100, orderBy: polygon_PooledToken_orderBy, orderDirection: polygon_OrderDirection, where: polygon_PooledToken_filter): [polygon_PooledToken!]!
+  tokenPrecisionMultipliers: [BigInt!]
+  balances: [BigInt!]!
+  adminFees: [BigInt!]
+}
+
+type polygon_StableSwapLiquidity {
+  id: ID!
+  provider: polygon_Bytes!
+  stableSwap: polygon_StableSwap!
+  tokenAmounts: [BigInt!]!
+  fees: [BigInt!]!
+  invariant: BigInt
+  lpTokenSupply: BigInt
+}
+
+input polygon_StableSwapLiquidity_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  provider: polygon_Bytes
+  provider_not: polygon_Bytes
+  provider_in: [polygon_Bytes!]
+  provider_not_in: [polygon_Bytes!]
+  provider_contains: polygon_Bytes
+  provider_not_contains: polygon_Bytes
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: polygon_StableSwap_filter
+  tokenAmounts: [BigInt!]
+  tokenAmounts_not: [BigInt!]
+  tokenAmounts_contains: [BigInt!]
+  tokenAmounts_contains_nocase: [BigInt!]
+  tokenAmounts_not_contains: [BigInt!]
+  tokenAmounts_not_contains_nocase: [BigInt!]
+  fees: [BigInt!]
+  fees_not: [BigInt!]
+  fees_contains: [BigInt!]
+  fees_contains_nocase: [BigInt!]
+  fees_not_contains: [BigInt!]
+  fees_not_contains_nocase: [BigInt!]
+  invariant: BigInt
+  invariant_not: BigInt
+  invariant_gt: BigInt
+  invariant_lt: BigInt
+  invariant_gte: BigInt
+  invariant_lte: BigInt
+  invariant_in: [BigInt!]
+  invariant_not_in: [BigInt!]
+  lpTokenSupply: BigInt
+  lpTokenSupply_not: BigInt
+  lpTokenSupply_gt: BigInt
+  lpTokenSupply_lt: BigInt
+  lpTokenSupply_gte: BigInt
+  lpTokenSupply_lte: BigInt
+  lpTokenSupply_in: [BigInt!]
+  lpTokenSupply_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_StableSwapLiquidity_orderBy {
+  id
+  provider
+  stableSwap
+  tokenAmounts
+  fees
+  invariant
+  lpTokenSupply
+}
+
+input polygon_StableSwap_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  isActive: Boolean
+  isActive_not: Boolean
+  isActive_in: [Boolean!]
+  isActive_not_in: [Boolean!]
+  key: polygon_Bytes
+  key_not: polygon_Bytes
+  key_in: [polygon_Bytes!]
+  key_not_in: [polygon_Bytes!]
+  key_contains: polygon_Bytes
+  key_not_contains: polygon_Bytes
+  canonicalId: polygon_Bytes
+  canonicalId_not: polygon_Bytes
+  canonicalId_in: [polygon_Bytes!]
+  canonicalId_not_in: [polygon_Bytes!]
+  canonicalId_contains: polygon_Bytes
+  canonicalId_not_contains: polygon_Bytes
+  domain: BigInt
+  domain_not: BigInt
+  domain_gt: BigInt
+  domain_lt: BigInt
+  domain_gte: BigInt
+  domain_lte: BigInt
+  domain_in: [BigInt!]
+  domain_not_in: [BigInt!]
+  swapPool: polygon_Bytes
+  swapPool_not: polygon_Bytes
+  swapPool_in: [polygon_Bytes!]
+  swapPool_not_in: [polygon_Bytes!]
+  swapPool_contains: polygon_Bytes
+  swapPool_not_contains: polygon_Bytes
+  lpToken: polygon_Bytes
+  lpToken_not: polygon_Bytes
+  lpToken_in: [polygon_Bytes!]
+  lpToken_not_in: [polygon_Bytes!]
+  lpToken_contains: polygon_Bytes
+  lpToken_not_contains: polygon_Bytes
+  initialA: BigInt
+  initialA_not: BigInt
+  initialA_gt: BigInt
+  initialA_lt: BigInt
+  initialA_gte: BigInt
+  initialA_lte: BigInt
+  initialA_in: [BigInt!]
+  initialA_not_in: [BigInt!]
+  futureA: BigInt
+  futureA_not: BigInt
+  futureA_gt: BigInt
+  futureA_lt: BigInt
+  futureA_gte: BigInt
+  futureA_lte: BigInt
+  futureA_in: [BigInt!]
+  futureA_not_in: [BigInt!]
+  initialATime: BigInt
+  initialATime_not: BigInt
+  initialATime_gt: BigInt
+  initialATime_lt: BigInt
+  initialATime_gte: BigInt
+  initialATime_lte: BigInt
+  initialATime_in: [BigInt!]
+  initialATime_not_in: [BigInt!]
+  futureATime: BigInt
+  futureATime_not: BigInt
+  futureATime_gt: BigInt
+  futureATime_lt: BigInt
+  futureATime_gte: BigInt
+  futureATime_lte: BigInt
+  futureATime_in: [BigInt!]
+  futureATime_not_in: [BigInt!]
+  swapFee: BigInt
+  swapFee_not: BigInt
+  swapFee_gt: BigInt
+  swapFee_lt: BigInt
+  swapFee_gte: BigInt
+  swapFee_lte: BigInt
+  swapFee_in: [BigInt!]
+  swapFee_not_in: [BigInt!]
+  adminFee: BigInt
+  adminFee_not: BigInt
+  adminFee_gt: BigInt
+  adminFee_lt: BigInt
+  adminFee_gte: BigInt
+  adminFee_lte: BigInt
+  adminFee_in: [BigInt!]
+  adminFee_not_in: [BigInt!]
+  pooledTokens: [String!]
+  pooledTokens_not: [String!]
+  pooledTokens_contains: [String!]
+  pooledTokens_contains_nocase: [String!]
+  pooledTokens_not_contains: [String!]
+  pooledTokens_not_contains_nocase: [String!]
+  pooledTokens_: polygon_PooledToken_filter
+  tokenPrecisionMultipliers: [BigInt!]
+  tokenPrecisionMultipliers_not: [BigInt!]
+  tokenPrecisionMultipliers_contains: [BigInt!]
+  tokenPrecisionMultipliers_contains_nocase: [BigInt!]
+  tokenPrecisionMultipliers_not_contains: [BigInt!]
+  tokenPrecisionMultipliers_not_contains_nocase: [BigInt!]
+  balances: [BigInt!]
+  balances_not: [BigInt!]
+  balances_contains: [BigInt!]
+  balances_contains_nocase: [BigInt!]
+  balances_not_contains: [BigInt!]
+  balances_not_contains_nocase: [BigInt!]
+  adminFees: [BigInt!]
+  adminFees_not: [BigInt!]
+  adminFees_contains: [BigInt!]
+  adminFees_contains_nocase: [BigInt!]
+  adminFees_not_contains: [BigInt!]
+  adminFees_not_contains_nocase: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_StableSwap_orderBy {
+  id
+  isActive
+  key
+  canonicalId
+  domain
+  swapPool
+  lpToken
+  initialA
+  futureA
+  initialATime
+  futureATime
+  swapFee
+  adminFee
+  pooledTokens
+  tokenPrecisionMultipliers
+  balances
+  adminFees
+}
+
+type Subscription {
+  polygon_asset(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_Asset
+  polygon_assets(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_Asset_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Asset_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_Asset!]!
+  polygon_assetBalance(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_AssetBalance
+  polygon_assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_AssetBalance_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_AssetBalance_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_AssetBalance!]!
+  polygon_router(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_Router
+  polygon_routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_Router_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Router_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_Router!]!
+  polygon_setting(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_Setting
+  polygon_settings(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_Setting_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Setting_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_Setting!]!
+  polygon_relayer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_Relayer
+  polygon_relayers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_Relayer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Relayer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_Relayer!]!
+  polygon_sequencer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_Sequencer
+  polygon_sequencers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_Sequencer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_Sequencer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_Sequencer!]!
+  polygon_originTransfer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_OriginTransfer
+  polygon_originTransfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_OriginTransfer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_OriginTransfer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_OriginTransfer!]!
+  polygon_destinationTransfer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_DestinationTransfer
+  polygon_destinationTransfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_DestinationTransfer_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_DestinationTransfer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_DestinationTransfer!]!
+  polygon_originMessage(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_OriginMessage
+  polygon_originMessages(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_OriginMessage_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_OriginMessage_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_OriginMessage!]!
+  polygon_destinationMessage(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_DestinationMessage
+  polygon_destinationMessages(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_DestinationMessage_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_DestinationMessage_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_DestinationMessage!]!
+  polygon_aggregateRoot(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_AggregateRoot
+  polygon_aggregateRoots(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_AggregateRoot_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_AggregateRoot_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_AggregateRoot!]!
+  polygon_connectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_ConnectorMeta
+  polygon_connectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_ConnectorMeta_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_ConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_ConnectorMeta!]!
+  polygon_rootCount(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_RootCount
+  polygon_rootCounts(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_RootCount_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_RootCount_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_RootCount!]!
+  polygon_rootMessageSent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_RootMessageSent
+  polygon_rootMessageSents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_RootMessageSent_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_RootMessageSent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_RootMessageSent!]!
+  polygon_stableSwap(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_StableSwap
+  polygon_stableSwaps(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_StableSwap_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_StableSwap_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_StableSwap!]!
+  polygon_pooledToken(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_PooledToken
+  polygon_pooledTokens(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_PooledToken_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_PooledToken_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_PooledToken!]!
+  polygon_stableSwapLiquidity(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_StableSwapLiquidity
+  polygon_stableSwapLiquidities(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_StableSwapLiquidity_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_StableSwapLiquidity_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_StableSwapLiquidity!]!
+  """Access to subgraph metadata"""
+  polygon__meta(block: polygon_Block_height): polygon__Meta_
+}
+
+enum polygon_TransferStatus {
+  XCalled
+  Executed
+  Reconciled
+  CompletedSlow
+  CompletedFast
+}
+
+type polygon__Block_ {
+  """The hash of the block"""
+  hash: polygon_Bytes
+  """The block number"""
+  number: Int!
+  """Integer representation of the timestamp stored in blocks for the chain"""
+  timestamp: Int
+}
+
+"""The type for the top-level _meta field"""
+type polygon__Meta_ {
+  """
+  Information about a specific subgraph block. The hash of the block
+  will be null if the _meta field has a block constraint that asks for
+  a block number. It will be filled if the _meta field has no block constraint
+  and therefore asks for the latest  block
+  
+  """
+  block: polygon__Block_!
+  """The deployment ID"""
+  deployment: String!
+  """If `true`, the subgraph encountered indexing errors at some past block"""
+  hasIndexingErrors: Boolean!
+}
+
+enum _SubgraphErrorPolicy_ {
+  """Data will be returned even if the subgraph has indexing errors"""
+  allow
+  """
+  If the subgraph has indexing errors, data will be omitted. The default.
+  """
+  deny
+}

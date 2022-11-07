@@ -143,3 +143,17 @@ variable "postgres_user" {
   type    = string
   default = "connext"
 }
+
+variable "full_image_name_relayer" {
+  type        = string
+  description = "relayer image name"
+  default     = "ghcr.io/connext/relayer:sha-64dc7c9"
+}
+variable "relayer_web3_signer_private_key" {
+  type = string
+}
+
+variable "admin_token_relayer" {
+  type    = string
+  default = "blahblah"
+}
