@@ -26,6 +26,9 @@ contract QueueLibTest is ForgeHelper {
 
   function setUp() public {
     queue.initialize();
+    // Env: roll ahead to an arbitrary block so we don't start at block zero.
+    // For dequeue, this will make the delay number we pass in acceptable.
+    vm.roll(123456789);
   }
 
   // ============ Utils ============
@@ -54,9 +57,6 @@ contract QueueLibTest is ForgeHelper {
 
   // ============ QueueLib.enqueue ============
   function test_enqueueWorks() public {
-    // Env: roll ahead to an arbitrary block so we don't start at block zero.
-    vm.roll(12345678);
-
     // 20 entries spaced 7 blocks apart.
     uint256 testEntryCount = 20;
     Entry[] memory entries = utils_generateEntries(testEntryCount, 7);
