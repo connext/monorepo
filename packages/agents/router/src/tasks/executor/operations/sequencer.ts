@@ -93,7 +93,7 @@ export const sendExecuteSlowToSequencer = async (
   });
   // Make sure response.data is valid.
   if (!response || !response.data) {
-    throw new SequencerResponseInvalid({ response });
+    throw new SequencerResponseInvalid({ response: response.data });
   }
 
   logger.info(`Sent meta tx to the sequencer`, requestContext, methodContext, {
