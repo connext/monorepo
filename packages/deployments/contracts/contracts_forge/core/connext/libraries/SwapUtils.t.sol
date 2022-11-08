@@ -279,19 +279,4 @@ contract SwapUtilsTest is ForgeHelper {
     vm.expectRevert("compare token to itself");
     (dy, dyFee) = SwapUtils._calculateSwapInv(swapStorage, 0, 0, amount, swapStorage.balances);
   }
-
-  // ============ calculateTokenAmount ============
-
-  // Failed if not same length
-  function test_SwapUtils__calculateTokenAmount_failIfInvalidLength() public {
-    uint256 amount;
-
-    uint256[] memory amounts = new uint256[](3);
-    amounts[0] = 1;
-    amounts[1] = 1;
-    amounts[2] = 1;
-
-    vm.expectRevert("invalid length of amounts");
-    amount = SwapUtils.calculateTokenAmount(swapStorage, amounts, true);
-  }
 }
