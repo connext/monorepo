@@ -1,5 +1,6 @@
 export * from "./address";
 export * from "./asset";
+export * from "./axios";
 export * from "./encode";
 export * from "./env";
 export * from "./health";

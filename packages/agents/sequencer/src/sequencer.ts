@@ -118,6 +118,8 @@ export const execute = async (_configOverride?: SequencerConfig) => {
   const messageType = process.argv[3] as MessageType;
 
   const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
+  context.adapters = {} as any;
+  await setupContext(_configOverride);
 
   try {
     const { taskId } =
