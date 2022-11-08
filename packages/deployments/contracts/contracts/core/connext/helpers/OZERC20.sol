@@ -252,7 +252,7 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
 
     _beforeTokenTransfer(address(0), _account, _amount);
 
-    supply = supply + _amount;
+    supply += _amount;
     unchecked {
       // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
       balances[_account] += _amount;
