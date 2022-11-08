@@ -31,14 +31,6 @@ contract DiamondInit is BaseConnextFacet {
     address _xAppConnectionManager,
     uint256 _acceptanceDelay
   ) external {
-    // adding ERC165 data
-    LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
-    ds.supportedInterfaces[type(IERC165).interfaceId] = true;
-    ds.supportedInterfaces[type(IDiamondCut).interfaceId] = true;
-    ds.supportedInterfaces[type(IDiamondLoupe).interfaceId] = true;
-    ds.supportedInterfaces[type(IProposedOwnable).interfaceId] = true;
-    ds.acceptanceDelay = _acceptanceDelay;
-
     // add your own state variables
     // EIP-2535 specifies that the `diamondCut` function takes two optional
     // arguments: address _init and bytes calldata _calldata
@@ -49,6 +41,14 @@ contract DiamondInit is BaseConnextFacet {
     if (!s.initialized) {
       // ensure this is the owner
       LibDiamond.enforceIsContractOwner();
+
+      // adding ERC165 data
+      LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+      ds.supportedInterfaces[type(IERC165).interfaceId] = true;
+      ds.supportedInterfaces[type(IDiamondCut).interfaceId] = true;
+      ds.supportedInterfaces[type(IDiamondLoupe).interfaceId] = true;
+      ds.supportedInterfaces[type(IProposedOwnable).interfaceId] = true;
+      ds.acceptanceDelay = _acceptanceDelay;
 
       s.initialized = true;
 
