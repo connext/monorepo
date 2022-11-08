@@ -251,7 +251,7 @@ library AssetLogic {
       );
     } else {
       // Otherwise, swap via external stableswap pool.
-      IStableSwap pool = s.adoptedToLocalPools[_key];
+      IStableSwap pool = s.adoptedToLocalExternalPools[_key];
 
       SafeERC20.safeApprove(IERC20(_assetIn), address(pool), 0);
       SafeERC20.safeIncreaseAllowance(IERC20(_assetIn), address(pool), _amount);
@@ -312,7 +312,7 @@ library AssetLogic {
       }
     } else {
       // Otherwise, swap via external stableswap pool.
-      IStableSwap pool = s.adoptedToLocalPools[_key];
+      IStableSwap pool = s.adoptedToLocalExternalPools[_key];
 
       // NOTE: This call will revert if the external stableswap pool doesn't exist.
       uint256 _amountIn = pool.calculateSwapOutFromAddress(_assetIn, _assetOut, _amountOut);
@@ -365,7 +365,7 @@ library AssetLogic {
       return (ipool.calculateSwap(tokenIndexIn, tokenIndexOut, _amount), adopted);
     } else {
       // Otherwise, try to calculate with external pool.
-      IStableSwap pool = s.adoptedToLocalPools[_key];
+      IStableSwap pool = s.adoptedToLocalExternalPools[_key];
       // NOTE: This call will revert if no external pool exists.
       return (pool.calculateSwapFromAddress(_asset, adopted, _amount), adopted);
     }
@@ -402,7 +402,7 @@ library AssetLogic {
       uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(_key, _local);
       return (ipool.calculateSwap(tokenIndexIn, tokenIndexOut, _amount), _local);
     } else {
-      IStableSwap pool = s.adoptedToLocalPools[_key];
+      IStableSwap pool = s.adoptedToLocalExternalPools[_key];
 
       return (pool.calculateSwapFromAddress(_asset, _local, _amount), _local);
     }
