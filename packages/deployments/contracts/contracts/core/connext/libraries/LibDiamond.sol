@@ -113,9 +113,15 @@ library LibDiamond {
     if (ds.facetAddresses.length != 0) {
       uint256 time = ds.acceptanceTimes[key];
       require(time != 0 && time <= block.timestamp, "LibDiamond: delay not elapsed");
-
       // Reset the acceptance time to ensure the same set of updates cannot be replayed
       // without going through a proposal window
+
+      // NOTE: the only time this will not be set to 0 is when there are no
+      // existing facet addresses (on initialization, or when starting after a bad upgrade,
+      // for example).
+      // The only relevant case is the initial case, which has no acceptance time. otherwise,
+      // there is no way to update the facet selector mapping to call `diamondCut`.
+      // Avoiding setting the empty value will save gas on the initial deployment.
       ds.acceptanceTimes[key] = 0;
     } // Otherwise, this is the first instance of deployment and it can be set automatically
 
