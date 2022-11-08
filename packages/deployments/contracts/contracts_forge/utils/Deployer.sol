@@ -34,10 +34,11 @@ contract Deployer {
   PortalFacet portalFacet;
 
   function getDiamondCutFacetCut(address _diamondCutFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory diamondCutFacetSelectors = new bytes4[](3);
+    bytes4[] memory diamondCutFacetSelectors = new bytes4[](4);
     diamondCutFacetSelectors[0] = DiamondCutFacet.diamondCut.selector;
     diamondCutFacetSelectors[1] = DiamondCutFacet.proposeDiamondCut.selector;
     diamondCutFacetSelectors[2] = DiamondCutFacet.rescindDiamondCut.selector;
+    diamondCutFacetSelectors[3] = DiamondCutFacet.getAcceptanceTime.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _diamondCutFacet,
