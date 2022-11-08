@@ -52,14 +52,29 @@ export const getReconciledTransactions = async (): Promise<any> => {
   const { requestContext, methodContext } = createLoggingContext(getReconciledTransactions.name);
   const { logger, config } = getContext();
 
-  const statusIdentifier = `status=eq.Reconciled&${transfersCastForUrl}`;
-  const rangeIdentifier = `&limit=20`;
-  const uri = formatUrl(config.cartographerUrl, "transfers?", statusIdentifier + rangeIdentifier);
-  logger.debug("Getting transactions from URI", requestContext, methodContext, { uri });
-  try {
-    const response = await axios.get(uri);
-    return response.data;
-  } catch (error: any) {
-    throw new CartoApiRequestFailed({ uri, error: jsonifyError(error as NxtpError) });
+  // Paginate through all reconciled transactions
+  let offset = 0;
+  const pageSize = 100;
+  let nextPage = true;
+  let data: any[] = [];
+
+  while (nextPage) {
+    const statusIdentifier = `status=eq.Reconciled&${transfersCastForUrl}`;
+    const rangeIdentifier = `&limit=${pageSize}&offset=${offset}`;
+    const uri = formatUrl(config.cartographerUrl, "transfers?", statusIdentifier + rangeIdentifier);
+    logger.debug("Getting transactions from URI", requestContext, methodContext, { uri });
+    try {
+      const response = await axios.get(uri);
+      if (response.data.length > 0) {
+        data = [...data, ...response.data];
+      } else {
+        nextPage = false;
+        return data;
+      }
+    } catch (error: any) {
+      nextPage = false;
+      throw new CartoApiRequestFailed({ uri, error: jsonifyError(error as NxtpError) });
+    }
+    offset += pageSize;
   }
 };
