@@ -196,7 +196,7 @@ contract SwapAdminFacet is BaseConnextFacet {
     if (numPooledTokens == 0) revert SwapAdminFacet__removeSwap_notInitialized();
 
     for (uint256 i; i < numPooledTokens; ) {
-      if (s.swapStorages[_key].balances[i] > 0) {
+      if (s.swapStorages[_key].balances[i] == 0) {
         revert SwapAdminFacet__removeSwap_NonZeroBalance();
       }
 
