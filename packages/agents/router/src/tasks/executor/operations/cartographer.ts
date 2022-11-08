@@ -53,7 +53,8 @@ export const getReconciledTransactions = async (): Promise<any> => {
   const { logger, config } = getContext();
 
   const statusIdentifier = `status=eq.Reconciled&${transfersCastForUrl}`;
-  const uri = formatUrl(config.cartographerUrl, "transfers?", statusIdentifier);
+  const rangeIdentifier = `&limit=20`;
+  const uri = formatUrl(config.cartographerUrl, "transfers?", statusIdentifier + rangeIdentifier);
   logger.debug("Getting transactions from URI", requestContext, methodContext, { uri });
   try {
     const response = await axios.get(uri);
