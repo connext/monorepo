@@ -101,6 +101,7 @@ const config: HardhatUserConfig = {
       mainnet: process.env.ETHERSCAN_API_KEY!,
       matic: process.env.POLYGONSCAN_API_KEY!,
       optimism: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
+      bnb: process.env.BNBSCAN_API_KEY!,
     },
     customChains: [
       {

@@ -7,8 +7,6 @@ import {
   createMethodContext,
   ChainData,
   jsonifyError,
-  BaseRequestContext,
-  MethodContext,
   RelayerType,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
@@ -39,12 +37,9 @@ export const msgContentType = "application/json";
  */
 export const makePublisher = async (_configOverride?: SequencerConfig) => {
   const { requestContext, methodContext } = createLoggingContext(makePublisher.name);
+
+  context.logger.info("Method Start", requestContext, methodContext, {});
   try {
-    context.adapters = {} as any;
-
-    /// MARK - Context
-    await setupContext(requestContext, methodContext, _configOverride);
-
     /// MARK - Bindings
     // Create server, set up routes, and start listening.
     await bindServer();
@@ -80,21 +75,11 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
  *
  * @param _configOverride - Overrides for configuration; normally only used for testing.
  */
-export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
+export const makeSubscriber = async () => {
   const { requestContext, methodContext } = createLoggingContext(makeSubscriber.name);
+
+  context.logger.info("Method Start", requestContext, methodContext, {});
   try {
-    context.adapters = {} as any;
-
-    /// MARK - Context
-    await setupContext(requestContext, methodContext, _configOverride);
-
-    // Message queues must be present in the config.
-    if (context.config.messageQueue.queues.length === 0) throw new Error("No queues found in config.");
-
-    context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
-
-    context.adapters.mqClient = await setupSubscriber(requestContext);
-
     if (context.config.messageQueue.subscriber) {
       bindSubscriber(context.config.messageQueue.subscriber);
     } else {
@@ -127,18 +112,14 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     execute: { executeFastPathData, executeSlowPathData },
     tasks: { updateTask },
   } = getOperations();
+
+  // Transfer ID is a CLI argument. Always provided by the parent
+  const transferId = process.argv[2];
+  const messageType = process.argv[3] as MessageType;
+
+  const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
+
   try {
-    // Transfer ID is a CLI argument. Always provided by the parent
-    const transferId = process.argv[2];
-    const messageType = process.argv[3] as MessageType;
-    const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
-
-    context.adapters = {} as any;
-
-    /// MARK - Config
-    // TODO: Setting up the context every time for this execution is non-ideal.
-    await setupContext(requestContext, methodContext, _configOverride);
-
     const { taskId } =
       messageType === MessageType.ExecuteFast
         ? await executeFastPathData(transferId, requestContext)
@@ -148,10 +129,7 @@ export const execute = async (_configOverride?: SequencerConfig) => {
       await updateTask(transferId, messageType);
     }
   } catch (error: any) {
-    const { requestContext, methodContext } = createLoggingContext(execute.name);
-    if (context.logger)
-      context.logger.error("Error executing:", requestContext, methodContext, jsonifyError(error as Error));
-    else console.error("Error executing:", error);
+    context.logger.error("Error executing:", requestContext, methodContext, jsonifyError(error as Error));
     process.exit(1);
   }
 
@@ -159,11 +137,10 @@ export const execute = async (_configOverride?: SequencerConfig) => {
 };
 
 /// MARK - Context Setup
-export const setupContext = async (
-  requestContext: BaseRequestContext,
-  methodContext: MethodContext,
-  _configOverride?: SequencerConfig,
-) => {
+export const setupContext = async (_configOverride?: SequencerConfig) => {
+  const { requestContext, methodContext } = createLoggingContext(setupContext.name);
+  context.adapters = {} as any;
+
   /// MARK - Config
   // Get ChainData and parse out configuration.
   context.chainData = await getChainData();
@@ -179,14 +156,19 @@ export const setupContext = async (
     },
   });
 
-  // Publisher must be specified in the config.
-  if (!context.config.messageQueue.publisher) throw new Error(`No publisher found in config`);
-
   context.logger.info("Sequencer config generated.", requestContext, methodContext, {
     config: { ...context.config, mnemonic: context.config.mnemonic ? "*****" : "N/A" },
   });
 
-  /// MARK - Signer
+  /// Mark - Sanity Check
+  // Publisher must be specified in the config.
+  if (!context.config.messageQueue.publisher) throw new Error(`No publisher found in config`);
+
+  // Message queues must be present in the config.
+  if (context.config.messageQueue.queues.length === 0) throw new Error("No queues found in config.");
+
+  /// MARK - Adapters
+  // Set up all adapters, peripherals, etc.
   // Either a mnemonic or a web3signer must be configured for the sequencer.
   // The signer is used for signing approvals for router paths.
   if (!context.config.mnemonic && !context.config.web3SignerUrl) {
@@ -199,8 +181,6 @@ export const setupContext = async (
     ? Wallet.fromMnemonic(context.config.mnemonic)
     : new Web3Signer(context.config.web3SignerUrl!);
 
-  /// MARK - Adapters
-  // Set up all adapters, peripherals, etc.
   context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
   context.adapters.subgraph = await setupSubgraphReader(requestContext);
   context.adapters.chainreader = new ChainReader(
@@ -228,7 +208,7 @@ export const setupContext = async (
       type: relayerConfig.type as RelayerType,
     });
   }
-  context.adapters.mqClient = await setupPublisher(requestContext);
+  context.adapters.mqClient = await setupMQ(requestContext);
 };
 
 export const setupCache = async (
@@ -305,35 +285,21 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
   return subgraphReader;
 };
 
-export const setupPublisher = async (requestContext: RequestContext): Promise<typeof Broker> => {
+export const setupMQ = async (requestContext: RequestContext): Promise<typeof Broker> => {
   const { logger, config } = context;
-  const methodContext = createMethodContext(setupPublisher.name);
 
-  logger.info("MQ publisher setup in progress...", requestContext, methodContext, {});
-  const client = await setupMQ(config);
-  logger.info("MQ publisher setup is done!", requestContext, methodContext, {});
+  const methodContext = createMethodContext(setupMQ.name);
 
-  return client;
-};
+  logger.info("MQ setup in progress...", requestContext, methodContext, {});
 
-export const setupSubscriber = async (requestContext: RequestContext): Promise<typeof Broker> => {
-  const { logger, config } = context;
-  const methodContext = createMethodContext(setupSubscriber.name);
-
-  logger.info("MQ subscriber setup in progress...", requestContext, methodContext, {});
-  const client = await setupMQ(config);
-  logger.info("MQ subscriber setup is done!", requestContext, methodContext, {});
-
-  return client;
-};
-
-export const setupMQ = async (_config: SequencerConfig): Promise<typeof Broker> => {
   const mqConfig: Broker.ConfigurationOptions = {
-    connection: _config.messageQueue.connection,
-    exchanges: _config.messageQueue.exchanges,
-    queues: _config.messageQueue.queues,
-    bindings: _config.messageQueue.bindings,
+    connection: config.messageQueue.connection,
+    exchanges: config.messageQueue.exchanges,
+    queues: config.messageQueue.queues,
+    bindings: config.messageQueue.bindings,
   };
   await Broker.configure(mqConfig);
+
+  logger.info("MQ setup is done!", requestContext, methodContext, {});
   return Broker;
 };

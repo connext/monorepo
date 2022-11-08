@@ -31,8 +31,9 @@ export const bindSubscriber = async (queueName: string) => {
 
         requestContext.transferId = message.transferId;
 
+        /// Mark - Executer
+        // if message.transferId, then call executer with it's type either Fast or Slow
         logger.debug("Spawning executer for transfer", requestContext, methodContext, msg.body);
-
         const child = spawn(process.argv[0], ["dist/executer.js", message.transferId, message.type], {
           timeout: config.messageQueue.executerTimeout,
         });
@@ -79,7 +80,7 @@ export const bindSubscriber = async (queueName: string) => {
           }
         });
       } catch (error: any) {
-        logger.error("Error for message !", requestContext, methodContext, jsonifyError(error as Error), {
+        logger.error("Error for message!", requestContext, methodContext, jsonifyError(error as Error), {
           queue: queueName,
           message: msg,
         });

@@ -38,7 +38,7 @@ export const pollCartographer = async () => {
 
         const transferId = xTransfer.transferId;
 
-        await execute(executeParams, transferId);
+        execute(executeParams, transferId);
       } catch (error: any) {
         logger.error("Error Cartographer Binding", requestContext, methodContext, jsonifyError(error as NxtpError), {
           transaction,
