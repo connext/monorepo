@@ -219,23 +219,23 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
   function _transfer(
     address _sender,
     address _recipient,
-    uint256 amount
+    uint256 _amount
   ) internal virtual {
     require(_sender != address(0), "ERC20: transfer from the zero address");
     require(_recipient != address(0), "ERC20: transfer to the zero address");
 
-    _beforeTokenTransfer(_sender, _recipient, amount);
+    _beforeTokenTransfer(_sender, _recipient, _amount);
 
     uint256 fromBalance = balances[_sender];
-    require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
+    require(fromBalance >= _amount, "ERC20: transfer amount exceeds balance");
     unchecked {
-      balances[_sender] = fromBalance - amount;
-      balances[_recipient] += amount;
+      balances[_sender] = fromBalance - _amount;
+      balances[_recipient] += _amount;
     }
 
-    emit Transfer(_sender, _recipient, amount);
+    emit Transfer(_sender, _recipient, _amount);
 
-    _afterTokenTransfer(_sender, _recipient, amount);
+    _afterTokenTransfer(_sender, _recipient, _amount);
   }
 
   /** @dev Creates `_amount` tokens and assigns them to `_account`, increasing
