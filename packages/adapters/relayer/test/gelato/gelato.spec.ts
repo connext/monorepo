@@ -10,7 +10,6 @@ import {
 } from "@connext/nxtp-utils";
 import { ChainReader } from "@connext/nxtp-txservice";
 import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
-import axios from "axios";
 import * as MockableFns from "../../src/mockable";
 
 import { mockTaskId } from "../mock";
@@ -34,6 +33,7 @@ import {
   UnableToGetTaskStatus,
   UnableToGetTransactionHash,
 } from "../../src/errors";
+import * as Mockable from "../../src/mockable";
 
 const mockAxiosErrorResponse = { isAxiosError: true, code: 500, response: "Invalid fee" };
 const loggingContext = mock.loggingContext("RELAYER-TEST");
@@ -48,7 +48,7 @@ describe("Adapters: Gelato", () => {
 
   beforeEach(() => {
     chainReaderMock = mockChainReader() as any;
-    axiosGetStub = stub(axios, "get");
+    axiosGetStub = stub(Mockable, "axiosGet");
   });
 
   describe("#isChainSupportedByGelato", () => {

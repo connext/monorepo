@@ -10,12 +10,12 @@ import {
   ExecutorPostDataRequest,
   GELATO_RELAYER_ADDRESS,
 } from "@connext/nxtp-utils";
-import axios, { AxiosResponse } from "axios";
 
 import { getContext } from "../executor";
 // @ts-ignore
 import { version } from "../../../../package.json";
 import { SequencerResponseInvalid } from "../../../errors";
+import { axiosPost } from "../../../mockable";
 
 export const sendExecuteSlowToSequencer = async (
   args: ExecuteArgs,
@@ -84,7 +84,7 @@ export const sendExecuteSlowToSequencer = async (
 
   const url = formatUrl(config.sequencerUrl, "execute-slow");
 
-  const response = await axios.post<any, AxiosResponse<any, any>, ExecutorPostDataRequest>(url, {
+  const response = await axiosPost<ExecutorPostDataRequest>(url, {
     executorVersion: version,
     transferId,
     origin: args.params.originDomain,

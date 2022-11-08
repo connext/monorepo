@@ -1,4 +1,3 @@
-import axios from "axios";
 import { expect, mkBytes32 } from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 
@@ -6,6 +5,7 @@ import { CartoApiRequestFailed } from "../../../src/errors";
 import { getReconciledTransactions, pollCartographer } from "../../../src/tasks/executor/operations/cartographer";
 import { mock } from "../../mock";
 import * as ExecuteFns from "../../../src/tasks/executor/operations/execute";
+import * as Mockable from "../../../src/mockable";
 
 const transferId1 = mkBytes32("0x100");
 const transferId2 = mkBytes32("0x200");
@@ -22,7 +22,7 @@ describe("Operations:Cartographer", () => {
   let axiosGetStub: SinonStub;
   let executeStub: SinonStub;
   beforeEach(() => {
-    axiosGetStub = stub(axios, "get");
+    axiosGetStub = stub(Mockable, "axiosGet");
     executeStub = stub(ExecuteFns, "execute");
   });
   afterEach(() => {
