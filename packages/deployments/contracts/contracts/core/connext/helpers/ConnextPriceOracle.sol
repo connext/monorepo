@@ -90,7 +90,7 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
     // First check the direct price which stored in contract. Only owner can set direct price.
     uint256 tokenPrice = assetPrices[tokenAddress].price;
-    if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) <= VALID_PERIOD)) {
+    if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) < VALID_PERIOD)) {
       return (tokenPrice, uint256(PriceSource.DIRECT));
     }
 
