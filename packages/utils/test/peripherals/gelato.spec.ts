@@ -1,5 +1,4 @@
 import { restore, reset, stub, SinonStub } from "sinon";
-import axios from "axios";
 import { BigNumber } from "ethers";
 
 import { getGelatoEstimatedFee, expect, isOracleActive, getGelatoOracles, getConversionRate } from "../../src";

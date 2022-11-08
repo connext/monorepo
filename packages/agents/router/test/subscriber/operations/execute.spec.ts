@@ -1,7 +1,6 @@
 import { constants, utils, BigNumber, Signer, Wallet } from "ethers";
 import { reset, restore, SinonStub, stub } from "sinon";
 import { BaseRequestContext, Bid, expect, formatUrl, OriginTransfer } from "@connext/nxtp-utils";
-import axios from "axios";
 
 import * as ExecuteFns from "../../../src/tasks/subscriber/operations/execute";
 import * as Mockable from "../../../src/mockable";
@@ -49,11 +48,7 @@ describe("Operations:Execute", () => {
     const mockBid = mock.entity.bid();
     beforeEach(() => {
       mockSubContext.config.sequencerUrl = mockSequencerUrl;
-      axiosPostStub = stub(axios, "post").resolves({ data: "ok" });
-    });
-
-    afterEach(() => {
-      axiosPostStub.restore();
+      axiosPostStub = stub(Mockable, "axiosPost").resolves({ data: "ok" });
     });
 
     it("happy", async () => {
