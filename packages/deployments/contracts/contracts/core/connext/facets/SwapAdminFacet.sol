@@ -105,6 +105,8 @@ contract SwapAdminFacet is BaseConnextFacet {
    * @param _fee default swap fee to be initialized with
    * @param _adminFee default adminFee to be initialized with
    * @param lpTokenTargetAddress the address of an existing LPToken contract to use as a target
+   * this target must be the address which connext deployed on this chain.
+   * and Connext Diamond proxy will be owner of new LP Token and only this can mint LP token.
    */
   function initializeSwap(
     bytes32 _key,
