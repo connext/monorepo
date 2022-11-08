@@ -54,24 +54,17 @@ describe("Operations:Cartographer", () => {
   describe("#getReconciledTransactions", () => {
     it("should throw if axios request fails", async () => {
       axiosGetStub.throws(new Error("Axios request failed!"));
-      await expect(getReconciledTransactions()).to.be.rejectedWith(CartoApiRequestFailed);
+      await expect(getReconciledTransactions({ offset: 0, pageSize: 100 })).to.be.rejectedWith(CartoApiRequestFailed);
     });
     it("happy: should return reconciled transfers", async () => {
       axiosGetStub.onFirstCall().resolves({
         status: 200,
         data: [dbTransfer1, dbTransfer2],
       });
-      axiosGetStub.onSecondCall().resolves({
-        status: 200,
-        data: [dbTransfer3],
-      });
-      axiosGetStub.onThirdCall().resolves({
-        status: 200,
-        data: [],
-      });
-      const result = await getReconciledTransactions();
-      expect(result).to.be.deep.eq([dbTransfer1, dbTransfer2, dbTransfer3]);
-      expect(axiosGetStub.callCount).to.be.eq(3);
+
+      const result = await getReconciledTransactions({ offset: 0, pageSize: 100 });
+      expect(result).to.be.deep.eq({ data: [dbTransfer1, dbTransfer2], nextPage: true });
+      expect(axiosGetStub.callCount).to.be.eq(1);
     });
   });
 });
