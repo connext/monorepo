@@ -110,7 +110,7 @@ contract GnosisHubConnectorTest is ConnectorHelper {
 
     uint256 chainId = 1337;
     vm.chainId(chainId);
-    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.sourceChainId.selector), abi.encode(chainId));
 
     uint32 _mirrorDomain = GnosisHubConnector(_l1Connector).MIRROR_DOMAIN();
     vm.mockCall(_rootManager, abi.encodeCall(IRootManager.aggregate, (_mirrorDomain, bytes32(_data))), abi.encode());
@@ -133,7 +133,7 @@ contract GnosisHubConnectorTest is ConnectorHelper {
 
     uint256 chainId = 1337;
     vm.chainId(chainId);
-    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.sourceChainId.selector), abi.encode(chainId));
 
     uint32 _mirrorDomain = GnosisHubConnector(_l1Connector).MIRROR_DOMAIN();
     vm.mockCall(_rootManager, abi.encodeCall(IRootManager.aggregate, (_mirrorDomain, bytes32(_data))), abi.encode());
@@ -156,7 +156,7 @@ contract GnosisHubConnectorTest is ConnectorHelper {
 
     uint256 chainId = 1337;
     vm.chainId(chainId);
-    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.sourceChainId.selector), abi.encode(chainId));
 
     uint32 _mirrorDomain = GnosisHubConnector(_l1Connector).MIRROR_DOMAIN();
     vm.mockCall(_rootManager, abi.encodeCall(IRootManager.aggregate, (_mirrorDomain, bytes32(_data))), abi.encode());
@@ -174,7 +174,7 @@ contract GnosisHubConnectorTest is ConnectorHelper {
 
     uint256 chainId = 1337;
     vm.chainId(1338);
-    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.sourceChainId.selector), abi.encode(chainId));
 
     uint32 _mirrorDomain = GnosisHubConnector(_l1Connector).MIRROR_DOMAIN();
     vm.mockCall(_rootManager, abi.encodeCall(IRootManager.aggregate, (_mirrorDomain, bytes32(_data))), abi.encode());
