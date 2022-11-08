@@ -230,10 +230,12 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
     require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
     unchecked {
       balances[_sender] = fromBalance - amount;
+      balances[_recipient] += amount;
     }
-    balances[_recipient] += amount;
 
     emit Transfer(_sender, _recipient, amount);
+
+    _afterTokenTransfer(_sender, _recipient, amount);
   }
 
   /** @dev Creates `_amount` tokens and assigns them to `_account`, increasing
@@ -251,8 +253,13 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
     _beforeTokenTransfer(address(0), _account, _amount);
 
     supply = supply + _amount;
-    balances[_account] = balances[_account] + _amount;
+    unchecked {
+      // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
+      balances[_account] += _amount;
+    }
     emit Transfer(address(0), _account, _amount);
+
+    _afterTokenTransfer(address(0), _account, _amount);
   }
 
   /**
@@ -279,6 +286,8 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
     supply -= _amount;
 
     emit Transfer(_account, address(0), _amount);
+
+    _afterTokenTransfer(_account, address(0), _amount);
   }
 
   /**
@@ -354,6 +363,26 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
    * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
    */
   function _beforeTokenTransfer(
+    address _from,
+    address _to,
+    uint256 _amount
+  ) internal virtual {}
+
+  /**
+   * @dev Hook that is called after any transfer of tokens. This includes
+   * minting and burning.
+   *
+   * Calling conditions:
+   *
+   * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
+   * has been transferred to `to`.
+   * - when `from` is zero, `amount` tokens have been minted for `to`.
+   * - when `to` is zero, `amount` of ``from``'s tokens have been burned.
+   * - `from` and `to` are never both zero.
+   *
+   * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+   */
+  function _afterTokenTransfer(
     address _from,
     address _to,
     uint256 _amount
