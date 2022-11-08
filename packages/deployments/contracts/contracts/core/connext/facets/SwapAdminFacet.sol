@@ -191,11 +191,11 @@ contract SwapAdminFacet is BaseConnextFacet {
    * @param _key the hash of the canonical id and domain for token
    */
   function removeSwap(bytes32 _key) external onlyOwnerOrAdmin {
-    uint8 numPooledTokens = uint8(s.swapStorages[_key].pooledTokens.length);
+    uint256 numPooledTokens = s.swapStorages[_key].pooledTokens.length;
 
     if (numPooledTokens == 0) revert SwapAdminFacet__removeSwap_notInitialized();
 
-    for (uint8 i; i < numPooledTokens; ) {
+    for (uint256 i; i < numPooledTokens; ) {
       if (s.swapStorages[_key].balances[i] > 0) {
         revert SwapAdminFacet__removeSwap_NonZeroBalance();
       }
