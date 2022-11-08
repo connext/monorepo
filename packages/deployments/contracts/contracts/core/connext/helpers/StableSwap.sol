@@ -34,10 +34,6 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
   // ============ Events ============
   event SwapInitialized(SwapUtils.Swap swap, address caller);
 
-  // ============ Upgrade Gap ============
-
-  uint256[49] private __GAP; // gap for upgrade safety
-
   // ============ Storage ============
 
   // Struct storing data responsible for automatic market maker functionalities. In order to
@@ -98,7 +94,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
       require(address(_pooledTokens[i]) != address(0), "The 0 address isn't an ERC-20");
       require(decimals[i] <= SwapUtils.POOL_PRECISION_DECIMALS, "Token decimals exceeds max");
       precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - decimals[i]);
-      tokenIndexes[address(_pooledTokens[i])] = i;
+      tokenIndexes[address(_pooledTokens[i])] = uint8(i);
     }
 
     // Check _a, _fee, _adminFee, _withdrawFee parameters
@@ -487,4 +483,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
   function stopRampA() external onlyOwner {
     swapStorage.stopRampA();
   }
+
+  // ============ Upgrade Gap ============
+  uint256[48] private __GAP; // gap for upgrade safety
 }

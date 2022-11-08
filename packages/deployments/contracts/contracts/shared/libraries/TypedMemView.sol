@@ -62,7 +62,7 @@ library TypedMemView {
   // The null view
   bytes29 public constant NULL = hex"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
   uint256 constant LOW_12_MASK = 0xffffffffffffffffffffffff;
-  uint8 constant TWELVE_BYTES = 96;
+  uint256 constant TWENTY_SEVEN_BYTES = 8 * 27;
 
   /**
    * @notice      Returns the encoded hex character that represents the lower 4 bits of the argument.
@@ -399,7 +399,7 @@ library TypedMemView {
    * @return          bool - True if the 5-byte type flag is equal
    */
   function sameType(bytes29 left, bytes29 right) internal pure returns (bool) {
-    return (left ^ right) >> (2 * TWELVE_BYTES) == 0;
+    return (left ^ right) >> TWENTY_SEVEN_BYTES == 0;
   }
 
   /**

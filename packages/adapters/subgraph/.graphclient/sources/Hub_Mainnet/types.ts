@@ -69,6 +69,70 @@ export type mainnet_AggregatedMessageRoot_orderBy =
   | 'receivedRoot'
   | 'domain';
 
+export type mainnet_ArbitrumConnectorMeta = {
+  id: Scalars['ID'];
+  spokeDomain: Scalars['BigInt'];
+  hubDomain: Scalars['BigInt'];
+  amb: Scalars['mainnet_Bytes'];
+  rootManager: Scalars['mainnet_Bytes'];
+  mirrorConnector: Scalars['mainnet_Bytes'];
+};
+
+export type mainnet_ArbitrumConnectorMeta_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amb?: InputMaybe<Scalars['mainnet_Bytes']>;
+  amb_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+};
+
+export type mainnet_ArbitrumConnectorMeta_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'hubDomain'
+  | 'amb'
+  | 'rootManager'
+  | 'mirrorConnector';
+
 export type mainnet_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
@@ -78,6 +142,134 @@ export type mainnet_Block_height = {
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
+
+export type mainnet_BnbConnectorMeta = {
+  id: Scalars['ID'];
+  spokeDomain: Scalars['BigInt'];
+  hubDomain: Scalars['BigInt'];
+  amb: Scalars['mainnet_Bytes'];
+  rootManager: Scalars['mainnet_Bytes'];
+  mirrorConnector: Scalars['mainnet_Bytes'];
+};
+
+export type mainnet_BnbConnectorMeta_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amb?: InputMaybe<Scalars['mainnet_Bytes']>;
+  amb_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+};
+
+export type mainnet_BnbConnectorMeta_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'hubDomain'
+  | 'amb'
+  | 'rootManager'
+  | 'mirrorConnector';
+
+export type mainnet_GnosisConnectorMeta = {
+  id: Scalars['ID'];
+  spokeDomain: Scalars['BigInt'];
+  hubDomain: Scalars['BigInt'];
+  amb: Scalars['mainnet_Bytes'];
+  rootManager: Scalars['mainnet_Bytes'];
+  mirrorConnector: Scalars['mainnet_Bytes'];
+};
+
+export type mainnet_GnosisConnectorMeta_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amb?: InputMaybe<Scalars['mainnet_Bytes']>;
+  amb_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+};
+
+export type mainnet_GnosisConnectorMeta_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'hubDomain'
+  | 'amb'
+  | 'rootManager'
+  | 'mirrorConnector';
 
 export type mainnet_OptimismConnectorMeta = {
   id: Scalars['ID'];
@@ -223,6 +415,12 @@ export type Query = {
   mainnet_polygonConnectorMetas: Array<mainnet_PolygonConnectorMeta>;
   mainnet_optimismConnectorMeta?: Maybe<mainnet_OptimismConnectorMeta>;
   mainnet_optimismConnectorMetas: Array<mainnet_OptimismConnectorMeta>;
+  mainnet_bnbConnectorMeta?: Maybe<mainnet_BnbConnectorMeta>;
+  mainnet_bnbConnectorMetas: Array<mainnet_BnbConnectorMeta>;
+  mainnet_arbitrumConnectorMeta?: Maybe<mainnet_ArbitrumConnectorMeta>;
+  mainnet_arbitrumConnectorMetas: Array<mainnet_ArbitrumConnectorMeta>;
+  mainnet_gnosisConnectorMeta?: Maybe<mainnet_GnosisConnectorMeta>;
+  mainnet_gnosisConnectorMetas: Array<mainnet_GnosisConnectorMeta>;
   mainnet_rootMessageProcessed?: Maybe<mainnet_RootMessageProcessed>;
   mainnet_rootMessageProcesseds: Array<mainnet_RootMessageProcessed>;
   /** Access to subgraph metadata */
@@ -315,6 +513,60 @@ export type Querymainnet_optimismConnectorMetasArgs = {
   orderBy?: InputMaybe<mainnet_OptimismConnectorMeta_orderBy>;
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_OptimismConnectorMeta_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_bnbConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_bnbConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_BnbConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_BnbConnectorMeta_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_arbitrumConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_arbitrumConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_ArbitrumConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_ArbitrumConnectorMeta_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_gnosisConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_gnosisConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_GnosisConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_GnosisConnectorMeta_filter>;
   block?: InputMaybe<mainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -551,6 +803,12 @@ export type Subscription = {
   mainnet_polygonConnectorMetas: Array<mainnet_PolygonConnectorMeta>;
   mainnet_optimismConnectorMeta?: Maybe<mainnet_OptimismConnectorMeta>;
   mainnet_optimismConnectorMetas: Array<mainnet_OptimismConnectorMeta>;
+  mainnet_bnbConnectorMeta?: Maybe<mainnet_BnbConnectorMeta>;
+  mainnet_bnbConnectorMetas: Array<mainnet_BnbConnectorMeta>;
+  mainnet_arbitrumConnectorMeta?: Maybe<mainnet_ArbitrumConnectorMeta>;
+  mainnet_arbitrumConnectorMetas: Array<mainnet_ArbitrumConnectorMeta>;
+  mainnet_gnosisConnectorMeta?: Maybe<mainnet_GnosisConnectorMeta>;
+  mainnet_gnosisConnectorMetas: Array<mainnet_GnosisConnectorMeta>;
   mainnet_rootMessageProcessed?: Maybe<mainnet_RootMessageProcessed>;
   mainnet_rootMessageProcesseds: Array<mainnet_RootMessageProcessed>;
   /** Access to subgraph metadata */
@@ -648,6 +906,60 @@ export type Subscriptionmainnet_optimismConnectorMetasArgs = {
 };
 
 
+export type Subscriptionmainnet_bnbConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_bnbConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_BnbConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_BnbConnectorMeta_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_arbitrumConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_arbitrumConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_ArbitrumConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_ArbitrumConnectorMeta_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_gnosisConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_gnosisConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_GnosisConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_GnosisConnectorMeta_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionmainnet_rootMessageProcessedArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<mainnet_Block_height>;
@@ -723,6 +1035,18 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   mainnet_optimismConnectorMetas: InContextSdkMethod<Query['mainnet_optimismConnectorMetas'], Querymainnet_optimismConnectorMetasArgs, MeshContext>,
   /** null **/
+  mainnet_bnbConnectorMeta: InContextSdkMethod<Query['mainnet_bnbConnectorMeta'], Querymainnet_bnbConnectorMetaArgs, MeshContext>,
+  /** null **/
+  mainnet_bnbConnectorMetas: InContextSdkMethod<Query['mainnet_bnbConnectorMetas'], Querymainnet_bnbConnectorMetasArgs, MeshContext>,
+  /** null **/
+  mainnet_arbitrumConnectorMeta: InContextSdkMethod<Query['mainnet_arbitrumConnectorMeta'], Querymainnet_arbitrumConnectorMetaArgs, MeshContext>,
+  /** null **/
+  mainnet_arbitrumConnectorMetas: InContextSdkMethod<Query['mainnet_arbitrumConnectorMetas'], Querymainnet_arbitrumConnectorMetasArgs, MeshContext>,
+  /** null **/
+  mainnet_gnosisConnectorMeta: InContextSdkMethod<Query['mainnet_gnosisConnectorMeta'], Querymainnet_gnosisConnectorMetaArgs, MeshContext>,
+  /** null **/
+  mainnet_gnosisConnectorMetas: InContextSdkMethod<Query['mainnet_gnosisConnectorMetas'], Querymainnet_gnosisConnectorMetasArgs, MeshContext>,
+  /** null **/
   mainnet_rootMessageProcessed: InContextSdkMethod<Query['mainnet_rootMessageProcessed'], Querymainnet_rootMessageProcessedArgs, MeshContext>,
   /** null **/
   mainnet_rootMessageProcesseds: InContextSdkMethod<Query['mainnet_rootMessageProcesseds'], Querymainnet_rootMessageProcessedsArgs, MeshContext>,
@@ -755,6 +1079,18 @@ export type _SubgraphErrorPolicy_ =
   mainnet_optimismConnectorMeta: InContextSdkMethod<Subscription['mainnet_optimismConnectorMeta'], Subscriptionmainnet_optimismConnectorMetaArgs, MeshContext>,
   /** null **/
   mainnet_optimismConnectorMetas: InContextSdkMethod<Subscription['mainnet_optimismConnectorMetas'], Subscriptionmainnet_optimismConnectorMetasArgs, MeshContext>,
+  /** null **/
+  mainnet_bnbConnectorMeta: InContextSdkMethod<Subscription['mainnet_bnbConnectorMeta'], Subscriptionmainnet_bnbConnectorMetaArgs, MeshContext>,
+  /** null **/
+  mainnet_bnbConnectorMetas: InContextSdkMethod<Subscription['mainnet_bnbConnectorMetas'], Subscriptionmainnet_bnbConnectorMetasArgs, MeshContext>,
+  /** null **/
+  mainnet_arbitrumConnectorMeta: InContextSdkMethod<Subscription['mainnet_arbitrumConnectorMeta'], Subscriptionmainnet_arbitrumConnectorMetaArgs, MeshContext>,
+  /** null **/
+  mainnet_arbitrumConnectorMetas: InContextSdkMethod<Subscription['mainnet_arbitrumConnectorMetas'], Subscriptionmainnet_arbitrumConnectorMetasArgs, MeshContext>,
+  /** null **/
+  mainnet_gnosisConnectorMeta: InContextSdkMethod<Subscription['mainnet_gnosisConnectorMeta'], Subscriptionmainnet_gnosisConnectorMetaArgs, MeshContext>,
+  /** null **/
+  mainnet_gnosisConnectorMetas: InContextSdkMethod<Subscription['mainnet_gnosisConnectorMetas'], Subscriptionmainnet_gnosisConnectorMetasArgs, MeshContext>,
   /** null **/
   mainnet_rootMessageProcessed: InContextSdkMethod<Subscription['mainnet_rootMessageProcessed'], Subscriptionmainnet_rootMessageProcessedArgs, MeshContext>,
   /** null **/

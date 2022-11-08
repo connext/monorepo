@@ -141,7 +141,8 @@ contract SwapAdminFacet is BaseConnextFacet {
         revert SwapAdminFacet__initializeSwap_tokenDecimalsExceedMax();
 
       precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - decimals[i]);
-      s.tokenIndexes[_key][address(_pooledTokens[i])] = i;
+      // NOTE: safe to cast to uint8 as the numPooledTokens is that type and the loop ceiling
+      s.tokenIndexes[_key][address(_pooledTokens[i])] = uint8(i);
 
       unchecked {
         ++i;
