@@ -35,12 +35,16 @@ describe("Operations:Cartographer", () => {
         status: 200,
         data: [dbTransfer1, dbTransfer2, dbTransfer3],
       });
+      axiosGetStub.onSecondCall().resolves({
+        status: 200,
+        data: [],
+      });
 
       executeStub.onFirstCall().resolves();
       executeStub.onSecondCall().throws();
 
       await pollCartographer();
-      expect(axiosGetStub.callCount).to.be.eq(1);
+      expect(axiosGetStub.callCount).to.be.eq(2);
       expect(executeStub.callCount).to.be.eq(3);
       expect(executeStub.getCall(0).args[1]).to.be.eq(transferId1);
       expect(executeStub.getCall(1).args[1]).to.be.eq(transferId2);
@@ -53,12 +57,21 @@ describe("Operations:Cartographer", () => {
       await expect(getReconciledTransactions()).to.be.rejectedWith(CartoApiRequestFailed);
     });
     it("happy: should return reconciled transfers", async () => {
-      axiosGetStub.resolves({
+      axiosGetStub.onFirstCall().resolves({
         status: 200,
         data: [dbTransfer1, dbTransfer2],
       });
+      axiosGetStub.onSecondCall().resolves({
+        status: 200,
+        data: [dbTransfer3],
+      });
+      axiosGetStub.onThirdCall().resolves({
+        status: 200,
+        data: [],
+      });
       const result = await getReconciledTransactions();
-      expect(result).to.be.deep.eq([dbTransfer1, dbTransfer2]);
+      expect(result).to.be.deep.eq([dbTransfer1, dbTransfer2, dbTransfer3]);
+      expect(axiosGetStub.callCount).to.be.eq(3);
     });
   });
 });
