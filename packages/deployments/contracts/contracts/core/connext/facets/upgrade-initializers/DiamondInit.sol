@@ -31,6 +31,17 @@ contract DiamondInit is BaseConnextFacet {
     address _xAppConnectionManager,
     uint256 _acceptanceDelay
   ) external {
+    if (s.initialized) {
+      // if contract has been initialized, this function is a no-op
+      return;
+    }
+
+    // ensure this is the owner
+    LibDiamond.enforceIsContractOwner();
+
+    // update the initialized flag
+    s.initialized = true;
+
     // adding ERC165 data
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     ds.supportedInterfaces[type(IERC165).interfaceId] = true;
@@ -46,20 +57,13 @@ contract DiamondInit is BaseConnextFacet {
     // in order to set state variables in the diamond during deployment or an upgrade
     // More info here: https://eips.ethereum.org/EIPS/eip-2535#diamond-interface
 
-    if (!s.initialized) {
-      // ensure this is the owner
-      LibDiamond.enforceIsContractOwner();
+    // __ReentrancyGuard_init_unchained
+    s._status = _NOT_ENTERED;
 
-      s.initialized = true;
-
-      // __ReentrancyGuard_init_unchained
-      s._status = _NOT_ENTERED;
-
-      // Connext
-      s.domain = _domain;
-      s.LIQUIDITY_FEE_NUMERATOR = 9995;
-      s.maxRoutersPerTransfer = 5;
-      s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
-    }
+    // Connext
+    s.domain = _domain;
+    s.LIQUIDITY_FEE_NUMERATOR = 9995;
+    s.maxRoutersPerTransfer = 5;
+    s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
   }
 }
