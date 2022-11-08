@@ -24,6 +24,11 @@ import {IConnectorManager} from "../../../../messaging/interfaces/IConnectorMana
 // of your diamond. Add parameters to the init funciton if you need to.
 
 contract DiamondInit is BaseConnextFacet {
+  // ========== Custom Errors ===========
+  error DiamondInit__init_alreadyInitialized();
+
+  // ============ External ============
+
   // You can add parameters to this function in order to pass in
   // data to set your own state variables
   function init(
@@ -31,9 +36,9 @@ contract DiamondInit is BaseConnextFacet {
     address _xAppConnectionManager,
     uint256 _acceptanceDelay
   ) external {
+    // should not init twice
     if (s.initialized) {
-      // if contract has been initialized, this function is a no-op
-      return;
+      revert DiamondInit__init_alreadyInitialized();
     }
 
     // ensure this is the owner
