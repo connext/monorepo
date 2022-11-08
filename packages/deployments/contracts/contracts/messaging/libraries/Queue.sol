@@ -20,6 +20,9 @@ library QueueLib {
     mapping(uint256 => bytes32) data;
     // The block that the message data was committed.
     mapping(uint256 => uint256) commitBlock;
+    // A reverse mapping of all entries that have been "removed" by value; behaves like a blacklist.
+    // NOTE: Removed values can still be pushed to the queue, but will be ignored/skipped when dequeuing.
+    mapping(bytes32 => bool) removed;
   }
 
   /**
@@ -105,8 +108,15 @@ library QueueLib {
     uint256 index; // Cursor for index in the batch of `items`.
     // NOTE: `first <= last` rephrased here to `!(first > last)` as it's a cheaper condition.
     while (!(first > last)) {
-      items[index] = queue.data[first];
+      bytes32 item = queue.data[first];
+      // Check to see if the item has been removed before appending it to the array.
+      if (!queue.removed[item]) {
+        items[index] = item;
+      }
+
       // Delete the item and the commitBlock.
+      // NOTE: We do NOT delete the entry from `queue.removed`, as it's a reverse lookup and we want to
+      // block that value permanently (e.g. if there's multiple of the same bad value in the queue).
       delete queue.data[first];
       delete queue.commitBlock[first];
 
@@ -118,6 +128,14 @@ library QueueLib {
     // Update the value for `first` in our queue object since we've dequeued a number of elements.
     queue.first = first;
     return items;
+  }
+
+  /**
+   * @notice Sets a certain value to be ignored (skipped) when dequeuing.
+   */
+  function remove(Queue storage queue, bytes32 item) internal {
+    require(!queue.removed[item], "already removed");
+    queue.removed[item] = true;
   }
 
   /**
