@@ -49,7 +49,7 @@ contract GnosisHubConnector is HubConnector, GnosisBase {
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!l2Connector");
     // ensure it is headed to this domain
-    require(GnosisAmb(AMB).destinationChainId() == block.chainid, "!destinationChain");
+    require(GnosisAmb(AMB).sourceChainId() == block.chainid, "!destinationChain");
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
     // update the root on the root manager
