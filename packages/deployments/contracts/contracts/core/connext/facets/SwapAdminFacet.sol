@@ -202,6 +202,7 @@ contract SwapAdminFacet is BaseConnextFacet {
 
       if (s.swapStorages[_key].adminFees[i] > 0) {
         s.swapStorages[_key].withdrawAdminFees(msg.sender);
+        emit AdminFeesWithdrawn(_key, msg.sender);
       }
 
       unchecked {
