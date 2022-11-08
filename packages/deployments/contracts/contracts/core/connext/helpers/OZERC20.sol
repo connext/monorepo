@@ -282,8 +282,9 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
     require(accountBalance >= _amount, "ERC20: burn amount exceeds balance");
     unchecked {
       balances[_account] = accountBalance - _amount;
+      // Overflow not possible: amount <= accountBalance <= totalSupply
+      supply -= _amount;
     }
-    supply -= _amount;
 
     emit Transfer(_account, address(0), _amount);
 
