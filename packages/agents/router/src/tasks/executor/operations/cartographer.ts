@@ -7,10 +7,10 @@ import {
   convertFromDbTransfer,
   transfersCastForUrl,
 } from "@connext/nxtp-utils";
-import axios from "axios";
 import { constants } from "ethers";
 
 import { CartoApiRequestFailed } from "../../../errors";
+import { axiosGet } from "../../../mockable";
 import { getContext } from "../executor";
 
 import { execute } from "./execute";
@@ -76,7 +76,7 @@ export const getReconciledTransactions = async (param: {
   const uri = formatUrl(config.cartographerUrl, "transfers?", statusIdentifier + rangeIdentifier);
   logger.debug("Getting transactions from URI", requestContext, methodContext, { uri });
   try {
-    const response = await axios.get(uri);
+    const response = await axiosGet(uri);
     if (response.data.length > 0) {
       data = [...data, ...response.data];
     } else {
