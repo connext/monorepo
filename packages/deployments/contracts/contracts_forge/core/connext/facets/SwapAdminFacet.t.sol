@@ -44,17 +44,12 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     // we are on the origin domain where local != canonical
     s.domain = _originDomain;
     utils_setupAsset(false, false);
-    console.log("setup asset");
 
     // set the owner to this contract
     setOwner(_owner);
 
-    // _stableSwapFacet = address(new StableSwapFacet());
-
     utils_initializeSwap();
-    console.log("setup swap");
     utils_addLiquidity(1 ether, 1 ether);
-    console.log("setup swap funds");
   }
 
   // ============ Utils ==============
@@ -428,6 +423,108 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     assertEq(s.swapStorages[key].adminFee, adminFee);
     assertEq(address(s.swapStorages[key].pooledTokens[0]), address(_pooledTokens[0]));
     assertEq(s.swapStorages[key].balances[0], 0);
+  }
+
+  // function test_SwapAdminFacet__removeSwap
+  function test_SwapAdminFacet__removeSwap_failIfNotOwner() public {
+    assertTrue(_owner != address(1));
+
+    vm.prank(address(1));
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
+
+    this.removeSwap(_canonicalKey);
+  }
+
+  function test_SwapAdminFacet__removeSwap_failIfNotInitialized() public {
+    vm.startPrank(_owner);
+
+    bytes32 canonicalId = bytes32(abi.encodePacked(address(0)));
+    bytes32 key = keccak256(abi.encode(canonicalId, _canonicalDomain));
+
+    vm.expectRevert(SwapAdminFacet.SwapAdminFacet__removeSwap_notInitialized.selector);
+
+    this.removeSwap(key);
+    vm.stopPrank();
+  }
+
+  function test_SwapAdminFacet__removeSwap_failIfZeroBalance() public {
+    IERC20[] memory _pooledTokens = new IERC20[](2);
+    _pooledTokens[0] = IERC20(new TestERC20("Test Token", "TEST"));
+    _pooledTokens[1] = IERC20(new TestERC20("Test Token", "TEST"));
+
+    uint8[] memory _decimals = new uint8[](2);
+    _decimals[0] = 18;
+    _decimals[1] = 18;
+
+    uint256 a = INITIAL_A_VALUE;
+    uint256 adminFee = 0;
+    uint256 fee = SWAP_FEE;
+
+    address token;
+
+    bytes32 canonicalId = bytes32(abi.encodePacked(address(_pooledTokens[0])));
+    bytes32 key = keccak256(abi.encode(canonicalId, _canonicalDomain));
+
+    uint256[] memory precisionMultipliers = new uint256[](_pooledTokens.length);
+    for (uint8 i = 0; i < _pooledTokens.length; i++) {
+      precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - _decimals[i]);
+      s.tokenIndexes[_canonicalId][address(_pooledTokens[i])] = i;
+    }
+
+    vm.startPrank(_owner);
+    this.initializeSwap(
+      key,
+      _pooledTokens,
+      _decimals,
+      LP_TOKEN_NAME,
+      LP_TOKEN_SYMBOL,
+      a,
+      fee,
+      adminFee,
+      address(_lpTokenTarget)
+    );
+
+    vm.expectRevert(SwapAdminFacet.SwapAdminFacet__removeSwap_NonZeroBalance.selector);
+
+    this.removeSwap(key);
+    vm.stopPrank();
+  }
+
+  function test_SwapAdminFacet__removeSwap_shouldWork() public {
+    vm.startPrank(_owner);
+
+    vm.expectEmit(true, false, false, true);
+    emit SwapRemoved(_canonicalKey, _owner);
+
+    this.removeSwap(_canonicalKey);
+    vm.stopPrank();
+  }
+
+  function test_SwapAdminFacet__removeSwap_shouldWorkWithAdminFee() public {
+    vm.startPrank(_owner);
+
+    this.setSwapAdminFee(_canonicalKey, 1e8);
+    utils_swapExact(1e17, _local, _adopted, 0);
+    utils_swapExact(1e17, _adopted, _local, 0);
+
+    assertEq(this.getSwapAdminBalance(_canonicalKey, 0), 1001973776101);
+    assertEq(this.getSwapAdminBalance(_canonicalKey, 1), 998024139765);
+
+    uint256 beforeBalance0 = IERC20(_local).balanceOf(_owner);
+    uint256 beforeBalance1 = IERC20(_adopted).balanceOf(_owner);
+
+    vm.expectEmit(true, true, true, true);
+    emit AdminFeesWithdrawn(_canonicalKey, _owner);
+
+    vm.expectEmit(true, false, false, true);
+    emit SwapRemoved(_canonicalKey, _owner);
+
+    this.removeSwap(_canonicalKey);
+
+    assertEq(IERC20(_local).balanceOf(_owner), beforeBalance0 + 1001973776101);
+    assertEq(IERC20(_adopted).balanceOf(_owner), beforeBalance1 + 998024139765);
+
+    vm.stopPrank();
   }
 
   // function test_SwapAdminFacet__withdrawSwapAdminFees
