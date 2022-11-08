@@ -62,7 +62,7 @@ library TypedMemView {
   // The null view
   bytes29 public constant NULL = hex"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
   uint256 constant LOW_12_MASK = 0xffffffffffffffffffffffff;
-  uint8 constant TWELVE_BYTES = 96;
+  uint256 constant TWENTY_SEVEN_BYTES = 8 * 27;
 
   /**
    * @notice      Returns the encoded hex character that represents the lower 4 bits of the argument.
@@ -143,7 +143,7 @@ library TypedMemView {
    * @return      second - The bottom 16 bytes
    */
   function encodeHex(uint256 _b) internal pure returns (uint256 first, uint256 second) {
-    for (uint8 i = 31; i > 15; ) {
+    for (uint256 i = 31; i > 15; ) {
       uint8 _byte = uint8(_b >> (i * 8));
       first |= byteHex(_byte);
       if (i != 16) {
@@ -155,7 +155,7 @@ library TypedMemView {
     }
 
     // abusing underflow here =_=
-    for (uint8 i = 15; i < 255; ) {
+    for (uint256 i = 15; i < 255; ) {
       uint8 _byte = uint8(_b >> (i * 8));
       second |= byteHex(_byte);
       if (i != 0) {
@@ -399,7 +399,7 @@ library TypedMemView {
    * @return          bool - True if the 5-byte type flag is equal
    */
   function sameType(bytes29 left, bytes29 right) internal pure returns (bool) {
-    return (left ^ right) >> (2 * TWELVE_BYTES) == 0;
+    return (left ^ right) >> TWENTY_SEVEN_BYTES == 0;
   }
 
   /**

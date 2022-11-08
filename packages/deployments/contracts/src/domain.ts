@@ -15,8 +15,11 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
   // mainnets
   [1, 0x657468], // Ethereum ('eth interpreted as int) 6648936
   [10, 0x6f707469], // Optimism (opti interpreted as int) 1869640809
+  [56, 0x626e62], // BNB Chain ('bnb interpreted as int) 6450786
+  [100, 0x676e6f], // Gnosis Chain ('gno interpreted as int) 6778479
   [137, 0x706f6c79], // Polygon (poly interpreted as int) 1886350457
   [1284, 0x6265616d], // Moonbeam ('beam interpreted as int) 1650811245
+  [42161, 0x6172626f], // Arbitrum One ('arbo interpreted as int) 1634886255
   // testnets
   [42, 0x6b6f7661], // Kovan (kovan interpreted as int) 1802466913
   [5, 0x676f6572], // Goerli (goerli interpreted as int) 1735353714

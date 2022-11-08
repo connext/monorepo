@@ -84,6 +84,7 @@ library AmplificationUtils {
 
     uint256 initialAPrecise = _getAPrecise(self);
     uint256 futureAPrecise = futureA_ * A_PRECISION;
+    require(initialAPrecise != futureAPrecise, "!valid ramp");
 
     if (futureAPrecise < initialAPrecise) {
       require(futureAPrecise * MAX_A_CHANGE >= initialAPrecise, "futureA_ is too small");
