@@ -1,6 +1,6 @@
 import tracer from "dd-trace";
 
-import { makePublisher } from "./sequencer";
+import { makePublisher } from "./make";
 
 export { SequencerConfig, ChainConfig } from "./lib/entities";
 export { makePublisher };
