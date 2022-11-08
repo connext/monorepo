@@ -578,7 +578,7 @@ library SwapUtils {
 
     xp[tokenIndexTo] = xp[tokenIndexTo] - (dy * multipliers[tokenIndexTo]);
     uint256 x = getYD(a, tokenIndexFrom, xp, d0);
-    dx = x - xp[tokenIndexFrom] + 1;
+    dx = (x + 1) - xp[tokenIndexFrom];
     dxFee = (dx * self.swapFee) / FEE_DENOMINATOR;
     dx = (dx + dxFee) / multipliers[tokenIndexFrom];
   }
