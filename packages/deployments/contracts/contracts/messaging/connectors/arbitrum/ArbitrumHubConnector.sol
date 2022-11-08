@@ -75,7 +75,16 @@ contract ArbitrumHubConnector is HubConnector {
     // Get the calldata
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
     // dispatch to l2
-    IArbitrumInbox(AMB).sendContractTransaction(mirrorGas, defaultGasPrice, mirrorConnector, 0, _calldata);
+    IArbitrumInbox(AMB).createRetryableTicket{value: msg.value}(
+      mirrorConnector,
+      0,
+      maxSubmissionCost,
+      msg.sender,
+      msg.sender,
+      mirrorGas,
+      defaultGasPrice,
+      _calldata
+    );
   }
 
   function _processMessage(bytes memory _data) internal override {

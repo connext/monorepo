@@ -42,7 +42,7 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
    * @dev This is called by the root manager *only* on mainnet to propagate the aggregate root
    * @dev Get 'Base constructor arguments given twice' when trying to inherit
    */
-  function sendMessage(bytes memory _data) external onlyRootManager {
+  function sendMessage(bytes memory _data) external payable onlyRootManager {
     _sendMessage(_data);
     emit MessageSent(_data, msg.sender);
   }

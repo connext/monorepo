@@ -288,9 +288,12 @@ contract PingPong is ConnectorHelper {
     address[] memory connectors = new address[](2);
     connectors[0] = _originConnectors.hub;
     connectors[1] = _destinationConnectors.hub;
+    uint256[] memory fees = new uint256[](2);
+    fees[0] = 0;
+    fees[1] = 0;
 
     // Propagate the aggregate root.
-    RootManager(_rootManager).propagate(domains, connectors);
+    RootManager(_rootManager).propagate(domains, connectors, fees);
 
     // Assert that the current aggregate root matches expected (from reference tree).
     aggregateRoot = RootManager(_rootManager).MERKLE().root();

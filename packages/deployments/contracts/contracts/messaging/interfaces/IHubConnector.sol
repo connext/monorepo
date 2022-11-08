@@ -4,5 +4,5 @@ pragma solidity 0.8.15;
 import {IConnector} from "./IConnector.sol";
 
 interface IHubConnector is IConnector {
-  function sendMessage(bytes memory _data) external;
+  function sendMessage(bytes memory _data) external payable;
 }

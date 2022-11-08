@@ -27,6 +27,7 @@ contract RootManagerTest is ForgeHelper {
   address _merkle;
   uint32[] _domains;
   address[] _connectors;
+  uint256[] _fees;
 
   address owner = address(1);
   address watcherManager = address(2);
@@ -35,9 +36,11 @@ contract RootManagerTest is ForgeHelper {
   function setUp() public {
     _domains.push(1000);
     _connectors.push(address(1000));
+    _fees.push(0);
 
     _domains.push(1001);
     _connectors.push(address(1001));
+    _fees.push(0);
 
     _merkle = address(new MerkleTreeManager());
     MerkleTreeManager(_merkle).initialize(address(_rootManager));
@@ -223,7 +226,7 @@ contract RootManagerTest is ForgeHelper {
     // Fast forward delayBlocks number of blocks so all of the inbound roots are considered verified.
     vm.roll(block.number + _rootManager.delayBlocks());
 
-    _rootManager.propagate(_domains, _connectors);
+    _rootManager.propagate(_domains, _connectors, _fees);
   }
 
   function test_RootManager__propagate_shouldSendToAllSpokes(bytes32 inbound) public {
@@ -234,7 +237,7 @@ contract RootManagerTest is ForgeHelper {
     // Fast forward delayBlocks number of blocks so all of the inbound roots are considered verified.
     vm.roll(block.number + _rootManager.delayBlocks());
 
-    _rootManager.propagate(_domains, _connectors);
+    _rootManager.propagate(_domains, _connectors, _fees);
     assertEq(_rootManager.getPendingInboundRootsCount(), 0);
   }
 
@@ -245,6 +248,6 @@ contract RootManagerTest is ForgeHelper {
     // Delay blocks have not been surpassed: the given root should not be included, and this call should revert
     // because an empty propagate is useless.
     vm.expectRevert(bytes("no verified roots"));
-    _rootManager.propagate(_domains, _connectors);
+    _rootManager.propagate(_domains, _connectors, _fees);
   }
 }

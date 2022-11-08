@@ -144,7 +144,11 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage
    * (see `_domains` param's info on reducing gas costs).
    */
-  function propagate(uint32[] calldata _domains, address[] calldata _connectors) external whenNotPaused {
+  function propagate(
+    uint32[] calldata _domains,
+    address[] calldata _connectors,
+    uint256[] calldata _fees
+  ) external whenNotPaused {
     uint256 _numDomains = _domains.length;
 
     // Sanity check: domains length matches connectors length.
@@ -163,7 +167,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     (bytes32 _aggregateRoot, uint256 _count) = MERKLE.insert(_verifiedInboundRoots);
 
     for (uint32 i; i < _numDomains; ) {
-      IHubConnector(_connectors[i]).sendMessage(abi.encodePacked(_aggregateRoot));
+      IHubConnector(_connectors[i]).sendMessage{value: _fees[i]}(abi.encodePacked(_aggregateRoot));
       unchecked {
         ++i;
       }
