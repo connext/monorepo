@@ -243,7 +243,7 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_Gnosis
+  - name: Connext_Xdai
     handler:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-gnosis
