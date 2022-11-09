@@ -8,7 +8,6 @@ pragma solidity 0.8.15;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol";
-import {EIP712} from "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -45,7 +44,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract ERC20 is IERC20, IERC20Permit, EIP712 {
+contract ERC20 is IERC20, IERC20Permit {
   using SafeMath for uint256;
 
   mapping(address => uint256) private balances;
@@ -64,7 +63,13 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
     keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
   bytes32 private constant _TYPE_HASH =
     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+
+  bytes32 private _CACHED_DOMAIN_SEPARATOR;
+  uint256 private immutable _CACHED_CHAIN_ID;
+  address private immutable _CACHED_THIS;
+
   bytes32 private _HASHED_VERSION;
+  bytes32 private _HASHED_NAME;
 
   /**
    * @dev Initializes the {EIP712} domain separator using the `name` parameter,
@@ -77,11 +82,17 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
     string memory _name,
     string memory _symbol,
     string memory _version
-  ) EIP712(_name, _version) {
+  ) {
     token.name = _name;
     token.decimals = _decimals;
     token.symbol = _symbol;
+
     _HASHED_VERSION = keccak256(bytes(_version));
+    _HASHED_NAME = keccak256(bytes(_name));
+
+    _CACHED_CHAIN_ID = block.chainid;
+    _CACHED_DOMAIN_SEPARATOR = _buildDomainSeparator(_TYPE_HASH, _HASHED_NAME, _HASHED_VERSION);
+    _CACHED_THIS = address(this);
   }
 
   struct Token {
@@ -311,6 +322,17 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
   }
 
   /**
+   * @dev Sets {name_, symbol_ }
+   *
+   */
+  function _setDetails(string calldata _name, string calldata _symbol) internal {
+    token.name = _name;
+    token.symbol = _symbol;
+    _HASHED_NAME = keccak256(bytes(_name));
+    _CACHED_DOMAIN_SEPARATOR = _buildDomainSeparator(_TYPE_HASH, _HASHED_NAME, _HASHED_VERSION);
+  }
+
+  /**
    * @dev Hook that is called before any transfer of tokens. This includes
    * minting and burning.
    *
@@ -381,10 +403,45 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
    */
   function DOMAIN_SEPARATOR() external view override returns (bytes32) {
     // See {EIP712._buildDomainSeparator}
-    return
-      keccak256(
-        abi.encode(_TYPE_HASH, keccak256(abi.encode(token.name)), _HASHED_VERSION, block.chainid, address(this))
-      );
+    return _domainSeparatorV4();
+  }
+
+  /**
+   * @dev Returns the domain separator for the current chain.
+   */
+  function _domainSeparatorV4() internal view returns (bytes32) {
+    if (address(this) == _CACHED_THIS && block.chainid == _CACHED_CHAIN_ID) {
+      return _CACHED_DOMAIN_SEPARATOR;
+    } else {
+      return _buildDomainSeparator(_TYPE_HASH, _HASHED_NAME, _HASHED_VERSION);
+    }
+  }
+
+  function _buildDomainSeparator(
+    bytes32 typeHash,
+    bytes32 nameHash,
+    bytes32 versionHash
+  ) private view returns (bytes32) {
+    return keccak256(abi.encode(typeHash, nameHash, versionHash, block.chainid, address(this)));
+  }
+
+  /**
+   * @dev Given an already https://eips.ethereum.org/EIPS/eip-712#definition-of-hashstruct[hashed struct], this
+   * function returns the hash of the fully encoded EIP712 message for this domain.
+   *
+   * This hash can be used together with {ECDSA-recover} to obtain the signer of a message. For example:
+   *
+   * ```solidity
+   * bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(
+   *     keccak256("Mail(address to,string contents)"),
+   *     mailTo,
+   *     keccak256(bytes(mailContents))
+   * )));
+   * address signer = ECDSA.recover(digest, signature);
+   * ```
+   */
+  function _hashTypedDataV4(bytes32 structHash) internal view virtual returns (bytes32) {
+    return ECDSA.toTypedDataHash(_domainSeparatorV4(), structHash);
   }
 
   /**

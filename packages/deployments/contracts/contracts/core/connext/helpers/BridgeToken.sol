@@ -57,8 +57,7 @@ contract BridgeToken is IBridgeToken, Ownable, ERC20 {
    */
   function setDetails(string calldata _newName, string calldata _newSymbol) external override onlyOwner {
     // careful with naming convention change here
-    token.name = _newName;
-    token.symbol = _newSymbol;
+    _setDetails(_newName, _newSymbol);
     emit UpdateDetails(_newName, _newSymbol);
   }
 
