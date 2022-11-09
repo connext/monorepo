@@ -102,10 +102,13 @@ export const hardhatNetworks = {
       },
     },
   },
-  bsc: {
+  bnb: {
     accounts: { mnemonic },
     chainId: 56,
-    url: urlOverride || process.env.BSC_PROVIDER_URL || "https://bsc-dataseed.binance.org/",
+    url: urlOverride || process.env.BNB_PROVIDER_URL || "https://bsc-dataseed.binance.org/",
+    companionNetworks: {
+      hub: "mainnet",
+    },
   },
   chapel: {
     accounts: { mnemonic },
@@ -118,7 +121,16 @@ export const hardhatNetworks = {
   xdai: {
     accounts: { mnemonic },
     chainId: 100,
-    url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://xdai.poanetwork.dev/",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://rpc.gnosischain.com/",
+    verify: {
+      etherscan: {
+        apiKey: process.env.ETHERSCAN_API_KEY!,
+        apiUrl: "https://api.gnosisscan.io",
+      },
+    },
   },
   fuse: {
     accounts: { mnemonic },
@@ -169,6 +181,9 @@ export const hardhatNetworks = {
     accounts: { mnemonic },
     chainId: 42161,
     url: "https://arb1.arbitrum.io/rpc",
+    companionNetworks: {
+      hub: "mainnet",
+    },
   },
   fuji: {
     accounts: { mnemonic },
