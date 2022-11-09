@@ -137,12 +137,12 @@ contract TokenFacet is BaseConnextFacet {
     return approvedAssets(AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain));
   }
 
-  function adoptedToLocalPools(bytes32 _key) public view returns (IStableSwap) {
-    return s.adoptedToLocalPools[_key];
+  function adoptedToLocalExternalPools(bytes32 _key) public view returns (IStableSwap) {
+    return s.adoptedToLocalExternalPools[_key];
   }
 
-  function adoptedToLocalPools(TokenId calldata _canonical) public view returns (IStableSwap) {
-    return adoptedToLocalPools(AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain));
+  function adoptedToLocalExternalPools(TokenId calldata _canonical) public view returns (IStableSwap) {
+    return adoptedToLocalExternalPools(AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain));
   }
 
   // ============ Admin functions ============
@@ -324,7 +324,7 @@ contract TokenFacet is BaseConnextFacet {
     bytes32 _key
   ) internal {
     // Update the pool mapping
-    s.adoptedToLocalPools[_key] = IStableSwap(_stableSwap);
+    s.adoptedToLocalExternalPools[_key] = IStableSwap(_stableSwap);
 
     emit StableSwapAdded(_key, _canonical.id, _canonical.domain, _stableSwap, msg.sender);
   }
@@ -366,7 +366,7 @@ contract TokenFacet is BaseConnextFacet {
     delete s.caps[_key];
 
     // Delete from pools
-    delete s.adoptedToLocalPools[_key];
+    delete s.adoptedToLocalExternalPools[_key];
 
     // Delete from adopted mapping
     delete s.adoptedToCanonical[_adoptedAssetId];

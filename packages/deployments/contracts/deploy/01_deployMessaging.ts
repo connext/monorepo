@@ -284,6 +284,22 @@ const handleDeploySpoke = async (
     await tx.wait();
   }
 
+  console.log(`Deploying ${contract} SendOutboundRootResolver...`);
+  const resolverDeployment = await hre.deployments.deploy(
+    getDeploymentName(
+      `${contract}SendOutboundRootResolver`,
+      undefined,
+      protocol.configs[deploymentChainId].networkName,
+    ),
+    {
+      contract: "SendOutboundRootResolver",
+      from: deployer.address,
+      args: [deployment.address, 30 * 60], // 30 min
+      skipIfAlreadyDeployed: true,
+      log: true,
+    },
+  );
+  console.log(`${contract} SendOutboundRootResolver deployed to ${resolverDeployment.address}`);
   return deployment;
 };
 
