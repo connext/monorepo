@@ -72,10 +72,6 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
   if (status === ExecStatus.Completed) {
     throw new ExecuteSlowCompleted({ transferId });
   } else if (status === ExecStatus.None) {
-    await cache.executors.setExecStatus(transferId, ExecStatus.Queued);
-    await cache.executors.storeExecutorData(executorData);
-    logger.info("Created a executor tx", requestContext, methodContext, { transferId, executorData });
-
     const message: Message = {
       transferId: transfer.transferId,
       originDomain: transfer.xparams!.originDomain,
@@ -91,6 +87,10 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
     logger.info("Enqueued transfer", requestContext, methodContext, {
       message: message,
     });
+
+    await cache.executors.setExecStatus(transferId, ExecStatus.Queued);
+    await cache.executors.storeExecutorData(executorData);
+    logger.info("Created a executor tx", requestContext, methodContext, { transferId, executorData });
   } else {
     // The executor data status here is Pending/Cancelled.
     // If Cancelled, fallback processor would work so lets just keep it storing
