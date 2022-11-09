@@ -255,14 +255,6 @@ This task can be used to run load tests by specifying the number of `--runs`. It
 
 The max number of accounts used is specified in `hardhat.config.ts` under each chain's `accounts: { mnemonic, count: 100 }` (default 20 if unspecified). The `--accounts` flag determines the first N of these accounts to use for this task.
 
-### trace
-
-`trace` allows you to check the status of a nomad message from the origin domain (use the `xcall` transaction hash:
-
-```bash
-$ yarn workspace @connext/nxtp-contracts hardhat trace-message --transaction \<TRANSACTION_HASH\> --destination \<DESTINATION_DOMAIN\> --network \<ORIGIN_NETWORK_NAME\>
-```
-
 ### renounce-ownership
 
 `renounce-ownership` allows you to relinquish whitelist privileges (though it will take a week to take effect):
