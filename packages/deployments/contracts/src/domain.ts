@@ -42,7 +42,7 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
  */
 export function chainIdToDomain(chainId: number): number {
   const domain = chainIdToDomainMapping.get(chainId);
-  if (!domain) throw new Error(`Cannot find corresponding Nomad domain for chainId ${chainId}`);
+  if (!domain) throw new Error(`Cannot find corresponding domain for chainId ${chainId}`);
 
   return domain;
 }
