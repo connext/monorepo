@@ -155,7 +155,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     uint256 _numDomains = _domains.length;
 
     // Sanity check: domains length matches connectors length.
-    require(_connectors.length == _numDomains, "invalid lengths");
+    require(
+      _connectors.length == _numDomains && _fees.length == _numDomains && _encodedData.length == _numDomains,
+      "invalid lengths"
+    );
     validateDomains(_domains, _connectors);
 
     // Get all of the verified roots from the queue.
@@ -169,7 +172,14 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     // aggregate root and count).
     (bytes32 _aggregateRoot, uint256 _count) = MERKLE.insert(_verifiedInboundRoots);
 
+    uint256 sum = msg.value;
     for (uint32 i; i < _numDomains; ) {
+      // NOTE: This will ensure there is sufficient msg.value for all fees before calling `sendMessage`
+      // This will revert as soon as there are insufficient fees for call i, even if call n > i has
+      // sufficient budget, this function will revert
+      sum -= _fees[i];
+
+      // Send the message with appropriate encoded data and fees
       IHubConnector(_connectors[i]).sendMessage{value: _fees[i]}(abi.encodePacked(_aggregateRoot), _encodedData[i]);
       unchecked {
         ++i;
