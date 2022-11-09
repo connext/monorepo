@@ -60,6 +60,7 @@ library QueueLib {
     uint128 first = queue.first;
     uint128 last = queue.last;
     require(last >= first, "queue empty");
+    require(first != 0, "queue !init'd");
 
     // To determine the last item index in the queue we want to return, iterate backwards until we
     // find a `commitBlock` that has surpassed the delay period.

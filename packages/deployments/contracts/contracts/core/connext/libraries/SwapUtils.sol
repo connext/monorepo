@@ -60,7 +60,7 @@ library SwapUtils {
   struct Swap {
     // variables around the ramp management of A,
     // the amplification coefficient * n ** (n - 1)
-    // see https://www.curve.fi/stableswap-paper.pdf for details
+    // see Curve stableswap paper for details
     bytes32 key;
     uint256 initialA;
     uint256 futureA;
@@ -578,7 +578,7 @@ library SwapUtils {
 
     xp[tokenIndexTo] = xp[tokenIndexTo] - (dy * multipliers[tokenIndexTo]);
     uint256 x = getYD(a, tokenIndexFrom, xp, d0);
-    dx = x - xp[tokenIndexFrom] + 1;
+    dx = (x + 1) - xp[tokenIndexFrom];
     dxFee = (dx * self.swapFee) / FEE_DENOMINATOR;
     dx = (dx + dxFee) / multipliers[tokenIndexFrom];
   }

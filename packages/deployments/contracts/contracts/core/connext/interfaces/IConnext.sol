@@ -32,9 +32,9 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function approvedAssets(TokenId calldata _canonical) external view returns (bool);
 
-  function adoptedToLocalPools(bytes32 _key) external view returns (IStableSwap);
+  function adoptedToLocalExternalPools(bytes32 _key) external view returns (IStableSwap);
 
-  function adoptedToLocalPools(TokenId calldata _canonical) external view returns (IStableSwap);
+  function adoptedToLocalExternalPools(TokenId calldata _canonical) external view returns (IStableSwap);
 
   function getTokenId(address _candidate) external view returns (TokenId memory);
 

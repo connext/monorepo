@@ -74,8 +74,8 @@ contract Deployer {
     tokenFacetSelectors[6] = TokenFacet.getLocalAndAdoptedToken.selector;
     tokenFacetSelectors[7] = getSelector("approvedAssets(bytes32)");
     tokenFacetSelectors[8] = getSelector("approvedAssets(tuple(uint32,bytes32))");
-    tokenFacetSelectors[9] = getSelector("adoptedToLocalPools(bytes32)");
-    tokenFacetSelectors[10] = getSelector("adoptedToLocalPools(tuple(uint32,bytes32))");
+    tokenFacetSelectors[9] = getSelector("adoptedToLocalExternalPools(bytes32)");
+    tokenFacetSelectors[10] = getSelector("adoptedToLocalExternalPools(tuple(uint32,bytes32))");
     tokenFacetSelectors[11] = TokenFacet.setupAsset.selector;
     tokenFacetSelectors[12] = TokenFacet.setupAssetWithDeployedRepresentation.selector;
     tokenFacetSelectors[13] = TokenFacet.addStableSwapPool.selector;

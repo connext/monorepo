@@ -52,7 +52,7 @@ library SwapUtilsExternal {
   struct Swap {
     // variables around the ramp management of A,
     // the amplification coefficient * n ** (n - 1)
-    // see https://www.curve.fi/stableswap-paper.pdf for details
+    // see Curve stableswap paper for details
     uint256 initialA;
     uint256 futureA;
     uint256 initialATime;

@@ -28,7 +28,6 @@
     "@typescript-eslint/eslint-plugin": "5.42.0",
     "ajv": "8.11.0",
     "ajv-formats": "2.1.1",
-    "axios": "1.1.3",
     "ethers": "5.7.2",
     "evt": "2.4.10",
     "interval-promise": "1.4.0",
