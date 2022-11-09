@@ -33,7 +33,7 @@
   </p>
 </div>
 
-<!-- TABLE OF CONTENTS -->
+<!-- TABLE OF CONTENTS
 <details>
   <summary>Table of Contents</summary>
   <ol>
@@ -50,14 +50,12 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
-</details>
+</details> -->
 
 <!-- ABOUT THE PROJECT -->
 
@@ -91,7 +89,7 @@ Connext is public infrastructure powering fast, trust-minimized communication be
 
   - [Cartographer](https://github.com/connext/nxtp/tree/main/packages/agents/cartographer) is our chain indexer, which indexes from subgraph and provides an API to query raw and computed data.
   - [Lighthouse](https://github.com/connext/nxtp/tree/main/packages/agents/lighthouse) is an implementation for execution layer.
-  - [Relayer](https://github.com/connext/nxtp/tree/main/packages/agents/relayer is an implementatino of a relayer in case we can't use Gelato
+  - [Relayer](https://github.com/connext/nxtp/tree/main/packages/agents/relayer) is an implementatino of a relayer in case we can't use Gelato
   - [Router](https://github.com/connext/nxtp/tree/main/packages/router) - listens for events from messaging service and subgraph, and then dispatches transactions to txService
   - [SDK](https://github.com/connext/nxtp/tree/main/packages/agents/sdk) - is a JS wrapper around the contract calls themselves and can be used by integrations
   - [Sequencer](https://github.com/connext/nxtp/tree/main/packages/agents/sequencer) - is the agent module which is in charge of sourcing bids from routers and puts fast liquidity bids onto the chain itself.
