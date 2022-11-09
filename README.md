@@ -68,13 +68,13 @@
 
 The Connext architecture can be seen as a layered system, as follows:
 
-| Layer                   | Protocol/Stakeholders             |
-| ----------------------- | --------------------------------- |
-| `Application Layer`     | `Crosschain Applications (xApps)` |
-| `Liquidity Layer`       | `NXTP`                            |
-| `Gateway/Routing Layer` | `Interchain Gateway Protocol`     |
-| `Messaging Layer`       | `Nomad`                           |
-| `Transport Layer`       | `Connext Routers`                 |
+| Layer                            | Protocol/Stakeholders                  |
+| -------------------------------- | -------------------------------------- |
+| `Application Layer`              | `Crosschain Applications (xApps), SDK` |
+| `Liquidity Layer`                | `Routers, Sequencer`                   |
+| `Messaging - Execution Layer`    | `Lighthouse, Sequencer`                |
+| `Messaging - Verification Layer` | `Watcher`                              |
+| `Messaging - Transport Layer`    | `AMBs`                                 |
 
 ## About NXTP
 
