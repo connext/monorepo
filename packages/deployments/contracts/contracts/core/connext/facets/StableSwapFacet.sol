@@ -67,7 +67,7 @@ contract StableSwapFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Return A, the amplification coefficient * n * (n - 1)
+   * @notice Return A, the amplification coefficient * n ** (n - 1)
    * @dev See the StableSwap paper for details
    * @param key Hash of the canonical id + domain
    * @return A parameter
