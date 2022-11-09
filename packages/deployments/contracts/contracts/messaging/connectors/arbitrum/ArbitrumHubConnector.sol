@@ -69,11 +69,13 @@ contract ArbitrumHubConnector is HubConnector {
     return _expected == LibArbitrumL1.crossChainSender(AMB);
   }
 
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal {
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
     // Get the calldata
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
+
+    uint256 maxSubmissionCost = abi.decode(_encodedData, (uint256));
     // dispatch to l2
     IArbitrumInbox(AMB).createRetryableTicket{value: msg.value}(
       mirrorConnector,
