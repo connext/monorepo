@@ -765,12 +765,10 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     console.logUint(poolTokenBalanceBefore);
     console.logUint(totalSupply);
+    assertEq(totalSupply, poolTokenBalanceBefore);
 
     uint256[] memory expectedAmounts = new uint256[](2);
     expectedAmounts = this.calculateRemoveSwapLiquidity(utils_calculateCanonicalHash(), poolTokenBalanceBefore);
-
-    console.logUint(expectedAmounts[0]);
-    console.logUint(expectedAmounts[1]);
 
     IERC20(swapToken).approve(address(this), poolTokenBalanceBefore);
 
