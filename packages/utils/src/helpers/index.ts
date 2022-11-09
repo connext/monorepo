@@ -6,7 +6,7 @@ export * from "./env";
 export * from "./health";
 export * from "./hex";
 export * from "./math";
-export * from "./merkle";
+export * from "./domaine";
 export * from "./nomad";
 export * from "./parse";
 export * from "./signatures";

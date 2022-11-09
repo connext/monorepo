@@ -35,14 +35,14 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
 ]);
 
 /**
- * Converts a chain id (listed at at chainlist.org) to a Nomad domain.
+ * Converts a chain id (listed at at chainlist.org) to a domain.
  *
  * @param chainId A chain id number
- * @returns A Nomad domain number in decimal
+ * @returns A domain number in decimal
  */
 export function chainIdToDomain(chainId: number): number {
   const domain = chainIdToDomainMapping.get(chainId);
-  if (!domain) throw new Error(`Cannot find corresponding Nomad domain for chainId ${chainId}`);
+  if (!domain) throw new Error(`Cannot find corresponding domain for chainId ${chainId}`);
 
   return domain;
 }
