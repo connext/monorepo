@@ -137,6 +137,18 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     return this.swapExact(_canonicalKey, amountIn, assetIn, assetOut, minAmountOut, blockTimestamp + 10);
   }
 
+  function utils_removeAllLiquidity() public {
+    address swapToken = this.getSwapLPToken(_canonicalKey);
+    uint256 totalSupply = IERC20(swapToken).totalSupply();
+
+    uint256[] memory expectedAmounts = new uint256[](2);
+    expectedAmounts = this.calculateRemoveSwapLiquidity(_canonicalKey, totalSupply);
+
+    IERC20(swapToken).approve(address(this), totalSupply);
+
+    this.removeSwapLiquidity(_canonicalKey, totalSupply, expectedAmounts, blockTimestamp + 1);
+  }
+
   // =========== Admin Functions ============
   function test_SwapAdminFacet__initializeSwap_failIfNotOwner() public {
     IERC20[] memory _pooledTokens = new IERC20[](2);
@@ -459,6 +471,8 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
   function test_SwapAdminFacet__removeSwap_shouldWork() public {
     vm.startPrank(_owner);
 
+    utils_removeAllLiquidity();
+
     vm.expectEmit(true, false, false, true);
     emit SwapRemoved(_canonicalKey, _owner);
 
@@ -485,11 +499,9 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     vm.expectEmit(true, false, false, true);
     emit SwapRemoved(_canonicalKey, _owner);
 
+    utils_removeAllLiquidity();
+
     this.removeSwap(_canonicalKey);
-
-    assertEq(IERC20(_local).balanceOf(_owner), beforeBalance0 + 1001973776101);
-    assertEq(IERC20(_adopted).balanceOf(_owner), beforeBalance1 + 998024139765);
-
     vm.stopPrank();
   }
 
