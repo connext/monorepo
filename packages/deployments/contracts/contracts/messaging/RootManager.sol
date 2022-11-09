@@ -132,6 +132,13 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     emit ConnectorRemoved(_domain, _connector, domains, connectors, msg.sender);
   }
 
+  /**
+   * @notice Remove ability to renounce ownership
+   * @dev Renounce ownership should be impossible as long as watchers can freely remove connectors
+   * and only the owner can add them back
+   */
+  function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {}
+
   // ============ Public Functions ============
 
   /**
