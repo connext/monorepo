@@ -747,4 +747,45 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     vm.stopPrank();
   }
+
+  function test_StableSwapFacet__removeSwapLiquidity_shouldWorkForAll() public {
+    vm.startPrank(_owner);
+
+    uint256[] memory amounts = new uint256[](2);
+    amounts[0] = 2 ether;
+    amounts[1] = 0.01 ether;
+
+    this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 1);
+
+    address swapToken = this.getSwapLPToken(utils_calculateCanonicalHash());
+    uint256 firstTokenBalanceBefore = IERC20(_local).balanceOf(_owner);
+    uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_owner);
+    uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_owner);
+    uint256 totalSupply = IERC20(swapToken).totalSupply();
+
+    console.logUint(poolTokenBalanceBefore);
+    console.logUint(totalSupply);
+
+    uint256[] memory expectedAmounts = new uint256[](2);
+    expectedAmounts = this.calculateRemoveSwapLiquidity(utils_calculateCanonicalHash(), poolTokenBalanceBefore);
+
+    console.logUint(expectedAmounts[0]);
+    console.logUint(expectedAmounts[1]);
+
+    IERC20(swapToken).approve(address(this), poolTokenBalanceBefore);
+
+    this.removeSwapLiquidity(
+      utils_calculateCanonicalHash(),
+      poolTokenBalanceBefore,
+      expectedAmounts,
+      blockTimestamp + 1
+    );
+
+    console.logUint(this.getSwapTokenBalance(utils_calculateCanonicalHash(), 0));
+    console.logUint(this.getSwapTokenBalance(utils_calculateCanonicalHash(), 1));
+
+    assertEq(firstTokenBalanceBefore + expectedAmounts[0], IERC20(_local).balanceOf(_owner));
+    assertEq(secondTokenBalanceBefore + expectedAmounts[1], IERC20(_adopted).balanceOf(_owner));
+    vm.stopPrank();
+  }
 }

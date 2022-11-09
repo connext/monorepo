@@ -448,45 +448,11 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
   }
 
   function test_SwapAdminFacet__removeSwap_failIfZeroBalance() public {
-    IERC20[] memory _pooledTokens = new IERC20[](2);
-    _pooledTokens[0] = IERC20(new TestERC20("Test Token", "TEST"));
-    _pooledTokens[1] = IERC20(new TestERC20("Test Token", "TEST"));
-
-    uint8[] memory _decimals = new uint8[](2);
-    _decimals[0] = 18;
-    _decimals[1] = 18;
-
-    uint256 a = INITIAL_A_VALUE;
-    uint256 adminFee = 0;
-    uint256 fee = SWAP_FEE;
-
-    address token;
-
-    bytes32 canonicalId = bytes32(abi.encodePacked(address(_pooledTokens[0])));
-    bytes32 key = keccak256(abi.encode(canonicalId, _canonicalDomain));
-
-    uint256[] memory precisionMultipliers = new uint256[](_pooledTokens.length);
-    for (uint8 i = 0; i < _pooledTokens.length; i++) {
-      precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - _decimals[i]);
-      s.tokenIndexes[_canonicalId][address(_pooledTokens[i])] = i;
-    }
-
     vm.startPrank(_owner);
-    this.initializeSwap(
-      key,
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      a,
-      fee,
-      adminFee,
-      address(_lpTokenTarget)
-    );
 
     vm.expectRevert(SwapAdminFacet.SwapAdminFacet__removeSwap_NonZeroBalance.selector);
 
-    this.removeSwap(key);
+    this.removeSwap(_canonicalKey);
     vm.stopPrank();
   }
 

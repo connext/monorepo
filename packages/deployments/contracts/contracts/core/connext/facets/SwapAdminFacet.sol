@@ -196,21 +196,22 @@ contract SwapAdminFacet is BaseConnextFacet {
     if (numPooledTokens == 0) revert SwapAdminFacet__removeSwap_notInitialized();
 
     for (uint256 i; i < numPooledTokens; ) {
-      if (s.swapStorages[_key].balances[i] == 0) {
+      if (s.swapStorages[_key].balances[i] > 0) {
         revert SwapAdminFacet__removeSwap_NonZeroBalance();
       }
 
-      if (s.swapStorages[_key].adminFees[i] > 0) {
-        s.swapStorages[_key].withdrawAdminFees(msg.sender);
-        emit AdminFeesWithdrawn(_key, msg.sender);
-      }
+      delete s.tokenIndexes[_key][address(s.swapStorages[_key].pooledTokens[i])];
 
       unchecked {
         ++i;
       }
     }
 
+    s.swapStorages[_key].withdrawAdminFees(msg.sender);
+    emit AdminFeesWithdrawn(_key, msg.sender);
+
     delete s.swapStorages[_key];
+
     emit SwapRemoved(_key, msg.sender);
   }
 
