@@ -151,7 +151,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   // should work when local asset is the adopted asset
   function test_PortalFacet__repayAavePortal_works() public {
     // set approval context
-    s.routerPermissionInfo.approvedForPortalRouters[router] = true;
+    s.routerConfigs[router].portalApproved = true;
 
     (TransferInfo memory params, bytes32 transferId) = utils_getParams();
 
@@ -184,7 +184,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   // fails if not enough balance
   function test_PortalFacet__repayAavePortal_failsIfInsufficientAmount() public {
     // set approval context
-    s.routerPermissionInfo.approvedForPortalRouters[router] = true;
+    s.routerConfigs[router].portalApproved = true;
 
     (TransferInfo memory params, ) = utils_getParams();
 
@@ -208,7 +208,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     (TransferInfo memory params, ) = utils_getParams();
 
     // set approval context
-    s.routerPermissionInfo.approvedForPortalRouters[router] = true;
+    s.routerConfigs[router].portalApproved = true;
 
     // set debt amount
     uint256 backing = 1111;
@@ -238,7 +238,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     (TransferInfo memory params, bytes32 transferId) = utils_getParams();
 
     // set approval context
-    s.routerPermissionInfo.approvedForPortalRouters[router] = true;
+    s.routerConfigs[router].portalApproved = true;
 
     // set debt amount
     uint256 backing = 1111;
@@ -280,7 +280,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     (TransferInfo memory params, bytes32 transferId) = utils_getParams();
 
     // set approval context
-    s.routerPermissionInfo.approvedForPortalRouters[router] = true;
+    s.routerConfigs[router].portalApproved = true;
 
     // set debt amount
     uint256 backing = 1111;
