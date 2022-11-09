@@ -81,27 +81,29 @@ Connext is public infrastructure powering fast, trust-minimized communication be
 
 - [adapters](https://github.com/connext/nxtp/tree/main/packages/adapters) - Wrappers around external modules. These adapters can be shared between different packages.
 
-  - Cache is a wrapper around all the redis based caches that are used.
-  - Subrgaph contains all the code to read from the subgraph
-  - TxService resiliently attempts to send transactions to chain (with retries, etc.) and is used to read and write to RPC providers, and has fallback providers if needed. Fallbacks can be defined as arrays and this way we can provide resiliency in case of failure
-  - Web3Signer is a wrapper around Web3Signer, which is a secure way of signing which does not require to include mnemonics in the app itself.
+  - [Cache](https://github.com/connext/nxtp/tree/main/packages/adapters/cache) is a wrapper around all the redis based caches that are used.
+  - [Database](https://github.com/connext/nxtp/tree/main/packages/adapters/database) is implementation of schema and client for the database.
+  - [Subrgaph](https://github.com/connext/nxtp/tree/main/packages/adapters/subgraph) includes graphclient implementation and reader functions for subgraph.
+  - [TxService](https://github.com/connext/nxtp/tree/main/packages/adapters/txservice) resiliently attempts to send transactions to chain (with retries, etc.) and is used to read and write to RPC providers, and has fallback providers if needed. Fallbacks can be defined as arrays and this way we can provide resiliency in case of failure
+  - [Web3Signer](https://github.com/connext/nxtp/tree/main/packages/adapters/web3signer) is a wrapper around Web3Signer, which is a secure way of signing which does not require to include mnemonics in the app itself.
 
-- [agents](https://github.com/connext/nxtp/tree/main/packages/agents) - Any kind of backend service that we have running
+- [agents](https://github.com/connext/nxtp/tree/main/packages/agents) - Core infra Hosted services for Functionality and UX.
 
-  - [Cartographer](https://github.com/connext/nxtp/tree/main/packages/agents/cartographer) is our chain indexer, which indexes from subgraph
-  - [Lighthouse](https://github.com/connext/nxtp/tree/main/packages/agents/lighthouse) is our implementation of a Watchtower, when transfers are fulfilled using slowpath, they are not executed by a router. So they need to be executed by another agent, and that's what lighthouse does
+  - [Cartographer](https://github.com/connext/nxtp/tree/main/packages/agents/cartographer) is our chain indexer, which indexes from subgraph and provides an API to query raw and computed data.
+  - [Lighthouse](https://github.com/connext/nxtp/tree/main/packages/agents/lighthouse) is an implementation for execution layer.
   - [Relayer](https://github.com/connext/nxtp/tree/main/packages/agents/relayer is an implementatino of a relayer in case we can't use Gelato
   - [Router](https://github.com/connext/nxtp/tree/main/packages/router) - listens for events from messaging service and subgraph, and then dispatches transactions to txService
   - [SDK](https://github.com/connext/nxtp/tree/main/packages/agents/sdk) - is a JS wrapper around the contract calls themselves and can be used by integrations
   - [Sequencer](https://github.com/connext/nxtp/tree/main/packages/agents/sequencer) - is the agent module which is in charge of sourcing bids from routers and puts fast liquidity bids onto the chain itself.
 
-- [Contracts](https://github.com/connext/nxtp/tree/main/packages/contracts) - hold funds for all network participants, and lock/unlock based on data submitted by users and routers
-- [deployments](https://github.com/connext/nxtp/tree/main/packages/deployments) - These are things which we deploy
-  - Contracts are the contracts that we deploy and the deployment scripts
-  - Subgraph is all the subgraph source code to define all the mappings and contains all the configurations to deploy to different graph hosted services or third party graph providers
+- [deployments](https://github.com/connext/nxtp/tree/main/packages/deployments)
+
+  - [Contracts](https://github.com/connext/nxtp/tree/main/packages/deployments/contracts) - Contracts are the contracts that we deploy and the deployment scripts
+  - [Subgraph](https://github.com/connext/nxtp/tree/main/packages/deployments/subgraph) is all the subgraph source code to define all the mappings and contains all the configurations to deploy to different graph hosted services or third party graph providers
+
 - [examples](https://github.com/connext/nxtp/tree/main/packages/examples) - these are not used in production, but contains ways to use the SDK that are illustrative of how to integrate NXTP
 - [integration](https://github.com/connext/nxtp/tree/main/packages/integration) - Utilities for integration test
-- [utils](https://github.com/connext/nxtp/tree/main/packages/utils) - A catchall for different types of helper functions that are shared thoughout the different packages
+- [utils](https://github.com/connext/nxtp/tree/main/packages/utils) - Collection of helper functions that are shared thoughout the different packages
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
