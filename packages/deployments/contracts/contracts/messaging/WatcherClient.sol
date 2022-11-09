@@ -38,11 +38,26 @@ contract WatcherClient is ProposedOwnable, Pausable {
     emit WatcherManagerChanged(_watcherManager);
   }
 
+  /**
+   * @notice Owner can unpause contracts if fraud is detected by watchers
+   */
   function unpause() external onlyOwner whenPaused {
     _unpause();
   }
 
+  /**
+   * @notice Remove ability to renounce ownership
+   * @dev Renounce ownership should be impossible as long as only the owner
+   * is able to unpause the contracts. You can still propose `address(0)`,
+   * but it will never be accepted.
+   */
+  function renounceOwnership() public virtual override onlyOwner {}
+
   // ============ Watcher fns ============
+
+  /**
+   * @notice Watchers can pause contracts if fraud is detected
+   */
   function pause() external onlyWatcher whenNotPaused {
     _pause();
   }
