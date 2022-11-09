@@ -8,11 +8,14 @@ pragma solidity 0.8.15;
  *
  */
 interface IArbitrumInbox {
-  function sendContractTransaction(
+  function createRetryableTicket(
+    address destAddr,
+    uint256 arbTxCallValue,
+    uint256 maxSubmissionCost,
+    address submissionRefundAddress,
+    address valueRefundAddress,
     uint256 maxGas,
     uint256 gasPriceBid,
-    address destAddr,
-    uint256 amount,
-    bytes memory data
+    bytes calldata data
   ) external payable returns (uint256);
 }
