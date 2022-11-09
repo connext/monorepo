@@ -11,10 +11,7 @@
   <br />
 
   <h3 align="center">About Connext</h3>
-  <h4 align="center">Connext is a bridging protocol which allows for safe transfer of tokens and data between EVM compatible blockchains.</h4>
-
-  <h3 align="center">NXTP</h3>
-  <h4 align="center"><b>N</b>oncustodial <b>X</b>domain <b>T</b>ransfer <b>P</b>rotocol.</h4>
+  <h4 align="center">Connext is public infrastructure powering fast, trust-minimized communication between blockchains.</h4>
 
   <p align="center">
     Useful Links
