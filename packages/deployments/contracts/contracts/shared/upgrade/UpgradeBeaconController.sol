@@ -15,6 +15,9 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
  * capable of changing their stored implementation address.
  * @dev This implementation is a minimal version inspired by 0age's implementation:
  * https://github.com/dharma-eng/dharma-smart-wallet/blob/master/contracts/upgradeability/DharmaUpgradeBeaconController.sol
+ *
+ * @dev Do *NOT* remove ownership unless all UpgradeBeacons registered with this controller
+ * are willing to lose upgradeability.
  */
 contract UpgradeBeaconController is ProposedOwnable {
   // ============ Events ============
