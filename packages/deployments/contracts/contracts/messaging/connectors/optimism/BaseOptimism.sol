@@ -19,7 +19,7 @@ abstract contract BaseOptimism is GasCap {
    * @notice Using Optimism AMB, the gas is provided to `sendMessage` as an encoded uint
    */
   function _getGasFromEncoded(bytes memory _encodedData) internal view returns (uint256 _gas) {
-    // Should include gssas info in specialized calldata
+    // Should include gas info in specialized calldata
     require(_encodedData.length == 32, "!data length");
 
     // Get the gas, if it is more than the cap use the cap
