@@ -142,8 +142,6 @@ export type { ConnextProxyAdmin } from "./contracts/core/connext/helpers/Connext
 export { ConnextProxyAdmin__factory } from "./factories/contracts/core/connext/helpers/ConnextProxyAdmin__factory";
 export type { LPToken } from "./contracts/core/connext/helpers/LPToken";
 export { LPToken__factory } from "./factories/contracts/core/connext/helpers/LPToken__factory";
-export type { Multicall } from "./contracts/core/connext/helpers/Multicall";
-export { Multicall__factory } from "./factories/contracts/core/connext/helpers/Multicall__factory";
 export type { OwnerPausableUpgradeable } from "./contracts/core/connext/helpers/OwnerPausableUpgradeable";
 export { OwnerPausableUpgradeable__factory } from "./factories/contracts/core/connext/helpers/OwnerPausableUpgradeable__factory";
 export type { PriceOracle } from "./contracts/core/connext/helpers/PriceOracle";

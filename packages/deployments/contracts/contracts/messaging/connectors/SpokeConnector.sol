@@ -13,7 +13,7 @@ import {RateLimited} from "../libraries/RateLimited.sol";
 import {MerkleTreeManager} from "../Merkle.sol";
 import {WatcherClient} from "../WatcherClient.sol";
 
-import {Connector} from "./Connector.sol";
+import {Connector, ProposedOwnable} from "./Connector.sol";
 import {ConnectorManager} from "./ConnectorManager.sol";
 
 /**
@@ -269,6 +269,14 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     Address.sendValue(payable(_to), amount);
     emit FundsWithdrawn(_to, amount);
   }
+
+  /**
+   * @notice Remove ability to renounce ownership
+   * @dev Renounce ownership should be impossible as long as it is impossible in the
+   * WatcherClient, and as long as only the owner can remove pending roots in case of
+   * fraud.
+   */
+  function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {}
 
   // ============ Public Functions ============
 
