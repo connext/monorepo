@@ -11,7 +11,7 @@ import {RateLimited} from "../../../contracts/messaging/libraries/RateLimited.so
 import "../../utils/ForgeHelper.sol";
 
 contract SpokeConnectorTest is ForgeHelper {
-  event MessageSent(bytes data, address caller);
+  event MessageSent(bytes data, bytes encodedData, address caller);
 
   // ============ Storage ============
   SpokeConnector spokeConnector;

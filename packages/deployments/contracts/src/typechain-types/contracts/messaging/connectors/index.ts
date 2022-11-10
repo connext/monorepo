@@ -19,4 +19,5 @@ export type { Connector } from "./Connector";
 export type { ConnectorManager } from "./ConnectorManager";
 export type { GasCap } from "./GasCap";
 export type { HubConnector } from "./HubConnector";
+export type { SendOutboundRootResolver } from "./SendOutboundRootResolver";
 export type { SpokeConnector } from "./SpokeConnector";
