@@ -11,6 +11,7 @@
   "event ConnectorAdded(uint32,address,uint32[],address[])",
   "event ConnectorRemoved(uint32,address,uint32[],address[],address)",
   "event DelayBlocksUpdated(uint256,uint256)",
+  "event Log(string)",
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "event Paused(address)",
