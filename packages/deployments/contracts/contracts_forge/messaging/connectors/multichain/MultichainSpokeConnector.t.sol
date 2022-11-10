@@ -51,6 +51,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
         )
       )
     );
+    assertEq(_owner, MultichainSpokeConnector(_l2Connector).owner());
   }
 
   // ============ sendMessage ============
