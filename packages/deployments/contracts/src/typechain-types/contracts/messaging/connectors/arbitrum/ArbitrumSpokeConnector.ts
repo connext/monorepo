@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -808,7 +809,7 @@ export interface ArbitrumSpokeConnector extends BaseContract {
 
     send(
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     sentMessageRoots(
@@ -980,7 +981,7 @@ export interface ArbitrumSpokeConnector extends BaseContract {
 
   send(
     _encodedData: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   sentMessageRoots(
@@ -1443,7 +1444,7 @@ export interface ArbitrumSpokeConnector extends BaseContract {
 
     send(
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     sentMessageRoots(
@@ -1616,7 +1617,7 @@ export interface ArbitrumSpokeConnector extends BaseContract {
 
     send(
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     sentMessageRoots(

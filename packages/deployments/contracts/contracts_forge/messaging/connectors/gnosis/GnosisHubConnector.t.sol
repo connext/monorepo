@@ -12,8 +12,10 @@ contract GnosisHubConnectorTest is ConnectorHelper {
     // Allow future contract mock
     vm.etch(_amb, new bytes(0x42));
 
-    _l2Connector = address(123123);
-    _l1Connector = address(new GnosisHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, _l2Connector, _gasCap));
+    _l2Connector = payable(address(123123));
+    _l1Connector = payable(
+      address(new GnosisHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, _l2Connector, _gasCap))
+    );
   }
 
   // ============ Utils ============

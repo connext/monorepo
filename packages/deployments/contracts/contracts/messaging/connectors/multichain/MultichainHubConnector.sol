@@ -16,8 +16,12 @@ contract MultichainHubConnector is HubConnector, BaseMultichain {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorChainId
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) BaseMultichain(_amb, _mirrorChainId) {}
+    uint256 _mirrorChainId,
+    uint256 _gasCap
+  )
+    HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
+    BaseMultichain(_amb, _mirrorChainId, _gasCap)
+  {}
 
   // ============ Private fns ============
   /**
@@ -33,9 +37,7 @@ contract MultichainHubConnector is HubConnector, BaseMultichain {
   }
 
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
-    // Should not include specialized calldata
-    require(_encodedData.length == 0, "!data length");
-    _sendMessage(AMB, _data);
+    _sendMessage(AMB, mirrorConnector, _data, _encodedData);
   }
 
   function _verifySender(address _expected) internal view override returns (bool) {

@@ -18,22 +18,24 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
   // ============ Test set up ============
   function setUp() public {
     // deploy
-    _l1Connector = address(123);
+    _l1Connector = payable(address(123));
 
     _merkle = address(new MerkleTreeManager());
 
-    _l2Connector = address(
-      new PolygonSpokeConnector(
-        _l2Domain,
-        _l1Domain,
-        _amb,
-        _rootManager,
-        address(0),
-        _processGas,
-        _reserveGas,
-        0, // uint256 _delayBlocks
-        _merkle,
-        address(1) // watcher manager
+    _l2Connector = payable(
+      address(
+        new PolygonSpokeConnector(
+          _l2Domain,
+          _l1Domain,
+          _amb,
+          _rootManager,
+          address(0),
+          _processGas,
+          _reserveGas,
+          0, // uint256 _delayBlocks
+          _merkle,
+          address(1) // watcher manager
+        )
       )
     );
   }

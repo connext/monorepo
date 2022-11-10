@@ -18,21 +18,23 @@ contract MainnetSpokeConnectorTest is ConnectorHelper {
   function setUp() public {
     _merkle = address(new MerkleTreeManager());
 
-    _l2Connector = address(123321123);
+    _l2Connector = payable(address(123321123));
 
     // deploy
-    _l1Connector = address(
-      new MainnetSpokeConnector(
-        _l1Domain,
-        _l2Domain,
-        _amb,
-        _rootManager,
-        _l2Connector,
-        _processGas,
-        _reserveGas,
-        0, // delay blocks
-        _merkle,
-        address(0) // watcher manager
+    _l1Connector = payable(
+      address(
+        new MainnetSpokeConnector(
+          _l1Domain,
+          _l2Domain,
+          _amb,
+          _rootManager,
+          _l2Connector,
+          _processGas,
+          _reserveGas,
+          0, // delay blocks
+          _merkle,
+          address(0) // watcher manager
+        )
       )
     );
   }

@@ -27,22 +27,24 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
   // ============ Test set up ============
   function setUp() public {
     // deploy
-    _l1Connector = address(123321123);
+    _l1Connector = payable(address(123321123));
 
     _merkle = address(new MerkleTreeManager());
 
-    _l2Connector = address(
-      new ArbitrumSpokeConnector(
-        _l2Domain,
-        _l1Domain,
-        _amb,
-        _rootManager,
-        _l1Connector,
-        _processGas,
-        _reserveGas,
-        0, // uint256 _delayBlocks
-        _merkle,
-        address(1) // watcher manager
+    _l2Connector = payable(
+      address(
+        new ArbitrumSpokeConnector(
+          _l2Domain,
+          _l1Domain,
+          _amb,
+          _rootManager,
+          _l1Connector,
+          _processGas,
+          _reserveGas,
+          0, // uint256 _delayBlocks
+          _merkle,
+          address(1) // watcher manager
+        )
       )
     );
   }
