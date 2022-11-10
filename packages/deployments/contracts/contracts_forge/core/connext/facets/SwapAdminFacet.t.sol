@@ -681,19 +681,19 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     // +0 seconds since ramp A
     assertEq(this.getSwapA(_canonicalKey), INITIAL_A_VALUE);
     assertEq(this.getSwapAPrecise(_canonicalKey), INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000167146429976812);
+    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000167146429977312);
 
     // set timestamp to +100000 seconds
     vm.warp(blockTimestamp + 100000);
     assertEq(this.getSwapA(_canonicalKey), 54);
     assertEq(this.getSwapAPrecise(_canonicalKey), 5413);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000258443200230795);
+    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000258443200231295);
 
     // set timestamp to the end of ramp period
     vm.warp(endTimestamp);
     assertEq(this.getSwapA(_canonicalKey), 100);
     assertEq(this.getSwapAPrecise(_canonicalKey), 10000);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000771363829404568);
+    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000771363829405068);
 
     vm.stopPrank();
   }
@@ -713,19 +713,19 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     // +0 seconds since ramp A
     assertEq(this.getSwapA(_canonicalKey), INITIAL_A_VALUE);
     assertEq(this.getSwapAPrecise(_canonicalKey), INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000167146429976812);
+    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000167146429977312);
 
     // set timestamp to +100000 seconds
     vm.warp(blockTimestamp + 100000);
     assertEq(this.getSwapA(_canonicalKey), 47);
     assertEq(this.getSwapAPrecise(_canonicalKey), 4794);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000115870150391394);
+    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000115870150391894);
 
     // set timestamp to the end of ramp period
     vm.warp(endTimestamp);
     assertEq(this.getSwapA(_canonicalKey), 25);
     assertEq(this.getSwapAPrecise(_canonicalKey), 2500);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 998999574522334973);
+    assertEq(this.getSwapVirtualPrice(_canonicalKey), 998999574522335473);
 
     vm.stopPrank();
   }
