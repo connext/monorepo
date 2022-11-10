@@ -421,19 +421,22 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _aggregateRoot Target aggregate root to verify.
    */
   function verifyAggregateRoot(bytes32 _aggregateRoot) internal {
-    // 0. Check to see if the target *aggregate* root has already been proven.
+    // 0. Sanity check: root is not 0.
+    require(_aggregateRoot != bytes32(""), "aggregateRoot empty");
+
+    // 1. Check to see if the target *aggregate* root has already been proven.
     if (provenAggregateRoots[_aggregateRoot]) {
       return; // Short circuit if this root is proven.
     }
 
-    // 1. The target aggregate root must be pending. Aggregate root commit block entry MUST exist.
+    // 2. The target aggregate root must be pending. Aggregate root commit block entry MUST exist.
     uint256 _aggregateRootCommitBlock = pendingAggregateRoots[_aggregateRoot];
     require(_aggregateRootCommitBlock != 0, "aggregateRoot !exist");
 
-    // 2. Pending aggregate root has surpassed the `delayBlocks` verification period.
+    // 3. Pending aggregate root has surpassed the `delayBlocks` verification period.
     require(block.number - _aggregateRootCommitBlock >= delayBlocks, "aggregateRoot !verified");
 
-    // 3. The target aggregate root has surpassed verification period, we can move it over to the
+    // 4. The target aggregate root has surpassed verification period, we can move it over to the
     // proven mapping.
     provenAggregateRoots[_aggregateRoot] = true;
     // May as well delete the pending aggregate root entry for the gas refund: it should no longer
