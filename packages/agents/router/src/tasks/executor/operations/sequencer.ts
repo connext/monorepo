@@ -14,7 +14,6 @@ import {
 import { getContext } from "../executor";
 // @ts-ignore
 import { version } from "../../../../package.json";
-import { SequencerResponseInvalid } from "../../../errors";
 import { axiosPost } from "../../../mockable";
 
 export const sendExecuteSlowToSequencer = async (
