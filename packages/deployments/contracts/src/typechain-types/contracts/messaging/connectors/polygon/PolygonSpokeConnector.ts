@@ -62,7 +62,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "localDomain()": FunctionFragment;
     "messages(bytes32)": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
-    "mirrorGas()": FunctionFragment;
     "nonces(uint32)": FunctionFragment;
     "outboundRoot()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -81,11 +80,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "removeSender(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "send()": FunctionFragment;
+    "send(bytes)": FunctionFragment;
     "setDelayBlocks(uint256)": FunctionFragment;
     "setFxRootTunnel(address)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
-    "setMirrorGas(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
     "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
@@ -113,7 +111,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "localDomain"
       | "messages"
       | "mirrorConnector"
-      | "mirrorGas"
       | "nonces"
       | "outboundRoot"
       | "owner"
@@ -136,7 +133,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "setDelayBlocks"
       | "setFxRootTunnel"
       | "setMirrorConnector"
-      | "setMirrorGas"
       | "setWatcherManager"
       | "unpause"
       | "verifySender"
@@ -205,7 +201,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     functionFragment: "mirrorConnector",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "mirrorGas", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "nonces",
     values: [PromiseOrValue<BigNumberish>]
@@ -272,7 +267,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
-  encodeFunctionData(functionFragment: "send", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "send",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
   encodeFunctionData(
     functionFragment: "setDelayBlocks",
     values: [PromiseOrValue<BigNumberish>]
@@ -284,10 +282,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setMirrorConnector",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMirrorGas",
-    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setWatcherManager",
@@ -349,7 +343,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     functionFragment: "mirrorConnector",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "mirrorGas", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "outboundRoot",
@@ -418,10 +411,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setMirrorGas",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setWatcherManager",
     data: BytesLike
   ): Result;
@@ -443,7 +432,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "MessageSent(bytes)": EventFragment;
     "MessageSent(bytes,bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
-    "MirrorGasUpdated(uint256,uint256)": EventFragment;
     "NewConnector(uint32,uint32,address,address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
@@ -464,7 +452,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     nameOrSignatureOrTopic: "MessageSent(bytes,bytes,address)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MirrorGasUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewConnector"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
@@ -558,18 +545,6 @@ export type MirrorConnectorUpdatedEvent = TypedEvent<
 
 export type MirrorConnectorUpdatedEventFilter =
   TypedEventFilter<MirrorConnectorUpdatedEvent>;
-
-export interface MirrorGasUpdatedEventObject {
-  previous: BigNumber;
-  current: BigNumber;
-}
-export type MirrorGasUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  MirrorGasUpdatedEventObject
->;
-
-export type MirrorGasUpdatedEventFilter =
-  TypedEventFilter<MirrorGasUpdatedEvent>;
 
 export interface NewConnectorEventObject {
   domain: number;
@@ -740,8 +715,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
 
-    mirrorGas(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     nonces(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -818,6 +791,7 @@ export interface PolygonSpokeConnector extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     send(
+      _encodedData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -833,11 +807,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setMirrorGas(
-      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -915,8 +884,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
-  mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
-
   nonces(
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -993,6 +960,7 @@ export interface PolygonSpokeConnector extends BaseContract {
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
   send(
+    _encodedData: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1008,11 +976,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setMirrorGas(
-    _mirrorGas: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1088,8 +1051,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
-    mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
-
     nonces(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1161,7 +1122,10 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
-    send(overrides?: CallOverrides): Promise<void>;
+    send(
+      _encodedData: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
@@ -1175,11 +1139,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setMirrorGas(
-      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1246,15 +1205,6 @@ export interface PolygonSpokeConnector extends BaseContract {
       previous?: null,
       current?: null
     ): MirrorConnectorUpdatedEventFilter;
-
-    "MirrorGasUpdated(uint256,uint256)"(
-      previous?: null,
-      current?: null
-    ): MirrorGasUpdatedEventFilter;
-    MirrorGasUpdated(
-      previous?: null,
-      current?: null
-    ): MirrorGasUpdatedEventFilter;
 
     "NewConnector(uint32,uint32,address,address,address)"(
       domain?: PromiseOrValue<BigNumberish> | null,
@@ -1369,8 +1319,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
 
-    mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
-
     nonces(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1447,6 +1395,7 @@ export interface PolygonSpokeConnector extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     send(
+      _encodedData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1462,11 +1411,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setMirrorGas(
-      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1545,8 +1489,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    mirrorGas(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     nonces(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1623,6 +1565,7 @@ export interface PolygonSpokeConnector extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     send(
+      _encodedData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1638,11 +1581,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMirrorGas(
-      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

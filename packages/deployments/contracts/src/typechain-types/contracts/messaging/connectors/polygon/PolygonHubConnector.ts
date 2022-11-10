@@ -41,7 +41,6 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
     "fxChildTunnel()": FunctionFragment;
     "fxRoot()": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
-    "mirrorGas()": FunctionFragment;
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "processedExits(bytes32)": FunctionFragment;
@@ -54,7 +53,6 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
     "sendMessage(bytes,bytes)": FunctionFragment;
     "setFxChildTunnel(address)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
-    "setMirrorGas(uint256)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
   };
 
@@ -71,7 +69,6 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
       | "fxChildTunnel"
       | "fxRoot"
       | "mirrorConnector"
-      | "mirrorGas"
       | "owner"
       | "processMessage"
       | "processedExits"
@@ -84,7 +81,6 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
       | "sendMessage"
       | "setFxChildTunnel"
       | "setMirrorConnector"
-      | "setMirrorGas"
       | "verifySender"
   ): FunctionFragment;
 
@@ -120,7 +116,6 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
     functionFragment: "mirrorConnector",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "mirrorGas", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processMessage",
@@ -161,10 +156,6 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setMirrorGas",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "verifySender",
     values: [PromiseOrValue<string>]
   ): string;
@@ -201,7 +192,6 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
     functionFragment: "mirrorConnector",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "mirrorGas", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processMessage",
@@ -242,10 +232,6 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setMirrorGas",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "verifySender",
     data: BytesLike
   ): Result;
@@ -254,7 +240,6 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes,bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
-    "MirrorGasUpdated(uint256,uint256)": EventFragment;
     "NewConnector(uint32,uint32,address,address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
@@ -263,7 +248,6 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MirrorGasUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewConnector"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
@@ -304,18 +288,6 @@ export type MirrorConnectorUpdatedEvent = TypedEvent<
 
 export type MirrorConnectorUpdatedEventFilter =
   TypedEventFilter<MirrorConnectorUpdatedEvent>;
-
-export interface MirrorGasUpdatedEventObject {
-  previous: BigNumber;
-  current: BigNumber;
-}
-export type MirrorGasUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  MirrorGasUpdatedEventObject
->;
-
-export type MirrorGasUpdatedEventFilter =
-  TypedEventFilter<MirrorGasUpdatedEvent>;
 
 export interface NewConnectorEventObject {
   domain: number;
@@ -405,8 +377,6 @@ export interface PolygonHubConnector extends BaseContract {
 
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
 
-    mirrorGas(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     processMessage(
@@ -455,11 +425,6 @@ export interface PolygonHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setMirrorGas(
-      _mirrorGas: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     verifySender(
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -489,8 +454,6 @@ export interface PolygonHubConnector extends BaseContract {
   fxRoot(overrides?: CallOverrides): Promise<string>;
 
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
-
-  mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -540,11 +503,6 @@ export interface PolygonHubConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setMirrorGas(
-    _mirrorGas: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   verifySender(
     _expected: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -572,8 +530,6 @@ export interface PolygonHubConnector extends BaseContract {
     fxRoot(overrides?: CallOverrides): Promise<string>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
-
-    mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -621,11 +577,6 @@ export interface PolygonHubConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setMirrorGas(
-      _mirrorGas: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     verifySender(
       _expected: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -658,15 +609,6 @@ export interface PolygonHubConnector extends BaseContract {
       previous?: null,
       current?: null
     ): MirrorConnectorUpdatedEventFilter;
-
-    "MirrorGasUpdated(uint256,uint256)"(
-      previous?: null,
-      current?: null
-    ): MirrorGasUpdatedEventFilter;
-    MirrorGasUpdated(
-      previous?: null,
-      current?: null
-    ): MirrorGasUpdatedEventFilter;
 
     "NewConnector(uint32,uint32,address,address,address)"(
       domain?: PromiseOrValue<BigNumberish> | null,
@@ -725,8 +667,6 @@ export interface PolygonHubConnector extends BaseContract {
 
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
 
-    mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
-
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     processMessage(
@@ -775,11 +715,6 @@ export interface PolygonHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setMirrorGas(
-      _mirrorGas: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     verifySender(
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -812,8 +747,6 @@ export interface PolygonHubConnector extends BaseContract {
     fxRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    mirrorGas(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -860,11 +793,6 @@ export interface PolygonHubConnector extends BaseContract {
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMirrorGas(
-      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

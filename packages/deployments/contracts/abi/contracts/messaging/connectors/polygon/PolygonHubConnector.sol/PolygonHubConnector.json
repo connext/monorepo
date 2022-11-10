@@ -1,5 +1,5 @@
 [
-  "constructor(uint32,uint32,address,address,address,uint256,address)",
+  "constructor(uint32,uint32,address,address,address,address)",
   "error ProposedOwnable__acceptProposedOwner_delayNotElapsed()",
   "error ProposedOwnable__onlyOwner_notOwner()",
   "error ProposedOwnable__onlyProposed_notProposedOwner()",
@@ -11,7 +11,6 @@
   "event MessageProcessed(bytes,address)",
   "event MessageSent(bytes,bytes,address)",
   "event MirrorConnectorUpdated(address,address)",
-  "event MirrorGasUpdated(uint256,uint256)",
   "event NewConnector(uint32 indexed,uint32 indexed,address,address,address)",
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
@@ -26,7 +25,6 @@
   "function fxChildTunnel() view returns (address)",
   "function fxRoot() view returns (address)",
   "function mirrorConnector() view returns (address)",
-  "function mirrorGas() view returns (uint256)",
   "function owner() view returns (address)",
   "function processMessage(bytes)",
   "function processedExits(bytes32) view returns (bool)",
@@ -39,6 +37,5 @@
   "function sendMessage(bytes,bytes) payable",
   "function setFxChildTunnel(address)",
   "function setMirrorConnector(address)",
-  "function setMirrorGas(uint256)",
   "function verifySender(address) returns (bool)"
 ]

@@ -25,72 +25,40 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../../../common";
+} from "../../../../common";
 
-export interface ConnectorInterface extends utils.Interface {
+export interface BaseOptimismInterface extends utils.Interface {
   functions: {
-    "AMB()": FunctionFragment;
-    "DOMAIN()": FunctionFragment;
-    "MIRROR_DOMAIN()": FunctionFragment;
-    "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
-    "mirrorConnector()": FunctionFragment;
     "owner()": FunctionFragment;
-    "processMessage(bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "setMirrorConnector(address)": FunctionFragment;
-    "verifySender(address)": FunctionFragment;
+    "setGasCap(uint256)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "AMB"
-      | "DOMAIN"
-      | "MIRROR_DOMAIN"
-      | "ROOT_MANAGER"
       | "acceptProposedOwner"
       | "delay"
-      | "mirrorConnector"
       | "owner"
-      | "processMessage"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
       | "renounceOwnership"
       | "renounced"
-      | "setMirrorConnector"
-      | "verifySender"
+      | "setGasCap"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
-  encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "MIRROR_DOMAIN",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ROOT_MANAGER",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "mirrorConnector",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "processMessage",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
     values: [PromiseOrValue<string>]
@@ -106,38 +74,16 @@ export interface ConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "setMirrorConnector",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "verifySender",
-    values: [PromiseOrValue<string>]
+    functionFragment: "setGasCap",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "MIRROR_DOMAIN",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ROOT_MANAGER",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "mirrorConnector",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "processMessage",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
@@ -152,81 +98,29 @@ export interface ConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setMirrorConnector",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "verifySender",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
 
   events: {
-    "MessageProcessed(bytes,address)": EventFragment;
-    "MessageSent(bytes,bytes,address)": EventFragment;
-    "MirrorConnectorUpdated(address,address)": EventFragment;
-    "NewConnector(uint32,uint32,address,address,address)": EventFragment;
+    "GasCapUpdated(uint256,uint256)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewConnector"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GasCapUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
 
-export interface MessageProcessedEventObject {
-  data: string;
-  caller: string;
+export interface GasCapUpdatedEventObject {
+  _previous: BigNumber;
+  _updated: BigNumber;
 }
-export type MessageProcessedEvent = TypedEvent<
-  [string, string],
-  MessageProcessedEventObject
+export type GasCapUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  GasCapUpdatedEventObject
 >;
 
-export type MessageProcessedEventFilter =
-  TypedEventFilter<MessageProcessedEvent>;
-
-export interface MessageSentEventObject {
-  data: string;
-  encodedData: string;
-  caller: string;
-}
-export type MessageSentEvent = TypedEvent<
-  [string, string, string],
-  MessageSentEventObject
->;
-
-export type MessageSentEventFilter = TypedEventFilter<MessageSentEvent>;
-
-export interface MirrorConnectorUpdatedEventObject {
-  previous: string;
-  current: string;
-}
-export type MirrorConnectorUpdatedEvent = TypedEvent<
-  [string, string],
-  MirrorConnectorUpdatedEventObject
->;
-
-export type MirrorConnectorUpdatedEventFilter =
-  TypedEventFilter<MirrorConnectorUpdatedEvent>;
-
-export interface NewConnectorEventObject {
-  domain: number;
-  mirrorDomain: number;
-  amb: string;
-  rootManager: string;
-  mirrorConnector: string;
-}
-export type NewConnectorEvent = TypedEvent<
-  [number, number, string, string, string],
-  NewConnectorEventObject
->;
-
-export type NewConnectorEventFilter = TypedEventFilter<NewConnectorEvent>;
+export type GasCapUpdatedEventFilter = TypedEventFilter<GasCapUpdatedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -251,12 +145,12 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
-export interface Connector extends BaseContract {
+export interface BaseOptimism extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: ConnectorInterface;
+  interface: BaseOptimismInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -278,28 +172,13 @@ export interface Connector extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    AMB(overrides?: CallOverrides): Promise<[string]>;
-
-    DOMAIN(overrides?: CallOverrides): Promise<[number]>;
-
-    MIRROR_DOMAIN(overrides?: CallOverrides): Promise<[number]>;
-
-    ROOT_MANAGER(overrides?: CallOverrides): Promise<[string]>;
-
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
-
     owner(overrides?: CallOverrides): Promise<[string]>;
-
-    processMessage(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -316,24 +195,11 @@ export interface Connector extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
-    setMirrorConnector(
-      _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    verifySender(
-      _expected: PromiseOrValue<string>,
+    setGasCap(
+      _gasCap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
-
-  AMB(overrides?: CallOverrides): Promise<string>;
-
-  DOMAIN(overrides?: CallOverrides): Promise<number>;
-
-  MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
-
-  ROOT_MANAGER(overrides?: CallOverrides): Promise<string>;
 
   acceptProposedOwner(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -341,14 +207,7 @@ export interface Connector extends BaseContract {
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-  mirrorConnector(overrides?: CallOverrides): Promise<string>;
-
   owner(overrides?: CallOverrides): Promise<string>;
-
-  processMessage(
-    _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
@@ -365,37 +224,17 @@ export interface Connector extends BaseContract {
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
-  setMirrorConnector(
-    _mirrorConnector: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  verifySender(
-    _expected: PromiseOrValue<string>,
+  setGasCap(
+    _gasCap: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    AMB(overrides?: CallOverrides): Promise<string>;
-
-    DOMAIN(overrides?: CallOverrides): Promise<number>;
-
-    MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
-
-    ROOT_MANAGER(overrides?: CallOverrides): Promise<string>;
-
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-    mirrorConnector(overrides?: CallOverrides): Promise<string>;
-
     owner(overrides?: CallOverrides): Promise<string>;
-
-    processMessage(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -410,58 +249,18 @@ export interface Connector extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
-    setMirrorConnector(
-      _mirrorConnector: PromiseOrValue<string>,
+    setGasCap(
+      _gasCap: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    verifySender(
-      _expected: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
   };
 
   filters: {
-    "MessageProcessed(bytes,address)"(
-      data?: null,
-      caller?: null
-    ): MessageProcessedEventFilter;
-    MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
-
-    "MessageSent(bytes,bytes,address)"(
-      data?: null,
-      encodedData?: null,
-      caller?: null
-    ): MessageSentEventFilter;
-    MessageSent(
-      data?: null,
-      encodedData?: null,
-      caller?: null
-    ): MessageSentEventFilter;
-
-    "MirrorConnectorUpdated(address,address)"(
-      previous?: null,
-      current?: null
-    ): MirrorConnectorUpdatedEventFilter;
-    MirrorConnectorUpdated(
-      previous?: null,
-      current?: null
-    ): MirrorConnectorUpdatedEventFilter;
-
-    "NewConnector(uint32,uint32,address,address,address)"(
-      domain?: PromiseOrValue<BigNumberish> | null,
-      mirrorDomain?: PromiseOrValue<BigNumberish> | null,
-      amb?: null,
-      rootManager?: null,
-      mirrorConnector?: null
-    ): NewConnectorEventFilter;
-    NewConnector(
-      domain?: PromiseOrValue<BigNumberish> | null,
-      mirrorDomain?: PromiseOrValue<BigNumberish> | null,
-      amb?: null,
-      rootManager?: null,
-      mirrorConnector?: null
-    ): NewConnectorEventFilter;
+    "GasCapUpdated(uint256,uint256)"(
+      _previous?: null,
+      _updated?: null
+    ): GasCapUpdatedEventFilter;
+    GasCapUpdated(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
@@ -481,28 +280,13 @@ export interface Connector extends BaseContract {
   };
 
   estimateGas: {
-    AMB(overrides?: CallOverrides): Promise<BigNumber>;
-
-    DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
-
-    MIRROR_DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
-
-    ROOT_MANAGER(overrides?: CallOverrides): Promise<BigNumber>;
-
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-    mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
-
     owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    processMessage(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -519,40 +303,20 @@ export interface Connector extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
-    setMirrorConnector(
-      _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    verifySender(
-      _expected: PromiseOrValue<string>,
+    setGasCap(
+      _gasCap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    AMB(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    MIRROR_DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    ROOT_MANAGER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    processMessage(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -569,13 +333,8 @@ export interface Connector extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    setMirrorConnector(
-      _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    verifySender(
-      _expected: PromiseOrValue<string>,
+    setGasCap(
+      _gasCap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
