@@ -505,6 +505,44 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     vm.stopPrank();
   }
 
+  function test_SwapAdminFacet__removeSwap_shouldDeleteNestedArrays() public {
+    vm.startPrank(_owner);
+
+    this.setSwapAdminFee(_canonicalKey, 1e8);
+    utils_swapExact(1e17, _local, _adopted, 0);
+    utils_swapExact(1e17, _adopted, _local, 0);
+
+    vm.expectEmit(true, false, false, true);
+    emit SwapRemoved(_canonicalKey, _owner);
+
+    utils_removeAllLiquidity();
+
+    this.removeSwap(_canonicalKey);
+
+    SwapUtils.Swap memory entry = SwapUtils.Swap({
+      key: _canonicalKey,
+      initialA: 0,
+      futureA: 0,
+      swapFee: 0,
+      adminFee: 0,
+      lpToken: LPToken(address(0)),
+      pooledTokens: new IERC20[](2),
+      tokenPrecisionMultipliers: new uint256[](2),
+      balances: new uint256[](2),
+      adminFees: new uint256[](2),
+      initialATime: 0,
+      futureATime: 0
+    });
+    s.swapStorages[_canonicalKey] = entry;
+
+    assert(address(s.swapStorages[_canonicalKey].pooledTokens[0]) == address(0));
+    assert(address(s.swapStorages[_canonicalKey].pooledTokens[1]) == address(0));
+    assert(s.swapStorages[_canonicalKey].balances[0] == 0);
+    assert(s.swapStorages[_canonicalKey].balances[1] == 0);
+
+    vm.stopPrank();
+  }
+
   // function test_SwapAdminFacet__withdrawSwapAdminFees
   function test_SwapAdminFacet__withdrawSwapAdminFess_failIfNotOwner() public {
     assertTrue(_owner != address(1));
