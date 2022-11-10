@@ -51,6 +51,11 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "RateLimited__rateLimited_messageSendRateExceeded",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -302,6 +307,25 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
+        name: "updater",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "newRateLimit",
+        type: "uint256",
+      },
+    ],
+    name: "SendRateLimitUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
         name: "sender",
         type: "address",
       },
@@ -541,6 +565,19 @@ const _abi = [
         internalType: "bool",
         name: "",
         type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "lastSentBlock",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -811,6 +848,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "rateLimitBlocks",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes32",
@@ -872,6 +922,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    name: "sentMessageRoots",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "_delayBlocks",
         type: "uint256",
@@ -891,6 +960,19 @@ const _abi = [
       },
     ],
     name: "setMirrorConnector",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_rateLimit",
+        type: "uint256",
+      },
+    ],
+    name: "setRateLimitBlocks",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

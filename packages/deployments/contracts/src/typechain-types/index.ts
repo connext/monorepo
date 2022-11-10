@@ -224,6 +224,8 @@ export type { ICheckpointManager } from "./contracts/messaging/connectors/polygo
 export { ICheckpointManager__factory } from "./factories/contracts/messaging/connectors/polygon/tunnel/FxBaseRootTunnel.sol/ICheckpointManager__factory";
 export type { IFxStateSender } from "./contracts/messaging/connectors/polygon/tunnel/FxBaseRootTunnel.sol/IFxStateSender";
 export { IFxStateSender__factory } from "./factories/contracts/messaging/connectors/polygon/tunnel/FxBaseRootTunnel.sol/IFxStateSender__factory";
+export type { SendOutboundRootResolver } from "./contracts/messaging/connectors/SendOutboundRootResolver";
+export { SendOutboundRootResolver__factory } from "./factories/contracts/messaging/connectors/SendOutboundRootResolver__factory";
 export type { SpokeConnector } from "./contracts/messaging/connectors/SpokeConnector";
 export { SpokeConnector__factory } from "./factories/contracts/messaging/connectors/SpokeConnector__factory";
 export type { ZkSyncHubConnector } from "./contracts/messaging/connectors/zksync/ZkSyncHubConnector";
@@ -262,6 +264,8 @@ export type { DomainIndexer } from "./contracts/messaging/libraries/DomainIndexe
 export { DomainIndexer__factory } from "./factories/contracts/messaging/libraries/DomainIndexer__factory";
 export type { MerkleLib } from "./contracts/messaging/libraries/Merkle.sol/MerkleLib";
 export { MerkleLib__factory } from "./factories/contracts/messaging/libraries/Merkle.sol/MerkleLib__factory";
+export type { RateLimited } from "./contracts/messaging/libraries/RateLimited";
+export { RateLimited__factory } from "./factories/contracts/messaging/libraries/RateLimited__factory";
 export type { MerkleTreeManager } from "./contracts/messaging/Merkle.sol/MerkleTreeManager";
 export { MerkleTreeManager__factory } from "./factories/contracts/messaging/Merkle.sol/MerkleTreeManager__factory";
 export type { RootManager } from "./contracts/messaging/RootManager";
