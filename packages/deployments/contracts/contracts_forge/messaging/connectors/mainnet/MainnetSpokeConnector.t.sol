@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 import {MainnetSpokeConnector} from "../../../../contracts/messaging/connectors/mainnet/MainnetSpokeConnector.sol";
 import {SpokeConnector} from "../../../../contracts/messaging/connectors/SpokeConnector.sol";
-import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/MerkleTreeManager.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 

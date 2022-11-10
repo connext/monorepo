@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {RootManager} from "../../contracts/messaging/RootManager.sol";
 import {IHubConnector} from "../../contracts/messaging/interfaces/IHubConnector.sol";
-import {MerkleTreeManager} from "../../contracts/messaging/Merkle.sol";
+import {MerkleTreeManager} from "../../contracts/messaging/MerkleTreeManager.sol";
 import {WatcherManager} from "../../contracts/messaging/WatcherManager.sol";
 
 import "../utils/ConnectorHelper.sol";

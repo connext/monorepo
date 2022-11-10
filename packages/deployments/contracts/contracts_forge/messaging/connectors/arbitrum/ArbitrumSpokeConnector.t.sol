@@ -7,7 +7,7 @@ import {IArbSys as ArbitrumL2_Bridge} from "@openzeppelin/contracts/vendor/arbit
 import "@openzeppelin/contracts/crosschain/errors.sol";
 
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
-import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/MerkleTreeManager.sol";
 
 import {ArbitrumSpokeConnector} from "../../../../contracts/messaging/connectors/arbitrum/ArbitrumSpokeConnector.sol";
 
