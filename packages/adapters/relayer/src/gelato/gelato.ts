@@ -10,7 +10,6 @@ import {
   RelayRequestOptions,
   GELATO_RELAYER_ADDRESS,
 } from "@connext/nxtp-utils";
-import axios from "axios";
 import interval from "interval-promise";
 
 import {
@@ -20,7 +19,7 @@ import {
   UnableToGetTransactionHash,
 } from "../errors";
 import { ChainReader } from "../../../txservice/dist";
-import { gelatoRelayWithSponsoredCall } from "../mockable";
+import { gelatoRelayWithSponsoredCall, axiosGet } from "../mockable";
 
 import { url } from ".";
 
@@ -39,7 +38,7 @@ export const getGelatoRelayerAddress = async (_chainId: number, _logger?: Logger
 export const getGelatoRelayChains = async (logger?: Logger): Promise<string[]> => {
   let result = [];
   try {
-    const res = await axios.get(`${url}/relays/`);
+    const res = await axiosGet(`${url}/relays/`);
     result = res.data.relays;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getGelatoRelayChains", undefined, undefined, jsonifyError(error as Error));
@@ -59,7 +58,7 @@ export const isPaymentTokenSupported = async (chainId: number, token: string): P
 export const getPaymentTokens = async (chainId: number, logger?: Logger): Promise<string[]> => {
   let result = [];
   try {
-    const res = await axios.get(`${url}/oracles/${chainId}/paymentTokens/`);
+    const res = await axiosGet(`${url}/oracles/${chainId}/paymentTokens/`);
     result = res.data.paymentTokens;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getPaymentTokens", undefined, undefined, jsonifyError(error as Error));
@@ -76,7 +75,7 @@ export const getPaymentTokens = async (chainId: number, logger?: Logger): Promis
 export const getTaskStatus = async (taskId: string): Promise<RelayerTaskStatus> => {
   try {
     const apiEndpoint = `${url}/tasks/status/${taskId}`;
-    const res = await axios.get(apiEndpoint);
+    const res = await axiosGet(apiEndpoint);
     return res.data.task?.taskState ?? RelayerTaskStatus.NotFound;
   } catch (error: unknown) {
     throw new UnableToGetTaskStatus(taskId, { err: jsonifyError(error as Error) });
@@ -139,7 +138,7 @@ export const getTransactionHash = async (taskId: string): Promise<string> => {
   let result;
   try {
     const apiEndpoint = `${url}/tasks/status/${taskId}`;
-    const res = await axios.get(apiEndpoint);
+    const res = await axiosGet(apiEndpoint);
     result = res.data.data[0]?.transactionHash;
   } catch (error: unknown) {
     throw new UnableToGetTransactionHash(taskId, { err: jsonifyError(error as Error) });

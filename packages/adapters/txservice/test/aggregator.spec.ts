@@ -1,9 +1,9 @@
-import axios from "axios";
 import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
 import { getRandomAddress, getRandomBytes32, expect, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
 import { RpcProviderAggregator } from "../src/aggregator";
+import * as Mockable from "../src/mockable";
 import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 import {
   OnchainTransaction,
@@ -461,7 +461,7 @@ describe("RpcProviderAggregator", () => {
       const testGasPriceGwei = 42;
       const testGasPrice = utils.parseUnits(testGasPriceGwei.toString(), "gwei") as BigNumber;
       (chainProvider as any).config.gasStations = ["...fakeaddy..."];
-      const axiosStub = Sinon.stub(axios, "get").resolves({ data: { fast: testGasPriceGwei.toString() } });
+      const axiosStub = Sinon.stub(Mockable, "axiosGet").resolves({ data: { fast: testGasPriceGwei.toString() } });
 
       const result = await (chainProvider as any).getGasPrice();
 
@@ -474,7 +474,7 @@ describe("RpcProviderAggregator", () => {
       const testGasPrice = utils.parseUnits("42", "gwei") as BigNumber;
       (chainProvider as any).config.gasStations = ["...fakeaddy..."];
       coreSyncProvider.getGasPrice.resolves(testGasPrice);
-      const axiosStub = Sinon.stub(axios, "get").rejects(new Error("test"));
+      const axiosStub = Sinon.stub(Mockable, "axiosGet").rejects(new Error("test"));
       const expectedGas = testGasPrice
         .add(testGasPrice.mul((chainProvider as any).config.gasPriceInitialBoostPercent).div(100))
         .toString();
@@ -490,7 +490,7 @@ describe("RpcProviderAggregator", () => {
       const testGasPrice = utils.parseUnits("42", "gwei") as BigNumber;
       (chainProvider as any).config.gasStations = ["...fakeaddy..."];
       coreSyncProvider.getGasPrice.resolves(testGasPrice);
-      const axiosStub = Sinon.stub(axios, "get").resolves({ data: "bad data, so sad! :(" });
+      const axiosStub = Sinon.stub(Mockable, "axiosGet").resolves({ data: "bad data, so sad! :(" });
 
       const result = await (chainProvider as any).getGasPrice();
 

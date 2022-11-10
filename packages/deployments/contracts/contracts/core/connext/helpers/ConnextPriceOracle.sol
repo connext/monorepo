@@ -42,6 +42,13 @@ interface AggregatorV3Interface {
     );
 }
 
+/**
+ * @title ConnextPriceOracle
+ * @notice Simple interface for querying a variety of price feeds
+ *
+ * @dev If ownership is renounced, the direct price, aggregators, and price oracles
+ * can no longer be updated
+ */
 contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
   using SafeERC20 for IERC20Extended;
 
@@ -55,7 +62,6 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
     NA,
     DIRECT,
     CHAINLINK,
-    DEX,
     V1_ORACLE
   }
 

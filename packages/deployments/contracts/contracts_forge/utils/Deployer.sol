@@ -74,8 +74,8 @@ contract Deployer {
     tokenFacetSelectors[6] = TokenFacet.getLocalAndAdoptedToken.selector;
     tokenFacetSelectors[7] = getSelector("approvedAssets(bytes32)");
     tokenFacetSelectors[8] = getSelector("approvedAssets(tuple(uint32,bytes32))");
-    tokenFacetSelectors[9] = getSelector("adoptedToLocalPools(bytes32)");
-    tokenFacetSelectors[10] = getSelector("adoptedToLocalPools(tuple(uint32,bytes32))");
+    tokenFacetSelectors[9] = getSelector("adoptedToLocalExternalPools(bytes32)");
+    tokenFacetSelectors[10] = getSelector("adoptedToLocalExternalPools(tuple(uint32,bytes32))");
     tokenFacetSelectors[11] = TokenFacet.setupAsset.selector;
     tokenFacetSelectors[12] = TokenFacet.setupAssetWithDeployedRepresentation.selector;
     tokenFacetSelectors[13] = TokenFacet.addStableSwapPool.selector;
@@ -137,7 +137,7 @@ contract Deployer {
     pure
     returns (IDiamondCut.FacetCut memory)
   {
-    bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](18);
+    bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](16);
     proposedOwnableFacetSelectors[0] = ProposedOwnableFacet.owner.selector;
     proposedOwnableFacetSelectors[1] = ProposedOwnableFacet.routerWhitelistRemoved.selector;
     proposedOwnableFacetSelectors[2] = ProposedOwnableFacet.assetWhitelistRemoved.selector;
@@ -150,12 +150,10 @@ contract Deployer {
     proposedOwnableFacetSelectors[9] = ProposedOwnableFacet.removeRouterWhitelist.selector;
     proposedOwnableFacetSelectors[10] = ProposedOwnableFacet.proposeAssetWhitelistRemoval.selector;
     proposedOwnableFacetSelectors[11] = ProposedOwnableFacet.removeAssetWhitelist.selector;
-    proposedOwnableFacetSelectors[12] = ProposedOwnableFacet.renounced.selector;
-    proposedOwnableFacetSelectors[13] = ProposedOwnableFacet.proposeNewOwner.selector;
-    proposedOwnableFacetSelectors[14] = ProposedOwnableFacet.renounceOwnership.selector;
-    proposedOwnableFacetSelectors[15] = ProposedOwnableFacet.acceptProposedOwner.selector;
-    proposedOwnableFacetSelectors[16] = ProposedOwnableFacet.pause.selector;
-    proposedOwnableFacetSelectors[17] = ProposedOwnableFacet.unpause.selector;
+    proposedOwnableFacetSelectors[12] = ProposedOwnableFacet.proposeNewOwner.selector;
+    proposedOwnableFacetSelectors[13] = ProposedOwnableFacet.acceptProposedOwner.selector;
+    proposedOwnableFacetSelectors[14] = ProposedOwnableFacet.pause.selector;
+    proposedOwnableFacetSelectors[15] = ProposedOwnableFacet.unpause.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _proposedOwnableFacet,

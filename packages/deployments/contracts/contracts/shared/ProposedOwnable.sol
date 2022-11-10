@@ -190,5 +190,5 @@ abstract contract ProposedOwnableUpgradeable is Initializable, ProposedOwnable {
    * variables without shifting down storage in the inheritance chain.
    * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
    */
-  uint256[49] private __GAP;
+  uint256[47] private __GAP;
 }
