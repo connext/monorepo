@@ -172,11 +172,7 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function removeAssetWhitelist() external;
 
-  function renounced() external view returns (bool);
-
   function proposeNewOwner(address newlyProposed) external;
-
-  function renounceOwnership() external;
 
   function acceptProposedOwner() external;
 

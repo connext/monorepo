@@ -10,7 +10,6 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {ExcessivelySafeCall} from "../../../shared/libraries/ExcessivelySafeCall.sol";
 import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
-import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
 
 import {IOutbox} from "../../../messaging/interfaces/IOutbox.sol";
 import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager.sol";
