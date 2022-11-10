@@ -16,10 +16,11 @@ contract WatcherClient is ProposedOwnable, Pausable {
   event WatcherManagerChanged(address watcherManager);
 
   // ============ Properties ============
-  WatcherManager watcherManager;
+  WatcherManager public watcherManager;
 
   // ============ Constructor ============
-  constructor(address _watcherManager) {
+  constructor(address _watcherManager) ProposedOwnable() {
+    _setOwner(msg.sender);
     watcherManager = WatcherManager(_watcherManager);
   }
 
@@ -35,6 +36,7 @@ contract WatcherClient is ProposedOwnable, Pausable {
    */
   function setWatcherManager(address _watcherManager) external onlyOwner {
     require(_watcherManager != address(watcherManager), "already watcher manager");
+    watcherManager = WatcherManager(_watcherManager);
     emit WatcherManagerChanged(_watcherManager);
   }
 
