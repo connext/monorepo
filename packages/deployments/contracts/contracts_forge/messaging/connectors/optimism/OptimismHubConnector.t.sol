@@ -84,7 +84,7 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     vm.mockCall(_amb, abi.encodeWithSelector(OptimismAmb.sendMessage.selector), abi.encode());
 
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, bytes(""), _rootManager);
 
     vm.expectCall(
       _amb,
@@ -97,7 +97,7 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     );
 
     vm.prank(_rootManager);
-    OptimismHubConnector(_l1Connector).sendMessage(_data);
+    OptimismHubConnector(_l1Connector).sendMessage(_data, bytes(""));
   }
 
   function test_OptimismHubConnector__sendMessage_works_fuzz(bytes32 data) public {
@@ -106,7 +106,7 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     vm.mockCall(_amb, abi.encodeWithSelector(OptimismAmb.sendMessage.selector), abi.encode());
 
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, bytes(""), _rootManager);
 
     vm.expectCall(
       _amb,
@@ -119,7 +119,7 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     );
 
     vm.prank(_rootManager);
-    OptimismHubConnector(_l1Connector).sendMessage(_data);
+    OptimismHubConnector(_l1Connector).sendMessage(_data, bytes(""));
   }
 
   // ============ OptimismHubConnector.processMessage ============

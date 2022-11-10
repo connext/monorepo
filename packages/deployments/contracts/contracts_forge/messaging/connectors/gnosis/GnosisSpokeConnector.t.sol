@@ -75,7 +75,7 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, bytes(""), _rootManager);
 
     // should call the requireToPassMessage function of GnosisAMB
     vm.expectCall(

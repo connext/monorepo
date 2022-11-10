@@ -12,7 +12,7 @@ contract ConnectorHelper is ForgeHelper {
   event AggregateRootUpdated(bytes32 current, bytes32 previous);
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
   event Process(bytes32 leaf, bool success, bytes returnData);
-  event MessageSent(bytes data, address caller);
+  event MessageSent(bytes data, bytes encodedData, address caller);
   event MessageProcessed(bytes data, address caller);
   event MirrorConnectorUpdated(address previous, address current);
 

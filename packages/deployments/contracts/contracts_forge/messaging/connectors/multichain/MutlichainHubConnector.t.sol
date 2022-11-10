@@ -58,13 +58,13 @@ contract MultichainHubConnectorTest is ConnectorHelper {
 
     // Check: correct event?
     vm.expectEmit(false, false, false, true, _l1Connector);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, bytes(""), _rootManager);
 
     // Check: call to multichain anyCall?
     vm.expectCall(_amb, abi.encodeCall(Multichain.anyCall, (_amb, _data, address(0), _chainIdL2, 0)));
 
     vm.prank(_rootManager);
-    MultichainHubConnector(_l1Connector).sendMessage(_data);
+    MultichainHubConnector(_l1Connector).sendMessage(_data, bytes(""));
   }
 
   // Access control
@@ -77,7 +77,7 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     vm.expectRevert(abi.encodePacked("!rootManager"));
 
     vm.prank(_nonRootManager);
-    MultichainHubConnector(_l1Connector).sendMessage(_data);
+    MultichainHubConnector(_l1Connector).sendMessage(_data, bytes(""));
   }
 
   // ============ processMessage ============

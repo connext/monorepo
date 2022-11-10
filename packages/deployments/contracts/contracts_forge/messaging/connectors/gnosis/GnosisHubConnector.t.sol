@@ -58,7 +58,7 @@ contract GnosisHubConnectorTest is ConnectorHelper {
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, bytes(""), _rootManager);
 
     // should call the requireToPassMessage function of GnosisAMB
     vm.expectCall(
@@ -72,7 +72,7 @@ contract GnosisHubConnectorTest is ConnectorHelper {
     );
 
     vm.prank(_rootManager);
-    GnosisHubConnector(_l1Connector).sendMessage(_data);
+    GnosisHubConnector(_l1Connector).sendMessage(_data, bytes(""));
   }
 
   function test_GnosisHubConnector__sendMessage_shouldWork_fuzz(bytes32 data) public {
@@ -84,7 +84,7 @@ contract GnosisHubConnectorTest is ConnectorHelper {
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, bytes(""), _rootManager);
 
     // should call the requireToPassMessage function of GnosisAMB
     vm.expectCall(
@@ -98,7 +98,7 @@ contract GnosisHubConnectorTest is ConnectorHelper {
     );
 
     vm.prank(_rootManager);
-    GnosisHubConnector(_l1Connector).sendMessage(_data);
+    GnosisHubConnector(_l1Connector).sendMessage(_data, bytes(""));
   }
 
   // ============ GnosisHubConnector._processMessage ============

@@ -257,8 +257,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    */
   function send() external whenNotPaused {
     bytes memory _data = abi.encodePacked(MERKLE.root());
-    _sendMessage(_data);
-    emit MessageSent(_data, msg.sender);
+    _sendMessage(_data, bytes(""));
+    emit MessageSent(_data, bytes(""), msg.sender);
   }
 
   /**

@@ -28,6 +28,7 @@ contract RootManagerTest is ForgeHelper {
   uint32[] _domains;
   address[] _connectors;
   uint256[] _fees;
+  bytes[] _encodedData;
 
   address owner = address(1);
   address watcherManager = address(2);
@@ -37,10 +38,12 @@ contract RootManagerTest is ForgeHelper {
     _domains.push(1000);
     _connectors.push(address(1000));
     _fees.push(0);
+    _encodedData.push(bytes(""));
 
     _domains.push(1001);
     _connectors.push(address(1001));
     _fees.push(0);
+    _encodedData.push(bytes(""));
 
     _merkle = address(new MerkleTreeManager());
     MerkleTreeManager(_merkle).initialize(address(_rootManager));
@@ -68,6 +71,8 @@ contract RootManagerTest is ForgeHelper {
       uint32 domain = uint32(1000 + i);
       _domains.push(domain);
       _connectors.push(address(bytes20(uint160(domain))));
+      _fees.push(0);
+      _encodedData.push(bytes(""));
     }
 
     for (uint256 i; i < _domains.length; i++) {
@@ -226,7 +231,7 @@ contract RootManagerTest is ForgeHelper {
     // Fast forward delayBlocks number of blocks so all of the inbound roots are considered verified.
     vm.roll(block.number + _rootManager.delayBlocks());
 
-    _rootManager.propagate(_domains, _connectors, _fees);
+    _rootManager.propagate(_domains, _connectors, _fees, _encodedData);
   }
 
   function test_RootManager__propagate_shouldSendToAllSpokes(bytes32 inbound) public {
@@ -237,7 +242,7 @@ contract RootManagerTest is ForgeHelper {
     // Fast forward delayBlocks number of blocks so all of the inbound roots are considered verified.
     vm.roll(block.number + _rootManager.delayBlocks());
 
-    _rootManager.propagate(_domains, _connectors, _fees);
+    _rootManager.propagate(_domains, _connectors, _fees, _encodedData);
     assertEq(_rootManager.getPendingInboundRootsCount(), 0);
   }
 
@@ -248,6 +253,6 @@ contract RootManagerTest is ForgeHelper {
     // Delay blocks have not been surpassed: the given root should not be included, and this call should revert
     // because an empty propagate is useless.
     vm.expectRevert(bytes("no verified roots"));
-    _rootManager.propagate(_domains, _connectors, _fees);
+    _rootManager.propagate(_domains, _connectors, _fees, _encodedData);
   }
 }

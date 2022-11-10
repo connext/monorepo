@@ -62,13 +62,13 @@ contract PolygonHubConnectorTest is ConnectorHelper {
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, bytes(""), _rootManager);
 
     // should call send contract transaction
     vm.expectCall(_amb, abi.encodeWithSelector(IFxStateSender.sendMessageToChild.selector, _l2Connector, _data));
 
     vm.prank(_rootManager);
-    PolygonHubConnector(_l1Connector).sendMessage(_data);
+    PolygonHubConnector(_l1Connector).sendMessage(_data, bytes(""));
   }
 
   function test_PolygonHubConnector__sendMessage_works_fuzz(bytes32 data) public {
@@ -82,13 +82,13 @@ contract PolygonHubConnectorTest is ConnectorHelper {
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, bytes(""), _rootManager);
 
     // should call send contract transaction
     vm.expectCall(_amb, abi.encodeWithSelector(IFxStateSender.sendMessageToChild.selector, _l2Connector, _data));
 
     vm.prank(_rootManager);
-    PolygonHubConnector(_l1Connector).sendMessage(_data);
+    PolygonHubConnector(_l1Connector).sendMessage(_data, bytes(""));
   }
 
   // ============ PolygonHubConnector.processMessage ============

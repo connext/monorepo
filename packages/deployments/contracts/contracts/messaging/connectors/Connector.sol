@@ -166,8 +166,10 @@ abstract contract Connector is ProposedOwnable, IConnector {
   /**
    * @notice This function is used by the Connext contract on the l2 domain to send a message to the
    * l1 domain (i.e. called by Connext on optimism to send a message to mainnet with roots)
+   * @param _data The contents of the message
+   * @param _encodedData Data used to send the message; specific to connector
    */
-  function _sendMessage(bytes memory _data) internal virtual;
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal virtual;
 
   /**
    * @notice This function is used by the AMBs to handle incoming messages. Should store the latest

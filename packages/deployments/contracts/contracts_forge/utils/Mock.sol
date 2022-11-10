@@ -258,7 +258,7 @@ contract MockSpokeConnector is SpokeConnector {
     updatesAggregate = _updatesAggregate;
   }
 
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     lastOutbound = keccak256(_data);
   }
 
@@ -305,7 +305,7 @@ contract MockHubConnector is HubConnector {
     return verified;
   }
 
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     lastOutbound = keccak256(_data);
   }
 

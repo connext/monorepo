@@ -44,7 +44,9 @@ contract ArbitrumSpokeConnector is SpokeConnector {
     return _expected == LibArbitrumL2.crossChainSender(AMB);
   }
 
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should not include specialized calldata
+    require(_encodedData.length == 0, "!data length");
     // Get the calldata
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
     // Send to L1

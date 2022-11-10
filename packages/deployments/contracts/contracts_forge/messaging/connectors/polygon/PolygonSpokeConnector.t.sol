@@ -81,7 +81,7 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, bytes(""), _rootManager);
 
     vm.prank(_rootManager);
     PolygonSpokeConnector(_l2Connector).send();

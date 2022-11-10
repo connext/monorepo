@@ -58,10 +58,10 @@ contract MainnetSpokeConnectorTest is ConnectorHelper {
     bytes memory _data = abi.encode(MainnetSpokeConnector(_l1Connector).outboundRoot());
 
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, bytes(""), _rootManager);
 
     vm.prank(_rootManager);
-    MainnetSpokeConnector(_l1Connector).sendMessage(_data);
+    MainnetSpokeConnector(_l1Connector).sendMessage(_data, bytes(""));
   }
 
   function test_MainnetSpokeConnector__sendMessage_failsIfCallerNotRootManager() public {
@@ -70,7 +70,7 @@ contract MainnetSpokeConnectorTest is ConnectorHelper {
     vm.expectRevert(bytes("!rootManager"));
 
     // called as NOT root manager
-    MainnetSpokeConnector(_l1Connector).sendMessage(_data);
+    MainnetSpokeConnector(_l1Connector).sendMessage(_data, bytes(""));
   }
 
   function test_MainnetSpokeConnector__sendMessage_failsIfNot32Bytes() public {
@@ -80,6 +80,6 @@ contract MainnetSpokeConnectorTest is ConnectorHelper {
     vm.expectRevert(bytes("!length"));
 
     vm.prank(_rootManager);
-    MainnetSpokeConnector(_l1Connector).sendMessage(_data);
+    MainnetSpokeConnector(_l1Connector).sendMessage(_data, bytes(""));
   }
 }

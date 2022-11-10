@@ -54,7 +54,9 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
     receiveAggregateRoot(bytes32(_data));
   }
 
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should not include specialized calldata
+    require(_encodedData.length == 0, "!data length");
     _sendMessage(AMB, _data);
   }
 

@@ -51,7 +51,9 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
   /**
    * @dev Messaging uses this function to send data to mainnet via amb
    */
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should not include specialized calldata
+    require(_encodedData.length == 0, "!data length");
     // send the message to the l1 connector by calling `processMessage`
     GnosisAmb(AMB).requireToPassMessage(
       mirrorConnector,

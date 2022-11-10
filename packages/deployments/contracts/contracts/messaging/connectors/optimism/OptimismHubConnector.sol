@@ -52,7 +52,9 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
   /**
    * @dev Sends `aggregateRoot` to messaging on l2
    */
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should not include specialized calldata
+    require(_encodedData.length == 0, "!data length");
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
     // Get the calldata

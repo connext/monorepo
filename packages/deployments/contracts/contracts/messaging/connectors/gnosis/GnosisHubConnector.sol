@@ -31,9 +31,11 @@ contract GnosisHubConnector is HubConnector, GnosisBase {
   /**
    * @dev Messaging uses this function to send data to l2 via amb
    */
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
+    // Should not include specialized calldata
+    require(_encodedData.length == 0, "!data length");
     // send message via AMB, should call "processMessage" which will update aggregate root
     GnosisAmb(AMB).requireToPassMessage(
       mirrorConnector,

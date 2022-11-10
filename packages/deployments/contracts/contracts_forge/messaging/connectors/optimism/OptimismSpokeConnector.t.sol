@@ -80,7 +80,7 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
     vm.mockCall(_amb, abi.encodeWithSelector(OptimismAmb.sendMessage.selector), abi.encode());
 
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, bytes(""), _rootManager);
 
     vm.expectCall(
       _amb,

@@ -47,7 +47,9 @@ contract ZkSyncSpokeConnector is SpokeConnector {
   /**
    * @dev Sends `outboundRoot` to root manager on l1
    */
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should not include specialized calldata
+    require(_encodedData.length == 0, "!data length");
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
     // Dispatch message through zkSync AMB
     L1_MESSENGER_CONTRACT.sendToL1(_calldata);

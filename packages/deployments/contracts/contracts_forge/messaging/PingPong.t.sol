@@ -246,7 +246,7 @@ contract PingPong is ConnectorHelper {
 
     // Expect event emitted.
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(abi.encode(outboundRoot), address(this));
+    emit MessageSent(abi.encode(outboundRoot), bytes(""), address(this));
 
     SpokeConnector(_originConnectors.spoke).send();
 
@@ -291,9 +291,10 @@ contract PingPong is ConnectorHelper {
     uint256[] memory fees = new uint256[](2);
     fees[0] = 0;
     fees[1] = 0;
+    bytes[] memory encodedData = new bytes[](2);
 
     // Propagate the aggregate root.
-    RootManager(_rootManager).propagate(domains, connectors, fees);
+    RootManager(_rootManager).propagate(domains, connectors, fees, encodedData);
 
     // Assert that the current aggregate root matches expected (from reference tree).
     aggregateRoot = RootManager(_rootManager).MERKLE().root();
