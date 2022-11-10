@@ -97,7 +97,7 @@ contract SpokeConnectorTest is ForgeHelper {
 
     spokeConnector.send(encodedData);
 
-    assertEq(MockSpokeConnector(address(spokeConnector)).lastOutbound(), keccak256(data));
+    assertEq(MockSpokeConnector(payable(address(spokeConnector))).lastOutbound(), keccak256(data));
   }
 
   function test_SpokeConnector__send_failsIfPaused() public {
@@ -124,11 +124,11 @@ contract SpokeConnectorTest is ForgeHelper {
     bytes memory encodedData = abi.encode("");
 
     spokeConnector.send(encodedData);
-    assertEq(MockSpokeConnector(address(spokeConnector)).lastOutbound(), keccak256(data));
+    assertEq(MockSpokeConnector(payable(address(spokeConnector))).lastOutbound(), keccak256(data));
 
     vm.expectRevert("root already sent");
     spokeConnector.send(encodedData);
-    assertEq(MockSpokeConnector(address(spokeConnector)).lastOutbound(), keccak256(data));
+    assertEq(MockSpokeConnector(payable(address(spokeConnector))).lastOutbound(), keccak256(data));
   }
 
   function test_SpokeConnector__proveAndProcess_failsIfPaused() public {
