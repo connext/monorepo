@@ -512,12 +512,17 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     utils_swapExact(1e17, _local, _adopted, 0);
     utils_swapExact(1e17, _adopted, _local, 0);
 
+    IERC20[] memory pooledTokens = s.swapStorages[_canonicalKey].pooledTokens;
+
     vm.expectEmit(true, false, false, true);
     emit SwapRemoved(_canonicalKey, _owner);
 
     utils_removeAllLiquidity();
 
     this.removeSwap(_canonicalKey);
+
+    assert(s.tokenIndexes[_canonicalKey][address(pooledTokens[0])] == 0);
+    assert(s.tokenIndexes[_canonicalKey][address(pooledTokens[1])] == 0);
 
     SwapUtils.Swap memory entry = SwapUtils.Swap({
       key: _canonicalKey,
