@@ -899,9 +899,6 @@ library SwapUtils {
         IERC20 token = self.pooledTokens[i];
         uint256 beforeBalance = token.balanceOf(address(this));
         token.safeTransferFrom(msg.sender, address(this), amounts[i]);
-
-        // Ensure this is not a fee on transfer token
-        require(amounts[i] == token.balanceOf(address(this)) - beforeBalance, "!fees");
       }
 
       newBalances[i] = v.balances[i] + amounts[i];
