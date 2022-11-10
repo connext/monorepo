@@ -18,7 +18,7 @@ contract PolygonHubConnectorTest is ConnectorHelper {
     _l2Connector = address(123);
     // deploy
     _l1Connector = address(
-      new PolygonHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, address(0), _mirrorGas, _checkPointManager)
+      new PolygonHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, address(0), _checkPointManager)
     );
   }
 

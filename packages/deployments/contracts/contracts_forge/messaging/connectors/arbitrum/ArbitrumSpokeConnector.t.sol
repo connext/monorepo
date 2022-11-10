@@ -38,7 +38,6 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
         _amb,
         _rootManager,
         _l1Connector,
-        _mirrorGas,
         _processGas,
         _reserveGas,
         0, // uint256 _delayBlocks
@@ -116,7 +115,7 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     );
 
     vm.prank(_rootManager);
-    ArbitrumSpokeConnector(_l2Connector).send();
+    ArbitrumSpokeConnector(_l2Connector).send(bytes(""));
   }
 
   // ============ ArbitrumSpokeConnector.processMessage ============

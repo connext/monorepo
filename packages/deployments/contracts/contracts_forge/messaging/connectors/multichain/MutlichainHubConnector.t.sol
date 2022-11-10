@@ -30,7 +30,7 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     // Deploy
     vm.prank(_owner);
     _l1Connector = address(
-      new MultichainHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, _l2Connector, _mirrorGas, _chainIdL2)
+      new MultichainHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, _l2Connector, _chainIdL2)
     );
   }
 

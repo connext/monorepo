@@ -27,15 +27,7 @@ contract OptimismHubConnectorTest is ConnectorHelper {
 
     // deploy
     _l1Connector = address(
-      new OptimismHubConnector(
-        _l1Domain,
-        _l2Domain,
-        _amb,
-        _rootManager,
-        _l2Connector,
-        _mirrorGas,
-        _stateCommitmentChain
-      )
+      new OptimismHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, _l2Connector, _stateCommitmentChain, _gasCap)
     );
   }
 
@@ -80,11 +72,13 @@ contract OptimismHubConnectorTest is ConnectorHelper {
   // ============ OptimismHubConnector.sendMessage ============
   function test_OptimismHubConnector__sendMessage_works() public {
     bytes memory _data = abi.encode(bytes32(bytes("test")));
+    // encoded data
+    bytes memory _encodedData = abi.encode(_gasCap);
 
     vm.mockCall(_amb, abi.encodeWithSelector(OptimismAmb.sendMessage.selector), abi.encode());
 
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, bytes(""), _rootManager);
+    emit MessageSent(_data, _encodedData, _rootManager);
 
     vm.expectCall(
       _amb,
@@ -92,21 +86,24 @@ contract OptimismHubConnectorTest is ConnectorHelper {
         OptimismAmb.sendMessage.selector,
         _l2Connector,
         abi.encodeWithSelector(Connector.processMessage.selector, _data),
-        _mirrorGas
+        _gasCap
       )
     );
 
     vm.prank(_rootManager);
-    OptimismHubConnector(_l1Connector).sendMessage(_data, bytes(""));
+    OptimismHubConnector(_l1Connector).sendMessage(_data, _encodedData);
   }
 
   function test_OptimismHubConnector__sendMessage_works_fuzz(bytes32 data) public {
     bytes memory _data = abi.encode(data);
 
+    // encoded data
+    bytes memory _encodedData = abi.encode(_gasCap);
+
     vm.mockCall(_amb, abi.encodeWithSelector(OptimismAmb.sendMessage.selector), abi.encode());
 
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, bytes(""), _rootManager);
+    emit MessageSent(_data, _encodedData, _rootManager);
 
     vm.expectCall(
       _amb,
@@ -114,12 +111,12 @@ contract OptimismHubConnectorTest is ConnectorHelper {
         OptimismAmb.sendMessage.selector,
         _l2Connector,
         abi.encodeWithSelector(Connector.processMessage.selector, _data),
-        _mirrorGas
+        _gasCap
       )
     );
 
     vm.prank(_rootManager);
-    OptimismHubConnector(_l1Connector).sendMessage(_data, bytes(""));
+    OptimismHubConnector(_l1Connector).sendMessage(_data, _encodedData);
   }
 
   // ============ OptimismHubConnector.processMessage ============

@@ -30,9 +30,8 @@ contract ZkSyncHubConnector is HubConnector {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     address _stateCommitmentChain
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) {}
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) {}
 
   // ============ Override Fns ============
   function _verifySender(address) internal pure override returns (bool) {

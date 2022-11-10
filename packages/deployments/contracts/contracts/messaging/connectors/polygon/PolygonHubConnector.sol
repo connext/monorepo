@@ -15,10 +15,9 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     address _checkPointManager
   )
-    HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
+    HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
     FxBaseRootTunnel(_checkPointManager, _amb)
   {}
 

@@ -92,7 +92,6 @@ contract PingPong is ConnectorHelper {
         _rootManager, // address _rootManager,
         address(originSpokeTree), // address merkle root manager
         address(0), // address _mirrorConnector
-        PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
         RESERVE_GAS, // uint256 _reserveGas
         0, // uint256 _delayBlocks
@@ -109,8 +108,7 @@ contract PingPong is ConnectorHelper {
         _originDomain, // uint32 _mirrorDomain,
         _originMainnetAMB, // address _amb,
         _rootManager, // address _rootManager,
-        _originConnectors.spoke, // address _mirrorConnector,
-        PROCESS_GAS // uint256 _mirrorGas
+        _originConnectors.spoke // address _mirrorConnector,
       )
     );
     MockHubConnector(_originConnectors.hub).setUpdatesAggregate(true);
@@ -124,7 +122,6 @@ contract PingPong is ConnectorHelper {
         _rootManager, // address _rootManager,
         address(destinationSpokeTree), // address merkle root manager
         address(0), // address _mirrorConnector,
-        PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
         RESERVE_GAS, // uint256 _reserveGas
         0, // uint256 _delayBlocks
@@ -141,8 +138,7 @@ contract PingPong is ConnectorHelper {
         _destinationDomain, // uint32 _mirrorDomain,
         _destinationMainnetAMB, // address _amb,
         _rootManager, // address _rootManager,
-        _destinationConnectors.spoke, // address _mirrorConnector,
-        PROCESS_GAS
+        _destinationConnectors.spoke // address _mirrorConnector,
       )
     );
     MockHubConnector(_destinationConnectors.hub).setUpdatesAggregate(true);
@@ -248,7 +244,7 @@ contract PingPong is ConnectorHelper {
     vm.expectEmit(true, true, true, true);
     emit MessageSent(abi.encode(outboundRoot), bytes(""), address(this));
 
-    SpokeConnector(_originConnectors.spoke).send();
+    SpokeConnector(_originConnectors.spoke).send(bytes(""));
 
     // Make sure correct root was sent.
     assertEq(MockSpokeConnector(_originConnectors.spoke).lastOutbound(), keccak256(abi.encode(outboundRoot)));

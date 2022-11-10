@@ -28,7 +28,6 @@ contract MainnetSpokeConnectorTest is ConnectorHelper {
         _amb,
         _rootManager,
         _l2Connector,
-        _mirrorGas,
         _processGas,
         _reserveGas,
         0, // delay blocks

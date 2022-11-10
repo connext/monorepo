@@ -40,7 +40,6 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
         _amb,
         _rootManager,
         _l1Connector,
-        _mirrorGas,
         _processGas,
         _reserveGas,
         0, // uint256 _delayBlocks
@@ -75,7 +74,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     vm.expectCall(_amb, abi.encodeCall(Multichain.anyCall, (_amb, _data, address(0), _chainIdMainnet, 0)));
 
     vm.prank(_rootManager);
-    MultichainSpokeConnector(_l2Connector).send();
+    MultichainSpokeConnector(_l2Connector).send(bytes(""));
   }
 
   // ============ processMessage ============

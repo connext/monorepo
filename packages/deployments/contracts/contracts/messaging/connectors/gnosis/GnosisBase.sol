@@ -3,18 +3,30 @@ pragma solidity 0.8.15;
 
 import {GnosisAmb} from "../../interfaces/ambs/GnosisAmb.sol";
 
-import {Connector} from "../Connector.sol";
+import {GasCap} from "../GasCap.sol";
 
-abstract contract GnosisBase {
+abstract contract GnosisBase is GasCap {
   // ============ Constructor ============
-  constructor() {}
+  constructor(uint256 _gasCap) GasCap(_gasCap) {}
 
   // ============ Private fns ============
+
   /**
    * @dev Asserts the sender of a cross domain message
    */
   function _verifySender(address _amb, address _expected) internal view returns (bool) {
     require(msg.sender == _amb, "!bridge");
     return GnosisAmb(_amb).messageSender() == _expected;
+  }
+
+  /**
+   * @notice Using Gnosis AMB, the gas is provided to `sendMessage` as an encoded uint
+   */
+  function _getGasFromEncoded(bytes memory _encodedData) internal view returns (uint256 _gas) {
+    // Should include gssas info in specialized calldata
+    require(_encodedData.length == 32, "!data length");
+
+    // Get the gas, if it is more than the cap use the cap
+    _gas = _getGas(abi.decode(_encodedData, (uint256)));
   }
 }

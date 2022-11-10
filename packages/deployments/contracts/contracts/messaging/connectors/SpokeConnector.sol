@@ -153,7 +153,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _amb The address of the AMB on the spoke domain this connector lives on.
    * @param _rootManager The address of the RootManager on the hub.
    * @param _mirrorConnector The address of the spoke connector.
-   * @param _mirrorGas The gas costs required to process a message on mirror.
    * @param _processGas The gas costs used in `handle` to ensure meaningful state changes can occur (minimum gas needed
    * to handle transaction).
    * @param _reserveGas The gas costs reserved when `handle` is called to ensure failures are handled.
@@ -167,7 +166,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
@@ -175,7 +173,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     address _watcherManager
   )
     ConnectorManager()
-    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
+    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
     WatcherClient(_watcherManager)
   {
     // Sanity check: constants are reasonable.
@@ -255,10 +253,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @notice This returns the root of all messages with the origin domain as this domain (i.e.
    * all outbound messages)
    */
-  function send() external whenNotPaused {
+  function send(bytes memory _encodedData) external whenNotPaused {
     bytes memory _data = abi.encodePacked(MERKLE.root());
-    _sendMessage(_data, bytes(""));
-    emit MessageSent(_data, bytes(""), msg.sender);
+    _sendMessage(_data, _encodedData);
+    emit MessageSent(_data, _encodedData, msg.sender);
   }
 
   /**

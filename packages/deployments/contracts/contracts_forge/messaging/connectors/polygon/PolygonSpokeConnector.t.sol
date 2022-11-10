@@ -29,7 +29,6 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
         _amb,
         _rootManager,
         address(0),
-        _mirrorGas,
         _processGas,
         _reserveGas,
         0, // uint256 _delayBlocks
@@ -84,7 +83,7 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
     emit MessageSent(_data, bytes(""), _rootManager);
 
     vm.prank(_rootManager);
-    PolygonSpokeConnector(_l2Connector).send();
+    PolygonSpokeConnector(_l2Connector).send(bytes(""));
   }
 
   // ============ PolygonSpokeConnector.processMessage ============

@@ -23,12 +23,12 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
         _amb,
         _rootManager,
         _l1Connector,
-        _mirrorGas,
         _processGas,
         _reserveGas,
         0, // uint256 _delayBlocks
         _merkle,
-        address(1) // watcher manager
+        address(1), // watcher manager
+        _gasCap
       )
     );
   }
@@ -73,9 +73,12 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     // data
     bytes memory _data = abi.encode(GnosisSpokeConnector(_l2Connector).outboundRoot());
 
+    // encoded data
+    bytes memory _encodedData = abi.encode(_gasCap);
+
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, bytes(""), _rootManager);
+    emit MessageSent(_data, _encodedData, _rootManager);
 
     // should call the requireToPassMessage function of GnosisAMB
     vm.expectCall(
@@ -84,12 +87,12 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
         GnosisAmb.requireToPassMessage.selector,
         _l1Connector,
         abi.encodeWithSelector(Connector.processMessage.selector, _data),
-        _mirrorGas
+        _gasCap
       )
     );
 
     vm.prank(_rootManager);
-    GnosisSpokeConnector(_l2Connector).send();
+    GnosisSpokeConnector(_l2Connector).send(_encodedData);
   }
 
   // ============ GnosisSpokeConnector._processMessage ============

@@ -17,8 +17,8 @@ contract GnosisHubConnector is HubConnector, GnosisBase {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) GnosisBase() {}
+    uint256 _gasCap
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) GnosisBase(_gasCap) {}
 
   // ============ Private fns ============
   /**
@@ -34,13 +34,12 @@ contract GnosisHubConnector is HubConnector, GnosisBase {
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
-    // Should not include specialized calldata
-    require(_encodedData.length == 0, "!data length");
+
     // send message via AMB, should call "processMessage" which will update aggregate root
     GnosisAmb(AMB).requireToPassMessage(
       mirrorConnector,
       abi.encodeWithSelector(Connector.processMessage.selector, _data),
-      mirrorGas
+      _getGasFromEncoded(_encodedData)
     );
   }
 

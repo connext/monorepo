@@ -224,7 +224,6 @@ contract MockSpokeConnector is SpokeConnector {
     address _rootManager,
     address _merkle,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
@@ -237,7 +236,6 @@ contract MockSpokeConnector is SpokeConnector {
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorGas,
       _processGas,
       _reserveGas,
       _delayBlocks,
@@ -286,9 +284,8 @@ contract MockHubConnector is HubConnector {
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    address _mirrorConnector,
-    uint256 _mirrorGas
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) {
+    address _mirrorConnector
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) {
     _setOwner(msg.sender);
     verified = true;
   }

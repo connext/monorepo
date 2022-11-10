@@ -31,12 +31,12 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
         _amb,
         _rootManager,
         _l1Connector,
-        _mirrorGas,
         _processGas,
         _reserveGas,
         0, // delay blocks
         _merkle,
-        address(0) // watcher manager
+        address(0), // watcher manager
+        _gasCap
       )
     );
   }
@@ -79,8 +79,12 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
 
     vm.mockCall(_amb, abi.encodeWithSelector(OptimismAmb.sendMessage.selector), abi.encode());
 
+    // encoded data
+    bytes memory _encodedData = abi.encode(_gasCap);
+
+    // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, bytes(""), _rootManager);
+    emit MessageSent(_data, _encodedData, _rootManager);
 
     vm.expectCall(
       _amb,
@@ -88,12 +92,12 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
         OptimismAmb.sendMessage.selector,
         _l1Connector,
         abi.encodeWithSelector(Connector.processMessage.selector, _data),
-        _mirrorGas
+        _gasCap
       )
     );
 
     vm.prank(_rootManager);
-    OptimismSpokeConnector(_l2Connector).send();
+    OptimismSpokeConnector(_l2Connector).send(_encodedData);
   }
 
   // ============ OptimismSpokeConnector.processMessage ============

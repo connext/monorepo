@@ -24,7 +24,7 @@ contract ConnectorHelper is ForgeHelper {
   address _amb = address(bytes20(keccak256("_amb")));
   address _rootManager = address(bytes20(keccak256("_rootManager")));
   address _owner = address(bytes20(keccak256("_owner")));
-  uint256 _mirrorGas = 100_000;
+  uint256 _gasCap = 100_000;
   uint256 _processGas = 850_000;
   uint256 _reserveGas = 15_000;
   address _stateCommitmentChain = address(bytes20(keccak256("_stateCommitmentChain")));

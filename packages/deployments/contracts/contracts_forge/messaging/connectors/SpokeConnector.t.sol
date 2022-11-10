@@ -46,7 +46,6 @@ contract SpokeConnectorTest is ForgeHelper {
       _rootManager, // address _rootManager,
       _merkle, // address _merkle
       address(0), // address _mirrorConnector
-      PROCESS_GAS, // uint256 _mirrorGas
       PROCESS_GAS, // uint256 _processGas,
       RESERVE_GAS, // uint256 _reserveGas
       0, // uint256 _delayBlocks

@@ -17,12 +17,12 @@ contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
     address _merkle,
-    address _watcherManager
+    address _watcherManager,
+    uint256 _gasCap // gasLimit of message call on L1
   )
     SpokeConnector(
       _domain,
@@ -30,14 +30,13 @@ contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorGas,
       _processGas,
       _reserveGas,
       _delayBlocks,
       _merkle,
       _watcherManager
     )
-    BaseOptimism()
+    BaseOptimism(_gasCap)
   {}
 
   // ============ Override Fns ============
@@ -50,9 +49,9 @@ contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should not include specialized calldata
-    require(_encodedData.length == 0, "!data length");
+    require(_data.length == 32, "!data length");
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
-    OptimismAmb(AMB).sendMessage(mirrorConnector, _calldata, uint32(mirrorGas));
+    OptimismAmb(AMB).sendMessage(mirrorConnector, _calldata, uint32(_getGasFromEncoded(_encodedData)));
   }
 
   /**

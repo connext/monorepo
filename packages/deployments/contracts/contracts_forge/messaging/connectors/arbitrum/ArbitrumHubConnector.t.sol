@@ -76,11 +76,14 @@ contract MockArbitrumOutbox {
 
 contract ArbitrumHubConnectorTest is ConnectorHelper {
   // ============ Events ============
-  event DefaultGasPriceUpdated(uint256 previous, uint256 current);
+  event RetryableTicketCreated(uint256 indexed ticketId);
+  event MaxSubmissionCapUpdated(uint256 _previous, uint256 _updated);
+  event MaxGasCapUpdated(uint256 _previous, uint256 _updated);
+  event GasPriceCapUpdated(uint256 _previous, uint256 _updated);
 
   // ============ Storage ============
   uint256 _defaultGasPrice = 10 gwei;
-  uint256 _maxSubmissionCost = 1212312312;
+  uint256 _maxSubmissionCostCap = 1212312312;
   address _outbox;
   address _rollup;
 
@@ -107,9 +110,10 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
         _amb,
         _rootManager,
         _l2Connector,
-        _mirrorGas,
-        _defaultGasPrice,
-        _outbox
+        _outbox,
+        _maxSubmissionCostCap,
+        _gasCap,
+        _defaultGasPrice
       )
     );
 
@@ -211,15 +215,37 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     assertTrue(ArbitrumHubConnector(_l1Connector).processed(_index));
   }
 
-  // ============ ArbitrumHubConnector.setDefaultGasPrice ============
-  function test_ArbitrumHubConnector__setDefaultGasPrice_shouldWork() public {
+  // ============ ArbitrumHubConnector.setMaxSubmissionCostCap ============
+  function test_ArbitrumHubConnector__setMaxSubmissionCostCap_shouldWork() public {
     uint256 updated = 100 wei;
     vm.expectEmit(true, true, true, true);
-    emit DefaultGasPriceUpdated(_defaultGasPrice, updated);
+    emit MaxSubmissionCapUpdated(_maxSubmissionCostCap, updated);
 
     vm.prank(ArbitrumHubConnector(_l1Connector).owner());
-    ArbitrumHubConnector(_l1Connector).setDefaultGasPrice(updated);
-    assertEq(ArbitrumHubConnector(_l1Connector).defaultGasPrice(), updated);
+    ArbitrumHubConnector(_l1Connector).setMaxSubmissionCostCap(updated);
+    assertEq(ArbitrumHubConnector(_l1Connector).maxSubmissionCostCap(), updated);
+  }
+
+  // ============ ArbitrumHubConnector.setMaxGasCap ============
+  function test_ArbitrumHubConnector__setMaxGasCap_shouldWork() public {
+    uint256 updated = 100 wei;
+    vm.expectEmit(true, true, true, true);
+    emit MaxGasCapUpdated(_gasCap, updated);
+
+    vm.prank(ArbitrumHubConnector(_l1Connector).owner());
+    ArbitrumHubConnector(_l1Connector).setMaxGasCap(updated);
+    assertEq(ArbitrumHubConnector(_l1Connector).maxGasCap(), updated);
+  }
+
+  // ============ ArbitrumHubConnector.setGasPriceCap ============
+  function test_ArbitrumHubConnector__setGasPriceCap_shouldWork() public {
+    uint256 updated = 100 wei;
+    vm.expectEmit(true, true, true, true);
+    emit GasPriceCapUpdated(_maxSubmissionCostCap, updated);
+
+    vm.prank(ArbitrumHubConnector(_l1Connector).owner());
+    ArbitrumHubConnector(_l1Connector).setGasPriceCap(updated);
+    assertEq(ArbitrumHubConnector(_l1Connector).gasPriceCap(), updated);
   }
 
   // ============ ArbitrumHubConnector.verifySender ============
@@ -255,9 +281,12 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     // data
     bytes memory _data = abi.encodePacked(bytes32(bytes("test")));
 
+    // encoded data
+    bytes memory _encodedData = abi.encode(_maxSubmissionCostCap, _gasCap, _defaultGasPrice);
+
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, abi.encode(_maxSubmissionCost), _rootManager);
+    emit MessageSent(_data, _encodedData, _rootManager);
 
     // should call send contract transaction
     vm.expectCall(
@@ -267,17 +296,17 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
         IArbitrumInbox.createRetryableTicket.selector,
         _l2Connector, //destAddr
         0, //arbTxCallValue
-        _maxSubmissionCost, //maxSubmissionCost
+        _maxSubmissionCostCap, //maxSubmissionCost
         _rootManager, //submissionRefundAddress
         _rootManager, //valueRefundAddress
-        _mirrorGas, //maxGas
+        _gasCap, //maxGas
         _defaultGasPrice, //gasPriceBid
         abi.encodeWithSelector(Connector.processMessage.selector, _data) // data
       )
     );
 
     vm.prank(_rootManager);
-    ArbitrumHubConnector(_l1Connector).sendMessage(_data, abi.encode(_maxSubmissionCost));
+    ArbitrumHubConnector(_l1Connector).sendMessage(_data, _encodedData);
   }
 
   function test_ArbitrumHubConnector__sendMessage_works_fuzz(bytes32 data) public {
@@ -287,9 +316,12 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     // data
     bytes memory _data = abi.encodePacked(data);
 
+    // encoded data
+    bytes memory _encodedData = abi.encode(_maxSubmissionCostCap, _gasCap, _defaultGasPrice);
+
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, abi.encode(_maxSubmissionCost), _rootManager);
+    emit MessageSent(_data, _encodedData, _rootManager);
 
     // should call send contract transaction
     vm.expectCall(
@@ -299,17 +331,17 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
         IArbitrumInbox.createRetryableTicket.selector,
         _l2Connector, //destAddr
         0, //arbTxCallValue
-        _maxSubmissionCost, //maxSubmissionCost
+        _maxSubmissionCostCap, //maxSubmissionCost
         _rootManager, //submissionRefundAddress
         _rootManager, //valueRefundAddress
-        _mirrorGas, //maxGas
+        _gasCap, //maxGas
         _defaultGasPrice, //gasPriceBid
         abi.encodeWithSelector(Connector.processMessage.selector, _data) // data
       )
     );
 
     vm.prank(_rootManager);
-    ArbitrumHubConnector(_l1Connector).sendMessage(_data, abi.encode(_maxSubmissionCost));
+    ArbitrumHubConnector(_l1Connector).sendMessage(_data, _encodedData);
   }
 
   // ============ ArbitrumHubConnector.processMessageFromRootFromRoot ============

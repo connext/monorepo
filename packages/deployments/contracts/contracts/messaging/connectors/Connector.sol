@@ -11,7 +11,7 @@ import {IConnector} from "../interfaces/IConnector.sol";
  *
  * @dev This contract stores information about mirror connectors, but can be used as a
  * base for contracts that do not have a mirror (i.e. the connector handling messaging on
- * mainnet). In this case, the `mirrorConnector`, `MIRROR_DOMAIN`, and `mirrorGas`
+ * mainnet). In this case, the `mirrorConnector` and `MIRROR_DOMAIN`
  * will be empty
  */
 abstract contract Connector is ProposedOwnable, IConnector {
@@ -26,8 +26,6 @@ abstract contract Connector is ProposedOwnable, IConnector {
   );
 
   event MirrorConnectorUpdated(address previous, address current);
-
-  event MirrorGasUpdated(uint256 previous, uint256 current);
 
   // ============ Public Storage ============
 
@@ -55,11 +53,6 @@ abstract contract Connector is ProposedOwnable, IConnector {
    * @notice Connector on L2 for L1 connectors, and vice versa.
    */
   address public mirrorConnector;
-
-  /**
-   * @notice Gas costs forwarded to the `processMessage` call on the mirror domain
-   */
-  uint256 public mirrorGas;
 
   // ============ Modifiers ============
 
@@ -92,15 +85,13 @@ abstract contract Connector is ProposedOwnable, IConnector {
    * @param _amb The address of the amb on the domain this connector lives on
    * @param _rootManager The address of the RootManager on mainnet
    * @param _mirrorConnector The address of the spoke connector
-   * @param _mirrorGas The gas costs required to process a message on mirror
    */
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    address _mirrorConnector,
-    uint256 _mirrorGas
+    address _mirrorConnector
   ) ProposedOwnable() {
     // set the owner
     _setOwner(msg.sender);
@@ -120,10 +111,6 @@ abstract contract Connector is ProposedOwnable, IConnector {
       _setMirrorConnector(_mirrorConnector);
     }
 
-    if (_mirrorGas != 0) {
-      _setMirrorGas(_mirrorGas);
-    }
-
     emit NewConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector);
   }
 
@@ -134,13 +121,6 @@ abstract contract Connector is ProposedOwnable, IConnector {
    */
   function setMirrorConnector(address _mirrorConnector) public onlyOwner {
     _setMirrorConnector(_mirrorConnector);
-  }
-
-  /**
-   * @notice Sets the address of the l2Connector for this domain
-   */
-  function setMirrorGas(uint256 _mirrorGas) public onlyOwner {
-    _setMirrorGas(_mirrorGas);
   }
 
   // ============ Public Functions ============
@@ -189,10 +169,5 @@ abstract contract Connector is ProposedOwnable, IConnector {
   function _setMirrorConnector(address _mirrorConnector) internal virtual {
     emit MirrorConnectorUpdated(mirrorConnector, _mirrorConnector);
     mirrorConnector = _mirrorConnector;
-  }
-
-  function _setMirrorGas(uint256 _mirrorGas) internal {
-    emit MirrorGasUpdated(mirrorGas, _mirrorGas);
-    mirrorGas = _mirrorGas;
   }
 }
