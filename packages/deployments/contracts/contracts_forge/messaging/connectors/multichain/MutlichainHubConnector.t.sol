@@ -25,12 +25,12 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     vm.mockCall(_amb, abi.encodeCall(Multichain.executor, ()), abi.encode(_executor));
 
     // Get the n+1 deployment address
-    _l2Connector = address(123123123123);
+    _l2Connector = payable(address(123123123123));
 
     // Deploy
     vm.prank(_owner);
-    _l1Connector = address(
-      new MultichainHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, _l2Connector, _chainIdL2)
+    _l1Connector = payable(
+      address(new MultichainHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, _l2Connector, _chainIdL2, _gasCap))
     );
   }
 
@@ -40,18 +40,23 @@ contract MultichainHubConnectorTest is ConnectorHelper {
 
   // Happy path L1
   function test_MultichainHubConnector_sendMessage_sendMessageAndEmitEvent(bytes memory _data) public {
+    vm.assume(_data.length == 32);
+
+    // Mock the call to fees
+    vm.mockCall(_amb, abi.encodeCall(Multichain.calcSrcFees, ("", _chainIdL2, 32)), abi.encode(1));
+
     // Mock the call to anyCall
     vm.mockCall(
       _amb,
       abi.encodeCall(
         Multichain.anyCall,
         (
-          _amb,
+          address(_l2Connector),
           _data,
           address(0), // fallback address
           _chainIdL2, // chain id
-          0
-        ) // 0 = fee on destination
+          2
+        ) // 2 = fee on src
       ),
       abi.encode()
     );
@@ -61,10 +66,18 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     emit MessageSent(_data, bytes(""), _rootManager);
 
     // Check: call to multichain anyCall?
-    vm.expectCall(_amb, abi.encodeCall(Multichain.anyCall, (_amb, _data, address(0), _chainIdL2, 0)));
+    vm.expectCall(
+      _amb,
+      1,
+      abi.encodeCall(Multichain.anyCall, (address(_l2Connector), _data, address(0), _chainIdL2, 2))
+    );
 
+    // Check: call to fees?
+    vm.expectCall(_amb, abi.encodeCall(Multichain.calcSrcFees, ("", _chainIdL2, 32)));
+
+    vm.deal(_rootManager, 1 ether);
     vm.prank(_rootManager);
-    MultichainHubConnector(_l1Connector).sendMessage(_data, bytes(""));
+    MultichainHubConnector(_l1Connector).sendMessage{value: 1}(_data, bytes(""));
   }
 
   // Access control
@@ -76,8 +89,42 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     // Check: revert if caller is not root manager
     vm.expectRevert(abi.encodePacked("!rootManager"));
 
+    vm.deal(_nonRootManager, 1 ether);
     vm.prank(_nonRootManager);
-    MultichainHubConnector(_l1Connector).sendMessage(_data, bytes(""));
+    MultichainHubConnector(_l1Connector).sendMessage{value: 1}(_data, bytes(""));
+  }
+
+  // data length
+  function test_MultichainHubConnector_sendMessage_failsIfBadDataLength(bytes memory _data) public {
+    vm.assume(_data.length != 32);
+
+    vm.deal(_rootManager, 1 ether);
+    vm.prank(_rootManager);
+    vm.expectRevert(bytes("!data length"));
+    MultichainHubConnector(_l1Connector).sendMessage{value: 1}(_data, bytes(""));
+  }
+
+  // encoded length
+  function test_MultichainHubConnector_sendMessage_failsIfBadEncodedLength(bytes memory _encoded) public {
+    vm.assume(_encoded.length > 0);
+
+    bytes memory _data = abi.encode(5216);
+    vm.deal(_rootManager, 1 ether);
+    vm.prank(_rootManager);
+    vm.expectRevert(bytes("!data length"));
+    MultichainHubConnector(_l1Connector).sendMessage{value: 1}(_data, _encoded);
+  }
+
+  // insufficient fees
+  function test_MultichainHubConnector_sendMessage_failsIfInsufficientFees() public {
+    // Mock the call to fees
+    vm.mockCall(_amb, abi.encodeCall(Multichain.calcSrcFees, ("", _chainIdL2, 32)), abi.encode(10));
+
+    bytes memory _data = abi.encode(5216);
+    vm.deal(_rootManager, 1 ether);
+    vm.prank(_rootManager);
+    vm.expectRevert(bytes("!fees"));
+    MultichainHubConnector(_l1Connector).sendMessage{value: 1}(_data, bytes(""));
   }
 
   // ============ processMessage ============

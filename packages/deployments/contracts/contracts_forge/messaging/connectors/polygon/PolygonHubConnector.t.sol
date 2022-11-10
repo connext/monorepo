@@ -15,10 +15,10 @@ contract PolygonHubConnectorTest is ConnectorHelper {
   address _checkPointManager = address(88888);
 
   function setUp() public {
-    _l2Connector = address(123);
+    _l2Connector = payable(address(123));
     // deploy
-    _l1Connector = address(
-      new PolygonHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, address(0), _checkPointManager)
+    _l1Connector = payable(
+      address(new PolygonHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, address(0), _checkPointManager))
     );
   }
 
@@ -44,7 +44,7 @@ contract PolygonHubConnectorTest is ConnectorHelper {
     PolygonHubConnector(_l1Connector).setFxChildTunnel(_l2Connector);
     assertEq(PolygonHubConnector(_l1Connector).fxChildTunnel(), _l2Connector);
 
-    _l2Connector = address(2);
+    _l2Connector = payable(address(2));
     vm.expectRevert(bytes("FxBaseRootTunnel: CHILD_TUNNEL_ALREADY_SET"));
 
     PolygonHubConnector(_l1Connector).setFxChildTunnel(_l2Connector);

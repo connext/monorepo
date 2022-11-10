@@ -97,23 +97,25 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
   L2Message _message;
 
   function setUp() public {
-    _l2Connector = address(3432123);
+    _l2Connector = payable(address(3432123));
     // deploy rollup
     _rollup = address(new MockArbitrumRollup());
     // deploy outbox
     _outbox = address(new MockArbitrumOutbox(_rollup));
     // deploy
-    _l1Connector = address(
-      new ArbitrumHubConnector(
-        _l1Domain,
-        _l2Domain,
-        _amb,
-        _rootManager,
-        _l2Connector,
-        _outbox,
-        _maxSubmissionCostCap,
-        _gasCap,
-        _defaultGasPrice
+    _l1Connector = payable(
+      address(
+        new ArbitrumHubConnector(
+          _l1Domain,
+          _l2Domain,
+          _amb,
+          _rootManager,
+          _l2Connector,
+          _outbox,
+          _maxSubmissionCostCap,
+          _gasCap,
+          _defaultGasPrice
+        )
       )
     );
 

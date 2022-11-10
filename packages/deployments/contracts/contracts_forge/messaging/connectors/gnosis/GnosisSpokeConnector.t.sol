@@ -15,20 +15,22 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
 
     _merkle = address(new MerkleTreeManager());
 
-    _l1Connector = address(123123);
-    _l2Connector = address(
-      new GnosisSpokeConnector(
-        _l2Domain,
-        _l1Domain,
-        _amb,
-        _rootManager,
-        _l1Connector,
-        _processGas,
-        _reserveGas,
-        0, // uint256 _delayBlocks
-        _merkle,
-        address(1), // watcher manager
-        _gasCap
+    _l1Connector = payable(address(123123));
+    _l2Connector = payable(
+      address(
+        new GnosisSpokeConnector(
+          _l2Domain,
+          _l1Domain,
+          _amb,
+          _rootManager,
+          _l1Connector,
+          _processGas,
+          _reserveGas,
+          0, // uint256 _delayBlocks
+          _merkle,
+          address(1), // watcher manager
+          _gasCap
+        )
       )
     );
   }

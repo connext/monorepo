@@ -99,7 +99,7 @@ contract PingPong is ConnectorHelper {
       )
     );
     originSpokeTree.setArborist(_originConnectors.spoke);
-    MockSpokeConnector(_originConnectors.spoke).setUpdatesAggregate(true);
+    MockSpokeConnector(payable(_originConnectors.spoke)).setUpdatesAggregate(true);
 
     // Mock sourceconnector on l1
     _originConnectors.hub = address(
@@ -111,7 +111,7 @@ contract PingPong is ConnectorHelper {
         _originConnectors.spoke // address _mirrorConnector,
       )
     );
-    MockHubConnector(_originConnectors.hub).setUpdatesAggregate(true);
+    MockHubConnector(payable(_originConnectors.hub)).setUpdatesAggregate(true);
 
     // Mock dest connector on l2
     _destinationConnectors.spoke = address(
@@ -129,7 +129,7 @@ contract PingPong is ConnectorHelper {
       )
     );
     destinationSpokeTree.setArborist(_destinationConnectors.spoke);
-    MockSpokeConnector(_destinationConnectors.spoke).setUpdatesAggregate(true);
+    MockSpokeConnector(payable(_destinationConnectors.spoke)).setUpdatesAggregate(true);
 
     // Mock dest connector on l1
     _destinationConnectors.hub = address(
@@ -141,22 +141,22 @@ contract PingPong is ConnectorHelper {
         _destinationConnectors.spoke // address _mirrorConnector,
       )
     );
-    MockHubConnector(_destinationConnectors.hub).setUpdatesAggregate(true);
+    MockHubConnector(payable(_destinationConnectors.hub)).setUpdatesAggregate(true);
     _destinationRouter = TypeCasts.addressToBytes32(address(12356556423));
   }
 
   function utils_configureContracts() public {
     // enroll this as approved sender for messaging
-    SpokeConnector(_originConnectors.spoke).addSender(address(this));
-    SpokeConnector(_originConnectors.spoke).setMirrorConnector(_originConnectors.hub);
-    SpokeConnector(_destinationConnectors.spoke).setMirrorConnector(_destinationConnectors.hub);
+    SpokeConnector(payable(_originConnectors.spoke)).addSender(address(this));
+    SpokeConnector(payable(_originConnectors.spoke)).setMirrorConnector(_originConnectors.hub);
+    SpokeConnector(payable(_destinationConnectors.spoke)).setMirrorConnector(_destinationConnectors.hub);
     // check setup
-    assertEq(SpokeConnector(_destinationConnectors.spoke).mirrorConnector(), _destinationConnectors.hub);
-    assertEq(SpokeConnector(_originConnectors.spoke).mirrorConnector(), _originConnectors.hub);
-    assertEq(SpokeConnector(_destinationConnectors.hub).mirrorConnector(), _destinationConnectors.spoke);
-    assertEq(SpokeConnector(_originConnectors.hub).mirrorConnector(), _originConnectors.spoke);
+    assertEq(SpokeConnector(payable(_destinationConnectors.spoke)).mirrorConnector(), _destinationConnectors.hub);
+    assertEq(SpokeConnector(payable(_originConnectors.spoke)).mirrorConnector(), _originConnectors.hub);
+    assertEq(MockHubConnector(payable(_destinationConnectors.hub)).mirrorConnector(), _destinationConnectors.spoke);
+    assertEq(MockHubConnector(payable(_originConnectors.hub)).mirrorConnector(), _originConnectors.spoke);
 
-    MockSpokeConnector(_destinationConnectors.spoke).setUpdatesAggregate(true);
+    MockSpokeConnector(payable(_destinationConnectors.spoke)).setUpdatesAggregate(true);
 
     // configure root manager with connectors
     RootManager(_rootManager).addConnector(_originDomain, _originConnectors.hub);
@@ -222,32 +222,32 @@ contract PingPong is ConnectorHelper {
     // Insert the node into the reference tree and get the expected new root.
     (bytes32 expectedRoot, uint256 expectedCount) = referenceSpokeTree.insert(messageHash);
     // Get initial count.
-    uint256 initialCount = SpokeConnector(_originConnectors.spoke).MERKLE().count();
+    uint256 initialCount = SpokeConnector(payable(_originConnectors.spoke)).MERKLE().count();
     vm.expectEmit(true, true, true, true);
     emit Dispatch(messageHash, initialCount, expectedRoot, message);
 
     // Call `dispatch`: will add the message hash to the current tree.
-    SpokeConnector(_originConnectors.spoke).dispatch(_destinationDomain, _destinationRouter, body);
+    SpokeConnector(payable(_originConnectors.spoke)).dispatch(_destinationDomain, _destinationRouter, body);
 
-    assertEq(SpokeConnector(_originConnectors.spoke).outboundRoot(), expectedRoot);
+    assertEq(SpokeConnector(payable(_originConnectors.spoke)).outboundRoot(), expectedRoot);
     // Assert index increased by 1.
-    uint256 updatedCount = SpokeConnector(_originConnectors.spoke).MERKLE().count();
+    uint256 updatedCount = SpokeConnector(payable(_originConnectors.spoke)).MERKLE().count();
     assertEq(updatedCount, expectedCount);
     assertEq(updatedCount, initialCount + 1);
   }
 
   // Send outbound root from origin.
   function utils_sendOutboundRootAndAssert() public returns (bytes32 outboundRoot) {
-    outboundRoot = SpokeConnector(_originConnectors.spoke).outboundRoot();
+    outboundRoot = SpokeConnector(payable(_originConnectors.spoke)).outboundRoot();
 
     // Expect event emitted.
     vm.expectEmit(true, true, true, true);
     emit MessageSent(abi.encode(outboundRoot), bytes(""), address(this));
 
-    SpokeConnector(_originConnectors.spoke).send(bytes(""));
+    SpokeConnector(payable(_originConnectors.spoke)).send(bytes(""));
 
     // Make sure correct root was sent.
-    assertEq(MockSpokeConnector(_originConnectors.spoke).lastOutbound(), keccak256(abi.encode(outboundRoot)));
+    assertEq(MockSpokeConnector(payable(_originConnectors.spoke)).lastOutbound(), keccak256(abi.encode(outboundRoot)));
   }
 
   // Aggregate an inbound root on the hub.
@@ -258,10 +258,10 @@ contract PingPong is ConnectorHelper {
 
     // The AMB would normally deliver to the HubConnector the inboundRoot.
     vm.prank(_originMainnetAMB);
-    Connector(_originConnectors.hub).processMessage(abi.encode(inboundRoot));
+    Connector(payable(_originConnectors.hub)).processMessage(abi.encode(inboundRoot));
 
     // Make sure inboundRoot was received.
-    assertEq(MockHubConnector(_originConnectors.hub).lastReceived(), keccak256(abi.encode(inboundRoot)));
+    assertEq(MockHubConnector(payable(_originConnectors.hub)).lastReceived(), keccak256(abi.encode(inboundRoot)));
   }
 
   // Propagate aggregateRoot on all connectors.
@@ -302,8 +302,14 @@ contract PingPong is ConnectorHelper {
     assertEq(updatedAggregateCount, initialAggregateCount + 1);
 
     // Assert that the aggregate root was sent on all connectors.
-    assertEq(MockHubConnector(_originConnectors.hub).lastOutbound(), keccak256(abi.encode(expectedAggregateRoot)));
-    assertEq(MockHubConnector(_destinationConnectors.hub).lastOutbound(), keccak256(abi.encode(expectedAggregateRoot)));
+    assertEq(
+      MockHubConnector(payable(_originConnectors.hub)).lastOutbound(),
+      keccak256(abi.encode(expectedAggregateRoot))
+    );
+    assertEq(
+      MockHubConnector(payable(_destinationConnectors.hub)).lastOutbound(),
+      keccak256(abi.encode(expectedAggregateRoot))
+    );
   }
 
   // Process a given aggregateRoot on a given spoke.
@@ -317,13 +323,13 @@ contract PingPong is ConnectorHelper {
     emit MessageProcessed(abi.encode(aggregateRoot), amb);
 
     vm.prank(amb);
-    Connector(connector).processMessage(abi.encode(aggregateRoot));
+    Connector(payable(connector)).processMessage(abi.encode(aggregateRoot));
 
     // Make sure aggregateRoot was received.
-    assertEq(MockSpokeConnector(connector).lastReceived(), keccak256(abi.encode(aggregateRoot)));
+    assertEq(MockSpokeConnector(payable(connector)).lastReceived(), keccak256(abi.encode(aggregateRoot)));
 
     // `pendingAggregateRoots` should be updated.
-    assertEq(SpokeConnector(connector).pendingAggregateRoots(aggregateRoot), block.number);
+    assertEq(SpokeConnector(payable(connector)).pendingAggregateRoots(aggregateRoot), block.number);
   }
 
   // Get the proof/path for a given message in the reference spoke tree.
@@ -335,7 +341,7 @@ contract PingPong is ConnectorHelper {
     utils_createReferenceTrees();
 
     // Ensure the current roots reflects the default root of an empty tree.
-    assertEq(SpokeConnector(_originConnectors.spoke).outboundRoot(), EMPTY_ROOT); // Origin SpokeConnector tree.
+    assertEq(SpokeConnector(payable(_originConnectors.spoke)).outboundRoot(), EMPTY_ROOT); // Origin SpokeConnector tree.
     assertEq(RootManager(_rootManager).MERKLE().root(), EMPTY_ROOT); // Aggregate tree.
 
     /// 1. Send message through Messaging contract.
@@ -360,7 +366,7 @@ contract PingPong is ConnectorHelper {
 
     // Now fast forward `delayBlocks` so the aggregateRoot we just delivered to the destination spoke chain
     // will be considered verified.
-    uint256 destinationDelay = MockSpokeConnector(_destinationConnectors.spoke).delayBlocks();
+    uint256 destinationDelay = MockSpokeConnector(payable(_destinationConnectors.spoke)).delayBlocks();
     vm.roll(block.number + destinationDelay);
 
     // 6. Process original message.
@@ -385,8 +391,8 @@ contract PingPong is ConnectorHelper {
 
     SpokeConnector.Proof[] memory proofs = new SpokeConnector.Proof[](1);
     proofs[0] = SpokeConnector.Proof(message, messageProof, 0);
-    SpokeConnector(_destinationConnectors.spoke).proveAndProcess(proofs, aggregateRoot, aggregateProof, 0);
+    SpokeConnector(payable(_destinationConnectors.spoke)).proveAndProcess(proofs, aggregateRoot, aggregateProof, 0);
 
-    // assertEq(uint256(SpokeConnector(_destinationConnectors.spoke).messages(keccak256(message))), 2);
+    // assertEq(uint256(SpokeConnector(payable(_destinationConnectors.spoke)).messages(keccak256(message))), 2);
   }
 }

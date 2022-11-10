@@ -19,24 +19,26 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
 
   // ============ Test set up ============
   function setUp() public {
-    _l1Connector = address(123321123);
+    _l1Connector = payable(address(123321123));
 
     _merkle = address(new MerkleTreeManager());
 
     // deploy
-    _l2Connector = address(
-      new OptimismSpokeConnector(
-        _l2Domain,
-        _l1Domain,
-        _amb,
-        _rootManager,
-        _l1Connector,
-        _processGas,
-        _reserveGas,
-        0, // delay blocks
-        _merkle,
-        address(0), // watcher manager
-        _gasCap
+    _l2Connector = payable(
+      address(
+        new OptimismSpokeConnector(
+          _l2Domain,
+          _l1Domain,
+          _amb,
+          _rootManager,
+          _l1Connector,
+          _processGas,
+          _reserveGas,
+          0, // delay blocks
+          _merkle,
+          address(0), // watcher manager
+          _gasCap
+        )
       )
     );
   }
