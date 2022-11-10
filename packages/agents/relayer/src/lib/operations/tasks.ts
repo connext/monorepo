@@ -3,14 +3,12 @@ import {
   RequestContext,
   createLoggingContext,
   RelayerApiPostTaskRequestParams,
-  ExecuteArgs,
   ajv,
-  ExecuteArgsSchema,
+  RelayerApiPostTaskRequestParamsSchema,
 } from "@connext/nxtp-utils";
-import { getDeployedConnextContract } from "@connext/nxtp-txservice";
 
 import { getContext } from "../../relayer";
-import { ChainNotSupported, ContractDeploymentMissing, DecodeExecuteError, ParamsInvalid } from "../errors/tasks";
+import { ChainNotSupported, ParamsInvalid } from "../errors/tasks";
 
 /**
  * Creates a task based on passed-in params (assuming task doesn't already exist), and returns the taskId.
@@ -26,71 +24,36 @@ export const createTask = async (
 ): Promise<string> => {
   const {
     logger,
-    config,
-    adapters: {
-      cache,
-      contracts: { connext },
-    },
+    adapters: { cache },
     chainToDomainMap,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(createTask.name, _requestContext);
+  logger.info("Method start", requestContext, methodContext, { chain, params });
 
-  const { data, fee } = params;
-
-  // TODO: Allow alternative shitcoins.
-  if (fee.token !== constants.AddressZero) {
-    throw new Error("Only ETH is supported for now.");
-  }
-
-  let args: ExecuteArgs;
-  let decoded: any;
-  try {
-    decoded = connext.decodeFunctionData("execute", data)[0];
-    if (!decoded) {
-      throw new Error("Decoded data is null");
-    }
-    args = {
-      params: decoded.params,
-      routers: decoded.routers,
-      routerSignatures: decoded.routerSignatures,
-      sequencer: decoded.sequencer,
-      sequencerSignature: decoded.sequencerSignature,
-    };
-    logger.debug("Parsed execute arguments", requestContext, methodContext, { args });
-  } catch (error: unknown) {
-    throw new DecodeExecuteError({
-      decoded,
-      error,
-    });
-  }
+  const { data, fee, to } = params;
 
   // Validate execute arguments.
-  const validateInput = ajv.compile(ExecuteArgsSchema);
-  const validInput = validateInput(args);
+  const validateInput = ajv.compile(RelayerApiPostTaskRequestParamsSchema);
+  const validInput = validateInput(params);
   if (!validInput) {
     const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
     throw new ParamsInvalid({
       paramsError: msg,
-      args,
+      params,
     });
   }
 
-  const connextAddress =
-    config.chains[chain].deployments.connext ??
-    getDeployedConnextContract(chain, config.environment === "staging" ? "Staging" : "")?.address;
-  if (!connextAddress) {
-    throw new ContractDeploymentMissing(ContractDeploymentMissing.contracts.connext, chain);
+  if (fee.token !== constants.AddressZero) {
+    throw new Error("Only ETH is supported for now.");
   }
 
   if (!chainToDomainMap.has(chain)) {
     throw new ChainNotSupported(chain);
   }
 
-  // TODO: Sanity check: should have enough balance to pay for gas on the specified chain.
-
   const taskId: string = await cache.tasks.createTask({
     chain,
-    to: connextAddress,
+    to,
     data,
     fee,
   });

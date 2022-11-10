@@ -22,14 +22,13 @@ export function handleOptimismNewConnector(event: NewConnector): void {
 }
 
 export function handleOptimismMessageProcessed(event: MessageProcessed): void {
-  let message = RootMessageProcessed.load(event.params.data.toHexString());
-  if (message == null) {
-    message = new RootMessageProcessed(event.params.data.toHexString());
-  }
-
   let meta = OptimismConnectorMeta.load(DEFAULT_OPTIMISM_HUB_CONNECTOR_META_ID);
   if (meta == null) {
     meta = new OptimismConnectorMeta(DEFAULT_OPTIMISM_HUB_CONNECTOR_META_ID);
+  }
+  let message = RootMessageProcessed.load(`${event.params.data.toHexString()}-${meta.spokeDomain.toString()}`);
+  if (message == null) {
+    message = new RootMessageProcessed(`${event.params.data.toHexString()}-${meta.spokeDomain.toString()}`);
   }
 
   message.spokeDomain = meta.spokeDomain;

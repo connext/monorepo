@@ -33,11 +33,15 @@ export const ProtocolNetworks: Record<string, string> = {
   "5": ProtocolNetwork.TESTNET,
   "420": ProtocolNetwork.TESTNET,
   "80001": ProtocolNetwork.TESTNET,
+  "97": ProtocolNetwork.TESTNET,
 
   // mainnets
   "1": ProtocolNetwork.MAINNET,
   "10": ProtocolNetwork.MAINNET,
+  "56": ProtocolNetwork.MAINNET,
   "137": ProtocolNetwork.MAINNET,
+  "42161": ProtocolNetwork.MAINNET,
+  "100": ProtocolNetwork.MAINNET,
 };
 
 export const getProtocolNetwork = (_chain: string | number): string => {
@@ -66,8 +70,14 @@ export const getConnectorName = (
 // These contracts do not have a `Staging` deployment
 const NON_STAGING_CONTRACTS = ["TestERC20", "TestWETH", "LPToken"];
 
-export const getDeploymentName = (contractName: string, _env?: string) => {
+export const getDeploymentName = (_contractName: string, _env?: string, _networkName?: string) => {
   const env = mustGetEnv(_env);
+  let contractName = _contractName;
+
+  if (contractName.includes("Multichain")) {
+    const networkName = _networkName!.charAt(0).toUpperCase() + _networkName!.slice(1).toLowerCase();
+    contractName = contractName.replace("Multichain", networkName);
+  }
 
   if (env !== "staging" || NON_STAGING_CONTRACTS.includes(contractName)) {
     return contractName;
@@ -97,13 +107,12 @@ export const verify = async (
 };
 
 // Gets the messaging protocol config for a given chain
-export const getMessagingProtocolConfig = (env: Env): MessagingProtocolConfig => {
+export const getMessagingProtocolConfig = (protocolNetwork: ProtocolNetwork): MessagingProtocolConfig => {
   // TODO: "tesnet"  => "mainnet"  for production
-  const network = env === "production" ? "testnet" : env === "staging" ? "testnet" : "local";
-  const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
+  const protocol = MESSAGING_PROTOCOL_CONFIGS[protocolNetwork];
 
   if (!protocol || !protocol.configs[protocol.hub]) {
-    throw new Error(`Network ${network} is not supported! (no messaging config)`);
+    throw new Error(`Network ${protocolNetwork} is not supported! (no messaging config)`);
   }
   return protocol;
 };
@@ -118,8 +127,8 @@ export type ConnectorDeployment = {
   name: string;
 };
 
-export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
-  const protocol = getMessagingProtocolConfig(env);
+export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwork): ConnectorDeployment[] => {
+  const protocol = getMessagingProtocolConfig(protocolNetwork);
 
   const connectors: { name: string; chain: number; mirrorName?: string; mirrorChain?: number }[] = [];
   Object.keys(protocol.configs).forEach((_chainId) => {
@@ -189,9 +198,10 @@ export const getProviderFromHardhatConfig = (
 export const executeOnAllConnectors = async <T = any>(
   hardhatConfig: HardhatUserConfig,
   env: Env,
+  protocolNetwork: ProtocolNetwork,
   fn: (d: ConnectorDeployment, provider: providers.JsonRpcProvider) => Promise<T>,
 ): Promise<T[]> => {
-  const deployments = getConnectorDeployments(env);
+  const deployments = getConnectorDeployments(env, protocolNetwork);
   const results = [];
   for (const deploy of deployments) {
     results.push(await fn(deploy, getProviderFromHardhatConfig(hardhatConfig, deploy.chain)));

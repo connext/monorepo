@@ -111,14 +111,14 @@ describe("SdkUtils", () => {
     it("should error if validateUri fails", async () => {
       (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
 
-      await expect(nxtpUtils.getTransfersByUser({ userAddress: mockConfig.signerAddress })).to.be.rejectedWith(
+      await expect(nxtpUtils.getTransfersByUser({ userAddress: mockConfig.signerAddress! })).to.be.rejectedWith(
         UriInvalid,
       );
     });
 
     it("happy: should work", async () => {
       const res = await nxtpUtils.getTransfersByUser({
-        userAddress: mockConfig.signerAddress,
+        userAddress: mockConfig.signerAddress!,
         status: XTransferStatus.XCalled,
         range: {
           limit: 100,

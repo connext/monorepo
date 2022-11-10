@@ -44,14 +44,14 @@ export function handleDispatch(event: Dispatch): void {
 }
 
 export function handleMessageSent(event: MessageSent): void {
-  let message = RootMessageSent.load(event.params.data.toHexString());
-  if (message == null) {
-    message = new RootMessageSent(event.params.data.toHexString());
-  }
-
   let meta = ConnectorMeta.load(DEFAULT_CONNECTOR_META_ID);
   if (meta == null) {
     meta = new ConnectorMeta(DEFAULT_CONNECTOR_META_ID);
+  }
+
+  let message = RootMessageSent.load(`${event.params.data.toHexString()}-${meta.spokeDomain!.toString()}`);
+  if (message == null) {
+    message = new RootMessageSent(`${event.params.data.toHexString()}-${meta.spokeDomain!.toString()}`);
   }
 
   message.spokeDomain = meta.spokeDomain;

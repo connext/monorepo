@@ -87,17 +87,6 @@ describe("Operations:Execute:SlowPath", () => {
       await expect(storeSlowPathData(mockExecutorData, requestContext)).to.be.rejectedWith(MissingXCall);
     });
 
-    it("should throw if gas estimation fails", async () => {
-      getTransferStub.resolves(undefined);
-      const mockTransfer = mock.entity.xtransfer();
-      (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(mockTransfer);
-      storeTransferStub.resolves();
-      getGelatoRelayerAddressStub.resolves(mkAddress("0x111"));
-      (ctxMock.adapters.chainreader.getGasEstimateWithRevertCode as SinonStub).throws();
-      const mockExecutorData = mock.entity.executorData();
-      await expect(storeSlowPathData(mockExecutorData, requestContext)).to.be.rejectedWith(GasEstimationFailed);
-    });
-
     it("should throw if the slow data got already executed", async () => {
       getTransferStub.resolves(undefined);
       const mockTransfer = mock.entity.xtransfer();
@@ -196,8 +185,6 @@ describe("Operations:Execute:SlowPath", () => {
       upsertTaskStub.resolves();
       await expect(executeSlowPathData(mockTransferId, MessageType.ExecuteSlow, requestContext)).to.not.rejected;
       expect(sendExecuteSlowToRelayerStub.callCount).to.be.eq(3);
-      expect(setExecStatusStub.callCount).to.be.eq(1);
-      expect(upsertTaskStub.callCount).to.be.eq(1);
     });
 
     it("should prune all the executor data if fails", async () => {

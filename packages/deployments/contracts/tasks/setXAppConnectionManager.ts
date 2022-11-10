@@ -1,19 +1,27 @@
 import { task } from "hardhat/config";
 import { Contract } from "ethers";
 
-import { Env, getConnectorName, getDeploymentName, getMessagingProtocolConfig, mustGetEnv } from "../src/utils";
-import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
+import {
+  Env,
+  getConnectorName,
+  getDeploymentName,
+  getMessagingProtocolConfig,
+  mustGetEnv,
+  ProtocolNetwork,
+} from "../src/utils";
 
 type TaskArgs = {
   type: "all" | "bridge" | "promise" | "relayer";
   chains: string; // 1,2,3..
   env?: Env;
+  networkType?: ProtocolNetwork;
 };
 
 export default task("set-xapp-manager", "Updates the xapp connection manager")
   .addParam("type", "Which handler to enroll (all, connext, promise, relayer")
   .addOptionalParam("env", "Environment of contracts")
-  .setAction(async ({ type, chains: _chains, env: _env }: TaskArgs, hre) => {
+  .addOptionalParam("networkType", "Type of network of contracts")
+  .setAction(async ({ type, chains: _chains, env: _env, networkType: _networkType }: TaskArgs, hre) => {
     let { deployer } = await hre.ethers.getNamedSigners();
     if (!deployer) {
       [deployer] = await hre.ethers.getUnnamedSigners();
@@ -23,9 +31,11 @@ export default task("set-xapp-manager", "Updates the xapp connection manager")
     console.log("env:", env);
     console.log("type:", type);
     console.log("deployer: ", deployer.address);
+    const networkType = _networkType ?? ProtocolNetwork.TESTNET;
+    console.log("networkType: ", networkType);
 
     // get messaging config
-    const protocol = getMessagingProtocolConfig(env);
+    const protocol = getMessagingProtocolConfig(networkType);
     const chainId = +(await hre.getChainId());
     const connectorName = getDeploymentName(getConnectorName(protocol, chainId));
     const connector = await hre.deployments.getOrNull(connectorName);
@@ -33,10 +43,7 @@ export default task("set-xapp-manager", "Updates the xapp connection manager")
       throw new Error(`${connectorName} not deployed`);
     }
 
-    const names = [
-      "BridgeRouterUpgradeBeaconProxy",
-      "RelayerFeeRouterUpgradeBeaconProxy",
-    ]
+    const names = ["BridgeRouterUpgradeBeaconProxy", "RelayerFeeRouterUpgradeBeaconProxy"]
       .filter((name) => {
         if (type === "all") {
           return true;

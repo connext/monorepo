@@ -200,6 +200,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `0`
       */
       balance: number;
+      /**
+      * **asset_balances.fees_earned**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      fees_earned: number;
     }
     export interface JSONSelectable {
       /**
@@ -226,6 +232,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `0`
       */
       balance: number;
+      /**
+      * **asset_balances.fees_earned**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      fees_earned: number;
     }
     export interface Whereable {
       /**
@@ -252,6 +264,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `0`
       */
       balance?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **asset_balances.fees_earned**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      fees_earned?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -278,6 +296,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `0`
       */
       balance?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
+      /**
+      * **asset_balances.fees_earned**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      fees_earned?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -304,6 +328,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `0`
       */
       balance?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
+      /**
+      * **asset_balances.fees_earned**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      fees_earned?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'asset_balances_pkey';
     export type Column = keyof Selectable;
@@ -1253,7 +1283,7 @@ declare module 'zapatos/schema' {
     export interface Selectable {
       /**
       * **root_messages.id**
-      * - `bpchar` in database
+      * - `text` in database
       * - `NOT NULL`, no default
       */
       id: string;
@@ -1333,7 +1363,7 @@ declare module 'zapatos/schema' {
     export interface JSONSelectable {
       /**
       * **root_messages.id**
-      * - `bpchar` in database
+      * - `text` in database
       * - `NOT NULL`, no default
       */
       id: string;
@@ -1413,7 +1443,7 @@ declare module 'zapatos/schema' {
     export interface Whereable {
       /**
       * **root_messages.id**
-      * - `bpchar` in database
+      * - `text` in database
       * - `NOT NULL`, no default
       */
       id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
@@ -1493,7 +1523,7 @@ declare module 'zapatos/schema' {
     export interface Insertable {
       /**
       * **root_messages.id**
-      * - `bpchar` in database
+      * - `text` in database
       * - `NOT NULL`, no default
       */
       id: string | db.Parameter<string> | db.SQLFragment;
@@ -1573,7 +1603,7 @@ declare module 'zapatos/schema' {
     export interface Updatable {
       /**
       * **root_messages.id**
-      * - `bpchar` in database
+      * - `text` in database
       * - `NOT NULL`, no default
       */
       id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
@@ -1868,6 +1898,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       id: string | null;
+      /**
+      * **routers_with_balances.fees_earned**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fees_earned: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -1942,6 +1978,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       id: string | null;
+      /**
+      * **routers_with_balances.fees_earned**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fees_earned: number | null;
     }
     export interface Whereable {
       /**
@@ -2016,6 +2058,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **routers_with_balances.fees_earned**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fees_earned?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -2602,6 +2650,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       canonical_id: string | null;
+      /**
+      * **transfers.router_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      router_fee: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -2886,6 +2940,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       canonical_id: string | null;
+      /**
+      * **transfers.router_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      router_fee: number | null;
     }
     export interface Whereable {
       /**
@@ -3170,6 +3230,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.router_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      router_fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -3454,6 +3520,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       canonical_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.router_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      router_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -3738,6 +3810,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       canonical_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.router_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      router_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'transfers_pkey';
     export type Column = keyof Selectable;

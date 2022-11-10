@@ -53,9 +53,8 @@ library LibDiamond {
 
   function setContractOwner(address _newOwner) internal {
     DiamondStorage storage ds = diamondStorage();
-    address previousOwner = ds.contractOwner;
+    emit OwnershipTransferred(ds.contractOwner, _newOwner);
     ds.contractOwner = _newOwner;
-    emit OwnershipTransferred(previousOwner, _newOwner);
   }
 
   function contractOwner() internal view returns (address contractOwner_) {

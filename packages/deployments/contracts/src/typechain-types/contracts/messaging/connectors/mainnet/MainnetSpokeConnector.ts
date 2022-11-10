@@ -57,6 +57,7 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
     "home()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
+    "lastSentBlock()": FunctionFragment;
     "localDomain()": FunctionFragment;
     "messages(bytes32)": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
@@ -74,15 +75,18 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
     "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32,bytes32[32],uint256)": FunctionFragment;
     "provenAggregateRoots(bytes32)": FunctionFragment;
     "provenMessageRoots(bytes32)": FunctionFragment;
+    "rateLimitBlocks()": FunctionFragment;
     "removePendingAggregateRoot(bytes32)": FunctionFragment;
     "removeSender(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "send()": FunctionFragment;
     "sendMessage(bytes)": FunctionFragment;
+    "sentMessageRoots(bytes32)": FunctionFragment;
     "setDelayBlocks(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setMirrorGas(uint256)": FunctionFragment;
+    "setRateLimitBlocks(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
     "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
@@ -105,6 +109,7 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
       | "dispatch"
       | "home"
       | "isReplica"
+      | "lastSentBlock"
       | "localDomain"
       | "messages"
       | "mirrorConnector"
@@ -122,15 +127,18 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
       | "proveAndProcess"
       | "provenAggregateRoots"
       | "provenMessageRoots"
+      | "rateLimitBlocks"
       | "removePendingAggregateRoot"
       | "removeSender"
       | "renounceOwnership"
       | "renounced"
       | "send"
       | "sendMessage"
+      | "sentMessageRoots"
       | "setDelayBlocks"
       | "setMirrorConnector"
       | "setMirrorGas"
+      | "setRateLimitBlocks"
       | "setWatcherManager"
       | "unpause"
       | "verifySender"
@@ -181,6 +189,10 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "isReplica",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lastSentBlock",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "localDomain",
@@ -241,6 +253,10 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "rateLimitBlocks",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "removePendingAggregateRoot",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -259,6 +275,10 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "sentMessageRoots",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setDelayBlocks",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -268,6 +288,10 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setMirrorGas",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRateLimitBlocks",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
@@ -317,6 +341,10 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isReplica", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "lastSentBlock",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "localDomain",
     data: BytesLike
   ): Result;
@@ -364,6 +392,10 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "rateLimitBlocks",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "removePendingAggregateRoot",
     data: BytesLike
   ): Result;
@@ -382,6 +414,10 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "sentMessageRoots",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setDelayBlocks",
     data: BytesLike
   ): Result;
@@ -391,6 +427,10 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setMirrorGas",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRateLimitBlocks",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -420,6 +460,7 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused(address)": EventFragment;
     "Process(bytes32,bool,bytes)": EventFragment;
+    "SendRateLimitUpdated(address,uint256)": EventFragment;
     "SenderAdded(address)": EventFragment;
     "SenderRemoved(address)": EventFragment;
     "Unpaused(address)": EventFragment;
@@ -438,6 +479,7 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Process"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SendRateLimitUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
@@ -582,6 +624,18 @@ export type ProcessEvent = TypedEvent<
 
 export type ProcessEventFilter = TypedEventFilter<ProcessEvent>;
 
+export interface SendRateLimitUpdatedEventObject {
+  updater: string;
+  newRateLimit: BigNumber;
+}
+export type SendRateLimitUpdatedEvent = TypedEvent<
+  [string, BigNumber],
+  SendRateLimitUpdatedEventObject
+>;
+
+export type SendRateLimitUpdatedEventFilter =
+  TypedEventFilter<SendRateLimitUpdatedEvent>;
+
 export interface SenderAddedEventObject {
   sender: string;
 }
@@ -682,6 +736,8 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    lastSentBlock(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     localDomain(overrides?: CallOverrides): Promise<[number]>;
 
     messages(
@@ -745,6 +801,8 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    rateLimitBlocks(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -770,6 +828,11 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    sentMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -782,6 +845,11 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     setMirrorGas(
       _mirrorGas: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setRateLimitBlocks(
+      _rateLimit: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -846,6 +914,8 @@ export interface MainnetSpokeConnector extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  lastSentBlock(overrides?: CallOverrides): Promise<BigNumber>;
+
   localDomain(overrides?: CallOverrides): Promise<number>;
 
   messages(
@@ -909,6 +979,8 @@ export interface MainnetSpokeConnector extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  rateLimitBlocks(overrides?: CallOverrides): Promise<BigNumber>;
+
   removePendingAggregateRoot(
     _fraudulentRoot: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -934,6 +1006,11 @@ export interface MainnetSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  sentMessageRoots(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   setDelayBlocks(
     _delayBlocks: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -946,6 +1023,11 @@ export interface MainnetSpokeConnector extends BaseContract {
 
   setMirrorGas(
     _mirrorGas: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setRateLimitBlocks(
+    _rateLimit: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1008,6 +1090,8 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    lastSentBlock(overrides?: CallOverrides): Promise<BigNumber>;
+
     localDomain(overrides?: CallOverrides): Promise<number>;
 
     messages(
@@ -1069,6 +1153,8 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    rateLimitBlocks(overrides?: CallOverrides): Promise<BigNumber>;
+
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1090,6 +1176,11 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    sentMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1102,6 +1193,11 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     setMirrorGas(
       _mirrorGas: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setRateLimitBlocks(
+      _rateLimit: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1218,6 +1314,15 @@ export interface MainnetSpokeConnector extends BaseContract {
     ): ProcessEventFilter;
     Process(leaf?: null, success?: null, returnData?: null): ProcessEventFilter;
 
+    "SendRateLimitUpdated(address,uint256)"(
+      updater?: null,
+      newRateLimit?: null
+    ): SendRateLimitUpdatedEventFilter;
+    SendRateLimitUpdated(
+      updater?: null,
+      newRateLimit?: null
+    ): SendRateLimitUpdatedEventFilter;
+
     "SenderAdded(address)"(sender?: null): SenderAddedEventFilter;
     SenderAdded(sender?: null): SenderAddedEventFilter;
 
@@ -1276,6 +1381,8 @@ export interface MainnetSpokeConnector extends BaseContract {
       _potentialReplica: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    lastSentBlock(overrides?: CallOverrides): Promise<BigNumber>;
 
     localDomain(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1340,6 +1447,8 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    rateLimitBlocks(overrides?: CallOverrides): Promise<BigNumber>;
+
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1365,6 +1474,11 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    sentMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1377,6 +1491,11 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     setMirrorGas(
       _mirrorGas: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setRateLimitBlocks(
+      _rateLimit: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1442,6 +1561,8 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    lastSentBlock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     localDomain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     messages(
@@ -1505,6 +1626,8 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    rateLimitBlocks(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1530,6 +1653,11 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    sentMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1542,6 +1670,11 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     setMirrorGas(
       _mirrorGas: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setRateLimitBlocks(
+      _rateLimit: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

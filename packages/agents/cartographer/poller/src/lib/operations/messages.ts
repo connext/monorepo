@@ -32,12 +32,10 @@ export const retrieveOriginMessages = async () => {
     });
 
     const newOffset = originMessages.length == 0 ? 0 : originMessages[originMessages.length - 1].index;
-    await database.transaction(async (txnClient) => {
-      await database.saveMessages(xMessages, txnClient);
+    await database.saveMessages(xMessages);
 
-      // Reset offset at the end of the cycle.
-      await database.saveCheckPoint("message_" + domain, newOffset, txnClient);
-    });
+    // Reset offset at the end of the cycle.
+    await database.saveCheckPoint("message_" + domain, newOffset);
 
     logger.debug("Saved messages", requestContext, methodContext, { domain: domain, offset: newOffset });
   }
@@ -99,15 +97,13 @@ export const retrieveSentRootMessages = async () => {
 
     // Reset offset at the end of the cycle.
     const newOffset =
-      sentRootMessages.length == 0 ? 0 : Math.max(...sentRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
+      sentRootMessages.length == 0 ? 0 : Math.max(...sentRootMessages.map((message) => message.blockNumber ?? 0));
 
-    await database.transaction(async (txnClient) => {
-      await database.saveSentRootMessages(sentRootMessages, txnClient);
+    await database.saveSentRootMessages(sentRootMessages);
 
-      if (sentRootMessages.length > 0 && newOffset > offset) {
-        await database.saveCheckPoint("sent_root_message_" + domain, newOffset, txnClient);
-      }
-    });
+    if (sentRootMessages.length > 0 && newOffset > offset) {
+      await database.saveCheckPoint("sent_root_message_" + domain, newOffset);
+    }
 
     logger.debug("Saved sent root messages", requestContext, methodContext, { domain: domain, offset: newOffset });
   }
@@ -141,7 +137,7 @@ export const retrieveProcessedRootMessages = async () => {
     const newOffset =
       processedRootMessages.length == 0
         ? 0
-        : Math.max(...processedRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
+        : Math.max(...processedRootMessages.map((message) => message.blockNumber ?? 0));
 
     await database.saveProcessedRootMessages(processedRootMessages);
 

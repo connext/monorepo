@@ -186,6 +186,7 @@ export type MessagingProtocolConfig = {
     [chain: number]: {
       prefix: string; // The chain's name and the Connector name prefix.
       // Official AMB contract addresses.
+      networkName?: string;
       ambs: {
         hub: string;
         spoke: string;
@@ -324,6 +325,29 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
+      // 97: {
+      //   prefix: "Multichain",
+      //   networkName: "Chapel",
+      //   ambs: {
+      //     // FxRoot on goerli
+      //     // https://goerli.etherscan.io/address/0x965f84D915a9eFa2dD81b653e3AE736555d945f4
+      //     hub: "0x965f84D915a9eFa2dD81b653e3AE736555d945f4",
+      //     // FxChild on chapel/bsc testnet
+      //     // https://testnet.bscscan.com/address/0x484ff472d8b592E46EBC39964e84f7F758C49045
+      //     spoke: "0x484ff472d8b592E46EBC39964e84f7F758C49045",
+      //   },
+      //   processGas: DEFAULT_PROCESS_GAS,
+      //   reserveGas: DEFAULT_RESERVE_GAS,
+      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
+      //   custom: {
+      //     hub: {
+      //       mirrorChainId: "97",
+      //     },
+      //     spoke: {
+      //       mirrorChainId: "5",
+      //     },
+      //   },
+      // },
       5: {
         prefix: "Mainnet",
         ambs: {
@@ -370,18 +394,18 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
-      // 100: {
-      //   prefix: "Gnosis",
-      //   ambs: {
-      //     // https://etherscan.io/address/0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e
-      //     hub: "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e",
-      //     // https://blockscout.com/xdai/mainnet/address/0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59
-      //     spoke: "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
-      // },
+      100: {
+        prefix: "Gnosis",
+        ambs: {
+          // https://etherscan.io/address/0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e
+          hub: "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e",
+          // https://blockscout.com/xdai/mainnet/address/0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59
+          spoke: "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+      },
       // Polygon
       137: {
         prefix: "Polygon",
@@ -404,18 +428,49 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       },
       // Arbitrum one
       // https://developer.offchainlabs.com/docs/Useful_Addresses
-      // 42161: {
-      //   prefix: "Arbitrum",
-      //   ambs: {
-      //     // https://etherscan.io/address/0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f
-      //     hub: "0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f",
-      //     // https://arbiscan.io/address/0x0000000000000000000000000000000000000064
-      //     spoke: "0x0000000000000000000000000000000000000064",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
-      // },
+      42161: {
+        prefix: "Arbitrum",
+        ambs: {
+          // https://etherscan.io/address/0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f
+          hub: "0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f",
+          // https://arbiscan.io/address/0x0000000000000000000000000000000000000064
+          spoke: "0x0000000000000000000000000000000000000064",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        custom: {
+          hub: {
+            defaultGasPrice: DEFAULT_RESERVE_GAS,
+            // https://etherscan.io/address/0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840
+            outbox: "0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840",
+          },
+        },
+      },
+      // BNB Chain
+      56: {
+        prefix: "Multichain",
+        networkName: "Bnb",
+        ambs: {
+          // FxRoot on Mainnet
+          // https://etherscan.io/address/0xC10Ef9F491C9B59f936957026020C321651ac078
+          hub: "0xC10Ef9F491C9B59f936957026020C321651ac078",
+          // FxChild on BNB Chain
+          // https://bscscan.com/address/0xC10Ef9F491C9B59f936957026020C321651ac078
+          spoke: "0xC10Ef9F491C9B59f936957026020C321651ac078",
+        },
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {
+          hub: {
+            mirrorChainId: "56",
+          },
+          spoke: {
+            mirrorChainId: "1",
+          },
+        },
+      },
     },
   },
 };

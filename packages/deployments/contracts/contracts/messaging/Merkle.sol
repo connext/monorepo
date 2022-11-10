@@ -32,10 +32,6 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    */
   mapping(address => bool) public arborists;
 
-  // ============ Upgrade Gap ============
-
-  uint256[49] private __GAP; // gap for upgrade safety
-
   // ============ Modifiers ============
 
   modifier onlyArborist() {
@@ -96,6 +92,13 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     arborists[newArborist] = true;
   }
 
+  /**
+   * @notice Remove ability to renounce ownership
+   * @dev Renounce ownership should be impossible as long as there is a possibility the
+   * arborist may change.
+   */
+  function renounceOwnership() public virtual override onlyOwner {}
+
   // ========= Public Functions =========
 
   /**
@@ -139,4 +142,7 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     _count = tree.count;
     _root = tree.root();
   }
+
+  // ============ Upgrade Gap ============
+  uint256[48] private __GAP; // gap for upgrade safety
 }
