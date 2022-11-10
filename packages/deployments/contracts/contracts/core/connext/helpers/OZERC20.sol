@@ -68,7 +68,7 @@ contract ERC20 is IERC20, IERC20Permit {
   uint256 private immutable _CACHED_CHAIN_ID;
   address private immutable _CACHED_THIS;
 
-  bytes32 private _HASHED_VERSION;
+  bytes32 private immutable _HASHED_VERSION;
   bytes32 private _HASHED_NAME;
 
   /**
