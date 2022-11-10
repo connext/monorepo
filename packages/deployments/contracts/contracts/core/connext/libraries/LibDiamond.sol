@@ -40,6 +40,8 @@ library LibDiamond {
     mapping(bytes32 => uint256) acceptanceTimes;
     // acceptance delay for upgrading facets
     uint256 acceptanceDelay;
+    // stores whether there has been an initial cut
+    bool initialCut;
   }
 
   function diamondStorage() internal pure returns (DiamondStorage storage ds) {
@@ -108,10 +110,15 @@ library LibDiamond {
     bytes memory _calldata
   ) internal {
     DiamondStorage storage ds = diamondStorage();
-    if (ds.facetAddresses.length != 0) {
+    if (ds.initialCut) {
       uint256 time = ds.acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))];
       require(time != 0 && time <= block.timestamp, "LibDiamond: delay not elapsed");
-    } // Otherwise, this is the first instance of deployment and it can be set automatically
+    } else {
+      // This is the first instance of using `diamondCut` and setting the facets.
+      // Update the flag so future iterations go through the proposal process
+      ds.initialCut = true;
+    }
+
     for (uint256 facetIndex; facetIndex < _diamondCut.length; facetIndex++) {
       IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;
       if (action == IDiamondCut.FacetCutAction.Add) {
