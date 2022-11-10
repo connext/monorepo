@@ -175,9 +175,8 @@ contract ArbitrumHubConnector is HubConnector {
       mirrorConnector, // destAddr
       0, // arbTxCallValue
       _lesserOf(maxSubmissionCost, maxSubmissionCostCap), // maxSubmissionCost: Amount of ETH allocated to pay for the base submission fee
-      msg.sender, // submissionRefundAddress: Address to which all excess gas is credited on L2
-      // FIXME: make ^^ mirror connector, add owner withdrawal fn
-      msg.sender, // valueRefundAddress: Address to which CallValue will be credited to on L2 if the retryable ticket times out or is cancelled
+      mirrorConnector, // submissionRefundAddress: Address to which all excess gas is credited on L2
+      mirrorConnector, // valueRefundAddress: Address to which CallValue will be credited to on L2 if the retryable ticket times out or is cancelled
       _lesserOf(maxGas, maxGasCap), // maxGas: Gas limit for immediate L2 execution attempt
       _lesserOf(gasPrice, gasPriceCap), // gasPriceBid: L2 Gas price bid for immediate L2 execution attempt
       _calldata // data

@@ -297,8 +297,8 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
         _l2Connector, //destAddr
         0, //arbTxCallValue
         _maxSubmissionCostCap, //maxSubmissionCost
-        _rootManager, //submissionRefundAddress
-        _rootManager, //valueRefundAddress
+        _l2Connector, //submissionRefundAddress
+        _l2Connector, //valueRefundAddress
         _gasCap, //maxGas
         _defaultGasPrice, //gasPriceBid
         abi.encodeWithSelector(Connector.processMessage.selector, _data) // data
@@ -332,8 +332,8 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
         _l2Connector, //destAddr
         0, //arbTxCallValue
         _maxSubmissionCostCap, //maxSubmissionCost
-        _rootManager, //submissionRefundAddress
-        _rootManager, //valueRefundAddress
+        _l2Connector, //submissionRefundAddress
+        _l2Connector, //valueRefundAddress
         _gasCap, //maxGas
         _defaultGasPrice, //gasPriceBid
         abi.encodeWithSelector(Connector.processMessage.selector, _data) // data

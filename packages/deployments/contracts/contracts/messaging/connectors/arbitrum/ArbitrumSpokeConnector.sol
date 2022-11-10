@@ -2,6 +2,7 @@
 pragma solidity 0.8.15;
 
 import {LibArbitrumL2} from "@openzeppelin/contracts/crosschain/arbitrum/LibArbitrumL2.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {ArbitrumL2Amb} from "../../interfaces/ambs/arbitrum/ArbitrumL2Amb.sol";
@@ -10,6 +11,16 @@ import {SpokeConnector} from "../SpokeConnector.sol";
 import {Connector} from "../Connector.sol";
 
 contract ArbitrumSpokeConnector is SpokeConnector {
+  // ============ Events ============
+  /**
+   * @notice Emitted when funds are withdrawn by the admin
+   * @dev See comments in `withdrawFunds`
+   * @param to The recipient of the funds
+   * @param amount The amount withdrawn
+   */
+  event FundsWithdrawn(address indexed to, uint256 amount);
+
+  // ============ Constructor ============
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
@@ -35,6 +46,28 @@ contract ArbitrumSpokeConnector is SpokeConnector {
       _watcherManager
     )
   {}
+
+  // ============ Receivable ============
+  receive() external payable {}
+
+  // ============ Admin fns ============
+
+  /**
+   * @notice This function should be callable by owner, and send funds to the
+   * provided recipient.
+   * @dev Retryables require an address on L2 that can receive funds from gas
+   * submission refunds and value refunds. The hub connector will use this address
+   * as the beneficiary.
+   *
+   * Withdraws the entire balance of the contract.
+   *
+   * @param _to The recipient of the funds withdrawn
+   */
+  function withdrawFunds(address _to) public onlyOwner {
+    uint256 amount = address(this).balance;
+    Address.sendValue(payable(_to), amount);
+    emit FundsWithdrawn(_to, amount);
+  }
 
   // ============ Private fns ============
 
