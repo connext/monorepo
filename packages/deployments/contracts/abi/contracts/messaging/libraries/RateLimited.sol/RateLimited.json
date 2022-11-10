@@ -1,0 +1,6 @@
+[
+  "error RateLimited__rateLimited_messageSendRateExceeded()",
+  "event SendRateLimitUpdated(address,uint256)",
+  "function lastSentBlock() view returns (uint256)",
+  "function rateLimitBlocks() view returns (uint256)"
+]
