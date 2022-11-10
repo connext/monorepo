@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {ProposedOwnableUpgradeable} from "../shared/ProposedOwnable.sol";
 import {MerkleLib} from "./libraries/Merkle.sol";

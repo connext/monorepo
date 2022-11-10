@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // https://github.com/fx-portal/contracts/blob/main/contracts/lib/RLPReader.sol
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 library RLPReader {
   uint8 constant STRING_SHORT_START = 0x80;

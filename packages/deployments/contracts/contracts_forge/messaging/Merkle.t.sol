@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {MerkleTreeManager} from "../../contracts/messaging/Merkle.sol";
 import {MerkleLib} from "../../contracts/messaging/libraries/Merkle.sol";
