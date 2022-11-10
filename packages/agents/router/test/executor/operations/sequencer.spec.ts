@@ -26,14 +26,13 @@ describe("Operations:Sequencer", () => {
       expect(axiosPostStub.callCount).to.be.eq(0);
     });
 
-    it("should throw SequencerResponseInvalid error if response/response.data is empty", async () => {
+    it("should keep running even if response/response.data is empty", async () => {
       axiosPostStub.resolves({ code: 200, message: "success" });
       const executeArgs = mock.entity.executeArgs();
       const transferId = mkBytes32();
       const encodedDataMock = "0xabcde";
-      await expect(
-        sendExecuteSlowToSequencer(executeArgs, encodedDataMock, transferId, requestContext),
-      ).to.be.rejectedWith(SequencerResponseInvalid);
+      await expect(sendExecuteSlowToSequencer(executeArgs, encodedDataMock, transferId, requestContext)).to.not
+        .rejected;
       expect(axiosPostStub.callCount).to.be.eq(1);
     });
 
