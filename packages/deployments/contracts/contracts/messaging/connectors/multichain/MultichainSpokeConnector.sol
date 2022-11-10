@@ -21,7 +21,8 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
     uint256 _delayBlocks,
     address _merkle,
     address _watcherManager,
-    uint256 _mirrorChainId
+    uint256 _mirrorChainId,
+    uint256 _gasCap
   )
     SpokeConnector(
       _domain,
@@ -35,7 +36,7 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
       _merkle,
       _watcherManager
     )
-    BaseMultichain(_amb, _mirrorChainId)
+    BaseMultichain(_amb, _mirrorChainId, _gasCap)
   {}
 
   // ============ Private fns ============
@@ -53,9 +54,7 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
   }
 
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
-    // Should not include specialized calldata
-    require(_encodedData.length == 0, "!data length");
-    _sendMessage(AMB, _data);
+    _sendMessage(AMB, mirrorConnector, _data, _encodedData);
   }
 
   function _verifySender(address _expected) internal view override returns (bool) {
