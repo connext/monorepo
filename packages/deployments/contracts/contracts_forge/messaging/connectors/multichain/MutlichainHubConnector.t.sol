@@ -46,7 +46,7 @@ contract MultichainHubConnectorTest is ConnectorHelper {
       abi.encodeCall(
         Multichain.anyCall,
         (
-          _amb,
+          _l2Connector,
           _data,
           address(0), // fallback address
           _chainIdL2, // chain id
@@ -61,7 +61,7 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     emit MessageSent(_data, _rootManager);
 
     // Check: call to multichain anyCall?
-    vm.expectCall(_amb, abi.encodeCall(Multichain.anyCall, (_amb, _data, address(0), _chainIdL2, 0)));
+    vm.expectCall(_amb, abi.encodeCall(Multichain.anyCall, (_l2Connector, _data, address(0), _chainIdL2, 0)));
 
     vm.prank(_rootManager);
     MultichainHubConnector(_l1Connector).sendMessage(_data);
