@@ -7,6 +7,7 @@ import {LPToken} from "../helpers/LPToken.sol";
 
 import {AmplificationUtils} from "./AmplificationUtils.sol";
 import {MathUtils} from "./MathUtils.sol";
+import {AssetLogic} from "./AssetLogic.sol";
 
 /**
  * @title SwapUtils library
@@ -707,12 +708,8 @@ library SwapUtils {
     {
       IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
       require(dx <= tokenFrom.balanceOf(msg.sender), "swap more than you own");
-      // Transfer tokens first to see if a fee was charged on transfer
-      uint256 beforeBalance = tokenFrom.balanceOf(address(this));
-      tokenFrom.safeTransferFrom(msg.sender, address(this), dx);
-
-      // Use the actual transferred amount for AMM math
-      require(dx == tokenFrom.balanceOf(address(this)) - beforeBalance, "no fee token support");
+      // Reverts for fee on transfer
+      AssetLogic.handleIncomingAsset(address(tokenFrom), dx);
     }
 
     uint256 dy;
@@ -771,12 +768,8 @@ library SwapUtils {
     {
       IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
       require(dx <= tokenFrom.balanceOf(msg.sender), "more than you own");
-      // Transfer tokens first to see if a fee was charged on transfer
-      uint256 beforeBalance = tokenFrom.balanceOf(address(this));
-      tokenFrom.safeTransferFrom(msg.sender, address(this), dx);
-
-      // Use the actual transferred amount for AMM math
-      require(dx == tokenFrom.balanceOf(address(this)) - beforeBalance, "not support fee token");
+      // Reverts for fee on transfer
+      AssetLogic.handleIncomingAsset(address(tokenFrom), dx);
     }
 
     self.pooledTokens[tokenIndexTo].safeTransfer(msg.sender, dy);
@@ -897,8 +890,8 @@ library SwapUtils {
       // Transfer tokens first to see if a fee was charged on transfer
       if (amounts[i] != 0) {
         IERC20 token = self.pooledTokens[i];
-        uint256 beforeBalance = token.balanceOf(address(this));
-        token.safeTransferFrom(msg.sender, address(this), amounts[i]);
+        // Reverts for fee on transfer
+        AssetLogic.handleIncomingAsset(address(token), amounts[i]);
       }
 
       newBalances[i] = v.balances[i] + amounts[i];
