@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {Multichain} from "../../interfaces/ambs/Multichain.sol";
 
-import {SpokeConnector} from "../SpokeConnector.sol";
+import {SpokeConnector, ProposedOwnable} from "../SpokeConnector.sol";
 import {Connector} from "../Connector.sol";
 
 import {BaseMultichain} from "./BaseMultichain.sol";
@@ -38,6 +38,13 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
     )
     BaseMultichain(_amb, _mirrorChainId, _gasCap)
   {}
+
+  // ============ Admin fns ============
+
+  /**
+   * @notice Should not be able to renounce ownership
+   */
+  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {}
 
   // ============ Private fns ============
   /**

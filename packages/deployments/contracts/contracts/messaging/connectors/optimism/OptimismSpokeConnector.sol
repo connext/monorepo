@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {OptimismAmb} from "../../interfaces/ambs/optimism/OptimismAmb.sol";
 
-import {SpokeConnector} from "../SpokeConnector.sol";
+import {SpokeConnector, ProposedOwnable} from "../SpokeConnector.sol";
 import {Connector} from "../Connector.sol";
 
 import {BaseOptimism} from "./BaseOptimism.sol";
@@ -43,6 +43,11 @@ contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
   function _verifySender(address _expected) internal view override returns (bool) {
     return _verifySender(AMB, _expected);
   }
+
+  /**
+   * @notice Should not be able to renounce ownership
+   */
+  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {}
 
   /**
    * @dev Sends `outboundRoot` to root manager on l1
