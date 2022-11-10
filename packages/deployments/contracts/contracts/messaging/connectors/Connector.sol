@@ -114,6 +114,13 @@ abstract contract Connector is ProposedOwnable, IConnector {
     emit NewConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector);
   }
 
+  // ============ Receivable ============
+  /**
+   * @notice Connectors may need to receive native asset to handle fees when sending a
+   * message
+   */
+  receive() external payable {}
+
   // ============ Admin Functions ============
 
   /**

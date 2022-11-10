@@ -2,6 +2,7 @@
 pragma solidity 0.8.15;
 
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
 
@@ -45,6 +46,14 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
 
   event Process(bytes32 leaf, bool success, bytes returnData);
+
+  /**
+   * @notice Emitted when funds are withdrawn by the admin
+   * @dev See comments in `withdrawFunds`
+   * @param to The recipient of the funds
+   * @param amount The amount withdrawn
+   */
+  event FundsWithdrawn(address indexed to, uint256 amount);
 
   // ============ Structs ============
 
@@ -231,6 +240,19 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     emit AggregateRootRemoved(_fraudulentRoot);
   }
 
+  /**
+   * @notice This function should be callable by owner, and send funds trapped on
+   * a connector to the provided recipient.
+   * @dev Withdraws the entire balance of the contract.
+   *
+   * @param _to The recipient of the funds withdrawn
+   */
+  function withdrawFunds(address _to) public onlyOwner {
+    uint256 amount = address(this).balance;
+    Address.sendValue(payable(_to), amount);
+    emit FundsWithdrawn(_to, amount);
+  }
+
   // ============ Public Functions ============
 
   /**
@@ -253,7 +275,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @notice This returns the root of all messages with the origin domain as this domain (i.e.
    * all outbound messages)
    */
-  function send(bytes memory _encodedData) external whenNotPaused {
+  function send(bytes memory _encodedData) external payable whenNotPaused {
     bytes memory _data = abi.encodePacked(MERKLE.root());
     _sendMessage(_data, _encodedData);
     emit MessageSent(_data, _encodedData, msg.sender);
