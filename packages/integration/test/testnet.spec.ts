@@ -1,11 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import { Wallet, utils, BigNumber, providers, constants } from "ethers";
-import { makePublisher, makeSubscriber } from "@connext/nxtp-sequencer/src/sequencer";
-import { makePublisher as makeRouterPublisher } from "@connext/nxtp-router/src/tasks/publisher/publisher";
-import { makeSubscriber as makeRouterSubscriber } from "@connext/nxtp-router/src/tasks/subscriber/subscriber";
 import { makeRelayer } from "@connext/nxtp-relayer/src/relayer";
-import { makeRoutersPoller } from "@connext/cartographer-poller/src/routersPoller";
-import { makeTransfersPoller } from "@connext/cartographer-poller/src/transfersPoller";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig } from "@connext/nxtp-router/src/config";
 import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
@@ -17,7 +12,6 @@ import {
   OriginTransfer,
   DestinationTransfer,
   ERC20Abi,
-  getGelatoRelayerAddress,
   Logger,
   XCallArgs,
   ChainData,

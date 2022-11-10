@@ -258,8 +258,6 @@ export type { DomainIndexer } from "./contracts/messaging/libraries/DomainIndexe
 export { DomainIndexer__factory } from "./factories/contracts/messaging/libraries/DomainIndexer__factory";
 export type { MerkleLib } from "./contracts/messaging/libraries/Merkle.sol/MerkleLib";
 export { MerkleLib__factory } from "./factories/contracts/messaging/libraries/Merkle.sol/MerkleLib__factory";
-export type { RateLimited } from "./contracts/messaging/libraries/RateLimited";
-export { RateLimited__factory } from "./factories/contracts/messaging/libraries/RateLimited__factory";
 export type { MerkleTreeManager } from "./contracts/messaging/Merkle.sol/MerkleTreeManager";
 export { MerkleTreeManager__factory } from "./factories/contracts/messaging/Merkle.sol/MerkleTreeManager__factory";
 export type { RootManager } from "./contracts/messaging/RootManager";

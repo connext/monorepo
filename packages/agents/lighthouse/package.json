@@ -29,7 +29,6 @@
     "@connext/nxtp-utils": "workspace:*",
     "@eth-optimism/sdk": "1.6.9",
     "@sinclair/typebox": "0.25.2",
-    "axios": "1.1.3",
     "dd-trace": "3.6.0",
     "dotenv": "16.0.3",
     "ethers": "5.7.2",

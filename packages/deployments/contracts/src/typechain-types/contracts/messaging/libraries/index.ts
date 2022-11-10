@@ -4,4 +4,3 @@
 import type * as merkleSol from "./Merkle.sol";
 export type { merkleSol };
 export type { DomainIndexer } from "./DomainIndexer";
-export type { RateLimited } from "./RateLimited";

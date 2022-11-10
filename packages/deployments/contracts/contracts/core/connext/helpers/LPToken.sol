@@ -11,10 +11,6 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
  * @dev Only Swap contracts should initialize and own LPToken contracts.
  */
 contract LPToken is ERC20Upgradeable, OwnableUpgradeable {
-  // ============ Upgrade Gap ============
-
-  uint256[49] private __GAP; // gap for upgrade safety
-
   // ============ Storage ============
 
   /**
@@ -88,4 +84,7 @@ contract LPToken is ERC20Upgradeable, OwnableUpgradeable {
     super._beforeTokenTransfer(from, to, amount);
     require(to != address(this), "LPToken: cannot send to itself");
   }
+
+  // ============ Upgrade Gap ============
+  uint256[50] private __GAP; // gap for upgrade safety
 }

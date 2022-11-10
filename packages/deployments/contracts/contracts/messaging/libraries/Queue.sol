@@ -65,6 +65,7 @@ library QueueLib {
     uint128 first = queue.first;
     uint128 last = queue.last;
     require(last >= first, "queue empty");
+    require(first != 0, "queue !init'd");
     require(max > 0, "!acceptable max");
 
     {

@@ -55,7 +55,6 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
     NA,
     DIRECT,
     CHAINLINK,
-    DEX,
     V1_ORACLE
   }
 

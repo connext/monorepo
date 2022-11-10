@@ -48,6 +48,54 @@
     ]
   },
   {
+    "subgraphName": "connext/amarok-runtime-v0-arbitrum-one",
+    "network": "arbitrum-one",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x9963a1E4fD60ba4a89E92930c8D8686514705BB6",
+        "startBlock": 35021501
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
+        "startBlock": 35021115
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/amarok-runtime-v0-bnb",
+    "network": "bsc",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xB20c7f8aDe683C1ad7F5b76435D9345059b1ed3F",
+        "startBlock": 22763177
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
+        "startBlock": 22763099
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/amarok-runtime-v0-gnosis",
+    "network": "gnosis",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x955D1693C64e5a0746130FF6F6653E2171cC6708",
+        "startBlock": 24856789
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
+        "startBlock": 24856764
+      }
+    ]
+  },
+  {
     "subgraphName": "connext/nxtp-amarok-runtime-v0-goerli",
     "network": "goerli",
     "source": [

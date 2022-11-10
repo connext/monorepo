@@ -11,10 +11,6 @@ import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/
  * @dev Only methods using the provided modifiers will be paused.
  */
 abstract contract OwnerPausableUpgradeable is OwnableUpgradeable, PausableUpgradeable {
-  // ============ Upgrade Gap ============
-
-  uint256[49] private __GAP; // gap for upgrade safety
-
   // ============ Initializer ============
 
   function __OwnerPausable_init() internal onlyInitializing {
@@ -38,4 +34,7 @@ abstract contract OwnerPausableUpgradeable is OwnableUpgradeable, PausableUpgrad
   function unpause() external onlyOwner {
     PausableUpgradeable._unpause();
   }
+
+  // ============ Upgrade Gap ============
+  uint256[50] private __GAP; // gap for upgrade safety
 }

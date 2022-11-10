@@ -35,5 +35,5 @@ export const execute = async (args: ExecuteArgs, transferId: string): Promise<vo
   }
 
   const encodedData = contracts.connext.encodeFunctionData("execute", [args]);
-  await sendExecuteSlowToSequencer(args, encodedData, transferId, requestContext);
+  sendExecuteSlowToSequencer(args, encodedData, transferId, requestContext);
 };

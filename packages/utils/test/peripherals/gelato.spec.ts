@@ -1,8 +1,8 @@
 import { restore, reset, stub, SinonStub } from "sinon";
-import axios from "axios";
 import { BigNumber } from "ethers";
 
 import { getGelatoEstimatedFee, expect, isOracleActive, getGelatoOracles, getConversionRate } from "../../src";
+import * as AxiosFns from "../../src/helpers/axios";
 
 export const mockGelatoSDKSuccessResponse = { taskId: "1" };
 
@@ -10,7 +10,7 @@ describe("Peripherals:Gelato", () => {
   let axiosGetStub: SinonStub;
 
   beforeEach(() => {
-    axiosGetStub = stub(axios, "get");
+    axiosGetStub = stub(AxiosFns, "axiosGet");
   });
 
   afterEach(() => {

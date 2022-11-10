@@ -3,4 +3,3 @@
 /* eslint-disable */
 export * as merkleSol from "./Merkle.sol";
 export { DomainIndexer__factory } from "./DomainIndexer__factory";
-export { RateLimited__factory } from "./RateLimited__factory";
