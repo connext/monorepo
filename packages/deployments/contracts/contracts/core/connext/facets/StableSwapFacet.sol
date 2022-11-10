@@ -314,7 +314,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint256 amount,
     uint256[] calldata minAmounts,
     uint256 deadline
-  ) external nonReentrant deadlineCheck(deadline) whenNotPaused returns (uint256[] memory) {
+  ) external nonReentrant deadlineCheck(deadline) returns (uint256[] memory) {
     return s.swapStorages[key].removeLiquidity(amount, minAmounts);
   }
 
@@ -334,7 +334,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint8 tokenIndex,
     uint256 minAmount,
     uint256 deadline
-  ) external nonReentrant deadlineCheck(deadline) whenNotPaused returns (uint256) {
+  ) external nonReentrant deadlineCheck(deadline) returns (uint256) {
     return s.swapStorages[key].removeLiquidityOneToken(tokenAmount, tokenIndex, minAmount);
   }
 
@@ -354,7 +354,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint256[] calldata amounts,
     uint256 maxBurnAmount,
     uint256 deadline
-  ) external nonReentrant deadlineCheck(deadline) whenNotPaused returns (uint256) {
+  ) external nonReentrant deadlineCheck(deadline) returns (uint256) {
     return s.swapStorages[key].removeLiquidityImbalance(amounts, maxBurnAmount);
   }
 }
