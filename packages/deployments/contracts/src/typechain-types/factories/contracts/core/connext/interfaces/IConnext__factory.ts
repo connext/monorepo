@@ -397,6 +397,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "_key",
+        type: "bytes32",
+      },
+    ],
+    name: "adoptedToLocalPools",
+    outputs: [
+      {
+        internalType: "contract IStableSwap",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         components: [
           {
             internalType: "uint32",
@@ -414,26 +433,7 @@ const _abi = [
         type: "tuple",
       },
     ],
-    name: "adoptedToLocalExternalPools",
-    outputs: [
-      {
-        internalType: "contract IStableSwap",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_key",
-        type: "bytes32",
-      },
-    ],
-    name: "adoptedToLocalExternalPools",
+    name: "adoptedToLocalPools",
     outputs: [
       {
         internalType: "contract IStableSwap",
