@@ -402,6 +402,10 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    stateMutability: "payable",
+    type: "receive",
+  },
 ];
 
 export class HubConnector__factory {

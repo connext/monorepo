@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -88,6 +89,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
     "whitelistedSenders(address)": FunctionFragment;
+    "withdrawFunds(address)": FunctionFragment;
   };
 
   getFunction(
@@ -137,6 +139,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "unpause"
       | "verifySender"
       | "whitelistedSenders"
+      | "withdrawFunds"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
@@ -296,6 +299,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     functionFragment: "whitelistedSenders",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFunds",
+    values: [PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
@@ -423,11 +430,16 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     functionFragment: "whitelistedSenders",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFunds",
+    data: BytesLike
+  ): Result;
 
   events: {
     "AggregateRootReceived(bytes32)": EventFragment;
     "AggregateRootRemoved(bytes32)": EventFragment;
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
+    "FundsWithdrawn(address,uint256)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes)": EventFragment;
     "MessageSent(bytes,bytes,address)": EventFragment;
@@ -446,6 +458,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "AggregateRootReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AggregateRootRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Dispatch"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FundsWithdrawn"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent(bytes)"): EventFragment;
   getEvent(
@@ -497,6 +510,17 @@ export type DispatchEvent = TypedEvent<
 >;
 
 export type DispatchEventFilter = TypedEventFilter<DispatchEvent>;
+
+export interface FundsWithdrawnEventObject {
+  to: string;
+  amount: BigNumber;
+}
+export type FundsWithdrawnEvent = TypedEvent<
+  [string, BigNumber],
+  FundsWithdrawnEventObject
+>;
+
+export type FundsWithdrawnEventFilter = TypedEventFilter<FundsWithdrawnEvent>;
 
 export interface MessageProcessedEventObject {
   data: string;
@@ -792,7 +816,7 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     send(
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setDelayBlocks(
@@ -828,6 +852,11 @@ export interface PolygonSpokeConnector extends BaseContract {
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   AMB(overrides?: CallOverrides): Promise<string>;
@@ -961,7 +990,7 @@ export interface PolygonSpokeConnector extends BaseContract {
 
   send(
     _encodedData: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setDelayBlocks(
@@ -997,6 +1026,11 @@ export interface PolygonSpokeConnector extends BaseContract {
     arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  withdrawFunds(
+    _to: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
     AMB(overrides?: CallOverrides): Promise<string>;
@@ -1158,6 +1192,11 @@ export interface PolygonSpokeConnector extends BaseContract {
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -1183,6 +1222,15 @@ export interface PolygonSpokeConnector extends BaseContract {
       root?: null,
       message?: null
     ): DispatchEventFilter;
+
+    "FundsWithdrawn(address,uint256)"(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
+    FundsWithdrawn(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
 
     "MessageProcessed(bytes,address)"(
       data?: null,
@@ -1396,7 +1444,7 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     send(
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setDelayBlocks(
@@ -1431,6 +1479,11 @@ export interface PolygonSpokeConnector extends BaseContract {
     whitelistedSenders(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -1566,7 +1619,7 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     send(
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setDelayBlocks(
@@ -1601,6 +1654,11 @@ export interface PolygonSpokeConnector extends BaseContract {
     whitelistedSenders(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

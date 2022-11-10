@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -80,11 +81,13 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     "renounced()": FunctionFragment;
     "send(bytes)": FunctionFragment;
     "setDelayBlocks(uint256)": FunctionFragment;
+    "setGasCap(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
     "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
     "whitelistedSenders(address)": FunctionFragment;
+    "withdrawFunds(address)": FunctionFragment;
   };
 
   getFunction(
@@ -126,11 +129,13 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
       | "renounced"
       | "send"
       | "setDelayBlocks"
+      | "setGasCap"
       | "setMirrorConnector"
       | "setWatcherManager"
       | "unpause"
       | "verifySender"
       | "whitelistedSenders"
+      | "withdrawFunds"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
@@ -261,6 +266,10 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setGasCap",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setMirrorConnector",
     values: [PromiseOrValue<string>]
   ): string;
@@ -275,6 +284,10 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "whitelistedSenders",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFunds",
     values: [PromiseOrValue<string>]
   ): string;
 
@@ -375,6 +388,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     functionFragment: "setDelayBlocks",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setMirrorConnector",
     data: BytesLike
@@ -392,11 +406,17 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     functionFragment: "whitelistedSenders",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFunds",
+    data: BytesLike
+  ): Result;
 
   events: {
     "AggregateRootReceived(bytes32)": EventFragment;
     "AggregateRootRemoved(bytes32)": EventFragment;
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
+    "FundsWithdrawn(address,uint256)": EventFragment;
+    "GasCapUpdated(uint256,uint256)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes,bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
@@ -414,6 +434,8 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "AggregateRootReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AggregateRootRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Dispatch"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FundsWithdrawn"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GasCapUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
@@ -462,6 +484,28 @@ export type DispatchEvent = TypedEvent<
 >;
 
 export type DispatchEventFilter = TypedEventFilter<DispatchEvent>;
+
+export interface FundsWithdrawnEventObject {
+  to: string;
+  amount: BigNumber;
+}
+export type FundsWithdrawnEvent = TypedEvent<
+  [string, BigNumber],
+  FundsWithdrawnEventObject
+>;
+
+export type FundsWithdrawnEventFilter = TypedEventFilter<FundsWithdrawnEvent>;
+
+export interface GasCapUpdatedEventObject {
+  _previous: BigNumber;
+  _updated: BigNumber;
+}
+export type GasCapUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  GasCapUpdatedEventObject
+>;
+
+export type GasCapUpdatedEventFilter = TypedEventFilter<GasCapUpdatedEvent>;
 
 export interface MessageProcessedEventObject {
   data: string;
@@ -739,11 +783,16 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     send(
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setGasCap(
+      _gasCap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -770,6 +819,11 @@ export interface MultichainSpokeConnector extends BaseContract {
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   AMB(overrides?: CallOverrides): Promise<string>;
@@ -897,11 +951,16 @@ export interface MultichainSpokeConnector extends BaseContract {
 
   send(
     _encodedData: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setDelayBlocks(
     _delayBlocks: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setGasCap(
+    _gasCap: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -928,6 +987,11 @@ export interface MultichainSpokeConnector extends BaseContract {
     arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  withdrawFunds(
+    _to: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
     AMB(overrides?: CallOverrides): Promise<string>;
@@ -1057,6 +1121,11 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setGasCap(
+      _gasCap: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1078,6 +1147,11 @@ export interface MultichainSpokeConnector extends BaseContract {
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -1103,6 +1177,21 @@ export interface MultichainSpokeConnector extends BaseContract {
       root?: null,
       message?: null
     ): DispatchEventFilter;
+
+    "FundsWithdrawn(address,uint256)"(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
+    FundsWithdrawn(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
+
+    "GasCapUpdated(uint256,uint256)"(
+      _previous?: null,
+      _updated?: null
+    ): GasCapUpdatedEventFilter;
+    GasCapUpdated(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
 
     "MessageProcessed(bytes,address)"(
       data?: null,
@@ -1314,11 +1403,16 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     send(
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setGasCap(
+      _gasCap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1344,6 +1438,11 @@ export interface MultichainSpokeConnector extends BaseContract {
     whitelistedSenders(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -1473,11 +1572,16 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     send(
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setGasCap(
+      _gasCap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1503,6 +1607,11 @@ export interface MultichainSpokeConnector extends BaseContract {
     whitelistedSenders(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

@@ -1,5 +1,5 @@
 [
-  "constructor(uint32,uint32,address,address,address,uint256)",
+  "constructor(uint32,uint32,address,address,address,uint256,uint256)",
   "error ProposedOwnable__acceptProposedOwner_delayNotElapsed()",
   "error ProposedOwnable__onlyOwner_notOwner()",
   "error ProposedOwnable__onlyProposed_notProposedOwner()",
@@ -8,6 +8,7 @@
   "error ProposedOwnable__renounceOwnership_delayNotElapsed()",
   "error ProposedOwnable__renounceOwnership_invalidProposal()",
   "error ProposedOwnable__renounceOwnership_noProposal()",
+  "event GasCapUpdated(uint256,uint256)",
   "event MessageProcessed(bytes,address)",
   "event MessageSent(bytes,bytes,address)",
   "event MirrorConnectorUpdated(address,address)",
@@ -30,6 +31,7 @@
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
   "function sendMessage(bytes,bytes) payable",
+  "function setGasCap(uint256)",
   "function setMirrorConnector(address)",
   "function verifySender(address) returns (bool)"
 ]

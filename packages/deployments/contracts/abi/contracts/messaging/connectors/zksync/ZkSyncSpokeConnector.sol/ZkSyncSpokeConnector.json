@@ -11,6 +11,7 @@
   "event AggregateRootReceived(bytes32)",
   "event AggregateRootRemoved(bytes32)",
   "event Dispatch(bytes32,uint256,bytes32,bytes)",
+  "event FundsWithdrawn(address indexed,uint256)",
   "event MessageProcessed(bytes,address)",
   "event MessageSent(bytes,bytes,address)",
   "event MirrorConnectorUpdated(address,address)",
@@ -57,11 +58,12 @@
   "function removeSender(address)",
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
-  "function send(bytes)",
+  "function send(bytes) payable",
   "function setDelayBlocks(uint256)",
   "function setMirrorConnector(address)",
   "function setWatcherManager(address)",
   "function unpause()",
   "function verifySender(address) returns (bool)",
-  "function whitelistedSenders(address) view returns (bool)"
+  "function whitelistedSenders(address) view returns (bool)",
+  "function withdrawFunds(address)"
 ]

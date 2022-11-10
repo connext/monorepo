@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -750,7 +751,7 @@ export interface ArbitrumSpokeConnector extends BaseContract {
 
     send(
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setDelayBlocks(
@@ -908,7 +909,7 @@ export interface ArbitrumSpokeConnector extends BaseContract {
 
   send(
     _encodedData: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setDelayBlocks(
@@ -1334,7 +1335,7 @@ export interface ArbitrumSpokeConnector extends BaseContract {
 
     send(
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setDelayBlocks(
@@ -1493,7 +1494,7 @@ export interface ArbitrumSpokeConnector extends BaseContract {
 
     send(
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setDelayBlocks(

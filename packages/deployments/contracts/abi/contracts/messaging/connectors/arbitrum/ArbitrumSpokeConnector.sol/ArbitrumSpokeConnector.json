@@ -59,7 +59,7 @@
   "function removeSender(address)",
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
-  "function send(bytes)",
+  "function send(bytes) payable",
   "function setDelayBlocks(uint256)",
   "function setMirrorConnector(address)",
   "function setWatcherManager(address)",
