@@ -59,8 +59,8 @@ library SwapUtils {
 
   struct Swap {
     // variables around the ramp management of A,
-    // the amplification coefficient * n * (n - 1)
-    // see https://www.curve.fi/stableswap-paper.pdf for details
+    // the amplification coefficient * n ** (n - 1)
+    // see Curve stableswap paper for details
     bytes32 key;
     uint256 initialA;
     uint256 futureA;
@@ -245,7 +245,7 @@ library SwapUtils {
    * x_1**2 + b*x_1 = c
    * x_1 = (x_1**2 + c) / (2*x_1 + b)
    *
-   * @param a the amplification coefficient * n * (n - 1). See the StableSwap paper for details.
+   * @param a the amplification coefficient * n ** (n - 1). See the StableSwap paper for details.
    * @param tokenIndex Index of token we are calculating for.
    * @param xp a precision-adjusted set of pool balances. Array should be
    * the same cardinality as the pool.
@@ -301,7 +301,7 @@ library SwapUtils {
    * @notice Get D, the StableSwap invariant, based on a set of balances and a particular A.
    * @param xp a precision-adjusted set of pool balances. Array should be the same cardinality
    * as the pool.
-   * @param a the amplification coefficient * n * (n - 1) in A_PRECISION.
+   * @param a the amplification coefficient * n ** (n - 1) in A_PRECISION.
    * See the StableSwap paper for details
    * @return the invariant, at the precision of the pool
    */

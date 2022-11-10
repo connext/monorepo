@@ -193,8 +193,8 @@ export interface IConnextInterface extends utils.Interface {
     "addStableSwapPool((uint32,bytes32),address)": FunctionFragment;
     "addSwapLiquidity(bytes32,uint256[],uint256,uint256)": FunctionFragment;
     "adoptedToCanonical(address)": FunctionFragment;
-    "adoptedToLocalExternalPools((uint32,bytes32))": FunctionFragment;
-    "adoptedToLocalExternalPools(bytes32)": FunctionFragment;
+    "adoptedToLocalPools(bytes32)": FunctionFragment;
+    "adoptedToLocalPools((uint32,bytes32))": FunctionFragment;
     "approveRouterForPortal(address)": FunctionFragment;
     "approvedAssets(bytes32)": FunctionFragment;
     "approvedAssets((uint32,bytes32))": FunctionFragment;
@@ -322,8 +322,8 @@ export interface IConnextInterface extends utils.Interface {
       | "addStableSwapPool"
       | "addSwapLiquidity"
       | "adoptedToCanonical"
-      | "adoptedToLocalExternalPools((uint32,bytes32))"
-      | "adoptedToLocalExternalPools(bytes32)"
+      | "adoptedToLocalPools(bytes32)"
+      | "adoptedToLocalPools((uint32,bytes32))"
       | "approveRouterForPortal"
       | "approvedAssets(bytes32)"
       | "approvedAssets((uint32,bytes32))"
@@ -498,12 +498,12 @@ export interface IConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "adoptedToLocalExternalPools((uint32,bytes32))",
-    values: [TokenIdStruct]
+    functionFragment: "adoptedToLocalPools(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "adoptedToLocalExternalPools(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "adoptedToLocalPools((uint32,bytes32))",
+    values: [TokenIdStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "approveRouterForPortal",
@@ -1107,11 +1107,11 @@ export interface IConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "adoptedToLocalExternalPools((uint32,bytes32))",
+    functionFragment: "adoptedToLocalPools(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "adoptedToLocalExternalPools(bytes32)",
+    functionFragment: "adoptedToLocalPools((uint32,bytes32))",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1627,13 +1627,13 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[TokenIdStructOutput]>;
 
-    "adoptedToLocalExternalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    "adoptedToLocalExternalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
@@ -2308,13 +2308,13 @@ export interface IConnext extends BaseContract {
     overrides?: CallOverrides
   ): Promise<TokenIdStructOutput>;
 
-  "adoptedToLocalExternalPools((uint32,bytes32))"(
-    _canonical: TokenIdStruct,
+  "adoptedToLocalPools(bytes32)"(
+    _key: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  "adoptedToLocalExternalPools(bytes32)"(
-    _key: PromiseOrValue<BytesLike>,
+  "adoptedToLocalPools((uint32,bytes32))"(
+    _canonical: TokenIdStruct,
     overrides?: CallOverrides
   ): Promise<string>;
 
@@ -2979,13 +2979,13 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<TokenIdStructOutput>;
 
-    "adoptedToLocalExternalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "adoptedToLocalExternalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -3678,13 +3678,13 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "adoptedToLocalExternalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "adoptedToLocalExternalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -4356,13 +4356,13 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "adoptedToLocalExternalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "adoptedToLocalExternalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

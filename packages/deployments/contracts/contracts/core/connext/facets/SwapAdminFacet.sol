@@ -100,7 +100,7 @@ contract SwapAdminFacet is BaseConnextFacet {
    * eg 8 for WBTC. Cannot be larger than POOL_PRECISION_DECIMALS
    * @param lpTokenName the long-form name of the token to be deployed
    * @param lpTokenSymbol the short symbol for the token to be deployed
-   * @param _a the amplification coefficient * n * (n - 1). See the
+   * @param _a the amplification coefficient * n ** (n - 1). See the
    * StableSwap paper for details
    * @param _fee default swap fee to be initialized with
    * @param _adminFee default adminFee to be initialized with

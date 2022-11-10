@@ -1,5 +1,4 @@
 import { createLoggingContext, expect, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
-import axios from "axios";
 import { stub, restore, reset, SinonStub } from "sinon";
 import { sendExecuteSlowToSequencer } from "../../../src/tasks/executor/operations";
 import { mock } from "../../mock";
@@ -11,7 +10,7 @@ const { requestContext } = createLoggingContext("TEST");
 describe("Operations:Sequencer", () => {
   let axiosPostStub: SinonStub;
   beforeEach(() => {
-    axiosPostStub = stub(axios, "post");
+    axiosPostStub = stub(MockableFns, "axiosPost");
   });
   afterEach(() => {
     restore();
