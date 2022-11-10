@@ -249,8 +249,9 @@ library SwapUtilsExternal {
     uint256[] memory xpReduced = new uint256[](xp.length);
 
     v.feePerToken = _feePerToken(self.swapFee, xp.length);
-    // TODO: Set a length variable (at top) instead of reading xp.length on each loop.
-    for (uint256 i; i < xp.length; ) {
+
+    uint256 len = xp.length;
+    for (uint256 i; i < len; ) {
       uint256 xpi = xp[i];
       // if i == tokenIndex, dxExpected = xp[i] * d1 / d0 - newY
       // else dxExpected = xp[i] - (xp[i] * d1 / d0)

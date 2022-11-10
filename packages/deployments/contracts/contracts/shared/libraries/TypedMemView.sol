@@ -810,7 +810,8 @@ library TypedMemView {
     }
 
     uint256 _offset = 0;
-    for (uint256 i = 0; i < memViews.length; i++) {
+    uint256 _len = memViews.length;
+    for (uint256 i = 0; i < _len; i++) {
       bytes29 memView = memViews[i];
       unchecked {
         unsafeCopyTo(memView, _location + _offset);

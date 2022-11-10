@@ -33,7 +33,8 @@ library MerklePatriciaProof {
       return false;
     }
 
-    for (uint256 i = 0; i < parentNodes.length; i++) {
+    uint256 len = parentNodes.length;
+    for (uint256 i = 0; i < len; i++) {
       if (pathPtr > path.length) {
         return false;
       }
@@ -96,7 +97,8 @@ library MerklePatriciaProof {
 
     // pathPtr counts nibbles in path
     // partialPath.length is a number of nibbles
-    for (uint256 i = pathPtr; i < pathPtr + partialPath.length; i++) {
+    uint256 _len = pathPtr + partialPath.length;
+    for (uint256 i = pathPtr; i < _len; i++) {
       bytes1 pathNibble = path[i];
       slicedPath[i - pathPtr] = pathNibble;
     }
@@ -125,7 +127,8 @@ library MerklePatriciaProof {
         offset = 0;
       }
 
-      for (uint256 i = offset; i < nibbles.length; i++) {
+      uint256 len = nibbles.length;
+      for (uint256 i = offset; i < len; i++) {
         nibbles[i] = _getNthNibbleOfBytes(i - offset + 2, b);
       }
     }

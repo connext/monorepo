@@ -113,7 +113,8 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     // then re-assign it to storage - *especially* if we have multiple leaves to insert.
     // MerkleLib.Tree memory _tree = tree;
 
-    for (uint256 i; i < leaves.length; ) {
+    uint256 len = leaves.length;
+    for (uint256 i; i < len; ) {
       // Insert the new node.
       tree.insert(leaves[i]);
       unchecked {

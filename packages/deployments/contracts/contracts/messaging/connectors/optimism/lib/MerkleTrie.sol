@@ -137,7 +137,8 @@ library MerkleTrie {
     TrieNode memory currentNode;
 
     // Proof is top-down, so we start at the first element (root).
-    for (uint256 i = 0; i < _proof.length; i++) {
+    uint256 len = _proof.length;
+    for (uint256 i = 0; i < len; i++) {
       currentNode = _proof[i];
       currentKeyIndex += currentKeyIncrement;
 
@@ -224,7 +225,8 @@ library MerkleTrie {
     RLPReader.RLPItem[] memory nodes = RLPReader.readList(_proof);
     TrieNode[] memory proof = new TrieNode[](nodes.length);
 
-    for (uint256 i = 0; i < nodes.length; i++) {
+    uint256 len = nodes.length;
+    for (uint256 i = 0; i < len; i++) {
       bytes memory encoded = RLPReader.readBytes(nodes[i]);
       proof[i] = TrieNode({encoded: encoded, decoded: RLPReader.readList(encoded)});
     }
