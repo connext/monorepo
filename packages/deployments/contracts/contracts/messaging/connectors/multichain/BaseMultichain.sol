@@ -42,7 +42,7 @@ abstract contract BaseMultichain {
     bytes memory _data
   ) internal {
     Multichain(_amb).anyCall(
-      _mirrorConnector, // Same address on every chain, using AMB as it is immutable
+      _mirrorConnector,
       _data,
       address(0), // fallback address on origin chain
       MIRROR_CHAIN_ID,
