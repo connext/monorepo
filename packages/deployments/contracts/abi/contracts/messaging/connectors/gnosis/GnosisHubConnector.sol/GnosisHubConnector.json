@@ -9,7 +9,7 @@
   "error ProposedOwnable__renounceOwnership_invalidProposal()",
   "error ProposedOwnable__renounceOwnership_noProposal()",
   "event MessageProcessed(bytes,address)",
-  "event MessageSent(bytes,address)",
+  "event MessageSent(bytes,bytes,address)",
   "event MirrorConnectorUpdated(address,address)",
   "event MirrorGasUpdated(uint256,uint256)",
   "event NewConnector(uint32 indexed,uint32 indexed,address,address,address)",
@@ -30,7 +30,7 @@
   "function proposedTimestamp() view returns (uint256)",
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
-  "function sendMessage(bytes)",
+  "function sendMessage(bytes,bytes) payable",
   "function setMirrorConnector(address)",
   "function setMirrorGas(uint256)",
   "function verifySender(address) returns (bool)"

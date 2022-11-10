@@ -402,7 +402,7 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     "AggregateRootRemoved(bytes32)": EventFragment;
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
-    "MessageSent(bytes,address)": EventFragment;
+    "MessageSent(bytes,bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
     "MirrorGasUpdated(uint256,uint256)": EventFragment;
     "NewConnector(uint32,uint32,address,address,address)": EventFragment;
@@ -483,10 +483,11 @@ export type MessageProcessedEventFilter =
 
 export interface MessageSentEventObject {
   data: string;
+  encodedData: string;
   caller: string;
 }
 export type MessageSentEvent = TypedEvent<
-  [string, string],
+  [string, string, string],
   MessageSentEventObject
 >;
 
@@ -1128,11 +1129,16 @@ export interface GnosisSpokeConnector extends BaseContract {
     ): MessageProcessedEventFilter;
     MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
 
-    "MessageSent(bytes,address)"(
+    "MessageSent(bytes,bytes,address)"(
       data?: null,
+      encodedData?: null,
       caller?: null
     ): MessageSentEventFilter;
-    MessageSent(data?: null, caller?: null): MessageSentEventFilter;
+    MessageSent(
+      data?: null,
+      encodedData?: null,
+      caller?: null
+    ): MessageSentEventFilter;
 
     "MirrorConnectorUpdated(address,address)"(
       previous?: null,

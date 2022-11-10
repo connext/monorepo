@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -46,7 +47,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
     "proposedTimestamp()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "sendMessage(bytes)": FunctionFragment;
+    "sendMessage(bytes,bytes)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setMirrorGas(uint256)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
@@ -132,7 +133,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "sendMessage",
-    values: [PromiseOrValue<BytesLike>]
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "setMirrorConnector",
@@ -210,7 +211,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
 
   events: {
     "MessageProcessed(bytes,address)": EventFragment;
-    "MessageSent(bytes,address)": EventFragment;
+    "MessageSent(bytes,bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
     "MirrorGasUpdated(uint256,uint256)": EventFragment;
     "NewConnector(uint32,uint32,address,address,address)": EventFragment;
@@ -241,10 +242,11 @@ export type MessageProcessedEventFilter =
 
 export interface MessageSentEventObject {
   data: string;
+  encodedData: string;
   caller: string;
 }
 export type MessageSentEvent = TypedEvent<
-  [string, string],
+  [string, string, string],
   MessageSentEventObject
 >;
 
@@ -394,7 +396,8 @@ export interface ZkSyncHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _encodedData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setMirrorConnector(
@@ -469,7 +472,8 @@ export interface ZkSyncHubConnector extends BaseContract {
 
   sendMessage(
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    _encodedData: PromiseOrValue<BytesLike>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setMirrorConnector(
@@ -540,6 +544,7 @@ export interface ZkSyncHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
+      _encodedData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -566,11 +571,16 @@ export interface ZkSyncHubConnector extends BaseContract {
     ): MessageProcessedEventFilter;
     MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
 
-    "MessageSent(bytes,address)"(
+    "MessageSent(bytes,bytes,address)"(
       data?: null,
+      encodedData?: null,
       caller?: null
     ): MessageSentEventFilter;
-    MessageSent(data?: null, caller?: null): MessageSentEventFilter;
+    MessageSent(
+      data?: null,
+      encodedData?: null,
+      caller?: null
+    ): MessageSentEventFilter;
 
     "MirrorConnectorUpdated(address,address)"(
       previous?: null,
@@ -679,7 +689,8 @@ export interface ZkSyncHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _encodedData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setMirrorConnector(
@@ -755,7 +766,8 @@ export interface ZkSyncHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _encodedData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setMirrorConnector(

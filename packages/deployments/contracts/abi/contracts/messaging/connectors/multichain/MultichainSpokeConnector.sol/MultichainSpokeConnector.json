@@ -12,7 +12,7 @@
   "event AggregateRootRemoved(bytes32)",
   "event Dispatch(bytes32,uint256,bytes32,bytes)",
   "event MessageProcessed(bytes,address)",
-  "event MessageSent(bytes,address)",
+  "event MessageSent(bytes,bytes,address)",
   "event MirrorConnectorUpdated(address,address)",
   "event MirrorGasUpdated(uint256,uint256)",
   "event NewConnector(uint32 indexed,uint32 indexed,address,address,address)",

@@ -441,7 +441,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes)": EventFragment;
-    "MessageSent(bytes,address)": EventFragment;
+    "MessageSent(bytes,bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
     "MirrorGasUpdated(uint256,uint256)": EventFragment;
     "NewConnector(uint32,uint32,address,address,address)": EventFragment;
@@ -460,7 +460,9 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Dispatch"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent(bytes)"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MessageSent(bytes,address)"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "MessageSent(bytes,bytes,address)"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorGasUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewConnector"): EventFragment;
@@ -532,17 +534,18 @@ export type MessageSent_bytes_Event = TypedEvent<
 export type MessageSent_bytes_EventFilter =
   TypedEventFilter<MessageSent_bytes_Event>;
 
-export interface MessageSent_bytes_address_EventObject {
+export interface MessageSent_bytes_bytes_address_EventObject {
   data: string;
+  encodedData: string;
   caller: string;
 }
-export type MessageSent_bytes_address_Event = TypedEvent<
-  [string, string],
-  MessageSent_bytes_address_EventObject
+export type MessageSent_bytes_bytes_address_Event = TypedEvent<
+  [string, string, string],
+  MessageSent_bytes_bytes_address_EventObject
 >;
 
-export type MessageSent_bytes_address_EventFilter =
-  TypedEventFilter<MessageSent_bytes_address_Event>;
+export type MessageSent_bytes_bytes_address_EventFilter =
+  TypedEventFilter<MessageSent_bytes_bytes_address_Event>;
 
 export interface MirrorConnectorUpdatedEventObject {
   previous: string;
@@ -1229,10 +1232,11 @@ export interface PolygonSpokeConnector extends BaseContract {
     MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
 
     "MessageSent(bytes)"(message?: null): MessageSent_bytes_EventFilter;
-    "MessageSent(bytes,address)"(
+    "MessageSent(bytes,bytes,address)"(
       data?: null,
+      encodedData?: null,
       caller?: null
-    ): MessageSent_bytes_address_EventFilter;
+    ): MessageSent_bytes_bytes_address_EventFilter;
 
     "MirrorConnectorUpdated(address,address)"(
       previous?: null,

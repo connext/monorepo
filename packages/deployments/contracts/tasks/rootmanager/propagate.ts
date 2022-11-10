@@ -33,10 +33,12 @@ export default task("propagate", "Propagate aggregate root from RootManager")
       "0x2f8810c6af135d37d426846c44825fcca5ce04f2",
       "0xc72b5eded73fdc46580e0ac3ffc0d044586b5032",
     ];
+    const fees = [0, 0, 0, 0];
+    const encodedBytes = ["", "", ""];
 
     console.log("domains:", domains);
     console.log("connectors:", connectors);
-    const tx = await rootManager.propagate(domains, connectors);
+    const tx = await rootManager.propagate(domains, connectors, fees, encodedBytes);
     console.log("propogate tx: ", tx);
     const receipt = await tx.wait();
     console.log("propogate tx mined: ", receipt.transactionHash);
