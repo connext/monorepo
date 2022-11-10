@@ -80,6 +80,10 @@ library LibDiamond {
     address _init,
     bytes memory _calldata
   ) internal {
+    // NOTE: to save gas, verification that `proposeDiamondCut` and `diamondCut` are not
+    // included is performed in `diamondCut`, where there is already a loop over facets.
+    // In the case where these cuts are performed, admins must call `rescindDiamondCut`
+
     DiamondStorage storage ds = diamondStorage();
     uint256 acceptance = block.timestamp + ds.acceptanceDelay;
     ds.acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = acceptance;
@@ -181,10 +185,14 @@ library LibDiamond {
   function removeFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {
     require(_functionSelectors.length != 0, "LibDiamondCut: No selectors in facet to cut");
     DiamondStorage storage ds = diamondStorage();
+    // get the propose and cut selectors -- can never remove these
+    bytes4 proposeSelector = IDiamondCut.proposeDiamondCut.selector;
+    bytes4 cutSelector = IDiamondCut.diamondCut.selector;
     // if function does not exist then do nothing and return
     require(_facetAddress == address(0), "LibDiamondCut: Remove facet address must be address(0)");
     for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {
       bytes4 selector = _functionSelectors[selectorIndex];
+      require(selector != proposeSelector && selector != cutSelector, "LibDiamondCut: Cannot remove cut selectors");
       address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;
       removeFunction(ds, oldFacetAddress, selector);
     }
