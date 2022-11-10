@@ -34,7 +34,13 @@
   },
   "auctionWaitTime": 30000,
   "environment": "production",
-  "relayerUrl": "http://relayer:8080",
+  "relayers": [
+    {
+      "type": "Connext",
+      "apiKey": "xxx",
+      "url": "http://relayer:8080"
+    }
+  ],
   "web3SignerUrl": "http://signer-sequencer:9000",
   "messageQueue": {
     "connection": {
@@ -53,6 +59,5 @@
     ],
     "executerTimeout": 300000,
     "publisher": "sequencerX"
-  },
-  "gelatoApiKey": "foo"
+  }
 }

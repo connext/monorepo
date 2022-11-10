@@ -3,7 +3,7 @@ import { getContractInterfaces, ChainReader, contractDeployments } from "@connex
 
 import { getConfig } from "../../config";
 
-import { bindCartographer } from "./bindings";
+import { bindCartographer, bindServer } from "./bindings";
 import { AppContext } from "./context";
 
 // AppContext instance used for interacting with adapters, config, etc.
@@ -47,6 +47,7 @@ export const makeExecutor = async () => {
 
     // Set up bindings.
     context.logger.info("Bindings initialized.", requestContext, methodContext);
+    await bindServer();
     await bindCartographer(context.config.polling.cartographer);
 
     context.logger.info("Executor boot complete!", requestContext, methodContext, {

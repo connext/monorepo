@@ -1,1 +1,1 @@
-export { Relayer, setupRelayer } from "../../../adapters/relayer";
+export { HubDBHelper, SpokeDBHelper } from "./database";

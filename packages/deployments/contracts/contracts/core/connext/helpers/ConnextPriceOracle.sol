@@ -41,7 +41,6 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
     NA,
     DIRECT,
     CHAINLINK,
-    DEX,
     V1_ORACLE
   }
 
@@ -60,6 +59,8 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
   event V1PriceOracleUpdated(address oldAddress, address newAddress);
 
   constructor(address _wrapped) {
+    require(_wrapped != address(0), "zero wrapped address!");
+
     wrapped = _wrapped;
     _setOwner(msg.sender);
   }
