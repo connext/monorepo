@@ -1,3 +1,0 @@
-[
-  "function aggregate(tuple(address,bytes)[]) view returns (uint256, bytes[])"
-]

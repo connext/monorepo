@@ -100,7 +100,7 @@ contract SwapAdminFacet is BaseConnextFacet {
    * eg 8 for WBTC. Cannot be larger than POOL_PRECISION_DECIMALS
    * @param lpTokenName the long-form name of the token to be deployed
    * @param lpTokenSymbol the short symbol for the token to be deployed
-   * @param _a the amplification coefficient * n * (n - 1). See the
+   * @param _a the amplification coefficient * n ** (n - 1). See the
    * StableSwap paper for details
    * @param _fee default swap fee to be initialized with
    * @param _adminFee default adminFee to be initialized with
@@ -129,7 +129,7 @@ contract SwapAdminFacet is BaseConnextFacet {
 
     uint256[] memory precisionMultipliers = new uint256[](decimals.length);
 
-    for (uint8 i; i < numPooledTokens; ) {
+    for (uint256 i; i < numPooledTokens; ) {
       if (i != 0) {
         // Check if index is already used. Check if 0th element is a duplicate.
         if (s.tokenIndexes[_key][address(_pooledTokens[i])] != 0 || _pooledTokens[0] == _pooledTokens[i])
@@ -141,7 +141,8 @@ contract SwapAdminFacet is BaseConnextFacet {
         revert SwapAdminFacet__initializeSwap_tokenDecimalsExceedMax();
 
       precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - decimals[i]);
-      s.tokenIndexes[_key][address(_pooledTokens[i])] = i;
+      // NOTE: safe to cast to uint8 as the numPooledTokens is that type and the loop ceiling
+      s.tokenIndexes[_key][address(_pooledTokens[i])] = uint8(i);
 
       unchecked {
         ++i;

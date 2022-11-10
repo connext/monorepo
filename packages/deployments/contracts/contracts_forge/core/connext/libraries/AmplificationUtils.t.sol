@@ -112,11 +112,17 @@ contract AmplificationUtilsTest is FacetHelper {
     AmplificationUtils.rampA(swap, 10**5, 1382400);
   }
 
+  function test_AmplificationUtils__rampA_failsIfNoChange() public {
+    vm.expectRevert(bytes("!valid ramp"));
+    vm.warp(86600);
+    AmplificationUtils.rampA(swap, 100, 1382400);
+  }
+
   function test_AmplificationUtils__rampA_works() public {
     vm.warp(86600);
     vm.expectEmit(true, true, true, true);
-    emit RampA(10000, 10000, 86600, 1382400);
-    AmplificationUtils.rampA(swap, 100, 1382400);
+    emit RampA(10000, 16800, 86600, 1382400);
+    AmplificationUtils.rampA(swap, 168, 1382400);
   }
 
   // ============ stopRampA ============

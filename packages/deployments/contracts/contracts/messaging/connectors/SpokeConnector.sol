@@ -7,6 +7,7 @@ import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
 
 import {MerkleLib} from "../libraries/Merkle.sol";
 import {Message} from "../libraries/Message.sol";
+import {RateLimited} from "../libraries/RateLimited.sol";
 
 import {MerkleTreeManager} from "../Merkle.sol";
 import {WatcherClient} from "../WatcherClient.sol";
@@ -24,7 +25,7 @@ import {ConnectorManager} from "./ConnectorManager.sol";
  * @dev If you are deploying this contract to mainnet, then the mirror values stored in the HubConnector
  * will be unused
  */
-abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, ReentrancyGuard {
+abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, RateLimited, ReentrancyGuard {
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
@@ -122,6 +123,12 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   mapping(bytes32 => bool) public provenMessageRoots;
 
   /**
+   * @notice This mapping records all message roots that have already been sent in order to prevent
+   * redundant message roots from being sent to hub.
+   */
+  mapping(bytes32 => bool) public sentMessageRoots;
+
+  /**
    * @dev This is used for the `onlyWhitelistedSender` modifier, which gates who
    * can send messages using `dispatch`.
    */
@@ -211,11 +218,21 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   /**
    * @notice Set the `delayBlocks`, the period in blocks over which an incoming message
    * is verified.
-   * @notice Set the delayBlocks, in case this needs to be configured later
    */
   function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
     require(_delayBlocks != delayBlocks, "!delayBlocks");
     delayBlocks = _delayBlocks;
+  }
+
+  /**
+   * @notice Set the rate limit (number of blocks) at which we can send messages from
+   * this contract to the hub chain using the `send` method.
+   * @dev Rate limit is used to mitigate DoS vectors. (See `RateLimited` for more info.)
+   * @param _rateLimit The number of blocks require between sending messages. If set to
+   * 0, rate limiting for this spoke connector will be disabled.
+   */
+  function setRateLimitBlocks(uint256 _rateLimit) public onlyOwner {
+    _setRateLimitBlocks(_rateLimit);
   }
 
   /**
@@ -253,9 +270,12 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @notice This returns the root of all messages with the origin domain as this domain (i.e.
    * all outbound messages)
    */
-  function send(bytes memory _encodedData) external whenNotPaused {
-    bytes memory _data = abi.encodePacked(MERKLE.root());
+  function send(bytes memory _encodedData) external whenNotPaused rateLimited {
+    bytes32 root = MERKLE.root();
+    require(sentMessageRoots[root] == false, "root already sent");
+    bytes memory _data = abi.encodePacked(root);
     _sendMessage(_data, _encodedData);
+    sentMessageRoots[root] = true;
     emit MessageSent(_data, _encodedData, msg.sender);
   }
 

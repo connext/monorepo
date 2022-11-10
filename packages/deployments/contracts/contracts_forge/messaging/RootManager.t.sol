@@ -13,7 +13,9 @@ contract RootManagerTest is ForgeHelper {
   error ProposedOwnable__onlyOwner_notOwner();
 
   // ============ Events ============
-  event RootAggregated(uint32 domain, bytes32 receivedRoot, uint256 index);
+  event RootReceived(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
+
+  event RootsAggregated(bytes32 aggregateRoot, uint256 count, bytes32[] aggregatedMessageRoots);
 
   event RootPropagated(bytes32 aggregate, uint32[] domains, uint256 count);
 
@@ -51,6 +53,10 @@ contract RootManagerTest is ForgeHelper {
     vm.prank(owner);
     _rootManager = new RootManager(_delayBlocks, _merkle, watcherManager);
     MerkleTreeManager(_merkle).setArborist(address(_rootManager));
+
+    // Env: roll ahead to an arbitrary block so we don't start at block zero.
+    // For dequeuing roots in `propagate`, this will make the delay number we pass in acceptable.
+    vm.roll(123456789);
   }
 
   // ============ Utils ============
@@ -209,7 +215,7 @@ contract RootManagerTest is ForgeHelper {
     utils_generateAndAddConnectors(1, false, false);
 
     vm.expectEmit(true, true, true, true);
-    emit RootAggregated(_domains[0], inbound, 1);
+    emit RootReceived(_domains[0], inbound, 1);
 
     vm.prank(_connectors[0]);
     _rootManager.aggregate(_domains[0], inbound);
