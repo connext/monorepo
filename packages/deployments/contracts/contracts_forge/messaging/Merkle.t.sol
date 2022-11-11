@@ -9,6 +9,8 @@ import "../utils/ForgeHelper.sol";
 contract MerkleTest is ForgeHelper {
   MerkleTreeManager public merkle;
 
+  event ArboristUpdated(address previous, address updated);
+
   function setUp() public {
     merkle = new MerkleTreeManager();
     merkle.initialize(address(this));
@@ -22,5 +24,12 @@ contract MerkleTest is ForgeHelper {
       (, _count) = merkle.insert(_messageHash);
       assertEq(_count - 1, i);
     }
+  }
+
+  function test_Merkle__setArborist_shouldWork() public {
+    vm.expectEmit(true, true, true, true);
+    emit ArboristUpdated(address(this), address(1));
+
+    merkle.setArborist(address(1));
   }
 }
