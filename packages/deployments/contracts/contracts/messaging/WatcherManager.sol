@@ -43,6 +43,13 @@ contract WatcherManager is ProposedOwnable {
     emit WatcherRemoved(_watcher);
   }
 
+  /**
+   * @notice Remove ability to renounce ownership
+   * @dev Renounce ownership should be impossible as long as the watcher griefing
+   * vector exists. You can still propose `address(0)`, but it will never be accepted.
+   */
+  function renounceOwnership() public virtual override onlyOwner {}
+
   // ============ Getters ============
   function isWatcher(address _watcher) external view returns (bool) {
     return watchers[_watcher];

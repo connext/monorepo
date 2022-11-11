@@ -99,6 +99,13 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     arborist = newArborist;
   }
 
+  /**
+   * @notice Remove ability to renounce ownership
+   * @dev Renounce ownership should be impossible as long as there is a possibility the
+   * arborist may change.
+   */
+  function renounceOwnership() public virtual override onlyOwner {}
+
   // ========= Public Functions =========
 
   /**

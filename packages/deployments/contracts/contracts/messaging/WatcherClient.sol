@@ -13,9 +13,17 @@ import {WatcherManager} from "./WatcherManager.sol";
 
 contract WatcherClient is ProposedOwnable, Pausable {
   // ============ Events ============
+  /**
+   * @notice Emitted when the manager address changes
+   * @param watcherManager The updated manager
+   */
   event WatcherManagerChanged(address watcherManager);
 
   // ============ Properties ============
+  /**
+   * @notice The `WatcherManager` contract governs the watcher whitelist.
+   * @dev Multiple clients can share a watcher set using the same manager
+   */
   WatcherManager watcherManager;
 
   // ============ Constructor ============
@@ -24,6 +32,9 @@ contract WatcherClient is ProposedOwnable, Pausable {
   }
 
   // ============ Modifiers ============
+  /**
+   * @notice Enforces the sender is the watcher
+   */
   modifier onlyWatcher() {
     require(watcherManager.isWatcher(msg.sender), "!watcher");
     _;
@@ -31,18 +42,33 @@ contract WatcherClient is ProposedOwnable, Pausable {
 
   // ============ Admin fns ============
   /**
-   * @dev Owner can enroll a watcher (abilities are defined by inheriting contracts)
+   * @notice Owner can enroll a watcher (abilities are defined by inheriting contracts)
    */
   function setWatcherManager(address _watcherManager) external onlyOwner {
     require(_watcherManager != address(watcherManager), "already watcher manager");
     emit WatcherManagerChanged(_watcherManager);
   }
 
+  /**
+   * @notice Owner can unpause contracts if fraud is detected by watchers
+   */
   function unpause() external onlyOwner whenPaused {
     _unpause();
   }
 
+  /**
+   * @notice Remove ability to renounce ownership
+   * @dev Renounce ownership should be impossible as long as only the owner
+   * is able to unpause the contracts. You can still propose `address(0)`,
+   * but it will never be accepted.
+   */
+  function renounceOwnership() public virtual override onlyOwner {}
+
   // ============ Watcher fns ============
+
+  /**
+   * @notice Watchers can pause contracts if fraud is detected
+   */
   function pause() external onlyWatcher whenNotPaused {
     _pause();
   }

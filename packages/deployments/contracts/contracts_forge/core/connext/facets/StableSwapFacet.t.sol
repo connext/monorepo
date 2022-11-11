@@ -223,12 +223,25 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     _amounts[0] = 100;
     _amounts[1] = 100;
 
-    vm.expectRevert();
+    vm.expectRevert("invalid length of amounts");
     this.calculateSwapTokenAmount(bytes32(0), _amounts, true);
 
     _amounts[0] = this.getSwapTokenBalance(utils_calculateCanonicalHash(), 0) + 1;
     vm.expectRevert(stdError.arithmeticError);
     this.calculateSwapTokenAmount(utils_calculateCanonicalHash(), _amounts, false);
+  }
+
+  // Failed if not same length
+  function test_StableSwapFacet__calculateSwapTokenAmount_failIfInvalidLength() public {
+    uint256 amount;
+
+    uint256[] memory amounts = new uint256[](3);
+    amounts[0] = 1;
+    amounts[1] = 1;
+    amounts[2] = 1;
+
+    vm.expectRevert("invalid length of amounts");
+    amount = this.calculateSwapTokenAmount(utils_calculateCanonicalHash(), amounts, true);
   }
 
   function test_StableSwapFacet__calculateRemoveSwapLiquidity_shouldWork() public {
