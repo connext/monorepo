@@ -360,14 +360,10 @@ contract TokenFacet is BaseConnextFacet {
     // Sanity check: already approval
     if (!s.approvedAssets[_key]) revert TokenFacet__removeAssetId_notAdded();
 
-    TokenId memory adoptedCanonical = s.adoptedToCanonical[_adoptedAssetId];
-    TokenId memory representationCanonical = s.adoptedToCanonical[_adoptedAssetId];
-
     // Sanity check: consistent set of params
     if (
-      AssetLogic.calculateCanonicalHash(adoptedCanonical.id, adoptedCanonical.domain) != _key ||
-      adoptedCanonical.id != representationCanonical.id ||
-      adoptedCanonical.domain != representationCanonical.domain
+      s.canonicalToAdopted[_key] != _adopted ||
+      s.canonicalToRepresentation[_key] != _local
     ) revert TokenFacet__removeAssetId_invalidParams();
 
     // Delete from approved assets mapping
