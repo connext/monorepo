@@ -67,18 +67,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
    * spoke)
    */
   function _processMessage(bytes memory _data) internal override {
-    // sanity check root length
-    require(_data.length == 32, "!length");
-
-    // get root from data
-    bytes32 root = bytes32(_data);
-
-    if (!processed[root]) {
-      // set root to processed
-      processed[root] = true;
-      // update the root on the root manager
-      IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, root);
-    } // otherwise root was already sent to root manager
+    // Does nothing, all messages should go through the `processMessageFromRoot` path
   }
 
   /**
@@ -109,15 +98,20 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     // 0x4ff746f60000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002027ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757
     //
     // this means the length check and byte parsing used in the `ArbitrumHubConnector` would
-    // not work here. Instead, take the back 32 bytes of the string, regardless of the length. The length
-    // can be validated in _processMessage
+    // not work here. Instead, take the back 32 bytes of the string
 
     // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
     bytes29 _view = _message.ref(0);
-    bytes32 _data = _view.index(_view.len() - 32, 32);
+    bytes32 root = _view.index(_view.len() - 32, 32);
 
-    _processMessage(abi.encode(_data));
-    emit MessageProcessed(abi.encode(_data), msg.sender);
+    if (!processed[root]) {
+      // set root to processed
+      processed[root] = true;
+      // update the root on the root manager
+      IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, root);
+
+      emit MessageProcessed(abi.encode(root), msg.sender);
+    } // otherwise root was already sent to root manager
   }
 
   /**
