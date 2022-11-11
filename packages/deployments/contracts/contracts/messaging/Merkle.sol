@@ -39,7 +39,7 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
   // ============ Modifiers ============
 
   modifier onlyArborist() {
-    require(arborists[msg.sender], "!arborist");
+    require(arborist == msg.sender, "!arborist");
     _;
   }
 
