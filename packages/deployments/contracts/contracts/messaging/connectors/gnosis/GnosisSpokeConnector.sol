@@ -52,6 +52,9 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
    * @dev Messaging uses this function to send data to mainnet via amb
    */
   function _sendMessage(bytes memory _data) internal override {
+    // Should always be dispatching the aggregate root
+    require(_data.length == 32, "!length");
+
     // send the message to the l1 connector by calling `processMessage`
     GnosisAmb(AMB).requireToPassMessage(
       mirrorConnector,
@@ -64,6 +67,9 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
    * @dev AMB calls this function to store aggregate root that is sent up by the root manager
    */
   function _processMessage(bytes memory _data) internal override {
+    // get the data (should be the aggregate root)
+    require(_data.length == 32, "!length");
+
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!mirrorConnector");
     // ensure it is headed to this domain

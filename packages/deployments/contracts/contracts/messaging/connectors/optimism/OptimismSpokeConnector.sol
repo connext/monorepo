@@ -49,6 +49,9 @@ contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
    * @dev Sends `outboundRoot` to root manager on l1
    */
   function _sendMessage(bytes memory _data) internal override {
+    // Should be 32 bytes aggregate root
+    require(_data.length == 32, "!length");
+
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
     OptimismAmb(AMB).sendMessage(mirrorConnector, _calldata, uint32(mirrorGas));
   }

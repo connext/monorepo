@@ -37,6 +37,9 @@ abstract contract BaseMultichain {
    * @dev Sends `outboundRoot` to root manager on the mirror chain
    */
   function _sendMessage(address _amb, bytes memory _data) internal {
+    // Should always be dispatching the aggregate root
+    require(_data.length == 32, "!length");
+
     Multichain(_amb).anyCall(
       _amb, // Same address on every chain, using AMB as it is immutable
       _data,
