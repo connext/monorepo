@@ -489,10 +489,11 @@ contract BridgeFacet is BaseConnextFacet {
         if (isCanonical && cap > 0) {
           // NOTE: this method includes router liquidity as part of the caps,
           // not only the minted amount
-          if (s.custodied[_asset] > cap - _amount) {
+          uint256 updatedCap = s.custodied[_asset] + _amount;
+          if (updatedCap > cap) {
             revert BridgeFacet__xcall_capReached();
           }
-          s.custodied[_asset] += _amount;
+          s.custodied[_asset] = updatedCap;
         }
 
         // Update TransferInfo to reflect the canonical token information.
