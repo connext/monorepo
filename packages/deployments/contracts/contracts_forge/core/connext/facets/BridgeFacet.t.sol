@@ -1200,7 +1200,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s._routerWhitelistRemoved = false;
 
     (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = false;
+    s.routerConfigs[args.routers[0]].approved = false;
 
     vm.expectRevert(BridgeFacet.BridgeFacet__execute_notSupportedRouter.selector);
     this.execute(args);
@@ -1383,7 +1383,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    s.routerConfigs[args.routers[0]].approved = true;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
@@ -1400,7 +1400,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    s.routerConfigs[args.routers[0]].approved = true;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
@@ -1417,7 +1417,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    s.routerConfigs[args.routers[0]].approved = true;
 
     helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt), true);
   }
@@ -1427,7 +1427,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    s.routerConfigs[args.routers[0]].approved = true;
 
     // set asset context (local != adopted)
     utils_setupAsset(false, false);
@@ -1440,7 +1440,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    s.routerConfigs[args.routers[0]].approved = true;
 
     // set asset context (local != adopted)
     utils_setupAsset(false, false);
@@ -1457,7 +1457,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_canonical] += 10 ether;
-    // s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    // s.routerConfigs[args.routers[0]].approved = true;
 
     helpers_executeAndAssert(transferId, args);
   }
@@ -1469,7 +1469,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = false;
+    s.routerConfigs[args.routers[0]].approved = false;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
@@ -1636,7 +1636,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    s.routerConfigs[args.routers[0]].approved = true;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
@@ -1657,7 +1657,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.routerBalances[args.routers[0]][_local] = 0;
 
     // set approval
-    s.routerPermissionInfo.approvedForPortalRouters[args.routers[0]] = true;
+    s.routerConfigs[args.routers[0]].portalApproved = true;
 
     helpers_executeAndAssert(
       transferId,

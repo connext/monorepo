@@ -178,7 +178,7 @@ contract Deployer {
   }
 
   function getRoutersFacetCut(address _routersFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory routersFacetSelectors = new bytes4[](23);
+    bytes4[] memory routersFacetSelectors = new bytes4[](24);
     routersFacetSelectors[0] = RoutersFacet.LIQUIDITY_FEE_NUMERATOR.selector;
     routersFacetSelectors[1] = RoutersFacet.LIQUIDITY_FEE_DENOMINATOR.selector;
     routersFacetSelectors[2] = RoutersFacet.getRouterApproval.selector;
@@ -189,8 +189,8 @@ contract Deployer {
     routersFacetSelectors[7] = RoutersFacet.maxRoutersPerTransfer.selector;
     routersFacetSelectors[8] = RoutersFacet.routerBalances.selector;
     routersFacetSelectors[9] = RoutersFacet.getRouterApprovalForPortal.selector;
-    routersFacetSelectors[10] = RoutersFacet.setupRouter.selector;
-    routersFacetSelectors[11] = RoutersFacet.removeRouter.selector;
+    routersFacetSelectors[10] = RoutersFacet.approveRouter.selector;
+    routersFacetSelectors[11] = RoutersFacet.unapproveRouter.selector;
     routersFacetSelectors[12] = RoutersFacet.setMaxRoutersPerTransfer.selector;
     routersFacetSelectors[13] = RoutersFacet.setLiquidityFeeNumerator.selector;
     routersFacetSelectors[14] = RoutersFacet.approveRouterForPortal.selector;
@@ -198,10 +198,11 @@ contract Deployer {
     routersFacetSelectors[16] = RoutersFacet.setRouterRecipient.selector;
     routersFacetSelectors[17] = RoutersFacet.proposeRouterOwner.selector;
     routersFacetSelectors[18] = RoutersFacet.acceptProposedRouterOwner.selector;
-    routersFacetSelectors[19] = RoutersFacet.addRouterLiquidityFor.selector;
-    routersFacetSelectors[20] = RoutersFacet.addRouterLiquidity.selector;
-    routersFacetSelectors[21] = RoutersFacet.removeRouterLiquidityFor.selector;
-    routersFacetSelectors[22] = RoutersFacet.removeRouterLiquidity.selector;
+    routersFacetSelectors[19] = RoutersFacet.initializeRouter.selector;
+    routersFacetSelectors[20] = RoutersFacet.addRouterLiquidityFor.selector;
+    routersFacetSelectors[21] = RoutersFacet.addRouterLiquidity.selector;
+    routersFacetSelectors[22] = RoutersFacet.removeRouterLiquidityFor.selector;
+    routersFacetSelectors[23] = RoutersFacet.removeRouterLiquidity.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _routersFacet,
