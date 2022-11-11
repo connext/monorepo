@@ -1,6 +1,6 @@
 {
   "name": "@connext/cartographer-poller",
-  "version": "0.2.1-beta.1",
+  "version": "0.2.1-beta.2",
   "description": "",
   "types": "dist/index.d.ts",
   "files": [
@@ -17,7 +17,7 @@
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
-    "build": "rm -rf dist && esbuild ./src/* --tsconfig=tsconfig.build.json --entry-names=dir --bundle --minify --sourcemap --platform=node --target=node18.12.1 --outdir=dist",
+    "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
@@ -39,9 +39,8 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.108",
-    "@types/pg": "8.6.5",
+    "@types/pg": "^8.6.5",
     "concurrently": "7.5.0",
-    "esbuild": "^0.15.13",
     "eslint": "8.26.0",
     "nodemon": "2.0.20",
     "nyc": "15.1.0",

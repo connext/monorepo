@@ -52,11 +52,8 @@ RUN yarn build
 # Copy files to the deployment image.
 # ----------------------------------------
 
+
 FROM node as runtime
-
-
-
-FROM public.ecr.aws/lambda/nodejs:18
 
 ENV NODE_ENV=production
 
@@ -65,9 +62,10 @@ ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
 
 
 WORKDIR ${LAMBDA_TASK_ROOT}
-COPY --from=build --chown=node:node /tmp/build/packages/agents/cartographer/poller/dist ./
+COPY --from=build --chown=node:node /tmp/build ${LAMBDA_TASK_ROOT}
 
-CMD ["index.handler"]
+
+CMD ["packages/agents/cartographer/poller/dist/index.handler"]
 
 
 
