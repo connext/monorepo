@@ -5,11 +5,11 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 
 import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
 
-import {MerkleLib} from "../libraries/Merkle.sol";
+import {MerkleLib} from "../libraries/MerkleLib.sol";
 import {Message} from "../libraries/Message.sol";
 import {RateLimited} from "../libraries/RateLimited.sol";
 
-import {MerkleTreeManager} from "../Merkle.sol";
+import {MerkleTreeManager} from "../MerkleTreeManager.sol";
 import {WatcherClient} from "../WatcherClient.sol";
 
 import {Connector, ProposedOwnable} from "./Connector.sol";

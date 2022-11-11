@@ -123,49 +123,14 @@ contract OptimismHubConnectorTest is ConnectorHelper {
   }
 
   // ============ OptimismHubConnector.processMessage ============
-  function test_OptimismHubConnector__processMessage_works() public {
+  function test_OptimismHubConnector__processMessage_shouldRevert() public {
     utils_setHubConnectorProcessMocks(_l2Connector);
     bytes32 data = bytes32(bytes("test"));
     bytes memory _data = abi.encode(data);
 
     vm.prank(_amb);
-    OptimismHubConnector(_l1Connector).processMessage(_data);
-    assertTrue(OptimismHubConnector(_l1Connector).processed(data));
-  }
 
-  function test_OptimismHubConnector__processMessage_works_fuzz(bytes32 data) public {
-    utils_setHubConnectorProcessMocks(_l2Connector);
-    bytes memory _data = abi.encode(data);
-
-    vm.prank(_amb);
-    OptimismHubConnector(_l1Connector).processMessage(_data);
-    assertTrue(OptimismHubConnector(_l1Connector).processed(data));
-  }
-
-  function test_OptimismHubConnector__processMessage_worksWithDuplicates() public {
-    utils_setHubConnectorProcessMocks(_l2Connector);
-    bytes32 data = bytes32(bytes("test"));
-    bytes memory _data = abi.encode(data);
-    assertTrue(!OptimismHubConnector(_l1Connector).processed(data));
-
-    vm.prank(_amb);
-    OptimismHubConnector(_l1Connector).processMessage(_data);
-    assertTrue(OptimismHubConnector(_l1Connector).processed(data));
-
-    vm.prank(_amb);
-    OptimismHubConnector(_l1Connector).processMessage(_data);
-    assertTrue(OptimismHubConnector(_l1Connector).processed(data));
-  }
-
-  function test_OptimismHubConnector__processMessage_failsIfNot32Bytes() public {
-    utils_setHubConnectorVerifyMocks(_l2Connector);
-
-    bytes32 data = bytes32(bytes("test"));
-    bytes memory _data = abi.encode(data, 123123123);
-
-    vm.expectRevert(bytes("!length"));
-
-    vm.prank(_amb);
+    vm.expectRevert(Connector.Connector__processMessage_notUsed.selector);
     OptimismHubConnector(_l1Connector).processMessage(_data);
   }
 

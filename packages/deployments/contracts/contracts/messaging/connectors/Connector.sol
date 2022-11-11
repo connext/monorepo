@@ -18,6 +18,10 @@ import {IConnector} from "../interfaces/IConnector.sol";
  * or `mirrorGas`
  */
 abstract contract Connector is ProposedOwnable, IConnector {
+  // ========== Custom Errors ===========
+
+  error Connector__processMessage_notUsed();
+
   // ============ Events ============
 
   event NewConnector(

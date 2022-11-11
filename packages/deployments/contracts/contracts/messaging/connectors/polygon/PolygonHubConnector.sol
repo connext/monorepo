@@ -46,7 +46,10 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
     emit MessageProcessed(message, msg.sender);
   }
 
-  function _processMessage(bytes memory _data) internal override {}
+  function _processMessage(bytes memory _data) internal override {
+    // Does nothing, all messages should go through the `_processMessageFromChild` path
+    revert Connector__processMessage_notUsed();
+  }
 
   function _setMirrorConnector(address _mirrorConnector) internal override {
     super._setMirrorConnector(_mirrorConnector);

@@ -81,6 +81,7 @@ contract ArbitrumHubConnector is HubConnector {
   function _processMessage(bytes memory _data) internal override {
     // Does nothing, all messages should go through the `processMessageFromRoot` path
     // when handling l2 -> l1 messages. See note in `recordOutputAsSpent`
+    revert Connector__processMessage_notUsed();
   }
 
   function processMessageFromRoot(

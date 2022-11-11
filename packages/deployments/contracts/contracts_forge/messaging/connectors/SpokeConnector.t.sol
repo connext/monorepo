@@ -4,7 +4,7 @@ pragma solidity 0.8.17;
 import {MockSpokeConnector} from "../../utils/Mock.sol";
 import {SpokeConnector} from "../../../contracts/messaging/connectors/SpokeConnector.sol";
 import {WatcherManager} from "../../../contracts/messaging/WatcherManager.sol";
-import {MerkleTreeManager} from "../../../contracts/messaging/Merkle.sol";
+import {MerkleTreeManager} from "../../../contracts/messaging/MerkleTreeManager.sol";
 import {Message} from "../../../contracts/messaging/libraries/Message.sol";
 import {RateLimited} from "../../../contracts/messaging/libraries/RateLimited.sol";
 

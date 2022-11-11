@@ -7,12 +7,11 @@ import {TypeCasts} from "../../contracts/shared/libraries/TypeCasts.sol";
 import {Message} from "../../contracts/messaging/libraries/Message.sol";
 
 import {RootManager} from "../../contracts/messaging/RootManager.sol";
-import {MerkleTreeManager} from "../../contracts/messaging/Merkle.sol";
+import {MerkleTreeManager} from "../../contracts/messaging/MerkleTreeManager.sol";
 import {WatcherManager} from "../../contracts/messaging/WatcherManager.sol";
-import {MerkleLib} from "../../contracts/messaging/libraries/Merkle.sol";
+import {MerkleLib} from "../../contracts/messaging/libraries/MerkleLib.sol";
 import {Connector} from "../../contracts/messaging/connectors/Connector.sol";
 import {SpokeConnector} from "../../contracts/messaging/connectors/SpokeConnector.sol";
-import {MerkleTreeManager} from "../../contracts/messaging/Merkle.sol";
 
 import "../utils/ConnectorHelper.sol";
 import "../utils/Mock.sol";
