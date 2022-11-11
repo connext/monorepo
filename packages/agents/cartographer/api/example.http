@@ -10,6 +10,12 @@
 GET {{postgrestUrl}}/transfers?status=eq.XCalled&limit=1&order=nonce.desc
 Prefer: count=planned
 
+# XCalled
+# Executed
+# Reconciled
+# CompletedFast
+# CompletedSlow
+
 ### GET ALL TRANSFERS FOR SPECIFIC DOMAINS
 GET {{postgrestUrl}}/transfers?and=(origin_domain.in.("1111","2221"),destination_domain.in.("1111","2221"))
 
