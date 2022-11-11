@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 // Importing interfaces and addresses of the system contracts
 import "@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol";
