@@ -84,6 +84,7 @@ contract FacetHelper is ForgeHelper {
       // on canonical, local is always adopted && local is always canonical
       _local = _canonical;
       _adopted = _canonical;
+      _stableSwap = address(0);
     } else {
       // Ensure stored domain is not canonical domain
       if (s.domain == _canonicalDomain) {
