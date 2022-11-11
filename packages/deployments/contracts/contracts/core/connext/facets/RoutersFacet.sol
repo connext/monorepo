@@ -605,6 +605,13 @@ contract RoutersFacet is BaseConnextFacet {
     // Sanity check: amount can be deducted for the router.
     if (routerBalance < _amount) revert RoutersFacet__removeRouterLiquidity_insufficientFunds();
 
+    // If it is the canonical domain, decrease custodied value
+    if (s.domain == canonical.domain && s.caps[key] > 0) {
+      // NOTE: safe to use the amount here because routers should always supply liquidity
+      // in canonical asset on the canonical domain
+      s.custodied[_local] -= _amount;
+    }
+
     // Update router balances.
     unchecked {
       s.routerBalances[_router][_local] = routerBalance - _amount;

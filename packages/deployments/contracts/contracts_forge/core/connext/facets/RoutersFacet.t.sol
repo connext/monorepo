@@ -824,27 +824,32 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   function test_RoutersFacet__removeRouterLiquidity_worksWithRecipientSet() public {
     s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
     s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
-    s.routerBalances[_routerAgent0][_local] = 10 ether;
+    s.routerBalances[_routerAgent0][_canonical] = 10 ether;
+    s.caps[_key] = 11 ether;
+    s.custodied[_canonical] = 10 ether;
+    s.domain = _canonicalDomain;
 
     address to = address(1234);
     uint256 amount = 100;
 
-    uint256 initLiquidity = this.routerBalances(_routerAgent0, _local);
-    uint256 initBalance = IERC20(_local).balanceOf(_routerRecipient0);
+    uint256 initLiquidity = this.routerBalances(_routerAgent0, _canonical);
+    uint256 initBalance = IERC20(_canonical).balanceOf(_routerRecipient0);
 
     vm.expectEmit(true, true, true, true);
-    emit RouterLiquidityRemoved(_routerAgent0, _routerRecipient0, _local, _key, amount, _routerAgent0);
+    emit RouterLiquidityRemoved(_routerAgent0, _routerRecipient0, _canonical, _key, amount, _routerAgent0);
     vm.prank(_routerAgent0);
-    this.removeRouterLiquidity(amount, _local, payable(to));
+    this.removeRouterLiquidity(amount, _canonical, payable(to));
 
-    assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
-    assertEq(IERC20(_local).balanceOf(_routerRecipient0), initBalance + amount);
+    assertEq(this.routerBalances(_routerAgent0, _canonical), initLiquidity - amount);
+    assertEq(IERC20(_canonical).balanceOf(_routerRecipient0), initBalance + amount);
+    assertEq(s.custodied[_canonical], 10 ether - amount);
   }
 
   function test_RoutersFacet__removeRouterLiquidity_worksWithToken() public {
     s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
     s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
     s.routerBalances[_routerAgent0][_local] = 10 ether;
+    s.custodied[_local] = 10 ether;
 
     address to = address(1234);
     uint256 amount = 100;
@@ -859,5 +864,6 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
     assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
     assertEq(IERC20(_local).balanceOf(to), initBalance + amount);
+    assertEq(s.custodied[_local], 10 ether);
   }
 }

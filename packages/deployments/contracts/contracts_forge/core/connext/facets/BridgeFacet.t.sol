@@ -674,6 +674,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           );
         }
       }
+
+      // if on canonical domain, should decrease
+      if (s.caps[utils_calculateCanonicalHash()] > 0) {
+        assertEq(s.custodied[_local], prevBalances.bridge - routerAmt);
+      }
     }
 
     {

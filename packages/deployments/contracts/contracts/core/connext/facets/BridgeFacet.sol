@@ -674,6 +674,13 @@ contract BridgeFacet is BaseConnextFacet {
     // Get the local asset contract address.
     address local = _getLocalAsset(_key, _args.params.canonicalId, _args.params.canonicalDomain);
 
+    // If it is the canonical domain, decrease custodied value
+    if (s.domain == _args.params.canonicalDomain && s.caps[_key] > 0) {
+      // NOTE: safe to use the amount here instead of post-swap because there are no
+      // AMMs on the canonical domain (assuming canonical == adopted on canonical domain)
+      s.custodied[local] -= _args.params.bridgedAmt;
+    }
+
     // If this is a zero-value transfer, short-circuit remaining logic.
     if (_args.params.bridgedAmt == 0) {
       return (0, local, local);
