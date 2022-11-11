@@ -92,9 +92,11 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    */
   function setArborist(address newArborist) external onlyOwner {
     if (newArborist == address(0)) revert MerkleTreeManager__setArborist_zeroAddress();
-    if (arborist == newArborist) revert MerkleTreeManager__setArborist_alreadyArborist();
+    address current = arborist;
+    if (current == newArborist) revert MerkleTreeManager__setArborist_alreadyArborist();
 
-    emit ArboristUpdated(arborist, newArborist);
+    // Emit updated event
+    emit ArboristUpdated(current, newArborist);
 
     arborist = newArborist;
   }
