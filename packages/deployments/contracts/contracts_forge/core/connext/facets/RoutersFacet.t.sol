@@ -137,20 +137,20 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   function test_RoutersFacet__addRouter_failsIfNotOwnerOrRouter() public {
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter.selector);
     vm.prank(address(123456123));
-    this.addRouter(address(0));
+    this.approveRouter(address(0));
   }
 
   function test_RoutersFacet__addRouter_failsIfRouterAddressIsZero() public {
     vm.expectRevert(RoutersFacet.RoutersFacet__addRouter_routerEmpty.selector);
     vm.prank(_owner);
-    this.addRouter(address(0));
+    this.approveRouter(address(0));
   }
 
   function test_RoutersFacet__addRouter_failsIfRouterAlreadyApproved() public {
     s.routerConfigs[_routerAgent0].approved = true;
     vm.expectRevert(RoutersFacet.RoutersFacet__addRouter_alreadyAdded.selector);
     vm.prank(_owner);
-    this.addRouter(_routerAgent0);
+    this.approveRouter(_routerAgent0);
   }
 
   // addRouter -- set approval
@@ -161,7 +161,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     emit RouterAdded(_routerAgent0, _owner);
 
     vm.prank(_owner);
-    this.addRouter(_routerAgent0);
+    this.approveRouter(_routerAgent0);
 
     assertEq(s.routerConfigs[_routerAgent0].approved, true);
 
@@ -263,7 +263,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     emit RouterRemoved(_routerAgent0, _owner);
 
     vm.prank(_owner);
-    this.removeRouter(_routerAgent0);
+    this.unapproveRouter(_routerAgent0);
 
     assertEq(s.routerConfigs[_routerAgent0].approved, false);
     assertEq(s.routerConfigs[_routerAgent0].portalApproved, false);
@@ -277,19 +277,19 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   function test_RoutersFacet__removeRouter_failsIfNotOwnerOrRouter() public {
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter.selector);
     vm.prank(address(123456123));
-    this.removeRouter(address(0));
+    this.unapproveRouter(address(0));
   }
 
   function test_RoutersFacet__removeRouter_failsIfRouterAddressIsZero() public {
     vm.expectRevert(RoutersFacet.RoutersFacet__removeRouter_routerEmpty.selector);
     vm.prank(_owner);
-    this.removeRouter(address(0));
+    this.unapproveRouter(address(0));
   }
 
   function test_RoutersFacet__removeRouter_failsIfRouterNotApproved() public {
     vm.expectRevert(RoutersFacet.RoutersFacet__removeRouter_notAdded.selector);
     vm.prank(_owner);
-    this.removeRouter(_routerAgent0);
+    this.unapproveRouter(_routerAgent0);
   }
 
   // setMaxRoutersPerTransfer

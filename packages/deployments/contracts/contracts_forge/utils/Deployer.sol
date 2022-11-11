@@ -191,8 +191,8 @@ contract Deployer {
     routersFacetSelectors[7] = RoutersFacet.maxRoutersPerTransfer.selector;
     routersFacetSelectors[8] = RoutersFacet.routerBalances.selector;
     routersFacetSelectors[9] = RoutersFacet.getRouterApprovalForPortal.selector;
-    routersFacetSelectors[10] = RoutersFacet.addRouter.selector;
-    routersFacetSelectors[11] = RoutersFacet.removeRouter.selector;
+    routersFacetSelectors[10] = RoutersFacet.approveRouter.selector;
+    routersFacetSelectors[11] = RoutersFacet.unapproveRouter.selector;
     routersFacetSelectors[12] = RoutersFacet.setMaxRoutersPerTransfer.selector;
     routersFacetSelectors[13] = RoutersFacet.setLiquidityFeeNumerator.selector;
     routersFacetSelectors[14] = RoutersFacet.approveRouterForPortal.selector;

@@ -216,11 +216,11 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function getRouterApprovalForPortal(address _router) external view returns (bool);
 
-  function addRouter(address router) external;
+  function approveRouter(address router) external;
 
   function initializeRouter(address owner, address recipient) external;
 
-  function removeRouter(address router) external;
+  function unapproveRouter(address router) external;
 
   function setMaxRoutersPerTransfer(uint256 _newMaxRouters) external;
 

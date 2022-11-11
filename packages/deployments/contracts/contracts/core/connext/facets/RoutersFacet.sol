@@ -246,7 +246,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Used to whitelist a given router
    * @param _router Router address to setup
    */
-  function addRouter(address _router) external onlyOwnerOrRouter {
+  function approveRouter(address _router) external onlyOwnerOrRouter {
     // Sanity check: not empty
     if (_router == address(0)) revert RoutersFacet__addRouter_routerEmpty();
 
@@ -264,7 +264,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Used to remove routers that can transact crosschain
    * @param _router Router address to remove
    */
-  function removeRouter(address _router) external onlyOwnerOrRouter {
+  function unapproveRouter(address _router) external onlyOwnerOrRouter {
     // Sanity check: not empty
     if (_router == address(0)) revert RoutersFacet__removeRouter_routerEmpty();
 
