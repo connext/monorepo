@@ -14,6 +14,10 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
   error MerkleTreeManager__setArborist_zeroAddress();
   error MerkleTreeManager__setArborist_alreadyArborist();
 
+  // ============ Events ============
+
+  event ArboristUpdated(address previous, address updated);
+
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
@@ -89,6 +93,9 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
   function setArborist(address newArborist) external onlyOwner {
     if (newArborist == address(0)) revert MerkleTreeManager__setArborist_zeroAddress();
     if (arborist == newArborist) revert MerkleTreeManager__setArborist_alreadyArborist();
+
+    emit ArboristUpdated(arborist, newArborist);
+
     arborist = newArborist;
   }
 
