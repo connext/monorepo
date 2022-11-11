@@ -21,7 +21,7 @@ contract GnosisHubConnector is HubConnector, GnosisBase {
   ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) GnosisBase() {}
 
   // https://docs.gnosischain.com/bridges/tutorials/using-amb
-  function executeSignatures(bytes _data, bytes _signature) external {
+  function executeSignatures(bytes memory _data, bytes memory _signatures) external {
     GnosisAmb(AMB).executeSignatures(_data, _signatures);
   }
 

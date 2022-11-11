@@ -21,6 +21,7 @@
   "function ROOT_MANAGER() view returns (address)",
   "function acceptProposedOwner()",
   "function delay() view returns (uint256)",
+  "function executeSignatures(bytes,bytes)",
   "function mirrorConnector() view returns (address)",
   "function mirrorGas() view returns (uint256)",
   "function owner() view returns (address)",

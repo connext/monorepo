@@ -123,6 +123,7 @@ export const processSingleRootMessage = async (
     spokeDomainId: rootMessage.spokeDomain,
     hubDomainId: rootMessage.hubDomain,
     sendHash: rootMessage.transactionHash,
+    blockNumber: rootMessage.blockNumber,
     _requestContext: requestContext,
   });
 

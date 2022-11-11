@@ -12,5 +12,6 @@ export type GetProcessArgsParams = {
   spokeProvider: string;
   hubProvider: string;
   sendHash: string;
+  blockNumber: number;
   _requestContext: RequestContext;
 };

@@ -22,6 +22,11 @@ contract GnosisHubConnectorTest is ConnectorHelper {
     vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.messageSender.selector), abi.encode(_sender));
   }
 
+  function utils_executeSignatures() public {
+    // 1. call to amb on message sender
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.executeSignatures.selector), abi.encode());
+  }
+
   // ============ GnosisHubConnector.verifySender ============
   function test_GnosisHubConnector__verifySender_shouldWorkIfTrue() public {
     address expected = address(111);
@@ -182,5 +187,12 @@ contract GnosisHubConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     vm.expectRevert(abi.encodePacked("!destinationChain"));
     GnosisHubConnector(_l1Connector).processMessage(_data);
+  }
+
+  // ============ GnosisHubConnector.executeSignatures ============
+  function test_GnosisHubConnector__executeSignatures_shouldWork() public {
+    bytes memory _data = abi.encodePacked(bytes32(bytes("data")));
+    bytes memory _signatures = abi.encodePacked(bytes32(bytes("signature")));
+    GnosisHubConnector(_l1Connector).executeSignatures(_data, _signatures);
   }
 }
