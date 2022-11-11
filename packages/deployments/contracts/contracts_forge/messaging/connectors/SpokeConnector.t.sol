@@ -11,6 +11,7 @@ import {RateLimited} from "../../../contracts/messaging/libraries/RateLimited.so
 import "../../utils/ForgeHelper.sol";
 
 contract SpokeConnectorTest is ForgeHelper {
+  using stdStorage for StdStorage;
   event MessageSent(bytes data, address caller);
 
   // ============ Storage ============
@@ -58,8 +59,9 @@ contract SpokeConnectorTest is ForgeHelper {
   }
 
   // mock call to get watcher so all addresses are watchers
-  function utils_mockIsWatcher_true() public {
-    vm.mockCall(address(_watcherManager), abi.encodeWithSelector(WatcherManager.isWatcher.selector), abi.encode(true));
+  function utils_mockIsWatcher_true(address watcher) public {
+    // TODO: not working
+    stdstore.target(address(_watcherManager)).sig("isWatcher(address)").with_key(watcher).depth(1).checked_write(true);
   }
 
   function test_SpokeConnector__setRateLimitBlocks_works() public {
@@ -81,7 +83,7 @@ contract SpokeConnectorTest is ForgeHelper {
   }
 
   function test_SpokeConnector__setWatcherPaused_worksIfWatcher(address watcher) public {
-    utils_mockIsWatcher_true();
+    utils_mockIsWatcher_true(watcher);
     vm.prank(watcher);
     spokeConnector.pause();
     assertTrue(spokeConnector.paused());
@@ -101,7 +103,7 @@ contract SpokeConnectorTest is ForgeHelper {
   }
 
   function test_SpokeConnector__send_failsIfPaused() public {
-    utils_mockIsWatcher_true();
+    utils_mockIsWatcher_true(msg.sender);
     spokeConnector.pause();
     assertTrue(spokeConnector.paused());
 
@@ -131,7 +133,7 @@ contract SpokeConnectorTest is ForgeHelper {
   }
 
   function test_SpokeConnector__proveAndProcess_failsIfPaused() public {
-    utils_mockIsWatcher_true();
+    utils_mockIsWatcher_true(msg.sender);
     spokeConnector.pause();
     assertTrue(spokeConnector.paused());
 
