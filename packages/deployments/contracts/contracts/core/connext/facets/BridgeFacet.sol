@@ -485,14 +485,14 @@ contract BridgeFacet is BaseConnextFacet {
         // Enforce liquidity caps
         // NOTE: safe to do this before the swap because canonical domains do
         // not hit the AMMs (local == canonical)
-        if (isCanonical) {
+        uint256 cap = s.caps[key];
+        if (isCanonical && cap > 0) {
           // NOTE: this method includes router liquidity as part of the caps,
           // not only the minted amount
-          uint256 custodied = IERC20(local).balanceOf(address(this)) + _amount;
-          uint256 cap = s.caps[key];
-          if (cap > 0 && custodied > cap) {
+          if (s.custodied[_asset] > cap - _amount) {
             revert BridgeFacet__xcall_capReached();
           }
+          s.custodied[_asset] += _amount;
         }
 
         // Update TransferInfo to reflect the canonical token information.

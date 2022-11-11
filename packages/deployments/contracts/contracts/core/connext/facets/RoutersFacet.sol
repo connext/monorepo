@@ -551,13 +551,13 @@ contract RoutersFacet is BaseConnextFacet {
     if (!_isRouterWhitelistRemoved() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
 
-    if (s.domain == canonical.domain) {
+    uint256 cap = s.caps[key];
+    if (s.domain == canonical.domain && cap > 0) {
       // Sanity check: caps not reached
-      uint256 custodied = IERC20(_local).balanceOf(address(this)) + _amount;
-      uint256 cap = s.caps[key];
-      if (cap > 0 && custodied > cap) {
+      if (s.custodied[_local] > cap - _amount) {
         revert RoutersFacet__addLiquidityForRouter_capReached();
       }
+      s.custodied[_local] += _amount;
     }
 
     // Transfer funds to contract.

@@ -340,6 +340,10 @@ contract TokenFacet is BaseConnextFacet {
     uint256 _updated,
     bytes32 _key
   ) internal {
+    // NOTE: If updating from a 0 balance, the `custodied` amount will increase only
+    // as router liquidity and xcall are used (i.e. if cap is removed, and then set to 5M, it 
+    // translates to 5M from latest captured custody value)
+  
     // Update the stored cap
     s.caps[_key] = _updated;
 

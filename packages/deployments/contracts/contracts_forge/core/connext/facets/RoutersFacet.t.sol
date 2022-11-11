@@ -684,7 +684,8 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 amount = 10;
     utils_setupAsset(true, true);
     s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.caps[utils_calculateCanonicalHash()] = 1;
+    s.caps[utils_calculateCanonicalHash()] = 11;
+    s.custodied[_local] = 3;
     vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_capReached.selector);
     this.addRouterLiquidityFor(amount, _local, _routerAgent0);
   }
