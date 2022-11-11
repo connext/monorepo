@@ -806,7 +806,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   function test_RoutersFacet__removeRouterLiquidity_worksWithRecipientSet() public {
     s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
     s.routerConfigs[_routerAgent0].owner = address(0);
-    s.routerBalances[_routerAgent0][_local] = 10 ether;
+    s.routerBalances[_routerAgent0][_canonical] = 10 ether;
     s.caps[_key] = 11 ether;
     s.custodied[_canonical] = 10 ether;
     s.domain = _canonicalDomain;
