@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {DiamondCutFacet} from "../../contracts/core/connext/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "../../contracts/core/connext/facets/DiamondLoupeFacet.sol";
@@ -137,7 +137,7 @@ contract Deployer {
     pure
     returns (IDiamondCut.FacetCut memory)
   {
-    bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](18);
+    bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](16);
     proposedOwnableFacetSelectors[0] = ProposedOwnableFacet.owner.selector;
     proposedOwnableFacetSelectors[1] = ProposedOwnableFacet.routerWhitelistRemoved.selector;
     proposedOwnableFacetSelectors[2] = ProposedOwnableFacet.assetWhitelistRemoved.selector;
@@ -150,12 +150,10 @@ contract Deployer {
     proposedOwnableFacetSelectors[9] = ProposedOwnableFacet.removeRouterWhitelist.selector;
     proposedOwnableFacetSelectors[10] = ProposedOwnableFacet.proposeAssetWhitelistRemoval.selector;
     proposedOwnableFacetSelectors[11] = ProposedOwnableFacet.removeAssetWhitelist.selector;
-    proposedOwnableFacetSelectors[12] = ProposedOwnableFacet.renounced.selector;
-    proposedOwnableFacetSelectors[13] = ProposedOwnableFacet.proposeNewOwner.selector;
-    proposedOwnableFacetSelectors[14] = ProposedOwnableFacet.renounceOwnership.selector;
-    proposedOwnableFacetSelectors[15] = ProposedOwnableFacet.acceptProposedOwner.selector;
-    proposedOwnableFacetSelectors[16] = ProposedOwnableFacet.pause.selector;
-    proposedOwnableFacetSelectors[17] = ProposedOwnableFacet.unpause.selector;
+    proposedOwnableFacetSelectors[12] = ProposedOwnableFacet.proposeNewOwner.selector;
+    proposedOwnableFacetSelectors[13] = ProposedOwnableFacet.acceptProposedOwner.selector;
+    proposedOwnableFacetSelectors[14] = ProposedOwnableFacet.pause.selector;
+    proposedOwnableFacetSelectors[15] = ProposedOwnableFacet.unpause.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _proposedOwnableFacet,

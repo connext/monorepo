@@ -269,8 +269,6 @@ export interface IConnextInterface extends utils.Interface {
     "removeSwapLiquidity(bytes32,uint256,uint256[],uint256)": FunctionFragment;
     "removeSwapLiquidityImbalance(bytes32,uint256[],uint256,uint256)": FunctionFragment;
     "removeSwapLiquidityOneToken(bytes32,uint256,uint8,uint256,uint256)": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "renounced()": FunctionFragment;
     "repayAavePortal((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256,uint256)": FunctionFragment;
     "repayAavePortalFor((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256)": FunctionFragment;
     "representationToCanonical(address)": FunctionFragment;
@@ -398,8 +396,6 @@ export interface IConnextInterface extends utils.Interface {
       | "removeSwapLiquidity"
       | "removeSwapLiquidityImbalance"
       | "removeSwapLiquidityOneToken"
-      | "renounceOwnership"
-      | "renounced"
       | "repayAavePortal"
       | "repayAavePortalFor"
       | "representationToCanonical"
@@ -853,11 +849,6 @@ export interface IConnextInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "repayAavePortal",
     values: [
@@ -1368,11 +1359,6 @@ export interface IConnextInterface extends utils.Interface {
     functionFragment: "removeSwapLiquidityOneToken",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "repayAavePortal",
     data: BytesLike
@@ -2027,12 +2013,6 @@ export interface IConnext extends BaseContract {
       deadline: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     repayAavePortal(
       _params: TransferInfoStruct,
@@ -2701,12 +2681,6 @@ export interface IConnext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  renounced(overrides?: CallOverrides): Promise<boolean>;
-
   repayAavePortal(
     _params: TransferInfoStruct,
     _backingAmount: PromiseOrValue<BigNumberish>,
@@ -3363,10 +3337,6 @@ export interface IConnext extends BaseContract {
       deadline: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    renounced(overrides?: CallOverrides): Promise<boolean>;
 
     repayAavePortal(
       _params: TransferInfoStruct,
@@ -4071,12 +4041,6 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    renounced(overrides?: CallOverrides): Promise<BigNumber>;
-
     repayAavePortal(
       _params: TransferInfoStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
@@ -4754,12 +4718,6 @@ export interface IConnext extends BaseContract {
       deadline: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     repayAavePortal(
       _params: TransferInfoStruct,

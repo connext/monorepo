@@ -1943,21 +1943,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__renounceOwnership_delayNotElapsed",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "ProposedOwnableFacet__renounceOwnership_invalidProposal",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "ProposedOwnableFacet__renounceOwnership_noProposal",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "ProposedOwnableFacet__revokeRole_invalidInput",
     type: "error",
   },
@@ -2304,26 +2289,6 @@ const _abi = [
     name: "removeRouterWhitelist",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "renounceOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "renounced",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {

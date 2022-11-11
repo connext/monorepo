@@ -63,15 +63,12 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212209ef15a60198e3e125b0afff9b1b7f7ce69f314a7641152e1050ccb7217d708a764736f6c634300080f0033";
+  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122012dd1eaa25a52a4b800a69fbe9f53fa99b10dc7a7f495fe2f8283bf4470c071f64736f6c63430008110033";
 
-type BaseConnextFacetConstructorParams =
-  | [signer?: Signer]
-  | ConstructorParameters<typeof ContractFactory>;
+type BaseConnextFacetConstructorParams = [signer?: Signer] | ConstructorParameters<typeof ContractFactory>;
 
-const isSuperArgs = (
-  xs: BaseConnextFacetConstructorParams
-): xs is ConstructorParameters<typeof ContractFactory> => xs.length > 1;
+const isSuperArgs = (xs: BaseConnextFacetConstructorParams): xs is ConstructorParameters<typeof ContractFactory> =>
+  xs.length > 1;
 
 export class BaseConnextFacet__factory extends ContractFactory {
   constructor(...args: BaseConnextFacetConstructorParams) {
@@ -82,14 +79,10 @@ export class BaseConnextFacet__factory extends ContractFactory {
     }
   }
 
-  override deploy(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<BaseConnextFacet> {
+  override deploy(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BaseConnextFacet> {
     return super.deploy(overrides || {}) as Promise<BaseConnextFacet>;
   }
-  override getDeployTransaction(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): TransactionRequest {
+  override getDeployTransaction(overrides?: Overrides & { from?: PromiseOrValue<string> }): TransactionRequest {
     return super.getDeployTransaction(overrides || {});
   }
   override attach(address: string): BaseConnextFacet {
@@ -104,10 +97,7 @@ export class BaseConnextFacet__factory extends ContractFactory {
   static createInterface(): BaseConnextFacetInterface {
     return new utils.Interface(_abi) as BaseConnextFacetInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): BaseConnextFacet {
+  static connect(address: string, signerOrProvider: Signer | Provider): BaseConnextFacet {
     return new Contract(address, _abi, signerOrProvider) as BaseConnextFacet;
   }
 }

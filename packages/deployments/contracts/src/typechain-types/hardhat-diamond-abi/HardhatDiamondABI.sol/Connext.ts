@@ -214,8 +214,6 @@ export interface ConnextInterface extends utils.Interface {
     "queryRole(address)": FunctionFragment;
     "removeAssetWhitelist()": FunctionFragment;
     "removeRouterWhitelist()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "renounced()": FunctionFragment;
     "revokeRole(address)": FunctionFragment;
     "routerWhitelistRemoved()": FunctionFragment;
     "routerWhitelistTimestamp()": FunctionFragment;
@@ -343,8 +341,6 @@ export interface ConnextInterface extends utils.Interface {
       | "queryRole"
       | "removeAssetWhitelist"
       | "removeRouterWhitelist"
-      | "renounceOwnership"
-      | "renounced"
       | "revokeRole"
       | "routerWhitelistRemoved"
       | "routerWhitelistTimestamp"
@@ -521,8 +517,6 @@ export interface ConnextInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "queryRole", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(functionFragment: "removeAssetWhitelist", values?: undefined): string;
   encodeFunctionData(functionFragment: "removeRouterWhitelist", values?: undefined): string;
-  encodeFunctionData(functionFragment: "renounceOwnership", values?: undefined): string;
-  encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(functionFragment: "revokeRole", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(functionFragment: "routerWhitelistRemoved", values?: undefined): string;
   encodeFunctionData(functionFragment: "routerWhitelistTimestamp", values?: undefined): string;
@@ -807,8 +801,6 @@ export interface ConnextInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "queryRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "removeAssetWhitelist", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "removeRouterWhitelist", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "renounceOwnership", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "routerWhitelistRemoved", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "routerWhitelistTimestamp", data: BytesLike): Result;
@@ -1631,10 +1623,6 @@ export interface Connext extends BaseContract {
 
     removeRouterWhitelist(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
-    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
-
-    renounced(overrides?: CallOverrides): Promise<[boolean]>;
-
     revokeRole(
       _revoke: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
@@ -2183,10 +2171,6 @@ export interface Connext extends BaseContract {
 
   removeRouterWhitelist(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
-  renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
-
-  renounced(overrides?: CallOverrides): Promise<boolean>;
-
   revokeRole(
     _revoke: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> },
@@ -2693,10 +2677,6 @@ export interface Connext extends BaseContract {
     removeAssetWhitelist(overrides?: CallOverrides): Promise<void>;
 
     removeRouterWhitelist(overrides?: CallOverrides): Promise<void>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    renounced(overrides?: CallOverrides): Promise<boolean>;
 
     revokeRole(_revoke: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
@@ -3542,10 +3522,6 @@ export interface Connext extends BaseContract {
 
     removeRouterWhitelist(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>;
 
-    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>;
-
-    renounced(overrides?: CallOverrides): Promise<BigNumber>;
-
     revokeRole(
       _revoke: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
@@ -4105,10 +4081,6 @@ export interface Connext extends BaseContract {
     removeAssetWhitelist(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
 
     removeRouterWhitelist(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
-
-    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
-
-    renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     revokeRole(
       _revoke: PromiseOrValue<string>,
