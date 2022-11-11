@@ -68,6 +68,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
    */
   function _processMessage(bytes memory _data) internal override {
     // Does nothing, all messages should go through the `processMessageFromRoot` path
+    revert Connector__processMessage_notUsed();
   }
 
   /**
