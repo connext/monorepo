@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {ProposedOwnable} from "../../shared/ProposedOwnable.sol";
 import {IConnector} from "../interfaces/IConnector.sol";
@@ -18,6 +18,10 @@ import {IConnector} from "../interfaces/IConnector.sol";
  * or `mirrorGas`
  */
 abstract contract Connector is ProposedOwnable, IConnector {
+  // ========== Custom Errors ===========
+
+  error Connector__processMessage_notUsed();
+
   // ============ Events ============
 
   event NewConnector(

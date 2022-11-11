@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/crosschain/errors.sol";
 
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
-import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/MerkleTreeManager.sol";
 
 import {PolygonSpokeConnector} from "../../../../contracts/messaging/connectors/polygon/PolygonSpokeConnector.sol";
 
