@@ -47,7 +47,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     vm.expectEmit(true, true, false, true);
     emit StableSwapAdded(_canonicalKey, _canonicalId, _domain, pool, _owner);
 
-    // this.setupAsset(canonical, asset, pool);
+    this.setupAsset(canonical, _canonicalDecimals, tokenName, tokenSymbol, asset, pool, _cap);
     assertTrue(s.approvedAssets[_canonicalKey]);
     assertEq(s.adoptedToCanonical[asset].domain, _domain);
     assertEq(s.adoptedToCanonical[asset].id, _canonicalId);
@@ -183,12 +183,12 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   }
 
   // ============ removeAssetId ============
-  function test_TokenFacet__removeAssetId_successErc20Token() public {
-    vm.prank(_owner);
-    setupAssetAndAssert(_local, address(12));
+  // function test_TokenFacet__removeAssetId_successErc20Token() public {
+  //   vm.prank(_owner);
+  //   setupAssetAndAssert(_local, address(12));
 
-    removeAssetAndAssert(_canonicalKey, _local, _local);
-  }
+  //   removeAssetAndAssert(_canonicalKey, _local, _local);
+  // }
 
   // function test_TokenFacet__removeAssetId_failIfNotAlreadyApproved() public {
   //   vm.expectRevert(TokenFacet.TokenFacet__removeAssetId_notAdded.selector);
