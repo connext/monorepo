@@ -58,6 +58,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__bumpTransfer_noRelayerVault();
   error BridgeFacet__forceUpdateSlippage_invalidSlippage();
   error BridgeFacet__forceUpdateSlippage_notDestination();
+  error BridgeFacet__forceReceiveLocal_notDestination();
   error BridgeFacet__mustHaveRemote_destinationNotSupported();
 
   // ============ Properties ============
@@ -128,11 +129,19 @@ contract BridgeFacet is BaseConnextFacet {
   event TransferRelayerFeesIncreased(bytes32 indexed transferId, uint256 increase, address caller);
 
   /**
-   * @notice Emitted when `forceUpdateSlippage` is called by an user on the destination domain
+   * @notice Emitted when `forceUpdateSlippage` is called by user-delegated EOA
+   * on the destination domain
    * @param transferId - The unique identifier of the crosschain transaction
    * @param slippage - The updated slippage boundary
    */
   event SlippageUpdated(bytes32 indexed transferId, uint256 slippage);
+
+  /**
+   * @notice Emitted when `forceReceiveLocal` is called by a user-delegated EOA
+   * on the destination domain
+   * @param transferId - The unique identifier of the crosschain transaction
+   */
+  event ForceReceiveLocal(bytes32 indexed transferId);
 
   /**
    * @notice Emitted when a router used Aave Portal liquidity for fast transfer
@@ -412,6 +421,28 @@ contract BridgeFacet is BaseConnextFacet {
     emit SlippageUpdated(transferId, _slippage);
   }
 
+  /**
+   * @notice Allows a user-specified account to withdraw the local asset directly
+   * @dev Calldata will still be executed with the local asset. `IXReceiver` contracts
+   * should be able to handle local assets in event of failures.
+   * @param _params TransferInfo associated with the transfer
+   */
+  function forceReceiveLocal(TransferInfo calldata _params) external onlyDelegate(_params) {
+    // Should only be called on destination domain
+    if (_params.destinationDomain != s.domain) {
+      revert BridgeFacet__forceReceiveLocal_notDestination();
+    }
+
+    // Get transferId
+    bytes32 transferId = _calculateTransferId(_params);
+
+    // Store overrides
+    s.receiveLocalOverride[transferId] = true;
+
+    // Emit event
+    emit ForceReceiveLocal(transferId);
+  }
+
   // ============ Internal: Bridge ============
 
   /**
@@ -679,6 +710,9 @@ contract BridgeFacet is BaseConnextFacet {
       return (0, local, local);
     }
 
+    // Get the receive local status
+    bool receiveLocal = _args.params.receiveLocal || s.receiveLocalOverride[_transferId];
+
     uint256 toSwap = _args.params.bridgedAmt;
     // If this is a fast liquidity path, we should handle deducting from applicable routers' liquidity.
     // If this is a slow liquidity path, the transfer must have been reconciled (if we've reached this point),
@@ -694,9 +728,7 @@ contract BridgeFacet is BaseConnextFacet {
         // If router does not have enough liquidity, try to use Aave Portals.
         // NOTE: Only one router should be responsible for taking on this credit risk, and it should only deal
         // with transfers expecting adopted assets (to avoid introducing runtime slippage).
-        if (
-          !_args.params.receiveLocal && s.routerBalances[_args.routers[0]][local] < toSwap && s.aavePool != address(0)
-        ) {
+        if (!receiveLocal && s.routerBalances[_args.routers[0]][local] < toSwap && s.aavePool != address(0)) {
           if (!s.routerConfigs[_args.routers[0]].portalApproved) revert BridgeFacet__execute_notApprovedForPortals();
 
           // Portals deliver the adopted asset directly; return after portal execution is completed.
@@ -731,7 +763,7 @@ contract BridgeFacet is BaseConnextFacet {
 
     // If the local asset is specified, or the adopted asset was overridden (e.g. when user facing slippage
     // conditions outside of their boundaries), exit without swapping.
-    if (_args.params.receiveLocal) {
+    if (receiveLocal) {
       return (toSwap, local, local);
     }
 

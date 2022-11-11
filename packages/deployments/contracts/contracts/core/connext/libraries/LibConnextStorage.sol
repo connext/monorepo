@@ -217,6 +217,10 @@ struct AppStorage {
   // 20
   mapping(bytes32 => uint256) slippage;
   /**
+   * @notice Stores a mapping of transfer id to receive local overrides.
+   */
+  mapping(bytes32 => bool) receiveLocalOverride;
+  /**
    * @notice Stores a mapping of remote routers keyed on domains.
    * @dev Addresses are cast to bytes32.
    * This mapping is required because the Connext now contains the BridgeRouter and must implement
