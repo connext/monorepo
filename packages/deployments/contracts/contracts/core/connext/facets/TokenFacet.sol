@@ -18,6 +18,7 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 contract TokenFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
+  error TokenFacet__setupAsset_invalidCanonicalConfiguration();
   error TokenFacet__addAssetId_nativeAsset();
   error TokenFacet__addAssetId_alreadyAdded();
   error TokenFacet__removeAssetId_notAdded();
@@ -180,7 +181,13 @@ contract TokenFacet is BaseConnextFacet {
         _representationSymbol
       );
     } else {
+      // Get the local address
       _local = TypeCasts.bytes32ToAddress(_canonical.id);
+
+      // You are on the canonical domain, ensure the adopted asset is empty
+      if ((_adoptedAssetId != _local && _adoptedAssetId != address(0)) || _stableSwapPool != address(0)) {
+        revert TokenFacet__setupAsset_invalidCanonicalConfiguration();
+      }
     }
 
     bytes32 key = _enrollAdoptedAndLocalAssets(_adoptedAssetId, _local, _stableSwapPool, _canonical);
