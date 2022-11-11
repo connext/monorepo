@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
 
-import {MerkleLib} from "../libraries/Merkle.sol";
+import {MerkleLib} from "../libraries/MerkleLib.sol";
 import {Message} from "../libraries/Message.sol";
 import {RateLimited} from "../libraries/RateLimited.sol";
 
-import {MerkleTreeManager} from "../Merkle.sol";
+import {MerkleTreeManager} from "../MerkleTreeManager.sol";
 import {WatcherClient} from "../WatcherClient.sol";
 
-import {Connector} from "./Connector.sol";
+import {Connector, ProposedOwnable} from "./Connector.sol";
 import {ConnectorManager} from "./ConnectorManager.sol";
 
 /**
@@ -249,6 +249,14 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     delete pendingAggregateRoots[_fraudulentRoot];
     emit AggregateRootRemoved(_fraudulentRoot);
   }
+
+  /**
+   * @notice Remove ability to renounce ownership
+   * @dev Renounce ownership should be impossible as long as it is impossible in the
+   * WatcherClient, and as long as only the owner can remove pending roots in case of
+   * fraud.
+   */
+  function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {}
 
   // ============ Public Functions ============
 

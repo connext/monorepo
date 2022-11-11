@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -10,7 +10,6 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {ExcessivelySafeCall} from "../../../shared/libraries/ExcessivelySafeCall.sol";
 import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
-import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
 
 import {IOutbox} from "../../../messaging/interfaces/IOutbox.sol";
 import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager.sol";
@@ -613,7 +612,7 @@ contract BridgeFacet is BaseConnextFacet {
         // Make sure the router is approved, if applicable.
         // If router ownership is renounced (_RouterOwnershipRenounced() is true), then the router whitelist
         // no longer applies and we can skip this approval step.
-        if (!_isRouterWhitelistRemoved() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
+        if (!_isRouterWhitelistRemoved() && !s.routerConfigs[_args.routers[i]].approved) {
           revert BridgeFacet__execute_notSupportedRouter();
         }
 
@@ -698,8 +697,7 @@ contract BridgeFacet is BaseConnextFacet {
         if (
           !_args.params.receiveLocal && s.routerBalances[_args.routers[0]][local] < toSwap && s.aavePool != address(0)
         ) {
-          if (!s.routerPermissionInfo.approvedForPortalRouters[_args.routers[0]])
-            revert BridgeFacet__execute_notApprovedForPortals();
+          if (!s.routerConfigs[_args.routers[0]].portalApproved) revert BridgeFacet__execute_notApprovedForPortals();
 
           // Portals deliver the adopted asset directly; return after portal execution is completed.
           (uint256 portalDeliveredAmount, address adoptedAsset) = _executePortalTransfer(

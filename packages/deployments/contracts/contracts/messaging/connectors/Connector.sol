@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {ProposedOwnable} from "../../shared/ProposedOwnable.sol";
 import {IConnector} from "../interfaces/IConnector.sol";
@@ -13,8 +13,15 @@ import {IConnector} from "../interfaces/IConnector.sol";
  * base for contracts that do not have a mirror (i.e. the connector handling messaging on
  * mainnet). In this case, the `mirrorConnector`, `MIRROR_DOMAIN`, and `mirrorGas`
  * will be empty
+ *
+ * @dev If ownership is renounced, this contract will be unable to update its `mirrorConnector`
+ * or `mirrorGas`
  */
 abstract contract Connector is ProposedOwnable, IConnector {
+  // ========== Custom Errors ===========
+
+  error Connector__processMessage_notUsed();
+
   // ============ Events ============
 
   event NewConnector(

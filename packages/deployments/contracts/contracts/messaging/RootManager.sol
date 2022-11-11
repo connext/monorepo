@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 
@@ -9,7 +9,7 @@ import {Message} from "./libraries/Message.sol";
 import {QueueLib} from "./libraries/Queue.sol";
 import {DomainIndexer} from "./libraries/DomainIndexer.sol";
 
-import {MerkleTreeManager} from "./Merkle.sol";
+import {MerkleTreeManager} from "./MerkleTreeManager.sol";
 import {WatcherClient} from "./WatcherClient.sol";
 
 /**
@@ -140,6 +140,13 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     address _connector = removeDomain(_domain);
     emit ConnectorRemoved(_domain, _connector, domains, connectors, msg.sender);
   }
+
+  /**
+   * @notice Remove ability to renounce ownership
+   * @dev Renounce ownership should be impossible as long as watchers can freely remove connectors
+   * and only the owner can add them back
+   */
+  function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {}
 
   // ============ Public Functions ============
 

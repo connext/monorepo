@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
@@ -450,7 +450,9 @@ contract ConnextTest is ForgeHelper, Deployer {
       signatures[i] = abi.encodePacked(r, _s, v);
 
       // whitelist all routers
-      _destinationConnext.setupRouter(routers[i], address(0), address(0));
+      _destinationConnext.approveRouter(routers[i]);
+      vm.prank(routers[i]);
+      _destinationConnext.initializeRouter(address(0), address(0));
 
       // add liquidity for all routers
       if (liquidity != 0) {

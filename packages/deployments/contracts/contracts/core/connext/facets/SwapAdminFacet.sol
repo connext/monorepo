@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
@@ -123,7 +123,7 @@ contract SwapAdminFacet is BaseConnextFacet {
     if (_pooledTokens.length <= 1 || _pooledTokens.length > 32)
       revert SwapAdminFacet__initializeSwap_invalidPooledTokens();
 
-    uint8 numPooledTokens = uint8(_pooledTokens.length);
+    uint256 numPooledTokens = _pooledTokens.length;
 
     if (numPooledTokens != decimals.length) revert SwapAdminFacet__initializeSwap_decimalsMismatch();
 

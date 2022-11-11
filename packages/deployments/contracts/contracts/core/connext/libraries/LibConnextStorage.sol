@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager.sol";
@@ -96,25 +96,20 @@ struct ExecuteArgs {
 }
 
 /**
- * @notice Contains RouterFacet related state
- * @param approvedRouters - Mapping of whitelisted router addresses
- * @param routerRecipients - Mapping of router withdraw recipient addresses.
- * If set, all liquidity is withdrawn only to this address. Must be set by routerOwner
- * (if configured) or the router itself
- * @param routerOwners - Mapping of router owners
- * If set, can update the routerRecipient
- * @param proposedRouterOwners - Mapping of proposed router owners
- * Must wait timeout to set the
- * @param proposedRouterTimestamp - Mapping of proposed router owners timestamps
- * When accepting a proposed owner, must wait for delay to elapse
+ * @notice Contains configs for each router
+ * @param approved Whether the router is whitelisted, settable by admin
+ * @param portalApproved Whether the router is whitelisted for portals, settable by admin
+ * @param routerOwners The address that can update the `recipient`
+ * @param proposedRouterOwners Owner candidates
+ * @param proposedRouterTimestamp When owner candidate was proposed (there is a delay to acceptance)
  */
-struct RouterPermissionsManagerInfo {
-  mapping(address => bool) approvedRouters;
-  mapping(address => bool) approvedForPortalRouters;
-  mapping(address => address) routerRecipients;
-  mapping(address => address) routerOwners;
-  mapping(address => address) proposedRouterOwners;
-  mapping(address => uint256) proposedRouterTimestamp;
+struct RouterConfig {
+  bool approved;
+  bool portalApproved;
+  address owner;
+  address recipient;
+  address proposed;
+  uint256 proposedTimestamp;
 }
 
 struct AppStorage {
@@ -254,7 +249,7 @@ struct AppStorage {
   // RouterFacet
   //
   // 29
-  RouterPermissionsManagerInfo routerPermissionInfo;
+  mapping(address => RouterConfig) routerConfigs;
   //
   // ReentrancyGuard
   //
