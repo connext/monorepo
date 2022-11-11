@@ -20,6 +20,11 @@ contract GnosisHubConnector is HubConnector, GnosisBase {
     uint256 _mirrorGas
   ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) GnosisBase() {}
 
+  // https://docs.gnosischain.com/bridges/tutorials/using-amb
+  function processMessageFromRoot(bytes _data, bytes _signature) external {
+    GnosisAmb(AMB).safeExecuteSignaturesWithAutoGasLimit(_data, _signatures);
+  }
+
   // ============ Private fns ============
   /**
    * @dev Asserts the sender of a cross domain message
