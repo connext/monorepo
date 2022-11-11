@@ -108,7 +108,7 @@ abstract contract ProposedOwnable is IProposedOwnable {
    */
   function proposeNewOwner(address newlyProposed) public virtual onlyOwner {
     // Contract as source of truth
-    if (_proposed == newlyProposed && newlyProposed != address(0))
+    if (_proposed == newlyProposed && newlyProposed != address(0) && _proposedOwnershipTimestamp != 0)
       revert ProposedOwnable__proposeNewOwner_invalidProposal();
 
     // Sanity check: reasonable proposal
