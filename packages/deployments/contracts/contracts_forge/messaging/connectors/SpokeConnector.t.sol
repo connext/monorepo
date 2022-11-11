@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {MockSpokeConnector} from "../../utils/Mock.sol";
 import {SpokeConnector} from "../../../contracts/messaging/connectors/SpokeConnector.sol";
 import {WatcherManager} from "../../../contracts/messaging/WatcherManager.sol";
-import {MerkleTreeManager} from "../../../contracts/messaging/Merkle.sol";
+import {MerkleTreeManager} from "../../../contracts/messaging/MerkleTreeManager.sol";
 import {Message} from "../../../contracts/messaging/libraries/Message.sol";
+import {RateLimited} from "../../../contracts/messaging/libraries/RateLimited.sol";
 
 import "../../utils/ForgeHelper.sol";
 
 contract SpokeConnectorTest is ForgeHelper {
+  event MessageSent(bytes data, address caller);
+
   // ============ Storage ============
   SpokeConnector spokeConnector;
   address owner = address(1);
@@ -59,6 +62,16 @@ contract SpokeConnectorTest is ForgeHelper {
     vm.mockCall(address(_watcherManager), abi.encodeWithSelector(WatcherManager.isWatcher.selector), abi.encode(true));
   }
 
+  function test_SpokeConnector__setRateLimitBlocks_works() public {
+    // Is 0 (disabled) by default.
+    assertEq(spokeConnector.rateLimitBlocks(), 0);
+
+    vm.prank(owner);
+    spokeConnector.setRateLimitBlocks(123);
+
+    assertEq(spokeConnector.rateLimitBlocks(), 123);
+  }
+
   function test_SpokeConnector__setWatcherPaused_failsIfNotWatcher(address caller) public {
     // vm.mockCall(address(_watcherManager), abi.encodeWithSelector(WatcherManager.isWatcher.selector), abi.encode(false));
     vm.expectRevert("!watcher");
@@ -72,6 +85,49 @@ contract SpokeConnectorTest is ForgeHelper {
     vm.prank(watcher);
     spokeConnector.pause();
     assertTrue(spokeConnector.paused());
+  }
+
+  function test_SpokeConnector__send_works() public {
+    bytes32 root = bytes32(bytes("test123"));
+    vm.mockCall(address(_merkle), abi.encodeWithSelector(MerkleTreeManager.root.selector), abi.encode(root));
+    bytes memory data = abi.encodePacked(root);
+
+    vm.expectEmit(true, true, true, true);
+    emit MessageSent(data, address(this));
+
+    spokeConnector.send();
+
+    assertEq(MockSpokeConnector(address(spokeConnector)).lastOutbound(), keccak256(data));
+  }
+
+  function test_SpokeConnector__send_failsIfPaused() public {
+    utils_mockIsWatcher_true();
+    spokeConnector.pause();
+    assertTrue(spokeConnector.paused());
+
+    vm.expectRevert("Pausable: paused");
+    spokeConnector.send();
+  }
+
+  function test_SpokeConnector__send_failsIfRateLimitExceeded() public {
+    vm.prank(owner);
+    spokeConnector.setRateLimitBlocks(10);
+
+    vm.expectRevert(RateLimited.RateLimited__rateLimited_messageSendRateExceeded.selector);
+    spokeConnector.send();
+  }
+
+  function test_SpokeConnector__send_failsIfRootAlreadySent() public {
+    bytes32 root = bytes32(bytes("test123"));
+    vm.mockCall(address(_merkle), abi.encodeWithSelector(MerkleTreeManager.root.selector), abi.encode(root));
+    bytes memory data = abi.encodePacked(root);
+
+    spokeConnector.send();
+    assertEq(MockSpokeConnector(address(spokeConnector)).lastOutbound(), keccak256(data));
+
+    vm.expectRevert("root already sent");
+    spokeConnector.send();
+    assertEq(MockSpokeConnector(address(spokeConnector)).lastOutbound(), keccak256(data));
   }
 
   function test_SpokeConnector__proveAndProcess_failsIfPaused() public {

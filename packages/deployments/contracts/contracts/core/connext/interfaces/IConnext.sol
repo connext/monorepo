@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -32,9 +32,9 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function approvedAssets(TokenId calldata _canonical) external view returns (bool);
 
-  function adoptedToLocalPools(bytes32 _key) external view returns (IStableSwap);
+  function adoptedToLocalExternalPools(bytes32 _key) external view returns (IStableSwap);
 
-  function adoptedToLocalPools(TokenId calldata _canonical) external view returns (IStableSwap);
+  function adoptedToLocalExternalPools(TokenId calldata _canonical) external view returns (IStableSwap);
 
   function getTokenId(address _candidate) external view returns (TokenId memory);
 
@@ -172,11 +172,7 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function removeAssetWhitelist() external;
 
-  function renounced() external view returns (bool);
-
   function proposeNewOwner(address newlyProposed) external;
-
-  function renounceOwnership() external;
 
   function acceptProposedOwner() external;
 

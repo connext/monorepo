@@ -10,7 +10,6 @@ import {
   OriginTransferSchema,
 } from "@connext/nxtp-utils";
 import { BigNumber, ethers } from "ethers";
-import axios, { AxiosResponse } from "axios";
 
 import {
   AuctionExpired,
@@ -28,7 +27,7 @@ import {
 // @ts-ignore
 import { version } from "../../../../package.json";
 import { getContext } from "../subscriber";
-import { signRouterPathPayload } from "../../../mockable";
+import { axiosPost, signRouterPathPayload } from "../../../mockable";
 
 /**
  * Returns local asset address on destination domain corresponding to local asset on origin domain
@@ -81,7 +80,7 @@ export const sendBid = async (bid: Bid, _requestContext: RequestContext): Promis
 
   const url = formatUrl(sequencerUrl, "execute-fast");
   try {
-    const response = await axios.post<any, AxiosResponse<any, any>, ExecuteFastApiPostBidReq>(url, bid);
+    const response = await axiosPost<ExecuteFastApiPostBidReq>(url, bid);
     // Make sure response.data is valid.
     if (!response || !response.data) {
       throw new SequencerResponseInvalid({ response });

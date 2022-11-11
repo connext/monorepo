@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager.sol";
@@ -149,7 +149,7 @@ struct AppStorage {
    * This mapping is keyed on the hash of the canonical id + domain for local asset.
    */
   // 6
-  mapping(bytes32 => IStableSwap) adoptedToLocalPools;
+  mapping(bytes32 => IStableSwap) adoptedToLocalExternalPools;
   /**
    * @notice Mapping of whitelisted assets on same domain as contract.
    * @dev Mapping is keyed on the hash of the canonical id and domain

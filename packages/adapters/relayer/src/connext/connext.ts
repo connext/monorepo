@@ -10,7 +10,6 @@ import {
 } from "@connext/nxtp-utils";
 import { ChainReader } from "@connext/nxtp-txservice";
 import { constants } from "ethers";
-import axios from "axios";
 import interval from "interval-promise";
 
 import {
@@ -19,6 +18,7 @@ import {
   UnableToGetTaskStatus,
   UnableToGetTransactionHash,
 } from "../errors";
+import { axiosGet, axiosPost } from "../mockable";
 
 import { url } from ".";
 
@@ -65,14 +65,14 @@ export const connextRelayerSend = async (
   });
 
   try {
-    const res = await axios.post(`${url}/relays/${chainId}`, params);
+    const res = await axiosPost<RelayerApiPostTaskResponse>(`${url}/relays/${chainId}`, params);
     logger.info("Sent tx to Connext relayer", requestContext, methodContext, {
       relayer: relayerAddress,
       connext: destinationAddress,
       domain,
       response: res.data,
     });
-    output = (res.data as RelayerApiPostTaskResponse)?.taskId;
+    output = res.data?.taskId;
   } catch (error: unknown) {
     throw new RelayerSendFailed({ error: jsonifyError(error as Error) });
   }
@@ -81,7 +81,7 @@ export const connextRelayerSend = async (
 
 export const getRelayerAddress = async (): Promise<string> => {
   try {
-    const res = await axios.get(`${url}/address`);
+    const res = await axiosGet(`${url}/address`);
     return res.data;
   } catch (error: unknown) {
     throw new RelayerSendFailed({ error: jsonifyError(error as Error) });
@@ -96,7 +96,7 @@ export const getRelayerAddress = async (): Promise<string> => {
 export const getTaskStatus = async (taskId: string): Promise<RelayerTaskStatus> => {
   try {
     const apiEndpoint = `${url}/tasks/status/${taskId}`;
-    const res = await axios.get(apiEndpoint);
+    const res = await axiosGet(apiEndpoint);
     return res.data.taskState ?? RelayerTaskStatus.NotFound;
   } catch (error: unknown) {
     throw new UnableToGetTaskStatus(taskId, { err: jsonifyError(error as Error) });
@@ -160,7 +160,7 @@ export const getTransactionHash = async (taskId: string): Promise<string> => {
   let result;
   try {
     const apiEndpoint = `${url}/tasks/status/${taskId}`;
-    const res = await axios.get(apiEndpoint);
+    const res = await axiosGet(apiEndpoint);
     result = res.data.data[0]?.transactionHash;
   } catch (error: unknown) {
     throw new UnableToGetTransactionHash(taskId, { err: jsonifyError(error as Error) });

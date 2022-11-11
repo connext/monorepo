@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {MultichainHubConnector} from "../../../../contracts/messaging/connectors/multichain/MultichainHubConnector.sol";
 import {Multichain} from "../../../../contracts/messaging/interfaces/ambs/Multichain.sol";

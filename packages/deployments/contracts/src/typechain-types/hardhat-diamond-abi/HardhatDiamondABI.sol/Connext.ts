@@ -230,8 +230,6 @@ export interface ConnextInterface extends utils.Interface {
     "queryRole(address)": FunctionFragment;
     "removeAssetWhitelist()": FunctionFragment;
     "removeRouterWhitelist()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "renounced()": FunctionFragment;
     "revokeRole(address)": FunctionFragment;
     "routerWhitelistRemoved()": FunctionFragment;
     "routerWhitelistTimestamp()": FunctionFragment;
@@ -286,8 +284,8 @@ export interface ConnextInterface extends utils.Interface {
     "swapExactOut(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
     "addStableSwapPool((uint32,bytes32),address)": FunctionFragment;
     "adoptedToCanonical(address)": FunctionFragment;
-    "adoptedToLocalPools(bytes32)": FunctionFragment;
-    "adoptedToLocalPools((uint32,bytes32))": FunctionFragment;
+    "adoptedToLocalExternalPools((uint32,bytes32))": FunctionFragment;
+    "adoptedToLocalExternalPools(bytes32)": FunctionFragment;
     "approvedAssets(bytes32)": FunctionFragment;
     "approvedAssets((uint32,bytes32))": FunctionFragment;
     "canonicalToAdopted(bytes32)": FunctionFragment;
@@ -358,8 +356,6 @@ export interface ConnextInterface extends utils.Interface {
       | "queryRole"
       | "removeAssetWhitelist"
       | "removeRouterWhitelist"
-      | "renounceOwnership"
-      | "renounced"
       | "revokeRole"
       | "routerWhitelistRemoved"
       | "routerWhitelistTimestamp"
@@ -414,8 +410,8 @@ export interface ConnextInterface extends utils.Interface {
       | "swapExactOut"
       | "addStableSwapPool"
       | "adoptedToCanonical"
-      | "adoptedToLocalPools(bytes32)"
-      | "adoptedToLocalPools((uint32,bytes32))"
+      | "adoptedToLocalExternalPools((uint32,bytes32))"
+      | "adoptedToLocalExternalPools(bytes32)"
       | "approvedAssets(bytes32)"
       | "approvedAssets((uint32,bytes32))"
       | "canonicalToAdopted(bytes32)"
@@ -654,11 +650,6 @@ export interface ConnextInterface extends utils.Interface {
     functionFragment: "removeRouterWhitelist",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "revokeRole",
     values: [PromiseOrValue<string>]
@@ -945,12 +936,12 @@ export interface ConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "adoptedToLocalPools(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "adoptedToLocalExternalPools((uint32,bytes32))",
+    values: [TokenIdStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "adoptedToLocalPools((uint32,bytes32))",
-    values: [TokenIdStruct]
+    functionFragment: "adoptedToLocalExternalPools(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "approvedAssets(bytes32)",
@@ -1196,11 +1187,6 @@ export interface ConnextInterface extends utils.Interface {
     functionFragment: "removeRouterWhitelist",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "routerWhitelistRemoved",
@@ -1400,11 +1386,11 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "adoptedToLocalPools(bytes32)",
+    functionFragment: "adoptedToLocalExternalPools((uint32,bytes32))",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "adoptedToLocalPools((uint32,bytes32))",
+    functionFragment: "adoptedToLocalExternalPools(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -2376,12 +2362,6 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    renounced(overrides?: CallOverrides): Promise<[boolean]>;
-
     revokeRole(
       _revoke: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2687,13 +2667,13 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[TokenIdStructOutput]>;
 
-    "adoptedToLocalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalExternalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    "adoptedToLocalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalExternalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
@@ -3025,12 +3005,6 @@ export interface Connext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  renounced(overrides?: CallOverrides): Promise<boolean>;
-
   revokeRole(
     _revoke: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -3336,13 +3310,13 @@ export interface Connext extends BaseContract {
     overrides?: CallOverrides
   ): Promise<TokenIdStructOutput>;
 
-  "adoptedToLocalPools(bytes32)"(
-    _key: PromiseOrValue<BytesLike>,
+  "adoptedToLocalExternalPools((uint32,bytes32))"(
+    _canonical: TokenIdStruct,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  "adoptedToLocalPools((uint32,bytes32))"(
-    _canonical: TokenIdStruct,
+  "adoptedToLocalExternalPools(bytes32)"(
+    _key: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string>;
 
@@ -3664,10 +3638,6 @@ export interface Connext extends BaseContract {
 
     removeRouterWhitelist(overrides?: CallOverrides): Promise<void>;
 
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    renounced(overrides?: CallOverrides): Promise<boolean>;
-
     revokeRole(
       _revoke: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -3971,13 +3941,13 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<TokenIdStructOutput>;
 
-    "adoptedToLocalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalExternalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "adoptedToLocalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalExternalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -4743,12 +4713,6 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    renounced(overrides?: CallOverrides): Promise<BigNumber>;
-
     revokeRole(
       _revoke: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -5054,13 +5018,13 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "adoptedToLocalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalExternalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "adoptedToLocalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalExternalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -5401,12 +5365,6 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     revokeRole(
       _revoke: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -5722,13 +5680,13 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "adoptedToLocalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalExternalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "adoptedToLocalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalExternalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
