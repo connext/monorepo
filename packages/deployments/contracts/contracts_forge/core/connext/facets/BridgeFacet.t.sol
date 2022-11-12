@@ -443,6 +443,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         assertEq(tokenIn.balanceOf(params.originSender), balances.callerAsset - amount);
         // The contract should have stored the asset in escrow.
         assertEq(tokenIn.balanceOf(address(this)), balances.contractAsset + amount);
+        // Custodied balance should have increased if sending in canonical
+        if (s.caps[utils_calculateCanonicalHash()] > 0) {
+          assertEq(s.custodied[_local], balances.contractAsset + amount);
+        }
       } else {
         // NOTE: Normally the adopted asset would be swapped into the local asset and then
         // the local asset would be burned. Because the swap increases the contracts balance
@@ -669,6 +673,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
             _inputs.usesPortals ? prevLiquidity[i] : prevLiquidity[i] - (_inputs.routerAmt / pathLen)
           );
         }
+      }
+
+      // if on canonical domain, should decrease
+      if (s.caps[utils_calculateCanonicalHash()] > 0) {
+        assertEq(s.custodied[_local], prevBalances.bridge - routerAmt);
       }
     }
 
@@ -944,7 +953,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // setup asset with local == adopted, on canonical domain
     utils_setupAsset(true, true);
 
-    s.caps[utils_calculateCanonicalHash()] = 1;
+    s.caps[utils_calculateCanonicalHash()] = _defaultAmount + 1;
+    s.custodied[_canonical] = 3;
 
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_capReached.selector);
   }

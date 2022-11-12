@@ -158,6 +158,11 @@ struct AppStorage {
   // 7
   mapping(bytes32 => uint256) caps;
   /**
+   * @notice Mapping of custodied balance by address
+   * @dev Used to enforce cap
+   */
+  mapping(address => uint256) custodied;
+  /**
    * @notice Mapping of adopted to canonical asset information.
    * @dev If the adopted asset is the native asset, the keyed address will
    * be the wrapped asset address.

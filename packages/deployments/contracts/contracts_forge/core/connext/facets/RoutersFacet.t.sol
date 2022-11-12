@@ -666,7 +666,8 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 amount = 10;
     utils_setupAsset(true, true);
     s.routerConfigs[_routerAgent0].approved = true;
-    s.caps[utils_calculateCanonicalHash()] = 1;
+    s.caps[utils_calculateCanonicalHash()] = 11;
+    s.custodied[_local] = 3;
     vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_capReached.selector);
     this.addRouterLiquidityFor(amount, _local, _routerAgent0);
   }
@@ -805,27 +806,32 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   function test_RoutersFacet__removeRouterLiquidity_worksWithRecipientSet() public {
     s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
     s.routerConfigs[_routerAgent0].owner = address(0);
-    s.routerBalances[_routerAgent0][_local] = 10 ether;
+    s.routerBalances[_routerAgent0][_canonical] = 10 ether;
+    s.caps[_key] = 11 ether;
+    s.custodied[_canonical] = 10 ether;
+    s.domain = _canonicalDomain;
 
     address to = address(1234);
     uint256 amount = 100;
 
-    uint256 initLiquidity = this.routerBalances(_routerAgent0, _local);
-    uint256 initBalance = IERC20(_local).balanceOf(_routerRecipient0);
+    uint256 initLiquidity = this.routerBalances(_routerAgent0, _canonical);
+    uint256 initBalance = IERC20(_canonical).balanceOf(_routerRecipient0);
 
     vm.expectEmit(true, true, true, true);
-    emit RouterLiquidityRemoved(_routerAgent0, _routerRecipient0, _local, _key, amount, _routerAgent0);
+    emit RouterLiquidityRemoved(_routerAgent0, _routerRecipient0, _canonical, _key, amount, _routerAgent0);
     vm.prank(_routerAgent0);
-    this.removeRouterLiquidity(amount, _local, payable(to));
+    this.removeRouterLiquidity(amount, _canonical, payable(to));
 
-    assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
-    assertEq(IERC20(_local).balanceOf(_routerRecipient0), initBalance + amount);
+    assertEq(this.routerBalances(_routerAgent0, _canonical), initLiquidity - amount);
+    assertEq(IERC20(_canonical).balanceOf(_routerRecipient0), initBalance + amount);
+    assertEq(s.custodied[_canonical], 10 ether - amount);
   }
 
   function test_RoutersFacet__removeRouterLiquidity_worksWithToken() public {
     s.routerConfigs[_routerAgent0].recipient = address(0);
     s.routerConfigs[_routerAgent0].owner = address(0);
     s.routerBalances[_routerAgent0][_local] = 10 ether;
+    s.custodied[_local] = 10 ether;
 
     address to = address(1234);
     uint256 amount = 100;
@@ -840,5 +846,6 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
     assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
     assertEq(IERC20(_local).balanceOf(to), initBalance + amount);
+    assertEq(s.custodied[_local], 10 ether);
   }
 }

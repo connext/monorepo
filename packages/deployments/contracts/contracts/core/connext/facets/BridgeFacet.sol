@@ -516,14 +516,15 @@ contract BridgeFacet is BaseConnextFacet {
         // Enforce liquidity caps
         // NOTE: safe to do this before the swap because canonical domains do
         // not hit the AMMs (local == canonical)
-        if (isCanonical) {
+        uint256 cap = s.caps[key];
+        if (isCanonical && cap > 0) {
           // NOTE: this method includes router liquidity as part of the caps,
           // not only the minted amount
-          uint256 custodied = IERC20(local).balanceOf(address(this)) + _amount;
-          uint256 cap = s.caps[key];
-          if (cap > 0 && custodied > cap) {
+          uint256 updatedCap = s.custodied[_asset] + _amount;
+          if (updatedCap > cap) {
             revert BridgeFacet__xcall_capReached();
           }
+          s.custodied[_asset] = updatedCap;
         }
 
         // Update TransferInfo to reflect the canonical token information.
@@ -708,6 +709,13 @@ contract BridgeFacet is BaseConnextFacet {
     // If this is a zero-value transfer, short-circuit remaining logic.
     if (_args.params.bridgedAmt == 0) {
       return (0, local, local);
+    }
+
+    // If it is the canonical domain, decrease custodied value
+    if (s.domain == _args.params.canonicalDomain && s.caps[_key] > 0) {
+      // NOTE: safe to use the amount here instead of post-swap because there are no
+      // AMMs on the canonical domain (assuming canonical == adopted on canonical domain)
+      s.custodied[local] -= _args.params.bridgedAmt;
     }
 
     // Get the receive local status
