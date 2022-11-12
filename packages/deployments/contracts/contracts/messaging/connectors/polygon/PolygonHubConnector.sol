@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 
@@ -47,7 +47,10 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
     emit MessageProcessed(message, msg.sender);
   }
 
-  function _processMessage(bytes memory _data) internal override {}
+  function _processMessage(bytes memory _data) internal override {
+    // Does nothing, all messages should go through the `_processMessageFromChild` path
+    revert Connector__processMessage_notUsed();
+  }
 
   function _setMirrorConnector(address _mirrorConnector) internal override {
     super._setMirrorConnector(_mirrorConnector);

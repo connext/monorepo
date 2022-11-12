@@ -4,10 +4,7 @@
 import { Signer, utils, Contract, ContractFactory, Overrides } from "ethers";
 import type { Provider, TransactionRequest } from "@ethersproject/providers";
 import type { PromiseOrValue } from "../../../../common";
-import type {
-  TypedMemView,
-  TypedMemViewInterface,
-} from "../../../../contracts/shared/libraries/TypedMemView";
+import type { TypedMemView, TypedMemViewInterface } from "../../../../contracts/shared/libraries/TypedMemView";
 
 const _abi = [
   {
@@ -26,15 +23,12 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x6091610038600b82828239805160001a607314602b57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe730000000000000000000000000000000000000000301460806040526004361060335760003560e01c8063f26be3fc146038575b600080fd5b604262ffffff1981565b60405162ffffff19909116815260200160405180910390f3fea2646970667358221220916f1be02258c618b7ce599f206f1437835a3c82e8728b0889407961bd59d23a64736f6c634300080f0033";
+  "0x6091610038600b82828239805160001a607314602b57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe730000000000000000000000000000000000000000301460806040526004361060335760003560e01c8063f26be3fc146038575b600080fd5b604262ffffff1981565b60405162ffffff19909116815260200160405180910390f3fea264697066735822122015b3756661a4177ec9471ffa7f80f6bea33b45edc525bacdb29433b84920a55264736f6c63430008110033";
 
-type TypedMemViewConstructorParams =
-  | [signer?: Signer]
-  | ConstructorParameters<typeof ContractFactory>;
+type TypedMemViewConstructorParams = [signer?: Signer] | ConstructorParameters<typeof ContractFactory>;
 
-const isSuperArgs = (
-  xs: TypedMemViewConstructorParams
-): xs is ConstructorParameters<typeof ContractFactory> => xs.length > 1;
+const isSuperArgs = (xs: TypedMemViewConstructorParams): xs is ConstructorParameters<typeof ContractFactory> =>
+  xs.length > 1;
 
 export class TypedMemView__factory extends ContractFactory {
   constructor(...args: TypedMemViewConstructorParams) {
@@ -45,14 +39,10 @@ export class TypedMemView__factory extends ContractFactory {
     }
   }
 
-  override deploy(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<TypedMemView> {
+  override deploy(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<TypedMemView> {
     return super.deploy(overrides || {}) as Promise<TypedMemView>;
   }
-  override getDeployTransaction(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): TransactionRequest {
+  override getDeployTransaction(overrides?: Overrides & { from?: PromiseOrValue<string> }): TransactionRequest {
     return super.getDeployTransaction(overrides || {});
   }
   override attach(address: string): TypedMemView {
@@ -67,10 +57,7 @@ export class TypedMemView__factory extends ContractFactory {
   static createInterface(): TypedMemViewInterface {
     return new utils.Interface(_abi) as TypedMemViewInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): TypedMemView {
+  static connect(address: string, signerOrProvider: Signer | Provider): TypedMemView {
     return new Contract(address, _abi, signerOrProvider) as TypedMemView;
   }
 }

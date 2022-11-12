@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -58,6 +58,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__bumpTransfer_noRelayerVault();
   error BridgeFacet__forceUpdateSlippage_invalidSlippage();
   error BridgeFacet__forceUpdateSlippage_notDestination();
+  error BridgeFacet__forceReceiveLocal_notDestination();
   error BridgeFacet__mustHaveRemote_destinationNotSupported();
 
   // ============ Properties ============
@@ -128,11 +129,19 @@ contract BridgeFacet is BaseConnextFacet {
   event TransferRelayerFeesIncreased(bytes32 indexed transferId, uint256 increase, address caller);
 
   /**
-   * @notice Emitted when `forceUpdateSlippage` is called by an user on the destination domain
+   * @notice Emitted when `forceUpdateSlippage` is called by user-delegated EOA
+   * on the destination domain
    * @param transferId - The unique identifier of the crosschain transaction
    * @param slippage - The updated slippage boundary
    */
   event SlippageUpdated(bytes32 indexed transferId, uint256 slippage);
+
+  /**
+   * @notice Emitted when `forceReceiveLocal` is called by a user-delegated EOA
+   * on the destination domain
+   * @param transferId - The unique identifier of the crosschain transaction
+   */
+  event ForceReceiveLocal(bytes32 indexed transferId);
 
   /**
    * @notice Emitted when a router used Aave Portal liquidity for fast transfer
@@ -412,6 +421,28 @@ contract BridgeFacet is BaseConnextFacet {
     emit SlippageUpdated(transferId, _slippage);
   }
 
+  /**
+   * @notice Allows a user-specified account to withdraw the local asset directly
+   * @dev Calldata will still be executed with the local asset. `IXReceiver` contracts
+   * should be able to handle local assets in event of failures.
+   * @param _params TransferInfo associated with the transfer
+   */
+  function forceReceiveLocal(TransferInfo calldata _params) external onlyDelegate(_params) {
+    // Should only be called on destination domain
+    if (_params.destinationDomain != s.domain) {
+      revert BridgeFacet__forceReceiveLocal_notDestination();
+    }
+
+    // Get transferId
+    bytes32 transferId = _calculateTransferId(_params);
+
+    // Store overrides
+    s.receiveLocalOverride[transferId] = true;
+
+    // Emit event
+    emit ForceReceiveLocal(transferId);
+  }
+
   // ============ Internal: Bridge ============
 
   /**
@@ -485,14 +516,15 @@ contract BridgeFacet is BaseConnextFacet {
         // Enforce liquidity caps
         // NOTE: safe to do this before the swap because canonical domains do
         // not hit the AMMs (local == canonical)
-        if (isCanonical) {
+        uint256 cap = s.caps[key];
+        if (isCanonical && cap > 0) {
           // NOTE: this method includes router liquidity as part of the caps,
           // not only the minted amount
-          uint256 custodied = IERC20(local).balanceOf(address(this)) + _amount;
-          uint256 cap = s.caps[key];
-          if (cap > 0 && custodied > cap) {
+          uint256 updatedCap = s.custodied[_asset] + _amount;
+          if (updatedCap > cap) {
             revert BridgeFacet__xcall_capReached();
           }
+          s.custodied[_asset] = updatedCap;
         }
 
         // Update TransferInfo to reflect the canonical token information.
@@ -612,7 +644,7 @@ contract BridgeFacet is BaseConnextFacet {
         // Make sure the router is approved, if applicable.
         // If router ownership is renounced (_RouterOwnershipRenounced() is true), then the router whitelist
         // no longer applies and we can skip this approval step.
-        if (!_isRouterWhitelistRemoved() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
+        if (!_isRouterWhitelistRemoved() && !s.routerConfigs[_args.routers[i]].approved) {
           revert BridgeFacet__execute_notSupportedRouter();
         }
 
@@ -679,6 +711,16 @@ contract BridgeFacet is BaseConnextFacet {
       return (0, local, local);
     }
 
+    // If it is the canonical domain, decrease custodied value
+    if (s.domain == _args.params.canonicalDomain && s.caps[_key] > 0) {
+      // NOTE: safe to use the amount here instead of post-swap because there are no
+      // AMMs on the canonical domain (assuming canonical == adopted on canonical domain)
+      s.custodied[local] -= _args.params.bridgedAmt;
+    }
+
+    // Get the receive local status
+    bool receiveLocal = _args.params.receiveLocal || s.receiveLocalOverride[_transferId];
+
     uint256 toSwap = _args.params.bridgedAmt;
     // If this is a fast liquidity path, we should handle deducting from applicable routers' liquidity.
     // If this is a slow liquidity path, the transfer must have been reconciled (if we've reached this point),
@@ -694,11 +736,8 @@ contract BridgeFacet is BaseConnextFacet {
         // If router does not have enough liquidity, try to use Aave Portals.
         // NOTE: Only one router should be responsible for taking on this credit risk, and it should only deal
         // with transfers expecting adopted assets (to avoid introducing runtime slippage).
-        if (
-          !_args.params.receiveLocal && s.routerBalances[_args.routers[0]][local] < toSwap && s.aavePool != address(0)
-        ) {
-          if (!s.routerPermissionInfo.approvedForPortalRouters[_args.routers[0]])
-            revert BridgeFacet__execute_notApprovedForPortals();
+        if (!receiveLocal && s.routerBalances[_args.routers[0]][local] < toSwap && s.aavePool != address(0)) {
+          if (!s.routerConfigs[_args.routers[0]].portalApproved) revert BridgeFacet__execute_notApprovedForPortals();
 
           // Portals deliver the adopted asset directly; return after portal execution is completed.
           (uint256 portalDeliveredAmount, address adoptedAsset) = _executePortalTransfer(
@@ -732,7 +771,7 @@ contract BridgeFacet is BaseConnextFacet {
 
     // If the local asset is specified, or the adopted asset was overridden (e.g. when user facing slippage
     // conditions outside of their boundaries), exit without swapping.
-    if (_args.params.receiveLocal) {
+    if (receiveLocal) {
       return (toSwap, local, local);
     }
 

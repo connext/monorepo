@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 
@@ -9,7 +9,7 @@ import {Message} from "./libraries/Message.sol";
 import {QueueLib} from "./libraries/Queue.sol";
 import {DomainIndexer} from "./libraries/DomainIndexer.sol";
 
-import {MerkleTreeManager} from "./Merkle.sol";
+import {MerkleTreeManager} from "./MerkleTreeManager.sol";
 import {WatcherClient} from "./WatcherClient.sol";
 
 /**

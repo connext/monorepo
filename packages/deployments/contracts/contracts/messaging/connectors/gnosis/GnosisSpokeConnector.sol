@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {GnosisAmb} from "../../interfaces/ambs/GnosisAmb.sol";
@@ -58,6 +58,9 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
    * the mirror domain
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should always be dispatching the outbound root
+    require(_data.length == 32, "!length");
+
     // Should include gas info in specialized calldata
     require(_encodedData.length == 32, "!data length");
 
@@ -73,6 +76,9 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
    * @dev AMB calls this function to store aggregate root that is sent up by the root manager
    */
   function _processMessage(bytes memory _data) internal override {
+    // get the data (should be the aggregate root)
+    require(_data.length == 32, "!length");
+
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!mirrorConnector");
     // ensure it is headed to this domain

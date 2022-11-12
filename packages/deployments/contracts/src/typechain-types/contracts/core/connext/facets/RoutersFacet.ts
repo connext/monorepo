@@ -33,6 +33,7 @@ export interface RoutersFacetInterface extends utils.Interface {
     "LIQUIDITY_FEE_DENOMINATOR()": FunctionFragment;
     "LIQUIDITY_FEE_NUMERATOR()": FunctionFragment;
     "acceptProposedRouterOwner(address)": FunctionFragment;
+    "addRouter(address)": FunctionFragment;
     "addRouterLiquidity(uint256,address)": FunctionFragment;
     "addRouterLiquidityFor(uint256,address,address)": FunctionFragment;
     "approveRouterForPortal(address)": FunctionFragment;
@@ -42,6 +43,7 @@ export interface RoutersFacetInterface extends utils.Interface {
     "getRouterApprovalForPortal(address)": FunctionFragment;
     "getRouterOwner(address)": FunctionFragment;
     "getRouterRecipient(address)": FunctionFragment;
+    "initializeRouter(address,address)": FunctionFragment;
     "maxRoutersPerTransfer()": FunctionFragment;
     "proposeRouterOwner(address,address)": FunctionFragment;
     "removeRouter(address)": FunctionFragment;
@@ -51,7 +53,6 @@ export interface RoutersFacetInterface extends utils.Interface {
     "setLiquidityFeeNumerator(uint256)": FunctionFragment;
     "setMaxRoutersPerTransfer(uint256)": FunctionFragment;
     "setRouterRecipient(address,address)": FunctionFragment;
-    "setupRouter(address,address,address)": FunctionFragment;
     "unapproveRouterForPortal(address)": FunctionFragment;
   };
 
@@ -60,6 +61,7 @@ export interface RoutersFacetInterface extends utils.Interface {
       | "LIQUIDITY_FEE_DENOMINATOR"
       | "LIQUIDITY_FEE_NUMERATOR"
       | "acceptProposedRouterOwner"
+      | "addRouter"
       | "addRouterLiquidity"
       | "addRouterLiquidityFor"
       | "approveRouterForPortal"
@@ -69,6 +71,7 @@ export interface RoutersFacetInterface extends utils.Interface {
       | "getRouterApprovalForPortal"
       | "getRouterOwner"
       | "getRouterRecipient"
+      | "initializeRouter"
       | "maxRoutersPerTransfer"
       | "proposeRouterOwner"
       | "removeRouter"
@@ -78,7 +81,6 @@ export interface RoutersFacetInterface extends utils.Interface {
       | "setLiquidityFeeNumerator"
       | "setMaxRoutersPerTransfer"
       | "setRouterRecipient"
-      | "setupRouter"
       | "unapproveRouterForPortal"
   ): FunctionFragment;
 
@@ -92,6 +94,10 @@ export interface RoutersFacetInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "acceptProposedRouterOwner",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addRouter",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -135,6 +141,10 @@ export interface RoutersFacetInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "initializeRouter",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "maxRoutersPerTransfer",
     values?: undefined
   ): string;
@@ -180,14 +190,6 @@ export interface RoutersFacetInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setupRouter",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "unapproveRouterForPortal",
     values: [PromiseOrValue<string>]
   ): string;
@@ -204,6 +206,7 @@ export interface RoutersFacetInterface extends utils.Interface {
     functionFragment: "acceptProposedRouterOwner",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "addRouter", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "addRouterLiquidity",
     data: BytesLike
@@ -238,6 +241,10 @@ export interface RoutersFacetInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getRouterRecipient",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initializeRouter",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -277,10 +284,6 @@ export interface RoutersFacetInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setupRouter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "unapproveRouterForPortal",
     data: BytesLike
   ): Result;
@@ -290,6 +293,7 @@ export interface RoutersFacetInterface extends utils.Interface {
     "MaxRoutersPerTransferUpdated(uint256,address)": EventFragment;
     "RouterAdded(address,address)": EventFragment;
     "RouterApprovedForPortal(address,address)": EventFragment;
+    "RouterInitialized(address)": EventFragment;
     "RouterLiquidityAdded(address,address,bytes32,uint256,address)": EventFragment;
     "RouterLiquidityRemoved(address,address,address,bytes32,uint256,address)": EventFragment;
     "RouterOwnerAccepted(address,address,address)": EventFragment;
@@ -307,6 +311,7 @@ export interface RoutersFacetInterface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterApprovedForPortal"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RouterInitialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterLiquidityAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterLiquidityRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterOwnerAccepted"): EventFragment;
@@ -362,6 +367,17 @@ export type RouterApprovedForPortalEvent = TypedEvent<
 
 export type RouterApprovedForPortalEventFilter =
   TypedEventFilter<RouterApprovedForPortalEvent>;
+
+export interface RouterInitializedEventObject {
+  router: string;
+}
+export type RouterInitializedEvent = TypedEvent<
+  [string],
+  RouterInitializedEventObject
+>;
+
+export type RouterInitializedEventFilter =
+  TypedEventFilter<RouterInitializedEvent>;
 
 export interface RouterLiquidityAddedEventObject {
   router: string;
@@ -488,7 +504,12 @@ export interface RoutersFacet extends BaseContract {
     LIQUIDITY_FEE_NUMERATOR(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     acceptProposedRouterOwner(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    addRouter(
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -540,16 +561,22 @@ export interface RoutersFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    initializeRouter(
+      _owner: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     maxRoutersPerTransfer(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     proposeRouterOwner(
-      router: PromiseOrValue<string>,
-      proposed: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _proposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     removeRouter(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -585,15 +612,8 @@ export interface RoutersFacet extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setRouterRecipient(
-      router: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setupRouter(
-      router: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -608,7 +628,12 @@ export interface RoutersFacet extends BaseContract {
   LIQUIDITY_FEE_NUMERATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
   acceptProposedRouterOwner(
-    router: PromiseOrValue<string>,
+    _router: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  addRouter(
+    _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -660,16 +685,22 @@ export interface RoutersFacet extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  initializeRouter(
+    _owner: PromiseOrValue<string>,
+    _recipient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
 
   proposeRouterOwner(
-    router: PromiseOrValue<string>,
-    proposed: PromiseOrValue<string>,
+    _router: PromiseOrValue<string>,
+    _proposed: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   removeRouter(
-    router: PromiseOrValue<string>,
+    _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -705,15 +736,8 @@ export interface RoutersFacet extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setRouterRecipient(
-    router: PromiseOrValue<string>,
-    recipient: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setupRouter(
-    router: PromiseOrValue<string>,
-    owner: PromiseOrValue<string>,
-    recipient: PromiseOrValue<string>,
+    _router: PromiseOrValue<string>,
+    _recipient: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -728,7 +752,12 @@ export interface RoutersFacet extends BaseContract {
     LIQUIDITY_FEE_NUMERATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
     acceptProposedRouterOwner(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addRouter(
+      _router: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -780,16 +809,22 @@ export interface RoutersFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    initializeRouter(
+      _owner: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposeRouterOwner(
-      router: PromiseOrValue<string>,
-      proposed: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _proposed: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     removeRouter(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -825,15 +860,8 @@ export interface RoutersFacet extends BaseContract {
     ): Promise<void>;
 
     setRouterRecipient(
-      router: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setupRouter(
-      router: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -879,6 +907,13 @@ export interface RoutersFacet extends BaseContract {
       router?: null,
       caller?: null
     ): RouterApprovedForPortalEventFilter;
+
+    "RouterInitialized(address)"(
+      router?: PromiseOrValue<string> | null
+    ): RouterInitializedEventFilter;
+    RouterInitialized(
+      router?: PromiseOrValue<string> | null
+    ): RouterInitializedEventFilter;
 
     "RouterLiquidityAdded(address,address,bytes32,uint256,address)"(
       router?: PromiseOrValue<string> | null,
@@ -970,7 +1005,12 @@ export interface RoutersFacet extends BaseContract {
     LIQUIDITY_FEE_NUMERATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
     acceptProposedRouterOwner(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    addRouter(
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1022,16 +1062,22 @@ export interface RoutersFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    initializeRouter(
+      _owner: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposeRouterOwner(
-      router: PromiseOrValue<string>,
-      proposed: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _proposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     removeRouter(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1067,15 +1113,8 @@ export interface RoutersFacet extends BaseContract {
     ): Promise<BigNumber>;
 
     setRouterRecipient(
-      router: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setupRouter(
-      router: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1095,7 +1134,12 @@ export interface RoutersFacet extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     acceptProposedRouterOwner(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addRouter(
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1147,18 +1191,24 @@ export interface RoutersFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    initializeRouter(
+      _owner: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     maxRoutersPerTransfer(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     proposeRouterOwner(
-      router: PromiseOrValue<string>,
-      proposed: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _proposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     removeRouter(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1194,15 +1244,8 @@ export interface RoutersFacet extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setRouterRecipient(
-      router: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setupRouter(
-      router: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

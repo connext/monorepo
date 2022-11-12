@@ -92,8 +92,6 @@
   "function removeSwapLiquidity(bytes32,uint256,uint256[],uint256) returns (uint256[])",
   "function removeSwapLiquidityImbalance(bytes32,uint256[],uint256,uint256) returns (uint256)",
   "function removeSwapLiquidityOneToken(bytes32,uint256,uint8,uint256,uint256) returns (uint256)",
-  "function renounceOwnership()",
-  "function renounced() view returns (bool)",
   "function repayAavePortal(tuple(uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256,uint256)",
   "function repayAavePortalFor(tuple(uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256)",
   "function representationToCanonical(address) view returns (tuple(uint32,bytes32))",
