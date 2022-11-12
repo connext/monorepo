@@ -126,4 +126,18 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     // NOTE: Root calculation method currently reads from storage only.
     _root = tree.root();
   }
+
+  /**
+   * @notice Inserts the given leaf into the tree.
+   * @param leaf The leaf to be inserted into the tree.
+   * @return _root Current root for convenience.
+   * @return _count Current node count (i.e. number of indices) AFTER the insertion of the new leaf,
+   * provided for convenience.
+   */
+  function insert(bytes32 leaf) public view onlyArborist returns (bytes32 _root, uint256 _count) {
+    // Insert the new node.
+    tree.insert(leaf);
+    _count = tree.count;
+    _root = tree.root();
+  }
 }

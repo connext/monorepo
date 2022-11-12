@@ -19,7 +19,7 @@ library MerkleLib {
   /**
    * @dev Z_i repsesent the hash values at different heights for a binary tree with leaf values equal to `0`.
    * (e.g. Z_1 is the keccak256 hash of (0x0, 0x0), Z_2 is the keccak256 hash of (Z_1, Z_1), etc...)
-   * Z_0 is the bottom of the 32-layer tree, Z_31 is the top.
+   * Z_0 is the bottom of the 33-layer tree, Z_32 is the top (i.e. root).
    * Used to shortcut calculation in root calculation methods below.
    */
   bytes32 internal constant Z_0 = hex"0000000000000000000000000000000000000000000000000000000000000000";
