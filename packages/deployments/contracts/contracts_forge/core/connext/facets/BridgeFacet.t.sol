@@ -1688,6 +1688,24 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt), true);
   }
 
+  // uses force local overrides
+  // uses slippage overrides
+  function test_BridgeFacet__execute_respectsReceiveLocalOverrides() public {
+    // set asset context (local != adopted)
+    s.domain = _destinationDomain;
+    utils_setupAsset(false, false);
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    // set liquidity
+    s.routerBalances[args.routers[0]][_local] = 10 ether;
+
+    // set receive local override
+    s.receiveLocalOverride[transferId] = true;
+
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt), false);
+  }
+
   // ============ bumpTransfer ============
   // ============ bumpTransfer fail cases
   // should work with unapproved router if router-whitelist ownership renouncedcanonicalId
@@ -1723,5 +1741,34 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     vm.prank(args.params.delegate);
     this.forceUpdateSlippage(args.params, 5_000);
+    assertEq(s.slippage[transferId], 5_000);
+  }
+
+  // ============ forceReceiveLocal ============
+  function test_BridgeFacet__forceReceiveLocal_failsIfNotDelegate() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    vm.expectRevert(BridgeFacet.BridgeFacet__onlyDelegate_notDelegate.selector);
+    this.forceReceiveLocal(args.params);
+  }
+
+  function test_BridgeFacet__forceReceiveLocal_failsIfNotDestination() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    s.domain = args.params.originDomain;
+    vm.expectRevert(BridgeFacet.BridgeFacet__forceReceiveLocal_notDestination.selector);
+    vm.prank(args.params.delegate);
+    this.forceReceiveLocal(args.params);
+  }
+
+  function test_BridgeFacet__forceReceiveLocal_works() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    s.domain = args.params.destinationDomain;
+
+    vm.expectEmit(true, true, true, true);
+    emit ForceReceiveLocal(transferId);
+
+    vm.prank(args.params.delegate);
+    this.forceReceiveLocal(args.params);
+
+    assertTrue(s.receiveLocalOverride[transferId]);
   }
 }
