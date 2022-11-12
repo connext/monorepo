@@ -40,6 +40,7 @@ contract MultichainHubConnectorTest is ConnectorHelper {
 
   // Happy path L1
   function test_MultichainHubConnector_sendMessage_sendMessageAndEmitEvent(bytes memory _data) public {
+    vm.assume(_data.length == 32);
     // Mock the call to anyCall
     vm.mockCall(
       _amb,
