@@ -2,10 +2,10 @@
 pragma solidity 0.8.17;
 
 // This is modified from "@openzeppelin/contracts/token/ERC20/IERC20.sol"
-// Modifications were made to make the tokenName, tokenSymbol, and
-// tokenDecimals fields internal instead of private. Getters for them were
-// removed to silence solidity inheritance issues
+// Modifications were made to allow the name, hashed name, and cached
+// domain separator to be internal
 
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol";
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
@@ -43,25 +43,47 @@ import "@openzeppelin/contracts/utils/Counters.sol";
  * Finally, the non-standard {decreaseAllowance} and {increaseAllowance}
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
+ *
+ * @dev Cannot use default ERC20/ERC20Permit implementation as there is no way to update
+ * the name (set to private).
+ *
+ * Cannot use default EIP712 implementation as the _HASHED_NAME may change.
+ * These functions use the same implementation, with easier storage access.
  */
-contract ERC20 is IERC20, IERC20Permit, EIP712 {
-  mapping(address => uint256) private balances;
+contract ERC20 is IERC20Metadata, IERC20Permit {
+  // See ERC20
+  mapping(address => uint256) private _balances;
 
-  mapping(address => mapping(address => uint256)) private allowances;
+  mapping(address => mapping(address => uint256)) private _allowances;
 
-  uint256 private supply;
+  uint256 private _totalSupply;
 
+  string internal _name; // made internal, need access
+  string internal _symbol; // made internal, need access
+  uint8 internal _decimals; // made internal, need access
+
+  // See ERC20Permit
   using Counters for Counters.Counter;
 
   mapping(address => Counters.Counter) private _nonces;
 
+  // See EIP712
   // Immutables used in EIP 712 structured data hashing & signing
   // https://eips.ethereum.org/EIPS/eip-712
   bytes32 private constant _PERMIT_TYPEHASH =
     keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
-  bytes32 private constant _TYPE_HASH =
+  bytes32 internal constant _TYPE_HASH =
     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
-  bytes32 private _HASHED_VERSION;
+  // made internal, need access
+
+  // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
+  // invalidate the cached domain separator if the chain id changes.
+  bytes32 internal _CACHED_DOMAIN_SEPARATOR; // made internal, may change
+  uint256 private immutable _CACHED_CHAIN_ID;
+  address private immutable _CACHED_THIS;
+
+  bytes32 internal _HASHED_NAME; // made internal, may change
+  bytes32 internal immutable _HASHED_VERSION; // made internal, need access
 
   /**
    * @dev Initializes the {EIP712} domain separator using the `name` parameter,
@@ -70,24 +92,71 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
    * It's a good idea to use the same `name` that is defined as the ERC20 token name.
    */
   constructor(
-    uint8 _decimals,
-    string memory _name,
-    string memory _symbol,
-    string memory _version
-  ) EIP712(_name, _version) {
-    token.name = _name;
-    token.decimals = _decimals;
-    token.symbol = _symbol;
-    _HASHED_VERSION = keccak256(bytes(_version));
+    uint8 decimals_,
+    string memory name_,
+    string memory symbol_,
+    string memory version_
+  ) {
+    // ERC20
+    _name = name_;
+    _symbol = symbol_;
+    _decimals = decimals_;
+
+    // EIP712
+    bytes32 hashedName = keccak256(bytes(name_));
+    bytes32 hashedVersion = keccak256(bytes(version_));
+    _HASHED_NAME = hashedName;
+    _HASHED_VERSION = hashedVersion;
+    _CACHED_CHAIN_ID = block.chainid;
+    _CACHED_DOMAIN_SEPARATOR = _buildDomainSeparator(_TYPE_HASH, hashedName, hashedVersion);
+    _CACHED_THIS = address(this);
   }
 
-  struct Token {
-    string name;
-    string symbol;
-    uint8 decimals;
+  /**
+   * @dev Returns the name of the token.
+   */
+  function name() public view virtual override returns (string memory) {
+    return _name;
   }
 
-  Token internal token;
+  /**
+   * @dev Returns the symbol of the token, usually a shorter version of the
+   * name.
+   */
+  function symbol() public view virtual override returns (string memory) {
+    return _symbol;
+  }
+
+  /**
+   * @dev Returns the number of decimals used to get its user representation.
+   * For example, if `decimals` equals `2`, a balance of `505` tokens should
+   * be displayed to a user as `5.05` (`505 / 10 ** 2`).
+   *
+   * Tokens usually opt for a value of 18, imitating the relationship between
+   * Ether and Wei. This is the value {ERC20} uses, unless this function is
+   * overridden;
+   *
+   * NOTE: This information is only used for _display_ purposes: it in
+   * no way affects any of the arithmetic of the contract, including
+   * {IERC20-balanceOf} and {IERC20-transfer}.
+   */
+  function decimals() public view virtual override returns (uint8) {
+    return _decimals;
+  }
+
+  /**
+   * @dev See {IERC20-totalSupply}.
+   */
+  function totalSupply() public view virtual override returns (uint256) {
+    return _totalSupply;
+  }
+
+  /**
+   * @dev See {IERC20-balanceOf}.
+   */
+  function balanceOf(address account) public view virtual override returns (uint256) {
+    return _balances[account];
+  }
 
   /**
    * @dev See {IERC20-transfer}.
@@ -100,6 +169,13 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
   function transfer(address to, uint256 amount) public virtual override returns (bool) {
     _transfer(msg.sender, to, amount);
     return true;
+  }
+
+  /**
+   * @dev See {IERC20-allowance}.
+   */
+  function allowance(address _owner, address _spender) public view virtual override returns (uint256) {
+    return _allowances[_owner][_spender];
   }
 
   /**
@@ -153,7 +229,7 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
    * - `_spender` cannot be the zero address.
    */
   function increaseAllowance(address _spender, uint256 _addedValue) public virtual returns (bool) {
-    _approve(msg.sender, _spender, allowances[msg.sender][_spender] + _addedValue);
+    _approve(msg.sender, _spender, _allowances[msg.sender][_spender] + _addedValue);
     return true;
   }
 
@@ -182,27 +258,6 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
   }
 
   /**
-   * @dev See {IERC20-totalSupply}.
-   */
-  function totalSupply() public view override returns (uint256) {
-    return supply;
-  }
-
-  /**
-   * @dev See {IERC20-balanceOf}.
-   */
-  function balanceOf(address _account) public view virtual override returns (uint256) {
-    return balances[_account];
-  }
-
-  /**
-   * @dev See {IERC20-allowance}.
-   */
-  function allowance(address _owner, address _spender) public view virtual override returns (uint256) {
-    return allowances[_owner][_spender];
-  }
-
-  /**
    * @dev Moves tokens `amount` from `_sender` to `_recipient`.
    *
    * This is internal function is equivalent to {transfer}, and can be used to
@@ -226,11 +281,13 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
 
     _beforeTokenTransfer(_sender, _recipient, _amount);
 
-    uint256 fromBalance = balances[_sender];
+    uint256 fromBalance = _balances[_sender];
     require(fromBalance >= _amount, "ERC20: transfer amount exceeds balance");
     unchecked {
-      balances[_sender] = fromBalance - _amount;
-      balances[_recipient] += _amount;
+      _balances[_sender] = fromBalance - _amount;
+      // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
+      // decrementing then incrementing.
+      _balances[_recipient] += _amount;
     }
 
     emit Transfer(_sender, _recipient, _amount);
@@ -252,10 +309,10 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
 
     _beforeTokenTransfer(address(0), _account, _amount);
 
-    supply += _amount;
+    _totalSupply += _amount;
     unchecked {
       // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
-      balances[_account] += _amount;
+      _balances[_account] += _amount;
     }
     emit Transfer(address(0), _account, _amount);
 
@@ -278,12 +335,12 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
 
     _beforeTokenTransfer(_account, address(0), _amount);
 
-    uint256 accountBalance = balances[_account];
+    uint256 accountBalance = _balances[_account];
     require(accountBalance >= _amount, "ERC20: burn amount exceeds balance");
     unchecked {
-      balances[_account] = accountBalance - _amount;
+      _balances[_account] = accountBalance - _amount;
       // Overflow not possible: amount <= accountBalance <= totalSupply
-      supply -= _amount;
+      _totalSupply -= _amount;
     }
 
     emit Transfer(_account, address(0), _amount);
@@ -312,7 +369,7 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
     require(_owner != address(0), "ERC20: approve from the zero address");
     require(_spender != address(0), "ERC20: approve to the zero address");
 
-    allowances[_owner][_spender] = _amount;
+    _allowances[_owner][_spender] = _amount;
     emit Approval(_owner, _spender, _amount);
   }
 
@@ -336,17 +393,6 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
         _approve(_owner, _spender, currentAllowance - _amount);
       }
     }
-  }
-
-  /**
-   * @dev Sets {decimals_} to a value other than the default one of 18.
-   *
-   * WARNING: This function should only be called from the constructor. Most
-   * applications that interact with token contracts will not expect
-   * {decimals_} to ever change, and may work incorrectly if it does.
-   */
-  function _setupDecimals(uint8 decimals_) internal {
-    token.decimals = decimals_;
   }
 
   /**
@@ -439,19 +485,58 @@ contract ERC20 is IERC20, IERC20Permit, EIP712 {
    * This is ALWAYS calculated at runtime because the token name is mutable, not constant.
    */
   function DOMAIN_SEPARATOR() external view override returns (bytes32) {
-    // See {EIP712._buildDomainSeparator}
-    return
-      keccak256(
-        abi.encode(_TYPE_HASH, keccak256(abi.encode(token.name)), _HASHED_VERSION, block.chainid, address(this))
-      );
+    return _domainSeparatorV4();
   }
 
   /**
    * @dev "Consume a nonce": return the current value and increment.
+   * @dev See {EIP712._buildDomainSeparator}
    */
   function _useNonce(address _owner) internal virtual returns (uint256 current) {
     Counters.Counter storage nonce = _nonces[_owner];
     current = nonce.current();
     nonce.increment();
+  }
+
+  /**
+   * @dev Returns the domain separator for the current chain.
+   * @dev See {EIP712._buildDomainSeparator}
+   */
+  function _domainSeparatorV4() internal view returns (bytes32) {
+    if (address(this) == _CACHED_THIS && block.chainid == _CACHED_CHAIN_ID) {
+      return _CACHED_DOMAIN_SEPARATOR;
+    } else {
+      return _buildDomainSeparator(_TYPE_HASH, _HASHED_NAME, _HASHED_VERSION);
+    }
+  }
+
+  /**
+   * @dev See {EIP712._buildDomainSeparator}. Made internal to allow usage in parent class.
+   */
+  function _buildDomainSeparator(
+    bytes32 typeHash,
+    bytes32 nameHash,
+    bytes32 versionHash
+  ) internal view returns (bytes32) {
+    return keccak256(abi.encode(typeHash, nameHash, versionHash, block.chainid, address(this)));
+  }
+
+  /**
+   * @dev Given an already https://eips.ethereum.org/EIPS/eip-712#definition-of-hashstruct[hashed struct], this
+   * function returns the hash of the fully encoded EIP712 message for this domain.
+   *
+   * This hash can be used together with {ECDSA-recover} to obtain the signer of a message. For example:
+   *
+   * ```solidity
+   * bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(
+   *     keccak256("Mail(address to,string contents)"),
+   *     mailTo,
+   *     keccak256(bytes(mailContents))
+   * )));
+   * address signer = ECDSA.recover(digest, signature);
+   * ```
+   */
+  function _hashTypedDataV4(bytes32 structHash) internal view virtual returns (bytes32) {
+    return ECDSA.toTypedDataHash(_domainSeparatorV4(), structHash);
   }
 }
