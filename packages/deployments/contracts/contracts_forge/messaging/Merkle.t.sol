@@ -65,6 +65,9 @@ contract MerkleTest is ForgeHelper {
       current = keccak256(abi.encode(current, current));
       assertEq(current, zeroHashes[i]);
     }
+
+    current = keccak256(abi.encode(current, current));
+    assertEq(current, MerkleLib.Z_32);
   }
 
   function test_Merkle__insert_shouldUpdateCount() public {
@@ -75,5 +78,19 @@ contract MerkleTest is ForgeHelper {
       (, _count) = merkle.insert(_messageHash);
       assertEq(_count - 1, i);
     }
+  }
+
+  function test_Merkle__root_shouldWork() public {
+    // NOTE: This is the expected root value of a tree with 1000 hashes inserted using the method below.
+    // It was calculated outside of the code being tested here in order to ensure consistent behavior.
+    bytes32 expectedRoot = hex"af0dbbe35d1ea81c18d219dbb33860712911171ee4abfc4a13f213009e22580c";
+
+    bytes32 messageHash;
+    for (uint256 i; i < 1000; i++) {
+      messageHash = keccak256(abi.encode(i));
+      merkle.insert(messageHash);
+    }
+    bytes32 root = merkle.root();
+    assertEq(root, expectedRoot);
   }
 }
