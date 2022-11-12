@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
+import {ERC20} from "../../../../contracts/core/connext/helpers/OZERC20.sol";
 import {TokenFacet} from "../../../../contracts/core/connext/facets/TokenFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import {TokenId} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
@@ -148,6 +149,43 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   //   vm.expectRevert(TokenFacet.TokenFacet__addAssetId_alreadyAdded.selector);
   //   this.setupAsset(canonical, asset, address(0));
   // }
+
+  function test_TokenFacet__setupAsset_failIfOnRemoteAndRepresentationPresent() public {
+    TokenId memory canonical = TokenId(_domain, _canonicalId);
+    s.domain = _domain + 1;
+    address asset = address(new TestERC20("Test Token", "TEST"));
+    s.canonicalToRepresentation[_canonicalKey] = asset;
+
+    vm.prank(_owner);
+    vm.expectRevert(TokenFacet.TokenFacet__setupAsset_representationListed.selector);
+    this.setupAsset(canonical, 18, "nextTest", "nTest", asset, address(0), 0);
+  }
+
+  // setupAssetWithDeployedRepresentation
+  function test_TokenFacet__setupAssetWithDeployedRepresentation_failIfOnRemoteAndCannotMint() public {
+    TokenId memory canonical = TokenId(_domain, _canonicalId);
+    s.domain = _domain + 1;
+    ERC20 asset = new ERC20(18, "Test Token", "TEST", "1");
+
+    vm.prank(_owner);
+    // no error message given bc shouldnt be able to find function
+    vm.expectRevert();
+    this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0), 0);
+  }
+
+  function test_TokenFacet__setupAssetWithDeployedRepresentation_failIfOnRemoteAndCannotBurn() public {
+    TokenId memory canonical = TokenId(_domain, _canonicalId);
+    s.domain = _domain + 1;
+    ERC20 asset = new ERC20(18, "Test Token", "TEST", "1");
+
+    // mint should work
+    vm.mockCall(address(asset), abi.encodeWithSelector(TestERC20.mint.selector), abi.encode(true));
+
+    vm.prank(_owner);
+    // no error message given bc shouldnt be able to find function
+    vm.expectRevert();
+    this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0), 0);
+  }
 
   // addStableSwapPool
   function test_TokenFacet__addStableSwapPool_success() public {

@@ -18,6 +18,7 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 contract TokenFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
+  error TokenFacet__setupAsset_representationListed();
   error TokenFacet__addAssetId_nativeAsset();
   error TokenFacet__addAssetId_alreadyAdded();
   error TokenFacet__removeAssetId_notAdded();
@@ -155,6 +156,9 @@ contract TokenFacet is BaseConnextFacet {
    * on polygon), you should *not* whitelist the adopted asset. The stable swap pool
    * address used should allow you to swap between the local <> adopted asset.
    *
+   * @dev If a representation has been deployed at any point, `setupAssetWithDeployedRepresentation`
+   * should be used instead
+   *
    * @param _canonical - The canonical asset to add by id and domain. All representations
    * will be whitelisted as well
    * @param _adoptedAssetId - The used asset id for this domain (e.g. PoS USDC for
@@ -170,8 +174,15 @@ contract TokenFacet is BaseConnextFacet {
     address _stableSwapPool,
     uint256 _cap
   ) external onlyOwnerOrAdmin returns (address _local) {
+    // Calculate the canonical key
+    bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
     // Deploy the representation token if on a remote domain
     if (_canonical.domain != s.domain) {
+      // Cannot already have an assigned representation
+      // NOTE: *If* it does, it can still be replaced with `setupAssetWithDeployedRepresentation`
+      if (s.canonicalToRepresentation[key] != address(0)) {
+        revert TokenFacet__setupAsset_representationListed();
+      }
       _local = _deployRepresentation(
         _canonical.id,
         _canonical.domain,
@@ -183,7 +194,7 @@ contract TokenFacet is BaseConnextFacet {
       _local = TypeCasts.bytes32ToAddress(_canonical.id);
     }
 
-    bytes32 key = _enrollAdoptedAndLocalAssets(_adoptedAssetId, _local, _stableSwapPool, _canonical);
+    _enrollAdoptedAndLocalAssets(_adoptedAssetId, _local, _stableSwapPool, _canonical, key);
     if (_cap != 0) {
       _setLiquidityCap(_canonical, _cap, key);
     }
@@ -196,7 +207,9 @@ contract TokenFacet is BaseConnextFacet {
     address _stableSwapPool,
     uint256 _cap
   ) external onlyOwnerOrAdmin returns (address) {
-    bytes32 key = _enrollAdoptedAndLocalAssets(_adoptedAssetId, _representation, _stableSwapPool, _canonical);
+    // Calculate the canonical key
+    bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
+    _enrollAdoptedAndLocalAssets(_adoptedAssetId, _representation, _stableSwapPool, _canonical, key);
     if (_cap != 0) {
       _setLiquidityCap(_canonical, _cap, key);
     }
@@ -273,16 +286,23 @@ contract TokenFacet is BaseConnextFacet {
     address _adopted,
     address _local,
     address _stableSwapPool,
-    TokenId calldata _canonical
-  ) internal returns (bytes32 _key) {
-    // Get the key
-    _key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
-
+    TokenId calldata _canonical,
+    bytes32 _key
+  ) internal {
     // Get true adopted
     address adopted = _adopted == address(0) ? _local : _adopted;
 
+    // Get whether you are on canonical
+    bool onCanonical = s.domain == _canonical.domain;
+
     // Sanity check: needs approval
     if (s.approvedAssets[_key]) revert TokenFacet__addAssetId_alreadyAdded();
+
+    // Sanity check: bridge can mint / burn on remote
+    if (!onCanonical) {
+      IBridgeToken(_local).mint(address(this), 1);
+      IBridgeToken(_local).burn(address(this), 1);
+    }
 
     // Update approved assets mapping
     s.approvedAssets[_key] = true;
@@ -295,7 +315,7 @@ contract TokenFacet is BaseConnextFacet {
     s.canonicalToAdopted[_key] = adopted;
 
     // representations only exist on non-canonical domains
-    if (s.domain != _canonical.domain) {
+    if (!onCanonical) {
       // Update the local <> canonical
       s.representationToCanonical[_local].domain = _canonical.domain;
       s.representationToCanonical[_local].id = _canonical.id;
@@ -376,7 +396,10 @@ contract TokenFacet is BaseConnextFacet {
 
     // Delete from canonical mapping
     delete s.canonicalToAdopted[_key];
-    delete s.canonicalToRepresentation[_key];
+
+    // NOTE: we do NOT delete the entry from the `canonicalToRepresentation`
+    // mapping. This is done to prevent multiple representations being deployed
+    // in `setupAsset`
 
     // Emit event
     emit AssetRemoved(_key, msg.sender);
