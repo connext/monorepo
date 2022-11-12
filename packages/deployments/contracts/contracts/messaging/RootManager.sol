@@ -32,6 +32,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   event RootPropagated(bytes32 aggregateRoot, uint256 count, uint32[] domains);
 
+  event RootDiscarded(bytes32 fraudulentRoot);
+
   event ConnectorAdded(uint32 domain, address connector, uint32[] domains, address[] connectors);
 
   event ConnectorRemoved(uint32 domain, address connector, uint32[] domains, address[] connectors, address caller);
@@ -139,6 +141,20 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   function removeConnector(uint32 _domain) public onlyWatcher {
     address _connector = removeDomain(_domain);
     emit ConnectorRemoved(_domain, _connector, domains, connectors, msg.sender);
+  }
+
+  /**
+   * @notice Removes (effectively blacklists) a given (fraudulent) root from the queue of pending
+   * inbound roots.
+   * @dev The given root does NOT have to currently be in the queue. It isn't removed from the queue
+   * directly, but instead is filtered out when dequeuing is done for the sake of aggregation.
+   * @dev Can only be called by the owner when the protocol is paused.
+   *
+   * @param _root The root to be discarded.
+   */
+  function discardRoot(bytes32 _root) public onlyOwner whenPaused {
+    pendingInboundRoots.remove(_root);
+    emit RootDiscarded(_root);
   }
 
   // ============ Public Functions ============
