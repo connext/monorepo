@@ -8,6 +8,7 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {TypeCasts} from "../../../../contracts/shared/libraries/TypeCasts.sol";
 import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.sol";
 
+import {IConnectorManager} from "../../../../contracts/messaging/interfaces/IConnectorManager.sol";
 import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
@@ -905,6 +906,34 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.removeSequencer(sequencer);
 
     assertEq(s.approvedSequencers[sequencer], false);
+  }
+
+  // ============ setXAppConnectionManager ============
+  function test_BridgeFacet__setXAppConnectionManager_failsIfDomainMismatch() public {
+    // constants
+    address manager = address(123);
+
+    // set mock
+    vm.mockCall(manager, abi.encodeWithSelector(IConnectorManager.localDomain.selector), abi.encode(s.domain + 1));
+
+    // test revert
+    vm.prank(LibDiamond.contractOwner());
+    vm.expectRevert(BridgeFacet.BridgeFacet__setXAppConnectionManager_domainsDontMatch.selector);
+    this.setXAppConnectionManager(manager);
+  }
+
+  function test_BridgeFacet__setXAppConnectionManager_works() public {
+    // constants
+    address manager = address(123);
+
+    // set mock
+    vm.mockCall(manager, abi.encodeWithSelector(IConnectorManager.localDomain.selector), abi.encode(s.domain));
+
+    // test revert
+    vm.prank(LibDiamond.contractOwner());
+    this.setXAppConnectionManager(manager);
+
+    assertEq(address(s.xAppConnectionManager), manager);
   }
 
   // ============ Public methods ==============
