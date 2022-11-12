@@ -107,12 +107,21 @@ library QueueLib {
 
     bytes32[] memory items = new bytes32[](last + 1 - first);
     uint256 index; // Cursor for index in the batch of `items`.
+    uint256 removedCount; // If any items have been removed, we filter them here.
     // NOTE: `first <= last` rephrased here to `!(first > last)` as it's a cheaper condition.
     while (!(first > last)) {
       bytes32 item = queue.data[first];
       // Check to see if the item has been removed before appending it to the array.
       if (!queue.removed[item]) {
         items[index] = item;
+        unchecked {
+          ++index;
+        }
+      } else {
+        // The item was removed. We do NOT increment the index (we will re-use this position).
+        unchecked {
+          ++removedCount;
+        }
       }
 
       // Delete the item and the commitBlock.
@@ -122,13 +131,28 @@ library QueueLib {
       delete queue.commitBlock[first];
 
       unchecked {
-        ++index;
         ++first;
       }
     }
+
     // Update the value for `first` in our queue object since we've dequeued a number of elements.
     queue.first = first;
-    return items;
+
+    if (removedCount == 0) {
+      return items;
+    } else {
+      // If some items were removed, there will be a number of trailing 0 values we need to truncate
+      // from the array. Create a new array with all of the items up until these empty values.
+      uint256 amendedLength = last + 1 - first - removedCount;
+      bytes32[] memory amendedItems = new bytes32[](amendedLength);
+      for (index = 0; index < amendedLength; ) {
+        amendedItems[index] = items[index];
+        unchecked {
+          ++index;
+        }
+      }
+      return amendedItems;
+    }
   }
 
   /**
