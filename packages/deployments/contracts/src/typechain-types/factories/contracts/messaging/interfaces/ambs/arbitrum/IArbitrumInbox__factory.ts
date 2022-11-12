@@ -13,6 +13,31 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "destAddr",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "arbTxCallValue",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxSubmissionCost",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "submissionRefundAddress",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "valueRefundAddress",
+        type: "address",
+      },
+      {
         internalType: "uint256",
         name: "maxGas",
         type: "uint256",
@@ -23,22 +48,12 @@ const _abi = [
         type: "uint256",
       },
       {
-        internalType: "address",
-        name: "destAddr",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-      {
         internalType: "bytes",
         name: "data",
         type: "bytes",
       },
     ],
-    name: "sendContractTransaction",
+    name: "createRetryableTicket",
     outputs: [
       {
         internalType: "uint256",

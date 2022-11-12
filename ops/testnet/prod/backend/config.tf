@@ -26,5 +26,11 @@ locals {
       "9991"       = {}
     }
     environment = var.stage
+    healthUrls = {
+      messages = "https://betteruptime.com/api/v1/heartbeat/${var.carto_messages_heartbeat}"
+      roots = "https://betteruptime.com/api/v1/heartbeat/${var.carto_roots_heartbeat}"
+      routers = "https://betteruptime.com/api/v1/heartbeat/${var.carto_routers_heartbeat}"
+      transfers = "https://betteruptime.com/api/v1/heartbeat/${var.carto_transfers_heartbeat}"
+    }
   })
 }

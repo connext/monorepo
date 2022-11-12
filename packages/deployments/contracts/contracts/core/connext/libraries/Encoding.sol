@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 library Encoding {
   // ============ Constants ============
@@ -33,7 +33,7 @@ library Encoding {
    * @return _secondHalf The bottom 16 bytes
    */
   function encodeHex(uint256 _bytes) internal pure returns (uint256 _firstHalf, uint256 _secondHalf) {
-    for (uint8 i = 31; i > 15; i -= 1) {
+    for (uint256 i = 31; i > 15; i -= 1) {
       uint8 _b = uint8(_bytes >> (i * 8));
       _firstHalf |= _byteHex(_b);
       if (i != 16) {
@@ -42,7 +42,7 @@ library Encoding {
     }
     // abusing underflow here =_=
     unchecked {
-      for (uint8 i = 15; i < 255; i -= 1) {
+      for (uint256 i = 15; i < 255; i -= 1) {
         uint8 _b = uint8(_bytes >> (i * 8));
         _secondHalf |= _byteHex(_b);
         if (i != 0) {
