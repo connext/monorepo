@@ -662,16 +662,6 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     this.addRouterLiquidityFor(amount, _local, address(0));
   }
 
-  function test_RoutersFacet__addLiquidityForRouter_failsIfHitsCap() public {
-    uint256 amount = 10;
-    utils_setupAsset(true, true);
-    s.routerConfigs[_routerAgent0].approved = true;
-    s.caps[utils_calculateCanonicalHash()] = 11;
-    s.custodied[_local] = 3;
-    vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_capReached.selector);
-    this.addRouterLiquidityFor(amount, _local, _routerAgent0);
-  }
-
   function test_RoutersFacet__addLiquidityForRouter_failsIfNoAmount() public {
     uint256 amount = 0;
     vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_amountIsZero.selector);
@@ -807,8 +797,6 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
     s.routerConfigs[_routerAgent0].owner = address(0);
     s.routerBalances[_routerAgent0][_canonical] = 10 ether;
-    s.caps[_key] = 11 ether;
-    s.custodied[_canonical] = 10 ether;
     s.domain = _canonicalDomain;
 
     address to = address(1234);
@@ -824,14 +812,12 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
     assertEq(this.routerBalances(_routerAgent0, _canonical), initLiquidity - amount);
     assertEq(IERC20(_canonical).balanceOf(_routerRecipient0), initBalance + amount);
-    assertEq(s.custodied[_canonical], 10 ether - amount);
   }
 
   function test_RoutersFacet__removeRouterLiquidity_worksWithToken() public {
     s.routerConfigs[_routerAgent0].recipient = address(0);
     s.routerConfigs[_routerAgent0].owner = address(0);
     s.routerBalances[_routerAgent0][_local] = 10 ether;
-    s.custodied[_local] = 10 ether;
 
     address to = address(1234);
     uint256 amount = 100;
@@ -846,6 +832,5 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
     assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
     assertEq(IERC20(_local).balanceOf(to), initBalance + amount);
-    assertEq(s.custodied[_local], 10 ether);
   }
 }
