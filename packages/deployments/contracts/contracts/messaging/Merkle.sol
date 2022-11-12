@@ -113,7 +113,7 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     uint256 leafCount = leaves.length;
     for (uint256 i; i < leafCount; ) {
       // Insert the new node (using in-memory method).
-      _tree.insert(leaves[i]);
+      _tree = _tree.insert(leaves[i]);
       unchecked {
         ++i;
       }
@@ -134,9 +134,9 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    * @return _count Current node count (i.e. number of indices) AFTER the insertion of the new leaf,
    * provided for convenience.
    */
-  function insert(bytes32 leaf) public view onlyArborist returns (bytes32 _root, uint256 _count) {
+  function insert(bytes32 leaf) public onlyArborist returns (bytes32 _root, uint256 _count) {
     // Insert the new node.
-    tree.insert(leaf);
+    tree = tree.insert(leaf);
     _count = tree.count;
     _root = tree.root();
   }
