@@ -79,7 +79,7 @@ library MerkleLib {
   function insert(Tree memory tree, bytes32 node) internal pure returns (Tree memory) {
     // Update tree.count to increase the current count by 1 since we'll be including a new node.
     uint256 size = ++tree.count;
-    if (size >= MAX_LEAVES) revert MerkleLib__insert_treeIsFull();
+    if (size > MAX_LEAVES) revert MerkleLib__insert_treeIsFull();
 
     // Loop starting at 0, ending when we've finished inserting the node (i.e. hashing it) into
     // the active branch. Each loop we cut size in half, hashing the inserted node up the active
@@ -114,7 +114,7 @@ library MerkleLib {
   function root(Tree storage tree) internal view returns (bytes32 _current) {
     uint256 _index = tree.count;
 
-    if(_index == 0) {
+    if (_index == 0) {
       return Z_32;
     }
 
@@ -122,8 +122,16 @@ library MerkleLib {
     assembly {
       let TREE_SLOT := tree.slot
 
-      for {} true {} {
-        for {} true {} {
+      for {
+
+      } true {
+
+      } {
+        for {
+
+        } true {
+
+        } {
           if and(_index, 1) {
             mstore(0, sload(TREE_SLOT))
             mstore(0x20, Z_0)
@@ -132,252 +140,251 @@ library MerkleLib {
           }
 
           if and(_index, shl(1, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 1)))
-              mstore(0x20, Z_1)
-              _current := keccak256(0, 0x40)
-              i := 1
-              break
+            mstore(0, sload(add(TREE_SLOT, 1)))
+            mstore(0x20, Z_1)
+            _current := keccak256(0, 0x40)
+            i := 1
+            break
           }
 
           if and(_index, shl(2, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 2)))
-              mstore(0x20, Z_2)
-              _current := keccak256(0, 0x40)
-              i := 2
-              break
+            mstore(0, sload(add(TREE_SLOT, 2)))
+            mstore(0x20, Z_2)
+            _current := keccak256(0, 0x40)
+            i := 2
+            break
           }
 
           if and(_index, shl(3, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 3)))
-              mstore(0x20, Z_3)
-              _current := keccak256(0, 0x40)
-              i := 3
-              break
+            mstore(0, sload(add(TREE_SLOT, 3)))
+            mstore(0x20, Z_3)
+            _current := keccak256(0, 0x40)
+            i := 3
+            break
           }
 
           if and(_index, shl(4, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 4)))
-              mstore(0x20, Z_4)
-              _current := keccak256(0, 0x40)
-              i := 4
-              break
+            mstore(0, sload(add(TREE_SLOT, 4)))
+            mstore(0x20, Z_4)
+            _current := keccak256(0, 0x40)
+            i := 4
+            break
           }
 
           if and(_index, shl(5, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 5)))
-              mstore(0x20, Z_5)
-              _current := keccak256(0, 0x40)
-              i := 5
-              break
+            mstore(0, sload(add(TREE_SLOT, 5)))
+            mstore(0x20, Z_5)
+            _current := keccak256(0, 0x40)
+            i := 5
+            break
           }
 
           if and(_index, shl(6, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 6)))
-              mstore(0x20, Z_6)
-              _current := keccak256(0, 0x40)
-              i := 6
-              break
+            mstore(0, sload(add(TREE_SLOT, 6)))
+            mstore(0x20, Z_6)
+            _current := keccak256(0, 0x40)
+            i := 6
+            break
           }
 
           if and(_index, shl(7, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 7)))
-              mstore(0x20, Z_7)
-              _current := keccak256(0, 0x40)
-              i := 7
-              break
+            mstore(0, sload(add(TREE_SLOT, 7)))
+            mstore(0x20, Z_7)
+            _current := keccak256(0, 0x40)
+            i := 7
+            break
           }
 
           if and(_index, shl(8, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 8)))
-              mstore(0x20, Z_8)
-              _current := keccak256(0, 0x40)
-              i := 8
-              break
+            mstore(0, sload(add(TREE_SLOT, 8)))
+            mstore(0x20, Z_8)
+            _current := keccak256(0, 0x40)
+            i := 8
+            break
           }
 
           if and(_index, shl(9, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 9)))
-              mstore(0x20, Z_9)
-              _current := keccak256(0, 0x40)
-              i := 9
-              break
+            mstore(0, sload(add(TREE_SLOT, 9)))
+            mstore(0x20, Z_9)
+            _current := keccak256(0, 0x40)
+            i := 9
+            break
           }
 
           if and(_index, shl(10, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 10)))
-              mstore(0x20, Z_10)
-              _current := keccak256(0, 0x40)
-              i := 10
-              break
+            mstore(0, sload(add(TREE_SLOT, 10)))
+            mstore(0x20, Z_10)
+            _current := keccak256(0, 0x40)
+            i := 10
+            break
           }
 
           if and(_index, shl(11, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 11)))
-              mstore(0x20, Z_11)
-              _current := keccak256(0, 0x40)
-              i := 11
-              break
+            mstore(0, sload(add(TREE_SLOT, 11)))
+            mstore(0x20, Z_11)
+            _current := keccak256(0, 0x40)
+            i := 11
+            break
           }
 
           if and(_index, shl(12, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 12)))
-              mstore(0x20, Z_12)
-              _current := keccak256(0, 0x40)
-              i := 12
-              break
+            mstore(0, sload(add(TREE_SLOT, 12)))
+            mstore(0x20, Z_12)
+            _current := keccak256(0, 0x40)
+            i := 12
+            break
           }
 
           if and(_index, shl(13, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 13)))
-              mstore(0x20, Z_13)
-              _current := keccak256(0, 0x40)
-              i := 13
-              break
+            mstore(0, sload(add(TREE_SLOT, 13)))
+            mstore(0x20, Z_13)
+            _current := keccak256(0, 0x40)
+            i := 13
+            break
           }
 
           if and(_index, shl(14, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 14)))
-              mstore(0x20, Z_14)
-              _current := keccak256(0, 0x40)
-              i := 14
-              break
+            mstore(0, sload(add(TREE_SLOT, 14)))
+            mstore(0x20, Z_14)
+            _current := keccak256(0, 0x40)
+            i := 14
+            break
           }
 
           if and(_index, shl(15, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 15)))
-              mstore(0x20, Z_15)
-              _current := keccak256(0, 0x40)
-              i := 15
-              break
+            mstore(0, sload(add(TREE_SLOT, 15)))
+            mstore(0x20, Z_15)
+            _current := keccak256(0, 0x40)
+            i := 15
+            break
           }
 
           if and(_index, shl(16, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 16)))
-              mstore(0x20, Z_16)
-              _current := keccak256(0, 0x40)
-              i := 16
-              break
+            mstore(0, sload(add(TREE_SLOT, 16)))
+            mstore(0x20, Z_16)
+            _current := keccak256(0, 0x40)
+            i := 16
+            break
           }
 
           if and(_index, shl(17, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 17)))
-              mstore(0x20, Z_17)
-              _current := keccak256(0, 0x40)
-              i := 17
-              break
+            mstore(0, sload(add(TREE_SLOT, 17)))
+            mstore(0x20, Z_17)
+            _current := keccak256(0, 0x40)
+            i := 17
+            break
           }
 
           if and(_index, shl(18, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 18)))
-              mstore(0x20, Z_18)
-              _current := keccak256(0, 0x40)
-              i := 18
-              break
+            mstore(0, sload(add(TREE_SLOT, 18)))
+            mstore(0x20, Z_18)
+            _current := keccak256(0, 0x40)
+            i := 18
+            break
           }
 
           if and(_index, shl(19, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 19)))
-              mstore(0x20, Z_19)
-              _current := keccak256(0, 0x40)
-              i := 19
-              break
+            mstore(0, sload(add(TREE_SLOT, 19)))
+            mstore(0x20, Z_19)
+            _current := keccak256(0, 0x40)
+            i := 19
+            break
           }
 
           if and(_index, shl(20, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 20)))
-              mstore(0x20, Z_20)
-              _current := keccak256(0, 0x40)
-              i := 20
-              break
+            mstore(0, sload(add(TREE_SLOT, 20)))
+            mstore(0x20, Z_20)
+            _current := keccak256(0, 0x40)
+            i := 20
+            break
           }
 
           if and(_index, shl(21, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 21)))
-              mstore(0x20, Z_21)
-              _current := keccak256(0, 0x40)
-              i := 21
-              break
+            mstore(0, sload(add(TREE_SLOT, 21)))
+            mstore(0x20, Z_21)
+            _current := keccak256(0, 0x40)
+            i := 21
+            break
           }
 
           if and(_index, shl(22, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 22)))
-              mstore(0x20, Z_22)
-              _current := keccak256(0, 0x40)
-              i := 22
-              break
+            mstore(0, sload(add(TREE_SLOT, 22)))
+            mstore(0x20, Z_22)
+            _current := keccak256(0, 0x40)
+            i := 22
+            break
           }
 
           if and(_index, shl(23, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 23)))
-              mstore(0x20, Z_23)
-              _current := keccak256(0, 0x40)
-              i := 23
-              break
+            mstore(0, sload(add(TREE_SLOT, 23)))
+            mstore(0x20, Z_23)
+            _current := keccak256(0, 0x40)
+            i := 23
+            break
           }
 
           if and(_index, shl(24, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 24)))
-              mstore(0x20, Z_24)
-              _current := keccak256(0, 0x40)
-              i := 24
-              break
+            mstore(0, sload(add(TREE_SLOT, 24)))
+            mstore(0x20, Z_24)
+            _current := keccak256(0, 0x40)
+            i := 24
+            break
           }
 
           if and(_index, shl(25, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 25)))
-              mstore(0x20, Z_25)
-              _current := keccak256(0, 0x40)
-              i := 25
-              break
+            mstore(0, sload(add(TREE_SLOT, 25)))
+            mstore(0x20, Z_25)
+            _current := keccak256(0, 0x40)
+            i := 25
+            break
           }
 
           if and(_index, shl(26, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 26)))
-              mstore(0x20, Z_26)
-              _current := keccak256(0, 0x40)
-              i := 26
-              break
+            mstore(0, sload(add(TREE_SLOT, 26)))
+            mstore(0x20, Z_26)
+            _current := keccak256(0, 0x40)
+            i := 26
+            break
           }
 
           if and(_index, shl(27, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 27)))
-              mstore(0x20, Z_27)
-              _current := keccak256(0, 0x40)
-              i := 27
-              break
+            mstore(0, sload(add(TREE_SLOT, 27)))
+            mstore(0x20, Z_27)
+            _current := keccak256(0, 0x40)
+            i := 27
+            break
           }
 
           if and(_index, shl(28, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 28)))
-              mstore(0x20, Z_28)
-              _current := keccak256(0, 0x40)
-              i := 28
-              break
+            mstore(0, sload(add(TREE_SLOT, 28)))
+            mstore(0x20, Z_28)
+            _current := keccak256(0, 0x40)
+            i := 28
+            break
           }
 
           if and(_index, shl(29, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 29)))
-              mstore(0x20, Z_29)
-              _current := keccak256(0, 0x40)
-              i := 29
-              break
+            mstore(0, sload(add(TREE_SLOT, 29)))
+            mstore(0x20, Z_29)
+            _current := keccak256(0, 0x40)
+            i := 29
+            break
           }
 
           if and(_index, shl(30, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 30)))
-              mstore(0x20, Z_30)
-              _current := keccak256(0, 0x40)
-              i := 30
-              break
+            mstore(0, sload(add(TREE_SLOT, 30)))
+            mstore(0x20, Z_30)
+            _current := keccak256(0, 0x40)
+            i := 30
+            break
           }
 
-
           if and(_index, shl(31, 1)) {
-              mstore(0, sload(add(TREE_SLOT, 31)))
-              mstore(0x20, Z_31)
-              _current := keccak256(0, 0x40)
-              i := 31
-              break
+            mstore(0, sload(add(TREE_SLOT, 31)))
+            mstore(0x20, Z_31)
+            _current := keccak256(0, 0x40)
+            i := 31
+            break
           }
 
           _current := Z_32
@@ -847,165 +854,165 @@ library MerkleLib {
       _current := _item
       let BRANCH_DATA_OFFSET := _branch
       let f
-      
-      f := shl(5, and(_index, 1))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(BRANCH_DATA_OFFSET))
+
+      f := shl(5, iszero(and(_index, shl(_index, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, _index))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(1, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 1))))
+      f := shl(5, iszero(and(_index, shl(1, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 1))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(2, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 2))))
+      f := shl(5, iszero(and(_index, shl(2, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 2))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(3, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 3))))
+      f := shl(5, iszero(and(_index, shl(3, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 3))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(4, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 4))))
+      f := shl(5, iszero(and(_index, shl(4, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 4))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(5, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 5))))
+      f := shl(5, iszero(and(_index, shl(5, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 5))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(6, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 6))))
+      f := shl(5, iszero(and(_index, shl(6, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 6))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(7, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 7))))
+      f := shl(5, iszero(and(_index, shl(7, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 7))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(8, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 8))))
+      f := shl(5, iszero(and(_index, shl(8, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 8))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(9, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 9))))
+      f := shl(5, iszero(and(_index, shl(9, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 9))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(10, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 10))))
+      f := shl(5, iszero(and(_index, shl(10, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 10))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(11, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 11))))
+      f := shl(5, iszero(and(_index, shl(11, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 11))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(12, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 12))))
+      f := shl(5, iszero(and(_index, shl(12, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 12))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(13, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 13))))
+      f := shl(5, iszero(and(_index, shl(13, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 13))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(14, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 14))))
+      f := shl(5, iszero(and(_index, shl(14, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 14))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(15, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 15))))
+      f := shl(5, iszero(and(_index, shl(15, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 15))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(16, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 16))))
+      f := shl(5, iszero(and(_index, shl(16, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 16))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(17, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 17))))
+      f := shl(5, iszero(and(_index, shl(17, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 17))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(18, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 18))))
+      f := shl(5, iszero(and(_index, shl(18, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 18))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(19, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 19))))
+      f := shl(5, iszero(and(_index, shl(19, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 19))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(20, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 20))))
+      f := shl(5, iszero(and(_index, shl(20, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 20))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(21, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 21))))
+      f := shl(5, iszero(and(_index, shl(21, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 21))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(22, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 22))))
+      f := shl(5, iszero(and(_index, shl(22, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 22))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(23, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 23))))
+      f := shl(5, iszero(and(_index, shl(23, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 23))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(24, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 24))))
+      f := shl(5, iszero(and(_index, shl(24, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 24))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(25, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 25))))
+      f := shl(5, iszero(and(_index, shl(25, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 25))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(26, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 26))))
+      f := shl(5, iszero(and(_index, shl(26, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 26))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(27, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 27))))
+      f := shl(5, iszero(and(_index, shl(27, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 27))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(28, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 28))))
+      f := shl(5, iszero(and(_index, shl(28, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 28))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(29, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 29))))
+      f := shl(5, iszero(and(_index, shl(29, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 29))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(30, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 30))))
+      f := shl(5, iszero(and(_index, shl(30, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 30))))
       _current := keccak256(0, 0x40)
 
-      f := shl(5, and(_index, shl(31, 1)))
-      mstore(f, _current)
-      mstore(sub(0x20, f), mload(add(BRANCH_DATA_OFFSET, shl(5, 31))))
+      f := shl(5, iszero(and(_index, shl(31, 1))))
+      mstore(sub(0x20, f), _current)
+      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 31))))
       _current := keccak256(0, 0x40)
     }
   }
