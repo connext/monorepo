@@ -8,7 +8,6 @@ interface IRootManager {
    * @dev This must read information for the root from the registered AMBs.
    */
   function propagate(
-    uint32[] calldata _domains,
     address[] calldata _connectors,
     uint256[] calldata _fees,
     bytes[] memory _encodedData

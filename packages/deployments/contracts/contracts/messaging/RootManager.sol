@@ -30,7 +30,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   event RootsAggregated(bytes32 aggregateRoot, uint256 count, bytes32[] aggregatedMessageRoots);
 
-  event RootPropagated(bytes32 aggregateRoot, uint256 count, uint32[] domains);
+  event RootPropagated(bytes32 aggregateRoot, uint256 count, bytes32 domainsHash);
 
   event ConnectorAdded(uint32 domain, address connector, uint32[] domains, address[] connectors);
 
@@ -155,27 +155,21 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * spoke domains (via their respective hub connectors).
    * @dev Should be called by relayers at a regular interval.
    *
-   * @param _domains Array of domains: should match exactly the array of `domains` in storage; used here
-   * to reduce gas costs, and keep them static regardless of number of supported domains.
-   * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage
-   * (see `_domains` param's info on reducing gas costs).
+   * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage;
+   * used here to reduce gas costs, and keep them static regardless of number of supported domains.
    * @param _fees Array of fees in native token for an AMB if required
    * @param _encodedData Array of encodedData: extra params for each AMB if required
    */
   function propagate(
-    uint32[] calldata _domains,
     address[] calldata _connectors,
     uint256[] calldata _fees,
     bytes[] memory _encodedData
   ) external payable whenNotPaused {
-    uint256 _numDomains = _domains.length;
+    validateConnectors(_connectors);
 
-    // Sanity check: domains length matches connectors length.
-    require(
-      _connectors.length == _numDomains && _fees.length == _numDomains && _encodedData.length == _numDomains,
-      "invalid lengths"
-    );
-    validateDomains(_domains, _connectors);
+    uint256 _numDomains = _connectors.length;
+    // Sanity check: fees and encodedData lengths matches connectors length.
+    require(_fees.length == _numDomains && _encodedData.length == _numDomains, "invalid lengths");
 
     // Dequeue verified roots from the queue and insert into the tree.
     (bytes32 _aggregateRoot, uint256 _count) = dequeue();
@@ -194,7 +188,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
       }
     }
 
-    emit RootPropagated(_aggregateRoot, _count, _domains);
+    emit RootPropagated(_aggregateRoot, _count, domainsHash);
   }
 
   /**
