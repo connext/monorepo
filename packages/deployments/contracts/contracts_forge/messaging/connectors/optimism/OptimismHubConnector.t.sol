@@ -23,18 +23,12 @@ contract OptimismHubConnectorTest is ConnectorHelper {
 
     // NOTE: sample value taken from:
     // https://blockscout.com/optimism/goerli/tx/0x440fda036d28eb547394a8689af90c5342a00a8ca2ab5117f2b85f54d1416ddd/logs
-    _l2Connector = address(0x15Fe056CbFd5ac3625d3987f3Db96Dc9fd09770A);
+    _l2Connector = payable(address(0x15Fe056CbFd5ac3625d3987f3Db96Dc9fd09770A));
 
     // deploy
-    _l1Connector = address(
-      new OptimismHubConnector(
-        _l1Domain,
-        _l2Domain,
-        _amb,
-        _rootManager,
-        _l2Connector,
-        _mirrorGas,
-        _stateCommitmentChain
+    _l1Connector = payable(
+      address(
+        new OptimismHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, _l2Connector, _stateCommitmentChain, _gasCap)
       )
     );
   }
@@ -80,11 +74,13 @@ contract OptimismHubConnectorTest is ConnectorHelper {
   // ============ OptimismHubConnector.sendMessage ============
   function test_OptimismHubConnector__sendMessage_works() public {
     bytes memory _data = abi.encode(bytes32(bytes("test")));
+    // encoded data
+    bytes memory _encodedData = abi.encode(_gasCap);
 
     vm.mockCall(_amb, abi.encodeWithSelector(OptimismAmb.sendMessage.selector), abi.encode());
 
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, _encodedData, _rootManager);
 
     vm.expectCall(
       _amb,
@@ -92,21 +88,24 @@ contract OptimismHubConnectorTest is ConnectorHelper {
         OptimismAmb.sendMessage.selector,
         _l2Connector,
         abi.encodeWithSelector(Connector.processMessage.selector, _data),
-        _mirrorGas
+        _gasCap
       )
     );
 
     vm.prank(_rootManager);
-    OptimismHubConnector(_l1Connector).sendMessage(_data);
+    OptimismHubConnector(_l1Connector).sendMessage(_data, _encodedData);
   }
 
   function test_OptimismHubConnector__sendMessage_works_fuzz(bytes32 data) public {
     bytes memory _data = abi.encode(data);
 
+    // encoded data
+    bytes memory _encodedData = abi.encode(_gasCap);
+
     vm.mockCall(_amb, abi.encodeWithSelector(OptimismAmb.sendMessage.selector), abi.encode());
 
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, _encodedData, _rootManager);
 
     vm.expectCall(
       _amb,
@@ -114,12 +113,12 @@ contract OptimismHubConnectorTest is ConnectorHelper {
         OptimismAmb.sendMessage.selector,
         _l2Connector,
         abi.encodeWithSelector(Connector.processMessage.selector, _data),
-        _mirrorGas
+        _gasCap
       )
     );
 
     vm.prank(_rootManager);
-    OptimismHubConnector(_l1Connector).sendMessage(_data);
+    OptimismHubConnector(_l1Connector).sendMessage(_data, _encodedData);
   }
 
   // ============ OptimismHubConnector.processMessage ============
@@ -137,7 +136,7 @@ contract OptimismHubConnectorTest is ConnectorHelper {
   // ============ OptimismHubConnector.processMessageFromRoot ============
   function test_OptimismHubConnector_processMessageFromRoot_works() public {
     // NOTE: _target is taken from the sample message
-    address _target = address(0);
+    address payable _target = payable(address(0));
     // set the target to have the code at the contract we want to test so the proof works
     vm.etch(_target, _l1Connector.code);
     address _sender = _l2Connector;

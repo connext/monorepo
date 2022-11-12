@@ -11,8 +11,9 @@ import {RateLimited} from "../../../contracts/messaging/libraries/RateLimited.so
 import "../../utils/ForgeHelper.sol";
 
 contract SpokeConnectorTest is ForgeHelper {
+  event MessageSent(bytes data, bytes encodedData, address caller);
+
   using stdStorage for StdStorage;
-  event MessageSent(bytes data, address caller);
 
   // ============ Storage ============
   SpokeConnector spokeConnector;
@@ -54,7 +55,6 @@ contract SpokeConnectorTest is ForgeHelper {
       _rootManager, // address _rootManager,
       address(_merkle), // address _merkle
       address(0), // address _mirrorConnector
-      PROCESS_GAS, // uint256 _mirrorGas
       PROCESS_GAS, // uint256 _processGas,
       RESERVE_GAS, // uint256 _reserveGas
       0, // uint256 _delayBlocks
@@ -97,13 +97,14 @@ contract SpokeConnectorTest is ForgeHelper {
     bytes32 root = bytes32(bytes("test123"));
     vm.mockCall(address(_merkle), abi.encodeWithSelector(MerkleTreeManager.root.selector), abi.encode(root));
     bytes memory data = abi.encodePacked(root);
+    bytes memory encodedData = abi.encode("");
 
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(data, address(this));
+    emit MessageSent(data, encodedData, address(this));
 
-    spokeConnector.send();
+    spokeConnector.send(encodedData);
 
-    assertEq(MockSpokeConnector(address(spokeConnector)).lastOutbound(), keccak256(data));
+    assertEq(MockSpokeConnector(payable(address(spokeConnector))).lastOutbound(), keccak256(data));
   }
 
   function test_SpokeConnector__send_failsIfPaused() public {
@@ -116,7 +117,7 @@ contract SpokeConnectorTest is ForgeHelper {
     assertTrue(spokeConnector.paused());
 
     vm.expectRevert("Pausable: paused");
-    spokeConnector.send();
+    spokeConnector.send(abi.encode(""));
   }
 
   function test_SpokeConnector__send_failsIfRateLimitExceeded() public {
@@ -124,20 +125,21 @@ contract SpokeConnectorTest is ForgeHelper {
     spokeConnector.setRateLimitBlocks(10);
 
     vm.expectRevert(RateLimited.RateLimited__rateLimited_messageSendRateExceeded.selector);
-    spokeConnector.send();
+    spokeConnector.send(abi.encode(""));
   }
 
   function test_SpokeConnector__send_failsIfRootAlreadySent() public {
     bytes32 root = bytes32(bytes("test123"));
     vm.mockCall(address(_merkle), abi.encodeWithSelector(MerkleTreeManager.root.selector), abi.encode(root));
     bytes memory data = abi.encodePacked(root);
+    bytes memory encodedData = abi.encode("");
 
-    spokeConnector.send();
-    assertEq(MockSpokeConnector(address(spokeConnector)).lastOutbound(), keccak256(data));
+    spokeConnector.send(encodedData);
+    assertEq(MockSpokeConnector(payable(address(spokeConnector))).lastOutbound(), keccak256(data));
 
     vm.expectRevert("root already sent");
-    spokeConnector.send();
-    assertEq(MockSpokeConnector(address(spokeConnector)).lastOutbound(), keccak256(data));
+    spokeConnector.send(encodedData);
+    assertEq(MockSpokeConnector(payable(address(spokeConnector))).lastOutbound(), keccak256(data));
   }
 
   function test_SpokeConnector__proveAndProcess_failsIfPaused() public {

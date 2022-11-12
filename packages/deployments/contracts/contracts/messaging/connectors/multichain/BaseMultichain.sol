@@ -3,7 +3,9 @@ pragma solidity 0.8.17;
 
 import {Multichain} from "../../interfaces/ambs/Multichain.sol";
 
-abstract contract BaseMultichain {
+import {GasCap} from "../GasCap.sol";
+
+abstract contract BaseMultichain is GasCap {
   // ============ Internal Storage ============
   address internal immutable EXECUTOR; // Is != amb, used only to retrieve sender context
 
@@ -11,7 +13,11 @@ abstract contract BaseMultichain {
   uint256 internal immutable MIRROR_CHAIN_ID;
 
   // ============ Constructor ============
-  constructor(address _amb, uint256 _mirrorChainId) {
+  constructor(
+    address _amb,
+    uint256 _mirrorChainId,
+    uint256 _gasCap // max fee on destination chain
+  ) GasCap(_gasCap) {
     // sanity checks
     require(_mirrorChainId != 0, "!mirrorChainId");
 
@@ -36,16 +42,37 @@ abstract contract BaseMultichain {
   /**
    * @dev Sends `outboundRoot` to root manager on the mirror chain
    */
-  function _sendMessage(address _amb, bytes memory _data) internal {
-    // Should always be dispatching the a merkle root
-    require(_data.length == 32, "!length");
+  function _sendMessage(
+    address _amb,
+    address _mirrorConnector,
+    bytes memory _data,
+    bytes memory _encodedData
+  ) internal {
+    // Should always be sending a merkle root
+    require(_data.length == 32, "!data length");
 
-    Multichain(_amb).anyCall(
-      _amb, // Same address on every chain, using AMB as it is immutable
-      _data,
+    // Should not include any gas info
+    require(_encodedData.length == 0, "!data length");
+
+    // Get the max fee supplied
+    uint256 supplied = _getGas(msg.value); // fee paid on origin chain, up to cap
+    // NOTE: fee will always be <= msg.value
+
+    // Get the min fees
+    uint256 required = Multichain(_amb).calcSrcFees(
+      "", // app id
+      MIRROR_CHAIN_ID, // destination chain
+      32 // data length: selector + root
+    );
+    // Should have at least the min fees
+    require(required < supplied + 1, "!fees");
+
+    Multichain(_amb).anyCall{value: supplied}(
+      _mirrorConnector, // Target contract on destination
+      _data, // Call data for interaction
       address(0), // fallback address on origin chain
       MIRROR_CHAIN_ID,
-      0 // fee paid on origin chain
+      2 // fees paid on source chain
     );
   }
 

@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
 
@@ -46,6 +47,14 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
 
   event Process(bytes32 leaf, bool success, bytes returnData);
+
+  /**
+   * @notice Emitted when funds are withdrawn by the admin
+   * @dev See comments in `withdrawFunds`
+   * @param to The recipient of the funds
+   * @param amount The amount withdrawn
+   */
+  event FundsWithdrawn(address indexed to, uint256 amount);
 
   // ============ Structs ============
 
@@ -160,7 +169,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _amb The address of the AMB on the spoke domain this connector lives on.
    * @param _rootManager The address of the RootManager on the hub.
    * @param _mirrorConnector The address of the spoke connector.
-   * @param _mirrorGas The gas costs required to process a message on mirror.
    * @param _processGas The gas costs used in `handle` to ensure meaningful state changes can occur (minimum gas needed
    * to handle transaction).
    * @param _reserveGas The gas costs reserved when `handle` is called to ensure failures are handled.
@@ -174,7 +182,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
@@ -182,7 +189,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     address _watcherManager
   )
     ConnectorManager()
-    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
+    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
     WatcherClient(_watcherManager)
   {
     // Sanity check: constants are reasonable.
@@ -251,6 +258,19 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   }
 
   /**
+   * @notice This function should be callable by owner, and send funds trapped on
+   * a connector to the provided recipient.
+   * @dev Withdraws the entire balance of the contract.
+   *
+   * @param _to The recipient of the funds withdrawn
+   */
+  function withdrawFunds(address _to) public onlyOwner {
+    uint256 amount = address(this).balance;
+    Address.sendValue(payable(_to), amount);
+    emit FundsWithdrawn(_to, amount);
+  }
+
+  /**
    * @notice Remove ability to renounce ownership
    * @dev Renounce ownership should be impossible as long as it is impossible in the
    * WatcherClient, and as long as only the owner can remove pending roots in case of
@@ -280,13 +300,13 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @notice This returns the root of all messages with the origin domain as this domain (i.e.
    * all outbound messages)
    */
-  function send() external whenNotPaused rateLimited {
+  function send(bytes memory _encodedData) external payable whenNotPaused rateLimited {
     bytes32 root = MERKLE.root();
     require(sentMessageRoots[root] == false, "root already sent");
     bytes memory _data = abi.encodePacked(root);
-    _sendMessage(_data);
+    _sendMessage(_data, _encodedData);
     sentMessageRoots[root] = true;
-    emit MessageSent(_data, msg.sender);
+    emit MessageSent(_data, _encodedData, msg.sender);
   }
 
   /**

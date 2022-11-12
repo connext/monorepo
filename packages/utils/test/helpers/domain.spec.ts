@@ -4,7 +4,7 @@ import { stub, restore, reset } from "sinon";
 import { mock, getChainIdFromDomain, getDomainFromChainId } from "../../src";
 import * as ChainDataFns from "../../src/peripherals/chainData";
 
-describe("Helpers:Nomad", () => {
+describe("Helpers:domain", () => {
   beforeEach(() => {
     stub(ChainDataFns, "getChainData").resolves(mock.chainData());
   });

@@ -4,7 +4,7 @@ pragma solidity 0.8.17;
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {OptimismAmb} from "../../interfaces/ambs/optimism/OptimismAmb.sol";
 
-import {SpokeConnector} from "../SpokeConnector.sol";
+import {SpokeConnector, ProposedOwnable} from "../SpokeConnector.sol";
 import {Connector} from "../Connector.sol";
 
 import {BaseOptimism} from "./BaseOptimism.sol";
@@ -17,12 +17,12 @@ contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
     address _merkle,
-    address _watcherManager
+    address _watcherManager,
+    uint256 _gasCap // gasLimit of message call on L1
   )
     SpokeConnector(
       _domain,
@@ -30,14 +30,13 @@ contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorGas,
       _processGas,
       _reserveGas,
       _delayBlocks,
       _merkle,
       _watcherManager
     )
-    BaseOptimism()
+    BaseOptimism(_gasCap)
   {}
 
   // ============ Override Fns ============
@@ -46,14 +45,18 @@ contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
   }
 
   /**
+   * @notice Should not be able to renounce ownership
+   */
+  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {}
+
+  /**
    * @dev Sends `outboundRoot` to root manager on l1
    */
-  function _sendMessage(bytes memory _data) internal override {
-    // Should be 32 bytes outbound root
-    require(_data.length == 32, "!length");
-
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should always be sending the outbound root
+    require(_data.length == 32, "!data length");
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
-    OptimismAmb(AMB).sendMessage(mirrorConnector, _calldata, uint32(mirrorGas));
+    OptimismAmb(AMB).sendMessage(mirrorConnector, _calldata, uint32(_getGasFromEncoded(_encodedData)));
   }
 
   /**

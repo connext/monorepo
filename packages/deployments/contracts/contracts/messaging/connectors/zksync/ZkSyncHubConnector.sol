@@ -8,8 +8,9 @@ import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 import {HubConnector} from "../HubConnector.sol";
 import {Connector} from "../Connector.sol";
+import {GasCap} from "../GasCap.sol";
 
-contract ZkSyncHubConnector is HubConnector {
+contract ZkSyncHubConnector is HubConnector, GasCap {
   // ============ Libraries ============
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
@@ -30,9 +31,9 @@ contract ZkSyncHubConnector is HubConnector {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
-    address _stateCommitmentChain
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) {}
+    address _stateCommitmentChain,
+    uint256 _gasCap
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) GasCap(_gasCap) {}
 
   // ============ Override Fns ============
   function _verifySender(address) internal pure override returns (bool) {
@@ -46,18 +47,31 @@ contract ZkSyncHubConnector is HubConnector {
   /**
    * @dev Sends `aggregateRoot` to messaging on l2
    */
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should include gasPrice value for `l2TransactionBaseCOst` specialized calldata
+    require(_encodedData.length == 32, "!data length");
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
     // Get the calldata
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
+    // Get the gas data
+    uint256 gasPrice = abi.decode(_encodedData, (uint256));
+
+    // Declare the ergs limit
+    uint256 ERGS_LIMIT = 10000;
+
+    // Get the max supplied
+    uint256 fee = _getGas(msg.value);
+
+    // Ensure it is above minimum
+    require(fee > IZkSync(AMB).l2TransactionBaseCost(gasPrice, ERGS_LIMIT, uint32(_calldata.length)), "!fees");
 
     // Dispatch message
     // https://v2-docs.zksync.io/dev/developer-guides/Bridging/l1-l2.html#structure
     // calling L2 smart contract from L1 Example contract
     // note: msg.value must be passed in and can be retrieved from the AMB view function `l2TransactionBaseCost`
     // https://v2-docs.zksync.io/dev/developer-guides/Bridging/l1-l2.html#using-contract-interface-in-your-project
-    IZkSync(AMB).requestL2Transaction{value: msg.value}(
+    IZkSync(AMB).requestL2Transaction{value: fee}(
       // The address of the L2 contract to call
       mirrorConnector,
       // We pass no ETH with the call
@@ -65,7 +79,7 @@ contract ZkSyncHubConnector is HubConnector {
       // Encoding the calldata for the execute
       _calldata,
       // Ergs limit
-      10000,
+      ERGS_LIMIT,
       // factory dependencies
       new bytes[](0)
     );
