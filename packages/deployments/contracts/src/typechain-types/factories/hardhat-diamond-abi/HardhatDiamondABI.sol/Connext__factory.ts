@@ -1943,21 +1943,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__renounceOwnership_delayNotElapsed",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "ProposedOwnableFacet__renounceOwnership_invalidProposal",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "ProposedOwnableFacet__renounceOwnership_noProposal",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "ProposedOwnableFacet__revokeRole_invalidInput",
     type: "error",
   },
@@ -2307,26 +2292,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "renounceOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "renounced",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "address",
@@ -2538,6 +2503,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "RoutersFacet__acceptProposedRouterOwner_badCaller",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "RoutersFacet__acceptProposedRouterOwner_notElapsed",
     type: "error",
   },
@@ -2563,12 +2533,27 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "RoutersFacet__addRouter_alreadyAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RoutersFacet__addRouter_routerEmpty",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "RoutersFacet__approveRouterForPortal_alreadyApproved",
     type: "error",
   },
   {
     inputs: [],
     name: "RoutersFacet__approveRouterForPortal_notAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RoutersFacet__initializeRouter_configNotEmpty",
     type: "error",
   },
   {
@@ -2643,17 +2628,12 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "RoutersFacet__setRouterOwner_noChange",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "RoutersFacet__setRouterRecipient_notNewRecipient",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "RoutersFacet__setupRouter_alreadyAdded",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "RoutersFacet__setupRouter_routerEmpty",
     type: "error",
   },
   {
@@ -2735,6 +2715,19 @@ const _abi = [
       },
     ],
     name: "RouterApprovedForPortal",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "RouterInitialized",
     type: "event",
   },
   {
@@ -2960,11 +2953,24 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "router",
+        name: "_router",
         type: "address",
       },
     ],
     name: "acceptProposedRouterOwner",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_router",
+        type: "address",
+      },
+    ],
+    name: "addRouter",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -3138,6 +3144,24 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_recipient",
+        type: "address",
+      },
+    ],
+    name: "initializeRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "maxRoutersPerTransfer",
     outputs: [
@@ -3154,12 +3178,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "router",
+        name: "_router",
         type: "address",
       },
       {
         internalType: "address",
-        name: "proposed",
+        name: "_proposed",
         type: "address",
       },
     ],
@@ -3172,7 +3196,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "router",
+        name: "_router",
         type: "address",
       },
     ],
@@ -3286,39 +3310,16 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "router",
+        name: "_router",
         type: "address",
       },
       {
         internalType: "address",
-        name: "recipient",
+        name: "_recipient",
         type: "address",
       },
     ],
     name: "setRouterRecipient",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "recipient",
-        type: "address",
-      },
-    ],
-    name: "setupRouter",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

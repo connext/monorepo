@@ -1,5 +1,5 @@
 [
-  "constructor(uint32,uint32,address,address,address,uint256,address)",
+  "constructor(uint32,uint32,address,address,address,address)",
   "error ProposedOwnable__acceptProposedOwner_delayNotElapsed()",
   "error ProposedOwnable__onlyOwner_notOwner()",
   "error ProposedOwnable__onlyProposed_notProposedOwner()",
@@ -9,9 +9,8 @@
   "error ProposedOwnable__renounceOwnership_invalidProposal()",
   "error ProposedOwnable__renounceOwnership_noProposal()",
   "event MessageProcessed(bytes,address)",
-  "event MessageSent(bytes,address)",
+  "event MessageSent(bytes,bytes,address)",
   "event MirrorConnectorUpdated(address,address)",
-  "event MirrorGasUpdated(uint256,uint256)",
   "event NewConnector(uint32 indexed,uint32 indexed,address,address,address)",
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
@@ -22,7 +21,6 @@
   "function acceptProposedOwner()",
   "function delay() view returns (uint256)",
   "function mirrorConnector() view returns (address)",
-  "function mirrorGas() view returns (uint256)",
   "function owner() view returns (address)",
   "function processMessage(bytes)",
   "function processMessageFromRoot(uint32,uint256,uint16,bytes,bytes32[])",
@@ -32,8 +30,7 @@
   "function proposedTimestamp() view returns (uint256)",
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
-  "function sendMessage(bytes)",
+  "function sendMessage(bytes,bytes) payable",
   "function setMirrorConnector(address)",
-  "function setMirrorGas(uint256)",
   "function verifySender(address) returns (bool)"
 ]

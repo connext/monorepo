@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 import {MainnetSpokeConnector} from "../../../../contracts/messaging/connectors/mainnet/MainnetSpokeConnector.sol";
 import {SpokeConnector} from "../../../../contracts/messaging/connectors/SpokeConnector.sol";
-import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/MerkleTreeManager.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 
@@ -18,22 +18,23 @@ contract MainnetSpokeConnectorTest is ConnectorHelper {
   function setUp() public {
     _merkle = address(new MerkleTreeManager());
 
-    _l2Connector = address(123321123);
+    _l2Connector = payable(address(123321123));
 
     // deploy
-    _l1Connector = address(
-      new MainnetSpokeConnector(
-        _l1Domain,
-        _l2Domain,
-        _amb,
-        _rootManager,
-        _l2Connector,
-        _mirrorGas,
-        _processGas,
-        _reserveGas,
-        0, // delay blocks
-        _merkle,
-        address(0) // watcher manager
+    _l1Connector = payable(
+      address(
+        new MainnetSpokeConnector(
+          _l1Domain,
+          _l2Domain,
+          _amb,
+          _rootManager,
+          _l2Connector,
+          _processGas,
+          _reserveGas,
+          0, // delay blocks
+          _merkle,
+          address(0) // watcher manager
+        )
       )
     );
   }
@@ -58,10 +59,10 @@ contract MainnetSpokeConnectorTest is ConnectorHelper {
     bytes memory _data = abi.encode(MainnetSpokeConnector(_l1Connector).outboundRoot());
 
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, bytes(""), _rootManager);
 
     vm.prank(_rootManager);
-    MainnetSpokeConnector(_l1Connector).sendMessage(_data);
+    MainnetSpokeConnector(_l1Connector).sendMessage(_data, bytes(""));
   }
 
   function test_MainnetSpokeConnector__sendMessage_failsIfCallerNotRootManager() public {
@@ -70,7 +71,7 @@ contract MainnetSpokeConnectorTest is ConnectorHelper {
     vm.expectRevert(bytes("!rootManager"));
 
     // called as NOT root manager
-    MainnetSpokeConnector(_l1Connector).sendMessage(_data);
+    MainnetSpokeConnector(_l1Connector).sendMessage(_data, bytes(""));
   }
 
   function test_MainnetSpokeConnector__sendMessage_failsIfNot32Bytes() public {
@@ -80,6 +81,6 @@ contract MainnetSpokeConnectorTest is ConnectorHelper {
     vm.expectRevert(bytes("!length"));
 
     vm.prank(_rootManager);
-    MainnetSpokeConnector(_l1Connector).sendMessage(_data);
+    MainnetSpokeConnector(_l1Connector).sendMessage(_data, bytes(""));
   }
 }

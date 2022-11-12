@@ -30,7 +30,6 @@ import "./tasks/enrollHandlers";
 import "./tasks/dustSelfAccounts";
 import "./tasks/xcall";
 import "./tasks/readBalances";
-import "./tasks/traceMessage";
 import "./tasks/preflight";
 import "./tasks/addRelayer";
 import "./tasks/executeEstimateGas";
@@ -60,7 +59,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.15",
+        version: "0.8.17",
         settings: {
           optimizer: {
             enabled: true,
