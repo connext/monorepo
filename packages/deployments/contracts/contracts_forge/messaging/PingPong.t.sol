@@ -289,7 +289,7 @@ contract PingPong is ConnectorHelper {
     bytes[] memory encodedData = new bytes[](2);
 
     // Propagate the aggregate root.
-    RootManager(_rootManager).propagate(domains, connectors, fees, encodedData);
+    RootManager(_rootManager).propagate(connectors, fees, encodedData);
 
     // Assert that the current aggregate root matches expected (from reference tree).
     aggregateRoot = RootManager(_rootManager).MERKLE().root();

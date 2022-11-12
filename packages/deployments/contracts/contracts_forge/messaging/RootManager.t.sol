@@ -237,7 +237,7 @@ contract RootManagerTest is ForgeHelper {
     // Fast forward delayBlocks number of blocks so all of the inbound roots are considered verified.
     vm.roll(block.number + _rootManager.delayBlocks());
 
-    _rootManager.propagate(_domains, _connectors, _fees, _encodedData);
+    _rootManager.propagate(_connectors, _fees, _encodedData);
   }
 
   function test_RootManager__propagate_shouldSendToAllSpokes(bytes32 inbound) public {
@@ -248,7 +248,7 @@ contract RootManagerTest is ForgeHelper {
     // Fast forward delayBlocks number of blocks so all of the inbound roots are considered verified.
     vm.roll(block.number + _rootManager.delayBlocks());
 
-    _rootManager.propagate(_domains, _connectors, _fees, _encodedData);
+    _rootManager.propagate(_connectors, _fees, _encodedData);
     assertEq(_rootManager.getPendingInboundRootsCount(), 0);
   }
 
@@ -259,6 +259,6 @@ contract RootManagerTest is ForgeHelper {
     // Delay blocks have not been surpassed: the given root should not be included, and this call should revert
     // because an empty propagate is useless.
     vm.expectRevert(bytes("no verified roots"));
-    _rootManager.propagate(_domains, _connectors, _fees, _encodedData);
+    _rootManager.propagate(_connectors, _fees, _encodedData);
   }
 }
