@@ -34,7 +34,7 @@ contract SwapAdminFacet is BaseConnextFacet {
   error SwapAdminFacet__initializeSwap_adminFeeExceedMax();
   error SwapAdminFacet__initializeSwap_failedInitLpTokenClone();
   error SwapAdminFacet__removeSwap_notInitialized();
-  error SwapAdminFacet__removeSwap_NonZeroBalance();
+  error SwapAdminFacet__removeSwap_nonZeroBalance();
 
   // ============ Properties ============
 
@@ -198,7 +198,7 @@ contract SwapAdminFacet is BaseConnextFacet {
 
     for (uint256 i; i < numPooledTokens; ) {
       if (s.swapStorages[_key].balances[i] > 0) {
-        revert SwapAdminFacet__removeSwap_NonZeroBalance();
+        revert SwapAdminFacet__removeSwap_nonZeroBalance();
       }
 
       delete s.tokenIndexes[_key][address(s.swapStorages[_key].pooledTokens[i])];

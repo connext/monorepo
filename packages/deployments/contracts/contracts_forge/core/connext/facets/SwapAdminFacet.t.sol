@@ -462,7 +462,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
   function test_SwapAdminFacet__removeSwap_failIfZeroBalance() public {
     vm.startPrank(_owner);
 
-    vm.expectRevert(SwapAdminFacet.SwapAdminFacet__removeSwap_NonZeroBalance.selector);
+    vm.expectRevert(SwapAdminFacet.SwapAdminFacet__removeSwap_nonZeroBalance.selector);
 
     this.removeSwap(_canonicalKey);
     vm.stopPrank();
