@@ -1544,7 +1544,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     s.routerBalances[_args.routers[0]][_local] += 10 ether;
 
-    vm.expectRevert("fails");
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_externalCallFailed.selector);
     this.execute(_args);
   }
 
