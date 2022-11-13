@@ -2,7 +2,7 @@ import { providers, BigNumber, constants, utils } from "ethers";
 
 import { ChainData, getChainData, getETHBalance, getTokenBalance, getTokenDecimals } from "..";
 
-import { getDomainFromChainId } from "./nomad";
+import { getDomainFromChainId } from "./domain";
 
 export const getOnchainBalance = async (
   assetId: string,

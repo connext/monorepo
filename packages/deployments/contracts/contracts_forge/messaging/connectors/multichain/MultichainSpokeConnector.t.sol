@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {MultichainSpokeConnector} from "../../../../contracts/messaging/connectors/multichain/MultichainSpokeConnector.sol";
 import {Multichain} from "../../../../contracts/messaging/interfaces/ambs/Multichain.sol";
 
-import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/MerkleTreeManager.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -27,55 +27,79 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     vm.mockCall(_amb, abi.encodeCall(Multichain.executor, ()), abi.encode(_executor));
 
     // Get the n+1 deployment address
-    _l1Connector = address(123123123123);
+    _l1Connector = payable(address(123123123123));
 
     _merkle = address(new MerkleTreeManager());
 
     // Deploy
     vm.prank(_owner);
-    _l2Connector = address(
-      new MultichainSpokeConnector(
-        _l2Domain,
-        _l1Domain,
-        _amb,
-        _rootManager,
-        _l1Connector,
-        _mirrorGas,
-        _processGas,
-        _reserveGas,
-        0, // uint256 _delayBlocks
-        _merkle,
-        address(1), // watcher manager
-        _chainIdMainnet
+    _l2Connector = payable(
+      address(
+        new MultichainSpokeConnector(
+          _l2Domain,
+          _l1Domain,
+          _amb,
+          _rootManager,
+          _l1Connector,
+          _processGas,
+          _reserveGas,
+          0, // uint256 _delayBlocks
+          _merkle,
+          address(1), // watcher manager
+          _chainIdMainnet,
+          _gasCap
+        )
       )
     );
+    assertEq(_owner, MultichainSpokeConnector(_l2Connector).owner());
   }
 
   // ============ sendMessage ============
   // Happy path L2
   function test_MultichainSpokeConnector_sendMessage_sendMessageAndEmitEvent() public {
     bytes memory _data = abi.encode(MultichainSpokeConnector(_l2Connector).outboundRoot());
+
+    // Mock the call to fees
+    vm.mockCall(_amb, abi.encodeCall(Multichain.calcSrcFees, ("", _chainIdMainnet, 32)), abi.encode(1));
+
     // Mock the call to anyCall
     vm.mockCall(
       _amb,
       abi.encodeCall(
         Multichain.anyCall,
         (
-          _amb,
+          address(_l1Connector),
           _data,
           address(0), // fallback address
           _chainIdMainnet, // chain id
-          0
-        ) // 0 = fee on destination
+          2
+        ) // 2 = fee on src
       ),
       abi.encode()
     );
 
-    // Check: call to multichain anyCall?
-    vm.expectCall(_amb, abi.encodeCall(Multichain.anyCall, (_amb, _data, address(0), _chainIdMainnet, 0)));
+    // Check: call to fees?
+    vm.expectCall(_amb, abi.encodeCall(Multichain.calcSrcFees, ("", _chainIdMainnet, 32)));
 
+    // Check: call to multichain anyCall?
+    vm.expectCall(
+      _amb,
+      1,
+      abi.encodeCall(
+        Multichain.anyCall,
+        (
+          address(_l1Connector),
+          _data,
+          address(0), // fallback address
+          _chainIdMainnet, // chain id
+          2
+        )
+      )
+    );
+
+    vm.deal(_rootManager, 1 ether);
     vm.prank(_rootManager);
-    MultichainSpokeConnector(_l2Connector).send();
+    MultichainSpokeConnector(_l2Connector).send{value: 1}(bytes(""));
   }
 
   // ============ processMessage ============

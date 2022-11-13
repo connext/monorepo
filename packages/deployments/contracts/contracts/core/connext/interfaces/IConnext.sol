@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -125,6 +125,8 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function forceUpdateSlippage(TransferInfo calldata _params, uint256 _slippage) external;
 
+  function forceReceiveLocal(TransferInfo calldata _params) external;
+
   function bumpTransfer(bytes32 _transferId) external payable;
 
   function setXAppConnectionManager(address _xAppConnectionManager) external;
@@ -172,11 +174,7 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function removeAssetWhitelist() external;
 
-  function renounced() external view returns (bool);
-
   function proposeNewOwner(address newlyProposed) external;
-
-  function renounceOwnership() external;
 
   function acceptProposedOwner() external;
 
@@ -216,13 +214,11 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function getRouterApprovalForPortal(address _router) external view returns (bool);
 
-  function setupRouter(
-    address router,
-    address owner,
-    address recipient
-  ) external;
+  function approveRouter(address router) external;
 
-  function removeRouter(address router) external;
+  function initializeRouter(address owner, address recipient) external;
+
+  function unapproveRouter(address router) external;
 
   function setMaxRoutersPerTransfer(uint256 _newMaxRouters) external;
 
