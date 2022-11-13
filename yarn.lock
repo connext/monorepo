@@ -840,7 +840,6 @@ __metadata:
     "@types/aws-lambda": ^8.10.108
     "@types/pg": ^8.6.5
     concurrently: 7.5.0
-    dd-trace: 3.6.0
     dotenv: 16.0.3
     eslint: 8.26.0
     ethers: 5.7.2
