@@ -448,7 +448,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     if (liquidity != 0) {
       IERC20(_destinationLocal).approve(address(_destinationConnext), liquidity * num);
     }
-    for (uint256 i; i < num; i++) {
+    for (uint256 i; i < num; ) {
       routers[i] = vm.addr(777 + i);
       (uint8 v, bytes32 r, bytes32 _s) = vm.sign(777 + i, toSign);
       signatures[i] = abi.encodePacked(r, _s, v);
@@ -461,6 +461,10 @@ contract ConnextTest is ForgeHelper, Deployer {
       // add liquidity for all routers
       if (liquidity != 0) {
         _destinationConnext.addRouterLiquidityFor(liquidity, _destinationLocal, routers[i]);
+      }
+
+      unchecked {
+        ++i;
       }
     }
 
@@ -514,8 +518,11 @@ contract ConnextTest is ForgeHelper, Deployer {
     address[] memory routers
   ) public returns (ExecuteBalances memory) {
     uint256[] memory routerBalances = new uint256[](routers.length);
-    for (uint256 i; i < routers.length; i++) {
+    for (uint256 i; i < routers.length; ) {
       routerBalances[i] = _destinationConnext.routerBalances(routers[i], local);
+      unchecked {
+        ++i;
+      }
     }
     return
       ExecuteBalances(

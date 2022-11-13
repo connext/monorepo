@@ -19,9 +19,13 @@ library Encoding {
     uint80 ASCII_0 = 0x30;
     // all over/underflows are impossible
     // this will ALWAYS produce 10 decimal characters
-    for (uint8 i; i < 10; i += 1) {
+    for (uint8 i; i < 10; ) {
       _encoded |= ((_num % 10) + ASCII_0) << (i * 8);
       _num = _num / 10;
+
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -33,21 +37,27 @@ library Encoding {
    * @return _secondHalf The bottom 16 bytes
    */
   function encodeHex(uint256 _bytes) internal pure returns (uint256 _firstHalf, uint256 _secondHalf) {
-    for (uint256 i = 31; i > 15; i -= 1) {
+    for (uint256 i = 31; i > 15; ) {
       uint8 _b = uint8(_bytes >> (i * 8));
       _firstHalf |= _byteHex(_b);
       if (i != 16) {
         _firstHalf <<= 16;
       }
+
+      unchecked {
+        --i;
+      }
     }
     // abusing underflow here =_=
     unchecked {
-      for (uint256 i = 15; i < 255; i -= 1) {
+      for (uint256 i = 15; i < 255; ) {
         uint8 _b = uint8(_bytes >> (i * 8));
         _secondHalf |= _byteHex(_b);
         if (i != 0) {
           _secondHalf <<= 16;
         }
+
+        --i;
       }
     }
   }

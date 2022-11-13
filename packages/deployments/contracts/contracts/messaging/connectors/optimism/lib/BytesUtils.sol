@@ -106,9 +106,13 @@ library BytesUtils {
     bytes memory nibbles = new bytes(_bytes.length * 2);
 
     uint256 len = _bytes.length;
-    for (uint256 i = 0; i < len; i++) {
+    for (uint256 i = 0; i < len; ) {
       nibbles[i * 2] = _bytes[i] >> 4;
       nibbles[i * 2 + 1] = bytes1(uint8(_bytes[i]) % 16);
+
+      unchecked {
+        ++i;
+      }
     }
 
     return nibbles;
@@ -118,8 +122,12 @@ library BytesUtils {
     bytes memory ret = new bytes(_bytes.length / 2);
 
     uint256 len = ret.length;
-    for (uint256 i = 0; i < len; i++) {
+    for (uint256 i = 0; i < len; ) {
       ret[i] = (_bytes[i * 2] << 4) | (_bytes[i * 2 + 1]);
+
+      unchecked {
+        ++i;
+      }
     }
 
     return ret;

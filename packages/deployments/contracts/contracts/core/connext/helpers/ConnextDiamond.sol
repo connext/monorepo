@@ -33,8 +33,12 @@ contract ConnextDiamond {
     LibDiamond.diamondCut(_diamondCut, address(0), "");
 
     uint256 len = _initializations.length;
-    for (uint256 i = 0; i < len; i++) {
+    for (uint256 i = 0; i < len; ) {
       LibDiamond.initializeDiamondCut(_initializations[i].initContract, _initializations[i].initData);
+
+      unchecked {
+        ++i;
+      }
     }
   }
 

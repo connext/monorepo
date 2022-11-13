@@ -113,7 +113,7 @@ library LibDiamond {
       require(time != 0 && time <= block.timestamp, "LibDiamond: delay not elapsed");
     } // Otherwise, this is the first instance of deployment and it can be set automatically
     uint256 len = _diamondCut.length;
-    for (uint256 facetIndex; facetIndex < len; facetIndex++) {
+    for (uint256 facetIndex; facetIndex < len; ) {
       IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;
       if (action == IDiamondCut.FacetCutAction.Add) {
         addFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);
@@ -123,6 +123,10 @@ library LibDiamond {
         removeFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);
       } else {
         revert("LibDiamondCut: Incorrect FacetCutAction");
+      }
+
+      unchecked {
+        ++facetIndex;
       }
     }
     emit DiamondCut(_diamondCut, _init, _calldata);
@@ -138,12 +142,17 @@ library LibDiamond {
     if (selectorPosition == 0) {
       addFacet(ds, _facetAddress);
     }
-    for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {
+    uint256 len = _functionSelectors.length;
+    for (uint256 selectorIndex; selectorIndex < len; ) {
       bytes4 selector = _functionSelectors[selectorIndex];
       address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;
       require(oldFacetAddress == address(0), "LibDiamondCut: Can't add function that already exists");
       addFunction(ds, selector, selectorPosition, _facetAddress);
       selectorPosition++;
+
+      unchecked {
+        ++selectorIndex;
+      }
     }
   }
 
@@ -157,13 +166,17 @@ library LibDiamond {
       addFacet(ds, _facetAddress);
     }
     uint256 len = _functionSelectors.length;
-    for (uint256 selectorIndex; selectorIndex < len; selectorIndex++) {
+    for (uint256 selectorIndex; selectorIndex < len; ) {
       bytes4 selector = _functionSelectors[selectorIndex];
       address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;
       require(oldFacetAddress != _facetAddress, "LibDiamondCut: Can't replace function with same function");
       removeFunction(ds, oldFacetAddress, selector);
       addFunction(ds, selector, selectorPosition, _facetAddress);
       selectorPosition++;
+
+      unchecked {
+        ++selectorIndex;
+      }
     }
   }
 
@@ -173,10 +186,14 @@ library LibDiamond {
     // if function does not exist then do nothing and return
     require(_facetAddress == address(0), "LibDiamondCut: Remove facet address must be address(0)");
     uint256 len = _functionSelectors.length;
-    for (uint256 selectorIndex; selectorIndex < len; selectorIndex++) {
+    for (uint256 selectorIndex; selectorIndex < len; ) {
       bytes4 selector = _functionSelectors[selectorIndex];
       address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;
       removeFunction(ds, oldFacetAddress, selector);
+
+      unchecked {
+        ++selectorIndex;
+      }
     }
   }
 
