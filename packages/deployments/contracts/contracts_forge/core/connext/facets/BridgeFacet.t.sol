@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -441,6 +441,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         assertEq(tokenIn.balanceOf(params.originSender), balances.callerAsset - amount);
         // The contract should have stored the asset in escrow.
         assertEq(tokenIn.balanceOf(address(this)), balances.contractAsset + amount);
+        // Custodied balance should have increased if sending in canonical
+        if (s.caps[utils_calculateCanonicalHash()] > 0) {
+          assertEq(s.custodied[_local], balances.contractAsset + amount);
+        }
       } else {
         // NOTE: Normally the adopted asset would be swapped into the local asset and then
         // the local asset would be burned. Because the swap increases the contracts balance
@@ -667,6 +671,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
             _inputs.usesPortals ? prevLiquidity[i] : prevLiquidity[i] - (_inputs.routerAmt / pathLen)
           );
         }
+      }
+
+      // if on canonical domain, should decrease
+      if (s.caps[utils_calculateCanonicalHash()] > 0) {
+        assertEq(s.custodied[_local], prevBalances.bridge - routerAmt);
       }
     }
 
@@ -950,7 +959,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // setup asset with local == adopted, on canonical domain
     utils_setupAsset(true, true);
 
-    s.caps[utils_calculateCanonicalHash()] = 1;
+    s.caps[utils_calculateCanonicalHash()] = _defaultAmount + 1;
+    s.custodied[_canonical] = 3;
 
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_capReached.selector);
   }
@@ -1196,7 +1206,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s._routerWhitelistRemoved = false;
 
     (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = false;
+    s.routerConfigs[args.routers[0]].approved = false;
 
     vm.expectRevert(BridgeFacet.BridgeFacet__execute_notSupportedRouter.selector);
     this.execute(args);
@@ -1379,7 +1389,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    s.routerConfigs[args.routers[0]].approved = true;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
@@ -1396,7 +1406,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    s.routerConfigs[args.routers[0]].approved = true;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
@@ -1413,7 +1423,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    s.routerConfigs[args.routers[0]].approved = true;
 
     helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt), true);
   }
@@ -1423,7 +1433,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    s.routerConfigs[args.routers[0]].approved = true;
 
     // set asset context (local != adopted)
     utils_setupAsset(false, false);
@@ -1436,7 +1446,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    s.routerConfigs[args.routers[0]].approved = true;
 
     // set asset context (local != adopted)
     utils_setupAsset(false, false);
@@ -1453,7 +1463,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_canonical] += 10 ether;
-    // s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    // s.routerConfigs[args.routers[0]].approved = true;
 
     helpers_executeAndAssert(transferId, args);
   }
@@ -1465,7 +1475,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = false;
+    s.routerConfigs[args.routers[0]].approved = false;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
@@ -1632,7 +1642,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    s.routerConfigs[args.routers[0]].approved = true;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
@@ -1653,7 +1663,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.routerBalances[args.routers[0]][_local] = 0;
 
     // set approval
-    s.routerPermissionInfo.approvedForPortalRouters[args.routers[0]] = true;
+    s.routerConfigs[args.routers[0]].portalApproved = true;
 
     helpers_executeAndAssert(
       transferId,
@@ -1682,6 +1692,24 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.slippage[transferId] = 5000;
 
     helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt), true);
+  }
+
+  // uses force local overrides
+  // uses slippage overrides
+  function test_BridgeFacet__execute_respectsReceiveLocalOverrides() public {
+    // set asset context (local != adopted)
+    s.domain = _destinationDomain;
+    utils_setupAsset(false, false);
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    // set liquidity
+    s.routerBalances[args.routers[0]][_local] = 10 ether;
+
+    // set receive local override
+    s.receiveLocalOverride[transferId] = true;
+
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt), false);
   }
 
   // ============ bumpTransfer ============
@@ -1719,5 +1747,34 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     vm.prank(args.params.delegate);
     this.forceUpdateSlippage(args.params, 5_000);
+    assertEq(s.slippage[transferId], 5_000);
+  }
+
+  // ============ forceReceiveLocal ============
+  function test_BridgeFacet__forceReceiveLocal_failsIfNotDelegate() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    vm.expectRevert(BridgeFacet.BridgeFacet__onlyDelegate_notDelegate.selector);
+    this.forceReceiveLocal(args.params);
+  }
+
+  function test_BridgeFacet__forceReceiveLocal_failsIfNotDestination() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    s.domain = args.params.originDomain;
+    vm.expectRevert(BridgeFacet.BridgeFacet__forceReceiveLocal_notDestination.selector);
+    vm.prank(args.params.delegate);
+    this.forceReceiveLocal(args.params);
+  }
+
+  function test_BridgeFacet__forceReceiveLocal_works() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    s.domain = args.params.destinationDomain;
+
+    vm.expectEmit(true, true, true, true);
+    emit ForceReceiveLocal(transferId);
+
+    vm.prank(args.params.delegate);
+    this.forceReceiveLocal(args.params);
+
+    assertTrue(s.receiveLocalOverride[transferId]);
   }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {QueueLib} from "../../../contracts/messaging/libraries/Queue.sol";
 
@@ -26,6 +26,9 @@ contract QueueLibTest is ForgeHelper {
 
   function setUp() public {
     queue.initialize();
+    // Env: roll ahead to an arbitrary block so we don't start at block zero.
+    // For dequeue, this will make the delay number we pass in acceptable.
+    vm.roll(123456789);
   }
 
   // ============ Utils ============
@@ -53,10 +56,7 @@ contract QueueLibTest is ForgeHelper {
   }
 
   // ============ QueueLib.enqueue ============
-  function test_enqueueWorks() public {
-    // Env: roll ahead to an arbitrary block so we don't start at block zero.
-    vm.roll(12345678);
-
+  function test_Queue__enqueueWorks() public {
     // 20 entries spaced 7 blocks apart.
     uint256 testEntryCount = 20;
     Entry[] memory entries = utils_generateEntries(testEntryCount, 7);
@@ -82,10 +82,10 @@ contract QueueLibTest is ForgeHelper {
   }
 
   // ============ QueueLib.dequeueVerified ============
-  function test_dequeueVerifiedWorks() public {
+  function test_Queue__dequeueVerifiedWorks() public {
     // 10 entries spaced 5 blocks apart.
     uint256 testEntryCount = 10;
-    Entry[] memory entries = utils_generateEntries(10, 5);
+    Entry[] memory entries = utils_generateEntries(testEntryCount, 5);
     for (uint256 i; i < testEntryCount; i++) {
       Entry memory entry = entries[i];
       utils_enqueueEntry(entry);
@@ -93,7 +93,7 @@ contract QueueLibTest is ForgeHelper {
 
     // If the delayBlocks is 25, we should get half of the entries back as
     // having been verified.
-    bytes32[] memory verified = queue.dequeueVerified(25);
+    bytes32[] memory verified = queue.dequeueVerified(25, 1000);
     assertEq(verified.length, 5);
 
     for (uint256 i; i < verified.length; i++) {
@@ -101,20 +101,41 @@ contract QueueLibTest is ForgeHelper {
     }
   }
 
-  function test_dequeueVerifiedReturnsEmptyArrayIfNoneVerified() public {
+  function test_Queue__dequeueVerifiedReturnsEmptyArrayIfNoneVerified() public {
     // 10 entries spaced 5 blocks apart.
     uint256 testEntryCount = 10;
-    Entry[] memory entries = utils_generateEntries(10, 5);
+    Entry[] memory entries = utils_generateEntries(testEntryCount, 5);
     for (uint256 i; i < testEntryCount; i++) {
       Entry memory entry = entries[i];
       utils_enqueueEntry(entry);
     }
-    bytes32[] memory verified = queue.dequeueVerified(1234567);
+    bytes32[] memory verified = queue.dequeueVerified(1234567, 99999999999);
     assertEq(verified.length, 0);
   }
 
-  function test_dequeueVerifiedFailsIfQueueIsEmpty() public {
+  function test_Queue__dequeueVerifiedFailsIfQueueIsEmpty() public {
     vm.expectRevert("queue empty");
-    queue.dequeueVerified(123);
+    queue.dequeueVerified(123, 99999999999);
+  }
+
+  function test_Queue__dequeueVerifiedWithMaximumWorks() public {
+    // 100 entries spaced 1 block apart.
+    uint256 testEntryCount = 100;
+    Entry[] memory entries = utils_generateEntries(testEntryCount, 1);
+    for (uint256 i; i < testEntryCount; i++) {
+      Entry memory entry = entries[i];
+      utils_enqueueEntry(entry);
+    }
+
+    // Delay blocks will be 10 below. Let's roll ahead 20 blocks and we can be sure that
+    // normally, the whole queue would be verified.
+    vm.roll(block.number + 20);
+    // If the max is 50, we should get ONLY 50 back. It should stop dequeuing at 50.
+    bytes32[] memory verified = queue.dequeueVerified(10, 50);
+    assertEq(verified.length, 50);
+
+    for (uint256 i; i < verified.length; i++) {
+      assertEq(verified[i], entries[i].message);
+    }
   }
 }

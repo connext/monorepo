@@ -112,18 +112,18 @@ OptimismL1Connector deployed to 0x23e84570f7b28aD0d5E5545d398009194a8734f3
 deployer:  0x627306090abaB3A6e1400e9345bC60c78a8BEf57
 using connector: MainnetL1Connector
 deploying "UpgradeBeaconController" (tx: 0x6b036447309421375f67120180a48272d7f6732f1b31d71fa0e137ff831c172c)...: deployed at 0x75076e4fbba61f65efB41D64e45cFF340b1e518A with 307506 gas
-Deploying BridgeToken with nomad upgradeable scheme
+Deploying BridgeToken with upgradeable scheme
 deploying "BridgeToken" (tx: 0x133270abdf6962a6829339e6f87e2b37f8a0bcb7227265153cd034424b79dc31)...: deployed at 0x8cD918cee8f93989E334bc0107BB33A9586D05c0 with 1411024 gas
 deployed implementation: 0x8cD918cee8f93989E334bc0107BB33A9586D05c0
 deploying "BridgeTokenUpgradeBeacon" (tx: 0x851a8131befed763e118286c80f0d799ffa05e286685bcbfa97c9543cccb6df8)...: deployed at 0x488e9658bae7d527FC3A9303074e5AE05934C772 with 168935 gas
 deploying "BridgeTokenUpgradeBeaconProxy" (tx: 0xceb87476d430fe9be3f3c9299c982aa91918ca3017e69305b5d51f8daeb0e866)...: deployed at 0x058f7CeFf4a998E5ce3CE7a8e913e32e9fA52601 with 229159 gas
-Deploying TokenRegistry with nomad upgradeable scheme
+Deploying TokenRegistry with upgradeable scheme
 deploying "TokenRegistry" (tx: 0x166bc7e2bc6e57e88532e25ac922454066fb3580e003bcd70762dc17dbe5e68a)...: deployed at 0x059e17cEb15EF8470B7184B858D356317518aAB3 with 1580971 gas
 deployed implementation: 0x059e17cEb15EF8470B7184B858D356317518aAB3
 deploying "TokenRegistryUpgradeBeacon" (tx: 0xa29433552c0546026ecfa3bcf5d1ef57661fa0659f87bf087fa2807c352429aa)...: deployed at 0xD95B1DbEc167C6cf547d018dDEcF41a4cb2e2f73 with 168935 gas
 deploying "TokenRegistryUpgradeBeaconProxy" (tx: 0x1b4c0e3b633a7749cdc94bc0288782a7ab0a82bbbb4bdeeab61e1603a50536ce)...: deployed at 0x2445BC665aEfca58D2137BAf26A62Edb38cBC274 with 257793 gas
 Deploying PromiseRouter
-Deploying PromiseRouter with nomad upgradeable scheme
+Deploying PromiseRouter with upgradeable scheme
 deploying "PromiseRouter" (tx: 0xe6f968d78b9ab452d23ee058b309981729ca803a1e826bceebdca9d2fd6100c6)...: deployed at 0xe134EeE40A4A313a413E9B1DA94Bb5D01B79F433 with 2156978 gas
 deployed implementation: 0xe134EeE40A4A313a413E9B1DA94Bb5D01B79F433
 deploying "PromiseRouterUpgradeBeacon" (tx: 0x1e4ee5f49b5d24aee11490387ac8fe26e999b6fd2069761e1f81c233defbbff6)...: deployed at 0x9eFec315E368e8812025B85b399a69513Cd0e716 with 168935 gas
@@ -134,7 +134,7 @@ whitelisting router on connector: 0xCB152A2Aa90055a0D255cA7dbaeb85eDFdc86096
 whitelist tx: 0x487630a1500e13f2bb883cc3e5e07c0415270b9e10284074222936523ea5646f
 whitelist tx mined
 Deploying RelayerFeeRouter
-Deploying RelayerFeeRouter with nomad upgradeable scheme
+Deploying RelayerFeeRouter with upgradeable scheme
 deploying "RelayerFeeRouter" (tx: 0xd49394c408edcc5dcf64ba9729753419f16d636b17a6cd4dfb5106db9981f64c)...: deployed at 0xA509542aDa3196a38bD6fD03b253547EE09220C4 with 1528032 gas
 deployed implementation: 0xA509542aDa3196a38bD6fD03b253547EE09220C4
 deploying "RelayerFeeRouterUpgradeBeacon" (tx: 0x90a293784141e3530b8fd6a488b463d4d1ecc9e7759b0e6deeec38ccf241a659)...: deployed at 0xA4516018d6B0313A03a69130356f23a168C0AB10 with 168935 gas
@@ -145,7 +145,7 @@ whitelisting router on connector: 0xCB152A2Aa90055a0D255cA7dbaeb85eDFdc86096
 whitelist tx: 0xbcc9a4425736a6e38524d4cd6526f5acbbf0eb5067232c1fa9fb996ec25e4605
 whitelist tx mined
 Deploying BridgeRouter
-Deploying BridgeRouter with nomad upgradeable scheme
+Deploying BridgeRouter with upgradeable scheme
 deploying "BridgeRouter" (tx: 0x7b4f5eea907d4fb91e6511bd8003108f9f155e4d4d08b5ffab21f66e6101dac2)...: deployed at 0xABa7902442c5739c6f0c182691d48D63d06A212E with 2824942 gas
 deployed implementation: 0xABa7902442c5739c6f0c182691d48D63d06A212E
 deploying "BridgeRouterUpgradeBeacon" (tx: 0xb69cd71dd00c04048a933b825c3488d893ec44ae54fbb14e3ac2696a866b6290)...: deployed at 0x8C7EF141E529C5263E2a45581d1c8a39F64Dc5dF with 168935 gas
@@ -168,7 +168,7 @@ executing LPToken.initialize (tx: 0xf9c0cc0893d08df0cafe80f7c2c2ae7704912b9ebed3
 Deploying connext diamond...
 reusing "AssetFacet" at 0x23Ab702Ed46791D238A9d11Cfe368E8F0a541234
 reusing "BridgeFacet" at 0x2F39B716d18474eA218Ad7f1d4ddE2103bB2c99C
-reusing "NomadFacet" at 0xc027Fd6ac29F04Ef34EB25D0E7f2deADf88c96D9
+reusing "Facet" at 0xc027Fd6ac29F04Ef34EB25D0E7f2deADf88c96D9
 reusing "ProposedOwnableFacet" at 0x2B7558c3aDA198535fd938BCa496EC83987B4F74
 reusing "RelayerFacet" at 0x16Ba9A171262A08cdfF3D5C99F5ABfbf6AAF0962
 reusing "RoutersFacet" at 0x3c1ec29fD6d7062FF334E9A94F45fba340C21434
@@ -241,18 +241,18 @@ OptimismL2Connector deployed to 0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca
 deployer:  0x627306090abaB3A6e1400e9345bC60c78a8BEf57
 using connector: OptimismL2Connector
 deploying "UpgradeBeaconController" (tx: 0x66e2641491c936835ef5d619a51b219287da3febbcb8393c51c1e9be405775ad)...: deployed at 0x4a5cd58b24e3BF04360B06bFEaF45A39aA8035b6 with 307506 gas
-Deploying BridgeToken with nomad upgradeable scheme
+Deploying BridgeToken with  upgradeable scheme
 deploying "BridgeToken" (tx: 0x30381e0752779841780841292163a3775aff467d2203571703a7a8a756dd0b3b)...: deployed at 0x4EeE4559BD589b1cdFc419f0EEd2Ff9cBD47F439 with 1411024 gas
 deployed implementation: 0x4EeE4559BD589b1cdFc419f0EEd2Ff9cBD47F439
 deploying "BridgeTokenUpgradeBeacon" (tx: 0x36f270b61f668c716d430eb7cfcda8b73f572870e2da9b654a188c0d59b3a619)...: deployed at 0xCB152A2Aa90055a0D255cA7dbaeb85eDFdc86096 with 168935 gas
 deploying "BridgeTokenUpgradeBeaconProxy" (tx: 0xe8bf7c682c4314b8fec37a0c08bd12c0eac5d2aea636068f1e58b5b9ebcbf849)...: deployed at 0x23e84570f7b28aD0d5E5545d398009194a8734f3 with 229147 gas
-Deploying TokenRegistry with nomad upgradeable scheme
+Deploying TokenRegistry with  upgradeable scheme
 deploying "TokenRegistry" (tx: 0x509a53829697bf2dfa2f0b666c2be44b8da6d3438dcbdccb5dc49ef8f893e29f)...: deployed at 0x75076e4fbba61f65efB41D64e45cFF340b1e518A with 1580971 gas
 deployed implementation: 0x75076e4fbba61f65efB41D64e45cFF340b1e518A
 deploying "TokenRegistryUpgradeBeacon" (tx: 0x56ef1ac6d3eb6077d3460b1d4df551c81f4985245a32fc11896ac7842b7e9426)...: deployed at 0x8cD918cee8f93989E334bc0107BB33A9586D05c0 with 168935 gas
 deploying "TokenRegistryUpgradeBeaconProxy" (tx: 0x234a33aa7ed451b8d27b8a688a407dd3a858ece828a991771a981c0a1abc12c1)...: deployed at 0x488e9658bae7d527FC3A9303074e5AE05934C772 with 257805 gas
 Deploying PromiseRouter
-Deploying PromiseRouter with nomad upgradeable scheme
+Deploying PromiseRouter with  upgradeable scheme
 deploying "PromiseRouter" (tx: 0xe460ace29fd581b5bab16406b2ee4930d0895c0070ce5b042f3874ff4f1d60a0)...: deployed at 0x058f7CeFf4a998E5ce3CE7a8e913e32e9fA52601 with 2156978 gas
 deployed implementation: 0x058f7CeFf4a998E5ce3CE7a8e913e32e9fA52601
 deploying "PromiseRouterUpgradeBeacon" (tx: 0x6f2a8962a71b7164453e34ed32c35f0c700a3bb287d92ff51b0a635cfe1d2e10)...: deployed at 0x059e17cEb15EF8470B7184B858D356317518aAB3 with 168935 gas
@@ -263,7 +263,7 @@ whitelisting router on connector: 0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca
 whitelist tx: 0x97601ff844cd37217c42e7bda3cb361c8edb0d42cd1257d90255015af98dc768
 whitelist tx mined
 Deploying RelayerFeeRouter
-Deploying RelayerFeeRouter with nomad upgradeable scheme
+Deploying RelayerFeeRouter with  upgradeable scheme
 deploying "RelayerFeeRouter" (tx: 0xd7fae2e280210cdafff14dc962c3890307fa9b33a14a8ce57b1f738d27d91679)...: deployed at 0xe134EeE40A4A313a413E9B1DA94Bb5D01B79F433 with 1528032 gas
 deployed implementation: 0xe134EeE40A4A313a413E9B1DA94Bb5D01B79F433
 deploying "RelayerFeeRouterUpgradeBeacon" (tx: 0x36d146966384d1857862d076eecc6911a4f4d2d9a925747bf13f99f3caaee7ca)...: deployed at 0x9eFec315E368e8812025B85b399a69513Cd0e716 with 168935 gas
@@ -274,7 +274,7 @@ whitelisting router on connector: 0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca
 whitelist tx: 0xc3d45fc5a7a12d1c628399f5ceb3b21a62e04f9625d8dd49c58393e68bf70be0
 whitelist tx mined
 Deploying BridgeRouter
-Deploying BridgeRouter with nomad upgradeable scheme
+Deploying BridgeRouter with  upgradeable scheme
 deploying "BridgeRouter" (tx: 0x79d5aac8e7e07a8d8fa1ec9f804cdddfd505f9a5c2d36a92d26c393cc8880a33)...: deployed at 0xA509542aDa3196a38bD6fD03b253547EE09220C4 with 2824942 gas
 deployed implementation: 0xA509542aDa3196a38bD6fD03b253547EE09220C4
 deploying "BridgeRouterUpgradeBeacon" (tx: 0xeb9455a2e0386e1b42539ed95076c51a8658c74381f86c554aaa831aa436f18d)...: deployed at 0xA4516018d6B0313A03a69130356f23a168C0AB10 with 168935 gas
@@ -297,7 +297,7 @@ executing LPToken.initialize (tx: 0xe292f1b2a8e65798674783092a35e6b6594955e02e7d
 Deploying connext diamond...
 reusing "AssetFacet" at 0x23Ab702Ed46791D238A9d11Cfe368E8F0a541234
 reusing "BridgeFacet" at 0x2F39B716d18474eA218Ad7f1d4ddE2103bB2c99C
-reusing "NomadFacet" at 0xc027Fd6ac29F04Ef34EB25D0E7f2deADf88c96D9
+reusing "Facet" at 0xc027Fd6ac29F04Ef34EB25D0E7f2deADf88c96D9
 reusing "ProposedOwnableFacet" at 0x2B7558c3aDA198535fd938BCa496EC83987B4F74
 reusing "RelayerFacet" at 0x16Ba9A171262A08cdfF3D5C99F5ABfbf6AAF0962
 reusing "RoutersFacet" at 0x3c1ec29fD6d7062FF334E9A94F45fba340C21434

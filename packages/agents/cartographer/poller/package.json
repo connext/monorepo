@@ -1,6 +1,6 @@
 {
   "name": "@connext/cartographer-poller",
-  "version": "0.2.1-beta.0",
+  "version": "0.2.1-beta.2",
   "description": "",
   "types": "dist/index.d.ts",
   "files": [
@@ -15,7 +15,7 @@
     "start:roots": "node dist/entryRoots.js",
     "docker:start:postgrest": "docker run --name cartographer-postgrest --rm -p 3000:3000 -e PGRST_DB_URI=postgres://reader:3eadooor@host.docker.internal:5432/connext -e PGRST_DB_SCHEMA=public -e PGRST_DB_ANON_ROLE=query postgrest/postgrest",
     "lint": "eslint ./src --ext .ts --env node",
-    "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
+    "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
@@ -29,28 +29,28 @@
     "@connext/nxtp-adapters-database": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "0.24.39",
-    "dd-trace": "3.2.0",
-    "dotenv": "16.0.2",
-    "ethers": "5.7.0",
+    "@sinclair/typebox": "0.25.2",
+    "dd-trace": "3.6.0",
+    "dotenv": "16.0.3",
+    "ethers": "5.7.2",
     "interval-promise": "1.4.0",
     "pg": "8.8.0",
-    "zapatos": "6.0.1"
+    "zapatos": "6.1.1"
   },
   "devDependencies": {
     "@types/pg": "8.6.5",
-    "concurrently": "7.4.0",
-    "eslint": "8.23.0",
-    "nodemon": "2.0.19",
+    "concurrently": "7.5.0",
+    "eslint": "8.26.0",
+    "nodemon": "2.0.20",
     "nyc": "15.1.0",
-    "pino-pretty": "9.1.0",
+    "pino-pretty": "9.1.1",
     "rimraf": "3.0.2",
     "sinclair": "0.2.0",
-    "sinon": "14.0.0",
+    "sinon": "14.0.1",
     "ts-mocha": "10.0.0",
     "ts-node": "10.9.1",
     "tslib": "2.4.0",
-    "typescript": "4.8.3"
+    "typescript": "4.8.4"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "stableVersion": "0.2.0-alpha.0"

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IOutbox as ArbitrumL1_Outbox} from "@openzeppelin/contracts/vendor/arbitrum/IOutbox.sol";
 import {IBridge as ArbitrumL1_Bridge} from "@openzeppelin/contracts/vendor/arbitrum/IBridge.sol";
@@ -7,7 +7,7 @@ import {IArbSys as ArbitrumL2_Bridge} from "@openzeppelin/contracts/vendor/arbit
 import "@openzeppelin/contracts/crosschain/errors.sol";
 
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
-import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/MerkleTreeManager.sol";
 
 import {ArbitrumSpokeConnector} from "../../../../contracts/messaging/connectors/arbitrum/ArbitrumSpokeConnector.sol";
 
@@ -19,7 +19,7 @@ import "../../../utils/Mock.sol";
 
 contract ArbitrumSpokeConnectorTest is ConnectorHelper {
   // ============ Events ============
-  event DefaultGasPriceUpdated(uint256 previous, uint256 current);
+  event FundsWithdrawn(address indexed to, uint256 amount);
 
   // ============ Storage ============
   uint256 _defaultGasPrice = 10 gwei;
@@ -27,23 +27,24 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
   // ============ Test set up ============
   function setUp() public {
     // deploy
-    _l1Connector = address(123321123);
+    _l1Connector = payable(address(123321123));
 
     _merkle = address(new MerkleTreeManager());
 
-    _l2Connector = address(
-      new ArbitrumSpokeConnector(
-        _l2Domain,
-        _l1Domain,
-        _amb,
-        _rootManager,
-        _l1Connector,
-        _mirrorGas,
-        _processGas,
-        _reserveGas,
-        0, // uint256 _delayBlocks
-        _merkle,
-        address(1) // watcher manager
+    _l2Connector = payable(
+      address(
+        new ArbitrumSpokeConnector(
+          _l2Domain,
+          _l1Domain,
+          _amb,
+          _rootManager,
+          _l1Connector,
+          _processGas,
+          _reserveGas,
+          0, // uint256 _delayBlocks
+          _merkle,
+          address(1) // watcher manager
+        )
       )
     );
   }
@@ -66,19 +67,41 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     );
   }
 
+  // ============ ArbitrumSpokeConnector.withdrawFunds ============
+  function test_ArbitrumSpokeConnector__withdrawFunds_shouldWork() public {
+    uint256 amount = 10 ether;
+    address to = address(32153024222355546);
+
+    // fund connector
+    _l2Connector.call{value: amount}("");
+    assertEq(_l2Connector.balance, amount);
+
+    // expect event
+    vm.expectEmit(true, true, true, true);
+    emit FundsWithdrawn(to, amount);
+
+    // withdraw funds
+    vm.prank(ArbitrumSpokeConnector(payable(_l2Connector)).owner());
+    ArbitrumSpokeConnector(payable(_l2Connector)).withdrawFunds(to);
+
+    // assert balance changes
+    assertEq(to.balance, amount);
+    assertEq(_l2Connector.balance, 0);
+  }
+
   // ============ ArbitrumSpokeConnector.verifySender ============
   function test_ArbitrumSpokeConnector__verifySender_shouldWorkIfTrue() public {
     address expected = address(234);
     utils_setSpokeConnectorVerifyMocks(expected, true);
 
-    assertTrue(ArbitrumSpokeConnector(_l2Connector).verifySender(expected));
+    assertTrue(ArbitrumSpokeConnector(payable(_l2Connector)).verifySender(expected));
   }
 
   function test_ArbitrumSpokeConnector__verifySender_shouldWorkIfFalse() public {
     address expected = address(234);
     utils_setSpokeConnectorVerifyMocks(address(122), true);
 
-    assertEq(ArbitrumSpokeConnector(_l2Connector).verifySender(expected), false);
+    assertEq(ArbitrumSpokeConnector(payable(_l2Connector)).verifySender(expected), false);
   }
 
   function test_ArbitrumSpokeConnector__verifySender_shouldFailIfCallerNotAmb() public {
@@ -86,7 +109,7 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     utils_setSpokeConnectorVerifyMocks(expected, false);
 
     vm.expectRevert(NotCrossChainCall.selector);
-    assertEq(ArbitrumSpokeConnector(_l2Connector).verifySender(expected), false);
+    assertEq(ArbitrumSpokeConnector(payable(_l2Connector)).verifySender(expected), false);
   }
 
   // ============ ArbitrumSpokeConnector.sendMessage ============
@@ -95,15 +118,15 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     vm.mockCall(
       _amb,
       abi.encodeWithSelector(ArbitrumL2Amb.sendTxToL1.selector),
-      abi.encode(ArbitrumSpokeConnector(_l2Connector).outboundRoot())
+      abi.encode(ArbitrumSpokeConnector(payable(_l2Connector)).outboundRoot())
     );
 
     // data
-    bytes memory _data = abi.encode(ArbitrumSpokeConnector(_l2Connector).outboundRoot());
+    bytes memory _data = abi.encode(ArbitrumSpokeConnector(payable(_l2Connector)).outboundRoot());
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, bytes(""), _rootManager);
 
     // should call send contract transaction
     vm.expectCall(
@@ -116,7 +139,7 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     );
 
     vm.prank(_rootManager);
-    ArbitrumSpokeConnector(_l2Connector).send();
+    ArbitrumSpokeConnector(payable(_l2Connector)).send(bytes(""));
   }
 
   // ============ ArbitrumSpokeConnector.processMessage ============
@@ -132,10 +155,10 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
 
     // make call
     vm.prank(_amb);
-    ArbitrumSpokeConnector(_l2Connector).processMessage(_data);
+    ArbitrumSpokeConnector(payable(_l2Connector)).processMessage(_data);
 
     // Check: root is marked as pending
-    assertEq(ArbitrumSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
+    assertEq(ArbitrumSpokeConnector(payable(_l2Connector)).pendingAggregateRoots(bytes32(_data)), block.number);
   }
 
   function test_ArbitrumSpokeConnector__processMessage_works_fuzz(bytes32 data) public {
@@ -151,10 +174,10 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
 
     // make call
     vm.prank(_amb);
-    ArbitrumSpokeConnector(_l2Connector).processMessage(_data);
+    ArbitrumSpokeConnector(payable(_l2Connector)).processMessage(_data);
 
     // Check: root is marked as pending
-    assertEq(ArbitrumSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
+    assertEq(ArbitrumSpokeConnector(payable(_l2Connector)).pendingAggregateRoots(bytes32(_data)), block.number);
   }
 
   function test_ArbitrumSpokeConnector__processMessage_failsIfNotCrosschain() public {
@@ -163,7 +186,7 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     // call does not originate from amb
     vm.expectRevert(bytes("!AMB"));
     // make call
-    ArbitrumSpokeConnector(_l2Connector).processMessage(abi.encode(bytes32("test")));
+    ArbitrumSpokeConnector(payable(_l2Connector)).processMessage(abi.encode(bytes32("test")));
   }
 
   function test_ArbitrumL2Connectoclearr__processMessage_failsIfNotMirrorConnector() public {
@@ -174,7 +197,7 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     vm.expectRevert(bytes("!mirrorConnector"));
     // make call
     vm.prank(_amb);
-    ArbitrumSpokeConnector(_l2Connector).processMessage(abi.encode(bytes32("test")));
+    ArbitrumSpokeConnector(payable(_l2Connector)).processMessage(abi.encode(bytes32("test")));
   }
 
   function test_ArbitrumSpokeConnector__processMessage_failsIfNot32Bytes() public {
@@ -188,6 +211,6 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
 
     // make call
     vm.prank(_amb);
-    ArbitrumSpokeConnector(_l2Connector).processMessage(_data);
+    ArbitrumSpokeConnector(payable(_l2Connector)).processMessage(_data);
   }
 }

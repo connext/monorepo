@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
 
@@ -123,7 +123,7 @@ contract FacetHelper is ForgeHelper {
     // Setup the storage variables for adopted
     s.adoptedToCanonical[_adopted].domain = _canonicalDomain;
     s.adoptedToCanonical[_adopted].id = _canonicalId;
-    s.adoptedToLocalPools[_canonicalKey] = IStableSwap(_stableSwap);
+    s.adoptedToLocalExternalPools[_canonicalKey] = IStableSwap(_stableSwap);
     s.canonicalToAdopted[_canonicalKey] = _adopted;
 
     // Add to whitelist

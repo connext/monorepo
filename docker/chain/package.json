@@ -10,6 +10,6 @@
   "author": "Rahul Sethuram",
   "license": "ISC",
   "dependencies": {
-    "hardhat": "^2.9.7"
+    "hardhat": "2.9.7"
   }
 }

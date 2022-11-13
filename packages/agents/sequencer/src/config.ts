@@ -2,6 +2,7 @@ import * as fs from "fs";
 
 import { ajv, ChainData } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
+import { config as dotEnvConfig } from "dotenv";
 
 // @ts-ignore
 import { version } from "../package.json";
@@ -10,6 +11,8 @@ import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
 const DEFAULT_AUCTION_WAIT_TIME = 30_000;
 const DEFAULT_AUCTION_ROUND_DEPTH = 3;
+
+dotEnvConfig();
 
 export const getEnvConfig = (
   chainData: Map<string, ChainData>,
@@ -87,8 +90,11 @@ export const getEnvConfig = (
       : configJson.messageQueue
       ? configJson.messageQueue
       : configFile.messageQueue,
-    relayerUrl: process.env.SEQ_RELAYER_URL || configJson.relayerUrl || configFile.relayerUrl,
-    gelatoApiKey: process.env.NXTP_GELATO_API_KEY || configJson.gelatoApiKey || configFile.gelatoApiKey || "xxx",
+    relayers: process.env.NXTP_RELAYERS
+      ? JSON.parse(process.env.NXTP_RELAYERS)
+      : configJson.relayers
+      ? configJson.relayers
+      : configFile.relayers,
   };
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
