@@ -10,7 +10,10 @@ FROM node as build
 RUN yum update -y 
 RUN yum install -y git curl
 
-RUN npm install --global yarn@1.22.5 && yarn set version berry
+RUN curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 && \
+        chmod +x /usr/local/bin/dbmate
+
+RUN npm install --global yarn@1.22.5 
 
 ENV HOME=/tmp/build \
     PATH=/tmp/build/node_modules/.bin:./node_modules/.bin:${PATH}

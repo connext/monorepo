@@ -8,7 +8,7 @@ import {
   retrieveProcessedRootMessages,
   retrieveSentRootMessages,
   updateMessages,
-} from "../../../src/lib/operations/messages";
+} from "../../../src/lib/operations";
 
 describe("Message operations", () => {
   describe("#retrieveOriginMessages", () => {

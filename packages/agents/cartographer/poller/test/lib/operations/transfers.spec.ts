@@ -3,7 +3,7 @@ import { expect } from "@connext/nxtp-utils";
 
 import { mockDestinationSubgraphResponse, mockOriginSubgraphResponse } from "../../mock";
 import { mockContext, mochaHooks } from "../../globalTestHook";
-import { updateTransfers } from "../../../src/lib/operations/transfers";
+import { updateTransfers } from "../../../src/lib/operations";
 
 describe("Transfers operations", () => {
   describe("#updateTransfers", () => {

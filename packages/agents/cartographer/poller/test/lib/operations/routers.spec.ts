@@ -3,7 +3,7 @@ import { expect } from "@connext/nxtp-utils";
 
 import { mockRouterResponse } from "../../mock";
 import { mockContext } from "../../globalTestHook";
-import { updateRouters } from "../../../src/lib/operations/routers";
+import { updateRouters } from "../../../src/lib/operations";
 
 describe("Routers operations", () => {
   describe("#updateRouters", () => {

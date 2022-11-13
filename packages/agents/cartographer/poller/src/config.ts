@@ -10,6 +10,12 @@ const DEFAULT_POLL_INTERVAL = 15_000;
 dotenvConfig();
 
 export const TChains = Type.Record(Type.String(), Type.Object({}));
+export const TService = Type.Union([
+  Type.Literal("roots"),
+  Type.Literal("transfers"),
+  Type.Literal("routers"),
+  Type.Literal("messages"),
+]);
 
 export const Cartographer = Type.Object({
   pollInterval: Type.Integer({ minimum: 1000 }),
@@ -18,6 +24,7 @@ export const Cartographer = Type.Object({
   subgraphPrefix: Type.Optional(Type.String()),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   chains: TChains,
+  service: TService,
   healthUrls: Type.Partial(
     Type.Object({
       messages: Type.String({ format: "uri" }),
@@ -69,6 +76,7 @@ export const getEnvConfig = (): CartographerConfig => {
       configFile.logLevel ||
       process.env.CARTOGRAPHER_LOG_LEVEL ||
       "info",
+    service: process.env.CARTOGRAPHER_SERVICE || configJson.service || configFile.service || "messages",
     database: { url: process.env.DATABASE_URL || configJson.databaseUrl || configFile.databaseUrl },
     subgraphPrefix: process.env.CARTOGRAPHER_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     environment:

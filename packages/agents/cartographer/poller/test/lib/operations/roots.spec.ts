@@ -8,7 +8,7 @@ import {
   mockPropagatedRootSubgraphResponse,
 } from "../../mock";
 import { mockContext } from "../../globalTestHook";
-import { updateAggregatedRoots, updatePropagatedRoots } from "../../../src/lib/operations/roots";
+import { updateAggregatedRoots, updatePropagatedRoots } from "../../../src/lib/operations";
 
 describe("Roots operations", () => {
   describe("#updateAggregatedRoots", () => {
