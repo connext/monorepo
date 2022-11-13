@@ -36,7 +36,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   event ConnectorRemoved(uint32 domain, address connector, uint32[] domains, address[] connectors, address caller);
 
-  event PropagateFailed(string message);
+  event PropagateFailed(uint32 domain, address connector);
 
   // ============ Properties ============
 
@@ -167,7 +167,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
     for (uint32 i; i < _numDomains; ) {
       try IHubConnector(_connectors[i]).sendMessage(abi.encodePacked(_aggregateRoot)) {} catch {
-        emit PropagateFailed("Failed to send message to domain");
+        emit PropagateFailed(_domains[i], _connectors[i]);
       }
       unchecked {
         ++i;

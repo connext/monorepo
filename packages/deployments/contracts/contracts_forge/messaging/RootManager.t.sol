@@ -29,6 +29,8 @@ contract RootManagerTest is ForgeHelper {
 
   event ConnectorRemoved(uint32 domain, address connector, uint32[] domains, address[] connectors, address caller);
 
+  event PropagateFailed(uint32 domain, address connector);
+
   // ============ Storage ============
   RootManager _rootManager;
   uint256 _delayBlocks = 40;
@@ -284,6 +286,9 @@ contract RootManagerTest is ForgeHelper {
 
     // Fast forward delayBlocks number of blocks so all of the inbound roots are considered verified.
     vm.roll(block.number + _rootManager.delayBlocks());
+
+    vm.expectEmit(true, true, true, true);
+    emit PropagateFailed(_domains[20], address(revertConnector));
 
     _rootManager.propagate(_domains, _connectors);
     assertEq(_rootManager.getPendingInboundRootsCount(), 0);
