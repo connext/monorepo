@@ -8,22 +8,47 @@ import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 type TaskArgs = {
   canonical: string;
   domain: string;
+  decimals: string;
+  representationName: string;
+  representationSymbol: string;
   adopted: string;
+  local?: string;
+  withDeployedRepresentation?: string;
   pool?: string;
+  cap?: string;
   connextAddress?: string;
   env?: Env;
 };
 
 export default task("setup-asset", "Configures an asset")
   .addParam("canonical", "Canonical token address")
-  .addParam("domain", "Canonical domain of token")
+  .addParam("domain", "Canonical token domain")
+  .addParam("decimals", "Canonical token decimals")
+  .addParam("representationName", "Representation token name")
+  .addParam("representationSymbol", "Representation token symbol")
   .addParam("adopted", "Adopted token address")
+  .addOptionalParam("local", "Local token address")
+  .addOptionalParam("withDeployedRepresentation", "Should setup asset with deployed representation")
   .addOptionalParam("pool", "Stable swap pool for adopted <> local asset")
+  .addOptionalParam("cap", "Cap for the token")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("env", "Environment of contracts")
   .setAction(
     async (
-      { pool, adopted, canonical, domain, connextAddress: _connextAddress, env: _env }: TaskArgs,
+      {
+        canonical,
+        domain,
+        decimals,
+        representationName,
+        representationSymbol,
+        adopted,
+        local,
+        withDeployedRepresentation: _withDeployedRepresentation,
+        pool: _pool,
+        cap: _cap,
+        connextAddress: _connextAddress,
+        env: _env,
+      }: TaskArgs,
       { deployments, ethers },
     ) => {
       let { deployer } = await ethers.getNamedSigners();
@@ -32,18 +57,31 @@ export default task("setup-asset", "Configures an asset")
       }
 
       const env = mustGetEnv(_env);
-      console.log("env:", env);
-      console.log("pool: ", pool);
-      console.log("adopted: ", adopted);
-      console.log("canonical: ", canonical);
-      console.log("domain: ", domain);
-      console.log("deployer: ", deployer.address);
+
+      // defaults
+      const withDeployedRepresentation = _withDeployedRepresentation === "true" ? true : false;
+      if (withDeployedRepresentation && !local) {
+        throw "setupWithDeployedRepresentation requires local";
+      }
+      const pool = _pool ?? constants.AddressZero;
+      const cap = _cap ?? 0;
       let connextAddress = _connextAddress;
       if (!connextAddress) {
         const connextName = getDeploymentName("Connext", env);
         const connextDeployment = await deployments.get(connextName);
         connextAddress = connextDeployment.address;
       }
+
+      console.log("canonical:", canonical);
+      console.log("domain:", domain);
+      console.log("decimals:", decimals);
+      console.log("representation name:", representationName);
+      console.log("representation symbol:", representationSymbol);
+      console.log("adopted: ", adopted);
+      console.log("pool: ", pool);
+      console.log("cap: ", cap);
+      console.log("domain: ", domain);
+      console.log("deployer: ", deployer.address);
       const connext = await ethers.getContractAt("Connext", connextAddress);
       console.log("connextAddress: ", connextAddress);
 
@@ -78,8 +116,17 @@ export default task("setup-asset", "Configures an asset")
             data: connext.interface.encodeFunctionData("canonicalToAdopted(bytes32)", [key]),
           }),
         );
-        // const currentAdopted = await connext.canonicalToAdopted(key);
         console.log("currentAdopted: ", currentAdopted);
+
+        // get the current representation asset
+        const [currentRepresentation] = connext.interface.decodeFunctionResult(
+          "canonicalToRepresentation(bytes32)",
+          await deployer.call({
+            to: connext.address,
+            data: connext.interface.encodeFunctionData("canonicalToRepresentation(bytes32)", [key]),
+          }),
+        );
+        console.log("currentRepresentation: ", currentRepresentation);
 
         // check that the correct domain is set
         // const currentCanonical = await connext.adoptedToCanonical(currentAdopted);
@@ -96,6 +143,9 @@ export default task("setup-asset", "Configures an asset")
           currentCanonical.id.toLowerCase() === canonicalTokenId.id.toLowerCase();
 
         // check that the correct adopted asset is set + correct domain
+        if (!adopted) {
+          throw "Must specify adopted";
+        }
         if (currentAdopted.toLowerCase() === adopted.toLowerCase() && correctCanonical) {
           console.log("approved, no need to add");
           return;
@@ -106,19 +156,37 @@ export default task("setup-asset", "Configures an asset")
         console.log("removing asset and readding");
         const remove = await deployer.sendTransaction({
           to: connext.address,
-          data: connext.interface.encodeFunctionData("removeAssetId(bytes32,address)", [key, currentAdopted]),
+          data: connext.interface.encodeFunctionData("removeAssetId(bytes32,address,address)", [
+            key,
+            currentAdopted,
+            currentRepresentation,
+          ]),
           value: constants.Zero,
         });
-        // const remove = await connext.removeAssetId(key, currentAdopted);
         console.log("remove tx:", remove.hash);
         const receipt = await remove.wait();
         console.log("remove tx mined:", receipt.transactionHash);
       }
-      const tx = await connext.setupAsset(canonicalTokenId, adopted, pool ?? constants.AddressZero);
 
-      console.log("setupAsset tx: ", tx);
+      let tx;
+      if (withDeployedRepresentation) {
+        tx = await connext.setupAssetWithDeployedRepresentation(canonicalTokenId, local, adopted, pool, cap);
+        console.log("setupAssetWithDeployedRepresentation tx: ", tx);
+      } else {
+        tx = await connext.setupAsset(
+          canonicalTokenId,
+          decimals,
+          representationName,
+          representationSymbol,
+          adopted,
+          pool,
+          cap,
+        );
+        console.log("setupAsset tx: ", tx);
+      }
+
       const receipt = await tx.wait(1);
-      console.log("setupAsset tx mined: ", receipt.transactionHash);
+      console.log("tx mined: ", receipt.transactionHash);
 
       const [isAssetApproved] = connext.interface.decodeFunctionResult(
         "approvedAssets(bytes32)",

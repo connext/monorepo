@@ -3,7 +3,6 @@ import { createMethodContext, createRequestContext, getChainData, jsonifyError, 
 import { compare } from "compare-versions";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
-import axios from "axios";
 import fetch, { Headers, Request, Response } from "node-fetch";
 
 // @ts-ignore
@@ -20,6 +19,7 @@ if (!(globalThis as any).fetch) {
 import { getConfig, NxtpRouterConfig } from "../../config";
 import { bindMetrics } from "../../bindings";
 import { setupMq, setupSubgraphReader } from "../../setup";
+import { axiosGet } from "../../mockable";
 
 import { AppContext } from "./context";
 import { bindMessageQueue, bindServer } from "./bindings";
@@ -92,7 +92,7 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
 
     /// MARK - Cold Start Housekeeping
     try {
-      const res = await axios.get(`${context.config.sequencerUrl}/supportedBidVersion`);
+      const res = await axiosGet(`${context.config.sequencerUrl}/supportedBidVersion`);
       context.logger.info("supportedBidVersion response received from sequencer", requestContext, methodContext, {
         response: res.data,
       });

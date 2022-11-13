@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import "../../../utils/ForgeHelper.sol";
 import {Deployer, DiamondInit, BridgeFacet} from "../../../utils/Deployer.sol";
@@ -36,8 +36,8 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     assertTrue(connextDiamondProxy.isInitialized());
   }
 
-  // Second initialization should not alter state.
-  function test_LibDiamond__initializeDiamondCut_ignoreDuplicateInit() public {
+  // Second initialization should fail.
+  function test_LibDiamond__initializeDiamondCut_failDuplicateInit() public {
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
 
@@ -61,6 +61,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     connextHandler.proposeDiamondCut(facetCuts, address(diamondInit), initCallData);
 
     vm.warp(100 + 7 days + 1);
+    vm.expectRevert(DiamondInit.DiamondInit__init_alreadyInitialized.selector);
     connextHandler.diamondCut(facetCuts, address(diamondInit), initCallData);
 
     // still initialized
@@ -104,13 +105,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
 
-    bytes memory initCallData = abi.encodeWithSelector(
-      DiamondInit.init.selector,
-      newDomain,
-      newXAppConnectionManager,
-      acceptanceDelay
-    );
-
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
     bytes4[] memory facetSelectors = new bytes4[](1);
     facetSelectors[0] = BridgeFacet.xcall.selector;
@@ -121,8 +115,8 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     });
 
     vm.warp(100);
-    connextHandler.proposeDiamondCut(facetCuts, address(diamondInit), initCallData);
-    connextHandler.diamondCut(facetCuts, address(diamondInit), initCallData);
+    connextHandler.proposeDiamondCut(facetCuts, address(0), bytes(""));
+    connextHandler.diamondCut(facetCuts, address(0), bytes(""));
 
     assertTrue(connextDiamondProxy.isInitialized());
   }

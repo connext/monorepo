@@ -202,6 +202,7 @@ export const AssetBalanceSchema = Type.Intersect([
   AssetSchema,
   Type.Object({
     balance: TIntegerString,
+    feesEarned: TIntegerString,
     domain: Type.String(),
   }),
 ]);

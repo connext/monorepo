@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.17;
 
 /******************************************************************************\
 * Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)
@@ -24,6 +24,11 @@ import {IConnectorManager} from "../../../../messaging/interfaces/IConnectorMana
 // of your diamond. Add parameters to the init funciton if you need to.
 
 contract DiamondInit is BaseConnextFacet {
+  // ========== Custom Errors ===========
+  error DiamondInit__init_alreadyInitialized();
+
+  // ============ External ============
+
   // You can add parameters to this function in order to pass in
   // data to set your own state variables
   function init(
@@ -31,6 +36,17 @@ contract DiamondInit is BaseConnextFacet {
     address _xAppConnectionManager,
     uint256 _acceptanceDelay
   ) external {
+    // should not init twice
+    if (s.initialized) {
+      revert DiamondInit__init_alreadyInitialized();
+    }
+
+    // ensure this is the owner
+    LibDiamond.enforceIsContractOwner();
+
+    // update the initialized flag
+    s.initialized = true;
+
     // adding ERC165 data
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     ds.supportedInterfaces[type(IERC165).interfaceId] = true;
@@ -46,20 +62,13 @@ contract DiamondInit is BaseConnextFacet {
     // in order to set state variables in the diamond during deployment or an upgrade
     // More info here: https://eips.ethereum.org/EIPS/eip-2535#diamond-interface
 
-    if (!s.initialized) {
-      // ensure this is the owner
-      LibDiamond.enforceIsContractOwner();
+    // __ReentrancyGuard_init_unchained
+    s._status = _NOT_ENTERED;
 
-      s.initialized = true;
-
-      // __ReentrancyGuard_init_unchained
-      s._status = _NOT_ENTERED;
-
-      // Connext
-      s.domain = _domain;
-      s.LIQUIDITY_FEE_NUMERATOR = 9995;
-      s.maxRoutersPerTransfer = 5;
-      s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
-    }
+    // Connext
+    s.domain = _domain;
+    s.LIQUIDITY_FEE_NUMERATOR = 9995;
+    s.maxRoutersPerTransfer = 5;
+    s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
   }
 }
