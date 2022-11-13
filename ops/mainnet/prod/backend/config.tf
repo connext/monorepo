@@ -17,14 +17,20 @@ locals {
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage }
   ]
-}
 
-locals {
   local_cartographer_config = jsonencode({
     logLevel = "debug"
     chains = {
-      "1" = {}
+      "6648936"   = {}
+      "1869640809"  = {}
+      "1886350457" = {}
     }
     environment = var.stage
+    healthUrls = {
+      messages = "https://betteruptime.com/api/v1/heartbeat/${var.carto_messages_heartbeat}"
+      roots = "https://betteruptime.com/api/v1/heartbeat/${var.carto_roots_heartbeat}"
+      routers = "https://betteruptime.com/api/v1/heartbeat/${var.carto_routers_heartbeat}"
+      transfers = "https://betteruptime.com/api/v1/heartbeat/${var.carto_transfers_heartbeat}"
+    }
   })
 }

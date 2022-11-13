@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -26,7 +27,7 @@ import type {
 export interface IRootManagerInterface extends utils.Interface {
   functions: {
     "aggregate(uint32,bytes32)": FunctionFragment;
-    "propagate(uint32[],address[])": FunctionFragment;
+    "propagate(uint32[],address[],uint256[],bytes[])": FunctionFragment;
   };
 
   getFunction(
@@ -39,7 +40,12 @@ export interface IRootManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "propagate",
-    values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<string>[]]
+    values: [
+      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<string>[],
+      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<BytesLike>[]
+    ]
   ): string;
 
   decodeFunctionResult(functionFragment: "aggregate", data: BytesLike): Result;
@@ -84,7 +90,9 @@ export interface IRootManager extends BaseContract {
     propagate(
       _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -97,7 +105,9 @@ export interface IRootManager extends BaseContract {
   propagate(
     _domains: PromiseOrValue<BigNumberish>[],
     _connectors: PromiseOrValue<string>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    _fees: PromiseOrValue<BigNumberish>[],
+    _encodedData: PromiseOrValue<BytesLike>[],
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -110,6 +120,8 @@ export interface IRootManager extends BaseContract {
     propagate(
       _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -126,7 +138,9 @@ export interface IRootManager extends BaseContract {
     propagate(
       _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -140,7 +154,9 @@ export interface IRootManager extends BaseContract {
     propagate(
       _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

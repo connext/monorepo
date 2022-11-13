@@ -9,8 +9,8 @@ import {
   getDecimalsForAsset as _getDecimalsForAsset,
   getGelatoEstimatedFee as _getGelatoEstimatedFee,
   getHardcodedGasLimits as _getHardcodedGasLimits,
+  axiosGet,
 } from "@connext/nxtp-utils";
-import axios from "axios";
 import { providers } from "ethers";
 
 import { UriInvalid, ApiRequestFailed, ParseConnextLogFailed } from "../errors/index";
@@ -38,7 +38,7 @@ export const validateUri = (uri: string): void => {
 
 export const axiosGetRequest = async (uri: string): Promise<any> => {
   try {
-    const response = await axios.get(uri);
+    const response = await axiosGet(uri);
     return response.data;
   } catch (err: any) {
     throw new ApiRequestFailed({ error: jsonifyError(err as Error) });

@@ -1,9 +1,9 @@
 import { ChainReader, ConnextContractDeployments } from "@connext/nxtp-txservice";
-import { ChainData, Logger } from "@connext/nxtp-utils";
+import { ChainData, Logger, RelayerType } from "@connext/nxtp-utils";
 import { Database } from "@connext/nxtp-adapters-database";
+import { Relayer } from "@connext/nxtp-adapters-relayer";
 
 import { NxtpLighthouseConfig } from "../../config";
-import { Relayer } from "../../adapters";
 
 export type ProcessFromRootContext = {
   logger: Logger;
@@ -12,7 +12,7 @@ export type ProcessFromRootContext = {
     chainreader: ChainReader; // For reading and executing txs on blockchain using RPC providers.
     contracts: ConnextContractDeployments; // Used to read and write to smart contracts.
     database: Database;
-    relayer: Relayer;
+    relayers: { instance: Relayer; apiKey: string; type: RelayerType }[];
   };
   config: NxtpLighthouseConfig;
   chainData: Map<string, ChainData>;

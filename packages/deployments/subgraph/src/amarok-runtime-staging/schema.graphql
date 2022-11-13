@@ -13,6 +13,7 @@ type AssetBalance @entity {
   amount: BigInt!
   router: Router!
   asset: Asset!
+  feesEarned: BigInt!
 }
 
 # Router represents a router and its associated liquidity
@@ -117,6 +118,9 @@ type DestinationTransfer @entity {
 
   # Asset
   asset: Asset
+
+  # calculated
+  routersFee: BigInt
 
   # Executed Transaction
   executedCaller: Bytes

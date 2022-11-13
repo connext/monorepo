@@ -9,6 +9,7 @@ import {
   XTransferStatus,
   mkSig,
   RelayerType,
+  mkBytes32,
 } from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 import { constants, BigNumber } from "ethers";
@@ -81,11 +82,6 @@ describe("Operations:Execute:FastPath", () => {
     });
 
     publishStub = stub(Broker, "publish").resolves();
-  });
-
-  afterEach(() => {
-    restore();
-    reset();
   });
 
   describe("#storeFastPathData", () => {
@@ -203,7 +199,7 @@ describe("Operations:Execute:FastPath", () => {
     it("should pick up the auction rounds which has enough number of bids", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
+      sendExecuteFastToRelayerStub.resolves({ taskId });
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
 
@@ -266,13 +262,13 @@ describe("Operations:Execute:FastPath", () => {
         },
       ]);
       expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
-      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId, relayer: RelayerType.Mock }]);
+      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
     });
 
     it("should pick up a round-2 auction if a round-1 auction doesn't exist", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
+      sendExecuteFastToRelayerStub.resolves({ taskId });
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
 
@@ -347,12 +343,12 @@ describe("Operations:Execute:FastPath", () => {
         },
       ]);
       expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
-      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId, relayer: RelayerType.Mock }]);
+      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
     });
 
     it("should skip the combination with the bid of which router has insufficient liquidity", async () => {
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
+      sendExecuteFastToRelayerStub.resolves({ taskId });
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
 
@@ -435,25 +431,20 @@ describe("Operations:Execute:FastPath", () => {
         },
       ]);
       expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
-      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId, relayer: RelayerType.Mock }]);
+      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
     });
 
     it("should wait then proceed if time elapsed is insufficient", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
+      sendExecuteFastToRelayerStub.resolves({ taskId });
 
       const router1 = mkAddress("0x1");
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
       const auction = mock.entity.auction({
         timestamp: getNtpTimeSeconds().toString(),
-        bids: [
-          {
-            ...mock.entity.bid(),
-            router: router1,
-          },
-        ],
+        bids: { [router1]: mock.entity.bid() },
       });
       getAuctionStub.resolves(auction);
 
@@ -465,7 +456,7 @@ describe("Operations:Execute:FastPath", () => {
     it("should ignore if transfer is undefined", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
+      sendExecuteFastToRelayerStub.resolves({ taskId });
 
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
@@ -473,7 +464,7 @@ describe("Operations:Execute:FastPath", () => {
       getAuctionStub.resolves(auction);
       getTransferStub.resolves(undefined);
 
-      await executeFastPathData(requestContext);
+      await executeFastPathData(mkBytes32(), requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -489,7 +480,7 @@ describe("Operations:Execute:FastPath", () => {
       const auction = mockAuctionDataBatch(1)[0];
       getAuctionStub.resolves(auction);
 
-      await executeFastPathData(requestContext);
+      await executeFastPathData(mkBytes32(), requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -499,7 +490,7 @@ describe("Operations:Execute:FastPath", () => {
     it("should ignore if transfer xcall or relayer fee undefined", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
+      sendExecuteFastToRelayerStub.resolves({ taskId });
 
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
@@ -511,7 +502,7 @@ describe("Operations:Execute:FastPath", () => {
         origin: undefined,
       });
 
-      await executeFastPathData(requestContext);
+      await executeFastPathData(mkBytes32(), requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -521,24 +512,24 @@ describe("Operations:Execute:FastPath", () => {
     it("should skip if not enough bids for the round(s)", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
+      sendExecuteFastToRelayerStub.resolves({ taskId });
 
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
       const auction = mock.entity.auction({
         timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
-        bids: [
-          {
+        bids: {
+          [mkAddress()]: {
             ...mock.entity.bid(),
             signatures: {
               "2": mock.signature,
             },
           },
-        ],
+        },
       });
       getAuctionStub.resolves(auction);
 
-      await executeFastPathData(requestContext);
+      await executeFastPathData(mkBytes32(), requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -548,7 +539,7 @@ describe("Operations:Execute:FastPath", () => {
     it("should skip if no liquidity found for router in subgraph", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
+      sendExecuteFastToRelayerStub.resolves({ taskId });
 
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
@@ -558,7 +549,7 @@ describe("Operations:Execute:FastPath", () => {
       getLiquidityStub.resolves(undefined);
       (ctxMock.adapters.subgraph as any).getAssetBalance.resolves(constants.Zero);
 
-      await executeFastPathData(requestContext);
+      await executeFastPathData(mkBytes32(), requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -568,20 +559,14 @@ describe("Operations:Execute:FastPath", () => {
     it("should cache liquidity", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
+      sendExecuteFastToRelayerStub.resolves({ taskId });
 
       const router = mkAddress("0x1");
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
       const auction = mock.entity.auction({
         timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
-        bids: [
-          {
-            transferId: transferId,
-            ...mock.entity.bid(),
-            router,
-          },
-        ],
+        bids: { router: mock.entity.bid() },
       });
       getAuctionStub.resolves(auction);
 
@@ -597,20 +582,20 @@ describe("Operations:Execute:FastPath", () => {
       getLiquidityStub.resolves(undefined);
       (ctxMock.adapters.subgraph as any).getAssetBalance.resolves(routerFunds);
 
-      await executeFastPathData(requestContext);
+      await executeFastPathData(mkBytes32(), requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
       // Should update beforehand since the getLiquidity cache stub returned undefined.
       expect(setLiquidityStub.getCall(0).args).to.be.deep.eq([
-        router,
+        mkAddress("0xc0ffeebabe"),
         transfer.xparams.destinationDomain,
         transfer.origin!.assets.bridged.asset,
         routerFunds,
       ]);
       // Should update to reflect new "theoretical amount".
       expect(setLiquidityStub.getCall(1).args).to.be.deep.eq([
-        router,
+        mkAddress("0xc0ffeebabe"),
         transfer.xparams.destinationDomain,
         transfer.origin!.assets.bridged.asset,
         expectedRouterFunds,
@@ -623,23 +608,19 @@ describe("Operations:Execute:FastPath", () => {
     it("should skip router with insufficient liquidity", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
+      sendExecuteFastToRelayerStub.resolves({ taskId });
 
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
       const auction = mockAuctionDataBatch(1)[0];
       getAuctionStub.resolves(auction);
-      const transfer = mock.entity.xtransfer(
-        undefined,
-        undefined,
-        "9999999999999999999", // amount required
-      );
+      const transfer = mock.entity.xtransfer();
       getTransferStub.resolves(transfer);
       getLiquidityStub.resolves(undefined);
 
       (ctxMock.adapters.subgraph as any).getAssetBalance.resolves(BigNumber.from("1"));
 
-      await executeFastPathData(requestContext);
+      await executeFastPathData(mkBytes32(), requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -648,13 +629,13 @@ describe("Operations:Execute:FastPath", () => {
 
     it("does nothing if none queued", async () => {
       getQueuedTransfersStub.resolves([]);
-      await executeFastPathData(requestContext);
+      await executeFastPathData(mkBytes32(), requestContext);
     });
 
     it("should succeed with 0-value amount", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
+      sendExecuteFastToRelayerStub.resolves({ taskId });
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
 
@@ -719,13 +700,13 @@ describe("Operations:Execute:FastPath", () => {
         },
       ]);
       expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
-      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId, relayer: RelayerType.Mock }]);
+      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
     });
 
     it("should succeed with native asset", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
+      sendExecuteFastToRelayerStub.resolves({ taskId });
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
 
@@ -791,7 +772,7 @@ describe("Operations:Execute:FastPath", () => {
         },
       ]);
       expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
-      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId, relayer: RelayerType.Mock }]);
+      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
     });
   });
 });

@@ -36,22 +36,35 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: TLogLevel,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
-  cartographerUrl: Type.String(),
+  cartographerUrl: Type.String({ format: "uri" }),
   mode: TModeConfig,
   polling: TPollingConfig,
-  gelatoApiKey: Type.String(),
+  relayers: Type.Array(
+    Type.Object({
+      type: Type.Union([Type.Literal("Gelato"), Type.Literal("Connext")]),
+      url: Type.String({ format: "uri" }),
+      apiKey: Type.String(),
+    }),
+  ),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
-  relayerUrl: Type.Optional(Type.String({ format: "uri" })),
   database: TDatabaseConfig,
+  healthUrls: Type.Partial(
+    Type.Object({ prover: Type.String({ format: "uri" }), processor: Type.String({ format: "uri" }) }),
+  ),
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
 
 // map spoke connector contract names to domains, i.e. MainnetSpokeConnector
 export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
+  // TESTNET
   "1735356532": "Optimism",
   "1735353714": "Mainnet",
   "9991": "Polygon",
+  // MAINNET
+  "1869640809": "Optimism",
+  "6648936": "Mainnet",
+  "1886350457": "Polygon",
 };
 
 /**
@@ -105,11 +118,15 @@ export const getEnvConfig = (
         configFile.polling?.cache ||
         DEFAULT_CARTOGRAPHER_POLL_INTERVAL,
     },
-    gelatoApiKey: process.env.NXTP_GELATO_API_KEY || configJson.gelatoApiKey || configFile.gelatoApiKey || "xxx",
+    relayers: process.env.NXTP_RELAYERS
+      ? JSON.parse(process.env.NXTP_RELAYERS)
+      : configJson.relayers
+      ? configJson.relayers
+      : configFile.relayers,
     database: { url: process.env.DATABASE_URL || configJson.databaseUrl || configFile.databaseUrl },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
-    relayerUrl: process.env.NXTP_RELAYER_URL || configJson.relayerUrl || configFile.relayerUrl,
+    healthUrls: process.env.NXTP_HEALTH_URLS || configJson.healthUrls || configFile.healthUrls || {},
   };
 
   nxtpConfig.cartographerUrl =
@@ -141,7 +158,9 @@ export const getEnvConfig = (
             ? deployments.spokeConnector(chainDataForChain.chainId, prefix, contractPostfix)
             : undefined;
           if (!res) {
-            throw new Error(`No ${prefix}SpokeConnector${contractPostfix} contract address for domain ${domainId}`);
+            throw new Error(
+              `No ${prefix}SpokeConnector${contractPostfix} contract address for domain ${domainId}, chain ${chainDataForChain?.chainId}`,
+            );
           }
           return res.address;
         })(),

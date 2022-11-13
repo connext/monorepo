@@ -194,6 +194,7 @@ export class SubgraphReader {
           return {
             adoptedAsset: a.asset.adoptedAsset,
             balance: a.amount,
+            feesEarned: a.feesEarned ?? 0,
             blockNumber: a.asset.blockNumber,
             canonicalDomain: a.asset.canonicalDomain,
             canonicalId: a.asset.canonicalId,
@@ -246,7 +247,7 @@ export class SubgraphReader {
   /**
    * Gets the asset by the canonicalId on the specific domain
    * @param domain - The domain you're going to get the asset on
-   * @param canonicalId - The canonicalId defined by Nomad
+   * @param canonicalId - The canonicalId represents canoncial assetId
    */
   public async getAssetByCanonicalId(domain: string, canonicalId: string): Promise<Asset | undefined> {
     const { execute, getPrefixForDomain } = getHelpers();
@@ -460,22 +461,24 @@ export class SubgraphReader {
     return destinationTransfers;
   }
 
-  /**
-   * Gets the xcalled transactions across all the chains.
-   * @param agents - The reference parameters.
-   * @returns an array of XTransfers.
-   */
-  public async getXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<DestinationTransfer[]> {
+  public async getOriginXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<{
+    txIdsByDestinationDomain: Map<string, string[]>;
+    allTxById: Map<string, XTransfer>;
+    latestNonces: Map<string, number>;
+  }> {
     const { execute, parser } = getHelpers();
     const xcalledXQuery = getOriginTransfersQuery(agents);
-    let response = await execute(xcalledXQuery);
+    const response = await execute(xcalledXQuery);
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const allTxById: Map<string, XTransfer> = new Map();
+    const latestNonces: Map<string, number> = new Map();
+
     for (const domain of response.keys()) {
       const value = response.get(domain);
       const xtransfersByDomain = (value ?? [])[0];
       for (const xtransfer of xtransfersByDomain) {
         allTxById.set(xtransfer.transferId as string, parser.originTransfer(xtransfer));
+        latestNonces.set(domain, xtransfer.nonce as number);
         if (txIdsByDestinationDomain.has(xtransfer.destinationDomain as string)) {
           txIdsByDestinationDomain
             .get(xtransfer.destinationDomain as string)!
@@ -486,10 +489,16 @@ export class SubgraphReader {
       }
     }
 
-    if (txIdsByDestinationDomain.size == 0) return [];
+    return { txIdsByDestinationDomain, allTxById, latestNonces };
+  }
 
+  public async getDestinationXCalls(
+    txIdsByDestinationDomain: Map<string, string[]>,
+    allTxById: Map<string, XTransfer>,
+  ): Promise<DestinationTransfer[]> {
+    const { execute, parser } = getHelpers();
     const destinationTransfersQuery = getDestinationTransfersByDomainAndIdsQuery(txIdsByDestinationDomain);
-    response = await execute(destinationTransfersQuery);
+    const response = await execute(destinationTransfersQuery);
 
     const transfers: any[] = [];
     for (const key of response.keys()) {
@@ -683,7 +692,7 @@ export class SubgraphReader {
    * Gets all the aggregated rootsstarting with index for a given domain
    */
   public async getGetAggregatedRootsByDomain(
-    params: { hub: string; domain: string; index: number; limit: number }[],
+    params: { hub: string; index: number; limit: number }[],
   ): Promise<AggregatedRoot[]> {
     const { parser, execute } = getHelpers();
     const aggregatedRootsByDomainQuery = getAggregatedRootsByDomainQuery(params);

@@ -36,6 +36,13 @@ output "router-subscriber-service-endpoint" {
   value = module.router_subscriber.service_endpoint
 }
 
+output "relayer-service-endpoint" {
+  value = module.relayer.service_endpoint
+}
+
+output "relayer-dns" {
+  value = module.relayer.dns_name
+}
 
 output "rmq-management-endpoint" {
   value = module.centralised_message_queue.aws_mq_broker_console
