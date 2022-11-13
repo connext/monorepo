@@ -855,9 +855,9 @@ library MerkleLib {
       let BRANCH_DATA_OFFSET := _branch
       let f
 
-      f := shl(5, iszero(and(_index, shl(_index, 1))))
-      mstore(sub(0x20, f), _current)
-      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, _index))))
+      f := shl(5, and(_index, 1))
+      mstore(f, _current)
+      mstore(sub(0x20, f), mload(BRANCH_DATA_OFFSET))
       _current := keccak256(0, 0x40)
 
       f := shl(5, iszero(and(_index, shl(1, 1))))
