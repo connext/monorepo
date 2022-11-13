@@ -315,7 +315,7 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
       console.log(`no upgrade needed, using implementation at: ${implementation}`);
     }
   } else {
-    console.log(`Deploying ${implementationName} with nomad upgradeable scheme`);
+    console.log(`Deploying ${implementationName} with upgradeable scheme`);
 
     // 1. Deploy implementation
     const implementationDeployment = await hre.deployments.deploy(implementationName, {

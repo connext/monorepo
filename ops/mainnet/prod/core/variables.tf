@@ -20,11 +20,6 @@ variable "environment" {
   default     = "mainnet"
 }
 
-variable "nomad_environment" {
-  description = "nomad environment type"
-  default     = "none"
-}
-
 variable "domain" {
   default = "core"
 }
