@@ -157,7 +157,8 @@ library LibDiamond {
   }
 
   function replaceFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {
-    require(_functionSelectors.length != 0, "LibDiamondCut: No selectors in facet to cut");
+    uint256 len = _functionSelectors.length;
+    require(len != 0, "LibDiamondCut: No selectors in facet to cut");
     DiamondStorage storage ds = diamondStorage();
     require(_facetAddress != address(0), "LibDiamondCut: Add facet can't be address(0)");
     uint96 selectorPosition = uint96(ds.facetFunctionSelectors[_facetAddress].functionSelectors.length);
@@ -165,7 +166,6 @@ library LibDiamond {
     if (selectorPosition == 0) {
       addFacet(ds, _facetAddress);
     }
-    uint256 len = _functionSelectors.length;
     for (uint256 selectorIndex; selectorIndex < len; ) {
       bytes4 selector = _functionSelectors[selectorIndex];
       address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;
