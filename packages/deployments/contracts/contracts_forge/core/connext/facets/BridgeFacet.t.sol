@@ -22,8 +22,6 @@ import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
 
-import "forge-std/console.sol";
-
 contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ Libs ============
 
@@ -830,6 +828,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // test revert
     vm.prank(_defaultOriginSender);
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
+    this.addSequencer(sequencer);
+  }
+
+  function test_BridgeFacet__addSequencer_failIfEmptyAddress() public {
+    address sequencer = address(0);
+
+    vm.prank(LibDiamond.contractOwner());
+    vm.expectRevert(BridgeFacet.BridgeFacet__addSequencer_invalidSequencer.selector);
     this.addSequencer(sequencer);
   }
 
