@@ -280,6 +280,8 @@ contract RootManagerTest is ForgeHelper {
     uint32 domain = uint32(1020);
     _domains.push(domain);
     _connectors.push(address(revertConnector));
+    _fees.push(0);
+    _encodedData.push(bytes(""));
 
     vm.prank(owner);
     _rootManager.addConnector(_domains[20], address(revertConnector));
@@ -298,7 +300,7 @@ contract RootManagerTest is ForgeHelper {
     vm.expectEmit(true, true, true, true);
     emit PropagateFailed(_domains[20], address(revertConnector));
 
-    _rootManager.propagate(_domains, _connectors);
+    _rootManager.propagate(_connectors, _fees, _encodedData);
     assertEq(_rootManager.getPendingInboundRootsCount(), 0);
   }
 }
