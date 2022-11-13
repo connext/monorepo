@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 /**
  * @dev interface to interact with multicall (prev anyswap) anycall proxy
@@ -12,7 +12,7 @@ interface Multichain {
     address _fallback,
     uint256 _toChainID,
     uint256 _flags
-  ) external;
+  ) external payable;
 
   function context()
     external
@@ -24,4 +24,10 @@ interface Multichain {
     );
 
   function executor() external view returns (address executor);
+
+  function calcSrcFees(
+    string calldata _appID,
+    uint256 _toChainID,
+    uint256 _dataLength
+  ) external view returns (uint256);
 }

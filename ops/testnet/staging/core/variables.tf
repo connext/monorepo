@@ -25,11 +25,6 @@ variable "environment" {
   default     = "testnet"
 }
 
-variable "nomad_environment" {
-  description = "nomad environment type"
-  default     = "staging"
-}
-
 variable "full_image_name_router_publisher" {
   type        = string
   description = "router image name"

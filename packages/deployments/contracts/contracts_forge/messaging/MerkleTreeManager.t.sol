@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
-import {MerkleTreeManager} from "../../contracts/messaging/Merkle.sol";
-import {MerkleLib} from "../../contracts/messaging/libraries/Merkle.sol";
+import {MerkleTreeManager} from "../../contracts/messaging/MerkleTreeManager.sol";
+import {MerkleLib} from "../../contracts/messaging/libraries/MerkleLib.sol";
 
 import "../utils/ForgeHelper.sol";
 
-contract MerkleTest is ForgeHelper {
+contract MerkleTreeManagerTest is ForgeHelper {
   MerkleTreeManager public merkle;
+
+  event ArboristUpdated(address previous, address updated);
 
   function setUp() public {
     merkle = new MerkleTreeManager();
@@ -22,5 +24,12 @@ contract MerkleTest is ForgeHelper {
       (, _count) = merkle.insert(_messageHash);
       assertEq(_count - 1, i);
     }
+  }
+
+  function test_Merkle__setArborist_shouldWork() public {
+    vm.expectEmit(true, true, true, true);
+    emit ArboristUpdated(address(this), address(1));
+
+    merkle.setArborist(address(1));
   }
 }
