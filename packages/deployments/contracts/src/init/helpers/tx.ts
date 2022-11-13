@@ -83,7 +83,7 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
   const writeCall = async (chain: number): Promise<providers.TransactionResponse> => {
     return await contract[write.method](...write.args, {
       gasLimit: 2000000,
-      gasPrice: chain === 137 ? "300000000000" : "30000000000", // TODO: need to put gasPrice properly for each chain
+      gasPrice: chain === 137 ? "100000000000" : "15000000000", // TODO: need to put gasPrice properly for each chain
     });
   };
 
