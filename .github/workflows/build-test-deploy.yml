@@ -7,10 +7,8 @@ on:
       - staging
       - prod
   pull_request:
-    branches:
-      - main
-      - staging
-      - prod
+    types:
+      - opened
   create:
     tag:
       - "v*"
@@ -95,6 +93,7 @@ jobs:
           yarn workspace @connext/nxtp-sdk npm publish --access public
 
   build-and-push-router-publisher-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/router-publisher
@@ -136,6 +135,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-router-subscriber-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/router-subscriber
@@ -177,6 +177,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-router-executor-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/router-executor
@@ -218,6 +219,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-sequencer-publisher-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/sequencer-publisher
@@ -259,6 +261,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-sequencer-subscriber-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/sequencer-subscriber
@@ -300,6 +303,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-cartographer-routers-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/cartographer-routers
@@ -341,6 +345,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-cartographer-transfers-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/cartographer-transfers
@@ -382,6 +387,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-cartographer-messages-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/cartographer-messages
@@ -423,6 +429,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-cartographer-roots-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/cartographer-roots
@@ -464,6 +471,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-lighthouse-prover-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/lighthouse-prover
@@ -505,6 +513,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-lighthouse-process-from-root-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/lighthouse-process-from-root
@@ -546,6 +555,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-relayer-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/relayer
