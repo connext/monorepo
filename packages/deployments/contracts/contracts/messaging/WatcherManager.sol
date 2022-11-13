@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 
@@ -15,7 +15,7 @@ contract WatcherManager is ProposedOwnable {
   event WatcherRemoved(address watcher);
 
   // ============ Properties ============
-  mapping(address => bool) private watchers;
+  mapping(address => bool) public isWatcher;
 
   // ============ Constructor ============
   constructor() ProposedOwnable() {
@@ -29,8 +29,8 @@ contract WatcherManager is ProposedOwnable {
    * @dev Owner can enroll a watcher (abilities are defined by inheriting contracts)
    */
   function addWatcher(address _watcher) external onlyOwner {
-    require(!watchers[_watcher], "already watcher");
-    watchers[_watcher] = true;
+    require(!isWatcher[_watcher], "already watcher");
+    isWatcher[_watcher] = true;
     emit WatcherAdded(_watcher);
   }
 
@@ -38,13 +38,15 @@ contract WatcherManager is ProposedOwnable {
    * @dev Owner can unenroll a watcher (abilities are defined by inheriting contracts)
    */
   function removeWatcher(address _watcher) external onlyOwner {
-    require(watchers[_watcher], "!exist");
-    watchers[_watcher] = false;
+    require(isWatcher[_watcher], "!exist");
+    isWatcher[_watcher] = false;
     emit WatcherRemoved(_watcher);
   }
 
-  // ============ Getters ============
-  function isWatcher(address _watcher) external view returns (bool) {
-    return watchers[_watcher];
-  }
+  /**
+   * @notice Remove ability to renounce ownership
+   * @dev Renounce ownership should be impossible as long as the watcher griefing
+   * vector exists. You can still propose `address(0)`, but it will never be accepted.
+   */
+  function renounceOwnership() public virtual override onlyOwner {}
 }

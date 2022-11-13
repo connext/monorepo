@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -51,7 +51,7 @@ library SwapUtilsExternal {
 
   struct Swap {
     // variables around the ramp management of A,
-    // the amplification coefficient * n * (n - 1)
+    // the amplification coefficient * n ** (n - 1)
     // see Curve stableswap paper for details
     uint256 initialA;
     uint256 futureA;
@@ -124,7 +124,7 @@ library SwapUtilsExternal {
 
   /*** VIEW & PURE FUNCTIONS ***/
   /**
-   * @notice Return A, the amplification coefficient * n * (n - 1)
+   * @notice Return A, the amplification coefficient * n ** (n - 1)
    * @dev See the StableSwap paper for details
    * @param self Swap struct to read from
    * @return A parameter
@@ -282,7 +282,7 @@ library SwapUtilsExternal {
    * x_1**2 + b*x_1 = c
    * x_1 = (x_1**2 + c) / (2*x_1 + b)
    *
-   * @param a the amplification coefficient * n * (n - 1). See the StableSwap paper for details.
+   * @param a the amplification coefficient * n ** (n - 1). See the StableSwap paper for details.
    * @param tokenIndex Index of token we are calculating for.
    * @param xp a precision-adjusted set of pool balances. Array should be
    * the same cardinality as the pool.
@@ -338,7 +338,7 @@ library SwapUtilsExternal {
    * @notice Get D, the StableSwap invariant, based on a set of balances and a particular A.
    * @param xp a precision-adjusted set of pool balances. Array should be the same cardinality
    * as the pool.
-   * @param a the amplification coefficient * n * (n - 1) in A_PRECISION.
+   * @param a the amplification coefficient * n ** (n - 1) in A_PRECISION.
    * See the StableSwap paper for details
    * @return the invariant, at the precision of the pool
    */

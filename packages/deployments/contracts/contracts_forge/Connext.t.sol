@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
@@ -189,14 +189,18 @@ contract ConnextTest is ForgeHelper, Deployer {
     _canonicalDomain = canonicalDomain;
     _canonicalKey = keccak256(abi.encode(canonicalId, _canonicalDomain));
 
+    uint256 originCap;
+    uint256 destinationCap;
     if (_origin == canonicalDomain) {
       // The canonical domain is the origin, meaning any local
       // assets on the origin should be the canonical
       _originAdopted = _canonical;
       _originLocal = _canonical;
+      originCap = 10_000 ether;
     } else if (_destination == canonicalDomain) {
       _destinationAdopted = _canonical;
       _destinationLocal = _canonical;
+      destinationCap = 10_000 ether;
     } // otherwise, could be anything
 
     // Handle origin
@@ -207,7 +211,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       _originLocal,
       localIsAdopted ? address(0) : _originAdopted,
       address(0),
-      10_000 ether // cap
+      originCap
     );
 
     // Setup asset whitelist
@@ -217,7 +221,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       _destinationLocal,
       localIsAdopted ? address(0) : _destinationAdopted,
       address(0),
-      10_000 ether // cap
+      destinationCap
     );
 
     if (localIsAdopted) {
@@ -450,7 +454,9 @@ contract ConnextTest is ForgeHelper, Deployer {
       signatures[i] = abi.encodePacked(r, _s, v);
 
       // whitelist all routers
-      _destinationConnext.setupRouter(routers[i], address(0), address(0));
+      _destinationConnext.approveRouter(routers[i]);
+      vm.prank(routers[i]);
+      _destinationConnext.initializeRouter(address(0), address(0));
 
       // add liquidity for all routers
       if (liquidity != 0) {

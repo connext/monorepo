@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {ProposedOwnableFacet} from "../../../../contracts/core/connext/facets/ProposedOwnableFacet.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
@@ -40,7 +40,6 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
 
     assertEq(this.routerWhitelistTimestamp(), block.timestamp);
     assertTrue(!this.routerWhitelistRemoved());
-    assertTrue(!this.renounced());
   }
 
   function utils_renounceRouterAndAssert() public {
@@ -54,7 +53,6 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
 
     assertEq(this.routerWhitelistTimestamp(), 0);
     assertTrue(this.routerWhitelistRemoved());
-    assertTrue(!this.renounced());
   }
 
   function utils_proposeRenounceAssetAndAssert() public {
@@ -68,7 +66,6 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
 
     assertEq(this.assetWhitelistTimestamp(), block.timestamp);
     assertTrue(!this.assetWhitelistRemoved());
-    assertTrue(!this.renounced());
   }
 
   function utils_renounceAssetAndAssert() public {
@@ -82,7 +79,6 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
 
     assertEq(this.assetWhitelistTimestamp(), 0);
     assertTrue(this.assetWhitelistRemoved());
-    assertTrue(!this.renounced());
   }
 
   function utils_proposeNewOwnerAndAssert(address _proposed) public {
@@ -114,20 +110,13 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     emit OwnershipTransferred(current, _proposed);
 
     // Call
-    bool isRenounce = _proposed == address(0);
-    if (isRenounce) {
-      vm.prank(current);
-      this.renounceOwnership();
-    } else {
-      vm.prank(_proposed);
-      this.acceptProposedOwner();
-    }
+    vm.prank(_proposed);
+    this.acceptProposedOwner();
 
     // Assert changes
     assertEq(this.owner(), _proposed);
     assertEq(this.proposed(), address(0));
     assertEq(this.proposedTimestamp(), 0);
-    assertEq(this.renounced(), isRenounce);
   }
 
   function utils_transferOwnership(address _proposed) public {
@@ -375,9 +364,6 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     this.removeAssetWhitelist();
   }
 
-  // ============ renounced ============
-  // tested in assertions
-
   // ============ proposeNewOwner ============
   function test_ProposedOwnableFacet__proposeNewOwner_failsIfNotOwner() public {
     vm.expectRevert(BaseConnextFacet__onlyOwner_notOwner.selector);
@@ -392,6 +378,12 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     this.proposeNewOwner(address(12));
   }
 
+  function test_ProposedOwnableFacet__proposeNewOwner_failsIfEmptyOwner() public {
+    vm.expectRevert(ProposedOwnableFacet__proposeNewOwner_invalidProposal.selector);
+    vm.prank(_owner);
+    this.proposeNewOwner(address(0));
+  }
+
   function test_ProposedOwnableFacet__proposeNewOwner_failsIfProposingOwner() public {
     vm.expectRevert(ProposedOwnableFacet__proposeNewOwner_noOwnershipChange.selector);
     vm.prank(_owner);
@@ -400,44 +392,6 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
 
   function test_ProposedOwnableFacet__proposeNewOwner_works() public {
     utils_proposeNewOwnerAndAssert(address(12));
-  }
-
-  // ============ renounceOwnership ============
-  function test_ProposedOwnableFacet__renounceOwnership_failsIfNotOwner() public {
-    utils_proposeNewOwnerAndAssert(address(0));
-
-    vm.expectRevert(BaseConnextFacet__onlyOwner_notOwner.selector);
-    this.renounceOwnership();
-  }
-
-  function test_ProposedOwnableFacet__renounceOwnership_failsIfNoProposal() public {
-    vm.expectRevert(ProposedOwnableFacet__renounceOwnership_noProposal.selector);
-    vm.prank(_owner);
-    this.renounceOwnership();
-  }
-
-  function test_ProposedOwnableFacet__renounceOwnership_failsIfDelayNotElapsed() public {
-    utils_proposeNewOwnerAndAssert(address(1));
-
-    vm.prank(_owner);
-    vm.expectRevert(ProposedOwnableFacet__renounceOwnership_delayNotElapsed.selector);
-    this.renounceOwnership();
-  }
-
-  function test_ProposedOwnableFacet__renounceOwnership_failsIfProposedNonNull() public {
-    utils_proposeNewOwnerAndAssert(address(1));
-    vm.warp(block.timestamp + this.delay() + 1);
-
-    vm.prank(_owner);
-    vm.expectRevert(ProposedOwnableFacet__renounceOwnership_invalidProposal.selector);
-    this.renounceOwnership();
-  }
-
-  function test_ProposedOwnableFacet__renounceOwnership_works() public {
-    assertTrue(!this.renounced());
-
-    utils_transferOwnership(address(0));
-    assertTrue(this.renounced());
   }
 
   // ============ acceptProposedOwner ============
