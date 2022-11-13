@@ -143,12 +143,11 @@ library QueueLib {
     } else {
       // If some items were removed, there will be a number of trailing 0 values we need to truncate
       // from the array. Create a new array with all of the items up until these empty values.
-      uint256 amendedLength = last + 1 - first - removedCount;
-      bytes32[] memory amendedItems = new bytes32[](amendedLength);
-      for (index = 0; index < amendedLength; ) {
-        amendedItems[index] = items[index];
+      bytes32[] memory amendedItems = new bytes32[](index); // The last `index` is the new length.
+      for (uint256 i; i < index; ) {
+        amendedItems[i] = items[i];
         unchecked {
-          ++index;
+          ++i;
         }
       }
       return amendedItems;
