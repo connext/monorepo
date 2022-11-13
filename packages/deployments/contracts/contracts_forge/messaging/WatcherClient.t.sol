@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import "../utils/ForgeHelper.sol";
 import "../../contracts/messaging/WatcherClient.sol";
@@ -21,10 +21,7 @@ contract WatcherClientTest is ForgeHelper {
   }
 
   function test_WatcherClient__setWatcherManager_failsIfNotOwner(address caller) public {
-    if (caller == owner) {
-      // fuzz test, return if owner
-      return;
-    }
+    vm.assume(owner != caller);
 
     vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
     vm.prank(caller);
