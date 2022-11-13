@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 /**
  * @notice Interface for sending L1 -> L2 messagesto Arbitrum.
@@ -8,11 +8,14 @@ pragma solidity 0.8.15;
  *
  */
 interface IArbitrumInbox {
-  function sendContractTransaction(
+  function createRetryableTicket(
+    address destAddr,
+    uint256 arbTxCallValue,
+    uint256 maxSubmissionCost,
+    address submissionRefundAddress,
+    address valueRefundAddress,
     uint256 maxGas,
     uint256 gasPriceBid,
-    address destAddr,
-    uint256 amount,
-    bytes memory data
+    bytes calldata data
   ) external payable returns (uint256);
 }

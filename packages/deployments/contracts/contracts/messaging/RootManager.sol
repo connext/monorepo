@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 
@@ -9,7 +9,7 @@ import {Message} from "./libraries/Message.sol";
 import {QueueLib} from "./libraries/Queue.sol";
 import {DomainIndexer} from "./libraries/DomainIndexer.sol";
 
-import {MerkleTreeManager} from "./Merkle.sol";
+import {MerkleTreeManager} from "./MerkleTreeManager.sol";
 import {WatcherClient} from "./WatcherClient.sol";
 
 /**
@@ -30,7 +30,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   event RootsAggregated(bytes32 aggregateRoot, uint256 count, bytes32[] aggregatedMessageRoots);
 
-  event RootPropagated(bytes32 aggregateRoot, uint256 count, uint32[] domains);
+  event RootPropagated(bytes32 aggregateRoot, uint256 count, bytes32 domainsHash);
 
   event ConnectorAdded(uint32 domain, address connector, uint32[] domains, address[] connectors);
 
@@ -143,6 +143,13 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     emit ConnectorRemoved(_domain, _connector, domains, connectors, msg.sender);
   }
 
+  /**
+   * @notice Remove ability to renounce ownership
+   * @dev Renounce ownership should be impossible as long as watchers can freely remove connectors
+   * and only the owner can add them back
+   */
+  function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {}
+
   // ============ Public Functions ============
 
   /**
@@ -150,31 +157,46 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * spoke domains (via their respective hub connectors).
    * @dev Should be called by relayers at a regular interval.
    *
-   * @param _domains Array of domains: should match exactly the array of `domains` in storage; used here
-   * to reduce gas costs, and keep them static regardless of number of supported domains.
-   * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage
-   * (see `_domains` param's info on reducing gas costs).
+   * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage;
+   * used here to reduce gas costs, and keep them static regardless of number of supported domains.
+   * @param _fees Array of fees in native token for an AMB if required
+   * @param _encodedData Array of encodedData: extra params for each AMB if required
    */
-  function propagate(uint32[] calldata _domains, address[] calldata _connectors) external whenNotPaused {
-    uint256 _numDomains = _domains.length;
+  function propagate(
+    address[] calldata _connectors,
+    uint256[] calldata _fees,
+    bytes[] memory _encodedData
+  ) external payable whenNotPaused {
+    validateConnectors(_connectors);
 
-    // Sanity check: domains length matches connectors length.
-    require(_connectors.length == _numDomains, "invalid lengths");
-    validateDomains(_domains, _connectors);
+    uint256 _numDomains = _connectors.length;
+    // Sanity check: fees and encodedData lengths matches connectors length.
+    require(_fees.length == _numDomains && _encodedData.length == _numDomains, "invalid lengths");
 
     // Dequeue verified roots from the queue and insert into the tree.
     (bytes32 _aggregateRoot, uint256 _count) = dequeue();
 
+    uint256 sum = msg.value;
     for (uint32 i; i < _numDomains; ) {
-      try IHubConnector(_connectors[i]).sendMessage(abi.encodePacked(_aggregateRoot)) {} catch {
-        emit PropagateFailed(_domains[i], _connectors[i]);
+      // Try to send the message with appropriate encoded data and fees
+      // Continue on revert, but emit an event
+      try
+        IHubConnector(_connectors[i]).sendMessage{value: _fees[i]}(abi.encodePacked(_aggregateRoot), _encodedData[i])
+      {
+        // NOTE: This will ensure there is sufficient msg.value for all fees before calling `sendMessage`
+        // This will revert as soon as there are insufficient fees for call i, even if call n > i has
+        // sufficient budget, this function will revert
+        sum -= _fees[i];
+      } catch {
+        emit PropagateFailed(domains[i], _connectors[i]);
       }
+
       unchecked {
         ++i;
       }
     }
 
-    emit RootPropagated(_aggregateRoot, _count, _domains);
+    emit RootPropagated(_aggregateRoot, _count, domainsHash);
   }
 
   /**

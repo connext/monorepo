@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // https://github.com/fx-portal/contracts/blob/main/contracts/lib/Merkle.sol
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 library Merkle {
   function checkMembership(

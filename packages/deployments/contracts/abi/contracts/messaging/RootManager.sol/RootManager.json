@@ -40,7 +40,7 @@
   "function pause()",
   "function paused() view returns (bool)",
   "function pendingInboundRoots() view returns (uint128, uint128)",
-  "function propagate(uint32[],address[])",
+  "function propagate(uint32[],address[],uint256[],bytes[]) payable",
   "function proposeNewOwner(address)",
   "function proposed() view returns (address)",
   "function proposedTimestamp() view returns (uint256)",
