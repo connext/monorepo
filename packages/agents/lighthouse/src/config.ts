@@ -49,7 +49,11 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   database: TDatabaseConfig,
   healthUrls: Type.Partial(
-    Type.Object({ prover: Type.String({ format: "uri" }), processor: Type.String({ format: "uri" }) }),
+    Type.Object({
+      prover: Type.String({ format: "uri" }),
+      processor: Type.String({ format: "uri" }),
+      propagate: Type.String({ format: "uri" }),
+    }),
   ),
 });
 

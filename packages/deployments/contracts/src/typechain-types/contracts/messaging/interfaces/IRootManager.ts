@@ -27,7 +27,7 @@ import type {
 export interface IRootManagerInterface extends utils.Interface {
   functions: {
     "aggregate(uint32,bytes32)": FunctionFragment;
-    "propagate(uint32[],address[],uint256[],bytes[])": FunctionFragment;
+    "propagate(address[],uint256[],bytes[])": FunctionFragment;
   };
 
   getFunction(
@@ -41,7 +41,6 @@ export interface IRootManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "propagate",
     values: [
-      PromiseOrValue<BigNumberish>[],
       PromiseOrValue<string>[],
       PromiseOrValue<BigNumberish>[],
       PromiseOrValue<BytesLike>[]
@@ -88,7 +87,6 @@ export interface IRootManager extends BaseContract {
     ): Promise<ContractTransaction>;
 
     propagate(
-      _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
       _fees: PromiseOrValue<BigNumberish>[],
       _encodedData: PromiseOrValue<BytesLike>[],
@@ -103,7 +101,6 @@ export interface IRootManager extends BaseContract {
   ): Promise<ContractTransaction>;
 
   propagate(
-    _domains: PromiseOrValue<BigNumberish>[],
     _connectors: PromiseOrValue<string>[],
     _fees: PromiseOrValue<BigNumberish>[],
     _encodedData: PromiseOrValue<BytesLike>[],
@@ -118,7 +115,6 @@ export interface IRootManager extends BaseContract {
     ): Promise<void>;
 
     propagate(
-      _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
       _fees: PromiseOrValue<BigNumberish>[],
       _encodedData: PromiseOrValue<BytesLike>[],
@@ -136,7 +132,6 @@ export interface IRootManager extends BaseContract {
     ): Promise<BigNumber>;
 
     propagate(
-      _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
       _fees: PromiseOrValue<BigNumberish>[],
       _encodedData: PromiseOrValue<BytesLike>[],
@@ -152,7 +147,6 @@ export interface IRootManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     propagate(
-      _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
       _fees: PromiseOrValue<BigNumberish>[],
       _encodedData: PromiseOrValue<BytesLike>[],
