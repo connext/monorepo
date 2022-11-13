@@ -208,8 +208,7 @@ contract SwapAdminFacet is BaseConnextFacet {
       }
     }
 
-    s.swapStorages[_key].withdrawAdminFees(msg.sender);
-    emit AdminFeesWithdrawn(_key, msg.sender);
+    _withdrawAdminFees(_key, msg.sender);
 
     delete s.swapStorages[_key];
 
@@ -221,8 +220,17 @@ contract SwapAdminFacet is BaseConnextFacet {
    * @param key Hash of the canonical domain and id
    */
   function withdrawSwapAdminFees(bytes32 key) external onlyOwnerOrAdmin nonReentrant {
-    s.swapStorages[key].withdrawAdminFees(msg.sender);
-    emit AdminFeesWithdrawn(key, msg.sender);
+    _withdrawAdminFees(key, msg.sender);
+  }
+
+  /**
+   * @notice Withdraws all admin fees for pool at key to provided address and emits event
+   * @param _key Hash of the canonical domain and id
+   * @param _to Recipient of fees
+   */
+  function _withdrawAdminFees(bytes32 _key, address _to) internal {
+    s.swapStorages[_key].withdrawAdminFees(_to);
+    emit AdminFeesWithdrawn(_key, _to);
   }
 
   /**
