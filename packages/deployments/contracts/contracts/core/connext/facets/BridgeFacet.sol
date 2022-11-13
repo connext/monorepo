@@ -42,6 +42,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_invalidSlippage();
   error BridgeFacet__xcall_canonicalAssetNotReceived();
+  error BridgeFacet_xcall__emptyLocalAsset();
   error BridgeFacet__xcall_capReached();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
@@ -485,6 +486,7 @@ contract BridgeFacet is BaseConnextFacet {
         revert BridgeFacet__xcall_emptyTo();
       }
 
+      // Reasonable slippage
       if (_params.slippage > BPS_FEE_DENOMINATOR) {
         revert BridgeFacet__xcall_invalidSlippage();
       }
@@ -509,6 +511,9 @@ contract BridgeFacet is BaseConnextFacet {
 
         // Get the local address
         local = _getLocalAsset(key, canonical.id, canonical.domain);
+        if (local == address(0)) {
+          revert BridgeFacet_xcall__emptyLocalAsset();
+        }
 
         // Set boolean flag
         isCanonical = _params.originDomain == canonical.domain && local == _asset;
