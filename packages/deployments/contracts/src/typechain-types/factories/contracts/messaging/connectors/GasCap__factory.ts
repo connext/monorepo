@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  BaseMultichain,
-  BaseMultichainInterface,
-} from "../../../../../contracts/messaging/connectors/multichain/BaseMultichain";
+  GasCap,
+  GasCapInterface,
+} from "../../../../contracts/messaging/connectors/GasCap";
 
 const _abi = [
   {
@@ -105,30 +105,6 @@ const _abi = [
     inputs: [],
     name: "acceptProposedOwner",
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes",
-        name: "_data",
-        type: "bytes",
-      },
-    ],
-    name: "anyExecute",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "success",
-        type: "bool",
-      },
-      {
-        internalType: "bytes",
-        name: "result",
-        type: "bytes",
-      },
-    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -232,15 +208,12 @@ const _abi = [
   },
 ];
 
-export class BaseMultichain__factory {
+export class GasCap__factory {
   static readonly abi = _abi;
-  static createInterface(): BaseMultichainInterface {
-    return new utils.Interface(_abi) as BaseMultichainInterface;
+  static createInterface(): GasCapInterface {
+    return new utils.Interface(_abi) as GasCapInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): BaseMultichain {
-    return new Contract(address, _abi, signerOrProvider) as BaseMultichain;
+  static connect(address: string, signerOrProvider: Signer | Provider): GasCap {
+    return new Contract(address, _abi, signerOrProvider) as GasCap;
   }
 }
