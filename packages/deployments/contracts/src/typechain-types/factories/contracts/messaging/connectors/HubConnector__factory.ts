@@ -80,6 +80,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "bytes",
+        name: "encodedData",
+        type: "bytes",
+      },
+      {
+        indexed: false,
         internalType: "address",
         name: "caller",
         type: "address",
@@ -105,25 +111,6 @@ const _abi = [
       },
     ],
     name: "MirrorConnectorUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "previous",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "current",
-        type: "uint256",
-      },
-    ],
-    name: "MirrorGasUpdated",
     type: "event",
   },
   {
@@ -282,19 +269,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "mirrorGas",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "owner",
     outputs: [
       {
@@ -385,10 +359,15 @@ const _abi = [
         name: "_data",
         type: "bytes",
       },
+      {
+        internalType: "bytes",
+        name: "_encodedData",
+        type: "bytes",
+      },
     ],
     name: "sendMessage",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -400,19 +379,6 @@ const _abi = [
       },
     ],
     name: "setMirrorConnector",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_mirrorGas",
-        type: "uint256",
-      },
-    ],
-    name: "setMirrorGas",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -435,6 +401,10 @@ const _abi = [
     ],
     stateMutability: "nonpayable",
     type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ];
 

@@ -11,4 +11,4 @@ docker run --rm -p 3000:3000 -e PGRST_DB_URI="postgres://reader:3eadooor@host.do
 
 # Parsing
 
-Postgrest returns JSON objects directly from the database. In most cases, you will want to convert these to a format that is used across our apps. We have some helper functions for this [here](../../../deployments/contracts/contracts/nomad-xapps/contracts/connext/ConnextHandler.sol). These should be used to parse the returned API results into more useful types.
+Postgrest returns JSON objects directly from the database. In most cases, you will want to convert these to a format that is used across our apps.

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 /**
  * @notice This abstract contract was written to ensure domain and connector mutex is scalable for the
@@ -81,10 +81,23 @@ abstract contract DomainIndexer {
    * @notice Validate given domains and connectors arrays are correct (i.e. they mirror what is
    * currently saved in storage).
    * @dev Reverts if domains or connectors do not match, including ordering.
+   * @param _domains The given domains array to check.
+   * @param _connectors The given connectors array to check.
    */
   function validateDomains(uint32[] calldata _domains, address[] calldata _connectors) public view {
     // Validate that given domains match the current array in storage.
     require(keccak256(abi.encode(_domains)) == domainsHash, "!domains");
+    // Validate that given connectors match the current array in storage.
+    require(keccak256(abi.encode(_connectors)) == connectorsHash, "!connectors");
+  }
+
+  /**
+   * @notice Validate given connectors array is correct (i.e. it mirrors what is
+   * currently saved in storage).
+   * @dev Reverts if domains or connectors do not match, including ordering.
+   * @param _connectors The given connectors array to check.
+   */
+  function validateConnectors(address[] calldata _connectors) public view {
     // Validate that given connectors match the current array in storage.
     require(keccak256(abi.encode(_connectors)) == connectorsHash, "!connectors");
   }

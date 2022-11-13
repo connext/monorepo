@@ -8,6 +8,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -33,7 +34,7 @@ export interface IHubConnectorInterface extends utils.Interface {
     "processMessage(bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
-    "sendMessage(bytes)": FunctionFragment;
+    "sendMessage(bytes,bytes)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
   };
 
@@ -64,7 +65,7 @@ export interface IHubConnectorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "sendMessage",
-    values: [PromiseOrValue<BytesLike>]
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "verifySender",
@@ -96,7 +97,7 @@ export interface IHubConnectorInterface extends utils.Interface {
 
   events: {
     "MessageProcessed(bytes,address)": EventFragment;
-    "MessageSent(bytes,address)": EventFragment;
+    "MessageSent(bytes,bytes,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
@@ -121,10 +122,11 @@ export type MessageProcessedEventFilter =
 
 export interface MessageSentEventObject {
   data: string;
+  encodedData: string;
   caller: string;
 }
 export type MessageSentEvent = TypedEvent<
-  [string, string],
+  [string, string, string],
   MessageSentEventObject
 >;
 
@@ -202,7 +204,8 @@ export interface IHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _encodedData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     verifySender(
@@ -231,7 +234,8 @@ export interface IHubConnector extends BaseContract {
 
   sendMessage(
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    _encodedData: PromiseOrValue<BytesLike>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   verifySender(
@@ -258,6 +262,7 @@ export interface IHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
+      _encodedData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -274,11 +279,16 @@ export interface IHubConnector extends BaseContract {
     ): MessageProcessedEventFilter;
     MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
 
-    "MessageSent(bytes,address)"(
+    "MessageSent(bytes,bytes,address)"(
       data?: null,
+      encodedData?: null,
       caller?: null
     ): MessageSentEventFilter;
-    MessageSent(data?: null, caller?: null): MessageSentEventFilter;
+    MessageSent(
+      data?: null,
+      encodedData?: null,
+      caller?: null
+    ): MessageSentEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
@@ -318,7 +328,8 @@ export interface IHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _encodedData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     verifySender(
@@ -348,7 +359,8 @@ export interface IHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _encodedData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     verifySender(

@@ -184,6 +184,10 @@ export type { Connector } from "./contracts/messaging/connectors/Connector";
 export { Connector__factory } from "./factories/contracts/messaging/connectors/Connector__factory";
 export type { ConnectorManager } from "./contracts/messaging/connectors/ConnectorManager";
 export { ConnectorManager__factory } from "./factories/contracts/messaging/connectors/ConnectorManager__factory";
+export type { GasCap } from "./contracts/messaging/connectors/GasCap";
+export { GasCap__factory } from "./factories/contracts/messaging/connectors/GasCap__factory";
+export type { GnosisBase } from "./contracts/messaging/connectors/gnosis/GnosisBase";
+export { GnosisBase__factory } from "./factories/contracts/messaging/connectors/gnosis/GnosisBase__factory";
 export type { GnosisHubConnector } from "./contracts/messaging/connectors/gnosis/GnosisHubConnector";
 export { GnosisHubConnector__factory } from "./factories/contracts/messaging/connectors/gnosis/GnosisHubConnector__factory";
 export type { GnosisSpokeConnector } from "./contracts/messaging/connectors/gnosis/GnosisSpokeConnector";
@@ -198,6 +202,8 @@ export type { MultichainHubConnector } from "./contracts/messaging/connectors/mu
 export { MultichainHubConnector__factory } from "./factories/contracts/messaging/connectors/multichain/MultichainHubConnector__factory";
 export type { MultichainSpokeConnector } from "./contracts/messaging/connectors/multichain/MultichainSpokeConnector";
 export { MultichainSpokeConnector__factory } from "./factories/contracts/messaging/connectors/multichain/MultichainSpokeConnector__factory";
+export type { BaseOptimism } from "./contracts/messaging/connectors/optimism/BaseOptimism";
+export { BaseOptimism__factory } from "./factories/contracts/messaging/connectors/optimism/BaseOptimism__factory";
 export type { OptimismHubConnector } from "./contracts/messaging/connectors/optimism/OptimismHubConnector";
 export { OptimismHubConnector__factory } from "./factories/contracts/messaging/connectors/optimism/OptimismHubConnector__factory";
 export type { OptimismSpokeConnector } from "./contracts/messaging/connectors/optimism/OptimismSpokeConnector";
@@ -254,6 +260,8 @@ export type { DomainIndexer } from "./contracts/messaging/libraries/DomainIndexe
 export { DomainIndexer__factory } from "./factories/contracts/messaging/libraries/DomainIndexer__factory";
 export type { MerkleLib } from "./contracts/messaging/libraries/Merkle.sol/MerkleLib";
 export { MerkleLib__factory } from "./factories/contracts/messaging/libraries/Merkle.sol/MerkleLib__factory";
+export type { RateLimited } from "./contracts/messaging/libraries/RateLimited";
+export { RateLimited__factory } from "./factories/contracts/messaging/libraries/RateLimited__factory";
 export type { MerkleTreeManager } from "./contracts/messaging/Merkle.sol/MerkleTreeManager";
 export { MerkleTreeManager__factory } from "./factories/contracts/messaging/Merkle.sol/MerkleTreeManager__factory";
 export type { RootManager } from "./contracts/messaging/RootManager";

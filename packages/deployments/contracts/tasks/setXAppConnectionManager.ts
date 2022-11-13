@@ -56,7 +56,7 @@ export default task("set-xapp-manager", "Updates the xapp connection manager")
       console.log(`updating xapp connection manager on ${name} to ${connector.address}`);
       const localRouterDeployment = await hre.deployments.get(name);
       const { abi: localRouterAbi } = await hre.deployments.get(
-        // handle nomad upgrade naming case
+        // handle upgrade naming case
         name.includes("UpgradeBeaconProxy") ? getDeploymentName(name.split("UpgradeBeaconProxy")[0], env) : name,
       );
       const local = localRouterDeployment.address;
