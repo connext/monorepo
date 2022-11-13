@@ -28,7 +28,6 @@ contract WatcherClient is ProposedOwnable, Pausable {
 
   // ============ Constructor ============
   constructor(address _watcherManager) ProposedOwnable() {
-    _setOwner(msg.sender);
     watcherManager = WatcherManager(_watcherManager);
   }
 

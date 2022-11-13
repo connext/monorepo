@@ -6,6 +6,12 @@ import "../../contracts/messaging/WatcherClient.sol";
 import "../../contracts/messaging/WatcherManager.sol";
 import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
 
+contract Client is WatcherClient {
+  constructor(address _watcherManager) WatcherClient(_watcherManager) {
+    _setOwner(msg.sender);
+  }
+}
+
 contract WatcherClientTest is ForgeHelper {
   // ============ Storage ============
   WatcherClient watcherClient;
@@ -16,8 +22,7 @@ contract WatcherClientTest is ForgeHelper {
   // ============ Setup ============
   function setUp() public {
     vm.prank(owner);
-    watcherClient = new WatcherClient(watcherManager);
-    vm.mockCall(address(0), abi.encodeWithSelector(WatcherManager.isWatcher.selector, watcher), abi.encode(true));
+    watcherClient = new Client(watcherManager);
   }
 
   function test_WatcherClient__setWatcherManager_failsIfNotOwner(address caller) public {
