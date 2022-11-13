@@ -200,25 +200,51 @@ contract ConnextTest is ForgeHelper, Deployer {
     } // otherwise, could be anything
 
     // Handle origin
-    // Setup asset whitelist
-    console.log("setting up asset on origin");
-    _originConnext.setupAssetWithDeployedRepresentation(
-      TokenId(canonicalDomain, canonicalId),
-      _originLocal,
-      localIsAdopted ? address(0) : _originAdopted,
-      address(0),
-      10_000 ether // cap
-    );
+    // Set up asset whitelist
+    if (_origin == canonicalDomain) {
+      console.log("setting up canonical asset on origin");
+      _originConnext.setupAsset(
+        TokenId(canonicalDomain, canonicalId),
+        18,
+        "",
+        "",
+        address(0),
+        address(0),
+        10_000 ether // cap
+      );
+    } else {
+      console.log("setting up asset on origin");
+      _originConnext.setupAssetWithDeployedRepresentation(
+        TokenId(canonicalDomain, canonicalId),
+        _originLocal,
+        localIsAdopted ? address(0) : _originAdopted,
+        address(0),
+        10_000 ether // cap
+      );
+    }
 
-    // Setup asset whitelist
-    console.log("setting up asset on destination");
-    _destinationConnext.setupAssetWithDeployedRepresentation(
-      TokenId(canonicalDomain, canonicalId),
-      _destinationLocal,
-      localIsAdopted ? address(0) : _destinationAdopted,
-      address(0),
-      10_000 ether // cap
-    );
+    // Set up asset whitelist
+    if (_destination == canonicalDomain) {
+      console.log("setting up canonical asset on destination");
+      _destinationConnext.setupAsset(
+        TokenId(canonicalDomain, canonicalId),
+        18,
+        "",
+        "",
+        address(0),
+        address(0),
+        10_000 ether // cap
+      );
+    } else {
+      console.log("setting up asset on destination");
+      _destinationConnext.setupAssetWithDeployedRepresentation(
+        TokenId(canonicalDomain, canonicalId),
+        _destinationLocal,
+        localIsAdopted ? address(0) : _destinationAdopted,
+        address(0),
+        10_000 ether // cap
+      );
+    }
 
     if (localIsAdopted) {
       _originAdopted = _originLocal;
