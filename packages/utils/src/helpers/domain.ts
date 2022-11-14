@@ -3,7 +3,7 @@ import { ChainData, getChainData } from "..";
 /**
  * Gets chain id from domain with `chainData`
  *
- * @param domain The network identifier defined by nomad
+ * @param domain The network identifier
  * @param _chainData The global chain data
  * @returns The chain id
  */
@@ -22,7 +22,7 @@ export const getChainIdFromDomain = async (domain: string, _chainData?: Map<stri
  *
  * @param chainId The network identifier
  * @param chainData The global chain data
- * @returns The domain defined by nomad
+ * @returns The domain
  */
 export const getDomainFromChainId = async (chainId: number, _chainData?: Map<string, ChainData>): Promise<string> => {
   const chaindata = _chainData ?? (await getChainData());

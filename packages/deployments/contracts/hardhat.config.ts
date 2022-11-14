@@ -30,7 +30,6 @@ import "./tasks/enrollHandlers";
 import "./tasks/dustSelfAccounts";
 import "./tasks/xcall";
 import "./tasks/readBalances";
-import "./tasks/traceMessage";
 import "./tasks/preflight";
 import "./tasks/addRelayer";
 import "./tasks/executeEstimateGas";
