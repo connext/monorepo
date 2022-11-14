@@ -82,7 +82,6 @@ contract RootManagerPropagateWrapperTest is ForgeHelper {
 
     vm.mockCall(
       address(rootManager),
-      0.09 ether,
       abi.encodeWithSelector(RootManager(rootManager).propagate.selector),
       abi.encode()
     );
