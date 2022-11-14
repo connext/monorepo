@@ -10,6 +10,6 @@ export * as polygon from "./polygon";
 export * as zksync from "./zksync";
 export { Connector__factory } from "./Connector__factory";
 export { ConnectorManager__factory } from "./ConnectorManager__factory";
-export { GasCap__factory } from "./GasCap__factory";
 export { HubConnector__factory } from "./HubConnector__factory";
+export { SendOutboundRootResolver__factory } from "./SendOutboundRootResolver__factory";
 export { SpokeConnector__factory } from "./SpokeConnector__factory";

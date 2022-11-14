@@ -47,7 +47,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     vm.expectEmit(true, true, false, true);
     emit StableSwapAdded(_canonicalKey, _canonicalId, _domain, pool, _owner);
 
-    // this.setupAsset(canonical, asset, pool);
+    this.setupAsset(canonical, _canonicalDecimals, tokenName, tokenSymbol, asset, pool, _cap);
     assertTrue(s.approvedAssets[_canonicalKey]);
     assertEq(s.adoptedToCanonical[asset].domain, _domain);
     assertEq(s.adoptedToCanonical[asset].id, _canonicalId);
@@ -56,16 +56,20 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   }
 
   // Calls removeAsset and asserts state changes/events
-  function removeAssetAndAssert(address adopted) public {
+  function removeAssetAndAssert(
+    bytes32 key,
+    address adopted,
+    address representation
+  ) public {
     vm.expectEmit(true, true, false, true);
-    emit AssetRemoved(_canonicalKey, _owner);
+    emit AssetRemoved(key, _owner);
 
-    // this.removeAssetId(_canonicalKey, adopted);
-    assertEq(s.approvedAssets[_canonicalKey], false);
+    this.removeAssetId(key, adopted, representation);
+    assertEq(s.approvedAssets[key], false);
     assertEq(s.adoptedToCanonical[adopted].domain, 0);
     assertEq(s.adoptedToCanonical[adopted].id, bytes32(0));
-    assertEq(s.canonicalToAdopted[_canonicalKey], address(0));
-    assertEq(address(s.adoptedToLocalExternalPools[_canonicalKey]), address(0));
+    assertEq(s.canonicalToAdopted[key], address(0));
+    assertEq(address(s.adoptedToLocalExternalPools[key]), address(0));
   }
 
   // ============ Getters ============
@@ -139,6 +143,23 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   //   this.setupAsset(TokenId(_domain, _canonicalId), asset, stableSwap);
   // }
 
+  function test_TokenFacet__setupAssetWithDeployedRepresentation_failOnCanonicalDomain() public {
+    address asset = address(0);
+    address stableSwap = address(0);
+    address adoptedAssetId = address(1234);
+
+    vm.prank(_owner);
+    vm.expectRevert(TokenFacet.TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain.selector);
+    this.setupAssetWithDeployedRepresentation(
+      // Passing in the current domain as the canonical domain for the asset should result in a revert.
+      TokenId(s.domain, _canonicalId),
+      asset,
+      adoptedAssetId,
+      stableSwap,
+      100000 ether
+    );
+  }
+
   // function test_TokenFacet__setupAsset_failIfRedundant() public {
   //   TokenId memory canonical = TokenId(_domain, _canonicalId);
   //   address asset = address(new TestERC20("Test Token", "TEST"));
@@ -149,7 +170,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   //   this.setupAsset(canonical, asset, address(0));
   // }
 
-  // addStableSwapPool
+  // ============ addStableSwapPool ============
   function test_TokenFacet__addStableSwapPool_success() public {
     address stableSwap = address(65);
 
@@ -178,13 +199,12 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     assertEq(address(s.adoptedToLocalExternalPools[_canonicalKey]), empty);
   }
 
-  // // removeAssetId
+  // ============ removeAssetId ============
   // function test_TokenFacet__removeAssetId_successErc20Token() public {
   //   vm.prank(_owner);
   //   setupAssetAndAssert(_local, address(12));
 
-  //   vm.prank(_owner);
-  //   removeAssetAndAssert(_local);
+  //   removeAssetAndAssert(_canonicalKey, _local, _local);
   // }
 
   // function test_TokenFacet__removeAssetId_failIfNotAlreadyApproved() public {

@@ -33,10 +33,13 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ========== Custom Errors ===========
 
+  error BridgeFacet__addRemote_invalidRouter();
   error BridgeFacet__addRemote_invalidDomain();
   error BridgeFacet__onlyDelegate_notDelegate();
+  error BridgeFacet__addSequencer_invalidSequencer();
   error BridgeFacet__addSequencer_alreadyApproved();
   error BridgeFacet__removeSequencer_notApproved();
+  error BridgeFacet__setXAppConnectionManager_domainsDontMatch();
   error BridgeFacet__xcall_nativeAssetNotSupported();
   error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_notSupportedAsset();
@@ -222,6 +225,8 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _sequencer - The sequencer address to add.
    */
   function addSequencer(address _sequencer) external onlyOwnerOrAdmin {
+    if (_sequencer == address(0)) revert BridgeFacet__addSequencer_invalidSequencer();
+
     if (s.approvedSequencers[_sequencer]) revert BridgeFacet__addSequencer_alreadyApproved();
     s.approvedSequencers[_sequencer] = true;
 
@@ -244,7 +249,11 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _xAppConnectionManager The address of the xAppConnectionManager contract
    */
   function setXAppConnectionManager(address _xAppConnectionManager) external onlyOwnerOrAdmin {
-    s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
+    IConnectorManager manager = IConnectorManager(_xAppConnectionManager);
+    if (manager.localDomain() != s.domain) {
+      revert BridgeFacet__setXAppConnectionManager_domainsDontMatch();
+    }
+    s.xAppConnectionManager = manager;
   }
 
   /**
@@ -253,10 +262,13 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _router The address of the remote xApp Router
    */
   function enrollRemoteRouter(uint32 _domain, bytes32 _router) external onlyOwnerOrAdmin {
-    // Make sure we aren't setting the current domain as the connextion.
-    if (_domain == s.domain) {
+    if (_router == bytes32("")) revert BridgeFacet__addRemote_invalidRouter();
+
+    // Make sure we aren't setting the current domain (or an empty one) as the connextion.
+    if (_domain == 0 || _domain == s.domain) {
       revert BridgeFacet__addRemote_invalidDomain();
     }
+
     s.remotes[_domain] = _router;
     emit RemoteAdded(_domain, TypeCasts.bytes32ToAddress(_router), msg.sender);
   }

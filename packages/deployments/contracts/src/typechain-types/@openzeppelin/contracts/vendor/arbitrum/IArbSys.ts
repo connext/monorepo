@@ -29,15 +29,15 @@ import type {
 
 export interface IArbSysInterface extends utils.Interface {
   functions: {
+    "arbBlockHash(uint256)": FunctionFragment;
     "arbBlockNumber()": FunctionFragment;
     "arbChainID()": FunctionFragment;
     "arbOSVersion()": FunctionFragment;
-    "getStorageAt(address,uint256)": FunctionFragment;
     "getStorageGasAvailable()": FunctionFragment;
-    "getTransactionCount(address)": FunctionFragment;
     "isTopLevelCall()": FunctionFragment;
     "mapL1SenderContractAddressToL2Alias(address,address)": FunctionFragment;
     "myCallersAddressWithoutAliasing()": FunctionFragment;
+    "sendMerkleTreeState()": FunctionFragment;
     "sendTxToL1(address,bytes)": FunctionFragment;
     "wasMyCallersAddressAliased()": FunctionFragment;
     "withdrawEth(address)": FunctionFragment;
@@ -45,20 +45,24 @@ export interface IArbSysInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "arbBlockHash"
       | "arbBlockNumber"
       | "arbChainID"
       | "arbOSVersion"
-      | "getStorageAt"
       | "getStorageGasAvailable"
-      | "getTransactionCount"
       | "isTopLevelCall"
       | "mapL1SenderContractAddressToL2Alias"
       | "myCallersAddressWithoutAliasing"
+      | "sendMerkleTreeState"
       | "sendTxToL1"
       | "wasMyCallersAddressAliased"
       | "withdrawEth"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "arbBlockHash",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
     functionFragment: "arbBlockNumber",
     values?: undefined
@@ -72,16 +76,8 @@ export interface IArbSysInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getStorageAt",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getStorageGasAvailable",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getTransactionCount",
-    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "isTopLevelCall",
@@ -93,6 +89,10 @@ export interface IArbSysInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "myCallersAddressWithoutAliasing",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "sendMerkleTreeState",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -109,6 +109,10 @@ export interface IArbSysInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "arbBlockHash",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "arbBlockNumber",
     data: BytesLike
   ): Result;
@@ -118,15 +122,7 @@ export interface IArbSysInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getStorageAt",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getStorageGasAvailable",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getTransactionCount",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -141,6 +137,10 @@ export interface IArbSysInterface extends utils.Interface {
     functionFragment: "myCallersAddressWithoutAliasing",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "sendMerkleTreeState",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "sendTxToL1", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "wasMyCallersAddressAliased",
@@ -153,9 +153,13 @@ export interface IArbSysInterface extends utils.Interface {
 
   events: {
     "L2ToL1Transaction(address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,bytes)": EventFragment;
+    "L2ToL1Tx(address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes)": EventFragment;
+    "SendMerkleUpdate(uint256,bytes32,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "L2ToL1Transaction"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "L2ToL1Tx"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SendMerkleUpdate"): EventFragment;
 }
 
 export interface L2ToL1TransactionEventObject {
@@ -189,6 +193,47 @@ export type L2ToL1TransactionEvent = TypedEvent<
 export type L2ToL1TransactionEventFilter =
   TypedEventFilter<L2ToL1TransactionEvent>;
 
+export interface L2ToL1TxEventObject {
+  caller: string;
+  destination: string;
+  hash: BigNumber;
+  position: BigNumber;
+  arbBlockNum: BigNumber;
+  ethBlockNum: BigNumber;
+  timestamp: BigNumber;
+  callvalue: BigNumber;
+  data: string;
+}
+export type L2ToL1TxEvent = TypedEvent<
+  [
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    string
+  ],
+  L2ToL1TxEventObject
+>;
+
+export type L2ToL1TxEventFilter = TypedEventFilter<L2ToL1TxEvent>;
+
+export interface SendMerkleUpdateEventObject {
+  reserved: BigNumber;
+  hash: string;
+  position: BigNumber;
+}
+export type SendMerkleUpdateEvent = TypedEvent<
+  [BigNumber, string, BigNumber],
+  SendMerkleUpdateEventObject
+>;
+
+export type SendMerkleUpdateEventFilter =
+  TypedEventFilter<SendMerkleUpdateEvent>;
+
 export interface IArbSys extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -216,30 +261,24 @@ export interface IArbSys extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    arbBlockHash(
+      arbBlockNum: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     arbBlockNumber(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     arbChainID(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     arbOSVersion(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    getStorageAt(
-      account: PromiseOrValue<string>,
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     getStorageGasAvailable(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    getTransactionCount(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
 
     isTopLevelCall(overrides?: CallOverrides): Promise<[boolean]>;
 
     mapL1SenderContractAddressToL2Alias(
       sender: PromiseOrValue<string>,
-      dest: PromiseOrValue<string>,
+      unused: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
@@ -247,9 +286,19 @@ export interface IArbSys extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    sendMerkleTreeState(
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, string, string[]] & {
+        size: BigNumber;
+        root: string;
+        partials: string[];
+      }
+    >;
+
     sendTxToL1(
       destination: PromiseOrValue<string>,
-      calldataForL1: PromiseOrValue<BytesLike>,
+      data: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -261,38 +310,42 @@ export interface IArbSys extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  arbBlockHash(
+    arbBlockNum: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   arbBlockNumber(overrides?: CallOverrides): Promise<BigNumber>;
 
   arbChainID(overrides?: CallOverrides): Promise<BigNumber>;
 
   arbOSVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
-  getStorageAt(
-    account: PromiseOrValue<string>,
-    index: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   getStorageGasAvailable(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getTransactionCount(
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
 
   isTopLevelCall(overrides?: CallOverrides): Promise<boolean>;
 
   mapL1SenderContractAddressToL2Alias(
     sender: PromiseOrValue<string>,
-    dest: PromiseOrValue<string>,
+    unused: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<string>;
 
   myCallersAddressWithoutAliasing(overrides?: CallOverrides): Promise<string>;
 
+  sendMerkleTreeState(
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, string, string[]] & {
+      size: BigNumber;
+      root: string;
+      partials: string[];
+    }
+  >;
+
   sendTxToL1(
     destination: PromiseOrValue<string>,
-    calldataForL1: PromiseOrValue<BytesLike>,
+    data: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -304,38 +357,42 @@ export interface IArbSys extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    arbBlockHash(
+      arbBlockNum: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     arbBlockNumber(overrides?: CallOverrides): Promise<BigNumber>;
 
     arbChainID(overrides?: CallOverrides): Promise<BigNumber>;
 
     arbOSVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getStorageAt(
-      account: PromiseOrValue<string>,
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     getStorageGasAvailable(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getTransactionCount(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     isTopLevelCall(overrides?: CallOverrides): Promise<boolean>;
 
     mapL1SenderContractAddressToL2Alias(
       sender: PromiseOrValue<string>,
-      dest: PromiseOrValue<string>,
+      unused: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string>;
 
     myCallersAddressWithoutAliasing(overrides?: CallOverrides): Promise<string>;
 
+    sendMerkleTreeState(
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, string, string[]] & {
+        size: BigNumber;
+        root: string;
+        partials: string[];
+      }
+    >;
+
     sendTxToL1(
       destination: PromiseOrValue<string>,
-      calldataForL1: PromiseOrValue<BytesLike>,
+      data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -372,33 +429,61 @@ export interface IArbSys extends BaseContract {
       callvalue?: null,
       data?: null
     ): L2ToL1TransactionEventFilter;
+
+    "L2ToL1Tx(address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes)"(
+      caller?: null,
+      destination?: PromiseOrValue<string> | null,
+      hash?: PromiseOrValue<BigNumberish> | null,
+      position?: PromiseOrValue<BigNumberish> | null,
+      arbBlockNum?: null,
+      ethBlockNum?: null,
+      timestamp?: null,
+      callvalue?: null,
+      data?: null
+    ): L2ToL1TxEventFilter;
+    L2ToL1Tx(
+      caller?: null,
+      destination?: PromiseOrValue<string> | null,
+      hash?: PromiseOrValue<BigNumberish> | null,
+      position?: PromiseOrValue<BigNumberish> | null,
+      arbBlockNum?: null,
+      ethBlockNum?: null,
+      timestamp?: null,
+      callvalue?: null,
+      data?: null
+    ): L2ToL1TxEventFilter;
+
+    "SendMerkleUpdate(uint256,bytes32,uint256)"(
+      reserved?: PromiseOrValue<BigNumberish> | null,
+      hash?: PromiseOrValue<BytesLike> | null,
+      position?: PromiseOrValue<BigNumberish> | null
+    ): SendMerkleUpdateEventFilter;
+    SendMerkleUpdate(
+      reserved?: PromiseOrValue<BigNumberish> | null,
+      hash?: PromiseOrValue<BytesLike> | null,
+      position?: PromiseOrValue<BigNumberish> | null
+    ): SendMerkleUpdateEventFilter;
   };
 
   estimateGas: {
+    arbBlockHash(
+      arbBlockNum: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     arbBlockNumber(overrides?: CallOverrides): Promise<BigNumber>;
 
     arbChainID(overrides?: CallOverrides): Promise<BigNumber>;
 
     arbOSVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getStorageAt(
-      account: PromiseOrValue<string>,
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     getStorageGasAvailable(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getTransactionCount(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     isTopLevelCall(overrides?: CallOverrides): Promise<BigNumber>;
 
     mapL1SenderContractAddressToL2Alias(
       sender: PromiseOrValue<string>,
-      dest: PromiseOrValue<string>,
+      unused: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -406,9 +491,11 @@ export interface IArbSys extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    sendMerkleTreeState(overrides?: CallOverrides): Promise<BigNumber>;
+
     sendTxToL1(
       destination: PromiseOrValue<string>,
-      calldataForL1: PromiseOrValue<BytesLike>,
+      data: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -421,24 +508,18 @@ export interface IArbSys extends BaseContract {
   };
 
   populateTransaction: {
+    arbBlockHash(
+      arbBlockNum: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     arbBlockNumber(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     arbChainID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     arbOSVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getStorageAt(
-      account: PromiseOrValue<string>,
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     getStorageGasAvailable(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getTransactionCount(
-      account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -446,7 +527,7 @@ export interface IArbSys extends BaseContract {
 
     mapL1SenderContractAddressToL2Alias(
       sender: PromiseOrValue<string>,
-      dest: PromiseOrValue<string>,
+      unused: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -454,9 +535,13 @@ export interface IArbSys extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    sendMerkleTreeState(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     sendTxToL1(
       destination: PromiseOrValue<string>,
-      calldataForL1: PromiseOrValue<BytesLike>,
+      data: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

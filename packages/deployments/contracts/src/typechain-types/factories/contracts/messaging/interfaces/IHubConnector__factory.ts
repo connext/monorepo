@@ -40,12 +40,6 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "bytes",
-        name: "encodedData",
-        type: "bytes",
-      },
-      {
-        indexed: false,
         internalType: "address",
         name: "caller",
         type: "address",
@@ -152,15 +146,10 @@ const _abi = [
         name: "_data",
         type: "bytes",
       },
-      {
-        internalType: "bytes",
-        name: "_encodedData",
-        type: "bytes",
-      },
     ],
     name: "sendMessage",
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

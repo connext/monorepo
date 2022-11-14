@@ -22,7 +22,10 @@ contract TokenFacet is BaseConnextFacet {
   error TokenFacet__addAssetId_nativeAsset();
   error TokenFacet__addAssetId_alreadyAdded();
   error TokenFacet__removeAssetId_notAdded();
+  error TokenFacet__removeAssetId_invalidParams();
   error TokenFacet__updateDetails_localNotFound();
+  error TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
+  error TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
   error TokenFacet__setLiquidityCap_notCanonicalDomain();
 
   // ============ Events ============
@@ -202,6 +205,9 @@ contract TokenFacet is BaseConnextFacet {
     address _stableSwapPool,
     uint256 _cap
   ) external onlyOwnerOrAdmin returns (address) {
+    if (_canonical.domain == s.domain) {
+      revert TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
+    }
     bytes32 key = _enrollAdoptedAndLocalAssets(_adoptedAssetId, _representation, _stableSwapPool, _canonical);
     if (_cap != 0) {
       _setLiquidityCap(_canonical, _cap, key);
@@ -281,6 +287,11 @@ contract TokenFacet is BaseConnextFacet {
     address _stableSwapPool,
     TokenId calldata _canonical
   ) internal returns (bytes32 _key) {
+    // Sanity check: canonical ID and domain are not 0.
+    if (_canonical.domain == 0 || _canonical.id == bytes32("")) {
+      revert TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
+    }
+
     // Get the key
     _key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
 
@@ -293,7 +304,7 @@ contract TokenFacet is BaseConnextFacet {
     // Update approved assets mapping
     s.approvedAssets[_key] = true;
 
-    // Update the adopted mapping using convention of local == adopted iff (_adooted == address(0))
+    // Update the adopted mapping using convention of local == adopted iff (_adopted == address(0))
     s.adoptedToCanonical[adopted].domain = _canonical.domain;
     s.adoptedToCanonical[adopted].id = _canonical.id;
 
@@ -382,6 +393,10 @@ contract TokenFacet is BaseConnextFacet {
   ) internal {
     // Sanity check: already approval
     if (!s.approvedAssets[_key]) revert TokenFacet__removeAssetId_notAdded();
+
+    // Sanity check: consistent set of params
+    if (s.canonicalToAdopted[_key] != _adoptedAssetId || s.canonicalToRepresentation[_key] != _representation)
+      revert TokenFacet__removeAssetId_invalidParams();
 
     // Delete from approved assets mapping
     delete s.approvedAssets[_key];

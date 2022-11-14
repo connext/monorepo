@@ -86,7 +86,7 @@ export interface IConnectorInterface extends utils.Interface {
 
   events: {
     "MessageProcessed(bytes,address)": EventFragment;
-    "MessageSent(bytes,bytes,address)": EventFragment;
+    "MessageSent(bytes,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
@@ -111,11 +111,10 @@ export type MessageProcessedEventFilter =
 
 export interface MessageSentEventObject {
   data: string;
-  encodedData: string;
   caller: string;
 }
 export type MessageSentEvent = TypedEvent<
-  [string, string, string],
+  [string, string],
   MessageSentEventObject
 >;
 
@@ -250,16 +249,11 @@ export interface IConnector extends BaseContract {
     ): MessageProcessedEventFilter;
     MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
 
-    "MessageSent(bytes,bytes,address)"(
+    "MessageSent(bytes,address)"(
       data?: null,
-      encodedData?: null,
       caller?: null
     ): MessageSentEventFilter;
-    MessageSent(
-      data?: null,
-      encodedData?: null,
-      caller?: null
-    ): MessageSentEventFilter;
+    MessageSent(data?: null, caller?: null): MessageSentEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
