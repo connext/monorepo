@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
@@ -93,6 +93,10 @@ contract SwapAdminFacet is BaseConnextFacet {
    * This will also clone a LPToken contract that represents users'
    * LP positions. The owner of LPToken will be this contract - which means
    * only this contract is allowed to mint/burn tokens.
+   *
+   * @dev The swap can only be updated after initialization via `rampA`. This means
+   * if this value is incorrectly set, it will take some time to reach the
+   * correct value.
    *
    * @param _key the hash of the canonical id and domain for token
    * @param _pooledTokens an array of ERC20s this pool will accept

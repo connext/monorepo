@@ -118,19 +118,19 @@ locals {
       ]
       queues = [
         {
-          name       = "1"
+          name       = "6648936"
           limit      = 1
           queueLimit = 10000
           subscribe  = true
         },
         {
-          name       = "10"
+          name       = "1869640809"
           limit      = 1
           queueLimit = 10000
           subscribe  = true
         },
         {
-          name       = "137"
+          name       = "1886350457"
           limit      = 1
           queueLimit = 10000
           subscribe  = true
@@ -139,18 +139,18 @@ locals {
       bindings = [
         {
           exchange = "sequencerX"
-          target   = "1"
-          keys     = ["1"]
+          target   = "6648936"
+          keys     = ["6648936"]
         },
         {
           exchange = "sequencerX"
-          target   = "10"
-          keys     = ["10"]
+          target   = "1869640809"
+          keys     = ["1869640809"]
         },
         {
           exchange = "sequencerX"
-          target   = "137"
-          keys     = ["137"]
+          target   = "1886350457"
+          keys     = ["1886350457"]
         }
       ]
       executerTimeout = 300000

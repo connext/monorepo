@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {Multichain} from "../../interfaces/ambs/Multichain.sol";
 import {IRootManager} from "../../interfaces/IRootManager.sol";
@@ -16,11 +16,11 @@ contract MultichainHubConnector is HubConnector, BaseMultichain {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
-    uint256 _mirrorChainId
+    uint256 _mirrorChainId,
+    uint256 _gasCap
   )
-    HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
-    BaseMultichain(_amb, _mirrorChainId)
+    HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
+    BaseMultichain(_amb, _mirrorChainId, _gasCap)
   {}
 
   // ============ Private fns ============
@@ -36,8 +36,8 @@ contract MultichainHubConnector is HubConnector, BaseMultichain {
     IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
   }
 
-  function _sendMessage(bytes memory _data) internal override {
-    _sendMessage(AMB, mirrorConnector, _data);
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    _sendMessage(AMB, mirrorConnector, _data, _encodedData);
   }
 
   function _verifySender(address _expected) internal view override returns (bool) {
