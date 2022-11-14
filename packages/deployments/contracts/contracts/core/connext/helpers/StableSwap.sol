@@ -401,7 +401,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     uint256 amount,
     uint256[] calldata minAmounts,
     uint256 deadline
-  ) external override nonReentrant deadlineCheck(deadline) returns (uint256[] memory) {
+  ) external override nonReentrant whenNotPaused deadlineCheck(deadline) returns (uint256[] memory) {
     return swapStorage.removeLiquidity(amount, minAmounts);
   }
 
@@ -419,7 +419,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     uint8 tokenIndex,
     uint256 minAmount,
     uint256 deadline
-  ) external override nonReentrant deadlineCheck(deadline) returns (uint256) {
+  ) external override nonReentrant whenNotPaused deadlineCheck(deadline) returns (uint256) {
     return swapStorage.removeLiquidityOneToken(tokenAmount, tokenIndex, minAmount);
   }
 
@@ -437,7 +437,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     uint256[] calldata amounts,
     uint256 maxBurnAmount,
     uint256 deadline
-  ) external override nonReentrant deadlineCheck(deadline) returns (uint256) {
+  ) external override nonReentrant whenNotPaused deadlineCheck(deadline) returns (uint256) {
     return swapStorage.removeLiquidityImbalance(amounts, maxBurnAmount);
   }
 
