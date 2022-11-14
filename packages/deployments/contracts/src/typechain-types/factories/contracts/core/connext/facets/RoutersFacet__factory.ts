@@ -885,6 +885,19 @@ const _abi = [
         type: "address",
       },
     ],
+    name: "unapproveRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_router",
+        type: "address",
+      },
+    ],
     name: "unapproveRouterForPortal",
     outputs: [],
     stateMutability: "nonpayable",

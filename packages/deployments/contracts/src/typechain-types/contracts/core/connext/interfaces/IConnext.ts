@@ -565,6 +565,10 @@ export interface IConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<string>],
   ): string;
   encodeFunctionData(
+    functionFragment: "initializeRouter",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>],
+  ): string;
+  encodeFunctionData(
     functionFragment: "initializeSwap",
     values: [
       PromiseOrValue<BytesLike>,
@@ -1054,6 +1058,11 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
+    approveRouter(
+      router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
+
     approveRouterForPortal(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
@@ -1239,6 +1248,12 @@ export interface IConnext extends BaseContract {
       _nonce: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
       _message: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
+
+    initializeRouter(
+      owner: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
@@ -1531,6 +1546,11 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
+    unapproveRouter(
+      router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
+
     unapproveRouterForPortal(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
@@ -1644,6 +1664,11 @@ export interface IConnext extends BaseContract {
   "adoptedToLocalPools(bytes32)"(_key: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string>;
 
   "adoptedToLocalPools((uint32,bytes32))"(_canonical: TokenIdStruct, overrides?: CallOverrides): Promise<string>;
+
+  approveRouter(
+    router: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>;
 
   approveRouter(
     router: PromiseOrValue<string>,
@@ -1822,6 +1847,12 @@ export interface IConnext extends BaseContract {
     _nonce: PromiseOrValue<BigNumberish>,
     _sender: PromiseOrValue<BytesLike>,
     _message: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>;
+
+  initializeRouter(
+    owner: PromiseOrValue<string>,
+    recipient: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
@@ -2109,6 +2140,11 @@ export interface IConnext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
+  unapproveRouter(
+    router: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>;
+
   unapproveRouterForPortal(
     _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> },
@@ -2379,6 +2415,12 @@ export interface IConnext extends BaseContract {
       _nonce: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
       _message: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides,
+    ): Promise<void>;
+
+    initializeRouter(
+      owner: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
       overrides?: CallOverrides,
     ): Promise<void>;
 
@@ -2773,6 +2815,11 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
+    approveRouter(
+      router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>;
+
     approveRouterForPortal(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
@@ -2945,6 +2992,12 @@ export interface IConnext extends BaseContract {
       _nonce: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
       _message: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>;
+
+    initializeRouter(
+      owner: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
@@ -3230,6 +3283,11 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
+    unapproveRouter(
+      router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>;
+
     unapproveRouterForPortal(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
@@ -3349,6 +3407,11 @@ export interface IConnext extends BaseContract {
     "adoptedToLocalPools((uint32,bytes32))"(
       _canonical: TokenIdStruct,
       overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
+
+    approveRouter(
+      router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     approveRouter(
@@ -3558,6 +3621,12 @@ export interface IConnext extends BaseContract {
       _nonce: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
       _message: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>;
+
+    initializeRouter(
+      owner: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
@@ -3844,6 +3913,11 @@ export interface IConnext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     transferStatus(_transferId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    unapproveRouter(
+      router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>;
 
     unapproveRouter(
       router: PromiseOrValue<string>,

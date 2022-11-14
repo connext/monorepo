@@ -11,17 +11,17 @@ const _abi = [
     inputs: [
       {
         internalType: "uint8",
-        name: "_decimals",
+        name: "decimals_",
         type: "uint8",
       },
       {
         internalType: "string",
-        name: "_name",
+        name: "name_",
         type: "string",
       },
       {
         internalType: "string",
-        name: "_symbol",
+        name: "symbol_",
         type: "string",
       },
     ],
@@ -157,12 +157,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "_spender",
+        name: "spender",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "_amount",
+        name: "amount",
         type: "uint256",
       },
     ],
@@ -181,7 +181,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "_account",
+        name: "account",
         type: "address",
       },
     ],
@@ -436,12 +436,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "_recipient",
+        name: "to",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "_amount",
+        name: "amount",
         type: "uint256",
       },
     ],
@@ -518,20 +518,20 @@ export class BridgeToken__factory extends ContractFactory {
   }
 
   override deploy(
-    _decimals: PromiseOrValue<BigNumberish>,
-    _name: PromiseOrValue<string>,
-    _symbol: PromiseOrValue<string>,
+    decimals_: PromiseOrValue<BigNumberish>,
+    name_: PromiseOrValue<string>,
+    symbol_: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<BridgeToken> {
-    return super.deploy(_decimals, _name, _symbol, overrides || {}) as Promise<BridgeToken>;
+    return super.deploy(decimals_, name_, symbol_, overrides || {}) as Promise<BridgeToken>;
   }
   override getDeployTransaction(
-    _decimals: PromiseOrValue<BigNumberish>,
-    _name: PromiseOrValue<string>,
-    _symbol: PromiseOrValue<string>,
+    decimals_: PromiseOrValue<BigNumberish>,
+    name_: PromiseOrValue<string>,
+    symbol_: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): TransactionRequest {
-    return super.getDeployTransaction(_decimals, _name, _symbol, overrides || {});
+    return super.getDeployTransaction(decimals_, name_, symbol_, overrides || {});
   }
   override attach(address: string): BridgeToken {
     return super.attach(address) as BridgeToken;

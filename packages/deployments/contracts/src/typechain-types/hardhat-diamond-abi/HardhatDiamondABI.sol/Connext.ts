@@ -429,6 +429,7 @@ export interface ConnextInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>],
   ): string;
   encodeFunctionData(functionFragment: "execute", values: [ExecuteArgsStruct]): string;
+  encodeFunctionData(functionFragment: "execute", values: [ExecuteArgsStruct]): string;
   encodeFunctionData(functionFragment: "forceReceiveLocal", values: [TransferInfoStruct]): string;
   encodeFunctionData(
     functionFragment: "forceUpdateSlippage",
@@ -550,6 +551,14 @@ export interface ConnextInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "getRouterApprovalForPortal", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(functionFragment: "getRouterOwner", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(functionFragment: "getRouterRecipient", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "approveRouter", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "approveRouterForPortal", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "getProposedRouterOwner", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "getProposedRouterOwnerTimestamp", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "getRouterApproval", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "getRouterApprovalForPortal", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "getRouterOwner", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "getRouterRecipient", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(
     functionFragment: "initializeRouter",
     values: [PromiseOrValue<string>, PromiseOrValue<string>],
@@ -577,6 +586,8 @@ export interface ConnextInterface extends utils.Interface {
     functionFragment: "setRouterRecipient",
     values: [PromiseOrValue<string>, PromiseOrValue<string>],
   ): string;
+  encodeFunctionData(functionFragment: "unapproveRouter", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "unapproveRouterForPortal", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(functionFragment: "unapproveRouter", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(functionFragment: "unapproveRouterForPortal", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(
@@ -1698,6 +1709,11 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
+    approveRouter(
+      _router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
+
     approveRouterForPortal(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
@@ -1763,6 +1779,11 @@ export interface Connext extends BaseContract {
     setRouterRecipient(
       _router: PromiseOrValue<string>,
       _recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
+
+    unapproveRouter(
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
@@ -2251,6 +2272,11 @@ export interface Connext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
+  approveRouter(
+    _router: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>;
+
   approveRouterForPortal(
     _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> },
@@ -2316,6 +2342,11 @@ export interface Connext extends BaseContract {
   setRouterRecipient(
     _router: PromiseOrValue<string>,
     _recipient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>;
+
+  unapproveRouter(
+    _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
@@ -2742,6 +2773,8 @@ export interface Connext extends BaseContract {
 
     approveRouter(_router: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
+    approveRouter(_router: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
+
     approveRouterForPortal(_router: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
     getProposedRouterOwner(_router: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>;
@@ -2800,6 +2833,8 @@ export interface Connext extends BaseContract {
       _recipient: PromiseOrValue<string>,
       overrides?: CallOverrides,
     ): Promise<void>;
+
+    unapproveRouter(_router: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
     unapproveRouter(_router: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
@@ -3612,6 +3647,11 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
+    approveRouter(
+      _router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>;
+
     approveRouterForPortal(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
@@ -3677,6 +3717,11 @@ export interface Connext extends BaseContract {
     setRouterRecipient(
       _router: PromiseOrValue<string>,
       _recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>;
+
+    unapproveRouter(
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
@@ -4148,11 +4193,6 @@ export interface Connext extends BaseContract {
 
     LIQUIDITY_FEE_NUMERATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    acceptProposedRouterOwner(
-      _router: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>;
-
     addRouterLiquidity(
       _amount: PromiseOrValue<BigNumberish>,
       _local: PromiseOrValue<string>,
@@ -4164,6 +4204,11 @@ export interface Connext extends BaseContract {
       _local: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>;
+
+    approveRouter(
+      _router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     approveRouter(
@@ -4242,6 +4287,11 @@ export interface Connext extends BaseContract {
     setRouterRecipient(
       _router: PromiseOrValue<string>,
       _recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>;
+
+    unapproveRouter(
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
