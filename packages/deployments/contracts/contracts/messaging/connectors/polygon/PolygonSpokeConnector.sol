@@ -23,7 +23,6 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
@@ -36,7 +35,6 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorGas,
       _processGas,
       _reserveGas,
       _delayBlocks,
@@ -54,7 +52,9 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
     return false;
   }
 
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should not include specialized calldata
+    require(_encodedData.length == 0, "!data length");
     _sendMessageToRoot(_data);
   }
 

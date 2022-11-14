@@ -158,6 +158,11 @@ struct AppStorage {
   // 7
   mapping(bytes32 => uint256) caps;
   /**
+   * @notice Mapping of custodied balance by address
+   * @dev Used to enforce cap
+   */
+  mapping(address => uint256) custodied;
+  /**
    * @notice Mapping of adopted to canonical asset information.
    * @dev If the adopted asset is the native asset, the keyed address will
    * be the wrapped asset address.
@@ -216,6 +221,10 @@ struct AppStorage {
    */
   // 20
   mapping(bytes32 => uint256) slippage;
+  /**
+   * @notice Stores a mapping of transfer id to receive local overrides.
+   */
+  mapping(bytes32 => bool) receiveLocalOverride;
   /**
    * @notice Stores a mapping of remote routers keyed on domains.
    * @dev Addresses are cast to bytes32.

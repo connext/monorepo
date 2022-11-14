@@ -12,7 +12,7 @@ contract ConnectorHelper is ForgeHelper {
   event AggregateRootUpdated(bytes32 current, bytes32 previous);
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
   event Process(bytes32 leaf, bool success, bytes returnData);
-  event MessageSent(bytes data, address caller);
+  event MessageSent(bytes data, bytes encodedData, address caller);
   event MessageProcessed(bytes data, address caller);
   event MirrorConnectorUpdated(address previous, address current);
 
@@ -24,12 +24,12 @@ contract ConnectorHelper is ForgeHelper {
   address _amb = address(bytes20(keccak256("_amb")));
   address _rootManager = address(bytes20(keccak256("_rootManager")));
   address _owner = address(bytes20(keccak256("_owner")));
-  uint256 _mirrorGas = 100_000;
+  uint256 _gasCap = 100_000;
   uint256 _processGas = 850_000;
   uint256 _reserveGas = 15_000;
   address _stateCommitmentChain = address(bytes20(keccak256("_stateCommitmentChain")));
 
-  address _l1Connector;
-  address _l2Connector;
+  address payable _l1Connector;
+  address payable _l2Connector;
   address _merkle;
 }

@@ -14,7 +14,6 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
@@ -27,7 +26,6 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorGas,
       _processGas,
       _reserveGas,
       _delayBlocks,
@@ -42,9 +40,11 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
    * @dev This is called by the root manager *only* on mainnet to propagate the aggregate root
    * @dev Get 'Base constructor arguments given twice' when trying to inherit
    */
-  function sendMessage(bytes memory _data) external onlyRootManager {
-    _sendMessage(_data);
-    emit MessageSent(_data, msg.sender);
+  function sendMessage(bytes memory _data, bytes memory _encodedData) external payable onlyRootManager {
+    // Should not include specialized calldata
+    require(_encodedData.length == 0, "!data length");
+    _sendMessage(_data, bytes(""));
+    emit MessageSent(_data, bytes(""), msg.sender);
   }
 
   // ============ Private fns ============
@@ -60,7 +60,9 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
    * 1. `RootManager` calls `sendMessage` during `propagate`
    * 2. Relayers call `send`, which calls `_sendMessage` to set the outbound root
    */
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should not include specialized calldata
+    require(_encodedData.length == 0, "!data length");
     // get the data (should be either the outbound or aggregate root, depending on sender)
     require(_data.length == 32, "!length");
     if (msg.sender == ROOT_MANAGER) {

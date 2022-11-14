@@ -12,8 +12,10 @@ contract GnosisHubConnectorTest is ConnectorHelper {
     // Allow future contract mock
     vm.etch(_amb, new bytes(0x42));
 
-    _l2Connector = address(123123);
-    _l1Connector = address(new GnosisHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, _l2Connector, _mirrorGas));
+    _l2Connector = payable(address(123123));
+    _l1Connector = payable(
+      address(new GnosisHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, _l2Connector, _gasCap))
+    );
   }
 
   // ============ Utils ============
@@ -56,9 +58,12 @@ contract GnosisHubConnectorTest is ConnectorHelper {
     // data
     bytes memory _data = abi.encodePacked(bytes32(bytes("test")));
 
+    // encoded data
+    bytes memory _encodedData = abi.encode(_gasCap);
+
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, _encodedData, _rootManager);
 
     // should call the requireToPassMessage function of GnosisAMB
     vm.expectCall(
@@ -67,12 +72,12 @@ contract GnosisHubConnectorTest is ConnectorHelper {
         GnosisAmb.requireToPassMessage.selector,
         _l2Connector,
         abi.encodeWithSelector(Connector.processMessage.selector, _data),
-        _mirrorGas
+        _gasCap
       )
     );
 
     vm.prank(_rootManager);
-    GnosisHubConnector(_l1Connector).sendMessage(_data);
+    GnosisHubConnector(_l1Connector).sendMessage(_data, _encodedData);
   }
 
   function test_GnosisHubConnector__sendMessage_shouldWork_fuzz(bytes32 data) public {
@@ -82,9 +87,12 @@ contract GnosisHubConnectorTest is ConnectorHelper {
     // data
     bytes memory _data = abi.encodePacked(data);
 
+    // encoded data
+    bytes memory _encodedData = abi.encode(_gasCap);
+
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, _encodedData, _rootManager);
 
     // should call the requireToPassMessage function of GnosisAMB
     vm.expectCall(
@@ -93,12 +101,12 @@ contract GnosisHubConnectorTest is ConnectorHelper {
         GnosisAmb.requireToPassMessage.selector,
         _l2Connector,
         abi.encodeWithSelector(Connector.processMessage.selector, _data),
-        _mirrorGas
+        _gasCap
       )
     );
 
     vm.prank(_rootManager);
-    GnosisHubConnector(_l1Connector).sendMessage(_data);
+    GnosisHubConnector(_l1Connector).sendMessage(_data, _encodedData);
   }
 
   // ============ GnosisHubConnector._processMessage ============

@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -49,7 +50,7 @@ export interface RootManagerInterface extends utils.Interface {
     "pause()": FunctionFragment;
     "paused()": FunctionFragment;
     "pendingInboundRoots()": FunctionFragment;
-    "propagate(uint32[],address[])": FunctionFragment;
+    "propagate(uint32[],address[],uint256[],bytes[])": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
@@ -161,7 +162,12 @@ export interface RootManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "propagate",
-    values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<string>[]]
+    values: [
+      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<string>[],
+      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<BytesLike>[]
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
@@ -535,7 +541,9 @@ export interface RootManager extends BaseContract {
     propagate(
       _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     proposeNewOwner(
@@ -653,7 +661,9 @@ export interface RootManager extends BaseContract {
   propagate(
     _domains: PromiseOrValue<BigNumberish>[],
     _connectors: PromiseOrValue<string>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    _fees: PromiseOrValue<BigNumberish>[],
+    _encodedData: PromiseOrValue<BytesLike>[],
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   proposeNewOwner(
@@ -765,6 +775,8 @@ export interface RootManager extends BaseContract {
     propagate(
       _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -979,7 +991,9 @@ export interface RootManager extends BaseContract {
     propagate(
       _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     proposeNewOwner(
@@ -1100,7 +1114,9 @@ export interface RootManager extends BaseContract {
     propagate(
       _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(

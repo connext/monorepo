@@ -15,20 +15,22 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
 
     _merkle = address(new MerkleTreeManager());
 
-    _l1Connector = address(123123);
-    _l2Connector = address(
-      new GnosisSpokeConnector(
-        _l2Domain,
-        _l1Domain,
-        _amb,
-        _rootManager,
-        _l1Connector,
-        _mirrorGas,
-        _processGas,
-        _reserveGas,
-        0, // uint256 _delayBlocks
-        _merkle,
-        address(1) // watcher manager
+    _l1Connector = payable(address(123123));
+    _l2Connector = payable(
+      address(
+        new GnosisSpokeConnector(
+          _l2Domain,
+          _l1Domain,
+          _amb,
+          _rootManager,
+          _l1Connector,
+          _processGas,
+          _reserveGas,
+          0, // uint256 _delayBlocks
+          _merkle,
+          address(1), // watcher manager
+          _gasCap
+        )
       )
     );
   }
@@ -73,9 +75,12 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     // data
     bytes memory _data = abi.encode(GnosisSpokeConnector(_l2Connector).outboundRoot());
 
+    // encoded data
+    bytes memory _encodedData = abi.encode(_gasCap);
+
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, _encodedData, _rootManager);
 
     // should call the requireToPassMessage function of GnosisAMB
     vm.expectCall(
@@ -84,12 +89,12 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
         GnosisAmb.requireToPassMessage.selector,
         _l1Connector,
         abi.encodeWithSelector(Connector.processMessage.selector, _data),
-        _mirrorGas
+        _gasCap
       )
     );
 
     vm.prank(_rootManager);
-    GnosisSpokeConnector(_l2Connector).send();
+    GnosisSpokeConnector(_l2Connector).send(_encodedData);
   }
 
   // ============ GnosisSpokeConnector._processMessage ============

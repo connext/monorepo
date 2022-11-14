@@ -7,6 +7,7 @@ import {MerkleLib} from "./libraries/MerkleLib.sol";
 /**
  * @title MerkleTreeManager
  * @notice Contains a Merkle tree instance and exposes read/write functions for the tree.
+ * @dev On the hub domain there are two MerkleTreeManager contracts, one for the hub and one for the MainnetSpokeConnector.
  */
 contract MerkleTreeManager is ProposedOwnableUpgradeable {
   // ========== Custom Errors ===========

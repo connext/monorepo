@@ -189,14 +189,18 @@ contract ConnextTest is ForgeHelper, Deployer {
     _canonicalDomain = canonicalDomain;
     _canonicalKey = keccak256(abi.encode(canonicalId, _canonicalDomain));
 
+    uint256 originCap;
+    uint256 destinationCap;
     if (_origin == canonicalDomain) {
       // The canonical domain is the origin, meaning any local
       // assets on the origin should be the canonical
       _originAdopted = _canonical;
       _originLocal = _canonical;
+      originCap = 10_000 ether;
     } else if (_destination == canonicalDomain) {
       _destinationAdopted = _canonical;
       _destinationLocal = _canonical;
+      destinationCap = 10_000 ether;
     } // otherwise, could be anything
 
     // Handle origin
@@ -207,7 +211,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       _originLocal,
       localIsAdopted ? address(0) : _originAdopted,
       address(0),
-      10_000 ether // cap
+      originCap
     );
 
     // Setup asset whitelist
@@ -217,7 +221,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       _destinationLocal,
       localIsAdopted ? address(0) : _destinationAdopted,
       address(0),
-      10_000 ether // cap
+      destinationCap
     );
 
     if (localIsAdopted) {

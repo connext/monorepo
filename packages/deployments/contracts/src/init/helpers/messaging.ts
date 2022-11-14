@@ -16,7 +16,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
   /// ******************** MESSAGING ********************
   /// MARK - Init
   // TODO: Currently unused, as messaging init checks are not needed with the AMB-compatible stack.
-  // However, they will be useful as sanity checks for Nomad deployments in the future - thus, leaving
+  // However, they will be useful as sanity checks for deployments in the future - thus, leaving
   // this placeholder here for now...
 
   /// MARK - Connector Mirrors

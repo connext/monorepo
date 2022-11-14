@@ -232,6 +232,7 @@ export const api = {
       } = getContext();
       await cache.auctions.clear();
       await cache.transfers.clear();
+      await cache.executors.clear();
       return res.status(200).send();
     },
   },

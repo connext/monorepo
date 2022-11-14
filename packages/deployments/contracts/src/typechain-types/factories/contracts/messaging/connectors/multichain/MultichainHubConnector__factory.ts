@@ -46,12 +46,12 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "_mirrorGas",
+        name: "_mirrorChainId",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "_mirrorChainId",
+        name: "_gasCap",
         type: "uint256",
       },
     ],
@@ -108,6 +108,25 @@ const _abi = [
     inputs: [
       {
         indexed: false,
+        internalType: "uint256",
+        name: "_previous",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "_updated",
+        type: "uint256",
+      },
+    ],
+    name: "GasCapUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: "bytes",
         name: "data",
         type: "bytes",
@@ -129,6 +148,12 @@ const _abi = [
         indexed: false,
         internalType: "bytes",
         name: "data",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "encodedData",
         type: "bytes",
       },
       {
@@ -158,25 +183,6 @@ const _abi = [
       },
     ],
     name: "MirrorConnectorUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "previous",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "current",
-        type: "uint256",
-      },
-    ],
-    name: "MirrorGasUpdated",
     type: "event",
   },
   {
@@ -359,19 +365,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "mirrorGas",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "owner",
     outputs: [
       {
@@ -462,8 +455,26 @@ const _abi = [
         name: "_data",
         type: "bytes",
       },
+      {
+        internalType: "bytes",
+        name: "_encodedData",
+        type: "bytes",
+      },
     ],
     name: "sendMessage",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_gasCap",
+        type: "uint256",
+      },
+    ],
+    name: "setGasCap",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -477,19 +488,6 @@ const _abi = [
       },
     ],
     name: "setMirrorConnector",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_mirrorGas",
-        type: "uint256",
-      },
-    ],
-    name: "setMirrorGas",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -512,6 +510,10 @@ const _abi = [
     ],
     stateMutability: "nonpayable",
     type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ];
 
@@ -541,7 +543,6 @@ export class MultichainHubConnector__factory extends ContractFactory {
     _amb: PromiseOrValue<string>,
     _rootManager: PromiseOrValue<string>,
     _mirrorConnector: PromiseOrValue<string>,
-    _mirrorGas: PromiseOrValue<BigNumberish>,
     _mirrorChainId: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<MultichainHubConnector> {
@@ -551,7 +552,6 @@ export class MultichainHubConnector__factory extends ContractFactory {
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorGas,
       _mirrorChainId,
       overrides || {}
     ) as Promise<MultichainHubConnector>;
@@ -562,7 +562,6 @@ export class MultichainHubConnector__factory extends ContractFactory {
     _amb: PromiseOrValue<string>,
     _rootManager: PromiseOrValue<string>,
     _mirrorConnector: PromiseOrValue<string>,
-    _mirrorGas: PromiseOrValue<BigNumberish>,
     _mirrorChainId: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): TransactionRequest {
@@ -572,7 +571,6 @@ export class MultichainHubConnector__factory extends ContractFactory {
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorGas,
       _mirrorChainId,
       overrides || {}
     );
