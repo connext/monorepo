@@ -2558,16 +2558,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "RoutersFacet__onlyProposedRouterOwner_notProposedRouterOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "RoutersFacet__onlyProposedRouterOwner_notRouterOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "RoutersFacet__onlyRouterOwner_notRouterOwner",
     type: "error",
   },
@@ -2965,19 +2955,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_router",
-        type: "address",
-      },
-    ],
-    name: "addRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "_amount",
         type: "uint256",
@@ -3014,6 +2991,19 @@ const _abi = [
     name: "addRouterLiquidityFor",
     outputs: [],
     stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_router",
+        type: "address",
+      },
+    ],
+    name: "approveRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -3195,19 +3185,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_router",
-        type: "address",
-      },
-    ],
-    name: "removeRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "_amount",
         type: "uint256",
@@ -3320,6 +3297,19 @@ const _abi = [
       },
     ],
     name: "setRouterRecipient",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_router",
+        type: "address",
+      },
+    ],
+    name: "unapproveRouter",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

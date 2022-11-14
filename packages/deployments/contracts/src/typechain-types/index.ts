@@ -216,6 +216,8 @@ export type { ICheckpointManager } from "./contracts/messaging/connectors/polygo
 export { ICheckpointManager__factory } from "./factories/contracts/messaging/connectors/polygon/tunnel/FxBaseRootTunnel.sol/ICheckpointManager__factory";
 export type { IFxStateSender } from "./contracts/messaging/connectors/polygon/tunnel/FxBaseRootTunnel.sol/IFxStateSender";
 export { IFxStateSender__factory } from "./factories/contracts/messaging/connectors/polygon/tunnel/FxBaseRootTunnel.sol/IFxStateSender__factory";
+export type { SendOutboundRootResolver } from "./contracts/messaging/connectors/SendOutboundRootResolver";
+export { SendOutboundRootResolver__factory } from "./factories/contracts/messaging/connectors/SendOutboundRootResolver__factory";
 export type { SpokeConnector } from "./contracts/messaging/connectors/SpokeConnector";
 export { SpokeConnector__factory } from "./factories/contracts/messaging/connectors/SpokeConnector__factory";
 export type { ZkSyncHubConnector } from "./contracts/messaging/connectors/zksync/ZkSyncHubConnector";

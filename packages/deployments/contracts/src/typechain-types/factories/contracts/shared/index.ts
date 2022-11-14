@@ -5,3 +5,4 @@ export * as proposedOwnableSol from "./ProposedOwnable.sol";
 export * as interfaces from "./interfaces";
 export * as libraries from "./libraries";
 export * as upgrade from "./upgrade";
+export { ProposedOwnableUpgradeable__factory } from "./ProposedOwnableUpgradeable__factory";

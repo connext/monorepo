@@ -12,6 +12,11 @@ import type {
 const _abi = [
   {
     inputs: [],
+    name: "Connector__processMessage_notUsed",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
     type: "error",
   },
