@@ -7,8 +7,6 @@ on:
       - staging
       - prod
   pull_request:
-    types:
-      - opened
   create:
     tag:
       - "v*"
