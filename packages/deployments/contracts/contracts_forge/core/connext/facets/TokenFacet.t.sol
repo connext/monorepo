@@ -174,6 +174,22 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0), 0);
   }
 
+  function test_TokenFacet__setupAssetWithDeployedRepresentation_failIfOnRemoteAndCannotMintExactlyOne() public {
+    TokenId memory canonical = TokenId(_domain, _canonicalId);
+    s.domain = _domain + 1;
+    ERC20 asset = new ERC20(18, "Test Token", "TEST", "1");
+
+    // mint should work
+    vm.mockCall(address(asset), abi.encodeWithSelector(TestERC20.mint.selector), abi.encode(true));
+
+    // balanceOf should return constant value
+    vm.mockCall(address(asset), abi.encodeWithSelector(TestERC20.balanceOf.selector), abi.encode(12321));
+
+    vm.prank(_owner);
+    vm.expectRevert(TokenFacet.TokenFacet__addAssetId_badMint.selector);
+    this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0), 0);
+  }
+
   function test_TokenFacet__setupAssetWithDeployedRepresentation_failIfOnRemoteAndCannotBurn() public {
     TokenId memory canonical = TokenId(_domain, _canonicalId);
     s.domain = _domain + 1;
