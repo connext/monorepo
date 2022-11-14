@@ -24,6 +24,7 @@ contract TokenFacet is BaseConnextFacet {
   error TokenFacet__removeAssetId_notAdded();
   error TokenFacet__removeAssetId_invalidParams();
   error TokenFacet__updateDetails_localNotFound();
+  error TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
   error TokenFacet__setLiquidityCap_notCanonicalDomain();
 
   // ============ Events ============
@@ -203,6 +204,9 @@ contract TokenFacet is BaseConnextFacet {
     address _stableSwapPool,
     uint256 _cap
   ) external onlyOwnerOrAdmin returns (address) {
+    if (_canonical.domain == s.domain) {
+      revert TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
+    }
     bytes32 key = _enrollAdoptedAndLocalAssets(_adoptedAssetId, _representation, _stableSwapPool, _canonical);
     if (_cap != 0) {
       _setLiquidityCap(_canonical, _cap, key);

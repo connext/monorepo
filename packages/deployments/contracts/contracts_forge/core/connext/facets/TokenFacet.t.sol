@@ -143,6 +143,23 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   //   this.setupAsset(TokenId(_domain, _canonicalId), asset, stableSwap);
   // }
 
+  function test_TokenFacet__setupAssetWithDeployedRepresentation_failOnCanonicalDomain() public {
+    address asset = address(0);
+    address stableSwap = address(0);
+    address adoptedAssetId = address(1234);
+
+    vm.prank(_owner);
+    vm.expectRevert(TokenFacet.TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain.selector);
+    this.setupAssetWithDeployedRepresentation(
+      // Passing in the current domain as the canonical domain for the asset should result in a revert.
+      TokenId(s.domain, _canonicalId),
+      asset,
+      adoptedAssetId,
+      stableSwap,
+      100000 ether
+    );
+  }
+
   // function test_TokenFacet__setupAsset_failIfRedundant() public {
   //   TokenId memory canonical = TokenId(_domain, _canonicalId);
   //   address asset = address(new TestERC20("Test Token", "TEST"));
