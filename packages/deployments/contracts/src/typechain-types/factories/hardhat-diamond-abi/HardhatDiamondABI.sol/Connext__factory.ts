@@ -2631,22 +2631,22 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "RoutersFacet__addRouter_alreadyAdded",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "RoutersFacet__addRouter_routerEmpty",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "RoutersFacet__approveRouterForPortal_alreadyApproved",
     type: "error",
   },
   {
     inputs: [],
     name: "RoutersFacet__approveRouterForPortal_notAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RoutersFacet__approveRouter_alreadyAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RoutersFacet__approveRouter_routerEmpty",
     type: "error",
   },
   {

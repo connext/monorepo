@@ -141,14 +141,14 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__addRouter_failsIfRouterAddressIsZero() public {
-    vm.expectRevert(RoutersFacet.RoutersFacet__addRouter_routerEmpty.selector);
+    vm.expectRevert(RoutersFacet.RoutersFacet__approveRouter_routerEmpty.selector);
     vm.prank(_owner);
     this.approveRouter(address(0));
   }
 
   function test_RoutersFacet__addRouter_failsIfRouterAlreadyApproved() public {
     s.routerConfigs[_routerAgent0].approved = true;
-    vm.expectRevert(RoutersFacet.RoutersFacet__addRouter_alreadyAdded.selector);
+    vm.expectRevert(RoutersFacet.RoutersFacet__approveRouter_alreadyAdded.selector);
     vm.prank(_owner);
     this.approveRouter(_routerAgent0);
   }
