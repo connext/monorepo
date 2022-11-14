@@ -323,8 +323,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     bytes memory _messageBody
   ) external onlyWhitelistedSender returns (bytes32) {
     // Get the next nonce for the destination domain, then increment it.
-    uint32 _nonce = nonces[_destinationDomain];
-    nonces[_destinationDomain] = _nonce + 1;
+    uint32 _nonce = nonces[_destinationDomain]++;
 
     // Format the message into packed bytes.
     bytes memory _message = Message.formatMessage(
