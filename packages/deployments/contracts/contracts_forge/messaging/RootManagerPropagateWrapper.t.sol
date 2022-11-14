@@ -76,7 +76,7 @@ contract RootManagerPropagateWrapperTest is ForgeHelper {
     _encodedData[2] = bytes("");
 
     vm.expectEmit(true, true, true, true);
-    emit FundsDeducted(0.09 ether, 0.01 ether);
+    emit FundsDeducted(0.09 ether, 0.1 ether);
 
     emit log_named_address("rootManager", address(rootManagerWrapper.rootManager()));
 
