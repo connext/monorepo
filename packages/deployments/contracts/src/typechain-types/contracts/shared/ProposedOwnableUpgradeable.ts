@@ -4,7 +4,6 @@
 import type {
   BaseContract,
   BigNumber,
-  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -25,9 +24,9 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../../../../common";
+} from "../../common";
 
-export interface BaseOptimismInterface extends utils.Interface {
+export interface ProposedOwnableUpgradeableInterface extends utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
@@ -37,7 +36,6 @@ export interface BaseOptimismInterface extends utils.Interface {
     "proposedTimestamp()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "setGasCap(uint256)": FunctionFragment;
   };
 
   getFunction(
@@ -50,7 +48,6 @@ export interface BaseOptimismInterface extends utils.Interface {
       | "proposedTimestamp"
       | "renounceOwnership"
       | "renounced"
-      | "setGasCap"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -73,10 +70,6 @@ export interface BaseOptimismInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "setGasCap",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
 
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
@@ -98,29 +91,24 @@ export interface BaseOptimismInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
 
   events: {
-    "GasCapUpdated(uint256,uint256)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "GasCapUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
 
-export interface GasCapUpdatedEventObject {
-  _previous: BigNumber;
-  _updated: BigNumber;
+export interface InitializedEventObject {
+  version: number;
 }
-export type GasCapUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  GasCapUpdatedEventObject
->;
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
-export type GasCapUpdatedEventFilter = TypedEventFilter<GasCapUpdatedEvent>;
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -145,12 +133,12 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
-export interface BaseOptimism extends BaseContract {
+export interface ProposedOwnableUpgradeable extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: BaseOptimismInterface;
+  interface: ProposedOwnableUpgradeableInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -194,11 +182,6 @@ export interface BaseOptimism extends BaseContract {
     ): Promise<ContractTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
-
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
   };
 
   acceptProposedOwner(
@@ -224,11 +207,6 @@ export interface BaseOptimism extends BaseContract {
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
-  setGasCap(
-    _gasCap: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
@@ -248,19 +226,11 @@ export interface BaseOptimism extends BaseContract {
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
-
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {
-    "GasCapUpdated(uint256,uint256)"(
-      _previous?: null,
-      _updated?: null
-    ): GasCapUpdatedEventFilter;
-    GasCapUpdated(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
@@ -302,11 +272,6 @@ export interface BaseOptimism extends BaseContract {
     ): Promise<BigNumber>;
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
-
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -332,10 +297,5 @@ export interface BaseOptimism extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
   };
 }

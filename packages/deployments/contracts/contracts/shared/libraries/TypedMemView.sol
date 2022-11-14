@@ -638,63 +638,6 @@ library TypedMemView {
   }
 
   /**
-   * @notice          Return the sha2 digest of the underlying memory.
-   * @dev             We explicitly deallocate memory afterwards.
-   * @param memView   The view
-   * @return          digest - The sha2 hash of the underlying memory
-   */
-  function sha2(bytes29 memView) internal view returns (bytes32 digest) {
-    uint256 _loc = loc(memView);
-    uint256 _len = len(memView);
-    bool res;
-    assembly {
-      // solhint-disable-previous-line no-inline-assembly
-      let ptr := mload(0x40)
-      res := staticcall(gas(), 2, _loc, _len, ptr, 0x20) // sha2 #1
-      digest := mload(ptr)
-    }
-    require(res, "sha2 OOG");
-  }
-
-  /**
-   * @notice          Implements bitcoin's hash160 (rmd160(sha2()))
-   * @param memView   The pre-image
-   * @return          digest - the Digest
-   */
-  function hash160(bytes29 memView) internal view returns (bytes20 digest) {
-    uint256 _loc = loc(memView);
-    uint256 _len = len(memView);
-    bool res;
-    assembly {
-      // solhint-disable-previous-line no-inline-assembly
-      let ptr := mload(0x40)
-      res := staticcall(gas(), 2, _loc, _len, ptr, 0x20) // sha2
-      res := and(res, staticcall(gas(), 3, ptr, 0x20, ptr, 0x20)) // rmd160
-      digest := mload(add(ptr, 0xc)) // return value is 0-prefixed.
-    }
-    require(res, "hash160 OOG");
-  }
-
-  /**
-   * @notice          Implements bitcoin's hash256 (double sha2)
-   * @param memView   A view of the preimage
-   * @return          digest - the Digest
-   */
-  function hash256(bytes29 memView) internal view returns (bytes32 digest) {
-    uint256 _loc = loc(memView);
-    uint256 _len = len(memView);
-    bool res;
-    assembly {
-      // solhint-disable-previous-line no-inline-assembly
-      let ptr := mload(0x40)
-      res := staticcall(gas(), 2, _loc, _len, ptr, 0x20) // sha2 #1
-      res := and(res, staticcall(gas(), 2, ptr, 0x20, ptr, 0x20)) // sha2 #2
-      digest := mload(ptr)
-    }
-    require(res, "hash256 OOG");
-  }
-
-  /**
    * @notice          Return true if the underlying memory is equal. Else false.
    * @param left      The first view
    * @param right     The second view
@@ -839,20 +782,6 @@ library TypedMemView {
       ptr := mload(0x40) // load unused memory pointer
     }
     return keccak(unsafeJoin(memViews, ptr));
-  }
-
-  /**
-   * @notice          Produce the sha256 digest of the concatenated contents of multiple views.
-   * @param memViews  The views
-   * @return          bytes32 - The sha256 digest
-   */
-  function joinSha2(bytes29[] memory memViews) internal view returns (bytes32) {
-    uint256 ptr;
-    assembly {
-      // solhint-disable-previous-line no-inline-assembly
-      ptr := mload(0x40) // load unused memory pointer
-    }
-    return sha2(unsafeJoin(memViews, ptr));
   }
 
   /**

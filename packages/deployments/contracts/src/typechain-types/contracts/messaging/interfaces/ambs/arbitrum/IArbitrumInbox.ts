@@ -25,29 +25,26 @@ import type {
 
 export interface IArbitrumInboxInterface extends utils.Interface {
   functions: {
-    "createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)": FunctionFragment;
+    "sendContractTransaction(uint256,uint256,address,uint256,bytes)": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "createRetryableTicket"
+    nameOrSignatureOrTopic: "sendContractTransaction"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "createRetryableTicket",
+    functionFragment: "sendContractTransaction",
     values: [
-      PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>
     ]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "createRetryableTicket",
+    functionFragment: "sendContractTransaction",
     data: BytesLike
   ): Result;
 
@@ -81,40 +78,31 @@ export interface IArbitrumInbox extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    createRetryableTicket(
-      destAddr: PromiseOrValue<string>,
-      arbTxCallValue: PromiseOrValue<BigNumberish>,
-      maxSubmissionCost: PromiseOrValue<BigNumberish>,
-      submissionRefundAddress: PromiseOrValue<string>,
-      valueRefundAddress: PromiseOrValue<string>,
+    sendContractTransaction(
       maxGas: PromiseOrValue<BigNumberish>,
       gasPriceBid: PromiseOrValue<BigNumberish>,
+      destAddr: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  createRetryableTicket(
-    destAddr: PromiseOrValue<string>,
-    arbTxCallValue: PromiseOrValue<BigNumberish>,
-    maxSubmissionCost: PromiseOrValue<BigNumberish>,
-    submissionRefundAddress: PromiseOrValue<string>,
-    valueRefundAddress: PromiseOrValue<string>,
+  sendContractTransaction(
     maxGas: PromiseOrValue<BigNumberish>,
     gasPriceBid: PromiseOrValue<BigNumberish>,
+    destAddr: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    createRetryableTicket(
-      destAddr: PromiseOrValue<string>,
-      arbTxCallValue: PromiseOrValue<BigNumberish>,
-      maxSubmissionCost: PromiseOrValue<BigNumberish>,
-      submissionRefundAddress: PromiseOrValue<string>,
-      valueRefundAddress: PromiseOrValue<string>,
+    sendContractTransaction(
       maxGas: PromiseOrValue<BigNumberish>,
       gasPriceBid: PromiseOrValue<BigNumberish>,
+      destAddr: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -123,28 +111,22 @@ export interface IArbitrumInbox extends BaseContract {
   filters: {};
 
   estimateGas: {
-    createRetryableTicket(
-      destAddr: PromiseOrValue<string>,
-      arbTxCallValue: PromiseOrValue<BigNumberish>,
-      maxSubmissionCost: PromiseOrValue<BigNumberish>,
-      submissionRefundAddress: PromiseOrValue<string>,
-      valueRefundAddress: PromiseOrValue<string>,
+    sendContractTransaction(
       maxGas: PromiseOrValue<BigNumberish>,
       gasPriceBid: PromiseOrValue<BigNumberish>,
+      destAddr: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    createRetryableTicket(
-      destAddr: PromiseOrValue<string>,
-      arbTxCallValue: PromiseOrValue<BigNumberish>,
-      maxSubmissionCost: PromiseOrValue<BigNumberish>,
-      submissionRefundAddress: PromiseOrValue<string>,
-      valueRefundAddress: PromiseOrValue<string>,
+    sendContractTransaction(
       maxGas: PromiseOrValue<BigNumberish>,
       gasPriceBid: PromiseOrValue<BigNumberish>,
+      destAddr: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

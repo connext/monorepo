@@ -4,7 +4,6 @@
 import type {
   BaseContract,
   BigNumber,
-  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -25,39 +24,70 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../../../common";
+} from "../../common";
 
-export interface GasCapInterface extends utils.Interface {
+export interface MerkleTreeManagerInterface extends utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
+    "arborist()": FunctionFragment;
+    "branch()": FunctionFragment;
+    "count()": FunctionFragment;
     "delay()": FunctionFragment;
+    "initialize(address)": FunctionFragment;
+    "insert(bytes32)": FunctionFragment;
+    "insert(bytes32[])": FunctionFragment;
     "owner()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "setGasCap(uint256)": FunctionFragment;
+    "root()": FunctionFragment;
+    "setArborist(address)": FunctionFragment;
+    "tree()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "acceptProposedOwner"
+      | "arborist"
+      | "branch"
+      | "count"
       | "delay"
+      | "initialize"
+      | "insert(bytes32)"
+      | "insert(bytes32[])"
       | "owner"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
       | "renounceOwnership"
       | "renounced"
-      | "setGasCap"
+      | "root"
+      | "setArborist"
+      | "tree"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "arborist", values?: undefined): string;
+  encodeFunctionData(functionFragment: "branch", values?: undefined): string;
+  encodeFunctionData(functionFragment: "count", values?: undefined): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "insert(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "insert(bytes32[])",
+    values: [PromiseOrValue<BytesLike>[]]
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
@@ -73,16 +103,30 @@ export interface GasCapInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
+  encodeFunctionData(functionFragment: "root", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "setGasCap",
-    values: [PromiseOrValue<BigNumberish>]
+    functionFragment: "setArborist",
+    values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(functionFragment: "tree", values?: undefined): string;
 
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "arborist", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "branch", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "insert(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "insert(bytes32[])",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
@@ -98,29 +142,43 @@ export interface GasCapInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "root", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setArborist",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "tree", data: BytesLike): Result;
 
   events: {
-    "GasCapUpdated(uint256,uint256)": EventFragment;
+    "ArboristUpdated(address,address)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "GasCapUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ArboristUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
 
-export interface GasCapUpdatedEventObject {
-  _previous: BigNumber;
-  _updated: BigNumber;
+export interface ArboristUpdatedEventObject {
+  previous: string;
+  updated: string;
 }
-export type GasCapUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  GasCapUpdatedEventObject
+export type ArboristUpdatedEvent = TypedEvent<
+  [string, string],
+  ArboristUpdatedEventObject
 >;
 
-export type GasCapUpdatedEventFilter = TypedEventFilter<GasCapUpdatedEvent>;
+export type ArboristUpdatedEventFilter = TypedEventFilter<ArboristUpdatedEvent>;
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -145,12 +203,12 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
-export interface GasCap extends BaseContract {
+export interface MerkleTreeManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: GasCapInterface;
+  interface: MerkleTreeManagerInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -176,7 +234,28 @@ export interface GasCap extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    arborist(overrides?: CallOverrides): Promise<[string]>;
+
+    branch(overrides?: CallOverrides): Promise<[string[]]>;
+
+    count(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    initialize(
+      _arborist: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "insert(bytes32)"(
+      leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "insert(bytes32[])"(
+      leaves: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -195,17 +274,44 @@ export interface GasCap extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
+    root(overrides?: CallOverrides): Promise<[string]>;
+
+    setArborist(
+      newArborist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    tree(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { count: BigNumber }>;
   };
 
   acceptProposedOwner(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  arborist(overrides?: CallOverrides): Promise<string>;
+
+  branch(overrides?: CallOverrides): Promise<string[]>;
+
+  count(overrides?: CallOverrides): Promise<BigNumber>;
+
   delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+  initialize(
+    _arborist: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "insert(bytes32)"(
+    leaf: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "insert(bytes32[])"(
+    leaves: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -224,15 +330,40 @@ export interface GasCap extends BaseContract {
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
-  setGasCap(
-    _gasCap: PromiseOrValue<BigNumberish>,
+  root(overrides?: CallOverrides): Promise<string>;
+
+  setArborist(
+    newArborist: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  tree(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
+    arborist(overrides?: CallOverrides): Promise<string>;
+
+    branch(overrides?: CallOverrides): Promise<string[]>;
+
+    count(overrides?: CallOverrides): Promise<BigNumber>;
+
     delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      _arborist: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "insert(bytes32)"(
+      leaf: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string, BigNumber] & { _root: string; _count: BigNumber }>;
+
+    "insert(bytes32[])"(
+      leaves: PromiseOrValue<BytesLike>[],
+      overrides?: CallOverrides
+    ): Promise<[string, BigNumber] & { _root: string; _count: BigNumber }>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -249,18 +380,28 @@ export interface GasCap extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
+    root(overrides?: CallOverrides): Promise<string>;
+
+    setArborist(
+      newArborist: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    tree(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {
-    "GasCapUpdated(uint256,uint256)"(
-      _previous?: null,
-      _updated?: null
-    ): GasCapUpdatedEventFilter;
-    GasCapUpdated(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
+    "ArboristUpdated(address,address)"(
+      previous?: null,
+      updated?: null
+    ): ArboristUpdatedEventFilter;
+    ArboristUpdated(
+      previous?: null,
+      updated?: null
+    ): ArboristUpdatedEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
@@ -284,7 +425,28 @@ export interface GasCap extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    arborist(overrides?: CallOverrides): Promise<BigNumber>;
+
+    branch(overrides?: CallOverrides): Promise<BigNumber>;
+
+    count(overrides?: CallOverrides): Promise<BigNumber>;
+
     delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      _arborist: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "insert(bytes32)"(
+      leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "insert(bytes32[])"(
+      leaves: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -303,10 +465,14 @@ export interface GasCap extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
+    root(overrides?: CallOverrides): Promise<BigNumber>;
+
+    setArborist(
+      newArborist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    tree(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -314,7 +480,28 @@ export interface GasCap extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    arborist(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    branch(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    count(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initialize(
+      _arborist: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "insert(bytes32)"(
+      leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "insert(bytes32[])"(
+      leaves: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -333,9 +520,13 @@ export interface GasCap extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
+    root(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    setArborist(
+      newArborist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    tree(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

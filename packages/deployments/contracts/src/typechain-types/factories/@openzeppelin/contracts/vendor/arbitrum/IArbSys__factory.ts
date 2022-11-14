@@ -78,6 +78,111 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "destination",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "hash",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "position",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "arbBlockNum",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "ethBlockNum",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "timestamp",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "callvalue",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+    ],
+    name: "L2ToL1Tx",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "reserved",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "hash",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "position",
+        type: "uint256",
+      },
+    ],
+    name: "SendMerkleUpdate",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "arbBlockNum",
+        type: "uint256",
+      },
+    ],
+    name: "arbBlockHash",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "arbBlockNumber",
     outputs: [
@@ -113,55 +218,12 @@ const _abi = [
         type: "uint256",
       },
     ],
-    stateMutability: "pure",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "index",
-        type: "uint256",
-      },
-    ],
-    name: "getStorageAt",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "getStorageGasAvailable",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "getTransactionCount",
     outputs: [
       {
         internalType: "uint256",
@@ -194,7 +256,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "dest",
+        name: "unused",
         type: "address",
       },
     ],
@@ -223,6 +285,29 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "sendMerkleTreeState",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "size",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes32",
+        name: "root",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32[]",
+        name: "partials",
+        type: "bytes32[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -231,7 +316,7 @@ const _abi = [
       },
       {
         internalType: "bytes",
-        name: "calldataForL1",
+        name: "data",
         type: "bytes",
       },
     ],

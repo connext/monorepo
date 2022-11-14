@@ -31,27 +31,49 @@ import type {
 export interface IBridgeInterface extends utils.Interface {
   functions: {
     "activeOutbox()": FunctionFragment;
-    "allowedInboxes(address)": FunctionFragment;
+    "allowedDelayedInboxList(uint256)": FunctionFragment;
+    "allowedDelayedInboxes(address)": FunctionFragment;
+    "allowedOutboxList(uint256)": FunctionFragment;
     "allowedOutboxes(address)": FunctionFragment;
-    "deliverMessageToInbox(uint8,address,bytes32)": FunctionFragment;
+    "delayedInboxAccs(uint256)": FunctionFragment;
+    "delayedMessageCount()": FunctionFragment;
+    "enqueueDelayedMessage(uint8,address,bytes32)": FunctionFragment;
+    "enqueueSequencerMessage(bytes32,uint256,uint256,uint256)": FunctionFragment;
     "executeCall(address,uint256,bytes)": FunctionFragment;
-    "inboxAccs(uint256)": FunctionFragment;
-    "messageCount()": FunctionFragment;
-    "setInbox(address,bool)": FunctionFragment;
+    "initialize(address)": FunctionFragment;
+    "rollup()": FunctionFragment;
+    "sequencerInbox()": FunctionFragment;
+    "sequencerInboxAccs(uint256)": FunctionFragment;
+    "sequencerMessageCount()": FunctionFragment;
+    "sequencerReportedSubMessageCount()": FunctionFragment;
+    "setDelayedInbox(address,bool)": FunctionFragment;
     "setOutbox(address,bool)": FunctionFragment;
+    "setSequencerInbox(address)": FunctionFragment;
+    "submitBatchSpendingReport(address,bytes32)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "activeOutbox"
-      | "allowedInboxes"
+      | "allowedDelayedInboxList"
+      | "allowedDelayedInboxes"
+      | "allowedOutboxList"
       | "allowedOutboxes"
-      | "deliverMessageToInbox"
+      | "delayedInboxAccs"
+      | "delayedMessageCount"
+      | "enqueueDelayedMessage"
+      | "enqueueSequencerMessage"
       | "executeCall"
-      | "inboxAccs"
-      | "messageCount"
-      | "setInbox"
+      | "initialize"
+      | "rollup"
+      | "sequencerInbox"
+      | "sequencerInboxAccs"
+      | "sequencerMessageCount"
+      | "sequencerReportedSubMessageCount"
+      | "setDelayedInbox"
       | "setOutbox"
+      | "setSequencerInbox"
+      | "submitBatchSpendingReport"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -59,19 +81,44 @@ export interface IBridgeInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "allowedInboxes",
+    functionFragment: "allowedDelayedInboxList",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "allowedDelayedInboxes",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "allowedOutboxList",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "allowedOutboxes",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "deliverMessageToInbox",
+    functionFragment: "delayedInboxAccs",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "delayedMessageCount",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "enqueueDelayedMessage",
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
       PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "enqueueSequencerMessage",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
@@ -83,20 +130,41 @@ export interface IBridgeInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "inboxAccs",
-    values: [PromiseOrValue<BigNumberish>]
+    functionFragment: "initialize",
+    values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(functionFragment: "rollup", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "messageCount",
+    functionFragment: "sequencerInbox",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "setInbox",
+    functionFragment: "sequencerInboxAccs",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "sequencerMessageCount",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "sequencerReportedSubMessageCount",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setDelayedInbox",
     values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
     functionFragment: "setOutbox",
     values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSequencerInbox",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "submitBatchSpendingReport",
+    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
 
   decodeFunctionResult(
@@ -104,7 +172,15 @@ export interface IBridgeInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "allowedInboxes",
+    functionFragment: "allowedDelayedInboxList",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "allowedDelayedInboxes",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "allowedOutboxList",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -112,38 +188,76 @@ export interface IBridgeInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "deliverMessageToInbox",
+    functionFragment: "delayedInboxAccs",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "delayedMessageCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "enqueueDelayedMessage",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "enqueueSequencerMessage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "executeCall",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "inboxAccs", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "rollup", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "messageCount",
+    functionFragment: "sequencerInbox",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setInbox", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "sequencerInboxAccs",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "sequencerMessageCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "sequencerReportedSubMessageCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setDelayedInbox",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setOutbox", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setSequencerInbox",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "submitBatchSpendingReport",
+    data: BytesLike
+  ): Result;
 
   events: {
     "BridgeCallTriggered(address,address,uint256,bytes)": EventFragment;
     "InboxToggle(address,bool)": EventFragment;
-    "MessageDelivered(uint256,bytes32,address,uint8,address,bytes32)": EventFragment;
+    "MessageDelivered(uint256,bytes32,address,uint8,address,bytes32,uint256,uint64)": EventFragment;
     "OutboxToggle(address,bool)": EventFragment;
+    "SequencerInboxUpdated(address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "BridgeCallTriggered"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "InboxToggle"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageDelivered"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OutboxToggle"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SequencerInboxUpdated"): EventFragment;
 }
 
 export interface BridgeCallTriggeredEventObject {
   outbox: string;
-  destAddr: string;
-  amount: BigNumber;
+  to: string;
+  value: BigNumber;
   data: string;
 }
 export type BridgeCallTriggeredEvent = TypedEvent<
@@ -172,9 +286,11 @@ export interface MessageDeliveredEventObject {
   kind: number;
   sender: string;
   messageDataHash: string;
+  baseFeeL1: BigNumber;
+  timestamp: BigNumber;
 }
 export type MessageDeliveredEvent = TypedEvent<
-  [BigNumber, string, string, number, string, string],
+  [BigNumber, string, string, number, string, string, BigNumber, BigNumber],
   MessageDeliveredEventObject
 >;
 
@@ -191,6 +307,17 @@ export type OutboxToggleEvent = TypedEvent<
 >;
 
 export type OutboxToggleEventFilter = TypedEventFilter<OutboxToggleEvent>;
+
+export interface SequencerInboxUpdatedEventObject {
+  newSequencerInbox: string;
+}
+export type SequencerInboxUpdatedEvent = TypedEvent<
+  [string],
+  SequencerInboxUpdatedEventObject
+>;
+
+export type SequencerInboxUpdatedEventFilter =
+  TypedEventFilter<SequencerInboxUpdatedEvent>;
 
 export interface IBridge extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -221,38 +348,76 @@ export interface IBridge extends BaseContract {
   functions: {
     activeOutbox(overrides?: CallOverrides): Promise<[string]>;
 
-    allowedInboxes(
+    allowedDelayedInboxList(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    allowedDelayedInboxes(
       inbox: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    allowedOutboxList(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     allowedOutboxes(
       outbox: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    deliverMessageToInbox(
+    delayedInboxAccs(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    delayedMessageCount(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    enqueueDelayedMessage(
       kind: PromiseOrValue<BigNumberish>,
       sender: PromiseOrValue<string>,
       messageDataHash: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    enqueueSequencerMessage(
+      dataHash: PromiseOrValue<BytesLike>,
+      afterDelayedMessagesRead: PromiseOrValue<BigNumberish>,
+      prevMessageCount: PromiseOrValue<BigNumberish>,
+      newMessageCount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     executeCall(
-      destAddr: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      to: PromiseOrValue<string>,
+      value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    inboxAccs(
-      index: PromiseOrValue<BigNumberish>,
+    initialize(
+      rollup_: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    rollup(overrides?: CallOverrides): Promise<[string]>;
+
+    sequencerInbox(overrides?: CallOverrides): Promise<[string]>;
+
+    sequencerInboxAccs(
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    messageCount(overrides?: CallOverrides): Promise<[BigNumber]>;
+    sequencerMessageCount(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    setInbox(
+    sequencerReportedSubMessageCount(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    setDelayedInbox(
       inbox: PromiseOrValue<string>,
       enabled: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -263,42 +428,91 @@ export interface IBridge extends BaseContract {
       enabled: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    setSequencerInbox(
+      _sequencerInbox: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    submitBatchSpendingReport(
+      batchPoster: PromiseOrValue<string>,
+      dataHash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   activeOutbox(overrides?: CallOverrides): Promise<string>;
 
-  allowedInboxes(
+  allowedDelayedInboxList(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  allowedDelayedInboxes(
     inbox: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  allowedOutboxList(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   allowedOutboxes(
     outbox: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  deliverMessageToInbox(
+  delayedInboxAccs(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  delayedMessageCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+  enqueueDelayedMessage(
     kind: PromiseOrValue<BigNumberish>,
     sender: PromiseOrValue<string>,
     messageDataHash: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  enqueueSequencerMessage(
+    dataHash: PromiseOrValue<BytesLike>,
+    afterDelayedMessagesRead: PromiseOrValue<BigNumberish>,
+    prevMessageCount: PromiseOrValue<BigNumberish>,
+    newMessageCount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   executeCall(
-    destAddr: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
+    to: PromiseOrValue<string>,
+    value: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  inboxAccs(
-    index: PromiseOrValue<BigNumberish>,
+  initialize(
+    rollup_: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  rollup(overrides?: CallOverrides): Promise<string>;
+
+  sequencerInbox(overrides?: CallOverrides): Promise<string>;
+
+  sequencerInboxAccs(
+    arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  messageCount(overrides?: CallOverrides): Promise<BigNumber>;
+  sequencerMessageCount(overrides?: CallOverrides): Promise<BigNumber>;
 
-  setInbox(
+  sequencerReportedSubMessageCount(
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  setDelayedInbox(
     inbox: PromiseOrValue<string>,
     enabled: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -310,41 +524,97 @@ export interface IBridge extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setSequencerInbox(
+    _sequencerInbox: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  submitBatchSpendingReport(
+    batchPoster: PromiseOrValue<string>,
+    dataHash: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     activeOutbox(overrides?: CallOverrides): Promise<string>;
 
-    allowedInboxes(
+    allowedDelayedInboxList(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    allowedDelayedInboxes(
       inbox: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    allowedOutboxList(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     allowedOutboxes(
       outbox: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    deliverMessageToInbox(
+    delayedInboxAccs(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    delayedMessageCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    enqueueDelayedMessage(
       kind: PromiseOrValue<BigNumberish>,
       sender: PromiseOrValue<string>,
       messageDataHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    enqueueSequencerMessage(
+      dataHash: PromiseOrValue<BytesLike>,
+      afterDelayedMessagesRead: PromiseOrValue<BigNumberish>,
+      prevMessageCount: PromiseOrValue<BigNumberish>,
+      newMessageCount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, string, string, string] & {
+        seqMessageIndex: BigNumber;
+        beforeAcc: string;
+        delayedAcc: string;
+        acc: string;
+      }
+    >;
+
     executeCall(
-      destAddr: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      to: PromiseOrValue<string>,
+      value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean, string] & { success: boolean; returnData: string }>;
 
-    inboxAccs(
-      index: PromiseOrValue<BigNumberish>,
+    initialize(
+      rollup_: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    rollup(overrides?: CallOverrides): Promise<string>;
+
+    sequencerInbox(overrides?: CallOverrides): Promise<string>;
+
+    sequencerInboxAccs(
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    messageCount(overrides?: CallOverrides): Promise<BigNumber>;
+    sequencerMessageCount(overrides?: CallOverrides): Promise<BigNumber>;
 
-    setInbox(
+    sequencerReportedSubMessageCount(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    setDelayedInbox(
       inbox: PromiseOrValue<string>,
       enabled: PromiseOrValue<boolean>,
       overrides?: CallOverrides
@@ -355,19 +625,30 @@ export interface IBridge extends BaseContract {
       enabled: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    setSequencerInbox(
+      _sequencerInbox: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    submitBatchSpendingReport(
+      batchPoster: PromiseOrValue<string>,
+      dataHash: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   filters: {
     "BridgeCallTriggered(address,address,uint256,bytes)"(
       outbox?: PromiseOrValue<string> | null,
-      destAddr?: PromiseOrValue<string> | null,
-      amount?: null,
+      to?: PromiseOrValue<string> | null,
+      value?: null,
       data?: null
     ): BridgeCallTriggeredEventFilter;
     BridgeCallTriggered(
       outbox?: PromiseOrValue<string> | null,
-      destAddr?: PromiseOrValue<string> | null,
-      amount?: null,
+      to?: PromiseOrValue<string> | null,
+      value?: null,
       data?: null
     ): BridgeCallTriggeredEventFilter;
 
@@ -380,13 +661,15 @@ export interface IBridge extends BaseContract {
       enabled?: null
     ): InboxToggleEventFilter;
 
-    "MessageDelivered(uint256,bytes32,address,uint8,address,bytes32)"(
+    "MessageDelivered(uint256,bytes32,address,uint8,address,bytes32,uint256,uint64)"(
       messageIndex?: PromiseOrValue<BigNumberish> | null,
       beforeInboxAcc?: PromiseOrValue<BytesLike> | null,
       inbox?: null,
       kind?: null,
       sender?: null,
-      messageDataHash?: null
+      messageDataHash?: null,
+      baseFeeL1?: null,
+      timestamp?: null
     ): MessageDeliveredEventFilter;
     MessageDelivered(
       messageIndex?: PromiseOrValue<BigNumberish> | null,
@@ -394,7 +677,9 @@ export interface IBridge extends BaseContract {
       inbox?: null,
       kind?: null,
       sender?: null,
-      messageDataHash?: null
+      messageDataHash?: null,
+      baseFeeL1?: null,
+      timestamp?: null
     ): MessageDeliveredEventFilter;
 
     "OutboxToggle(address,bool)"(
@@ -405,14 +690,31 @@ export interface IBridge extends BaseContract {
       outbox?: PromiseOrValue<string> | null,
       enabled?: null
     ): OutboxToggleEventFilter;
+
+    "SequencerInboxUpdated(address)"(
+      newSequencerInbox?: null
+    ): SequencerInboxUpdatedEventFilter;
+    SequencerInboxUpdated(
+      newSequencerInbox?: null
+    ): SequencerInboxUpdatedEventFilter;
   };
 
   estimateGas: {
     activeOutbox(overrides?: CallOverrides): Promise<BigNumber>;
 
-    allowedInboxes(
+    allowedDelayedInboxList(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    allowedDelayedInboxes(
       inbox: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    allowedOutboxList(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     allowedOutboxes(
@@ -420,28 +722,56 @@ export interface IBridge extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    deliverMessageToInbox(
+    delayedInboxAccs(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    delayedMessageCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    enqueueDelayedMessage(
       kind: PromiseOrValue<BigNumberish>,
       sender: PromiseOrValue<string>,
       messageDataHash: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    enqueueSequencerMessage(
+      dataHash: PromiseOrValue<BytesLike>,
+      afterDelayedMessagesRead: PromiseOrValue<BigNumberish>,
+      prevMessageCount: PromiseOrValue<BigNumberish>,
+      newMessageCount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     executeCall(
-      destAddr: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      to: PromiseOrValue<string>,
+      value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    inboxAccs(
-      index: PromiseOrValue<BigNumberish>,
+    initialize(
+      rollup_: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    rollup(overrides?: CallOverrides): Promise<BigNumber>;
+
+    sequencerInbox(overrides?: CallOverrides): Promise<BigNumber>;
+
+    sequencerInboxAccs(
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    messageCount(overrides?: CallOverrides): Promise<BigNumber>;
+    sequencerMessageCount(overrides?: CallOverrides): Promise<BigNumber>;
 
-    setInbox(
+    sequencerReportedSubMessageCount(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    setDelayedInbox(
       inbox: PromiseOrValue<string>,
       enabled: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -450,6 +780,17 @@ export interface IBridge extends BaseContract {
     setOutbox(
       inbox: PromiseOrValue<string>,
       enabled: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setSequencerInbox(
+      _sequencerInbox: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    submitBatchSpendingReport(
+      batchPoster: PromiseOrValue<string>,
+      dataHash: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -457,9 +798,19 @@ export interface IBridge extends BaseContract {
   populateTransaction: {
     activeOutbox(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    allowedInboxes(
+    allowedDelayedInboxList(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    allowedDelayedInboxes(
       inbox: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    allowedOutboxList(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     allowedOutboxes(
@@ -467,28 +818,60 @@ export interface IBridge extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    deliverMessageToInbox(
+    delayedInboxAccs(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    delayedMessageCount(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    enqueueDelayedMessage(
       kind: PromiseOrValue<BigNumberish>,
       sender: PromiseOrValue<string>,
       messageDataHash: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    enqueueSequencerMessage(
+      dataHash: PromiseOrValue<BytesLike>,
+      afterDelayedMessagesRead: PromiseOrValue<BigNumberish>,
+      prevMessageCount: PromiseOrValue<BigNumberish>,
+      newMessageCount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     executeCall(
-      destAddr: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      to: PromiseOrValue<string>,
+      value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    inboxAccs(
-      index: PromiseOrValue<BigNumberish>,
+    initialize(
+      rollup_: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    rollup(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    sequencerInbox(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    sequencerInboxAccs(
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    messageCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    sequencerMessageCount(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    setInbox(
+    sequencerReportedSubMessageCount(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    setDelayedInbox(
       inbox: PromiseOrValue<string>,
       enabled: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -497,6 +880,17 @@ export interface IBridge extends BaseContract {
     setOutbox(
       inbox: PromiseOrValue<string>,
       enabled: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setSequencerInbox(
+      _sequencerInbox: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    submitBatchSpendingReport(
+      batchPoster: PromiseOrValue<string>,
+      dataHash: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

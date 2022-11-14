@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  GnosisBase,
-  GnosisBaseInterface,
-} from "../../../../../contracts/messaging/connectors/gnosis/GnosisBase";
+  ProposedOwnableUpgradeable,
+  ProposedOwnableUpgradeableInterface,
+} from "../../../contracts/shared/ProposedOwnableUpgradeable";
 
 const _abi = [
   {
@@ -55,18 +55,12 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "uint256",
-        name: "_previous",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "_updated",
-        type: "uint256",
+        internalType: "uint8",
+        name: "version",
+        type: "uint8",
       },
     ],
-    name: "GasCapUpdated",
+    name: "Initialized",
     type: "event",
   },
   {
@@ -193,30 +187,21 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_gasCap",
-        type: "uint256",
-      },
-    ],
-    name: "setGasCap",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
 ];
 
-export class GnosisBase__factory {
+export class ProposedOwnableUpgradeable__factory {
   static readonly abi = _abi;
-  static createInterface(): GnosisBaseInterface {
-    return new utils.Interface(_abi) as GnosisBaseInterface;
+  static createInterface(): ProposedOwnableUpgradeableInterface {
+    return new utils.Interface(_abi) as ProposedOwnableUpgradeableInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): GnosisBase {
-    return new Contract(address, _abi, signerOrProvider) as GnosisBase;
+  ): ProposedOwnableUpgradeable {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as ProposedOwnableUpgradeable;
   }
 }
