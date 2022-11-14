@@ -94,7 +94,7 @@ contract SwapAdminFacet is BaseConnextFacet {
    * LP positions. The owner of LPToken will be this contract - which means
    * only this contract is allowed to mint/burn tokens.
    *
-   * @param _key the hash of the canonical id and domain for token
+   * @param _key the hash of the canonical id and domain for adopted token
    * @param _pooledTokens an array of ERC20s this pool will accept
    * @param decimals the decimals to use for each pooled token,
    * eg 8 for WBTC. Cannot be larger than POOL_PRECISION_DECIMALS
