@@ -58,7 +58,7 @@ library AssetLogic {
   }
 
   /**
-   * @notice Handles transferring funds from the Connext contract to msg.sender.
+   * @notice Handles transferring funds from the Connext contract to a specified address
    * @param _asset - The address of the ERC20 token to transfer.
    * @param _to - The recipient address that will receive the funds.
    * @param _amount - The amount to withdraw from contract.
