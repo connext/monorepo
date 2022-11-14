@@ -37,6 +37,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__onlyDelegate_notDelegate();
   error BridgeFacet__addSequencer_alreadyApproved();
   error BridgeFacet__removeSequencer_notApproved();
+  error BridgeFacet__setXAppConnectionManager_domainsDontMatch();
   error BridgeFacet__xcall_nativeAssetNotSupported();
   error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_notSupportedAsset();
@@ -244,7 +245,11 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _xAppConnectionManager The address of the xAppConnectionManager contract
    */
   function setXAppConnectionManager(address _xAppConnectionManager) external onlyOwnerOrAdmin {
-    s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
+    IConnectorManager manager = IConnectorManager(_xAppConnectionManager);
+    if (manager.localDomain() != s.domain) {
+      revert BridgeFacet__setXAppConnectionManager_domainsDontMatch();
+    }
+    s.xAppConnectionManager = manager;
   }
 
   /**

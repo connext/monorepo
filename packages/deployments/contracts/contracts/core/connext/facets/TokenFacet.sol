@@ -22,6 +22,7 @@ contract TokenFacet is BaseConnextFacet {
   error TokenFacet__addAssetId_nativeAsset();
   error TokenFacet__addAssetId_alreadyAdded();
   error TokenFacet__removeAssetId_notAdded();
+  error TokenFacet__removeAssetId_invalidParams();
   error TokenFacet__updateDetails_localNotFound();
   error TokenFacet__setLiquidityCap_notCanonicalDomain();
 
@@ -382,6 +383,10 @@ contract TokenFacet is BaseConnextFacet {
   ) internal {
     // Sanity check: already approval
     if (!s.approvedAssets[_key]) revert TokenFacet__removeAssetId_notAdded();
+
+    // Sanity check: consistent set of params
+    if (s.canonicalToAdopted[_key] != _adoptedAssetId || s.canonicalToRepresentation[_key] != _representation)
+      revert TokenFacet__removeAssetId_invalidParams();
 
     // Delete from approved assets mapping
     delete s.approvedAssets[_key];

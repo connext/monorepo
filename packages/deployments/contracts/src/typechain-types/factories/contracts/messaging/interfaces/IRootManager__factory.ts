@@ -31,11 +31,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint32[]",
-        name: "_domains",
-        type: "uint32[]",
-      },
-      {
         internalType: "address[]",
         name: "_connectors",
         type: "address[]",
