@@ -33,10 +33,13 @@ export interface ERC20Interface extends utils.Interface {
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
+    "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
+    "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
+    "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
@@ -48,10 +51,13 @@ export interface ERC20Interface extends utils.Interface {
       | "allowance"
       | "approve"
       | "balanceOf"
+      | "decimals"
       | "decreaseAllowance"
       | "increaseAllowance"
+      | "name"
       | "nonces"
       | "permit"
+      | "symbol"
       | "totalSupply"
       | "transfer"
       | "transferFrom"
@@ -73,6 +79,7 @@ export interface ERC20Interface extends utils.Interface {
     functionFragment: "balanceOf",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "decreaseAllowance",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
@@ -81,6 +88,7 @@ export interface ERC20Interface extends utils.Interface {
     functionFragment: "increaseAllowance",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
+  encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "nonces",
     values: [PromiseOrValue<string>]
@@ -97,6 +105,7 @@ export interface ERC20Interface extends utils.Interface {
       PromiseOrValue<BytesLike>
     ]
   ): string;
+  encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
     values?: undefined
@@ -121,6 +130,7 @@ export interface ERC20Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "decreaseAllowance",
     data: BytesLike
@@ -129,8 +139,10 @@ export interface ERC20Interface extends utils.Interface {
     functionFragment: "increaseAllowance",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
     data: BytesLike
@@ -216,9 +228,11 @@ export interface ERC20 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     balanceOf(
-      _account: PromiseOrValue<string>,
+      account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    decimals(overrides?: CallOverrides): Promise<[number]>;
 
     decreaseAllowance(
       _spender: PromiseOrValue<string>,
@@ -231,6 +245,8 @@ export interface ERC20 extends BaseContract {
       _addedValue: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    name(overrides?: CallOverrides): Promise<[string]>;
 
     nonces(
       _owner: PromiseOrValue<string>,
@@ -247,6 +263,8 @@ export interface ERC20 extends BaseContract {
       _s: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    symbol(overrides?: CallOverrides): Promise<[string]>;
 
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -279,9 +297,11 @@ export interface ERC20 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   balanceOf(
-    _account: PromiseOrValue<string>,
+    account: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  decimals(overrides?: CallOverrides): Promise<number>;
 
   decreaseAllowance(
     _spender: PromiseOrValue<string>,
@@ -294,6 +314,8 @@ export interface ERC20 extends BaseContract {
     _addedValue: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  name(overrides?: CallOverrides): Promise<string>;
 
   nonces(
     _owner: PromiseOrValue<string>,
@@ -310,6 +332,8 @@ export interface ERC20 extends BaseContract {
     _s: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  symbol(overrides?: CallOverrides): Promise<string>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -342,9 +366,11 @@ export interface ERC20 extends BaseContract {
     ): Promise<boolean>;
 
     balanceOf(
-      _account: PromiseOrValue<string>,
+      account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    decimals(overrides?: CallOverrides): Promise<number>;
 
     decreaseAllowance(
       _spender: PromiseOrValue<string>,
@@ -357,6 +383,8 @@ export interface ERC20 extends BaseContract {
       _addedValue: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    name(overrides?: CallOverrides): Promise<string>;
 
     nonces(
       _owner: PromiseOrValue<string>,
@@ -373,6 +401,8 @@ export interface ERC20 extends BaseContract {
       _s: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    symbol(overrides?: CallOverrides): Promise<string>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -430,9 +460,11 @@ export interface ERC20 extends BaseContract {
     ): Promise<BigNumber>;
 
     balanceOf(
-      _account: PromiseOrValue<string>,
+      account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
     decreaseAllowance(
       _spender: PromiseOrValue<string>,
@@ -445,6 +477,8 @@ export interface ERC20 extends BaseContract {
       _addedValue: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    name(overrides?: CallOverrides): Promise<BigNumber>;
 
     nonces(
       _owner: PromiseOrValue<string>,
@@ -461,6 +495,8 @@ export interface ERC20 extends BaseContract {
       _s: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -494,9 +530,11 @@ export interface ERC20 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     balanceOf(
-      _account: PromiseOrValue<string>,
+      account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     decreaseAllowance(
       _spender: PromiseOrValue<string>,
@@ -509,6 +547,8 @@ export interface ERC20 extends BaseContract {
       _addedValue: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     nonces(
       _owner: PromiseOrValue<string>,
@@ -525,6 +565,8 @@ export interface ERC20 extends BaseContract {
       _s: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

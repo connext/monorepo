@@ -448,6 +448,19 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "approveRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "_router",
         type: "address",
       },
@@ -1677,6 +1690,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "recipient",
+        type: "address",
+      },
+    ],
+    name: "initializeRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "_canonicalId",
         type: "bytes32",
@@ -2013,19 +2044,6 @@ const _abi = [
       },
     ],
     name: "removeRelayer",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-    ],
-    name: "removeRouter",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2780,29 +2798,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "recipient",
-        type: "address",
-      },
-    ],
-    name: "setupRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes32",
         name: "canonicalId",
         type: "bytes32",
@@ -2962,6 +2957,19 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "unapproveRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

@@ -9,3 +9,4 @@ import type * as libraries from "./libraries";
 export type { libraries };
 import type * as upgrade from "./upgrade";
 export type { upgrade };
+export type { ProposedOwnableUpgradeable } from "./ProposedOwnableUpgradeable";

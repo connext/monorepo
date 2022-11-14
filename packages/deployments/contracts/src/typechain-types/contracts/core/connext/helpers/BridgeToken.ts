@@ -300,7 +300,7 @@ export interface BridgeToken extends BaseContract {
     ): Promise<ContractTransaction>;
 
     balanceOf(
-      _account: PromiseOrValue<string>,
+      account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -398,7 +398,7 @@ export interface BridgeToken extends BaseContract {
   ): Promise<ContractTransaction>;
 
   balanceOf(
-    _account: PromiseOrValue<string>,
+    account: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -496,7 +496,7 @@ export interface BridgeToken extends BaseContract {
     ): Promise<boolean>;
 
     balanceOf(
-      _account: PromiseOrValue<string>,
+      account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -635,7 +635,7 @@ export interface BridgeToken extends BaseContract {
     ): Promise<BigNumber>;
 
     balanceOf(
-      _account: PromiseOrValue<string>,
+      account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -734,7 +734,7 @@ export interface BridgeToken extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     balanceOf(
-      _account: PromiseOrValue<string>,
+      account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
