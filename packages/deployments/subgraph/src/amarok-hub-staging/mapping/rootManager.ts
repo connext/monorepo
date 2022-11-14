@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 
 import {
   RootPropagated as RootPropagatedEvent,
@@ -50,7 +50,7 @@ export function handleRootsAggregated(event: RootsAggregatedEvent): void {
   }
 }
 
-export function handleRootPropagated(event: RootPropagatedEvent) {
+export function handleRootPropagated(event: RootPropagatedEvent): void {
   const key = event.params.aggregateRoot.toHexString();
   // Create the RootPropagated entity: this is used to track aggregate roots / propagated
   // snapshots for the sake of proof generation off-chain.
@@ -67,6 +67,13 @@ export function handleRootPropagated(event: RootPropagatedEvent) {
   instance.save();
 }
 
-export function handleConnectorAdded(event: ConnectorAddedEvent) {
-  const meta = RootManagerMeta.load(ROOT_MANAGER_META_ID);
+export function handleConnectorAdded(event: ConnectorAddedEvent): void {
+  let instance = RootManagerMeta.load(ROOT_MANAGER_META_ID);
+  if (instance == null) {
+    instance = new RootManagerMeta(ROOT_MANAGER_META_ID);
+  }
+  instance.domains = event.params.domains;
+  instance.connectors = event.params.connectors.map<Bytes>((c: Address): Bytes => Bytes.fromHexString(c.toHexString()));
+
+  instance.save();
 }
