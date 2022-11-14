@@ -142,6 +142,8 @@ export type { ConnextProxyAdmin } from "./contracts/core/connext/helpers/Connext
 export { ConnextProxyAdmin__factory } from "./factories/contracts/core/connext/helpers/ConnextProxyAdmin__factory";
 export type { LPToken } from "./contracts/core/connext/helpers/LPToken";
 export { LPToken__factory } from "./factories/contracts/core/connext/helpers/LPToken__factory";
+export type { Multicall } from "./contracts/core/connext/helpers/Multicall";
+export { Multicall__factory } from "./factories/contracts/core/connext/helpers/Multicall__factory";
 export type { OwnerPausableUpgradeable } from "./contracts/core/connext/helpers/OwnerPausableUpgradeable";
 export { OwnerPausableUpgradeable__factory } from "./factories/contracts/core/connext/helpers/OwnerPausableUpgradeable__factory";
 export type { PriceOracle } from "./contracts/core/connext/helpers/PriceOracle";
@@ -184,10 +186,6 @@ export type { Connector } from "./contracts/messaging/connectors/Connector";
 export { Connector__factory } from "./factories/contracts/messaging/connectors/Connector__factory";
 export type { ConnectorManager } from "./contracts/messaging/connectors/ConnectorManager";
 export { ConnectorManager__factory } from "./factories/contracts/messaging/connectors/ConnectorManager__factory";
-export type { GasCap } from "./contracts/messaging/connectors/GasCap";
-export { GasCap__factory } from "./factories/contracts/messaging/connectors/GasCap__factory";
-export type { GnosisBase } from "./contracts/messaging/connectors/gnosis/GnosisBase";
-export { GnosisBase__factory } from "./factories/contracts/messaging/connectors/gnosis/GnosisBase__factory";
 export type { GnosisHubConnector } from "./contracts/messaging/connectors/gnosis/GnosisHubConnector";
 export { GnosisHubConnector__factory } from "./factories/contracts/messaging/connectors/gnosis/GnosisHubConnector__factory";
 export type { GnosisSpokeConnector } from "./contracts/messaging/connectors/gnosis/GnosisSpokeConnector";
@@ -202,8 +200,6 @@ export type { MultichainHubConnector } from "./contracts/messaging/connectors/mu
 export { MultichainHubConnector__factory } from "./factories/contracts/messaging/connectors/multichain/MultichainHubConnector__factory";
 export type { MultichainSpokeConnector } from "./contracts/messaging/connectors/multichain/MultichainSpokeConnector";
 export { MultichainSpokeConnector__factory } from "./factories/contracts/messaging/connectors/multichain/MultichainSpokeConnector__factory";
-export type { BaseOptimism } from "./contracts/messaging/connectors/optimism/BaseOptimism";
-export { BaseOptimism__factory } from "./factories/contracts/messaging/connectors/optimism/BaseOptimism__factory";
 export type { OptimismHubConnector } from "./contracts/messaging/connectors/optimism/OptimismHubConnector";
 export { OptimismHubConnector__factory } from "./factories/contracts/messaging/connectors/optimism/OptimismHubConnector__factory";
 export type { OptimismSpokeConnector } from "./contracts/messaging/connectors/optimism/OptimismSpokeConnector";
@@ -222,6 +218,8 @@ export type { ICheckpointManager } from "./contracts/messaging/connectors/polygo
 export { ICheckpointManager__factory } from "./factories/contracts/messaging/connectors/polygon/tunnel/FxBaseRootTunnel.sol/ICheckpointManager__factory";
 export type { IFxStateSender } from "./contracts/messaging/connectors/polygon/tunnel/FxBaseRootTunnel.sol/IFxStateSender";
 export { IFxStateSender__factory } from "./factories/contracts/messaging/connectors/polygon/tunnel/FxBaseRootTunnel.sol/IFxStateSender__factory";
+export type { SendOutboundRootResolver } from "./contracts/messaging/connectors/SendOutboundRootResolver";
+export { SendOutboundRootResolver__factory } from "./factories/contracts/messaging/connectors/SendOutboundRootResolver__factory";
 export type { SpokeConnector } from "./contracts/messaging/connectors/SpokeConnector";
 export { SpokeConnector__factory } from "./factories/contracts/messaging/connectors/SpokeConnector__factory";
 export type { ZkSyncHubConnector } from "./contracts/messaging/connectors/zksync/ZkSyncHubConnector";

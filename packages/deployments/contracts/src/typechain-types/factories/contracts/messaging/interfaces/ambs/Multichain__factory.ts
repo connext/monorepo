@@ -40,36 +40,7 @@ const _abi = [
     ],
     name: "anyCall",
     outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "string",
-        name: "_appID",
-        type: "string",
-      },
-      {
-        internalType: "uint256",
-        name: "_toChainID",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_dataLength",
-        type: "uint256",
-      },
-    ],
-    name: "calcSrcFees",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

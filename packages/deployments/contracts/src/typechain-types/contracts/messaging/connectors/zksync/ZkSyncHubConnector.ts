@@ -9,24 +9,13 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
+import type { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
-import type {
-  TypedEventFilter,
-  TypedEvent,
-  TypedListener,
-  OnEvent,
-  PromiseOrValue,
-} from "../../../../common";
+import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from "../../../../common";
 
 export interface ZkSyncHubConnectorInterface extends utils.Interface {
   functions: {
@@ -37,6 +26,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
+    "mirrorGas()": FunctionFragment;
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "processMessageFromRoot(uint32,uint256,uint16,bytes,bytes32[])": FunctionFragment;
@@ -49,6 +39,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
     "sendMessage(bytes,bytes)": FunctionFragment;
     "setGasCap(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
+    "setMirrorGas(uint256)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
   };
 
@@ -61,6 +52,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
       | "acceptProposedOwner"
       | "delay"
       | "mirrorConnector"
+      | "mirrorGas"
       | "owner"
       | "processMessage"
       | "processMessageFromRoot"
@@ -73,33 +65,20 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
       | "sendMessage"
       | "setGasCap"
       | "setMirrorConnector"
-      | "verifySender"
+      | "setMirrorGas"
+      | "verifySender",
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
   encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "MIRROR_DOMAIN",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ROOT_MANAGER",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "acceptProposedOwner",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "MIRROR_DOMAIN", values?: undefined): string;
+  encodeFunctionData(functionFragment: "ROOT_MANAGER", values?: undefined): string;
+  encodeFunctionData(functionFragment: "acceptProposedOwner", values?: undefined): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "mirrorConnector",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "mirrorConnector", values?: undefined): string;
+  encodeFunctionData(functionFragment: "mirrorGas", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "processMessage",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
+  encodeFunctionData(functionFragment: "processMessage", values: [PromiseOrValue<BytesLike>]): string;
   encodeFunctionData(
     functionFragment: "processMessageFromRoot",
     values: [
@@ -107,106 +86,50 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>,
-      PromiseOrValue<BytesLike>[]
-    ]
+      PromiseOrValue<BytesLike>[],
+    ],
   ): string;
-  encodeFunctionData(
-    functionFragment: "processed",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "proposeNewOwner",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "processed", values: [PromiseOrValue<BytesLike>]): string;
+  encodeFunctionData(functionFragment: "proposeNewOwner", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "proposedTimestamp",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "proposedTimestamp", values?: undefined): string;
+  encodeFunctionData(functionFragment: "renounceOwnership", values?: undefined): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "sendMessage",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setGasCap",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMirrorConnector",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "verifySender",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "sendMessage", values: [PromiseOrValue<BytesLike>]): string;
+  encodeFunctionData(functionFragment: "setGasCap", values: [PromiseOrValue<BigNumberish>]): string;
+  encodeFunctionData(functionFragment: "setMirrorConnector", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "setMirrorGas", values: [PromiseOrValue<BigNumberish>]): string;
+  encodeFunctionData(functionFragment: "verifySender", values: [PromiseOrValue<string>]): string;
 
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "MIRROR_DOMAIN",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ROOT_MANAGER",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "acceptProposedOwner",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "MIRROR_DOMAIN", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "ROOT_MANAGER", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "acceptProposedOwner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "mirrorConnector",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "mirrorConnector", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "mirrorGas", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "processMessage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "processMessageFromRoot",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "processMessage", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "processMessageFromRoot", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "processed", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "proposeNewOwner",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "proposeNewOwner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "proposedTimestamp",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "proposedTimestamp", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "renounceOwnership", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "sendMessage",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "sendMessage", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setMirrorConnector",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "verifySender",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "setMirrorConnector", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setMirrorGas", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "verifySender", data: BytesLike): Result;
 
   events: {
     "GasCapUpdated(uint256,uint256)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
-    "MessageSent(bytes,bytes,address)": EventFragment;
+    "MessageSent(bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
+    "MirrorGasUpdated(uint256,uint256)": EventFragment;
     "NewConnector(uint32,uint32,address,address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
@@ -216,6 +139,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MirrorGasUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewConnector"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
@@ -225,10 +149,7 @@ export interface GasCapUpdatedEventObject {
   _previous: BigNumber;
   _updated: BigNumber;
 }
-export type GasCapUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  GasCapUpdatedEventObject
->;
+export type GasCapUpdatedEvent = TypedEvent<[BigNumber, BigNumber], GasCapUpdatedEventObject>;
 
 export type GasCapUpdatedEventFilter = TypedEventFilter<GasCapUpdatedEvent>;
 
@@ -236,23 +157,15 @@ export interface MessageProcessedEventObject {
   data: string;
   caller: string;
 }
-export type MessageProcessedEvent = TypedEvent<
-  [string, string],
-  MessageProcessedEventObject
->;
+export type MessageProcessedEvent = TypedEvent<[string, string], MessageProcessedEventObject>;
 
-export type MessageProcessedEventFilter =
-  TypedEventFilter<MessageProcessedEvent>;
+export type MessageProcessedEventFilter = TypedEventFilter<MessageProcessedEvent>;
 
 export interface MessageSentEventObject {
   data: string;
-  encodedData: string;
   caller: string;
 }
-export type MessageSentEvent = TypedEvent<
-  [string, string, string],
-  MessageSentEventObject
->;
+export type MessageSentEvent = TypedEvent<[string, string], MessageSentEventObject>;
 
 export type MessageSentEventFilter = TypedEventFilter<MessageSentEvent>;
 
@@ -260,13 +173,17 @@ export interface MirrorConnectorUpdatedEventObject {
   previous: string;
   current: string;
 }
-export type MirrorConnectorUpdatedEvent = TypedEvent<
-  [string, string],
-  MirrorConnectorUpdatedEventObject
->;
+export type MirrorConnectorUpdatedEvent = TypedEvent<[string, string], MirrorConnectorUpdatedEventObject>;
 
-export type MirrorConnectorUpdatedEventFilter =
-  TypedEventFilter<MirrorConnectorUpdatedEvent>;
+export type MirrorConnectorUpdatedEventFilter = TypedEventFilter<MirrorConnectorUpdatedEvent>;
+
+export interface MirrorGasUpdatedEventObject {
+  previous: BigNumber;
+  current: BigNumber;
+}
+export type MirrorGasUpdatedEvent = TypedEvent<[BigNumber, BigNumber], MirrorGasUpdatedEventObject>;
+
+export type MirrorGasUpdatedEventFilter = TypedEventFilter<MirrorGasUpdatedEvent>;
 
 export interface NewConnectorEventObject {
   domain: number;
@@ -275,35 +192,24 @@ export interface NewConnectorEventObject {
   rootManager: string;
   mirrorConnector: string;
 }
-export type NewConnectorEvent = TypedEvent<
-  [number, number, string, string, string],
-  NewConnectorEventObject
->;
+export type NewConnectorEvent = TypedEvent<[number, number, string, string, string], NewConnectorEventObject>;
 
 export type NewConnectorEventFilter = TypedEventFilter<NewConnectorEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
 }
-export type OwnershipProposedEvent = TypedEvent<
-  [string],
-  OwnershipProposedEventObject
->;
+export type OwnershipProposedEvent = TypedEvent<[string], OwnershipProposedEventObject>;
 
-export type OwnershipProposedEventFilter =
-  TypedEventFilter<OwnershipProposedEvent>;
+export type OwnershipProposedEventFilter = TypedEventFilter<OwnershipProposedEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
   newOwner: string;
 }
-export type OwnershipTransferredEvent = TypedEvent<
-  [string, string],
-  OwnershipTransferredEventObject
->;
+export type OwnershipTransferredEvent = TypedEvent<[string, string], OwnershipTransferredEventObject>;
 
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
+export type OwnershipTransferredEventFilter = TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface ZkSyncHubConnector extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -315,16 +221,12 @@ export interface ZkSyncHubConnector extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TEvent>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
+  listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -340,19 +242,19 @@ export interface ZkSyncHubConnector extends BaseContract {
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<[string]>;
 
-    acceptProposedOwner(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
 
+    mirrorGas(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     processMessageFromRoot(
@@ -361,48 +263,47 @@ export interface ZkSyncHubConnector extends BaseContract {
       _l2TxNumberInBlock: PromiseOrValue<BigNumberish>,
       _message: PromiseOrValue<BytesLike>,
       _proof: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
-    processed(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    processed(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[boolean]>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     proposed(overrides?: CallOverrides): Promise<[string]>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     setGasCap(
       _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
+
+    setMirrorGas(
+      _mirrorGas: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
   };
 
@@ -414,19 +315,19 @@ export interface ZkSyncHubConnector extends BaseContract {
 
   ROOT_MANAGER(overrides?: CallOverrides): Promise<string>;
 
-  acceptProposedOwner(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
+  mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   processMessage(
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   processMessageFromRoot(
@@ -435,48 +336,47 @@ export interface ZkSyncHubConnector extends BaseContract {
     _l2TxNumberInBlock: PromiseOrValue<BigNumberish>,
     _message: PromiseOrValue<BytesLike>,
     _proof: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
-  processed(
-    arg0: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  processed(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
 
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   proposed(overrides?: CallOverrides): Promise<string>;
 
   proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-  renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
   sendMessage(
     _data: PromiseOrValue<BytesLike>,
-    _encodedData: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   setGasCap(
     _gasCap: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>;
+
+  setMirrorGas(
+    _mirrorGas: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   verifySender(
     _expected: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -494,12 +394,11 @@ export interface ZkSyncHubConnector extends BaseContract {
 
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
+    mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<string>;
 
-    processMessage(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    processMessage(_data: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<void>;
 
     processMessageFromRoot(
       _l2BlockNumber: PromiseOrValue<BigNumberish>,
@@ -507,18 +406,12 @@ export interface ZkSyncHubConnector extends BaseContract {
       _l2TxNumberInBlock: PromiseOrValue<BigNumberish>,
       _message: PromiseOrValue<BytesLike>,
       _proof: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
-    processed(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    processed(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
 
-    proposeNewOwner(
-      newlyProposed: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    proposeNewOwner(newlyProposed: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
     proposed(overrides?: CallOverrides): Promise<string>;
 
@@ -528,90 +421,58 @@ export interface ZkSyncHubConnector extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
-    sendMessage(
-      _data: PromiseOrValue<BytesLike>,
-      _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    sendMessage(_data: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<void>;
 
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setGasCap(_gasCap: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<void>;
 
-    setMirrorConnector(
-      _mirrorConnector: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setMirrorConnector(_mirrorConnector: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
-    verifySender(
-      _expected: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    setMirrorGas(_mirrorGas: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<void>;
+
+    verifySender(_expected: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
   };
 
   filters: {
-    "GasCapUpdated(uint256,uint256)"(
-      _previous?: null,
-      _updated?: null
-    ): GasCapUpdatedEventFilter;
+    "GasCapUpdated(uint256,uint256)"(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
     GasCapUpdated(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
 
-    "MessageProcessed(bytes,address)"(
-      data?: null,
-      caller?: null
-    ): MessageProcessedEventFilter;
+    "MessageProcessed(bytes,address)"(data?: null, caller?: null): MessageProcessedEventFilter;
     MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
 
-    "MessageSent(bytes,bytes,address)"(
-      data?: null,
-      encodedData?: null,
-      caller?: null
-    ): MessageSentEventFilter;
-    MessageSent(
-      data?: null,
-      encodedData?: null,
-      caller?: null
-    ): MessageSentEventFilter;
+    "MessageSent(bytes,address)"(data?: null, caller?: null): MessageSentEventFilter;
+    MessageSent(data?: null, caller?: null): MessageSentEventFilter;
 
-    "MirrorConnectorUpdated(address,address)"(
-      previous?: null,
-      current?: null
-    ): MirrorConnectorUpdatedEventFilter;
-    MirrorConnectorUpdated(
-      previous?: null,
-      current?: null
-    ): MirrorConnectorUpdatedEventFilter;
+    "MirrorConnectorUpdated(address,address)"(previous?: null, current?: null): MirrorConnectorUpdatedEventFilter;
+    MirrorConnectorUpdated(previous?: null, current?: null): MirrorConnectorUpdatedEventFilter;
+
+    "MirrorGasUpdated(uint256,uint256)"(previous?: null, current?: null): MirrorGasUpdatedEventFilter;
+    MirrorGasUpdated(previous?: null, current?: null): MirrorGasUpdatedEventFilter;
 
     "NewConnector(uint32,uint32,address,address,address)"(
       domain?: PromiseOrValue<BigNumberish> | null,
       mirrorDomain?: PromiseOrValue<BigNumberish> | null,
       amb?: null,
       rootManager?: null,
-      mirrorConnector?: null
+      mirrorConnector?: null,
     ): NewConnectorEventFilter;
     NewConnector(
       domain?: PromiseOrValue<BigNumberish> | null,
       mirrorDomain?: PromiseOrValue<BigNumberish> | null,
       amb?: null,
       rootManager?: null,
-      mirrorConnector?: null
+      mirrorConnector?: null,
     ): NewConnectorEventFilter;
 
-    "OwnershipProposed(address)"(
-      proposedOwner?: PromiseOrValue<string> | null
-    ): OwnershipProposedEventFilter;
-    OwnershipProposed(
-      proposedOwner?: PromiseOrValue<string> | null
-    ): OwnershipProposedEventFilter;
+    "OwnershipProposed(address)"(proposedOwner?: PromiseOrValue<string> | null): OwnershipProposedEventFilter;
+    OwnershipProposed(proposedOwner?: PromiseOrValue<string> | null): OwnershipProposedEventFilter;
 
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
+      newOwner?: PromiseOrValue<string> | null,
     ): OwnershipTransferredEventFilter;
     OwnershipTransferred(
       previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
+      newOwner?: PromiseOrValue<string> | null,
     ): OwnershipTransferredEventFilter;
   };
 
@@ -624,19 +485,19 @@ export interface ZkSyncHubConnector extends BaseContract {
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<BigNumber>;
 
-    acceptProposedOwner(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
 
+    mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     processMessageFromRoot(
@@ -645,48 +506,47 @@ export interface ZkSyncHubConnector extends BaseContract {
       _l2TxNumberInBlock: PromiseOrValue<BigNumberish>,
       _message: PromiseOrValue<BytesLike>,
       _proof: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
-    processed(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    processed(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     proposed(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>;
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     setGasCap(
       _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>;
+
+    setMirrorGas(
+      _mirrorGas: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
   };
 
@@ -699,19 +559,19 @@ export interface ZkSyncHubConnector extends BaseContract {
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    acceptProposedOwner(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    mirrorGas(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     processMessageFromRoot(
@@ -720,48 +580,47 @@ export interface ZkSyncHubConnector extends BaseContract {
       _l2TxNumberInBlock: PromiseOrValue<BigNumberish>,
       _message: PromiseOrValue<BytesLike>,
       _proof: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
-    processed(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    processed(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     setGasCap(
       _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>;
+
+    setMirrorGas(
+      _mirrorGas: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
   };
 }

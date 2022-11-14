@@ -9,7 +9,6 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -60,10 +59,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "fxRootTunnel()": FunctionFragment;
     "home()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
-    "lastSentBlock()": FunctionFragment;
     "localDomain()": FunctionFragment;
     "messages(bytes32)": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
+    "mirrorGas()": FunctionFragment;
     "nonces(uint32)": FunctionFragment;
     "outboundRoot()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -78,7 +77,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32,bytes32[32],uint256)": FunctionFragment;
     "provenAggregateRoots(bytes32)": FunctionFragment;
     "provenMessageRoots(bytes32)": FunctionFragment;
-    "rateLimitBlocks()": FunctionFragment;
     "removePendingAggregateRoot(bytes32)": FunctionFragment;
     "removeSender(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -93,7 +91,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
     "whitelistedSenders(address)": FunctionFragment;
-    "withdrawFunds(address)": FunctionFragment;
   };
 
   getFunction(
@@ -114,10 +111,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "fxRootTunnel"
       | "home"
       | "isReplica"
-      | "lastSentBlock"
       | "localDomain"
       | "messages"
       | "mirrorConnector"
+      | "mirrorGas"
       | "nonces"
       | "outboundRoot"
       | "owner"
@@ -132,13 +129,11 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "proveAndProcess"
       | "provenAggregateRoots"
       | "provenMessageRoots"
-      | "rateLimitBlocks"
       | "removePendingAggregateRoot"
       | "removeSender"
       | "renounceOwnership"
       | "renounced"
       | "send"
-      | "sentMessageRoots"
       | "setDelayBlocks"
       | "setFxRootTunnel"
       | "setMirrorConnector"
@@ -479,17 +474,16 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "AggregateRootReceived(bytes32)": EventFragment;
     "AggregateRootRemoved(bytes32)": EventFragment;
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
-    "FundsWithdrawn(address,uint256)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes)": EventFragment;
-    "MessageSent(bytes,bytes,address)": EventFragment;
+    "MessageSent(bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
+    "MirrorGasUpdated(uint256,uint256)": EventFragment;
     "NewConnector(uint32,uint32,address,address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused(address)": EventFragment;
     "Process(bytes32,bool,bytes)": EventFragment;
-    "SendRateLimitUpdated(address,uint256)": EventFragment;
     "SenderAdded(address)": EventFragment;
     "SenderRemoved(address)": EventFragment;
     "Unpaused(address)": EventFragment;
@@ -499,19 +493,18 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "AggregateRootReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AggregateRootRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Dispatch"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "FundsWithdrawn"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent(bytes)"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "MessageSent(bytes,bytes,address)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MirrorGasUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewConnector"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Process"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SendRateLimitUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
@@ -587,14 +580,13 @@ export type MessageSent_bytes_Event = TypedEvent<
 export type MessageSent_bytes_EventFilter =
   TypedEventFilter<MessageSent_bytes_Event>;
 
-export interface MessageSent_bytes_bytes_address_EventObject {
+export interface MessageSent_bytes_address_EventObject {
   data: string;
-  encodedData: string;
   caller: string;
 }
-export type MessageSent_bytes_bytes_address_Event = TypedEvent<
-  [string, string, string],
-  MessageSent_bytes_bytes_address_EventObject
+export type MessageSent_bytes_address_Event = TypedEvent<
+  [string, string],
+  MessageSent_bytes_address_EventObject
 >;
 
 export type MessageSent_bytes_bytes_address_EventFilter =
@@ -854,7 +846,10 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    rateLimitBlocks(overrides?: CallOverrides): Promise<[BigNumber]>;
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
@@ -1042,7 +1037,10 @@ export interface PolygonSpokeConnector extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  rateLimitBlocks(overrides?: CallOverrides): Promise<BigNumber>;
+  provenMessageRoots(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   removePendingAggregateRoot(
     _fraudulentRoot: PromiseOrValue<BytesLike>,
@@ -1226,7 +1224,10 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    rateLimitBlocks(overrides?: CallOverrides): Promise<BigNumber>;
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
@@ -1335,7 +1336,7 @@ export interface PolygonSpokeConnector extends BaseContract {
     MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
 
     "MessageSent(bytes)"(message?: null): MessageSent_bytes_EventFilter;
-    "MessageSent(bytes,bytes,address)"(
+    "MessageSent(bytes,address)"(
       data?: null,
       encodedData?: null,
       caller?: null
@@ -1533,7 +1534,10 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    rateLimitBlocks(overrides?: CallOverrides): Promise<BigNumber>;
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
@@ -1722,7 +1726,10 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    rateLimitBlocks(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,

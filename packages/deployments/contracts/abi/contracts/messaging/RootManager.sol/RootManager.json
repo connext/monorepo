@@ -29,6 +29,7 @@
   "function delay() view returns (uint256)",
   "function delayBlocks() view returns (uint256)",
   "function dequeue() returns (bytes32, uint256)",
+  "function discardRoot(bytes32)",
   "function domains(uint256) view returns (uint32)",
   "function domainsHash() view returns (bytes32)",
   "function getConnectorForDomain(uint32) view returns (address)",

@@ -4,10 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
-import type {
-  Connext,
-  ConnextInterface,
-} from "../../../hardhat-diamond-abi/HardhatDiamondABI.sol/Connext";
+import type { Connext, ConnextInterface } from "../../../hardhat-diamond-abi/HardhatDiamondABI.sol/Connext";
 
 const _abi = [
   {
@@ -2041,6 +2038,21 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "ProposedOwnableFacet__renounceOwnership_delayNotElapsed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableFacet__renounceOwnership_invalidProposal",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableFacet__renounceOwnership_noProposal",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ProposedOwnableFacet__revokeRole_invalidInput",
     type: "error",
   },
@@ -2390,6 +2402,26 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "renounced",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -2601,11 +2633,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "RoutersFacet__acceptProposedRouterOwner_badCaller",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "RoutersFacet__acceptProposedRouterOwner_notElapsed",
     type: "error",
   },
@@ -2716,12 +2743,17 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "RoutersFacet__setRouterOwner_noChange",
+    name: "RoutersFacet__setRouterRecipient_notNewRecipient",
     type: "error",
   },
   {
     inputs: [],
-    name: "RoutersFacet__setRouterRecipient_notNewRecipient",
+    name: "RoutersFacet__setupRouter_alreadyAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RoutersFacet__setupRouter_routerEmpty",
     type: "error",
   },
   {
@@ -2803,19 +2835,6 @@ const _abi = [
       },
     ],
     name: "RouterApprovedForPortal",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-    ],
-    name: "RouterInitialized",
     type: "event",
   },
   {
@@ -3041,7 +3060,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "_router",
+        name: "router",
         type: "address",
       },
     ],
@@ -3232,24 +3251,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_owner",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_recipient",
-        type: "address",
-      },
-    ],
-    name: "initializeRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "maxRoutersPerTransfer",
     outputs: [
@@ -3266,12 +3267,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "_router",
+        name: "router",
         type: "address",
       },
       {
         internalType: "address",
-        name: "_proposed",
+        name: "proposed",
         type: "address",
       },
     ],
@@ -3385,16 +3386,39 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "_router",
+        name: "router",
         type: "address",
       },
       {
         internalType: "address",
-        name: "_recipient",
+        name: "recipient",
         type: "address",
       },
     ],
     name: "setRouterRecipient",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "recipient",
+        type: "address",
+      },
+    ],
+    name: "setupRouter",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -4337,6 +4361,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "_key",
+        type: "bytes32",
+      },
+    ],
+    name: "adoptedToLocalPools",
+    outputs: [
+      {
+        internalType: "contract IStableSwap",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         components: [
           {
             internalType: "uint32",
@@ -4354,26 +4397,7 @@ const _abi = [
         type: "tuple",
       },
     ],
-    name: "adoptedToLocalExternalPools",
-    outputs: [
-      {
-        internalType: "contract IStableSwap",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_key",
-        type: "bytes32",
-      },
-    ],
-    name: "adoptedToLocalExternalPools",
+    name: "adoptedToLocalPools",
     outputs: [
       {
         internalType: "contract IStableSwap",
@@ -4867,10 +4891,7 @@ export class Connext__factory {
   static createInterface(): ConnextInterface {
     return new utils.Interface(_abi) as ConnextInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): Connext {
+  static connect(address: string, signerOrProvider: Signer | Provider): Connext {
     return new Contract(address, _abi, signerOrProvider) as Connext;
   }
 }

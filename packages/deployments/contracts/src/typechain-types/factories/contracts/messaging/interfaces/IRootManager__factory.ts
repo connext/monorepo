@@ -35,20 +35,10 @@ const _abi = [
         name: "_connectors",
         type: "address[]",
       },
-      {
-        internalType: "uint256[]",
-        name: "_fees",
-        type: "uint256[]",
-      },
-      {
-        internalType: "bytes[]",
-        name: "_encodedData",
-        type: "bytes[]",
-      },
     ],
     name: "propagate",
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "function",
   },
 ];
