@@ -8,7 +8,8 @@ export const setupRouter = async (
   txService: TransactionService,
 ) => {
   const requestContext = createRequestContext(setupRouter.name);
-  const data = ConnextInterface.encodeFunctionData("setupRouter", [routerAddress, routerAddress, routerAddress]);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  const data = ConnextInterface.encodeFunctionData("setupRouter" as any, [routerAddress, routerAddress, routerAddress]);
   for (const domain of domains) {
     let readData = ConnextInterface.encodeFunctionData("getRouterApproval", [routerAddress]);
     let encodedRes = await txService.readTx({
