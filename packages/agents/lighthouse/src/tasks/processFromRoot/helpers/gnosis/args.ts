@@ -44,6 +44,5 @@ export const getProcessFromGnosisRootArgs = async ({
   const { encodedData } = log.args;
   const helperContract = new ethers.Contract(AMB_HELPER_ADDRESS, AMB_BRIDGE_HELPER_ABI, rpcProvider);
   const signature = await helperContract.getSignatures(encodedData);
-  console.log({ encodedData, signature });
   return [encodedData, signature];
 };
