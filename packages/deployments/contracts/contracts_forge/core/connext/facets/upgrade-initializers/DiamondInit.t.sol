@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import {LibDiamond} from "../../../../../contracts/core/connext/libraries/LibDiamond.sol";
-import {DiamondInit, BaseConnextFacet} from "../../../../../contracts/core/connext/facets/upgrade-initializers/DiamondInit.sol";
+import {DiamondInit, BaseConnextFacet, IConnectorManager} from "../../../../../contracts/core/connext/facets/upgrade-initializers/DiamondInit.sol";
 
 import "../../../../utils/FacetHelper.sol";
 
@@ -41,8 +41,31 @@ contract DiamondInitTest is DiamondInit, FacetHelper {
     this.init(_originDomain, _xAppConnectionManager, _delay);
   }
 
+  // should fail if xapp manager returns wrong domain
+  function test_DiamondInit__init_failsIfBadManager() public {
+    // set mock
+    vm.mockCall(
+      _xAppConnectionManager,
+      abi.encodeWithSelector(IConnectorManager.localDomain.selector),
+      abi.encode(_originDomain + 1)
+    );
+
+    // set revert
+    vm.expectRevert(DiamondInit.DiamondInit__init_domainsDontMatch.selector);
+
+    vm.prank(_ds_owner);
+    this.init(_originDomain, _xAppConnectionManager, _delay);
+  }
+
   // should work
   function test_DiamondInit__init_worksIfNotInitialized() public {
+    // set mock
+    vm.mockCall(
+      _xAppConnectionManager,
+      abi.encodeWithSelector(IConnectorManager.localDomain.selector),
+      abi.encode(_originDomain)
+    );
+
     vm.prank(_ds_owner);
     this.init(_originDomain, _xAppConnectionManager, _delay);
 
