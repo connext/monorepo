@@ -2,6 +2,7 @@ import { ChainReader, contractDeployments } from "@connext/nxtp-txservice";
 import { createLoggingContext, getChainData, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
 import { closeDatabase } from "@connext/nxtp-adapters-database";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
+import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { getConfig } from "../../config";
 
@@ -65,6 +66,11 @@ export const makePropagate = async () => {
       });
     }
     context.adapters.contracts = contractDeployments;
+    context.adapters.subgraph = await SubgraphReader.create(
+      chainData,
+      context.config.environment,
+      context.config.subgraphPrefix as string,
+    );
 
     context.logger.info("Propagate boot complete!", requestContext, methodContext, {
       chains: [...Object.keys(context.config.chains)],
