@@ -126,4 +126,45 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
     assertTrue(connextDiamondProxy.isInitialized());
   }
+
+  // ============ diamondCut ============
+  // Should fail if it includes `proposeDiamondCut` selector
+  function test_LibDiamond__diamondCut_failsIfProposeCutRemoved() public {
+    deployConnext(uint256(domain), xAppConnectionManager, 0);
+
+    connextHandler = IConnext(address(connextDiamondProxy));
+    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
+    bytes4[] memory facetSelectors = new bytes4[](1);
+    facetSelectors[0] = IDiamondCut.proposeDiamondCut.selector;
+    facetCuts[0] = IDiamondCut.FacetCut({
+      facetAddress: address(0),
+      action: IDiamondCut.FacetCutAction.Remove,
+      functionSelectors: facetSelectors
+    });
+
+    vm.warp(100);
+    connextHandler.proposeDiamondCut(facetCuts, address(0), bytes(""));
+    vm.expectRevert(bytes("LibDiamondCut: Cannot remove cut selectors"));
+    connextHandler.diamondCut(facetCuts, address(0), bytes(""));
+  }
+
+  // Should fail if it includes `diamondCut` selector
+  function test_LibDiamond__diamondCut_failsIfCutRemoved() public {
+    deployConnext(uint256(domain), xAppConnectionManager, 0);
+
+    connextHandler = IConnext(address(connextDiamondProxy));
+    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
+    bytes4[] memory facetSelectors = new bytes4[](1);
+    facetSelectors[0] = IDiamondCut.diamondCut.selector;
+    facetCuts[0] = IDiamondCut.FacetCut({
+      facetAddress: address(0),
+      action: IDiamondCut.FacetCutAction.Remove,
+      functionSelectors: facetSelectors
+    });
+
+    vm.warp(100);
+    connextHandler.proposeDiamondCut(facetCuts, address(0), bytes(""));
+    vm.expectRevert(bytes("LibDiamondCut: Cannot remove cut selectors"));
+    connextHandler.diamondCut(facetCuts, address(0), bytes(""));
+  }
 }
