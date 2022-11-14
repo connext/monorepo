@@ -1,5 +1,5 @@
 [
-  "constructor(uint32,uint32,address,address,address,uint256,uint256,uint256,uint256,address,address,uint256)",
+  "constructor(uint32,uint32,address,address,address,uint256,uint256,uint256,address,address,uint256,uint256)",
   "error Connector__processMessage_notUsed()",
   "error ProposedOwnable__acceptProposedOwner_delayNotElapsed()",
   "error ProposedOwnable__onlyOwner_notOwner()",

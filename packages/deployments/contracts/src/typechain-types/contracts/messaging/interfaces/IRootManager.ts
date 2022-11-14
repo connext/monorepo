@@ -9,43 +9,29 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
 } from "ethers";
 import type { FunctionFragment, Result } from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
-import type {
-  TypedEventFilter,
-  TypedEvent,
-  TypedListener,
-  OnEvent,
-  PromiseOrValue,
-} from "../../../common";
+import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from "../../../common";
 
 export interface IRootManagerInterface extends utils.Interface {
   functions: {
     "aggregate(uint32,bytes32)": FunctionFragment;
-    "propagate(uint32[],address[],uint256[],bytes[])": FunctionFragment;
+    "propagate(address[],uint256[],bytes[])": FunctionFragment;
   };
 
-  getFunction(
-    nameOrSignatureOrTopic: "aggregate" | "propagate"
-  ): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "aggregate" | "propagate"): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "aggregate",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>],
   ): string;
   encodeFunctionData(
     functionFragment: "propagate",
-    values: [
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<string>[],
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BytesLike>[]
-    ]
+    values: [PromiseOrValue<string>[], PromiseOrValue<BigNumberish>[], PromiseOrValue<BytesLike>[]],
   ): string;
 
   decodeFunctionResult(functionFragment: "aggregate", data: BytesLike): Result;
@@ -64,16 +50,12 @@ export interface IRootManager extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TEvent>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
+  listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -84,46 +66,34 @@ export interface IRootManager extends BaseContract {
     aggregate(
       _domain: PromiseOrValue<BigNumberish>,
       _outbound: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     propagate(
-      _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
-      _fees: PromiseOrValue<BigNumberish>[],
-      _encodedData: PromiseOrValue<BytesLike>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
   };
 
   aggregate(
     _domain: PromiseOrValue<BigNumberish>,
     _outbound: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   propagate(
-    _domains: PromiseOrValue<BigNumberish>[],
     _connectors: PromiseOrValue<string>[],
-    _fees: PromiseOrValue<BigNumberish>[],
-    _encodedData: PromiseOrValue<BytesLike>[],
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   callStatic: {
     aggregate(
       _domain: PromiseOrValue<BigNumberish>,
       _outbound: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
-    propagate(
-      _domains: PromiseOrValue<BigNumberish>[],
-      _connectors: PromiseOrValue<string>[],
-      _fees: PromiseOrValue<BigNumberish>[],
-      _encodedData: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
+    propagate(_connectors: PromiseOrValue<string>[], overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {};
@@ -132,15 +102,12 @@ export interface IRootManager extends BaseContract {
     aggregate(
       _domain: PromiseOrValue<BigNumberish>,
       _outbound: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     propagate(
-      _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
-      _fees: PromiseOrValue<BigNumberish>[],
-      _encodedData: PromiseOrValue<BytesLike>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
   };
 
@@ -148,15 +115,12 @@ export interface IRootManager extends BaseContract {
     aggregate(
       _domain: PromiseOrValue<BigNumberish>,
       _outbound: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     propagate(
-      _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
-      _fees: PromiseOrValue<BigNumberish>[],
-      _encodedData: PromiseOrValue<BytesLike>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
   };
 }

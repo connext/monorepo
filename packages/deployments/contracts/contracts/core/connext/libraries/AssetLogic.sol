@@ -218,7 +218,7 @@ library AssetLogic {
   /**
    * @notice Swaps assetIn to assetOut using the stored stable swap or internal swap pool.
    * @dev Will not swap if the asset passed in is the adopted asset
-   * @param _key - The canonical token id
+   * @param _key - The hash of canonical id and domain.
    * @param _assetIn - The address of the from asset
    * @param _assetOut - The address of the to asset
    * @param _amount - The amount of the local asset to swap
@@ -469,7 +469,7 @@ library AssetLogic {
 
   /**
    * @notice Get the local asset address for a given canonical key, id, and domain.
-   * @param _key Canonical hash.
+   * @param _key - The hash of canonical id and domain.
    * @param _id Canonical ID.
    * @param _domain Canonical domain.
    * @param s AppStorage instance.

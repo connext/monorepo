@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import "../../../utils/ForgeHelper.sol";
-import {Deployer, DiamondInit, BridgeFacet} from "../../../utils/Deployer.sol";
+import {Deployer, DiamondInit, BridgeFacet, IConnectorManager} from "../../../utils/Deployer.sol";
 
 import "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IConnext} from "../../../../contracts/core/connext/interfaces/IConnext.sol";
@@ -23,6 +23,12 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   // ============ Setup ============
 
   function setUp() public {
+    // ensure manager returns correct domain by default
+    vm.mockCall(
+      xAppConnectionManager,
+      abi.encodeWithSelector(IConnectorManager.localDomain.selector),
+      abi.encode(domain)
+    );
     // Deploy token beacon
     deployConnext(uint256(domain), xAppConnectionManager, acceptanceDelay);
 

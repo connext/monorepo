@@ -9,7 +9,6 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -91,6 +90,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
+    "mirrorGas()": FunctionFragment;
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "processMessageFromRoot(address,address,bytes,uint256,(bytes32,(uint256,bytes32,uint256,uint256,bytes),(uint256,bytes32[]),bytes,bytes))": FunctionFragment;
@@ -100,9 +100,9 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     "proposedTimestamp()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "sendMessage(bytes,bytes)": FunctionFragment;
-    "setGasCap(uint256)": FunctionFragment;
+    "sendMessage(bytes)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
+    "setMirrorGas(uint256)": FunctionFragment;
     "stateCommitmentChain()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
   };
@@ -116,6 +116,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
       | "acceptProposedOwner"
       | "delay"
       | "mirrorConnector"
+      | "mirrorGas"
       | "owner"
       | "processMessage"
       | "processMessageFromRoot"
@@ -126,8 +127,8 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
       | "renounceOwnership"
       | "renounced"
       | "sendMessage"
-      | "setGasCap"
       | "setMirrorConnector"
+      | "setMirrorGas"
       | "stateCommitmentChain"
       | "verifySender"
   ): FunctionFragment;
@@ -151,6 +152,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     functionFragment: "mirrorConnector",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "mirrorGas", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processMessage",
@@ -186,15 +188,15 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "sendMessage",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setGasCap",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "setMirrorConnector",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMirrorGas",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "stateCommitmentChain",
@@ -224,6 +226,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     functionFragment: "mirrorConnector",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "mirrorGas", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processMessage",
@@ -252,9 +255,12 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     functionFragment: "sendMessage",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setMirrorConnector",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMirrorGas",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -267,34 +273,23 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "GasCapUpdated(uint256,uint256)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
-    "MessageSent(bytes,bytes,address)": EventFragment;
+    "MessageSent(bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
+    "MirrorGasUpdated(uint256,uint256)": EventFragment;
     "NewConnector(uint32,uint32,address,address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "GasCapUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MirrorGasUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewConnector"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
-
-export interface GasCapUpdatedEventObject {
-  _previous: BigNumber;
-  _updated: BigNumber;
-}
-export type GasCapUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  GasCapUpdatedEventObject
->;
-
-export type GasCapUpdatedEventFilter = TypedEventFilter<GasCapUpdatedEvent>;
 
 export interface MessageProcessedEventObject {
   data: string;
@@ -310,11 +305,10 @@ export type MessageProcessedEventFilter =
 
 export interface MessageSentEventObject {
   data: string;
-  encodedData: string;
   caller: string;
 }
 export type MessageSentEvent = TypedEvent<
-  [string, string, string],
+  [string, string],
   MessageSentEventObject
 >;
 
@@ -331,6 +325,18 @@ export type MirrorConnectorUpdatedEvent = TypedEvent<
 
 export type MirrorConnectorUpdatedEventFilter =
   TypedEventFilter<MirrorConnectorUpdatedEvent>;
+
+export interface MirrorGasUpdatedEventObject {
+  previous: BigNumber;
+  current: BigNumber;
+}
+export type MirrorGasUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  MirrorGasUpdatedEventObject
+>;
+
+export type MirrorGasUpdatedEventFilter =
+  TypedEventFilter<MirrorGasUpdatedEvent>;
 
 export interface NewConnectorEventObject {
   domain: number;
@@ -412,6 +418,8 @@ export interface OptimismHubConnector extends BaseContract {
 
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
 
+    mirrorGas(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     processMessage(
@@ -450,17 +458,16 @@ export interface OptimismHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setMirrorGas(
+      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -487,6 +494,8 @@ export interface OptimismHubConnector extends BaseContract {
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
+
+  mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -526,17 +535,16 @@ export interface OptimismHubConnector extends BaseContract {
 
   sendMessage(
     _data: PromiseOrValue<BytesLike>,
-    _encodedData: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setGasCap(
-    _gasCap: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setMirrorGas(
+    _mirrorGas: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -561,6 +569,8 @@ export interface OptimismHubConnector extends BaseContract {
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
+
+    mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -598,17 +608,16 @@ export interface OptimismHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setMirrorGas(
+      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -621,28 +630,17 @@ export interface OptimismHubConnector extends BaseContract {
   };
 
   filters: {
-    "GasCapUpdated(uint256,uint256)"(
-      _previous?: null,
-      _updated?: null
-    ): GasCapUpdatedEventFilter;
-    GasCapUpdated(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
-
     "MessageProcessed(bytes,address)"(
       data?: null,
       caller?: null
     ): MessageProcessedEventFilter;
     MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
 
-    "MessageSent(bytes,bytes,address)"(
+    "MessageSent(bytes,address)"(
       data?: null,
-      encodedData?: null,
       caller?: null
     ): MessageSentEventFilter;
-    MessageSent(
-      data?: null,
-      encodedData?: null,
-      caller?: null
-    ): MessageSentEventFilter;
+    MessageSent(data?: null, caller?: null): MessageSentEventFilter;
 
     "MirrorConnectorUpdated(address,address)"(
       previous?: null,
@@ -652,6 +650,15 @@ export interface OptimismHubConnector extends BaseContract {
       previous?: null,
       current?: null
     ): MirrorConnectorUpdatedEventFilter;
+
+    "MirrorGasUpdated(uint256,uint256)"(
+      previous?: null,
+      current?: null
+    ): MirrorGasUpdatedEventFilter;
+    MirrorGasUpdated(
+      previous?: null,
+      current?: null
+    ): MirrorGasUpdatedEventFilter;
 
     "NewConnector(uint32,uint32,address,address,address)"(
       domain?: PromiseOrValue<BigNumberish> | null,
@@ -702,6 +709,8 @@ export interface OptimismHubConnector extends BaseContract {
 
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
 
+    mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     processMessage(
@@ -740,17 +749,16 @@ export interface OptimismHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setMirrorGas(
+      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -778,6 +786,8 @@ export interface OptimismHubConnector extends BaseContract {
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    mirrorGas(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -817,17 +827,16 @@ export interface OptimismHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMirrorGas(
+      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

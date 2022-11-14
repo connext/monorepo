@@ -56,11 +56,6 @@ const _abi = [
     type: "error",
   },
   {
-    inputs: [],
-    name: "RateLimited__rateLimited_messageSendRateExceeded",
-    type: "error",
-  },
-  {
     anonymous: false,
     inputs: [
       {
@@ -121,25 +116,6 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "FundsWithdrawn",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
         indexed: false,
         internalType: "bytes",
         name: "data",
@@ -162,12 +138,6 @@ const _abi = [
         indexed: false,
         internalType: "bytes",
         name: "data",
-        type: "bytes",
-      },
-      {
-        indexed: false,
-        internalType: "bytes",
-        name: "encodedData",
         type: "bytes",
       },
       {
@@ -197,6 +167,25 @@ const _abi = [
       },
     ],
     name: "MirrorConnectorUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "previous",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "current",
+        type: "uint256",
+      },
+    ],
+    name: "MirrorGasUpdated",
     type: "event",
   },
   {
@@ -304,25 +293,6 @@ const _abi = [
       },
     ],
     name: "Process",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "updater",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "newRateLimit",
-        type: "uint256",
-      },
-    ],
-    name: "SendRateLimitUpdated",
     type: "event",
   },
   {
@@ -577,19 +547,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "lastSentBlock",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "localDomain",
     outputs: [
       {
@@ -628,6 +585,19 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "mirrorGas",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -853,19 +823,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "rateLimitBlocks",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "bytes32",
@@ -912,35 +869,10 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes",
-        name: "_encodedData",
-        type: "bytes",
-      },
-    ],
+    inputs: [],
     name: "send",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    name: "sentMessageRoots",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -984,19 +916,6 @@ const _abi = [
       },
     ],
     name: "setMirrorConnector",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_rateLimit",
-        type: "uint256",
-      },
-    ],
-    name: "setRateLimitBlocks",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1072,23 +991,6 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_to",
-        type: "address",
-      },
-    ],
-    name: "withdrawFunds",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    stateMutability: "payable",
-    type: "receive",
-  },
 ];
 
 export class SpokeConnector__factory {
@@ -1096,10 +998,7 @@ export class SpokeConnector__factory {
   static createInterface(): SpokeConnectorInterface {
     return new utils.Interface(_abi) as SpokeConnectorInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): SpokeConnector {
+  static connect(address: string, signerOrProvider: Signer | Provider): SpokeConnector {
     return new Contract(address, _abi, signerOrProvider) as SpokeConnector;
   }
 }

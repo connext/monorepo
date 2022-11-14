@@ -9,7 +9,6 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -63,11 +62,10 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     "MIRROR_DOMAIN()": FunctionFragment;
     "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
+    "defaultGasPrice()": FunctionFragment;
     "delay()": FunctionFragment;
-    "gasPriceCap()": FunctionFragment;
-    "maxGasCap()": FunctionFragment;
-    "maxSubmissionCostCap()": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
+    "mirrorGas()": FunctionFragment;
     "outbox()": FunctionFragment;
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
@@ -79,11 +77,10 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "rollup()": FunctionFragment;
-    "sendMessage(bytes,bytes)": FunctionFragment;
-    "setGasPriceCap(uint256)": FunctionFragment;
-    "setMaxGasCap(uint256)": FunctionFragment;
-    "setMaxSubmissionCostCap(uint256)": FunctionFragment;
+    "sendMessage(bytes)": FunctionFragment;
+    "setDefaultGasPrice(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
+    "setMirrorGas(uint256)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
   };
 
@@ -94,11 +91,10 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
       | "MIRROR_DOMAIN"
       | "ROOT_MANAGER"
       | "acceptProposedOwner"
+      | "defaultGasPrice"
       | "delay"
-      | "gasPriceCap"
-      | "maxGasCap"
-      | "maxSubmissionCostCap"
       | "mirrorConnector"
+      | "mirrorGas"
       | "outbox"
       | "owner"
       | "processMessage"
@@ -111,10 +107,9 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
       | "renounced"
       | "rollup"
       | "sendMessage"
-      | "setGasPriceCap"
-      | "setMaxGasCap"
-      | "setMaxSubmissionCostCap"
+      | "setDefaultGasPrice"
       | "setMirrorConnector"
+      | "setMirrorGas"
       | "verifySender"
   ): FunctionFragment;
 
@@ -132,20 +127,16 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     functionFragment: "acceptProposedOwner",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "defaultGasPrice",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "gasPriceCap",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "maxGasCap", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "maxSubmissionCostCap",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "mirrorConnector",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "mirrorGas", values?: undefined): string;
   encodeFunctionData(functionFragment: "outbox", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -184,23 +175,19 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "rollup", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "sendMessage",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setGasPriceCap",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMaxGasCap",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMaxSubmissionCostCap",
+    functionFragment: "setDefaultGasPrice",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setMirrorConnector",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMirrorGas",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "verifySender",
@@ -221,20 +208,16 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     functionFragment: "acceptProposedOwner",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "defaultGasPrice",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "gasPriceCap",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "maxGasCap", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "maxSubmissionCostCap",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "mirrorConnector",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "mirrorGas", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "outbox", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
@@ -266,19 +249,15 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setGasPriceCap",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMaxGasCap",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMaxSubmissionCostCap",
+    functionFragment: "setDefaultGasPrice",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "setMirrorConnector",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMirrorGas",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -287,65 +266,37 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "GasPriceCapUpdated(uint256,uint256)": EventFragment;
-    "MaxGasCapUpdated(uint256,uint256)": EventFragment;
-    "MaxSubmissionCapUpdated(uint256,uint256)": EventFragment;
+    "DefaultGasPriceUpdated(uint256,uint256)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
-    "MessageSent(bytes,bytes,address)": EventFragment;
+    "MessageSent(bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
+    "MirrorGasUpdated(uint256,uint256)": EventFragment;
     "NewConnector(uint32,uint32,address,address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "RetryableTicketCreated(uint256)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "GasPriceCapUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MaxGasCapUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MaxSubmissionCapUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DefaultGasPriceUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MirrorGasUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewConnector"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RetryableTicketCreated"): EventFragment;
 }
 
-export interface GasPriceCapUpdatedEventObject {
-  _previous: BigNumber;
-  _updated: BigNumber;
+export interface DefaultGasPriceUpdatedEventObject {
+  previous: BigNumber;
+  current: BigNumber;
 }
-export type GasPriceCapUpdatedEvent = TypedEvent<
+export type DefaultGasPriceUpdatedEvent = TypedEvent<
   [BigNumber, BigNumber],
-  GasPriceCapUpdatedEventObject
+  DefaultGasPriceUpdatedEventObject
 >;
 
-export type GasPriceCapUpdatedEventFilter =
-  TypedEventFilter<GasPriceCapUpdatedEvent>;
-
-export interface MaxGasCapUpdatedEventObject {
-  _previous: BigNumber;
-  _updated: BigNumber;
-}
-export type MaxGasCapUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  MaxGasCapUpdatedEventObject
->;
-
-export type MaxGasCapUpdatedEventFilter =
-  TypedEventFilter<MaxGasCapUpdatedEvent>;
-
-export interface MaxSubmissionCapUpdatedEventObject {
-  _previous: BigNumber;
-  _updated: BigNumber;
-}
-export type MaxSubmissionCapUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  MaxSubmissionCapUpdatedEventObject
->;
-
-export type MaxSubmissionCapUpdatedEventFilter =
-  TypedEventFilter<MaxSubmissionCapUpdatedEvent>;
+export type DefaultGasPriceUpdatedEventFilter =
+  TypedEventFilter<DefaultGasPriceUpdatedEvent>;
 
 export interface MessageProcessedEventObject {
   data: string;
@@ -361,11 +312,10 @@ export type MessageProcessedEventFilter =
 
 export interface MessageSentEventObject {
   data: string;
-  encodedData: string;
   caller: string;
 }
 export type MessageSentEvent = TypedEvent<
-  [string, string, string],
+  [string, string],
   MessageSentEventObject
 >;
 
@@ -382,6 +332,18 @@ export type MirrorConnectorUpdatedEvent = TypedEvent<
 
 export type MirrorConnectorUpdatedEventFilter =
   TypedEventFilter<MirrorConnectorUpdatedEvent>;
+
+export interface MirrorGasUpdatedEventObject {
+  previous: BigNumber;
+  current: BigNumber;
+}
+export type MirrorGasUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  MirrorGasUpdatedEventObject
+>;
+
+export type MirrorGasUpdatedEventFilter =
+  TypedEventFilter<MirrorGasUpdatedEvent>;
 
 export interface NewConnectorEventObject {
   domain: number;
@@ -419,17 +381,6 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
-
-export interface RetryableTicketCreatedEventObject {
-  ticketId: BigNumber;
-}
-export type RetryableTicketCreatedEvent = TypedEvent<
-  [BigNumber],
-  RetryableTicketCreatedEventObject
->;
-
-export type RetryableTicketCreatedEventFilter =
-  TypedEventFilter<RetryableTicketCreatedEvent>;
 
 export interface ArbitrumHubConnector extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -470,15 +421,13 @@ export interface ArbitrumHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    defaultGasPrice(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    gasPriceCap(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    maxGasCap(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    maxSubmissionCostCap(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
+
+    mirrorGas(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     outbox(overrides?: CallOverrides): Promise<[string]>;
 
@@ -523,27 +472,21 @@ export interface ArbitrumHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setGasPriceCap(
-      _updated: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setMaxGasCap(
-      _updated: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setMaxSubmissionCostCap(
-      _updated: PromiseOrValue<BigNumberish>,
+    setDefaultGasPrice(
+      _defaultGasPrice: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setMirrorGas(
+      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -565,15 +508,13 @@ export interface ArbitrumHubConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  defaultGasPrice(overrides?: CallOverrides): Promise<BigNumber>;
+
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-  gasPriceCap(overrides?: CallOverrides): Promise<BigNumber>;
-
-  maxGasCap(overrides?: CallOverrides): Promise<BigNumber>;
-
-  maxSubmissionCostCap(overrides?: CallOverrides): Promise<BigNumber>;
-
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
+
+  mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
   outbox(overrides?: CallOverrides): Promise<string>;
 
@@ -618,27 +559,21 @@ export interface ArbitrumHubConnector extends BaseContract {
 
   sendMessage(
     _data: PromiseOrValue<BytesLike>,
-    _encodedData: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setGasPriceCap(
-    _updated: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setMaxGasCap(
-    _updated: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setMaxSubmissionCostCap(
-    _updated: PromiseOrValue<BigNumberish>,
+  setDefaultGasPrice(
+    _defaultGasPrice: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setMirrorGas(
+    _mirrorGas: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -658,15 +593,13 @@ export interface ArbitrumHubConnector extends BaseContract {
 
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
+    defaultGasPrice(overrides?: CallOverrides): Promise<BigNumber>;
+
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-    gasPriceCap(overrides?: CallOverrides): Promise<BigNumber>;
-
-    maxGasCap(overrides?: CallOverrides): Promise<BigNumber>;
-
-    maxSubmissionCostCap(overrides?: CallOverrides): Promise<BigNumber>;
-
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
+
+    mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
     outbox(overrides?: CallOverrides): Promise<string>;
 
@@ -709,27 +642,21 @@ export interface ArbitrumHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      _encodedData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setGasPriceCap(
-      _updated: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setMaxGasCap(
-      _updated: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setMaxSubmissionCostCap(
-      _updated: PromiseOrValue<BigNumberish>,
+    setDefaultGasPrice(
+      _defaultGasPrice: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setMirrorGas(
+      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -740,32 +667,14 @@ export interface ArbitrumHubConnector extends BaseContract {
   };
 
   filters: {
-    "GasPriceCapUpdated(uint256,uint256)"(
-      _previous?: null,
-      _updated?: null
-    ): GasPriceCapUpdatedEventFilter;
-    GasPriceCapUpdated(
-      _previous?: null,
-      _updated?: null
-    ): GasPriceCapUpdatedEventFilter;
-
-    "MaxGasCapUpdated(uint256,uint256)"(
-      _previous?: null,
-      _updated?: null
-    ): MaxGasCapUpdatedEventFilter;
-    MaxGasCapUpdated(
-      _previous?: null,
-      _updated?: null
-    ): MaxGasCapUpdatedEventFilter;
-
-    "MaxSubmissionCapUpdated(uint256,uint256)"(
-      _previous?: null,
-      _updated?: null
-    ): MaxSubmissionCapUpdatedEventFilter;
-    MaxSubmissionCapUpdated(
-      _previous?: null,
-      _updated?: null
-    ): MaxSubmissionCapUpdatedEventFilter;
+    "DefaultGasPriceUpdated(uint256,uint256)"(
+      previous?: null,
+      current?: null
+    ): DefaultGasPriceUpdatedEventFilter;
+    DefaultGasPriceUpdated(
+      previous?: null,
+      current?: null
+    ): DefaultGasPriceUpdatedEventFilter;
 
     "MessageProcessed(bytes,address)"(
       data?: null,
@@ -773,16 +682,11 @@ export interface ArbitrumHubConnector extends BaseContract {
     ): MessageProcessedEventFilter;
     MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
 
-    "MessageSent(bytes,bytes,address)"(
+    "MessageSent(bytes,address)"(
       data?: null,
-      encodedData?: null,
       caller?: null
     ): MessageSentEventFilter;
-    MessageSent(
-      data?: null,
-      encodedData?: null,
-      caller?: null
-    ): MessageSentEventFilter;
+    MessageSent(data?: null, caller?: null): MessageSentEventFilter;
 
     "MirrorConnectorUpdated(address,address)"(
       previous?: null,
@@ -792,6 +696,15 @@ export interface ArbitrumHubConnector extends BaseContract {
       previous?: null,
       current?: null
     ): MirrorConnectorUpdatedEventFilter;
+
+    "MirrorGasUpdated(uint256,uint256)"(
+      previous?: null,
+      current?: null
+    ): MirrorGasUpdatedEventFilter;
+    MirrorGasUpdated(
+      previous?: null,
+      current?: null
+    ): MirrorGasUpdatedEventFilter;
 
     "NewConnector(uint32,uint32,address,address,address)"(
       domain?: PromiseOrValue<BigNumberish> | null,
@@ -823,13 +736,6 @@ export interface ArbitrumHubConnector extends BaseContract {
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
-
-    "RetryableTicketCreated(uint256)"(
-      ticketId?: PromiseOrValue<BigNumberish> | null
-    ): RetryableTicketCreatedEventFilter;
-    RetryableTicketCreated(
-      ticketId?: PromiseOrValue<BigNumberish> | null
-    ): RetryableTicketCreatedEventFilter;
   };
 
   estimateGas: {
@@ -845,15 +751,13 @@ export interface ArbitrumHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    defaultGasPrice(overrides?: CallOverrides): Promise<BigNumber>;
+
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-    gasPriceCap(overrides?: CallOverrides): Promise<BigNumber>;
-
-    maxGasCap(overrides?: CallOverrides): Promise<BigNumber>;
-
-    maxSubmissionCostCap(overrides?: CallOverrides): Promise<BigNumber>;
-
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
+
+    mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
     outbox(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -898,27 +802,21 @@ export interface ArbitrumHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setGasPriceCap(
-      _updated: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setMaxGasCap(
-      _updated: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setMaxSubmissionCostCap(
-      _updated: PromiseOrValue<BigNumberish>,
+    setDefaultGasPrice(
+      _defaultGasPrice: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setMirrorGas(
+      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -941,17 +839,13 @@ export interface ArbitrumHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    defaultGasPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    gasPriceCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    maxGasCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    maxSubmissionCostCap(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    mirrorGas(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     outbox(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -996,27 +890,21 @@ export interface ArbitrumHubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setGasPriceCap(
-      _updated: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setMaxGasCap(
-      _updated: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMaxSubmissionCostCap(
-      _updated: PromiseOrValue<BigNumberish>,
+    setDefaultGasPrice(
+      _defaultGasPrice: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMirrorGas(
+      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
