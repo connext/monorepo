@@ -361,10 +361,8 @@ contract TokenFacet is BaseConnextFacet {
     if (!s.approvedAssets[_key]) revert TokenFacet__removeAssetId_notAdded();
 
     // Sanity check: consistent set of params
-    if (
-      s.canonicalToAdopted[_key] != _adopted ||
-      s.canonicalToRepresentation[_key] != _local
-    ) revert TokenFacet__removeAssetId_invalidParams();
+    if (s.canonicalToAdopted[_key] != _adoptedAssetId || s.canonicalToRepresentation[_key] != _representation)
+      revert TokenFacet__removeAssetId_invalidParams();
 
     // Delete from approved assets mapping
     delete s.approvedAssets[_key];
