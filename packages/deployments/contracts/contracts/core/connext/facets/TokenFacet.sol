@@ -24,6 +24,7 @@ contract TokenFacet is BaseConnextFacet {
   error TokenFacet__addAssetId_alreadyAdded();
   error TokenFacet__removeAssetId_notAdded();
   error TokenFacet__updateDetails_localNotFound();
+  error TokenFacet__updateDetails_onlyRemote();
   error TokenFacet__setLiquidityCap_notCanonicalDomain();
 
   // ============ Events ============
@@ -280,6 +281,10 @@ contract TokenFacet is BaseConnextFacet {
     address local = s.canonicalToRepresentation[key];
     if (local == address(0)) {
       revert TokenFacet__updateDetails_localNotFound();
+    }
+    // Can only happen on remote domains
+    if (s.domain == _canonical.domain) {
+      revert TokenFacet__updateDetails_onlyRemote();
     }
     IBridgeToken(local).setDetails(_name, _symbol);
   }

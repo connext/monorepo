@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
+import {IBridgeToken} from "../../../../contracts/core/connext/interfaces/IBridgeToken.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {ERC20} from "../../../../contracts/core/connext/helpers/OZERC20.sol";
 import {TokenFacet} from "../../../../contracts/core/connext/facets/TokenFacet.sol";
@@ -275,5 +276,52 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     // assertEq
     assertEq(s.custodied[_canonical], balance);
     assertEq(s.caps[key], updated);
+  }
+
+  // updateDetails
+  function test_TokenFacet__updateDetails_failsIfNoLocal() public {
+    s.domain = _canonicalDomain + 2;
+    bytes32 key = utils_calculateCanonicalHash();
+    s.canonicalToRepresentation[key] = address(0);
+
+    // Inputs
+    string memory updatedName = "asdfkj";
+    string memory updatedSymbol = "lkjliji";
+
+    vm.expectRevert(TokenFacet.TokenFacet__updateDetails_localNotFound.selector);
+    vm.prank(_owner);
+    this.updateDetails(TokenId(_canonicalDomain, _canonicalId), updatedName, updatedSymbol);
+  }
+
+  function test_TokenFacet__updateDetails_failsOnCanonical() public {
+    s.domain = _canonicalDomain;
+    bytes32 key = utils_calculateCanonicalHash();
+    s.canonicalToRepresentation[key] = _local;
+
+    // Inputs
+    string memory updatedName = "asdfkj";
+    string memory updatedSymbol = "lkjliji";
+
+    vm.expectRevert(TokenFacet.TokenFacet__updateDetails_onlyRemote.selector);
+    vm.prank(_owner);
+    this.updateDetails(TokenId(_canonicalDomain, _canonicalId), updatedName, updatedSymbol);
+  }
+
+  // works
+  function test_TokenFacet__updateDetails_works() public {
+    s.domain = _canonicalDomain + 2;
+    bytes32 key = utils_calculateCanonicalHash();
+    s.canonicalToRepresentation[key] = _local;
+
+    // Inputs
+    string memory updatedName = "asdfkj";
+    string memory updatedSymbol = "lkjliji";
+
+    vm.prank(_owner);
+    this.updateDetails(TokenId(_canonicalDomain, _canonicalId), updatedName, updatedSymbol);
+
+    // assertEq
+    assertEq(IBridgeToken(_local).name(), updatedName);
+    assertEq(IBridgeToken(_local).symbol(), updatedSymbol);
   }
 }
