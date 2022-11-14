@@ -32,8 +32,8 @@ export class NoMessageRootCount extends NxtpError {
   }
 }
 export class NoTargetMessageRoot extends NxtpError {
-  constructor(domain: string | undefined, index: number | undefined, context: any = {}) {
-    super(`No target outbound root for ${index} in ${domain}`, context, NoTargetMessageRoot.name);
+  constructor(domain: string | undefined, context: any = {}) {
+    super(`No target outbound root in ${domain}`, context, NoTargetMessageRoot.name);
   }
 }
 
