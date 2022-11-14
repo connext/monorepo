@@ -26,48 +26,67 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
-export interface WatcherManagerInterface extends utils.Interface {
+export interface MerkleTreeManagerInterface extends utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
-    "addWatcher(address)": FunctionFragment;
+    "arborist()": FunctionFragment;
+    "branch()": FunctionFragment;
+    "count()": FunctionFragment;
     "delay()": FunctionFragment;
-    "isWatcher(address)": FunctionFragment;
+    "initialize(address)": FunctionFragment;
+    "insert(bytes32)": FunctionFragment;
+    "insert(bytes32[])": FunctionFragment;
     "owner()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
-    "removeWatcher(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
+    "root()": FunctionFragment;
+    "setArborist(address)": FunctionFragment;
+    "tree()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "acceptProposedOwner"
-      | "addWatcher"
+      | "arborist"
+      | "branch"
+      | "count"
       | "delay"
-      | "isWatcher"
+      | "initialize"
+      | "insert(bytes32)"
+      | "insert(bytes32[])"
       | "owner"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
-      | "removeWatcher"
       | "renounceOwnership"
       | "renounced"
+      | "root"
+      | "setArborist"
+      | "tree"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "addWatcher",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "arborist", values?: undefined): string;
+  encodeFunctionData(functionFragment: "branch", values?: undefined): string;
+  encodeFunctionData(functionFragment: "count", values?: undefined): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "isWatcher",
+    functionFragment: "initialize",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "insert(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "insert(bytes32[])",
+    values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -80,22 +99,34 @@ export interface WatcherManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "removeWatcher",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
+  encodeFunctionData(functionFragment: "root", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "setArborist",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(functionFragment: "tree", values?: undefined): string;
 
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "addWatcher", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "arborist", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "branch", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "isWatcher", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "insert(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "insert(bytes32[])",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
@@ -107,27 +138,47 @@ export interface WatcherManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "removeWatcher",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "root", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setArborist",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "tree", data: BytesLike): Result;
 
   events: {
+    "ArboristUpdated(address,address)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "WatcherAdded(address)": EventFragment;
-    "WatcherRemoved(address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "ArboristUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "WatcherAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "WatcherRemoved"): EventFragment;
 }
+
+export interface ArboristUpdatedEventObject {
+  previous: string;
+  updated: string;
+}
+export type ArboristUpdatedEvent = TypedEvent<
+  [string, string],
+  ArboristUpdatedEventObject
+>;
+
+export type ArboristUpdatedEventFilter = TypedEventFilter<ArboristUpdatedEvent>;
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -152,29 +203,12 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
-export interface WatcherAddedEventObject {
-  watcher: string;
-}
-export type WatcherAddedEvent = TypedEvent<[string], WatcherAddedEventObject>;
-
-export type WatcherAddedEventFilter = TypedEventFilter<WatcherAddedEvent>;
-
-export interface WatcherRemovedEventObject {
-  watcher: string;
-}
-export type WatcherRemovedEvent = TypedEvent<
-  [string],
-  WatcherRemovedEventObject
->;
-
-export type WatcherRemovedEventFilter = TypedEventFilter<WatcherRemovedEvent>;
-
-export interface WatcherManager extends BaseContract {
+export interface MerkleTreeManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: WatcherManagerInterface;
+  interface: MerkleTreeManagerInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -200,17 +234,28 @@ export interface WatcherManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    addWatcher(
-      _watcher: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    arborist(overrides?: CallOverrides): Promise<[string]>;
+
+    branch(overrides?: CallOverrides): Promise<[string[]]>;
+
+    count(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    isWatcher(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    initialize(
+      _arborist: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "insert(bytes32)"(
+      leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "insert(bytes32[])"(
+      leaves: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -223,33 +268,50 @@ export interface WatcherManager extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    removeWatcher(
-      _watcher: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
+
+    root(overrides?: CallOverrides): Promise<[string]>;
+
+    setArborist(
+      newArborist: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    tree(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { count: BigNumber }>;
   };
 
   acceptProposedOwner(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  addWatcher(
-    _watcher: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  arborist(overrides?: CallOverrides): Promise<string>;
+
+  branch(overrides?: CallOverrides): Promise<string[]>;
+
+  count(overrides?: CallOverrides): Promise<BigNumber>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-  isWatcher(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  initialize(
+    _arborist: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "insert(bytes32)"(
+    leaf: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "insert(bytes32[])"(
+    leaves: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -262,31 +324,46 @@ export interface WatcherManager extends BaseContract {
 
   proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-  removeWatcher(
-    _watcher: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   renounceOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
+  root(overrides?: CallOverrides): Promise<string>;
+
+  setArborist(
+    newArborist: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  tree(overrides?: CallOverrides): Promise<BigNumber>;
+
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
-    addWatcher(
-      _watcher: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    arborist(overrides?: CallOverrides): Promise<string>;
+
+    branch(overrides?: CallOverrides): Promise<string[]>;
+
+    count(overrides?: CallOverrides): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-    isWatcher(
-      arg0: PromiseOrValue<string>,
+    initialize(
+      _arborist: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<void>;
+
+    "insert(bytes32)"(
+      leaf: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string, BigNumber] & { _root: string; _count: BigNumber }>;
+
+    "insert(bytes32[])"(
+      leaves: PromiseOrValue<BytesLike>[],
+      overrides?: CallOverrides
+    ): Promise<[string, BigNumber] & { _root: string; _count: BigNumber }>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -299,17 +376,33 @@ export interface WatcherManager extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    removeWatcher(
-      _watcher: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
+
+    root(overrides?: CallOverrides): Promise<string>;
+
+    setArborist(
+      newArborist: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    tree(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {
+    "ArboristUpdated(address,address)"(
+      previous?: null,
+      updated?: null
+    ): ArboristUpdatedEventFilter;
+    ArboristUpdated(
+      previous?: null,
+      updated?: null
+    ): ArboristUpdatedEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
     ): OwnershipProposedEventFilter;
@@ -325,12 +418,6 @@ export interface WatcherManager extends BaseContract {
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
-
-    "WatcherAdded(address)"(watcher?: null): WatcherAddedEventFilter;
-    WatcherAdded(watcher?: null): WatcherAddedEventFilter;
-
-    "WatcherRemoved(address)"(watcher?: null): WatcherRemovedEventFilter;
-    WatcherRemoved(watcher?: null): WatcherRemovedEventFilter;
   };
 
   estimateGas: {
@@ -338,16 +425,27 @@ export interface WatcherManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    addWatcher(
-      _watcher: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    arborist(overrides?: CallOverrides): Promise<BigNumber>;
+
+    branch(overrides?: CallOverrides): Promise<BigNumber>;
+
+    count(overrides?: CallOverrides): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-    isWatcher(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
+    initialize(
+      _arborist: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "insert(bytes32)"(
+      leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "insert(bytes32[])"(
+      leaves: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -361,16 +459,20 @@ export interface WatcherManager extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    removeWatcher(
-      _watcher: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
+
+    root(overrides?: CallOverrides): Promise<BigNumber>;
+
+    setArborist(
+      newArborist: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    tree(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -378,16 +480,27 @@ export interface WatcherManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    addWatcher(
-      _watcher: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    arborist(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    branch(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    count(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    isWatcher(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
+    initialize(
+      _arborist: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "insert(bytes32)"(
+      leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "insert(bytes32[])"(
+      leaves: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -401,15 +514,19 @@ export interface WatcherManager extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    removeWatcher(
-      _watcher: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    root(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    setArborist(
+      newArborist: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    tree(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

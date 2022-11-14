@@ -195,6 +195,7 @@ export interface IConnextInterface extends utils.Interface {
     "adoptedToCanonical(address)": FunctionFragment;
     "adoptedToLocalExternalPools((uint32,bytes32))": FunctionFragment;
     "adoptedToLocalExternalPools(bytes32)": FunctionFragment;
+    "approveRouter(address)": FunctionFragment;
     "approveRouterForPortal(address)": FunctionFragment;
     "approvedAssets(bytes32)": FunctionFragment;
     "approvedAssets((uint32,bytes32))": FunctionFragment;
@@ -221,6 +222,7 @@ export interface IConnextInterface extends utils.Interface {
     "facetAddresses()": FunctionFragment;
     "facetFunctionSelectors(address)": FunctionFragment;
     "facets()": FunctionFragment;
+    "forceReceiveLocal((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32))": FunctionFragment;
     "forceUpdateSlippage((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256)": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
@@ -242,6 +244,7 @@ export interface IConnextInterface extends utils.Interface {
     "getSwapVirtualPrice(bytes32)": FunctionFragment;
     "getTokenId(address)": FunctionFragment;
     "handle(uint32,uint32,bytes32,bytes)": FunctionFragment;
+    "initializeRouter(address,address)": FunctionFragment;
     "initializeSwap(bytes32,address[],uint8[],string,string,uint256,uint256,uint256,address)": FunctionFragment;
     "maxRoutersPerTransfer()": FunctionFragment;
     "nonce()": FunctionFragment;
@@ -261,7 +264,6 @@ export interface IConnextInterface extends utils.Interface {
     "removeAssetId(bytes32,address,address)": FunctionFragment;
     "removeAssetWhitelist()": FunctionFragment;
     "removeRelayer(address)": FunctionFragment;
-    "removeRouter(address)": FunctionFragment;
     "removeRouterLiquidity(uint256,address,address)": FunctionFragment;
     "removeRouterLiquidityFor(uint256,address,address,address)": FunctionFragment;
     "removeRouterWhitelist()": FunctionFragment;
@@ -288,12 +290,12 @@ export interface IConnextInterface extends utils.Interface {
     "setXAppConnectionManager(address)": FunctionFragment;
     "setupAsset((uint32,bytes32),uint8,string,string,address,address,uint256)": FunctionFragment;
     "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address,uint256)": FunctionFragment;
-    "setupRouter(address,address,address)": FunctionFragment;
     "stopRampA(bytes32)": FunctionFragment;
     "swap(bytes32,uint8,uint8,uint256,uint256,uint256)": FunctionFragment;
     "swapExact(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
     "swapExactOut(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
     "transferStatus(bytes32)": FunctionFragment;
+    "unapproveRouter(address)": FunctionFragment;
     "unapproveRouterForPortal(address)": FunctionFragment;
     "unpause()": FunctionFragment;
     "updateDetails((uint32,bytes32),string,string)": FunctionFragment;
@@ -322,6 +324,7 @@ export interface IConnextInterface extends utils.Interface {
       | "adoptedToCanonical"
       | "adoptedToLocalExternalPools((uint32,bytes32))"
       | "adoptedToLocalExternalPools(bytes32)"
+      | "approveRouter"
       | "approveRouterForPortal"
       | "approvedAssets(bytes32)"
       | "approvedAssets((uint32,bytes32))"
@@ -348,6 +351,7 @@ export interface IConnextInterface extends utils.Interface {
       | "facetAddresses"
       | "facetFunctionSelectors"
       | "facets"
+      | "forceReceiveLocal"
       | "forceUpdateSlippage"
       | "getAavePortalDebt"
       | "getAavePortalFeeDebt"
@@ -369,6 +373,7 @@ export interface IConnextInterface extends utils.Interface {
       | "getSwapVirtualPrice"
       | "getTokenId"
       | "handle"
+      | "initializeRouter"
       | "initializeSwap"
       | "maxRoutersPerTransfer"
       | "nonce"
@@ -388,7 +393,6 @@ export interface IConnextInterface extends utils.Interface {
       | "removeAssetId(bytes32,address,address)"
       | "removeAssetWhitelist"
       | "removeRelayer"
-      | "removeRouter"
       | "removeRouterLiquidity"
       | "removeRouterLiquidityFor"
       | "removeRouterWhitelist"
@@ -415,12 +419,12 @@ export interface IConnextInterface extends utils.Interface {
       | "setXAppConnectionManager"
       | "setupAsset"
       | "setupAssetWithDeployedRepresentation"
-      | "setupRouter"
       | "stopRampA"
       | "swap"
       | "swapExact"
       | "swapExactOut"
       | "transferStatus"
+      | "unapproveRouter"
       | "unapproveRouterForPortal"
       | "unpause"
       | "updateDetails"
@@ -500,6 +504,10 @@ export interface IConnextInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "adoptedToLocalExternalPools(bytes32)",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "approveRouter",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "approveRouterForPortal",
@@ -618,6 +626,10 @@ export interface IConnextInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "facets", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "forceReceiveLocal",
+    values: [TransferInfoStruct]
+  ): string;
+  encodeFunctionData(
     functionFragment: "forceUpdateSlippage",
     values: [TransferInfoStruct, PromiseOrValue<BigNumberish>]
   ): string;
@@ -707,6 +719,10 @@ export interface IConnextInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "initializeRouter",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "initializeSwap",
     values: [
       PromiseOrValue<BytesLike>,
@@ -790,10 +806,6 @@ export interface IConnextInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "removeRelayer",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeRouter",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -953,14 +965,6 @@ export interface IConnextInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "setupRouter",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "stopRampA",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -1000,6 +1004,10 @@ export interface IConnextInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "transferStatus",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "unapproveRouter",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "unapproveRouterForPortal",
@@ -1106,6 +1114,10 @@ export interface IConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "approveRouter",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "approveRouterForPortal",
     data: BytesLike
   ): Result;
@@ -1195,6 +1207,10 @@ export interface IConnextInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "facets", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "forceReceiveLocal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "forceUpdateSlippage",
     data: BytesLike
   ): Result;
@@ -1270,6 +1286,10 @@ export interface IConnextInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "getTokenId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "handle", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "initializeRouter",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "initializeSwap",
     data: BytesLike
   ): Result;
@@ -1325,10 +1345,6 @@ export interface IConnextInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "removeRelayer",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeRouter",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1429,10 +1445,6 @@ export interface IConnextInterface extends utils.Interface {
     functionFragment: "setupAssetWithDeployedRepresentation",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setupRouter",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "stopRampA", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "swap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "swapExact", data: BytesLike): Result;
@@ -1442,6 +1454,10 @@ export interface IConnextInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "transferStatus",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "unapproveRouter",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1623,6 +1639,11 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    approveRouter(
+      router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     approveRouterForPortal(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1756,6 +1777,11 @@ export interface IConnext extends BaseContract {
       }
     >;
 
+    forceReceiveLocal(
+      _params: TransferInfoStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     forceUpdateSlippage(
       _params: TransferInfoStruct,
       _slippage: PromiseOrValue<BigNumberish>,
@@ -1870,6 +1896,12 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    initializeRouter(
+      owner: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     initializeSwap(
       _canonicalId: PromiseOrValue<BytesLike>,
       _pooledTokens: PromiseOrValue<string>[],
@@ -1957,11 +1989,6 @@ export interface IConnext extends BaseContract {
 
     removeRelayer(
       _relayer: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    removeRouter(
-      router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2124,13 +2151,6 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setupRouter(
-      router: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     stopRampA(
       canonicalId: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2170,6 +2190,11 @@ export interface IConnext extends BaseContract {
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[number]>;
+
+    unapproveRouter(
+      router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     unapproveRouterForPortal(
       _router: PromiseOrValue<string>,
@@ -2298,6 +2323,11 @@ export interface IConnext extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  approveRouter(
+    router: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   approveRouterForPortal(
     _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2423,6 +2453,11 @@ export interface IConnext extends BaseContract {
 
   facets(overrides?: CallOverrides): Promise<IDiamondLoupe.FacetStructOutput[]>;
 
+  forceReceiveLocal(
+    _params: TransferInfoStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   forceUpdateSlippage(
     _params: TransferInfoStruct,
     _slippage: PromiseOrValue<BigNumberish>,
@@ -2537,6 +2572,12 @@ export interface IConnext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  initializeRouter(
+    owner: PromiseOrValue<string>,
+    recipient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   initializeSwap(
     _canonicalId: PromiseOrValue<BytesLike>,
     _pooledTokens: PromiseOrValue<string>[],
@@ -2624,11 +2665,6 @@ export interface IConnext extends BaseContract {
 
   removeRelayer(
     _relayer: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  removeRouter(
-    router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2791,13 +2827,6 @@ export interface IConnext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setupRouter(
-    router: PromiseOrValue<string>,
-    owner: PromiseOrValue<string>,
-    recipient: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   stopRampA(
     canonicalId: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2837,6 +2866,11 @@ export interface IConnext extends BaseContract {
     _transferId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<number>;
+
+  unapproveRouter(
+    router: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   unapproveRouterForPortal(
     _router: PromiseOrValue<string>,
@@ -2962,6 +2996,11 @@ export interface IConnext extends BaseContract {
       _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    approveRouter(
+      router: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     approveRouterForPortal(
       _router: PromiseOrValue<string>,
@@ -3090,6 +3129,11 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<IDiamondLoupe.FacetStructOutput[]>;
 
+    forceReceiveLocal(
+      _params: TransferInfoStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     forceUpdateSlippage(
       _params: TransferInfoStruct,
       _slippage: PromiseOrValue<BigNumberish>,
@@ -3204,6 +3248,12 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    initializeRouter(
+      owner: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     initializeSwap(
       _canonicalId: PromiseOrValue<BytesLike>,
       _pooledTokens: PromiseOrValue<string>[],
@@ -3283,11 +3333,6 @@ export interface IConnext extends BaseContract {
 
     removeRelayer(
       _relayer: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    removeRouter(
-      router: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3448,13 +3493,6 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    setupRouter(
-      router: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     stopRampA(
       canonicalId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -3494,6 +3532,11 @@ export interface IConnext extends BaseContract {
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<number>;
+
+    unapproveRouter(
+      router: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     unapproveRouterForPortal(
       _router: PromiseOrValue<string>,
@@ -3658,6 +3701,11 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    approveRouter(
+      router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     approveRouterForPortal(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -3783,6 +3831,11 @@ export interface IConnext extends BaseContract {
 
     facets(overrides?: CallOverrides): Promise<BigNumber>;
 
+    forceReceiveLocal(
+      _params: TransferInfoStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     forceUpdateSlippage(
       _params: TransferInfoStruct,
       _slippage: PromiseOrValue<BigNumberish>,
@@ -3897,6 +3950,12 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    initializeRouter(
+      owner: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     initializeSwap(
       _canonicalId: PromiseOrValue<BytesLike>,
       _pooledTokens: PromiseOrValue<string>[],
@@ -3984,11 +4043,6 @@ export interface IConnext extends BaseContract {
 
     removeRelayer(
       _relayer: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    removeRouter(
-      router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4151,13 +4205,6 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setupRouter(
-      router: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     stopRampA(
       canonicalId: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4196,6 +4243,11 @@ export interface IConnext extends BaseContract {
     transferStatus(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    unapproveRouter(
+      router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     unapproveRouterForPortal(
@@ -4330,6 +4382,11 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    approveRouter(
+      router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     approveRouterForPortal(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4459,6 +4516,11 @@ export interface IConnext extends BaseContract {
 
     facets(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    forceReceiveLocal(
+      _params: TransferInfoStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     forceUpdateSlippage(
       _params: TransferInfoStruct,
       _slippage: PromiseOrValue<BigNumberish>,
@@ -4573,6 +4635,12 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    initializeRouter(
+      owner: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     initializeSwap(
       _canonicalId: PromiseOrValue<BytesLike>,
       _pooledTokens: PromiseOrValue<string>[],
@@ -4662,11 +4730,6 @@ export interface IConnext extends BaseContract {
 
     removeRelayer(
       _relayer: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    removeRouter(
-      router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -4833,13 +4896,6 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setupRouter(
-      router: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     stopRampA(
       canonicalId: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4878,6 +4934,11 @@ export interface IConnext extends BaseContract {
     transferStatus(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    unapproveRouter(
+      router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     unapproveRouterForPortal(

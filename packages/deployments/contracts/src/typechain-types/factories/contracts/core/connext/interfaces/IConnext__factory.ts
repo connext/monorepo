@@ -448,6 +448,19 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "approveRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "_router",
         type: "address",
       },
@@ -1170,6 +1183,86 @@ const _abi = [
         name: "_params",
         type: "tuple",
       },
+    ],
+    name: "forceReceiveLocal",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "originDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "destinationDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "canonicalDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "address",
+            name: "to",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "delegate",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "receiveLocal",
+            type: "bool",
+          },
+          {
+            internalType: "bytes",
+            name: "callData",
+            type: "bytes",
+          },
+          {
+            internalType: "uint256",
+            name: "slippage",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "originSender",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "bridgedAmt",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "normalizedIn",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "nonce",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes32",
+            name: "canonicalId",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TransferInfo",
+        name: "_params",
+        type: "tuple",
+      },
       {
         internalType: "uint256",
         name: "_slippage",
@@ -1677,6 +1770,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "recipient",
+        type: "address",
+      },
+    ],
+    name: "initializeRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "_canonicalId",
         type: "bytes32",
@@ -2013,19 +2124,6 @@ const _abi = [
       },
     ],
     name: "removeRelayer",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-    ],
-    name: "removeRouter",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2780,29 +2878,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "recipient",
-        type: "address",
-      },
-    ],
-    name: "setupRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes32",
         name: "canonicalId",
         type: "bytes32",
@@ -2962,6 +3037,19 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "unapproveRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
