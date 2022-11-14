@@ -22,7 +22,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
   using TypedMemView for bytes29;
 
   // ============ Storage ============
-  IStateCommitmentChain public stateCommitmentChain;
+  IStateCommitmentChain public immutable stateCommitmentChain;
 
   // NOTE: This is needed because we need to track the roots we've
   // already sent across chains. When sending an optimism message, we send calldata
