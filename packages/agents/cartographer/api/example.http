@@ -1,11 +1,20 @@
 # @postgrestUrl = http://localhost:3000
-@postgrestUrl = https://postgrest.testnet.connext.ninja
-@postgrestUrl = https://postgrest.testnet.staging.connext.ninja
+
+@postgrestUrl = https://postgrest.mainnet.connext.ninja
+# @postgrestUrl = https://postgrest.testnet.connext.ninja
+# @postgrestUrl = https://postgrest.testnet.staging.connext.ninja
 
 # just a few examples, more examples here: https://postgrest.org/en/stable/api.html#horizontal-filtering-rows
 
 ### GET ALL TRANSFERS
-GET {{postgrestUrl}}/transfers?limit=15
+GET {{postgrestUrl}}/transfers?status=eq.XCalled&limit=1&order=nonce.desc
+Prefer: count=planned
+
+# XCalled
+# Executed
+# Reconciled
+# CompletedFast
+# CompletedSlow
 
 ### GET ALL TRANSFERS FOR SPECIFIC DOMAINS
 GET {{postgrestUrl}}/transfers?and=(origin_domain.in.("1111","2221"),destination_domain.in.("1111","2221"))

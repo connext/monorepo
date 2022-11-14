@@ -39,11 +39,6 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "_mirrorGas",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
         name: "_processGas",
         type: "uint256",
       },
@@ -177,6 +172,25 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "FundsWithdrawn",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: false,
         internalType: "bytes",
         name: "data",
@@ -199,6 +213,12 @@ const _abi = [
         indexed: false,
         internalType: "bytes",
         name: "data",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "encodedData",
         type: "bytes",
       },
       {
@@ -228,25 +248,6 @@ const _abi = [
       },
     ],
     name: "MirrorConnectorUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "previous",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "current",
-        type: "uint256",
-      },
-    ],
-    name: "MirrorGasUpdated",
     type: "event",
   },
   {
@@ -684,19 +685,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "mirrorGas",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "uint32",
@@ -975,10 +963,16 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "_encodedData",
+        type: "bytes",
+      },
+    ],
     name: "send",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -988,10 +982,34 @@ const _abi = [
         name: "_data",
         type: "bytes",
       },
+      {
+        internalType: "bytes",
+        name: "_encodedData",
+        type: "bytes",
+      },
     ],
     name: "sendMessage",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    name: "sentMessageRoots",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -1043,11 +1061,11 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "_mirrorGas",
+        name: "_rateLimit",
         type: "uint256",
       },
     ],
-    name: "setMirrorGas",
+    name: "setRateLimitBlocks",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1123,6 +1141,23 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+    ],
+    name: "withdrawFunds",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
+  },
 ];
 
 const _bytecode =
@@ -1148,7 +1183,6 @@ export class MainnetSpokeConnector__factory extends ContractFactory {
     _amb: PromiseOrValue<string>,
     _rootManager: PromiseOrValue<string>,
     _mirrorConnector: PromiseOrValue<string>,
-    _mirrorGas: PromiseOrValue<BigNumberish>,
     _processGas: PromiseOrValue<BigNumberish>,
     _reserveGas: PromiseOrValue<BigNumberish>,
     _delayBlocks: PromiseOrValue<BigNumberish>,
@@ -1162,7 +1196,6 @@ export class MainnetSpokeConnector__factory extends ContractFactory {
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorGas,
       _processGas,
       _reserveGas,
       _delayBlocks,
@@ -1177,7 +1210,6 @@ export class MainnetSpokeConnector__factory extends ContractFactory {
     _amb: PromiseOrValue<string>,
     _rootManager: PromiseOrValue<string>,
     _mirrorConnector: PromiseOrValue<string>,
-    _mirrorGas: PromiseOrValue<BigNumberish>,
     _processGas: PromiseOrValue<BigNumberish>,
     _reserveGas: PromiseOrValue<BigNumberish>,
     _delayBlocks: PromiseOrValue<BigNumberish>,
@@ -1191,7 +1223,6 @@ export class MainnetSpokeConnector__factory extends ContractFactory {
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorGas,
       _processGas,
       _reserveGas,
       _delayBlocks,

@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 
@@ -23,6 +24,7 @@ contract TokenFacet is BaseConnextFacet {
   error TokenFacet__addAssetId_alreadyAdded();
   error TokenFacet__removeAssetId_notAdded();
   error TokenFacet__updateDetails_localNotFound();
+  error TokenFacet__setLiquidityCap_notCanonicalDomain();
 
   // ============ Events ============
 
@@ -192,12 +194,14 @@ contract TokenFacet is BaseConnextFacet {
       );
     } else {
       _local = TypeCasts.bytes32ToAddress(_canonical.id);
+      if (_cap > 0) {
+        // Set caps only on canonical domain
+        _setLiquidityCap(_canonical, _cap, key);
+      }
     }
 
+    // Enroll all assets
     _enrollAdoptedAndLocalAssets(_adoptedAssetId, _local, _stableSwapPool, _canonical, key);
-    if (_cap != 0) {
-      _setLiquidityCap(_canonical, _cap, key);
-    }
   }
 
   function setupAssetWithDeployedRepresentation(
@@ -350,7 +354,16 @@ contract TokenFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Used to add an AMM for adopted <> local assets
+   * @notice Used to add a cap on amount of custodied canonical asset
+   * @dev The `custodied` amount will only increase in real time as router liquidity
+   * and xcall are used and the cap is set (i.e. if cap is removed, `custodied` values are
+   * no longer updated or enforced).
+   *
+   * When the `cap` is updated, the `custodied` value is set to the balance of the contract,
+   * which is distinct from *retrievable* funds from the contracts (i.e. could include the
+   * value someone just sent directly to the contract). Whenever you are updating the cap, you
+   * should set the value with this in mind.
+   *
    * @param _canonical - The canonical TokenId to add (domain and id)
    * @param _updated - The updated liquidity cap value
    * @param _key - The hash of the canonical id and domain
@@ -360,8 +373,17 @@ contract TokenFacet is BaseConnextFacet {
     uint256 _updated,
     bytes32 _key
   ) internal {
+    if (s.domain != _canonical.domain) {
+      revert TokenFacet__setLiquidityCap_notCanonicalDomain();
+    }
     // Update the stored cap
     s.caps[_key] = _updated;
+
+    if (_updated > 0) {
+      // Update the custodied value to be the balance of this contract
+      address canonical = TypeCasts.bytes32ToAddress(_canonical.id);
+      s.custodied[canonical] = IERC20(canonical).balanceOf(address(this));
+    }
 
     emit LiquidityCapUpdated(_key, _canonical.id, _canonical.domain, _updated, msg.sender);
   }

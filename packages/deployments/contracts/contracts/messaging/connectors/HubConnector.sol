@@ -23,24 +23,22 @@ abstract contract HubConnector is Connector {
    * @param _amb The address of the amb on the domain this connector lives on
    * @param _rootManager The address of the RootManager on mainnet
    * @param _mirrorConnector The address of the spoke connector
-   * @param _mirrorGas The gas costs required to process a message on mirror
    */
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    address _mirrorConnector,
-    uint256 _mirrorGas
-  ) Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) {}
+    address _mirrorConnector
+  ) Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) {}
 
   // ============ Public fns ============
   /**
    * @notice Sends a message over the amb
    * @dev This is called by the root manager *only* on mainnet to propagate the aggregate root
    */
-  function sendMessage(bytes memory _data) external onlyRootManager {
-    _sendMessage(_data);
-    emit MessageSent(_data, msg.sender);
+  function sendMessage(bytes memory _data, bytes memory _encodedData) external payable onlyRootManager {
+    _sendMessage(_data, _encodedData);
+    emit MessageSent(_data, _encodedData, msg.sender);
   }
 }

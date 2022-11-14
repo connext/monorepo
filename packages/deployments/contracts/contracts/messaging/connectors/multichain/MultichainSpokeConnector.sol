@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import {Multichain} from "../../interfaces/ambs/Multichain.sol";
 
-import {SpokeConnector} from "../SpokeConnector.sol";
+import {SpokeConnector, ProposedOwnable} from "../SpokeConnector.sol";
 import {Connector} from "../Connector.sol";
 
 import {BaseMultichain} from "./BaseMultichain.sol";
@@ -16,13 +16,13 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
     address _merkle,
     address _watcherManager,
-    uint256 _mirrorChainId
+    uint256 _mirrorChainId,
+    uint256 _gasCap
   )
     SpokeConnector(
       _domain,
@@ -30,15 +30,21 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorGas,
       _processGas,
       _reserveGas,
       _delayBlocks,
       _merkle,
       _watcherManager
     )
-    BaseMultichain(_amb, _mirrorChainId)
+    BaseMultichain(_amb, _mirrorChainId, _gasCap)
   {}
+
+  // ============ Admin fns ============
+
+  /**
+   * @notice Should not be able to renounce ownership
+   */
+  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {}
 
   // ============ Private fns ============
   /**
@@ -54,8 +60,8 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
     receiveAggregateRoot(bytes32(_data));
   }
 
-  function _sendMessage(bytes memory _data) internal override {
-    _sendMessage(AMB, _data);
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    _sendMessage(AMB, mirrorConnector, _data, _encodedData);
   }
 
   function _verifySender(address _expected) internal view override returns (bool) {

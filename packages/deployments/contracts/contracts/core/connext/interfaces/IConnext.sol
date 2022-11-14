@@ -125,6 +125,8 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function forceUpdateSlippage(TransferInfo calldata _params, uint256 _slippage) external;
 
+  function forceReceiveLocal(TransferInfo calldata _params) external;
+
   function bumpTransfer(bytes32 _transferId) external payable;
 
   function setXAppConnectionManager(address _xAppConnectionManager) external;

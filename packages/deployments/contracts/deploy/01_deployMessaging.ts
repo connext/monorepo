@@ -23,7 +23,6 @@ const formatConnectorArgs = (
 
   const isHub = deploymentChainId === protocol.hub && connectorChainId != protocol.hub;
 
-  // FIXME: settle on domains w/nomad
   const deploymentDomain = BigNumber.from(chainIdToDomain(deploymentChainId).toString());
   const mirrorDomain = BigNumber.from(chainIdToDomain(mirrorChainId).toString());
 
