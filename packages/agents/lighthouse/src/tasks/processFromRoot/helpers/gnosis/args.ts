@@ -1,35 +1,13 @@
 import { createLoggingContext } from "@connext/nxtp-utils";
 import { ethers } from "ethers";
 
-import { getContext } from "../processFromRoot";
+import { getContext } from "../../processFromRoot";
+import { GetProcessArgsParams } from "..";
 
-import { GetProcessArgsParams } from ".";
+import { ABM_ABI, AMB_BRIDGE_HELPER_ABI } from "./abis";
 
 // https://gnosisscan.io/address/0x7d94ece17e81355326e3359115D4B02411825EdD
 const AMB_HELPER_ADDRESS = "0x7d94ece17e81355326e3359115D4B02411825EdD";
-
-const AMB_BRIDGE_HELPER_ABI = [
-  {
-    inputs: [{ internalType: "address", name: "_homeBridge", type: "address" }],
-    stateMutability: "nonpayable",
-    type: "constructor",
-  },
-  {
-    inputs: [],
-    name: "AMBcontract",
-    outputs: [{ internalType: "contract IHomeBridge", name: "", type: "address" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  { inputs: [], name: "clean", outputs: [], stateMutability: "nonpayable", type: "function" },
-  {
-    inputs: [{ internalType: "bytes", name: "_message", type: "bytes" }],
-    name: "getSignatures",
-    outputs: [{ internalType: "bytes", name: "", type: "bytes" }],
-    stateMutability: "view",
-    type: "function",
-  },
-];
 
 export const getProcessFromGnosisRootArgs = async ({
   spokeChainId,
@@ -58,15 +36,14 @@ export const getProcessFromGnosisRootArgs = async ({
     rpcProvider,
   );
 
-  const events = await spokeConnectorContract.queryFilter("UserRequestForSignature", blockNumber, blockNumber);
+  const amb = await spokeConnectorContract.AMB();
+  const ambContract = new ethers.Contract(amb as string, ABM_ABI, rpcProvider);
+  const events = await ambContract.queryFilter("UserRequestForSignature", blockNumber, blockNumber);
   const userRequestForSignatureEvt = events[0];
-  const txnReceipt = await userRequestForSignatureEvt.getTransactionReceipt();
-  const eventLog = txnReceipt.logs[1];
-  const log = spokeConnectorContract.interface.parseLog(eventLog);
+  const log = ambContract.interface.parseLog(userRequestForSignatureEvt);
   const { encodedData } = log.args;
-
   const helperContract = new ethers.Contract(AMB_HELPER_ADDRESS, AMB_BRIDGE_HELPER_ABI, rpcProvider);
   const signature = await helperContract.getSignatures(encodedData);
-
+  console.log({ encodedData, signature });
   return [encodedData, signature];
 };
