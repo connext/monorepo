@@ -3,11 +3,11 @@
 /* eslint-disable */
 import { Signer, utils, Contract, ContractFactory, Overrides } from "ethers";
 import type { Provider, TransactionRequest } from "@ethersproject/providers";
-import type { PromiseOrValue } from "../../../../../common";
+import type { PromiseOrValue } from "../../../../common";
 import type {
   MerkleLib,
   MerkleLibInterface,
-} from "../../../../../contracts/messaging/libraries/Merkle.sol/MerkleLib";
+} from "../../../../contracts/messaging/libraries/MerkleLib";
 
 const _abi = [
   {
@@ -18,7 +18,7 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212205f138874eeada40b8fe60cebd0045c62e4b42088958e4275708f17a724ff19b564736f6c63430008110033";
+  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220b0e087e74c1ad6124c04bca1a4a799bc2c4275e43e5ab7bc600fcd4f783e8cec64736f6c63430008110033";
 
 type MerkleLibConstructorParams =
   | [signer?: Signer]

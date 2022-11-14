@@ -50,7 +50,7 @@ export interface RootManagerInterface extends utils.Interface {
     "pause()": FunctionFragment;
     "paused()": FunctionFragment;
     "pendingInboundRoots()": FunctionFragment;
-    "propagate(uint32[],address[],uint256[],bytes[])": FunctionFragment;
+    "propagate(address[],uint256[],bytes[])": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
@@ -60,6 +60,7 @@ export interface RootManagerInterface extends utils.Interface {
     "setDelayBlocks(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
     "unpause()": FunctionFragment;
+    "validateConnectors(address[])": FunctionFragment;
     "validateDomains(uint32[],address[])": FunctionFragment;
   };
 
@@ -95,6 +96,7 @@ export interface RootManagerInterface extends utils.Interface {
       | "setDelayBlocks"
       | "setWatcherManager"
       | "unpause"
+      | "validateConnectors"
       | "validateDomains"
   ): FunctionFragment;
 
@@ -163,7 +165,6 @@ export interface RootManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "propagate",
     values: [
-      PromiseOrValue<BigNumberish>[],
       PromiseOrValue<string>[],
       PromiseOrValue<BigNumberish>[],
       PromiseOrValue<BytesLike>[]
@@ -196,6 +197,10 @@ export interface RootManagerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "validateConnectors",
+    values: [PromiseOrValue<string>[]]
+  ): string;
   encodeFunctionData(
     functionFragment: "validateDomains",
     values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<string>[]]
@@ -283,6 +288,10 @@ export interface RootManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "validateConnectors",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "validateDomains",
     data: BytesLike
   ): Result;
@@ -294,7 +303,7 @@ export interface RootManagerInterface extends utils.Interface {
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused(address)": EventFragment;
-    "RootPropagated(bytes32,uint256,uint32[])": EventFragment;
+    "RootPropagated(bytes32,uint256,bytes32)": EventFragment;
     "RootReceived(uint32,bytes32,uint256)": EventFragment;
     "RootsAggregated(bytes32,uint256,bytes32[])": EventFragment;
     "Unpaused(address)": EventFragment;
@@ -387,10 +396,10 @@ export type PausedEventFilter = TypedEventFilter<PausedEvent>;
 export interface RootPropagatedEventObject {
   aggregateRoot: string;
   count: BigNumber;
-  domains: number[];
+  domainsHash: string;
 }
 export type RootPropagatedEvent = TypedEvent<
-  [string, BigNumber, number[]],
+  [string, BigNumber, string],
   RootPropagatedEventObject
 >;
 
@@ -539,7 +548,6 @@ export interface RootManager extends BaseContract {
     ): Promise<[BigNumber, BigNumber] & { first: BigNumber; last: BigNumber }>;
 
     propagate(
-      _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
       _fees: PromiseOrValue<BigNumberish>[],
       _encodedData: PromiseOrValue<BytesLike>[],
@@ -579,6 +587,11 @@ export interface RootManager extends BaseContract {
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    validateConnectors(
+      _connectors: PromiseOrValue<string>[],
+      overrides?: CallOverrides
+    ): Promise<[void]>;
 
     validateDomains(
       _domains: PromiseOrValue<BigNumberish>[],
@@ -659,7 +672,6 @@ export interface RootManager extends BaseContract {
   ): Promise<[BigNumber, BigNumber] & { first: BigNumber; last: BigNumber }>;
 
   propagate(
-    _domains: PromiseOrValue<BigNumberish>[],
     _connectors: PromiseOrValue<string>[],
     _fees: PromiseOrValue<BigNumberish>[],
     _encodedData: PromiseOrValue<BytesLike>[],
@@ -699,6 +711,11 @@ export interface RootManager extends BaseContract {
   unpause(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  validateConnectors(
+    _connectors: PromiseOrValue<string>[],
+    overrides?: CallOverrides
+  ): Promise<void>;
 
   validateDomains(
     _domains: PromiseOrValue<BigNumberish>[],
@@ -773,7 +790,6 @@ export interface RootManager extends BaseContract {
     ): Promise<[BigNumber, BigNumber] & { first: BigNumber; last: BigNumber }>;
 
     propagate(
-      _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
       _fees: PromiseOrValue<BigNumberish>[],
       _encodedData: PromiseOrValue<BytesLike>[],
@@ -809,6 +825,11 @@ export interface RootManager extends BaseContract {
     ): Promise<void>;
 
     unpause(overrides?: CallOverrides): Promise<void>;
+
+    validateConnectors(
+      _connectors: PromiseOrValue<string>[],
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     validateDomains(
       _domains: PromiseOrValue<BigNumberish>[],
@@ -874,15 +895,15 @@ export interface RootManager extends BaseContract {
     "Paused(address)"(account?: null): PausedEventFilter;
     Paused(account?: null): PausedEventFilter;
 
-    "RootPropagated(bytes32,uint256,uint32[])"(
+    "RootPropagated(bytes32,uint256,bytes32)"(
       aggregateRoot?: null,
       count?: null,
-      domains?: null
+      domainsHash?: null
     ): RootPropagatedEventFilter;
     RootPropagated(
       aggregateRoot?: null,
       count?: null,
-      domains?: null
+      domainsHash?: null
     ): RootPropagatedEventFilter;
 
     "RootReceived(uint32,bytes32,uint256)"(
@@ -989,7 +1010,6 @@ export interface RootManager extends BaseContract {
     pendingInboundRoots(overrides?: CallOverrides): Promise<BigNumber>;
 
     propagate(
-      _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
       _fees: PromiseOrValue<BigNumberish>[],
       _encodedData: PromiseOrValue<BytesLike>[],
@@ -1028,6 +1048,11 @@ export interface RootManager extends BaseContract {
 
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    validateConnectors(
+      _connectors: PromiseOrValue<string>[],
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     validateDomains(
@@ -1112,7 +1137,6 @@ export interface RootManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     propagate(
-      _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
       _fees: PromiseOrValue<BigNumberish>[],
       _encodedData: PromiseOrValue<BytesLike>[],
@@ -1151,6 +1175,11 @@ export interface RootManager extends BaseContract {
 
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    validateConnectors(
+      _connectors: PromiseOrValue<string>[],
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     validateDomains(

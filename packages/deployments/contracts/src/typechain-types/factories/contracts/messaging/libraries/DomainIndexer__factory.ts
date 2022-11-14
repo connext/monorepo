@@ -134,6 +134,19 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address[]",
+        name: "_connectors",
+        type: "address[]",
+      },
+    ],
+    name: "validateConnectors",
+    outputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint32[]",
         name: "_domains",
         type: "uint32[]",
