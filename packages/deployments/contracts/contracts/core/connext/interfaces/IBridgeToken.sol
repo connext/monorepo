@@ -1,15 +1,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
-interface IBridgeToken {
-  function name() external returns (string memory);
+import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
-  function balanceOf(address _account) external view returns (uint256);
-
-  function symbol() external view returns (string memory);
-
-  function decimals() external view returns (uint8);
-
+interface IBridgeToken is IERC20Metadata {
   function burn(address _from, uint256 _amnt) external;
 
   function mint(address _to, uint256 _amnt) external;

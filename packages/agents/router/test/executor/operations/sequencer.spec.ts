@@ -1,5 +1,4 @@
 import { createLoggingContext, expect, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
-import axios from "axios";
 import { stub, restore, reset, SinonStub } from "sinon";
 import { sendExecuteSlowToSequencer } from "../../../src/tasks/executor/operations";
 import { mock } from "../../mock";
@@ -11,8 +10,7 @@ const { requestContext } = createLoggingContext("TEST");
 describe("Operations:Sequencer", () => {
   let axiosPostStub: SinonStub;
   beforeEach(() => {
-    axiosPostStub = stub(axios, "post");
-    stub(MockableFns, "getGelatoRelayerAddress").resolves(mkAddress("0x123"));
+    axiosPostStub = stub(MockableFns, "axiosPost");
   });
   afterEach(() => {
     restore();
@@ -28,14 +26,13 @@ describe("Operations:Sequencer", () => {
       expect(axiosPostStub.callCount).to.be.eq(0);
     });
 
-    it("should throw SequencerResponseInvalid error if response/response.data is empty", async () => {
+    it("should keep running even if response/response.data is empty", async () => {
       axiosPostStub.resolves({ code: 200, message: "success" });
       const executeArgs = mock.entity.executeArgs();
       const transferId = mkBytes32();
       const encodedDataMock = "0xabcde";
-      await expect(
-        sendExecuteSlowToSequencer(executeArgs, encodedDataMock, transferId, requestContext),
-      ).to.be.rejectedWith(SequencerResponseInvalid);
+      await expect(sendExecuteSlowToSequencer(executeArgs, encodedDataMock, transferId, requestContext)).to.not
+        .rejected;
       expect(axiosPostStub.callCount).to.be.eq(1);
     });
 

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import "../../../utils/ForgeHelper.sol";
-import {Deployer, DiamondInit, BridgeFacet} from "../../../utils/Deployer.sol";
+import {Deployer, DiamondInit, BridgeFacet, IConnectorManager} from "../../../utils/Deployer.sol";
 
 import "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IConnext} from "../../../../contracts/core/connext/interfaces/IConnext.sol";
@@ -23,6 +23,12 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   // ============ Setup ============
 
   function setUp() public {
+    // ensure manager returns correct domain by default
+    vm.mockCall(
+      xAppConnectionManager,
+      abi.encodeWithSelector(IConnectorManager.localDomain.selector),
+      abi.encode(domain)
+    );
     // Deploy token beacon
     deployConnext(uint256(domain), xAppConnectionManager, acceptanceDelay);
 
@@ -36,8 +42,8 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     assertTrue(connextDiamondProxy.isInitialized());
   }
 
-  // Second initialization should not alter state.
-  function test_LibDiamond__initializeDiamondCut_ignoreDuplicateInit() public {
+  // Second initialization should fail.
+  function test_LibDiamond__initializeDiamondCut_failDuplicateInit() public {
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
 
@@ -61,6 +67,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     connextHandler.proposeDiamondCut(facetCuts, address(diamondInit), initCallData);
 
     vm.warp(100 + 7 days + 1);
+    vm.expectRevert(DiamondInit.DiamondInit__init_alreadyInitialized.selector);
     connextHandler.diamondCut(facetCuts, address(diamondInit), initCallData);
 
     // still initialized
@@ -104,13 +111,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
 
-    bytes memory initCallData = abi.encodeWithSelector(
-      DiamondInit.init.selector,
-      newDomain,
-      newXAppConnectionManager,
-      acceptanceDelay
-    );
-
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
     bytes4[] memory facetSelectors = new bytes4[](1);
     facetSelectors[0] = BridgeFacet.xcall.selector;
@@ -121,9 +121,50 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     });
 
     vm.warp(100);
-    connextHandler.proposeDiamondCut(facetCuts, address(diamondInit), initCallData);
-    connextHandler.diamondCut(facetCuts, address(diamondInit), initCallData);
+    connextHandler.proposeDiamondCut(facetCuts, address(0), bytes(""));
+    connextHandler.diamondCut(facetCuts, address(0), bytes(""));
 
     assertTrue(connextDiamondProxy.isInitialized());
+  }
+
+  // ============ diamondCut ============
+  // Should fail if it includes `proposeDiamondCut` selector
+  function test_LibDiamond__diamondCut_failsIfProposeCutRemoved() public {
+    deployConnext(uint256(domain), xAppConnectionManager, 0);
+
+    connextHandler = IConnext(address(connextDiamondProxy));
+    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
+    bytes4[] memory facetSelectors = new bytes4[](1);
+    facetSelectors[0] = IDiamondCut.proposeDiamondCut.selector;
+    facetCuts[0] = IDiamondCut.FacetCut({
+      facetAddress: address(0),
+      action: IDiamondCut.FacetCutAction.Remove,
+      functionSelectors: facetSelectors
+    });
+
+    vm.warp(100);
+    connextHandler.proposeDiamondCut(facetCuts, address(0), bytes(""));
+    vm.expectRevert(bytes("LibDiamondCut: Cannot remove cut selectors"));
+    connextHandler.diamondCut(facetCuts, address(0), bytes(""));
+  }
+
+  // Should fail if it includes `diamondCut` selector
+  function test_LibDiamond__diamondCut_failsIfCutRemoved() public {
+    deployConnext(uint256(domain), xAppConnectionManager, 0);
+
+    connextHandler = IConnext(address(connextDiamondProxy));
+    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
+    bytes4[] memory facetSelectors = new bytes4[](1);
+    facetSelectors[0] = IDiamondCut.diamondCut.selector;
+    facetCuts[0] = IDiamondCut.FacetCut({
+      facetAddress: address(0),
+      action: IDiamondCut.FacetCutAction.Remove,
+      functionSelectors: facetSelectors
+    });
+
+    vm.warp(100);
+    connextHandler.proposeDiamondCut(facetCuts, address(0), bytes(""));
+    vm.expectRevert(bytes("LibDiamondCut: Cannot remove cut selectors"));
+    connextHandler.diamondCut(facetCuts, address(0), bytes(""));
   }
 }

@@ -7,7 +7,6 @@ import {
   NxtpError,
   RequestContext,
 } from "@connext/nxtp-utils";
-import axios from "axios";
 import { BigNumber, Signer, Wallet, providers, constants, Contract, utils, BigNumberish } from "ethers";
 
 import { validateProviderConfig, ChainConfig } from "./config";
@@ -27,6 +26,7 @@ import {
   StallTimeout,
   WriteTransaction,
 } from "./shared";
+import { axiosGet } from "./mockable";
 
 const { FallbackProvider } = providers;
 
@@ -394,7 +394,7 @@ export class RpcProviderAggregator {
       const uri = gasStations[i];
       let response: any;
       try {
-        response = await axios.get(uri);
+        response = await axiosGet(uri);
         if (response && response.data) {
           const { fast } = response.data as unknown as { fast: BigNumberish };
           if (fast) {

@@ -30,6 +30,7 @@ export interface DomainIndexerInterface extends utils.Interface {
     "getConnectorForDomain(uint32)": FunctionFragment;
     "getDomainIndex(uint32)": FunctionFragment;
     "isDomainSupported(uint32)": FunctionFragment;
+    "validateConnectors(address[])": FunctionFragment;
     "validateDomains(uint32[],address[])": FunctionFragment;
   };
 
@@ -42,6 +43,7 @@ export interface DomainIndexerInterface extends utils.Interface {
       | "getConnectorForDomain"
       | "getDomainIndex"
       | "isDomainSupported"
+      | "validateConnectors"
       | "validateDomains"
   ): FunctionFragment;
 
@@ -74,6 +76,10 @@ export interface DomainIndexerInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "validateConnectors",
+    values: [PromiseOrValue<string>[]]
+  ): string;
+  encodeFunctionData(
     functionFragment: "validateDomains",
     values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<string>[]]
   ): string;
@@ -98,6 +104,10 @@ export interface DomainIndexerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isDomainSupported",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "validateConnectors",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -164,6 +174,11 @@ export interface DomainIndexer extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    validateConnectors(
+      _connectors: PromiseOrValue<string>[],
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
     validateDomains(
       _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
@@ -200,6 +215,11 @@ export interface DomainIndexer extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  validateConnectors(
+    _connectors: PromiseOrValue<string>[],
+    overrides?: CallOverrides
+  ): Promise<void>;
+
   validateDomains(
     _domains: PromiseOrValue<BigNumberish>[],
     _connectors: PromiseOrValue<string>[],
@@ -235,6 +255,11 @@ export interface DomainIndexer extends BaseContract {
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    validateConnectors(
+      _connectors: PromiseOrValue<string>[],
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     validateDomains(
       _domains: PromiseOrValue<BigNumberish>[],
@@ -275,6 +300,11 @@ export interface DomainIndexer extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    validateConnectors(
+      _connectors: PromiseOrValue<string>[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     validateDomains(
       _domains: PromiseOrValue<BigNumberish>[],
       _connectors: PromiseOrValue<string>[],
@@ -309,6 +339,11 @@ export interface DomainIndexer extends BaseContract {
 
     isDomainSupported(
       _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    validateConnectors(
+      _connectors: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

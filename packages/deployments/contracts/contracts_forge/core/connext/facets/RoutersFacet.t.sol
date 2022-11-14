@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -69,7 +69,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__getRouterApproval_success() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.routerConfigs[_routerAgent0].approved = true;
     assertEq(this.getRouterApproval(_routerAgent0), true);
   }
 
@@ -78,7 +78,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__getRouterRecipient_success() public {
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
     assertEq(this.getRouterRecipient(_routerAgent0), _routerRecipient0);
   }
 
@@ -87,19 +87,17 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__getRouterOwner_success() public {
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
+    s.routerConfigs[_routerAgent0].owner = _routerOwner0;
     assertEq(this.getRouterOwner(_routerAgent0), _routerOwner0);
   }
 
   function test_RoutersFacet__getRouterOwner_notFound() public {
-    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], address(0));
-    // NOTE: If router owner was not set, this method should return the router address itself.
-    address routerOwner = this.getRouterOwner(_routerAgent0);
-    assertEq(routerOwner, _routerAgent0);
+    assertEq(s.routerConfigs[_routerAgent0].owner, address(0));
+    assertEq(this.getRouterOwner(_routerAgent0), address(0));
   }
 
   function test_RoutersFacet__getProposedRouterOwner_success() public {
-    s.routerPermissionInfo.proposedRouterOwners[_routerAgent0] = _routerOwner0;
+    s.routerConfigs[_routerAgent0].proposed = _routerOwner0;
     assertEq(this.getProposedRouterOwner(_routerAgent0), _routerOwner0);
   }
 
@@ -108,7 +106,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__getProposedRouterOwnerTimestamp() public {
-    s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0] = 12345;
+    s.routerConfigs[_routerAgent0].proposedTimestamp = 12345;
     assertEq(this.getProposedRouterOwnerTimestamp(_routerAgent0), 12345);
   }
 
@@ -134,171 +132,164 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // ============ Admin methods ==============
 
-  function test_RoutersFacet__setupRouter_failsIfNotOwnerOrRouter() public {
+  // ============ addRouter
+
+  function test_RoutersFacet__addRouter_failsIfNotOwnerOrRouter() public {
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter.selector);
     vm.prank(address(123456123));
-    this.setupRouter(address(0), _routerOwner0, _routerRecipient0);
+    this.approveRouter(address(0));
   }
 
-  function test_RoutersFacet__setupRouter_failsIfRouterAddressIsZero() public {
-    vm.expectRevert(RoutersFacet.RoutersFacet__setupRouter_routerEmpty.selector);
+  function test_RoutersFacet__addRouter_failsIfRouterAddressIsZero() public {
+    vm.expectRevert(RoutersFacet.RoutersFacet__approveRouter_routerEmpty.selector);
     vm.prank(_owner);
-    this.setupRouter(address(0), _routerOwner0, _routerRecipient0);
+    this.approveRouter(address(0));
   }
 
-  function test_RoutersFacet__setupRouter_failsIfRouterAlreadyApproved() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    vm.expectRevert(RoutersFacet.RoutersFacet__setupRouter_alreadyAdded.selector);
+  function test_RoutersFacet__addRouter_failsIfRouterAlreadyApproved() public {
+    s.routerConfigs[_routerAgent0].approved = true;
+    vm.expectRevert(RoutersFacet.RoutersFacet__approveRouter_alreadyAdded.selector);
     vm.prank(_owner);
-    this.setupRouter(_routerAgent0, _routerOwner0, _routerRecipient0);
+    this.approveRouter(_routerAgent0);
   }
 
-  // setupRouter -- set owner, router, recipient
-  function test_RoutersFacet__setupRouter_success() public {
-    assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], false);
+  // addRouter -- set approval
+  function test_RoutersFacet__addRouter_success() public {
+    assertEq(s.routerConfigs[_routerAgent0].approved, false);
 
     vm.expectEmit(true, true, false, true);
     emit RouterAdded(_routerAgent0, _owner);
 
-    vm.expectEmit(true, true, false, true);
-    emit RouterOwnerAccepted(_routerAgent0, address(0), _routerOwner0);
-
-    vm.expectEmit(true, true, false, true);
-    emit RouterRecipientSet(_routerAgent0, address(0), _routerRecipient0);
-
     vm.prank(_owner);
-    this.setupRouter(_routerAgent0, _routerOwner0, _routerRecipient0);
+    this.approveRouter(_routerAgent0);
 
-    assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], true);
-    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], _routerOwner0);
-    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], _routerRecipient0);
+    assertEq(s.routerConfigs[_routerAgent0].approved, true);
 
     // Should never touch these values:
-    assertEq(s.routerPermissionInfo.proposedRouterOwners[_routerAgent0], address(0));
-    assertEq(s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0], 0);
+    assertEq(s.routerConfigs[_routerAgent0].owner, address(0));
+    assertEq(s.routerConfigs[_routerAgent0].proposed, address(0));
+    assertEq(s.routerConfigs[_routerAgent0].proposedTimestamp, 0);
+    assertEq(s.routerConfigs[_routerAgent0].portalApproved, false);
+    assertEq(s.routerConfigs[_routerAgent0].recipient, address(0));
   }
 
-  function test_RoutersFacet__setupRouter_shouldHandleNoOwner() public {
-    vm.expectEmit(true, true, false, true);
-    emit RouterAdded(_routerAgent0, _owner);
+  // ============ initializeRouter
 
-    vm.expectEmit(true, true, false, true);
+  function test_RoutersFacet__initializeRouter_failsIfOwnerSet() public {
+    s.routerConfigs[_routerAgent0].owner = _routerOwner0;
+    vm.expectRevert(RoutersFacet.RoutersFacet__initializeRouter_configNotEmpty.selector);
+
+    vm.prank(_routerAgent0);
+    this.initializeRouter(_routerOwner0, _routerRecipient0);
+  }
+
+  function test_RoutersFacet__initializeRouter_failsIfRecipientSet() public {
+    s.routerConfigs[_routerAgent0].recipient = _routerOwner0;
+    vm.expectRevert(RoutersFacet.RoutersFacet__initializeRouter_configNotEmpty.selector);
+
+    vm.prank(_routerAgent0);
+    this.initializeRouter(_routerOwner0, _routerRecipient0);
+  }
+
+  function test_RoutersFacet__initializeRouter_failsIfProposedSet() public {
+    s.routerConfigs[_routerAgent0].proposed = _routerOwner0;
+    vm.expectRevert(RoutersFacet.RoutersFacet__initializeRouter_configNotEmpty.selector);
+
+    vm.prank(_routerAgent0);
+    this.initializeRouter(_routerOwner0, _routerRecipient0);
+  }
+
+  function test_RoutersFacet__initializeRouter_failsIfProposedTimestampSet() public {
+    s.routerConfigs[_routerAgent0].proposedTimestamp = 1;
+    vm.expectRevert(RoutersFacet.RoutersFacet__initializeRouter_configNotEmpty.selector);
+
+    vm.prank(_routerAgent0);
+    this.initializeRouter(_routerOwner0, _routerRecipient0);
+  }
+
+  function test_RoutersFacet__initializeRouter_shouldHandleNoOwner() public {
+    vm.expectEmit(true, true, true, true);
+    emit RouterOwnerAccepted(_routerAgent0, address(0), _routerAgent0);
+
+    vm.expectEmit(true, true, true, true);
     emit RouterRecipientSet(_routerAgent0, address(0), _routerRecipient0);
 
-    vm.prank(_owner);
-    this.setupRouter(_routerAgent0, address(0), _routerRecipient0);
+    vm.expectEmit(true, true, true, true);
+    emit RouterInitialized(_routerAgent0);
 
-    assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], true);
-    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], address(0));
-    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], _routerRecipient0);
+    vm.prank(_routerAgent0);
+    this.initializeRouter(address(0), _routerRecipient0);
+
+    assertEq(s.routerConfigs[_routerAgent0].owner, _routerAgent0);
+    assertEq(s.routerConfigs[_routerAgent0].recipient, _routerRecipient0);
+
+    // no updates to these values
+    assertEq(s.routerConfigs[_routerAgent0].approved, false);
+    assertEq(s.routerConfigs[_routerAgent0].portalApproved, false);
+    assertEq(s.routerConfigs[_routerAgent0].proposed, address(0));
+    assertEq(s.routerConfigs[_routerAgent0].proposedTimestamp, 0);
   }
 
-  function test_RoutersFacet__setupRouter_shouldHandleNoRecipient() public {
-    vm.expectEmit(true, true, false, true);
-    emit RouterAdded(_routerAgent0, _owner);
-
-    vm.expectEmit(true, true, false, true);
+  function test_RoutersFacet__initializeRouter_shouldHandleNoRecipient() public {
+    vm.expectEmit(true, true, true, true);
     emit RouterOwnerAccepted(_routerAgent0, address(0), _routerOwner0);
 
-    vm.prank(_owner);
-    this.setupRouter(_routerAgent0, _routerOwner0, address(0));
+    vm.expectEmit(true, true, true, true);
+    emit RouterInitialized(_routerAgent0);
 
-    assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], true);
-    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], _routerOwner0);
-    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], address(0));
+    vm.prank(_routerAgent0);
+    this.initializeRouter(_routerOwner0, address(0));
+
+    assertEq(s.routerConfigs[_routerAgent0].owner, _routerOwner0);
+
+    // no updates to these values
+    assertEq(s.routerConfigs[_routerAgent0].recipient, address(0));
+    assertEq(s.routerConfigs[_routerAgent0].approved, false);
+    assertEq(s.routerConfigs[_routerAgent0].portalApproved, false);
+    assertEq(s.routerConfigs[_routerAgent0].proposed, address(0));
+    assertEq(s.routerConfigs[_routerAgent0].proposedTimestamp, 0);
   }
 
   // removeRouter
   function test_RoutersFacet__removeRouter_success() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.routerConfigs[_routerAgent0].owner = _routerOwner0;
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
     // Should also remove these values, if they were previously set.
-    s.routerPermissionInfo.proposedRouterOwners[_routerAgent0] = _routerOwner1;
-    s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0] = 12345;
+    s.routerConfigs[_routerAgent0].proposed = _routerOwner1;
+    s.routerConfigs[_routerAgent0].proposedTimestamp = 12345;
 
     vm.expectEmit(true, true, false, true);
     emit RouterRemoved(_routerAgent0, _owner);
 
-    vm.expectEmit(true, true, false, true);
-    emit RouterOwnerAccepted(_routerAgent0, _routerOwner0, address(0));
-
-    vm.expectEmit(true, true, false, true);
-    emit RouterRecipientSet(_routerAgent0, _routerRecipient0, address(0));
-
     vm.prank(_owner);
-    this.removeRouter(_routerAgent0);
+    this.unapproveRouter(_routerAgent0);
 
-    assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], false);
-    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], address(0));
-    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], address(0));
-    assertEq(s.routerPermissionInfo.proposedRouterOwners[_routerAgent0], address(0));
-    assertEq(s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0], 0);
-    assertEq(s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0], false);
+    assertEq(s.routerConfigs[_routerAgent0].approved, false);
+    assertEq(s.routerConfigs[_routerAgent0].portalApproved, false);
+    // Config untouched
+    assertEq(s.routerConfigs[_routerAgent0].owner, _routerOwner0);
+    assertEq(s.routerConfigs[_routerAgent0].recipient, _routerRecipient0);
+    assertEq(s.routerConfigs[_routerAgent0].proposed, _routerOwner1);
+    assertEq(s.routerConfigs[_routerAgent0].proposedTimestamp, 12345);
   }
 
   function test_RoutersFacet__removeRouter_failsIfNotOwnerOrRouter() public {
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter.selector);
     vm.prank(address(123456123));
-    this.removeRouter(address(0));
+    this.unapproveRouter(address(0));
   }
 
   function test_RoutersFacet__removeRouter_failsIfRouterAddressIsZero() public {
     vm.expectRevert(RoutersFacet.RoutersFacet__removeRouter_routerEmpty.selector);
     vm.prank(_owner);
-    this.removeRouter(address(0));
+    this.unapproveRouter(address(0));
   }
 
   function test_RoutersFacet__removeRouter_failsIfRouterNotApproved() public {
     vm.expectRevert(RoutersFacet.RoutersFacet__removeRouter_notAdded.selector);
     vm.prank(_owner);
-    this.removeRouter(_routerAgent0);
-  }
-
-  function test_RoutersFacet__removeRouter_handlesNoOwner() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
-    s.routerPermissionInfo.proposedRouterOwners[_routerAgent0] = _routerOwner1;
-    s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0] = 12345;
-
-    vm.expectEmit(true, true, false, true);
-    emit RouterRemoved(_routerAgent0, _owner);
-
-    vm.expectEmit(true, true, false, true);
-    emit RouterRecipientSet(_routerAgent0, _routerRecipient0, address(0));
-
-    vm.prank(_owner);
-    this.removeRouter(_routerAgent0);
-
-    assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], false);
-    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], address(0));
-    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], address(0));
-    assertEq(s.routerPermissionInfo.proposedRouterOwners[_routerAgent0], address(0));
-    assertEq(s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0], 0);
-  }
-
-  function test_RoutersFacet__removeRouter_handlesNoRecipient() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
-    s.routerPermissionInfo.proposedRouterOwners[_routerAgent0] = _routerOwner1;
-    s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0] = 12345;
-
-    vm.expectEmit(true, true, false, true);
-    emit RouterRemoved(_routerAgent0, _owner);
-
-    vm.expectEmit(true, true, false, true);
-    emit RouterOwnerAccepted(_routerAgent0, _routerOwner0, address(0));
-
-    vm.prank(_owner);
-    this.removeRouter(_routerAgent0);
-
-    assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], false);
-    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], address(0));
-    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], address(0));
-    assertEq(s.routerPermissionInfo.proposedRouterOwners[_routerAgent0], address(0));
-    assertEq(s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0], 0);
+    this.unapproveRouter(_routerAgent0);
   }
 
   // setMaxRoutersPerTransfer
@@ -403,7 +394,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   // fails if already approved for portals
   function test_RoutersFacet__approveRouterForPortal_failsIfAlreadyApproved() public {
     s._routerWhitelistRemoved = true;
-    s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0] = true;
+    s.routerConfigs[_routerAgent0].portalApproved = true;
     vm.expectRevert(RoutersFacet.RoutersFacet__approveRouterForPortal_alreadyApproved.selector);
     vm.prank(_owner);
     this.approveRouterForPortal(_routerAgent0);
@@ -417,13 +408,13 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
     vm.prank(_owner);
     this.approveRouterForPortal(_routerAgent0);
-    assertTrue(s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0]);
+    assertTrue(s.routerConfigs[_routerAgent0].portalApproved);
   }
 
   // works if router is not whitelisted, but router ownership renounced
   function test_RoutersFacet__approveRouterForPortal_successWhenWhitelistRemoved() public {
     // ensure router ownership renounced and not whitelited
-    s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0] = false;
+    s.routerConfigs[_routerAgent0].portalApproved = false;
     s._routerWhitelistRemoved = true;
 
     vm.expectEmit(true, true, true, true);
@@ -431,13 +422,13 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
     vm.prank(_owner);
     this.approveRouterForPortal(_routerAgent0);
-    assertTrue(s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0]);
+    assertTrue(s.routerConfigs[_routerAgent0].portalApproved);
   }
 
   // unapproveRouterForPortal
   // fails if already unapproved for portals
   function test_RoutersFacet__unapproveRouterForPortal_failsIfNotApproved() public {
-    s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0] = false;
+    s.routerConfigs[_routerAgent0].portalApproved = false;
     vm.expectRevert(RoutersFacet.RoutersFacet__unapproveRouterForPortal_notApproved.selector);
     vm.prank(_owner);
     this.unapproveRouterForPortal(_routerAgent0);
@@ -445,71 +436,70 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // works
   function test_RoutersFacet__unapproveRouterForPortal_success() public {
-    s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0] = true;
+    s.routerConfigs[_routerAgent0].portalApproved = true;
     vm.expectEmit(true, true, true, true);
     emit RouterUnapprovedForPortal(_routerAgent0, _owner);
 
     vm.prank(_owner);
     this.unapproveRouterForPortal(_routerAgent0);
-    assertTrue(!s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0]);
+    assertTrue(!s.routerConfigs[_routerAgent0].portalApproved);
   }
 
   // ============ Public methods ==============
   // setRouterRecipient
   function test_RoutersFacet__setRouterRecipient_success() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.routerConfigs[_routerAgent0].owner = _routerOwner0;
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
 
-    vm.expectEmit(true, true, false, true);
+    vm.expectEmit(true, true, true, true);
     emit RouterRecipientSet(_routerAgent0, _routerRecipient0, _routerRecipient1);
 
     // Call must come from router owner.
     vm.prank(_routerOwner0);
     this.setRouterRecipient(_routerAgent0, _routerRecipient1);
 
-    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], _routerRecipient1);
+    assertEq(s.routerConfigs[_routerAgent0].recipient, _routerRecipient1);
 
     // Shouldn't change any of these values:
-    assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], true);
-    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], _routerOwner0);
-    assertEq(s.routerPermissionInfo.proposedRouterOwners[_routerAgent0], address(0));
-    assertEq(s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0], 0);
+    assertEq(s.routerConfigs[_routerAgent0].approved, true);
+    assertEq(s.routerConfigs[_routerAgent0].owner, _routerOwner0);
+    assertEq(s.routerConfigs[_routerAgent0].proposedTimestamp, 0);
   }
 
-  // Should work if owner == address(0) && msg.sender == router
-  function test_RoutersFacet__setRouterRecipient_successIfOwnerEmpty() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+  // Should fail if owner == address(0) && msg.sender == router
+  function test_RoutersFacet__setRouterRecipient_failsIfOwnerEmpty() public {
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.routerConfigs[_routerAgent0].owner = address(0);
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
 
     vm.prank(_routerAgent0);
+    vm.expectRevert(RoutersFacet.RoutersFacet__onlyRouterOwner_notRouterOwner.selector);
     this.setRouterRecipient(_routerAgent0, _routerRecipient1);
-    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], _routerRecipient1);
   }
 
   // Should work if msg.sender == owner
   function test_RoutersFacet__setRouterRecipient_successIfOwnerSet() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.routerConfigs[_routerAgent0].owner = _routerOwner0;
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
 
     vm.prank(_routerOwner0);
     this.setRouterRecipient(_routerAgent0, _routerRecipient1);
-    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], _routerRecipient1);
+    assertEq(s.routerConfigs[_routerAgent0].recipient, _routerRecipient1);
   }
 
   // Fail if setting a duplicate recipient
   function test_RoutersFacet__setRouterRecipient_failsIfRedundantRecipient() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.routerConfigs[_routerAgent0].owner = _routerOwner0;
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
 
     vm.expectRevert(RoutersFacet.RoutersFacet__setRouterRecipient_notNewRecipient.selector);
     vm.prank(_routerOwner0);
     this.setRouterRecipient(_routerAgent0, _routerRecipient0);
 
-    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], _routerRecipient0);
+    assertEq(s.routerConfigs[_routerAgent0].recipient, _routerRecipient0);
   }
 
   // Fail if owner == address(0) && msg.sender != router
@@ -521,9 +511,9 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // Fail if owner != address(0) && msg.sender != owner
   function test_RoutersFacet__setRouterRecipient_failsIfNotOwner() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.routerConfigs[_routerAgent0].owner = _routerOwner0;
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
 
     vm.prank(_routerOwner1);
     vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__onlyRouterOwner_notRouterOwner.selector));
@@ -534,9 +524,9 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // Fails if owner != address(0), msg.sender != owner
   function test_RoutersFacet__proposeRouterOwner_failIfNotOwnerWithOwnerSet() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.routerConfigs[_routerAgent0].owner = _routerOwner0;
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
 
     vm.expectRevert(RoutersFacet.RoutersFacet__onlyRouterOwner_notRouterOwner.selector);
     vm.prank(address(123456654321));
@@ -545,9 +535,9 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // Fails if owner == address(0), msg.sender != router
   function test_RoutersFacet__proposeRouterOwner_failIfNotOwnerWithoutSet() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.routerConfigs[_routerAgent0].owner = address(0);
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
 
     vm.expectRevert(RoutersFacet.RoutersFacet__onlyRouterOwner_notRouterOwner.selector);
     vm.prank(address(123456654321));
@@ -556,9 +546,9 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // Fail if propose current owner
   function test_RoutersFacet__proposeRouterOwner_failsIfAlreadyOwner() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.routerConfigs[_routerAgent0].owner = _routerOwner0;
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
 
     vm.prank(_routerOwner0);
     vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__proposeRouterOwner_notNewOwner.selector));
@@ -567,10 +557,10 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // Fail if proposed owner is same as the previous proposed
   function test_RoutersFacet__proposeRouterOwner_failsIfAlreadyProposed() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
-    s.routerPermissionInfo.proposedRouterOwners[_routerAgent0] = _routerOwner1;
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.routerConfigs[_routerAgent0].owner = _routerOwner0;
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].proposed = _routerOwner1;
 
     vm.prank(_routerOwner0);
     vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__proposeRouterOwner_badRouter.selector));
@@ -579,9 +569,9 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // Should work
   function test_RoutersFacet__proposeRouterOwner_success() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.routerConfigs[_routerAgent0].owner = _routerOwner0;
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
 
     vm.prank(_routerOwner0);
     this.proposeRouterOwner(_routerAgent0, _routerOwner1);
@@ -589,87 +579,79 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   // acceptProposedRouterOwner
-  // Should work if proposed == address(0)  && (_owner == address(0) && msg.sender == router) || _owner != msg.sender
-  function test_RoutersFacet__acceptProposedRouterOwner_successWhenProposedAndOwnerNotSet() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
-    s.routerPermissionInfo.proposedRouterOwners[_routerAgent0] = address(0);
+  // Should work if proposed == address(0)
+  function test_RoutersFacet__acceptProposedRouterOwner_successWhenProposedEmpty() public {
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.routerConfigs[_routerAgent0].owner = _routerOwner0;
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].proposed = address(0);
+    s.routerConfigs[_routerAgent0].proposedTimestamp = block.timestamp;
 
-    vm.expectEmit(true, true, false, true);
-    emit RouterOwnerAccepted(_routerAgent0, _routerAgent0, address(0));
+    vm.expectEmit(true, true, true, true);
+    emit RouterOwnerAccepted(_routerAgent0, _routerOwner0, address(0));
 
     // If the proposed owner is not set and no current owner is set, the router itself must be the caller.
-    vm.prank(_routerAgent0);
-    this.acceptProposedRouterOwner(_routerAgent0);
-    // No change...
-    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], address(0));
-  }
-
-  // Should work if proposed == address(0)  &&  msg.sender == owner
-  function test_RoutersFacet__acceptProposedRouterOwner_successWhenProposedNotSet() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
-    s.routerPermissionInfo.proposedRouterOwners[_routerAgent0] = address(0);
-
     vm.prank(_routerOwner0);
+    vm.warp(block.timestamp + 8 days);
     this.acceptProposedRouterOwner(_routerAgent0);
-    // The owner should be address(0) now.
-    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], address(0));
+    // Empty
+    assertEq(s.routerConfigs[_routerAgent0].owner, address(0));
+    assertEq(s.routerConfigs[_routerAgent0].proposed, address(0));
+    assertEq(s.routerConfigs[_routerAgent0].proposedTimestamp, 0);
   }
 
   // Should work if proposed != address(0)  &&  msg.sender == _proposed
   function test_RoutersFacet__acceptProposedRouterOwner_successWhenProposedIsSet() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
-    s.routerPermissionInfo.proposedRouterOwners[_routerAgent0] = _routerOwner1;
-    s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0] = block.timestamp;
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.routerConfigs[_routerAgent0].owner = _routerOwner0;
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].proposed = _routerOwner1;
+    s.routerConfigs[_routerAgent0].proposedTimestamp = block.timestamp;
 
     vm.prank(_routerOwner1);
     vm.warp(block.timestamp + 8 days);
 
     this.acceptProposedRouterOwner(_routerAgent0);
-    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], _routerOwner1);
+    assertEq(s.routerConfigs[_routerAgent0].owner, _routerOwner1);
     // Should have cleared the proposed owner.
-    assertEq(s.routerPermissionInfo.proposedRouterOwners[_routerAgent0], address(0));
+    assertEq(s.routerConfigs[_routerAgent0].proposed, address(0));
     // Should have cleared the proposed owner timestamp.
-    assertEq(s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0], 0);
+    assertEq(s.routerConfigs[_routerAgent0].proposedTimestamp, 0);
   }
 
-  // Fail if proposed == address(0) && (_owner != address(0) && msg.sender != router) || _owner != msg.sender
-  function test_RoutersFacet__acceptProposedRouterOwner_failsIfNotOwnerWhenOwnerEmpty() public {
+  // Fail if proposed == address(0) && _owner != msg.sender
+  function test_RoutersFacet__acceptProposedRouterOwner_failsIfNotOwnerRenouncing() public {
     address _router = address(1);
 
-    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__onlyProposedRouterOwner_notRouterOwner.selector));
+    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__acceptProposedRouterOwner_badCaller.selector));
     vm.prank(address(2));
+    vm.warp(block.timestamp + 8 days);
     this.acceptProposedRouterOwner(_router);
   }
 
   // Fail if proposed == address(0) && (_owner != address(0) && msg.sender != router) || _owner != msg.sender
   function test_RoutersFacet__acceptProposedRouterOwner_failsIfNotOwnerWhenOwnerSet() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.routerConfigs[_routerAgent0].owner = _routerOwner0;
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
 
     vm.prank(address(2));
-    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__onlyProposedRouterOwner_notRouterOwner.selector));
+    vm.warp(block.timestamp + 8 days);
+    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__acceptProposedRouterOwner_badCaller.selector));
     this.acceptProposedRouterOwner(_routerAgent0);
   }
 
   // Fail if proposed != address(0) && msg.sender != _proposed
   function test_RoutersFacet__acceptProposedRouterOwner_failsIfNotProposedWhenProposedSet() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
-    s.routerPermissionInfo.proposedRouterOwners[_routerAgent0] = _routerOwner1;
-    s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0] = block.timestamp;
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.routerConfigs[_routerAgent0].owner = _routerOwner0;
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].proposed = _routerOwner1;
+    s.routerConfigs[_routerAgent0].proposedTimestamp = block.timestamp;
 
     vm.prank(_routerOwner2);
-    vm.expectRevert(
-      abi.encodeWithSelector(RoutersFacet.RoutersFacet__onlyProposedRouterOwner_notProposedRouterOwner.selector)
-    );
+    vm.warp(block.timestamp + 8 days);
+    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__acceptProposedRouterOwner_badCaller.selector));
     this.acceptProposedRouterOwner(_routerAgent0);
   }
 
@@ -683,8 +665,9 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   function test_RoutersFacet__addLiquidityForRouter_failsIfHitsCap() public {
     uint256 amount = 10;
     utils_setupAsset(true, true);
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.caps[utils_calculateCanonicalHash()] = 1;
+    s.routerConfigs[_routerAgent0].approved = true;
+    s.caps[utils_calculateCanonicalHash()] = 11;
+    s.custodied[_local] = 3;
     vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_capReached.selector);
     this.addRouterLiquidityFor(amount, _local, _routerAgent0);
   }
@@ -696,14 +679,14 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__addLiquidityForRouter_failsIfRouterUnapproved() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = false;
+    s.routerConfigs[_routerAgent0].approved = false;
     uint256 amount = 10000;
     vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_badRouter.selector);
     this.addRouterLiquidityFor(amount, _local, _routerAgent0);
   }
 
   function test_RoutersFacet__addLiquidityForRouter_failsIfAssetUnapproved() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.routerConfigs[_routerAgent0].approved = true;
     s.approvedAssets[utils_calculateCanonicalHash()] = false;
     uint256 amount = 10000;
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notWhitelisted.selector);
@@ -711,7 +694,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__addLiquidityForRouter_worksForToken() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.routerConfigs[_routerAgent0].approved = true;
     s.approvedAssets[_canonicalKey] = true;
     address caller = address(1233422312);
     TestERC20(_local).mint(caller, 10 ether);
@@ -735,7 +718,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // addLiquidity
   function test_RoutersFacet__addLiquidity_routerIsSender() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.routerConfigs[_routerAgent0].approved = true;
     s.approvedAssets[_canonicalKey] = true;
     TestERC20(_local).mint(_routerAgent0, 10 ether);
 
@@ -758,8 +741,8 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // removeRouterLiquidityFor
   function test_RoutersFacet__removeRouterLiquidityFor_failsIfNotRouterOwner() public {
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
+    s.routerConfigs[_routerAgent0].recipient = address(0);
+    s.routerConfigs[_routerAgent0].owner = address(0);
     address to = address(0);
     uint256 amount = 100;
     vm.expectRevert(RoutersFacet.RoutersFacet__removeRouterLiquidityFor_notOwner.selector);
@@ -768,8 +751,8 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__removeRouterLiquidityFor_works() public {
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
+    s.routerConfigs[_routerAgent0].recipient = address(0);
+    s.routerConfigs[_routerAgent0].owner = address(0);
     s.routerBalances[_routerAgent0][_local] = 10 ether;
 
     address to = address(12);
@@ -789,8 +772,8 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // removeRouterLiquidity
   function test_RoutersFacet__removeRouterLiquidity_failsIfNoRecipient() public {
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
+    s.routerConfigs[_routerAgent0].recipient = address(0);
+    s.routerConfigs[_routerAgent0].owner = address(0);
     address to = address(0);
     uint256 amount = 100;
     vm.expectRevert(RoutersFacet.RoutersFacet__removeRouterLiquidity_recipientEmpty.selector);
@@ -799,8 +782,8 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__removeRouterLiquidity_failsIfNoAmount() public {
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
+    s.routerConfigs[_routerAgent0].recipient = address(0);
+    s.routerConfigs[_routerAgent0].owner = address(0);
     address to = address(12345);
     uint256 amount = 0;
     vm.expectRevert(RoutersFacet.RoutersFacet__removeRouterLiquidity_amountIsZero.selector);
@@ -809,8 +792,8 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__removeRouterLiquidity_failsIfNotEnoughFunds() public {
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
+    s.routerConfigs[_routerAgent0].recipient = address(0);
+    s.routerConfigs[_routerAgent0].owner = address(0);
     s.routerBalances[_routerAgent0][_local] = 0;
     address to = address(12345);
     uint256 amount = 10000;
@@ -821,29 +804,34 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // removeLiquidity
   function test_RoutersFacet__removeRouterLiquidity_worksWithRecipientSet() public {
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
-    s.routerBalances[_routerAgent0][_local] = 10 ether;
+    s.routerConfigs[_routerAgent0].recipient = _routerRecipient0;
+    s.routerConfigs[_routerAgent0].owner = address(0);
+    s.routerBalances[_routerAgent0][_canonical] = 10 ether;
+    s.caps[_key] = 11 ether;
+    s.custodied[_canonical] = 10 ether;
+    s.domain = _canonicalDomain;
 
     address to = address(1234);
     uint256 amount = 100;
 
-    uint256 initLiquidity = this.routerBalances(_routerAgent0, _local);
-    uint256 initBalance = IERC20(_local).balanceOf(_routerRecipient0);
+    uint256 initLiquidity = this.routerBalances(_routerAgent0, _canonical);
+    uint256 initBalance = IERC20(_canonical).balanceOf(_routerRecipient0);
 
     vm.expectEmit(true, true, true, true);
-    emit RouterLiquidityRemoved(_routerAgent0, _routerRecipient0, _local, _key, amount, _routerAgent0);
+    emit RouterLiquidityRemoved(_routerAgent0, _routerRecipient0, _canonical, _key, amount, _routerAgent0);
     vm.prank(_routerAgent0);
-    this.removeRouterLiquidity(amount, _local, payable(to));
+    this.removeRouterLiquidity(amount, _canonical, payable(to));
 
-    assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
-    assertEq(IERC20(_local).balanceOf(_routerRecipient0), initBalance + amount);
+    assertEq(this.routerBalances(_routerAgent0, _canonical), initLiquidity - amount);
+    assertEq(IERC20(_canonical).balanceOf(_routerRecipient0), initBalance + amount);
+    assertEq(s.custodied[_canonical], 10 ether - amount);
   }
 
   function test_RoutersFacet__removeRouterLiquidity_worksWithToken() public {
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
+    s.routerConfigs[_routerAgent0].recipient = address(0);
+    s.routerConfigs[_routerAgent0].owner = address(0);
     s.routerBalances[_routerAgent0][_local] = 10 ether;
+    s.custodied[_local] = 10 ether;
 
     address to = address(1234);
     uint256 amount = 100;
@@ -858,5 +846,6 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
     assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
     assertEq(IERC20(_local).balanceOf(to), initBalance + amount);
+    assertEq(s.custodied[_local], 10 ether);
   }
 }

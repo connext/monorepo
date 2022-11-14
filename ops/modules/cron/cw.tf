@@ -27,7 +27,7 @@ resource "aws_cloudwatch_event_target" "ecs_scheduled_task" {
 }
 
 resource "aws_cloudwatch_event_rule" "task_failure" {
-  name        = "${var.environment}-${var.stage}-${var.container_family}_task_failure"
+  name        = "${var.environment}-${var.stage}-${var.container_family}_task_fail"
   description = "Watch for ${var.container_family} tasks that exit with non zero exit codes"
 
   event_pattern = <<EOF

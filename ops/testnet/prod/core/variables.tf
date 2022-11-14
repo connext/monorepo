@@ -20,11 +20,6 @@ variable "environment" {
   default     = "testnet"
 }
 
-variable "nomad_environment" {
-  description = "nomad environment type"
-  default     = "staging"
-}
-
 variable "domain" {
   default = "core"
 }
@@ -32,43 +27,43 @@ variable "domain" {
 variable "full_image_name_router_publisher" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-publisher:sha-229b6dd"
+  default     = "ghcr.io/connext/router-publisher:0.2.1-beta.0"
 }
 
 variable "full_image_name_router_subscriber" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-subscriber:sha-229b6dd"
+  default     = "ghcr.io/connext/router-subscriber:0.2.1-beta.0"
 }
 
 variable "full_image_name_router_executor" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-executor:sha-229b6dd"
+  default     = "ghcr.io/connext/router-executor:0.2.1-beta.0"
 }
 
 variable "full_image_name_sequencer_publisher" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer-publisher:sha-229b6dd"
+  default     = "ghcr.io/connext/sequencer-publisher:0.2.1-beta.0"
 }
 
 variable "full_image_name_sequencer_subscriber" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer-subscriber:sha-229b6dd"
+  default     = "ghcr.io/connext/sequencer-subscriber:0.2.1-beta.0"
 }
 
 variable "full_image_name_lighthouse_prover" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/lighthouse-prover:sha-229b6dd"
+  default     = "ghcr.io/connext/lighthouse-prover:0.2.1-beta.0"
 }
 
 variable "full_image_name_lighthouse_process_from_root" {
   type        = string
   description = "lighthouse process from root image name"
-  default     = "ghcr.io/connext/lighthouse-process-from-root:latest"
+  default     = "ghcr.io/connext/lighthouse-process-from-root:0.2.1-beta.0"
 }
 
 variable "mnemonic" {
@@ -142,4 +137,26 @@ variable "postgres_password" {
 variable "postgres_user" {
   type    = string
   default = "connext"
+}
+
+variable "lighthouse_prover_heartbeat" {
+  type = string
+}
+
+variable "lighthouse_processor_heartbeat" {
+  type = string
+}
+
+variable "full_image_name_relayer" {
+  type        = string
+  description = "relayer image name"
+  default     = "ghcr.io/connext/relayer:sha-64dc7c9"
+}
+variable "relayer_web3_signer_private_key" {
+  type = string
+}
+
+variable "admin_token_relayer" {
+  type    = string
+  default = "blahblah"
 }

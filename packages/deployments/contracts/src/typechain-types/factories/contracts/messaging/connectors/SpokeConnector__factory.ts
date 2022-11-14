@@ -12,6 +12,11 @@ import type {
 const _abi = [
   {
     inputs: [],
+    name: "Connector__processMessage_notUsed",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
     type: "error",
   },
@@ -867,7 +872,26 @@ const _abi = [
     inputs: [],
     name: "send",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    name: "sentMessageRoots",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -900,11 +924,11 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "_mirrorGas",
+        name: "_rateLimit",
         type: "uint256",
       },
     ],
-    name: "setMirrorGas",
+    name: "setRateLimitBlocks",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -974,10 +998,7 @@ export class SpokeConnector__factory {
   static createInterface(): SpokeConnectorInterface {
     return new utils.Interface(_abi) as SpokeConnectorInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): SpokeConnector {
+  static connect(address: string, signerOrProvider: Signer | Provider): SpokeConnector {
     return new Contract(address, _abi, signerOrProvider) as SpokeConnector;
   }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -42,6 +42,13 @@ interface AggregatorV3Interface {
     );
 }
 
+/**
+ * @title ConnextPriceOracle
+ * @notice Simple interface for querying a variety of price feeds
+ *
+ * @dev If ownership is renounced, the direct price, aggregators, and price oracles
+ * can no longer be updated
+ */
 contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
   using SafeERC20 for IERC20Extended;
 
@@ -55,7 +62,6 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
     NA,
     DIRECT,
     CHAINLINK,
-    DEX,
     V1_ORACLE
   }
 
@@ -76,6 +82,8 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
   event V1PriceOracleUpdated(address oldAddress, address newAddress);
 
   constructor(address _wrapped) {
+    require(_wrapped != address(0), "zero wrapped address!");
+
     wrapped = _wrapped;
     _setOwner(msg.sender);
   }

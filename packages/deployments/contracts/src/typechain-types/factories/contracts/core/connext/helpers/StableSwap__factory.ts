@@ -4,10 +4,7 @@
 import { Signer, utils, Contract, ContractFactory, Overrides } from "ethers";
 import type { Provider, TransactionRequest } from "@ethersproject/providers";
 import type { PromiseOrValue } from "../../../../../common";
-import type {
-  StableSwap,
-  StableSwapInterface,
-} from "../../../../../contracts/core/connext/helpers/StableSwap";
+import type { StableSwap, StableSwapInterface } from "../../../../../contracts/core/connext/helpers/StableSwap";
 
 const _abi = [
   {
@@ -1160,9 +1157,7 @@ type StableSwapConstructorParams =
   | [linkLibraryAddresses: StableSwapLibraryAddresses, signer?: Signer]
   | ConstructorParameters<typeof ContractFactory>;
 
-const isSuperArgs = (
-  xs: StableSwapConstructorParams
-): xs is ConstructorParameters<typeof ContractFactory> => {
+const isSuperArgs = (xs: StableSwapConstructorParams): xs is ConstructorParameters<typeof ContractFactory> => {
   return (
     typeof xs[0] === "string" ||
     (Array.isArray as (arg: any) => arg is readonly any[])(xs[0]) ||
@@ -1176,39 +1171,27 @@ export class StableSwap__factory extends ContractFactory {
       super(...args);
     } else {
       const [linkLibraryAddresses, signer] = args;
-      super(
-        _abi,
-        StableSwap__factory.linkBytecode(linkLibraryAddresses),
-        signer
-      );
+      super(_abi, StableSwap__factory.linkBytecode(linkLibraryAddresses), signer);
     }
   }
 
-  static linkBytecode(
-    linkLibraryAddresses: StableSwapLibraryAddresses
-  ): string {
+  static linkBytecode(linkLibraryAddresses: StableSwapLibraryAddresses): string {
     let linkedBytecode = _bytecode;
 
     linkedBytecode = linkedBytecode.replace(
       new RegExp("__\\$0399e8fdab399fb8f200f3895472e3787c\\$__", "g"),
-      linkLibraryAddresses[
-        "contracts/core/connext/libraries/SwapUtilsExternal.sol:SwapUtilsExternal"
-      ]
+      linkLibraryAddresses["contracts/core/connext/libraries/SwapUtilsExternal.sol:SwapUtilsExternal"]
         .replace(/^0x/, "")
-        .toLowerCase()
+        .toLowerCase(),
     );
 
     return linkedBytecode;
   }
 
-  override deploy(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<StableSwap> {
+  override deploy(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<StableSwap> {
     return super.deploy(overrides || {}) as Promise<StableSwap>;
   }
-  override getDeployTransaction(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): TransactionRequest {
+  override getDeployTransaction(overrides?: Overrides & { from?: PromiseOrValue<string> }): TransactionRequest {
     return super.getDeployTransaction(overrides || {});
   }
   override attach(address: string): StableSwap {
@@ -1223,10 +1206,7 @@ export class StableSwap__factory extends ContractFactory {
   static createInterface(): StableSwapInterface {
     return new utils.Interface(_abi) as StableSwapInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): StableSwap {
+  static connect(address: string, signerOrProvider: Signer | Provider): StableSwap {
     return new Contract(address, _abi, signerOrProvider) as StableSwap;
   }
 }

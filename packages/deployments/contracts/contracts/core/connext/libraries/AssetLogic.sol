@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {SafeERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -58,7 +58,7 @@ library AssetLogic {
   }
 
   /**
-   * @notice Handles transferring funds from the Connext contract to msg.sender.
+   * @notice Handles transferring funds from the Connext contract to a specified address
    * @param _asset - The address of the ERC20 token to transfer.
    * @param _to - The recipient address that will receive the funds.
    * @param _amount - The amount to withdraw from contract.
@@ -116,7 +116,7 @@ library AssetLogic {
   ) internal returns (uint256) {
     // If there's no amount, no need to swap.
     if (_amount == 0) {
-      return _amount;
+      return 0;
     }
 
     // Check the case where the adopted asset *is* the local asset. If so, no need to swap.
@@ -159,7 +159,7 @@ library AssetLogic {
     // If the adopted asset is the local asset, no need to swap.
     address adopted = s.canonicalToAdopted[_key];
     if (adopted == _asset) {
-      return (_amount, _asset);
+      return (_amount, adopted);
     }
 
     // If there's no amount, no need to swap.
@@ -209,7 +209,7 @@ library AssetLogic {
     // If the adopted asset is the local asset, no need to swap.
     address adopted = s.canonicalToAdopted[_key];
     if (adopted == _asset) {
-      return (true, _amount, _asset);
+      return (true, _amount, adopted);
     }
 
     return _swapAssetOut(_key, _asset, adopted, _amount, _maxIn);
@@ -218,7 +218,7 @@ library AssetLogic {
   /**
    * @notice Swaps assetIn to assetOut using the stored stable swap or internal swap pool.
    * @dev Will not swap if the asset passed in is the adopted asset
-   * @param _key - The canonical token id
+   * @param _key - The hash of canonical id and domain.
    * @param _assetIn - The address of the from asset
    * @param _assetOut - The address of the to asset
    * @param _amount - The amount of the local asset to swap
@@ -251,7 +251,7 @@ library AssetLogic {
       );
     } else {
       // Otherwise, swap via external stableswap pool.
-      IStableSwap pool = s.adoptedToLocalPools[_key];
+      IStableSwap pool = s.adoptedToLocalExternalPools[_key];
 
       SafeERC20.safeApprove(IERC20(_assetIn), address(pool), 0);
       SafeERC20.safeIncreaseAllowance(IERC20(_assetIn), address(pool), _amount);
@@ -312,7 +312,7 @@ library AssetLogic {
       }
     } else {
       // Otherwise, swap via external stableswap pool.
-      IStableSwap pool = s.adoptedToLocalPools[_key];
+      IStableSwap pool = s.adoptedToLocalExternalPools[_key];
 
       // NOTE: This call will revert if the external stableswap pool doesn't exist.
       uint256 _amountIn = pool.calculateSwapOutFromAddress(_assetIn, _assetOut, _amountOut);
@@ -352,7 +352,7 @@ library AssetLogic {
     // If the adopted asset is the local asset, no need to swap.
     address adopted = s.canonicalToAdopted[_key];
     if (adopted == _asset) {
-      return (_amount, _asset);
+      return (_amount, adopted);
     }
 
     SwapUtils.Swap storage ipool = s.swapStorages[_key];
@@ -365,7 +365,7 @@ library AssetLogic {
       return (ipool.calculateSwap(tokenIndexIn, tokenIndexOut, _amount), adopted);
     } else {
       // Otherwise, try to calculate with external pool.
-      IStableSwap pool = s.adoptedToLocalPools[_key];
+      IStableSwap pool = s.adoptedToLocalExternalPools[_key];
       // NOTE: This call will revert if no external pool exists.
       return (pool.calculateSwapFromAddress(_asset, adopted, _amount), adopted);
     }
@@ -390,7 +390,7 @@ library AssetLogic {
 
     // If the asset is the local asset, no swap needed
     if (_asset == _local) {
-      return (_amount, _asset);
+      return (_amount, _local);
     }
 
     SwapUtils.Swap storage ipool = s.swapStorages[_key];
@@ -402,7 +402,7 @@ library AssetLogic {
       uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(_key, _local);
       return (ipool.calculateSwap(tokenIndexIn, tokenIndexOut, _amount), _local);
     } else {
-      IStableSwap pool = s.adoptedToLocalPools[_key];
+      IStableSwap pool = s.adoptedToLocalExternalPools[_key];
 
       return (pool.calculateSwapFromAddress(_asset, _local, _amount), _local);
     }
@@ -469,7 +469,7 @@ library AssetLogic {
 
   /**
    * @notice Get the local asset address for a given canonical key, id, and domain.
-   * @param _key Canonical hash.
+   * @param _key - The hash of canonical id and domain.
    * @param _id Canonical ID.
    * @param _domain Canonical domain.
    * @param s AppStorage instance.

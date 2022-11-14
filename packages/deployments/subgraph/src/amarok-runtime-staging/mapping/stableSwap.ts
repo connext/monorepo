@@ -15,7 +15,7 @@ import {
   NewSwapFee,
   NewAdminFee,
   TokenSwap,
-} from "../../../generated/StableSwap/StableSwap";
+} from "../../../generated/templates/StableSwap/StableSwap";
 
 import { StableSwap, StableSwapLiquidity, PooledToken } from "../../../generated/schema";
 // import { Asset, AssetBalance, Router} from "../../../generated/schema";
