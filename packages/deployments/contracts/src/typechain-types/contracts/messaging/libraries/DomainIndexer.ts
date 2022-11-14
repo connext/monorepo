@@ -23,6 +23,7 @@ import type {
 
 export interface DomainIndexerInterface extends utils.Interface {
   functions: {
+    "MAX_DOMAINS()": FunctionFragment;
     "connectors(uint256)": FunctionFragment;
     "connectorsHash()": FunctionFragment;
     "domains(uint256)": FunctionFragment;
@@ -36,6 +37,7 @@ export interface DomainIndexerInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "MAX_DOMAINS"
       | "connectors"
       | "connectorsHash"
       | "domains"
@@ -47,6 +49,10 @@ export interface DomainIndexerInterface extends utils.Interface {
       | "validateDomains"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "MAX_DOMAINS",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "connectors",
     values: [PromiseOrValue<BigNumberish>]
@@ -84,6 +90,10 @@ export interface DomainIndexerInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<string>[]]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "MAX_DOMAINS",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "connectors", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "connectorsHash",
@@ -145,6 +155,8 @@ export interface DomainIndexer extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    MAX_DOMAINS(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     connectors(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -185,6 +197,8 @@ export interface DomainIndexer extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[void]>;
   };
+
+  MAX_DOMAINS(overrides?: CallOverrides): Promise<BigNumber>;
 
   connectors(
     arg0: PromiseOrValue<BigNumberish>,
@@ -227,6 +241,8 @@ export interface DomainIndexer extends BaseContract {
   ): Promise<void>;
 
   callStatic: {
+    MAX_DOMAINS(overrides?: CallOverrides): Promise<BigNumber>;
+
     connectors(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -271,6 +287,8 @@ export interface DomainIndexer extends BaseContract {
   filters: {};
 
   estimateGas: {
+    MAX_DOMAINS(overrides?: CallOverrides): Promise<BigNumber>;
+
     connectors(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -313,6 +331,8 @@ export interface DomainIndexer extends BaseContract {
   };
 
   populateTransaction: {
+    MAX_DOMAINS(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     connectors(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides

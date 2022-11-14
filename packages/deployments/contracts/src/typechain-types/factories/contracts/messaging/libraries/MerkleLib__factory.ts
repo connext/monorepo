@@ -4,7 +4,10 @@
 import { Signer, utils, Contract, ContractFactory, Overrides } from "ethers";
 import type { Provider, TransactionRequest } from "@ethersproject/providers";
 import type { PromiseOrValue } from "../../../../common";
-import type { MerkleLib, MerkleLibInterface } from "../../../../contracts/messaging/libraries/MerkleLib";
+import type {
+  MerkleLib,
+  MerkleLibInterface,
+} from "../../../../contracts/messaging/libraries/MerkleLib";
 
 const _abi = [
   {
@@ -17,10 +20,13 @@ const _abi = [
 const _bytecode =
   "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220b0e087e74c1ad6124c04bca1a4a799bc2c4275e43e5ab7bc600fcd4f783e8cec64736f6c63430008110033";
 
-type MerkleLibConstructorParams = [signer?: Signer] | ConstructorParameters<typeof ContractFactory>;
+type MerkleLibConstructorParams =
+  | [signer?: Signer]
+  | ConstructorParameters<typeof ContractFactory>;
 
-const isSuperArgs = (xs: MerkleLibConstructorParams): xs is ConstructorParameters<typeof ContractFactory> =>
-  xs.length > 1;
+const isSuperArgs = (
+  xs: MerkleLibConstructorParams
+): xs is ConstructorParameters<typeof ContractFactory> => xs.length > 1;
 
 export class MerkleLib__factory extends ContractFactory {
   constructor(...args: MerkleLibConstructorParams) {
@@ -31,10 +37,14 @@ export class MerkleLib__factory extends ContractFactory {
     }
   }
 
-  override deploy(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<MerkleLib> {
+  override deploy(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<MerkleLib> {
     return super.deploy(overrides || {}) as Promise<MerkleLib>;
   }
-  override getDeployTransaction(overrides?: Overrides & { from?: PromiseOrValue<string> }): TransactionRequest {
+  override getDeployTransaction(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): TransactionRequest {
     return super.getDeployTransaction(overrides || {});
   }
   override attach(address: string): MerkleLib {
@@ -49,7 +59,10 @@ export class MerkleLib__factory extends ContractFactory {
   static createInterface(): MerkleLibInterface {
     return new utils.Interface(_abi) as MerkleLibInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): MerkleLib {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): MerkleLib {
     return new Contract(address, _abi, signerOrProvider) as MerkleLib;
   }
 }
