@@ -26,6 +26,7 @@ export const propagate = async () => {
       if (getParamsForDomain) {
         params = await getParamsForDomain();
       }
+      return params;
     }),
   );
 };

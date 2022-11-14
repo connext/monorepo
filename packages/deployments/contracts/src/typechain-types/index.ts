@@ -266,6 +266,8 @@ export type { MerkleTreeManager } from "./contracts/messaging/MerkleTreeManager"
 export { MerkleTreeManager__factory } from "./factories/contracts/messaging/MerkleTreeManager__factory";
 export type { RootManager } from "./contracts/messaging/RootManager";
 export { RootManager__factory } from "./factories/contracts/messaging/RootManager__factory";
+export type { RootManagerPropagateWrapper } from "./contracts/messaging/RootManagerPropagateWrapper";
+export { RootManagerPropagateWrapper__factory } from "./factories/contracts/messaging/RootManagerPropagateWrapper__factory";
 export type { WatcherClient } from "./contracts/messaging/WatcherClient";
 export { WatcherClient__factory } from "./factories/contracts/messaging/WatcherClient__factory";
 export type { WatcherManager } from "./contracts/messaging/WatcherManager";
