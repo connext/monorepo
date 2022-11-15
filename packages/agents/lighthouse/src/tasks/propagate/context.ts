@@ -1,4 +1,4 @@
-import { ChainReader, ConnextContractDeployments } from "@connext/nxtp-txservice";
+import { ChainReader, ConnextContractDeployments, AmbContractInterfaces } from "@connext/nxtp-txservice";
 import { ChainData, Logger, RelayerType } from "@connext/nxtp-utils";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -11,6 +11,7 @@ export type PropagateContext = {
     // Stateful interfaces for peripherals.
     chainreader: ChainReader; // For reading and executing txs on blockchain using RPC providers.
     contracts: ConnextContractDeployments; // Used to read and write to smart contracts.
+    ambs: AmbContractInterfaces;
     relayers: { instance: Relayer; apiKey: string; type: RelayerType }[];
     subgraph: SubgraphReader; // Aggregates subgraphs in a FallbackSubgraph for each chain.
   };

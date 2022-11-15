@@ -1,16 +1,10 @@
 import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
+import { MultichainAmbArtifact } from "@connext/nxtp-txservice";
 import { ethers } from "ethers";
 
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../errors";
 import { ExtraPropagateParams } from "../operations/propagate";
 import { getContext } from "../propagate";
-
-const MULTICHAIN_ABI = [
-  "function anyCall(address,bytes,address,uint256,uint256) payable",
-  "function calcSrcFees(string,uint256,uint256) view returns (uint256)",
-  "function context() view returns (address, uint256, uint256)",
-  "function executor() view returns (address)",
-];
 
 export const getPropagateParams = async (
   l2domain: string,
@@ -56,7 +50,7 @@ export const getPropagateParams = async (
   const l1Provider = new ethers.providers.JsonRpcProvider(l1RpcUrl);
   const l1HubConnectorContract = new ethers.Contract(l1HubConnector.address, l1HubConnector.abi as any[], l1Provider);
   const ambAddress = await l1HubConnectorContract.AMB();
-  const ambContract = new ethers.Contract(ambAddress as string, MULTICHAIN_ABI, l1Provider);
+  const ambContract = new ethers.Contract(ambAddress as string, MultichainAmbArtifact.abi, l1Provider);
   const fee = await ambContract.calcSrcFees("", l2ChainId, 32);
 
   return { encodedData: "0x", value: fee };
