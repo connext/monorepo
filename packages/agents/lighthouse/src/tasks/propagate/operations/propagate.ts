@@ -3,7 +3,7 @@ import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
 
 import { encodePropagate } from "../../../mockable";
 import { NoChainIdForHubDomain, RootManagerPropagateWrapperNotFound } from "../errors";
-import { getPropagateParams as getPropagateParamsArbitrum } from "../helpers/arbitrum";
+import { getPropagateParamsArbitrum, getPropagateParamsBnb } from "../helpers";
 import { getContext } from "../propagate";
 
 export type ExtraPropagateParams = {
@@ -21,6 +21,7 @@ const getParamsForDomainFn: Record<
   ) => Promise<ExtraPropagateParams>
 > = {
   "1634886255": getPropagateParamsArbitrum,
+  "6450786": getPropagateParamsBnb,
 };
 
 export const propagate = async () => {
