@@ -3,7 +3,7 @@ import * as fs from "fs";
 import { generateExitPayload as _generateExitPayload } from "@connext/nxtp-utils";
 import { CrossChainMessenger as _CrossChainMessenger } from "@eth-optimism/sdk";
 import { sendWithRelayerWithBackup as _sendWithRelayerWithBackup } from "@connext/nxtp-adapters-relayer";
-import { providers, utils } from "ethers";
+import { Contract, ContractInterface, providers, utils } from "ethers";
 import { L1ToL2MessageGasEstimator } from "@arbitrum/sdk";
 
 export const existsSync = fs.existsSync;
@@ -33,3 +33,6 @@ export const getJsonRpcProvider = (url: string): providers.JsonRpcProvider => {
 export const getL1ToL2MessageGasEstimator = (l2Provider: providers.JsonRpcProvider): L1ToL2MessageGasEstimator => {
   return new L1ToL2MessageGasEstimator(l2Provider);
 };
+
+export const getContract = (address: string, abi: ContractInterface, provider?: providers.JsonRpcProvider) =>
+  new Contract(address, abi, provider);
