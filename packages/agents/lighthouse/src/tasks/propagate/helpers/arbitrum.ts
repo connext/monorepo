@@ -3,7 +3,7 @@ import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
 import { constants, providers, utils } from "ethers";
 
 import { getContext } from "../propagate";
-import { NoArbitrumConnector, NoProviderForArbitrumDomain } from "../errors";
+import { NoSpokeConnector, NoHubConnector, NoProviderForDomain } from "../errors";
 import { ExtraPropagateParams } from "../operations/propagate";
 
 // example at https://github.com/OffchainLabs/arbitrum-tutorials/blob/master/packages/greeter/scripts/exec.js
@@ -23,11 +23,11 @@ export const getPropagateParams = async (
   const l2RpcUrl = config.chains[l2domain]?.providers[0];
 
   if (!l2RpcUrl) {
-    throw new NoProviderForArbitrumDomain(l2domain, requestContext, methodContext);
+    throw new NoProviderForDomain(l2domain, requestContext, methodContext);
   }
   const l1RpcUrl = config.chains[config.hubDomain]?.providers[0];
   if (!l1RpcUrl) {
-    throw new NoProviderForArbitrumDomain(config.hubDomain, requestContext, methodContext);
+    throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
   }
 
   const l2Provider = new providers.JsonRpcProvider(l2RpcUrl);
@@ -62,7 +62,7 @@ export const getPropagateParams = async (
     config.environment === "staging" ? "Staging" : "",
   );
   if (!l2SpokeConnector) {
-    throw new NoArbitrumConnector(l2ChainId, requestContext, methodContext);
+    throw new NoSpokeConnector(l2ChainId, requestContext, methodContext);
   }
 
   const l1HubConnector = contracts.hubConnector(
@@ -71,7 +71,7 @@ export const getPropagateParams = async (
     config.environment === "staging" ? "Staging" : "",
   );
   if (!l1HubConnector) {
-    throw new NoArbitrumConnector(l1ChainId, requestContext, methodContext);
+    throw new NoHubConnector(l1ChainId, requestContext, methodContext);
   }
 
   const maxGas = await l1ToL2MessageGasEstimate.estimateRetryableTicketGasLimit(

@@ -30,14 +30,14 @@ export class RootManagerPropagateWrapperNotFound extends NxtpError {
   }
 }
 
-export class NoProviderForArbitrumDomain extends NxtpError {
+export class NoProviderForDomain extends NxtpError {
   constructor(
     public readonly domain: string,
     public readonly requestContext: RequestContext,
     public readonly methodContext: MethodContext,
     public readonly context: any = {},
   ) {
-    super(`No provider availble for Arbitrum domain ${domain}`, {
+    super(`No provider availble for domain ${domain}`, {
       ...context,
       requestContext,
       methodContext,
@@ -45,14 +45,29 @@ export class NoProviderForArbitrumDomain extends NxtpError {
   }
 }
 
-export class NoArbitrumConnector extends NxtpError {
+export class NoHubConnector extends NxtpError {
   constructor(
     public readonly chainId: number,
     public readonly requestContext: RequestContext,
     public readonly methodContext: MethodContext,
     public readonly context: any = {},
   ) {
-    super(`No Arbitrum connector found for chainId ${chainId}`, {
+    super(`No hub connector found for chainId ${chainId}`, {
+      ...context,
+      requestContext,
+      methodContext,
+    });
+  }
+}
+
+export class NoSpokeConnector extends NxtpError {
+  constructor(
+    public readonly chainId: number,
+    public readonly requestContext: RequestContext,
+    public readonly methodContext: MethodContext,
+    public readonly context: any = {},
+  ) {
+    super(`No spoke connector found for chainId ${chainId}`, {
       ...context,
       requestContext,
       methodContext,
