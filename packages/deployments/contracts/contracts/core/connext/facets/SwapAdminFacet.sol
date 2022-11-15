@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
@@ -106,13 +106,17 @@ contract SwapAdminFacet is BaseConnextFacet {
    * LP positions. The owner of LPToken will be this contract - which means
    * only this contract is allowed to mint/burn tokens.
    *
+   * @dev The swap can only be updated after initialization via `rampA`. This means
+   * if this value is incorrectly set, it will take some time to reach the
+   * correct value.
+   *
    * @param _key the hash of the canonical id and domain for token
    * @param _pooledTokens an array of ERC20s this pool will accept
    * @param decimals the decimals to use for each pooled token,
    * eg 8 for WBTC. Cannot be larger than POOL_PRECISION_DECIMALS
    * @param lpTokenName the long-form name of the token to be deployed
    * @param lpTokenSymbol the short symbol for the token to be deployed
-   * @param _a the amplification coefficient * n * (n - 1). See the
+   * @param _a the amplification coefficient * n ** (n - 1). See the
    * StableSwap paper for details
    * @param _fee default swap fee to be initialized with
    * @param _adminFee default adminFee to be initialized with
@@ -133,7 +137,7 @@ contract SwapAdminFacet is BaseConnextFacet {
     if (_pooledTokens.length <= 1 || _pooledTokens.length > 32)
       revert SwapAdminFacet__initializeSwap_invalidPooledTokens();
 
-    uint8 numPooledTokens = uint8(_pooledTokens.length);
+    uint256 numPooledTokens = _pooledTokens.length;
 
     if (numPooledTokens != decimals.length) revert SwapAdminFacet__initializeSwap_decimalsMismatch();
 
@@ -151,7 +155,8 @@ contract SwapAdminFacet is BaseConnextFacet {
         revert SwapAdminFacet__initializeSwap_tokenDecimalsExceedMax();
 
       precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - decimals[i]);
-      s.tokenIndexes[_key][address(_pooledTokens[i])] = i;
+      // NOTE: safe to cast to uint8 as the numPooledTokens is that type and the loop ceiling
+      s.tokenIndexes[_key][address(_pooledTokens[i])] = uint8(i);
 
       unchecked {
         ++i;

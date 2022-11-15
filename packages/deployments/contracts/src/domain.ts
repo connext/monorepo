@@ -15,8 +15,11 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
   // mainnets
   [1, 0x657468], // Ethereum ('eth interpreted as int) 6648936
   [10, 0x6f707469], // Optimism (opti interpreted as int) 1869640809
+  [56, 0x626e62], // BNB Chain ('bnb interpreted as int) 6450786
+  [100, 0x676e6f], // Gnosis Chain ('gno interpreted as int) 6778479
   [137, 0x706f6c79], // Polygon (poly interpreted as int) 1886350457
   [1284, 0x6265616d], // Moonbeam ('beam interpreted as int) 1650811245
+  [42161, 0x6172626f], // Arbitrum One ('arbo interpreted as int) 1634886255
   // testnets
   [42, 0x6b6f7661], // Kovan (kovan interpreted as int) 1802466913
   [5, 0x676f6572], // Goerli (goerli interpreted as int) 1735353714
@@ -32,14 +35,14 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
 ]);
 
 /**
- * Converts a chain id (listed at at chainlist.org) to a Nomad domain.
+ * Converts a chain id (listed at at chainlist.org) to a domain.
  *
  * @param chainId A chain id number
- * @returns A Nomad domain number in decimal
+ * @returns A domain number in decimal
  */
 export function chainIdToDomain(chainId: number): number {
   const domain = chainIdToDomainMapping.get(chainId);
-  if (!domain) throw new Error(`Cannot find corresponding Nomad domain for chainId ${chainId}`);
+  if (!domain) throw new Error(`Cannot find corresponding domain for chainId ${chainId}`);
 
   return domain;
 }
@@ -65,11 +68,11 @@ export function domainToChainId(domainId: number): number {
 }
 
 /**
- * Converts a string (e.g. "eth" for Ethereum) to a Nomad domain displayed as
+ * Converts a string (e.g. "eth" for Ethereum) to a domain displayed as
  * a hex string.
  * @dev Interprets string bytes as int.
  * @param name The chain string
- * @returns A 0x prefixed Nomad domain in hex (string)
+ * @returns A 0x prefixed domain in hex (string)
  */
 export function getHexDomainFromString(name: string): string {
   const domain = getDomainFromString(name);
@@ -77,11 +80,10 @@ export function getHexDomainFromString(name: string): string {
 }
 
 /**
- * Converts a string (e.g. "eth" for Ethereum) to a decimal formatted Nomad
- * domain.
+ * Converts a string (e.g. "eth" for Ethereum) to a decimal formatted domain.
  * @dev Interprets string bytes as int.
  * @param name The chain string
- * @returns A Nomad domain number in decimal
+ * @returns A domain number in decimal
  */
 export function getDomainFromString(name: string): number {
   const buf = Buffer.alloc(4);
@@ -110,7 +112,7 @@ export function canonizeId(data?: utils.BytesLike): Uint8Array {
 }
 
 /**
- * Converts an Nomad ID of 20 or 32 bytes to the corresponding EVM Address.
+ * Converts an ID of 20 or 32 bytes to the corresponding EVM Address.
  *
  * For 32-byte IDs this enforces the EVM convention of using the LAST 20 bytes.
  *

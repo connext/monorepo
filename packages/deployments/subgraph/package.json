@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-subgraph",
-  "version": "0.2.1-beta.1",
+  "version": "0.2.1-beta.2",
   "license": "UNLICENSED",
   "scripts": {
     "graph": "graph",
@@ -17,6 +17,7 @@
     "prepare:v0": "yarn deploy amarok-runtime-v0 local mainnet",
     "prepare:staging": "yarn deploy amarok-runtime-staging local mainnet",
     "prepare:hub-staging": "yarn deploy amarok-hub-staging local_hub mainnet",
+    "prepare:hub-v0": "yarn deploy amarok-hub-v0 local_hub mainnet",
     "prepare:local_1337": "yarn deploy amarok-runtime-v0 local_1337 mainnet",
     "prepare:local_1338": "yarn deploy amarok-runtime-v0 local_1338 mainnet",
     "create-local-1337": "graph create --node http://localhost:8020/ connext/nxtp",

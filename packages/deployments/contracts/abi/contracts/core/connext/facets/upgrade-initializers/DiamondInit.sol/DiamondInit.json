@@ -9,5 +9,7 @@
   "error BaseConnextFacet__onlyOwner_notOwner()",
   "error BaseConnextFacet__onlyProposed_notProposedOwner()",
   "error BaseConnextFacet__whenNotPaused_paused()",
+  "error DiamondInit__init_alreadyInitialized()",
+  "error DiamondInit__init_domainsDontMatch()",
   "function init(uint32,address,uint256)"
 ]

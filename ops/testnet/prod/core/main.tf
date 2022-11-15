@@ -175,8 +175,8 @@ module "sequencer_publisher" {
   health_check_path        = "/ping"
   container_port           = 8081
   loadbalancer_port        = 80
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = 512
+  memory                   = 1024
   instance_count           = 1
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -320,8 +320,8 @@ module "relayer" {
   health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 80
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = 1024
+  memory                   = 2048
   instance_count           = 1
   timeout                  = 180
   internal_lb              = false

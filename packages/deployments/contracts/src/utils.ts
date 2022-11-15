@@ -38,7 +38,10 @@ export const ProtocolNetworks: Record<string, string> = {
   // mainnets
   "1": ProtocolNetwork.MAINNET,
   "10": ProtocolNetwork.MAINNET,
+  "56": ProtocolNetwork.MAINNET,
   "137": ProtocolNetwork.MAINNET,
+  "42161": ProtocolNetwork.MAINNET,
+  "100": ProtocolNetwork.MAINNET,
 };
 
 export const getProtocolNetwork = (_chain: string | number): string => {
@@ -312,7 +315,7 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
       console.log(`no upgrade needed, using implementation at: ${implementation}`);
     }
   } else {
-    console.log(`Deploying ${implementationName} with nomad upgradeable scheme`);
+    console.log(`Deploying ${implementationName} with upgradeable scheme`);
 
     // 1. Deploy implementation
     const implementationDeployment = await hre.deployments.deploy(implementationName, {

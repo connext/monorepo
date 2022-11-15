@@ -287,19 +287,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
 
-  console.log("Deploying multicall...");
-  const multicallName = getDeploymentName("Multicall");
-  let deployment = await hre.deployments.deploy(multicallName, {
-    from: deployer.address,
-    log: true,
-    skipIfAlreadyDeployed: true,
-    contract: "Multicall",
-  });
-
   if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain...");
     // Note: NOT using special token for staging envs
-    deployment = await hre.deployments.deploy("TestERC20", {
+    let deployment = await hre.deployments.deploy("TestERC20", {
       from: deployer.address,
       log: true,
       skipIfAlreadyDeployed: true,

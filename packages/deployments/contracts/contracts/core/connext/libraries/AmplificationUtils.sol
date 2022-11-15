@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -21,7 +21,7 @@ library AmplificationUtils {
   uint256 private constant MIN_RAMP_TIME = 14 days;
 
   /**
-   * @notice Return A, the amplification coefficient * n * (n - 1)
+   * @notice Return A, the amplification coefficient * n ** (n - 1)
    * @dev See the StableSwap paper for details
    * @param self Swap struct to read from
    * @return A parameter
@@ -84,6 +84,7 @@ library AmplificationUtils {
 
     uint256 initialAPrecise = _getAPrecise(self);
     uint256 futureAPrecise = futureA_ * A_PRECISION;
+    require(initialAPrecise != futureAPrecise, "!valid ramp");
 
     if (futureAPrecise < initialAPrecise) {
       require(futureAPrecise * MAX_A_CHANGE >= initialAPrecise, "futureA_ is too small");

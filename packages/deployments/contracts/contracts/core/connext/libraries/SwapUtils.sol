@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -7,6 +7,7 @@ import {LPToken} from "../helpers/LPToken.sol";
 
 import {AmplificationUtils} from "./AmplificationUtils.sol";
 import {MathUtils} from "./MathUtils.sol";
+import {AssetLogic} from "./AssetLogic.sol";
 
 /**
  * @title SwapUtils library
@@ -59,8 +60,8 @@ library SwapUtils {
 
   struct Swap {
     // variables around the ramp management of A,
-    // the amplification coefficient * n * (n - 1)
-    // see https://www.curve.fi/stableswap-paper.pdf for details
+    // the amplification coefficient * n ** (n - 1)
+    // see Curve stableswap paper for details
     bytes32 key;
     uint256 initialA;
     uint256 futureA;
@@ -245,7 +246,7 @@ library SwapUtils {
    * x_1**2 + b*x_1 = c
    * x_1 = (x_1**2 + c) / (2*x_1 + b)
    *
-   * @param a the amplification coefficient * n * (n - 1). See the StableSwap paper for details.
+   * @param a the amplification coefficient * n ** (n - 1). See the StableSwap paper for details.
    * @param tokenIndex Index of token we are calculating for.
    * @param xp a precision-adjusted set of pool balances. Array should be
    * the same cardinality as the pool.
@@ -301,7 +302,7 @@ library SwapUtils {
    * @notice Get D, the StableSwap invariant, based on a set of balances and a particular A.
    * @param xp a precision-adjusted set of pool balances. Array should be the same cardinality
    * as the pool.
-   * @param a the amplification coefficient * n * (n - 1) in A_PRECISION.
+   * @param a the amplification coefficient * n ** (n - 1) in A_PRECISION.
    * See the StableSwap paper for details
    * @return the invariant, at the precision of the pool
    */
@@ -578,7 +579,7 @@ library SwapUtils {
 
     xp[tokenIndexTo] = xp[tokenIndexTo] - (dy * multipliers[tokenIndexTo]);
     uint256 x = getYD(a, tokenIndexFrom, xp, d0);
-    dx = x - xp[tokenIndexFrom] + 1;
+    dx = (x + 1) - xp[tokenIndexFrom];
     dxFee = (dx * self.swapFee) / FEE_DENOMINATOR;
     dx = (dx + dxFee) / multipliers[tokenIndexFrom];
   }
@@ -638,11 +639,13 @@ library SwapUtils {
     uint256[] calldata amounts,
     bool deposit
   ) internal view returns (uint256) {
-    uint256 a = _getAPrecise(self);
     uint256[] memory balances = self.balances;
+    uint256 numBalances = balances.length;
+    require(amounts.length == numBalances, "invalid length of amounts");
+
+    uint256 a = _getAPrecise(self);
     uint256[] memory multipliers = self.tokenPrecisionMultipliers;
 
-    uint256 numBalances = balances.length;
     uint256 d0 = getD(_xp(balances, multipliers), a);
     for (uint256 i; i < numBalances; ) {
       if (deposit) {
@@ -707,12 +710,8 @@ library SwapUtils {
     {
       IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
       require(dx <= tokenFrom.balanceOf(msg.sender), "swap more than you own");
-      // Transfer tokens first to see if a fee was charged on transfer
-      uint256 beforeBalance = tokenFrom.balanceOf(address(this));
-      tokenFrom.safeTransferFrom(msg.sender, address(this), dx);
-
-      // Use the actual transferred amount for AMM math
-      require(dx == tokenFrom.balanceOf(address(this)) - beforeBalance, "no fee token support");
+      // Reverts for fee on transfer
+      AssetLogic.handleIncomingAsset(address(tokenFrom), dx);
     }
 
     uint256 dy;
@@ -729,7 +728,7 @@ library SwapUtils {
       self.adminFees[tokenIndexTo] = self.adminFees[tokenIndexTo] + dyAdminFee;
     }
 
-    self.pooledTokens[tokenIndexTo].safeTransfer(msg.sender, dy);
+    AssetLogic.handleOutgoingAsset(address(self.pooledTokens[tokenIndexTo]), msg.sender, dy);
 
     emit TokenSwap(self.key, msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
 
@@ -771,15 +770,11 @@ library SwapUtils {
     {
       IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
       require(dx <= tokenFrom.balanceOf(msg.sender), "more than you own");
-      // Transfer tokens first to see if a fee was charged on transfer
-      uint256 beforeBalance = tokenFrom.balanceOf(address(this));
-      tokenFrom.safeTransferFrom(msg.sender, address(this), dx);
-
-      // Use the actual transferred amount for AMM math
-      require(dx == tokenFrom.balanceOf(address(this)) - beforeBalance, "not support fee token");
+      // Reverts for fee on transfer
+      AssetLogic.handleIncomingAsset(address(tokenFrom), dx);
     }
 
-    self.pooledTokens[tokenIndexTo].safeTransfer(msg.sender, dy);
+    AssetLogic.handleOutgoingAsset(address(self.pooledTokens[tokenIndexTo]), msg.sender, dy);
 
     emit TokenSwap(self.key, msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
 
@@ -897,11 +892,8 @@ library SwapUtils {
       // Transfer tokens first to see if a fee was charged on transfer
       if (amounts[i] != 0) {
         IERC20 token = self.pooledTokens[i];
-        uint256 beforeBalance = token.balanceOf(address(this));
-        token.safeTransferFrom(msg.sender, address(this), amounts[i]);
-
-        // Update the amounts[] with actual transfer amount
-        amounts[i] = token.balanceOf(address(this)) - beforeBalance;
+        // Reverts for fee on transfer
+        AssetLogic.handleIncomingAsset(address(token), amounts[i]);
       }
 
       newBalances[i] = v.balances[i] + amounts[i];
@@ -984,7 +976,7 @@ library SwapUtils {
     for (uint256 i; i < numAmounts; ) {
       require(amounts[i] >= minAmounts[i], "amounts[i] < minAmounts[i]");
       self.balances[i] = balances[i] - amounts[i];
-      self.pooledTokens[i].safeTransfer(msg.sender, amounts[i]);
+      AssetLogic.handleOutgoingAsset(address(self.pooledTokens[i]), msg.sender, amounts[i]);
 
       unchecked {
         ++i;
@@ -1030,7 +1022,7 @@ library SwapUtils {
       self.adminFees[tokenIndex] = self.adminFees[tokenIndex] + adminFee;
     }
     lpToken.burnFrom(msg.sender, tokenAmount);
-    self.pooledTokens[tokenIndex].safeTransfer(msg.sender, dy);
+    AssetLogic.handleOutgoingAsset(address(self.pooledTokens[tokenIndex]), msg.sender, dy);
 
     emit RemoveLiquidityOne(self.key, msg.sender, tokenAmount, totalSupply, tokenIndex, dy);
 
@@ -1112,7 +1104,7 @@ library SwapUtils {
     v.lpToken.burnFrom(msg.sender, tokenAmount);
 
     for (uint256 i; i < numTokens; ) {
-      self.pooledTokens[i].safeTransfer(msg.sender, amounts[i]);
+      AssetLogic.handleOutgoingAsset(address(self.pooledTokens[i]), msg.sender, amounts[i]);
 
       unchecked {
         ++i;
@@ -1136,7 +1128,7 @@ library SwapUtils {
       uint256 balance = self.adminFees[i];
       if (balance != 0) {
         self.adminFees[i] = 0;
-        token.safeTransfer(to, balance);
+        AssetLogic.handleOutgoingAsset(address(token), to, balance);
       }
 
       unchecked {

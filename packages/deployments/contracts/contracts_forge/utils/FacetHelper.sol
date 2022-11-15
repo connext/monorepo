@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
 
@@ -23,10 +23,13 @@ contract FacetHelper is ForgeHelper {
   // ============ CallParam defaults
   bool _receiveLocal = false;
 
+  string tokenName = "Test Token";
+  string tokenSymbol = "Test";
   // ============ Assets
   // canonical token details
   address _canonical;
   bytes32 _canonicalId;
+  uint8 _canonicalDecimals = 18;
   uint32 _canonicalDomain = _originDomain;
   bytes32 _canonicalKey;
 
@@ -37,6 +40,9 @@ contract FacetHelper is ForgeHelper {
 
   // stable swap address
   address _stableSwap = address(5555555555555555555);
+
+  // safe cap
+  uint256 _cap = 10**4;
 
   // ============ Fees
   // fees
@@ -59,11 +65,11 @@ contract FacetHelper is ForgeHelper {
   function utils_deployAssetContracts() public {
     AppStorage storage s = LibConnextStorage.connextStorage();
     // Deploy the adopted token.
-    _adopted = address(new TestERC20("Test Token", "TEST"));
+    _adopted = address(new TestERC20(tokenName, tokenSymbol));
     // Deploy the local token.
-    _local = address(new TestERC20("Test Token", "TEST"));
+    _local = address(new TestERC20(tokenName, tokenSymbol));
     // Deploy the canonical token.
-    _canonical = address(new TestERC20("Test Token", "TEST"));
+    _canonical = address(new TestERC20(tokenName, tokenSymbol));
     _canonicalId = TypeCasts.addressToBytes32(_canonical);
     _canonicalKey = keccak256(abi.encode(_canonicalId, _canonicalDomain));
   }
@@ -93,7 +99,7 @@ contract FacetHelper is ForgeHelper {
       // If the local is already set to the canonical (i.e. from some defaults)
       // redeploy
       if (_local == _canonical) {
-        _local = address(new TestERC20("Test Token", "TEST"));
+        _local = address(new TestERC20(tokenName, tokenSymbol));
       }
 
       // If the local is adopted, ensure addresses align
@@ -104,7 +110,7 @@ contract FacetHelper is ForgeHelper {
         _stableSwap = address(5555555555555555555);
         // ensure addresses are unique
         if (_adopted == _local) {
-          _adopted = address(new TestERC20("Test Token", "TEST"));
+          _adopted = address(new TestERC20(tokenName, tokenSymbol));
         }
       }
     }

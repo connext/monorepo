@@ -31,19 +31,24 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint32[]",
-        name: "_domains",
-        type: "uint32[]",
-      },
-      {
         internalType: "address[]",
         name: "_connectors",
         type: "address[]",
       },
+      {
+        internalType: "uint256[]",
+        name: "_fees",
+        type: "uint256[]",
+      },
+      {
+        internalType: "bytes[]",
+        name: "_encodedData",
+        type: "bytes[]",
+      },
     ],
     name: "propagate",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
 ];

@@ -11,7 +11,6 @@ import {
 } from "@connext/nxtp-utils";
 import { ChainReader } from "@connext/nxtp-txservice";
 import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
-import axios from "axios";
 import { constants } from "ethers";
 
 import {
@@ -22,6 +21,7 @@ import {
   waitForTaskCompletion,
 } from "../../src/connext/connext";
 import * as RelayerIndexFns from "../../src/connext/index";
+import * as Mockable from "../../src/mockable";
 import { TransactionHashTimeout, UnableToGetTaskStatus, UnableToGetTransactionHash } from "../../src/errors";
 
 const loggingContext = mock.loggingContext("RELAYER-TEST");
@@ -32,8 +32,8 @@ describe("Connext Relayer", () => {
   let chainReaderMock: SinonStubbedInstance<ChainReader>;
 
   beforeEach(() => {
-    axiosPostStub = stub(axios, "post");
-    axiosGetStub = stub(axios, "get");
+    axiosPostStub = stub(Mockable, "axiosPost");
+    axiosGetStub = stub(Mockable, "axiosGet");
     chainReaderMock = mockChainReader() as any;
     stub(RelayerIndexFns, "url").value("http://example.com");
   });

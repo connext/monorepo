@@ -1,4 +1,0 @@
-[
-  "event InboxMessageDelivered(uint256 indexed,bytes)",
-  "event InboxMessageDeliveredFromOrigin(uint256 indexed)"
-]

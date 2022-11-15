@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 library TypedMemView {
   // Why does this exist?
@@ -62,7 +62,7 @@ library TypedMemView {
   // The null view
   bytes29 public constant NULL = hex"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
   uint256 constant LOW_12_MASK = 0xffffffffffffffffffffffff;
-  uint8 constant TWELVE_BYTES = 96;
+  uint256 constant TWENTY_SEVEN_BYTES = 8 * 27;
 
   /**
    * @notice      Returns the encoded hex character that represents the lower 4 bits of the argument.
@@ -399,7 +399,7 @@ library TypedMemView {
    * @return          bool - True if the 5-byte type flag is equal
    */
   function sameType(bytes29 left, bytes29 right) internal pure returns (bool) {
-    return (left ^ right) >> (2 * TWELVE_BYTES) == 0;
+    return (left ^ right) >> TWENTY_SEVEN_BYTES == 0;
   }
 
   /**
@@ -638,57 +638,6 @@ library TypedMemView {
   }
 
   /**
-   * @notice          Return the sha2 digest of the underlying memory.
-   * @dev             We explicitly deallocate memory afterwards.
-   * @param memView   The view
-   * @return          digest - The sha2 hash of the underlying memory
-   */
-  function sha2(bytes29 memView) internal view returns (bytes32 digest) {
-    uint256 _loc = loc(memView);
-    uint256 _len = len(memView);
-    assembly {
-      // solhint-disable-previous-line no-inline-assembly
-      let ptr := mload(0x40)
-      pop(staticcall(gas(), 2, _loc, _len, ptr, 0x20)) // sha2 #1
-      digest := mload(ptr)
-    }
-  }
-
-  /**
-   * @notice          Implements bitcoin's hash160 (rmd160(sha2()))
-   * @param memView   The pre-image
-   * @return          digest - the Digest
-   */
-  function hash160(bytes29 memView) internal view returns (bytes20 digest) {
-    uint256 _loc = loc(memView);
-    uint256 _len = len(memView);
-    assembly {
-      // solhint-disable-previous-line no-inline-assembly
-      let ptr := mload(0x40)
-      pop(staticcall(gas(), 2, _loc, _len, ptr, 0x20)) // sha2
-      pop(staticcall(gas(), 3, ptr, 0x20, ptr, 0x20)) // rmd160
-      digest := mload(add(ptr, 0xc)) // return value is 0-prefixed.
-    }
-  }
-
-  /**
-   * @notice          Implements bitcoin's hash256 (double sha2)
-   * @param memView   A view of the preimage
-   * @return          digest - the Digest
-   */
-  function hash256(bytes29 memView) internal view returns (bytes32 digest) {
-    uint256 _loc = loc(memView);
-    uint256 _len = len(memView);
-    assembly {
-      // solhint-disable-previous-line no-inline-assembly
-      let ptr := mload(0x40)
-      pop(staticcall(gas(), 2, _loc, _len, ptr, 0x20)) // sha2 #1
-      pop(staticcall(gas(), 2, ptr, 0x20, ptr, 0x20)) // sha2 #2
-      digest := mload(ptr)
-    }
-  }
-
-  /**
    * @notice          Return true if the underlying memory is equal. Else false.
    * @param left      The first view
    * @param right     The second view
@@ -748,6 +697,7 @@ library TypedMemView {
     uint256 _oldLoc = loc(memView);
 
     uint256 ptr;
+    bool res;
     assembly {
       // solhint-disable-previous-line no-inline-assembly
       ptr := mload(0x40)
@@ -758,9 +708,9 @@ library TypedMemView {
 
       // use the identity precompile to copy
       // guaranteed not to fail, so pop the success
-      pop(staticcall(gas(), 4, _oldLoc, _len, _newLoc, _len))
+      res := staticcall(gas(), 4, _oldLoc, _len, _newLoc, _len)
     }
-
+    require(res, "identity OOG");
     written = unsafeBuildUnchecked(typeOf(memView), _newLoc, _len);
   }
 
@@ -832,20 +782,6 @@ library TypedMemView {
       ptr := mload(0x40) // load unused memory pointer
     }
     return keccak(unsafeJoin(memViews, ptr));
-  }
-
-  /**
-   * @notice          Produce the sha256 digest of the concatenated contents of multiple views.
-   * @param memViews  The views
-   * @return          bytes32 - The sha256 digest
-   */
-  function joinSha2(bytes29[] memory memViews) internal view returns (bytes32) {
-    uint256 ptr;
-    assembly {
-      // solhint-disable-previous-line no-inline-assembly
-      ptr := mload(0x40) // load unused memory pointer
-    }
-    return sha2(unsafeJoin(memViews, ptr));
   }
 
   /**

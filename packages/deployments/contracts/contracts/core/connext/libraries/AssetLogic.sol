@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {SafeERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -58,7 +58,7 @@ library AssetLogic {
   }
 
   /**
-   * @notice Handles transferring funds from the Connext contract to msg.sender.
+   * @notice Handles transferring funds from the Connext contract to a specified address
    * @param _asset - The address of the ERC20 token to transfer.
    * @param _to - The recipient address that will receive the funds.
    * @param _amount - The amount to withdraw from contract.
@@ -99,7 +99,7 @@ library AssetLogic {
   // ============ Internal: Handle Swap ============
 
   /**
-   * @notice Swaps an adopted asset to the local (representation or canonical) nomad asset.
+   * @notice Swaps an adopted asset to the local (representation or canonical) asset.
    * @dev Will not swap if the asset passed in is the local asset.
    * @param _key - The hash of canonical id and domain.
    * @param _asset - The address of the adopted asset to swap into the local asset.
@@ -116,7 +116,7 @@ library AssetLogic {
   ) internal returns (uint256) {
     // If there's no amount, no need to swap.
     if (_amount == 0) {
-      return _amount;
+      return 0;
     }
 
     // Check the case where the adopted asset *is* the local asset. If so, no need to swap.
@@ -136,7 +136,7 @@ library AssetLogic {
   }
 
   /**
-   * @notice Swaps a local nomad asset for the adopted asset using the stored stable swap
+   * @notice Swaps a local bridge asset for the adopted asset using the stored stable swap
    * @dev Will not swap if the asset passed in is the adopted asset
    * @param _key the hash of the canonical id and domain
    * @param _asset - The address of the local asset to swap into the adopted asset
@@ -182,7 +182,7 @@ library AssetLogic {
   }
 
   /**
-   * @notice Swaps a local nomad asset for the adopted asset using the stored stable swap
+   * @notice Swaps a local bridge asset for the adopted asset using the stored stable swap
    * @dev Will not swap if the asset passed in is the adopted asset
    * @param _key the hash of the canonical id and domain
    * @param _asset - The address of the local asset to swap into the adopted asset
@@ -218,7 +218,7 @@ library AssetLogic {
   /**
    * @notice Swaps assetIn to assetOut using the stored stable swap or internal swap pool.
    * @dev Will not swap if the asset passed in is the adopted asset
-   * @param _key - The canonical token id
+   * @param _key - The hash of canonical id and domain.
    * @param _assetIn - The address of the from asset
    * @param _assetOut - The address of the to asset
    * @param _amount - The amount of the local asset to swap
@@ -333,7 +333,7 @@ library AssetLogic {
   }
 
   /**
-   * @notice Calculate amount of tokens you receive on a local nomad asset for the adopted asset
+   * @notice Calculate amount of tokens you receive on a local bridge asset for the adopted asset
    * using the stored stable swap
    * @dev Will not use the stored stable swap if the asset passed in is the local asset
    * @param _key - The hash of the canonical id and domain
@@ -372,7 +372,7 @@ library AssetLogic {
   }
 
   /**
-   * @notice Calculate amount of tokens you receive of a local nomad asset for the adopted asset
+   * @notice Calculate amount of tokens you receive of a local bridge asset for the adopted asset
    * using the stored stable swap
    * @dev Will not use the stored stable swap if the asset passed in is the local asset
    * @param _asset - The address of the asset to swap into the local asset
@@ -469,7 +469,7 @@ library AssetLogic {
 
   /**
    * @notice Get the local asset address for a given canonical key, id, and domain.
-   * @param _key Canonical hash.
+   * @param _key - The hash of canonical id and domain.
    * @param _id Canonical ID.
    * @param _domain Canonical domain.
    * @param s AppStorage instance.
