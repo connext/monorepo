@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {AppStorage, TokenId, RouterConfig} from "../libraries/LibConnextStorage.sol";
+import {TokenId, RouterConfig} from "../libraries/LibConnextStorage.sol";
 
 /**
  * @notice
