@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 import {AmplificationUtils, SwapUtils} from "../libraries/AmplificationUtils.sol";
@@ -33,6 +33,7 @@ contract SwapAdminFacet is BaseConnextFacet {
   error SwapAdminFacet__initializeSwap_feeExceedMax();
   error SwapAdminFacet__initializeSwap_adminFeeExceedMax();
   error SwapAdminFacet__initializeSwap_failedInitLpTokenClone();
+  error SwapAdminFacet__updateLpTokenTarget_invalidNewAddress();
 
   // ============ Properties ============
 
@@ -85,7 +86,18 @@ contract SwapAdminFacet is BaseConnextFacet {
    */
   event RampAStopped(bytes32 indexed key, address caller);
 
+  /**
+   * @notice Emitted when the owner update lpTokenTargetAddress
+   * @param oldAddress - The old lpTokenTargetAddress
+   * @param newAddress - Updated address
+   * @param caller - The caller of the function
+   */
+  event LPTokenTargetUpdated(address oldAddress, address newAddress, address caller);
+
   // ============ External: Getters ============
+  function lpTokenTargetAddress() public view returns (address) {
+    return s.lpTokenTargetAddress;
+  }
 
   /*** StableSwap ADMIN FUNCTIONS ***/
   /**
@@ -227,5 +239,15 @@ contract SwapAdminFacet is BaseConnextFacet {
   function stopRampA(bytes32 key) external onlyOwnerOrAdmin {
     s.swapStorages[key].stopRampA();
     emit RampAStopped(key, msg.sender);
+  }
+
+  /**
+   * @notice Update lpTokenTargetAddress
+   * @param newAddress New lpTokenTargetAddress
+   */
+  function updateLpTokenTarget(address newAddress) external onlyOwnerOrAdmin {
+    if (!Address.isContract(newAddress)) revert SwapAdminFacet__updateLpTokenTarget_invalidNewAddress();
+    emit LPTokenTargetUpdated(s.lpTokenTargetAddress, newAddress, msg.sender);
+    s.lpTokenTargetAddress = newAddress;
   }
 }
