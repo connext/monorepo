@@ -165,6 +165,14 @@ export const mock = {
     ],
     database: () => mockDatabase(),
     subgraph: () => mockSubgraph(),
+    ambs: () => {
+      return {
+        optimism: [],
+        gnosis: [],
+        arbitrum: [],
+        bnb: [],
+      };
+    },
   },
   contracts: {
     deployments: (): ConnextContractDeployments => {

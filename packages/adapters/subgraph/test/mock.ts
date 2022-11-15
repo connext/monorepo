@@ -225,6 +225,7 @@ export const mockSubgraph = () =>
     getDestinationTransfersByDomainAndReconcileTimestamp: Promise.resolve(mockDestinationSubgraphResponse),
     getOriginTransfersById: Promise.resolve(mockOriginSubgraphResponse),
     getDestinationTransfersById: Promise.resolve(mockDestinationSubgraphResponse),
-    getAssetBalancesRouters: Promise.resolve(mockRouterResponse) as any,
+    getAssetBalancesRouters: Promise.resolve(mockRouterResponse),
     getConnectorMeta: Promise.resolve(mockConnectorMeta) as any,
+    getDomainsForHub: Promise.resolve(["1337", "1338"]),
   });
