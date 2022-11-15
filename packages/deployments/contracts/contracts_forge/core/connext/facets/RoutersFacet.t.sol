@@ -811,7 +811,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     s.caps[_key] = 11 ether;
     s.custodied[_canonical] = 10 ether;
     s.domain = _canonicalDomain;
-    s.representationToCanonical[_local] = TokenId(_canonicalDomain, _canonicalId);
+    s.representationToCanonical[_canonical] = TokenId(_canonicalDomain, _canonicalId);
 
     address to = address(1234);
     uint256 amount = 100;
