@@ -1,3 +1,5 @@
+import { RequestContext } from "@connext/nxtp-utils";
+
 import { ExtraPropagateParams } from "../operations/propagate";
 
 export const getPropagateParams = async (
