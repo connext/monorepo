@@ -111,6 +111,16 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "SwapAdminFacet__removeSwap_NonZeroBalance",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "SwapAdminFacet__removeSwap_notInitialized",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -317,6 +327,25 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "key",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "SwapRemoved",
+    type: "event",
+  },
+  {
     inputs: [
       {
         internalType: "bytes32",
@@ -388,6 +417,19 @@ const _abi = [
       },
     ],
     name: "rampA",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_key",
+        type: "bytes32",
+      },
+    ],
+    name: "removeSwap",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
