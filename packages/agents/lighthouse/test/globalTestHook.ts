@@ -6,10 +6,13 @@ import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
 import { mock } from "./mock";
 import * as ProverFns from "../src/tasks/prover/prover";
 import * as ProcessFromRootFns from "../src/tasks/processFromRoot/processFromRoot";
+import * as PropagateFns from "../src/tasks/propagate/propagate";
 import * as Mockable from "../src/mockable";
+import { PropagateContext } from "../src/tasks/propagate/context";
 
 export let proverCtxMock: ProverContext;
 export let processFromRootCtxMock: ProcessFromRootContext;
+export let propagateCtxMock: PropagateContext;
 
 export let chainReaderMock: SinonStubbedInstance<ChainReader>;
 export let existsSyncStub: SinonStub;
@@ -34,6 +37,9 @@ export const mochaHooks = {
 
     processFromRootCtxMock = mock.processFromRootCtx();
     stub(ProcessFromRootFns, "getContext").returns(processFromRootCtxMock);
+
+    propagateCtxMock = mock.propagateCtx();
+    stub(PropagateFns, "getContext").returns(propagateCtxMock);
   },
   afterEach() {
     restore();
