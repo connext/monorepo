@@ -105,7 +105,7 @@ export const mock = {
     environment: "staging",
     database: { url: "postgres://localhost:5432/lighthouse" },
     healthUrls: {},
-    hubDomain: "1337",
+    hubDomain: mock.domain.A,
     relayers: [
       {
         type: "Connext",

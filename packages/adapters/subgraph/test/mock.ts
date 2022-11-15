@@ -7,6 +7,7 @@ import {
   mkBytes32,
   mock,
   OriginMessage,
+  OriginTransfer,
   PropagatedRoot,
   RootMessage,
   RouterBalance,
@@ -227,5 +228,5 @@ export const mockSubgraph = () =>
     getDestinationTransfersById: Promise.resolve(mockDestinationSubgraphResponse),
     getAssetBalancesRouters: Promise.resolve(mockRouterResponse),
     getConnectorMeta: Promise.resolve(mockConnectorMeta) as any,
-    getDomainsForHub: Promise.resolve(["1337", "1338"]),
+    getDomainsForHub: Promise.resolve([mock.domain.A, mock.domain.B]),
   });

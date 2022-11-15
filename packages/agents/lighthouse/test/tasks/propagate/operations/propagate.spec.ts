@@ -1,7 +1,7 @@
 import { expect } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
-import { NoChainIdForHubDomain } from "../../../../src/tasks/propagate/errors";
+import { NoChainIdForHubDomain, RootManagerPropagateWrapperNotFound } from "../../../../src/tasks/propagate/errors";
 import { propagate } from "../../../../src/tasks/propagate/operations";
 import { propagateCtxMock } from "../../../globalTestHook";
 
@@ -12,7 +12,11 @@ describe("Operations: Propagate", () => {
       await expect(propagate()).to.eventually.be.rejectedWith(NoChainIdForHubDomain);
     });
 
-    it("should throw an error if root manager not found", async () => {});
+    it("should throw an error if root manager not found", async () => {
+      (propagateCtxMock.adapters.contracts.rootManagerPropagateWrapper as SinonStub).returns(undefined);
+      await expect(propagate()).to.eventually.be.rejectedWith(RootManagerPropagateWrapperNotFound);
+    });
+
     it("should send encoded data to relayer succesfully", async () => {});
   });
 });

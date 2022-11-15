@@ -34,9 +34,16 @@ export const propagate = async () => {
   const { requestContext, methodContext } = createLoggingContext(propagate.name);
   logger.info("Starting propagate operation", requestContext, methodContext);
   const domains = await subgraph.getDomainsForHub(config.hubDomain);
+  console.log("domains: ", domains);
+  console.log("chainData: ", chainData);
   const hubChainId = chainData.get(config.hubDomain)?.chainId;
   if (!hubChainId) {
     throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
+  }
+
+  const target = contracts.rootManagerPropagateWrapper(hubChainId, config.environment === "staging" ? "Staging" : "");
+  if (!target) {
+    throw new RootManagerPropagateWrapperNotFound(config.hubDomain, requestContext, methodContext);
   }
 
   const params: ExtraPropagateParams[] = await Promise.all(
@@ -45,16 +52,12 @@ export const propagate = async () => {
       const getParamsForDomain = getParamsForDomainFn[domain];
       let params: ExtraPropagateParams = { encodedData: "0x", value: "0" };
       if (getParamsForDomain) {
+        // no try catch here because we want to throw if we can't get params
         params = await getParamsForDomain(domain, chainData.get(domain)!.chainId, hubChainId, requestContext);
       }
       return params;
     }),
   );
-
-  const target = contracts.rootManagerPropagateWrapper(hubChainId, config.environment === "staging" ? "Staging" : "");
-  if (!target) {
-    throw new RootManagerPropagateWrapperNotFound(config.hubDomain, requestContext, methodContext);
-  }
 
   // encode data
   const encodedData = encodePropagate(target.abi as string[], params);
