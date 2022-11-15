@@ -29,7 +29,8 @@ contract DiamondInit is BaseConnextFacet {
   function init(
     uint32 _domain,
     address _xAppConnectionManager,
-    uint256 _acceptanceDelay
+    uint256 _acceptanceDelay,
+    address _lpTokenTargetAddress
   ) external {
     // adding ERC165 data
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
@@ -60,6 +61,7 @@ contract DiamondInit is BaseConnextFacet {
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.maxRoutersPerTransfer = 5;
       s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
+      s.lpTokenTargetAddress = _lpTokenTargetAddress;
     }
   }
 }

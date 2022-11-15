@@ -279,7 +279,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         : {
             contract: "DiamondInit",
             methodName: "init",
-            args: [domain, connectorManagerDeployment.address, acceptanceDelay],
+            args: [domain, connectorManagerDeployment.address, acceptanceDelay, lpTokenDeployment.address],
           },
     });
   }
