@@ -79,6 +79,5 @@ contract DiamondInit is BaseConnextFacet {
     s.maxRoutersPerTransfer = 5;
     s.xAppConnectionManager = manager;
     s.lpTokenTargetAddress = _lpTokenTargetAddress;
-
   }
 }
