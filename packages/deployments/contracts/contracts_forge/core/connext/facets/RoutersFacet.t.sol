@@ -281,13 +281,13 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__removeRouter_failsIfRouterAddressIsZero() public {
-    vm.expectRevert(RoutersFacet.RoutersFacet__removeRouter_routerEmpty.selector);
+    vm.expectRevert(RoutersFacet.RoutersFacet__unapproveRouter_routerEmpty.selector);
     vm.prank(_owner);
     this.unapproveRouter(address(0));
   }
 
   function test_RoutersFacet__removeRouter_failsIfRouterNotApproved() public {
-    vm.expectRevert(RoutersFacet.RoutersFacet__removeRouter_notAdded.selector);
+    vm.expectRevert(RoutersFacet.RoutersFacet__unapproveRouter_notAdded.selector);
     vm.prank(_owner);
     this.unapproveRouter(_routerAgent0);
   }

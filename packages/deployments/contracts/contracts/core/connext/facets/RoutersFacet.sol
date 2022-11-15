@@ -31,8 +31,8 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__initializeRouter_configNotEmpty();
   error RoutersFacet__setRouterRecipient_notNewRecipient();
   error RoutersFacet__onlyRouterOwner_notRouterOwner();
-  error RoutersFacet__removeRouter_routerEmpty();
-  error RoutersFacet__removeRouter_notAdded();
+  error RoutersFacet__unapproveRouter_routerEmpty();
+  error RoutersFacet__unapproveRouter_notAdded();
   error RoutersFacet__approveRouter_routerEmpty();
   error RoutersFacet__approveRouter_alreadyAdded();
   error RoutersFacet__proposeRouterOwner_notNewOwner();
@@ -266,11 +266,11 @@ contract RoutersFacet is BaseConnextFacet {
    */
   function unapproveRouter(address _router) external onlyOwnerOrRouter {
     // Sanity check: not empty
-    if (_router == address(0)) revert RoutersFacet__removeRouter_routerEmpty();
+    if (_router == address(0)) revert RoutersFacet__unapproveRouter_routerEmpty();
 
     // Sanity check: needs removal
     RouterConfig memory config = s.routerConfigs[_router];
-    if (!config.approved) revert RoutersFacet__removeRouter_notAdded();
+    if (!config.approved) revert RoutersFacet__unapproveRouter_notAdded();
 
     // Update approvals in config mapping
     s.routerConfigs[_router].approved = false;
