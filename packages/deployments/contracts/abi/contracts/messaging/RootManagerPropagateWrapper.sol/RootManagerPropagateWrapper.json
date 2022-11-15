@@ -23,5 +23,6 @@
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
   "function rootManager() view returns (address)",
-  "function setRootManager(address)"
+  "function setRootManager(address)",
+  "function withdraw()"
 ]

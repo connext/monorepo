@@ -1,14 +1,23 @@
 import { utils, BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
-import { ConnextContractDeployments, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, mkBytes32, createLoggingContext, XMessage } from "@connext/nxtp-utils";
+import { ChainReader, ConnextContractDeployments, ConnextContractInterfaces } from "@connext/nxtp-txservice";
+import {
+  mkAddress,
+  Logger,
+  mock as _mock,
+  mkBytes32,
+  createLoggingContext,
+  XMessage,
+  RelayerType,
+} from "@connext/nxtp-utils";
+import { Relayer } from "@connext/nxtp-adapters-relayer";
+import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
+import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
+import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
 
 import { NxtpLighthouseConfig } from "../src/config";
 import { ProverContext } from "../src/tasks/prover/context";
 import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
-import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
-import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
-import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
 
 export const mockTaskId = mkBytes32("0xabcdef123");
 export const mockRelayerAddress = mkAddress("0xabcdef123");
@@ -128,9 +137,16 @@ export const mock = {
         priceOracle: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         spokeConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         stableSwap: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        rootManagerPropagateWrapper: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
       };
     },
-    relayers: () => [{ instance: mockRelayer(), type: "Backup", apiKey: "foo" }],
+    relayers: () => [
+      { instance: mockRelayer(), type: "Mock", apiKey: "foo" } as {
+        instance: Relayer;
+        type: RelayerType;
+        apiKey: string;
+      },
+    ],
     database: () => mockDatabase(),
   },
   contracts: {
@@ -144,6 +160,7 @@ export const mock = {
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbdddf"), abi: {} }),
         spokeConnector: (_: number) => ({ address: mkAddress("0xbbbddda"), abi: {} }),
         hubConnector: (_: number) => ({ address: mkAddress("0xbbbdddb"), abi: {} }),
+        rootManagerPropagateWrapper: (_: number) => ({ address: mkAddress("0xbbbdddc"), abi: {} }),
       };
     },
   },
