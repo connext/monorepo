@@ -48,7 +48,7 @@ contract RootManagerPropagateWrapperTest is ForgeHelper {
     rootManagerWrapper.setRootManager(address(42));
   }
 
-  function test_RootManagerPropagateWrapper_setRootManager__shouldWork() public {
+  function test_RootManagerPropagateWrapper__setRootManager_shouldWork() public {
     vm.expectEmit(true, true, true, true);
     emit RootManagerChanged(address(42), rootManager);
 
@@ -58,7 +58,7 @@ contract RootManagerPropagateWrapperTest is ForgeHelper {
   }
 
   // ============ RootManagerPropagateWrapper.fallback ============
-  function test_RootManagerPropagateWrapper_propagate__shouldWork() public {
+  function test_RootManagerPropagateWrapper__propagate_shouldWork() public {
     address[] memory _connectors = new address[](3);
     uint256[] memory _fees = new uint256[](3);
     bytes[] memory _encodedData = new bytes[](3);
