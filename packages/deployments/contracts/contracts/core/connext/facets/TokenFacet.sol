@@ -23,6 +23,7 @@ contract TokenFacet is BaseConnextFacet {
   error TokenFacet__addAssetId_alreadyAdded();
   error TokenFacet__removeAssetId_notAdded();
   error TokenFacet__removeAssetId_invalidParams();
+  error TokenFacet__removeAssetId_remainsCustodied();
   error TokenFacet__updateDetails_localNotFound();
   error TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
   error TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
@@ -243,7 +244,8 @@ contract TokenFacet is BaseConnextFacet {
     address _adoptedAssetId,
     address _representation
   ) external onlyOwnerOrAdmin {
-    _removeAssetId(_key, _adoptedAssetId, _representation);
+    TokenId memory canonical = s.representationToCanonical[_representation];
+    _removeAssetId(_key, _adoptedAssetId, _representation, canonical.domain);
   }
 
   /**
@@ -257,7 +259,7 @@ contract TokenFacet is BaseConnextFacet {
     address _representation
   ) external onlyOwnerOrAdmin {
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
-    _removeAssetId(key, _adoptedAssetId, _representation);
+    _removeAssetId(key, _adoptedAssetId, _representation, _canonical.domain);
   }
 
   /**
@@ -389,7 +391,8 @@ contract TokenFacet is BaseConnextFacet {
   function _removeAssetId(
     bytes32 _key,
     address _adoptedAssetId,
-    address _representation
+    address _representation,
+    uint32 _canonicalDomain
   ) internal {
     // Sanity check: already approval
     if (!s.approvedAssets[_key]) revert TokenFacet__removeAssetId_notAdded();
@@ -397,6 +400,17 @@ contract TokenFacet is BaseConnextFacet {
     // Sanity check: consistent set of params
     if (s.canonicalToAdopted[_key] != _adoptedAssetId || s.canonicalToRepresentation[_key] != _representation)
       revert TokenFacet__removeAssetId_invalidParams();
+
+    // Sanity check: no value custodied if on canonical domain
+    bool onCanonical = s.domain == _canonicalDomain;
+    if (onCanonical && s.custodied[_representation] > 0) {
+      revert TokenFacet__removeAssetId_remainsCustodied();
+    }
+
+    // Sanity check: supply is 0 if on remote domain
+    if (!onCanonical && IBridgeToken(_representation).totalSupply() > 0) {
+      revert TokenFacet__removeAssetId_remainsCustodied();
+    }
 
     // Delete from approved assets mapping
     delete s.approvedAssets[_key];

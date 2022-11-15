@@ -207,12 +207,51 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   //   removeAssetAndAssert(_canonicalKey, _local, _local);
   // }
 
-  // function test_TokenFacet__removeAssetId_failIfNotAlreadyApproved() public {
-  //   vm.expectRevert(TokenFacet.TokenFacet__removeAssetId_notAdded.selector);
+  function test_TokenFacet__removeAssetId_failIfNotAlreadyApproved() public {
+    vm.expectRevert(TokenFacet.TokenFacet__removeAssetId_notAdded.selector);
 
-  //   vm.prank(_owner);
-  //   this.removeAssetId(_canonicalId, _local);
-  // }
+    vm.prank(_owner);
+    this.removeAssetId(TokenId(_domain, _canonicalId), _local, _local);
+  }
+
+  function test_TokenFacet__removeAssetId_failIfNotConsistentPair() public {
+    bytes32 key = utils_calculateCanonicalHash();
+    s.approvedAssets[key] = true;
+    s.canonicalToAdopted[key] = _local;
+    s.canonicalToRepresentation[key] = address(123);
+
+    vm.expectRevert(TokenFacet.TokenFacet__removeAssetId_invalidParams.selector);
+
+    vm.prank(_owner);
+    this.removeAssetId(TokenId(_domain, _canonicalId), _local, _local);
+  }
+
+  function test_TokenFacet__removeAssetId_failIfOnCanonicalAndHasCustodied() public {
+    bytes32 key = utils_calculateCanonicalHash();
+    s.domain = _domain;
+    s.approvedAssets[key] = true;
+    s.canonicalToAdopted[key] = _local;
+    s.canonicalToRepresentation[key] = _local;
+    s.custodied[_local] = 123;
+
+    vm.expectRevert(TokenFacet.TokenFacet__removeAssetId_remainsCustodied.selector);
+
+    vm.prank(_owner);
+    this.removeAssetId(TokenId(_domain, _canonicalId), _local, _local);
+  }
+
+  function test_TokenFacet__removeAssetId_failIfOnRemoteAndHasSupply() public {
+    bytes32 key = utils_calculateCanonicalHash();
+    s.domain = _domain + 1;
+    s.approvedAssets[key] = true;
+    s.canonicalToAdopted[key] = _local;
+    s.canonicalToRepresentation[key] = _local;
+
+    vm.expectRevert(TokenFacet.TokenFacet__removeAssetId_remainsCustodied.selector);
+
+    vm.prank(_owner);
+    this.removeAssetId(TokenId(_domain, _canonicalId), _local, _local);
+  }
 
   // updateLiquidityCap
   function test_TokenFacet__updateLiquidityCap_failsIfNotCanonicalDomain() public {
