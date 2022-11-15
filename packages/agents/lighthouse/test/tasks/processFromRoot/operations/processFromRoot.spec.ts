@@ -1,4 +1,4 @@
-import { BaseRequestContext, createRequestContext, expect, Logger, mock, RelayerTaskStatus } from "@connext/nxtp-utils";
+import { BaseRequestContext, createRequestContext, expect, Logger, mock, RelayerType } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
 import * as ProcessFromRootFns from "../../../../src/tasks/processFromRoot/operations/processFromRoot";
@@ -18,10 +18,7 @@ describe("Operations: ProcessFromRoot", () => {
         domain: string,
         destinationAddress: string,
         data: string,
-        relayer: Relayer,
-        relayerApiKey: string,
-        backupRelayer: Relayer,
-        backupRelayerApiKey: string,
+        relayers: { instance: Relayer; apiKey: string; type: RelayerType }[],
         chainReader: ChainReader,
         logger: Logger,
         _requestContext: BaseRequestContext,
