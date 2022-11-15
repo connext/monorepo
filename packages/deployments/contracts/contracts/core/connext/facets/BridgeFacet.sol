@@ -177,6 +177,13 @@ contract BridgeFacet is BaseConnextFacet {
    */
   event SequencerRemoved(address sequencer, address caller);
 
+  /**
+   * @notice Emitted `xAppConnectionManager` is updated
+   * @param updated - The updated address
+   * @param caller - The account that called the function
+   */
+  event XAppConnectionManagerSet(address updated, address caller);
+
   // ============ Modifiers ============
 
   /**
@@ -253,6 +260,7 @@ contract BridgeFacet is BaseConnextFacet {
     if (manager.localDomain() != s.domain) {
       revert BridgeFacet__setXAppConnectionManager_domainsDontMatch();
     }
+    emit XAppConnectionManagerSet(_xAppConnectionManager, msg.sender);
     s.xAppConnectionManager = manager;
   }
 

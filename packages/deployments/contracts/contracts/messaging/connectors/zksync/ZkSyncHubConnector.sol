@@ -136,6 +136,7 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
       processed[_root] = true;
       // update the root on the root manager
       IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _root);
+      emit MessageSent(_message, bytes(""), msg.sender);
     } // otherwise root was already sent to root manager
   }
 }
