@@ -7,10 +7,6 @@ import {
   ConnextPriceOracle as TConnextPriceOracle,
   StableSwap as TStableSwap,
   SpokeConnector as TSpokeConnector,
-  Multichain as TMultichain,
-  GnosisAmb as TGnosisAmb,
-  OptimismAmb as TOptimismAmb,
-  ArbitrumL2Amb as TArbitrumL2Amb,
 } from "@connext/nxtp-contracts";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-abi/HardhatDiamondABI.sol/Connext.json";
