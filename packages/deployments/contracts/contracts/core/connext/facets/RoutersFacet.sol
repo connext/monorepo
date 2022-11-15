@@ -564,7 +564,12 @@ contract RoutersFacet is BaseConnextFacet {
     if (_amount == 0) revert RoutersFacet__addLiquidityForRouter_amountIsZero();
 
     // Get the canonical asset ID from the representation.
-    (TokenId memory canonical, bytes32 key) = _getApprovedCanonicalId(_local);
+    // NOTE: not using `_getApprovedCanonicalId` because candidate can *only* be local
+    TokenId memory canonical = s.representationToCanonical[_local];
+    bytes32 key = AssetLogic.calculateCanonicalHash(canonical.id, canonical.domain);
+    if (!_isAssetWhitelistRemoved() && !s.approvedAssets[key]) {
+      revert BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
+    }
 
     // Sanity check: router is approved.
     if (!_isRouterWhitelistRemoved() && !getRouterApproval(_router))
@@ -615,7 +620,8 @@ contract RoutersFacet is BaseConnextFacet {
 
     // Get the canonical asset ID from the representation.
     // NOTE: allow getting unapproved assets to prevent lockup on approval status change
-    TokenId memory canonical = _getCanonicalTokenId(_local);
+    // NOTE: not using `_getCanonicalTokenId` because candidate can *only* be local
+    TokenId memory canonical = s.representationToCanonical[_local];
     bytes32 key = AssetLogic.calculateCanonicalHash(canonical.id, canonical.domain);
 
     // Get existing router balance.

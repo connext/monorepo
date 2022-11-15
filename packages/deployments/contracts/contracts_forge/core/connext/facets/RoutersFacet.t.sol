@@ -668,6 +668,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     s.routerConfigs[_routerAgent0].approved = true;
     s.caps[utils_calculateCanonicalHash()] = 11;
     s.custodied[_local] = 3;
+    s.representationToCanonical[_local] = TokenId(_domain, _canonicalId);
     vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_capReached.selector);
     this.addRouterLiquidityFor(amount, _local, _routerAgent0);
   }
@@ -810,6 +811,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     s.caps[_key] = 11 ether;
     s.custodied[_canonical] = 10 ether;
     s.domain = _canonicalDomain;
+    s.representationToCanonical[_local] = TokenId(_canonicalDomain, _canonicalId);
 
     address to = address(1234);
     uint256 amount = 100;
