@@ -7,12 +7,20 @@ import {
   ConnextPriceOracle as TConnextPriceOracle,
   StableSwap as TStableSwap,
   SpokeConnector as TSpokeConnector,
+  Multichain as TMultichain,
+  GnosisAmb as TGnosisAmb,
+  OptimismAmb as TOptimismAmb,
+  ArbitrumL2Amb as TArbitrumL2Amb,
 } from "@connext/nxtp-contracts";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-abi/HardhatDiamondABI.sol/Connext.json";
 import ERC20ExtendedArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/interfaces/IERC20Extended.sol/IERC20Extended.json";
 import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
 import SpokeConnectorArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/connectors/SpokeConnector.sol/SpokeConnector.json";
+import GnosisAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/GnosisAmb.sol/GnosisAmb.json";
+import MultichainAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/Multichain.sol/Multichain.json";
+import OptimismAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol/OptimismAmb.json";
+import ArbitrumAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb.sol/ArbitrumL2Amb.json";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
 export type ContractPostfix = "Staging" | "";
@@ -139,6 +147,12 @@ export type SpokeConnectorDeploymentGetter = (
   postfix?: ContractPostfix,
 ) => { address: string; abi: any } | undefined;
 
+export type AmbDeploymentGetter = (
+  chainId: number,
+  prefix: string,
+  postfix?: ContractPostfix,
+) => { address: string; abi: any } | undefined;
+
 export type HubConnectorDeploymentGetter = (
   chainId: number,
   prefix: string,
@@ -207,4 +221,23 @@ export const getContractInterfaces = (): ConnextContractInterfaces => ({
   priceOracle: getPriceOracleInterface(),
   stableSwap: getStableSwapInterface(),
   spokeConnector: getSpokeConnectorInterface(),
+});
+
+export type AmbContractInterfaces = {
+  optimism: TOptimismAmb["interface"];
+  gnosis: TGnosisAmb["interface"];
+  arbitrum: TArbitrumL2Amb["interface"];
+  bnb: TMultichain["interface"];
+};
+
+export const getOptimismInterface = () => new utils.Interface(OptimismAmbArtifact.abi) as TOptimismAmb["interface"];
+export const getGnosisInterface = () => new utils.Interface(GnosisAmbArtifact.abi) as TGnosisAmb["interface"];
+export const getArbitrumInterface = () => new utils.Interface(ArbitrumAmbArtifact.abi) as TArbitrumL2Amb["interface"];
+export const getBnbInterface = () => new utils.Interface(MultichainAmbArtifact.abi) as TMultichain["interface"];
+
+export const getAMBInterfaces = (): AmbContractInterfaces => ({
+  optimism: getOptimismInterface(),
+  gnosis: getGnosisInterface(),
+  arbitrum: getArbitrumInterface(),
+  bnb: getBnbInterface(),
 });
