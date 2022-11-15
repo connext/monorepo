@@ -1,9 +1,12 @@
 import { ChainReader } from "@connext/nxtp-txservice";
 import { parseUnits } from "ethers/lib/utils";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import { BaseRequestContext, Logger, RelayerType } from "@connext/nxtp-utils";
+import { Relayer } from "@connext/nxtp-adapters-relayer";
+
 import { ProverContext } from "../src/tasks/prover/context";
 import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
-import { mock } from "./mock";
+import { mock, mockTaskId } from "./mock";
 import * as ProverFns from "../src/tasks/prover/prover";
 import * as ProcessFromRootFns from "../src/tasks/processFromRoot/processFromRoot";
 import * as PropagateFns from "../src/tasks/propagate/propagate";
@@ -17,6 +20,19 @@ export let propagateCtxMock: PropagateContext;
 export let chainReaderMock: SinonStubbedInstance<ChainReader>;
 export let existsSyncStub: SinonStub;
 export let readFileSyncStub: SinonStub;
+export let sendWithRelayerWithBackupStub: SinonStub<
+  [
+    chainId: number,
+    domain: string,
+    destinationAddress: string,
+    data: string,
+    relayers: { instance: Relayer; apiKey: string; type: RelayerType }[],
+    chainReader: ChainReader,
+    logger: Logger,
+    _requestContext: BaseRequestContext,
+  ],
+  Promise<{ taskId: string }>
+>;
 
 export const mockAxiosErrorResponse = { isAxiosError: true, code: 500, response: "Invalid fee" };
 export const mockAxiosSuccessResponse = { isAxiosError: false, code: 200, data: [] };
@@ -40,6 +56,10 @@ export const mochaHooks = {
 
     propagateCtxMock = mock.propagateCtx();
     stub(PropagateFns, "getContext").returns(propagateCtxMock);
+
+    sendWithRelayerWithBackupStub = stub(Mockable, "sendWithRelayerWithBackup").resolves({
+      taskId: mockTaskId,
+    });
   },
   afterEach() {
     restore();

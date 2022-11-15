@@ -1,7 +1,6 @@
-import { sendWithRelayerWithBackup } from "@connext/nxtp-adapters-relayer";
 import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
 
-import { encodePropagate } from "../../../mockable";
+import { encodePropagate, sendWithRelayerWithBackup } from "../../../mockable";
 import { NoChainIdForHubDomain, RootManagerPropagateWrapperNotFound } from "../errors";
 import { getPropagateParamsArbitrum, getPropagateParamsBnb } from "../helpers";
 import { getContext } from "../propagate";
@@ -11,7 +10,7 @@ export type ExtraPropagateParams = {
   value: string;
 };
 
-const getParamsForDomainFn: Record<
+export const getParamsForDomainFn: Record<
   string,
   (
     spokeDomain: string,
@@ -34,8 +33,6 @@ export const propagate = async () => {
   const { requestContext, methodContext } = createLoggingContext(propagate.name);
   logger.info("Starting propagate operation", requestContext, methodContext);
   const domains = await subgraph.getDomainsForHub(config.hubDomain);
-  console.log("domains: ", domains);
-  console.log("chainData: ", chainData);
   const hubChainId = chainData.get(config.hubDomain)?.chainId;
   if (!hubChainId) {
     throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);

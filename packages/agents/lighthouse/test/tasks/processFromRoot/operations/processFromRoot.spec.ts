@@ -3,28 +3,12 @@ import { SinonStub, stub } from "sinon";
 
 import * as ProcessFromRootFns from "../../../../src/tasks/processFromRoot/operations/processFromRoot";
 import * as MockableFns from "../../../../src/mockable";
-import { processFromRootCtxMock } from "../../../globalTestHook";
+import { processFromRootCtxMock, sendWithRelayerWithBackupStub } from "../../../globalTestHook";
 import { ProcessConfigNotAvailable } from "../../../../src/tasks/processFromRoot/errors";
-import { mockTaskId } from "@connext/nxtp-adapters-relayer/test/mock";
-import { Relayer } from "@connext/nxtp-adapters-relayer";
-import { ChainReader } from "@connext/nxtp-txservice";
 
 describe("Operations: ProcessFromRoot", () => {
   describe("#processSingleRootMessage", () => {
     let configStub: SinonStub<any[], any>;
-    let sendWithRelayerWithBackupStub: SinonStub<
-      [
-        chainId: number,
-        domain: string,
-        destinationAddress: string,
-        data: string,
-        relayers: { instance: Relayer; apiKey: string; type: RelayerType }[],
-        chainReader: ChainReader,
-        logger: Logger,
-        _requestContext: BaseRequestContext,
-      ],
-      Promise<{ taskId: string }>
-    >;
 
     beforeEach(() => {
       configStub = stub(ProcessFromRootFns, "processorConfigs").value({
@@ -34,9 +18,6 @@ describe("Operations: ProcessFromRoot", () => {
         },
       });
       stub(MockableFns, "encodeProcessMessageFromRoot").returns("0xfaded");
-      sendWithRelayerWithBackupStub = stub(MockableFns, "sendWithRelayerWithBackup").resolves({
-        taskId: mockTaskId,
-      });
     });
 
     it("should process message from root", async () => {
@@ -57,7 +38,26 @@ describe("Operations: ProcessFromRoot", () => {
   });
 
   describe("#processFromRoot", () => {
-    let processSingleRootMessageStub;
+    let processSingleRootMessageStub: SinonStub<
+      [
+        rootMessage: {
+          id: string;
+          spokeDomain: string;
+          hubDomain: string;
+          root: string;
+          caller: string;
+          transactionHash: string;
+          timestamp: number;
+          gasPrice: string;
+          gasLimit: string;
+          blockNumber: number;
+          processed: boolean;
+          count: number;
+        },
+        requestContext: BaseRequestContext,
+      ],
+      Promise<string>
+    >;
     beforeEach(() => {
       processSingleRootMessageStub = stub(ProcessFromRootFns, "processSingleRootMessage").resolves("0xbeefee");
     });
