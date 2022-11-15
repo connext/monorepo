@@ -1,7 +1,22 @@
-import { chainDataToMap, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
-import { stub, SinonStub, restore, reset } from "sinon";
+import {
+  AggregatedRoot,
+  chainDataToMap,
+  DestinationMessage,
+  DestinationTransfer,
+  mkAddress,
+  mkBytes32,
+  mock,
+  OriginMessage,
+  PropagatedRoot,
+  RootMessage,
+  RouterBalance,
+  XMessage,
+  XTransferStatus,
+} from "@connext/nxtp-utils";
+import { stub, SinonStub, createStubInstance } from "sinon";
 import { SubgraphMap } from "../src/lib/entities";
 import * as Reader from "../src/reader";
+import { SubgraphReader } from "../src/reader";
 
 export const mockChainData = chainDataToMap([
   {
@@ -114,3 +129,102 @@ export const stubContext = (_context?: { config: SubgraphMap }) => {
   } catch (e) {}
   return mockContext;
 };
+
+export const mockRootSubgraphResponse = [
+  mock.entity.rootMessage() as RootMessage,
+  mock.entity.rootMessage() as RootMessage,
+];
+
+export const mockOriginMessageSubgraphResponse = [
+  mock.entity.originMessage() as OriginMessage,
+  mock.entity.originMessage() as OriginMessage,
+];
+
+export const mockDestinationMessageSubgraphResponse = [
+  mock.entity.destinationMessage() as DestinationMessage,
+  mock.entity.destinationMessage() as DestinationMessage,
+];
+
+export const mockAggregatedRootSubgraphResponse = [
+  mock.entity.aggregatedRoot() as AggregatedRoot,
+  mock.entity.aggregatedRoot() as AggregatedRoot,
+];
+
+export const mockPropagatedRootSubgraphResponse = [
+  mock.entity.propagatedRoot() as PropagatedRoot,
+  mock.entity.propagatedRoot() as PropagatedRoot,
+];
+export const mockXMessageSubgraphResponse = [mock.entity.xMessage() as XMessage, mock.entity.xMessage() as XMessage];
+
+export const mockBlockNumber: Map<string, number> = new Map();
+mockBlockNumber.set("2000", 1234567);
+mockBlockNumber.set("3000", 1234567);
+mockBlockNumber.set("1337", 1234567);
+mockBlockNumber.set("1338", 1234567);
+mockBlockNumber.set("10", 1234567);
+
+export const mockNoBlockNumber: Map<string, number> = new Map();
+mockNoBlockNumber.set("99999", 1234567);
+
+export const mockOriginSubgraphResponse = [
+  mock.entity.xtransfer({ originDomain: "1337", destinationDomain: "1338" }) as OriginTransfer,
+  mock.entity.xtransfer({ originDomain: "1338", destinationDomain: "1337" }) as OriginTransfer,
+];
+
+export const mockDestinationSubgraphResponse = [
+  mock.entity.xtransfer({
+    originDomain: "1337",
+    destinationDomain: "1338",
+    status: XTransferStatus.Reconciled,
+  }) as DestinationTransfer,
+  mock.entity.xtransfer({
+    originDomain: "1338",
+    destinationDomain: "1337",
+    status: XTransferStatus.Reconciled,
+  }) as DestinationTransfer,
+];
+
+export const mockRouterResponse: RouterBalance[] = [
+  { assets: [], router: mkAddress("0xa") },
+  {
+    assets: [
+      {
+        adoptedAsset: mkAddress(),
+        balance: "123",
+        blockNumber: "42",
+        canonicalDomain: "1337",
+        canonicalId: mkBytes32(),
+        domain: "1337",
+        feesEarned: "12",
+        id: mkBytes32(),
+        key: mkBytes32(),
+        localAsset: mkAddress(),
+      },
+    ],
+    router: mkBytes32("0xb"),
+  },
+];
+
+export const mockConnectorMeta = [
+  {
+    hubDomain: "1337",
+  },
+];
+
+export const mockSubgraph = () =>
+  createStubInstance(SubgraphReader, {
+    getOriginMessagesByDomain: Promise.resolve(mockOriginMessageSubgraphResponse),
+    getDestinationMessagesByDomainAndLeaf: Promise.resolve(mockDestinationMessageSubgraphResponse),
+    getSentRootMessagesByDomain: Promise.resolve(mockRootSubgraphResponse),
+    getProcessedRootMessagesByDomain: Promise.resolve(mockRootSubgraphResponse),
+    getLatestBlockNumber: Promise.resolve(mockBlockNumber),
+    getGetAggregatedRootsByDomain: Promise.resolve(mockAggregatedRootSubgraphResponse),
+    getGetPropagatedRoots: Promise.resolve(mockPropagatedRootSubgraphResponse),
+    getOriginTransfersByNonce: Promise.resolve(mockOriginSubgraphResponse),
+    getDestinationTransfersByNonce: Promise.resolve(mockDestinationSubgraphResponse),
+    getDestinationTransfersByDomainAndReconcileTimestamp: Promise.resolve(mockDestinationSubgraphResponse),
+    getOriginTransfersById: Promise.resolve(mockOriginSubgraphResponse),
+    getDestinationTransfersById: Promise.resolve(mockDestinationSubgraphResponse),
+    getAssetBalancesRouters: Promise.resolve(mockRouterResponse) as any,
+    getConnectorMeta: Promise.resolve(mockConnectorMeta) as any,
+  });

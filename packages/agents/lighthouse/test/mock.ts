@@ -18,6 +18,8 @@ import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
 import { NxtpLighthouseConfig } from "../src/config";
 import { ProverContext } from "../src/tasks/prover/context";
 import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
+import { PropagateContext } from "../src/tasks/propagate/context";
+import { mockSubgraph } from "@connext/nxtp-adapters-subgraph/test/mock";
 
 export const mockTaskId = mkBytes32("0xabcdef123");
 export const mockRelayerAddress = mkAddress("0xabcdef123");
@@ -39,7 +41,7 @@ export const mock = {
     return {
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
       adapters: {
-        chainreader: mock.adapters.chainreader(),
+        chainreader: mock.adapters.chainreader() as unknown as ChainReader,
         contracts: mock.adapters.contracts(),
         relayers: mock.adapters.relayers(),
         database: mock.adapters.database(),
@@ -52,10 +54,24 @@ export const mock = {
     return {
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
       adapters: {
-        chainreader: mock.adapters.chainreader(),
+        chainreader: mock.adapters.chainreader() as unknown as ChainReader,
         contracts: mock.adapters.deployments(),
         relayers: mock.adapters.relayers(),
         database: mock.adapters.database(),
+      },
+      config: mock.config(),
+      chainData: mock.chainData(),
+    };
+  },
+  propagateCtx: (): PropagateContext => {
+    return {
+      logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
+      adapters: {
+        chainreader: mock.adapters.chainreader() as unknown as ChainReader,
+        contracts: mock.adapters.deployments(),
+        relayers: mock.adapters.relayers(),
+        subgraph: mock.adapters.subgraph(),
+        ambs: mock.adapters.ambs(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -148,6 +164,7 @@ export const mock = {
       },
     ],
     database: () => mockDatabase(),
+    subgraph: () => mockSubgraph(),
   },
   contracts: {
     deployments: (): ConnextContractDeployments => {
