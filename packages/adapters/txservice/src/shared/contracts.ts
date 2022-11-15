@@ -223,21 +223,16 @@ export const getContractInterfaces = (): ConnextContractInterfaces => ({
   spokeConnector: getSpokeConnectorInterface(),
 });
 
-export type AmbContractInterfaces = {
-  optimism: TOptimismAmb["interface"];
-  gnosis: TGnosisAmb["interface"];
-  arbitrum: TArbitrumL2Amb["interface"];
-  bnb: TMultichain["interface"];
+export type AmbContractABIs = {
+  optimism: any[];
+  gnosis: any[];
+  arbitrum: any[];
+  bnb: any[];
 };
 
-export const getOptimismInterface = () => new utils.Interface(OptimismAmbArtifact.abi) as TOptimismAmb["interface"];
-export const getGnosisInterface = () => new utils.Interface(GnosisAmbArtifact.abi) as TGnosisAmb["interface"];
-export const getArbitrumInterface = () => new utils.Interface(ArbitrumAmbArtifact.abi) as TArbitrumL2Amb["interface"];
-export const getBnbInterface = () => new utils.Interface(MultichainAmbArtifact.abi) as TMultichain["interface"];
-
-export const getAMBInterfaces = (): AmbContractInterfaces => ({
-  optimism: getOptimismInterface(),
-  gnosis: getGnosisInterface(),
-  arbitrum: getArbitrumInterface(),
-  bnb: getBnbInterface(),
+export const getAmbABIs = (): AmbContractABIs => ({
+  optimism: OptimismAmbArtifact.abi,
+  gnosis: GnosisAmbArtifact.abi,
+  arbitrum: ArbitrumAmbArtifact.abi,
+  bnb: MultichainAmbArtifact.abi,
 });

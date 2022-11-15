@@ -40,6 +40,7 @@ export interface RootManagerPropagateWrapperInterface extends utils.Interface {
     "renounced()": FunctionFragment;
     "rootManager()": FunctionFragment;
     "setRootManager(address)": FunctionFragment;
+    "withdraw()": FunctionFragment;
   };
 
   getFunction(
@@ -55,6 +56,7 @@ export interface RootManagerPropagateWrapperInterface extends utils.Interface {
       | "renounced"
       | "rootManager"
       | "setRootManager"
+      | "withdraw"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -93,6 +95,7 @@ export interface RootManagerPropagateWrapperInterface extends utils.Interface {
     functionFragment: "setRootManager",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
 
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
@@ -123,6 +126,7 @@ export interface RootManagerPropagateWrapperInterface extends utils.Interface {
     functionFragment: "setRootManager",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
     "FundsDeducted(uint256,uint256)": EventFragment;
@@ -259,6 +263,10 @@ export interface RootManagerPropagateWrapper extends BaseContract {
       _rootManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    withdraw(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   acceptProposedOwner(
@@ -298,6 +306,10 @@ export interface RootManagerPropagateWrapper extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  withdraw(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
@@ -331,6 +343,8 @@ export interface RootManagerPropagateWrapper extends BaseContract {
       _rootManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    withdraw(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -409,6 +423,10 @@ export interface RootManagerPropagateWrapper extends BaseContract {
       _rootManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    withdraw(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -446,6 +464,10 @@ export interface RootManagerPropagateWrapper extends BaseContract {
 
     setRootManager(
       _rootManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdraw(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

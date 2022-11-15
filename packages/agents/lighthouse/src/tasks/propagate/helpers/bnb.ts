@@ -1,6 +1,5 @@
-import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
-import { MultichainAmbArtifact } from "@connext/nxtp-txservice";
 import { ethers } from "ethers";
+import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
 
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../errors";
 import { ExtraPropagateParams } from "../operations/propagate";
@@ -15,7 +14,7 @@ export const getPropagateParams = async (
   const {
     config,
     logger,
-    adapters: { contracts },
+    adapters: { contracts, ambs },
   } = getContext();
   const { methodContext, requestContext } = createLoggingContext(getPropagateParams.name, _requestContext);
   logger.info("Getting propagate params for Arbitrum", requestContext, methodContext, { l2domain });
@@ -50,7 +49,8 @@ export const getPropagateParams = async (
   const l1Provider = new ethers.providers.JsonRpcProvider(l1RpcUrl);
   const l1HubConnectorContract = new ethers.Contract(l1HubConnector.address, l1HubConnector.abi as any[], l1Provider);
   const ambAddress = await l1HubConnectorContract.AMB();
-  const ambContract = new ethers.Contract(ambAddress as string, MultichainAmbArtifact.abi, l1Provider);
+
+  const ambContract = new ethers.Contract(ambAddress as string, ambs.bnb, l1Provider);
   const fee = await ambContract.calcSrcFees("", l2ChainId, 32);
 
   return { encodedData: "0x", value: fee };
