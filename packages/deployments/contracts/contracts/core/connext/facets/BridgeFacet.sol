@@ -283,7 +283,7 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _amount,
     uint256 _slippage,
     bytes calldata _callData
-  ) external payable returns (bytes32) {
+  ) external payable nonXCallReentrant returns (bytes32) {
     // NOTE: Here, we fill in as much information as we can for the TransferInfo.
     // Some info is left blank and will be assigned in the internal `_xcall` function (e.g.
     // `normalizedIn`, `bridgedAmt`, canonical info, etc).
@@ -316,7 +316,7 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _amount,
     uint256 _slippage,
     bytes calldata _callData
-  ) external payable returns (bytes32) {
+  ) external payable nonXCallReentrant returns (bytes32) {
     // NOTE: Here, we fill in as much information as we can for the TransferInfo.
     // Some info is left blank and will be assigned in the internal `_xcall` function (e.g.
     // `normalizedIn`, `bridgedAmt`, canonical info, etc).
