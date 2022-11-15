@@ -72,7 +72,7 @@ export const makePropagate = async () => {
       context.config.subgraphPrefix as string,
     );
 
-    context.logger.info("Propagate boot complete!", requestContext, methodContext, {
+    context.logger.info("Propagate task setup complete!", requestContext, methodContext, {
       chains: [...Object.keys(context.config.chains)],
     });
     console.log(
@@ -93,7 +93,7 @@ export const makePropagate = async () => {
       await sendHeartbeat(context.config.healthUrls.propagate, context.logger);
     }
   } catch (e: unknown) {
-    console.error("Error starting Prover. Sad! :(", e);
+    console.error("Error starting Propagate task. Sad! :(", e);
   } finally {
     await closeDatabase();
     process.exit();

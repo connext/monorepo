@@ -22,7 +22,7 @@ export type ContractPostfix = "Staging" | "";
  * Helper to allow easy mocking
  */
 export const _getContractDeployments = (): Record<string, Record<string, any>> => {
-  return _contractDeployments;
+  return _contractDeployments as any;
 };
 
 /**
@@ -58,6 +58,15 @@ export const getDeployedHubConnecterContract = (
 ): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
   const contract = record[0]?.contracts ? record[0]?.contracts[`${prefix}HubConnector${postfix}`] : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+export const getDeployedRootManagerPropagateWrapperContract = (
+  chainId: number,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  const contract = record[0]?.contracts ? record[0]?.contracts[`RootManagerPropagateWrapper${postfix}`] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -136,12 +145,18 @@ export type HubConnectorDeploymentGetter = (
   postfix?: ContractPostfix,
 ) => { address: string; abi: any } | undefined;
 
+export type RootManagerPropagateWrapperGetter = (
+  chainId: number,
+  postfix?: ContractPostfix,
+) => { address: string; abi: any } | undefined;
+
 export type ConnextContractDeployments = {
   connext: ConnextContractDeploymentGetter;
   priceOracle: ConnextContractDeploymentGetter;
   stableSwap: ConnextContractDeploymentGetter;
   spokeConnector: SpokeConnectorDeploymentGetter;
   hubConnector: HubConnectorDeploymentGetter;
+  rootManagerPropagateWrapper: RootManagerPropagateWrapperGetter;
 };
 
 export const contractDeployments: ConnextContractDeployments = {
@@ -150,6 +165,7 @@ export const contractDeployments: ConnextContractDeployments = {
   stableSwap: getDeployedStableSwapContract,
   spokeConnector: getDeployedSpokeConnecterContract,
   hubConnector: getDeployedHubConnecterContract,
+  rootManagerPropagateWrapper: getDeployedRootManagerPropagateWrapperContract,
 };
 
 /// MARK - CONTRACT INTERFACES

@@ -1,8 +1,11 @@
+import { sendWithRelayerWithBackup } from "@connext/nxtp-adapters-relayer";
 import { createLoggingContext } from "@connext/nxtp-utils";
 
+import { encodePropagate } from "../../../mockable";
+import { NoChainIdForHubDomain, RootManagerPropagateWrapperNotFound } from "../errors";
 import { getContext } from "../propagate";
 
-type ExtraPropagateParams = {
+export type ExtraPropagateParams = {
   encodedData: string;
   value: string;
 };
@@ -13,6 +16,7 @@ export const propagate = async () => {
   const {
     logger,
     config,
+    chainData,
     adapters: { chainreader, contracts, relayers, subgraph },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(propagate.name);
@@ -29,4 +33,28 @@ export const propagate = async () => {
       return params;
     }),
   );
+
+  const hubChainId = chainData.get(config.hubDomain)?.chainId;
+  if (!hubChainId) {
+    throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
+  }
+
+  const target = contracts.rootManagerPropagateWrapper(hubChainId, config.environment === "staging" ? "Staging" : "");
+  if (!target) {
+    throw new RootManagerPropagateWrapperNotFound(config.hubDomain, requestContext, methodContext);
+  }
+
+  // encode data
+  const encodedData = encodePropagate(target.abi as string[], params);
+  const { taskId } = await sendWithRelayerWithBackup(
+    hubChainId,
+    config.hubDomain,
+    target.address as string,
+    encodedData,
+    relayers,
+    chainreader,
+    logger,
+    requestContext,
+  );
+  logger.info("Propagate tx sent", requestContext, methodContext, { taskId });
 };

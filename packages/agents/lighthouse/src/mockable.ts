@@ -19,3 +19,8 @@ export const encodeProcessMessageFromRoot = (abi: any[], args: any[], functionNa
 };
 
 export const sendWithRelayerWithBackup = _sendWithRelayerWithBackup;
+
+export const encodePropagate = (abi: any[], args: any[]): string => {
+  const encodedData = new Interface(abi as string[]).encodeFunctionData("propagate", args);
+  return encodedData;
+};
