@@ -49,6 +49,11 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     // set the owner to this contract
     setOwner(_owner);
 
+    // set lpTokenTargetAddress
+    _lpTokenTarget = new LPToken();
+    _lpTokenTarget.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
+    s.lpTokenTargetAddress = address(_lpTokenTarget);
+
     // _stableSwapFacet = address(new StableSwapFacet());
 
     utils_initializeSwap();
@@ -98,21 +103,9 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     uint256 _adminFee = 0;
     uint256 _fee = SWAP_FEE;
 
-    _lpTokenTarget = new LPToken();
-    _lpTokenTarget.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
-
-    vm.prank(_owner);
-    this.initializeSwap(
-      _canonicalKey,
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      _a,
-      _fee,
-      _adminFee,
-      address(_lpTokenTarget)
-    );
+    vm.startPrank(_owner);
+    this.initializeSwap(_canonicalKey, _pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, _a, _fee, _adminFee);
+    vm.stopPrank();
 
     assertEq(this.getSwapVirtualPrice(_canonicalKey), 0);
   }
@@ -160,17 +153,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     vm.prank(address(1));
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
-    this.initializeSwap(
-      key,
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      INITIAL_A_VALUE,
-      SWAP_FEE,
-      0,
-      address(_lpTokenTarget)
-    );
+    this.initializeSwap(key, _pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, INITIAL_A_VALUE, SWAP_FEE, 0);
   }
 
   function test_SwapAdminFacet__initializeSwap_failIfDuplicatedTokens() public {
@@ -188,17 +171,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     vm.prank(_owner);
     vm.expectRevert(SwapAdminFacet.SwapAdminFacet__initializeSwap_duplicateTokens.selector);
 
-    this.initializeSwap(
-      key,
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      INITIAL_A_VALUE,
-      SWAP_FEE,
-      0,
-      address(_lpTokenTarget)
-    );
+    this.initializeSwap(key, _pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, INITIAL_A_VALUE, SWAP_FEE, 0);
   }
 
   function test_SwapAdminFacet__initializeSwap_failIfAlreadyInitialized() public {
@@ -221,8 +194,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       LP_TOKEN_SYMBOL,
       INITIAL_A_VALUE,
       SWAP_FEE,
-      0,
-      address(_lpTokenTarget)
+      0
     );
   }
 
@@ -240,17 +212,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     vm.prank(_owner);
     vm.expectRevert(SwapAdminFacet.SwapAdminFacet__initializeSwap_decimalsMismatch.selector);
 
-    this.initializeSwap(
-      key,
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      INITIAL_A_VALUE,
-      SWAP_FEE,
-      0,
-      address(_lpTokenTarget)
-    );
+    this.initializeSwap(key, _pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, INITIAL_A_VALUE, SWAP_FEE, 0);
   }
 
   function test_SwapAdminFacet__initializeSwap_failIfZeroTokenAddress() public {
@@ -268,17 +230,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     vm.prank(_owner);
     vm.expectRevert(SwapAdminFacet.SwapAdminFacet__initializeSwap_zeroTokenAddress.selector);
 
-    this.initializeSwap(
-      key,
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      INITIAL_A_VALUE,
-      SWAP_FEE,
-      0,
-      address(_lpTokenTarget)
-    );
+    this.initializeSwap(key, _pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, INITIAL_A_VALUE, SWAP_FEE, 0);
   }
 
   function test_SwapAdminFacet__initializeSwap_failIfAExceedMax() public {
@@ -304,8 +256,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       LP_TOKEN_SYMBOL,
       AmplificationUtils.MAX_A,
       SWAP_FEE,
-      0,
-      address(_lpTokenTarget)
+      0
     );
   }
 
@@ -332,8 +283,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       LP_TOKEN_SYMBOL,
       AmplificationUtils.MAX_A - 1,
       SwapUtils.MAX_SWAP_FEE,
-      SwapUtils.MAX_ADMIN_FEE - 1,
-      address(_lpTokenTarget)
+      SwapUtils.MAX_ADMIN_FEE - 1
     );
   }
 
@@ -360,8 +310,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       LP_TOKEN_SYMBOL,
       AmplificationUtils.MAX_A - 1,
       SwapUtils.MAX_SWAP_FEE - 1,
-      SwapUtils.MAX_ADMIN_FEE,
-      address(_lpTokenTarget)
+      SwapUtils.MAX_ADMIN_FEE
     );
   }
 
@@ -410,17 +359,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     );
 
     vm.prank(_owner);
-    this.initializeSwap(
-      key,
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      a,
-      fee,
-      adminFee,
-      address(_lpTokenTarget)
-    );
+    this.initializeSwap(key, _pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, a, fee, adminFee);
 
     assertEq(s.swapStorages[key].initialA, a * AmplificationUtils.A_PRECISION);
     assertEq(s.swapStorages[key].futureA, a * AmplificationUtils.A_PRECISION);
