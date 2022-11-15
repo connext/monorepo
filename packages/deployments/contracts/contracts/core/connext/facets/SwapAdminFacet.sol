@@ -104,9 +104,6 @@ contract SwapAdminFacet is BaseConnextFacet {
    * StableSwap paper for details
    * @param _fee default swap fee to be initialized with
    * @param _adminFee default adminFee to be initialized with
-   * @param lpTokenTargetAddress the address of an existing LPToken contract to use as a target
-   * this target must be the address which connext deployed on this chain.
-   * and Connext Diamond proxy will be owner of new LP Token and only this can mint LP token.
    */
   function initializeSwap(
     bytes32 _key,
@@ -116,8 +113,7 @@ contract SwapAdminFacet is BaseConnextFacet {
     string memory lpTokenSymbol,
     uint256 _a,
     uint256 _fee,
-    uint256 _adminFee,
-    address lpTokenTargetAddress
+    uint256 _adminFee
   ) external onlyOwnerOrAdmin {
     if (s.swapStorages[_key].pooledTokens.length != 0) revert SwapAdminFacet__initializeSwap_alreadyInitialized();
 
@@ -156,7 +152,7 @@ contract SwapAdminFacet is BaseConnextFacet {
     if (_adminFee >= SwapUtils.MAX_ADMIN_FEE) revert SwapAdminFacet__initializeSwap_adminFeeExceedMax();
 
     // Initialize a LPToken contract
-    LPToken lpToken = LPToken(Clones.clone(lpTokenTargetAddress));
+    LPToken lpToken = LPToken(Clones.clone(s.lpTokenTargetAddress));
     if (!lpToken.initialize(lpTokenName, lpTokenSymbol)) revert SwapAdminFacet__initializeSwap_failedInitLpTokenClone();
 
     // Initialize swapStorage struct
