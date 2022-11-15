@@ -44,7 +44,7 @@ export const propagate = async () => {
       const getParamsForDomain = getParamsForDomainFn[domain];
       let params: ExtraPropagateParams = { encodedData: "0x", value: "0" };
       if (getParamsForDomain) {
-        params = await getParamsForDomain(domain, chainData.get(domain)?.chainId, hubChainId, requestContext);
+        params = await getParamsForDomain(domain, chainData.get(domain)!.chainId, hubChainId, requestContext);
       }
       return params;
     }),

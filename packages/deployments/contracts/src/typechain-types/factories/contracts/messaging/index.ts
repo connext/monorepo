@@ -6,5 +6,6 @@ export * as interfaces from "./interfaces";
 export * as libraries from "./libraries";
 export { MerkleTreeManager__factory } from "./MerkleTreeManager__factory";
 export { RootManager__factory } from "./RootManager__factory";
+export { RootManagerPropagateWrapper__factory } from "./RootManagerPropagateWrapper__factory";
 export { WatcherClient__factory } from "./WatcherClient__factory";
 export { WatcherManager__factory } from "./WatcherManager__factory";
