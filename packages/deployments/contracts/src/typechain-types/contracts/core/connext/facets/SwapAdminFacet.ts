@@ -76,7 +76,6 @@ export interface SwapAdminFacetInterface extends utils.Interface {
   functions: {
     "initializeSwap(bytes32,address[],uint8[],string,string,uint256,uint256,uint256,address)": FunctionFragment;
     "rampA(bytes32,uint256,uint256)": FunctionFragment;
-    "removeSwap(bytes32)": FunctionFragment;
     "setSwapAdminFee(bytes32,uint256)": FunctionFragment;
     "setSwapFee(bytes32,uint256)": FunctionFragment;
     "stopRampA(bytes32)": FunctionFragment;
@@ -87,7 +86,6 @@ export interface SwapAdminFacetInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "initializeSwap"
       | "rampA"
-      | "removeSwap"
       | "setSwapAdminFee"
       | "setSwapFee"
       | "stopRampA"
@@ -117,10 +115,6 @@ export interface SwapAdminFacetInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeSwap",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setSwapAdminFee",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
@@ -142,7 +136,6 @@ export interface SwapAdminFacetInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "rampA", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "removeSwap", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setSwapAdminFee",
     data: BytesLike
@@ -161,7 +154,6 @@ export interface SwapAdminFacetInterface extends utils.Interface {
     "RampAStopped(bytes32,address)": EventFragment;
     "SwapFeesSet(bytes32,uint256,address)": EventFragment;
     "SwapInitialized(bytes32,tuple,address)": EventFragment;
-    "SwapRemoved(bytes32,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AdminFeesSet"): EventFragment;
@@ -170,7 +162,6 @@ export interface SwapAdminFacetInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "RampAStopped"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SwapFeesSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SwapInitialized"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SwapRemoved"): EventFragment;
 }
 
 export interface AdminFeesSetEventObject {
@@ -245,17 +236,6 @@ export type SwapInitializedEvent = TypedEvent<
 
 export type SwapInitializedEventFilter = TypedEventFilter<SwapInitializedEvent>;
 
-export interface SwapRemovedEventObject {
-  key: string;
-  caller: string;
-}
-export type SwapRemovedEvent = TypedEvent<
-  [string, string],
-  SwapRemovedEventObject
->;
-
-export type SwapRemovedEventFilter = TypedEventFilter<SwapRemovedEvent>;
-
 export interface SwapAdminFacet extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -303,11 +283,6 @@ export interface SwapAdminFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    removeSwap(
-      _key: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setSwapAdminFee(
       key: PromiseOrValue<BytesLike>,
       newAdminFee: PromiseOrValue<BigNumberish>,
@@ -351,11 +326,6 @@ export interface SwapAdminFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  removeSwap(
-    _key: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setSwapAdminFee(
     key: PromiseOrValue<BytesLike>,
     newAdminFee: PromiseOrValue<BigNumberish>,
@@ -396,11 +366,6 @@ export interface SwapAdminFacet extends BaseContract {
       key: PromiseOrValue<BytesLike>,
       futureA: PromiseOrValue<BigNumberish>,
       futureTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    removeSwap(
-      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -491,15 +456,6 @@ export interface SwapAdminFacet extends BaseContract {
       swap?: null,
       caller?: null
     ): SwapInitializedEventFilter;
-
-    "SwapRemoved(bytes32,address)"(
-      key?: PromiseOrValue<BytesLike> | null,
-      caller?: null
-    ): SwapRemovedEventFilter;
-    SwapRemoved(
-      key?: PromiseOrValue<BytesLike> | null,
-      caller?: null
-    ): SwapRemovedEventFilter;
   };
 
   estimateGas: {
@@ -520,11 +476,6 @@ export interface SwapAdminFacet extends BaseContract {
       key: PromiseOrValue<BytesLike>,
       futureA: PromiseOrValue<BigNumberish>,
       futureTime: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    removeSwap(
-      _key: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -569,11 +520,6 @@ export interface SwapAdminFacet extends BaseContract {
       key: PromiseOrValue<BytesLike>,
       futureA: PromiseOrValue<BigNumberish>,
       futureTime: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    removeSwap(
-      _key: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

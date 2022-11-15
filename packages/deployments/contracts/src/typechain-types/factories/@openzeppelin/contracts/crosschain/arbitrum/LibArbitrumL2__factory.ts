@@ -26,12 +26,15 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x6091610038600b82828239805160001a607314602b57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe730000000000000000000000000000000000000000301460806040526004361060335760003560e01c8063bf0a12cf146038575b600080fd5b603f606481565b6040516001600160a01b03909116815260200160405180910390f3fea264697066735822122073b651ed4a77a1d9a40195c33d46b80766f85cc632781e2c28e0f1a101ff275564736f6c634300080f0033";
+  "0x6091610038600b82828239805160001a607314602b57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe730000000000000000000000000000000000000000301460806040526004361060335760003560e01c8063bf0a12cf146038575b600080fd5b603f606481565b6040516001600160a01b03909116815260200160405180910390f3fea2646970667358221220d2e272bf1f5aea9a9abf5612af6371a211938b34b1ca41232fa259eb72506a4564736f6c63430008110033";
 
-type LibArbitrumL2ConstructorParams = [signer?: Signer] | ConstructorParameters<typeof ContractFactory>;
+type LibArbitrumL2ConstructorParams =
+  | [signer?: Signer]
+  | ConstructorParameters<typeof ContractFactory>;
 
-const isSuperArgs = (xs: LibArbitrumL2ConstructorParams): xs is ConstructorParameters<typeof ContractFactory> =>
-  xs.length > 1;
+const isSuperArgs = (
+  xs: LibArbitrumL2ConstructorParams
+): xs is ConstructorParameters<typeof ContractFactory> => xs.length > 1;
 
 export class LibArbitrumL2__factory extends ContractFactory {
   constructor(...args: LibArbitrumL2ConstructorParams) {
@@ -42,10 +45,14 @@ export class LibArbitrumL2__factory extends ContractFactory {
     }
   }
 
-  override deploy(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<LibArbitrumL2> {
+  override deploy(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<LibArbitrumL2> {
     return super.deploy(overrides || {}) as Promise<LibArbitrumL2>;
   }
-  override getDeployTransaction(overrides?: Overrides & { from?: PromiseOrValue<string> }): TransactionRequest {
+  override getDeployTransaction(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): TransactionRequest {
     return super.getDeployTransaction(overrides || {});
   }
   override attach(address: string): LibArbitrumL2 {
@@ -60,7 +67,10 @@ export class LibArbitrumL2__factory extends ContractFactory {
   static createInterface(): LibArbitrumL2Interface {
     return new utils.Interface(_abi) as LibArbitrumL2Interface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): LibArbitrumL2 {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): LibArbitrumL2 {
     return new Contract(address, _abi, signerOrProvider) as LibArbitrumL2;
   }
 }

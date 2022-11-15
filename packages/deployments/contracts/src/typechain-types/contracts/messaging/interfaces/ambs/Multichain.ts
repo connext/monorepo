@@ -8,7 +8,7 @@ import type {
   BytesLike,
   CallOverrides,
   ContractTransaction,
-  Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -26,12 +26,13 @@ import type {
 export interface MultichainInterface extends utils.Interface {
   functions: {
     "anyCall(address,bytes,address,uint256,uint256)": FunctionFragment;
+    "calcSrcFees(string,uint256,uint256)": FunctionFragment;
     "context()": FunctionFragment;
     "executor()": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "anyCall" | "context" | "executor"
+    nameOrSignatureOrTopic: "anyCall" | "calcSrcFees" | "context" | "executor"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -44,10 +45,22 @@ export interface MultichainInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "calcSrcFees",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
   encodeFunctionData(functionFragment: "context", values?: undefined): string;
   encodeFunctionData(functionFragment: "executor", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "anyCall", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "calcSrcFees",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "context", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "executor", data: BytesLike): Result;
 
@@ -87,8 +100,15 @@ export interface Multichain extends BaseContract {
       _fallback: PromiseOrValue<string>,
       _toChainID: PromiseOrValue<BigNumberish>,
       _flags: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    calcSrcFees(
+      _appID: PromiseOrValue<string>,
+      _toChainID: PromiseOrValue<BigNumberish>,
+      _dataLength: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     context(
       overrides?: CallOverrides
@@ -111,8 +131,15 @@ export interface Multichain extends BaseContract {
     _fallback: PromiseOrValue<string>,
     _toChainID: PromiseOrValue<BigNumberish>,
     _flags: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  calcSrcFees(
+    _appID: PromiseOrValue<string>,
+    _toChainID: PromiseOrValue<BigNumberish>,
+    _dataLength: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   context(
     overrides?: CallOverrides
@@ -136,6 +163,13 @@ export interface Multichain extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    calcSrcFees(
+      _appID: PromiseOrValue<string>,
+      _toChainID: PromiseOrValue<BigNumberish>,
+      _dataLength: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     context(
       overrides?: CallOverrides
     ): Promise<
@@ -158,7 +192,14 @@ export interface Multichain extends BaseContract {
       _fallback: PromiseOrValue<string>,
       _toChainID: PromiseOrValue<BigNumberish>,
       _flags: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    calcSrcFees(
+      _appID: PromiseOrValue<string>,
+      _toChainID: PromiseOrValue<BigNumberish>,
+      _dataLength: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     context(overrides?: CallOverrides): Promise<BigNumber>;
@@ -173,7 +214,14 @@ export interface Multichain extends BaseContract {
       _fallback: PromiseOrValue<string>,
       _toChainID: PromiseOrValue<BigNumberish>,
       _flags: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    calcSrcFees(
+      _appID: PromiseOrValue<string>,
+      _toChainID: PromiseOrValue<BigNumberish>,
+      _dataLength: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     context(overrides?: CallOverrides): Promise<PopulatedTransaction>;
