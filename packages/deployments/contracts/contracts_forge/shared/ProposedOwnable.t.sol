@@ -132,7 +132,7 @@ contract ProposedOwnableTest is ProposedOwnable, ForgeHelper {
     utils_proposeNewOwnerAndAssert(address(1));
 
     vm.prank(_default);
-    vm.expectRevert(ProposedOwnable__renounceOwnership_delayNotElapsed.selector);
+    vm.expectRevert(ProposedOwnable__ownershipDelayElapsed_delayNotElapsed.selector);
     this.renounceOwnership();
   }
 
@@ -166,7 +166,7 @@ contract ProposedOwnableTest is ProposedOwnable, ForgeHelper {
     utils_proposeNewOwnerAndAssert(proposed);
 
     vm.prank(proposed);
-    vm.expectRevert(ProposedOwnable__acceptProposedOwner_delayNotElapsed.selector);
+    vm.expectRevert(ProposedOwnable__ownershipDelayElapsed_delayNotElapsed.selector);
     this.acceptProposedOwner();
   }
 
