@@ -4,19 +4,7 @@ pragma solidity 0.8.17;
 import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 
 import {IRootManager} from "./interfaces/IRootManager.sol";
-import {IHubConnector} from "./interfaces/IHubConnector.sol";
-import {Message} from "./libraries/Message.sol";
-import {QueueLib} from "./libraries/Queue.sol";
-import {DomainIndexer} from "./libraries/DomainIndexer.sol";
 
-import {MerkleTreeManager} from "./MerkleTreeManager.sol";
-import {WatcherClient} from "./WatcherClient.sol";
-
-/**
- * @notice This contract exists at cluster hubs, and aggregates all transfer roots from messaging
- * spokes into a single merkle tree. Regularly broadcasts the root of the aggregator tree back out
- * to all the messaging spokes.
- */
 contract RootManagerPropagateWrapper is ProposedOwnable {
   // ============ Events ============
 
