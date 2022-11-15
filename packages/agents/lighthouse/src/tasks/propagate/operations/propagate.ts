@@ -61,7 +61,7 @@ export const propagate = async () => {
   const { taskId } = await sendWithRelayerWithBackup(
     hubChainId,
     config.hubDomain,
-    target.address as string,
+    target.address,
     encodedData,
     relayers,
     chainreader,

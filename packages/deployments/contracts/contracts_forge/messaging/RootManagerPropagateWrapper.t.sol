@@ -57,6 +57,27 @@ contract RootManagerPropagateWrapperTest is ForgeHelper {
     rootManagerWrapper.setRootManager(address(42));
   }
 
+  // ============ RootManagerPropagateWrapper.withdraw ============
+  function test_RootManagerPropagateWrapper__withdraw_shouldFailIfNotOwner(address caller) public {
+    address owner = rootManagerWrapper.owner();
+    if (caller == owner) {
+      return;
+    }
+
+    vm.expectRevert(ProposedOwnable__onlyOwner_notOwner.selector);
+    vm.prank(caller);
+    rootManagerWrapper.withdraw();
+  }
+
+  function test_RootManagerPropagateWrapper__withdraw_shouldWork() public {
+    vm.expectEmit(true, true, true, true);
+    emit FundsDeducted(0.1 ether, 0);
+
+    address owner = rootManagerWrapper.owner();
+    vm.prank(owner);
+    rootManagerWrapper.withdraw();
+  }
+
   // ============ RootManagerPropagateWrapper.fallback ============
   function test_RootManagerPropagateWrapper__propagate_shouldWork() public {
     address[] memory _connectors = new address[](3);
@@ -94,4 +115,6 @@ contract RootManagerPropagateWrapperTest is ForgeHelper {
 
     rootManagerWrapper.propagate(_connectors, _fees, _encodedData);
   }
+
+  receive() external payable {}
 }

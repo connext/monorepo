@@ -41,6 +41,12 @@ contract RootManagerPropagateWrapper is ProposedOwnable {
     emit RootManagerChanged(_rootManager, oldRootManager);
   }
 
+  function withdraw() external onlyOwner {
+    uint256 balance = address(this).balance;
+    payable(msg.sender).transfer(balance);
+    emit FundsDeducted(balance, address(this).balance);
+  }
+
   // ============ External Functions ============
 
   function propagate(
