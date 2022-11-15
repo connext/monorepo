@@ -552,7 +552,7 @@ jobs:
     outputs:
       json: ${{ steps.meta.outputs.json }}
 
-   build-and-push-lighthouse-propagate-image:
+  build-and-push-lighthouse-propagate-image:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
