@@ -1,10 +1,10 @@
-import { L1ToL2MessageGasEstimator } from "@arbitrum/sdk/dist/lib/message/L1ToL2MessageGasEstimator";
 import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
-import { constants, providers, utils } from "ethers";
+import { constants, utils } from "ethers";
 
 import { getContext } from "../propagate";
 import { NoSpokeConnector, NoHubConnector, NoProviderForDomain } from "../errors";
 import { ExtraPropagateParams } from "../operations/propagate";
+import { getJsonRpcProvider, getL1ToL2MessageGasEstimator } from "../../../mockable";
 
 // example at https://github.com/OffchainLabs/arbitrum-tutorials/blob/master/packages/greeter/scripts/exec.js
 export const getPropagateParams = async (
@@ -30,14 +30,14 @@ export const getPropagateParams = async (
     throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const l2Provider = new providers.JsonRpcProvider(l2RpcUrl);
-  const l1ToL2MessageGasEstimate = new L1ToL2MessageGasEstimator(l2Provider);
+  const l2Provider = getJsonRpcProvider(l2RpcUrl);
+  const l1ToL2MessageGasEstimate = getL1ToL2MessageGasEstimator(l2Provider);
 
   // example encoded payload: 0x4ff746f6000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000207465737400000000000000000000000000000000000000000000000000000000
   // length = 200 not including 0x = 100 bytes
   // TODO: verify this is the correct payload to use
   const messageBytesLength = 100 + 4; // 4 bytes func identifier
-  const l1Provider = new providers.JsonRpcProvider(l1RpcUrl);
+  const l1Provider = getJsonRpcProvider(l1RpcUrl);
   const _submissionPriceWei = await l1ToL2MessageGasEstimate.estimateSubmissionFee(
     l1Provider,
     await l1Provider.getGasPrice(),
