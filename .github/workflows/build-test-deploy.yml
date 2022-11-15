@@ -552,6 +552,48 @@ jobs:
     outputs:
       json: ${{ steps.meta.outputs.json }}
 
+   build-and-push-lighthouse-propagate-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: connext/lighthouse-propagate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=short
+            type=semver,pattern={{raw}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: docker/lighthouse/propagate/Dockerfile
+
+    outputs:
+      json: ${{ steps.meta.outputs.json }}
+
   build-and-push-relayer-image:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
@@ -609,6 +651,7 @@ jobs:
         build-and-push-cartographer-roots-image,
         build-and-push-lighthouse-prover-image,
         build-and-push-lighthouse-process-from-root-image,
+        build-and-push-lighthouse-propagate-image,
         build-and-push-relayer-image,
       ]
     env:
@@ -623,6 +666,7 @@ jobs:
       CARTOGRAPHER_ROOTS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-roots-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROVER_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-prover-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROCESS_FROM_ROOT_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-process-from-root-image.outputs.json).tags[0]}}
+      LIGHTHOUSE_PROPAGATE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-propagate-image.outputs.json).tags[0]}}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY_ROUTER: "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"
       WEB3_SIGNER_PRIVATE_KEY_SEQUENCER: "0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f"
@@ -652,6 +696,7 @@ jobs:
       cartographer-roots-tags: ${{ needs.build-and-push-cartographer-roots-image.outputs.json }}
       lighthouse-prover-tags: ${{ needs.build-and-push-lighthouse-prover-image.outputs.json }}
       lighthouse-process-from-root-tags: ${{ needs.build-and-push-lighthouse-process-from-root-image.outputs.json }}
+      lighthouse-propagate-tags: ${{ needs.build-and-push-lighthouse-propagate-image.outputs.json }}
       relayer-tags: ${{ needs.build-and-push-relayer-image.outputs.json }}
 
   e2e-tests:
@@ -671,6 +716,7 @@ jobs:
         build-and-push-cartographer-roots-image,
         build-and-push-lighthouse-prover-image,
         build-and-push-lighthouse-process-from-root-image,
+        build-and-push-lighthouse-propagate-image,
         build-and-push-relayer-image,
       ]
     env:
@@ -685,6 +731,7 @@ jobs:
       CARTOGRAPHER_ROOTS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-roots-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROVER_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-prover-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROCESS_FROM_ROOT_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-process-from-root-image.outputs.json).tags[0]}}
+      LIGHTHOUSE_PROCESS_FROM_ROOT_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-propagate-image.outputs.json).tags[0]}}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY_ROUTER: "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"
       WEB3_SIGNER_PRIVATE_KEY_SEQUENCER: "0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f"
@@ -723,6 +770,7 @@ jobs:
       cartographer-roots-tags: ${{ needs.build-and-push-cartographer-roots-image.outputs.json }}
       lighthouse-prover-tags: ${{ needs.build-and-push-lighthouse-prover-image.outputs.json }}
       lighthouse-process-from-root-tags: ${{ needs.build-and-push-lighthouse-process-from-root-image.outputs.json }}
+      lighthouse-propagate-tags: ${{ needs.build-and-push-lighthouse-propagate-image.outputs.json }}
       relayer-tags: ${{ needs.build-and-push-relayer-image.outputs.json }}
 
   terraform-infra:
@@ -839,6 +887,7 @@ jobs:
       TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.smoke-tests.outputs.sequencer-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse_prover: ${{ fromJSON(needs.smoke-tests.outputs.lighthouse-prover-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse_process_from_root: ${{ fromJSON(needs.smoke-tests.outputs.lighthouse-process-from-root-tags).tags[0] }}
+      TF_VAR_full_image_name_lighthouse_propagate: ${{ fromJSON(needs.smoke-tests.outputs.lighthouse-propagate-tags).tags[0] }}
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.smoke-tests.outputs.relayer-tags).tags[0] }}
 
     runs-on: ubuntu-latest
@@ -899,6 +948,7 @@ jobs:
       router-executor-tags: ${{ needs.smoke-tests.outputs.router-executor-tags }}
       lighthouse-prover-tags: ${{ needs.smoke-tests.outputs.lighthouse-prover-tags }}
       lighthouse-process-from-root-tags: ${{ needs.smoke-tests.outputs.lighthouse-process-from-root-tags }}
+      lighthouse-propagate-tags: ${{ needs.smoke-tests.outputs.lighthouse-propagate-tags }}
       relayer-tags: ${{ needs.smoke-tests.outputs.relayer-tags }}
 
   terraform-services-core-prod-testnet:
@@ -913,6 +963,7 @@ jobs:
       TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse_prover: ${{ fromJSON(needs.e2e-tests.outputs.lighthouse-prover-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse_process_from_root: ${{ fromJSON(needs.e2e-tests.outputs.lighthouse-process-from-root-tags).tags[0] }}
+      TF_VAR_full_image_name_lighthouse_propagate: ${{ fromJSON(needs.e2e-tests.outputs.lighthouse-propagate-tags).tags[0] }}
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.e2e-tests.outputs.relayer-tags).tags[0] }}
 
     runs-on: ubuntu-latest
@@ -971,6 +1022,7 @@ jobs:
       router-executor-tags: ${{ needs.e2e-tests.outputs.router-executor-tags }}
       lighthouse-prover-tags: ${{ needs.e2e-tests.outputs.lighthouse-prover-tags }}
       lighthouse-process-from-root-tags: ${{ needs.e2e-tests.outputs.lighthouse-process-from-root-tags }}
+      lighthouse-propagate-tags: ${{ needs.e2e-tests.outputs.lighthouse-propagate-tags }}
       relayer-tags: ${{ needs.e2e-tests.outputs.relayer-tags }}
 
   terraform-services-backend-prod-testnet:
@@ -1040,6 +1092,7 @@ jobs:
       router-executor-tags: ${{ needs.e2e-tests.outputs.router-executor-tags }}
       lighthouse-prover-tags: ${{ needs.e2e-tests.outputs.lighthouse-prover-tags }}
       lighthouse-process-from-root-tags: ${{ needs.e2e-tests.outputs.lighthouse-process-from-root-tags }}
+      lighthouse-propagate-tags: ${{ needs.e2e-tests.outputs.lighthouse-propagate-tags }}
       cartographer-routers-tags: ${{ needs.e2e-tests.outputs.cartographer-routers-tags }}
       cartographer-transfers-tags: ${{ needs.e2e-tests.outputs.cartographer-transfers-tags }}
       cartographer-messages-tags: ${{ needs.e2e-tests.outputs.cartographer-messages-tags }}
@@ -1117,6 +1170,7 @@ jobs:
       TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sequencer-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse_prover: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.lighthouse-prover-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse_process_from_root: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.lighthouse-process-from-root-tags).tags[0] }}
+      TF_VAR_full_image_name_lighthouse_propagate: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.lighthouse-propagate-tags).tags[0] }}
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.relayer-tags).tags[0] }}
 
     runs-on: ubuntu-latest
