@@ -273,8 +273,8 @@ contract RoutersFacet is BaseConnextFacet {
     if (!config.approved) revert RoutersFacet__unapproveRouter_notAdded();
 
     // Update approvals in config mapping
-    s.routerConfigs[_router].approved = false;
-    s.routerConfigs[_router].portalApproved = false;
+    delete s.routerConfigs[_router].approved;
+    delete s.routerConfigs[_router].portalApproved;
 
     // Emit event
     emit RouterRemoved(_router, msg.sender);
