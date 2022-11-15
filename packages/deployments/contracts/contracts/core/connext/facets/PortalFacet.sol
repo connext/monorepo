@@ -14,7 +14,6 @@ contract PortalFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error PortalFacet__setAavePortalFee_invalidFee();
   error PortalFacet__repayAavePortal_insufficientFunds();
-  error PortalFacet__repayAavePortal_swapFailed();
   error PortalFacet__repayAavePortalFor_zeroAmount();
 
   // ============ Events ============
@@ -102,14 +101,12 @@ contract PortalFacet is BaseConnextFacet {
     // is the adopted asset
 
     // Swap for exact `totalRepayAmount` of adopted asset to repay aave
-    (bool success, uint256 amountDebited, address assetLoaned) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(
+    (uint256 amountDebited, address assetLoaned) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(
       key,
       local,
       _backingAmount + _feeAmount,
       _maxIn
     );
-
-    if (!success) revert PortalFacet__repayAavePortal_swapFailed();
 
     // decrement router balances
     s.routerBalances[msg.sender][local] -= amountDebited;
