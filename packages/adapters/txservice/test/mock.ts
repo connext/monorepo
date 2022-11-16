@@ -13,6 +13,7 @@ export const mockChainReader = (): ChainReader => {
   chainreader.getTokenPrice.resolves(BigNumber.from(1));
   chainreader.getGasEstimate.resolves(BigNumber.from(24001));
   chainreader.getGasEstimateWithRevertCode.resolves(BigNumber.from(1));
+  chainreader.getGasPrice.resolves(BigNumber.from(42));
 
   const mockReceipt = mock.ethers.receipt();
   chainreader.getTransactionReceipt.resolves(mockReceipt);

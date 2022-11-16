@@ -1,8 +1,8 @@
 import { SinonStub } from "sinon";
 import { expect } from "@connext/nxtp-utils";
+import { mockDestinationSubgraphResponse, mockOriginSubgraphResponse } from "@connext/nxtp-adapters-subgraph/test/mock";
 
-import { mockDestinationSubgraphResponse, mockOriginSubgraphResponse } from "../../mock";
-import { mockContext, mochaHooks } from "../../globalTestHook";
+import { mockContext } from "../../globalTestHook";
 import { updateTransfers } from "../../../src/lib/operations/transfers";
 
 describe("Transfers operations", () => {
