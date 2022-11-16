@@ -26,6 +26,33 @@ library Encoding {
   }
 
   /**
+   * @notice Encodes the uint256 to hex. `first` contains the encoded top 16 bytes.
+   * `second` contains the encoded lower 16 bytes.
+   * @param _bytes The 32 bytes as uint256
+   * @return _firstHalf The top 16 bytes
+   * @return _secondHalf The bottom 16 bytes
+   */
+  function encodeHex(uint256 _bytes) internal pure returns (uint256 _firstHalf, uint256 _secondHalf) {
+    for (uint256 i = 31; i > 15; i -= 1) {
+      uint8 _b = uint8(_bytes >> (i * 8));
+      _firstHalf |= _byteHex(_b);
+      if (i != 16) {
+        _firstHalf <<= 16;
+      }
+    }
+    // abusing underflow here =_=
+    unchecked {
+      for (uint256 i = 15; i < 255; i -= 1) {
+        uint8 _b = uint8(_bytes >> (i * 8));
+        _secondHalf |= _byteHex(_b);
+        if (i != 0) {
+          _secondHalf <<= 16;
+        }
+      }
+    }
+  }
+
+  /**
    * @notice Returns the encoded hex character that represents the lower 4 bits of the argument.
    * @param _byte The byte
    * @return _char The encoded hex character
