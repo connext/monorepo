@@ -768,3 +768,18 @@ export const getConnectorMetaQuery = (domains: string[]) => {
     }
   `;
 };
+
+const ROOT_MANAGER_META_ID = "ROOT_MANAGER_META_ID";
+
+export const getRootManagerMetaQuery = (domain: string) => {
+  const { config } = getContext();
+  const prefix = config.sources[domain].prefix;
+
+  return gql`
+    query GetRootManagerMeta {
+        ${prefix}_rootManagerMeta (id: "${ROOT_MANAGER_META_ID}") {
+        ${ROOT_MANAGER_META_ID}
+      }
+    }
+  `;
+};
