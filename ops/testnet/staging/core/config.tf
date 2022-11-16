@@ -98,7 +98,7 @@ locals {
         ]
       }
       "1734439522" = {
-        providers = ["https://goerli-rollup.arbitrum.io/rpc"]
+        providers = ["https://goerli-rollup.arbitrum.io/rpc", "https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}"]
         assets = [
           {
             name    = "TEST"
@@ -251,7 +251,7 @@ locals {
         ]
       }
       "1734439522" = {
-        providers = ["https://goerli-rollup.arbitrum.io/rpc"]
+        providers = ["https://goerli-rollup.arbitrum.io/rpc", "https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_1}"]
         assets = [
           {
             name    = "TEST"
@@ -285,7 +285,7 @@ locals {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
       }
       "1734439522" = {
-        providers = ["https://goerli-rollup.arbitrum.io/rpc"]
+        providers = ["https://goerli-rollup.arbitrum.io/rpc", "https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
@@ -326,7 +326,7 @@ locals {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
       }
       "1734439522" = {
-        providers = ["https://goerli-rollup.arbitrum.io/rpc"]
+        providers = ["https://goerli-rollup.arbitrum.io/rpc", "https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}"]
       }
     }
     environment   = var.stage
