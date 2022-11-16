@@ -5,6 +5,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
+import {ExcessivelySafeCall} from "../../shared/libraries/ExcessivelySafeCall.sol";
 
 import {MerkleLib} from "../libraries/MerkleLib.sol";
 import {Message} from "../libraries/Message.sol";
@@ -562,9 +563,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     // get the message recipient
     address _recipient = _m.recipientAddress();
     // set up for assembly call
-    uint256 _toCopy;
-    uint256 _maxCopy = 256;
     uint256 _gas = PROCESS_GAS;
+    uint16 _maxCopy = 256;
     // allocate memory for returndata
     bytes memory _returnData = new bytes(_maxCopy);
     bytes memory _calldata = abi.encodeWithSignature(
@@ -574,30 +574,15 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
       _m.sender(),
       _m.body().clone()
     );
-    // dispatch message to recipient
-    // by assembly calling "handle" function
-    // we call via assembly to avoid memcopying a very large returndata
-    // returned by a malicious contract
-    assembly {
-      _success := call(
-        _gas, // gas
-        _recipient, // recipient
-        0, // ether value
-        add(_calldata, 0x20), // inloc
-        mload(_calldata), // inlen
-        0, // outloc
-        0 // outlen
-      )
-      // limit our copy to 256 bytes
-      _toCopy := returndatasize()
-      if gt(_toCopy, _maxCopy) {
-        _toCopy := _maxCopy
-      }
-      // Store the length of the copied bytes
-      mstore(_returnData, _toCopy)
-      // copy the bytes from returndata[0:_toCopy]
-      returndatacopy(add(_returnData, 0x20), 0, _toCopy)
-    }
+    
+    (_success, _returnData) = ExcessivelySafeCall.excessivelySafeCall(
+      _recipient,
+      _gas,
+      0,
+      _maxCopy,
+      _calldata
+    );
+
     // emit process results
     emit Process(_messageHash, _success, _returnData);
   }
