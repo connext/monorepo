@@ -46,5 +46,21 @@
         "startBlock": 29187657
       }
     ]
+  },
+  {
+    "subgraphName": "connext/runtime-staging-arb-goerli",
+    "network": "arbitrum-goerli",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x1d7AC9ca56DB94D97E47728A67eFd5342756a666",
+        "startBlock": 1356515
+      },
+      {
+        "name": "Connector",
+        "address": "0x4787EEf56A0a391C9d2FeABb6CF90082543AE187",
+        "startBlock": 1356501
+      }
+    ]
   }
 ]
