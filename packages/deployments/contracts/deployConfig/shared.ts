@@ -299,9 +299,11 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         delayBlocks: DEFAULT_DELAY_BLOCKS,
         custom: {
           hub: {
-            defaultGasPrice: DEFAULT_RESERVE_GAS,
             // https://goerli.etherscan.io/address/0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049
             outbox: "0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049",
+            maxSubmissionCostCap: DEFAULT_PROCESS_GAS,
+            maxGasCap: DEFAULT_PROCESS_GAS,
+            gasPriceCap: DEFAULT_RESERVE_GAS,
           },
         },
       },
