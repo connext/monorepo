@@ -19,7 +19,7 @@
         "startBlock": 7797621
       },
       {
-        "name": "OptimismHubConnector",
+        "name": "ArbitrumHubConnector",
         "address": "0x4221867346893bb84d9d298922eb38eA99933c1a",
         "startBlock": 7965525
       }
