@@ -279,6 +279,14 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     this.swap(utils_calculateCanonicalHash(), 0, 1, 1 ether, 0, blockTimestamp + 10);
   }
 
+  function test_StableSwapFacet__swap_failIfDisabled() public {
+    s.swapStorages[utils_calculateCanonicalHash()].disabled = true;
+
+    vm.prank(_user1);
+    vm.expectRevert("disabled pool");
+    this.swap(utils_calculateCanonicalHash(), 0, 1, 1 ether, 0, blockTimestamp + 10);
+  }
+
   function test_StableSwapFacet__swap_failIfMoreThanBalance() public {
     uint256 fromTokenBalance = this.getSwapToken(utils_calculateCanonicalHash(), 0).balanceOf(_user1);
     vm.startPrank(_user1);
@@ -324,6 +332,14 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     vm.prank(_user1);
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
+    this.swapExact(utils_calculateCanonicalHash(), 1 ether, _local, _adopted, 0, blockTimestamp + 10);
+  }
+
+  function test_StableSwapFacet__swapExact_failIfDisabled() public {
+    s.swapStorages[utils_calculateCanonicalHash()].disabled = true;
+
+    vm.prank(_user1);
+    vm.expectRevert("disabled pool");
     this.swapExact(utils_calculateCanonicalHash(), 1 ether, _local, _adopted, 0, blockTimestamp + 10);
   }
 
@@ -376,6 +392,20 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     vm.prank(_user1);
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
+    this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 1);
+  }
+
+  function test_StableSwapFacet__addSwapLiquidity_failIfDisabled() public {
+    s.swapStorages[utils_calculateCanonicalHash()].disabled = true;
+
+    uint256[] memory amounts = new uint256[](2);
+    amounts[0] = 1 ether;
+    amounts[1] = 3 ether;
+
+    vm.prank(_user1);
+
+    vm.expectRevert("disabled pool");
+
     this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 1);
   }
 
