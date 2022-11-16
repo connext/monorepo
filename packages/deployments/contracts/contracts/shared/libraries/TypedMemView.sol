@@ -631,7 +631,7 @@ library TypedMemView {
    * @return          written - the unsafe memory reference
    */
   function unsafeCopyTo(bytes29 memView, uint256 _newLoc) private view returns (bytes29 written) {
-    if (!notNull(memView)) revert TypedMemView__unsafeCopyTo_nullPointer();
+    if (isNull(memView)) revert TypedMemView__unsafeCopyTo_nullPointer();
     if (!isValid(memView)) revert TypedMemView__unsafeCopyTo_invalidPointer();
 
     uint256 _len = len(memView);
