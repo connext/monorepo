@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-relayer",
-  "version": "0.2.1-beta.1",
+  "version": "0.2.1-beta.2",
   "description": "adapter for handling communication with relayer",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,7 +27,6 @@
     "@connext/nxtp-relayer": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "axios": "1.1.3",
     "ethers": "5.7.2",
     "interval-promise": "1.4.0"
   },

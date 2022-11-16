@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 // Taken from: https://github.com/nomad-xyz/ExcessivelySafeCall
 // NOTE: There is a difference between npm latest and github main versions

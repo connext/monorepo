@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-web3signer",
-  "version": "0.2.1-beta.1",
+  "version": "0.2.1-beta.2",
   "description": "adapter for subgraph interaction of nxtp protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -38,7 +38,6 @@
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
     "@typescript-eslint/eslint-plugin": "5.42.0",
-    "axios": "1.1.3",
     "ethers": "5.7.2"
   },
   "devDependencies": {

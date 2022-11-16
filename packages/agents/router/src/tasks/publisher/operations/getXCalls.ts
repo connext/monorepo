@@ -20,7 +20,6 @@ export const getXCalls = async () => {
   const allowedDomains = Object.keys(config.chains);
   const latestBlockNumbers = await subgraph.getLatestBlockNumber(allowedDomains);
   for (const domain of allowedDomains) {
-    console.log("domain: ", domain);
     try {
       let latestBlockNumber = 0;
       if (latestBlockNumbers.has(domain)) {

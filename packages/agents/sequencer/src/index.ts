@@ -1,10 +1,9 @@
 import tracer from "dd-trace";
 
-import { makePublisher, makeSubscriber } from "./sequencer";
+import { makePublisher, makeSubscriber, makeSequencer } from "./make";
 
 export { SequencerConfig, ChainConfig } from "./lib/entities";
-export { makePublisher, makeSubscriber };
+export { makePublisher, makeSubscriber, makeSequencer };
 
 tracer.init({ profiling: true, runtimeMetrics: true });
-makeSubscriber();
-makePublisher();
+makeSequencer();

@@ -124,7 +124,7 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "mainnet",
     },
-    url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://xdai.poanetwork.dev/",
+    url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://rpc.gnosischain.com/",
     verify: {
       etherscan: {
         apiKey: process.env.ETHERSCAN_API_KEY!,
