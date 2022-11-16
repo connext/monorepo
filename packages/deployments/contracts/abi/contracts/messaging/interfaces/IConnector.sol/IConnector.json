@@ -1,6 +1,6 @@
 [
   "event MessageProcessed(bytes,address)",
-  "event MessageSent(bytes,address)",
+  "event MessageSent(bytes,bytes,address)",
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "function acceptProposedOwner()",

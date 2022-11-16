@@ -45,8 +45,6 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     "queryRole(address)": FunctionFragment;
     "removeAssetWhitelist()": FunctionFragment;
     "removeRouterWhitelist()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "renounced()": FunctionFragment;
     "revokeRole(address)": FunctionFragment;
     "routerWhitelistRemoved()": FunctionFragment;
     "routerWhitelistTimestamp()": FunctionFragment;
@@ -72,8 +70,6 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
       | "queryRole"
       | "removeAssetWhitelist"
       | "removeRouterWhitelist"
-      | "renounceOwnership"
-      | "renounced"
       | "revokeRole"
       | "routerWhitelistRemoved"
       | "routerWhitelistTimestamp"
@@ -136,11 +132,6 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     functionFragment: "removeRouterWhitelist",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "revokeRole",
     values: [PromiseOrValue<string>]
@@ -208,11 +199,6 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     functionFragment: "removeRouterWhitelist",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "routerWhitelistRemoved",
@@ -465,12 +451,6 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    renounced(overrides?: CallOverrides): Promise<[boolean]>;
-
     revokeRole(
       _revoke: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -546,12 +526,6 @@ export interface ProposedOwnableFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  renounced(overrides?: CallOverrides): Promise<boolean>;
-
   revokeRole(
     _revoke: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -614,10 +588,6 @@ export interface ProposedOwnableFacet extends BaseContract {
     removeAssetWhitelist(overrides?: CallOverrides): Promise<void>;
 
     removeRouterWhitelist(overrides?: CallOverrides): Promise<void>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    renounced(overrides?: CallOverrides): Promise<boolean>;
 
     revokeRole(
       _revoke: PromiseOrValue<string>,
@@ -759,12 +729,6 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    renounced(overrides?: CallOverrides): Promise<BigNumber>;
-
     revokeRole(
       _revoke: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -844,12 +808,6 @@ export interface ProposedOwnableFacet extends BaseContract {
     removeRouterWhitelist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     revokeRole(
       _revoke: PromiseOrValue<string>,

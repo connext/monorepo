@@ -3,6 +3,4 @@
 /* eslint-disable */
 export type { IArbSys } from "./IArbSys";
 export type { IBridge } from "./IBridge";
-export type { IInbox } from "./IInbox";
-export type { IMessageProvider } from "./IMessageProvider";
 export type { IOutbox } from "./IOutbox";
