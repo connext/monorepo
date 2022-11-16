@@ -124,7 +124,7 @@ contract SwapAdminFacet is BaseConnextFacet {
     if (s.swapStorages[_key].pooledTokens.length != 0) revert SwapAdminFacet__initializeSwap_alreadyInitialized();
 
     // Check _pooledTokens and precisions parameter
-    if (_pooledTokens.length <= 1 || _pooledTokens.length > 32)
+    if (_pooledTokens.length < 1 + 1 || _pooledTokens.length > 32)
       revert SwapAdminFacet__initializeSwap_invalidPooledTokens();
 
     uint256 numPooledTokens = _pooledTokens.length;
@@ -154,9 +154,9 @@ contract SwapAdminFacet is BaseConnextFacet {
     }
 
     // Check _a, _fee, _adminFee, _withdrawFee parameters
-    if (_a >= AmplificationUtils.MAX_A) revert SwapAdminFacet__initializeSwap_aExceedMax();
-    if (_fee >= SwapUtils.MAX_SWAP_FEE) revert SwapAdminFacet__initializeSwap_feeExceedMax();
-    if (_adminFee >= SwapUtils.MAX_ADMIN_FEE) revert SwapAdminFacet__initializeSwap_adminFeeExceedMax();
+    if (_a > AmplificationUtils.MAX_A - 1) revert SwapAdminFacet__initializeSwap_aExceedMax();
+    if (_fee > SwapUtils.MAX_SWAP_FEE - 1) revert SwapAdminFacet__initializeSwap_feeExceedMax();
+    if (_adminFee > SwapUtils.MAX_ADMIN_FEE - 1) revert SwapAdminFacet__initializeSwap_adminFeeExceedMax();
 
     // Initialize a LPToken contract
     LPToken lpToken = LPToken(Clones.clone(lpTokenTargetAddress));

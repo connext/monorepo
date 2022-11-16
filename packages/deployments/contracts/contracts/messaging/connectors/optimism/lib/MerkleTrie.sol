@@ -148,7 +148,7 @@ library MerkleTrie {
       if (currentKeyIndex == 0) {
         // First proof element is always the root node.
         require(keccak256(currentNode.encoded) == currentNodeID, "Invalid root hash");
-      } else if (currentNode.encoded.length >= 32) {
+      } else if (currentNode.encoded.length > 32 - 1) {
         // Nodes 32 bytes or larger are hashed inside branch nodes.
         require(keccak256(currentNode.encoded) == currentNodeID, "Invalid large internal hash");
       } else {

@@ -1144,7 +1144,8 @@ library SwapUtils {
    * @param newAdminFee new admin fee to be applied on future transactions
    */
   function setAdminFee(Swap storage self, uint256 newAdminFee) internal {
-    require(newAdminFee <= MAX_ADMIN_FEE, "too high");
+    // instead of <= MAX_ADMIN_FEE
+    require(newAdminFee < MAX_ADMIN_FEE + 1, "too high");
     self.adminFee = newAdminFee;
 
     emit NewAdminFee(self.key, newAdminFee);
@@ -1157,7 +1158,8 @@ library SwapUtils {
    * @param newSwapFee new swap fee to be applied on future transactions
    */
   function setSwapFee(Swap storage self, uint256 newSwapFee) internal {
-    require(newSwapFee <= MAX_SWAP_FEE, "too high");
+    // instead of <= MAX_SWAP_FEE
+    require(newSwapFee < MAX_SWAP_FEE + 1, "too high");
     self.swapFee = newSwapFee;
 
     emit NewSwapFee(self.key, newSwapFee);

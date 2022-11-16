@@ -75,7 +75,7 @@ library MerkleLib {
    **/
   function insert(Tree storage tree, bytes32 node) internal returns (uint256) {
     uint256 size = tree.count + 1; // Add 1 since we'll be including a new node.
-    if (size >= MAX_LEAVES) revert MerkleLib__insert_treeIsFull();
+    if (size > MAX_LEAVES - 1) revert MerkleLib__insert_treeIsFull();
 
     // Update tree.count to increase the current count by 1.
     tree.count = size;

@@ -78,7 +78,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
 
     // Check _pooledTokens and precisions parameter
     require(_pooledTokens.length > 1, "_pooledTokens.length <= 1");
-    require(_pooledTokens.length <= 32, "_pooledTokens.length > 32");
+    require(_pooledTokens.length < 32 + 1, "_pooledTokens.length > 32");
     require(_pooledTokens.length == decimals.length, "_pooledTokens decimals mismatch");
 
     uint256[] memory precisionMultipliers = new uint256[](decimals.length);
@@ -92,7 +92,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
         );
       }
       require(address(_pooledTokens[i]) != address(0), "The 0 address isn't an ERC-20");
-      require(decimals[i] <= SwapUtils.POOL_PRECISION_DECIMALS, "Token decimals exceeds max");
+      require(decimals[i] < SwapUtils.POOL_PRECISION_DECIMALS + 1, "Token decimals exceeds max");
       precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - decimals[i]);
       tokenIndexes[address(_pooledTokens[i])] = uint8(i);
     }

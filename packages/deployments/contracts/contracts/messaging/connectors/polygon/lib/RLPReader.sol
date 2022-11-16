@@ -186,7 +186,7 @@ library RLPReader {
   }
 
   function toUint(RLPItem memory item) internal pure returns (uint256) {
-    require(item.len > 0 && item.len <= 33);
+    require(item.len > 0 && item.len < 33 + 1);
 
     uint256 offset = _payloadOffset(item.memPtr);
     uint256 len = item.len - offset;
@@ -295,7 +295,7 @@ library RLPReader {
     }
 
     if (byte0 < STRING_SHORT_START) return 0;
-    else if (byte0 < STRING_LONG_START || (byte0 >= LIST_SHORT_START && byte0 < LIST_LONG_START)) return 1;
+    else if (byte0 < STRING_LONG_START || (byte0 > LIST_SHORT_START - 1 && byte0 < LIST_LONG_START)) return 1;
     else if (byte0 < LIST_SHORT_START)
       // being explicit
       return byte0 - (STRING_LONG_START - 1) + 1;
@@ -315,7 +315,7 @@ library RLPReader {
     if (len == 0) return;
 
     // copy as many word sizes as possible
-    for (; len >= WORD_SIZE; len -= WORD_SIZE) {
+    for (; len > WORD_SIZE - 1; len -= WORD_SIZE) {
       assembly {
         mstore(dest, mload(src))
       }

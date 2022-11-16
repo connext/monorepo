@@ -193,8 +193,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     WatcherClient(_watcherManager)
   {
     // Sanity check: constants are reasonable.
-    require(_processGas >= 850_000, "!process gas");
-    require(_reserveGas >= 15_000, "!reserve gas");
+    require(_processGas > 850_000 - 1, "!process gas");
+    require(_reserveGas > 15_000 - 1, "!reserve gas");
     PROCESS_GAS = _processGas;
     RESERVE_GAS = _reserveGas;
 
@@ -558,7 +558,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     //    does not revert (i.e. we still mark the message processed)
     // To do this, we require that we have enough gas to process
     // and still return. We then delegate only the minimum processing gas.
-    require(gasleft() >= PROCESS_GAS + RESERVE_GAS, "!gas");
+    require(gasleft() > PROCESS_GAS + RESERVE_GAS - 1, "!gas");
     // get the message recipient
     address _recipient = _m.recipientAddress();
     // set up for assembly call
