@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
@@ -30,7 +28,6 @@ contract BridgeFacet is BaseConnextFacet {
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
   using BridgeMessage for bytes29;
-  using SafeERC20 for IERC20;
 
   // ========== Custom Errors ===========
 
@@ -556,7 +553,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Get the normalized amount in (amount sent in by user in 18 decimals).
       _params.normalizedIn = _asset == address(0)
         ? 0 // we know from assertions above this is the case IFF amount == 0
-        : AssetLogic.normalizeDecimals(ERC20(_asset).decimals(), uint8(18), _amount);
+        : AssetLogic.normalizeDecimals(IERC20Metadata(_asset).decimals(), uint8(18), _amount);
 
       // Calculate the transfer ID.
       _params.nonce = s.nonce++;

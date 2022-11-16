@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 import {IAavePool} from "../interfaces/IAavePool.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {TokenId} from "../libraries/TokenId.sol";
 import {TransferInfo} from "../libraries/LibConnextStorage.sol";
 
 contract PortalFacet is BaseConnextFacet {
@@ -179,8 +179,8 @@ contract PortalFacet is BaseConnextFacet {
     s.portalFeeDebt[_transferId] -= _fee;
 
     // increase allowance
-    SafeERC20Upgradeable.safeApprove(IERC20Upgradeable(_asset), s.aavePool, 0);
-    SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(_asset), s.aavePool, _backing + _fee);
+    SafeERC20.safeApprove(IERC20(_asset), s.aavePool, 0);
+    SafeERC20.safeIncreaseAllowance(IERC20(_asset), s.aavePool, _backing + _fee);
 
     // back loan
     IAavePool(s.aavePool).backUnbacked(_asset, _backing, _fee);

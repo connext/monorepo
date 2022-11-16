@@ -3,7 +3,6 @@ pragma solidity 0.8.17;
 
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {IERC20Extended} from "../interfaces/IERC20Extended.sol";
 import {IPriceOracle} from "../interfaces/IPriceOracle.sol";
 
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
@@ -50,8 +49,6 @@ interface AggregatorV3Interface {
  * can no longer be updated
  */
 contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
-  using SafeERC20 for IERC20Extended;
-
   address public wrapped;
   address public v1PriceOracle;
 
