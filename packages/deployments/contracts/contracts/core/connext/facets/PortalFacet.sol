@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 import {IAavePool} from "../interfaces/IAavePool.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {TokenId, TransferInfo} from "../libraries/LibConnextStorage.sol";
+import {TransferInfo} from "../libraries/LibConnextStorage.sol";
 
 contract PortalFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
@@ -85,8 +86,9 @@ contract PortalFacet is BaseConnextFacet {
     bytes32 key = AssetLogic.calculateCanonicalHash(_params.canonicalId, _params.canonicalDomain);
     address local = _getLocalAsset(key, _params.canonicalId, _params.canonicalDomain);
 
+    uint256 routerBalance = s.routerBalances[msg.sender][local];
     // Sanity check: has that much to spend
-    if (s.routerBalances[msg.sender][local] < _maxIn) revert PortalFacet__repayAavePortal_insufficientFunds();
+    if (routerBalance < _maxIn) revert PortalFacet__repayAavePortal_insufficientFunds();
 
     // Here, generate the transfer id. This allows us to ensure the `_local` asset
     // is the correct one associated with the transfer. Otherwise, anyone could pay back
@@ -112,7 +114,7 @@ contract PortalFacet is BaseConnextFacet {
     if (!success) revert PortalFacet__repayAavePortal_swapFailed();
 
     // decrement router balances
-    s.routerBalances[msg.sender][local] -= amountDebited;
+    s.routerBalances[msg.sender][local] = routerBalance - amountDebited;
 
     // back loan
     _backLoan(assetLoaned, _backingAmount, _feeAmount, transferId);
@@ -177,8 +179,8 @@ contract PortalFacet is BaseConnextFacet {
     s.portalFeeDebt[_transferId] -= _fee;
 
     // increase allowance
-    SafeERC20Upgradeable.safeApprove(IERC20Upgradeable(_asset), s.aavePool, 0);
-    SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(_asset), s.aavePool, _backing + _fee);
+    SafeERC20.safeApprove(IERC20(_asset), s.aavePool, 0);
+    SafeERC20.safeIncreaseAllowance(IERC20(_asset), s.aavePool, _backing + _fee);
 
     // back loan
     IAavePool(s.aavePool).backUnbacked(_asset, _backing, _fee);

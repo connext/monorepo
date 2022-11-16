@@ -60,5 +60,18 @@ interface IDiamondCut {
     bytes calldata _calldata
   ) external;
 
+  /**
+   * @notice Returns the acceptance time for a given proposal
+   * @param _diamondCut Contains the facet addresses and function selectors
+   * @param _init The address of the contract or facet to execute _calldata
+   * @param _calldata A function call, including function selector and arguments _calldata is
+   * executed with delegatecall on _init
+   */
+  function getAcceptanceTime(
+    FacetCut[] calldata _diamondCut,
+    address _init,
+    bytes calldata _calldata
+  ) external returns (uint256);
+
   event DiamondCutRescinded(FacetCut[] _diamondCut, address _init, bytes _calldata);
 }

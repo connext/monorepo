@@ -24,5 +24,6 @@
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
   "function setWatcherManager(address)",
-  "function unpause()"
+  "function unpause()",
+  "function watcherManager() view returns (address)"
 ]

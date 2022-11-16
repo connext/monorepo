@@ -87,7 +87,17 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BridgeFacet__addRemote_invalidRouter",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BridgeFacet__addSequencer_alreadyApproved",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BridgeFacet__addSequencer_invalidSequencer",
     type: "error",
   },
   {
@@ -183,6 +193,11 @@ const _abi = [
   {
     inputs: [],
     name: "BridgeFacet__removeSequencer_notApproved",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BridgeFacet__setXAppConnectionManager_domainsDontMatch",
     type: "error",
   },
   {
@@ -2631,22 +2646,22 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "RoutersFacet__addRouter_alreadyAdded",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "RoutersFacet__addRouter_routerEmpty",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "RoutersFacet__approveRouterForPortal_alreadyApproved",
     type: "error",
   },
   {
     inputs: [],
     name: "RoutersFacet__approveRouterForPortal_notAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RoutersFacet__approveRouter_alreadyAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RoutersFacet__approveRouter_routerEmpty",
     type: "error",
   },
   {
@@ -3427,6 +3442,21 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "AssetLogic__handleIncomingAsset_feeOnTransferNotSupported",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "AssetLogic__handleOutgoingAsset_notNative",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "StableSwapFacet__deadlineCheck_deadlineNotMet",
     type: "error",
   },
@@ -4099,12 +4129,27 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__removeAssetId_invalidParams",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "TokenFacet__removeAssetId_notAdded",
     type: "error",
   },
   {
     inputs: [],
     name: "TokenFacet__setLiquidityCap_notCanonicalDomain",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain",
     type: "error",
   },
   {

@@ -72,6 +72,7 @@
   "function setWatcherManager(address)",
   "function unpause()",
   "function verifySender(address) returns (bool)",
+  "function watcherManager() view returns (address)",
   "function whitelistedSenders(address) view returns (bool)",
   "function withdrawFunds(address)"
 ]

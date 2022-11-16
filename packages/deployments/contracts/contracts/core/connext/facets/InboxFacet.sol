@@ -1,16 +1,12 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 import {DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
 
-import {IAavePool} from "../interfaces/IAavePool.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
@@ -84,7 +80,7 @@ contract InboxFacet is BaseConnextFacet {
   // ============ Modifiers ============
 
   /**
-   * @notice Only accept messages from an Nomad Replica contract.
+   * @notice Only accept messages from a registered inbox contract.
    */
   modifier onlyReplica() {
     if (!_isReplica(msg.sender)) {

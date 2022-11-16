@@ -1,4 +1,5 @@
 [
+  "function MAX_DOMAINS() view returns (uint256)",
   "function connectors(uint256) view returns (address)",
   "function connectorsHash() view returns (bytes32)",
   "function domains(uint256) view returns (uint32)",

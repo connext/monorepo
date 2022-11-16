@@ -3,26 +3,23 @@ pragma solidity 0.8.17;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
-import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 
 import {ERC20} from "./OZERC20.sol";
 
 contract BridgeToken is IBridgeToken, Ownable, ERC20 {
   // ============ Constructor ============
-
   constructor(
-    uint8 _decimals,
-    string memory _name,
-    string memory _symbol
-  ) ERC20(_decimals, _name, _symbol, "1") Ownable() {}
+    uint8 decimals_,
+    string memory name_,
+    string memory symbol_
+  ) Ownable() ERC20(decimals_, name_, symbol_, "1") {}
 
   // ============ Events ============
 
   event UpdateDetails(string indexed name, string indexed symbol);
 
-  // ============ External Functions ============
+  // ============ Admin Functions ============
 
   /**
    * @notice Destroys `_amnt` tokens from `_from`, reducing the
@@ -57,47 +54,11 @@ contract BridgeToken is IBridgeToken, Ownable, ERC20 {
    */
   function setDetails(string calldata _newName, string calldata _newSymbol) external override onlyOwner {
     // careful with naming convention change here
-    token.name = _newName;
-    token.symbol = _newSymbol;
+    _name = _newName;
+    _symbol = _newSymbol;
+    bytes32 hashedName = keccak256(bytes(_newName));
+    _HASHED_NAME = hashedName;
+    _CACHED_DOMAIN_SEPARATOR = _buildDomainSeparator(_TYPE_HASH, hashedName, _HASHED_VERSION);
     emit UpdateDetails(_newName, _newSymbol);
-  }
-
-  // ============ Public Functions ============
-
-  /**
-   * @dev See {IERC20-balanceOf}.
-   */
-  function balanceOf(address _account) public view override(IBridgeToken, ERC20) returns (uint256) {
-    return ERC20.balanceOf(_account);
-  }
-
-  /**
-   * @dev Returns the name of the token.
-   */
-  function name() public view override returns (string memory) {
-    return token.name;
-  }
-
-  /**
-   * @dev Returns the symbol of the token, usually a shorter version of the
-   * name.
-   */
-  function symbol() public view override returns (string memory) {
-    return token.symbol;
-  }
-
-  /**
-   * @dev Returns the number of decimals used to get its user representation.
-   * For example, if `decimals` equals `2`, a balance of `505` tokens should
-   * be displayed to a user as `5,05` (`505 / 10 ** 2`).
-   * Tokens usually opt for a value of 18, imitating the relationship between
-   * Ether and Wei. This is the value {ERC20} uses, unless {_setupDecimals} is
-   * called.
-   * NOTE: This information is only used for _display_ purposes: it in
-   * no way affects any of the arithmetic of the contract, including
-   * {IERC20-balanceOf} and {IERC20-transfer}.
-   */
-  function decimals() public view override returns (uint8) {
-    return token.decimals;
   }
 }
