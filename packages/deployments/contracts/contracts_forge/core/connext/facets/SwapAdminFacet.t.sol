@@ -411,7 +411,9 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
         balances: new uint256[](_pooledTokens.length),
         adminFees: new uint256[](_pooledTokens.length),
         initialATime: 0,
-        futureATime: 0
+        futureATime: 0,
+        disabled: false,
+        removeTime: 0
       }),
       _owner
     );
@@ -437,6 +439,53 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     assertEq(s.swapStorages[key].balances[0], 0);
   }
 
+  // function test_SwapAdminFacet__disableSwap
+  function test_SwapAdminFacet__disableSwap_failIfNotOwner() public {
+    assertTrue(_owner != address(1));
+
+    vm.prank(address(1));
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
+
+    this.disableSwap(_canonicalKey);
+  }
+
+  function test_SwapAdminFacet__disableSwap_failIfNotInitialized() public {
+    vm.startPrank(_owner);
+
+    bytes32 canonicalId = bytes32(abi.encodePacked(address(0)));
+    bytes32 key = keccak256(abi.encode(canonicalId, _canonicalDomain));
+
+    vm.expectRevert(SwapAdminFacet.SwapAdminFacet__disableSwap_notInitialized.selector);
+
+    this.disableSwap(key);
+    vm.stopPrank();
+  }
+
+  function test_SwapAdminFacet__disableSwap_failIfAlreadyDisabled() public {
+    vm.startPrank(_owner);
+
+    this.disableSwap(_canonicalKey);
+
+    vm.expectRevert(SwapAdminFacet.SwapAdminFacet__disableSwap_alreadyDisabled.selector);
+
+    this.disableSwap(_canonicalKey);
+    vm.stopPrank();
+  }
+
+  function test_SwapAdminFacet__disableSwap_shouldWork() public {
+    vm.startPrank(_owner);
+
+    vm.expectEmit(true, false, false, true);
+    emit SwapDisabled(_canonicalKey, _owner);
+
+    this.disableSwap(_canonicalKey);
+
+    assertEq(s.swapStorages[_canonicalKey].disabled, true);
+    assertEq(s.swapStorages[_canonicalKey].removeTime, block.timestamp + SwapUtils.REMOVE_DELAY);
+
+    vm.stopPrank();
+  }
+
   // function test_SwapAdminFacet__removeSwap
   function test_SwapAdminFacet__removeSwap_failIfNotOwner() public {
     assertTrue(_owner != address(1));
@@ -459,10 +508,44 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     vm.stopPrank();
   }
 
-  function test_SwapAdminFacet__removeSwap_failIfZeroBalance() public {
+  function test_SwapAdminFacet__removeSwap_failedIfNotDisabled() public {
     vm.startPrank(_owner);
 
-    vm.expectRevert(SwapAdminFacet.SwapAdminFacet__removeSwap_nonZeroBalance.selector);
+    assertEq(this.isDisabled(_canonicalKey), false);
+
+    vm.expectRevert(SwapAdminFacet.SwapAdminFacet__removeSwap_notDisabledPool.selector);
+    this.removeSwap(_canonicalKey);
+    vm.stopPrank();
+  }
+
+  function test_SwapAdminFacet__removeSwap_failedIfDisabledButNotElapsed() public {
+    vm.startPrank(_owner);
+
+    this.disableSwap(_canonicalKey);
+    assertEq(this.isDisabled(_canonicalKey), true);
+    assertEq(s.swapStorages[_canonicalKey].removeTime, block.timestamp + SwapUtils.REMOVE_DELAY);
+
+    vm.expectRevert(SwapAdminFacet.SwapAdminFacet__removeSwap_delayNotElapsed.selector);
+    this.removeSwap(_canonicalKey);
+    vm.stopPrank();
+  }
+
+  function test_SwapAdminFacet__removeSwap_shouldWorkIfNotZeroBalance() public {
+    vm.startPrank(_owner);
+
+    uint256 currentBlockTimestamp = block.timestamp;
+
+    this.disableSwap(_canonicalKey);
+    assertEq(this.isDisabled(_canonicalKey), true);
+    assertEq(s.swapStorages[_canonicalKey].removeTime, currentBlockTimestamp + SwapUtils.REMOVE_DELAY);
+
+    vm.warp(currentBlockTimestamp + SwapUtils.REMOVE_DELAY + 1);
+
+    vm.expectEmit(true, true, true, true);
+    emit AdminFeesWithdrawn(_canonicalKey, _owner);
+
+    vm.expectEmit(true, false, false, true);
+    emit SwapRemoved(_canonicalKey, _owner);
 
     this.removeSwap(_canonicalKey);
     vm.stopPrank();
@@ -470,12 +553,14 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
   function test_SwapAdminFacet__removeSwap_shouldWork() public {
     vm.startPrank(_owner);
-
     utils_removeAllLiquidity();
+
+    this.disableSwap(_canonicalKey);
 
     vm.expectEmit(true, false, false, true);
     emit SwapRemoved(_canonicalKey, _owner);
 
+    vm.warp(block.timestamp + SwapUtils.REMOVE_DELAY + 1);
     this.removeSwap(_canonicalKey);
     vm.stopPrank();
   }
@@ -493,13 +578,16 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     uint256 beforeBalance0 = IERC20(_local).balanceOf(_owner);
     uint256 beforeBalance1 = IERC20(_adopted).balanceOf(_owner);
 
+    utils_removeAllLiquidity();
+
+    this.disableSwap(_canonicalKey);
+    vm.warp(block.timestamp + SwapUtils.REMOVE_DELAY + 1);
+
     vm.expectEmit(true, true, true, true);
     emit AdminFeesWithdrawn(_canonicalKey, _owner);
 
     vm.expectEmit(true, false, false, true);
     emit SwapRemoved(_canonicalKey, _owner);
-
-    utils_removeAllLiquidity();
 
     this.removeSwap(_canonicalKey);
     vm.stopPrank();
@@ -514,10 +602,13 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
     IERC20[] memory pooledTokens = s.swapStorages[_canonicalKey].pooledTokens;
 
+    utils_removeAllLiquidity();
+
+    this.disableSwap(_canonicalKey);
+    vm.warp(block.timestamp + SwapUtils.REMOVE_DELAY + 1);
+
     vm.expectEmit(true, false, false, true);
     emit SwapRemoved(_canonicalKey, _owner);
-
-    utils_removeAllLiquidity();
 
     this.removeSwap(_canonicalKey);
 
@@ -536,7 +627,9 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       balances: new uint256[](2),
       adminFees: new uint256[](2),
       initialATime: 0,
-      futureATime: 0
+      futureATime: 0,
+      disabled: false,
+      removeTime: 0
     });
     s.swapStorages[_canonicalKey] = entry;
 

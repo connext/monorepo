@@ -235,7 +235,7 @@ contract SwapAdminFacet is BaseConnextFacet {
     if (numPooledTokens == 0) revert SwapAdminFacet__removeSwap_notInitialized();
 
     if (!s.swapStorages[_key].disabled) revert SwapAdminFacet__removeSwap_notDisabledPool();
-    if (s.swapStorages[_key].removeTime < block.timestamp) revert SwapAdminFacet__removeSwap_delayNotElapsed();
+    if (s.swapStorages[_key].removeTime > block.timestamp) revert SwapAdminFacet__removeSwap_delayNotElapsed();
 
     for (uint256 i; i < numPooledTokens; ) {
       IERC20 pooledToken = s.swapStorages[_key].pooledTokens[i];
