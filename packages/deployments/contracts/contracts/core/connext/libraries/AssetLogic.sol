@@ -401,7 +401,11 @@ library AssetLogic {
    * adopted asset, then calculates the local address.
    * @return TokenId The canonical token ID information for the given candidate.
    */
-  function getCanonicalTokenId(address _candidate, AppStorage storage s) internal view returns (TokenId memory) {
+  function getCanonicalTokenId(
+    address _candidate,
+    uint32 _domain,
+    AppStorage storage s
+  ) internal view returns (TokenId memory) {
     TokenId memory _canonical;
     // If candidate is address(0), return an empty `_canonical`.
     if (_candidate == address(0)) {
@@ -421,7 +425,7 @@ library AssetLogic {
     if (isLocalOrigin(_candidate, s)) {
       // The token originates on this domain, canonical information is the information
       // of the candidate
-      _canonical.domain = s.domain;
+      _canonical.domain = _domain;
       _canonical.id = TypeCasts.addressToBytes32(_candidate);
     } else {
       // on a remote domain, return the representation
@@ -451,17 +455,17 @@ library AssetLogic {
    * @notice Get the local asset address for a given canonical key, id, and domain.
    * @param _key - The hash of canonical id and domain.
    * @param _id Canonical ID.
-   * @param _domain Canonical domain.
-   * @param s AppStorage instance.
+   * @param _canonicalDomain Canonical domain.
+   * @param _domain domain network domain.
    * @return address of the the local asset.
    */
   function getLocalAsset(
     bytes32 _key,
     bytes32 _id,
-    uint32 _domain,
-    AppStorage storage s
+    uint32 _canonicalDomain,
+    uint32 _domain
   ) internal view returns (address) {
-    if (_domain == s.domain) {
+    if (_canonicalDomain == _domain) {
       // Token is of local origin
       return TypeCasts.bytes32ToAddress(_id);
     } else {
