@@ -1,16 +1,25 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import "../../../utils/FacetHelper.sol";
+import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IConnext} from "../../../../contracts/core/connext/interfaces/IConnext.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
-import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import "../../../../contracts/core/connext/facets/StableSwapFacet.sol";
-import "../../../../contracts/core/connext/facets/SwapAdminFacet.sol";
+import {StableSwapFacet} from "../../../../contracts/core/connext/facets/StableSwapFacet.sol";
+import {SwapAdminFacet} from "../../../../contracts/core/connext/facets/SwapAdminFacet.sol";
+import {LPToken} from "../../../../contracts/core/connext/helpers/LPToken.sol";
+import {SwapUtils} from "../../../../contracts/core/connext/libraries/SwapUtils.sol";
+import {AmplificationUtils} from "../../../../contracts/core/connext/libraries/AmplificationUtils.sol";
 
-contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
+import "../../../utils/FacetHelper.sol";
+
+contract StableSwapFacetTest is StableSwapFacet, FacetHelper {
+  // ======== Test Constructor ========
+
+  constructor() StableSwapFacet(_originDomain) {}
+
   // ============ Libraries ============
   using stdStorage for StdStorage;
 
@@ -27,6 +36,9 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
   string LP_TOKEN_SYMBOL = "TESTLP";
   uint256 blockTimestamp = 2 days;
 
+  // SwapAdminFacet used as reference contract (we are going to delegate call below).
+  SwapAdminFacet swapAdminFacet;
+
   // ============ Test set up ============
   function setUp() public {
     utils_deployAssetContracts();
@@ -37,6 +49,8 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     // set the owner to this contract
     setOwner(_owner);
+
+    swapAdminFacet = new SwapAdminFacet(_originDomain);
 
     utils_initializeSwap();
     utils_addLiquidity(1 ether, 1 ether);
@@ -86,17 +100,20 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     _lpTokenTarget = new LPToken();
     _lpTokenTarget.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
 
-    vm.prank(_owner);
-    this.initializeSwap(
-      utils_calculateCanonicalHash(),
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      _a,
-      _fee,
-      _adminFee,
-      address(_lpTokenTarget)
+    // vm.prank(_owner);
+    address(swapAdminFacet).delegatecall(
+      abi.encodeWithSelector(
+        SwapAdminFacet.initializeSwap.selector,
+        utils_calculateCanonicalHash(),
+        _pooledTokens,
+        _decimals,
+        LP_TOKEN_NAME,
+        LP_TOKEN_SYMBOL,
+        _a,
+        _fee,
+        _adminFee,
+        address(_lpTokenTarget)
+      )
     );
 
     assertEq(this.getSwapVirtualPrice(utils_calculateCanonicalHash()), 0);

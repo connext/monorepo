@@ -20,6 +20,10 @@ import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
 
 contract PortalFacetTest is PortalFacet, FacetHelper {
+  // ======== Test Constructor ========
+
+  constructor() PortalFacet(_originDomain) {}
+
   // ============ Storage ============
   uint32 domain = _originDomain;
   address bridgeRouter = address(1);

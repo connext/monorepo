@@ -5,7 +5,8 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
-import {AmplificationUtils, SwapUtils} from "../libraries/AmplificationUtils.sol";
+import {AmplificationUtils} from "../libraries/AmplificationUtils.sol";
+import {SwapUtils} from "../libraries/SwapUtils.sol";
 import {LPToken} from "../helpers/LPToken.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";

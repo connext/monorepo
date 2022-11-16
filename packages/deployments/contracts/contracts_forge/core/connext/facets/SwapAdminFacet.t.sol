@@ -14,7 +14,11 @@ import {SwapAdminFacet} from "../../../../contracts/core/connext/facets/SwapAdmi
 
 import "../../../utils/FacetHelper.sol";
 
-contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
+contract SwapAdminFacetTest is SwapAdminFacet, FacetHelper {
+  // ======== Test Constructor ========
+
+  constructor() SwapAdminFacet(_originDomain) {}
+
   // ============ Libraries ============
   using SwapUtils for SwapUtils.Swap;
   using AmplificationUtils for SwapUtils.Swap;
@@ -37,6 +41,9 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
   string LP_TOKEN_SYMBOL = "TESTLP";
   uint256 blockTimestamp = 2 days;
 
+  // StableSwapFacet used as reference contract (we are going to delegate call below).
+  StableSwapFacet stableSwapFacet;
+
   // ============ Test set up ============
   function setUp() public {
     utils_deployAssetContracts();
@@ -49,7 +56,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     // set the owner to this contract
     setOwner(_owner);
 
-    // _stableSwapFacet = address(new StableSwapFacet());
+    stableSwapFacet = new StableSwapFacet(_originDomain);
 
     utils_initializeSwap();
     console.log("setup swap");
@@ -114,7 +121,13 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       address(_lpTokenTarget)
     );
 
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 0);
+    (bool success, bytes memory result) = address(stableSwapFacet).delegatecall(
+      abi.encodeWithSelector(StableSwapFacet.getSwapVirtualPrice.selector, _canonicalKey)
+    );
+    // TODO: Would be great to elevate `result` as the error itself.
+    require(success, "getSwapVirtualPrice failed");
+
+    assertEq(uint256(bytes32(result)), 0);
   }
 
   function utils_addLiquidity(uint256 amount1, uint256 amount2) public {
@@ -128,7 +141,9 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     IERC20(s.swapStorages[_canonicalKey].pooledTokens[0]).approve(address(this), 100 ether);
     IERC20(s.swapStorages[_canonicalKey].pooledTokens[1]).approve(address(this), 100 ether);
 
-    this.addSwapLiquidity(_canonicalKey, amounts, 0, blockTimestamp + 10);
+    address(stableSwapFacet).delegatecall(
+      abi.encodeWithSelector(StableSwapFacet.addSwapLiquidity.selector, _canonicalKey, amounts, 0, blockTimestamp + 10)
+    );
     vm.stopPrank();
   }
 
@@ -139,7 +154,37 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     uint256 minAmountOut
   ) public returns (uint256) {
     vm.warp(blockTimestamp);
-    return this.swapExact(_canonicalKey, amountIn, assetIn, assetOut, minAmountOut, blockTimestamp + 10);
+    (bool success, bytes memory result) = address(stableSwapFacet).delegatecall(
+      abi.encodeWithSelector(
+        StableSwapFacet.swapExact.selector,
+        _canonicalKey,
+        amountIn,
+        assetIn,
+        assetOut,
+        minAmountOut,
+        blockTimestamp + 10
+      )
+    );
+    // TODO: Would be great to elevate `result` as the error itself.
+    require(success, "swapExact failed");
+    return uint256(bytes32(result));
+  }
+
+  function utils_getSwapAdminBalance(bytes32 canonicalKey, uint256 x) public returns (uint256) {
+    (bool success, bytes memory result) = address(stableSwapFacet).delegatecall(
+      abi.encodeWithSelector(StableSwapFacet.getSwapAdminBalance.selector, canonicalKey, x)
+    );
+    // TODO: Would be great to elevate `result` as the error itself.
+    require(success, "getSwapAdminBalance failed");
+    return uint256(bytes32(result));
+  }
+
+  function utils_getSwapStorage(bytes32 canonicalKey) internal returns (SwapUtils.Swap storage) {
+    // (bool success, bytes memory result) = address(stableSwapFacet).delegatecall(
+    //   abi.encodeWithSelector(StableSwapFacet.getSwapStorage.selector, canonicalKey)
+    // );
+    // return abi.decode(result, (SwapUtils.Swap));
+    return s.swapStorages[canonicalKey];
   }
 
   // =========== Admin Functions ============
@@ -461,8 +506,8 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     utils_swapExact(1e17, _local, _adopted, 0);
     utils_swapExact(1e17, _adopted, _local, 0);
 
-    assertEq(this.getSwapAdminBalance(_canonicalKey, 0), 1001973776101);
-    assertEq(this.getSwapAdminBalance(_canonicalKey, 1), 998024139765);
+    assertEq(utils_getSwapAdminBalance(_canonicalKey, 0), 1001973776101);
+    assertEq(utils_getSwapAdminBalance(_canonicalKey, 1), 998024139765);
 
     uint256 beforeBalance0 = IERC20(_local).balanceOf(_owner);
     uint256 beforeBalance1 = IERC20(_adopted).balanceOf(_owner);
@@ -490,7 +535,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
   function test_SwapAdminFacet__setSwapAdminFee_failIfHigherThanLimit() public {
     vm.startPrank(_owner);
     this.setSwapAdminFee(_canonicalKey, SwapUtils.MAX_ADMIN_FEE);
-    assertEq(this.getSwapStorage(_canonicalKey).adminFee, SwapUtils.MAX_ADMIN_FEE);
+    assertEq(utils_getSwapStorage(_canonicalKey).adminFee, SwapUtils.MAX_ADMIN_FEE);
 
     vm.expectRevert("too high");
     this.setSwapAdminFee(_canonicalKey, SwapUtils.MAX_ADMIN_FEE + 1);
@@ -503,7 +548,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     vm.expectEmit(true, true, true, true);
     emit AdminFeesSet(_canonicalKey, adminFee, _owner);
     this.setSwapAdminFee(_canonicalKey, adminFee);
-    assertEq(this.getSwapStorage(_canonicalKey).adminFee, adminFee);
+    assertEq(utils_getSwapStorage(_canonicalKey).adminFee, adminFee);
     vm.stopPrank();
   }
 
@@ -520,7 +565,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
   function test_SwapAdminFacet__setSwapFee_failIfHigherThanLimit() public {
     vm.startPrank(_owner);
     this.setSwapFee(_canonicalKey, SwapUtils.MAX_SWAP_FEE);
-    assertEq(this.getSwapStorage(_canonicalKey).swapFee, SwapUtils.MAX_SWAP_FEE);
+    assertEq(utils_getSwapStorage(_canonicalKey).swapFee, SwapUtils.MAX_SWAP_FEE);
 
     vm.expectRevert("too high");
     this.setSwapFee(_canonicalKey, SwapUtils.MAX_SWAP_FEE + 1);
@@ -533,7 +578,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     vm.expectEmit(true, true, true, true);
     emit SwapFeesSet(_canonicalKey, swapFee, _owner);
     this.setSwapFee(_canonicalKey, swapFee);
-    assertEq(this.getSwapStorage(_canonicalKey).swapFee, swapFee);
+    assertEq(utils_getSwapStorage(_canonicalKey).swapFee, swapFee);
     vm.stopPrank();
   }
 
@@ -560,22 +605,24 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     emit RampAStarted(_canonicalKey, 100, endTimestamp, _owner);
     this.rampA(_canonicalKey, 100, endTimestamp);
 
+    SwapUtils.Swap storage swap = utils_getSwapStorage(_canonicalKey);
+
     // +0 seconds since ramp A
-    assertEq(this.getSwapA(_canonicalKey), INITIAL_A_VALUE);
-    assertEq(this.getSwapAPrecise(_canonicalKey), INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000167146429976812);
+    assertEq(swap.getA(), INITIAL_A_VALUE);
+    assertEq(swap.getAPrecise(), INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
+    assertEq(swap.getVirtualPrice(), 1000167146429976812);
 
     // set timestamp to +100000 seconds
     vm.warp(blockTimestamp + 100000);
-    assertEq(this.getSwapA(_canonicalKey), 54);
-    assertEq(this.getSwapAPrecise(_canonicalKey), 5413);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000258443200230795);
+    assertEq(swap.getA(), 54);
+    assertEq(swap.getAPrecise(), 5413);
+    assertEq(swap.getVirtualPrice(), 1000258443200230795);
 
     // set timestamp to the end of ramp period
     vm.warp(endTimestamp);
-    assertEq(this.getSwapA(_canonicalKey), 100);
-    assertEq(this.getSwapAPrecise(_canonicalKey), 10000);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000771363829404568);
+    assertEq(swap.getA(), 100);
+    assertEq(swap.getAPrecise(), 10000);
+    assertEq(swap.getVirtualPrice(), 1000771363829404568);
 
     vm.stopPrank();
   }
@@ -592,22 +639,24 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     emit RampAStarted(_canonicalKey, 25, endTimestamp, _owner);
     this.rampA(_canonicalKey, 25, endTimestamp);
 
+    SwapUtils.Swap storage swap = utils_getSwapStorage(_canonicalKey);
+
     // +0 seconds since ramp A
-    assertEq(this.getSwapA(_canonicalKey), INITIAL_A_VALUE);
-    assertEq(this.getSwapAPrecise(_canonicalKey), INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000167146429976812);
+    assertEq(swap.getA(), INITIAL_A_VALUE);
+    assertEq(swap.getAPrecise(), INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
+    assertEq(swap.getVirtualPrice(), 1000167146429976812);
 
     // set timestamp to +100000 seconds
     vm.warp(blockTimestamp + 100000);
-    assertEq(this.getSwapA(_canonicalKey), 47);
-    assertEq(this.getSwapAPrecise(_canonicalKey), 4793);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000115610744866006);
+    assertEq(swap.getA(), 47);
+    assertEq(swap.getAPrecise(), 4793);
+    assertEq(swap.getVirtualPrice(), 1000115610744866006);
 
     // set timestamp to the end of ramp period
     vm.warp(endTimestamp);
-    assertEq(this.getSwapA(_canonicalKey), 25);
-    assertEq(this.getSwapAPrecise(_canonicalKey), 2500);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 998999574522334973);
+    assertEq(swap.getA(), 25);
+    assertEq(swap.getAPrecise(), 2500);
+    assertEq(swap.getVirtualPrice(), 998999574522334973);
 
     vm.stopPrank();
   }
@@ -627,16 +676,18 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     uint256 endTimestamp = blockTimestamp + 14 days + 1;
     this.rampA(_canonicalKey, 100, endTimestamp);
 
-    uint256 currentTimestmp = blockTimestamp + 100000;
-    vm.warp(currentTimestmp);
+    uint256 currentTimestamp = blockTimestamp + 100000;
+    vm.warp(currentTimestamp);
     vm.expectEmit(true, true, true, true);
     emit RampAStopped(_canonicalKey, _owner);
     this.stopRampA(_canonicalKey);
 
-    assertEq(this.getSwapStorage(_canonicalKey).initialA, 5413);
-    assertEq(this.getSwapStorage(_canonicalKey).futureA, 5413);
-    assertEq(this.getSwapStorage(_canonicalKey).initialATime, currentTimestmp);
-    assertEq(this.getSwapStorage(_canonicalKey).futureATime, currentTimestmp);
+    SwapUtils.Swap storage swap = utils_getSwapStorage(_canonicalKey);
+
+    assertEq(swap.initialA, 5413);
+    assertEq(swap.futureA, 5413);
+    assertEq(swap.initialATime, currentTimestamp);
+    assertEq(swap.futureATime, currentTimestamp);
 
     vm.stopPrank();
   }

@@ -11,6 +11,10 @@ import {TokenId} from "../../../../contracts/core/connext/libraries/TokenId.sol"
 import "../../../utils/FacetHelper.sol";
 
 contract TokenFacetTest is TokenFacet, FacetHelper {
+  // ======== Test Constructor ========
+
+  constructor() TokenFacet(_originDomain) {}
+
   // ============ storage ============
   // owner
   address _owner = address(12345);

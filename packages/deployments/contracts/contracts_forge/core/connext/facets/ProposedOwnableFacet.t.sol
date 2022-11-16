@@ -9,6 +9,10 @@ import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
 
 contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
+  // ======== Test Constructor ========
+
+  constructor() ProposedOwnableFacet(_originDomain) {}
+
   // ============ Storage ============
   address _owner = address(123123);
   uint256 DELAY = 6 days;

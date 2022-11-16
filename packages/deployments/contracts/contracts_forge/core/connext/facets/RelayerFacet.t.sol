@@ -8,9 +8,11 @@ import {RelayerFacet, BaseConnextFacet} from "../../../../contracts/core/connext
 
 import "../../../utils/FacetHelper.sol";
 
-import "forge-std/console.sol";
-
 contract RelayerFacetTest is RelayerFacet, FacetHelper {
+  // ======== Test Constructor ========
+
+  constructor() RelayerFacet(_originDomain) {}
+
   // ============ storage ============
   // owner
   address _owner = address(12345);
