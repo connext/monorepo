@@ -16,7 +16,7 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "destAddr",
+        name: "to",
         type: "address",
       },
       {
@@ -28,7 +28,7 @@ const _abi = [
       {
         indexed: true,
         internalType: "uint256",
-        name: "outboxEntryIndex",
+        name: "zero",
         type: "uint256",
       },
       {
@@ -46,40 +46,239 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
-        name: "batchNum",
-        type: "uint256",
+        internalType: "bytes32",
+        name: "blockHash",
+        type: "bytes32",
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "outboxEntryIndex",
-        type: "uint256",
-      },
-      {
-        indexed: false,
+        indexed: true,
         internalType: "bytes32",
         name: "outputRoot",
         type: "bytes32",
       },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "numInBatch",
-        type: "uint256",
-      },
     ],
-    name: "OutboxEntryCreated",
+    name: "SendRootUpdated",
     type: "event",
   },
   {
     inputs: [],
-    name: "l2ToL1BatchNum",
+    name: "OUTBOX_VERSION",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "uint128",
         name: "",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "bridge",
+    outputs: [
+      {
+        internalType: "contract IBridge",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "l2Sender",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "l2Block",
         type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "l1Block",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "l2Timestamp",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "value",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+    ],
+    name: "calculateItemHash",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32[]",
+        name: "proof",
+        type: "bytes32[]",
+      },
+      {
+        internalType: "uint256",
+        name: "path",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes32",
+        name: "item",
+        type: "bytes32",
+      },
+    ],
+    name: "calculateMerkleRoot",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32[]",
+        name: "proof",
+        type: "bytes32[]",
+      },
+      {
+        internalType: "uint256",
+        name: "index",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "l2Sender",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "l2Block",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "l1Block",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "l2Timestamp",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "value",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+    ],
+    name: "executeTransaction",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "index",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "l2Sender",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "l2Block",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "l1Block",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "l2Timestamp",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "value",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+    ],
+    name: "executeTransactionSimulation",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "index",
+        type: "uint256",
+      },
+    ],
+    name: "isSpent",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -151,19 +350,13 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "batchNum",
-        type: "uint256",
-      },
-    ],
-    name: "outboxEntryExists",
+    inputs: [],
+    name: "rollup",
     outputs: [
       {
-        internalType: "bool",
+        internalType: "address",
         name: "",
-        type: "bool",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -172,17 +365,55 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes",
-        name: "sendsData",
-        type: "bytes",
-      },
-      {
-        internalType: "uint256[]",
-        name: "sendLengths",
-        type: "uint256[]",
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
       },
     ],
-    name: "processOutgoingMessages",
+    name: "roots",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "spent",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "sendRoot",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "l2BlockHash",
+        type: "bytes32",
+      },
+    ],
+    name: "updateSendRoot",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

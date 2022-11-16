@@ -811,8 +811,8 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     // set timestamp to +100000 seconds
     vm.warp(blockTimestamp + 100000);
     assertEq(this.getSwapA(_canonicalKey), 47);
-    assertEq(this.getSwapAPrecise(_canonicalKey), 4794);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000115870150391894);
+    assertEq(this.getSwapAPrecise(_canonicalKey), 4793);
+    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000115610744866506);
 
     // set timestamp to the end of ramp period
     vm.warp(endTimestamp);

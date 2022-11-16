@@ -7,6 +7,7 @@ import {LPToken} from "../helpers/LPToken.sol";
 
 import {AmplificationUtils} from "./AmplificationUtils.sol";
 import {MathUtils} from "./MathUtils.sol";
+import {AssetLogic} from "./AssetLogic.sol";
 
 /**
  * @title SwapUtils library
@@ -717,12 +718,8 @@ library SwapUtils {
     {
       IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
       require(dx <= tokenFrom.balanceOf(msg.sender), "swap more than you own");
-      // Transfer tokens first to see if a fee was charged on transfer
-      uint256 beforeBalance = tokenFrom.balanceOf(address(this));
-      tokenFrom.safeTransferFrom(msg.sender, address(this), dx);
-
-      // Use the actual transferred amount for AMM math
-      require(dx == tokenFrom.balanceOf(address(this)) - beforeBalance, "no fee token support");
+      // Reverts for fee on transfer
+      AssetLogic.handleIncomingAsset(address(tokenFrom), dx);
     }
 
     uint256 dy;
@@ -739,7 +736,7 @@ library SwapUtils {
       self.adminFees[tokenIndexTo] = self.adminFees[tokenIndexTo] + dyAdminFee;
     }
 
-    self.pooledTokens[tokenIndexTo].safeTransfer(msg.sender, dy);
+    AssetLogic.handleOutgoingAsset(address(self.pooledTokens[tokenIndexTo]), msg.sender, dy);
 
     emit TokenSwap(self.key, msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
 
@@ -782,15 +779,11 @@ library SwapUtils {
     {
       IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
       require(dx <= tokenFrom.balanceOf(msg.sender), "more than you own");
-      // Transfer tokens first to see if a fee was charged on transfer
-      uint256 beforeBalance = tokenFrom.balanceOf(address(this));
-      tokenFrom.safeTransferFrom(msg.sender, address(this), dx);
-
-      // Use the actual transferred amount for AMM math
-      require(dx == tokenFrom.balanceOf(address(this)) - beforeBalance, "not support fee token");
+      // Reverts for fee on transfer
+      AssetLogic.handleIncomingAsset(address(tokenFrom), dx);
     }
 
-    self.pooledTokens[tokenIndexTo].safeTransfer(msg.sender, dy);
+    AssetLogic.handleOutgoingAsset(address(self.pooledTokens[tokenIndexTo]), msg.sender, dy);
 
     emit TokenSwap(self.key, msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
 
@@ -912,11 +905,8 @@ library SwapUtils {
       // Transfer tokens first to see if a fee was charged on transfer
       if (amounts[i] != 0) {
         IERC20 token = self.pooledTokens[i];
-        uint256 beforeBalance = token.balanceOf(address(this));
-        token.safeTransferFrom(msg.sender, address(this), amounts[i]);
-
-        // Update the amounts[] with actual transfer amount
-        amounts[i] = token.balanceOf(address(this)) - beforeBalance;
+        // Reverts for fee on transfer
+        AssetLogic.handleIncomingAsset(address(token), amounts[i]);
       }
 
       newBalances[i] = v.balances[i] + amounts[i];
@@ -999,7 +989,7 @@ library SwapUtils {
     for (uint256 i; i < numAmounts; ) {
       require(amounts[i] >= minAmounts[i], "amounts[i] < minAmounts[i]");
       self.balances[i] = balances[i] - amounts[i];
-      self.pooledTokens[i].safeTransfer(msg.sender, amounts[i]);
+      AssetLogic.handleOutgoingAsset(address(self.pooledTokens[i]), msg.sender, amounts[i]);
 
       unchecked {
         ++i;
@@ -1045,7 +1035,7 @@ library SwapUtils {
       self.adminFees[tokenIndex] = self.adminFees[tokenIndex] + adminFee;
     }
     lpToken.burnFrom(msg.sender, tokenAmount);
-    self.pooledTokens[tokenIndex].safeTransfer(msg.sender, dy);
+    AssetLogic.handleOutgoingAsset(address(self.pooledTokens[tokenIndex]), msg.sender, dy);
 
     emit RemoveLiquidityOne(self.key, msg.sender, tokenAmount, totalSupply, tokenIndex, dy);
 
@@ -1127,7 +1117,7 @@ library SwapUtils {
     v.lpToken.burnFrom(msg.sender, tokenAmount);
 
     for (uint256 i; i < numTokens; ) {
-      self.pooledTokens[i].safeTransfer(msg.sender, amounts[i]);
+      AssetLogic.handleOutgoingAsset(address(self.pooledTokens[i]), msg.sender, amounts[i]);
 
       unchecked {
         ++i;
@@ -1151,7 +1141,7 @@ library SwapUtils {
       uint256 balance = self.adminFees[i];
       if (balance != 0) {
         self.adminFees[i] = 0;
-        token.safeTransfer(to, balance);
+        AssetLogic.handleOutgoingAsset(address(token), to, balance);
       }
 
       unchecked {

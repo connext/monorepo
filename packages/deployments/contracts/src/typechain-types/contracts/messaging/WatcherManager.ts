@@ -208,7 +208,7 @@ export interface WatcherManager extends BaseContract {
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     isWatcher(
-      _watcher: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
@@ -247,7 +247,7 @@ export interface WatcherManager extends BaseContract {
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
   isWatcher(
-    _watcher: PromiseOrValue<string>,
+    arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
@@ -284,7 +284,7 @@ export interface WatcherManager extends BaseContract {
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     isWatcher(
-      _watcher: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -346,7 +346,7 @@ export interface WatcherManager extends BaseContract {
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     isWatcher(
-      _watcher: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -386,7 +386,7 @@ export interface WatcherManager extends BaseContract {
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isWatcher(
-      _watcher: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
