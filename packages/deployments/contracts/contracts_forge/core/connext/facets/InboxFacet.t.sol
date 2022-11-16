@@ -16,8 +16,6 @@ import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
 import {MessagingUtils} from "../../../utils/Messaging.sol";
 
-import "forge-std/console.sol";
-
 contract InboxFacetTest is InboxFacet, FacetHelper {
   // ======== Test Constructor ========
 

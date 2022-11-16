@@ -97,6 +97,11 @@ contract SwapAdminFacetTest is SwapAdminFacet, FacetHelper {
     TestERC20(_adopted).approve(address(this), 100 ether);
     vm.stopPrank();
 
+    vm.startPrank(_owner);
+    TestERC20(_local).approve(address(this), 100 ether);
+    TestERC20(_adopted).approve(address(this), 100 ether);
+    vm.stopPrank();
+
     uint8[] memory _decimals = new uint8[](2);
     _decimals[0] = 18;
     _decimals[1] = 18;
@@ -121,13 +126,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, FacetHelper {
       address(_lpTokenTarget)
     );
 
-    (bool success, bytes memory result) = address(stableSwapFacet).delegatecall(
-      abi.encodeWithSelector(StableSwapFacet.getSwapVirtualPrice.selector, _canonicalKey)
-    );
-    // TODO: Would be great to elevate `result` as the error itself.
-    require(success, "getSwapVirtualPrice failed");
-
-    assertEq(uint256(bytes32(result)), 0);
+    assertEq(s.swapStorages[_canonicalKey].getVirtualPrice(), 0);
   }
 
   function utils_addLiquidity(uint256 amount1, uint256 amount2) public {
@@ -141,10 +140,14 @@ contract SwapAdminFacetTest is SwapAdminFacet, FacetHelper {
     IERC20(s.swapStorages[_canonicalKey].pooledTokens[0]).approve(address(this), 100 ether);
     IERC20(s.swapStorages[_canonicalKey].pooledTokens[1]).approve(address(this), 100 ether);
 
+    this.utils_delegatecallAddLiquidity(amounts);
+    vm.stopPrank();
+  }
+
+  function utils_delegatecallAddLiquidity(uint256[] memory amounts) public {
     address(stableSwapFacet).delegatecall(
       abi.encodeWithSelector(StableSwapFacet.addSwapLiquidity.selector, _canonicalKey, amounts, 0, blockTimestamp + 10)
     );
-    vm.stopPrank();
   }
 
   function utils_swapExact(
@@ -154,20 +157,27 @@ contract SwapAdminFacetTest is SwapAdminFacet, FacetHelper {
     uint256 minAmountOut
   ) public returns (uint256) {
     vm.warp(blockTimestamp);
-    (bool success, bytes memory result) = address(stableSwapFacet).delegatecall(
-      abi.encodeWithSelector(
-        StableSwapFacet.swapExact.selector,
-        _canonicalKey,
+    // see: StableSwapFacet.swapExact:
+    return
+      s.swapStorages[_canonicalKey].swap(
+        s.tokenIndexes[_canonicalKey][assetIn], // see: StableSwapFacet.getSwapTokenIndex
+        s.tokenIndexes[_canonicalKey][assetOut],
         amountIn,
-        assetIn,
-        assetOut,
-        minAmountOut,
-        blockTimestamp + 10
-      )
-    );
-    // TODO: Would be great to elevate `result` as the error itself.
-    require(success, "swapExact failed");
-    return uint256(bytes32(result));
+        minAmountOut
+      );
+    // (bool success, bytes memory result) = address(stableSwapFacet).delegatecall(
+    //   abi.encodeWithSelector(
+    //     StableSwapFacet.swapExact.selector,
+    //     _canonicalKey,
+    //     amountIn,
+    //     assetIn,
+    //     assetOut,
+    //     minAmountOut,
+    //     blockTimestamp + 10
+    //   )
+    // );
+    // require(success, "swapExact failed");
+    // return uint256(bytes32(result));
   }
 
   function utils_getSwapAdminBalance(bytes32 canonicalKey, uint256 x) public returns (uint256) {
@@ -180,10 +190,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, FacetHelper {
   }
 
   function utils_getSwapStorage(bytes32 canonicalKey) internal returns (SwapUtils.Swap storage) {
-    // (bool success, bytes memory result) = address(stableSwapFacet).delegatecall(
-    //   abi.encodeWithSelector(StableSwapFacet.getSwapStorage.selector, canonicalKey)
-    // );
-    // return abi.decode(result, (SwapUtils.Swap));
+    // See: StableSwapFacet.getSwapStorage:
     return s.swapStorages[canonicalKey];
   }
 
@@ -443,7 +450,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, FacetHelper {
         futureA: a * AmplificationUtils.A_PRECISION,
         swapFee: fee,
         adminFee: adminFee,
-        lpToken: LPToken(address(0x3A1148FE01e3c4721D93fe8A36c2b5C29109B6ae)),
+        lpToken: LPToken(address(0xbfFb01bB2DDb4EfA87cB78EeCB8115AFAe6d2032)),
         pooledTokens: _pooledTokens,
         tokenPrecisionMultipliers: precisionMultipliers,
         balances: new uint256[](_pooledTokens.length),
@@ -476,7 +483,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, FacetHelper {
   }
 
   // function test_SwapAdminFacet__withdrawSwapAdminFees
-  function test_SwapAdminFacet__withdrawSwapAdminFess_failIfNotOwner() public {
+  function test_SwapAdminFacet__withdrawSwapAdminFees_failIfNotOwner() public {
     assertTrue(_owner != address(1));
 
     vm.prank(address(1));
@@ -485,7 +492,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, FacetHelper {
     this.withdrawSwapAdminFees(_canonicalKey);
   }
 
-  function test_SwapAdminFacet__withdrawSwapAdminFess_successIfNoFees() public {
+  function test_SwapAdminFacet__withdrawSwapAdminFees_successIfNoFees() public {
     vm.startPrank(_owner);
     this.setSwapAdminFee(_canonicalKey, 1e8);
 
@@ -500,11 +507,16 @@ contract SwapAdminFacetTest is SwapAdminFacet, FacetHelper {
     vm.stopPrank();
   }
 
-  function test_SwapAdminFacet__withdrawSwapAdminFess_shouldWorkWithExpectedAmount() public {
-    vm.startPrank(_owner);
+  function test_SwapAdminFacet__withdrawSwapAdminFees_shouldWorkWithExpectedAmount() public {
+    vm.prank(_owner);
     this.setSwapAdminFee(_canonicalKey, 1e8);
-    utils_swapExact(1e17, _local, _adopted, 0);
-    utils_swapExact(1e17, _adopted, _local, 0);
+
+    vm.startPrank(_user1);
+    this.utils_swapExact(1e17, _local, _adopted, 0);
+    this.utils_swapExact(1e17, _adopted, _local, 0);
+    vm.stopPrank();
+
+    vm.startPrank(_owner);
 
     assertEq(utils_getSwapAdminBalance(_canonicalKey, 0), 1001973776101);
     assertEq(utils_getSwapAdminBalance(_canonicalKey, 1), 998024139765);

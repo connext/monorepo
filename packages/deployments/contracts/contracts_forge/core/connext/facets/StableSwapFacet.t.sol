@@ -41,6 +41,8 @@ contract StableSwapFacetTest is StableSwapFacet, FacetHelper {
 
   // ============ Test set up ============
   function setUp() public {
+    swapAdminFacet = new SwapAdminFacet(_originDomain);
+
     utils_deployAssetContracts();
 
     // we are on the origin domain where local != canonical
@@ -49,8 +51,6 @@ contract StableSwapFacetTest is StableSwapFacet, FacetHelper {
 
     // set the owner to this contract
     setOwner(_owner);
-
-    swapAdminFacet = new SwapAdminFacet(_originDomain);
 
     utils_initializeSwap();
     utils_addLiquidity(1 ether, 1 ether);
@@ -100,8 +100,8 @@ contract StableSwapFacetTest is StableSwapFacet, FacetHelper {
     _lpTokenTarget = new LPToken();
     _lpTokenTarget.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
 
-    // vm.prank(_owner);
-    address(swapAdminFacet).delegatecall(
+    vm.prank(_owner);
+    this.utils_delegatecallSwapAdminFacet(
       abi.encodeWithSelector(
         SwapAdminFacet.initializeSwap.selector,
         utils_calculateCanonicalHash(),
@@ -117,6 +117,13 @@ contract StableSwapFacetTest is StableSwapFacet, FacetHelper {
     );
 
     assertEq(this.getSwapVirtualPrice(utils_calculateCanonicalHash()), 0);
+  }
+
+  // Used to nest delegatecall in an external call, allowing us to guarantee `msg.sender` is
+  // whoever we need it to be.
+  function utils_delegatecallSwapAdminFacet(bytes memory callData) public {
+    (bool success, ) = address(swapAdminFacet).delegatecall(callData);
+    require(success, "delegatecall failed");
   }
 
   function utils_addLiquidity(uint256 amount1, uint256 amount2) public {
