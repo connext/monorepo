@@ -176,12 +176,14 @@ contract PortalFacet is BaseConnextFacet {
     s.portalDebt[_transferId] -= _backing;
     s.portalFeeDebt[_transferId] -= _fee;
 
+    address aPool = s.aavePool;
+
     // increase allowance
-    SafeERC20Upgradeable.safeApprove(IERC20Upgradeable(_asset), s.aavePool, 0);
-    SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(_asset), s.aavePool, _backing + _fee);
+    SafeERC20Upgradeable.safeApprove(IERC20Upgradeable(_asset), aPool, 0);
+    SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(_asset), aPool, _backing + _fee);
 
     // back loan
-    IAavePool(s.aavePool).backUnbacked(_asset, _backing, _fee);
+    IAavePool(aPool).backUnbacked(_asset, _backing, _fee);
 
     // emit event
     emit AavePortalRepayment(_transferId, _asset, _backing, _fee, msg.sender);
