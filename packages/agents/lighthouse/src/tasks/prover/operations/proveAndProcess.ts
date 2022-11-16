@@ -1,4 +1,11 @@
-import { createLoggingContext, jsonifyError, NxtpError, XMessage, SparseMerkleTree } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  jsonifyError,
+  NxtpError,
+  XMessage,
+  SparseMerkleTree,
+  RootMessage,
+} from "@connext/nxtp-utils";
 
 import {
   NoDestinationDomainForProof,
@@ -29,7 +36,7 @@ export const proveAndProcess = async () => {
   await Promise.all(
     domains.map(async (domain) => {
       try {
-        const latestMessageRoot = await database.getLatestMessageRoot(domain);
+        const latestMessageRoot: RootMessage | undefined = await database.getLatestMessageRoot(domain);
         if (!latestMessageRoot) {
           throw new NoTargetMessageRoot(domain);
         }
@@ -38,10 +45,15 @@ export const proveAndProcess = async () => {
         let offset = 0;
         let end = false;
         while (!end) {
-          const unprocessed = await database.getUnProcessedMessagesByIndex(domain, latestMessageRoot, offset, 100);
+          const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
+            domain,
+            latestMessageRoot.count,
+            offset,
+            100,
+          );
           if (unprocessed.length > 0) {
             // Batch process messages from the same origin domain
-            await processMessages(unprocessed, domain, latestMessageRoot);
+            await processMessages(unprocessed, domain, latestMessageRoot.root);
             offset += unprocessed.length;
             logger.info("Got unprocessed messages by domain", requestContext, methodContext, {
               unprocessed,
@@ -61,7 +73,7 @@ export const proveAndProcess = async () => {
   );
 };
 
-export const processMessages = async (messages: XMessage[], originDomain: string, targetMessageRoot: any) => {
+export const processMessages = async (messages: XMessage[], originDomain: string, targetMessageRoot: string) => {
   const {
     logger,
     adapters: { contracts, relayers, database, chainreader },
@@ -101,7 +113,7 @@ export const processMessages = async (messages: XMessage[], originDomain: string
   const hubSMT = new SparseMerkleTree(hubStore);
 
   // Organize the messages by their destination domain
-  const messagesByDestination = new Map<string, XMessage[]>();
+  const messagesByDestination = new Map<string, any[]>();
 
   // process messages
   for (const message of messages) {

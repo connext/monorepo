@@ -28,9 +28,11 @@ import {
   saveAggregatedRoots,
   savePropagatedRoots,
   getUnProcessedMessages,
+  getUnProcessedMessagesByIndex,
   getAggregateRoot,
   getAggregateRootCount,
   getMessageRootIndex,
+  getLatestMessageRoot,
   getMessageRootFromIndex,
   getMessageRootCount,
   getSpokeNode,
@@ -89,6 +91,14 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage[]>;
+  getUnProcessedMessagesByIndex: (
+    domain: string,
+    index: number,
+    offset: number,
+    limit?: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<XMessage[]>;
   getAggregateRoot: (messageRoot: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   getAggregateRootCount: (
     aggregateRoot: string,
@@ -99,6 +109,7 @@ export type Database = {
     messageRoot: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<number | undefined>;
+  getLatestMessageRoot: (domain: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<RootMessage | undefined>;
   getMessageRootFromIndex: (
     domain: string,
     index: number,
@@ -162,9 +173,11 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     saveAggregatedRoots,
     savePropagatedRoots,
     getUnProcessedMessages,
+    getUnProcessedMessagesByIndex,
     getAggregateRoot,
     getAggregateRootCount,
     getMessageRootIndex,
+    getLatestMessageRoot,
     getMessageRootFromIndex,
     getMessageRootCount,
     getSpokeNode,

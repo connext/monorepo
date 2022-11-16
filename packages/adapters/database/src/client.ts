@@ -411,6 +411,25 @@ export const getUnProcessedMessages = async (
   return messages.map(convertFromDbMessage);
 };
 
+export const getUnProcessedMessagesByIndex = async (
+  domain: string,
+  index: number,
+  offset: number,
+  limit = 100,
+  orderDirection: "ASC" | "DESC" = "ASC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XMessage[]> => {
+  const poolToUse = _pool ?? pool;
+  const messages = await db
+    .select(
+      "messages",
+      { processed: false, origin_domain: domain, index: dc.lte(index) },
+      { offset, limit, order: { by: "index", direction: orderDirection } },
+    )
+    .run(poolToUse);
+  return messages.map(convertFromDbMessage);
+};
+
 export const getAggregateRoot = async (
   messageRoot: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
@@ -444,6 +463,25 @@ export const getMessageRootIndex = async (
   // Find the index emitted from the RootAggregated event
   const root = await db.selectOne("aggregated_roots", { domain: domain, received_root: messageRoot }).run(poolToUse);
   return root ? convertFromDbAggregatedRoot(root).index : undefined;
+};
+
+export const getLatestMessageRoot = async (
+  domain: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<RootMessage | undefined> => {
+  const poolToUse = _pool ?? pool;
+  // Find the latest message root on the domain
+  const root = await db
+    .max(
+      "root_messages",
+      { spoke_domain: domain },
+      {
+        columns: ["leaf_count"],
+        lateral: { roots: db.select("aggregated_roots", { received_root: db.parent("root") }) },
+      },
+    )
+    .run(poolToUse);
+  return root ? convertFromDbRootMessage(root) : undefined;
 };
 
 export const getMessageRootFromIndex = async (
