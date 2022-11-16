@@ -1,0 +1,397 @@
+{
+  "address": "0x769cA120C6b543865EBe99705d05Df03ec3FF05A",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        }
+      ],
+      "name": "DiamondCut",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "DiamondCutProposed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        }
+      ],
+      "name": "DiamondCutRescinded",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        }
+      ],
+      "name": "diamondCut",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        }
+      ],
+      "name": "getAcceptanceTime",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        }
+      ],
+      "name": "proposeDiamondCut",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        }
+      ],
+      "name": "rescindDiamondCut",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xee60d7a19c78128f66117024164d50c83d6c0ae29b9aa2f39abfe8e9788b0685",
+  "receipt": {
+    "to": "0x4e59b44847b379578588920cA78FbF26c0B4956C",
+    "from": "0x54BAA998771639628ffC0206c3b916c466b79c89",
+    "contractAddress": null,
+    "transactionIndex": 24,
+    "gasUsed": "1546058",
+    "logsBloom": "0x00000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000008000002000000000000000000000000000000000000000000000000000800400000000000000040100000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000040000000004000000000000000000001000000000000000000000000000000180000000000000000000000000000000000000000000000000000000000000000000000100000",
+    "blockHash": "0x92176a6e0d1e37823b8ab10c984138e80e4bfa2389d61274322411d3b7fcbf16",
+    "transactionHash": "0xee60d7a19c78128f66117024164d50c83d6c0ae29b9aa2f39abfe8e9788b0685",
+    "logs": [
+      {
+        "transactionIndex": 24,
+        "blockNumber": 29187686,
+        "transactionHash": "0xee60d7a19c78128f66117024164d50c83d6c0ae29b9aa2f39abfe8e9788b0685",
+        "address": "0x0000000000000000000000000000000000001010",
+        "topics": [
+          "0x4dfe1bbbcf077ddc3e01291eea2d5c70c2b422b415d95645b9adcfd678cb1d63",
+          "0x0000000000000000000000000000000000000000000000000000000000001010",
+          "0x00000000000000000000000054baa998771639628ffc0206c3b916c466b79c89",
+          "0x000000000000000000000000c275dc8be39f50d12f66b6a63629c39da5bae5bd"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000083d3284ee2d4a000000000000000000000000000000000000000000000000077c53888a5f9c65000000000000000000000000000000000000000000000ae08dfae2739d0df71d0000000000000000000000000000000000000000000000000774165605716f1b000000000000000000000000000000000000000000000ae08e031fa621fc2467",
+        "logIndex": 60,
+        "blockHash": "0x92176a6e0d1e37823b8ab10c984138e80e4bfa2389d61274322411d3b7fcbf16"
+      }
+    ],
+    "blockNumber": 29187686,
+    "cumulativeGasUsed": "4457349",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "92654a66257b5607d5bdbdb4aaed281d",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"facetAddress\",\"type\":\"address\"},{\"internalType\":\"enum IDiamondCut.FacetCutAction\",\"name\":\"action\",\"type\":\"uint8\"},{\"internalType\":\"bytes4[]\",\"name\":\"functionSelectors\",\"type\":\"bytes4[]\"}],\"indexed\":false,\"internalType\":\"struct IDiamondCut.FacetCut[]\",\"name\":\"_diamondCut\",\"type\":\"tuple[]\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_init\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_calldata\",\"type\":\"bytes\"}],\"name\":\"DiamondCut\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"facetAddress\",\"type\":\"address\"},{\"internalType\":\"enum IDiamondCut.FacetCutAction\",\"name\":\"action\",\"type\":\"uint8\"},{\"internalType\":\"bytes4[]\",\"name\":\"functionSelectors\",\"type\":\"bytes4[]\"}],\"indexed\":false,\"internalType\":\"struct IDiamondCut.FacetCut[]\",\"name\":\"_diamondCut\",\"type\":\"tuple[]\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_init\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_calldata\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"DiamondCutProposed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"facetAddress\",\"type\":\"address\"},{\"internalType\":\"enum IDiamondCut.FacetCutAction\",\"name\":\"action\",\"type\":\"uint8\"},{\"internalType\":\"bytes4[]\",\"name\":\"functionSelectors\",\"type\":\"bytes4[]\"}],\"indexed\":false,\"internalType\":\"struct IDiamondCut.FacetCut[]\",\"name\":\"_diamondCut\",\"type\":\"tuple[]\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_init\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_calldata\",\"type\":\"bytes\"}],\"name\":\"DiamondCutRescinded\",\"type\":\"event\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"facetAddress\",\"type\":\"address\"},{\"internalType\":\"enum IDiamondCut.FacetCutAction\",\"name\":\"action\",\"type\":\"uint8\"},{\"internalType\":\"bytes4[]\",\"name\":\"functionSelectors\",\"type\":\"bytes4[]\"}],\"internalType\":\"struct IDiamondCut.FacetCut[]\",\"name\":\"_diamondCut\",\"type\":\"tuple[]\"},{\"internalType\":\"address\",\"name\":\"_init\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_calldata\",\"type\":\"bytes\"}],\"name\":\"diamondCut\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"facetAddress\",\"type\":\"address\"},{\"internalType\":\"enum IDiamondCut.FacetCutAction\",\"name\":\"action\",\"type\":\"uint8\"},{\"internalType\":\"bytes4[]\",\"name\":\"functionSelectors\",\"type\":\"bytes4[]\"}],\"internalType\":\"struct IDiamondCut.FacetCut[]\",\"name\":\"_diamondCut\",\"type\":\"tuple[]\"},{\"internalType\":\"address\",\"name\":\"_init\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_calldata\",\"type\":\"bytes\"}],\"name\":\"getAcceptanceTime\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"facetAddress\",\"type\":\"address\"},{\"internalType\":\"enum IDiamondCut.FacetCutAction\",\"name\":\"action\",\"type\":\"uint8\"},{\"internalType\":\"bytes4[]\",\"name\":\"functionSelectors\",\"type\":\"bytes4[]\"}],\"internalType\":\"struct IDiamondCut.FacetCut[]\",\"name\":\"_diamondCut\",\"type\":\"tuple[]\"},{\"internalType\":\"address\",\"name\":\"_init\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_calldata\",\"type\":\"bytes\"}],\"name\":\"proposeDiamondCut\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"facetAddress\",\"type\":\"address\"},{\"internalType\":\"enum IDiamondCut.FacetCutAction\",\"name\":\"action\",\"type\":\"uint8\"},{\"internalType\":\"bytes4[]\",\"name\":\"functionSelectors\",\"type\":\"bytes4[]\"}],\"internalType\":\"struct IDiamondCut.FacetCut[]\",\"name\":\"_diamondCut\",\"type\":\"tuple[]\"},{\"internalType\":\"address\",\"name\":\"_init\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_calldata\",\"type\":\"bytes\"}],\"name\":\"rescindDiamondCut\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"diamondCut((address,uint8,bytes4[])[],address,bytes)\":{\"params\":{\"_calldata\":\"A function call, including function selector and arguments                  _calldata is executed with delegatecall on _init\",\"_diamondCut\":\"Contains the facet addresses and function selectors\",\"_init\":\"The address of the contract or facet to execute _calldata\"}},\"getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)\":{\"params\":{\"_calldata\":\"A function call, including function selector and arguments _calldata is executed with delegatecall on _init\",\"_diamondCut\":\"Contains the facet addresses and function selectors\",\"_init\":\"The address of the contract or facet to execute _calldata\"}},\"proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)\":{\"params\":{\"_calldata\":\"A function call, including function selector and arguments                  _calldata is executed with delegatecall on _init\",\"_diamondCut\":\"Contains the facet addresses and function selectors\",\"_init\":\"The address of the contract or facet to execute _calldata\"}},\"rescindDiamondCut((address,uint8,bytes4[])[],address,bytes)\":{\"params\":{\"_calldata\":\"A function call, including function selector and arguments                  _calldata is executed with delegatecall on _init\",\"_diamondCut\":\"Contains the facet addresses and function selectors\",\"_init\":\"The address of the contract or facet to execute _calldata\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"diamondCut((address,uint8,bytes4[])[],address,bytes)\":{\"notice\":\"Add/replace/remove any number of functions and optionally execute         a function with delegatecall\"},\"getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)\":{\"notice\":\"Returns the acceptance time for a given proposal\"},\"proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)\":{\"notice\":\"Propose to add/replace/remove any number of functions and optionally execute         a function with delegatecall\"},\"rescindDiamondCut((address,uint8,bytes4[])[],address,bytes)\":{\"notice\":\"Propose to add/replace/remove any number of functions and optionally execute         a function with delegatecall\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/core/connext/facets/DiamondCutFacet.sol\":\"DiamondCutFacet\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/core/connext/facets/DiamondCutFacet.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.17;\\n\\n/******************************************************************************\\\\\\n* Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)\\n* EIP-2535 Diamonds: https://eips.ethereum.org/EIPS/eip-2535\\n/******************************************************************************/\\n\\nimport {IDiamondCut} from \\\"../interfaces/IDiamondCut.sol\\\";\\nimport {LibDiamond} from \\\"../libraries/LibDiamond.sol\\\";\\n\\n// Remember to add the loupe functions from DiamondLoupeFacet to the diamond.\\n// The loupe functions are required by the EIP2535 Diamonds standard\\n\\ncontract DiamondCutFacet is IDiamondCut {\\n  /// @notice Add/replace/remove any number of functions and optionally execute\\n  ///         a function with delegatecall\\n  /// @param _diamondCut Contains the facet addresses and function selectors\\n  /// @param _init The address of the contract or facet to execute _calldata\\n  /// @param _calldata A function call, including function selector and arguments\\n  ///                  _calldata is executed with delegatecall on _init\\n  function diamondCut(\\n    FacetCut[] calldata _diamondCut,\\n    address _init,\\n    bytes calldata _calldata\\n  ) external override {\\n    LibDiamond.enforceIsContractOwner();\\n    LibDiamond.diamondCut(_diamondCut, _init, _calldata);\\n  }\\n\\n  function proposeDiamondCut(\\n    FacetCut[] calldata _diamondCut,\\n    address _init,\\n    bytes calldata _calldata\\n  ) external {\\n    LibDiamond.enforceIsContractOwner();\\n    LibDiamond.proposeDiamondCut(_diamondCut, _init, _calldata);\\n  }\\n\\n  function rescindDiamondCut(\\n    FacetCut[] calldata _diamondCut,\\n    address _init,\\n    bytes calldata _calldata\\n  ) external {\\n    LibDiamond.enforceIsContractOwner();\\n    LibDiamond.rescindDiamondCut(_diamondCut, _init, _calldata);\\n  }\\n\\n  function getAcceptanceTime(\\n    FacetCut[] calldata _diamondCut,\\n    address _init,\\n    bytes calldata _calldata\\n  ) external view returns (uint256) {\\n    return LibDiamond.acceptanceTime(keccak256(abi.encode(_diamondCut, _init, _calldata)));\\n  }\\n}\\n\",\"keccak256\":\"0xfd7e9f489e8a67109b64fcb1136fd8126cfddb7e4db9096560b9285cc4c57486\",\"license\":\"MIT\"},\"contracts/core/connext/interfaces/IDiamondCut.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.17;\\n\\n/******************************************************************************\\\\\\n* Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)\\n* EIP-2535 Diamonds: https://eips.ethereum.org/EIPS/eip-2535\\n/******************************************************************************/\\n\\ninterface IDiamondCut {\\n  enum FacetCutAction {\\n    Add,\\n    Replace,\\n    Remove\\n  }\\n  // Add=0, Replace=1, Remove=2\\n\\n  struct FacetCut {\\n    address facetAddress;\\n    FacetCutAction action;\\n    bytes4[] functionSelectors;\\n  }\\n\\n  /// @notice Propose to add/replace/remove any number of functions and optionally execute\\n  ///         a function with delegatecall\\n  /// @param _diamondCut Contains the facet addresses and function selectors\\n  /// @param _init The address of the contract or facet to execute _calldata\\n  /// @param _calldata A function call, including function selector and arguments\\n  ///                  _calldata is executed with delegatecall on _init\\n  function proposeDiamondCut(\\n    FacetCut[] calldata _diamondCut,\\n    address _init,\\n    bytes calldata _calldata\\n  ) external;\\n\\n  event DiamondCutProposed(FacetCut[] _diamondCut, address _init, bytes _calldata, uint256 deadline);\\n\\n  /// @notice Add/replace/remove any number of functions and optionally execute\\n  ///         a function with delegatecall\\n  /// @param _diamondCut Contains the facet addresses and function selectors\\n  /// @param _init The address of the contract or facet to execute _calldata\\n  /// @param _calldata A function call, including function selector and arguments\\n  ///                  _calldata is executed with delegatecall on _init\\n  function diamondCut(\\n    FacetCut[] calldata _diamondCut,\\n    address _init,\\n    bytes calldata _calldata\\n  ) external;\\n\\n  event DiamondCut(FacetCut[] _diamondCut, address _init, bytes _calldata);\\n\\n  /// @notice Propose to add/replace/remove any number of functions and optionally execute\\n  ///         a function with delegatecall\\n  /// @param _diamondCut Contains the facet addresses and function selectors\\n  /// @param _init The address of the contract or facet to execute _calldata\\n  /// @param _calldata A function call, including function selector and arguments\\n  ///                  _calldata is executed with delegatecall on _init\\n  function rescindDiamondCut(\\n    FacetCut[] calldata _diamondCut,\\n    address _init,\\n    bytes calldata _calldata\\n  ) external;\\n\\n  /**\\n   * @notice Returns the acceptance time for a given proposal\\n   * @param _diamondCut Contains the facet addresses and function selectors\\n   * @param _init The address of the contract or facet to execute _calldata\\n   * @param _calldata A function call, including function selector and arguments _calldata is\\n   * executed with delegatecall on _init\\n   */\\n  function getAcceptanceTime(\\n    FacetCut[] calldata _diamondCut,\\n    address _init,\\n    bytes calldata _calldata\\n  ) external returns (uint256);\\n\\n  event DiamondCutRescinded(FacetCut[] _diamondCut, address _init, bytes _calldata);\\n}\\n\",\"keccak256\":\"0x4f0bf252cb5541d7ffd04fc49abdc7d2f2c838ba65f108201f787851c7b238fb\",\"license\":\"MIT\"},\"contracts/core/connext/libraries/LibDiamond.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.17;\\n\\n/******************************************************************************\\\\\\n* Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)\\n* EIP-2535 Diamonds: https://eips.ethereum.org/EIPS/eip-2535\\n/******************************************************************************/\\nimport {IDiamondCut} from \\\"../interfaces/IDiamondCut.sol\\\";\\n\\n// Remember to add the loupe functions from DiamondLoupeFacet to the diamond.\\n// The loupe functions are required by the EIP2535 Diamonds standard\\n\\nlibrary LibDiamond {\\n  bytes32 constant DIAMOND_STORAGE_POSITION = keccak256(\\\"diamond.standard.diamond.storage\\\");\\n\\n  struct FacetAddressAndPosition {\\n    address facetAddress;\\n    uint96 functionSelectorPosition; // position in facetFunctionSelectors.functionSelectors array\\n  }\\n\\n  struct FacetFunctionSelectors {\\n    bytes4[] functionSelectors;\\n    uint256 facetAddressPosition; // position of facetAddress in facetAddresses array\\n  }\\n\\n  struct DiamondStorage {\\n    // maps function selector to the facet address and\\n    // the position of the selector in the facetFunctionSelectors.selectors array\\n    mapping(bytes4 => FacetAddressAndPosition) selectorToFacetAndPosition;\\n    // maps facet addresses to function selectors\\n    mapping(address => FacetFunctionSelectors) facetFunctionSelectors;\\n    // facet addresses\\n    address[] facetAddresses;\\n    // Used to query if a contract implements an interface.\\n    // Used to implement ERC-165.\\n    mapping(bytes4 => bool) supportedInterfaces;\\n    // owner of the contract\\n    address contractOwner;\\n    // hash of proposed facets => acceptance time\\n    mapping(bytes32 => uint256) acceptanceTimes;\\n    // acceptance delay for upgrading facets\\n    uint256 acceptanceDelay;\\n  }\\n\\n  function diamondStorage() internal pure returns (DiamondStorage storage ds) {\\n    bytes32 position = DIAMOND_STORAGE_POSITION;\\n    assembly {\\n      ds.slot := position\\n    }\\n  }\\n\\n  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n  function setContractOwner(address _newOwner) internal {\\n    DiamondStorage storage ds = diamondStorage();\\n    emit OwnershipTransferred(ds.contractOwner, _newOwner);\\n    ds.contractOwner = _newOwner;\\n  }\\n\\n  function contractOwner() internal view returns (address contractOwner_) {\\n    contractOwner_ = diamondStorage().contractOwner;\\n  }\\n\\n  function acceptanceDelay() internal view returns (uint256) {\\n    return diamondStorage().acceptanceDelay;\\n  }\\n\\n  function acceptanceTime(bytes32 _key) internal view returns (uint256) {\\n    return diamondStorage().acceptanceTimes[_key];\\n  }\\n\\n  function enforceIsContractOwner() internal view {\\n    require(msg.sender == diamondStorage().contractOwner, \\\"LibDiamond: !contract owner\\\");\\n  }\\n\\n  event DiamondCutProposed(IDiamondCut.FacetCut[] _diamondCut, address _init, bytes _calldata, uint256 deadline);\\n\\n  function proposeDiamondCut(\\n    IDiamondCut.FacetCut[] memory _diamondCut,\\n    address _init,\\n    bytes memory _calldata\\n  ) internal {\\n    // NOTE: to save gas, verification that `proposeDiamondCut` and `diamondCut` are not\\n    // included is performed in `diamondCut`, where there is already a loop over facets.\\n    // In the case where these cuts are performed, admins must call `rescindDiamondCut`\\n\\n    DiamondStorage storage ds = diamondStorage();\\n    uint256 acceptance = block.timestamp + ds.acceptanceDelay;\\n    ds.acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = acceptance;\\n    emit DiamondCutProposed(_diamondCut, _init, _calldata, acceptance);\\n  }\\n\\n  event DiamondCutRescinded(IDiamondCut.FacetCut[] _diamondCut, address _init, bytes _calldata);\\n\\n  function rescindDiamondCut(\\n    IDiamondCut.FacetCut[] memory _diamondCut,\\n    address _init,\\n    bytes memory _calldata\\n  ) internal {\\n    // NOTE: you can always rescind a proposed facet cut as the owner, even if outside of the validity\\n    // period or befor the delay elpases\\n    diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = 0;\\n    emit DiamondCutRescinded(_diamondCut, _init, _calldata);\\n  }\\n\\n  event DiamondCut(IDiamondCut.FacetCut[] _diamondCut, address _init, bytes _calldata);\\n\\n  // Internal function version of diamondCut\\n  function diamondCut(\\n    IDiamondCut.FacetCut[] memory _diamondCut,\\n    address _init,\\n    bytes memory _calldata\\n  ) internal {\\n    DiamondStorage storage ds = diamondStorage();\\n    bytes32 key = keccak256(abi.encode(_diamondCut, _init, _calldata));\\n    if (ds.facetAddresses.length != 0) {\\n      uint256 time = ds.acceptanceTimes[key];\\n      require(time != 0 && time <= block.timestamp, \\\"LibDiamond: delay not elapsed\\\");\\n      // Reset the acceptance time to ensure the same set of updates cannot be replayed\\n      // without going through a proposal window\\n\\n      // NOTE: the only time this will not be set to 0 is when there are no\\n      // existing facet addresses (on initialization, or when starting after a bad upgrade,\\n      // for example).\\n      // The only relevant case is the initial case, which has no acceptance time. otherwise,\\n      // there is no way to update the facet selector mapping to call `diamondCut`.\\n      // Avoiding setting the empty value will save gas on the initial deployment.\\n      ds.acceptanceTimes[key] = 0;\\n    } // Otherwise, this is the first instance of deployment and it can be set automatically\\n\\n    // Perform a diamond cut\\n    for (uint256 facetIndex; facetIndex < _diamondCut.length; facetIndex++) {\\n      IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;\\n      if (action == IDiamondCut.FacetCutAction.Add) {\\n        addFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);\\n      } else if (action == IDiamondCut.FacetCutAction.Replace) {\\n        replaceFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);\\n      } else if (action == IDiamondCut.FacetCutAction.Remove) {\\n        removeFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);\\n      } else {\\n        revert(\\\"LibDiamondCut: Incorrect FacetCutAction\\\");\\n      }\\n    }\\n    emit DiamondCut(_diamondCut, _init, _calldata);\\n    initializeDiamondCut(_init, _calldata);\\n  }\\n\\n  function addFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {\\n    require(_functionSelectors.length != 0, \\\"LibDiamondCut: No selectors in facet to cut\\\");\\n    DiamondStorage storage ds = diamondStorage();\\n    require(_facetAddress != address(0), \\\"LibDiamondCut: Add facet can't be address(0)\\\");\\n    uint96 selectorPosition = uint96(ds.facetFunctionSelectors[_facetAddress].functionSelectors.length);\\n    // add new facet address if it does not exist\\n    if (selectorPosition == 0) {\\n      addFacet(ds, _facetAddress);\\n    }\\n    for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {\\n      bytes4 selector = _functionSelectors[selectorIndex];\\n      address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;\\n      require(oldFacetAddress == address(0), \\\"LibDiamondCut: Can't add function that already exists\\\");\\n      addFunction(ds, selector, selectorPosition, _facetAddress);\\n      selectorPosition++;\\n    }\\n  }\\n\\n  function replaceFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {\\n    require(_functionSelectors.length != 0, \\\"LibDiamondCut: No selectors in facet to cut\\\");\\n    DiamondStorage storage ds = diamondStorage();\\n    require(_facetAddress != address(0), \\\"LibDiamondCut: Add facet can't be address(0)\\\");\\n    uint96 selectorPosition = uint96(ds.facetFunctionSelectors[_facetAddress].functionSelectors.length);\\n    // add new facet address if it does not exist\\n    if (selectorPosition == 0) {\\n      addFacet(ds, _facetAddress);\\n    }\\n    for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {\\n      bytes4 selector = _functionSelectors[selectorIndex];\\n      address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;\\n      require(oldFacetAddress != _facetAddress, \\\"LibDiamondCut: Can't replace function with same function\\\");\\n      removeFunction(ds, oldFacetAddress, selector);\\n      addFunction(ds, selector, selectorPosition, _facetAddress);\\n      selectorPosition++;\\n    }\\n  }\\n\\n  function removeFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {\\n    require(_functionSelectors.length != 0, \\\"LibDiamondCut: No selectors in facet to cut\\\");\\n    DiamondStorage storage ds = diamondStorage();\\n    // get the propose and cut selectors -- can never remove these\\n    bytes4 proposeSelector = IDiamondCut.proposeDiamondCut.selector;\\n    bytes4 cutSelector = IDiamondCut.diamondCut.selector;\\n    // if function does not exist then do nothing and return\\n    require(_facetAddress == address(0), \\\"LibDiamondCut: Remove facet address must be address(0)\\\");\\n    for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {\\n      bytes4 selector = _functionSelectors[selectorIndex];\\n      require(selector != proposeSelector && selector != cutSelector, \\\"LibDiamondCut: Cannot remove cut selectors\\\");\\n      address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;\\n      removeFunction(ds, oldFacetAddress, selector);\\n    }\\n  }\\n\\n  function addFacet(DiamondStorage storage ds, address _facetAddress) internal {\\n    enforceHasContractCode(_facetAddress, \\\"LibDiamondCut: New facet has no code\\\");\\n    ds.facetFunctionSelectors[_facetAddress].facetAddressPosition = ds.facetAddresses.length;\\n    ds.facetAddresses.push(_facetAddress);\\n  }\\n\\n  function addFunction(\\n    DiamondStorage storage ds,\\n    bytes4 _selector,\\n    uint96 _selectorPosition,\\n    address _facetAddress\\n  ) internal {\\n    ds.selectorToFacetAndPosition[_selector].functionSelectorPosition = _selectorPosition;\\n    ds.facetFunctionSelectors[_facetAddress].functionSelectors.push(_selector);\\n    ds.selectorToFacetAndPosition[_selector].facetAddress = _facetAddress;\\n  }\\n\\n  function removeFunction(\\n    DiamondStorage storage ds,\\n    address _facetAddress,\\n    bytes4 _selector\\n  ) internal {\\n    require(_facetAddress != address(0), \\\"LibDiamondCut: Can't remove function that doesn't exist\\\");\\n    // an immutable function is a function defined directly in a diamond\\n    require(_facetAddress != address(this), \\\"LibDiamondCut: Can't remove immutable function\\\");\\n    // replace selector with last selector, then delete last selector\\n    uint256 selectorPosition = ds.selectorToFacetAndPosition[_selector].functionSelectorPosition;\\n    uint256 lastSelectorPosition = ds.facetFunctionSelectors[_facetAddress].functionSelectors.length - 1;\\n    // if not the same then replace _selector with lastSelector\\n    if (selectorPosition != lastSelectorPosition) {\\n      bytes4 lastSelector = ds.facetFunctionSelectors[_facetAddress].functionSelectors[lastSelectorPosition];\\n      ds.facetFunctionSelectors[_facetAddress].functionSelectors[selectorPosition] = lastSelector;\\n      ds.selectorToFacetAndPosition[lastSelector].functionSelectorPosition = uint96(selectorPosition);\\n    }\\n    // delete the last selector\\n    ds.facetFunctionSelectors[_facetAddress].functionSelectors.pop();\\n    delete ds.selectorToFacetAndPosition[_selector];\\n\\n    // if no more selectors for facet address then delete the facet address\\n    if (lastSelectorPosition == 0) {\\n      // replace facet address with last facet address and delete last facet address\\n      uint256 lastFacetAddressPosition = ds.facetAddresses.length - 1;\\n      uint256 facetAddressPosition = ds.facetFunctionSelectors[_facetAddress].facetAddressPosition;\\n      if (facetAddressPosition != lastFacetAddressPosition) {\\n        address lastFacetAddress = ds.facetAddresses[lastFacetAddressPosition];\\n        ds.facetAddresses[facetAddressPosition] = lastFacetAddress;\\n        ds.facetFunctionSelectors[lastFacetAddress].facetAddressPosition = facetAddressPosition;\\n      }\\n      ds.facetAddresses.pop();\\n      delete ds.facetFunctionSelectors[_facetAddress].facetAddressPosition;\\n    }\\n  }\\n\\n  function initializeDiamondCut(address _init, bytes memory _calldata) internal {\\n    if (_init == address(0)) {\\n      require(_calldata.length == 0, \\\"LibDiamondCut: _init is address(0) but_calldata is not empty\\\");\\n    } else {\\n      require(_calldata.length != 0, \\\"LibDiamondCut: _calldata is empty but _init is not address(0)\\\");\\n      if (_init != address(this)) {\\n        enforceHasContractCode(_init, \\\"LibDiamondCut: _init address has no code\\\");\\n      }\\n      (bool success, bytes memory error) = _init.delegatecall(_calldata);\\n      if (!success) {\\n        if (error.length != 0) {\\n          // bubble up the error\\n          revert(string(error));\\n        } else {\\n          revert(\\\"LibDiamondCut: _init function reverted\\\");\\n        }\\n      }\\n    }\\n  }\\n\\n  function enforceHasContractCode(address _contract, string memory _errorMessage) internal view {\\n    require(_contract.code.length != 0, _errorMessage);\\n  }\\n}\\n\",\"keccak256\":\"0x3c0bd516d43f19fa7850535fc0c912b092d8ab8a05ead24817256b707f6a3c4e\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50611af4806100206000396000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c80631f931c1c146100515780632c67849c1461006657806356a8ea4814610079578063bbf2358e1461009e575b600080fd5b61006461005f3660046112f8565b6100b1565b005b6100646100743660046112f8565b61010a565b61008c6100873660046112f8565b61015c565b60405190815260200160405180910390f35b6100646100ac3660046112f8565b6101cb565b6100b961021d565b6101036100c68587611465565b8484848080601f01602080910402602001604051908101604052809392919081815260200183838082843760009201919091525061028e92505050565b5050505050565b61011261021d565b61010361011f8587611465565b8484848080601f01602080910402602001604051908101604052809392919081815260200183838082843760009201919091525061056692505050565b60006101c1868686868660405160200161017a95949392919061163b565b6040516020818303038152906040528051906020012060009081527fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c1321602052604090205490565b9695505050505050565b6101d361021d565b6101036101e08587611465565b8484848080601f0160208091040260200160405190810160405280939291908181526020018383808284376000920191909152506105f992505050565b600080516020611a53833981519152600401546001600160a01b0316331461028c5760405162461bcd60e51b815260206004820152601b60248201527f4c69624469616d6f6e643a2021636f6e7472616374206f776e6572000000000060448201526064015b60405180910390fd5b565b604051600080516020611a53833981519152906000906102b69086908690869060200161185e565b60408051601f19818403018152919052805160209091012060028301549091501561035a57600081815260058301602052604090205480158015906102fb5750428111155b6103475760405162461bcd60e51b815260206004820152601d60248201527f4c69624469616d6f6e643a2064656c6179206e6f7420656c61707365640000006044820152606401610283565b5060008181526005830160205260408120555b60005b855181101561052057600086828151811061037a5761037a611892565b60200260200101516020015190506000600281111561039b5761039b611592565b8160028111156103ad576103ad611592565b036103fb576103f68783815181106103c7576103c7611892565b6020026020010151600001518884815181106103e5576103e5611892565b6020026020010151604001516106c2565b61050d565b600181600281111561040f5761040f611592565b03610458576103f687838151811061042957610429611892565b60200260200101516000015188848151811061044757610447611892565b60200260200101516040015161083a565b600281600281111561046c5761046c611592565b036104b5576103f687838151811061048657610486611892565b6020026020010151600001518884815181106104a4576104a4611892565b6020026020010151604001516109ca565b60405162461bcd60e51b815260206004820152602760248201527f4c69624469616d6f6e644375743a20496e636f727265637420466163657443756044820152663a20b1ba34b7b760c91b6064820152608401610283565b5080610518816118be565b91505061035d565b507f8faa70878671ccd212d20771b795c50af8fd3ff6cf27f4bde57e5d4de0aeb6738585856040516105549392919061185e565b60405180910390a16101038484610b85565b6000600080516020611a5383398151915260050160008585856040516020016105919392919061185e565b604051602081830303815290604052805190602001208152602001908152602001600020819055507f47b4eb69218cd939e2a72afd9d24fe3a6ca02515a6d712ff3942062df2eedbdb8383836040516105ec9392919061185e565b60405180910390a1505050565b7fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c132254600080516020611a538339815191529060009061063890426118d7565b9050808260050160008787876040516020016106569392919061185e565b604051602081830303815290604052805190602001208152602001908152602001600020819055507f6c20294df7018c510b52fd6cc0352d7b78056de164d751b75da6ef7b63daa83e858585846040516106b394939291906118f0565b60405180910390a15050505050565b80516000036106e35760405162461bcd60e51b815260040161028390611936565b600080516020611a538339815191526001600160a01b0383166107185760405162461bcd60e51b815260040161028390611981565b6001600160a01b0383166000908152600182016020526040812054906001600160601b038216900361074e5761074e8285610d98565b60005b835181101561010357600084828151811061076e5761076e611892565b6020908102919091018101516001600160e01b031981166000908152918690526040909120549091506001600160a01b0316801561080c5760405162461bcd60e51b815260206004820152603560248201527f4c69624469616d6f6e644375743a2043616e2774206164642066756e6374696f6044820152746e207468617420616c72656164792065786973747360581b6064820152608401610283565b6108188583868a610e02565b83610822816119cd565b94505050508080610832906118be565b915050610751565b805160000361085b5760405162461bcd60e51b815260040161028390611936565b600080516020611a538339815191526001600160a01b0383166108905760405162461bcd60e51b815260040161028390611981565b6001600160a01b0383166000908152600182016020526040812054906001600160601b03821690036108c6576108c68285610d98565b60005b83518110156101035760008482815181106108e6576108e6611892565b6020908102919091018101516001600160e01b031981166000908152918690526040909120549091506001600160a01b0390811690871681036109915760405162461bcd60e51b815260206004820152603860248201527f4c69624469616d6f6e644375743a2043616e2774207265706c6163652066756e60448201527f6374696f6e20776974682073616d652066756e6374696f6e00000000000000006064820152608401610283565b61099c858284610ea2565b6109a88583868a610e02565b836109b2816119cd565b945050505080806109c2906118be565b9150506108c9565b80516000036109eb5760405162461bcd60e51b815260040161028390611936565b600080516020611a53833981519152635df91ac760e11b6307e4c70760e21b6001600160a01b03851615610a805760405162461bcd60e51b815260206004820152603660248201527f4c69624469616d6f6e644375743a2052656d6f76652066616365742061646472604482015275657373206d757374206265206164647265737328302960501b6064820152608401610283565b60005b8451811015610b7d576000858281518110610aa057610aa0611892565b60200260200101519050836001600160e01b031916816001600160e01b03191614158015610adb57506001600160e01b031981811690841614155b610b3a5760405162461bcd60e51b815260206004820152602a60248201527f4c69624469616d6f6e644375743a2043616e6e6f742072656d6f7665206375746044820152692073656c6563746f727360b01b6064820152608401610283565b6001600160e01b031981166000908152602086905260409020546001600160a01b0316610b68868284610ea2565b50508080610b75906118be565b915050610a83565b505050505050565b6001600160a01b038216610c0c57805115610c085760405162461bcd60e51b815260206004820152603c60248201527f4c69624469616d6f6e644375743a205f696e697420697320616464726573732860448201527f3029206275745f63616c6c64617461206973206e6f7420656d707479000000006064820152608401610283565b5050565b8051600003610c835760405162461bcd60e51b815260206004820152603d60248201527f4c69624469616d6f6e644375743a205f63616c6c6461746120697320656d707460448201527f7920627574205f696e6974206973206e6f7420616464726573732830290000006064820152608401610283565b6001600160a01b0382163014610cb557610cb582604051806060016040528060288152602001611a7360289139611265565b600080836001600160a01b031683604051610cd091906119f3565b600060405180830381855af49150503d8060008114610d0b576040519150601f19603f3d011682016040523d82523d6000602084013e610d10565b606091505b509150915081610d9257805115610d3b578060405162461bcd60e51b81526004016102839190611a0f565b60405162461bcd60e51b815260206004820152602660248201527f4c69624469616d6f6e644375743a205f696e69742066756e6374696f6e2072656044820152651d995c9d195960d21b6064820152608401610283565b50505050565b610dba81604051806060016040528060248152602001611a9b60249139611265565b6002820180546001600160a01b0390921660008181526001948501602090815260408220860185905594840183559182529290200180546001600160a01b0319169091179055565b6001600160e01b0319831660008181526020868152604080832080546001600160601b03909716600160a01b026001600160a01b0397881617815594909516808352600180890183529583208054968701815583528183206008870401805460e09890981c60046007909816979097026101000a96870263ffffffff9097021990971695909517909555529290915281546001600160a01b031916179055565b6001600160a01b038216610f1e5760405162461bcd60e51b815260206004820152603760248201527f4c69624469616d6f6e644375743a2043616e27742072656d6f76652066756e6360448201527f74696f6e207468617420646f65736e27742065786973740000000000000000006064820152608401610283565b306001600160a01b03831603610f8d5760405162461bcd60e51b815260206004820152602e60248201527f4c69624469616d6f6e644375743a2043616e27742072656d6f766520696d6d7560448201526d3a30b1363290333ab731ba34b7b760911b6064820152608401610283565b6001600160e01b03198116600090815260208481526040808320546001600160a01b0386168452600180880190935290832054600160a01b9091046001600160601b03169291610fdc91611a29565b90508082146110ce576001600160a01b0384166000908152600186016020526040812080548390811061101157611011611892565b600091825260208083206008830401546001600160a01b038916845260018a019091526040909220805460079092166004026101000a90920460e01b92508291908590811061106257611062611892565b600091825260208083206008830401805463ffffffff60079094166004026101000a938402191660e09590951c929092029390931790556001600160e01b03199290921682528690526040902080546001600160a01b0316600160a01b6001600160601b038516021790555b6001600160a01b038416600090815260018601602052604090208054806110f7576110f7611a3c565b60008281526020808220600860001990940193840401805463ffffffff600460078716026101000a0219169055919092556001600160e01b0319851682528690526040812081905581900361010357600285015460009061115a90600190611a29565b6001600160a01b038616600090815260018089016020526040909120015490915080821461120957600087600201838154811061119957611199611892565b6000918252602090912001546002890180546001600160a01b0390921692508291849081106111ca576111ca611892565b600091825260208083209190910180546001600160a01b0319166001600160a01b03948516179055929091168152600189810190925260409020018190555b8660020180548061121c5761121c611a3c565b60008281526020808220830160001990810180546001600160a01b03191690559092019092556001600160a01b0388168252600189810190915260408220015550505050505050565b806001600160a01b0383163b61128e5760405162461bcd60e51b81526004016102839190611a0f565b505050565b80356001600160a01b03811681146112aa57600080fd5b919050565b60008083601f8401126112c157600080fd5b50813567ffffffffffffffff8111156112d957600080fd5b6020830191508360208285010111156112f157600080fd5b9250929050565b60008060008060006060868803121561131057600080fd5b853567ffffffffffffffff8082111561132857600080fd5b818801915088601f83011261133c57600080fd5b81358181111561134b57600080fd5b8960208260051b850101111561136057600080fd5b6020830197508096505061137660208901611293565b9450604088013591508082111561138c57600080fd5b50611399888289016112af565b969995985093965092949392505050565b634e487b7160e01b600052604160045260246000fd5b6040516060810167ffffffffffffffff811182821017156113e3576113e36113aa565b60405290565b604051601f8201601f1916810167ffffffffffffffff81118282101715611412576114126113aa565b604052919050565b600067ffffffffffffffff821115611434576114346113aa565b5060051b60200190565b8035600381106112aa57600080fd5b80356001600160e01b0319811681146112aa57600080fd5b60006114786114738461141a565b6113e9565b83815260208082019190600586811b86013681111561149657600080fd5b865b8181101561158557803567ffffffffffffffff808211156114b95760008081fd5b818a019150606082360312156114cf5760008081fd5b6114d76113c0565b6114e083611293565b81526114ed87840161143e565b87820152604080840135838111156115055760008081fd5b939093019236601f85011261151c57600092508283fd5b8335925061152c6114738461141a565b83815292871b840188019288810190368511156115495760008081fd5b948901945b8486101561156e5761155f8661144d565b8252948901949089019061154e565b918301919091525088525050948301948301611498565b5092979650505050505050565b634e487b7160e01b600052602160045260246000fd5b600381106115c657634e487b7160e01b600052602160045260246000fd5b9052565b8183526000602080850194508260005b85811015611607576001600160e01b03196115f48361144d565b16875295820195908201906001016115da565b509495945050505050565b81835281816020850137506000828201602090810191909152601f909101601f19169091010190565b6060808252818101869052600090600560808085019089831b8601018a855b8b81101561171f57878303607f190184528135368e9003605e1901811261168057600080fd5b8d016001600160a01b0361169382611293565b16845260206116a381830161143e565b6116af828701826115a8565b50604080830135601e198436030181126116c857600080fd5b90920181810192903567ffffffffffffffff8111156116e657600080fd5b80891b36038413156116f757600080fd5b89828801526117098a880182866115ca565b978301979650505092909201915060010161165a565b50506001600160a01b0389166020870152858103604087015261174381888a611612565b9b9a5050505050505050505050565b6000815180845260208085019450848260051b86018286016000805b86811015611800578484038a52825180516001600160a01b0316855286810151606090818701906117a18a8901826115a8565b506040928301519287019190915281519081905290870190608086019084905b808210156117eb5783516001600160e01b03191683529289019291890191600191909101906117c1565b50509a87019a9450509185019160010161176e565b509198975050505050505050565b60005b83811015611829578181015183820152602001611811565b50506000910152565b6000815180845261184a81602086016020860161180e565b601f01601f19169290920160200192915050565b6060815260006118716060830186611752565b6001600160a01b038516602084015282810360408401526101c18185611832565b634e487b7160e01b600052603260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b6000600182016118d0576118d06118a8565b5060010190565b808201808211156118ea576118ea6118a8565b92915050565b6080815260006119036080830187611752565b6001600160a01b038616602084015282810360408401526119248186611832565b91505082606083015295945050505050565b6020808252602b908201527f4c69624469616d6f6e644375743a204e6f2073656c6563746f727320696e206660408201526a1858d95d081d1bc818dd5d60aa1b606082015260800190565b6020808252602c908201527f4c69624469616d6f6e644375743a204164642066616365742063616e2774206260408201526b65206164647265737328302960a01b606082015260800190565b60006001600160601b038083168181036119e9576119e96118a8565b6001019392505050565b60008251611a0581846020870161180e565b9190910192915050565b602081526000611a226020830184611832565b9392505050565b818103818111156118ea576118ea6118a8565b634e487b7160e01b600052603160045260246000fdfec8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c4c69624469616d6f6e644375743a205f696e6974206164647265737320686173206e6f20636f64654c69624469616d6f6e644375743a204e657720666163657420686173206e6f20636f6465a264697066735822122059ae9050dc361ca2819d652955c14300805fec01d293c087263e6d16ecf3fdff64736f6c63430008110033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061004c5760003560e01c80631f931c1c146100515780632c67849c1461006657806356a8ea4814610079578063bbf2358e1461009e575b600080fd5b61006461005f3660046112f8565b6100b1565b005b6100646100743660046112f8565b61010a565b61008c6100873660046112f8565b61015c565b60405190815260200160405180910390f35b6100646100ac3660046112f8565b6101cb565b6100b961021d565b6101036100c68587611465565b8484848080601f01602080910402602001604051908101604052809392919081815260200183838082843760009201919091525061028e92505050565b5050505050565b61011261021d565b61010361011f8587611465565b8484848080601f01602080910402602001604051908101604052809392919081815260200183838082843760009201919091525061056692505050565b60006101c1868686868660405160200161017a95949392919061163b565b6040516020818303038152906040528051906020012060009081527fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c1321602052604090205490565b9695505050505050565b6101d361021d565b6101036101e08587611465565b8484848080601f0160208091040260200160405190810160405280939291908181526020018383808284376000920191909152506105f992505050565b600080516020611a53833981519152600401546001600160a01b0316331461028c5760405162461bcd60e51b815260206004820152601b60248201527f4c69624469616d6f6e643a2021636f6e7472616374206f776e6572000000000060448201526064015b60405180910390fd5b565b604051600080516020611a53833981519152906000906102b69086908690869060200161185e565b60408051601f19818403018152919052805160209091012060028301549091501561035a57600081815260058301602052604090205480158015906102fb5750428111155b6103475760405162461bcd60e51b815260206004820152601d60248201527f4c69624469616d6f6e643a2064656c6179206e6f7420656c61707365640000006044820152606401610283565b5060008181526005830160205260408120555b60005b855181101561052057600086828151811061037a5761037a611892565b60200260200101516020015190506000600281111561039b5761039b611592565b8160028111156103ad576103ad611592565b036103fb576103f68783815181106103c7576103c7611892565b6020026020010151600001518884815181106103e5576103e5611892565b6020026020010151604001516106c2565b61050d565b600181600281111561040f5761040f611592565b03610458576103f687838151811061042957610429611892565b60200260200101516000015188848151811061044757610447611892565b60200260200101516040015161083a565b600281600281111561046c5761046c611592565b036104b5576103f687838151811061048657610486611892565b6020026020010151600001518884815181106104a4576104a4611892565b6020026020010151604001516109ca565b60405162461bcd60e51b815260206004820152602760248201527f4c69624469616d6f6e644375743a20496e636f727265637420466163657443756044820152663a20b1ba34b7b760c91b6064820152608401610283565b5080610518816118be565b91505061035d565b507f8faa70878671ccd212d20771b795c50af8fd3ff6cf27f4bde57e5d4de0aeb6738585856040516105549392919061185e565b60405180910390a16101038484610b85565b6000600080516020611a5383398151915260050160008585856040516020016105919392919061185e565b604051602081830303815290604052805190602001208152602001908152602001600020819055507f47b4eb69218cd939e2a72afd9d24fe3a6ca02515a6d712ff3942062df2eedbdb8383836040516105ec9392919061185e565b60405180910390a1505050565b7fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c132254600080516020611a538339815191529060009061063890426118d7565b9050808260050160008787876040516020016106569392919061185e565b604051602081830303815290604052805190602001208152602001908152602001600020819055507f6c20294df7018c510b52fd6cc0352d7b78056de164d751b75da6ef7b63daa83e858585846040516106b394939291906118f0565b60405180910390a15050505050565b80516000036106e35760405162461bcd60e51b815260040161028390611936565b600080516020611a538339815191526001600160a01b0383166107185760405162461bcd60e51b815260040161028390611981565b6001600160a01b0383166000908152600182016020526040812054906001600160601b038216900361074e5761074e8285610d98565b60005b835181101561010357600084828151811061076e5761076e611892565b6020908102919091018101516001600160e01b031981166000908152918690526040909120549091506001600160a01b0316801561080c5760405162461bcd60e51b815260206004820152603560248201527f4c69624469616d6f6e644375743a2043616e2774206164642066756e6374696f6044820152746e207468617420616c72656164792065786973747360581b6064820152608401610283565b6108188583868a610e02565b83610822816119cd565b94505050508080610832906118be565b915050610751565b805160000361085b5760405162461bcd60e51b815260040161028390611936565b600080516020611a538339815191526001600160a01b0383166108905760405162461bcd60e51b815260040161028390611981565b6001600160a01b0383166000908152600182016020526040812054906001600160601b03821690036108c6576108c68285610d98565b60005b83518110156101035760008482815181106108e6576108e6611892565b6020908102919091018101516001600160e01b031981166000908152918690526040909120549091506001600160a01b0390811690871681036109915760405162461bcd60e51b815260206004820152603860248201527f4c69624469616d6f6e644375743a2043616e2774207265706c6163652066756e60448201527f6374696f6e20776974682073616d652066756e6374696f6e00000000000000006064820152608401610283565b61099c858284610ea2565b6109a88583868a610e02565b836109b2816119cd565b945050505080806109c2906118be565b9150506108c9565b80516000036109eb5760405162461bcd60e51b815260040161028390611936565b600080516020611a53833981519152635df91ac760e11b6307e4c70760e21b6001600160a01b03851615610a805760405162461bcd60e51b815260206004820152603660248201527f4c69624469616d6f6e644375743a2052656d6f76652066616365742061646472604482015275657373206d757374206265206164647265737328302960501b6064820152608401610283565b60005b8451811015610b7d576000858281518110610aa057610aa0611892565b60200260200101519050836001600160e01b031916816001600160e01b03191614158015610adb57506001600160e01b031981811690841614155b610b3a5760405162461bcd60e51b815260206004820152602a60248201527f4c69624469616d6f6e644375743a2043616e6e6f742072656d6f7665206375746044820152692073656c6563746f727360b01b6064820152608401610283565b6001600160e01b031981166000908152602086905260409020546001600160a01b0316610b68868284610ea2565b50508080610b75906118be565b915050610a83565b505050505050565b6001600160a01b038216610c0c57805115610c085760405162461bcd60e51b815260206004820152603c60248201527f4c69624469616d6f6e644375743a205f696e697420697320616464726573732860448201527f3029206275745f63616c6c64617461206973206e6f7420656d707479000000006064820152608401610283565b5050565b8051600003610c835760405162461bcd60e51b815260206004820152603d60248201527f4c69624469616d6f6e644375743a205f63616c6c6461746120697320656d707460448201527f7920627574205f696e6974206973206e6f7420616464726573732830290000006064820152608401610283565b6001600160a01b0382163014610cb557610cb582604051806060016040528060288152602001611a7360289139611265565b600080836001600160a01b031683604051610cd091906119f3565b600060405180830381855af49150503d8060008114610d0b576040519150601f19603f3d011682016040523d82523d6000602084013e610d10565b606091505b509150915081610d9257805115610d3b578060405162461bcd60e51b81526004016102839190611a0f565b60405162461bcd60e51b815260206004820152602660248201527f4c69624469616d6f6e644375743a205f696e69742066756e6374696f6e2072656044820152651d995c9d195960d21b6064820152608401610283565b50505050565b610dba81604051806060016040528060248152602001611a9b60249139611265565b6002820180546001600160a01b0390921660008181526001948501602090815260408220860185905594840183559182529290200180546001600160a01b0319169091179055565b6001600160e01b0319831660008181526020868152604080832080546001600160601b03909716600160a01b026001600160a01b0397881617815594909516808352600180890183529583208054968701815583528183206008870401805460e09890981c60046007909816979097026101000a96870263ffffffff9097021990971695909517909555529290915281546001600160a01b031916179055565b6001600160a01b038216610f1e5760405162461bcd60e51b815260206004820152603760248201527f4c69624469616d6f6e644375743a2043616e27742072656d6f76652066756e6360448201527f74696f6e207468617420646f65736e27742065786973740000000000000000006064820152608401610283565b306001600160a01b03831603610f8d5760405162461bcd60e51b815260206004820152602e60248201527f4c69624469616d6f6e644375743a2043616e27742072656d6f766520696d6d7560448201526d3a30b1363290333ab731ba34b7b760911b6064820152608401610283565b6001600160e01b03198116600090815260208481526040808320546001600160a01b0386168452600180880190935290832054600160a01b9091046001600160601b03169291610fdc91611a29565b90508082146110ce576001600160a01b0384166000908152600186016020526040812080548390811061101157611011611892565b600091825260208083206008830401546001600160a01b038916845260018a019091526040909220805460079092166004026101000a90920460e01b92508291908590811061106257611062611892565b600091825260208083206008830401805463ffffffff60079094166004026101000a938402191660e09590951c929092029390931790556001600160e01b03199290921682528690526040902080546001600160a01b0316600160a01b6001600160601b038516021790555b6001600160a01b038416600090815260018601602052604090208054806110f7576110f7611a3c565b60008281526020808220600860001990940193840401805463ffffffff600460078716026101000a0219169055919092556001600160e01b0319851682528690526040812081905581900361010357600285015460009061115a90600190611a29565b6001600160a01b038616600090815260018089016020526040909120015490915080821461120957600087600201838154811061119957611199611892565b6000918252602090912001546002890180546001600160a01b0390921692508291849081106111ca576111ca611892565b600091825260208083209190910180546001600160a01b0319166001600160a01b03948516179055929091168152600189810190925260409020018190555b8660020180548061121c5761121c611a3c565b60008281526020808220830160001990810180546001600160a01b03191690559092019092556001600160a01b0388168252600189810190915260408220015550505050505050565b806001600160a01b0383163b61128e5760405162461bcd60e51b81526004016102839190611a0f565b505050565b80356001600160a01b03811681146112aa57600080fd5b919050565b60008083601f8401126112c157600080fd5b50813567ffffffffffffffff8111156112d957600080fd5b6020830191508360208285010111156112f157600080fd5b9250929050565b60008060008060006060868803121561131057600080fd5b853567ffffffffffffffff8082111561132857600080fd5b818801915088601f83011261133c57600080fd5b81358181111561134b57600080fd5b8960208260051b850101111561136057600080fd5b6020830197508096505061137660208901611293565b9450604088013591508082111561138c57600080fd5b50611399888289016112af565b969995985093965092949392505050565b634e487b7160e01b600052604160045260246000fd5b6040516060810167ffffffffffffffff811182821017156113e3576113e36113aa565b60405290565b604051601f8201601f1916810167ffffffffffffffff81118282101715611412576114126113aa565b604052919050565b600067ffffffffffffffff821115611434576114346113aa565b5060051b60200190565b8035600381106112aa57600080fd5b80356001600160e01b0319811681146112aa57600080fd5b60006114786114738461141a565b6113e9565b83815260208082019190600586811b86013681111561149657600080fd5b865b8181101561158557803567ffffffffffffffff808211156114b95760008081fd5b818a019150606082360312156114cf5760008081fd5b6114d76113c0565b6114e083611293565b81526114ed87840161143e565b87820152604080840135838111156115055760008081fd5b939093019236601f85011261151c57600092508283fd5b8335925061152c6114738461141a565b83815292871b840188019288810190368511156115495760008081fd5b948901945b8486101561156e5761155f8661144d565b8252948901949089019061154e565b918301919091525088525050948301948301611498565b5092979650505050505050565b634e487b7160e01b600052602160045260246000fd5b600381106115c657634e487b7160e01b600052602160045260246000fd5b9052565b8183526000602080850194508260005b85811015611607576001600160e01b03196115f48361144d565b16875295820195908201906001016115da565b509495945050505050565b81835281816020850137506000828201602090810191909152601f909101601f19169091010190565b6060808252818101869052600090600560808085019089831b8601018a855b8b81101561171f57878303607f190184528135368e9003605e1901811261168057600080fd5b8d016001600160a01b0361169382611293565b16845260206116a381830161143e565b6116af828701826115a8565b50604080830135601e198436030181126116c857600080fd5b90920181810192903567ffffffffffffffff8111156116e657600080fd5b80891b36038413156116f757600080fd5b89828801526117098a880182866115ca565b978301979650505092909201915060010161165a565b50506001600160a01b0389166020870152858103604087015261174381888a611612565b9b9a5050505050505050505050565b6000815180845260208085019450848260051b86018286016000805b86811015611800578484038a52825180516001600160a01b0316855286810151606090818701906117a18a8901826115a8565b506040928301519287019190915281519081905290870190608086019084905b808210156117eb5783516001600160e01b03191683529289019291890191600191909101906117c1565b50509a87019a9450509185019160010161176e565b509198975050505050505050565b60005b83811015611829578181015183820152602001611811565b50506000910152565b6000815180845261184a81602086016020860161180e565b601f01601f19169290920160200192915050565b6060815260006118716060830186611752565b6001600160a01b038516602084015282810360408401526101c18185611832565b634e487b7160e01b600052603260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b6000600182016118d0576118d06118a8565b5060010190565b808201808211156118ea576118ea6118a8565b92915050565b6080815260006119036080830187611752565b6001600160a01b038616602084015282810360408401526119248186611832565b91505082606083015295945050505050565b6020808252602b908201527f4c69624469616d6f6e644375743a204e6f2073656c6563746f727320696e206660408201526a1858d95d081d1bc818dd5d60aa1b606082015260800190565b6020808252602c908201527f4c69624469616d6f6e644375743a204164642066616365742063616e2774206260408201526b65206164647265737328302960a01b606082015260800190565b60006001600160601b038083168181036119e9576119e96118a8565b6001019392505050565b60008251611a0581846020870161180e565b9190910192915050565b602081526000611a226020830184611832565b9392505050565b818103818111156118ea576118ea6118a8565b634e487b7160e01b600052603160045260246000fdfec8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c4c69624469616d6f6e644375743a205f696e6974206164647265737320686173206e6f20636f64654c69624469616d6f6e644375743a204e657720666163657420686173206e6f20636f6465a264697066735822122059ae9050dc361ca2819d652955c14300805fec01d293c087263e6d16ecf3fdff64736f6c63430008110033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "diamondCut((address,uint8,bytes4[])[],address,bytes)": {
+        "params": {
+          "_calldata": "A function call, including function selector and arguments                  _calldata is executed with delegatecall on _init",
+          "_diamondCut": "Contains the facet addresses and function selectors",
+          "_init": "The address of the contract or facet to execute _calldata"
+        }
+      },
+      "getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)": {
+        "params": {
+          "_calldata": "A function call, including function selector and arguments _calldata is executed with delegatecall on _init",
+          "_diamondCut": "Contains the facet addresses and function selectors",
+          "_init": "The address of the contract or facet to execute _calldata"
+        }
+      },
+      "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)": {
+        "params": {
+          "_calldata": "A function call, including function selector and arguments                  _calldata is executed with delegatecall on _init",
+          "_diamondCut": "Contains the facet addresses and function selectors",
+          "_init": "The address of the contract or facet to execute _calldata"
+        }
+      },
+      "rescindDiamondCut((address,uint8,bytes4[])[],address,bytes)": {
+        "params": {
+          "_calldata": "A function call, including function selector and arguments                  _calldata is executed with delegatecall on _init",
+          "_diamondCut": "Contains the facet addresses and function selectors",
+          "_init": "The address of the contract or facet to execute _calldata"
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "diamondCut((address,uint8,bytes4[])[],address,bytes)": {
+        "notice": "Add/replace/remove any number of functions and optionally execute         a function with delegatecall"
+      },
+      "getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)": {
+        "notice": "Returns the acceptance time for a given proposal"
+      },
+      "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)": {
+        "notice": "Propose to add/replace/remove any number of functions and optionally execute         a function with delegatecall"
+      },
+      "rescindDiamondCut((address,uint8,bytes4[])[],address,bytes)": {
+        "notice": "Propose to add/replace/remove any number of functions and optionally execute         a function with delegatecall"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
