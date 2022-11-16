@@ -97,21 +97,34 @@ locals {
           }
         ]
       }
+      "1734439522" = {
+        providers = ["https://goerli-rollup.arbitrum.io/rpc"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f"
+          },
+          {
+            name    = "WETH"
+            address = "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2"
+          }
+        ]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
       {
-        type    = "Gelato",
-        apiKey  = "${var.gelato_api_key}",
-        url     = "https://relay.gelato.digital"
+        type   = "Gelato",
+        apiKey = "${var.gelato_api_key}",
+        url    = "https://relay.gelato.digital"
       },
       {
-        type    = "Connext",
-        apiKey  = "foo",
-        url     = "https://${module.relayer.service_endpoint}"
+        type   = "Connext",
+        apiKey = "foo",
+        url    = "https://${module.relayer.service_endpoint}"
       }
     ]
-    environment   = var.stage
+    environment = var.stage
     messageQueue = {
       connection = {
         uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
@@ -143,7 +156,13 @@ locals {
           limit      = 1
           queueLimit = 10000
           subscribe  = true
-        }
+        },
+        {
+          name       = "1734439522"
+          limit      = 1
+          queueLimit = 10000
+          subscribe  = true
+        },
       ]
       bindings = [
         {
@@ -160,6 +179,11 @@ locals {
           exchange = "sequencerX"
           target   = "9991"
           keys     = ["9991"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1734439522"
+          keys     = ["1734439522"]
         }
       ]
       executerTimeout = 300000
@@ -226,6 +250,19 @@ locals {
           }
         ]
       }
+      "1734439522" = {
+        providers = ["https://goerli-rollup.arbitrum.io/rpc"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f"
+          },
+          {
+            name    = "WETH"
+            address = "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2"
+          }
+        ]
+      }
     }
     cartographerUrl = "https://postgrest.testnet.staging.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -247,23 +284,26 @@ locals {
       "9991" = {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
       }
+      "1734439522" = {
+        providers = ["https://goerli-rollup.arbitrum.io/rpc"]
+      }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     relayers = [
       {
-        type    = "Gelato",
-        apiKey  = "${var.gelato_api_key}",
-        url     = "https://relay.gelato.digital"
+        type   = "Gelato",
+        apiKey = "${var.gelato_api_key}",
+        url    = "https://relay.gelato.digital"
       },
       {
-        type    = "Connext",
-        apiKey  = "foo",
-        url     = "https://${module.relayer.service_endpoint}"
+        type   = "Connext",
+        apiKey = "foo",
+        url    = "https://${module.relayer.service_endpoint}"
       }
     ]
-    environment  = var.stage
-    databaseUrl  = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.staging.connext.ninja:5432/connext"
-    hubDomain    = "1735353714"
+    environment = var.stage
+    databaseUrl = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.staging.connext.ninja:5432/connext"
+    hubDomain   = "1735353714"
   })
 
   local_relayer_config = jsonencode({
@@ -284,6 +324,9 @@ locals {
       }
       "9991" = {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
+      }
+      "1734439522" = {
+        providers = ["https://goerli-rollup.arbitrum.io/rpc"]
       }
     }
     environment   = var.stage
