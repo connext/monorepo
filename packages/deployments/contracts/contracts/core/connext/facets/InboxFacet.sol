@@ -101,6 +101,10 @@ contract InboxFacet is BaseConnextFacet {
     _;
   }
 
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
+
   // ============ External Functions ============
 
   /**

@@ -29,10 +29,6 @@ contract BridgeFacet is BaseConnextFacet {
   using TypedMemView for bytes29;
   using BridgeMessage for bytes29;
 
-  // ============ Constructor ============
-
-  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
-
   // ========== Custom Errors ===========
 
   error BridgeFacet__addRemote_invalidRouter();
@@ -189,6 +185,10 @@ contract BridgeFacet is BaseConnextFacet {
     if (_params.delegate != msg.sender) revert BridgeFacet__onlyDelegate_notDelegate();
     _;
   }
+
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
 
   // ============ Getters ============
 

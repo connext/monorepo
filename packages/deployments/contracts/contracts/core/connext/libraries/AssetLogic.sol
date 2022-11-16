@@ -399,11 +399,15 @@ library AssetLogic {
    * @notice Gets the canonical information for a given candidate.
    * @dev First checks the `address(0)` convention, then checks if the asset given is the
    * adopted asset, then calculates the local address.
+   * @param _candidate Candidate asset address for which we are retrieving canonical info.
+   * @param _currentDomain The current domain of the contracts where this method is being
+   * called (NOTE: NOT the asset's canonical domain).
+   * @param s AssetStorage instance.
    * @return TokenId The canonical token ID information for the given candidate.
    */
   function getCanonicalTokenId(
     address _candidate,
-    uint32 _domain,
+    uint32 _currentDomain,
     AppStorage storage s
   ) internal view returns (TokenId memory) {
     TokenId memory _canonical;
@@ -425,7 +429,7 @@ library AssetLogic {
     if (isLocalOrigin(_candidate, s)) {
       // The token originates on this domain, canonical information is the information
       // of the candidate
-      _canonical.domain = _domain;
+      _canonical.domain = _currentDomain;
       _canonical.id = TypeCasts.addressToBytes32(_candidate);
     } else {
       // on a remote domain, return the representation
@@ -455,17 +459,17 @@ library AssetLogic {
    * @notice Get the local asset address for a given canonical key, id, and domain.
    * @param _key - The hash of canonical id and domain.
    * @param _id Canonical ID.
-   * @param _canonicalDomain Canonical domain.
-   * @param _domain domain network domain.
+   * @param _isCanonical Whether the asset's canonical domain matches the current domain.
+   * @param s AppStorage instance.
    * @return address of the the local asset.
    */
   function getLocalAsset(
     bytes32 _key,
     bytes32 _id,
-    uint32 _canonicalDomain,
-    uint32 _domain
+    bool _isCanonical,
+    AppStorage storage s
   ) internal view returns (address) {
-    if (_canonicalDomain == _domain) {
+    if (_isCanonical) {
       // Token is of local origin
       return TypeCasts.bytes32ToAddress(_id);
     } else {

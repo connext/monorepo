@@ -23,11 +23,8 @@ contract SwapAdminFacet is BaseConnextFacet {
   using SwapUtils for SwapUtils.Swap;
   using AmplificationUtils for SwapUtils.Swap;
 
-  // ============ Constructor ============
-
-  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
-
   // ========== Custom Errors ===========
+
   error SwapAdminFacet__initializeSwap_alreadyInitialized();
   error SwapAdminFacet__initializeSwap_invalidPooledTokens();
   error SwapAdminFacet__initializeSwap_decimalsMismatch();
@@ -89,6 +86,10 @@ contract SwapAdminFacet is BaseConnextFacet {
    * @param caller - The caller of the function
    */
   event RampAStopped(bytes32 indexed key, address caller);
+
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
 
   // ============ External: Getters ============
 

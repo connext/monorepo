@@ -27,11 +27,8 @@ import {IProposedOwnable} from "../../../shared/interfaces/IProposedOwnable.sol"
  *
  */
 contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
-  // ============ Constructor ============
-
-  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
-
   // ========== Custom Errors ===========
+
   error ProposedOwnableFacet__proposeRouterWhitelistRemoval_noOwnershipChange();
   error ProposedOwnableFacet__removeRouterWhitelist_noOwnershipChange();
   error ProposedOwnableFacet__removeRouterWhitelist_noProposal();
@@ -70,6 +67,10 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   event Paused();
 
   event Unpaused();
+
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
 
   // ============ External: Getters ============
 

@@ -14,6 +14,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   using stdStorage for StdStorage;
 
   // ============ Storage ============
+
   IConnext connextHandler;
   uint32 domain = 1;
   uint256 acceptanceDelay = 7 days;
@@ -30,7 +31,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       abi.encode(domain)
     );
     // Deploy token beacon
-    deployConnext(uint256(domain), xAppConnectionManager, acceptanceDelay);
+    deployConnext(domain, xAppConnectionManager, acceptanceDelay);
 
     connextHandler = IConnext(address(connextDiamondProxy));
   }
@@ -104,7 +105,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // Diamond cut after setting 0 acceptance delay should work.
   function test_LibDiamond__initializeDiamondCut_withZeroAcceptanceDelay_works() public {
-    deployConnext(uint256(domain), xAppConnectionManager, 0);
+    deployConnext(domain, xAppConnectionManager, 0);
 
     connextHandler = IConnext(address(connextDiamondProxy));
 
@@ -130,7 +131,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   // ============ diamondCut ============
   // Should fail if it includes `proposeDiamondCut` selector
   function test_LibDiamond__diamondCut_failsIfProposeCutRemoved() public {
-    deployConnext(uint256(domain), xAppConnectionManager, 0);
+    deployConnext(domain, xAppConnectionManager, 0);
 
     connextHandler = IConnext(address(connextDiamondProxy));
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
@@ -150,7 +151,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // Should fail if it includes `diamondCut` selector
   function test_LibDiamond__diamondCut_failsIfCutRemoved() public {
-    deployConnext(uint256(domain), xAppConnectionManager, 0);
+    deployConnext(domain, xAppConnectionManager, 0);
 
     connextHandler = IConnext(address(connextDiamondProxy));
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);

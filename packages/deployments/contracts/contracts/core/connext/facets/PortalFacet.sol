@@ -12,11 +12,8 @@ import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {TransferInfo} from "../libraries/LibConnextStorage.sol";
 
 contract PortalFacet is BaseConnextFacet {
-  // ============ Constructor ============
-
-  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
-
   // ========== Custom Errors ===========
+
   error PortalFacet__setAavePortalFee_invalidFee();
   error PortalFacet__repayAavePortal_insufficientFunds();
   error PortalFacet__repayAavePortalFor_zeroAmount();
@@ -32,7 +29,11 @@ contract PortalFacet is BaseConnextFacet {
    */
   event AavePortalRepayment(bytes32 indexed transferId, address asset, uint256 amount, uint256 fee, address caller);
 
-  // ============ Getters methods ==============
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
+
+  // ============ Getters ============
 
   function getAavePortalDebt(bytes32 _transferId) external view returns (uint256) {
     return s.portalDebt[_transferId];
@@ -50,7 +51,7 @@ contract PortalFacet is BaseConnextFacet {
     return s.aavePortalFeeNumerator;
   }
 
-  // ============ External functions ============
+  // ============ External Functions ============
 
   /**
    * @notice Sets the Aave Pool contract address.

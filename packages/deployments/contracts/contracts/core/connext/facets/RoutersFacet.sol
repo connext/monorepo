@@ -24,11 +24,8 @@ import {TokenId} from "../libraries/TokenId.sol";
  * address, then it must be accepted by the current owner.
  */
 contract RoutersFacet is BaseConnextFacet {
-  // ============ Constructor ============
-
-  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
-
   // ========== Custom Errors ===========
+
   error RoutersFacet__acceptProposedRouterOwner_notElapsed();
   error RoutersFacet__acceptProposedRouterOwner_badCaller();
   error RoutersFacet__initializeRouter_configNotEmpty();
@@ -59,6 +56,7 @@ contract RoutersFacet is BaseConnextFacet {
   // ============ Properties ============
 
   // ============ Constants ============
+
   uint256 private constant _delay = 7 days;
 
   // ============ Events ============
@@ -173,6 +171,10 @@ contract RoutersFacet is BaseConnextFacet {
     if (s.routerConfigs[_router].owner != msg.sender) revert RoutersFacet__onlyRouterOwner_notRouterOwner();
     _;
   }
+
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
 
   // ============ Getters ==============
 

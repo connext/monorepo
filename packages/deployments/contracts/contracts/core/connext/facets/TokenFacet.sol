@@ -16,11 +16,8 @@ import {BridgeToken} from "../helpers/BridgeToken.sol";
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 contract TokenFacet is BaseConnextFacet {
-  // ============ Constructor ============
-
-  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
-
   // ========== Custom Errors ===========
+
   error TokenFacet__addAssetId_nativeAsset();
   error TokenFacet__addAssetId_alreadyAdded();
   error TokenFacet__removeAssetId_notAdded();
@@ -97,6 +94,10 @@ contract TokenFacet is BaseConnextFacet {
    */
   event AssetRemoved(bytes32 indexed key, address caller);
 
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
+
   // ============ Getters ============
 
   function canonicalToAdopted(bytes32 _key) public view returns (address) {
@@ -152,7 +153,7 @@ contract TokenFacet is BaseConnextFacet {
     return adoptedToLocalExternalPools(AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain));
   }
 
-  // ============ Admin functions ============
+  // ============ Admin Functions ============
 
   /**
    * @notice Used to add supported assets. This is an admin only function

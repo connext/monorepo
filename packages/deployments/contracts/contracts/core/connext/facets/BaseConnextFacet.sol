@@ -187,11 +187,11 @@ contract BaseConnextFacet {
     bytes32 _id,
     uint32 _domain
   ) internal view returns (address) {
-    return AssetLogic.getLocalAsset(_key, _id, _domain, s);
+    return AssetLogic.getLocalAsset(_key, _id, _domain == DOMAIN, s);
   }
 
   function _getCanonicalTokenId(address _candidate) internal view returns (TokenId memory) {
-    return AssetLogic.getCanonicalTokenId(_candidate, s);
+    return AssetLogic.getCanonicalTokenId(_candidate, DOMAIN, s);
   }
 
   function _getLocalAndAdoptedToken(
@@ -199,7 +199,7 @@ contract BaseConnextFacet {
     bytes32 _id,
     uint32 _domain
   ) internal view returns (address, address) {
-    address _local = AssetLogic.getLocalAsset(_key, _id, _domain, s);
+    address _local = AssetLogic.getLocalAsset(_key, _id, _domain == DOMAIN, s);
     address _adopted = _getAdoptedAsset(_key);
     return (_local, _adopted);
   }

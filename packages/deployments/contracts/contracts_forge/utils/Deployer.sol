@@ -278,19 +278,19 @@ contract Deployer {
       });
   }
 
-  function deployFacets() internal {
+  function deployFacets(uint32 domain) internal {
     diamondCutFacet = new DiamondCutFacet();
     diamondLoupeFacet = new DiamondLoupeFacet();
-    diamondInit = new DiamondInit();
-    tokenFacet = new TokenFacet();
-    bridgeFacet = new BridgeFacet();
-    inboxFacet = new InboxFacet();
-    proposedOwnableFacet = new ProposedOwnableFacet();
-    relayerFacet = new RelayerFacet();
-    routersFacet = new RoutersFacet();
-    stableSwapFacet = new StableSwapFacet();
-    swapAdminFacet = new SwapAdminFacet();
-    portalFacet = new PortalFacet();
+    diamondInit = new DiamondInit(domain);
+    tokenFacet = new TokenFacet(domain);
+    bridgeFacet = new BridgeFacet(domain);
+    inboxFacet = new InboxFacet(domain);
+    proposedOwnableFacet = new ProposedOwnableFacet(domain);
+    relayerFacet = new RelayerFacet(domain);
+    routersFacet = new RoutersFacet(domain);
+    stableSwapFacet = new StableSwapFacet(domain);
+    swapAdminFacet = new SwapAdminFacet(domain);
+    portalFacet = new PortalFacet(domain);
   }
 
   function getFacetCuts() internal view returns (IDiamondCut.FacetCut[] memory) {
@@ -311,7 +311,7 @@ contract Deployer {
   }
 
   function deployConnext(
-    uint256 domain,
+    uint32 domain,
     address xAppConnectionManager,
     uint256 acceptanceDelay
   ) internal returns (address) {
@@ -322,7 +322,7 @@ contract Deployer {
       acceptanceDelay
     );
 
-    deployFacets();
+    deployFacets(domain);
 
     connextDiamondProxy = new Connext(address(this), address(diamondInit), initCallData, getFacetCuts());
     return address(connextDiamondProxy);

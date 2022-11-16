@@ -4,16 +4,14 @@ pragma solidity 0.8.17;
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 contract RelayerFacet is BaseConnextFacet {
-  // ============ Constructor ============
-
-  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
-
   // ========== Custom Errors ===========
+
   error RelayerFacet__setRelayerFeeVault_invalidRelayerFeeVault();
   error RelayerFacet__addRelayer_alreadyApproved();
   error RelayerFacet__removeRelayer_notApproved();
 
   // ========== Events ===========
+
   /**
    * @notice Emitted when the relayerFeeVault variable is updated
    * @param oldVault - The relayerFeeVault old value
@@ -37,6 +35,10 @@ contract RelayerFacet is BaseConnextFacet {
   event RelayerRemoved(address relayer, address caller);
 
   // ============ Modifiers ============
+
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
 
   // ============ Getters ============
 
