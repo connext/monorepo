@@ -33,10 +33,12 @@ const formatConnectorArgs = (
     isHub ? config.ambs.hub : config.ambs.spoke,
     rootManager,
     constants.AddressZero,
-    config.processGas,
     ...Object.values((isHub ? config?.custom?.hub : {}) ?? {}),
   ];
   if (isHub) {
+    if (config.prefix.includes("Optimism")) {
+      hubArgs.push(config.processGas);
+    }
     console.log(
       `hub connector constructorArgs:`,
       hubArgs.map((c) => c.toString()),
@@ -52,6 +54,9 @@ const formatConnectorArgs = (
     watcherManager!,
     ...Object.values(config?.custom?.spoke ?? {}),
   ];
+  if (config.prefix.includes("Optimism")) {
+    constructorArgs.push(config.processGas);
+  }
   console.log(
     `spoke connector constructorArgs:`,
     constructorArgs.map((c) => c.toString()),
@@ -101,13 +106,24 @@ const handleDeployHub = async (
   });
   console.log(`RootManager deployed to ${rootManager.address}`);
 
+  // Deploy RootManager.
+  console.log("Deploying RootManagerPropagateWrapper...");
+  const rootManagerPropagateWrapper = await hre.deployments.deploy(getDeploymentName("RootManagerPropagateWrapper"), {
+    contract: "RootManagerPropagateWrapper",
+    from: deployer.address,
+    args: [rootManager.address],
+    skipIfAlreadyDeployed: true,
+    log: true,
+  });
+  console.log(`RootManagerPropagateWrapper deployed to ${rootManagerPropagateWrapper.address}`);
+
   // setArborist to Merkle for RootManager
   const merkleForRootContract = await hre.ethers.getContractAt(
     "MerkleTreeManager",
     merkleTreeManagerForRoot.address,
     deployer,
   );
-  if (!(await merkleForRootContract.arborists(rootManager.address.toLowerCase()))) {
+  if (!(await merkleForRootContract.arborist())) {
     const tx = await merkleForRootContract.setArborist(rootManager.address);
     console.log(`setArborist for RootManager tx submitted:`, tx.hash);
     await tx.wait();
@@ -149,7 +165,7 @@ const handleDeployHub = async (
     merkleTreeManagerForSpoke.address,
     deployer,
   );
-  if (!(await merkleForSpokeContract.arborists(deployment.address.toLowerCase()))) {
+  if (!(await merkleForSpokeContract.arborist())) {
     const tx = await merkleForSpokeContract.setArborist(deployment.address);
     console.log(`setArborist for MainnetSpokeConnector tx submitted:`, tx.hash);
     await tx.wait();
@@ -183,22 +199,6 @@ const handleDeployHub = async (
       log: true,
     });
     console.log(`${contract} deployed to ${deployment.address}`);
-
-    const resolverDeploymentName = getDeploymentName(
-      `${contract}SendOutboundRootResolver`,
-      undefined,
-      protocol.configs[mirrorChainId].networkName,
-    );
-
-    console.log(`Deploying ${contract} SendOutboundRootResolver...`);
-    const resolverDeployment = await hre.deployments.deploy(resolverDeploymentName, {
-      contract: "SendOutboundRootResolver",
-      from: deployer.address,
-      args: [deployment.address, 30 * 60],
-      skipIfAlreadyDeployed: true,
-      log: true,
-    });
-    console.log(`${contract} SendOutboundRootResolver deployed to ${resolverDeployment.address}`);
   }
 };
 
@@ -276,29 +276,14 @@ const handleDeploySpoke = async (
 
   // setArborist to Merkle
   const merkleContract = await hre.ethers.getContractAt("MerkleTreeManager", merkleTreeManager.address, deployer);
+  console.log("merkleContract: ", merkleContract.address);
 
-  if (!(await merkleContract.arborists(deployment.address.toLowerCase()))) {
+  console.log("await merkleContract.arborist(): ", await merkleContract.arborist());
+  if (!(await merkleContract.arborist())) {
     const tx = await merkleContract.setArborist(deployment.address);
     console.log(`setArborist tx submitted:`, tx.hash);
     await tx.wait();
   }
-
-  console.log(`Deploying ${contract} SendOutboundRootResolver...`);
-  const resolverDeployment = await hre.deployments.deploy(
-    getDeploymentName(
-      `${contract}SendOutboundRootResolver`,
-      undefined,
-      protocol.configs[deploymentChainId].networkName,
-    ),
-    {
-      contract: "SendOutboundRootResolver",
-      from: deployer.address,
-      args: [deployment.address, 30 * 60], // 30 min
-      skipIfAlreadyDeployed: true,
-      log: true,
-    },
-  );
-  console.log(`${contract} SendOutboundRootResolver deployed to ${resolverDeployment.address}`);
   return deployment;
 };
 

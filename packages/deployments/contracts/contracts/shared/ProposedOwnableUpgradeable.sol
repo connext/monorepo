@@ -3,7 +3,6 @@ pragma solidity 0.8.17;
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import {IProposedOwnable} from "./interfaces/IProposedOwnable.sol";
 import {ProposedOwnable} from "./ProposedOwnable.sol";
 
 abstract contract ProposedOwnableUpgradeable is Initializable, ProposedOwnable {

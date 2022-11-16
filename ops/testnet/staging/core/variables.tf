@@ -67,6 +67,12 @@ variable "full_image_name_lighthouse_process_from_root" {
   default     = "ghcr.io/connext/lighthouse-process-from-root:latest"
 }
 
+variable "full_image_name_lighthouse_propagate" {
+  type        = string
+  description = "lighthouse process from root image name"
+  default     = "ghcr.io/connext/lighthouse-propagate:latest"
+}
+
 variable "mnemonic" {
   type        = string
   description = "mnemonic"
