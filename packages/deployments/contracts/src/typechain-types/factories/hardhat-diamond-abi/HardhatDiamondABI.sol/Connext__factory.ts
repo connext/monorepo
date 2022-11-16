@@ -27,6 +27,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BaseConnextFacet__nonXCallReentrant_reentrantCall",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
     type: "error",
   },
@@ -1655,11 +1660,6 @@ const _abi = [
   {
     inputs: [],
     name: "PortalFacet__repayAavePortal_insufficientFunds",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "PortalFacet__repayAavePortal_swapFailed",
     type: "error",
   },
   {
