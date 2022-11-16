@@ -151,7 +151,7 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     vm.prank(caller);
     this.assignRoleRouter(routerAgent);
 
-    if (this.queryRole(routerAgent) == Role.Router) {
+    if (this.queryRole(routerAgent) == Role.RouterAdmin) {
       assertTrue(true);
     } else {
       assertTrue(false);

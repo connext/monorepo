@@ -257,9 +257,9 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   /**
    * @notice Use to assign an address Router role
    * Address with Router has permission to add new router
-   * Can only be called by Owner or Role.Router
-   * @dev requested address will be whitelisted as Role.Router under mapping roles
-   * @param _router - The address to be assigned as Role.Router under roles
+   * Can only be called by Owner or Role.RouterAdmin
+   * @dev requested address will be whitelisted as Role.RouterAdmin under mapping roles
+   * @param _router - The address to be assigned as Role.RouterAdmin under roles
    */
   function assignRoleRouter(address _router) public onlyOwnerOrAdmin {
     // Use contract as source of truth
@@ -267,7 +267,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     if (s.roles[_router] != Role.None || _router == address(0))
       revert ProposedOwnableFacet__assignRoleRouter_invalidInput();
 
-    s.roles[_router] = Role.Router;
+    s.roles[_router] = Role.RouterAdmin;
     emit AssignRoleRouter(_router);
   }
 
