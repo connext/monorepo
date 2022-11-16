@@ -18,7 +18,6 @@ contract BaseConnextFacet {
 
   // ========== Custom Errors ===========
 
-  error BaseConnextFacet__onlyBridgeRouter_notBridgeRouter();
   error BaseConnextFacet__onlyOwner_notOwner();
   error BaseConnextFacet__onlyProposed_notProposedOwner();
   error BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter();

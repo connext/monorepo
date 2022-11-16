@@ -2,11 +2,9 @@
 pragma solidity 0.8.17;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
-import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 
 import {ERC20} from "./OZERC20.sol";
 
