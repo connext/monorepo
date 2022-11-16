@@ -1,12 +1,11 @@
 import { createRequestContext, expect, mkHash } from "@connext/nxtp-utils";
-import { Outbox } from "@connext/nxtp-contracts";
 import { stub, SinonStub, createStubInstance } from "sinon";
 import { L2ToL1MessageReader } from "@arbitrum/sdk";
 
 import * as MockableFns from "../../../../src/mockable";
 import { getProcessFromArbitrumRootArgs } from "../../../../src/tasks/processFromRoot/helpers";
 import { ConfirmDataDoesNotMatch, NoRootAvailable } from "../../../../src/tasks/processFromRoot/errors";
-import { constants, utils } from "ethers";
+import { constants } from "ethers";
 
 class MockJsonRpcProvider {
   public getTransactionReceipt = stub().resolves({ hello: "world" });
@@ -31,7 +30,7 @@ const mockOutboxFactory = {
 };
 
 describe("Helpers: Arbitrum", () => {
-  let confirmData;
+  let confirmData: SinonStub<any[], any>;
   beforeEach(() => {
     isDataAvailableStub = stub().resolves(true);
     l2ToL1MessageReader = createStubInstance(L2ToL1MessageReader, {
@@ -42,7 +41,7 @@ describe("Helpers: Arbitrum", () => {
         sendRoot: mkHash("0x123"),
         hash: mkHash("0x456"),
       } as any),
-    });
+    } as any);
     (l2ToL1MessageReader as any).event = { position: { nodeNum: constants.One }, ethBlockNum: constants.One };
     stub(MockableFns, "L2TransactionReceipt").value(MockL2TransactionReceipt);
     stub(MockableFns, "JsonRpcProvider").value(MockJsonRpcProvider);
