@@ -81,6 +81,10 @@ library SwapUtils {
     uint256[] balances;
     // the admin fee balance of each token, in the token's precision
     uint256[] adminFees;
+    // the flag if this pool disabled by admin. once disabled, only remove liquidity will work.
+    bool disabled;
+    // once pool disabled, admin can remove pool after passed removeTime. and reinitialize.
+    uint256 removeTime;
   }
 
   // Struct storing variables used in calculations in the
@@ -124,6 +128,9 @@ library SwapUtils {
 
   // Constant value used as max loop limit
   uint256 internal constant MAX_LOOP_LIMIT = 256;
+
+  // Constant value used as max delay time for removing swap after disabled
+  uint256 internal constant REMOVE_DELAY = 7 days;
 
   /*** VIEW & PURE FUNCTIONS ***/
 
@@ -706,6 +713,7 @@ library SwapUtils {
     uint256 dx,
     uint256 minDy
   ) internal returns (uint256) {
+    require(!self.disabled, "disabled pool");
     {
       IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
       require(dx <= tokenFrom.balanceOf(msg.sender), "swap more than you own");
@@ -754,6 +762,7 @@ library SwapUtils {
     uint256 dy,
     uint256 maxDx
   ) internal returns (uint256) {
+    require(!self.disabled, "disabled pool");
     require(dy <= self.balances[tokenIndexTo], ">pool balance");
 
     uint256 dx;
@@ -804,6 +813,7 @@ library SwapUtils {
     uint256 dx,
     uint256 minDy
   ) internal returns (uint256) {
+    require(!self.disabled, "disabled pool");
     require(dx <= self.balances[tokenIndexFrom], "more than pool balance");
 
     uint256 dy;
@@ -836,6 +846,7 @@ library SwapUtils {
     uint256 dy,
     uint256 maxDx
   ) internal returns (uint256) {
+    require(!self.disabled, "disabled pool");
     require(dy <= self.balances[tokenIndexTo], "more than pool balance");
 
     uint256 dx;
@@ -872,6 +883,8 @@ library SwapUtils {
     uint256[] memory amounts,
     uint256 minToMint
   ) internal returns (uint256) {
+    require(!self.disabled, "disabled pool");
+
     uint256 numTokens = self.pooledTokens.length;
     require(amounts.length == numTokens, "mismatch pooled tokens");
 
