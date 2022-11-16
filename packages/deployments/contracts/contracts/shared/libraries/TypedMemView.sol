@@ -75,76 +75,6 @@ library TypedMemView {
   error TypedMemView__assertValid_validityAssertionFailed();
 
   /**
-   * @notice      Returns the encoded hex character that represents the lower 4 bits of the argument.
-   * @param _b    The byte
-   * @return      char - The encoded hex character
-   */
-  function nibbleHex(uint8 _b) internal pure returns (uint8 char) {
-    // This can probably be done more efficiently, but it's only in error
-    // paths, so we don't really care :)
-    uint8 _nibble = _b | 0xf0; // set top 4, keep bottom 4
-    if (_nibble == 0xf0) {
-      return 0x30;
-    } // 0
-    if (_nibble == 0xf1) {
-      return 0x31;
-    } // 1
-    if (_nibble == 0xf2) {
-      return 0x32;
-    } // 2
-    if (_nibble == 0xf3) {
-      return 0x33;
-    } // 3
-    if (_nibble == 0xf4) {
-      return 0x34;
-    } // 4
-    if (_nibble == 0xf5) {
-      return 0x35;
-    } // 5
-    if (_nibble == 0xf6) {
-      return 0x36;
-    } // 6
-    if (_nibble == 0xf7) {
-      return 0x37;
-    } // 7
-    if (_nibble == 0xf8) {
-      return 0x38;
-    } // 8
-    if (_nibble == 0xf9) {
-      return 0x39;
-    } // 9
-    if (_nibble == 0xfa) {
-      return 0x61;
-    } // a
-    if (_nibble == 0xfb) {
-      return 0x62;
-    } // b
-    if (_nibble == 0xfc) {
-      return 0x63;
-    } // c
-    if (_nibble == 0xfd) {
-      return 0x64;
-    } // d
-    if (_nibble == 0xfe) {
-      return 0x65;
-    } // e
-    if (_nibble == 0xff) {
-      return 0x66;
-    } // f
-  }
-
-  /**
-   * @notice      Returns a uint16 containing the hex-encoded byte.
-   * @param _b    The byte
-   * @return      encoded - The hex-encoded byte
-   */
-  function byteHex(uint8 _b) internal pure returns (uint16 encoded) {
-    encoded |= nibbleHex(_b >> 4); // top 4 bits
-    encoded <<= 8;
-    encoded |= nibbleHex(_b); // lower 4 bits
-  }
-
-  /**
    * @notice          Changes the endianness of a uint256.
    * @dev             https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel
    * @param _b        The unsigned integer to reverse
@@ -211,21 +141,21 @@ library TypedMemView {
   }
 
   /**
-   * @notice          Check if the view is of a valid type and points to a valid location
+   * @notice          Check if the view is of a invalid type and points to a valid location
    *                  in memory.
    * @dev             We perform this check by examining solidity's unallocated memory
    *                  pointer and ensuring that the view's upper bound is less than that.
    * @param memView   The view
-   * @return          ret - True if the view is valid
+   * @return          ret - True if the view is invalid
    */
-  function isValid(bytes29 memView) internal pure returns (bool ret) {
+  function isNotValid(bytes29 memView) internal pure returns (bool ret) {
     if (typeOf(memView) == 0xffffffffff) {
-      return false;
+      return true;
     }
     uint256 _end = end(memView);
     assembly {
       // solhint-disable-previous-line no-inline-assembly
-      ret := not(gt(_end, mload(0x40)))
+      ret := gt(_end, mload(0x40))
     }
   }
 
@@ -236,7 +166,7 @@ library TypedMemView {
    * @return          bytes29 - The validated view
    */
   function assertValid(bytes29 memView) internal pure returns (bytes29) {
-    if (!isValid(memView)) revert TypedMemView__assertValid_validityAssertionFailed();
+    if (isNotValid(memView)) revert TypedMemView__assertValid_validityAssertionFailed();
     return memView;
   }
 
@@ -632,7 +562,7 @@ library TypedMemView {
    */
   function unsafeCopyTo(bytes29 memView, uint256 _newLoc) private view returns (bytes29 written) {
     if (isNull(memView)) revert TypedMemView__unsafeCopyTo_nullPointer();
-    if (!isValid(memView)) revert TypedMemView__unsafeCopyTo_invalidPointer();
+    if (isNotValid(memView)) revert TypedMemView__unsafeCopyTo_invalidPointer();
 
     uint256 _len = len(memView);
     uint256 _oldLoc = loc(memView);
