@@ -412,7 +412,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
   }
 
   // function test_StableSwapFacet__removeSwapLiquidity
-  function test_StableSwapFacet__removeSwapLiquidity_shouldWorkEvenIfPaused() public {
+  function test_StableSwapFacet__removeSwapLiquidity_failIfPaused() public {
     vm.startPrank(_user1);
 
     uint256[] memory amounts = new uint256[](2);
@@ -431,6 +431,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     s._paused = true;
 
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
     this.removeSwapLiquidity(
       utils_calculateCanonicalHash(),
       poolTokenBalanceBefore,
@@ -487,7 +488,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
   }
 
   // function test_StableSwapFacet__removeSwapLiquidityOneToken
-  function test_StableSwapFacet__removeSwapLiquidityOneToken_shouldWorkEvenIfPaused() public {
+  function test_StableSwapFacet__removeSwapLiquidityOneToken_failIfPaused() public {
     vm.startPrank(_user1);
     uint256[] memory amounts = new uint256[](2);
     amounts[0] = 2 ether;
@@ -508,6 +509,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     s._paused = true;
 
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
     this.removeSwapLiquidityOneToken(utils_calculateCanonicalHash(), 0.1 ether, 0, 0, blockTimestamp + 1);
 
     vm.stopPrank();
@@ -626,7 +628,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
   }
 
   // function test_StableSwapFacet__removeSwapLiquidityImbalance
-  function test_StableSwapFacet__removeSwapLiquidityImbalance_shouldWorkEvenIfPaused() public {
+  function test_StableSwapFacet__removeSwapLiquidityImbalance_failIfPaused() public {
     vm.startPrank(_user1);
     uint256[] memory amounts = new uint256[](2);
     amounts[0] = 2 ether;
@@ -647,6 +649,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     s._paused = true;
 
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
     this.removeSwapLiquidityImbalance(
       utils_calculateCanonicalHash(),
       removeAmounts,
