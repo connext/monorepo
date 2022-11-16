@@ -258,6 +258,7 @@ struct AppStorage {
   //
   // 30
   uint256 _status;
+  uint256 _xcallStatus;
   //
   // StableSwap
   //

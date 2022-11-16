@@ -27,6 +27,7 @@ contract BaseConnextFacet {
   error BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin();
   error BaseConnextFacet__whenNotPaused_paused();
   error BaseConnextFacet__nonReentrant_reentrantCall();
+  error BaseConnextFacet__nonXCallReentrant_reentrantCall();
   error BaseConnextFacet__getAdoptedAsset_notWhitelisted();
   error BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
 
@@ -51,6 +52,20 @@ contract BaseConnextFacet {
     // By storing the original value once again, a refund is triggered (see
     // https://eips.ethereum.org/EIPS/eip-2200)
     s._status = _NOT_ENTERED;
+  }
+
+  modifier nonXCallReentrant() {
+    // On the first call to nonReentrant, _notEntered will be true
+    if (s._xcallStatus == _ENTERED) revert BaseConnextFacet__nonXCallReentrant_reentrantCall();
+
+    // Any calls to nonReentrant after this point will fail
+    s._xcallStatus = _ENTERED;
+
+    _;
+
+    // By storing the original value once again, a refund is triggered (see
+    // https://eips.ethereum.org/EIPS/eip-2200)
+    s._xcallStatus = _NOT_ENTERED;
   }
 
   /**
