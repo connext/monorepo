@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {IERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 import {AmplificationUtils, SwapUtils} from "../libraries/AmplificationUtils.sol";
@@ -113,7 +114,8 @@ contract SwapAdminFacet is BaseConnextFacet {
    * @param _key the hash of the canonical id and domain for token
    * @param _pooledTokens an array of ERC20s this pool will accept
    * @param decimals the decimals to use for each pooled token,
-   * eg 8 for WBTC. Cannot be larger than POOL_PRECISION_DECIMALS
+   * eg 8 for WBTC. Cannot be larger than POOL_PRECISION_DECIMALS(18)
+   * Only fixed decimal tokens are allowed.
    * @param lpTokenName the long-form name of the token to be deployed
    * @param lpTokenSymbol the short symbol for the token to be deployed
    * @param _a the amplification coefficient * n ** (n - 1). See the

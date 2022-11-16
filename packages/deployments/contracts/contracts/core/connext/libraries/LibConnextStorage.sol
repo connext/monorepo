@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager.sol";
 import {SwapUtils} from "./SwapUtils.sol";
+import {TokenId} from "./TokenId.sol";
 
 // ============= Enum =============
 
@@ -31,13 +32,6 @@ enum DestinationTransferStatus {
   Reconciled, // 1
   Executed, // 2
   Completed // 3 - executed + reconciled
-}
-
-// ============= Structs =============
-
-struct TokenId {
-  uint32 domain;
-  bytes32 id;
 }
 
 /**
@@ -264,6 +258,7 @@ struct AppStorage {
   //
   // 30
   uint256 _status;
+  uint256 _xcallStatus;
   //
   // StableSwap
   //
