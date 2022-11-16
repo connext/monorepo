@@ -1,14 +1,25 @@
 import { utils, BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
-import { ConnextContractDeployments, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, mkBytes32, createLoggingContext, XMessage } from "@connext/nxtp-utils";
+import { ChainReader, ConnextContractDeployments, ConnextContractInterfaces } from "@connext/nxtp-txservice";
+import {
+  mkAddress,
+  Logger,
+  mock as _mock,
+  mkBytes32,
+  createLoggingContext,
+  XMessage,
+  RelayerType,
+} from "@connext/nxtp-utils";
+import { Relayer } from "@connext/nxtp-adapters-relayer";
+import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
+import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
+import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
 
 import { NxtpLighthouseConfig } from "../src/config";
 import { ProverContext } from "../src/tasks/prover/context";
 import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
-import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
-import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
-import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
+import { PropagateContext } from "../src/tasks/propagate/context";
+import { mockSubgraph } from "@connext/nxtp-adapters-subgraph/test/mock";
 
 export const mockTaskId = mkBytes32("0xabcdef123");
 export const mockRelayerAddress = mkAddress("0xabcdef123");
@@ -30,7 +41,7 @@ export const mock = {
     return {
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
       adapters: {
-        chainreader: mock.adapters.chainreader(),
+        chainreader: mock.adapters.chainreader() as unknown as ChainReader,
         contracts: mock.adapters.contracts(),
         relayers: mock.adapters.relayers(),
         database: mock.adapters.database(),
@@ -43,10 +54,24 @@ export const mock = {
     return {
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
       adapters: {
-        chainreader: mock.adapters.chainreader(),
+        chainreader: mock.adapters.chainreader() as unknown as ChainReader,
         contracts: mock.adapters.deployments(),
         relayers: mock.adapters.relayers(),
         database: mock.adapters.database(),
+      },
+      config: mock.config(),
+      chainData: mock.chainData(),
+    };
+  },
+  propagateCtx: (): PropagateContext => {
+    return {
+      logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
+      adapters: {
+        chainreader: mock.adapters.chainreader() as unknown as ChainReader,
+        contracts: mock.adapters.deployments(),
+        relayers: mock.adapters.relayers(),
+        subgraph: mock.adapters.subgraph(),
+        ambs: mock.adapters.ambs(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -80,7 +105,7 @@ export const mock = {
     environment: "staging",
     database: { url: "postgres://localhost:5432/lighthouse" },
     healthUrls: {},
-    hubDomain: "1337",
+    hubDomain: mock.domain.A,
     relayers: [
       {
         type: "Connext",
@@ -128,10 +153,26 @@ export const mock = {
         priceOracle: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         spokeConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         stableSwap: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        rootManagerPropagateWrapper: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
       };
     },
-    relayers: () => [{ instance: mockRelayer(), type: "Backup", apiKey: "foo" }],
+    relayers: () => [
+      { instance: mockRelayer(), type: "Mock", apiKey: "foo" } as {
+        instance: Relayer;
+        type: RelayerType;
+        apiKey: string;
+      },
+    ],
     database: () => mockDatabase(),
+    subgraph: () => mockSubgraph(),
+    ambs: () => {
+      return {
+        optimism: [],
+        gnosis: [],
+        arbitrum: [],
+        bnb: [],
+      };
+    },
   },
   contracts: {
     deployments: (): ConnextContractDeployments => {
@@ -144,6 +185,7 @@ export const mock = {
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbdddf"), abi: {} }),
         spokeConnector: (_: number) => ({ address: mkAddress("0xbbbddda"), abi: {} }),
         hubConnector: (_: number) => ({ address: mkAddress("0xbbbdddb"), abi: {} }),
+        rootManagerPropagateWrapper: (_: number) => ({ address: mkAddress("0xbbbdddc"), abi: {} }),
       };
     },
   },
