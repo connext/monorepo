@@ -94,7 +94,7 @@ dataSources:
         # Process(bytes32 leaf, bool success, bytes returnData);
         - event: Process(bytes32,bool,bytes)
           handler: handleProcess
-        - event: MessageSent(bytes,address)
+        - event: MessageSent(bytes,bytes,address)
           handler: handleMessageSent
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleNewConnector

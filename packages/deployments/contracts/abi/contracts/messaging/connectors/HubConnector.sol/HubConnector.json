@@ -1,4 +1,5 @@
 [
+  "error Connector__processMessage_notUsed()",
   "error ProposedOwnable__acceptProposedOwner_delayNotElapsed()",
   "error ProposedOwnable__onlyOwner_notOwner()",
   "error ProposedOwnable__onlyProposed_notProposedOwner()",

@@ -104,6 +104,14 @@ contract ProposedOwnableTest is ProposedOwnable, ForgeHelper {
     this.proposeNewOwner(address(12));
   }
 
+  function test_ProposedOwnable__proposeNewOwner_failsIfDuplicateCall() public {
+    utils_proposeNewOwnerAndAssert(address(12));
+
+    vm.expectRevert(ProposedOwnable__proposeNewOwner_invalidProposal.selector);
+    vm.prank(_default);
+    this.proposeNewOwner(address(10));
+  }
+
   function test_ProposedOwnable__proposeNewOwner_failsIfProposingOwner() public {
     vm.expectRevert(ProposedOwnable__proposeNewOwner_noOwnershipChange.selector);
     vm.prank(_default);

@@ -13,6 +13,10 @@ import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-a
 import ERC20ExtendedArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/interfaces/IERC20Extended.sol/IERC20Extended.json";
 import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
 import SpokeConnectorArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/connectors/SpokeConnector.sol/SpokeConnector.json";
+import GnosisAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/GnosisAmb.sol/GnosisAmb.json";
+import MultichainAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/Multichain.sol/Multichain.json";
+import OptimismAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol/OptimismAmb.json";
+import ArbitrumAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb.sol/ArbitrumL2Amb.json";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
 export type ContractPostfix = "Staging" | "";
@@ -22,7 +26,7 @@ export type ContractPostfix = "Staging" | "";
  * Helper to allow easy mocking
  */
 export const _getContractDeployments = (): Record<string, Record<string, any>> => {
-  return _contractDeployments;
+  return _contractDeployments as any;
 };
 
 /**
@@ -58,6 +62,15 @@ export const getDeployedHubConnecterContract = (
 ): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
   const contract = record[0]?.contracts ? record[0]?.contracts[`${prefix}HubConnector${postfix}`] : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+export const getDeployedRootManagerPropagateWrapperContract = (
+  chainId: number,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  const contract = record[0]?.contracts ? record[0]?.contracts[`RootManagerPropagateWrapper${postfix}`] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -130,9 +143,20 @@ export type SpokeConnectorDeploymentGetter = (
   postfix?: ContractPostfix,
 ) => { address: string; abi: any } | undefined;
 
+export type AmbDeploymentGetter = (
+  chainId: number,
+  prefix: string,
+  postfix?: ContractPostfix,
+) => { address: string; abi: any } | undefined;
+
 export type HubConnectorDeploymentGetter = (
   chainId: number,
   prefix: string,
+  postfix?: ContractPostfix,
+) => { address: string; abi: any } | undefined;
+
+export type RootManagerPropagateWrapperGetter = (
+  chainId: number,
   postfix?: ContractPostfix,
 ) => { address: string; abi: any } | undefined;
 
@@ -142,6 +166,7 @@ export type ConnextContractDeployments = {
   stableSwap: ConnextContractDeploymentGetter;
   spokeConnector: SpokeConnectorDeploymentGetter;
   hubConnector: HubConnectorDeploymentGetter;
+  rootManagerPropagateWrapper: RootManagerPropagateWrapperGetter;
 };
 
 export const contractDeployments: ConnextContractDeployments = {
@@ -150,6 +175,7 @@ export const contractDeployments: ConnextContractDeployments = {
   stableSwap: getDeployedStableSwapContract,
   spokeConnector: getDeployedSpokeConnecterContract,
   hubConnector: getDeployedHubConnecterContract,
+  rootManagerPropagateWrapper: getDeployedRootManagerPropagateWrapperContract,
 };
 
 /// MARK - CONTRACT INTERFACES
@@ -191,4 +217,18 @@ export const getContractInterfaces = (): ConnextContractInterfaces => ({
   priceOracle: getPriceOracleInterface(),
   stableSwap: getStableSwapInterface(),
   spokeConnector: getSpokeConnectorInterface(),
+});
+
+export type AmbContractABIs = {
+  optimism: any[];
+  gnosis: any[];
+  arbitrum: any[];
+  bnb: any[];
+};
+
+export const getAmbABIs = (): AmbContractABIs => ({
+  optimism: OptimismAmbArtifact.abi,
+  gnosis: GnosisAmbArtifact.abi,
+  arbitrum: ArbitrumAmbArtifact.abi,
+  bnb: MultichainAmbArtifact.abi,
 });

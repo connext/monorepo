@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {AppStorage, TokenId, RouterConfig} from "../libraries/LibConnextStorage.sol";
+import {RouterConfig} from "../libraries/LibConnextStorage.sol";
+import {TokenId} from "../libraries/TokenId.sol";
 
 /**
  * @notice
@@ -33,8 +32,8 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__onlyRouterOwner_notRouterOwner();
   error RoutersFacet__removeRouter_routerEmpty();
   error RoutersFacet__removeRouter_notAdded();
-  error RoutersFacet__addRouter_routerEmpty();
-  error RoutersFacet__addRouter_alreadyAdded();
+  error RoutersFacet__approveRouter_routerEmpty();
+  error RoutersFacet__approveRouter_alreadyAdded();
   error RoutersFacet__proposeRouterOwner_notNewOwner();
   error RoutersFacet__proposeRouterOwner_badRouter();
   error RoutersFacet__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
@@ -248,10 +247,10 @@ contract RoutersFacet is BaseConnextFacet {
    */
   function approveRouter(address _router) external onlyOwnerOrRouter {
     // Sanity check: not empty
-    if (_router == address(0)) revert RoutersFacet__addRouter_routerEmpty();
+    if (_router == address(0)) revert RoutersFacet__approveRouter_routerEmpty();
 
     // Sanity check: needs approval
-    if (s.routerConfigs[_router].approved) revert RoutersFacet__addRouter_alreadyAdded();
+    if (s.routerConfigs[_router].approved) revert RoutersFacet__approveRouter_alreadyAdded();
 
     // Approve router
     s.routerConfigs[_router].approved = true;
@@ -549,7 +548,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @dev The liquidity will be held in the local asset, which is the representation if you
    * are *not* on the canonical domain, and the canonical asset otherwise.
    * @param _amount - The amount of liquidity to add for the router
-   * @param _local - The address of the nomad representation of the asset
+   * @param _local - The address of the bridge representation of the asset
    * @param _router - The router you are adding liquidity on behalf of
    */
   function _addLiquidityForRouter(
