@@ -215,7 +215,7 @@ contract SwapUtilsTest is ForgeHelper {
     uint256[] memory xp = SwapUtils._xp(swapStorage);
     uint256 d = SwapUtils.getD(xp, swapStorage.getAPrecise());
 
-    uint256 verify = (d * (10**uint256(SwapUtils.POOL_PRECISION_DECIMALS))) / lpTokenSupply;
+    uint256 verify = (d * (10**uint256(Constants.POOL_PRECISION_DECIMALS))) / lpTokenSupply;
 
     assertEq(virtualPrice, uint256(verify));
   }

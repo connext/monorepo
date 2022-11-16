@@ -12,6 +12,7 @@ import {IConnectorManager} from "../../../../contracts/messaging/interfaces/ICon
 import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
+import {Constants} from "../../../../contracts/core/connext/libraries/Constants.sol";
 import {TransferInfo, ExecuteArgs, TokenId, DestinationTransferStatus} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
@@ -232,7 +233,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function utils_getFastTransferAmount(uint256 _amount) public returns (uint256) {
     // This is the method used internally to get the amount of tokens to transfer after liquidity
     // fees are taken.
-    return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / BPS_FEE_DENOMINATOR;
+    return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / Constants.BPS_FEE_DENOMINATOR;
   }
 
   // ============== Helpers ==================

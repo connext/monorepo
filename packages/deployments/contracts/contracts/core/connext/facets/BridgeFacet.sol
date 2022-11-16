@@ -19,6 +19,7 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {ExecuteArgs, TransferInfo, TokenId, DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
 import {BridgeMessage} from "../libraries/BridgeMessage.sol";
+import {Constants} from "../libraries/Constants.sol";
 
 import {IXReceiver} from "../interfaces/IXReceiver.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
@@ -414,7 +415,7 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function forceUpdateSlippage(TransferInfo calldata _params, uint256 _slippage) external onlyDelegate(_params) {
     // Sanity check slippage
-    if (_slippage > BPS_FEE_DENOMINATOR) {
+    if (_slippage > Constants.BPS_FEE_DENOMINATOR) {
       revert BridgeFacet__forceUpdateSlippage_invalidSlippage();
     }
 
@@ -496,7 +497,7 @@ contract BridgeFacet is BaseConnextFacet {
         revert BridgeFacet__xcall_emptyTo();
       }
 
-      if (_params.slippage > BPS_FEE_DENOMINATOR) {
+      if (_params.slippage > Constants.BPS_FEE_DENOMINATOR) {
         revert BridgeFacet__xcall_invalidSlippage();
       }
     }
@@ -555,7 +556,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Get the normalized amount in (amount sent in by user in 18 decimals).
       _params.normalizedIn = _asset == address(0)
         ? 0 // we know from assertions above this is the case IFF amount == 0
-        : AssetLogic.normalizeDecimals(ERC20(_asset).decimals(), uint8(18), _amount);
+        : AssetLogic.normalizeDecimals(ERC20(_asset).decimals(), Constants.DEFAULT_NORMALIZED_DECIMALS, _amount);
 
       // Calculate the transfer ID.
       _params.nonce = s.nonce++;
@@ -741,7 +742,7 @@ contract BridgeFacet is BaseConnextFacet {
       uint256 pathLen = _args.routers.length;
 
       // Calculate amount that routers will provide with the fast-liquidity fee deducted.
-      toSwap = _muldiv(_args.params.bridgedAmt, s.LIQUIDITY_FEE_NUMERATOR, BPS_FEE_DENOMINATOR);
+      toSwap = _muldiv(_args.params.bridgedAmt, s.LIQUIDITY_FEE_NUMERATOR, Constants.BPS_FEE_DENOMINATOR);
 
       if (pathLen == 1) {
         // If router does not have enough liquidity, try to use Aave Portals.
@@ -859,7 +860,7 @@ contract BridgeFacet is BaseConnextFacet {
         _params.to,
         gasleft() - 10_000,
         0, // native asset value (always 0)
-        256, // only copy 256 bytes back as calldata
+        Constants.DEFAULT_COPY_BYTES, // only copy 256 bytes back as calldata
         abi.encodeWithSelector(
           IXReceiver.xReceive.selector,
           _transferId,
@@ -909,7 +910,7 @@ contract BridgeFacet is BaseConnextFacet {
     s.portalDebt[_transferId] = _fastTransferAmount;
 
     // Store fee debt
-    s.portalFeeDebt[_transferId] = (s.aavePortalFeeNumerator * _fastTransferAmount) / BPS_FEE_DENOMINATOR;
+    s.portalFeeDebt[_transferId] = (s.aavePortalFeeNumerator * _fastTransferAmount) / Constants.BPS_FEE_DENOMINATOR;
 
     emit AavePortalMintUnbacked(_transferId, _router, adopted, _fastTransferAmount);
 

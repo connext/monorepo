@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import {TransferInfo, AppStorage, TokenId, Role} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
+import {Constants} from "../libraries/Constants.sol";
 
 contract BaseConnextFacet {
   AppStorage internal s;
@@ -11,7 +12,6 @@ contract BaseConnextFacet {
   // ========== Properties ===========
   uint256 internal constant _NOT_ENTERED = 1;
   uint256 internal constant _ENTERED = 2;
-  uint256 internal constant BPS_FEE_DENOMINATOR = 10_000;
 
   // Contains hash of empty bytes
   bytes32 internal constant EMPTY_HASH = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";

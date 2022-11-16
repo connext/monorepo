@@ -6,6 +6,8 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {IERC20Extended} from "../interfaces/IERC20Extended.sol";
 import {IPriceOracle} from "../interfaces/IPriceOracle.sol";
 
+import {Constants} from "../libraries/Constants.sol";
+
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
 import {PriceOracle} from "./PriceOracle.sol";
 
@@ -165,10 +167,10 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
     require(_price != 0, "bad price");
     if (block.timestamp > _timestamp) {
       // reject stale price
-      require(block.timestamp - _timestamp < VALID_PERIOD, "bad timestamp");
+      require(block.timestamp - _timestamp < Constants.ORACLE_VALID_PERIOD, "bad timestamp");
     } else {
       // reject future timestamp (<3s is allowed)
-      require(_timestamp - block.timestamp < 3, "in future");
+      require(_timestamp - block.timestamp < Constants.FUTURE_TIME_BUFFER, "in future");
       _timestamp = block.timestamp;
     }
 

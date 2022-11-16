@@ -5,6 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {SwapUtils} from "../../../../contracts/core/connext/libraries/SwapUtils.sol";
+import {Constants} from "../../../../contracts/core/connext/libraries/Constants.sol";
 import {AmplificationUtils} from "../../../../contracts/core/connext/libraries/AmplificationUtils.sol";
 import {LPToken} from "../../../../contracts/core/connext/helpers/LPToken.sol";
 
@@ -302,7 +303,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       _decimals,
       LP_TOKEN_NAME,
       LP_TOKEN_SYMBOL,
-      AmplificationUtils.MAX_A,
+      Constants.MAX_A,
       SWAP_FEE,
       0,
       address(_lpTokenTarget)
@@ -330,9 +331,9 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       _decimals,
       LP_TOKEN_NAME,
       LP_TOKEN_SYMBOL,
-      AmplificationUtils.MAX_A - 1,
-      SwapUtils.MAX_SWAP_FEE,
-      SwapUtils.MAX_ADMIN_FEE - 1,
+      Constants.MAX_A - 1,
+      Constants.MAX_SWAP_FEE,
+      Constants.MAX_ADMIN_FEE - 1,
       address(_lpTokenTarget)
     );
   }
@@ -358,9 +359,9 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       _decimals,
       LP_TOKEN_NAME,
       LP_TOKEN_SYMBOL,
-      AmplificationUtils.MAX_A - 1,
-      SwapUtils.MAX_SWAP_FEE - 1,
-      SwapUtils.MAX_ADMIN_FEE,
+      Constants.MAX_A - 1,
+      Constants.MAX_SWAP_FEE - 1,
+      Constants.MAX_ADMIN_FEE,
       address(_lpTokenTarget)
     );
   }
@@ -385,7 +386,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
     uint256[] memory precisionMultipliers = new uint256[](_pooledTokens.length);
     for (uint8 i = 0; i < _pooledTokens.length; i++) {
-      precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - _decimals[i]);
+      precisionMultipliers[i] = 10**uint256(Constants.POOL_PRECISION_DECIMALS - _decimals[i]);
       s.tokenIndexes[_canonicalId][address(_pooledTokens[i])] = i;
     }
 
@@ -394,8 +395,8 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       key,
       SwapUtils.Swap({
         key: key,
-        initialA: a * AmplificationUtils.A_PRECISION,
-        futureA: a * AmplificationUtils.A_PRECISION,
+        initialA: a * Constants.A_PRECISION,
+        futureA: a * Constants.A_PRECISION,
         swapFee: fee,
         adminFee: adminFee,
         lpToken: LPToken(address(0x3A1148FE01e3c4721D93fe8A36c2b5C29109B6ae)),
@@ -422,8 +423,8 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       address(_lpTokenTarget)
     );
 
-    assertEq(s.swapStorages[key].initialA, a * AmplificationUtils.A_PRECISION);
-    assertEq(s.swapStorages[key].futureA, a * AmplificationUtils.A_PRECISION);
+    assertEq(s.swapStorages[key].initialA, a * Constants.A_PRECISION);
+    assertEq(s.swapStorages[key].futureA, a * Constants.A_PRECISION);
     assertEq(s.swapStorages[key].swapFee, fee);
     assertEq(s.swapStorages[key].adminFee, adminFee);
     assertEq(address(s.swapStorages[key].pooledTokens[0]), address(_pooledTokens[0]));
@@ -489,17 +490,17 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
   function test_SwapAdminFacet__setSwapAdminFee_failIfHigherThanLimit() public {
     vm.startPrank(_owner);
-    this.setSwapAdminFee(_canonicalKey, SwapUtils.MAX_ADMIN_FEE);
-    assertEq(this.getSwapStorage(_canonicalKey).adminFee, SwapUtils.MAX_ADMIN_FEE);
+    this.setSwapAdminFee(_canonicalKey, Constants.MAX_ADMIN_FEE);
+    assertEq(this.getSwapStorage(_canonicalKey).adminFee, Constants.MAX_ADMIN_FEE);
 
     vm.expectRevert("too high");
-    this.setSwapAdminFee(_canonicalKey, SwapUtils.MAX_ADMIN_FEE + 1);
+    this.setSwapAdminFee(_canonicalKey, Constants.MAX_ADMIN_FEE + 1);
     vm.stopPrank();
   }
 
   function test_SwapAdminFacet__setSwapAdminFee_shouldWork() public {
     vm.startPrank(_owner);
-    uint256 adminFee = SwapUtils.MAX_ADMIN_FEE;
+    uint256 adminFee = Constants.MAX_ADMIN_FEE;
     vm.expectEmit(true, true, true, true);
     emit AdminFeesSet(_canonicalKey, adminFee, _owner);
     this.setSwapAdminFee(_canonicalKey, adminFee);
@@ -519,17 +520,17 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
   function test_SwapAdminFacet__setSwapFee_failIfHigherThanLimit() public {
     vm.startPrank(_owner);
-    this.setSwapFee(_canonicalKey, SwapUtils.MAX_SWAP_FEE);
-    assertEq(this.getSwapStorage(_canonicalKey).swapFee, SwapUtils.MAX_SWAP_FEE);
+    this.setSwapFee(_canonicalKey, Constants.MAX_SWAP_FEE);
+    assertEq(this.getSwapStorage(_canonicalKey).swapFee, Constants.MAX_SWAP_FEE);
 
     vm.expectRevert("too high");
-    this.setSwapFee(_canonicalKey, SwapUtils.MAX_SWAP_FEE + 1);
+    this.setSwapFee(_canonicalKey, Constants.MAX_SWAP_FEE + 1);
     vm.stopPrank();
   }
 
   function test_SwapAdminFacet__setSwapFee_shouldWork() public {
     vm.startPrank(_owner);
-    uint256 swapFee = SwapUtils.MAX_SWAP_FEE;
+    uint256 swapFee = Constants.MAX_SWAP_FEE;
     vm.expectEmit(true, true, true, true);
     emit SwapFeesSet(_canonicalKey, swapFee, _owner);
     this.setSwapFee(_canonicalKey, swapFee);
@@ -562,7 +563,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
     // +0 seconds since ramp A
     assertEq(this.getSwapA(_canonicalKey), INITIAL_A_VALUE);
-    assertEq(this.getSwapAPrecise(_canonicalKey), INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
+    assertEq(this.getSwapAPrecise(_canonicalKey), INITIAL_A_VALUE * Constants.A_PRECISION);
     assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000167146429976812);
 
     // set timestamp to +100000 seconds
@@ -594,7 +595,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
     // +0 seconds since ramp A
     assertEq(this.getSwapA(_canonicalKey), INITIAL_A_VALUE);
-    assertEq(this.getSwapAPrecise(_canonicalKey), INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
+    assertEq(this.getSwapAPrecise(_canonicalKey), INITIAL_A_VALUE * Constants.A_PRECISION);
     assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000167146429976812);
 
     // set timestamp to +100000 seconds

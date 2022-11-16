@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import {SwapUtils} from "./SwapUtils.sol";
+import {Constants} from "./Constants.sol";
 
 /**
  * @title AmplificationUtils library
@@ -14,12 +15,6 @@ library AmplificationUtils {
   event RampA(uint256 oldA, uint256 newA, uint256 initialTime, uint256 futureTime);
   event StopRampA(uint256 currentA, uint256 time);
 
-  // Constant values used in ramping A calculations
-  uint256 public constant A_PRECISION = 100;
-  uint256 public constant MAX_A = 10**6;
-  uint256 private constant MAX_A_CHANGE = 2;
-  uint256 private constant MIN_RAMP_TIME = 14 days;
-
   /**
    * @notice Return A, the amplification coefficient * n ** (n - 1)
    * @dev See the StableSwap paper for details
@@ -27,7 +22,7 @@ library AmplificationUtils {
    * @return A parameter
    */
   function getA(SwapUtils.Swap storage self) internal view returns (uint256) {
-    return _getAPrecise(self) / A_PRECISION;
+    return _getAPrecise(self) / Constants.A_PRECISION;
   }
 
   /**
@@ -78,18 +73,18 @@ library AmplificationUtils {
     uint256 futureA_,
     uint256 futureTime_
   ) internal {
-    require(block.timestamp >= self.initialATime + 1 days, "Wait 1 day before starting ramp");
-    require(futureTime_ >= block.timestamp + MIN_RAMP_TIME, "Insufficient ramp time");
-    require(futureA_ != 0 && futureA_ < MAX_A, "futureA_ must be > 0 and < MAX_A");
+    require(block.timestamp >= self.initialATime + Constants.MIN_RAMP_DELAY, "Wait 1 day before starting ramp");
+    require(futureTime_ >= block.timestamp + Constants.MIN_RAMP_TIME, "Insufficient ramp time");
+    require(futureA_ != 0 && futureA_ < Constants.MAX_A, "futureA_ must be > 0 and < MAX_A");
 
     uint256 initialAPrecise = _getAPrecise(self);
-    uint256 futureAPrecise = futureA_ * A_PRECISION;
+    uint256 futureAPrecise = futureA_ * Constants.A_PRECISION;
     require(initialAPrecise != futureAPrecise, "!valid ramp");
 
     if (futureAPrecise < initialAPrecise) {
-      require(futureAPrecise * MAX_A_CHANGE >= initialAPrecise, "futureA_ is too small");
+      require(futureAPrecise * Constants.MAX_A_CHANGE >= initialAPrecise, "futureA_ is too small");
     } else {
-      require(futureAPrecise <= initialAPrecise * MAX_A_CHANGE, "futureA_ is too large");
+      require(futureAPrecise <= initialAPrecise * Constants.MAX_A_CHANGE, "futureA_ is too large");
     }
 
     self.initialA = initialAPrecise;
