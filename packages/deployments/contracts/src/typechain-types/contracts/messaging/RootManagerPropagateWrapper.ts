@@ -4,6 +4,7 @@
 import type {
   BaseContract,
   BigNumber,
+  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -24,74 +25,54 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../../../common";
+} from "../../common";
 
-export interface MerkleTreeManagerInterface extends utils.Interface {
+export interface RootManagerPropagateWrapperInterface extends utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
-    "arborists(address)": FunctionFragment;
-    "branch()": FunctionFragment;
-    "count()": FunctionFragment;
     "delay()": FunctionFragment;
-    "initialize(address)": FunctionFragment;
-    "insert(bytes32)": FunctionFragment;
-    "insert(bytes32[])": FunctionFragment;
     "owner()": FunctionFragment;
+    "propagate(address[],uint256[],bytes[])": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "root()": FunctionFragment;
-    "setArborist(address)": FunctionFragment;
-    "tree()": FunctionFragment;
+    "rootManager()": FunctionFragment;
+    "setRootManager(address)": FunctionFragment;
+    "withdraw()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "acceptProposedOwner"
-      | "arborists"
-      | "branch"
-      | "count"
       | "delay"
-      | "initialize"
-      | "insert(bytes32)"
-      | "insert(bytes32[])"
       | "owner"
+      | "propagate"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
       | "renounceOwnership"
       | "renounced"
-      | "root"
-      | "setArborist"
-      | "tree"
+      | "rootManager"
+      | "setRootManager"
+      | "withdraw"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "arborists",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(functionFragment: "branch", values?: undefined): string;
-  encodeFunctionData(functionFragment: "count", values?: undefined): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "initialize",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "insert(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "insert(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "propagate",
+    values: [
+      PromiseOrValue<string>[],
+      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<BytesLike>[]
+    ]
+  ): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
     values: [PromiseOrValue<string>]
@@ -106,31 +87,23 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
-  encodeFunctionData(functionFragment: "root", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "setArborist",
+    functionFragment: "rootManager",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRootManager",
     values: [PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(functionFragment: "tree", values?: undefined): string;
+  encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
 
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "arborists", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "branch", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "insert(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "insert(bytes32[])",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "propagate", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
@@ -145,30 +118,52 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "root", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setArborist",
+    functionFragment: "rootManager",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "tree", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setRootManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
-    "Initialized(uint8)": EventFragment;
+    "FundsDeducted(uint256,uint256)": EventFragment;
+    "FundsReceived(uint256,uint256)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "RootManagerChanged(address,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FundsDeducted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FundsReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RootManagerChanged"): EventFragment;
 }
 
-export interface InitializedEventObject {
-  version: number;
+export interface FundsDeductedEventObject {
+  amount: BigNumber;
+  balance: BigNumber;
 }
-export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+export type FundsDeductedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  FundsDeductedEventObject
+>;
 
-export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+export type FundsDeductedEventFilter = TypedEventFilter<FundsDeductedEvent>;
+
+export interface FundsReceivedEventObject {
+  amount: BigNumber;
+  balance: BigNumber;
+}
+export type FundsReceivedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  FundsReceivedEventObject
+>;
+
+export type FundsReceivedEventFilter = TypedEventFilter<FundsReceivedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -193,12 +188,24 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
-export interface MerkleTreeManager extends BaseContract {
+export interface RootManagerChangedEventObject {
+  rootManager: string;
+  oldRootManager: string;
+}
+export type RootManagerChangedEvent = TypedEvent<
+  [string, string],
+  RootManagerChangedEventObject
+>;
+
+export type RootManagerChangedEventFilter =
+  TypedEventFilter<RootManagerChangedEvent>;
+
+export interface RootManagerPropagateWrapper extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: MerkleTreeManagerInterface;
+  interface: RootManagerPropagateWrapperInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -224,33 +231,16 @@ export interface MerkleTreeManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    arborists(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    branch(overrides?: CallOverrides): Promise<[string[]]>;
-
-    count(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    initialize(
-      _arborist: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "insert(bytes32)"(
-      leaf: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "insert(bytes32[])"(
-      leaves: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     owner(overrides?: CallOverrides): Promise<[string]>;
+
+    propagate(
+      _connectors: PromiseOrValue<string>[],
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -267,49 +257,32 @@ export interface MerkleTreeManager extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
-    root(overrides?: CallOverrides): Promise<[string]>;
+    rootManager(overrides?: CallOverrides): Promise<[string]>;
 
-    setArborist(
-      newArborist: PromiseOrValue<string>,
+    setRootManager(
+      _rootManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    tree(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { count: BigNumber }>;
+    withdraw(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   acceptProposedOwner(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  arborists(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  branch(overrides?: CallOverrides): Promise<string[]>;
-
-  count(overrides?: CallOverrides): Promise<BigNumber>;
-
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-  initialize(
-    _arborist: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "insert(bytes32)"(
-    leaf: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "insert(bytes32[])"(
-    leaves: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   owner(overrides?: CallOverrides): Promise<string>;
+
+  propagate(
+    _connectors: PromiseOrValue<string>[],
+    _fees: PromiseOrValue<BigNumberish>[],
+    _encodedData: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
@@ -326,45 +299,30 @@ export interface MerkleTreeManager extends BaseContract {
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
-  root(overrides?: CallOverrides): Promise<string>;
+  rootManager(overrides?: CallOverrides): Promise<string>;
 
-  setArborist(
-    newArborist: PromiseOrValue<string>,
+  setRootManager(
+    _rootManager: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  tree(overrides?: CallOverrides): Promise<BigNumber>;
+  withdraw(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
-    arborists(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    branch(overrides?: CallOverrides): Promise<string[]>;
-
-    count(overrides?: CallOverrides): Promise<BigNumber>;
-
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-    initialize(
-      _arborist: PromiseOrValue<string>,
+    owner(overrides?: CallOverrides): Promise<string>;
+
+    propagate(
+      _connectors: PromiseOrValue<string>[],
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<void>;
-
-    "insert(bytes32)"(
-      leaf: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string, BigNumber] & { _root: string; _count: BigNumber }>;
-
-    "insert(bytes32[])"(
-      leaves: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<[string, BigNumber] & { _root: string; _count: BigNumber }>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -379,19 +337,28 @@ export interface MerkleTreeManager extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
-    root(overrides?: CallOverrides): Promise<string>;
+    rootManager(overrides?: CallOverrides): Promise<string>;
 
-    setArborist(
-      newArborist: PromiseOrValue<string>,
+    setRootManager(
+      _rootManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    tree(overrides?: CallOverrides): Promise<BigNumber>;
+    withdraw(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
-    "Initialized(uint8)"(version?: null): InitializedEventFilter;
-    Initialized(version?: null): InitializedEventFilter;
+    "FundsDeducted(uint256,uint256)"(
+      amount?: null,
+      balance?: null
+    ): FundsDeductedEventFilter;
+    FundsDeducted(amount?: null, balance?: null): FundsDeductedEventFilter;
+
+    "FundsReceived(uint256,uint256)"(
+      amount?: null,
+      balance?: null
+    ): FundsReceivedEventFilter;
+    FundsReceived(amount?: null, balance?: null): FundsReceivedEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
@@ -408,6 +375,15 @@ export interface MerkleTreeManager extends BaseContract {
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
+
+    "RootManagerChanged(address,address)"(
+      rootManager?: null,
+      oldRootManager?: null
+    ): RootManagerChangedEventFilter;
+    RootManagerChanged(
+      rootManager?: null,
+      oldRootManager?: null
+    ): RootManagerChangedEventFilter;
   };
 
   estimateGas: {
@@ -415,33 +391,16 @@ export interface MerkleTreeManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    arborists(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    branch(overrides?: CallOverrides): Promise<BigNumber>;
-
-    count(overrides?: CallOverrides): Promise<BigNumber>;
-
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-    initialize(
-      _arborist: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "insert(bytes32)"(
-      leaf: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "insert(bytes32[])"(
-      leaves: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    propagate(
+      _connectors: PromiseOrValue<string>[],
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -458,14 +417,16 @@ export interface MerkleTreeManager extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
-    root(overrides?: CallOverrides): Promise<BigNumber>;
+    rootManager(overrides?: CallOverrides): Promise<BigNumber>;
 
-    setArborist(
-      newArborist: PromiseOrValue<string>,
+    setRootManager(
+      _rootManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    tree(overrides?: CallOverrides): Promise<BigNumber>;
+    withdraw(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -473,33 +434,16 @@ export interface MerkleTreeManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    arborists(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    branch(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    count(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    initialize(
-      _arborist: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "insert(bytes32)"(
-      leaf: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "insert(bytes32[])"(
-      leaves: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    propagate(
+      _connectors: PromiseOrValue<string>[],
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -516,13 +460,15 @@ export interface MerkleTreeManager extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    root(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    rootManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    setArborist(
-      newArborist: PromiseOrValue<string>,
+    setRootManager(
+      _rootManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    tree(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    withdraw(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
   };
 }

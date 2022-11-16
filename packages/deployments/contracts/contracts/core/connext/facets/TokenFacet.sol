@@ -7,7 +7,6 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 
 import {TokenId} from "../libraries/TokenId.sol";
-import {Encoding} from "../libraries/Encoding.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
