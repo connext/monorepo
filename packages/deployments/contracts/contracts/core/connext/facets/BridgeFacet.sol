@@ -550,12 +550,10 @@ contract BridgeFacet is BaseConnextFacet {
         // Swap to the local asset from adopted if applicable.
         // TODO: drop the "IfNeeded", instead just check whether the asset is already local / needs swap here.
         _params.bridgedAmt = AssetLogic.swapToLocalAssetIfNeeded(key, _asset, local, _amount, _params.slippage);
-      }
 
-      // Get the normalized amount in (amount sent in by user in 18 decimals).
-      _params.normalizedIn = _asset == address(0)
-        ? 0 // we know from assertions above this is the case IFF amount == 0
-        : AssetLogic.normalizeDecimals(ERC20(_asset).decimals(), uint8(18), _amount);
+        // Get the normalized amount in (amount sent in by user in 18 decimals).
+        _params.normalizedIn = AssetLogic.normalizeDecimals(ERC20(_asset).decimals(), uint8(18), _amount);
+      }
 
       // Calculate the transfer ID.
       _params.nonce = s.nonce++;
