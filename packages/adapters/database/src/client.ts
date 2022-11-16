@@ -466,22 +466,17 @@ export const getMessageRootIndex = async (
 };
 
 export const getLatestMessageRoot = async (
-  domain: string,
+  spoke_domain: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<RootMessage | undefined> => {
   const poolToUse = _pool ?? pool;
-  // Find the latest message root on the domain
-  const root = await db
-    .max(
-      "root_messages",
-      { spoke_domain: domain },
-      {
-        columns: ["leaf_count"],
-        lateral: { roots: db.select("aggregated_roots", { received_root: db.parent("root") }) },
-      },
-    )
-    .run(poolToUse);
-  return root ? convertFromDbRootMessage(root) : undefined;
+  const root = await db.sql<
+    s.root_messages.SQL,
+    s.root_messages.Selectable[]
+  >`select * from ${"root_messages"} where ${"root"} in (select received_root from aggregated_roots) and ${{
+    spoke_domain,
+  }} order by ${"leaf_count"} desc nulls last limit 1`.run(poolToUse);
+  return root.length > 0 ? convertFromDbRootMessage(root[0]) : undefined;
 };
 
 export const getMessageRootFromIndex = async (

@@ -39,8 +39,10 @@ import {
   putRoot,
   getRoot,
   getMessageRootIndex,
+  getLatestMessageRoot,
   getAggregateRootCount,
   getUnProcessedMessages,
+  getUnProcessedMessagesByIndex,
   getAggregateRoot,
   getMessageRootFromIndex,
   getMessageRootCount,
@@ -463,7 +465,7 @@ describe("Database client", () => {
       message.destination!.processed = true;
     }
     await saveMessages(messages, pool);
-    const pendingMessages = await getUnProcessedMessages(100, "ASC", pool);
+    const pendingMessages = await getUnProcessedMessagesByIndex(mock.domain.A, batchSize, 0, 100, "ASC", pool);
     for (const message of pendingMessages) {
       expect(message.destination!.processed).equal(true);
     }
