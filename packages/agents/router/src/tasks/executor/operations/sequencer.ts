@@ -14,7 +14,6 @@ import {
 import { getContext } from "../executor";
 // @ts-ignore
 import { version } from "../../../../package.json";
-import { SequencerResponseInvalid } from "../../../errors";
 import { axiosPost } from "../../../mockable";
 
 export const sendExecuteSlowToSequencer = async (
@@ -83,25 +82,36 @@ export const sendExecuteSlowToSequencer = async (
   }
 
   const url = formatUrl(config.sequencerUrl, "execute-slow");
-
-  const response = await axiosPost<ExecutorPostDataRequest>(url, {
+  const executorRequestData = {
     executorVersion: version,
     transferId,
     origin: args.params.originDomain,
     relayerFee,
     encodedData,
-  });
-  // Make sure response.data is valid.
-  if (!response || !response.data) {
-    throw new SequencerResponseInvalid({ response: response.data });
-  }
+  };
 
-  logger.info(`Sent meta tx to the sequencer`, requestContext, methodContext, {
-    relayer: relayerAddress,
-    connext: destinationConnextAddress,
-    domain: args.params.destinationDomain,
-    relayerFee,
-    result: response.data,
-    transferId: transferId,
-  });
+  try {
+    const response = await axiosPost<ExecutorPostDataRequest>(url, executorRequestData);
+
+    if (!response || !response.data) {
+      logger.info("Received bad response from the sequencer", requestContext, methodContext, executorRequestData);
+    } else {
+      logger.info(`Sent meta tx to the sequencer`, requestContext, methodContext, {
+        relayer: relayerAddress,
+        connext: destinationConnextAddress,
+        domain: args.params.destinationDomain,
+        relayerFee,
+        result: response.data,
+        transferId: transferId,
+      });
+    }
+  } catch (err: unknown) {
+    logger.error(
+      "Sequencer POST request failed",
+      requestContext,
+      methodContext,
+      jsonifyError(err as NxtpError),
+      executorRequestData,
+    );
+  }
 };

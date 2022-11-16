@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
@@ -7,7 +7,7 @@ import {Role} from "../libraries/LibConnextStorage.sol";
 import {IProposedOwnable} from "../../../shared/interfaces/IProposedOwnable.sol";
 
 /**
- * @title ProposedOwnable
+ * @title ProposedOwnableFacet
  * @notice Contract module which provides a basic access control mechanism,
  * where there is an account (an owner) that can be granted exclusive access to
  * specific functions.
@@ -38,9 +38,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   error ProposedOwnableFacet__removeAssetWhitelist_delayNotElapsed();
   error ProposedOwnableFacet__proposeNewOwner_invalidProposal();
   error ProposedOwnableFacet__proposeNewOwner_noOwnershipChange();
-  error ProposedOwnableFacet__renounceOwnership_noProposal();
-  error ProposedOwnableFacet__renounceOwnership_delayNotElapsed();
-  error ProposedOwnableFacet__renounceOwnership_invalidProposal();
   error ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
   error ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed();
   error ProposedOwnableFacet__revokeRole_invalidInput();
@@ -206,44 +203,18 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   }
 
   /**
-   * @notice Indicates if the ownership has been renounced() by
-   * checking if current owner is address(0)
-   */
-  function renounced() public view returns (bool) {
-    return owner() == address(0);
-  }
-
-  /**
    * @notice Sets the timestamp for an owner to be proposed, and sets the
    * newly proposed owner as step 1 in a 2-step process
    */
   function proposeNewOwner(address newlyProposed) public onlyOwner {
     // Contract as source of truth
-    if (s._proposed == newlyProposed && newlyProposed != address(0))
+    if (s._proposed == newlyProposed || newlyProposed == address(0))
       revert ProposedOwnableFacet__proposeNewOwner_invalidProposal();
 
     // Sanity check: reasonable proposal
     if (owner() == newlyProposed) revert ProposedOwnableFacet__proposeNewOwner_noOwnershipChange();
 
     _setProposed(newlyProposed);
-  }
-
-  /**
-   * @notice Renounces ownership of the contract after a delay
-   */
-  function renounceOwnership() public onlyOwner {
-    // Ensure there has been a proposal cycle started
-    if (s._proposedOwnershipTimestamp == 0) revert ProposedOwnableFacet__renounceOwnership_noProposal();
-
-    // Ensure delay has elapsed
-    if ((block.timestamp - s._proposedOwnershipTimestamp) <= delay())
-      revert ProposedOwnableFacet__renounceOwnership_delayNotElapsed();
-
-    // Require proposed is set to 0
-    if (s._proposed != address(0)) revert ProposedOwnableFacet__renounceOwnership_invalidProposal();
-
-    // Emit event, set new owner, reset timestamp
-    _setOwner(s._proposed);
   }
 
   /**
@@ -276,9 +247,8 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   function revokeRole(address _revoke) public onlyOwnerOrAdmin {
     // Use contract as source of truth
     // Will fail if candidate isn't assinged any Role OR input address is addressZero
-    if (s.roles[_revoke] == Role.None || _revoke == address(0)) revert ProposedOwnableFacet__revokeRole_invalidInput();
-
     Role revokedRole = s.roles[_revoke];
+    if (revokedRole == Role.None || _revoke == address(0)) revert ProposedOwnableFacet__revokeRole_invalidInput();
 
     s.roles[_revoke] = Role.None;
     emit RevokeRole(_revoke, revokedRole);

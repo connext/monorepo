@@ -8,5 +8,4 @@ export type { IConnectorManager } from "./IConnectorManager";
 export type { IHubConnector } from "./IHubConnector";
 export type { IMessageRecipient } from "./IMessageRecipient";
 export type { IOutbox } from "./IOutbox";
-export type { IResolver } from "./IResolver";
 export type { IRootManager } from "./IRootManager";

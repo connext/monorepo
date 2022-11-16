@@ -48,8 +48,13 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   ),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   database: TDatabaseConfig,
+  subgraphPrefix: Type.Optional(Type.String()),
   healthUrls: Type.Partial(
-    Type.Object({ prover: Type.String({ format: "uri" }), processor: Type.String({ format: "uri" }) }),
+    Type.Object({
+      prover: Type.String({ format: "uri" }),
+      processor: Type.String({ format: "uri" }),
+      propagate: Type.String({ format: "uri" }),
+    }),
   ),
 });
 
@@ -65,6 +70,8 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "1869640809": "Optimism",
   "6648936": "Mainnet",
   "1886350457": "Polygon",
+  "1634886255": "Arbitrum",
+  "6450786": "Bnb",
 };
 
 /**
@@ -126,6 +133,7 @@ export const getEnvConfig = (
     database: { url: process.env.DATABASE_URL || configJson.databaseUrl || configFile.databaseUrl },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
+    subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     healthUrls: process.env.NXTP_HEALTH_URLS || configJson.healthUrls || configFile.healthUrls || {},
   };
 

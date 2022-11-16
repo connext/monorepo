@@ -61,14 +61,14 @@ nxtp$ yarn workspace @connext/nxtp-contracts coverage
 ### Contract Deployment
 
 <aside>
-💡 Important to note that this deployment guide was written when we had to deploy our own `TokenRegistry.sol`.
+💡 Before deploying, you should ensure that precompiles available on the chain cannot be abused, specifically by the arbitrary calldata supported by the `IXReceiver` contracts called in `execute`.
 
 Last updated deployment guide on: May 3 2022
 
 </aside>
 
 <aside>
-⚠️ When using any tasks that require the address of an upgradeable contract, make sure you use the address stored as the `[ContractName]UpgradeBeaconProxy` address, not the implementation address. (i.e. if it requires the `TokenRegistry` address, use the `TokenRegistryUpgradeBeaconProxy` address from the `deployments` directory). Keep in mind staging deployments will append `Staging` to the end of the deployed artifact name as well
+⚠️ When using any tasks that require the address of an upgradeable contract, make sure you use the address stored as the `[ContractName]UpgradeBeaconProxy` address, not the implementation address. Keep in mind staging deployments will append `Staging` to the end of the deployed artifact name as well
 
 </aside>
 

@@ -40,6 +40,7 @@ export interface WatcherClientInterface extends utils.Interface {
     "renounced()": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
     "unpause()": FunctionFragment;
+    "watcherManager()": FunctionFragment;
   };
 
   getFunction(
@@ -56,6 +57,7 @@ export interface WatcherClientInterface extends utils.Interface {
       | "renounced"
       | "setWatcherManager"
       | "unpause"
+      | "watcherManager"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -85,6 +87,10 @@ export interface WatcherClientInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "watcherManager",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
@@ -113,6 +119,10 @@ export interface WatcherClientInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "watcherManager",
+    data: BytesLike
+  ): Result;
 
   events: {
     "OwnershipProposed(address)": EventFragment;
@@ -241,6 +251,8 @@ export interface WatcherClient extends BaseContract {
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    watcherManager(overrides?: CallOverrides): Promise<[string]>;
   };
 
   acceptProposedOwner(
@@ -281,6 +293,8 @@ export interface WatcherClient extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  watcherManager(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
@@ -311,6 +325,8 @@ export interface WatcherClient extends BaseContract {
     ): Promise<void>;
 
     unpause(overrides?: CallOverrides): Promise<void>;
+
+    watcherManager(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
@@ -382,6 +398,8 @@ export interface WatcherClient extends BaseContract {
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    watcherManager(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -422,5 +440,7 @@ export interface WatcherClient extends BaseContract {
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    watcherManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

@@ -1,7 +1,7 @@
 
    
 @baseUrl = http://127.0.0.1:8080
-@yourAddress = 0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94
+@yourAddress = 	0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94
 
 ##############
 ### ẂELCOME
@@ -14,14 +14,18 @@ GET {{baseUrl}}/ping
 
 ##############
 ### POST sendTransaction 
-POST {{baseUrl}}/sendTransaction/9991
+POST {{baseUrl}}/sendTransaction/6648936
 Content-Type: application/json
 
 {
-  "to": "0xDAFa90B07Bc7Bc9506AE7934564Bc33961D1139F",
-  "value": 0,
-  "data": "0xff126de9292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000183cb8c8b7e",
-  "from": "0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94"
+  "to": "0x683151d43758BB7A37e9d47386154d5Ae9b8AC48",
+  "value": {
+    "type": "BigNumber",
+    "hex": "0x00"
+  },
+  "data": "0x91f5de79000000000000000000000000000000000000000000000000000000006f7074690000000000000000000000006d2a06543d23cc6523ae5046add8bb60817e0a94000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480000000000000000000000006d2a06543d23cc6523ae5046add8bb60817e0a940000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000271000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000000",
+  "from": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+  "chainId": 1
 }
 
 ##############
@@ -30,19 +34,20 @@ POST {{baseUrl}}/xcall
 Content-Type: application/json
 
 {
-  "destination": "1735356532",
+  "destination": "1869640809",
   "to": "{{yourAddress}}",
-  "asset": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
+  "asset": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
   "delegate": "{{yourAddress}}",
-  "amount": "10000000000000000",
-  "slippage": "0",
+  "amount": "100",
+  "slippage": "10000",
   "callData": "0x",
-  "origin": "1735353714"
+  "origin": "6648936",
+  "receiveLocal": true
 }
 
 ##############
 ### GET getCanonicalToken
-GET {{baseUrl}}/getCanonicalToken/9991/0xaED6e134ACc6e1144f75678e0df3BF79cfE96E7A
+GET {{baseUrl}}/getCanonicalToken/1735356532/0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E
 
 ##############
 ### GET getLPTokenAddress
@@ -50,20 +55,20 @@ GET {{baseUrl}}/getLPTokenAddress/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E6
 
 ##############
 ### GET getCanonicalKey
-GET {{baseUrl}}/getCanonicalKey/9991/0x000000000000000000000000aed6e134acc6e1144f75678e0df3bf79cfe96e7a
+GET {{baseUrl}}/getCanonicalKey/1735356532/0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6
 ##############
 
 ### GET getLPTokenUserBalance
-GET {{baseUrl}}/getLPTokenUserBalance/9991/0x3267676443A68f74B58f591D98ebBC839593263e/{{yourAddress}}
+GET {{baseUrl}}/getLPTokenUserBalance/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/{{yourAddress}}
 
 ##############
 ### GET getPoolTokenIndex
-GET {{baseUrl}}/getPoolTokenIndex/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9
+GET {{baseUrl}}/getPoolTokenIndex/1735356532/0x74c6FD7D2Bc6a8F0Ebd7D78321A95471b8C2B806/0x74c6FD7D2Bc6a8F0Ebd7D78321A95471b8C2B806
 
 
 ##############
 ### GET getPoolTokenBalance
-GET {{baseUrl}}/getPoolTokenBalance/9991/0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
+GET {{baseUrl}}/getPoolTokenBalance/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
 
 ##############
 ### GET getPoolTokenUserBalance
@@ -75,7 +80,7 @@ GET {{baseUrl}}/getPoolTokenAddress/9991/0x292e02936c5b0f88fab7f755caac58d92cd10
 
 ##############
 ### GET getVirtualPrice
-GET {{baseUrl}}/getVirtualPrice/9991/0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f
+GET {{baseUrl}}/getVirtualPrice/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
 
 ##############
 ### POST calculateSwap
@@ -84,10 +89,10 @@ Content-Type: application/json
 
 {
   "domainId": "9991",
-  "key": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
-  "tokenIndexFrom": "1",
-  "tokenIndexTo": "0",
-  "amount": "1"
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "tokenIndexFrom": "0",
+  "tokenIndexTo": "1",
+  "amount": "1000000000000000000"
 }
 
 ##############
@@ -97,8 +102,8 @@ Content-Type: application/json
 
 {
   "domainId": "9991",
-  "key": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
-  "amounts": ["10", "10"]
+  "tokenAddress": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
+  "amounts": ["9000000000000000000", "0"]
 }
 
 ##############
@@ -108,8 +113,8 @@ Content-Type: application/json
 
 {
   "domainId": "9991",
-  "key": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
-  "amount": "10" 
+  "tokenAddress": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
+  "amount": "100000000000" 
 }
 
 ##############
@@ -119,7 +124,7 @@ Content-Type: application/json
 
 {
   "domainId": "9991",
-  "tokenAddress": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9"
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
 }
 
 ##############
@@ -128,7 +133,7 @@ POST {{baseUrl}}/getUserPools
 Content-Type: application/json
 
 {
-  "domainId": "9991",
+  "domainId": "1735356532",
   "userAddress": "{{yourAddress}}"
 }
 
@@ -139,8 +144,8 @@ Content-Type: application/json
 
 {
   "domainId": "9991",
-  "tokenAddress": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
-  "amounts": ["100000000000000000", "1000000000000000000"]
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "amounts": ["0", "1300000000000000000"]
 }
 
 ##############
@@ -150,8 +155,8 @@ Content-Type: application/json
 
 {
   "domainId": "9991",
-  "tokenAddress": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
-  "amount": "10"
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "amount": "2802542606558914880"
 }
 
 ##############
