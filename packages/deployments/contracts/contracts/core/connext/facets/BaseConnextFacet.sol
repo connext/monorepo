@@ -72,7 +72,7 @@ contract BaseConnextFacet {
    * @notice Throws if called by any account other than the owner and router role.
    */
   modifier onlyOwnerOrRouter() {
-    if (LibDiamond.contractOwner() != msg.sender && s.roles[msg.sender] != Role.Router)
+    if (LibDiamond.contractOwner() != msg.sender && s.roles[msg.sender] != Role.RouterAdmin)
       revert BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter();
     _;
   }
