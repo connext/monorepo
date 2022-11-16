@@ -1,5 +1,5 @@
 import { createRequestContext, expect, mkHash } from "@connext/nxtp-utils";
-import { stub, SinonStub, createStubInstance } from "sinon";
+import { stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
 import { L2ToL1MessageReader } from "@arbitrum/sdk";
 
 import * as MockableFns from "../../../../src/mockable";
@@ -12,7 +12,7 @@ class MockJsonRpcProvider {
 }
 
 let isDataAvailableStub: SinonStub<any[], any>;
-let l2ToL1MessageReader;
+let l2ToL1MessageReader: SinonStubbedInstance<L2ToL1MessageReader>;
 class MockL2TransactionReceipt {
   public isDataAvailable = isDataAvailableStub;
   public getL2ToL1Messages = stub().resolves([l2ToL1MessageReader]);
