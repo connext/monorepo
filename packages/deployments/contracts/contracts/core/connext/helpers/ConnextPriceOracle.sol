@@ -90,28 +90,34 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
   function getTokenPrice(address _tokenAddress) public view override returns (uint256, uint256) {
     address tokenAddress = _tokenAddress;
-    PriceSource source = PriceSource.NA;
 
+    // For native tokens, get price of the wrapped token
     if (_tokenAddress == address(0)) {
       tokenAddress = wrapped;
     }
+
+    // First check the direct price which stored in contract. Only owner can set direct price.
     uint256 tokenPrice = assetPrices[tokenAddress].price;
-    if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) <= VALID_PERIOD)) {
+    // only accept up to and not including VALID_PERIOD time deviation
+    if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) < VALID_PERIOD)) {
       return (tokenPrice, uint256(PriceSource.DIRECT));
-    } else {
-      tokenPrice = 0;
     }
 
-    if (tokenPrice == 0) {
-      tokenPrice = getPriceFromOracle(tokenAddress);
-      source = PriceSource.CHAINLINK;
+    // Second, check ChainLink aggregator, If current token is supported by chainlink, return
+    tokenPrice = getPriceFromOracle(tokenAddress);
+    if (tokenPrice != 0) {
+      return (tokenPrice, uint256(PriceSource.CHAINLINK));
     }
-    if (tokenPrice == 0 && v1PriceOracle != address(0)) {
+
+    // Third, If v1 oracle price contract is set, check v1 price
+    if (v1PriceOracle != address(0)) {
       tokenPrice = IPriceOracle(v1PriceOracle).getTokenPrice(tokenAddress);
-      source = PriceSource.V1_ORACLE;
+      if (tokenPrice != 0) {
+        return (tokenPrice, uint256(PriceSource.V1_ORACLE));
+      }
     }
 
-    return (tokenPrice, uint256(source));
+    return (0, uint256(PriceSource.NA));
   }
 
   function getPriceFromOracle(address _tokenAddress) public view returns (uint256) {
