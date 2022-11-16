@@ -444,12 +444,7 @@ library AssetLogic {
     }
     // If the contract was NOT deployed by the bridge, but the contract does exist, then it
     // IS of local origin. Returns true if code exists at `_addr`.
-    uint256 _codeSize;
-    // solhint-disable-next-line no-inline-assembly
-    assembly {
-      _codeSize := extcodesize(_token)
-    }
-    return _codeSize != 0;
+    return _token.code.length != 0;
   }
 
   /**
