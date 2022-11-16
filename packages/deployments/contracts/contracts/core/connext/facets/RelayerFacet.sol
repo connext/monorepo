@@ -4,6 +4,10 @@ pragma solidity 0.8.17;
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 contract RelayerFacet is BaseConnextFacet {
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
+
   // ========== Custom Errors ===========
   error RelayerFacet__setRelayerFeeVault_invalidRelayerFeeVault();
   error RelayerFacet__addRelayer_alreadyApproved();

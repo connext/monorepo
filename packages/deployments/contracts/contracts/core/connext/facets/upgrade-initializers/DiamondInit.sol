@@ -24,6 +24,10 @@ import {IConnectorManager} from "../../../../messaging/interfaces/IConnectorMana
 // of your diamond. Add parameters to the init funciton if you need to.
 
 contract DiamondInit is BaseConnextFacet {
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
+
   // ========== Custom Errors ===========
   error DiamondInit__init_alreadyInitialized();
   error DiamondInit__init_domainsDontMatch();
@@ -74,7 +78,6 @@ contract DiamondInit is BaseConnextFacet {
     s._xcallStatus = _NOT_ENTERED;
 
     // Connext
-    s.domain = _domain;
     s.LIQUIDITY_FEE_NUMERATOR = 9995;
     s.maxRoutersPerTransfer = 5;
     s.xAppConnectionManager = manager;

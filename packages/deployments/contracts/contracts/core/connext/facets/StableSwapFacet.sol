@@ -28,6 +28,10 @@ contract StableSwapFacet is BaseConnextFacet {
   using SwapUtils for SwapUtils.Swap;
   using AmplificationUtils for SwapUtils.Swap;
 
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
+
   // ========== Custom Errors ===========
   error StableSwapFacet__deadlineCheck_deadlineNotMet();
   error StableSwapFacet__getSwapToken_outOfRange();

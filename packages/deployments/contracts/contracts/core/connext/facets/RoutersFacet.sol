@@ -24,6 +24,10 @@ import {TokenId} from "../libraries/TokenId.sol";
  * address, then it must be accepted by the current owner.
  */
 contract RoutersFacet is BaseConnextFacet {
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
+
   // ========== Custom Errors ===========
   error RoutersFacet__acceptProposedRouterOwner_notElapsed();
   error RoutersFacet__acceptProposedRouterOwner_badCaller();

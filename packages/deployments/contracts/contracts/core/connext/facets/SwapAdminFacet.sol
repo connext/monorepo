@@ -23,6 +23,10 @@ contract SwapAdminFacet is BaseConnextFacet {
   using SwapUtils for SwapUtils.Swap;
   using AmplificationUtils for SwapUtils.Swap;
 
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
+
   // ========== Custom Errors ===========
   error SwapAdminFacet__initializeSwap_alreadyInitialized();
   error SwapAdminFacet__initializeSwap_invalidPooledTokens();

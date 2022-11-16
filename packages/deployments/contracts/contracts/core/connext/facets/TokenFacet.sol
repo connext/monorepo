@@ -16,6 +16,10 @@ import {BridgeToken} from "../helpers/BridgeToken.sol";
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 contract TokenFacet is BaseConnextFacet {
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
+
   // ========== Custom Errors ===========
   error TokenFacet__addAssetId_nativeAsset();
   error TokenFacet__addAssetId_alreadyAdded();
@@ -173,7 +177,7 @@ contract TokenFacet is BaseConnextFacet {
     address _stableSwapPool,
     uint256 _cap
   ) external onlyOwnerOrAdmin returns (address _local) {
-    if (_canonical.domain != s.domain) {
+    if (_canonical.domain != DOMAIN) {
       // On remote, deploy a local representation
       _local = _deployRepresentation(
         _canonical.id,
@@ -203,7 +207,7 @@ contract TokenFacet is BaseConnextFacet {
     address _stableSwapPool,
     uint256 _cap
   ) external onlyOwnerOrAdmin returns (address) {
-    if (_canonical.domain == s.domain) {
+    if (_canonical.domain == DOMAIN) {
       revert TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
     }
     bytes32 key = _enrollAdoptedAndLocalAssets(_adoptedAssetId, _representation, _stableSwapPool, _canonical);
@@ -310,7 +314,7 @@ contract TokenFacet is BaseConnextFacet {
     s.canonicalToAdopted[_key] = adopted;
 
     // representations only exist on non-canonical domains
-    if (s.domain != _canonical.domain) {
+    if (DOMAIN != _canonical.domain) {
       // Update the local <> canonical
       s.representationToCanonical[_local].domain = _canonical.domain;
       s.representationToCanonical[_local].id = _canonical.id;
@@ -364,7 +368,7 @@ contract TokenFacet is BaseConnextFacet {
     uint256 _updated,
     bytes32 _key
   ) internal {
-    if (s.domain != _canonical.domain) {
+    if (DOMAIN != _canonical.domain) {
       revert TokenFacet__setLiquidityCap_notCanonicalDomain();
     }
     // Update the stored cap

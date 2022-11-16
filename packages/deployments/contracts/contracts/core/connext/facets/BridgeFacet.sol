@@ -29,6 +29,10 @@ contract BridgeFacet is BaseConnextFacet {
   using TypedMemView for bytes29;
   using BridgeMessage for bytes29;
 
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
+
   // ========== Custom Errors ===========
 
   error BridgeFacet__addRemote_invalidRouter();
@@ -201,7 +205,7 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   function domain() public view returns (uint32) {
-    return s.domain;
+    return DOMAIN;
   }
 
   function nonce() public view returns (uint256) {
@@ -248,7 +252,7 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function setXAppConnectionManager(address _xAppConnectionManager) external onlyOwnerOrAdmin {
     IConnectorManager manager = IConnectorManager(_xAppConnectionManager);
-    if (manager.localDomain() != s.domain) {
+    if (manager.localDomain() != DOMAIN) {
       revert BridgeFacet__setXAppConnectionManager_domainsDontMatch();
     }
     s.xAppConnectionManager = manager;
@@ -263,7 +267,7 @@ contract BridgeFacet is BaseConnextFacet {
     if (_router == bytes32("")) revert BridgeFacet__addRemote_invalidRouter();
 
     // Make sure we aren't setting the current domain (or an empty one) as the connextion.
-    if (_domain == 0 || _domain == s.domain) {
+    if (_domain == 0 || _domain == DOMAIN) {
       revert BridgeFacet__addRemote_invalidDomain();
     }
 
@@ -288,7 +292,7 @@ contract BridgeFacet is BaseConnextFacet {
     TransferInfo memory params = TransferInfo({
       to: _to,
       callData: _callData,
-      originDomain: s.domain,
+      originDomain: DOMAIN,
       destinationDomain: _destination,
       delegate: _delegate,
       // `receiveLocal: false` indicates we should always deliver the adopted asset on the
@@ -321,7 +325,7 @@ contract BridgeFacet is BaseConnextFacet {
     TransferInfo memory params = TransferInfo({
       to: _to,
       callData: _callData,
-      originDomain: s.domain,
+      originDomain: DOMAIN,
       destinationDomain: _destination,
       delegate: _delegate,
       // `receiveLocal: true` indicates we should always deliver the local asset on the
@@ -417,7 +421,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // Should only be called on destination domain
-    if (_params.destinationDomain != s.domain) {
+    if (_params.destinationDomain != DOMAIN) {
       revert BridgeFacet__forceUpdateSlippage_notDestination();
     }
 
@@ -439,7 +443,7 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function forceReceiveLocal(TransferInfo calldata _params) external onlyDelegate(_params) {
     // Should only be called on destination domain
-    if (_params.destinationDomain != s.domain) {
+    if (_params.destinationDomain != DOMAIN) {
       revert BridgeFacet__forceReceiveLocal_notDestination();
     }
 
@@ -485,8 +489,8 @@ contract BridgeFacet is BaseConnextFacet {
       }
 
       // Destination domain is supported.
-      // NOTE: This check implicitly also checks that `_params.destinationDomain != s.domain`, because the index
-      // `s.domain` of `s.remotes` should always be `bytes32(0)`.
+      // NOTE: This check implicitly also checks that `_params.destinationDomain != DOMAIN`, because the index
+      // `DOMAIN` of `s.remotes` should always be `bytes32(0)`.
       remoteInstance = _mustHaveRemote(_params.destinationDomain);
 
       // Recipient defined.
@@ -605,7 +609,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // If this is not the destination domain revert
-    if (_args.params.destinationDomain != s.domain) {
+    if (_args.params.destinationDomain != DOMAIN) {
       revert BridgeFacet__execute_wrongDomain();
     }
 
@@ -719,7 +723,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // If it is the canonical domain, decrease custodied value
-    if (s.domain == _args.params.canonicalDomain && s.caps[_key] > 0) {
+    if (DOMAIN == _args.params.canonicalDomain && s.caps[_key] > 0) {
       // NOTE: safe to use the amount here instead of post-swap because there are no
       // AMMs on the canonical domain (assuming canonical == adopted on canonical domain)
       s.custodied[local] -= _args.params.bridgedAmt;

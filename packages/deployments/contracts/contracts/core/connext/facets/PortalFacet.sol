@@ -12,6 +12,10 @@ import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {TransferInfo} from "../libraries/LibConnextStorage.sol";
 
 contract PortalFacet is BaseConnextFacet {
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) BaseConnextFacet(_domain) {}
+
   // ========== Custom Errors ===========
   error PortalFacet__setAavePortalFee_invalidFee();
   error PortalFacet__repayAavePortal_insufficientFunds();
