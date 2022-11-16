@@ -939,8 +939,6 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _amount,
     bool _isCanonical
   ) private returns (bytes32) {
-    IBridgeToken _token = IBridgeToken(_local);
-
     // Get the formatted token ID
     bytes29 _tokenId = BridgeMessage.formatTokenId(_canonical.domain, _canonical.id);
 
@@ -948,7 +946,7 @@ contract BridgeFacet is BaseConnextFacet {
     if (_amount > 0) {
       if (!_isCanonical) {
         // If the token originates on a remote chain, burn the representational tokens on this chain.
-        _token.burn(address(this), _amount);
+        IBridgeToken(_local).burn(address(this), _amount);
       }
       // IFF the token IS the canonical token (i.e. originates on this chain), we lock the input tokens in escrow
       // in this contract, as an equal amount of representational assets will be minted on the destination chain.
