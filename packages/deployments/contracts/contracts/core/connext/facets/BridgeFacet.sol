@@ -938,9 +938,6 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _amount,
     bool _isCanonical
   ) private returns (bytes32) {
-    // Get the formatted token ID
-    bytes29 _tokenId = BridgeMessage.formatTokenId(_canonical.domain, _canonical.id);
-
     // Remove tokens from circulation on this chain if applicable.
     if (_amount > 0) {
       if (!_isCanonical) {
@@ -952,14 +949,16 @@ contract BridgeFacet is BaseConnextFacet {
       // NOTE: The tokens should be in the contract already at this point from xcall.
     }
 
-    // Format hook action.
-    bytes29 _action = BridgeMessage.formatTransfer(_amount, _transferId);
-    // Send message to destination chain bridge router.
-    bytes32 _messageHash = IOutbox(s.xAppConnectionManager.home()).dispatch(
-      _destination,
-      _connextion,
-      BridgeMessage.formatMessage(_tokenId, _action)
+    bytes memory _messageBody = abi.encodePacked(
+      _canonical.domain,
+      _canonical.id,
+      BridgeMessage.Types.Transfer,
+      _amount,
+      _transferId
     );
+
+    // Send message to destination chain bridge router.
+    bytes32 _messageHash = IOutbox(s.xAppConnectionManager.home()).dispatch(_destination, _connextion, _messageBody);
 
     // return message hash
     return _messageHash;
