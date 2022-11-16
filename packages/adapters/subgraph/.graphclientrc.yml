@@ -154,18 +154,19 @@ sources:
   - name: Connext_Staging_ArbitrumGoerli
     handler:
       graphql:
-        endpoint: https://thegraph.com/hosted-service/subgraph/connext/runtime-staging-arb-goerli
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-staging-arb-goerli
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: stagingarbgoerli_
+          value: stagingarbitrumgoerli_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+
   #####################################################
   # MAINNETS
   - name: Hub_Mainnet
