@@ -788,6 +788,9 @@ contract BridgeFacet is BaseConnextFacet {
 
     // Swap out of representational asset into adopted asset if needed.
     uint256 slippageOverride = s.slippage[_transferId];
+    // delete for gas refund
+    delete s.slippage[_transferId];
+
     (uint256 amount, address adopted) = AssetLogic.swapFromLocalAssetIfNeeded(
       _key,
       local,
