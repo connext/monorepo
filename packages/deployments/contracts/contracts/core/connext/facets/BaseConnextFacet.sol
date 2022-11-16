@@ -9,6 +9,8 @@ import {TokenId} from "../libraries/TokenId.sol";
 contract BaseConnextFacet {
   AppStorage internal s;
 
+  uint32 internal immutable DOMAIN;
+
   // ========== Properties ===========
   uint256 internal constant _NOT_ENTERED = 1;
   uint256 internal constant _ENTERED = 2;
@@ -16,6 +18,12 @@ contract BaseConnextFacet {
 
   // Contains hash of empty bytes
   bytes32 internal constant EMPTY_HASH = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
+
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) {
+    DOMAIN = _domain;
+  }
 
   // ========== Custom Errors ===========
 
