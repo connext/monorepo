@@ -11,6 +11,10 @@ import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import "../../../utils/FacetHelper.sol";
 
 contract RoutersFacetTest is RoutersFacet, FacetHelper {
+  // ======== Test Constructor ========
+
+  constructor() RoutersFacet(_canonicalDomain) {}
+
   // ============ storage ============
   // owner
   address _owner = address(12345);

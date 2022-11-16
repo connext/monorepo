@@ -7,6 +7,9 @@ import {DiamondInit, BaseConnextFacet, IConnectorManager} from "../../../../../c
 import "../../../../utils/FacetHelper.sol";
 
 contract DiamondInitTest is DiamondInit, FacetHelper {
+  // ======== Test Constructor ========
+  constructor() DiamondInit(_originDomain) {}
+
   // ============ Storage ============
   // manager
   address _xAppConnectionManager = address(2134123);

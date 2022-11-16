@@ -19,6 +19,10 @@ import {MessagingUtils} from "../../../utils/Messaging.sol";
 import "forge-std/console.sol";
 
 contract InboxFacetTest is InboxFacet, FacetHelper {
+  // ======== Test Constructor ========
+
+  constructor() InboxFacet(_originDomain) {}
+
   // ============ Libs ============
   using TypedMemView for bytes29;
   using TypedMemView for bytes;
@@ -61,9 +65,6 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
 
     s.xAppConnectionManager = new MockXAppConnectionManager(new MockHome(_originDomain));
     MockXAppConnectionManager(address(s.xAppConnectionManager)).enrollInbox(_originSender);
-
-    // set domain
-    s.domain = _originDomain;
   }
 
   // ============ Utils ============
@@ -80,7 +81,7 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
       params.canonicalId,
       params.canonicalDomain
     );
-    return MessagingUtils.formatMessage(params, local, params.canonicalDomain == s.domain);
+    return MessagingUtils.formatMessage(params, local, params.canonicalDomain == DOMAIN);
   }
 
   function utils_createTransferIdInformation(address asset) public returns (TransferInfo memory, bytes32) {

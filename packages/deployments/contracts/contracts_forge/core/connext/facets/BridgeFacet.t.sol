@@ -24,6 +24,10 @@ import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
 
 contract BridgeFacetTest is BridgeFacet, FacetHelper {
+  // ======== Test Constructor ========
+
+  constructor() BridgeFacet(_originDomain) {}
+
   // ============ Libs ============
 
   using TypedMemView for bytes29;
@@ -92,6 +96,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       canonicalId: bytes32("") // Will be set in setUp.
     });
 
+  // Sanity: used in `helpers_reverseDomains`
+  bool didReverseDomains;
+
   // ============ Test set up ============
   function setUp() public {
     // Deploy any needed contracts.
@@ -113,7 +120,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.maxRoutersPerTransfer = 5;
     s._routerWhitelistRemoved = true;
     s.relayerFeeVault = _relayerFeeVault;
-    s.domain = _originDomain;
 
     s.remotes[_destinationDomain] = TypeCasts.addressToBytes32(address(this));
     s.remotes[_originDomain] = TypeCasts.addressToBytes32(address(this));
@@ -181,7 +187,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     public
     returns (bytes32, ExecuteArgs memory)
   {
-    s.domain = _destinationDomain;
+    helpers_reverseDomains();
 
     // Format TransferInfo.
     TransferInfo memory params = _defaultParams;
@@ -245,7 +251,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool shouldSwap
   ) public {
     // Bridged asset will either local or canonical, depending on domain xcall originates on.
-    address bridged = asset == address(0) ? address(0) : _canonicalDomain == s.domain ? _canonical : _local;
+    address bridged = asset == address(0) ? address(0) : _canonicalDomain == DOMAIN ? _canonical : _local;
     uint256 bridgedAmt = params.bridgedAmt;
     vm.expectEmit(true, true, true, true);
     emit XCalled(transferId, s.nonce, bytes32("test message"), params, asset, amount, bridged);
@@ -307,7 +313,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool shouldSwap
   ) public {
     bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
-    bool isCanonical = _canonicalDomain == s.domain;
+    bool isCanonical = _canonicalDomain == DOMAIN;
 
     if (asset == address(0)) {
       // Both should be empty if the asset address is 0 (meaning this is probably a 0-value transfer).
@@ -505,7 +511,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       asset,
       amount,
       bytes4(""),
-      asset != address(0) && asset != _local && _canonicalDomain != s.domain
+      asset != address(0) && asset != _local && _canonicalDomain != DOMAIN
     );
   }
 
@@ -772,6 +778,17 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     );
   }
 
+  // Switch the `_originDomain` and `_destinationDomain` references in storage. Will result
+  // test behavior treating current domain as destination (e.g. for use in `execute` tests).
+  function helpers_reverseDomains() internal {
+    if (!didReverseDomains) {
+      didReverseDomains = true;
+      uint32 _temp = _destinationDomain;
+      _destinationDomain = _originDomain;
+      _originDomain = _temp;
+    }
+  }
+
   // ============ execute ============
   // Shortcut for above method:
   // - local == adopted
@@ -811,13 +828,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // ============ Getters ==============
-
-  function test_BridgeFacet__domain_works() public {
-    s.domain = 0;
-    assertEq(this.domain(), 0);
-    s.domain = _destinationDomain;
-    assertEq(this.domain(), _destinationDomain);
-  }
 
   function test_BridgeFacet__nonce_works() public {
     s.nonce = 0;
@@ -920,7 +930,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     address manager = address(123);
 
     // set mock
-    vm.mockCall(manager, abi.encodeWithSelector(IConnectorManager.localDomain.selector), abi.encode(s.domain + 1));
+    vm.mockCall(manager, abi.encodeWithSelector(IConnectorManager.localDomain.selector), abi.encode(DOMAIN + 1));
 
     // test revert
     vm.prank(LibDiamond.contractOwner());
@@ -933,7 +943,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     address manager = address(123);
 
     // set mock
-    vm.mockCall(manager, abi.encodeWithSelector(IConnectorManager.localDomain.selector), abi.encode(s.domain));
+    vm.mockCall(manager, abi.encodeWithSelector(IConnectorManager.localDomain.selector), abi.encode(DOMAIN));
 
     // test revert
     vm.prank(LibDiamond.contractOwner());
@@ -955,7 +965,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   function test_BridgeFacet__xcall_failIfDestinationNotSupported() public {
     _destinationDomain = 10000;
-    s.domain = _originDomain;
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__mustHaveRemote_destinationNotSupported.selector);
   }
 
@@ -1112,7 +1121,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // (e.g. I should be able to xcall with madEth on optimism)
   function test_BridgeFacet__xcall_localTokenTransferWorksWhenNotAdopted() public {
     // Local is not adopted, not on canonical domain, sending in local.
-    s.domain = _originDomain;
     utils_setupAsset(false, false);
     helpers_xcallAndAssert(_local, _defaultAmount);
   }
@@ -1174,7 +1182,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // works if relayer fee is set to 0
   function test_BridgeFacet__xcall_zeroRelayerFeeWorks() public {
     _relayerFee = 0;
-    s.domain = _originDomain;
     utils_setupAsset(true, true);
     helpers_xcallAndAssert(_adopted, _defaultAmount);
   }
@@ -1446,7 +1453,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // works when local != adopted
   function test_BridgeFacet__execute_worksWithAdopted() public {
     // set asset context (local != adopted)
-    s.domain = _destinationDomain;
+    helpers_reverseDomains();
     utils_setupAsset(false, false);
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
@@ -1571,7 +1578,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _defaultParams.to = _xapp;
 
     // set asset context (local == adopted)
-    s.domain = _destinationDomain;
+    helpers_reverseDomains();
     utils_setupAsset(true, false);
 
     // get args
@@ -1620,7 +1627,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // authenticated data)
   function test_BridgeFacet__execute_handleAlreadyReconciled() public {
     // set asset context (local == adopted)
-    s.domain = _destinationDomain;
+    helpers_reverseDomains();
     utils_setupAsset(true, false);
 
     // Set the args.to to the mock xapp address, and args.callData to the
@@ -1683,7 +1690,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // can use liquidity from portals
   function test_BridgeFacet__execute_worksWithAave() public {
     // set asset context (local == adopted)
-    s.domain = _destinationDomain;
+    helpers_reverseDomains();
     utils_setupAsset(true, false);
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
@@ -1709,7 +1716,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // uses slippage overrides
   function test_BridgeFacet__execute_respectsSlippageOverrides() public {
     // set asset context (local != adopted)
-    s.domain = _destinationDomain;
+    helpers_reverseDomains();
     utils_setupAsset(false, false);
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
@@ -1727,7 +1734,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // uses slippage overrides
   function test_BridgeFacet__execute_respectsReceiveLocalOverrides() public {
     // set asset context (local != adopted)
-    s.domain = _destinationDomain;
+    helpers_reverseDomains();
     utils_setupAsset(false, false);
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
@@ -1761,7 +1768,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   function test_BridgeFacet__forceUpdateSlippage_failsIfNotDestination() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    s.domain = args.params.originDomain;
+    // Already on the origin domain - should fail by default.
     vm.expectRevert(BridgeFacet.BridgeFacet__forceUpdateSlippage_notDestination.selector);
     vm.prank(args.params.delegate);
     this.forceUpdateSlippage(args.params, 5_000);
@@ -1769,7 +1776,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   function test_BridgeFacet__forceUpdateSlippage_works() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    s.domain = args.params.destinationDomain;
 
     vm.expectEmit(true, true, true, true);
     emit SlippageUpdated(transferId, 5_000);
@@ -1788,7 +1794,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   function test_BridgeFacet__forceReceiveLocal_failsIfNotDestination() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    s.domain = args.params.originDomain;
+    // Already on origin domain.
     vm.expectRevert(BridgeFacet.BridgeFacet__forceReceiveLocal_notDestination.selector);
     vm.prank(args.params.delegate);
     this.forceReceiveLocal(args.params);
@@ -1796,7 +1802,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   function test_BridgeFacet__forceReceiveLocal_works() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    s.domain = args.params.destinationDomain;
 
     vm.expectEmit(true, true, true, true);
     emit ForceReceiveLocal(transferId);

@@ -21,6 +21,10 @@ contract LibCaller {
 }
 
 contract AssetLogicTest is BaseConnextFacet, FacetHelper {
+  // ======== Test Constructor ========
+
+  constructor() BaseConnextFacet(_originDomain) {}
+
   // ============ Storage ============
   LibCaller caller;
 
