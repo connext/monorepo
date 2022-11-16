@@ -129,7 +129,7 @@ library TypedMemView {
    * @return      encoded - The hex-encoded byte
    */
   function byteHex(uint8 _b) internal pure returns (uint16 encoded) {
-    encoded |= nibbleHex(_b >> 4); // top 4 bits
+    encoded = nibbleHex(_b >> 4); // top 4 bits
     encoded <<= 8;
     encoded |= nibbleHex(_b); // lower 4 bits
   }
@@ -303,7 +303,7 @@ library TypedMemView {
     assembly {
       // solhint-disable-previous-line no-inline-assembly
       // shift off the top 5 bytes
-      newView := or(newView, shr(40, shl(40, memView)))
+      newView := shr(40, shl(40, memView))
       newView := or(newView, shl(216, _newType))
     }
   }
@@ -325,7 +325,7 @@ library TypedMemView {
   ) private pure returns (bytes29 newView) {
     assembly {
       // solhint-disable-previous-line no-inline-assembly
-      newView := shl(96, or(newView, _type)) // insert type
+      newView := shl(96, _type) // insert type
       newView := shl(96, or(newView, _loc)) // insert loc
       newView := shl(24, or(newView, _len)) // empty bottom 3 bytes
     }
