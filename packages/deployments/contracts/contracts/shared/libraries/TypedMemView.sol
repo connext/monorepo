@@ -411,7 +411,7 @@ library TypedMemView {
     uint256 _mask = LOW_12_MASK; // assembly can't use globals
     assembly {
       // solhint-disable-previous-line no-inline-assembly
-      // 120 bits = 12 bytes (the encoded loc) + 3 bytes (empty low space)
+      // 120 bits = 12 bytes (the encoded len) + 3 bytes (empty low space)
       _loc := and(shr(120, memView), _mask)
     }
   }
