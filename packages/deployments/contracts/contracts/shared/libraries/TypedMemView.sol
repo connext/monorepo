@@ -64,6 +64,16 @@ library TypedMemView {
   uint256 constant LOW_12_MASK = 0xffffffffffffffffffffffff;
   uint256 constant TWENTY_SEVEN_BYTES = 8 * 27;
 
+  // ========== Custom Errors ===========
+
+  error TypedMemView__assertType_typeAssertionFailed(uint256 actual, uint256 expected);
+  error TypedMemView__index_overrun(uint256 loc, uint256 len, uint256 index, uint256 slice);
+  error TypedMemView__index_indexMoreThan32Bytes();
+  error TypedMemView__unsafeCopyTo_nullPointer();
+  error TypedMemView__unsafeCopyTo_invalidPointer();
+  error TypedMemView__unsafeCopyTo_identityOOG();
+  error TypedMemView__assertValid_validityAssertionFailed();
+
   /**
    * @notice      Returns the encoded hex character that represents the lower 4 bits of the argument.
    * @param _b    The byte
@@ -132,39 +142,6 @@ library TypedMemView {
     encoded |= nibbleHex(_b >> 4); // top 4 bits
     encoded <<= 8;
     encoded |= nibbleHex(_b); // lower 4 bits
-  }
-
-  /**
-   * @notice      Encodes the uint256 to hex. `first` contains the encoded top 16 bytes.
-   *              `second` contains the encoded lower 16 bytes.
-   *
-   * @param _b    The 32 bytes as uint256
-   * @return      first - The top 16 bytes
-   * @return      second - The bottom 16 bytes
-   */
-  function encodeHex(uint256 _b) internal pure returns (uint256 first, uint256 second) {
-    for (uint256 i = 31; i > 15; ) {
-      uint8 _byte = uint8(_b >> (i * 8));
-      first |= byteHex(_byte);
-      if (i != 16) {
-        first <<= 16;
-      }
-      unchecked {
-        i -= 1;
-      }
-    }
-
-    // abusing underflow here =_=
-    for (uint256 i = 15; i < 255; ) {
-      uint8 _byte = uint8(_b >> (i * 8));
-      second |= byteHex(_byte);
-      if (i != 0) {
-        second <<= 16;
-      }
-      unchecked {
-        i -= 1;
-      }
-    }
   }
 
   /**
@@ -259,7 +236,7 @@ library TypedMemView {
    * @return          bytes29 - The validated view
    */
   function assertValid(bytes29 memView) internal pure returns (bytes29) {
-    require(isValid(memView), "Validity assertion failed");
+    if (!isValid(memView)) revert TypedMemView__assertValid_validityAssertionFailed();
     return memView;
   }
 
@@ -282,12 +259,7 @@ library TypedMemView {
    */
   function assertType(bytes29 memView, uint40 _expected) internal pure returns (bytes29) {
     if (!isType(memView, _expected)) {
-      (, uint256 g) = encodeHex(uint256(typeOf(memView)));
-      (, uint256 e) = encodeHex(uint256(_expected));
-      string memory err = string(
-        abi.encodePacked("Type assertion failed. Got 0x", uint80(g), ". Expected 0x", uint80(e))
-      );
-      revert(err);
+      revert TypedMemView__assertType_typeAssertionFailed(uint256(typeOf(memView)), uint256(_expected));
     }
     return memView;
   }
@@ -514,39 +486,6 @@ library TypedMemView {
   }
 
   /**
-   * @notice          Construct an error message for an indexing overrun.
-   * @param _loc      The memory address
-   * @param _len      The length
-   * @param _index    The index
-   * @param _slice    The slice where the overrun occurred
-   * @return          err - The err
-   */
-  function indexErrOverrun(
-    uint256 _loc,
-    uint256 _len,
-    uint256 _index,
-    uint256 _slice
-  ) internal pure returns (string memory err) {
-    (, uint256 a) = encodeHex(_loc);
-    (, uint256 b) = encodeHex(_len);
-    (, uint256 c) = encodeHex(_index);
-    (, uint256 d) = encodeHex(_slice);
-    err = string(
-      abi.encodePacked(
-        "TypedMemView/index - Overran the view. Slice is at 0x",
-        uint48(a),
-        " with length 0x",
-        uint48(b),
-        ". Attempted to index at offset 0x",
-        uint48(c),
-        " with length 0x",
-        uint48(d),
-        "."
-      )
-    );
-  }
-
-  /**
    * @notice          Load up to 32 bytes from the view onto the stack.
    * @dev             Returns a bytes32 with only the `_bytes` highest bytes set.
    *                  This can be immediately cast to a smaller fixed-length byte array.
@@ -565,9 +504,10 @@ library TypedMemView {
       return bytes32(0);
     }
     if (_index + _bytes > len(memView)) {
-      revert(indexErrOverrun(loc(memView), len(memView), _index, uint256(_bytes)));
+      // "TypedMemView/index - Overran the view. Slice is at {loc} with length {len}. Attempted to index at offset {index} with length {slice},
+      revert TypedMemView__index_overrun(loc(memView), len(memView), _index, uint256(_bytes));
     }
-    require(_bytes <= 32, "TypedMemView/index - Attempted to index more than 32 bytes");
+    if (_bytes > 32) revert TypedMemView__index_indexMoreThan32Bytes();
 
     uint8 bitLength;
     unchecked {
@@ -691,8 +631,9 @@ library TypedMemView {
    * @return          written - the unsafe memory reference
    */
   function unsafeCopyTo(bytes29 memView, uint256 _newLoc) private view returns (bytes29 written) {
-    require(notNull(memView), "TypedMemView/copyTo - Null pointer deref");
-    require(isValid(memView), "TypedMemView/copyTo - Invalid pointer deref");
+    if (!notNull(memView)) revert TypedMemView__unsafeCopyTo_nullPointer();
+    if (!isValid(memView)) revert TypedMemView__unsafeCopyTo_invalidPointer();
+
     uint256 _len = len(memView);
     uint256 _oldLoc = loc(memView);
 
@@ -710,7 +651,7 @@ library TypedMemView {
       // guaranteed not to fail, so pop the success
       res := staticcall(gas(), 4, _oldLoc, _len, _newLoc, _len)
     }
-    require(res, "identity OOG");
+    if (!res) revert TypedMemView__unsafeCopyTo_identityOOG();
     written = unsafeBuildUnchecked(typeOf(memView), _newLoc, _len);
   }
 
