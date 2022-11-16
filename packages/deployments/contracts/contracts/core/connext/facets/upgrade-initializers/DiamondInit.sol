@@ -39,11 +39,9 @@ contract DiamondInit is BaseConnextFacet {
   ) external {
     // should not init twice
     if (s.initialized) {
+      // NOTE: always check owner here in the future if this becomes a no-op
       revert DiamondInit__init_alreadyInitialized();
     }
-
-    // ensure this is the owner
-    LibDiamond.enforceIsContractOwner();
 
     // ensure domains are the same
     IConnectorManager manager = IConnectorManager(_xAppConnectionManager);
