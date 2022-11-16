@@ -71,6 +71,7 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "6648936": "Mainnet",
   "1886350457": "Polygon",
   "1634886255": "Arbitrum",
+  "6450786": "Bnb",
 };
 
 /**

@@ -75,16 +75,14 @@ export const getPropagateParams = async (
   }
 
   const maxGas = await l1ToL2MessageGasEstimate.estimateRetryableTicketGasLimit(
-    {
-      from: l1HubConnector.address,
-      to: l2SpokeConnector.address,
-      l2CallValue: constants.Zero,
-      excessFeeRefundAddress: l2SpokeConnector.address, // TODO: check this
-      callValueRefundAddress: l2SpokeConnector.address,
-      // use example calldata since it will always be the same
-      // TODO: check this, it shouldnt be the same as the above example calldata
-      data: "0x4ff746f6000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000207465737400000000000000000000000000000000000000000000000000000000",
-    },
+    l1HubConnector.address,
+    l2SpokeConnector.address,
+    constants.Zero,
+    l2SpokeConnector.address, // TODO: check this
+    l2SpokeConnector.address,
+    // use example calldata since it will always be the same
+    // TODO: check this, it shouldnt be the same as the above example calldata
+    "0x4ff746f6000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000207465737400000000000000000000000000000000000000000000000000000000",
     utils.parseEther("1"),
   );
 
