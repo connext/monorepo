@@ -717,7 +717,6 @@ library TypedMemView {
   /**
    * @notice          Copies the referenced memory to a new loc in memory, returning a `bytes` pointing to
    *                  the new memory
-   * @dev             Shortcuts if the pointers are identical, otherwise compares type and digest.
    * @param memView   The view
    * @return          ret - The view pointing to the new memory
    */

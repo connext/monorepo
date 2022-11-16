@@ -546,9 +546,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     // ensure message has been proven
     bytes32 _messageHash = _m.keccak();
     require(messages[_messageHash] == MessageStatus.Proven, "!proven");
-    // check re-entrancy guard
-    // require(entered == 1, "!reentrant");
-    // entered = 0;
     // update message status as processed
     messages[_messageHash] = MessageStatus.Processed;
     // A call running out of gas TYPICALLY errors the whole tx. We want to
