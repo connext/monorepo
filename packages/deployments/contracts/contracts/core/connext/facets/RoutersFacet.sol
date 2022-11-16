@@ -3,7 +3,8 @@ pragma solidity 0.8.17;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {TokenId, RouterConfig} from "../libraries/LibConnextStorage.sol";
+import {RouterConfig} from "../libraries/LibConnextStorage.sol";
+import {TokenId} from "../libraries/TokenId.sol";
 
 /**
  * @notice
