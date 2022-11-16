@@ -569,15 +569,6 @@ contract RoutersFacet is BaseConnextFacet {
     if (!_isRouterWhitelistRemoved() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
 
-    uint256 cap = s.caps[key];
-    if (s.domain == canonical.domain && cap > 0) {
-      // Sanity check: caps not reached
-      if (s.custodied[_local] > cap - _amount) {
-        revert RoutersFacet__addLiquidityForRouter_capReached();
-      }
-      s.custodied[_local] += _amount;
-    }
-
     // Transfer funds to contract.
     AssetLogic.handleIncomingAsset(_local, _amount);
 
@@ -622,13 +613,6 @@ contract RoutersFacet is BaseConnextFacet {
 
     // Sanity check: amount can be deducted for the router.
     if (routerBalance < _amount) revert RoutersFacet__removeRouterLiquidity_insufficientFunds();
-
-    // If it is the canonical domain, decrease custodied value
-    if (s.domain == canonical.domain && s.caps[key] > 0) {
-      // NOTE: safe to use the amount here because routers should always supply liquidity
-      // in canonical asset on the canonical domain
-      s.custodied[_local] -= _amount;
-    }
 
     // Update router balances.
     unchecked {
