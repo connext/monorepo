@@ -60,7 +60,6 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
     // Which means this function will revert if updating the `mirrorConnector`. In that case, in
     // changes  the
     // hub connector should also be redeployed
-    require(mirrorConnector == address(0), "!empty");
     super._setMirrorConnector(_mirrorConnector);
 
     setFxChildTunnel(_mirrorConnector);
