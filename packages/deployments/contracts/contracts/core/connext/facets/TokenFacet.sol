@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20Metadata} from "@openzeppelin/contracts/interfaces/IERC20Metadata.sol";
 
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 
@@ -184,13 +184,19 @@ contract TokenFacet is BaseConnextFacet {
       );
 
       // enroll the assets
-      _enrollAdoptedAndLocalAssets(_adoptedAssetId, _local, _stableSwapPool, _canonical);
+      _enrollAdoptedAndLocalAssets(_adoptedAssetId, _local, _stableSwapPool, _canonicalDecimals, _canonical);
       return _local;
     }
     // On the canonical domain, the local is the canonical address
     _local = TypeCasts.bytes32ToAddress(_canonical.id);
     // Enroll the asset
-    bytes32 key = _enrollAdoptedAndLocalAssets(_adoptedAssetId, _local, _stableSwapPool, _canonical);
+    bytes32 key = _enrollAdoptedAndLocalAssets(
+      _adoptedAssetId,
+      _local,
+      _stableSwapPool,
+      _canonicalDecimals,
+      _canonical
+    );
     if (_cap > 0) {
       _setLiquidityCap(_canonical, _cap, key);
     }
@@ -206,7 +212,17 @@ contract TokenFacet is BaseConnextFacet {
     if (_canonical.domain == s.domain) {
       revert TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
     }
-    bytes32 key = _enrollAdoptedAndLocalAssets(_adoptedAssetId, _representation, _stableSwapPool, _canonical);
+
+    // NOTE: adding decimals to storage is okay, but it will be problematic if these decimals chang
+    // in a future token upgrade. If that happens, the asset and swaps must be removed, and then they
+    // can be readded
+    bytes32 key = _enrollAdoptedAndLocalAssets(
+      _adoptedAssetId,
+      _representation,
+      _stableSwapPool,
+      IERC20Metadata(_representation).decimals(),
+      _canonical
+    );
     if (_cap != 0) {
       _setLiquidityCap(_canonical, _cap, key);
     }
@@ -283,6 +299,7 @@ contract TokenFacet is BaseConnextFacet {
     address _adopted,
     address _local,
     address _stableSwapPool,
+    uint8 _decimals,
     TokenId calldata _canonical
   ) internal returns (bytes32 _key) {
     // Sanity check: canonical ID and domain are not 0.
@@ -301,6 +318,9 @@ contract TokenFacet is BaseConnextFacet {
 
     // Update approved assets mapping
     s.approvedAssets[_key] = true;
+
+    // Update decimals mapping
+    s.decimals[_key] = _decimals;
 
     // Update the adopted mapping using convention of local == adopted iff (_adopted == address(0))
     s.adoptedToCanonical[adopted].domain = _canonical.domain;
@@ -373,7 +393,7 @@ contract TokenFacet is BaseConnextFacet {
     if (_updated > 0) {
       // Update the custodied value to be the balance of this contract
       address canonical = TypeCasts.bytes32ToAddress(_canonical.id);
-      s.custodied[canonical] = IERC20(canonical).balanceOf(address(this));
+      s.custodied[canonical] = IERC20Metadata(canonical).balanceOf(address(this));
     }
 
     emit LiquidityCapUpdated(_key, _canonical.id, _canonical.domain, _updated, msg.sender);
@@ -401,6 +421,9 @@ contract TokenFacet is BaseConnextFacet {
 
     // Update caps
     delete s.caps[_key];
+
+    // Delete decimals
+    delete s.decimals[_key];
 
     // Delete from pools
     delete s.adoptedToLocalExternalPools[_key];

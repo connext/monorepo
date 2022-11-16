@@ -158,8 +158,6 @@ struct AppStorage {
   mapping(address => uint256) custodied;
   /**
    * @notice Mapping of adopted to canonical asset information.
-   * @dev If the adopted asset is the native asset, the keyed address will
-   * be the wrapped asset address.
    */
   // 8
   mapping(address => TokenId) adoptedToCanonical;
@@ -170,8 +168,6 @@ struct AppStorage {
   mapping(address => TokenId) representationToCanonical;
   /**
    * @notice Mapping of hash(canonicalId, canonicalDomain) to adopted asset on this domain.
-   * @dev If the adopted asset is the native asset, the stored address will be the
-   * wrapped asset address.
    */
   // 10
   mapping(bytes32 => address) canonicalToAdopted;
@@ -182,6 +178,11 @@ struct AppStorage {
    */
   // 11
   mapping(bytes32 => address) canonicalToRepresentation;
+  /**
+   * @notice Stores the decimals for a given token
+   * @dev Mapping is keyed on the hash of the canonical id and domain
+   */
+  mapping(bytes32 => uint8) decimals;
   /**
    * @notice Mapping to track transfer status on destination domain
    */
