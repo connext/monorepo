@@ -393,7 +393,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // fails if already approved for portals
   function test_RoutersFacet__approveRouterForPortal_failsIfAlreadyApproved() public {
-    s._routerWhitelistRemoved = true;
+    s._routerAllowlistRemoved = true;
     s.routerConfigs[_routerAgent0].portalApproved = true;
     vm.expectRevert(RoutersFacet.RoutersFacet__approveRouterForPortal_alreadyApproved.selector);
     vm.prank(_owner);
@@ -402,7 +402,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // works
   function test_RoutersFacet__approveRouterForPortal_success() public {
-    s._routerWhitelistRemoved = true;
+    s._routerAllowlistRemoved = true;
     vm.expectEmit(true, true, true, true);
     emit RouterApprovedForPortal(_routerAgent0, _owner);
 
@@ -411,11 +411,11 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     assertTrue(s.routerConfigs[_routerAgent0].portalApproved);
   }
 
-  // works if router is not whitelisted, but router ownership renounced
-  function test_RoutersFacet__approveRouterForPortal_successWhenWhitelistRemoved() public {
+  // works if router is not allowlisted, but router ownership renounced
+  function test_RoutersFacet__approveRouterForPortal_successWhenAllowlistRemoved() public {
     // ensure router ownership renounced and not whitelited
     s.routerConfigs[_routerAgent0].portalApproved = false;
-    s._routerWhitelistRemoved = true;
+    s._routerAllowlistRemoved = true;
 
     vm.expectEmit(true, true, true, true);
     emit RouterApprovedForPortal(_routerAgent0, _owner);
@@ -689,7 +689,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     s.routerConfigs[_routerAgent0].approved = true;
     s.approvedAssets[utils_calculateCanonicalHash()] = false;
     uint256 amount = 10000;
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notWhitelisted.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notAllowlisted.selector);
     this.addRouterLiquidityFor(amount, _local, _routerAgent0);
   }
 

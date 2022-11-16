@@ -10,7 +10,7 @@ type TaskArgs = {
   env?: Env;
 };
 
-export default task("remove-relayer", "Remove Relayer from whitelist")
+export default task("remove-relayer", "Remove Relayer from allowlist")
   .addParam("relayer", "The address of relayer to remove")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("env", "The environment for the contract")

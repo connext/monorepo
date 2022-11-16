@@ -132,7 +132,7 @@ contract FacetHelper is ForgeHelper {
     s.adoptedToLocalExternalPools[_canonicalKey] = IStableSwap(_stableSwap);
     s.canonicalToAdopted[_canonicalKey] = _adopted;
 
-    // Add to whitelist
+    // Add to allowlist
     s.approvedAssets[_canonicalKey] = true;
 
     // // Log stored vars

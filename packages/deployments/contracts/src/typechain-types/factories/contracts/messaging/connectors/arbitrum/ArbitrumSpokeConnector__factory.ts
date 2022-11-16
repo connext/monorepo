@@ -1110,7 +1110,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "whitelistedSenders",
+    name: "allowlistedSenders",
     outputs: [
       {
         internalType: "bool",

@@ -560,7 +560,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "assetWhitelistRemoved",
+    name: "assetAllowlistRemoved",
     outputs: [
       {
         internalType: "bool",
@@ -573,7 +573,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "assetWhitelistTimestamp",
+    name: "assetAllowlistTimestamp",
     outputs: [
       {
         internalType: "uint256",
@@ -1932,7 +1932,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "proposeAssetWhitelistRemoval",
+    name: "proposeAssetAllowlistRemoval",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2010,7 +2010,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "proposeRouterWhitelistRemoval",
+    name: "proposeRouterAllowlistRemoval",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2156,7 +2156,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "removeAssetWhitelist",
+    name: "removeAssetAllowlist",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2227,7 +2227,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "removeRouterWhitelist",
+    name: "removeRouterAllowlist",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2653,7 +2653,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "routerWhitelistRemoved",
+    name: "routerAllowlistRemoved",
     outputs: [
       {
         internalType: "bool",
@@ -2666,7 +2666,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "routerWhitelistTimestamp",
+    name: "routerAllowlistTimestamp",
     outputs: [
       {
         internalType: "uint256",

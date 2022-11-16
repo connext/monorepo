@@ -268,7 +268,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   if (protocol.agents) {
     /// MARK - Watchers
     if (protocol.agents.watchers) {
-      if (protocol.agents.watchers.whitelist) {
+      if (protocol.agents.watchers.allowlist) {
         console.log("\n\nWHITELIST WATCHERS");
 
         // Get hub domain for specific use.
@@ -279,8 +279,8 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         const { WatcherManager } = hub.deployments.messaging as HubMessagingDeployments;
 
         // Watchers are a permissioned role with the ability to disconnect malicious connectors.
-        // Whitelist watchers in RootManager.
-        for (const watcher of protocol.agents.watchers.whitelist) {
+        // Allowlist watchers in RootManager.
+        for (const watcher of protocol.agents.watchers.allowlist) {
           await updateIfNeeded({
             deployment: WatcherManager,
             desired: true,
@@ -294,10 +294,10 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
     /// MARK - Relayers
     if (protocol.agents.relayers) {
-      if (protocol.agents.relayers.whitelist) {
+      if (protocol.agents.relayers.allowlist) {
         console.log("\n\nWHITELIST RELAYERS");
-        // Whitelist named relayers for the Connext bridge, in order to call `execute`.
-        for (const relayer of protocol.agents.relayers.whitelist) {
+        // Allowlist named relayers for the Connext bridge, in order to call `execute`.
+        for (const relayer of protocol.agents.relayers.allowlist) {
           for (const network of protocol.networks) {
             await updateIfNeeded({
               deployment: network.deployments.Connext,
@@ -314,10 +314,10 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
     /// MARK - Sequencers
     if (protocol.agents.sequencers) {
-      if (protocol.agents.sequencers.whitelist) {
+      if (protocol.agents.sequencers.allowlist) {
         console.log("\n\nWHITELIST SEQUENCERS");
-        // Whitelist named sequencers.
-        for (const sequencer of protocol.agents.sequencers.whitelist) {
+        // Allowlist named sequencers.
+        for (const sequencer of protocol.agents.sequencers.allowlist) {
           for (const network of protocol.networks) {
             await updateIfNeeded({
               deployment: network.deployments.Connext,
@@ -333,10 +333,10 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
     /// MARK - Routers
     if (protocol.agents.routers) {
-      if (protocol.agents.routers.whitelist) {
+      if (protocol.agents.routers.allowlist) {
         console.log("\n\nWHITELIST ROUTERS");
-        // Whitelist connext routers.
-        for (const router of protocol.agents.routers.whitelist) {
+        // Allowlist connext routers.
+        for (const router of protocol.agents.routers.allowlist) {
           for (const network of protocol.networks) {
             await updateIfNeeded({
               deployment: network.deployments.Connext,
