@@ -14,7 +14,7 @@ contract BaseConnextFacet {
   uint256 internal constant BPS_FEE_DENOMINATOR = 10_000;
 
   // Contains hash of empty bytes
-  bytes32 internal constant EMPTY_HASH = keccak("");
+  bytes32 internal constant EMPTY_HASH = keccak256("");
 
   // ========== Custom Errors ===========
 
