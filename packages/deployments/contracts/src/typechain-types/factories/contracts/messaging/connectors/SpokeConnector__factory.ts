@@ -12,6 +12,11 @@ import type {
 const _abi = [
   {
     inputs: [],
+    name: "Connector__processMessage_notUsed",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
     type: "error",
   },
@@ -53,6 +58,52 @@ const _abi = [
   {
     inputs: [],
     name: "RateLimited__rateLimited_messageSendRateExceeded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__index_indexMoreThan32Bytes",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "loc",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "len",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "index",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "slice",
+        type: "uint256",
+      },
+    ],
+    name: "TypedMemView__index_overrun",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__unsafeCopyTo_identityOOG",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__unsafeCopyTo_invalidPointer",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__unsafeCopyTo_nullPointer",
     type: "error",
   },
   {
@@ -941,25 +992,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    name: "sentMessageRoots",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "_delayBlocks",
         type: "uint256",
@@ -979,19 +1011,6 @@ const _abi = [
       },
     ],
     name: "setMirrorConnector",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_rateLimit",
-        type: "uint256",
-      },
-    ],
-    name: "setRateLimitBlocks",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1046,6 +1065,19 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "watcherManager",
+    outputs: [
+      {
+        internalType: "contract WatcherManager",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {

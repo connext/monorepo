@@ -343,7 +343,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
               desired: true,
               read: { method: "getRouterApproval", args: [router] },
               // TODO: Should we enable configuring owner and recipient for this script, too?
-              write: { method: "setupRouter", args: [router, router, router] },
+              write: { method: "approveRouter", args: [router] },
             });
           }
         }

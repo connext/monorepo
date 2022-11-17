@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC20Metadata, IERC20} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 import {IBridgeToken} from "../core/connext/interfaces/IBridgeToken.sol";
 
@@ -22,7 +23,7 @@ contract TestERC20 is ERC20, IBridgeToken {
   }
 
   // ============ Token functions ===============
-  function balanceOf(address account) public view override(ERC20, IBridgeToken) returns (uint256) {
+  function balanceOf(address account) public view override(ERC20, IERC20) returns (uint256) {
     return ERC20.balanceOf(account);
   }
 
@@ -34,15 +35,15 @@ contract TestERC20 is ERC20, IBridgeToken {
     _burn(account, amount);
   }
 
-  function symbol() public view override(ERC20, IBridgeToken) returns (string memory) {
+  function symbol() public view override(ERC20, IERC20Metadata) returns (string memory) {
     return ERC20.symbol();
   }
 
-  function name() public view override(ERC20, IBridgeToken) returns (string memory) {
+  function name() public view override(ERC20, IERC20Metadata) returns (string memory) {
     return ERC20.name();
   }
 
-  function decimals() public view override(ERC20, IBridgeToken) returns (uint8) {
+  function decimals() public view override(ERC20, IERC20Metadata) returns (uint8) {
     return ERC20.decimals();
   }
 }

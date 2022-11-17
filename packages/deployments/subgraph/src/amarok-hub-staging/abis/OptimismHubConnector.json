@@ -27,18 +27,23 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "_mirrorGas",
-        "type": "uint256"
-      },
-      {
         "internalType": "address",
         "name": "_stateCommitmentChain",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_gasCap",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "Connector__processMessage_notUsed",
+    "type": "error"
   },
   {
     "inputs": [],
@@ -85,6 +90,25 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "_previous",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_updated",
+        "type": "uint256"
+      }
+    ],
+    "name": "GasCapUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "bytes",
         "name": "data",
         "type": "bytes"
@@ -106,6 +130,12 @@
         "indexed": false,
         "internalType": "bytes",
         "name": "data",
+        "type": "bytes"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "encodedData",
         "type": "bytes"
       },
       {
@@ -135,25 +165,6 @@
       }
     ],
     "name": "MirrorConnectorUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "previous",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "current",
-        "type": "uint256"
-      }
-    ],
-    "name": "MirrorGasUpdated",
     "type": "event"
   },
   {
@@ -305,19 +316,6 @@
         "internalType": "address",
         "name": "",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "mirrorGas",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -532,9 +530,27 @@
         "internalType": "bytes",
         "name": "_data",
         "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_encodedData",
+        "type": "bytes"
       }
     ],
     "name": "sendMessage",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_gasCap",
+        "type": "uint256"
+      }
+    ],
+    "name": "setGasCap",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -548,19 +564,6 @@
       }
     ],
     "name": "setMirrorConnector",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_mirrorGas",
-        "type": "uint256"
-      }
-    ],
-    "name": "setMirrorGas",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -596,5 +599,9 @@
     ],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]
