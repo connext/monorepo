@@ -1,4 +1,4 @@
-import { createLoggingContext, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
+import { createLoggingContext, mkBytes32, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
 
 import { encodePropagate, sendWithRelayerWithBackup } from "../../../mockable";
 import { NoChainIdForHubDomain, RootManagerPropagateWrapperNotFound } from "../errors";
@@ -65,7 +65,7 @@ export const propagate = async () => {
       _encodedData.push(propagateParam._encodedData);
       _fees.push(propagateParam._fee);
     } else {
-      _encodedData.push("0x");
+      _encodedData.push(mkBytes32("0x"));
       _fees.push("0");
     }
   }
