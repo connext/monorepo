@@ -428,6 +428,11 @@ contract TokenFacet is BaseConnextFacet {
 
   /**
    * @notice Used to remove assets from the whitelist
+   *
+   * @dev When you are removing an asset, `xcall` will fail but `handle` and `execute` will not to
+   * allow for inflight transfers to be addressed. Similarly, the `repayAavePortal` function will
+   * work.
+   *
    * @param _key - The hash of the canonical id and domain to remove (mapping key)
    * @param _adoptedAssetId - Corresponding adopted asset to remove
    * @param _representation - Corresponding representation asset (i.e. bridged asset) to remove.
