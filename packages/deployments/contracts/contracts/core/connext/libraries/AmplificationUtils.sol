@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-
 import {SwapUtils} from "./SwapUtils.sol";
 import {Constants} from "./Constants.sol";
 
@@ -39,24 +37,18 @@ library AmplificationUtils {
    * @notice Return A in its raw precision
    * @dev See the StableSwap paper for details
    * @param self Swap struct to read from
-   * @return A parameter in its raw precision form
+   * @return currentA A parameter in its raw precision form
    */
-  function _getAPrecise(SwapUtils.Swap storage self) internal view returns (uint256) {
+  function _getAPrecise(SwapUtils.Swap storage self) internal view returns (uint256 currentA) {
     uint256 t1 = self.futureATime; // time when ramp is finished
-    uint256 a1 = self.futureA; // final A value when ramp is finished
+    currentA = self.futureA; // final A value when ramp is finished
+    uint256 a0 = self.initialA; // initial A value when ramp is started
 
-    if (block.timestamp < t1) {
+    if (a0 != currentA && block.timestamp < t1) {
       uint256 t0 = self.initialATime; // time when ramp is started
-      uint256 a0 = self.initialA; // initial A value when ramp is started
-      if (a1 > a0) {
-        // a0 + (a1 - a0) * (block.timestamp - t0) / (t1 - t0)
-        return a0 + ((a1 - a0) * (block.timestamp - t0)) / (t1 - t0);
-      } else {
-        // a0 - (a0 - a1) * (block.timestamp - t0) / (t1 - t0)
-        return a0 - ((a0 - a1) * (block.timestamp - t0)) / (t1 - t0);
+      assembly {
+        currentA := div(add(mul(a0, sub(t1, timestamp())), mul(currentA, sub(timestamp(), t0))), sub(t1, t0))
       }
-    } else {
-      return a1;
     }
   }
 

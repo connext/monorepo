@@ -9,7 +9,7 @@ type RootAggregated @entity {
 type RootPropagated @entity {
   id: ID! # "RootPropagated"
   aggregate: Bytes!
-  domains: [BigInt!]
+  domainsHash: Bytes!
   count: BigInt!
 }
 

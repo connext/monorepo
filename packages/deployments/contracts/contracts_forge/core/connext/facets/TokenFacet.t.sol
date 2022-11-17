@@ -6,7 +6,7 @@ import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStable
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {TokenFacet} from "../../../../contracts/core/connext/facets/TokenFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
-import {TokenId} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {TokenId} from "../../../../contracts/core/connext/libraries/TokenId.sol";
 
 import "../../../utils/FacetHelper.sol";
 

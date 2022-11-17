@@ -74,6 +74,7 @@ contract DiamondInit is BaseConnextFacet {
 
     // __ReentrancyGuard_init_unchained
     s._status = _NOT_ENTERED;
+    s._xcallStatus = _NOT_ENTERED;
 
     // Connext
     s.domain = _domain;
