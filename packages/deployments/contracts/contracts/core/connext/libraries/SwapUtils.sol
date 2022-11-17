@@ -1182,6 +1182,6 @@ library SwapUtils {
    * @return bool true if this stableswap pool is valid, false if not.
    */
   function exists(Swap storage self) internal view returns (bool) {
-    return self.pooledTokens.length != 0;
+    return !self.disabled && self.pooledTokens.length != 0;
   }
 }
