@@ -65,12 +65,10 @@ export const propagate = async () => {
       _encodedData.push(propagateParam._encodedData);
       _fees.push(propagateParam._fee);
     } else {
-      _encodedData.push(mkBytes32("0x"));
+      _encodedData.push("0x");
       _fees.push("0");
     }
   }
-
-  console.log({ _connectors, _encodedData, _fees });
 
   // encode data
   const encodedData = encodePropagate(target.abi as string[], [_connectors, _fees, _encodedData]);
