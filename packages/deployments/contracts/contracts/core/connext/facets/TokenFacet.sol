@@ -247,7 +247,7 @@ contract TokenFacet is BaseConnextFacet {
     address _adoptedAssetId,
     address _representation
   ) external onlyOwnerOrAdmin {
-    TokenId memory canonical = s.representationToCanonical[_representation];
+    TokenId memory canonical = s.adoptedToCanonical[_adoptedAssetId];
     _removeAssetId(_key, _adoptedAssetId, _representation, canonical);
   }
 
