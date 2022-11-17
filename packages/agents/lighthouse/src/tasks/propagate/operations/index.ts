@@ -1,0 +1,1 @@
+export { propagate } from "./propagate";

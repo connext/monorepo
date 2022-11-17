@@ -105,8 +105,8 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         console.log("\tVerifying merkle tree managers are set correctly.");
         await updateIfNeeded({
           deployment: MerkleTreeManager,
-          desired: true,
-          read: { method: "arborists", args: [SpokeConnector.address] },
+          desired: SpokeConnector.address,
+          read: { method: "arborist", args: [] },
           write: { method: "setArborist", args: [SpokeConnector.address] },
         });
 
@@ -184,15 +184,15 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
 
   await updateIfNeeded({
     deployment: MerkleTreeManagerForRoot,
-    desired: true,
-    read: { method: "arborists", args: [RootManager.address] },
+    desired: RootManager.address,
+    read: { method: "arborist", args: [] },
     write: { method: "setArborist", args: [RootManager.address] },
   });
 
   await updateIfNeeded({
     deployment: MerkleTreeManagerForSpoke,
-    desired: true,
-    read: { method: "arborists", args: [MainnetConnector.address] },
+    desired: MainnetConnector.address,
+    read: { method: "arborist", args: [] },
     write: { method: "setArborist", args: [MainnetConnector.address] },
   });
 

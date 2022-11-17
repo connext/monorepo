@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
-import "./TypedMemView.sol";
+import {TypedMemView} from "./TypedMemView.sol";
 
 library TypeCasts {
   using TypedMemView for bytes;
