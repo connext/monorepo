@@ -6,12 +6,13 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 
 import {IConnectorManager} from "../contracts/messaging/interfaces/IConnectorManager.sol";
 import {TypeCasts} from "../contracts/shared/libraries/TypeCasts.sol";
+import {TokenId} from "../contracts/core/connext/libraries/TokenId.sol";
 
 import {IBridgeToken} from "../contracts/core/connext/interfaces/IBridgeToken.sol";
 import {IConnext} from "../contracts/core/connext/interfaces/IConnext.sol";
 import {BridgeMessage} from "../contracts/core/connext/libraries/BridgeMessage.sol";
 import {BridgeFacet, ExecuteArgs} from "../contracts/core/connext/facets/BridgeFacet.sol";
-import {TokenId, DestinationTransferStatus} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {DestinationTransferStatus} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LPToken} from "../contracts/core/connext/helpers/LPToken.sol";
 
 import {TestERC20} from "../contracts/test/TestERC20.sol";
@@ -133,7 +134,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   function setUp() public {
     // Deploy all the contracts
     utils_deployAssets();
-    utils_deployNomad();
+    utils_deployMessaging();
     utils_deployConnext();
   }
 
@@ -148,7 +149,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     _destinationAdopted = address(new TestERC20("Test Token", "TEST"));
   }
 
-  function utils_deployNomad() public {
+  function utils_deployMessaging() public {
     // Deploy mock home
     MockHome originHome = new MockHome(_origin);
     MockHome destinationHome = new MockHome(_destination);
@@ -204,25 +205,43 @@ contract ConnextTest is ForgeHelper, Deployer {
     } // otherwise, could be anything
 
     // Handle origin
-    // Setup asset whitelist
-    console.log("setting up asset on origin");
-    _originConnext.setupAssetWithDeployedRepresentation(
-      TokenId(canonicalDomain, canonicalId),
-      _originLocal,
-      localIsAdopted ? address(0) : _originAdopted,
-      address(0),
-      originCap
-    );
+    // Set up asset whitelist
+    if (_origin == canonicalDomain) {
+      console.log("setting up canonical asset on origin");
+      _originConnext.setupAsset(TokenId(canonicalDomain, canonicalId), 18, "", "", address(0), address(0), originCap);
+    } else {
+      console.log("setting up asset on origin");
+      _originConnext.setupAssetWithDeployedRepresentation(
+        TokenId(canonicalDomain, canonicalId),
+        _originLocal,
+        localIsAdopted ? address(0) : _originAdopted,
+        address(0),
+        originCap
+      );
+    }
 
-    // Setup asset whitelist
-    console.log("setting up asset on destination");
-    _destinationConnext.setupAssetWithDeployedRepresentation(
-      TokenId(canonicalDomain, canonicalId),
-      _destinationLocal,
-      localIsAdopted ? address(0) : _destinationAdopted,
-      address(0),
-      destinationCap
-    );
+    // Set up asset whitelist
+    if (_destination == canonicalDomain) {
+      console.log("setting up canonical asset on destination");
+      _destinationConnext.setupAsset(
+        TokenId(canonicalDomain, canonicalId),
+        18,
+        "",
+        "",
+        address(0),
+        address(0),
+        destinationCap
+      );
+    } else {
+      console.log("setting up asset on destination");
+      _destinationConnext.setupAssetWithDeployedRepresentation(
+        TokenId(canonicalDomain, canonicalId),
+        _destinationLocal,
+        localIsAdopted ? address(0) : _destinationAdopted,
+        address(0),
+        destinationCap
+      );
+    }
 
     if (localIsAdopted) {
       _originAdopted = _originLocal;

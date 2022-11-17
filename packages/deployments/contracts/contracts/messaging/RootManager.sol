@@ -5,7 +5,6 @@ import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 
 import {IRootManager} from "./interfaces/IRootManager.sol";
 import {IHubConnector} from "./interfaces/IHubConnector.sol";
-import {Message} from "./libraries/Message.sol";
 import {QueueLib} from "./libraries/Queue.sol";
 import {DomainIndexer} from "./libraries/DomainIndexer.sol";
 
@@ -32,9 +31,13 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   event RootPropagated(bytes32 aggregateRoot, uint256 count, bytes32 domainsHash);
 
+  event RootDiscarded(bytes32 fraudulentRoot);
+
   event ConnectorAdded(uint32 domain, address connector, uint32[] domains, address[] connectors);
 
   event ConnectorRemoved(uint32 domain, address connector, uint32[] domains, address[] connectors, address caller);
+
+  event PropagateFailed(uint32 domain, address connector);
 
   // ============ Properties ============
 
@@ -142,6 +145,20 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   }
 
   /**
+   * @notice Removes (effectively blacklists) a given (fraudulent) root from the queue of pending
+   * inbound roots.
+   * @dev The given root does NOT have to currently be in the queue. It isn't removed from the queue
+   * directly, but instead is filtered out when dequeuing is done for the sake of aggregation.
+   * @dev Can only be called by the owner when the protocol is paused.
+   *
+   * @param _root The root to be discarded.
+   */
+  function discardRoot(bytes32 _root) public onlyOwner whenPaused {
+    pendingInboundRoots.remove(_root);
+    emit RootDiscarded(_root);
+  }
+
+  /**
    * @notice Remove ability to renounce ownership
    * @dev Renounce ownership should be impossible as long as watchers can freely remove connectors
    * and only the owner can add them back
@@ -176,13 +193,19 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
     uint256 sum = msg.value;
     for (uint32 i; i < _numDomains; ) {
-      // NOTE: This will ensure there is sufficient msg.value for all fees before calling `sendMessage`
-      // This will revert as soon as there are insufficient fees for call i, even if call n > i has
-      // sufficient budget, this function will revert
-      sum -= _fees[i];
+      // Try to send the message with appropriate encoded data and fees
+      // Continue on revert, but emit an event
+      try
+        IHubConnector(_connectors[i]).sendMessage{value: _fees[i]}(abi.encodePacked(_aggregateRoot), _encodedData[i])
+      {
+        // NOTE: This will ensure there is sufficient msg.value for all fees before calling `sendMessage`
+        // This will revert as soon as there are insufficient fees for call i, even if call n > i has
+        // sufficient budget, this function will revert
+        sum -= _fees[i];
+      } catch {
+        emit PropagateFailed(domains[i], _connectors[i]);
+      }
 
-      // Send the message with appropriate encoded data and fees
-      IHubConnector(_connectors[i]).sendMessage{value: _fees[i]}(abi.encodePacked(_aggregateRoot), _encodedData[i]);
       unchecked {
         ++i;
       }

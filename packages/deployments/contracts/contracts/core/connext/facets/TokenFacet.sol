@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 
-import {TokenId} from "../libraries/LibConnextStorage.sol";
-import {Encoding} from "../libraries/Encoding.sol";
+import {TokenId} from "../libraries/TokenId.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
@@ -19,10 +17,14 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 contract TokenFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
+  error TokenFacet__setupAsset_invalidCanonicalConfiguration();
   error TokenFacet__addAssetId_nativeAsset();
   error TokenFacet__addAssetId_alreadyAdded();
   error TokenFacet__removeAssetId_notAdded();
+  error TokenFacet__removeAssetId_invalidParams();
   error TokenFacet__updateDetails_localNotFound();
+  error TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
+  error TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
   error TokenFacet__setLiquidityCap_notCanonicalDomain();
 
   // ============ Events ============
@@ -172,7 +174,8 @@ contract TokenFacet is BaseConnextFacet {
     address _stableSwapPool,
     uint256 _cap
   ) external onlyOwnerOrAdmin returns (address _local) {
-    if (_canonical.domain != s.domain) {
+    bool onCanonical = _canonical.domain == s.domain;
+    if (!onCanonical) {
       // On remote, deploy a local representation
       _local = _deployRepresentation(
         _canonical.id,
@@ -181,16 +184,19 @@ contract TokenFacet is BaseConnextFacet {
         _representationName,
         _representationSymbol
       );
+    } else {
+      // Get the local address
+      _local = TypeCasts.bytes32ToAddress(_canonical.id);
 
-      // enroll the assets
-      _enrollAdoptedAndLocalAssets(_adoptedAssetId, _local, _stableSwapPool, _canonical);
-      return _local;
+      // You are on the canonical domain, ensure the adopted asset is empty
+      if ((_adoptedAssetId != _local && _adoptedAssetId != address(0)) || _stableSwapPool != address(0)) {
+        revert TokenFacet__setupAsset_invalidCanonicalConfiguration();
+      }
     }
-    // On the canonical domain, the local is the canonical address
-    _local = TypeCasts.bytes32ToAddress(_canonical.id);
+
     // Enroll the asset
     bytes32 key = _enrollAdoptedAndLocalAssets(_adoptedAssetId, _local, _stableSwapPool, _canonical);
-    if (_cap > 0) {
+    if (_cap > 0 && onCanonical) {
       _setLiquidityCap(_canonical, _cap, key);
     }
   }
@@ -202,6 +208,9 @@ contract TokenFacet is BaseConnextFacet {
     address _stableSwapPool,
     uint256 _cap
   ) external onlyOwnerOrAdmin returns (address) {
+    if (_canonical.domain == s.domain) {
+      revert TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
+    }
     bytes32 key = _enrollAdoptedAndLocalAssets(_adoptedAssetId, _representation, _stableSwapPool, _canonical);
     if (_cap != 0) {
       _setLiquidityCap(_canonical, _cap, key);
@@ -281,6 +290,11 @@ contract TokenFacet is BaseConnextFacet {
     address _stableSwapPool,
     TokenId calldata _canonical
   ) internal returns (bytes32 _key) {
+    // Sanity check: canonical ID and domain are not 0.
+    if (_canonical.domain == 0 || _canonical.id == bytes32("")) {
+      revert TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
+    }
+
     // Get the key
     _key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
 
@@ -293,7 +307,7 @@ contract TokenFacet is BaseConnextFacet {
     // Update approved assets mapping
     s.approvedAssets[_key] = true;
 
-    // Update the adopted mapping using convention of local == adopted iff (_adooted == address(0))
+    // Update the adopted mapping using convention of local == adopted iff (_adopted == address(0))
     s.adoptedToCanonical[adopted].domain = _canonical.domain;
     s.adoptedToCanonical[adopted].id = _canonical.id;
 
@@ -382,6 +396,10 @@ contract TokenFacet is BaseConnextFacet {
   ) internal {
     // Sanity check: already approval
     if (!s.approvedAssets[_key]) revert TokenFacet__removeAssetId_notAdded();
+
+    // Sanity check: consistent set of params
+    if (s.canonicalToAdopted[_key] != _adoptedAssetId || s.canonicalToRepresentation[_key] != _representation)
+      revert TokenFacet__removeAssetId_invalidParams();
 
     // Delete from approved assets mapping
     delete s.approvedAssets[_key];
