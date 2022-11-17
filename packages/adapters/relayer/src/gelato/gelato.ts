@@ -165,7 +165,7 @@ export const gelatoSDKSend = async (
   return response;
 };
 
-const GAS_LIMIT_FOR_RELAYER = "2000000";
+const GAS_LIMIT_FOR_RELAYER = "4000000";
 
 export const getRelayerAddress = async (chainId: number, logger: Logger): Promise<string> => {
   const relayerAddress = await getGelatoRelayerAddress(chainId, logger);
