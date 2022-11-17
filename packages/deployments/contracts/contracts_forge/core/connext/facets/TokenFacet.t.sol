@@ -17,7 +17,6 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
   // sample data
   uint32 _domain = _originDomain;
-  uint256 _cap;
 
   // ============ Test set up ============
   function setUp() public {
