@@ -30,13 +30,6 @@ describe("Helpers: Arbitrum ", () => {
       ).to.eventually.be.rejectedWith(NoProviderForDomain);
     });
 
-    it("should throw an error if no provider for hub domain", async () => {
-      delete propagateCtxMock.config.chains[mock.domain.A];
-      await expect(
-        getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext),
-      ).to.eventually.be.rejectedWith(NoProviderForDomain);
-    });
-
     it("should throw an error if no spoke connector", async () => {
       (propagateCtxMock.adapters.contracts.spokeConnector as SinonStub).returns(undefined);
       await expect(
