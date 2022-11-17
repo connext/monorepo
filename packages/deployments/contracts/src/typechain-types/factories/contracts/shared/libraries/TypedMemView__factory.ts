@@ -11,6 +11,73 @@ import type {
 
 const _abi = [
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "actual",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "expected",
+        type: "uint256",
+      },
+    ],
+    name: "TypedMemView__assertType_typeAssertionFailed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__assertValid_validityAssertionFailed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__index_indexMoreThan32Bytes",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "loc",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "len",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "index",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "slice",
+        type: "uint256",
+      },
+    ],
+    name: "TypedMemView__index_overrun",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__unsafeCopyTo_identityOOG",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__unsafeCopyTo_invalidPointer",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__unsafeCopyTo_nullPointer",
+    type: "error",
+  },
+  {
     inputs: [],
     name: "NULL",
     outputs: [
@@ -26,7 +93,7 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x6091610038600b82828239805160001a607314602b57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe730000000000000000000000000000000000000000301460806040526004361060335760003560e01c8063f26be3fc146038575b600080fd5b604262ffffff1981565b60405162ffffff19909116815260200160405180910390f3fea26469706673582212207160b16db7ce3c65090317f6e0a212e97acb1f5b06381b49cc82b840f1c4c7f964736f6c634300080f0033";
+  "0x6091610038600b82828239805160001a607314602b57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe730000000000000000000000000000000000000000301460806040526004361060335760003560e01c8063f26be3fc146038575b600080fd5b604262ffffff1981565b60405162ffffff19909116815260200160405180910390f3fea26469706673582212201fd6332514cb67a5a32547bca4cee8e2792b88f9c83d5225f7f3d3119141662e64736f6c63430008110033";
 
 type TypedMemViewConstructorParams =
   | [signer?: Signer]

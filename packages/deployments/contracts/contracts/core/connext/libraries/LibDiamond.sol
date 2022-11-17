@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 /******************************************************************************\
 * Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)
@@ -11,7 +11,7 @@ import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
 // The loupe functions are required by the EIP2535 Diamonds standard
 
 library LibDiamond {
-  bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("diamond.standard.diamond.storage");
+  bytes32 constant DIAMOND_STORAGE_POSITION = bytes32(uint256(keccak256("diamond.standard.diamond.storage")) - 1);
 
   struct FacetAddressAndPosition {
     address facetAddress;
@@ -80,6 +80,10 @@ library LibDiamond {
     address _init,
     bytes memory _calldata
   ) internal {
+    // NOTE: to save gas, verification that `proposeDiamondCut` and `diamondCut` are not
+    // included is performed in `diamondCut`, where there is already a loop over facets.
+    // In the case where these cuts are performed, admins must call `rescindDiamondCut`
+
     DiamondStorage storage ds = diamondStorage();
     uint256 acceptance = block.timestamp + ds.acceptanceDelay;
     ds.acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = acceptance;
@@ -108,10 +112,23 @@ library LibDiamond {
     bytes memory _calldata
   ) internal {
     DiamondStorage storage ds = diamondStorage();
+    bytes32 key = keccak256(abi.encode(_diamondCut, _init, _calldata));
     if (ds.facetAddresses.length != 0) {
-      uint256 time = ds.acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))];
+      uint256 time = ds.acceptanceTimes[key];
       require(time != 0 && time <= block.timestamp, "LibDiamond: delay not elapsed");
+      // Reset the acceptance time to ensure the same set of updates cannot be replayed
+      // without going through a proposal window
+
+      // NOTE: the only time this will not be set to 0 is when there are no
+      // existing facet addresses (on initialization, or when starting after a bad upgrade,
+      // for example).
+      // The only relevant case is the initial case, which has no acceptance time. otherwise,
+      // there is no way to update the facet selector mapping to call `diamondCut`.
+      // Avoiding setting the empty value will save gas on the initial deployment.
+      ds.acceptanceTimes[key] = 0;
     } // Otherwise, this is the first instance of deployment and it can be set automatically
+
+    // Perform a diamond cut
     for (uint256 facetIndex; facetIndex < _diamondCut.length; facetIndex++) {
       IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;
       if (action == IDiamondCut.FacetCutAction.Add) {
@@ -168,10 +185,14 @@ library LibDiamond {
   function removeFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {
     require(_functionSelectors.length != 0, "LibDiamondCut: No selectors in facet to cut");
     DiamondStorage storage ds = diamondStorage();
+    // get the propose and cut selectors -- can never remove these
+    bytes4 proposeSelector = IDiamondCut.proposeDiamondCut.selector;
+    bytes4 cutSelector = IDiamondCut.diamondCut.selector;
     // if function does not exist then do nothing and return
     require(_facetAddress == address(0), "LibDiamondCut: Remove facet address must be address(0)");
     for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {
       bytes4 selector = _functionSelectors[selectorIndex];
+      require(selector != proposeSelector && selector != cutSelector, "LibDiamondCut: Cannot remove cut selectors");
       address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;
       removeFunction(ds, oldFacetAddress, selector);
     }
@@ -251,10 +272,6 @@ library LibDiamond {
   }
 
   function enforceHasContractCode(address _contract, string memory _errorMessage) internal view {
-    uint256 contractSize;
-    assembly {
-      contractSize := extcodesize(_contract)
-    }
-    require(contractSize != 0, _errorMessage);
+    require(_contract.code.length != 0, _errorMessage);
   }
 }

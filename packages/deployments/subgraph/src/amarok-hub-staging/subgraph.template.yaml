@@ -24,10 +24,14 @@ dataSources:
         - name: RootManager
           file: ./src/amarok-hub-staging/abis/RootManager.json
       eventHandlers:
-        - event: RootAggregated(uint32,bytes32,uint256)
-          handler: handleRootAggregated
-        - event: RootPropagated(bytes32,uint256,uint32[],bytes32[])
+        - event: RootReceived(uint32,bytes32,uint256)
+          handler: handleRootReceived
+        - event: RootsAggregated(bytes32,uint256,bytes32[])
+          handler: handleRootsAggregated
+        - event: RootPropagated(bytes32,uint256,bytes32)
           handler: handleRootPropagated
+        - event: ConnectorAdded(uint32,address,uint32[],address[])
+          handler: handleConnectorAdded
       file: ./src/amarok-hub-staging/mapping/rootManager.ts
   # PolygonHubConnector.sol events
   - kind: ethereum/contract

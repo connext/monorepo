@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import "../../../utils/ForgeHelper.sol";
 import {TestAggregator} from "../../../../contracts/test/TestAggregator.sol";
@@ -102,7 +102,7 @@ contract ConnextPriceOracleTest is ForgeHelper {
   function test_ConnextPriceOracle__getTokenPrice_fails() public {
     (uint256 price, uint256 source) = priceOracle.getTokenPrice(address(12345));
     assertEq(price, 0);
-    assertEq(source, 3);
+    assertEq(source, 0);
   }
 
   // ============ getPriceFromOracle ============

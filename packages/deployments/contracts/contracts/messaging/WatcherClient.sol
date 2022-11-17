@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
 
@@ -24,10 +24,10 @@ contract WatcherClient is ProposedOwnable, Pausable {
    * @notice The `WatcherManager` contract governs the watcher whitelist.
    * @dev Multiple clients can share a watcher set using the same manager
    */
-  WatcherManager watcherManager;
+  WatcherManager public watcherManager;
 
   // ============ Constructor ============
-  constructor(address _watcherManager) {
+  constructor(address _watcherManager) ProposedOwnable() {
     watcherManager = WatcherManager(_watcherManager);
   }
 
@@ -46,6 +46,7 @@ contract WatcherClient is ProposedOwnable, Pausable {
    */
   function setWatcherManager(address _watcherManager) external onlyOwner {
     require(_watcherManager != address(watcherManager), "already watcher manager");
+    watcherManager = WatcherManager(_watcherManager);
     emit WatcherManagerChanged(_watcherManager);
   }
 

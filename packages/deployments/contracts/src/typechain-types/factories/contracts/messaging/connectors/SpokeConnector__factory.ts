@@ -12,6 +12,11 @@ import type {
 const _abi = [
   {
     inputs: [],
+    name: "Connector__processMessage_notUsed",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
     type: "error",
   },
@@ -53,6 +58,52 @@ const _abi = [
   {
     inputs: [],
     name: "RateLimited__rateLimited_messageSendRateExceeded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__index_indexMoreThan32Bytes",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "loc",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "len",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "index",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "slice",
+        type: "uint256",
+      },
+    ],
+    name: "TypedMemView__index_overrun",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__unsafeCopyTo_identityOOG",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__unsafeCopyTo_invalidPointer",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__unsafeCopyTo_nullPointer",
     type: "error",
   },
   {
@@ -116,6 +167,25 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "FundsWithdrawn",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: false,
         internalType: "bytes",
         name: "data",
@@ -138,6 +208,12 @@ const _abi = [
         indexed: false,
         internalType: "bytes",
         name: "data",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "encodedData",
         type: "bytes",
       },
       {
@@ -167,25 +243,6 @@ const _abi = [
       },
     ],
     name: "MirrorConnectorUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "previous",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "current",
-        type: "uint256",
-      },
-    ],
-    name: "MirrorGasUpdated",
     type: "event",
   },
   {
@@ -623,19 +680,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "mirrorGas",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "uint32",
@@ -914,10 +958,16 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "_encodedData",
+        type: "bytes",
+      },
+    ],
     name: "send",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -961,19 +1011,6 @@ const _abi = [
       },
     ],
     name: "setMirrorConnector",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_mirrorGas",
-        type: "uint256",
-      },
-    ],
-    name: "setMirrorGas",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1031,6 +1068,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "watcherManager",
+    outputs: [
+      {
+        internalType: "contract WatcherManager",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -1048,6 +1098,23 @@ const _abi = [
     ],
     stateMutability: "view",
     type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+    ],
+    name: "withdrawFunds",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ];
 

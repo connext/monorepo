@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.17;
 
 /******************************************************************************\
 * Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)
@@ -26,6 +26,7 @@ import {IConnectorManager} from "../../../../messaging/interfaces/IConnectorMana
 contract DiamondInit is BaseConnextFacet {
   // ========== Custom Errors ===========
   error DiamondInit__init_alreadyInitialized();
+  error DiamondInit__init_domainsDontMatch();
 
   // ============ External ============
 
@@ -43,6 +44,12 @@ contract DiamondInit is BaseConnextFacet {
 
     // ensure this is the owner
     LibDiamond.enforceIsContractOwner();
+
+    // ensure domains are the same
+    IConnectorManager manager = IConnectorManager(_xAppConnectionManager);
+    if (manager.localDomain() != _domain) {
+      revert DiamondInit__init_domainsDontMatch();
+    }
 
     // update the initialized flag
     s.initialized = true;
@@ -64,11 +71,12 @@ contract DiamondInit is BaseConnextFacet {
 
     // __ReentrancyGuard_init_unchained
     s._status = _NOT_ENTERED;
+    s._xcallStatus = _NOT_ENTERED;
 
     // Connext
     s.domain = _domain;
     s.LIQUIDITY_FEE_NUMERATOR = 9995;
     s.maxRoutersPerTransfer = 5;
-    s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
+    s.xAppConnectionManager = manager;
   }
 }

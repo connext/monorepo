@@ -44,6 +44,7 @@ export declare namespace IDiamondCut {
 export interface IDiamondCutInterface extends utils.Interface {
   functions: {
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
+    "getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "rescindDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
   };
@@ -51,12 +52,21 @@ export interface IDiamondCutInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "diamondCut"
+      | "getAcceptanceTime"
       | "proposeDiamondCut"
       | "rescindDiamondCut"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "diamondCut",
+    values: [
+      IDiamondCut.FacetCutStruct[],
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAcceptanceTime",
     values: [
       IDiamondCut.FacetCutStruct[],
       PromiseOrValue<string>,
@@ -81,6 +91,10 @@ export interface IDiamondCutInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "diamondCut", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getAcceptanceTime",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "proposeDiamondCut",
     data: BytesLike
@@ -174,6 +188,13 @@ export interface IDiamondCut extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    getAcceptanceTime(
+      _diamondCut: IDiamondCut.FacetCutStruct[],
+      _init: PromiseOrValue<string>,
+      _calldata: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     proposeDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
       _init: PromiseOrValue<string>,
@@ -190,6 +211,13 @@ export interface IDiamondCut extends BaseContract {
   };
 
   diamondCut(
+    _diamondCut: IDiamondCut.FacetCutStruct[],
+    _init: PromiseOrValue<string>,
+    _calldata: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  getAcceptanceTime(
     _diamondCut: IDiamondCut.FacetCutStruct[],
     _init: PromiseOrValue<string>,
     _calldata: PromiseOrValue<BytesLike>,
@@ -217,6 +245,13 @@ export interface IDiamondCut extends BaseContract {
       _calldata: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    getAcceptanceTime(
+      _diamondCut: IDiamondCut.FacetCutStruct[],
+      _init: PromiseOrValue<string>,
+      _calldata: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     proposeDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
@@ -278,6 +313,13 @@ export interface IDiamondCut extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    getAcceptanceTime(
+      _diamondCut: IDiamondCut.FacetCutStruct[],
+      _init: PromiseOrValue<string>,
+      _calldata: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     proposeDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
       _init: PromiseOrValue<string>,
@@ -295,6 +337,13 @@ export interface IDiamondCut extends BaseContract {
 
   populateTransaction: {
     diamondCut(
+      _diamondCut: IDiamondCut.FacetCutStruct[],
+      _init: PromiseOrValue<string>,
+      _calldata: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getAcceptanceTime(
       _diamondCut: IDiamondCut.FacetCutStruct[],
       _init: PromiseOrValue<string>,
       _calldata: PromiseOrValue<BytesLike>,

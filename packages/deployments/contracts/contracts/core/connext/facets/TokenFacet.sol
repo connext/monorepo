@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 
-import {TokenId} from "../libraries/LibConnextStorage.sol";
-import {Encoding} from "../libraries/Encoding.sol";
+import {TokenId} from "../libraries/TokenId.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
@@ -22,7 +21,11 @@ contract TokenFacet is BaseConnextFacet {
   error TokenFacet__addAssetId_nativeAsset();
   error TokenFacet__addAssetId_alreadyAdded();
   error TokenFacet__removeAssetId_notAdded();
+  error TokenFacet__removeAssetId_invalidParams();
   error TokenFacet__updateDetails_localNotFound();
+  error TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
+  error TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
+  error TokenFacet__setLiquidityCap_notCanonicalDomain();
 
   // ============ Events ============
 
@@ -171,8 +174,9 @@ contract TokenFacet is BaseConnextFacet {
     address _stableSwapPool,
     uint256 _cap
   ) external onlyOwnerOrAdmin returns (address _local) {
-    // Deploy the representation token if on a remote domain
-    if (_canonical.domain != s.domain) {
+    bool onCanonical = _canonical.domain == s.domain;
+    if (!onCanonical) {
+      // On remote, deploy a local representation
       _local = _deployRepresentation(
         _canonical.id,
         _canonical.domain,
@@ -190,8 +194,9 @@ contract TokenFacet is BaseConnextFacet {
       }
     }
 
+    // Enroll the asset
     bytes32 key = _enrollAdoptedAndLocalAssets(_adoptedAssetId, _local, _stableSwapPool, _canonical);
-    if (_cap != 0) {
+    if (_cap > 0 && onCanonical) {
       _setLiquidityCap(_canonical, _cap, key);
     }
   }
@@ -203,6 +208,9 @@ contract TokenFacet is BaseConnextFacet {
     address _stableSwapPool,
     uint256 _cap
   ) external onlyOwnerOrAdmin returns (address) {
+    if (_canonical.domain == s.domain) {
+      revert TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
+    }
     bytes32 key = _enrollAdoptedAndLocalAssets(_adoptedAssetId, _representation, _stableSwapPool, _canonical);
     if (_cap != 0) {
       _setLiquidityCap(_canonical, _cap, key);
@@ -282,6 +290,11 @@ contract TokenFacet is BaseConnextFacet {
     address _stableSwapPool,
     TokenId calldata _canonical
   ) internal returns (bytes32 _key) {
+    // Sanity check: canonical ID and domain are not 0.
+    if (_canonical.domain == 0 || _canonical.id == bytes32("")) {
+      revert TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
+    }
+
     // Get the key
     _key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
 
@@ -294,7 +307,7 @@ contract TokenFacet is BaseConnextFacet {
     // Update approved assets mapping
     s.approvedAssets[_key] = true;
 
-    // Update the adopted mapping using convention of local == adopted iff (_adooted == address(0))
+    // Update the adopted mapping using convention of local == adopted iff (_adopted == address(0))
     s.adoptedToCanonical[adopted].domain = _canonical.domain;
     s.adoptedToCanonical[adopted].id = _canonical.id;
 
@@ -337,7 +350,16 @@ contract TokenFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Used to add an AMM for adopted <> local assets
+   * @notice Used to add a cap on amount of custodied canonical asset
+   * @dev The `custodied` amount will only increase in real time as router liquidity
+   * and xcall are used and the cap is set (i.e. if cap is removed, `custodied` values are
+   * no longer updated or enforced).
+   *
+   * When the `cap` is updated, the `custodied` value is set to the balance of the contract,
+   * which is distinct from *retrievable* funds from the contracts (i.e. could include the
+   * value someone just sent directly to the contract). Whenever you are updating the cap, you
+   * should set the value with this in mind.
+   *
    * @param _canonical - The canonical TokenId to add (domain and id)
    * @param _updated - The updated liquidity cap value
    * @param _key - The hash of the canonical id and domain
@@ -347,8 +369,17 @@ contract TokenFacet is BaseConnextFacet {
     uint256 _updated,
     bytes32 _key
   ) internal {
+    if (s.domain != _canonical.domain) {
+      revert TokenFacet__setLiquidityCap_notCanonicalDomain();
+    }
     // Update the stored cap
     s.caps[_key] = _updated;
+
+    if (_updated > 0) {
+      // Update the custodied value to be the balance of this contract
+      address canonical = TypeCasts.bytes32ToAddress(_canonical.id);
+      s.custodied[canonical] = IERC20(canonical).balanceOf(address(this));
+    }
 
     emit LiquidityCapUpdated(_key, _canonical.id, _canonical.domain, _updated, msg.sender);
   }
@@ -365,6 +396,10 @@ contract TokenFacet is BaseConnextFacet {
   ) internal {
     // Sanity check: already approval
     if (!s.approvedAssets[_key]) revert TokenFacet__removeAssetId_notAdded();
+
+    // Sanity check: consistent set of params
+    if (s.canonicalToAdopted[_key] != _adoptedAssetId || s.canonicalToRepresentation[_key] != _representation)
+      revert TokenFacet__removeAssetId_invalidParams();
 
     // Delete from approved assets mapping
     delete s.approvedAssets[_key];

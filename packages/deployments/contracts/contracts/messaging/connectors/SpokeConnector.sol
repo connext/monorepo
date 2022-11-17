@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
+import {ExcessivelySafeCall} from "../../shared/libraries/ExcessivelySafeCall.sol";
+import {TypeCasts} from "../../shared/libraries/TypeCasts.sol";
 
-import {MerkleLib} from "../libraries/Merkle.sol";
+import {MerkleLib} from "../libraries/MerkleLib.sol";
 import {Message} from "../libraries/Message.sol";
 import {RateLimited} from "../libraries/RateLimited.sol";
 
-import {MerkleTreeManager} from "../Merkle.sol";
+import {MerkleTreeManager} from "../MerkleTreeManager.sol";
 import {WatcherClient} from "../WatcherClient.sol";
 
 import {Connector, ProposedOwnable} from "./Connector.sol";
@@ -46,6 +49,14 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
 
   event Process(bytes32 leaf, bool success, bytes returnData);
+
+  /**
+   * @notice Emitted when funds are withdrawn by the admin
+   * @dev See comments in `withdrawFunds`
+   * @param to The recipient of the funds
+   * @param amount The amount withdrawn
+   */
+  event FundsWithdrawn(address indexed to, uint256 amount);
 
   // ============ Structs ============
 
@@ -160,7 +171,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _amb The address of the AMB on the spoke domain this connector lives on.
    * @param _rootManager The address of the RootManager on the hub.
    * @param _mirrorConnector The address of the spoke connector.
-   * @param _mirrorGas The gas costs required to process a message on mirror.
    * @param _processGas The gas costs used in `handle` to ensure meaningful state changes can occur (minimum gas needed
    * to handle transaction).
    * @param _reserveGas The gas costs reserved when `handle` is called to ensure failures are handled.
@@ -174,7 +184,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
@@ -182,7 +191,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     address _watcherManager
   )
     ConnectorManager()
-    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
+    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
     WatcherClient(_watcherManager)
   {
     // Sanity check: constants are reasonable.
@@ -251,6 +260,19 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   }
 
   /**
+   * @notice This function should be callable by owner, and send funds trapped on
+   * a connector to the provided recipient.
+   * @dev Withdraws the entire balance of the contract.
+   *
+   * @param _to The recipient of the funds withdrawn
+   */
+  function withdrawFunds(address _to) public onlyOwner {
+    uint256 amount = address(this).balance;
+    Address.sendValue(payable(_to), amount);
+    emit FundsWithdrawn(_to, amount);
+  }
+
+  /**
    * @notice Remove ability to renounce ownership
    * @dev Renounce ownership should be impossible as long as it is impossible in the
    * WatcherClient, and as long as only the owner can remove pending roots in case of
@@ -280,13 +302,13 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @notice This returns the root of all messages with the origin domain as this domain (i.e.
    * all outbound messages)
    */
-  function send() external whenNotPaused rateLimited {
+  function send(bytes memory _encodedData) external payable whenNotPaused rateLimited {
     bytes32 root = MERKLE.root();
     require(sentMessageRoots[root] == false, "root already sent");
     bytes memory _data = abi.encodePacked(root);
-    _sendMessage(_data);
+    _sendMessage(_data, _encodedData);
     sentMessageRoots[root] = true;
-    emit MessageSent(_data, msg.sender);
+    emit MessageSent(_data, _encodedData, msg.sender);
   }
 
   /**
@@ -303,13 +325,12 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     bytes memory _messageBody
   ) external onlyWhitelistedSender returns (bytes32) {
     // Get the next nonce for the destination domain, then increment it.
-    uint32 _nonce = nonces[_destinationDomain];
-    nonces[_destinationDomain] = _nonce + 1;
+    uint32 _nonce = nonces[_destinationDomain]++;
 
     // Format the message into packed bytes.
     bytes memory _message = Message.formatMessage(
       DOMAIN,
-      bytes32(uint256(uint160(msg.sender))),
+      TypeCasts.addressToBytes32(msg.sender),
       _nonce,
       _destinationDomain,
       _recipientAddress,
@@ -360,7 +381,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     bytes32 _aggregateRoot,
     bytes32[32] calldata _aggregatePath,
     uint256 _aggregateIndex
-  ) external whenNotPaused {
+  ) external whenNotPaused nonReentrant {
     // Sanity check: proofs are included.
     require(_proofs.length > 0, "!proofs");
 
@@ -429,19 +450,22 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _aggregateRoot Target aggregate root to verify.
    */
   function verifyAggregateRoot(bytes32 _aggregateRoot) internal {
-    // 0. Check to see if the target *aggregate* root has already been proven.
+    // 0. Sanity check: root is not 0.
+    require(_aggregateRoot != bytes32(""), "aggregateRoot empty");
+
+    // 1. Check to see if the target *aggregate* root has already been proven.
     if (provenAggregateRoots[_aggregateRoot]) {
       return; // Short circuit if this root is proven.
     }
 
-    // 1. The target aggregate root must be pending. Aggregate root commit block entry MUST exist.
+    // 2. The target aggregate root must be pending. Aggregate root commit block entry MUST exist.
     uint256 _aggregateRootCommitBlock = pendingAggregateRoots[_aggregateRoot];
     require(_aggregateRootCommitBlock != 0, "aggregateRoot !exist");
 
-    // 2. Pending aggregate root has surpassed the `delayBlocks` verification period.
+    // 3. Pending aggregate root has surpassed the `delayBlocks` verification period.
     require(block.number - _aggregateRootCommitBlock >= delayBlocks, "aggregateRoot !verified");
 
-    // 3. The target aggregate root has surpassed verification period, we can move it over to the
+    // 4. The target aggregate root has surpassed verification period, we can move it over to the
     // proven mapping.
     provenAggregateRoots[_aggregateRoot] = true;
     // May as well delete the pending aggregate root entry for the gas refund: it should no longer
@@ -517,7 +541,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _message Formatted message
    * @return _success TRUE iff dispatch transaction succeeded
    */
-  function process(bytes memory _message) internal nonReentrant returns (bool _success) {
+  function process(bytes memory _message) internal returns (bool _success) {
     bytes29 _m = _message.ref(0);
     // ensure message was meant for this domain
     require(_m.destination() == DOMAIN, "!destination");
@@ -540,9 +564,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     // get the message recipient
     address _recipient = _m.recipientAddress();
     // set up for assembly call
-    uint256 _toCopy;
-    uint256 _maxCopy = 256;
     uint256 _gas = PROCESS_GAS;
+    uint16 _maxCopy = 256;
     // allocate memory for returndata
     bytes memory _returnData = new bytes(_maxCopy);
     bytes memory _calldata = abi.encodeWithSignature(
@@ -552,30 +575,9 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
       _m.sender(),
       _m.body().clone()
     );
-    // dispatch message to recipient
-    // by assembly calling "handle" function
-    // we call via assembly to avoid memcopying a very large returndata
-    // returned by a malicious contract
-    assembly {
-      _success := call(
-        _gas, // gas
-        _recipient, // recipient
-        0, // ether value
-        add(_calldata, 0x20), // inloc
-        mload(_calldata), // inlen
-        0, // outloc
-        0 // outlen
-      )
-      // limit our copy to 256 bytes
-      _toCopy := returndatasize()
-      if gt(_toCopy, _maxCopy) {
-        _toCopy := _maxCopy
-      }
-      // Store the length of the copied bytes
-      mstore(_returnData, _toCopy)
-      // copy the bytes from returndata[0:_toCopy]
-      returndatacopy(add(_returnData, 0x20), 0, _toCopy)
-    }
+
+    (_success, _returnData) = ExcessivelySafeCall.excessivelySafeCall(_recipient, _gas, 0, _maxCopy, _calldata);
+
     // emit process results
     emit Process(_messageHash, _success, _returnData);
   }

@@ -34,10 +34,7 @@ export default task("enroll-handlers", "Add a remote router")
     console.log("chains:", chains);
     console.log("deployer: ", deployer.address);
 
-    const names = [
-      "BridgeRouterUpgradeBeaconProxy",
-      "RelayerFeeRouterUpgradeBeaconProxy",
-    ]
+    const names = ["BridgeRouterUpgradeBeaconProxy", "RelayerFeeRouterUpgradeBeaconProxy"]
       .filter((name) => {
         if (type === "all") {
           return true;
@@ -68,7 +65,7 @@ export default task("enroll-handlers", "Add a remote router")
       for (const { address, name } of remotes) {
         const localRouterDeployment = await hre.deployments.get(name);
         const { abi: localRouterAbi } = await hre.deployments.get(
-          // handle nomad upgrade naming case
+          // handle upgrade naming case
           name.includes("UpgradeBeaconProxy") ? getDeploymentName(name.split("UpgradeBeaconProxy")[0], env) : name,
         );
         const local = localRouterDeployment.address;

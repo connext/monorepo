@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 
@@ -15,10 +15,9 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     address _checkPointManager
   )
-    HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
+    HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
     FxBaseRootTunnel(_checkPointManager, _amb)
   {}
 
@@ -29,7 +28,9 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
     return false;
   }
 
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should not include specialized calldata
+    require(_encodedData.length == 0, "!data length");
     _sendMessageToChild(_data);
   }
 
@@ -46,9 +47,19 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
     emit MessageProcessed(message, msg.sender);
   }
 
-  function _processMessage(bytes memory _data) internal override {}
+  function _processMessage(bytes memory _data) internal override {
+    // Does nothing, all messages should go through the `_processMessageFromChild` path
+    revert Connector__processMessage_notUsed();
+  }
 
   function _setMirrorConnector(address _mirrorConnector) internal override {
+    // NOTE: FxBaseRootTunnel has the following code in their `setFxChildTunnel`:
+    // ```
+    // require(fxChildTunnel == address(0x0), "FxBaseRootTunnel: CHILD_TUNNEL_ALREADY_SET");
+    // ```
+    // Which means this function will revert if updating the `mirrorConnector`. In that case, in
+    // changes  the
+    // hub connector should also be redeployed
     super._setMirrorConnector(_mirrorConnector);
 
     setFxChildTunnel(_mirrorConnector);

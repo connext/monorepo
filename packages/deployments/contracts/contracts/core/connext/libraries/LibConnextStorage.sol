@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager.sol";
 import {SwapUtils} from "./SwapUtils.sol";
+import {TokenId} from "./TokenId.sol";
 
 // ============= Enum =============
 
@@ -33,25 +34,18 @@ enum DestinationTransferStatus {
   Completed // 3 - executed + reconciled
 }
 
-// ============= Structs =============
-
-struct TokenId {
-  uint32 domain;
-  bytes32 id;
-}
-
 /**
  * @notice These are the parameters that will remain constant between the
  * two chains. They are supplied on `xcall` and should be asserted on `execute`
  * @property to - The account that receives funds, in the event of a crosschain call,
  * will receive funds if the call fails.
  *
- * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
- * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
+ * @param originDomain - The originating domain (i.e. where `xcall` is called)
+ * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called)\
  * @param canonicalDomain - The canonical domain of the asset you are bridging
  * @param to - The address you are sending funds (and potentially data) to
  * @param delegate - An address who can execute txs on behalf of `to`, in addition to allowing relayers
- * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
+ * @param receiveLocal - If true, will use the local asset on the destination instead of adopted.
  * @param callData - The data to execute on the receiving chain. If no crosschain call is needed, then leave empty.
  * @param slippage - Slippage user is willing to accept from original amount in expressed in BPS (i.e. if
  * a user takes 1% slippage, this is expressed as 1_000)
@@ -96,25 +90,20 @@ struct ExecuteArgs {
 }
 
 /**
- * @notice Contains RouterFacet related state
- * @param approvedRouters - Mapping of whitelisted router addresses
- * @param routerRecipients - Mapping of router withdraw recipient addresses.
- * If set, all liquidity is withdrawn only to this address. Must be set by routerOwner
- * (if configured) or the router itself
- * @param routerOwners - Mapping of router owners
- * If set, can update the routerRecipient
- * @param proposedRouterOwners - Mapping of proposed router owners
- * Must wait timeout to set the
- * @param proposedRouterTimestamp - Mapping of proposed router owners timestamps
- * When accepting a proposed owner, must wait for delay to elapse
+ * @notice Contains configs for each router
+ * @param approved Whether the router is whitelisted, settable by admin
+ * @param portalApproved Whether the router is whitelisted for portals, settable by admin
+ * @param routerOwners The address that can update the `recipient`
+ * @param proposedRouterOwners Owner candidates
+ * @param proposedRouterTimestamp When owner candidate was proposed (there is a delay to acceptance)
  */
-struct RouterPermissionsManagerInfo {
-  mapping(address => bool) approvedRouters;
-  mapping(address => bool) approvedForPortalRouters;
-  mapping(address => address) routerRecipients;
-  mapping(address => address) routerOwners;
-  mapping(address => address) proposedRouterOwners;
-  mapping(address => uint256) proposedRouterTimestamp;
+struct RouterConfig {
+  bool approved;
+  bool portalApproved;
+  address owner;
+  address recipient;
+  address proposed;
+  uint256 proposedTimestamp;
 }
 
 struct AppStorage {
@@ -139,13 +128,13 @@ struct AppStorage {
   uint256 nonce;
   /**
    * @notice The domain this contract exists on.
-   * @dev Must match the nomad domain, which is distinct from the "chainId".
+   * @dev Must match the domain identifier, which is distinct from the "chainId".
    */
   // 4
   uint32 domain;
   /**
    * @notice Mapping holding the AMMs for swapping in and out of local assets.
-   * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon).
+   * @dev Swaps for an adopted asset <> local asset (i.e. POS USDC <> nextUSDC on polygon).
    * This mapping is keyed on the hash of the canonical id + domain for local asset.
    */
   // 6
@@ -162,6 +151,11 @@ struct AppStorage {
    */
   // 7
   mapping(bytes32 => uint256) caps;
+  /**
+   * @notice Mapping of custodied balance by address
+   * @dev Used to enforce cap
+   */
+  mapping(address => uint256) custodied;
   /**
    * @notice Mapping of adopted to canonical asset information.
    * @dev If the adopted asset is the native asset, the keyed address will
@@ -201,7 +195,7 @@ struct AppStorage {
   /**
    * @notice Mapping of router to available balance of an asset.
    * @dev Routers should always store liquidity that they can expect to receive via the bridge on
-   * this domain (the nomad local asset).
+   * this domain (the local asset).
    */
   // 14
   mapping(address => mapping(address => uint256)) routerBalances;
@@ -221,6 +215,10 @@ struct AppStorage {
    */
   // 20
   mapping(bytes32 => uint256) slippage;
+  /**
+   * @notice Stores a mapping of transfer id to receive local overrides.
+   */
+  mapping(bytes32 => bool) receiveLocalOverride;
   /**
    * @notice Stores a mapping of remote routers keyed on domains.
    * @dev Addresses are cast to bytes32.
@@ -254,18 +252,19 @@ struct AppStorage {
   // RouterFacet
   //
   // 29
-  RouterPermissionsManagerInfo routerPermissionInfo;
+  mapping(address => RouterConfig) routerConfigs;
   //
   // ReentrancyGuard
   //
   // 30
   uint256 _status;
+  uint256 _xcallStatus;
   //
   // StableSwap
   //
   /**
    * @notice Mapping holding the AMM storages for swapping in and out of local assets
-   * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon)
+   * @dev Swaps for an adopted asset <> local asset (i.e. POS USDC <> nextUSDC on polygon)
    * Struct storing data responsible for automatic market maker functionalities. In order to
    * access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol.
    */

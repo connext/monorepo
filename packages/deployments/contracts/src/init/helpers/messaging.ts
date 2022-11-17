@@ -16,7 +16,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
   /// ******************** MESSAGING ********************
   /// MARK - Init
   // TODO: Currently unused, as messaging init checks are not needed with the AMB-compatible stack.
-  // However, they will be useful as sanity checks for Nomad deployments in the future - thus, leaving
+  // However, they will be useful as sanity checks for deployments in the future - thus, leaving
   // this placeholder here for now...
 
   /// MARK - Connector Mirrors
@@ -105,8 +105,8 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         console.log("\tVerifying merkle tree managers are set correctly.");
         await updateIfNeeded({
           deployment: MerkleTreeManager,
-          desired: true,
-          read: { method: "arborists", args: [SpokeConnector.address] },
+          desired: SpokeConnector.address,
+          read: { method: "arborist", args: [] },
           write: { method: "setArborist", args: [SpokeConnector.address] },
         });
 
@@ -184,15 +184,15 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
 
   await updateIfNeeded({
     deployment: MerkleTreeManagerForRoot,
-    desired: true,
-    read: { method: "arborists", args: [RootManager.address] },
+    desired: RootManager.address,
+    read: { method: "arborist", args: [] },
     write: { method: "setArborist", args: [RootManager.address] },
   });
 
   await updateIfNeeded({
     deployment: MerkleTreeManagerForSpoke,
-    desired: true,
-    read: { method: "arborists", args: [MainnetConnector.address] },
+    desired: MainnetConnector.address,
+    read: { method: "arborist", args: [] },
     write: { method: "setArborist", args: [MainnetConnector.address] },
   });
 

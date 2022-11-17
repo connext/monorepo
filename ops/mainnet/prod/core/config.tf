@@ -92,17 +92,17 @@ locals {
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
       {
-        type    = "Gelato",
-        apiKey  = "${var.gelato_api_key}",
-        url     = "https://relay.gelato.digital"
+        type   = "Gelato",
+        apiKey = "${var.gelato_api_key}",
+        url    = "https://relay.gelato.digital"
       },
       {
-        type    = "Connext",
-        apiKey  = "foo",
-        url     = "https://${module.relayer.service_endpoint}"
+        type   = "Connext",
+        apiKey = "foo",
+        url    = "https://${module.relayer.service_endpoint}"
       }
     ]
-    environment   = var.stage
+    environment = var.stage
     messageQueue = {
       connection = {
         uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
@@ -118,19 +118,19 @@ locals {
       ]
       queues = [
         {
-          name       = "1"
+          name       = "6648936"
           limit      = 1
           queueLimit = 10000
           subscribe  = true
         },
         {
-          name       = "10"
+          name       = "1869640809"
           limit      = 1
           queueLimit = 10000
           subscribe  = true
         },
         {
-          name       = "137"
+          name       = "1886350457"
           limit      = 1
           queueLimit = 10000
           subscribe  = true
@@ -139,18 +139,18 @@ locals {
       bindings = [
         {
           exchange = "sequencerX"
-          target   = "1"
-          keys     = ["1"]
+          target   = "6648936"
+          keys     = ["6648936"]
         },
         {
           exchange = "sequencerX"
-          target   = "10"
-          keys     = ["10"]
+          target   = "1869640809"
+          keys     = ["1869640809"]
         },
         {
           exchange = "sequencerX"
-          target   = "137"
-          keys     = ["137"]
+          target   = "1886350457"
+          keys     = ["1886350457"]
         }
       ]
       executerTimeout = 300000
@@ -235,19 +235,20 @@ locals {
     databaseUrl  = "postgresql://${var.postgres_user}:${var.postgres_password}@db.mainnet.connext.ninja:5432/connext"
     relayers = [
       {
-        type    = "Gelato",
-        apiKey  = "${var.gelato_api_key}",
-        url     = "https://relay.gelato.digital"
+        type   = "Gelato",
+        apiKey = "${var.gelato_api_key}",
+        url    = "https://relay.gelato.digital"
       },
       {
-        type    = "Connext",
-        apiKey  = "foo",
-        url     = "https://${module.relayer.service_endpoint}"
+        type   = "Connext",
+        apiKey = "foo",
+        url    = "https://${module.relayer.service_endpoint}"
       }
     ]
     healthUrls = {
       prover    = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_prover_heartbeat}"
       processor = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_processor_heartbeat}"
+      propagate = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propagate_heartbeat}"
     }
     hubDomain = "6648936"
   })

@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
-
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+pragma solidity 0.8.17;
 
 import {IProposedOwnable} from "./interfaces/IProposedOwnable.sol";
 
@@ -108,7 +106,7 @@ abstract contract ProposedOwnable is IProposedOwnable {
    */
   function proposeNewOwner(address newlyProposed) public virtual onlyOwner {
     // Contract as source of truth
-    if (_proposed == newlyProposed && newlyProposed != address(0))
+    if (_proposed == newlyProposed && _proposedOwnershipTimestamp != 0)
       revert ProposedOwnable__proposeNewOwner_invalidProposal();
 
     // Sanity check: reasonable proposal
@@ -132,7 +130,7 @@ abstract contract ProposedOwnable is IProposedOwnable {
     if (_proposed != address(0)) revert ProposedOwnable__renounceOwnership_invalidProposal();
 
     // Emit event, set new owner, reset timestamp
-    _setOwner(_proposed);
+    _setOwner(address(0));
   }
 
   /**
@@ -159,11 +157,10 @@ abstract contract ProposedOwnable is IProposedOwnable {
   // ======== Internal =========
 
   function _setOwner(address newOwner) internal {
-    address oldOwner = _owner;
+    emit OwnershipTransferred(_owner, newOwner);
     _owner = newOwner;
     _proposedOwnershipTimestamp = 0;
     _proposed = address(0);
-    emit OwnershipTransferred(oldOwner, newOwner);
   }
 
   function _setProposed(address newlyProposed) private {
@@ -171,24 +168,4 @@ abstract contract ProposedOwnable is IProposedOwnable {
     _proposed = newlyProposed;
     emit OwnershipProposed(newlyProposed);
   }
-}
-
-abstract contract ProposedOwnableUpgradeable is Initializable, ProposedOwnable {
-  /**
-   * @dev Initializes the contract setting the deployer as the initial
-   */
-  function __ProposedOwnable_init() internal onlyInitializing {
-    __ProposedOwnable_init_unchained();
-  }
-
-  function __ProposedOwnable_init_unchained() internal onlyInitializing {
-    _setOwner(msg.sender);
-  }
-
-  /**
-   * @dev This empty reserved space is put in place to allow future versions to add new
-   * variables without shifting down storage in the inheritance chain.
-   * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-   */
-  uint256[47] private __GAP;
 }

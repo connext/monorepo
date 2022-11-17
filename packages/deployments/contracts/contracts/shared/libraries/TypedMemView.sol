@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 library TypedMemView {
   // Why does this exist?
@@ -63,109 +63,18 @@ library TypedMemView {
   bytes29 public constant NULL = hex"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
   uint256 constant LOW_12_MASK = 0xffffffffffffffffffffffff;
   uint256 constant TWENTY_SEVEN_BYTES = 8 * 27;
+  uint256 private constant _27_BYTES_IN_BITS = 8 * 27; // <--- also used this named constant where ever 216 is used.
+  uint256 private constant LOW_27_BYTES_MASK = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffff; // (1 << _27_BYTES_IN_BITS) - 1;
 
-  /**
-   * @notice      Returns the encoded hex character that represents the lower 4 bits of the argument.
-   * @param _b    The byte
-   * @return      char - The encoded hex character
-   */
-  function nibbleHex(uint8 _b) internal pure returns (uint8 char) {
-    // This can probably be done more efficiently, but it's only in error
-    // paths, so we don't really care :)
-    uint8 _nibble = _b | 0xf0; // set top 4, keep bottom 4
-    if (_nibble == 0xf0) {
-      return 0x30;
-    } // 0
-    if (_nibble == 0xf1) {
-      return 0x31;
-    } // 1
-    if (_nibble == 0xf2) {
-      return 0x32;
-    } // 2
-    if (_nibble == 0xf3) {
-      return 0x33;
-    } // 3
-    if (_nibble == 0xf4) {
-      return 0x34;
-    } // 4
-    if (_nibble == 0xf5) {
-      return 0x35;
-    } // 5
-    if (_nibble == 0xf6) {
-      return 0x36;
-    } // 6
-    if (_nibble == 0xf7) {
-      return 0x37;
-    } // 7
-    if (_nibble == 0xf8) {
-      return 0x38;
-    } // 8
-    if (_nibble == 0xf9) {
-      return 0x39;
-    } // 9
-    if (_nibble == 0xfa) {
-      return 0x61;
-    } // a
-    if (_nibble == 0xfb) {
-      return 0x62;
-    } // b
-    if (_nibble == 0xfc) {
-      return 0x63;
-    } // c
-    if (_nibble == 0xfd) {
-      return 0x64;
-    } // d
-    if (_nibble == 0xfe) {
-      return 0x65;
-    } // e
-    if (_nibble == 0xff) {
-      return 0x66;
-    } // f
-  }
+  // ========== Custom Errors ===========
 
-  /**
-   * @notice      Returns a uint16 containing the hex-encoded byte.
-   * @param _b    The byte
-   * @return      encoded - The hex-encoded byte
-   */
-  function byteHex(uint8 _b) internal pure returns (uint16 encoded) {
-    encoded |= nibbleHex(_b >> 4); // top 4 bits
-    encoded <<= 8;
-    encoded |= nibbleHex(_b); // lower 4 bits
-  }
-
-  /**
-   * @notice      Encodes the uint256 to hex. `first` contains the encoded top 16 bytes.
-   *              `second` contains the encoded lower 16 bytes.
-   *
-   * @param _b    The 32 bytes as uint256
-   * @return      first - The top 16 bytes
-   * @return      second - The bottom 16 bytes
-   */
-  function encodeHex(uint256 _b) internal pure returns (uint256 first, uint256 second) {
-    for (uint256 i = 31; i > 15; ) {
-      uint8 _byte = uint8(_b >> (i * 8));
-      first |= byteHex(_byte);
-      if (i != 16) {
-        first <<= 16;
-      }
-      unchecked {
-        i -= 1;
-      }
-    }
-
-    // abusing underflow here =_=
-    for (uint256 i = 15; i < 255; ) {
-      uint8 _byte = uint8(_b >> (i * 8));
-      second |= byteHex(_byte);
-      if (i != 0) {
-        second <<= 16;
-      }
-      unchecked {
-        i -= 1;
-      }
-    }
-  }
+  error TypedMemView__assertType_typeAssertionFailed(uint256 actual, uint256 expected);
+  error TypedMemView__index_overrun(uint256 loc, uint256 len, uint256 index, uint256 slice);
+  error TypedMemView__index_indexMoreThan32Bytes();
+  error TypedMemView__unsafeCopyTo_nullPointer();
+  error TypedMemView__unsafeCopyTo_invalidPointer();
+  error TypedMemView__unsafeCopyTo_identityOOG();
+  error TypedMemView__assertValid_validityAssertionFailed();
 
   /**
    * @notice          Changes the endianness of a uint256.
@@ -234,21 +143,21 @@ library TypedMemView {
   }
 
   /**
-   * @notice          Check if the view is of a valid type and points to a valid location
+   * @notice          Check if the view is of a invalid type and points to a valid location
    *                  in memory.
    * @dev             We perform this check by examining solidity's unallocated memory
    *                  pointer and ensuring that the view's upper bound is less than that.
    * @param memView   The view
-   * @return          ret - True if the view is valid
+   * @return          ret - True if the view is invalid
    */
-  function isValid(bytes29 memView) internal pure returns (bool ret) {
+  function isNotValid(bytes29 memView) internal pure returns (bool ret) {
     if (typeOf(memView) == 0xffffffffff) {
-      return false;
+      return true;
     }
     uint256 _end = end(memView);
     assembly {
       // solhint-disable-previous-line no-inline-assembly
-      ret := not(gt(_end, mload(0x40)))
+      ret := gt(_end, mload(0x40))
     }
   }
 
@@ -259,7 +168,7 @@ library TypedMemView {
    * @return          bytes29 - The validated view
    */
   function assertValid(bytes29 memView) internal pure returns (bytes29) {
-    require(isValid(memView), "Validity assertion failed");
+    if (isNotValid(memView)) revert TypedMemView__assertValid_validityAssertionFailed();
     return memView;
   }
 
@@ -282,12 +191,7 @@ library TypedMemView {
    */
   function assertType(bytes29 memView, uint40 _expected) internal pure returns (bytes29) {
     if (!isType(memView, _expected)) {
-      (, uint256 g) = encodeHex(uint256(typeOf(memView)));
-      (, uint256 e) = encodeHex(uint256(_expected));
-      string memory err = string(
-        abi.encodePacked("Type assertion failed. Got 0x", uint80(g), ". Expected 0x", uint80(e))
-      );
-      revert(err);
+      revert TypedMemView__assertType_typeAssertionFailed(uint256(typeOf(memView)), uint256(_expected));
     }
     return memView;
   }
@@ -303,8 +207,7 @@ library TypedMemView {
     assembly {
       // solhint-disable-previous-line no-inline-assembly
       // shift off the top 5 bytes
-      newView := or(newView, shr(40, shl(40, memView)))
-      newView := or(newView, shl(216, _newType))
+      newView := or(and(memView, LOW_27_BYTES_MASK), shl(_27_BYTES_IN_BITS, _newType))
     }
   }
 
@@ -323,11 +226,19 @@ library TypedMemView {
     uint256 _loc,
     uint256 _len
   ) private pure returns (bytes29 newView) {
+    uint256 _uint96Bits = 96;
+    uint256 _emptyBits = 24;
+
+    // Cast params to ensure input is of correct length
+    uint96 len_ = uint96(_len);
+    uint96 loc_ = uint96(_loc);
+    require(len_ == _len && loc_ == _loc, "!truncated");
+
     assembly {
-      // solhint-disable-previous-line no-inline-assembly
-      newView := shl(96, or(newView, _type)) // insert type
-      newView := shl(96, or(newView, _loc)) // insert loc
-      newView := shl(24, or(newView, _len)) // empty bottom 3 bytes
+      // solium-disable-previous-line security/no-inline-assembly
+      newView := shl(_uint96Bits, _type) // insert type
+      newView := shl(_uint96Bits, or(newView, loc_)) // insert loc
+      newView := shl(_emptyBits, or(newView, len_)) // empty bottom 3 bytes
     }
   }
 
@@ -388,7 +299,7 @@ library TypedMemView {
     assembly {
       // solhint-disable-previous-line no-inline-assembly
       // 216 == 256 - 40
-      _type := shr(216, memView) // shift out lower 24 bytes
+      _type := shr(_27_BYTES_IN_BITS, memView) // shift out lower 24 bytes
     }
   }
 
@@ -514,39 +425,6 @@ library TypedMemView {
   }
 
   /**
-   * @notice          Construct an error message for an indexing overrun.
-   * @param _loc      The memory address
-   * @param _len      The length
-   * @param _index    The index
-   * @param _slice    The slice where the overrun occurred
-   * @return          err - The err
-   */
-  function indexErrOverrun(
-    uint256 _loc,
-    uint256 _len,
-    uint256 _index,
-    uint256 _slice
-  ) internal pure returns (string memory err) {
-    (, uint256 a) = encodeHex(_loc);
-    (, uint256 b) = encodeHex(_len);
-    (, uint256 c) = encodeHex(_index);
-    (, uint256 d) = encodeHex(_slice);
-    err = string(
-      abi.encodePacked(
-        "TypedMemView/index - Overran the view. Slice is at 0x",
-        uint48(a),
-        " with length 0x",
-        uint48(b),
-        ". Attempted to index at offset 0x",
-        uint48(c),
-        " with length 0x",
-        uint48(d),
-        "."
-      )
-    );
-  }
-
-  /**
    * @notice          Load up to 32 bytes from the view onto the stack.
    * @dev             Returns a bytes32 with only the `_bytes` highest bytes set.
    *                  This can be immediately cast to a smaller fixed-length byte array.
@@ -565,9 +443,10 @@ library TypedMemView {
       return bytes32(0);
     }
     if (_index + _bytes > len(memView)) {
-      revert(indexErrOverrun(loc(memView), len(memView), _index, uint256(_bytes)));
+      // "TypedMemView/index - Overran the view. Slice is at {loc} with length {len}. Attempted to index at offset {index} with length {slice},
+      revert TypedMemView__index_overrun(loc(memView), len(memView), _index, uint256(_bytes));
     }
-    require(_bytes <= 32, "TypedMemView/index - Attempted to index more than 32 bytes");
+    if (_bytes > 32) revert TypedMemView__index_indexMoreThan32Bytes();
 
     uint8 bitLength;
     unchecked {
@@ -638,57 +517,6 @@ library TypedMemView {
   }
 
   /**
-   * @notice          Return the sha2 digest of the underlying memory.
-   * @dev             We explicitly deallocate memory afterwards.
-   * @param memView   The view
-   * @return          digest - The sha2 hash of the underlying memory
-   */
-  function sha2(bytes29 memView) internal view returns (bytes32 digest) {
-    uint256 _loc = loc(memView);
-    uint256 _len = len(memView);
-    assembly {
-      // solhint-disable-previous-line no-inline-assembly
-      let ptr := mload(0x40)
-      pop(staticcall(gas(), 2, _loc, _len, ptr, 0x20)) // sha2 #1
-      digest := mload(ptr)
-    }
-  }
-
-  /**
-   * @notice          Implements bitcoin's hash160 (rmd160(sha2()))
-   * @param memView   The pre-image
-   * @return          digest - the Digest
-   */
-  function hash160(bytes29 memView) internal view returns (bytes20 digest) {
-    uint256 _loc = loc(memView);
-    uint256 _len = len(memView);
-    assembly {
-      // solhint-disable-previous-line no-inline-assembly
-      let ptr := mload(0x40)
-      pop(staticcall(gas(), 2, _loc, _len, ptr, 0x20)) // sha2
-      pop(staticcall(gas(), 3, ptr, 0x20, ptr, 0x20)) // rmd160
-      digest := mload(add(ptr, 0xc)) // return value is 0-prefixed.
-    }
-  }
-
-  /**
-   * @notice          Implements bitcoin's hash256 (double sha2)
-   * @param memView   A view of the preimage
-   * @return          digest - the Digest
-   */
-  function hash256(bytes29 memView) internal view returns (bytes32 digest) {
-    uint256 _loc = loc(memView);
-    uint256 _len = len(memView);
-    assembly {
-      // solhint-disable-previous-line no-inline-assembly
-      let ptr := mload(0x40)
-      pop(staticcall(gas(), 2, _loc, _len, ptr, 0x20)) // sha2 #1
-      pop(staticcall(gas(), 2, ptr, 0x20, ptr, 0x20)) // sha2 #2
-      digest := mload(ptr)
-    }
-  }
-
-  /**
    * @notice          Return true if the underlying memory is equal. Else false.
    * @param left      The first view
    * @param right     The second view
@@ -742,12 +570,14 @@ library TypedMemView {
    * @return          written - the unsafe memory reference
    */
   function unsafeCopyTo(bytes29 memView, uint256 _newLoc) private view returns (bytes29 written) {
-    require(notNull(memView), "TypedMemView/copyTo - Null pointer deref");
-    require(isValid(memView), "TypedMemView/copyTo - Invalid pointer deref");
+    if (isNull(memView)) revert TypedMemView__unsafeCopyTo_nullPointer();
+    if (isNotValid(memView)) revert TypedMemView__unsafeCopyTo_invalidPointer();
+
     uint256 _len = len(memView);
     uint256 _oldLoc = loc(memView);
 
     uint256 ptr;
+    bool res;
     assembly {
       // solhint-disable-previous-line no-inline-assembly
       ptr := mload(0x40)
@@ -758,9 +588,9 @@ library TypedMemView {
 
       // use the identity precompile to copy
       // guaranteed not to fail, so pop the success
-      pop(staticcall(gas(), 4, _oldLoc, _len, _newLoc, _len))
+      res := staticcall(gas(), 4, _oldLoc, _len, _newLoc, _len)
     }
-
+    if (!res) revert TypedMemView__unsafeCopyTo_identityOOG();
     written = unsafeBuildUnchecked(typeOf(memView), _newLoc, _len);
   }
 
@@ -832,20 +662,6 @@ library TypedMemView {
       ptr := mload(0x40) // load unused memory pointer
     }
     return keccak(unsafeJoin(memViews, ptr));
-  }
-
-  /**
-   * @notice          Produce the sha256 digest of the concatenated contents of multiple views.
-   * @param memViews  The views
-   * @return          bytes32 - The sha256 digest
-   */
-  function joinSha2(bytes29[] memory memViews) internal view returns (bytes32) {
-    uint256 ptr;
-    assembly {
-      // solhint-disable-previous-line no-inline-assembly
-      ptr := mload(0x40) // load unused memory pointer
-    }
-    return sha2(unsafeJoin(memViews, ptr));
   }
 
   /**
