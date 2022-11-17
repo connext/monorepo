@@ -109,7 +109,7 @@ contract ProposedOwnableTest is ProposedOwnable, ForgeHelper {
 
     vm.expectRevert(ProposedOwnable__proposeNewOwner_invalidProposal.selector);
     vm.prank(_default);
-    this.proposeNewOwner(address(10));
+    this.proposeNewOwner(address(12));
   }
 
   function test_ProposedOwnable__proposeNewOwner_failsIfProposingOwner() public {
