@@ -241,6 +241,11 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "BridgeFacet_xcall__emptyLocalAsset",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -4155,6 +4160,11 @@ const _abi = [
   {
     inputs: [],
     name: "TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__setupAsset_invalidCanonicalConfiguration",
     type: "error",
   },
   {
