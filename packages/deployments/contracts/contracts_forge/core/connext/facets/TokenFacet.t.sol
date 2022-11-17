@@ -59,20 +59,20 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
       }
 
       // Should emit a pool event if added
-      if (_stableSwap != address(0) && isCanonical) {
+      if (_stableSwap != address(0) && !isCanonical) {
         vm.expectEmit(true, true, true, true);
         emit StableSwapAdded(key, _canonicalId, _canonicalDomain, _stableSwap, _owner);
       }
-
-      // Should emit an AssetAdded event
-      vm.expectEmit(true, true, true, true);
-      emit AssetAdded(key, _canonicalId, _canonicalDomain, isCanonical ? _canonical : adoptedInput, _local, _owner);
 
       // Should emit a cap event
       if (_cap > 0 && isCanonical) {
         vm.expectEmit(true, true, true, true);
         emit LiquidityCapUpdated(key, _canonicalId, _canonicalDomain, _cap, _owner);
       }
+
+      // Should emit an AssetAdded event
+      vm.expectEmit(true, true, true, true);
+      emit AssetAdded(key, _canonicalId, _canonicalDomain, isCanonical ? _canonical : adoptedInput, _local, _owner);
     }
     // Make call
     vm.prank(_owner);
@@ -136,10 +136,11 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     assertEq(address(s.adoptedToLocalExternalPools[key]), address(0));
     assertEq(s.adoptedToCanonical[isCanonical ? _canonical : adopted].domain, 0);
     assertEq(s.adoptedToCanonical[isCanonical ? _canonical : adopted].id, bytes32(0));
+    // representation should never change
     assertEq(s.representationToCanonical[representation].domain, 0);
     assertEq(s.representationToCanonical[representation].id, bytes32(0));
     assertEq(s.canonicalToAdopted[key], address(0));
-    assertEq(s.canonicalToRepresentation[key], address(0));
+    assertEq(s.canonicalToRepresentation[key], representation);
   }
 
   // ============ Getters ============
