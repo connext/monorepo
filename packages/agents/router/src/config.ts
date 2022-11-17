@@ -13,7 +13,7 @@ import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txser
 
 import { existsSync, readFileSync } from "./mockable";
 
-const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
+const DEFAULT_SLIPPAGE = 100000; // in BPS
 
 // Polling mins and defaults.
 const MIN_SUBGRAPH_POLL_INTERVAL = 2_000;
@@ -159,7 +159,7 @@ export const getEnvConfig = (
       process.env.NXTP_ALLOWED_TOLERANCE ||
       configJson.allowedTolerance ||
       configFile.allowedTolerance ||
-      DEFAULT_ALLOWED_TOLERANCE,
+      DEFAULT_SLIPPAGE,
     sequencerUrl: process.env.NXTP_SEQUENCER || configJson.sequencerUrl || configFile.sequencerUrl,
     cartographerUrl: process.env.NXTP_CARTOGRAPHER || configJson.cartographerUrl || configFile.cartographerUrl,
     polling: {
