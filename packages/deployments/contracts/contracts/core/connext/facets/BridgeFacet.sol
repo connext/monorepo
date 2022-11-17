@@ -503,8 +503,6 @@ contract BridgeFacet is BaseConnextFacet {
     // 0-value transfer. Otherwise, the local address will be retrieved below
     address local;
     bytes32 transferId;
-    // NOTE: Technically, in the event of a 0-value transfer with no defined asset, we don't need
-    // to do any of the asset handling here.
     TokenId memory canonical;
     bool isCanonical;
     {
@@ -513,12 +511,13 @@ contract BridgeFacet is BaseConnextFacet {
       // 0-value transfer. Because 0-value transfers short-circuit all checks on mappings keyed on
       // hash(canonicalId, canonicalDomain), this is safe even when the address(0) asset is not
       // whitelisted.
-      bytes32 key;
-      // Get the token config.
-      TokenConfig storage config = AssetLogic.getConfig(key);
       if (_asset != address(0)) {
         // Retrieve the canonical token information.
+        bytes32 key;
         (canonical, key) = _getApprovedCanonicalId(_asset);
+
+        // Get the token config.
+        TokenConfig storage config = AssetLogic.getConfig(key);
 
         // Set boolean flag
         isCanonical = _params.originDomain == canonical.domain;
@@ -526,40 +525,42 @@ contract BridgeFacet is BaseConnextFacet {
         // Get the local address
         local = isCanonical ? TypeCasts.bytes32ToAddress(canonical.id) : config.representation;
 
-        // Enforce liquidity caps.
-        // NOTE: Safe to do this before the swap because canonical domains do
-        // not hit the AMMs (local == canonical).
-        uint256 cap = config.cap;
-        if (isCanonical && cap > 0) {
-          // NOTE: this method includes router liquidity as part of the caps,
-          // not only the minted amount
-          uint256 updatedCap = config.custodied + _amount;
-          if (updatedCap > cap) {
-            revert BridgeFacet__xcall_capReached();
+        {
+          // Enforce liquidity caps.
+          // NOTE: Safe to do this before the swap because canonical domains do
+          // not hit the AMMs (local == canonical).
+          uint256 cap = config.cap;
+          if (isCanonical && cap > 0) {
+            // NOTE: this method includes router liquidity as part of the caps,
+            // not only the minted amount
+            uint256 updatedCap = config.custodied + _amount;
+            if (updatedCap > cap) {
+              revert BridgeFacet__xcall_capReached();
+            }
+            s.tokenConfigs[key].custodied = updatedCap;
           }
-          s.tokenConfigs[key].custodied = updatedCap;
         }
 
         // Update TransferInfo to reflect the canonical token information.
         _params.canonicalDomain = canonical.domain;
         _params.canonicalId = canonical.id;
-      }
 
-      if (_amount > 0) {
-        // Transfer funds of input asset to the contract from the user.
-        AssetLogic.handleIncomingAsset(_asset, _amount);
+        if (_amount > 0) {
+          // Transfer funds of input asset to the contract from the user.
+          AssetLogic.handleIncomingAsset(_asset, _amount);
 
-        // Swap to the local asset from adopted if applicable.
-        _params.bridgedAmt = AssetLogic.swapToLocalAssetIfNeeded(key, _asset, local, _amount, _params.slippage);
+          // Swap to the local asset from adopted if applicable.
+          _params.bridgedAmt = AssetLogic.swapToLocalAssetIfNeeded(key, _asset, local, _amount, _params.slippage);
 
-        // Get the normalized amount in (amount sent in by user in 18 decimals).
-        // NOTE: when getting the decimals from `_asset`, you don't know if you are looking for
-        // adopted or local assets
-        _params.normalizedIn = AssetLogic.normalizeDecimals(
-          _asset == local ? config.representationDecimals : config.adoptedDecimals,
-          uint8(18),
-          _amount
-        );
+          // Get the normalized amount in (amount sent in by user in 18 decimals).
+          // NOTE: when getting the decimals from `_asset`, you don't know if you are looking for
+          // adopted or local assets
+          _params.normalizedIn = AssetLogic.normalizeDecimals(
+            _asset == local ? config.representationDecimals : config.adoptedDecimals,
+            uint8(18),
+            _amount
+          );
+        }
       }
 
       // Calculate the transfer ID.

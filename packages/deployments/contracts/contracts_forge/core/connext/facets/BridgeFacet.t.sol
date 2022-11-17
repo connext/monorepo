@@ -443,8 +443,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         // The contract should have stored the asset in escrow.
         assertEq(tokenIn.balanceOf(address(this)), balances.contractAsset + amount);
         // Custodied balance should have increased if sending in canonical
-        if (s.tokenConfigs[utils_calculateCanonicalHash()].cap > 0) {
-          assertEq(s.tokenConfigs[utils_calculateCanonicalHash()].custodied, balances.contractAsset + amount);
+        if (s.tokenConfigs[_canonicalKey].cap > 0) {
+          assertEq(s.tokenConfigs[_canonicalKey].custodied, balances.contractAsset + amount);
         }
       } else {
         // NOTE: Normally the adopted asset would be swapped into the local asset and then
@@ -675,8 +675,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       }
 
       // if on canonical domain, should decrease
-      if (s.tokenConfigs[utils_calculateCanonicalHash()].cap > 0) {
-        assertEq(s.tokenConfigs[utils_calculateCanonicalHash()].custodied, prevBalances.bridge - routerAmt);
+      if (s.tokenConfigs[_canonicalKey].cap > 0) {
+        assertEq(s.tokenConfigs[_canonicalKey].custodied, prevBalances.bridge - routerAmt);
       }
     }
 

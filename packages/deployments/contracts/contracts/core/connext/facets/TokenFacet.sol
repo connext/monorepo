@@ -24,6 +24,7 @@ contract TokenFacet is BaseConnextFacet {
   error TokenFacet__removeAssetId_invalidParams();
   error TokenFacet__updateDetails_localNotFound();
   error TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
+  error TokenFacet__setupAsset_invalidAdoptedAssetOnCanonicalDomain();
   error TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
   error TokenFacet__setLiquidityCap_notCanonicalDomain();
 
@@ -176,7 +177,20 @@ contract TokenFacet is BaseConnextFacet {
   ) external onlyOwnerOrAdmin returns (address _local) {
     bool onCanonical = _canonical.domain == s.domain;
     if (onCanonical) {
-      // On remote, deploy a local representation
+      // On the canonical domain, the local is the canonical address.
+      _local = TypeCasts.bytes32ToAddress(_canonical.id);
+
+      // Sanity check: ensure adopted asset ID == canonical address (or empty).
+      // This could reflect a user error or miscalculation and lead to unexpected behavior.
+      if (_adoptedAssetId != address(0) && _adoptedAssetId != _local) {
+        revert TokenFacet__setupAsset_invalidAdoptedAssetOnCanonicalDomain();
+      }
+
+      // Enroll the asset. Pass in address(0) for adopted: it should use the local asset (i.e. the
+      // canonical asset in this case) instead for both adopted and local.
+      _enrollAdoptedAndLocalAssets(true, address(0), _local, _stableSwapPool, _canonical, _cap);
+    } else {
+      // On remote, deploy a local representation.
       _local = _deployRepresentation(
         _canonical.id,
         _canonical.domain,
@@ -184,20 +198,9 @@ contract TokenFacet is BaseConnextFacet {
         _representationName,
         _representationSymbol
       );
-    } else {
-      // On the canonical domain, the local is the canonical address
-      _local = TypeCasts.bytes32ToAddress(_canonical.id);
+      // Enroll the asset.
+      _enrollAdoptedAndLocalAssets(false, _adoptedAssetId, _local, _stableSwapPool, _canonical, _cap);
     }
-    // Enroll the asset
-    _enrollAdoptedAndLocalAssets(
-      onCanonical,
-      _adoptedAssetId,
-      _local,
-      _stableSwapPool,
-      _canonicalDecimals,
-      _canonical,
-      _cap
-    );
   }
 
   function setupAssetWithDeployedRepresentation(
@@ -212,15 +215,7 @@ contract TokenFacet is BaseConnextFacet {
       revert TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
     }
 
-    _enrollAdoptedAndLocalAssets(
-      onCanonical,
-      _adoptedAssetId,
-      _representation,
-      _stableSwapPool,
-      IERC20Metadata(_representation).decimals(),
-      _canonical,
-      _cap
-    );
+    _enrollAdoptedAndLocalAssets(onCanonical, _adoptedAssetId, _representation, _stableSwapPool, _canonical, _cap);
 
     return _representation;
   }
@@ -299,7 +294,6 @@ contract TokenFacet is BaseConnextFacet {
     address _adopted,
     address _local,
     address _stableSwapPool,
-    uint8 _decimals,
     TokenId calldata _canonical,
     uint256 _cap
   ) internal returns (bytes32 _key) {
@@ -312,22 +306,24 @@ contract TokenFacet is BaseConnextFacet {
     _key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
 
     // Get true adopted
-    address adopted = _adopted == address(0) ? _local : _adopted;
+    bool adoptedIsLocal = _adopted == address(0);
+    address adopted = adoptedIsLocal ? _local : _adopted;
 
     // Sanity check: needs approval
     if (s.tokenConfigs[_key].approval) revert TokenFacet__addAssetId_alreadyAdded();
 
     // Generate Config
-    // NOTE: using address(0) for stable swap, then using `_addStableSwap`. slightly less
-    // efficient, but preserves events. same case for cap / custody
-    // NOTE: if on canoncail doain, `representation` must *always* be address(0)
+    // NOTE: Using address(0) for stable swap, then using `_addStableSwap`. Slightly less
+    // efficient, but preserves events. Same case for cap / custodied.
+    // NOTE: IFF on canonical domain, `representation` must *always* be address(0)!
+    uint8 localDecimals = IERC20Metadata(_local).decimals();
     s.tokenConfigs[_key] = TokenConfig(
-      _onCanonical ? address(0) : _local, // address representation;
-      IERC20Metadata(_local).decimals(), // uint8 representationDecimals;
-      _adopted, // address adopted;
-      IERC20Metadata(adopted).decimals(), // uint8 adoptedDecimals;
-      address(0), // address adoptedToLocalExternalPools, see note
-      true, // bool approval
+      _onCanonical ? address(0) : _local, // representation
+      localDecimals, // representationDecimals
+      adopted, // adopted
+      adoptedIsLocal ? localDecimals : IERC20Metadata(adopted).decimals(), // adoptedDecimals
+      address(0), // adoptedToLocalExternalPools, see note
+      true, // approval
       0, // cap, see note
       0 // custodied, see note
     );
@@ -337,16 +333,16 @@ contract TokenFacet is BaseConnextFacet {
     s.adoptedToCanonical[adopted].domain = _canonical.domain;
     s.adoptedToCanonical[adopted].id = _canonical.id;
 
-    // representations only exist on non-canonical domains
     if (!_onCanonical) {
-      // Update the local <> canonical
+      // Update the local <> canonical. Representations only exist on non-canonical domains.
       s.representationToCanonical[_local].domain = _canonical.domain;
       s.representationToCanonical[_local].id = _canonical.id;
-      // Update cap (only on non-cannonical)
-      _setLiquidityCap(_canonical, _cap, _key);
-      // Update swap
+      // Update swap (on the canonical domain, there is no representation / pool).
       _addStableSwapPool(_canonical, _stableSwapPool, _key);
-    } // on the canonical domain, there is no representation / pool
+    } else {
+      // Update cap (only on canonical domain).
+      _setLiquidityCap(_canonical, _cap, _key);
+    }
 
     // Emit event
     emit AssetAdded(_key, _canonical.id, _canonical.domain, adopted, _local, msg.sender);

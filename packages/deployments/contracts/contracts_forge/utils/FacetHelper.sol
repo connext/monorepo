@@ -116,6 +116,13 @@ contract FacetHelper is ForgeHelper {
 
     _canonicalKey = keccak256(abi.encode(_canonicalId, _canonicalDomain));
 
+    // Regardless of whether there are two different assets for representation and adopted,
+    // the representation decimals must be set (the default behavior in TokenFacet for configuring
+    // new assets involves setting the adopted decimals to the local decimals of the latter does
+    // not exist).
+    // IFF on the canonical domain, however, representation should be address(0)!
+    s.tokenConfigs[_canonicalKey].representationDecimals = 18;
+
     // - token registry should always return the canonical
     // - if you are not on canonical domain, ensure the local origin returns false
     //   (indicates whether token should be burned or not)
@@ -124,7 +131,6 @@ contract FacetHelper is ForgeHelper {
       s.representationToCanonical[_local].id = _canonicalId;
 
       s.tokenConfigs[_canonicalKey].representation = _local;
-      s.tokenConfigs[_canonicalKey].representationDecimals = 18;
     }
 
     // Setup the storage variables for adopted
@@ -134,7 +140,7 @@ contract FacetHelper is ForgeHelper {
     s.tokenConfigs[_canonicalKey].adopted = _adopted;
     s.tokenConfigs[_canonicalKey].adoptedDecimals = 18;
     s.tokenConfigs[_canonicalKey].adoptedToLocalExternalPools = _stableSwap;
-    s.tokenConfigs[_canonicalKey].cap = 10_000_000 ether;
+    // s.tokenConfigs[_canonicalKey].cap = 10_000_000 ether;
 
     // // Log stored vars
     // console.log("setup asset:");
