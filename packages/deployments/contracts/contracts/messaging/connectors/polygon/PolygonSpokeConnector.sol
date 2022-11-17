@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
-import {IRootManager} from "../../interfaces/IRootManager.sol";
-
 import {FxBaseChildTunnel} from "./tunnel/FxBaseChildTunnel.sol";
 
 import {SpokeConnector} from "../SpokeConnector.sol";
@@ -63,8 +61,7 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
     address sender,
     bytes memory data
   ) internal override validateSender(sender) {
-    // make sure the sender is the mirror connector
-    require(sender == mirrorConnector, "!sender");
+    // NOTE: Don't need to check that sender is mirrorConnector as this is checked in validateSender()
     // get the data (should be the aggregate root)
     require(data.length == 32, "!length");
     // update the aggregate root on the domain

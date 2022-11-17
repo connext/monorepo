@@ -223,17 +223,11 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     // set liquidity
     s.routerBalances[router][_local] = maxIn + 1;
 
-    // set mock + storage (using external pool)
-    // calculateSwapOutFromAddress returns maxIn + 1 and it causes swap Failed!
-    vm.mockCall(
-      _stableSwap,
-      abi.encodeWithSelector(IStableSwap.calculateSwapOutFromAddress.selector),
-      abi.encode(maxIn + 1)
-    );
+    // Reverts if no mock set with EvmError: revert
 
     // call coming from router
     vm.prank(router);
-    vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortal_swapFailed.selector));
+    vm.expectRevert();
     utils_repayPortal(params, backing, fee, maxIn);
   }
 

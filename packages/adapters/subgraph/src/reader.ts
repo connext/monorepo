@@ -44,7 +44,11 @@ import {
   getConnectorMetaQuery,
   getProcessedRootMessagesByDomainAndBlockQuery,
 } from "./lib/operations";
-import { getAggregatedRootsByDomainQuery, getPropagatedRootsQuery } from "./lib/operations/queries";
+import {
+  getAggregatedRootsByDomainQuery,
+  getPropagatedRootsQuery,
+  getRootManagerMetaQuery,
+} from "./lib/operations/queries";
 import { SubgraphMap } from "./lib/entities";
 
 let context: { config: SubgraphMap };
@@ -762,5 +766,14 @@ export class SubgraphReader {
       .map(parser.connectorMeta);
 
     return connectorMetas;
+  }
+
+  public async getDomainsForHub(hub: string): Promise<string[]> {
+    const { execute } = getHelpers();
+    const rootManagerMetaQuery = getRootManagerMetaQuery(hub);
+
+    const response = await execute(rootManagerMetaQuery);
+    const values = [...response.values()];
+    return values[0][0].domains || [];
   }
 }
