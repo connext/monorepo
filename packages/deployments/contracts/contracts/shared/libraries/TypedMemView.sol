@@ -226,11 +226,19 @@ library TypedMemView {
     uint256 _loc,
     uint256 _len
   ) private pure returns (bytes29 newView) {
+    uint256 _uint96Bits = 96;
+    uint256 _emptyBits = 24;
+
+    // Cast params to ensure input is of correct length
+    uint96 len_ = uint96(_len);
+    uint96 loc_ = uint96(_loc);
+    require(len_ == _len && loc_ == _loc, "!truncated");
+
     assembly {
-      // solhint-disable-previous-line no-inline-assembly
-      newView := shl(96, _type) // insert type
-      newView := shl(96, or(newView, _loc)) // insert loc
-      newView := shl(24, or(newView, _len)) // empty bottom 3 bytes
+      // solium-disable-previous-line security/no-inline-assembly
+      newView := shl(_uint96Bits, _type) // insert type
+      newView := shl(_uint96Bits, or(newView, loc_)) // insert loc
+      newView := shl(_emptyBits, or(newView, len_)) // empty bottom 3 bytes
     }
   }
 
