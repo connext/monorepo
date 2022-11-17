@@ -1,3 +1,10 @@
 [
+  "error TypedMemView__assertType_typeAssertionFailed(uint256,uint256)",
+  "error TypedMemView__assertValid_validityAssertionFailed()",
+  "error TypedMemView__index_indexMoreThan32Bytes()",
+  "error TypedMemView__index_overrun(uint256,uint256,uint256,uint256)",
+  "error TypedMemView__unsafeCopyTo_identityOOG()",
+  "error TypedMemView__unsafeCopyTo_invalidPointer()",
+  "error TypedMemView__unsafeCopyTo_nullPointer()",
   "function NULL() view returns (bytes29)"
 ]

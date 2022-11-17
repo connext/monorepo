@@ -117,6 +117,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BridgeFacet__excecute_insufficientGas",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn",
     type: "error",
   },

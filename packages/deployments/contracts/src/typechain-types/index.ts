@@ -58,6 +58,8 @@ export type { ReentrancyGuardUpgradeable } from "./@openzeppelin/contracts-upgra
 export { ReentrancyGuardUpgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable__factory";
 export type { ERC20Upgradeable } from "./@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable";
 export { ERC20Upgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable__factory";
+export type { IERC20PermitUpgradeable } from "./@openzeppelin/contracts-upgradeable/token/ERC20/extensions/draft-IERC20PermitUpgradeable.sol/IERC20PermitUpgradeable";
+export { IERC20PermitUpgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/token/ERC20/extensions/draft-IERC20PermitUpgradeable.sol/IERC20PermitUpgradeable__factory";
 export type { ERC20BurnableUpgradeable } from "./@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable";
 export { ERC20BurnableUpgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable__factory";
 export type { IERC20MetadataUpgradeable } from "./@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable";
@@ -152,6 +154,8 @@ export type { IDiamondLoupe } from "./contracts/core/connext/interfaces/IDiamond
 export { IDiamondLoupe__factory } from "./factories/contracts/core/connext/interfaces/IDiamondLoupe__factory";
 export type { IERC165 } from "./contracts/core/connext/interfaces/IERC165";
 export { IERC165__factory } from "./factories/contracts/core/connext/interfaces/IERC165__factory";
+export type { IERC20Extended } from "./contracts/core/connext/interfaces/IERC20Extended";
+export { IERC20Extended__factory } from "./factories/contracts/core/connext/interfaces/IERC20Extended__factory";
 export type { IPriceOracle } from "./contracts/core/connext/interfaces/IPriceOracle";
 export { IPriceOracle__factory } from "./factories/contracts/core/connext/interfaces/IPriceOracle__factory";
 export type { IStableSwap } from "./contracts/core/connext/interfaces/IStableSwap";
@@ -244,6 +248,8 @@ export type { IHubConnector } from "./contracts/messaging/interfaces/IHubConnect
 export { IHubConnector__factory } from "./factories/contracts/messaging/interfaces/IHubConnector__factory";
 export type { IMessageRecipient } from "./contracts/messaging/interfaces/IMessageRecipient";
 export { IMessageRecipient__factory } from "./factories/contracts/messaging/interfaces/IMessageRecipient__factory";
+export type { IResolver } from "./contracts/messaging/interfaces/IResolver";
+export { IResolver__factory } from "./factories/contracts/messaging/interfaces/IResolver__factory";
 export type { IRootManager } from "./contracts/messaging/interfaces/IRootManager";
 export { IRootManager__factory } from "./factories/contracts/messaging/interfaces/IRootManager__factory";
 export type { DomainIndexer } from "./contracts/messaging/libraries/DomainIndexer";
