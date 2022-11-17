@@ -28,7 +28,7 @@ contract BaseConnextFacet {
   error BaseConnextFacet__whenNotPaused_paused();
   error BaseConnextFacet__nonReentrant_reentrantCall();
   error BaseConnextFacet__nonXCallReentrant_reentrantCall();
-  error BaseConnextFacet__getAdoptedAsset_notWhitelisted();
+  error BaseConnextFacet__getAdoptedAsset_assetNotFound();
   error BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
 
   // ============ Modifiers ============
@@ -140,7 +140,7 @@ contract BaseConnextFacet {
   function _getAdoptedAsset(bytes32 _key) internal view returns (address) {
     address adopted = AssetLogic.getConfig(_key).adopted;
     if (adopted == address(0)) {
-      revert BaseConnextFacet__getAdoptedAsset_notWhitelisted();
+      revert BaseConnextFacet__getAdoptedAsset_assetNotFound();
     }
     return adopted;
   }

@@ -25,6 +25,7 @@ contract TokenFacet is BaseConnextFacet {
   error TokenFacet__updateDetails_localNotFound();
   error TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
   error TokenFacet__setupAsset_invalidAdoptedAssetOnCanonicalDomain();
+  error TokenFacet__setupAssetWithDeployedRepresentation_invalidRepresentation();
   error TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
   error TokenFacet__setLiquidityCap_notCanonicalDomain();
 
@@ -211,7 +212,11 @@ contract TokenFacet is BaseConnextFacet {
     uint256 _cap
   ) external onlyOwnerOrAdmin returns (address) {
     bool onCanonical = _canonical.domain == s.domain;
-    if (onCanonical && _representation != address(0)) {
+    if (_representation == address(0)) {
+      revert TokenFacet__setupAssetWithDeployedRepresentation_invalidRepresentation();
+    }
+
+    if (onCanonical) {
       revert TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
     }
 

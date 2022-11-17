@@ -720,8 +720,11 @@ contract BridgeFacet is BaseConnextFacet {
     // Save the addresses of all routers providing liquidity for this transfer.
     s.routedTransfers[_transferId] = _args.routers;
 
-    // Get the local asset contract address.
-    address local = _getLocalAsset(_key, _args.params.canonicalId, _args.params.canonicalDomain);
+    // Get the local asset contract address (if applicable).
+    address local;
+    if (_args.params.canonicalDomain != 0) {
+      local = _getLocalAsset(_key, _args.params.canonicalId, _args.params.canonicalDomain);
+    }
 
     // If this is a zero-value transfer, short-circuit remaining logic.
     if (_args.params.bridgedAmt == 0) {

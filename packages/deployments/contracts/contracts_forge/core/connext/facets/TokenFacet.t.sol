@@ -77,14 +77,17 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   // ============ Getters ============
   // canonicalToAdopted
   function test_TokenFacet__canonicalToAdopted_success() public {
-    s.tokenConfigs[_canonicalId].representation = _local;
-    assertTrue(this.canonicalToAdopted(_canonicalId) == _local);
+    s.tokenConfigs[_canonicalKey].adoptedDecimals = 18;
+    s.tokenConfigs[_canonicalKey].adopted = _local;
+    assertTrue(this.canonicalToAdopted(_canonicalKey) == _local);
   }
 
   // if the canonicalToAdopted lookup fails using the helper, we revert: adopted asset not whitelisted
   function test_TokenFacet__canonicalToAdopted_notFound() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__getAdoptedAsset_notWhitelisted.selector);
-    this.canonicalToAdopted(_canonicalId);
+    s.tokenConfigs[_canonicalKey].adoptedDecimals = 18;
+    s.tokenConfigs[_canonicalKey].adopted = address(0);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__getAdoptedAsset_assetNotFound.selector);
+    this.canonicalToAdopted(_canonicalKey);
   }
 
   // adoptedToCanonical
@@ -146,12 +149,29 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   // }
 
   function test_TokenFacet__setupAssetWithDeployedRepresentation_failOnCanonicalDomain() public {
-    address asset = address(0);
+    address asset = address(999999);
     address stableSwap = address(0);
     address adoptedAssetId = address(1234);
 
     vm.prank(_owner);
     vm.expectRevert(TokenFacet.TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain.selector);
+    this.setupAssetWithDeployedRepresentation(
+      // Passing in the current domain as the canonical domain for the asset should result in a revert.
+      TokenId(s.domain, _canonicalId),
+      asset,
+      adoptedAssetId,
+      stableSwap,
+      100000 ether
+    );
+  }
+
+  function test_TokenFacet__setupAssetWithDeployedRepresentation_failWithEmptyRepresentation() public {
+    address asset = address(0);
+    address stableSwap = address(0);
+    address adoptedAssetId = address(1234);
+
+    vm.prank(_owner);
+    vm.expectRevert(TokenFacet.TokenFacet__setupAssetWithDeployedRepresentation_invalidRepresentation.selector);
     this.setupAssetWithDeployedRepresentation(
       // Passing in the current domain as the canonical domain for the asset should result in a revert.
       TokenId(s.domain, _canonicalId),
