@@ -245,7 +245,7 @@ contract TokenFacet is BaseConnextFacet {
     address _representation
   ) external onlyOwnerOrAdmin {
     TokenId memory canonical = s.representationToCanonical[_representation];
-    _removeAssetId(_key, _adoptedAssetId, _representation, canonical.domain);
+    _removeAssetId(_key, _adoptedAssetId, _representation, canonical);
   }
 
   /**
@@ -259,7 +259,7 @@ contract TokenFacet is BaseConnextFacet {
     address _representation
   ) external onlyOwnerOrAdmin {
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
-    _removeAssetId(key, _adoptedAssetId, _representation, _canonical.domain);
+    _removeAssetId(key, _adoptedAssetId, _representation, _canonical);
   }
 
   /**
@@ -387,12 +387,14 @@ contract TokenFacet is BaseConnextFacet {
    * @notice Used to remove assets from the whitelist
    * @param _key - The hash of the canonical id and domain to remove (mapping key)
    * @param _adoptedAssetId - Corresponding adopted asset to remove
+   * @param _representation - Corresponding representation asset (i.e. bridged asset) to remove.
+   * @param _canonical - The TokenId (canonical ID and domain) of the asset.
    */
   function _removeAssetId(
     bytes32 _key,
     address _adoptedAssetId,
     address _representation,
-    uint32 _canonicalDomain
+    TokenId memory _canonical
   ) internal {
     // Sanity check: already approval
     if (!s.approvedAssets[_key]) revert TokenFacet__removeAssetId_notAdded();
@@ -401,15 +403,19 @@ contract TokenFacet is BaseConnextFacet {
     if (s.canonicalToAdopted[_key] != _adoptedAssetId || s.canonicalToRepresentation[_key] != _representation)
       revert TokenFacet__removeAssetId_invalidParams();
 
-    // Sanity check: no value custodied if on canonical domain
-    bool onCanonical = s.domain == _canonicalDomain;
-    if (onCanonical && s.custodied[_representation] > 0) {
-      revert TokenFacet__removeAssetId_remainsCustodied();
-    }
-
-    // Sanity check: supply is 0 if on remote domain
-    if (!onCanonical && IBridgeToken(_representation).totalSupply() > 0) {
-      revert TokenFacet__removeAssetId_remainsCustodied();
+    bool onCanonical = s.domain == _canonical.domain;
+    if (onCanonical) {
+      // Sanity check: no value custodied if on canonical domain
+      address canonicalAsset = TypeCasts.bytes32ToAddress(_canonical.id);
+      // Check custodied amount for the given canonical asset address.
+      if (s.custodied[canonicalAsset] > 0) {
+        revert TokenFacet__removeAssetId_remainsCustodied();
+      }
+    } else {
+      // Sanity check: supply is 0 if on remote domain
+      if (IBridgeToken(_representation).totalSupply() > 0) {
+        revert TokenFacet__removeAssetId_remainsCustodied();
+      }
     }
 
     // Delete from approved assets mapping

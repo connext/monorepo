@@ -230,14 +230,18 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     bytes32 key = utils_calculateCanonicalHash();
     s.domain = _domain;
     s.approvedAssets[key] = true;
-    s.canonicalToAdopted[key] = _local;
-    s.canonicalToRepresentation[key] = _local;
-    s.custodied[_local] = 123;
+
+    // Using canonical asset as adopted (and local) here.
+    address adopted = TypeCasts.bytes32ToAddress(_canonicalId);
+
+    s.canonicalToAdopted[key] = adopted;
+    s.canonicalToRepresentation[key] = adopted;
+    s.custodied[adopted] = 123;
 
     vm.expectRevert(TokenFacet.TokenFacet__removeAssetId_remainsCustodied.selector);
 
     vm.prank(_owner);
-    this.removeAssetId(TokenId(_domain, _canonicalId), _local, _local);
+    this.removeAssetId(TokenId(_domain, _canonicalId), adopted, adopted);
   }
 
   function test_TokenFacet__removeAssetId_failIfOnRemoteAndHasSupply() public {
