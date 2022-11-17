@@ -10,7 +10,12 @@ import {
 
 import { encodeProcessMessageFromRoot, sendWithRelayerWithBackup } from "../../../mockable";
 import { ProcessConfigNotAvailable } from "../errors";
-import { GetProcessArgsParams, getProcessFromOptimismRootArgs, getProcessFromPolygonRootArgs } from "../helpers";
+import {
+  GetProcessArgsParams,
+  getProcessFromOptimismRootArgs,
+  getProcessFromPolygonRootArgs,
+  getProcessFromGnosisRootArgs,
+} from "../helpers";
 import { getContext } from "../processFromRoot";
 
 export type ProcessConfig = {
@@ -39,6 +44,11 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     getArgs: getProcessFromPolygonRootArgs,
     hubConnectorPrefix: "Polygon",
     processorFunctionName: "receiveMessage",
+  },
+  "6778479": {
+    getArgs: getProcessFromGnosisRootArgs,
+    hubConnectorPrefix: "Gnosis",
+    processorFunctionName: "executeSignatures",
   },
 };
 
@@ -113,6 +123,7 @@ export const processSingleRootMessage = async (
     spokeDomainId: rootMessage.spokeDomain,
     hubDomainId: rootMessage.hubDomain,
     sendHash: rootMessage.transactionHash,
+    blockNumber: rootMessage.blockNumber,
     _requestContext: requestContext,
   });
 
