@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import {DiamondCutFacet} from "../../contracts/core/connext/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "../../contracts/core/connext/facets/DiamondLoupeFacet.sol";
-import {DiamondInit} from "../../contracts/core/connext/facets/upgrade-initializers/DiamondInit.sol";
+import {DiamondInit, IConnectorManager} from "../../contracts/core/connext/facets/upgrade-initializers/DiamondInit.sol";
 import {TokenFacet} from "../../contracts/core/connext/facets/TokenFacet.sol";
 import {BridgeFacet} from "../../contracts/core/connext/facets/BridgeFacet.sol";
 import {InboxFacet} from "../../contracts/core/connext/facets/InboxFacet.sol";
@@ -34,10 +34,11 @@ contract Deployer {
   PortalFacet portalFacet;
 
   function getDiamondCutFacetCut(address _diamondCutFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory diamondCutFacetSelectors = new bytes4[](3);
+    bytes4[] memory diamondCutFacetSelectors = new bytes4[](4);
     diamondCutFacetSelectors[0] = DiamondCutFacet.diamondCut.selector;
     diamondCutFacetSelectors[1] = DiamondCutFacet.proposeDiamondCut.selector;
     diamondCutFacetSelectors[2] = DiamondCutFacet.rescindDiamondCut.selector;
+    diamondCutFacetSelectors[3] = DiamondCutFacet.getAcceptanceTime.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _diamondCutFacet,

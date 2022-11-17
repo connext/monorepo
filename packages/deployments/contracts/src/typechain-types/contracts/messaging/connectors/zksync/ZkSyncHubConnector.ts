@@ -47,6 +47,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "sendMessage(bytes,bytes)": FunctionFragment;
+    "setGasCap(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
   };
@@ -70,6 +71,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
       | "renounceOwnership"
       | "renounced"
       | "sendMessage"
+      | "setGasCap"
       | "setMirrorConnector"
       | "verifySender"
   ): FunctionFragment;
@@ -131,6 +133,10 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setGasCap",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setMirrorConnector",
     values: [PromiseOrValue<string>]
   ): string;
@@ -186,6 +192,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
     functionFragment: "sendMessage",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setMirrorConnector",
     data: BytesLike
@@ -196,6 +203,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "GasCapUpdated(uint256,uint256)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes,bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
@@ -204,6 +212,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "GasCapUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
@@ -211,6 +220,17 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
+
+export interface GasCapUpdatedEventObject {
+  _previous: BigNumber;
+  _updated: BigNumber;
+}
+export type GasCapUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  GasCapUpdatedEventObject
+>;
+
+export type GasCapUpdatedEventFilter = TypedEventFilter<GasCapUpdatedEvent>;
 
 export interface MessageProcessedEventObject {
   data: string;
@@ -370,6 +390,11 @@ export interface ZkSyncHubConnector extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setGasCap(
+      _gasCap: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -439,6 +464,11 @@ export interface ZkSyncHubConnector extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setGasCap(
+    _gasCap: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -504,6 +534,11 @@ export interface ZkSyncHubConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setGasCap(
+      _gasCap: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -516,6 +551,12 @@ export interface ZkSyncHubConnector extends BaseContract {
   };
 
   filters: {
+    "GasCapUpdated(uint256,uint256)"(
+      _previous?: null,
+      _updated?: null
+    ): GasCapUpdatedEventFilter;
+    GasCapUpdated(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
+
     "MessageProcessed(bytes,address)"(
       data?: null,
       caller?: null
@@ -633,6 +674,11 @@ export interface ZkSyncHubConnector extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setGasCap(
+      _gasCap: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -701,6 +747,11 @@ export interface ZkSyncHubConnector extends BaseContract {
       _data: PromiseOrValue<BytesLike>,
       _encodedData: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setGasCap(
+      _gasCap: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setMirrorConnector(
