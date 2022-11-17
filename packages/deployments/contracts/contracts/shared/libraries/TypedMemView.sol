@@ -63,6 +63,8 @@ library TypedMemView {
   bytes29 public constant NULL = hex"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
   uint256 constant LOW_12_MASK = 0xffffffffffffffffffffffff;
   uint256 constant TWENTY_SEVEN_BYTES = 8 * 27;
+  uint256 private constant _27_BYTES_IN_BITS = 8 * 27; // <--- also used this named constant where ever 216 is used.
+  uint256 private constant LOW_27_BYTES_MASK = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffff; // (1 << _27_BYTES_IN_BITS) - 1;
 
   /**
    * @notice      Returns the encoded hex character that represents the lower 4 bits of the argument.
@@ -303,8 +305,7 @@ library TypedMemView {
     assembly {
       // solhint-disable-previous-line no-inline-assembly
       // shift off the top 5 bytes
-      newView := shr(40, shl(40, memView))
-      newView := or(newView, shl(216, _newType))
+      newView := or(and(memView, LOW_27_BYTES_MASK), shl(_27_BYTES_IN_BITS, _newType))
     }
   }
 
@@ -388,7 +389,7 @@ library TypedMemView {
     assembly {
       // solhint-disable-previous-line no-inline-assembly
       // 216 == 256 - 40
-      _type := shr(216, memView) // shift out lower 24 bytes
+      _type := shr(_27_BYTES_IN_BITS, memView) // shift out lower 24 bytes
     }
   }
 
