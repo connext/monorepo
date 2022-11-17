@@ -87,6 +87,12 @@ contract ProposedOwnableTest is ProposedOwnable, ForgeHelper {
     assertEq(this.delay(), 7 days);
   }
 
+  function test_DHFKDJFKDJFKJF() public {
+    uint256 _27_BYTES_IN_BITS = 8 * 27; // <--- also used this named constant where ever 216 is used.
+    uint256 LOW_27_BYTES_MASK = (1 << _27_BYTES_IN_BITS) - 1;
+    emit log_named_uint("LOW_27_BYTES_MASK", LOW_27_BYTES_MASK);
+  }
+
   // ============ renounced ============
   // tested in assertions
 
@@ -97,6 +103,14 @@ contract ProposedOwnableTest is ProposedOwnable, ForgeHelper {
   }
 
   function test_ProposedOwnable__proposeNewOwner_failsIfNoChange() public {
+    utils_proposeNewOwnerAndAssert(address(12));
+
+    vm.expectRevert(ProposedOwnable__proposeNewOwner_invalidProposal.selector);
+    vm.prank(_default);
+    this.proposeNewOwner(address(12));
+  }
+
+  function test_ProposedOwnable__proposeNewOwner_failsIfDuplicateCall() public {
     utils_proposeNewOwnerAndAssert(address(12));
 
     vm.expectRevert(ProposedOwnable__proposeNewOwner_invalidProposal.selector);

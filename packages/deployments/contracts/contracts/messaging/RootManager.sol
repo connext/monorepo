@@ -5,7 +5,6 @@ import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 
 import {IRootManager} from "./interfaces/IRootManager.sol";
 import {IHubConnector} from "./interfaces/IHubConnector.sol";
-import {Message} from "./libraries/Message.sol";
 import {QueueLib} from "./libraries/Queue.sol";
 import {DomainIndexer} from "./libraries/DomainIndexer.sol";
 
@@ -37,6 +36,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   event ConnectorAdded(uint32 domain, address connector, uint32[] domains, address[] connectors);
 
   event ConnectorRemoved(uint32 domain, address connector, uint32[] domains, address[] connectors, address caller);
+
+  event PropagateFailed(uint32 domain, address connector);
 
   // ============ Properties ============
 
@@ -192,13 +193,19 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
     uint256 sum = msg.value;
     for (uint32 i; i < _numDomains; ) {
-      // NOTE: This will ensure there is sufficient msg.value for all fees before calling `sendMessage`
-      // This will revert as soon as there are insufficient fees for call i, even if call n > i has
-      // sufficient budget, this function will revert
-      sum -= _fees[i];
+      // Try to send the message with appropriate encoded data and fees
+      // Continue on revert, but emit an event
+      try
+        IHubConnector(_connectors[i]).sendMessage{value: _fees[i]}(abi.encodePacked(_aggregateRoot), _encodedData[i])
+      {
+        // NOTE: This will ensure there is sufficient msg.value for all fees before calling `sendMessage`
+        // This will revert as soon as there are insufficient fees for call i, even if call n > i has
+        // sufficient budget, this function will revert
+        sum -= _fees[i];
+      } catch {
+        emit PropagateFailed(domains[i], _connectors[i]);
+      }
 
-      // Send the message with appropriate encoded data and fees
-      IHubConnector(_connectors[i]).sendMessage{value: _fees[i]}(abi.encodePacked(_aggregateRoot), _encodedData[i]);
       unchecked {
         ++i;
       }
