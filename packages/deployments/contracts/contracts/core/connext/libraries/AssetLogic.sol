@@ -27,9 +27,9 @@ library AssetLogic {
 
   // ============ Internal: Handle Transfer ============
 
-  function getConfig(bytes32 _key) internal view returns (TokenConfig memory) {
+  function getConfig(bytes32 _key) internal view returns (TokenConfig storage) {
     AppStorage storage s = LibConnextStorage.connextStorage();
-    TokenConfig memory config = s.tokenConfigs[_key];
+    TokenConfig storage config = s.tokenConfigs[_key];
 
     // Sanity check: not empty
     // NOTE: adopted decimals will *always* be nonzero (or reflect what is onchain

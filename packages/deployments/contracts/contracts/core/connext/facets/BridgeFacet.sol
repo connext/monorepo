@@ -503,6 +503,8 @@ contract BridgeFacet is BaseConnextFacet {
     // 0-value transfer. Otherwise, the local address will be retrieved below
     address local;
     bytes32 transferId;
+    // NOTE: Technically, in the event of a 0-value transfer with no defined asset, we don't need
+    // to do any of the asset handling here.
     TokenId memory canonical;
     bool isCanonical;
     {
@@ -512,13 +514,11 @@ contract BridgeFacet is BaseConnextFacet {
       // hash(canonicalId, canonicalDomain), this is safe even when the address(0) asset is not
       // whitelisted.
       bytes32 key;
-      TokenConfig memory config;
+      // Get the token config.
+      TokenConfig storage config = AssetLogic.getConfig(key);
       if (_asset != address(0)) {
         // Retrieve the canonical token information.
         (canonical, key) = _getApprovedCanonicalId(_asset);
-
-        // Get the token config
-        config = AssetLogic.getConfig(key);
 
         // Set boolean flag
         isCanonical = _params.originDomain == canonical.domain;
@@ -526,14 +526,15 @@ contract BridgeFacet is BaseConnextFacet {
         // Get the local address
         local = isCanonical ? TypeCasts.bytes32ToAddress(canonical.id) : config.representation;
 
-        // Enforce liquidity caps
-        // NOTE: safe to do this before the swap because canonical domains do
-        // not hit the AMMs (local == canonical)
-        if (isCanonical && config.cap > 0) {
+        // Enforce liquidity caps.
+        // NOTE: Safe to do this before the swap because canonical domains do
+        // not hit the AMMs (local == canonical).
+        uint256 cap = config.cap;
+        if (isCanonical && cap > 0) {
           // NOTE: this method includes router liquidity as part of the caps,
           // not only the minted amount
           uint256 updatedCap = config.custodied + _amount;
-          if (updatedCap > config.cap) {
+          if (updatedCap > cap) {
             revert BridgeFacet__xcall_capReached();
           }
           s.tokenConfigs[key].custodied = updatedCap;
@@ -726,11 +727,8 @@ contract BridgeFacet is BaseConnextFacet {
       return (0, local, local);
     }
 
-    // Get the token config
-    TokenConfig memory config = AssetLogic.getConfig(_key);
-
     // If it is the canonical domain, decrease custodied value
-    if (s.domain == _args.params.canonicalDomain && config.cap > 0) {
+    if (s.domain == _args.params.canonicalDomain && AssetLogic.getConfig(_key).cap > 0) {
       // NOTE: safe to use the amount here instead of post-swap because there are no
       // AMMs on the canonical domain (assuming canonical == adopted on canonical domain)
       s.tokenConfigs[_key].custodied -= _args.params.bridgedAmt;
