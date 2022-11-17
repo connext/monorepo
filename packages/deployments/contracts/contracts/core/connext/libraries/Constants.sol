@@ -72,7 +72,7 @@ library Constants {
    * @dev stored here to keep easily in sync between `SwapUtils` and `SwapUtilsExternal`
    */
   uint256 public constant MINIMUM_POOLED_TOKENS = 2;
-  uint256 public constant MAXIMUM_POOLED_TOKENS = 32;
+  uint256 public constant MAXIMUM_POOLED_TOKENS = 16;
 
   /**
    * @notice the precision all pools tokens will be converted to

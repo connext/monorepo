@@ -4,7 +4,6 @@ pragma solidity 0.8.17;
 import {TransferInfo, AppStorage, TokenId, Role} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {Constants} from "../libraries/Constants.sol";
 
 contract BaseConnextFacet {
   AppStorage internal s;

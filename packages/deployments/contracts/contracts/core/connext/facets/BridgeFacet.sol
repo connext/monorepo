@@ -27,6 +27,7 @@ import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
 
 contract BridgeFacet is BaseConnextFacet {
   // ============ Libraries ============
+
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
   using BridgeMessage for bytes29;
@@ -68,6 +69,12 @@ contract BridgeFacet is BaseConnextFacet {
   // ============ Properties ============
 
   uint16 public constant AAVE_REFERRAL_CODE = 0;
+
+  /**
+   * @notice Required gas amount to be leftover after passing in `gasleft` when
+   * executing calldata (see `_executeCalldata` method).
+   */
+  uint256 public constant EXECUTE_CALLDATA_RESERVE_GAS = 10_000;
 
   // ============ Events ============
 
@@ -858,7 +865,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Use SafeCall here
       (success, returnData) = ExcessivelySafeCall.excessivelySafeCall(
         _params.to,
-        gasleft() - 10_000,
+        gasleft() - EXECUTE_CALLDATA_RESERVE_GAS,
         0, // native asset value (always 0)
         Constants.DEFAULT_COPY_BYTES, // only copy 256 bytes back as calldata
         abi.encodeWithSelector(
