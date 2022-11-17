@@ -282,7 +282,7 @@ contract ArbitrumHubConnector is HubConnector {
     bytes32 _sendRoot
   ) internal {
     require(_proof.length < 256, "proof length");
-    require(_index < 2**_proof.length, "!minimal proof");
+    require((_index >> _proof.length) == 0, "!minimal proof");
 
     // NOTE: in the arbitrum contracts, they check that the message index is not yet spent
     // Because the spoke connector calls `processMessage`, which does nothing, it is important
