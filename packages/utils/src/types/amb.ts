@@ -81,3 +81,10 @@ export const ConnectorMetaSchema = Type.Object({
   amb: Type.String(),
 });
 export type ConnectorMeta = Static<typeof ConnectorMetaSchema>;
+
+export const RootManagerMetaSchema = Type.Object({
+  id: Type.String(),
+  connectors: Type.Array(Type.String()),
+  domains: Type.Array(Type.String()),
+});
+export type RootManagerMeta = Static<typeof RootManagerMetaSchema>;

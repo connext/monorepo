@@ -54,5 +54,5 @@ export const getPropagateParams = async (
   const ambContract = getContract(ambAddress as string, ambs.bnb as ContractInterface, l1Provider);
   const fee = await ambContract.calcSrcFees("", l2ChainId, 32);
 
-  return { encodedData: "0x", value: fee };
+  return { _connectors: [""], _fees: [fee], _encodedData: ["0x"] };
 };

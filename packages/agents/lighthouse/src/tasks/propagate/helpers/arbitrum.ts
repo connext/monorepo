@@ -104,5 +104,5 @@ export const getPropagateParams = async (
     [submissionPriceWei, maxGas, gasPriceBid],
   );
 
-  return { encodedData, value: callValue.toString() };
+  return { _connectors: [""], _fees: [callValue.toString()], _encodedData: [encodedData] };
 };
