@@ -161,6 +161,12 @@ contract TokenFacet is BaseConnextFacet {
    * on polygon), you should *not* whitelist the adopted asset. The stable swap pool
    * address used should allow you to swap between the local <> adopted asset.
    *
+   * The following can only be added on *REMOTE* domains:
+   * - `_adoptedAssetId`
+   * - `_stableSwapPool`
+   *
+   * Whereas the `_cap` can only be added on the canonical domain
+   *
    * @dev If a representation has been deployed at any point, `setupAssetWithDeployedRepresentation`
    * should be used instead
    *
@@ -210,12 +216,6 @@ contract TokenFacet is BaseConnextFacet {
         _representationName,
         _representationSymbol
       );
-    }
-
-    // Enroll the asset
-    bytes32 key = _enrollAdoptedAndLocalAssets(_adoptedAssetId, _local, _stableSwapPool, _canonical);
-    if (_cap > 0 && onCanonical) {
-      _setLiquidityCap(_canonical, _cap, key);
     }
 
     // Enroll all assets
