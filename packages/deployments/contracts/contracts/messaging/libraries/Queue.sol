@@ -32,7 +32,7 @@ library QueueLib {
    **/
   function initialize(Queue storage queue) internal {
     queue.first = 1;
-    queue.last = 0;
+    delete queue.last;
   }
 
   /**

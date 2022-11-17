@@ -311,7 +311,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   }
 
   function unpause() public onlyOwnerOrAdmin {
-    s._paused = false;
+    delete s._paused;
     emit Unpaused();
   }
 

@@ -99,7 +99,7 @@ library LibDiamond {
   ) internal {
     // NOTE: you can always rescind a proposed facet cut as the owner, even if outside of the validity
     // period or befor the delay elpases
-    diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = 0;
+    delete diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))];
     emit DiamondCutRescinded(_diamondCut, _init, _calldata);
   }
 
@@ -125,7 +125,7 @@ library LibDiamond {
       // The only relevant case is the initial case, which has no acceptance time. otherwise,
       // there is no way to update the facet selector mapping to call `diamondCut`.
       // Avoiding setting the empty value will save gas on the initial deployment.
-      ds.acceptanceTimes[key] = 0;
+      delete ds.acceptanceTimes[key];
     } // Otherwise, this is the first instance of deployment and it can be set automatically
 
     // Perform a diamond cut

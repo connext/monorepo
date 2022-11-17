@@ -330,7 +330,7 @@ contract RoutersFacet is BaseConnextFacet {
   function unapproveRouterForPortal(address _router) external onlyOwnerOrAdmin {
     if (!s.routerConfigs[_router].portalApproved) revert RoutersFacet__unapproveRouterForPortal_notApproved();
 
-    s.routerConfigs[_router].portalApproved = false;
+    delete s.routerConfigs[_router].portalApproved;
 
     emit RouterUnapprovedForPortal(_router, msg.sender);
   }
@@ -394,9 +394,9 @@ contract RoutersFacet is BaseConnextFacet {
 
     // Reset proposal + timestamp
     if (config.proposed != address(0)) {
-      s.routerConfigs[_router].proposed = address(0);
+      delete s.routerConfigs[_router].proposed;
     }
-    s.routerConfigs[_router].proposedTimestamp = 0;
+    delete s.routerConfigs[_router].proposedTimestamp;
   }
 
   /**

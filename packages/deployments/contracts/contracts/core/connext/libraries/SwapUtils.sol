@@ -1129,7 +1129,7 @@ library SwapUtils {
       IERC20 token = self.pooledTokens[i];
       uint256 balance = self.adminFees[i];
       if (balance != 0) {
-        self.adminFees[i] = 0;
+        delete self.adminFees[i];
         AssetLogic.handleOutgoingAsset(address(token), to, balance);
       }
 
