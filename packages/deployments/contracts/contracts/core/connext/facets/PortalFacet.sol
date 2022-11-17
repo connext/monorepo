@@ -14,6 +14,7 @@ import {TransferInfo} from "../libraries/LibConnextStorage.sol";
 contract PortalFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error PortalFacet__setAavePortalFee_invalidFee();
+  error PortalFacet__repayAavePortal_assetNotApproved();
   error PortalFacet__repayAavePortal_insufficientFunds();
   error PortalFacet__repayAavePortalFor_zeroAmount();
 
@@ -84,6 +85,13 @@ contract PortalFacet is BaseConnextFacet {
   ) external nonReentrant {
     bytes32 key = AssetLogic.calculateCanonicalHash(_params.canonicalId, _params.canonicalDomain);
     address local = _getLocalAsset(key, _params.canonicalId, _params.canonicalDomain);
+
+    // Ensure the asset is whitelisted
+    // NOTE: if there is outstanding debt, and the asset is removed, then you should be able
+    // to use the `repayAavePortalFor` flow with the adopted asset.
+    if (!s.approvedAssets[key]) {
+      revert PortalFacet__repayAavePortal_assetNotApproved();
+    }
 
     uint256 routerBalance = s.routerBalances[msg.sender][local];
     // Sanity check: has that much to spend
