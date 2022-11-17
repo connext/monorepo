@@ -93,7 +93,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @return address of the token at given index
    */
   function getSwapToken(bytes32 key, uint8 index) public view returns (IERC20) {
-    if (index >= s.swapStorages[key].pooledTokens.length) revert StableSwapFacet__getSwapToken_outOfRange();
+    if (index + 1 > s.swapStorages[key].pooledTokens.length) revert StableSwapFacet__getSwapToken_outOfRange();
     return s.swapStorages[key].pooledTokens[index];
   }
 
@@ -117,7 +117,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @return current balance of the pooled token at given index with token's native precision
    */
   function getSwapTokenBalance(bytes32 key, uint8 index) external view returns (uint256) {
-    if (index >= s.swapStorages[key].balances.length) revert StableSwapFacet__getSwapTokenBalance_indexOutOfRange();
+    if (index + 1 > s.swapStorages[key].balances.length) revert StableSwapFacet__getSwapTokenBalance_indexOutOfRange();
     return s.swapStorages[key].balances[index];
   }
 

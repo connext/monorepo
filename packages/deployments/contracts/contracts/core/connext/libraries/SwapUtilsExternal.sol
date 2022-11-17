@@ -747,7 +747,7 @@ library SwapUtilsExternal {
     uint256 dyFee;
     uint256[] memory balances = self.balances;
     (dy, dyFee) = _calculateSwap(self, tokenIndexFrom, tokenIndexTo, dx, balances);
-    require(dy >= minDy, "dy < minDy");
+    require(dy + 1 > minDy, "dy < minDy");
 
     uint256 dyAdminFee = (dyFee * self.adminFee) / FEE_DENOMINATOR / self.tokenPrecisionMultipliers[tokenIndexTo];
 
@@ -897,7 +897,7 @@ library SwapUtilsExternal {
       toMint = ((v.d2 - v.d0) * v.totalSupply) / v.d0;
     }
 
-    require(toMint >= minToMint, "mint < min");
+    require(toMint + 1 > minToMint, "mint < min");
 
     // mint the user's LP tokens
     v.lpToken.mint(msg.sender, toMint);
@@ -933,7 +933,7 @@ library SwapUtilsExternal {
 
     uint256 numAmounts = amounts.length;
     for (uint256 i; i < numAmounts; ) {
-      require(amounts[i] >= minAmounts[i], "amounts[i] < minAmounts[i]");
+      require(amounts[i] + 1 > minAmounts[i], "amounts[i] < minAmounts[i]");
       self.balances[i] = balances[i] - amounts[i];
       AssetLogic.handleOutgoingAsset(address(self.pooledTokens[i]), msg.sender, amounts[i]);
 
@@ -973,7 +973,7 @@ library SwapUtilsExternal {
 
     (uint256 dy, uint256 dyFee) = _calculateWithdrawOneToken(self, tokenAmount, tokenIndex, totalSupply);
 
-    require(dy >= minAmount, "dy < minAmount");
+    require(dy + 1 > minAmount, "dy < minAmount");
 
     uint256 adminFee = (dyFee * self.adminFee) / FEE_DENOMINATOR;
     self.balances[tokenIndex] = self.balances[tokenIndex] - (dy + adminFee);
@@ -1027,7 +1027,7 @@ library SwapUtilsExternal {
       uint256[] memory balances1 = new uint256[](numTokens);
       v.d0 = getD(_xp(v.balances, v.multipliers), v.preciseA);
       for (uint256 i; i < numTokens; ) {
-        require(v.balances[i] >= amounts[i], "withdraw more than available");
+        require(v.balances[i] + 1 > amounts[i], "withdraw more than available");
 
         unchecked {
           balances1[i] = v.balances[i] - amounts[i];
@@ -1135,15 +1135,15 @@ library SwapUtilsExternal {
     uint256 futureA_,
     uint256 futureTime_
   ) external {
-    require(block.timestamp >= self.initialATime + 1 days, "Wait 1 day before starting ramp");
-    require(futureTime_ >= block.timestamp + MIN_RAMP_TIME, "Insufficient ramp time");
+    require(block.timestamp + 1 > self.initialATime + 1 days, "Wait 1 day before starting ramp");
+    require(futureTime_ + 1 > block.timestamp + MIN_RAMP_TIME, "Insufficient ramp time");
     require(futureA_ != 0 && futureA_ < MAX_A, "futureA_ must be > 0 and < MAX_A");
 
     uint256 initialAPrecise = _getAPrecise(self);
     uint256 futureAPrecise = futureA_ * A_PRECISION;
 
     if (futureAPrecise < initialAPrecise) {
-      require(futureAPrecise * MAX_A_CHANGE >= initialAPrecise, "futureA_ is too small");
+      require(futureAPrecise * MAX_A_CHANGE + 1 > initialAPrecise, "futureA_ is too small");
     } else {
       require(futureAPrecise <= initialAPrecise * MAX_A_CHANGE, "futureA_ is too large");
     }
