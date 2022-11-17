@@ -3,7 +3,7 @@ import { constants, utils } from "ethers";
 
 import { getContext } from "../propagate";
 import { NoSpokeConnector, NoHubConnector, NoProviderForDomain } from "../errors";
-import { ExtraPropagateParams } from "../operations/propagate";
+import { ExtraPropagateParam } from "../operations/propagate";
 import { getJsonRpcProvider, getL1ToL2MessageGasEstimator } from "../../../mockable";
 
 // example at https://github.com/OffchainLabs/arbitrum-tutorials/blob/master/packages/greeter/scripts/exec.js
@@ -12,7 +12,7 @@ export const getPropagateParams = async (
   l2ChainId: number,
   l1ChainId: number,
   _requestContext: RequestContext,
-): Promise<ExtraPropagateParams> => {
+): Promise<ExtraPropagateParam> => {
   const {
     config,
     logger,
@@ -25,7 +25,11 @@ export const getPropagateParams = async (
   if (!l2RpcUrl) {
     throw new NoProviderForDomain(l2domain, requestContext, methodContext);
   }
-  const l1RpcUrl = config.chains[config.hubDomain]?.providers[0];
+
+  // must be ETH mainnet for arbitrum SDK
+  const l1RpcUrl = "https://rpc.ankr.com/eth";
+  // TODO: use below when mainnet is deployed
+  // const l1RpcUrl = config.chains["6648936"]?.providers[0];
   if (!l1RpcUrl) {
     throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
   }
@@ -85,6 +89,9 @@ export const getPropagateParams = async (
     "0x4ff746f6000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000207465737400000000000000000000000000000000000000000000000000000000",
     utils.parseEther("1"),
   );
+  logger.info(`Got current max gas: ${maxGas.toString()}`, requestContext, methodContext, {
+    maxGas: maxGas.toString(),
+  });
 
   /**
    * ...Okay, but on the off chance we end up underpaying, our retryable ticket simply fails.
@@ -104,5 +111,5 @@ export const getPropagateParams = async (
     [submissionPriceWei, maxGas, gasPriceBid],
   );
 
-  return { encodedData, value: callValue.toString() };
+  return { _connector: "", _fee: callValue.toString(), _encodedData: encodedData };
 };
