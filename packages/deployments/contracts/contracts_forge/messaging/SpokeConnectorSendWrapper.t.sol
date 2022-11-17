@@ -84,7 +84,7 @@ contract SpokeConnectorSendWrapperTest is ForgeHelper {
     bytes memory _encodedData = abi.encode("hello");
 
     vm.expectEmit(true, true, true, true);
-    emit FundsDeducted(0.09 ether, 0.1 ether);
+    emit FundsDeducted(0.04 ether, 0.1 ether);
 
     emit log_named_address("spokeConnector", address(spokeConnectorSendWrapper.spokeConnector()));
 
@@ -96,7 +96,7 @@ contract SpokeConnectorSendWrapperTest is ForgeHelper {
 
     vm.expectCall(
       address(spokeConnector),
-      0.09 ether,
+      0.04 ether,
       abi.encodeWithSelector(SpokeConnector(spokeConnector).send.selector)
     );
 
