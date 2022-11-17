@@ -575,14 +575,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
       _m.sender(),
       _m.body().clone()
     );
-    
-    (_success, _returnData) = ExcessivelySafeCall.excessivelySafeCall(
-      _recipient,
-      _gas,
-      0,
-      _maxCopy,
-      _calldata
-    );
+
+    (_success, _returnData) = ExcessivelySafeCall.excessivelySafeCall(_recipient, _gas, 0, _maxCopy, _calldata);
 
     // emit process results
     emit Process(_messageHash, _success, _returnData);
