@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
 import {IConnext, ExecuteArgs} from "../interfaces/IConnext.sol";
 
@@ -19,7 +22,7 @@ interface ISpokeConnector {
   ) external;
 }
 
-contract RelayerProxy is ProposedOwnable {
+contract RelayerProxy is ProposedOwnable, ReentrancyGuard {
   // ============ Properties ============
 
   mapping(address => bool) public allowedRelayer;
@@ -101,17 +104,17 @@ contract RelayerProxy is ProposedOwnable {
     emit ConnextChanged(_spokeConnector, oldSpokeConnector);
   }
 
-  function withdraw() external onlyOwner {
+  function withdraw() external onlyOwner nonReentrant {
     uint256 balance = address(this).balance;
-    payable(msg.sender).transfer(balance);
+    Address.sendValue(payable(msg.sender), balance);
     emit FundsDeducted(balance, address(this).balance);
   }
 
   // ============ External Functions ============
 
-  function execute(ExecuteArgs calldata _args, uint256 fee) external onlyRelayer returns (bytes32 transferId) {
-    connext.execute(_args);
-    payable(msg.sender).transfer(fee);
+  function execute(ExecuteArgs calldata _args, uint256 fee) external onlyRelayer nonReentrant returns (bytes32 transferId) {
+    transferId = connext.execute(_args);
+    Address.sendValue(payable(msg.sender), fee);
     emit FundsDeducted(fee, address(this).balance);
   }
 
@@ -121,9 +124,9 @@ contract RelayerProxy is ProposedOwnable {
     bytes32[32] calldata _aggregatePath,
     uint256 _aggregateIndex,
     uint256 fee
-  ) external onlyRelayer {
+  ) external onlyRelayer nonReentrant {
     spokeConnector.proveAndProcess(_proofs, _aggregateRoot, _aggregatePath, _aggregateIndex);
-    payable(msg.sender).transfer(fee);
+    Address.sendValue(payable(msg.sender), fee);
     emit FundsDeducted(fee, address(this).balance);
   }
 
