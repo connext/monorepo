@@ -138,8 +138,8 @@ library AssetLogic {
       return _amount;
     }
 
-    // Get the configs
-    TokenConfig memory config = getConfig(_key);
+    // Get the configs.
+    TokenConfig storage config = getConfig(_key);
 
     // Swap the asset to the proper local asset.
     (uint256 out, ) = _swapAsset(
@@ -171,17 +171,18 @@ library AssetLogic {
     uint256 _slippage,
     uint256 _normalizedIn
   ) internal returns (uint256, address) {
-    // Get the configs
-    TokenConfig memory config = getConfig(_key);
+    // Get the token config.
+    TokenConfig storage config = getConfig(_key);
+    address adopted = config.adopted;
 
     // If the adopted asset is the local asset, no need to swap.
-    if (config.adopted == _asset) {
-      return (_amount, config.adopted);
+    if (adopted == _asset) {
+      return (_amount, adopted);
     }
 
     // If there's no amount, no need to swap.
     if (_amount == 0) {
-      return (_amount, config.adopted);
+      return (_amount, adopted);
     }
 
     // Swap the asset to the proper local asset
@@ -189,12 +190,12 @@ library AssetLogic {
       _swapAsset(
         _key,
         _asset,
-        config.adopted,
+        adopted,
         _amount,
         // NOTE: To get the slippage boundary here, you must take the slippage % off of the
         // normalized amount in (at 18 decimals by convention), then convert that amount
         // to the proper decimals of adopted.
-        calculateSlippageBoundary(uint8(18), IERC20Metadata(config.adopted).decimals(), _normalizedIn, _slippage)
+        calculateSlippageBoundary(uint8(18), config.adoptedDecimals, _normalizedIn, _slippage)
       );
   }
 
@@ -214,7 +215,7 @@ library AssetLogic {
     uint256 _amount,
     uint256 _maxIn
   ) internal returns (uint256, address) {
-    TokenConfig memory config = getConfig(_key);
+    TokenConfig storage config = getConfig(_key);
 
     // If the adopted asset is the local asset, no need to swap.
     address adopted = config.adopted;
@@ -245,9 +246,6 @@ library AssetLogic {
   ) internal returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
-    // Get token config
-    TokenConfig memory config = getConfig(_key);
-
     // Retrieve internal swap pool reference.
     SwapUtils.Swap storage ipool = s.swapStorages[_key];
 
@@ -264,7 +262,7 @@ library AssetLogic {
       );
     } else {
       // Otherwise, swap via external stableswap pool.
-      IStableSwap pool = IStableSwap(config.adoptedToLocalExternalPools);
+      IStableSwap pool = IStableSwap(getConfig(_key).adoptedToLocalExternalPools);
 
       SafeERC20.safeApprove(IERC20Metadata(_assetIn), address(pool), 0);
       SafeERC20.safeIncreaseAllowance(IERC20Metadata(_assetIn), address(pool), _amount);
