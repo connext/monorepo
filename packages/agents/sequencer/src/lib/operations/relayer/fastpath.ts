@@ -18,7 +18,7 @@ export const sendExecuteFastToRelayer = async (
     adapters: { chainreader, relayers },
   } = getContext();
   const {
-    auctions: { encodeExecuteFromBids },
+    auctions: { encodeExecuteFromBids, encodeRelayerProxyExecuteFromBids },
   } = getHelpers();
 
   const { requestContext, methodContext } = createLoggingContext(sendExecuteFastToRelayer.name, _requestContext);
@@ -28,7 +28,33 @@ export const sendExecuteFastToRelayer = async (
 
   const destinationConnextAddress = config.chains[transfer.xparams.destinationDomain].deployments.connext;
 
-  const encodedData = await encodeExecuteFromBids(round, bids, transfer, requestContext);
+  const executeEncodedData = await encodeExecuteFromBids(round, bids, transfer, requestContext);
+
+  /// Temp: Using relayer proxy
+  const domain = +transfer.xparams.destinationDomain;
+  const relayerAddress = await relayers[0].instance.getRelayerAddress(domain, logger);
+
+  logger.debug("Getting gas estimate", requestContext, methodContext, {
+    destinationChainId,
+    to: destinationConnextAddress,
+    data: executeEncodedData,
+    from: relayerAddress,
+  });
+
+  const gas = await chainreader.getGasEstimateWithRevertCode(domain, {
+    chainId: destinationChainId,
+    to: destinationConnextAddress,
+    data: executeEncodedData,
+    from: relayerAddress,
+  });
+
+  logger.info("Sending tx to relayer", requestContext, methodContext, {
+    relayer: relayerAddress,
+    connext: destinationConnextAddress,
+    domain,
+    gas: gas.toString(),
+  });
+  const encodedData = await encodeRelayerProxyExecuteFromBids(round, bids, transfer, gas, requestContext);
 
   return await sendWithRelayerWithBackup(
     destinationChainId,
