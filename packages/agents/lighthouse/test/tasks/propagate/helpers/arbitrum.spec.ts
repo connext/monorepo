@@ -54,9 +54,10 @@ describe("Helpers: Arbitrum ", () => {
     it("should return necessary data successfully", async () => {
       const data = await getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext);
       expect(data).to.deep.eq({
-        encodedData:
+        _connector: "",
+        _fee: "89",
+        _encodedData:
           "0x00000000000000000000000000000000000000000000000000000000000000050000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000002a",
-        value: "89",
       });
     });
   });

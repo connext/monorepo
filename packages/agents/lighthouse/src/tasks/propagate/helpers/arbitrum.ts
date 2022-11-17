@@ -85,6 +85,9 @@ export const getPropagateParams = async (
     "0x4ff746f6000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000207465737400000000000000000000000000000000000000000000000000000000",
     utils.parseEther("1"),
   );
+  logger.info(`Got current max gas: ${maxGas.toString()}`, requestContext, methodContext, {
+    maxGas: maxGas.toString(),
+  });
 
   /**
    * ...Okay, but on the off chance we end up underpaying, our retryable ticket simply fails.
