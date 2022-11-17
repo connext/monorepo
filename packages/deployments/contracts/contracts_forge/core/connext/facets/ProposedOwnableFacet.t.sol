@@ -421,7 +421,7 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     utils_proposeNewOwnerAndAssert(proposed);
 
     vm.prank(proposed);
-    vm.expectRevert(ProposedOwnableFacet__ownershipDelayElapsed_delayNotElapsed.selector);
+    vm.expectRevert(ProposedOwnableFacet__delayElapsed_delayNotElapsed.selector);
     this.acceptProposedOwner();
   }
 

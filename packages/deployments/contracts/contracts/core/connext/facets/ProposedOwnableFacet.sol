@@ -28,7 +28,6 @@ import {IProposedOwnable} from "../../../shared/interfaces/IProposedOwnable.sol"
  */
 contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   // ========== Custom Errors ===========
-  error ProposedOwnableFacet__ownershipDelayElapsed_delayNotElapsed();
   error ProposedOwnableFacet__delayElapsed_delayNotElapsed();
   error ProposedOwnableFacet__proposeRouterWhitelistRemoval_noOwnershipChange();
   error ProposedOwnableFacet__removeRouterWhitelist_noOwnershipChange();
@@ -69,15 +68,9 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
   // ============ Modifier ============
   /**
-   * @notice Throws if the ownership delay has not elapsed
+   * @notice Reverts the call if the expected delay has not elapsed.
+   * @param start Timestamp marking the beginning of the delay period.
    */
-  modifier ownershipDelayElapsed() {
-    // Ensure delay has elapsed
-    if ((block.timestamp - s._proposedOwnershipTimestamp) <= delay())
-      revert ProposedOwnableFacet__ownershipDelayElapsed_delayNotElapsed();
-    _;
-  }
-
   modifier delayElapsed(uint256 start) {
     // Ensure delay has elapsed
     if ((block.timestamp - start) <= delay()) revert ProposedOwnableFacet__delayElapsed_delayNotElapsed();
@@ -230,7 +223,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * @notice Transfers ownership of the contract to a new account (`newOwner`).
    * Can only be called by the proposed owner.
    */
-  function acceptProposedOwner() public onlyProposed ownershipDelayElapsed {
+  function acceptProposedOwner() public onlyProposed delayElapsed(s._proposedOwnershipTimestamp) {
     // Contract as source of truth
     if (owner() == s._proposed) revert ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
 
