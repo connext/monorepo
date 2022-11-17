@@ -112,7 +112,12 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard {
 
   // ============ External Functions ============
 
-  function execute(ExecuteArgs calldata _args, uint256 fee) external onlyRelayer nonReentrant returns (bytes32 transferId) {
+  function execute(ExecuteArgs calldata _args, uint256 fee)
+    external
+    onlyRelayer
+    nonReentrant
+    returns (bytes32 transferId)
+  {
     transferId = connext.execute(_args);
     Address.sendValue(payable(msg.sender), fee);
     emit FundsDeducted(fee, address(this).balance);
