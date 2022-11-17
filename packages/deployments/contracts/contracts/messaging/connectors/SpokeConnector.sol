@@ -381,7 +381,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     bytes32 _aggregateRoot,
     bytes32[32] calldata _aggregatePath,
     uint256 _aggregateIndex
-  ) external whenNotPaused {
+  ) external whenNotPaused nonReentrant {
     // Sanity check: proofs are included.
     require(_proofs.length > 0, "!proofs");
 
@@ -541,7 +541,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _message Formatted message
    * @return _success TRUE iff dispatch transaction succeeded
    */
-  function process(bytes memory _message) internal nonReentrant returns (bool _success) {
+  function process(bytes memory _message) internal returns (bool _success) {
     bytes29 _m = _message.ref(0);
     // ensure message was meant for this domain
     require(_m.destination() == DOMAIN, "!destination");
