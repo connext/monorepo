@@ -78,8 +78,8 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     __ReentrancyGuard_init();
 
     // Check _pooledTokens and precisions parameter
-    require(_pooledTokens.length > Constants.MINIMUM_POOLED_TOKENS - 1, "_pooledTokens.length <= 1");
-    require(_pooledTokens.length < Constants.MAXIMUM_POOLED_TOKENS + 1, "_pooledTokens.length > 32");
+    require(_pooledTokens.length > Constants.MINIMUM_POOLED_TOKENS - 1, "_pooledTokens.length insufficient");
+    require(_pooledTokens.length < Constants.MAXIMUM_POOLED_TOKENS + 1, "_pooledTokens.length too large");
     require(_pooledTokens.length == decimals.length, "_pooledTokens decimals mismatch");
 
     uint256[] memory precisionMultipliers = new uint256[](decimals.length);
