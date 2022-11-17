@@ -443,8 +443,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         // The contract should have stored the asset in escrow.
         assertEq(tokenIn.balanceOf(address(this)), balances.contractAsset + amount);
         // Custodied balance should have increased if sending in canonical
-        if (s.caps[utils_calculateCanonicalHash()] > 0) {
-          assertEq(s.custodied[_local], balances.contractAsset + amount);
+        if (s.tokenConfigs[utils_calculateCanonicalHash()].cap > 0) {
+          assertEq(s.tokenConfigs[utils_calculateCanonicalHash()].custodied, balances.contractAsset + amount);
         }
       } else {
         // NOTE: Normally the adopted asset would be swapped into the local asset and then
@@ -675,8 +675,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       }
 
       // if on canonical domain, should decrease
-      if (s.caps[utils_calculateCanonicalHash()] > 0) {
-        assertEq(s.custodied[_local], prevBalances.bridge - routerAmt);
+      if (s.tokenConfigs[utils_calculateCanonicalHash()].cap > 0) {
+        assertEq(s.tokenConfigs[utils_calculateCanonicalHash()].custodied, prevBalances.bridge - routerAmt);
       }
     }
 
@@ -978,7 +978,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // setup asset with local != adopted, not on canonical domain
     utils_setupAsset(false, false);
 
-    s.approvedAssets[utils_calculateCanonicalHash()] = false;
+    s.tokenConfigs[utils_calculateCanonicalHash()].approval = false;
 
     helpers_xcallAndAssert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notWhitelisted.selector);
   }
@@ -988,8 +988,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // setup asset with local == adopted, on canonical domain
     utils_setupAsset(true, true);
 
-    s.caps[utils_calculateCanonicalHash()] = _defaultAmount + 1;
-    s.custodied[_canonical] = 3;
+    s.tokenConfigs[utils_calculateCanonicalHash()].cap = _defaultAmount + 1;
+    s.tokenConfigs[utils_calculateCanonicalHash()].custodied = 3;
 
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_capReached.selector);
   }

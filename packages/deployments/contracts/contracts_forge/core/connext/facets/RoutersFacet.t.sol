@@ -677,7 +677,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   function test_RoutersFacet__addLiquidityForRouter_failsIfAssetUnapproved() public {
     s.routerConfigs[_routerAgent0].approved = true;
-    s.approvedAssets[utils_calculateCanonicalHash()] = false;
+    s.tokenConfigs[utils_calculateCanonicalHash()].approval = false;
     uint256 amount = 10000;
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notWhitelisted.selector);
     this.addRouterLiquidityFor(amount, _local, _routerAgent0);
@@ -685,7 +685,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   function test_RoutersFacet__addLiquidityForRouter_worksForToken() public {
     s.routerConfigs[_routerAgent0].approved = true;
-    s.approvedAssets[_canonicalKey] = true;
+    s.tokenConfigs[_canonicalKey].approval = true;
     address caller = address(1233422312);
     TestERC20(_local).mint(caller, 10 ether);
 
@@ -709,7 +709,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   // addLiquidity
   function test_RoutersFacet__addLiquidity_routerIsSender() public {
     s.routerConfigs[_routerAgent0].approved = true;
-    s.approvedAssets[_canonicalKey] = true;
+    s.tokenConfigs[_canonicalKey].approval = true;
     TestERC20(_local).mint(_routerAgent0, 10 ether);
 
     uint256 amount = 10000;

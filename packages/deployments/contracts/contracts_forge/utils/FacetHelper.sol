@@ -79,10 +79,9 @@ contract FacetHelper is ForgeHelper {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // clear any previous listings
+    delete s.tokenConfigs[utils_calculateCanonicalHash()];
     delete s.adoptedToCanonical[_local];
     delete s.representationToCanonical[_local];
-    delete s.canonicalToRepresentation[utils_calculateCanonicalHash()];
-    delete s.canonicalToAdopted[utils_calculateCanonicalHash()];
 
     if (onCanonical) {
       // set domain
@@ -123,17 +122,15 @@ contract FacetHelper is ForgeHelper {
     if (s.domain != _canonicalDomain) {
       s.representationToCanonical[_local].domain = _canonicalDomain;
       s.representationToCanonical[_local].id = _canonicalId;
-      s.canonicalToRepresentation[_canonicalKey] = _local;
+      s.tokenConfigs[_canonicalKey].representation = _local;
     }
 
     // Setup the storage variables for adopted
     s.adoptedToCanonical[_adopted].domain = _canonicalDomain;
     s.adoptedToCanonical[_adopted].id = _canonicalId;
-    s.adoptedToLocalExternalPools[_canonicalKey] = IStableSwap(_stableSwap);
-    s.canonicalToAdopted[_canonicalKey] = _adopted;
-
-    // Add to whitelist
-    s.approvedAssets[_canonicalKey] = true;
+    s.tokenConfigs[_canonicalKey].adoptedToLocalExternalPools = _stableSwap;
+    s.tokenConfigs[_canonicalKey].adopted = _adopted;
+    s.tokenConfigs[_canonicalKey].approval = true;
 
     // // Log stored vars
     // console.log("setup asset:");

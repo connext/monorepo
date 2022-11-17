@@ -15,7 +15,7 @@ import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {ExecuteArgs, TransferInfo, DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
+import {ExecuteArgs, TransferInfo, DestinationTransferStatus, TokenConfig} from "../libraries/LibConnextStorage.sol";
 import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 import {TokenId} from "../libraries/TokenId.sol";
 
@@ -512,28 +512,31 @@ contract BridgeFacet is BaseConnextFacet {
       // hash(canonicalId, canonicalDomain), this is safe even when the address(0) asset is not
       // whitelisted.
       bytes32 key;
+      TokenConfig memory config;
       if (_asset != address(0)) {
         // Retrieve the canonical token information.
         (canonical, key) = _getApprovedCanonicalId(_asset);
 
-        // Get the local address
-        local = _getLocalAsset(key, canonical.id, canonical.domain);
+        // Get the token config
+        config = AssetLogic.getConfig(key);
 
         // Set boolean flag
-        isCanonical = _params.originDomain == canonical.domain && local == _asset;
+        isCanonical = _params.originDomain == canonical.domain;
+
+        // Get the local address
+        local = isCanonical ? TypeCasts.bytes32ToAddress(canonical.id) : config.representation;
 
         // Enforce liquidity caps
         // NOTE: safe to do this before the swap because canonical domains do
         // not hit the AMMs (local == canonical)
-        uint256 cap = s.caps[key];
-        if (isCanonical && cap > 0) {
+        if (isCanonical && config.cap > 0) {
           // NOTE: this method includes router liquidity as part of the caps,
           // not only the minted amount
-          uint256 updatedCap = s.custodied[_asset] + _amount;
-          if (updatedCap > cap) {
+          uint256 updatedCap = config.custodied + _amount;
+          if (updatedCap > config.cap) {
             revert BridgeFacet__xcall_capReached();
           }
-          s.custodied[_asset] = updatedCap;
+          s.tokenConfigs[key].custodied = updatedCap;
         }
 
         // Update TransferInfo to reflect the canonical token information.
@@ -546,11 +549,16 @@ contract BridgeFacet is BaseConnextFacet {
         AssetLogic.handleIncomingAsset(_asset, _amount);
 
         // Swap to the local asset from adopted if applicable.
-        // TODO: drop the "IfNeeded", instead just check whether the asset is already local / needs swap here.
         _params.bridgedAmt = AssetLogic.swapToLocalAssetIfNeeded(key, _asset, local, _amount, _params.slippage);
 
         // Get the normalized amount in (amount sent in by user in 18 decimals).
-        _params.normalizedIn = AssetLogic.normalizeDecimals(IERC20Metadata(_asset).decimals(), uint8(18), _amount);
+        // NOTE: when getting the decimals from `_asset`, you don't know if you are looking for
+        // adopted or local assets
+        _params.normalizedIn = AssetLogic.normalizeDecimals(
+          _asset == local ? config.representationDecimals : config.adoptedDecimals,
+          uint8(18),
+          _amount
+        );
       }
 
       // Calculate the transfer ID.
@@ -718,11 +726,14 @@ contract BridgeFacet is BaseConnextFacet {
       return (0, local, local);
     }
 
+    // Get the token config
+    TokenConfig memory config = AssetLogic.getConfig(_key);
+
     // If it is the canonical domain, decrease custodied value
-    if (s.domain == _args.params.canonicalDomain && s.caps[_key] > 0) {
+    if (s.domain == _args.params.canonicalDomain && config.cap > 0) {
       // NOTE: safe to use the amount here instead of post-swap because there are no
       // AMMs on the canonical domain (assuming canonical == adopted on canonical domain)
-      s.custodied[local] -= _args.params.bridgedAmt;
+      s.tokenConfigs[_key].custodied -= _args.params.bridgedAmt;
     }
 
     // Get the receive local status
@@ -779,6 +790,9 @@ contract BridgeFacet is BaseConnextFacet {
     // If the local asset is specified, or the adopted asset was overridden (e.g. when user facing slippage
     // conditions outside of their boundaries), exit without swapping.
     if (receiveLocal) {
+      // Delete override
+      delete s.receiveLocalOverride[_transferId];
+
       return (toSwap, local, local);
     }
 

@@ -138,7 +138,7 @@ contract BaseConnextFacet {
    * @notice Returns the adopted assets for given canonical information
    */
   function _getAdoptedAsset(bytes32 _key) internal view returns (address) {
-    address adopted = s.canonicalToAdopted[_key];
+    address adopted = AssetLogic.getConfig(_key).adopted;
     if (adopted == address(0)) {
       revert BaseConnextFacet__getAdoptedAsset_notWhitelisted();
     }
@@ -149,7 +149,7 @@ contract BaseConnextFacet {
    * @notice Returns the adopted assets for given canonical information
    */
   function _getRepresentationAsset(bytes32 _key) internal view returns (address) {
-    address representation = s.canonicalToRepresentation[_key];
+    address representation = AssetLogic.getConfig(_key).representation;
     // If this is address(0), then there is no mintable token for this asset on this
     // domain
     return representation;
@@ -203,7 +203,7 @@ contract BaseConnextFacet {
   function _getApprovedCanonicalId(address _candidate) internal view returns (TokenId memory, bytes32) {
     TokenId memory _canonical = _getCanonicalTokenId(_candidate);
     bytes32 _key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
-    if (!_isAssetWhitelistRemoved() && !s.approvedAssets[_key]) {
+    if (!_isAssetWhitelistRemoved() && !AssetLogic.getConfig(_key).approval) {
       revert BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
     }
     return (_canonical, _key);

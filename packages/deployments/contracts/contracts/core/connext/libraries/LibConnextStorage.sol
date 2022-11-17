@@ -106,6 +106,36 @@ struct RouterConfig {
   uint256 proposedTimestamp;
 }
 
+/**
+ * @notice Contains configurations for tokens
+ * @dev Struct will be stored on the hash of the `canonicalId` and `canonicalDomain`. There are also
+ * two separate reverse lookups, that deliver plaintext information based on the passed in address (can
+ * either be representation or adopted address passed in).
+ *
+ * If the decimals are updated in a future token upgrade, the transfers should fail. If that happens, the
+ * asset and swaps must be removed, and then they can be readded
+ *
+ * @param representation Address of minted asset on this domain. If the token is of local origin (meaning it was
+ * originally deployed on this chain), this MUST map to address(0).
+ * @param representationDecimals Decimals of minted asset on this domain
+ * @param adopted Address of adopted asset on this domain
+ * @param adoptedDecimals Decimals of adopted asset on this domain
+ * @param adoptedToLocalExternalPools Holds the AMMs for swapping in and out of local assets
+ * @param approval Allowed assets
+ * @param cap Liquidity caps of whitelisted assets. If 0, no cap is enforced.
+ * @param custodied Custodied balance by address
+ */
+struct TokenConfig {
+  address representation;
+  uint8 representationDecimals;
+  address adopted;
+  uint8 adoptedDecimals;
+  address adoptedToLocalExternalPools;
+  bool approval;
+  uint256 cap;
+  uint256 custodied;
+}
+
 struct AppStorage {
   //
   // 0
@@ -133,56 +163,17 @@ struct AppStorage {
   // 4
   uint32 domain;
   /**
-   * @notice Mapping holding the AMMs for swapping in and out of local assets.
-   * @dev Swaps for an adopted asset <> local asset (i.e. POS USDC <> nextUSDC on polygon).
-   * This mapping is keyed on the hash of the canonical id + domain for local asset.
-   */
-  // 6
-  mapping(bytes32 => IStableSwap) adoptedToLocalExternalPools;
-  /**
-   * @notice Mapping of whitelisted assets on same domain as contract.
-   * @dev Mapping is keyed on the hash of the canonical id and domain
-   */
-  // 7
-  mapping(bytes32 => bool) approvedAssets;
-  /**
-   * @notice Mapping of liquidity caps of whitelisted assets. If 0, no cap is enforced.
-   * @dev Mapping is keyed on the hash of the canonical id and domain
-   */
-  // 7
-  mapping(bytes32 => uint256) caps;
-  /**
-   * @notice Mapping of custodied balance by address
-   * @dev Used to enforce cap
-   */
-  mapping(address => uint256) custodied;
-  /**
    * @notice Mapping of adopted to canonical asset information.
    */
-  // 8
   mapping(address => TokenId) adoptedToCanonical;
   /**
    * @notice Mapping of representation to canonical asset information.
    */
-  // 9
   mapping(address => TokenId) representationToCanonical;
   /**
-   * @notice Mapping of hash(canonicalId, canonicalDomain) to adopted asset on this domain.
+   * @notice Mapping of hash(canonicalId, canonicalDomain) to token config on this domain.
    */
-  // 10
-  mapping(bytes32 => address) canonicalToAdopted;
-  /**
-   * @notice Mapping of canonical to representation asset information.
-   * @dev If the token is of local origin (meaning it was originanlly deployed on this chain),
-   * this MUST map to address(0).
-   */
-  // 11
-  mapping(bytes32 => address) canonicalToRepresentation;
-  /**
-   * @notice Stores the decimals for a given token
-   * @dev Mapping is keyed on the hash of the canonical id and domain
-   */
-  mapping(bytes32 => uint8) decimals;
+  mapping(bytes32 => TokenConfig) tokenConfigs;
   /**
    * @notice Mapping to track transfer status on destination domain
    */

@@ -4,11 +4,11 @@ pragma solidity 0.8.17;
 import {IERC20Metadata} from "@openzeppelin/contracts/interfaces/IERC20Metadata.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
-import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {TokenFacet} from "../../../../contracts/core/connext/facets/TokenFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import {TokenId} from "../../../../contracts/core/connext/libraries/TokenId.sol";
+import {TokenConfig} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 
 import "../../../utils/FacetHelper.sol";
 
@@ -36,10 +36,6 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   function setupAssetAndAssert(address asset, address pool) public {
     TokenId memory canonical = TokenId(_canonicalDomain, _canonicalId);
 
-    s.representationToCanonical[_local].domain = _canonicalDomain;
-    s.representationToCanonical[_local].id = _canonicalId;
-    s.canonicalToRepresentation[_canonicalKey] = _local;
-
     vm.expectEmit(true, true, false, true);
     emit AssetAdded(_canonicalKey, _canonicalId, _canonicalDomain, asset, _local, _owner);
 
@@ -47,12 +43,14 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     emit StableSwapAdded(_canonicalKey, _canonicalId, _canonicalDomain, pool, _owner);
 
     this.setupAsset(canonical, _canonicalDecimals, tokenName, tokenSymbol, asset, pool, _cap);
-    assertTrue(s.approvedAssets[_canonicalKey]);
+    TokenConfig memory config = s.tokenConfigs[_canonicalKey];
+    assertTrue(config.approval);
     assertEq(s.adoptedToCanonical[asset].domain, _canonicalDomain);
     assertEq(s.adoptedToCanonical[asset].id, _canonicalId);
-    assertEq(s.canonicalToAdopted[_canonicalKey], asset);
-    assertEq(s.decimals[_canonicalKey], 0);
-    assertEq(address(s.adoptedToLocalExternalPools[_canonicalKey]), pool);
+    assertEq(config.adopted, asset);
+    assertEq(config.representationDecimals, 18);
+    assertEq(config.adoptedDecimals, 18);
+    assertEq(config.adoptedToLocalExternalPools, pool);
   }
 
   // Calls removeAsset and asserts state changes/events
@@ -65,19 +63,21 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     emit AssetRemoved(key, _owner);
 
     this.removeAssetId(key, adopted, representation);
-    assertEq(s.approvedAssets[key], false);
+    TokenConfig memory config = s.tokenConfigs[_canonicalKey];
+    assertEq(config.approval, false);
     assertEq(s.adoptedToCanonical[adopted].domain, 0);
     assertEq(s.adoptedToCanonical[adopted].id, bytes32(0));
-    assertEq(s.canonicalToAdopted[key], address(0));
-    assertEq(s.decimals[_canonicalKey], 0);
+    assertEq(config.adopted, address(0));
+    assertEq(config.representationDecimals, 0);
+    assertEq(config.adoptedDecimals, 0);
 
-    assertEq(address(s.adoptedToLocalExternalPools[key]), address(0));
+    assertEq(config.adoptedToLocalExternalPools, address(0));
   }
 
   // ============ Getters ============
   // canonicalToAdopted
   function test_TokenFacet__canonicalToAdopted_success() public {
-    s.canonicalToAdopted[_canonicalId] = _local;
+    s.tokenConfigs[_canonicalId].representation = _local;
     assertTrue(this.canonicalToAdopted(_canonicalId) == _local);
   }
 
@@ -104,7 +104,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
   // approvedAssets
   function test_TokenFacet__approvedAssets_success() public {
-    s.approvedAssets[_canonicalId] = true;
+    s.tokenConfigs[_canonicalId].approval = true;
     assertTrue(this.approvedAssets(_canonicalId));
   }
 
@@ -115,7 +115,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   // adoptedToLocalExternalPools
   function test_TokenFacet__adoptedToLocalExternalPools_success() public {
     address stableSwap = address(42);
-    s.adoptedToLocalExternalPools[_canonicalId] = IStableSwap(stableSwap);
+    s.tokenConfigs[_canonicalId].adoptedToLocalExternalPools = stableSwap;
     assertEq(address(this.adoptedToLocalExternalPools(_canonicalId)), stableSwap);
   }
 
@@ -205,23 +205,25 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     );
 
     // verification
-    assertTrue(s.approvedAssets[_canonicalKey]);
-    assertEq(s.decimals[_canonicalKey], 18);
+    TokenConfig memory config = s.tokenConfigs[_canonicalKey];
+    assertTrue(config.approval);
+    assertEq(config.adoptedDecimals, 18);
     assertEq(s.adoptedToCanonical[asset].domain, _canonicalDomain);
     assertEq(s.adoptedToCanonical[asset].id, _canonicalId);
-    assertEq(s.canonicalToAdopted[_canonicalKey], asset);
-    assertEq(address(s.adoptedToLocalExternalPools[_canonicalKey]), stableSwap);
+    assertEq(config.adopted, asset);
+    assertEq(config.adoptedToLocalExternalPools, stableSwap);
     if (s.domain != _canonicalDomain) {
+      assertEq(config.representationDecimals, 18);
       assertEq(s.representationToCanonical[asset].domain, _canonicalDomain);
       assertEq(s.representationToCanonical[asset].id, _canonicalId);
-      assertEq(s.canonicalToRepresentation[_canonicalKey], asset);
+      assertEq(config.representation, asset);
     }
   }
 
   // function test_TokenFacet__setupAsset_failIfRedundant() public {
   //   TokenId memory canonical = TokenId(_canonicalDomain, _canonicalId);
   //   address asset = address(new TestERC20("Test Token", "TEST"));
-  //   s.approvedAssets[_canonicalKey] = true;
+  //   s.tokenConfigs[_canonicalKey].approval = true;
 
   //   vm.prank(_owner);
   //   vm.expectRevert(TokenFacet.TokenFacet__addAssetId_alreadyAdded.selector);
@@ -239,12 +241,12 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
     vm.prank(_owner);
     this.addStableSwapPool(canonical, stableSwap);
-    assertEq(address(s.adoptedToLocalExternalPools[_canonicalKey]), stableSwap);
+    assertEq(s.tokenConfigs[_canonicalKey].adoptedToLocalExternalPools, stableSwap);
   }
 
   function test_TokenFacet__addStableSwapPool_canDelete() public {
     address og = address(65);
-    s.adoptedToLocalExternalPools[_canonicalId] = IStableSwap(og);
+    s.tokenConfigs[_canonicalId].adoptedToLocalExternalPools = og;
     address empty = address(0);
 
     vm.expectEmit(true, true, false, true);
@@ -254,7 +256,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
     vm.prank(_owner);
     this.addStableSwapPool(canonical, empty);
-    assertEq(address(s.adoptedToLocalExternalPools[_canonicalKey]), empty);
+    assertEq(s.tokenConfigs[_canonicalKey].adoptedToLocalExternalPools, empty);
   }
 
   // ============ removeAssetId ============
@@ -292,8 +294,8 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     this.updateLiquidityCap(TokenId(_canonicalDomain, _canonicalId), updated);
 
     // assertEq
-    assertEq(s.custodied[_canonical], 0);
-    assertEq(s.caps[key], updated);
+    assertEq(s.tokenConfigs[key].custodied, 0);
+    assertEq(s.tokenConfigs[key].cap, updated);
   }
 
   function test_TokenFacet__updateLiquidityCap_works() public {
@@ -313,7 +315,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     this.updateLiquidityCap(TokenId(_canonicalDomain, _canonicalId), updated);
 
     // assertEq
-    assertEq(s.custodied[_canonical], balance);
-    assertEq(s.caps[key], updated);
+    assertEq(s.tokenConfigs[key].custodied, balance);
+    assertEq(s.tokenConfigs[key].cap, updated);
   }
 }
