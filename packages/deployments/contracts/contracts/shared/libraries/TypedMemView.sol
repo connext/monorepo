@@ -746,6 +746,7 @@ library TypedMemView {
    *                  As such it MUST be consumed IMMEDIATELY.
    *                  This function is private to prevent unsafe usage by callers.
    * @param memViews  The views
+   * @param _location The memory location from where the joined view begins
    * @return          unsafeView - The conjoined view pointing to the new memory
    */
   function unsafeJoin(bytes29[] memory memViews, uint256 _location) private view returns (bytes29 unsafeView) {
