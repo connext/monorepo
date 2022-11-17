@@ -290,7 +290,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   console.log("Deploying Relayer Proxy...");
 
-  const spokeConnector = await hre.ethers.getContract(getConnectorName(protocol, +chainId));
+  const spokeConnector = await hre.ethers.getContract(getDeploymentName(getConnectorName(protocol, +chainId)));
   const relayerProxy = await hre.deployments.deploy(getDeploymentName("RelayerProxy"), {
     from: deployer.address,
     log: true,
