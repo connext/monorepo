@@ -34,7 +34,7 @@ export const propagate = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(propagate.name);
   logger.info("Starting propagate operation", requestContext, methodContext);
-  const rootManagerMeta: RootManagerMeta = await subgraph.getDomainsForHub(config.hubDomain);
+  const rootManagerMeta: RootManagerMeta = await subgraph.getRootManagerMeta(config.hubDomain);
   const domains = rootManagerMeta.domains;
   const hubChainId = chainData.get(config.hubDomain)?.chainId;
   if (!hubChainId) {

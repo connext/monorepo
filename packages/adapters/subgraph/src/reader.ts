@@ -769,7 +769,7 @@ export class SubgraphReader {
     return connectorMetas;
   }
 
-  public async getDomainsForHub(hub: string): Promise<RootManagerMeta> {
+  public async getRootManagerMeta(hub: string): Promise<RootManagerMeta> {
     const { parser, execute } = getHelpers();
     const rootManagerMetaQuery = getRootManagerMetaQuery(hub);
 
