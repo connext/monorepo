@@ -116,6 +116,16 @@ export class NxtpSdkPool {
     return new NxtpSdkPool(nxtpConfig, logger, chainData, chainReader);
   }
 
+  // ------------------- Utils ------------------- //
+
+  /**
+   * Returns the default deadline. Set to 1 hour from current time.
+   */
+  public getDefaultDeadline(): number {
+    const now = new Date();
+    return now.setHours(now.getHours() + 1);
+  }
+
   // ------------------- Read Operations ------------------- //
 
   async getCanonicalToken(domainId: string, tokenAddress: string): Promise<[string, string]> {
@@ -351,14 +361,8 @@ export class NxtpSdkPool {
     tokenAddress: string,
     amounts: string[],
     minToMint = "0",
-    deadline?: number,
+    deadline = this.getDefaultDeadline(),
   ): Promise<providers.TransactionRequest> {
-    // TODO: find the right value for this
-    if (!deadline) {
-      const now = new Date();
-      deadline = now.setHours(now.getHours() + 1);
-    }
-
     const { requestContext, methodContext } = createLoggingContext(this.addLiquidity.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amounts, deadline });
 
@@ -400,14 +404,8 @@ export class NxtpSdkPool {
     tokenAddress: string,
     amount: string,
     minAmounts = ["0", "0"],
-    deadline?: number,
+    deadline = this.getDefaultDeadline(),
   ): Promise<providers.TransactionRequest> {
-    // TODO: find the right value for this
-    if (!deadline) {
-      const now = new Date();
-      deadline = now.setHours(now.getHours() + 1);
-    }
-
     const { requestContext, methodContext } = createLoggingContext(this.removeLiquidity.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amount, deadline });
 
@@ -453,14 +451,8 @@ export class NxtpSdkPool {
     to: string,
     amount: string,
     minDy = 0,
-    deadline?: number,
+    deadline = this.getDefaultDeadline(),
   ): Promise<providers.TransactionRequest> {
-    // TODO: find the right value for this
-    if (!deadline) {
-      const now = new Date();
-      deadline = now.setHours(now.getHours() + 1);
-    }
-
     const signerAddress = this.config.signerAddress;
     if (!signerAddress) {
       throw new SignerAddressMissing();
