@@ -54,6 +54,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_notApprovedForPortals();
   error BridgeFacet__execute_badFastLiquidityStatus();
   error BridgeFacet__execute_notReconciled();
+  error BridgeFacet__excecute_insufficientGas();
   error BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn();
   error BridgeFacet__bumpTransfer_valueIsZero();
   error BridgeFacet__bumpTransfer_noRelayerVault();
@@ -852,11 +853,16 @@ contract BridgeFacet is BaseConnextFacet {
       // - 2 events are emitted
       // - transfer id is returned
       // -> reserve 10K gas
+      uint256 reserve = 10_000;
+
+      if (gasleft() < reserve + 1) {
+        revert BridgeFacet__excecute_insufficientGas();
+      }
 
       // Use SafeCall here
       (success, returnData) = ExcessivelySafeCall.excessivelySafeCall(
         _params.to,
-        gasleft() - 10_000,
+        gasleft() - reserve,
         0, // native asset value (always 0)
         256, // only copy 256 bytes back as calldata
         abi.encodeWithSelector(
