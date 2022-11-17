@@ -261,7 +261,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * @dev requested address will be whitelisted as Role.RouterAdmin under mapping roles
    * @param _router - The address to be assigned as Role.RouterAdmin under roles
    */
-  function assignRoleRouter(address _router) public onlyOwnerOrAdmin {
+  function assignRoleRouterAdmin(address _router) public onlyOwnerOrAdmin {
     // Use contract as source of truth
     // Will fail if candidate is already added OR input address is addressZero
     if (s.roles[_router] != Role.None || _router == address(0))

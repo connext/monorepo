@@ -94,7 +94,7 @@ contract InboxFacet is BaseConnextFacet {
    * @param _origin The domain the message is coming from.
    * @param _router The address the message is coming from.
    */
-  modifier onlyRemoteRouter(uint32 _origin, bytes32 _router) {
+  modifier onlyRemoteHandler(uint32 _origin, bytes32 _router) {
     if (!_isRemoteHandler(_origin, _router)) {
       revert InboxFacet__onlyRemoteRouter_notRemote();
     }
@@ -116,7 +116,7 @@ contract InboxFacet is BaseConnextFacet {
     uint32 _nonce,
     bytes32 _sender,
     bytes memory _message
-  ) external onlyReplica onlyRemoteRouter(_origin, _sender) {
+  ) external onlyReplica onlyRemoteHandler(_origin, _sender) {
     // Parse token ID and action from message body.
     bytes29 _msg = _message.ref(0).mustBeMessage();
     bytes29 _tokenId = _msg.tokenId();
