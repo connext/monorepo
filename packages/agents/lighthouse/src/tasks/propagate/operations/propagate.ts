@@ -20,8 +20,8 @@ export const getParamsForDomainFn: Record<
     requestContext: RequestContext,
   ) => Promise<ExtraPropagateParam>
 > = {
-  // "1634886255": getPropagateParamsArbitrum,
-  // "1734439522": getPropagateParamsArbitrum,
+  "1634886255": getPropagateParamsArbitrum,
+  "1734439522": getPropagateParamsArbitrum,
   "6450786": getPropagateParamsBnb,
 };
 
