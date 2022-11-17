@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 contract RelayerFacet is BaseConnextFacet {
