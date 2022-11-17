@@ -5,6 +5,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
+import {TypeCasts} from "../../shared/libraries/TypeCasts.sol";
 
 import {MerkleLib} from "../libraries/MerkleLib.sol";
 import {Message} from "../libraries/Message.sol";
@@ -323,13 +324,12 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     bytes memory _messageBody
   ) external onlyWhitelistedSender returns (bytes32) {
     // Get the next nonce for the destination domain, then increment it.
-    uint32 _nonce = nonces[_destinationDomain];
-    nonces[_destinationDomain] = _nonce + 1;
+    uint32 _nonce = nonces[_destinationDomain]++;
 
     // Format the message into packed bytes.
     bytes memory _message = Message.formatMessage(
       DOMAIN,
-      bytes32(uint256(uint160(msg.sender))),
+      TypeCasts.addressToBytes32(msg.sender),
       _nonce,
       _destinationDomain,
       _recipientAddress,

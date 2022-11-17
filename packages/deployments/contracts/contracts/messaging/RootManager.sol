@@ -5,7 +5,6 @@ import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 
 import {IRootManager} from "./interfaces/IRootManager.sol";
 import {IHubConnector} from "./interfaces/IHubConnector.sol";
-import {Message} from "./libraries/Message.sol";
 import {QueueLib} from "./libraries/Queue.sol";
 import {DomainIndexer} from "./libraries/DomainIndexer.sol";
 
@@ -31,6 +30,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   event RootsAggregated(bytes32 aggregateRoot, uint256 count, bytes32[] aggregatedMessageRoots);
 
   event RootPropagated(bytes32 aggregateRoot, uint256 count, bytes32 domainsHash);
+
+  event RootDiscarded(bytes32 fraudulentRoot);
 
   event ConnectorAdded(uint32 domain, address connector, uint32[] domains, address[] connectors);
 
@@ -141,6 +142,20 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   function removeConnector(uint32 _domain) public onlyWatcher {
     address _connector = removeDomain(_domain);
     emit ConnectorRemoved(_domain, _connector, domains, connectors, msg.sender);
+  }
+
+  /**
+   * @notice Removes (effectively blacklists) a given (fraudulent) root from the queue of pending
+   * inbound roots.
+   * @dev The given root does NOT have to currently be in the queue. It isn't removed from the queue
+   * directly, but instead is filtered out when dequeuing is done for the sake of aggregation.
+   * @dev Can only be called by the owner when the protocol is paused.
+   *
+   * @param _root The root to be discarded.
+   */
+  function discardRoot(bytes32 _root) public onlyOwner whenPaused {
+    pendingInboundRoots.remove(_root);
+    emit RootDiscarded(_root);
   }
 
   /**

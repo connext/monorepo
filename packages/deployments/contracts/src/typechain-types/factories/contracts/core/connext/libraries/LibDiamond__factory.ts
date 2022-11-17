@@ -4,7 +4,10 @@
 import { Signer, utils, Contract, ContractFactory, Overrides } from "ethers";
 import type { Provider, TransactionRequest } from "@ethersproject/providers";
 import type { PromiseOrValue } from "../../../../../common";
-import type { LibDiamond, LibDiamondInterface } from "../../../../../contracts/core/connext/libraries/LibDiamond";
+import type {
+  LibDiamond,
+  LibDiamondInterface,
+} from "../../../../../contracts/core/connext/libraries/LibDiamond";
 
 const _abi = [
   {
@@ -161,12 +164,15 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea264697066735822122067c215aa752f5ffb78904a9891f7db6e9171c4232166fc5d6d2b43aef2f308fa64736f6c63430008110033";
+  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220397ca0f238707d7a18b66b52302c1fa25baee3ad161901cea866fa5dc4809c8a64736f6c63430008110033";
 
-type LibDiamondConstructorParams = [signer?: Signer] | ConstructorParameters<typeof ContractFactory>;
+type LibDiamondConstructorParams =
+  | [signer?: Signer]
+  | ConstructorParameters<typeof ContractFactory>;
 
-const isSuperArgs = (xs: LibDiamondConstructorParams): xs is ConstructorParameters<typeof ContractFactory> =>
-  xs.length > 1;
+const isSuperArgs = (
+  xs: LibDiamondConstructorParams
+): xs is ConstructorParameters<typeof ContractFactory> => xs.length > 1;
 
 export class LibDiamond__factory extends ContractFactory {
   constructor(...args: LibDiamondConstructorParams) {
@@ -177,10 +183,14 @@ export class LibDiamond__factory extends ContractFactory {
     }
   }
 
-  override deploy(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<LibDiamond> {
+  override deploy(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<LibDiamond> {
     return super.deploy(overrides || {}) as Promise<LibDiamond>;
   }
-  override getDeployTransaction(overrides?: Overrides & { from?: PromiseOrValue<string> }): TransactionRequest {
+  override getDeployTransaction(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): TransactionRequest {
     return super.getDeployTransaction(overrides || {});
   }
   override attach(address: string): LibDiamond {
@@ -195,7 +205,10 @@ export class LibDiamond__factory extends ContractFactory {
   static createInterface(): LibDiamondInterface {
     return new utils.Interface(_abi) as LibDiamondInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): LibDiamond {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): LibDiamond {
     return new Contract(address, _abi, signerOrProvider) as LibDiamond;
   }
 }

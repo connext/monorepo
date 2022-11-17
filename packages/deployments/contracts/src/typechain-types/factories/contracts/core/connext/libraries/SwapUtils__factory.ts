@@ -4,7 +4,10 @@
 import { Signer, utils, Contract, ContractFactory, Overrides } from "ethers";
 import type { Provider, TransactionRequest } from "@ethersproject/providers";
 import type { PromiseOrValue } from "../../../../../common";
-import type { SwapUtils, SwapUtilsInterface } from "../../../../../contracts/core/connext/libraries/SwapUtils";
+import type {
+  SwapUtils,
+  SwapUtilsInterface,
+} from "../../../../../contracts/core/connext/libraries/SwapUtils";
 
 const _abi = [
   {
@@ -251,12 +254,15 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220a8a51dcd6e47343204b1fda629bceba3b57f047d74fd4650bb3ce85c308c369664736f6c63430008110033";
+  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220e482acd4dc89d9487cce078af2c754e62bf636f8b85801b120e105db2ff423ff64736f6c63430008110033";
 
-type SwapUtilsConstructorParams = [signer?: Signer] | ConstructorParameters<typeof ContractFactory>;
+type SwapUtilsConstructorParams =
+  | [signer?: Signer]
+  | ConstructorParameters<typeof ContractFactory>;
 
-const isSuperArgs = (xs: SwapUtilsConstructorParams): xs is ConstructorParameters<typeof ContractFactory> =>
-  xs.length > 1;
+const isSuperArgs = (
+  xs: SwapUtilsConstructorParams
+): xs is ConstructorParameters<typeof ContractFactory> => xs.length > 1;
 
 export class SwapUtils__factory extends ContractFactory {
   constructor(...args: SwapUtilsConstructorParams) {
@@ -267,10 +273,14 @@ export class SwapUtils__factory extends ContractFactory {
     }
   }
 
-  override deploy(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<SwapUtils> {
+  override deploy(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<SwapUtils> {
     return super.deploy(overrides || {}) as Promise<SwapUtils>;
   }
-  override getDeployTransaction(overrides?: Overrides & { from?: PromiseOrValue<string> }): TransactionRequest {
+  override getDeployTransaction(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): TransactionRequest {
     return super.getDeployTransaction(overrides || {});
   }
   override attach(address: string): SwapUtils {
@@ -285,7 +295,10 @@ export class SwapUtils__factory extends ContractFactory {
   static createInterface(): SwapUtilsInterface {
     return new utils.Interface(_abi) as SwapUtilsInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): SwapUtils {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): SwapUtils {
     return new Contract(address, _abi, signerOrProvider) as SwapUtils;
   }
 }
