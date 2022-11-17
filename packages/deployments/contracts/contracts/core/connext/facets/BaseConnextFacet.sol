@@ -19,12 +19,6 @@ contract BaseConnextFacet {
   // Contains hash of empty bytes
   bytes32 internal constant EMPTY_HASH = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
 
-  // ============ Constructor ============
-
-  constructor(uint32 _domain) {
-    DOMAIN = _domain;
-  }
-
   // ========== Custom Errors ===========
 
   error BaseConnextFacet__onlyBridgeRouter_notBridgeRouter();
@@ -127,6 +121,18 @@ contract BaseConnextFacet {
     _;
   }
 
+  // ============ Constructor ============
+
+  constructor(uint32 _domain) {
+    DOMAIN = _domain;
+  }
+
+  // ============ Getters ============
+
+  function domain() public view returns (uint32) {
+    return DOMAIN;
+  }
+
   // ============ Internal functions ============
   /**
    * @notice Indicates if the router whitelist has been removed
@@ -187,11 +193,11 @@ contract BaseConnextFacet {
     bytes32 _id,
     uint32 _domain
   ) internal view returns (address) {
-    return AssetLogic.getLocalAsset(_key, _id, _domain == DOMAIN, s);
+    return AssetLogic.getLocalAsset(_key, _id, _domain == domain(), s);
   }
 
   function _getCanonicalTokenId(address _candidate) internal view returns (TokenId memory) {
-    return AssetLogic.getCanonicalTokenId(_candidate, DOMAIN, s);
+    return AssetLogic.getCanonicalTokenId(_candidate, domain(), s);
   }
 
   function _getLocalAndAdoptedToken(
@@ -199,7 +205,7 @@ contract BaseConnextFacet {
     bytes32 _id,
     uint32 _domain
   ) internal view returns (address, address) {
-    address _local = AssetLogic.getLocalAsset(_key, _id, _domain == DOMAIN, s);
+    address _local = AssetLogic.getLocalAsset(_key, _id, _domain == domain(), s);
     address _adopted = _getAdoptedAsset(_key);
     return (_local, _adopted);
   }

@@ -97,23 +97,22 @@ contract Deployer {
     bridgeFacetSelectors[0] = BridgeFacet.routedTransfers.selector;
     bridgeFacetSelectors[1] = BridgeFacet.transferStatus.selector;
     bridgeFacetSelectors[2] = BridgeFacet.remote.selector;
-    bridgeFacetSelectors[3] = BridgeFacet.domain.selector;
-    bridgeFacetSelectors[4] = BridgeFacet.nonce.selector;
-    bridgeFacetSelectors[5] = BridgeFacet.approvedSequencers.selector;
+    bridgeFacetSelectors[3] = BridgeFacet.nonce.selector;
+    bridgeFacetSelectors[4] = BridgeFacet.approvedSequencers.selector;
 
     // admin
-    bridgeFacetSelectors[6] = BridgeFacet.addSequencer.selector;
-    bridgeFacetSelectors[7] = BridgeFacet.removeSequencer.selector;
-    bridgeFacetSelectors[8] = BridgeFacet.setXAppConnectionManager.selector;
-    bridgeFacetSelectors[9] = BridgeFacet.enrollRemoteRouter.selector;
+    bridgeFacetSelectors[5] = BridgeFacet.addSequencer.selector;
+    bridgeFacetSelectors[6] = BridgeFacet.removeSequencer.selector;
+    bridgeFacetSelectors[7] = BridgeFacet.setXAppConnectionManager.selector;
+    bridgeFacetSelectors[8] = BridgeFacet.enrollRemoteRouter.selector;
 
     // public:bridge
-    bridgeFacetSelectors[10] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[11] = BridgeFacet.xcallIntoLocal.selector;
-    bridgeFacetSelectors[12] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[13] = BridgeFacet.bumpTransfer.selector;
-    bridgeFacetSelectors[14] = BridgeFacet.forceUpdateSlippage.selector;
-    bridgeFacetSelectors[15] = BridgeFacet.forceReceiveLocal.selector;
+    bridgeFacetSelectors[9] = BridgeFacet.xcall.selector;
+    bridgeFacetSelectors[10] = BridgeFacet.xcallIntoLocal.selector;
+    bridgeFacetSelectors[11] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[12] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[13] = BridgeFacet.forceUpdateSlippage.selector;
+    bridgeFacetSelectors[14] = BridgeFacet.forceReceiveLocal.selector;
 
     return
       IDiamondCut.FacetCut({

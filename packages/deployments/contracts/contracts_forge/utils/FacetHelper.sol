@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
 
+import {BaseConnextFacet} from "../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {LibConnextStorage, AppStorage, TokenId, TransferInfo} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {TypeCasts} from "../../contracts/shared/libraries/TypeCasts.sol";
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
@@ -11,7 +12,7 @@ import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
 import "./ForgeHelper.sol";
 
-contract FacetHelper is ForgeHelper {
+abstract contract FacetHelper is ForgeHelper {
   // ============ Storage ============
   // ============ Domains
   // domains
@@ -86,13 +87,13 @@ contract FacetHelper is ForgeHelper {
 
     if (onCanonical) {
       // set domain
-      s.domain = _canonicalDomain;
+      utils_overrideCurrentDomain(_canonicalDomain);
       // on canonical, local is always adopted && local is always canonical
       _local = _canonical;
       _adopted = _canonical;
     } else {
       // Ensure stored domain is not canonical domain
-      if (s.domain == _canonicalDomain) {
+      if (utils_getCurrentDomain() == _canonicalDomain) {
         _canonicalDomain = _canonicalDomain == _originDomain ? _destinationDomain : _originDomain;
       }
 
@@ -120,7 +121,7 @@ contract FacetHelper is ForgeHelper {
     // - token registry should always return the canonical
     // - if you are not on canonical domain, ensure the local origin returns false
     //   (indicates whether token should be burned or not)
-    if (s.domain != _canonicalDomain) {
+    if (utils_getCurrentDomain() != _canonicalDomain) {
       s.representationToCanonical[_local].domain = _canonicalDomain;
       s.representationToCanonical[_local].id = _canonicalId;
       s.canonicalToRepresentation[_canonicalKey] = _local;
@@ -141,7 +142,7 @@ contract FacetHelper is ForgeHelper {
     // console.log("- local:", _local);
     // console.log("- canonical:", _canonical);
     // console.log("");
-    // console.log("- domain:", s.domain);
+    // console.log("- domain:", utils_getCurrentDomain());
     // console.log("- destination:", _destinationDomain);
     // console.log("- origin:", _originDomain);
     // console.log("- canonicalDomain:", _canonicalDomain);
@@ -179,5 +180,34 @@ contract FacetHelper is ForgeHelper {
         normalizedIn: 0,
         canonicalId: bytes32(0)
       });
+  }
+
+  // Switch the `_originDomain` and `_destinationDomain` references in storage. Will result
+  // test behavior treating current domain as destination (e.g. for use in `execute` tests).
+  // function helpers_reverseDomains() internal {
+  //   if (!didReverseDomains) {
+  //     didReverseDomains = true;
+  //     uint32 _temp = _destinationDomain;
+  //     _destinationDomain = _originDomain;
+  //     _originDomain = _temp;
+  //   }
+  // }
+
+  function utils_overrideCurrentDomain(uint32 newDomain) internal {
+    vm.mockCall(address(this), abi.encodeWithSelector(BaseConnextFacet.domain.selector), abi.encode(newDomain));
+  }
+
+  function utils_overrideCurrentDomainToDestination() internal {
+    vm.mockCall(
+      address(this),
+      abi.encodeWithSelector(BaseConnextFacet.domain.selector),
+      abi.encode(_destinationDomain)
+    );
+  }
+
+  function utils_getCurrentDomain() internal returns (uint32) {
+    (bool success, bytes memory result) = address(this).call(abi.encodeWithSelector(BaseConnextFacet.domain.selector));
+    require(success, "checking domain in FacetHelper failed");
+    return uint32(bytes4(result));
   }
 }

@@ -25,7 +25,6 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   constructor() PortalFacet(_originDomain) {}
 
   // ============ Storage ============
-  uint32 domain = _originDomain;
   address bridgeRouter = address(1);
   address relayerFeeVault = address(4);
   address xAppConnectionManager = address(5);

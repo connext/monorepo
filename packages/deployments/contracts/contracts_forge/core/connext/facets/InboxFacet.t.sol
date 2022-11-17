@@ -79,7 +79,7 @@ contract InboxFacetTest is InboxFacet, FacetHelper {
       params.canonicalId,
       params.canonicalDomain
     );
-    return MessagingUtils.formatMessage(params, local, params.canonicalDomain == DOMAIN);
+    return MessagingUtils.formatMessage(params, local, params.canonicalDomain == domain());
   }
 
   function utils_createTransferIdInformation(address asset) public returns (TransferInfo memory, bytes32) {
