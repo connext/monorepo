@@ -5,10 +5,10 @@ import { NoChainIdForHubDomain, RootManagerPropagateWrapperNotFound } from "../e
 import { getPropagateParamsArbitrum, getPropagateParamsBnb } from "../helpers";
 import { getContext } from "../propagate";
 
-export type ExtraPropagateParams = {
-  _connectors: string[];
-  _fees: string[];
-  _encodedData: string[];
+export type ExtraPropagateParam = {
+  _connector: string;
+  _fee: string;
+  _encodedData: string;
 };
 
 export const getParamsForDomainFn: Record<
@@ -18,9 +18,10 @@ export const getParamsForDomainFn: Record<
     spokeChainId: number,
     hubChainId: number,
     requestContext: RequestContext,
-  ) => Promise<ExtraPropagateParams>
+  ) => Promise<ExtraPropagateParam>
 > = {
   "1634886255": getPropagateParamsArbitrum,
+  "1734439522": getPropagateParamsArbitrum,
   "6450786": getPropagateParamsBnb,
 };
 
@@ -41,30 +42,38 @@ export const propagate = async () => {
   }
 
   const target = contracts.rootManagerPropagateWrapper(hubChainId, config.environment === "staging" ? "Staging" : "");
-  console.log("target", target);
   if (!target) {
     throw new RootManagerPropagateWrapperNotFound(config.hubDomain, requestContext, methodContext);
   }
 
-  const params: ExtraPropagateParams[] = await Promise.all(
-    domains.map(async (domain) => {
-      logger.info("Starting propagation for domain", requestContext, methodContext, { domain });
+  const _connectors: string[] = [];
+  const _encodedData: string[] = [];
+  const _fees: string[] = [];
+
+  for (const domain of domains) {
+    const connector = rootManagerMeta.connectors[domains.indexOf(domain)];
+    _connectors.push(connector);
+
+    if (Object.keys(getParamsForDomainFn).includes(domain)) {
       const getParamsForDomain = getParamsForDomainFn[domain];
-      let params: ExtraPropagateParams = {
-        _connectors: [rootManagerMeta.connectors[domains.indexOf(domain)]],
-        _fees: ["0"],
-        _encodedData: ["0x"],
-      };
-      if (getParamsForDomain) {
-        // no try catch here because we want to throw if we can't get params
-        params = await getParamsForDomain(domain, chainData.get(domain)!.chainId, hubChainId, requestContext);
-      }
-      return params;
-    }),
-  );
+      const propagateParam = await getParamsForDomain(
+        domain,
+        chainData.get(domain)!.chainId,
+        hubChainId,
+        requestContext,
+      );
+      _encodedData.push(propagateParam._encodedData);
+      _fees.push(propagateParam._fee);
+    } else {
+      _encodedData.push("0x");
+      _fees.push("0");
+    }
+  }
+
+  console.log({ _connectors, _encodedData, _fees });
 
   // encode data
-  const encodedData = encodePropagate(target.abi as string[], params);
+  const encodedData = encodePropagate(target.abi as string[], [_connectors, _encodedData, _fees]);
   const { taskId } = await sendWithRelayerWithBackup(
     hubChainId,
     config.hubDomain,

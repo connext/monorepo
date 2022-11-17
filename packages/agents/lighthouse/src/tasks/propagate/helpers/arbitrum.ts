@@ -3,7 +3,7 @@ import { constants, utils } from "ethers";
 
 import { getContext } from "../propagate";
 import { NoSpokeConnector, NoHubConnector, NoProviderForDomain } from "../errors";
-import { ExtraPropagateParams } from "../operations/propagate";
+import { ExtraPropagateParam } from "../operations/propagate";
 import { getJsonRpcProvider, getL1ToL2MessageGasEstimator } from "../../../mockable";
 
 // example at https://github.com/OffchainLabs/arbitrum-tutorials/blob/master/packages/greeter/scripts/exec.js
@@ -12,7 +12,7 @@ export const getPropagateParams = async (
   l2ChainId: number,
   l1ChainId: number,
   _requestContext: RequestContext,
-): Promise<ExtraPropagateParams> => {
+): Promise<ExtraPropagateParam> => {
   const {
     config,
     logger,
@@ -104,5 +104,5 @@ export const getPropagateParams = async (
     [submissionPriceWei, maxGas, gasPriceBid],
   );
 
-  return { _connectors: [""], _fees: [callValue.toString()], _encodedData: [encodedData] };
+  return { _connector: "", _fee: callValue.toString(), _encodedData: encodedData };
 };

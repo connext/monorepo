@@ -2,7 +2,7 @@ import { ContractInterface } from "ethers";
 import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
 
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../errors";
-import { ExtraPropagateParams } from "../operations/propagate";
+import { ExtraPropagateParam } from "../operations/propagate";
 import { getContext } from "../propagate";
 import { getContract, getJsonRpcProvider } from "../../../mockable";
 
@@ -11,7 +11,7 @@ export const getPropagateParams = async (
   l2ChainId: number,
   l1ChainId: number,
   _requestContext: RequestContext,
-): Promise<ExtraPropagateParams> => {
+): Promise<ExtraPropagateParam> => {
   const {
     config,
     logger,
@@ -54,5 +54,5 @@ export const getPropagateParams = async (
   const ambContract = getContract(ambAddress as string, ambs.bnb as ContractInterface, l1Provider);
   const fee = await ambContract.calcSrcFees("", l2ChainId, 32);
 
-  return { _connectors: [""], _fees: [fee], _encodedData: ["0x"] };
+  return { _connector: "", _fee: fee, _encodedData: "0x" };
 };
