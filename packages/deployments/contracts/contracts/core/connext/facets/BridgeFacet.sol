@@ -40,9 +40,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__setXAppConnectionManager_domainsDontMatch();
   error BridgeFacet__xcall_nativeAssetNotSupported();
   error BridgeFacet__xcall_emptyTo();
-  error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_invalidSlippage();
-  error BridgeFacet__xcall_canonicalAssetNotReceived();
   error BridgeFacet__xcall_capReached();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
