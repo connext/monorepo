@@ -9,7 +9,7 @@ type RootAggregated @entity {
 type RootPropagated @entity {
   id: ID! # "RootPropagated"
   aggregate: Bytes!
-  domains: [BigInt!]
+  domainsHash: Bytes!
   count: BigInt!
 }
 
@@ -18,6 +18,12 @@ type AggregatedMessageRoot @entity {
   index: BigInt! # Index in the aggregate tree.
   receivedRoot: Bytes! # The actual leaf hash; the 32-byte message root.
   domain: BigInt!
+}
+
+type RootManagerMeta @entity {
+  id: ID! # "ROOT_MANAGER_META_ID"
+  domains: [BigInt!]
+  connectors: [Bytes!]
 }
 
 # POLYGON
@@ -34,6 +40,39 @@ type PolygonConnectorMeta @entity {
 # OPTIMISM
 type OptimismConnectorMeta @entity {
   id: ID! # "OptimismConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# BNB
+type BnbConnectorMeta @entity {
+  id: ID! # "BnbConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# ARBITRUM
+type ArbitrumConnectorMeta @entity {
+  id: ID! # "ArbitrumConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# GNOSIS
+type GnosisConnectorMeta @entity {
+  id: ID! # "GnosisConnectorMeta"
   spokeDomain: BigInt!
   hubDomain: BigInt!
 

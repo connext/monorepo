@@ -48,6 +48,14 @@ output "lighthouse-process-from-root-dns" {
   value = module.lighthouse_process_from_root_cron.daemon_service_name
 }
 
+output "lighthouse-propagate-service-name" {
+  value = module.lighthouse_propagate_cron.daemon_service_name
+}
+
+output "lighthouse-propagate-dns" {
+  value = module.lighthouse_propagate_cron.daemon_service_name
+}
+
 output "relayer-service-endpoint" {
   value = module.relayer.service_endpoint
 }

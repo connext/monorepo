@@ -3,7 +3,6 @@ pragma solidity 0.8.17;
 
 import {LibArbitrumL2} from "@openzeppelin/contracts/crosschain/arbitrum/LibArbitrumL2.sol";
 
-import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {ArbitrumL2Amb} from "../../interfaces/ambs/arbitrum/ArbitrumL2Amb.sol";
 
 import {SpokeConnector} from "../SpokeConnector.sol";
