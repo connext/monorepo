@@ -8,8 +8,9 @@ import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 
-import {LibConnextStorage, AppStorage, TokenId} from "./LibConnextStorage.sol";
+import {LibConnextStorage, AppStorage} from "./LibConnextStorage.sol";
 import {SwapUtils} from "./SwapUtils.sol";
+import {TokenId} from "./TokenId.sol";
 
 library AssetLogic {
   // ============ Libraries ============
@@ -25,6 +26,7 @@ library AssetLogic {
   error AssetLogic__swapToLocalAssetIfNeeded_swapPaused();
   error AssetLogic__swapFromLocalAssetIfNeeded_swapPaused();
   error AssetLogic__getTokenIndexFromStableSwapPool_notExist();
+  error AssetLogic__swapAsset_externalStableSwapPoolDoesNotExist();
 
   // ============ Internal: Handle Transfer ============
 
@@ -203,20 +205,13 @@ library AssetLogic {
     address _asset,
     uint256 _amount,
     uint256 _maxIn
-  )
-    internal
-    returns (
-      bool,
-      uint256,
-      address
-    )
-  {
+  ) internal returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // If the adopted asset is the local asset, no need to swap.
     address adopted = s.canonicalToAdopted[_key];
     if (adopted == _asset) {
-      return (true, _amount, adopted);
+      return (_amount, adopted);
     }
 
     return _swapAssetOut(_key, _asset, adopted, _amount, _maxIn);
@@ -230,8 +225,8 @@ library AssetLogic {
    * @param _assetOut - The address of the to asset
    * @param _amount - The amount of the local asset to swap
    * @param _minOut - The minimum amount of `_assetOut` the user will accept
-   * @return The amount of assetOut
-   * @return The address of assetOut
+   * @return The amount of asset received
+   * @return The address of asset received
    */
   function _swapAsset(
     bytes32 _key,
@@ -277,11 +272,9 @@ library AssetLogic {
    * @param _assetOut - The address of the to asset.
    * @param _amountOut - The amount of the _assetOut to swap.
    * @param _maxIn - The most you will supply to the swap.
-   * @return success Success value. Will be false if the swap was unsuccessful (slippage too
-   * high).
    * @return amountIn The amount of assetIn. Will be 0 if the swap was unsuccessful (slippage
    * too high).
-   * @return assetOut The address of assetOut.
+   * @return assetOut The address of asset received.
    */
   function _swapAssetOut(
     bytes32 _key,
@@ -289,17 +282,8 @@ library AssetLogic {
     address _assetOut,
     uint256 _amountOut,
     uint256 _maxIn
-  )
-    internal
-    returns (
-      bool success,
-      uint256 amountIn,
-      address assetOut
-    )
-  {
+  ) internal returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
-
-    assetOut = _assetOut;
 
     // Retrieve internal swap pool reference. If it doesn't exist, we'll resort to using an
     // external stableswap below.
@@ -309,37 +293,39 @@ library AssetLogic {
     // NOTE: IFF slippage was too high to perform swap in either case: success = false, amountIn = 0
     if (ipool.exists()) {
       // Swap via the internal pool.
-      uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(_key, _assetIn);
-      uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(_key, _assetOut);
-
-      // Calculate slippage before performing swap.
-      // NOTE: This is less efficient then relying on the `swapInternalOut` revert, but makes it easier
-      // to handle slippage failures (this can be called during reconcile, so must not fail).
-      if (_maxIn >= ipool.calculateSwapInv(tokenIndexIn, tokenIndexOut, _amountOut)) {
-        success = true;
-        amountIn = ipool.swapInternalOut(tokenIndexIn, tokenIndexOut, _amountOut, _maxIn);
-      }
+      return (
+        ipool.swapInternalOut(
+          getTokenIndexFromStableSwapPool(_key, _assetIn),
+          getTokenIndexFromStableSwapPool(_key, _assetOut),
+          _amountOut,
+          _maxIn
+        ),
+        _assetOut
+      );
     } else {
       // Otherwise, swap via external stableswap pool.
       IStableSwap pool = s.adoptedToLocalExternalPools[_key];
+      address poolAddress = address(pool);
 
-      // NOTE: This call will revert if the external stableswap pool doesn't exist.
-      uint256 _amountIn = pool.calculateSwapOutFromAddress(_assetIn, _assetOut, _amountOut);
-      if (_amountIn <= _maxIn) {
-        success = true;
+      // NOTE: We revert here if the external stableswap pool doesn't exist.
+      if (poolAddress == address(0)) revert AssetLogic__swapAsset_externalStableSwapPoolDoesNotExist();
 
-        // Perform the swap.
-        // Edge case with some tokens: Example USDT in ETH Mainnet, after the backUnbacked call
-        // there could be a remaining allowance if not the whole amount is pulled by aave.
-        // Later, if we try to increase the allowance it will fail. USDT demands if allowance
-        // is not 0, it has to be set to 0 first.
-        // Example: https://github.com/aave/aave-v3-periphery/blob/ca184e5278bcbc10d28c3dbbc604041d7cfac50b/contracts/adapters/paraswap/ParaSwapRepayAdapter.sol#L138-L140
-        IERC20Metadata assetIn = IERC20Metadata(_assetIn);
+      // Perform the swap.
+      // Edge case with some tokens: Example USDT in ETH Mainnet, after the backUnbacked call
+      // there could be a remaining allowance if not the whole amount is pulled by aave.
+      // Later, if we try to increase the allowance it will fail. USDT demands if allowance
+      // is not 0, it has to be set to 0 first.
+      // Example: https://github.com/aave/aave-v3-periphery/blob/ca184e5278bcbc10d28c3dbbc604041d7cfac50b/contracts/adapters/paraswap/ParaSwapRepayAdapter.sol#L138-L140
+      IERC20Metadata assetIn = IERC20Metadata(_assetIn);
 
-        assetIn.safeApprove(address(pool), 0);
-        assetIn.safeIncreaseAllowance(address(pool), _amountIn);
-        amountIn = pool.swapExactOut(_amountOut, _assetIn, _assetOut, _maxIn, block.timestamp + 3600);
-      }
+      assetIn.safeApprove(poolAddress, 0);
+      assetIn.safeIncreaseAllowance(poolAddress, _maxIn);
+
+      uint256 out = pool.swapExactOut(_amountOut, _assetIn, _assetOut, _maxIn, block.timestamp + 3600);
+
+      // Reset allowance
+      assetIn.safeApprove(poolAddress, 0);
+      return (out, _assetOut);
     }
   }
 
@@ -470,12 +456,7 @@ library AssetLogic {
     }
     // If the contract was NOT deployed by the bridge, but the contract does exist, then it
     // IS of local origin. Returns true if code exists at `_addr`.
-    uint256 _codeSize;
-    // solhint-disable-next-line no-inline-assembly
-    assembly {
-      _codeSize := extcodesize(_token)
-    }
-    return _codeSize != 0;
+    return _token.code.length != 0;
   }
 
   /**

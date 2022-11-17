@@ -15,7 +15,6 @@ contract PortalFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error PortalFacet__setAavePortalFee_invalidFee();
   error PortalFacet__repayAavePortal_insufficientFunds();
-  error PortalFacet__repayAavePortal_swapFailed();
   error PortalFacet__repayAavePortalFor_zeroAmount();
 
   // ============ Events ============
@@ -86,8 +85,9 @@ contract PortalFacet is BaseConnextFacet {
     bytes32 key = AssetLogic.calculateCanonicalHash(_params.canonicalId, _params.canonicalDomain);
     address local = _getLocalAsset(key, _params.canonicalId, _params.canonicalDomain);
 
+    uint256 routerBalance = s.routerBalances[msg.sender][local];
     // Sanity check: has that much to spend
-    if (s.routerBalances[msg.sender][local] < _maxIn) revert PortalFacet__repayAavePortal_insufficientFunds();
+    if (routerBalance < _maxIn) revert PortalFacet__repayAavePortal_insufficientFunds();
 
     // Here, generate the transfer id. This allows us to ensure the `_local` asset
     // is the correct one associated with the transfer. Otherwise, anyone could pay back
@@ -103,17 +103,15 @@ contract PortalFacet is BaseConnextFacet {
     // is the adopted asset
 
     // Swap for exact `totalRepayAmount` of adopted asset to repay aave
-    (bool success, uint256 amountDebited, address assetLoaned) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(
+    (uint256 amountDebited, address assetLoaned) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(
       key,
       local,
       _backingAmount + _feeAmount,
       _maxIn
     );
 
-    if (!success) revert PortalFacet__repayAavePortal_swapFailed();
-
     // decrement router balances
-    s.routerBalances[msg.sender][local] -= amountDebited;
+    s.routerBalances[msg.sender][local] = routerBalance - amountDebited;
 
     // back loan
     _backLoan(assetLoaned, _backingAmount, _feeAmount, transferId);

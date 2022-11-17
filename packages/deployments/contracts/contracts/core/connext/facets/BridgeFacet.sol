@@ -15,8 +15,9 @@ import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {ExecuteArgs, TransferInfo, TokenId, DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
+import {ExecuteArgs, TransferInfo, DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
 import {BridgeMessage} from "../libraries/BridgeMessage.sol";
+import {TokenId} from "../libraries/TokenId.sol";
 
 import {IXReceiver} from "../interfaces/IXReceiver.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
@@ -53,6 +54,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_notApprovedForPortals();
   error BridgeFacet__execute_badFastLiquidityStatus();
   error BridgeFacet__execute_notReconciled();
+  error BridgeFacet__excecute_insufficientGas();
   error BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn();
   error BridgeFacet__bumpTransfer_valueIsZero();
   error BridgeFacet__bumpTransfer_noRelayerVault();
@@ -280,7 +282,7 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _amount,
     uint256 _slippage,
     bytes calldata _callData
-  ) external payable returns (bytes32) {
+  ) external payable nonXCallReentrant returns (bytes32) {
     // NOTE: Here, we fill in as much information as we can for the TransferInfo.
     // Some info is left blank and will be assigned in the internal `_xcall` function (e.g.
     // `normalizedIn`, `bridgedAmt`, canonical info, etc).
@@ -313,7 +315,7 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _amount,
     uint256 _slippage,
     bytes calldata _callData
-  ) external payable returns (bytes32) {
+  ) external payable nonXCallReentrant returns (bytes32) {
     // NOTE: Here, we fill in as much information as we can for the TransferInfo.
     // Some info is left blank and will be assigned in the internal `_xcall` function (e.g.
     // `normalizedIn`, `bridgedAmt`, canonical info, etc).
@@ -547,12 +549,10 @@ contract BridgeFacet is BaseConnextFacet {
         // Swap to the local asset from adopted if applicable.
         // TODO: drop the "IfNeeded", instead just check whether the asset is already local / needs swap here.
         _params.bridgedAmt = AssetLogic.swapToLocalAssetIfNeeded(key, _asset, local, _amount, _params.slippage);
-      }
 
-      // Get the normalized amount in (amount sent in by user in 18 decimals).
-      _params.normalizedIn = _asset == address(0)
-        ? 0 // we know from assertions above this is the case IFF amount == 0
-        : AssetLogic.normalizeDecimals(IERC20Metadata(_asset).decimals(), uint8(18), _amount);
+        // Get the normalized amount in (amount sent in by user in 18 decimals).
+        _params.normalizedIn = AssetLogic.normalizeDecimals(IERC20Metadata(_asset).decimals(), uint8(18), _amount);
+      }
 
       // Calculate the transfer ID.
       _params.nonce = s.nonce++;
@@ -785,6 +785,9 @@ contract BridgeFacet is BaseConnextFacet {
 
     // Swap out of representational asset into adopted asset if needed.
     uint256 slippageOverride = s.slippage[_transferId];
+    // delete for gas refund
+    delete s.slippage[_transferId];
+
     (uint256 amount, address adopted) = AssetLogic.swapFromLocalAssetIfNeeded(
       _key,
       local,
@@ -850,11 +853,16 @@ contract BridgeFacet is BaseConnextFacet {
       // - 2 events are emitted
       // - transfer id is returned
       // -> reserve 10K gas
+      uint256 reserve = 10_000;
+
+      if (gasleft() < reserve + 1) {
+        revert BridgeFacet__excecute_insufficientGas();
+      }
 
       // Use SafeCall here
       (success, returnData) = ExcessivelySafeCall.excessivelySafeCall(
         _params.to,
-        gasleft() - 10_000,
+        gasleft() - reserve,
         0, // native asset value (always 0)
         256, // only copy 256 bytes back as calldata
         abi.encodeWithSelector(
@@ -936,30 +944,27 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _amount,
     bool _isCanonical
   ) private returns (bytes32) {
-    IBridgeToken _token = IBridgeToken(_local);
-
-    // Get the formatted token ID
-    bytes29 _tokenId = BridgeMessage.formatTokenId(_canonical.domain, _canonical.id);
-
     // Remove tokens from circulation on this chain if applicable.
     if (_amount > 0) {
       if (!_isCanonical) {
         // If the token originates on a remote chain, burn the representational tokens on this chain.
-        _token.burn(address(this), _amount);
+        IBridgeToken(_local).burn(address(this), _amount);
       }
       // IFF the token IS the canonical token (i.e. originates on this chain), we lock the input tokens in escrow
       // in this contract, as an equal amount of representational assets will be minted on the destination chain.
       // NOTE: The tokens should be in the contract already at this point from xcall.
     }
 
-    // Format hook action.
-    bytes29 _action = BridgeMessage.formatTransfer(_amount, _transferId);
-    // Send message to destination chain bridge router.
-    bytes32 _messageHash = IOutbox(s.xAppConnectionManager.home()).dispatch(
-      _destination,
-      _connextion,
-      BridgeMessage.formatMessage(_tokenId, _action)
+    bytes memory _messageBody = abi.encodePacked(
+      _canonical.domain,
+      _canonical.id,
+      BridgeMessage.Types.Transfer,
+      _amount,
+      _transferId
     );
+
+    // Send message to destination chain bridge router.
+    bytes32 _messageHash = IOutbox(s.xAppConnectionManager.home()).dispatch(_destination, _connextion, _messageBody);
 
     // return message hash
     return _messageHash;
