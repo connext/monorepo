@@ -6,7 +6,7 @@ export const getCanonicalTokenSchema = Type.Object({
   tokenAddress: Type.String(),
 });
 
-export const getCanonicalKeySchema = Type.Object({
+export const calculateCanonicalKeySchema = Type.Object({
   domainId: Type.String(),
   tokenId: Type.String(),
 });
