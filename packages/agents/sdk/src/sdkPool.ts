@@ -1,7 +1,7 @@
 import { providers, BigNumber } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData, getCanonicalHash } from "@connext/nxtp-utils";
 import { getContractInterfaces, contractDeployments, ChainReader } from "@connext/nxtp-txservice";
-import { Connext as TConnext, IERC20Extended } from "@connext/nxtp-contracts";
+import { Connext as TConnext, IERC20 } from "@connext/nxtp-contracts";
 
 import { NxtpSdkConfig, getConfig } from "./config";
 import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined, PoolDoesNotExist } from "./lib/errors";
@@ -77,7 +77,7 @@ export class NxtpSdkPool {
   public readonly config: NxtpSdkConfig;
   public readonly chainData: Map<string, ChainData>;
   public readonly connext: TConnext["interface"];
-  public readonly erc20: IERC20Extended["interface"];
+  public readonly erc20: IERC20["interface"];
 
   private readonly logger: Logger;
   private readonly chainReader: ChainReader;
@@ -90,7 +90,7 @@ export class NxtpSdkPool {
     this.chainData = chainData;
     this.chainReader = chainReader;
     this.connext = getContractInterfaces().connext;
-    this.erc20 = getContractInterfaces().erc20Extended;
+    this.erc20 = getContractInterfaces().erc20;
   }
 
   static async create(
