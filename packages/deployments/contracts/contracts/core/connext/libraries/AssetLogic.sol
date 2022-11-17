@@ -51,7 +51,7 @@ library AssetLogic {
     uint256 starting = asset.balanceOf(address(this));
 
     // Transfer asset to contract.
-    SafeERC20.safeTransferFrom(asset, msg.sender, address(this), _amount);
+    asset.safeTransferFrom(msg.sender, address(this), _amount);
 
     // Ensure correct amount was transferred (i.e. this was not a fee-on-transfer token).
     if (asset.balanceOf(address(this)) - starting != _amount) {
