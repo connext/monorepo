@@ -25,6 +25,7 @@ contract TokenFacet is BaseConnextFacet {
   error TokenFacet__removeAssetId_notAdded();
   error TokenFacet__removeAssetId_invalidParams();
   error TokenFacet__updateDetails_localNotFound();
+  error TokenFacet__updateDetails_notApproved();
   error TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
   error TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
   error TokenFacet__setLiquidityCap_notCanonicalDomain();
@@ -303,6 +304,14 @@ contract TokenFacet is BaseConnextFacet {
     if (local == address(0)) {
       revert TokenFacet__updateDetails_localNotFound();
     }
+
+    // ensure asset is currently approved because `s.canonicalToRepresentation` does
+    // not get cleared when asset is removed from allowlist
+    if (!s.approvedAssets[key]) {
+      revert TokenFacet__updateDetails_notApproved();
+    }
+
+    // make sure the asset is still active
     IBridgeToken(local).setDetails(_name, _symbol);
   }
 
