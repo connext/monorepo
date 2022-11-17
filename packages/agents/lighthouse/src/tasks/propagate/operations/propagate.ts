@@ -20,8 +20,8 @@ export const getParamsForDomainFn: Record<
     requestContext: RequestContext,
   ) => Promise<ExtraPropagateParam>
 > = {
-  "1634886255": getPropagateParamsArbitrum,
-  "1734439522": getPropagateParamsArbitrum,
+  // "1634886255": getPropagateParamsArbitrum,
+  // "1734439522": getPropagateParamsArbitrum,
   "6450786": getPropagateParamsBnb,
 };
 
@@ -73,7 +73,7 @@ export const propagate = async () => {
   console.log({ _connectors, _encodedData, _fees });
 
   // encode data
-  const encodedData = encodePropagate(target.abi as string[], [_connectors, _encodedData, _fees]);
+  const encodedData = encodePropagate(target.abi as string[], [_connectors, _fees, _encodedData]);
   const { taskId } = await sendWithRelayerWithBackup(
     hubChainId,
     config.hubDomain,
