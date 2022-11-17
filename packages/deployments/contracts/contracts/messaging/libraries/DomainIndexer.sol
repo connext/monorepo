@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 /**
  * @notice This abstract contract was written to ensure domain and connector mutex is scalable for the
@@ -10,6 +10,20 @@ pragma solidity 0.8.15;
  */
 abstract contract DomainIndexer {
   // ============ Properties ============
+
+  /**
+   * @notice The absolute maximum number of domains that we should support. Domain and connector arrays
+   * are naturally unbounded, but the gas cost of reading these arrays in `updateHashes()` is bounded by
+   * the block's gas limit.
+   *
+   * If we want to set a hard ceiling for gas costs for the `updateHashes()` method at approx. 2M gas,
+   * with an average SLOAD cost of 900 gas per domain (1 uint32, 1 address):
+   *       2M / 900 = ~2222 domains
+   *
+   * Realistically, the cap on the number of domains will likely exist in other places, but we cap it
+   * here as a last resort.
+   */
+  uint256 public constant MAX_DOMAINS = 2000;
 
   /**
    * @notice Domains array tracks currently subscribed domains to this hub aggregator.
@@ -81,10 +95,23 @@ abstract contract DomainIndexer {
    * @notice Validate given domains and connectors arrays are correct (i.e. they mirror what is
    * currently saved in storage).
    * @dev Reverts if domains or connectors do not match, including ordering.
+   * @param _domains The given domains array to check.
+   * @param _connectors The given connectors array to check.
    */
   function validateDomains(uint32[] calldata _domains, address[] calldata _connectors) public view {
     // Validate that given domains match the current array in storage.
     require(keccak256(abi.encode(_domains)) == domainsHash, "!domains");
+    // Validate that given connectors match the current array in storage.
+    require(keccak256(abi.encode(_connectors)) == connectorsHash, "!connectors");
+  }
+
+  /**
+   * @notice Validate given connectors array is correct (i.e. it mirrors what is
+   * currently saved in storage).
+   * @dev Reverts if domains or connectors do not match, including ordering.
+   * @param _connectors The given connectors array to check.
+   */
+  function validateConnectors(address[] calldata _connectors) public view {
     // Validate that given connectors match the current array in storage.
     require(keccak256(abi.encode(_connectors)) == connectorsHash, "!connectors");
   }
@@ -101,6 +128,8 @@ abstract contract DomainIndexer {
     require(!isDomainSupported(_domain), "exists");
     // Sanity check: connector is reasonable.
     require(_connector != address(0), "!connector");
+    // Sanity check: Under maximum.
+    require(domains.length < MAX_DOMAINS, "DomainIndexer at capacity");
 
     // Push domain and connector to respective arrays.
     domains.push(_domain);

@@ -1,6 +1,6 @@
 {
   "name": "@connext/lighthouse",
-  "version": "0.2.1-beta.2",
+  "version": "0.2.1-beta.3",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,6 +11,7 @@
   "scripts": {
     "start:prover": "node --enable-source-maps dist/tasks/prover/index.js",
     "start:process": "node --enable-source-maps dist/tasks/processFromRoot/index.js",
+    "start:propagate": "node --enable-source-maps dist/tasks/propagate/index.js",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
@@ -23,8 +24,10 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
+    "@arbitrum/sdk": "3.0.0-beta.12",
     "@connext/nxtp-adapters-database": "workspace:*",
     "@connext/nxtp-adapters-relayer": "workspace:*",
+    "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@eth-optimism/sdk": "1.6.9",

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {Deployer} from "../../../utils/Deployer.sol";
 import {IConnext} from "../../../../contracts/core/connext/interfaces/IConnext.sol";
@@ -151,7 +151,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   // should work when local asset is the adopted asset
   function test_PortalFacet__repayAavePortal_works() public {
     // set approval context
-    s.routerPermissionInfo.approvedForPortalRouters[router] = true;
+    s.routerConfigs[router].portalApproved = true;
 
     (TransferInfo memory params, bytes32 transferId) = utils_getParams();
 
@@ -184,7 +184,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   // fails if not enough balance
   function test_PortalFacet__repayAavePortal_failsIfInsufficientAmount() public {
     // set approval context
-    s.routerPermissionInfo.approvedForPortalRouters[router] = true;
+    s.routerConfigs[router].portalApproved = true;
 
     (TransferInfo memory params, ) = utils_getParams();
 
@@ -208,7 +208,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     (TransferInfo memory params, ) = utils_getParams();
 
     // set approval context
-    s.routerPermissionInfo.approvedForPortalRouters[router] = true;
+    s.routerConfigs[router].portalApproved = true;
 
     // set debt amount
     uint256 backing = 1111;
@@ -218,17 +218,11 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     // set liquidity
     s.routerBalances[router][_local] = maxIn + 1;
 
-    // set mock + storage (using external pool)
-    // calculateSwapOutFromAddress returns maxIn + 1 and it causes swap Failed!
-    vm.mockCall(
-      _stableSwap,
-      abi.encodeWithSelector(IStableSwap.calculateSwapOutFromAddress.selector),
-      abi.encode(maxIn + 1)
-    );
+    // Reverts if no mock set with EvmError: revert
 
     // call coming from router
     vm.prank(router);
-    vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortal_swapFailed.selector));
+    vm.expectRevert();
     utils_repayPortal(params, backing, fee, maxIn);
   }
 
@@ -238,7 +232,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     (TransferInfo memory params, bytes32 transferId) = utils_getParams();
 
     // set approval context
-    s.routerPermissionInfo.approvedForPortalRouters[router] = true;
+    s.routerConfigs[router].portalApproved = true;
 
     // set debt amount
     uint256 backing = 1111;
@@ -280,7 +274,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     (TransferInfo memory params, bytes32 transferId) = utils_getParams();
 
     // set approval context
-    s.routerPermissionInfo.approvedForPortalRouters[router] = true;
+    s.routerConfigs[router].portalApproved = true;
 
     // set debt amount
     uint256 backing = 1111;

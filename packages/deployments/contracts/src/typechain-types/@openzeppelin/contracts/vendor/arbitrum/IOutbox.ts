@@ -29,65 +29,156 @@ import type {
 
 export interface IOutboxInterface extends utils.Interface {
   functions: {
-    "l2ToL1BatchNum()": FunctionFragment;
+    "OUTBOX_VERSION()": FunctionFragment;
+    "bridge()": FunctionFragment;
+    "calculateItemHash(address,address,uint256,uint256,uint256,uint256,bytes)": FunctionFragment;
+    "calculateMerkleRoot(bytes32[],uint256,bytes32)": FunctionFragment;
+    "executeTransaction(bytes32[],uint256,address,address,uint256,uint256,uint256,uint256,bytes)": FunctionFragment;
+    "executeTransactionSimulation(uint256,address,address,uint256,uint256,uint256,uint256,bytes)": FunctionFragment;
+    "isSpent(uint256)": FunctionFragment;
     "l2ToL1Block()": FunctionFragment;
     "l2ToL1EthBlock()": FunctionFragment;
     "l2ToL1OutputId()": FunctionFragment;
     "l2ToL1Sender()": FunctionFragment;
     "l2ToL1Timestamp()": FunctionFragment;
-    "outboxEntryExists(uint256)": FunctionFragment;
-    "processOutgoingMessages(bytes,uint256[])": FunctionFragment;
+    "rollup()": FunctionFragment;
+    "roots(bytes32)": FunctionFragment;
+    "spent(uint256)": FunctionFragment;
+    "updateSendRoot(bytes32,bytes32)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "l2ToL1BatchNum"
+      | "OUTBOX_VERSION"
+      | "bridge"
+      | "calculateItemHash"
+      | "calculateMerkleRoot"
+      | "executeTransaction"
+      | "executeTransactionSimulation"
+      | "isSpent"
       | "l2ToL1Block"
       | "l2ToL1EthBlock"
       | "l2ToL1OutputId"
       | "l2ToL1Sender"
       | "l2ToL1Timestamp"
-      | "outboxEntryExists"
-      | "processOutgoingMessages"
+      | "rollup"
+      | "roots"
+      | "spent"
+      | "updateSendRoot"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "l2ToL1BatchNum",
+    functionFragment: "OUTBOX_VERSION",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "bridge", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "l2ToL1Block",
-    values?: undefined
+    functionFragment: "calculateItemHash",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "l2ToL1EthBlock",
-    values?: undefined
+    functionFragment: "calculateMerkleRoot",
+    values: [
+      PromiseOrValue<BytesLike>[],
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "l2ToL1OutputId",
-    values?: undefined
+    functionFragment: "executeTransaction",
+    values: [
+      PromiseOrValue<BytesLike>[],
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "l2ToL1Sender",
-    values?: undefined
+    functionFragment: "executeTransactionSimulation",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "l2ToL1Timestamp",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "outboxEntryExists",
+    functionFragment: "isSpent",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "processOutgoingMessages",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>[]]
+    functionFragment: "l2ToL1Block",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "l2ToL1EthBlock",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "l2ToL1OutputId",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "l2ToL1Sender",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "l2ToL1Timestamp",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "rollup", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "roots",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "spent",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateSendRoot",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "l2ToL1BatchNum",
+    functionFragment: "OUTBOX_VERSION",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "bridge", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "calculateItemHash",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "calculateMerkleRoot",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "executeTransaction",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "executeTransactionSimulation",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "isSpent", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "l2ToL1Block",
     data: BytesLike
@@ -108,28 +199,27 @@ export interface IOutboxInterface extends utils.Interface {
     functionFragment: "l2ToL1Timestamp",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "rollup", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "roots", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "spent", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "outboxEntryExists",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "processOutgoingMessages",
+    functionFragment: "updateSendRoot",
     data: BytesLike
   ): Result;
 
   events: {
     "OutBoxTransactionExecuted(address,address,uint256,uint256)": EventFragment;
-    "OutboxEntryCreated(uint256,uint256,bytes32,uint256)": EventFragment;
+    "SendRootUpdated(bytes32,bytes32)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OutBoxTransactionExecuted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OutboxEntryCreated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SendRootUpdated"): EventFragment;
 }
 
 export interface OutBoxTransactionExecutedEventObject {
-  destAddr: string;
+  to: string;
   l2Sender: string;
-  outboxEntryIndex: BigNumber;
+  zero: BigNumber;
   transactionIndex: BigNumber;
 }
 export type OutBoxTransactionExecutedEvent = TypedEvent<
@@ -140,19 +230,16 @@ export type OutBoxTransactionExecutedEvent = TypedEvent<
 export type OutBoxTransactionExecutedEventFilter =
   TypedEventFilter<OutBoxTransactionExecutedEvent>;
 
-export interface OutboxEntryCreatedEventObject {
-  batchNum: BigNumber;
-  outboxEntryIndex: BigNumber;
+export interface SendRootUpdatedEventObject {
+  blockHash: string;
   outputRoot: string;
-  numInBatch: BigNumber;
 }
-export type OutboxEntryCreatedEvent = TypedEvent<
-  [BigNumber, BigNumber, string, BigNumber],
-  OutboxEntryCreatedEventObject
+export type SendRootUpdatedEvent = TypedEvent<
+  [string, string],
+  SendRootUpdatedEventObject
 >;
 
-export type OutboxEntryCreatedEventFilter =
-  TypedEventFilter<OutboxEntryCreatedEvent>;
+export type SendRootUpdatedEventFilter = TypedEventFilter<SendRootUpdatedEvent>;
 
 export interface IOutbox extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -181,7 +268,57 @@ export interface IOutbox extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    l2ToL1BatchNum(overrides?: CallOverrides): Promise<[BigNumber]>;
+    OUTBOX_VERSION(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    bridge(overrides?: CallOverrides): Promise<[string]>;
+
+    calculateItemHash(
+      l2Sender: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      l2Block: PromiseOrValue<BigNumberish>,
+      l1Block: PromiseOrValue<BigNumberish>,
+      l2Timestamp: PromiseOrValue<BigNumberish>,
+      value: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    calculateMerkleRoot(
+      proof: PromiseOrValue<BytesLike>[],
+      path: PromiseOrValue<BigNumberish>,
+      item: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    executeTransaction(
+      proof: PromiseOrValue<BytesLike>[],
+      index: PromiseOrValue<BigNumberish>,
+      l2Sender: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      l2Block: PromiseOrValue<BigNumberish>,
+      l1Block: PromiseOrValue<BigNumberish>,
+      l2Timestamp: PromiseOrValue<BigNumberish>,
+      value: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    executeTransactionSimulation(
+      index: PromiseOrValue<BigNumberish>,
+      l2Sender: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      l2Block: PromiseOrValue<BigNumberish>,
+      l1Block: PromiseOrValue<BigNumberish>,
+      l2Timestamp: PromiseOrValue<BigNumberish>,
+      value: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    isSpent(
+      index: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     l2ToL1Block(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -193,19 +330,76 @@ export interface IOutbox extends BaseContract {
 
     l2ToL1Timestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    outboxEntryExists(
-      batchNum: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    rollup(overrides?: CallOverrides): Promise<[string]>;
 
-    processOutgoingMessages(
-      sendsData: PromiseOrValue<BytesLike>,
-      sendLengths: PromiseOrValue<BigNumberish>[],
+    roots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    spent(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    updateSendRoot(
+      sendRoot: PromiseOrValue<BytesLike>,
+      l2BlockHash: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  l2ToL1BatchNum(overrides?: CallOverrides): Promise<BigNumber>;
+  OUTBOX_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
+
+  bridge(overrides?: CallOverrides): Promise<string>;
+
+  calculateItemHash(
+    l2Sender: PromiseOrValue<string>,
+    to: PromiseOrValue<string>,
+    l2Block: PromiseOrValue<BigNumberish>,
+    l1Block: PromiseOrValue<BigNumberish>,
+    l2Timestamp: PromiseOrValue<BigNumberish>,
+    value: PromiseOrValue<BigNumberish>,
+    data: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  calculateMerkleRoot(
+    proof: PromiseOrValue<BytesLike>[],
+    path: PromiseOrValue<BigNumberish>,
+    item: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  executeTransaction(
+    proof: PromiseOrValue<BytesLike>[],
+    index: PromiseOrValue<BigNumberish>,
+    l2Sender: PromiseOrValue<string>,
+    to: PromiseOrValue<string>,
+    l2Block: PromiseOrValue<BigNumberish>,
+    l1Block: PromiseOrValue<BigNumberish>,
+    l2Timestamp: PromiseOrValue<BigNumberish>,
+    value: PromiseOrValue<BigNumberish>,
+    data: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  executeTransactionSimulation(
+    index: PromiseOrValue<BigNumberish>,
+    l2Sender: PromiseOrValue<string>,
+    to: PromiseOrValue<string>,
+    l2Block: PromiseOrValue<BigNumberish>,
+    l1Block: PromiseOrValue<BigNumberish>,
+    l2Timestamp: PromiseOrValue<BigNumberish>,
+    value: PromiseOrValue<BigNumberish>,
+    data: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  isSpent(
+    index: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   l2ToL1Block(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -217,19 +411,76 @@ export interface IOutbox extends BaseContract {
 
   l2ToL1Timestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-  outboxEntryExists(
-    batchNum: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  rollup(overrides?: CallOverrides): Promise<string>;
 
-  processOutgoingMessages(
-    sendsData: PromiseOrValue<BytesLike>,
-    sendLengths: PromiseOrValue<BigNumberish>[],
+  roots(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  spent(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  updateSendRoot(
+    sendRoot: PromiseOrValue<BytesLike>,
+    l2BlockHash: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    l2ToL1BatchNum(overrides?: CallOverrides): Promise<BigNumber>;
+    OUTBOX_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
+
+    bridge(overrides?: CallOverrides): Promise<string>;
+
+    calculateItemHash(
+      l2Sender: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      l2Block: PromiseOrValue<BigNumberish>,
+      l1Block: PromiseOrValue<BigNumberish>,
+      l2Timestamp: PromiseOrValue<BigNumberish>,
+      value: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    calculateMerkleRoot(
+      proof: PromiseOrValue<BytesLike>[],
+      path: PromiseOrValue<BigNumberish>,
+      item: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    executeTransaction(
+      proof: PromiseOrValue<BytesLike>[],
+      index: PromiseOrValue<BigNumberish>,
+      l2Sender: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      l2Block: PromiseOrValue<BigNumberish>,
+      l1Block: PromiseOrValue<BigNumberish>,
+      l2Timestamp: PromiseOrValue<BigNumberish>,
+      value: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    executeTransactionSimulation(
+      index: PromiseOrValue<BigNumberish>,
+      l2Sender: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      l2Block: PromiseOrValue<BigNumberish>,
+      l1Block: PromiseOrValue<BigNumberish>,
+      l2Timestamp: PromiseOrValue<BigNumberish>,
+      value: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    isSpent(
+      index: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     l2ToL1Block(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -241,48 +492,101 @@ export interface IOutbox extends BaseContract {
 
     l2ToL1Timestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    outboxEntryExists(
-      batchNum: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    rollup(overrides?: CallOverrides): Promise<string>;
 
-    processOutgoingMessages(
-      sendsData: PromiseOrValue<BytesLike>,
-      sendLengths: PromiseOrValue<BigNumberish>[],
+    roots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    spent(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    updateSendRoot(
+      sendRoot: PromiseOrValue<BytesLike>,
+      l2BlockHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
 
   filters: {
     "OutBoxTransactionExecuted(address,address,uint256,uint256)"(
-      destAddr?: PromiseOrValue<string> | null,
+      to?: PromiseOrValue<string> | null,
       l2Sender?: PromiseOrValue<string> | null,
-      outboxEntryIndex?: PromiseOrValue<BigNumberish> | null,
+      zero?: PromiseOrValue<BigNumberish> | null,
       transactionIndex?: null
     ): OutBoxTransactionExecutedEventFilter;
     OutBoxTransactionExecuted(
-      destAddr?: PromiseOrValue<string> | null,
+      to?: PromiseOrValue<string> | null,
       l2Sender?: PromiseOrValue<string> | null,
-      outboxEntryIndex?: PromiseOrValue<BigNumberish> | null,
+      zero?: PromiseOrValue<BigNumberish> | null,
       transactionIndex?: null
     ): OutBoxTransactionExecutedEventFilter;
 
-    "OutboxEntryCreated(uint256,uint256,bytes32,uint256)"(
-      batchNum?: PromiseOrValue<BigNumberish> | null,
-      outboxEntryIndex?: null,
-      outputRoot?: null,
-      numInBatch?: null
-    ): OutboxEntryCreatedEventFilter;
-    OutboxEntryCreated(
-      batchNum?: PromiseOrValue<BigNumberish> | null,
-      outboxEntryIndex?: null,
-      outputRoot?: null,
-      numInBatch?: null
-    ): OutboxEntryCreatedEventFilter;
+    "SendRootUpdated(bytes32,bytes32)"(
+      blockHash?: PromiseOrValue<BytesLike> | null,
+      outputRoot?: PromiseOrValue<BytesLike> | null
+    ): SendRootUpdatedEventFilter;
+    SendRootUpdated(
+      blockHash?: PromiseOrValue<BytesLike> | null,
+      outputRoot?: PromiseOrValue<BytesLike> | null
+    ): SendRootUpdatedEventFilter;
   };
 
   estimateGas: {
-    l2ToL1BatchNum(overrides?: CallOverrides): Promise<BigNumber>;
+    OUTBOX_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
+
+    bridge(overrides?: CallOverrides): Promise<BigNumber>;
+
+    calculateItemHash(
+      l2Sender: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      l2Block: PromiseOrValue<BigNumberish>,
+      l1Block: PromiseOrValue<BigNumberish>,
+      l2Timestamp: PromiseOrValue<BigNumberish>,
+      value: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    calculateMerkleRoot(
+      proof: PromiseOrValue<BytesLike>[],
+      path: PromiseOrValue<BigNumberish>,
+      item: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    executeTransaction(
+      proof: PromiseOrValue<BytesLike>[],
+      index: PromiseOrValue<BigNumberish>,
+      l2Sender: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      l2Block: PromiseOrValue<BigNumberish>,
+      l1Block: PromiseOrValue<BigNumberish>,
+      l2Timestamp: PromiseOrValue<BigNumberish>,
+      value: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    executeTransactionSimulation(
+      index: PromiseOrValue<BigNumberish>,
+      l2Sender: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      l2Block: PromiseOrValue<BigNumberish>,
+      l1Block: PromiseOrValue<BigNumberish>,
+      l2Timestamp: PromiseOrValue<BigNumberish>,
+      value: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    isSpent(
+      index: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     l2ToL1Block(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -294,20 +598,77 @@ export interface IOutbox extends BaseContract {
 
     l2ToL1Timestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    outboxEntryExists(
-      batchNum: PromiseOrValue<BigNumberish>,
+    rollup(overrides?: CallOverrides): Promise<BigNumber>;
+
+    roots(
+      arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    processOutgoingMessages(
-      sendsData: PromiseOrValue<BytesLike>,
-      sendLengths: PromiseOrValue<BigNumberish>[],
+    spent(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    updateSendRoot(
+      sendRoot: PromiseOrValue<BytesLike>,
+      l2BlockHash: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    l2ToL1BatchNum(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    OUTBOX_VERSION(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    bridge(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    calculateItemHash(
+      l2Sender: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      l2Block: PromiseOrValue<BigNumberish>,
+      l1Block: PromiseOrValue<BigNumberish>,
+      l2Timestamp: PromiseOrValue<BigNumberish>,
+      value: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    calculateMerkleRoot(
+      proof: PromiseOrValue<BytesLike>[],
+      path: PromiseOrValue<BigNumberish>,
+      item: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    executeTransaction(
+      proof: PromiseOrValue<BytesLike>[],
+      index: PromiseOrValue<BigNumberish>,
+      l2Sender: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      l2Block: PromiseOrValue<BigNumberish>,
+      l1Block: PromiseOrValue<BigNumberish>,
+      l2Timestamp: PromiseOrValue<BigNumberish>,
+      value: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    executeTransactionSimulation(
+      index: PromiseOrValue<BigNumberish>,
+      l2Sender: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      l2Block: PromiseOrValue<BigNumberish>,
+      l1Block: PromiseOrValue<BigNumberish>,
+      l2Timestamp: PromiseOrValue<BigNumberish>,
+      value: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    isSpent(
+      index: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     l2ToL1Block(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -319,14 +680,21 @@ export interface IOutbox extends BaseContract {
 
     l2ToL1Timestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    outboxEntryExists(
-      batchNum: PromiseOrValue<BigNumberish>,
+    rollup(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    roots(
+      arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    processOutgoingMessages(
-      sendsData: PromiseOrValue<BytesLike>,
-      sendLengths: PromiseOrValue<BigNumberish>[],
+    spent(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    updateSendRoot(
+      sendRoot: PromiseOrValue<BytesLike>,
+      l2BlockHash: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

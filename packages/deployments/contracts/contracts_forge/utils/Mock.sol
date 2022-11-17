@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -224,7 +224,6 @@ contract MockSpokeConnector is SpokeConnector {
     address _rootManager,
     address _merkle,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
@@ -237,7 +236,6 @@ contract MockSpokeConnector is SpokeConnector {
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorGas,
       _processGas,
       _reserveGas,
       _delayBlocks,
@@ -258,7 +256,7 @@ contract MockSpokeConnector is SpokeConnector {
     updatesAggregate = _updatesAggregate;
   }
 
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     lastOutbound = keccak256(_data);
   }
 
@@ -286,9 +284,8 @@ contract MockHubConnector is HubConnector {
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    address _mirrorConnector,
-    uint256 _mirrorGas
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) {
+    address _mirrorConnector
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) {
     _setOwner(msg.sender);
     verified = true;
   }
@@ -305,7 +302,7 @@ contract MockHubConnector is HubConnector {
     return verified;
   }
 
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     lastOutbound = keccak256(_data);
   }
 
