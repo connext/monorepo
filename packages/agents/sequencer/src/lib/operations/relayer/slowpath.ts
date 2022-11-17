@@ -1,4 +1,10 @@
-import { RequestContext, ExecutorData, getChainIdFromDomain, createLoggingContext } from "@connext/nxtp-utils";
+import {
+  RequestContext,
+  ExecutorData,
+  getChainIdFromDomain,
+  createLoggingContext,
+  ExecuteArgs,
+} from "@connext/nxtp-utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { getContext } from "../../../sequencer";
@@ -54,7 +60,8 @@ export const sendExecuteSlowToRelayer = async (
 
   const [args] = contracts.connext.decodeFunctionResult("execute", executeEncodedData);
 
-  const encodedData = contracts.relayerProxy.encodeFunctionData("execute", [args, gas]);
+  const executeArgs: ExecuteArgs = args;
+  const encodedData = contracts.relayerProxy.encodeFunctionData("execute", [executeArgs, gas]);
 
   return await sendWithRelayerWithBackup(
     destinationChainId,
