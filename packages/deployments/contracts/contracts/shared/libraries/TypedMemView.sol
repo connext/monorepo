@@ -388,7 +388,7 @@ library TypedMemView {
     assembly {
       // solhint-disable-previous-line no-inline-assembly
       // 216 == 256 - 40
-      _type := shr(216, memView) // shift out lower 24 bytes
+      _type := shr(216, memView) // shift out lower 27 bytes
     }
   }
 
