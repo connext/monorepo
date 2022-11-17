@@ -25,7 +25,11 @@ export const getPropagateParams = async (
   if (!l2RpcUrl) {
     throw new NoProviderForDomain(l2domain, requestContext, methodContext);
   }
-  const l1RpcUrl = config.chains[config.hubDomain]?.providers[0];
+
+  // must be ETH mainnet for arbitrum SDK
+  const l1RpcUrl = "https://rpc.ankr.com/eth";
+  // TODO: use below when mainnet is deployed
+  // const l1RpcUrl = config.chains["6648936"]?.providers[0];
   if (!l1RpcUrl) {
     throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
   }

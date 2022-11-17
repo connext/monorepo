@@ -1,4 +1,4 @@
-import { createLoggingContext, mkBytes32, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
+import { createLoggingContext, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
 
 import { encodePropagate, sendWithRelayerWithBackup } from "../../../mockable";
 import { NoChainIdForHubDomain, RootManagerPropagateWrapperNotFound } from "../errors";
