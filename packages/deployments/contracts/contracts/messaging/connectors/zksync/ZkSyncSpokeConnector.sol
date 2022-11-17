@@ -48,9 +48,8 @@ contract ZkSyncSpokeConnector is SpokeConnector {
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should not include specialized calldata
     require(_encodedData.length == 0, "!data length");
-    bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
     // Dispatch message through zkSync AMB
-    L1_MESSENGER_CONTRACT.sendToL1(_calldata);
+    L1_MESSENGER_CONTRACT.sendToL1(_data);
   }
 
   /**
