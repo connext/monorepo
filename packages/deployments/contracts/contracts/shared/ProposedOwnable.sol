@@ -123,7 +123,7 @@ abstract contract ProposedOwnable is IProposedOwnable {
     if (_proposedOwnershipTimestamp == 0) revert ProposedOwnable__renounceOwnership_noProposal();
 
     // Ensure delay has elapsed
-    if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay)
+    if ((block.timestamp - _proposedOwnershipTimestamp) < 1 + _delay)
       revert ProposedOwnable__renounceOwnership_delayNotElapsed();
 
     // Require proposed is set to 0
@@ -147,7 +147,7 @@ abstract contract ProposedOwnable is IProposedOwnable {
     // above)
 
     // Ensure delay has elapsed
-    if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay)
+    if ((block.timestamp - _proposedOwnershipTimestamp) < 1 + _delay)
       revert ProposedOwnable__acceptProposedOwner_delayNotElapsed();
 
     // Emit event, set new owner, reset timestamp

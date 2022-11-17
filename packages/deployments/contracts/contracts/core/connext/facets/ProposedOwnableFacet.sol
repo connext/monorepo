@@ -162,7 +162,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     if (s._routerWhitelistTimestamp == 0) revert ProposedOwnableFacet__removeRouterWhitelist_noProposal();
 
     // Delay has elapsed
-    if ((block.timestamp - s._routerWhitelistTimestamp) <= delay())
+    if ((block.timestamp - s._routerWhitelistTimestamp) < 1 + delay())
       revert ProposedOwnableFacet__removeRouterWhitelist_delayNotElapsed();
 
     // Set renounced, emit event, reset timestamp to 0
@@ -195,7 +195,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     if (s._assetWhitelistTimestamp == 0) revert ProposedOwnableFacet__removeAssetWhitelist_noProposal();
 
     // Ensure delay has elapsed
-    if ((block.timestamp - s._assetWhitelistTimestamp) <= delay())
+    if ((block.timestamp - s._assetWhitelistTimestamp) < 1 + delay())
       revert ProposedOwnableFacet__removeAssetWhitelist_delayNotElapsed();
 
     // Set ownership, reset timestamp, emit event
@@ -231,7 +231,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     // above)
 
     // Ensure delay has elapsed
-    if ((block.timestamp - s._proposedOwnershipTimestamp) <= delay())
+    if ((block.timestamp - s._proposedOwnershipTimestamp) < 1 + delay())
       revert ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed();
 
     // Emit event, set new owner, reset timestamp

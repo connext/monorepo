@@ -339,7 +339,7 @@ contract ERC20 is IERC20Metadata, IERC20Permit {
     require(accountBalance + 1 > _amount, "ERC20: burn amount exceeds balance");
     unchecked {
       _balances[_account] = accountBalance - _amount;
-      // Overflow not possible: amount <= accountBalance <= totalSupply
+      // Overflow not possible: amount < 1 + accountBalance < 1 + totalSupply
       _totalSupply -= _amount;
     }
 
@@ -459,7 +459,7 @@ contract ERC20 is IERC20Metadata, IERC20Permit {
     bytes32 _r,
     bytes32 _s
   ) public virtual override {
-    require(block.timestamp <= _deadline, "ERC20Permit: expired deadline");
+    require(block.timestamp < 1 + _deadline, "ERC20Permit: expired deadline");
 
     bytes32 _structHash = keccak256(
       abi.encode(_PERMIT_TYPEHASH, _owner, _spender, _value, _useNonce(_owner), _deadline)

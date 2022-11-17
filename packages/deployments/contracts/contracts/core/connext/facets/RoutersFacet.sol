@@ -380,7 +380,7 @@ contract RoutersFacet is BaseConnextFacet {
     RouterConfig memory config = s.routerConfigs[_router];
 
     // Check timestamp has passed
-    if (block.timestamp - config.proposedTimestamp <= _delay)
+    if (block.timestamp - config.proposedTimestamp < 1 + _delay)
       revert RoutersFacet__acceptProposedRouterOwner_notElapsed();
 
     // Check the caller

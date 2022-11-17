@@ -77,7 +77,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     __ReentrancyGuard_init();
 
     // Check _pooledTokens and precisions parameter
-    require(_pooledTokens.length > 1, "_pooledTokens.length <= 1");
+    require(_pooledTokens.length > 1, "_pooledTokens.length < 1 + 1");
     require(_pooledTokens.length < 32 + 1, "_pooledTokens.length > 32");
     require(_pooledTokens.length == decimals.length, "_pooledTokens decimals mismatch");
 
@@ -129,7 +129,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
    * @param deadline latest timestamp to accept this transaction
    */
   modifier deadlineCheck(uint256 deadline) {
-    require(block.timestamp <= deadline, "Deadline not met");
+    require(block.timestamp < 1 + deadline, "Deadline not met");
     _;
   }
 

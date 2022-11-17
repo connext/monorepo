@@ -88,10 +88,10 @@ library QueueLib {
     // find a `commitBlock` that has surpassed the delay period.
     // TODO: The most efficient way to determine the split index here should be using a binary search.
     bool containsVerified;
-    // NOTE: `first <= last` rephrased here to `!(first > last)` as it's a cheaper condition.
+    // NOTE: `first < 1 + last` rephrased here to `!(first > last)` as it's a cheaper condition.
     while (!(first > last)) {
       uint256 commitBlock = queue.commitBlock[last];
-      // NOTE: Same as `commitBlock <= highestAcceptableCommitBlock`.
+      // NOTE: Same as `commitBlock < 1 + highestAcceptableCommitBlock`.
       if (!(commitBlock > highestAcceptableCommitBlock)) {
         containsVerified = true;
         break;
@@ -108,7 +108,7 @@ library QueueLib {
     bytes32[] memory items = new bytes32[](last + 1 - first);
     uint256 index; // Cursor for index in the batch of `items`.
     uint256 removedCount; // If any items have been removed, we filter them here.
-    // NOTE: `first <= last` rephrased here to `!(first > last)` as it's a cheaper condition.
+    // NOTE: `first < 1 + last` rephrased here to `!(first > last)` as it's a cheaper condition.
     while (!(first > last)) {
       bytes32 item = queue.data[first];
       // Check to see if the item has been removed before appending it to the array.
