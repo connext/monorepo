@@ -3,12 +3,12 @@
   "abi": [
     {
       "inputs": [],
-      "name": "BaseConnextFacet__getAdoptedAsset_notWhitelisted",
+      "name": "BaseConnextFacet__getAdoptedAsset_notAllowlisted",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "BaseConnextFacet__getApprovedCanonicalId_notWhitelisted",
+      "name": "BaseConnextFacet__getApprovedCanonicalId_notAllowlisted",
       "type": "error"
     },
     {
@@ -484,7 +484,7 @@
           {
             "astId": 28327,
             "contract": "contracts/core/connext/facets/upgrade-initializers/DiamondInit.sol:DiamondInit",
-            "label": "_routerWhitelistRemoved",
+            "label": "_routerAllowlistRemoved",
             "offset": 0,
             "slot": "23",
             "type": "t_bool"
@@ -492,7 +492,7 @@
           {
             "astId": 28329,
             "contract": "contracts/core/connext/facets/upgrade-initializers/DiamondInit.sol:DiamondInit",
-            "label": "_routerWhitelistTimestamp",
+            "label": "_routerAllowlistTimestamp",
             "offset": 0,
             "slot": "24",
             "type": "t_uint256"
@@ -500,7 +500,7 @@
           {
             "astId": 28331,
             "contract": "contracts/core/connext/facets/upgrade-initializers/DiamondInit.sol:DiamondInit",
-            "label": "_assetWhitelistRemoved",
+            "label": "_assetAllowlistRemoved",
             "offset": 0,
             "slot": "25",
             "type": "t_bool"
@@ -508,7 +508,7 @@
           {
             "astId": 28333,
             "contract": "contracts/core/connext/facets/upgrade-initializers/DiamondInit.sol:DiamondInit",
-            "label": "_assetWhitelistTimestamp",
+            "label": "_assetAllowlistTimestamp",
             "offset": 0,
             "slot": "26",
             "type": "t_uint256"

@@ -45,7 +45,7 @@ export const sign = async (hash: string, signer: Wallet | Signer): Promise<strin
 
 /**
  * Generates a signature on the transfer ID and routers array payload for the `execute` transaction.
- * Permit represents a (whitelisted) sequencer's indication that they were responsible for assigning
+ * Permit represents a (allowlisted) sequencer's indication that they were responsible for assigning
  * this path of routers to this particular transfer.
  *
  * @param transferId - The ID of the transfer.
