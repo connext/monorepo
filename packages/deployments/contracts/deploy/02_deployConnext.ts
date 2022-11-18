@@ -288,6 +288,18 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
 
+  console.log("Deploying Relayer Proxy...");
+
+  const spokeConnector = await hre.ethers.getContract(getDeploymentName(getConnectorName(protocol, +chainId)));
+  const relayerProxy = await hre.deployments.deploy(getDeploymentName("RelayerProxy"), {
+    from: deployer.address,
+    log: true,
+    contract: "RelayerProxy",
+    args: [connextAddress, spokeConnector.address],
+  });
+
+  console.log("relayerProxy: ", relayerProxy.address);
+
   if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain...");
     // Note: NOT using special token for staging envs

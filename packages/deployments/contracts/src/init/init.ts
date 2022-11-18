@@ -296,11 +296,23 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     if (protocol.agents.relayers) {
       if (protocol.agents.relayers.whitelist) {
         console.log("\n\nWHITELIST RELAYERS");
-        // Whitelist named relayers for the Connext bridge, in order to call `execute`.
+
+        const relayerProxyAddress = "0x";
+        // Whitelist named relayerProxy address for the Connext, in order to call `execute`.
+        for (const network of protocol.networks) {
+          await updateIfNeeded({
+            deployment: network.deployments.Connext,
+            desired: true,
+            read: { method: "allowedRelayer", args: [relayerProxyAddress] },
+            write: { method: "addRelayer", args: [relayerProxyAddress] },
+          });
+        }
+
+        // Whitelist named relayers for the Relayer Proxy, in order to call `execute`.
         for (const relayer of protocol.agents.relayers.whitelist) {
           for (const network of protocol.networks) {
             await updateIfNeeded({
-              deployment: network.deployments.Connext,
+              deployment: network.deployments.RelayerProxy,
               desired: true,
               read: { method: "approvedRelayers", args: [relayer] },
               write: { method: "addRelayer", args: [relayer] },
