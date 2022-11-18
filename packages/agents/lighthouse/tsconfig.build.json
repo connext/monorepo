@@ -13,6 +13,9 @@
       "path": "../../adapters/database/tsconfig.build.json"
     },
     {
+      "path": "../../adapters/subgraph/tsconfig.build.json"
+    },
+    {
       "path": "../../adapters/txservice/tsconfig.build.json"
     },
     {

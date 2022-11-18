@@ -333,6 +333,7 @@ export interface RootManagerInterface extends utils.Interface {
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused(address)": EventFragment;
+    "PropagateFailed(uint32,address)": EventFragment;
     "RootDiscarded(bytes32)": EventFragment;
     "RootPropagated(bytes32,uint256,bytes32)": EventFragment;
     "RootReceived(uint32,bytes32,uint256)": EventFragment;
@@ -347,6 +348,7 @@ export interface RootManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PropagateFailed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootDiscarded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootPropagated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootReceived"): EventFragment;
@@ -424,6 +426,17 @@ export interface PausedEventObject {
 export type PausedEvent = TypedEvent<[string], PausedEventObject>;
 
 export type PausedEventFilter = TypedEventFilter<PausedEvent>;
+
+export interface PropagateFailedEventObject {
+  domain: number;
+  connector: string;
+}
+export type PropagateFailedEvent = TypedEvent<
+  [number, string],
+  PropagateFailedEventObject
+>;
+
+export type PropagateFailedEventFilter = TypedEventFilter<PropagateFailedEvent>;
 
 export interface RootDiscardedEventObject {
   fraudulentRoot: string;
@@ -960,6 +973,15 @@ export interface RootManager extends BaseContract {
 
     "Paused(address)"(account?: null): PausedEventFilter;
     Paused(account?: null): PausedEventFilter;
+
+    "PropagateFailed(uint32,address)"(
+      domain?: null,
+      connector?: null
+    ): PropagateFailedEventFilter;
+    PropagateFailed(
+      domain?: null,
+      connector?: null
+    ): PropagateFailedEventFilter;
 
     "RootDiscarded(bytes32)"(fraudulentRoot?: null): RootDiscardedEventFilter;
     RootDiscarded(fraudulentRoot?: null): RootDiscardedEventFilter;

@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {AppStorage, TokenId, RouterConfig} from "../libraries/LibConnextStorage.sol";
+import {RouterConfig} from "../libraries/LibConnextStorage.sol";
+import {TokenId} from "../libraries/TokenId.sol";
 
 /**
  * @notice
@@ -586,15 +585,6 @@ contract RoutersFacet is BaseConnextFacet {
     if (!_isRouterWhitelistRemoved() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
 
-    uint256 cap = s.caps[key];
-    if (s.domain == canonical.domain && cap > 0) {
-      // Sanity check: caps not reached
-      if (s.custodied[_local] > cap - _amount) {
-        revert RoutersFacet__addLiquidityForRouter_capReached();
-      }
-      s.custodied[_local] += _amount;
-    }
-
     // Transfer funds to contract.
     AssetLogic.handleIncomingAsset(_local, _amount);
 
@@ -641,13 +631,6 @@ contract RoutersFacet is BaseConnextFacet {
 
     // Sanity check: amount can be deducted for the router.
     if (routerBalance < _amount) revert RoutersFacet__removeRouterLiquidity_insufficientFunds();
-
-    // If it is the canonical domain, decrease custodied value
-    if (onCanonical && s.caps[key] > 0) {
-      // NOTE: safe to use the amount here because routers should always supply liquidity
-      // in canonical asset on the canonical domain
-      s.custodied[local] -= _amount;
-    }
 
     // Update router balances.
     unchecked {

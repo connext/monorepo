@@ -98,10 +98,6 @@ export type { IArbSys } from "./@openzeppelin/contracts/vendor/arbitrum/IArbSys"
 export { IArbSys__factory } from "./factories/@openzeppelin/contracts/vendor/arbitrum/IArbSys__factory";
 export type { IBridge } from "./@openzeppelin/contracts/vendor/arbitrum/IBridge";
 export { IBridge__factory } from "./factories/@openzeppelin/contracts/vendor/arbitrum/IBridge__factory";
-export type { IInbox } from "./@openzeppelin/contracts/vendor/arbitrum/IInbox";
-export { IInbox__factory } from "./factories/@openzeppelin/contracts/vendor/arbitrum/IInbox__factory";
-export type { IMessageProvider } from "./@openzeppelin/contracts/vendor/arbitrum/IMessageProvider";
-export { IMessageProvider__factory } from "./factories/@openzeppelin/contracts/vendor/arbitrum/IMessageProvider__factory";
 export type { IOutbox } from "./@openzeppelin/contracts/vendor/arbitrum/IOutbox";
 export { IOutbox__factory } from "./factories/@openzeppelin/contracts/vendor/arbitrum/IOutbox__factory";
 export type { BaseConnextFacet } from "./contracts/core/connext/facets/BaseConnextFacet";
@@ -266,6 +262,8 @@ export type { MerkleTreeManager } from "./contracts/messaging/MerkleTreeManager"
 export { MerkleTreeManager__factory } from "./factories/contracts/messaging/MerkleTreeManager__factory";
 export type { RootManager } from "./contracts/messaging/RootManager";
 export { RootManager__factory } from "./factories/contracts/messaging/RootManager__factory";
+export type { RootManagerPropagateWrapper } from "./contracts/messaging/RootManagerPropagateWrapper";
+export { RootManagerPropagateWrapper__factory } from "./factories/contracts/messaging/RootManagerPropagateWrapper__factory";
 export type { WatcherClient } from "./contracts/messaging/WatcherClient";
 export { WatcherClient__factory } from "./factories/contracts/messaging/WatcherClient__factory";
 export type { WatcherManager } from "./contracts/messaging/WatcherManager";
