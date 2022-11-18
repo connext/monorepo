@@ -748,7 +748,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 amount = 100;
     vm.expectRevert(RoutersFacet.RoutersFacet__removeRouterLiquidityFor_notOwner.selector);
     vm.prank(address(123567));
-    this.removeRouterLiquidityFor(amount, _local, payable(to), _routerAgent0);
+    this.removeRouterLiquidityFor(TokenId(_canonicalDomain, _canonicalId), amount, payable(to), _routerAgent0);
   }
 
   function test_RoutersFacet__removeRouterLiquidityFor_works() public {
@@ -765,7 +765,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     vm.expectEmit(true, true, true, true);
     emit RouterLiquidityRemoved(_routerAgent0, to, _local, _key, amount, _routerAgent0);
     vm.prank(_routerAgent0);
-    this.removeRouterLiquidityFor(amount, _local, payable(to), _routerAgent0);
+    this.removeRouterLiquidityFor(TokenId(_canonicalDomain, _canonicalId), amount, payable(to), _routerAgent0);
 
     assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
     assertEq(IERC20(_local).balanceOf(to), initBalance + amount);
@@ -779,7 +779,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 amount = 100;
     vm.expectRevert(RoutersFacet.RoutersFacet__removeRouterLiquidity_recipientEmpty.selector);
     vm.prank(_routerAgent0);
-    this.removeRouterLiquidity(amount, _local, payable(to));
+    this.removeRouterLiquidity(TokenId(_canonicalDomain, _canonicalId), amount, payable(to));
   }
 
   function test_RoutersFacet__removeRouterLiquidity_failsIfNoAmount() public {
@@ -789,7 +789,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 amount = 0;
     vm.expectRevert(RoutersFacet.RoutersFacet__removeRouterLiquidity_amountIsZero.selector);
     vm.prank(_routerAgent0);
-    this.removeRouterLiquidity(amount, _local, payable(to));
+    this.removeRouterLiquidity(TokenId(_canonicalDomain, _canonicalId), amount, payable(to));
   }
 
   function test_RoutersFacet__removeRouterLiquidity_failsIfNotEnoughFunds() public {
@@ -800,7 +800,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 amount = 10000;
     vm.expectRevert(RoutersFacet.RoutersFacet__removeRouterLiquidity_insufficientFunds.selector);
     vm.prank(_routerAgent0);
-    this.removeRouterLiquidity(amount, _local, payable(to));
+    this.removeRouterLiquidity(TokenId(_canonicalDomain, _canonicalId), amount, payable(to));
   }
 
   // removeLiquidity
@@ -822,7 +822,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     vm.expectEmit(true, true, true, true);
     emit RouterLiquidityRemoved(_routerAgent0, _routerRecipient0, _canonical, _key, amount, _routerAgent0);
     vm.prank(_routerAgent0);
-    this.removeRouterLiquidity(amount, _canonical, payable(to));
+    this.removeRouterLiquidity(TokenId(_canonicalDomain, _canonicalId), amount, payable(to));
 
     assertEq(this.routerBalances(_routerAgent0, _canonical), initLiquidity - amount);
     assertEq(IERC20(_canonical).balanceOf(_routerRecipient0), initBalance + amount);
@@ -844,7 +844,30 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     vm.expectEmit(true, true, true, true);
     emit RouterLiquidityRemoved(_routerAgent0, to, _local, _key, amount, _routerAgent0);
     vm.prank(_routerAgent0);
-    this.removeRouterLiquidity(amount, _local, payable(to));
+    this.removeRouterLiquidity(TokenId(_canonicalDomain, _canonicalId), amount, payable(to));
+
+    assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
+    assertEq(IERC20(_local).balanceOf(to), initBalance + amount);
+    assertEq(s.custodied[_local], 10 ether);
+  }
+
+  function test_RoutersFacet__removeRouterLiquidity_worksOnCanonical() public {
+    utils_setupAsset(true, true);
+    s.routerConfigs[_routerAgent0].recipient = address(0);
+    s.routerConfigs[_routerAgent0].owner = address(0);
+    s.routerBalances[_routerAgent0][_local] = 10 ether;
+    s.custodied[_local] = 10 ether;
+
+    address to = address(1234);
+    uint256 amount = 100;
+
+    uint256 initLiquidity = this.routerBalances(_routerAgent0, _local);
+    uint256 initBalance = IERC20(_local).balanceOf(to);
+
+    vm.expectEmit(true, true, true, true);
+    emit RouterLiquidityRemoved(_routerAgent0, to, _local, _key, amount, _routerAgent0);
+    vm.prank(_routerAgent0);
+    this.removeRouterLiquidity(TokenId(_canonicalDomain, _canonicalId), amount, payable(to));
 
     assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
     assertEq(IERC20(_local).balanceOf(to), initBalance + amount);
