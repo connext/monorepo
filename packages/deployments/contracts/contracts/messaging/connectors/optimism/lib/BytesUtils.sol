@@ -105,9 +105,14 @@ library BytesUtils {
   function toNibbles(bytes memory _bytes) internal pure returns (bytes memory) {
     bytes memory nibbles = new bytes(_bytes.length * 2);
 
-    for (uint256 i = 0; i < _bytes.length; i++) {
+    uint256 len = _bytes.length;
+    for (uint256 i = 0; i < len; ) {
       nibbles[i * 2] = _bytes[i] >> 4;
       nibbles[i * 2 + 1] = bytes1(uint8(_bytes[i]) % 16);
+
+      unchecked {
+        ++i;
+      }
     }
 
     return nibbles;
@@ -116,8 +121,13 @@ library BytesUtils {
   function fromNibbles(bytes memory _bytes) internal pure returns (bytes memory) {
     bytes memory ret = new bytes(_bytes.length / 2);
 
-    for (uint256 i = 0; i < ret.length; i++) {
+    uint256 len = ret.length;
+    for (uint256 i = 0; i < len; ) {
       ret[i] = (_bytes[i * 2] << 4) | (_bytes[i * 2 + 1]);
+
+      unchecked {
+        ++i;
+      }
     }
 
     return ret;

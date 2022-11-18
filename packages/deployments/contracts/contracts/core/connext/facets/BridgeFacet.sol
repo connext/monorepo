@@ -17,6 +17,7 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {ExecuteArgs, TransferInfo, DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
 import {BridgeMessage} from "../libraries/BridgeMessage.sol";
+import {Constants} from "../libraries/Constants.sol";
 import {TokenId} from "../libraries/TokenId.sol";
 
 import {IXReceiver} from "../interfaces/IXReceiver.sol";
@@ -25,6 +26,7 @@ import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
 
 contract BridgeFacet is BaseConnextFacet {
   // ============ Libraries ============
+
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
   using BridgeMessage for bytes29;
@@ -41,6 +43,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_nativeAssetNotSupported();
   error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_invalidSlippage();
+  error BridgeFacet_xcall__emptyLocalAsset();
   error BridgeFacet__xcall_capReached();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
@@ -52,6 +55,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_notApprovedForPortals();
   error BridgeFacet__execute_badFastLiquidityStatus();
   error BridgeFacet__execute_notReconciled();
+  error BridgeFacet__execute_externalCallFailed();
   error BridgeFacet__excecute_insufficientGas();
   error BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn();
   error BridgeFacet__bumpTransfer_valueIsZero();
@@ -62,8 +66,6 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__mustHaveRemote_destinationNotSupported();
 
   // ============ Properties ============
-
-  uint16 public constant AAVE_REFERRAL_CODE = 0;
 
   // ============ Events ============
 
@@ -411,7 +413,7 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function forceUpdateSlippage(TransferInfo calldata _params, uint256 _slippage) external onlyDelegate(_params) {
     // Sanity check slippage
-    if (_slippage > BPS_FEE_DENOMINATOR) {
+    if (_slippage > Constants.BPS_FEE_DENOMINATOR) {
       revert BridgeFacet__forceUpdateSlippage_invalidSlippage();
     }
 
@@ -493,7 +495,7 @@ contract BridgeFacet is BaseConnextFacet {
         revert BridgeFacet__xcall_emptyTo();
       }
 
-      if (_params.slippage > BPS_FEE_DENOMINATOR) {
+      if (_params.slippage > Constants.BPS_FEE_DENOMINATOR) {
         revert BridgeFacet__xcall_invalidSlippage();
       }
     }
@@ -517,6 +519,9 @@ contract BridgeFacet is BaseConnextFacet {
 
         // Get the local address
         local = _getLocalAsset(key, canonical.id, canonical.domain);
+        if (local == address(0)) {
+          revert BridgeFacet_xcall__emptyLocalAsset();
+        }
 
         // Set boolean flag
         isCanonical = _params.originDomain == canonical.domain && local == _asset;
@@ -549,7 +554,11 @@ contract BridgeFacet is BaseConnextFacet {
         _params.bridgedAmt = AssetLogic.swapToLocalAssetIfNeeded(key, _asset, local, _amount, _params.slippage);
 
         // Get the normalized amount in (amount sent in by user in 18 decimals).
-        _params.normalizedIn = AssetLogic.normalizeDecimals(IERC20Metadata(_asset).decimals(), uint8(18), _amount);
+        _params.normalizedIn = AssetLogic.normalizeDecimals(
+          IERC20Metadata(_asset).decimals(),
+          Constants.DEFAULT_NORMALIZED_DECIMALS,
+          _amount
+        );
       }
 
       // Calculate the transfer ID.
@@ -736,7 +745,7 @@ contract BridgeFacet is BaseConnextFacet {
       uint256 pathLen = _args.routers.length;
 
       // Calculate amount that routers will provide with the fast-liquidity fee deducted.
-      toSwap = _muldiv(_args.params.bridgedAmt, s.LIQUIDITY_FEE_NUMERATOR, BPS_FEE_DENOMINATOR);
+      toSwap = _muldiv(_args.params.bridgedAmt, s.LIQUIDITY_FEE_NUMERATOR, Constants.BPS_FEE_DENOMINATOR);
 
       if (pathLen == 1) {
         // If router does not have enough liquidity, try to use Aave Portals.
@@ -837,53 +846,30 @@ contract BridgeFacet is BaseConnextFacet {
     TransferInfo calldata _params
   ) internal {
     // execute the calldata
-    if (keccak256(_params.callData) == EMPTY_HASH) {
+    if (keccak256(_params.callData) == Constants.EMPTY_HASH) {
       // no call data, return amount out
       return;
     }
 
-    bool success;
-    bytes memory returnData;
-
-    // See above devnote
-    if (_reconciled) {
-      // after this function executes:
-      // - 2 events are emitted
-      // - transfer id is returned
-      // -> reserve 10K gas
-      uint256 reserve = 10_000;
-
-      if (gasleft() < reserve + 1) {
-        revert BridgeFacet__excecute_insufficientGas();
-      }
-
-      // Use SafeCall here
-      (success, returnData) = ExcessivelySafeCall.excessivelySafeCall(
-        _params.to,
-        gasleft() - reserve,
-        0, // native asset value (always 0)
-        256, // only copy 256 bytes back as calldata
-        abi.encodeWithSelector(
-          IXReceiver.xReceive.selector,
-          _transferId,
-          _amount,
-          _asset,
-          _params.originSender, // use passed in value iff authenticated
-          _params.originDomain,
-          _params.callData
-        )
-      );
-    } else {
-      // use address(0) for origin sender on fast path
-      returnData = IXReceiver(_params.to).xReceive(
+    (bool success, bytes memory returnData) = ExcessivelySafeCall.excessivelySafeCall(
+      _params.to,
+      gasleft() - Constants.EXECUTE_CALLDATA_RESERVE_GAS,
+      0, // native asset value (always 0)
+      Constants.DEFAULT_COPY_BYTES, // only copy 256 bytes back as calldata
+      abi.encodeWithSelector(
+        IXReceiver.xReceive.selector,
         _transferId,
         _amount,
         _asset,
-        address(0),
+        _reconciled ? _params.originSender : address(0), // use passed in value iff authenticated
         _params.originDomain,
         _params.callData
-      );
-      success = true;
+      )
+    );
+
+    if (!_reconciled && !success) {
+      // See above devnote, reverts if unsuccessful on fast path
+      revert BridgeFacet__execute_externalCallFailed();
     }
 
     emit ExternalCalldataExecuted(_transferId, success, returnData);
@@ -901,7 +887,7 @@ contract BridgeFacet is BaseConnextFacet {
     // Calculate local to adopted swap output if needed
     address adopted = _getAdoptedAsset(_key);
 
-    IAavePool(s.aavePool).mintUnbacked(adopted, _fastTransferAmount, address(this), AAVE_REFERRAL_CODE);
+    IAavePool(s.aavePool).mintUnbacked(adopted, _fastTransferAmount, address(this), Constants.AAVE_REFERRAL_CODE);
 
     // Improvement: Instead of withdrawing to address(this), withdraw directly to the user or executor to save 1 transfer
     uint256 amountWithdrawn = IAavePool(s.aavePool).withdraw(adopted, _fastTransferAmount, address(this));
@@ -912,7 +898,7 @@ contract BridgeFacet is BaseConnextFacet {
     s.portalDebt[_transferId] = _fastTransferAmount;
 
     // Store fee debt
-    s.portalFeeDebt[_transferId] = (s.aavePortalFeeNumerator * _fastTransferAmount) / BPS_FEE_DENOMINATOR;
+    s.portalFeeDebt[_transferId] = (s.aavePortalFeeNumerator * _fastTransferAmount) / Constants.BPS_FEE_DENOMINATOR;
 
     emit AavePortalMintUnbacked(_transferId, _router, adopted, _fastTransferAmount);
 
