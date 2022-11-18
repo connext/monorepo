@@ -209,7 +209,7 @@ const env = "production";
 
 const run = async () => {
   if (routers.length === 0) {
-    console.log("please add router addresses to whitelist");
+    console.log("please add router addresses to allowlist");
     return;
   }
 

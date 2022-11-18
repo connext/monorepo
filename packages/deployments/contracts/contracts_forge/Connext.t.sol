@@ -171,7 +171,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     address destinationConnext = deployConnext(_destination, address(_destinationManager), 7 days);
     _destinationConnext = IConnext(destinationConnext);
 
-    // whitelist contract as router
+    // allowlist contract as router
     _originConnext.addRelayer(address(this));
     _destinationConnext.addRelayer(address(this));
 
@@ -205,7 +205,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     } // otherwise, could be anything
 
     // Handle origin
-    // Set up asset whitelist
+    // Set up asset allowlist
     if (_origin == canonicalDomain) {
       console.log("setting up canonical asset on origin");
       _originConnext.setupAsset(TokenId(canonicalDomain, canonicalId), 18, "", "", address(0), address(0), originCap);
@@ -220,7 +220,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       );
     }
 
-    // Set up asset whitelist
+    // Set up asset allowlist
     if (_destination == canonicalDomain) {
       console.log("setting up canonical asset on destination");
       _destinationConnext.setupAsset(
@@ -472,7 +472,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       (uint8 v, bytes32 r, bytes32 _s) = vm.sign(777 + i, toSign);
       signatures[i] = abi.encodePacked(r, _s, v);
 
-      // whitelist all routers
+      // allowlist all routers
       _destinationConnext.approveRouter(routers[i]);
       vm.prank(routers[i]);
       _destinationConnext.initializeRouter(address(0), address(0));
@@ -927,7 +927,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   //     args.amount,
   //     0
   //   );
-  //   // whitelist routers for portal
+  //   // allowlist routers for portal
   //   _destinationConnext.approveRouterForPortal(execute.routers[0]);
   //   assertTrue(_destinationConnext.getRouterApprovalForPortal(execute.routers[0]));
   //   utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(args.amount), 0, true);

@@ -149,7 +149,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   }
 
   /**
-   * @notice Removes (effectively blacklists) a given (fraudulent) root from the queue of pending
+   * @notice Removes (effectively blocklists) a given (fraudulent) root from the queue of pending
    * inbound roots.
    * @dev The given root does NOT have to currently be in the queue. It isn't removed from the queue
    * directly, but instead is filtered out when dequeuing is done for the sake of aggregation.
