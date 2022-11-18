@@ -10,7 +10,7 @@ type TaskArgs = {
   env?: Env;
 };
 
-export default task("add-watcher", "Add watcher to whitelist")
+export default task("add-watcher", "Add watcher to allowlist")
   .addParam("watcher", "The address of watcher to add")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("env", "Environment of contracts")

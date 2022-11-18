@@ -9,8 +9,6 @@
   "error ProposedOwnable__renounceOwnership_delayNotElapsed()",
   "error ProposedOwnable__renounceOwnership_invalidProposal()",
   "error ProposedOwnable__renounceOwnership_noProposal()",
-  "error TypedMemView__index_indexMoreThan32Bytes()",
-  "error TypedMemView__index_overrun(uint256,uint256,uint256,uint256)",
   "event GasCapUpdated(uint256,uint256)",
   "event MessageProcessed(bytes,address)",
   "event MessageSent(bytes,bytes,address)",

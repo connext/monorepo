@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
@@ -18,11 +20,16 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   // sample data
   uint32 _domain = _originDomain;
 
+  // NOTE: this is pulled from test logs, should calculate what address the
+  // TokenFacet deploys to in tests
+  address _deployedLocal = 0xf5a2fE45F4f1308502b1C136b9EF8af136141382;
+
   // ============ Test set up ============
   function setUp() public {
     setOwner(_owner);
     utils_deployAssetContracts();
     utils_setFees();
+    _local = _deployedLocal;
   }
 
   // ============ Utils ==============
@@ -58,7 +65,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
       // Should emit an AssetAdded event
       vm.expectEmit(true, true, true, true);
-      emit AssetAdded(key, _canonicalId, _canonicalDomain, _adopted, _local, _owner);
+      emit AssetAdded(key, _canonicalId, _canonicalDomain, isCanonical ? _canonical : adoptedInput, _local, _owner);
 
       // Should emit a cap event
       if (_cap > 0 && isCanonical) {
@@ -85,11 +92,11 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
       return;
     }
     // Update adopted
-    assertEq(s.adoptedToCanonical[_adopted].id, _canonicalId);
-    assertEq(s.adoptedToCanonical[_adopted].domain, _canonicalDomain);
+    assertEq(s.adoptedToCanonical[isCanonical ? _canonical : adoptedInput].id, _canonicalId);
+    assertEq(s.adoptedToCanonical[isCanonical ? _canonical : adoptedInput].domain, _canonicalDomain);
 
     // Update canonical
-    assertEq(s.canonicalToAdopted[key], _adopted);
+    assertEq(s.canonicalToAdopted[key], isCanonical ? _canonical : adoptedInput);
 
     // Update the local <> canonical mapping
     assertEq(s.representationToCanonical[isCanonical ? _canonical : _local].domain, isCanonical ? 0 : _canonicalDomain);
@@ -115,15 +122,23 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     address adopted,
     address representation
   ) public {
+    // Get shortcut
+    bool isCanonical = s.domain == _canonicalDomain;
+
     vm.expectEmit(true, true, false, true);
     emit AssetRemoved(key, _owner);
 
-    this.removeAssetId(key, adopted, representation);
+    vm.prank(_owner);
+    this.removeAssetId(key, isCanonical ? _canonical : adopted, representation);
     assertEq(s.approvedAssets[key], false);
-    assertEq(s.adoptedToCanonical[adopted].domain, 0);
-    assertEq(s.adoptedToCanonical[adopted].id, bytes32(0));
-    assertEq(s.canonicalToAdopted[key], address(0));
+    assertEq(s.caps[key], 0);
     assertEq(address(s.adoptedToLocalExternalPools[key]), address(0));
+    assertEq(s.adoptedToCanonical[isCanonical ? _canonical : adopted].domain, 0);
+    assertEq(s.adoptedToCanonical[isCanonical ? _canonical : adopted].id, bytes32(0));
+    assertEq(s.representationToCanonical[representation].domain, 0);
+    assertEq(s.representationToCanonical[representation].id, bytes32(0));
+    assertEq(s.canonicalToAdopted[key], address(0));
+    assertEq(s.canonicalToRepresentation[key], address(0));
   }
 
   // ============ Getters ============
@@ -133,9 +148,9 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     assertTrue(this.canonicalToAdopted(_canonicalId) == _local);
   }
 
-  // if the canonicalToAdopted lookup fails using the helper, we revert: adopted asset not whitelisted
+  // if the canonicalToAdopted lookup fails using the helper, we revert: adopted asset not allowlisted
   function test_TokenFacet__canonicalToAdopted_notFound() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__getAdoptedAsset_notWhitelisted.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__getAdoptedAsset_notAllowlisted.selector);
     this.canonicalToAdopted(_canonicalId);
   }
 
@@ -269,19 +284,78 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   }
 
   // ============ removeAssetId ============
-  // function test_TokenFacet__removeAssetId_successErc20Token() public {
-  //   vm.prank(_owner);
-  //   setupAssetAndAssert(_local, address(12));
+  function test_TokenFacet__removeAssetId_worksOnCanonical() public {
+    s.domain = _canonicalDomain;
+    _adopted = address(0);
+    _local = _canonical;
+    _stableSwap = address(0);
+    setupAssetAndAssert(_adopted, bytes4(""));
 
-  //   removeAssetAndAssert(_canonicalKey, _local, _local);
-  // }
+    s.custodied[_canonical] = 0;
+    removeAssetAndAssert(utils_calculateCanonicalHash(), _deployedLocal, _adopted);
+  }
 
-  // function test_TokenFacet__removeAssetId_failIfNotAlreadyApproved() public {
-  //   vm.expectRevert(TokenFacet.TokenFacet__removeAssetId_notAdded.selector);
+  function test_TokenFacet__removeAssetId_worksOnRemote() public {
+    s.domain = _canonicalDomain + 1;
+    _adopted = address(12312391263);
+    setupAssetAndAssert(_adopted, bytes4(""));
 
-  //   vm.prank(_owner);
-  //   this.removeAssetId(_canonicalId, _local);
-  // }
+    vm.mockCall(_deployedLocal, abi.encodeWithSelector(IERC20.totalSupply.selector), abi.encode(0));
+
+    removeAssetAndAssert(utils_calculateCanonicalHash(), _adopted, _deployedLocal);
+  }
+
+  function test_TokenFacet__removeAssetId_failIfNotAlreadyApproved() public {
+    vm.expectRevert(TokenFacet.TokenFacet__removeAssetId_notAdded.selector);
+
+    vm.prank(_owner);
+    this.removeAssetId(TokenId(_domain, _canonicalId), _local, _local);
+  }
+
+  function test_TokenFacet__removeAssetId_failIfNotConsistentPair() public {
+    bytes32 key = utils_calculateCanonicalHash();
+    s.approvedAssets[key] = true;
+    s.canonicalToAdopted[key] = _local;
+    s.canonicalToRepresentation[key] = address(123);
+
+    vm.expectRevert(TokenFacet.TokenFacet__removeAssetId_invalidParams.selector);
+
+    vm.prank(_owner);
+    this.removeAssetId(TokenId(_domain, _canonicalId), _local, _local);
+  }
+
+  function test_TokenFacet__removeAssetId_failIfOnCanonicalAndHasCustodied() public {
+    bytes32 key = utils_calculateCanonicalHash();
+    s.domain = _domain;
+    s.approvedAssets[key] = true;
+
+    // Using canonical asset as adopted (and local) here.
+    address adopted = TypeCasts.bytes32ToAddress(_canonicalId);
+
+    s.canonicalToAdopted[key] = adopted;
+    s.canonicalToRepresentation[key] = adopted;
+    s.custodied[adopted] = 123;
+
+    vm.expectRevert(TokenFacet.TokenFacet__removeAssetId_remainsCustodied.selector);
+
+    vm.prank(_owner);
+    this.removeAssetId(TokenId(_domain, _canonicalId), adopted, adopted);
+  }
+
+  function test_TokenFacet__removeAssetId_failIfOnRemoteAndHasSupply() public {
+    bytes32 key = utils_calculateCanonicalHash();
+    s.domain = _domain + 1;
+    s.approvedAssets[key] = true;
+    s.canonicalToAdopted[key] = _local;
+    s.canonicalToRepresentation[key] = _local;
+
+    vm.mockCall(_local, abi.encodeWithSelector(IERC20.totalSupply.selector), abi.encode(10));
+
+    vm.expectRevert(TokenFacet.TokenFacet__removeAssetId_remainsCustodied.selector);
+
+    vm.prank(_owner);
+    this.removeAssetId(TokenId(_domain, _canonicalId), _local, _local);
+  }
 
   // updateLiquidityCap
   function test_TokenFacet__updateLiquidityCap_failsIfNotCanonicalDomain() public {

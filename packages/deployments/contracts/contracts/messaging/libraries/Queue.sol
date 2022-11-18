@@ -20,7 +20,7 @@ library QueueLib {
     mapping(uint256 => bytes32) data;
     // The block that the message data was committed.
     mapping(uint256 => uint256) commitBlock;
-    // A reverse mapping of all entries that have been "removed" by value; behaves like a blacklist.
+    // A reverse mapping of all entries that have been "removed" by value; behaves like a blocklist.
     // NOTE: Removed values can still be pushed to the queue, but will be ignored/skipped when dequeuing.
     mapping(bytes32 => bool) removed;
   }
@@ -32,7 +32,7 @@ library QueueLib {
    **/
   function initialize(Queue storage queue) internal {
     queue.first = 1;
-    queue.last = 0;
+    delete queue.last;
   }
 
   /**

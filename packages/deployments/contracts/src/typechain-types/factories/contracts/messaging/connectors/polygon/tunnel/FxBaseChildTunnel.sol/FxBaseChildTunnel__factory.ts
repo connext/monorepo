@@ -72,19 +72,6 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_fxRootTunnel",
-        type: "address",
-      },
-    ],
-    name: "setFxRootTunnel",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
 ];
 
 export class FxBaseChildTunnel__factory {
