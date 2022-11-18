@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {BaseConnextFacet} from "./BaseConnextFacet.sol";
+import {Constants} from "../libraries/Constants.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {RouterConfig} from "../libraries/LibConnextStorage.sol";
 import {TokenId} from "../libraries/TokenId.sol";
 
+import {BaseConnextFacet} from "./BaseConnextFacet.sol";
+
 /**
  * @notice
  * This contract is designed to manage router access, meaning it maintains the
- * router recipients, owners, and the router whitelist itself.
+ * router recipients, owners, and the router allowlist itself.
  *
  * As a router, there are three important permissions:
  * `router` - this is the address that will sign bids sent to the sequencer
@@ -53,9 +55,6 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__setRouterOwner_noChange();
 
   // ============ Properties ============
-
-  // ============ Constants ============
-  uint256 private constant _delay = 7 days;
 
   // ============ Events ============
 
@@ -177,7 +176,7 @@ contract RoutersFacet is BaseConnextFacet {
   }
 
   function LIQUIDITY_FEE_DENOMINATOR() public pure returns (uint256) {
-    return BPS_FEE_DENOMINATOR;
+    return Constants.BPS_FEE_DENOMINATOR;
   }
 
   /**
@@ -242,7 +241,7 @@ contract RoutersFacet is BaseConnextFacet {
   // ============ Admin methods ==============
 
   /**
-   * @notice Used to whitelist a given router
+   * @notice Used to allowlist a given router
    * @param _router Router address to setup
    */
   function approveRouter(address _router) external onlyOwnerOrRouter {
@@ -300,7 +299,7 @@ contract RoutersFacet is BaseConnextFacet {
   function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwnerOrAdmin {
     // Slightly misleading: the liquidity fee numerator is not the amount charged,
     // but the amount received after fees are deducted (e.g. 9995/10000 would be .005%).
-    uint256 denominator = BPS_FEE_DENOMINATOR;
+    uint256 denominator = Constants.BPS_FEE_DENOMINATOR;
     if (_numerator < (denominator * 95) / 100) revert RoutersFacet__setLiquidityFeeNumerator_tooSmall();
 
     if (_numerator > denominator) revert RoutersFacet__setLiquidityFeeNumerator_tooLarge();
@@ -315,7 +314,7 @@ contract RoutersFacet is BaseConnextFacet {
    */
   function approveRouterForPortal(address _router) external onlyOwnerOrAdmin {
     RouterConfig memory config = s.routerConfigs[_router];
-    if (!config.approved && !_isRouterWhitelistRemoved()) revert RoutersFacet__approveRouterForPortal_notAdded();
+    if (!config.approved && !_isRouterAllowlistRemoved()) revert RoutersFacet__approveRouterForPortal_notAdded();
     if (config.portalApproved) revert RoutersFacet__approveRouterForPortal_alreadyApproved();
 
     s.routerConfigs[_router].portalApproved = true;
@@ -380,7 +379,7 @@ contract RoutersFacet is BaseConnextFacet {
     RouterConfig memory config = s.routerConfigs[_router];
 
     // Check timestamp has passed
-    if (block.timestamp - config.proposedTimestamp <= _delay)
+    if (block.timestamp - config.proposedTimestamp <= Constants.GOVERNANCE_DELAY)
       revert RoutersFacet__acceptProposedRouterOwner_notElapsed();
 
     // Check the caller
@@ -401,7 +400,7 @@ contract RoutersFacet is BaseConnextFacet {
 
   /**
    * @notice Can be called by anyone to set a config for their router (the msg.sender)
-   * @dev Does not set whitelisting permissions, only owner and recipient
+   * @dev Does not set allowlisting permissions, only owner and recipient
    * @param _owner The owner (can change recipient, proposes new owners)
    * @param _recipient Where liquidity will be withdrawn to
    */
@@ -566,7 +565,7 @@ contract RoutersFacet is BaseConnextFacet {
     (TokenId memory canonical, bytes32 key) = _getApprovedCanonicalId(_local);
 
     // Sanity check: router is approved.
-    if (!_isRouterWhitelistRemoved() && !getRouterApproval(_router))
+    if (!_isRouterAllowlistRemoved() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
 
     // Transfer funds to contract.

@@ -1,7 +1,7 @@
 
    
 @baseUrl = http://127.0.0.1:8080
-@yourAddress = 0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94
+@yourAddress = 	0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94
 
 ##############
 ### ẂELCOME
@@ -18,9 +18,9 @@ POST {{baseUrl}}/sendTransaction/9991
 Content-Type: application/json
 
 {
-  "to": "0xDAFa90B07Bc7Bc9506AE7934564Bc33961D1139F",
+  "to": "0x84bF41BDB9F43B88913Df7001B18D8d063d3cF37",
   "value": 0,
-  "data": "0xff126de9292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000183cb8c8b7e",
+  "data": "0x8d365457292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000018487d24f7a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000002386f26fc10000000000000000000000000000000000000000000000000000002386f26fc10000",
   "from": "0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94"
 }
 
@@ -30,31 +30,32 @@ POST {{baseUrl}}/xcall
 Content-Type: application/json
 
 {
-  "destination": "1735356532",
+  "destination": "1869640809",
   "to": "{{yourAddress}}",
-  "asset": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
+  "asset": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
   "delegate": "{{yourAddress}}",
-  "amount": "10000000000000000",
-  "slippage": "0",
+  "amount": "100",
+  "slippage": "10000",
   "callData": "0x",
-  "origin": "1735353714"
+  "origin": "6648936",
+  "receiveLocal": true
 }
 
 ##############
 ### GET getCanonicalToken
-GET {{baseUrl}}/getCanonicalToken/9991/0xaED6e134ACc6e1144f75678e0df3BF79cfE96E7A
+GET {{baseUrl}}/getCanonicalToken/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
 
 ##############
 ### GET getLPTokenAddress
 GET {{baseUrl}}/getLPTokenAddress/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
 
 ##############
-### GET getCanonicalKey
-GET {{baseUrl}}/getCanonicalKey/9991/0x000000000000000000000000aed6e134acc6e1144f75678e0df3bf79cfe96e7a
+### GET calculateCanonicalKey
+GET {{baseUrl}}/calculateCanonicalKey/1735353714/0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6
 ##############
 
 ### GET getLPTokenUserBalance
-GET {{baseUrl}}/getLPTokenUserBalance/9991/0x3267676443A68f74B58f591D98ebBC839593263e/{{yourAddress}}
+GET {{baseUrl}}/getLPTokenUserBalance/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/{{yourAddress}}
 
 ##############
 ### GET getPoolTokenIndex
@@ -63,19 +64,19 @@ GET {{baseUrl}}/getPoolTokenIndex/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E6
 
 ##############
 ### GET getPoolTokenBalance
-GET {{baseUrl}}/getPoolTokenBalance/9991/0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
+GET {{baseUrl}}/getPoolTokenBalance/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
 
 ##############
 ### GET getPoolTokenUserBalance
-GET {{baseUrl}}/getPoolTokenUserBalance/1735356532/0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E/{{yourAddress}}
+GET {{baseUrl}}/getPoolTokenUserBalance/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/{{yourAddress}}
 
 ##############
 ### GET getPoolTokenAddress
-GET {{baseUrl}}/getPoolTokenAddress/9991/0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f/0
+GET {{baseUrl}}/getPoolTokenAddress/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/1
 
 ##############
 ### GET getVirtualPrice
-GET {{baseUrl}}/getVirtualPrice/9991/0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f
+GET {{baseUrl}}/getVirtualPrice/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
 
 ##############
 ### POST calculateSwap
@@ -84,10 +85,10 @@ Content-Type: application/json
 
 {
   "domainId": "9991",
-  "key": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
-  "tokenIndexFrom": "1",
-  "tokenIndexTo": "0",
-  "amount": "1"
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "tokenIndexFrom": "0",
+  "tokenIndexTo": "1",
+  "amount": "100000000000000"
 }
 
 ##############
@@ -97,8 +98,8 @@ Content-Type: application/json
 
 {
   "domainId": "9991",
-  "key": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
-  "amounts": ["10", "10"]
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "amounts": ["1000000000000000", "1000000000000000"]
 }
 
 ##############
@@ -108,8 +109,32 @@ Content-Type: application/json
 
 {
   "domainId": "9991",
-  "key": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
-  "amount": "10" 
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "amount": "10000000000000000" 
+}
+
+##############
+### POST calculateAddLiquidityPriceImpact
+POST {{baseUrl}}/calculateAddLiquidityPriceImpact
+Content-Type: application/json
+
+{
+  "domainId": "9991",
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "amountX": "10000000000000000",
+  "amountY": "10000000000000000" 
+}
+
+##############
+### POST calculateRemoveLiquidityPriceImpact
+POST {{baseUrl}}/calculateRemoveLiquidityPriceImpact
+Content-Type: application/json
+
+{
+  "domainId": "9991",
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "amountX": "10000000000000000",
+  "amountY": "10000000000000000" 
 }
 
 ##############
@@ -119,7 +144,7 @@ Content-Type: application/json
 
 {
   "domainId": "9991",
-  "tokenAddress": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9"
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
 }
 
 ##############
@@ -139,8 +164,8 @@ Content-Type: application/json
 
 {
   "domainId": "9991",
-  "tokenAddress": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
-  "amounts": ["100000000000000000", "1000000000000000000"]
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "amounts": ["10000000000000000", "10000000000000000"]
 }
 
 ##############
@@ -150,8 +175,8 @@ Content-Type: application/json
 
 {
   "domainId": "9991",
-  "tokenAddress": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
-  "amount": "10"
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "amount": "20000000000000000"
 }
 
 ##############
@@ -161,10 +186,10 @@ Content-Type: application/json
 
 {
   "domainId": "9991",
-  "tokenAddress": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
   "from": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
   "to": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
-  "amount": "1"
+  "amount": "1000000000000000000"
 }
 
 ##############

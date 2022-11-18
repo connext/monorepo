@@ -106,7 +106,7 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
 
     uint256 chainId = 1337;
     vm.chainId(chainId);
-    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.sourceChainId.selector), abi.encode(chainId));
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
@@ -129,7 +129,7 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
 
     uint256 chainId = 1337;
     vm.chainId(chainId);
-    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.sourceChainId.selector), abi.encode(chainId));
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
@@ -151,7 +151,7 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
 
     uint256 chainId = 1337;
     vm.chainId(chainId);
-    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.sourceChainId.selector), abi.encode(chainId));
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
@@ -169,7 +169,7 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
 
     uint256 chainId = 1337;
     vm.chainId(1338);
-    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.sourceChainId.selector), abi.encode(chainId));
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));

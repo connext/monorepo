@@ -11,6 +11,38 @@ import type {
 
 const _abi = [
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "domain",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "connector",
+        type: "address",
+      },
+    ],
+    name: "DomainAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "domain",
+        type: "uint32",
+      },
+    ],
+    name: "DomainRemoved",
+    type: "event",
+  },
+  {
     inputs: [],
     name: "MAX_DOMAINS",
     outputs: [

@@ -40,7 +40,9 @@ contract AmplificationUtilsTest is FacetHelper {
       pooledTokens: _pooledTokens,
       tokenPrecisionMultipliers: _tokenPrecisionMultipliers,
       balances: _balances,
-      adminFees: new uint256[](2)
+      adminFees: new uint256[](2),
+      disabled: false,
+      removeTime: 0
     });
   }
 

@@ -3,8 +3,16 @@ import * as fs from "fs";
 import { generateExitPayload as _generateExitPayload } from "@connext/nxtp-utils";
 import { CrossChainMessenger as _CrossChainMessenger } from "@eth-optimism/sdk";
 import { sendWithRelayerWithBackup as _sendWithRelayerWithBackup } from "@connext/nxtp-adapters-relayer";
+import {
+  EventFetcher as _EventFetcher,
+  L2TransactionReceipt as _L2TransactionReceipt,
+  L1ToL2MessageGasEstimator,
+} from "@arbitrum/sdk";
+import {
+  RollupUserLogic__factory as _RollupUserLogic__factory,
+  Outbox__factory as _Outbox__factory,
+} from "@connext/nxtp-contracts";
 import { Contract, ContractInterface, providers, utils } from "ethers";
-import { L1ToL2MessageGasEstimator } from "@arbitrum/sdk";
 
 export const existsSync = fs.existsSync;
 
@@ -20,6 +28,16 @@ export const encodeProcessMessageFromRoot = (abi: any[], args: any[], functionNa
 };
 
 export const sendWithRelayerWithBackup = _sendWithRelayerWithBackup;
+
+export const EventFetcher = _EventFetcher;
+
+export const L2TransactionReceipt = _L2TransactionReceipt;
+
+export const RollupUserLogic__factory = _RollupUserLogic__factory;
+
+export const Outbox__factory = _Outbox__factory;
+
+export const JsonRpcProvider = providers.JsonRpcProvider;
 
 export const encodePropagate = (abi: any[], args: any[]): string => {
   const encodedData = new utils.Interface(abi as string[]).encodeFunctionData("propagate", args);

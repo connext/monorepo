@@ -30,13 +30,6 @@ describe("Helpers: Arbitrum ", () => {
       ).to.eventually.be.rejectedWith(NoProviderForDomain);
     });
 
-    it("should throw an error if no provider for hub domain", async () => {
-      delete propagateCtxMock.config.chains[mock.domain.A];
-      await expect(
-        getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext),
-      ).to.eventually.be.rejectedWith(NoProviderForDomain);
-    });
-
     it("should throw an error if no spoke connector", async () => {
       (propagateCtxMock.adapters.contracts.spokeConnector as SinonStub).returns(undefined);
       await expect(
@@ -54,9 +47,10 @@ describe("Helpers: Arbitrum ", () => {
     it("should return necessary data successfully", async () => {
       const data = await getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext);
       expect(data).to.deep.eq({
-        encodedData:
+        _connector: "",
+        _fee: "89",
+        _encodedData:
           "0x00000000000000000000000000000000000000000000000000000000000000050000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000002a",
-        value: "89",
       });
     });
   });
