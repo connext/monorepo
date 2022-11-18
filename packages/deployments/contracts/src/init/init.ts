@@ -243,6 +243,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
           method: "enrollRemoteRouter",
           args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
         },
+        chainData,
       });
     }
   }
@@ -286,6 +287,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
             desired: true,
             read: { method: "isWatcher", args: [watcher] },
             write: { method: "addWatcher", args: [watcher] },
+            chainData,
           });
         }
       }
@@ -297,14 +299,14 @@ export const initProtocol = async (protocol: ProtocolStack) => {
       if (protocol.agents.relayers.whitelist) {
         console.log("\n\nWHITELIST RELAYERS");
 
-        const relayerProxyAddress = "0x";
-        // Whitelist named relayerProxy address for the Connext, in order to call `execute`.
         for (const network of protocol.networks) {
+          const relayerProxyAddress = network.deployments.RelayerProxy.address;
           await updateIfNeeded({
             deployment: network.deployments.Connext,
             desired: true,
-            read: { method: "allowedRelayer", args: [relayerProxyAddress] },
+            read: { method: "approvedRelayers", args: [relayerProxyAddress] },
             write: { method: "addRelayer", args: [relayerProxyAddress] },
+            chainData,
           });
         }
 
@@ -314,8 +316,9 @@ export const initProtocol = async (protocol: ProtocolStack) => {
             await updateIfNeeded({
               deployment: network.deployments.RelayerProxy,
               desired: true,
-              read: { method: "approvedRelayers", args: [relayer] },
+              read: { method: "allowedRelayer", args: [relayer] },
               write: { method: "addRelayer", args: [relayer] },
+              chainData,
             });
           }
         }
@@ -336,6 +339,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
               desired: true,
               read: { method: "approvedSequencers", args: [sequencer] },
               write: { method: "addSequencer", args: [sequencer] },
+              chainData,
             });
           }
         }
@@ -356,6 +360,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
               read: { method: "getRouterApproval", args: [router] },
               // TODO: Should we enable configuring owner and recipient for this script, too?
               write: { method: "approveRouter", args: [router] },
+              chainData,
             });
           }
         }

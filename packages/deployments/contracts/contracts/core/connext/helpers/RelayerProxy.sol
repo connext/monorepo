@@ -74,7 +74,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard {
 
   function addRelayer(address _relayer) external onlyOwner {
     require(_relayer != address(0), "!zero relayer");
-    require(allowedRelayer[_relayer], "already added");
+    require(!allowedRelayer[_relayer], "already added");
 
     allowedRelayer[_relayer] = true;
     emit RelayerAdded(_relayer);
