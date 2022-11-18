@@ -64,7 +64,7 @@ export const NxtpRouterConfigSchema = Type.Object({
       }),
     }),
   ]),
-  slippage: Type.Integer({ minimum: 0, maximum: 10000 }),
+  slippage: Type.Integer({ minimum: 0, maximum: 100000 }),
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   polling: TPollingConfig,
