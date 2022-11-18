@@ -41,6 +41,8 @@ export declare namespace SwapUtils {
     tokenPrecisionMultipliers: PromiseOrValue<BigNumberish>[];
     balances: PromiseOrValue<BigNumberish>[];
     adminFees: PromiseOrValue<BigNumberish>[];
+    disabled: PromiseOrValue<boolean>;
+    removeTime: PromiseOrValue<BigNumberish>;
   };
 
   export type SwapStructOutput = [
@@ -55,7 +57,9 @@ export declare namespace SwapUtils {
     string[],
     BigNumber[],
     BigNumber[],
-    BigNumber[]
+    BigNumber[],
+    boolean,
+    BigNumber
   ] & {
     key: string;
     initialA: BigNumber;
@@ -69,13 +73,18 @@ export declare namespace SwapUtils {
     tokenPrecisionMultipliers: BigNumber[];
     balances: BigNumber[];
     adminFees: BigNumber[];
+    disabled: boolean;
+    removeTime: BigNumber;
   };
 }
 
 export interface SwapAdminFacetInterface extends utils.Interface {
   functions: {
+    "disableSwap(bytes32)": FunctionFragment;
     "initializeSwap(bytes32,address[],uint8[],string,string,uint256,uint256,uint256,address)": FunctionFragment;
+    "isDisabled(bytes32)": FunctionFragment;
     "rampA(bytes32,uint256,uint256)": FunctionFragment;
+    "removeSwap(bytes32)": FunctionFragment;
     "setSwapAdminFee(bytes32,uint256)": FunctionFragment;
     "setSwapFee(bytes32,uint256)": FunctionFragment;
     "stopRampA(bytes32)": FunctionFragment;
@@ -84,14 +93,21 @@ export interface SwapAdminFacetInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "disableSwap"
       | "initializeSwap"
+      | "isDisabled"
       | "rampA"
+      | "removeSwap"
       | "setSwapAdminFee"
       | "setSwapFee"
       | "stopRampA"
       | "withdrawSwapAdminFees"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "disableSwap",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
   encodeFunctionData(
     functionFragment: "initializeSwap",
     values: [
@@ -107,12 +123,20 @@ export interface SwapAdminFacetInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "isDisabled",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "rampA",
     values: [
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeSwap",
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "setSwapAdminFee",
@@ -132,10 +156,16 @@ export interface SwapAdminFacetInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "disableSwap",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "initializeSwap",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "isDisabled", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "rampA", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "removeSwap", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setSwapAdminFee",
     data: BytesLike
@@ -152,16 +182,20 @@ export interface SwapAdminFacetInterface extends utils.Interface {
     "AdminFeesWithdrawn(bytes32,address)": EventFragment;
     "RampAStarted(bytes32,uint256,uint256,address)": EventFragment;
     "RampAStopped(bytes32,address)": EventFragment;
+    "SwapDisabled(bytes32,address)": EventFragment;
     "SwapFeesSet(bytes32,uint256,address)": EventFragment;
     "SwapInitialized(bytes32,tuple,address)": EventFragment;
+    "SwapRemoved(bytes32,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AdminFeesSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AdminFeesWithdrawn"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RampAStarted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RampAStopped"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SwapDisabled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SwapFeesSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SwapInitialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SwapRemoved"): EventFragment;
 }
 
 export interface AdminFeesSetEventObject {
@@ -212,6 +246,17 @@ export type RampAStoppedEvent = TypedEvent<
 
 export type RampAStoppedEventFilter = TypedEventFilter<RampAStoppedEvent>;
 
+export interface SwapDisabledEventObject {
+  key: string;
+  caller: string;
+}
+export type SwapDisabledEvent = TypedEvent<
+  [string, string],
+  SwapDisabledEventObject
+>;
+
+export type SwapDisabledEventFilter = TypedEventFilter<SwapDisabledEvent>;
+
 export interface SwapFeesSetEventObject {
   key: string;
   newSwapFee: BigNumber;
@@ -235,6 +280,17 @@ export type SwapInitializedEvent = TypedEvent<
 >;
 
 export type SwapInitializedEventFilter = TypedEventFilter<SwapInitializedEvent>;
+
+export interface SwapRemovedEventObject {
+  key: string;
+  caller: string;
+}
+export type SwapRemovedEvent = TypedEvent<
+  [string, string],
+  SwapRemovedEventObject
+>;
+
+export type SwapRemovedEventFilter = TypedEventFilter<SwapRemovedEvent>;
 
 export interface SwapAdminFacet extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -263,6 +319,11 @@ export interface SwapAdminFacet extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    disableSwap(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     initializeSwap(
       _key: PromiseOrValue<BytesLike>,
       _pooledTokens: PromiseOrValue<string>[],
@@ -276,10 +337,20 @@ export interface SwapAdminFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    isDisabled(
+      key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     rampA(
       key: PromiseOrValue<BytesLike>,
       futureA: PromiseOrValue<BigNumberish>,
       futureTime: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    removeSwap(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -306,6 +377,11 @@ export interface SwapAdminFacet extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  disableSwap(
+    _key: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   initializeSwap(
     _key: PromiseOrValue<BytesLike>,
     _pooledTokens: PromiseOrValue<string>[],
@@ -319,10 +395,20 @@ export interface SwapAdminFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  isDisabled(
+    key: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   rampA(
     key: PromiseOrValue<BytesLike>,
     futureA: PromiseOrValue<BigNumberish>,
     futureTime: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  removeSwap(
+    _key: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -349,6 +435,11 @@ export interface SwapAdminFacet extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    disableSwap(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     initializeSwap(
       _key: PromiseOrValue<BytesLike>,
       _pooledTokens: PromiseOrValue<string>[],
@@ -362,10 +453,20 @@ export interface SwapAdminFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    isDisabled(
+      key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     rampA(
       key: PromiseOrValue<BytesLike>,
       futureA: PromiseOrValue<BigNumberish>,
       futureTime: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    removeSwap(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -435,6 +536,15 @@ export interface SwapAdminFacet extends BaseContract {
       caller?: null
     ): RampAStoppedEventFilter;
 
+    "SwapDisabled(bytes32,address)"(
+      key?: PromiseOrValue<BytesLike> | null,
+      caller?: null
+    ): SwapDisabledEventFilter;
+    SwapDisabled(
+      key?: PromiseOrValue<BytesLike> | null,
+      caller?: null
+    ): SwapDisabledEventFilter;
+
     "SwapFeesSet(bytes32,uint256,address)"(
       key?: PromiseOrValue<BytesLike> | null,
       newSwapFee?: null,
@@ -456,9 +566,23 @@ export interface SwapAdminFacet extends BaseContract {
       swap?: null,
       caller?: null
     ): SwapInitializedEventFilter;
+
+    "SwapRemoved(bytes32,address)"(
+      key?: PromiseOrValue<BytesLike> | null,
+      caller?: null
+    ): SwapRemovedEventFilter;
+    SwapRemoved(
+      key?: PromiseOrValue<BytesLike> | null,
+      caller?: null
+    ): SwapRemovedEventFilter;
   };
 
   estimateGas: {
+    disableSwap(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     initializeSwap(
       _key: PromiseOrValue<BytesLike>,
       _pooledTokens: PromiseOrValue<string>[],
@@ -472,10 +596,20 @@ export interface SwapAdminFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    isDisabled(
+      key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     rampA(
       key: PromiseOrValue<BytesLike>,
       futureA: PromiseOrValue<BigNumberish>,
       futureTime: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    removeSwap(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -503,6 +637,11 @@ export interface SwapAdminFacet extends BaseContract {
   };
 
   populateTransaction: {
+    disableSwap(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     initializeSwap(
       _key: PromiseOrValue<BytesLike>,
       _pooledTokens: PromiseOrValue<string>[],
@@ -516,10 +655,20 @@ export interface SwapAdminFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    isDisabled(
+      key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     rampA(
       key: PromiseOrValue<BytesLike>,
       futureA: PromiseOrValue<BigNumberish>,
       futureTime: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    removeSwap(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

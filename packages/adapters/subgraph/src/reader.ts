@@ -16,6 +16,7 @@ import {
   AggregatedRoot,
   PropagatedRoot,
   ConnectorMeta,
+  RootManagerMeta,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -768,12 +769,12 @@ export class SubgraphReader {
     return connectorMetas;
   }
 
-  public async getDomainsForHub(hub: string): Promise<string[]> {
-    const { execute } = getHelpers();
+  public async getRootManagerMeta(hub: string): Promise<RootManagerMeta> {
+    const { parser, execute } = getHelpers();
     const rootManagerMetaQuery = getRootManagerMetaQuery(hub);
 
     const response = await execute(rootManagerMetaQuery);
     const values = [...response.values()];
-    return values[0][0].domains || [];
+    return parser.rootManagerMeta(values[0][0]);
   }
 }

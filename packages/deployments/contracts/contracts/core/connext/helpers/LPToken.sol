@@ -13,17 +13,6 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 contract LPToken is ERC20Upgradeable, OwnableUpgradeable {
   // ============ Storage ============
 
-  /**
-   * @notice Used to enforce proper token dilution
-   * @dev If this is the first mint of the LP token, this amount of funds are burned.
-   * See audit recommendations here:
-   * - https://github.com/code-423n4/2022-03-prepo-findings/issues/27
-   * - https://github.com/code-423n4/2022-04-jpegd-findings/issues/12
-   * and uniswap v2 implementation here:
-   * https://github.com/Uniswap/v2-core/blob/8b82b04a0b9e696c0e83f8b2f00e5d7be6888c79/contracts/UniswapV2Pair.sol#L15
-   */
-  uint256 public constant MINIMUM_LIQUIDITY = 10**3;
-
   // ============ Initializer ============
 
   /**
@@ -50,11 +39,6 @@ contract LPToken is ERC20Upgradeable, OwnableUpgradeable {
    */
   function mint(address recipient, uint256 amount) external onlyOwner {
     require(amount != 0, "LPToken: cannot mint 0");
-    if (totalSupply() == 0) {
-      // NOTE: using the _mint function directly will error because it is going
-      // to the 0 address. fix by using the address(1) here instead
-      _mint(address(1), MINIMUM_LIQUIDITY);
-    }
     _mint(recipient, amount);
   }
 
