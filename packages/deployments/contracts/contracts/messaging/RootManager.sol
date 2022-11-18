@@ -63,6 +63,12 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   QueueLib.Queue public pendingInboundRoots;
 
   /**
+   * @notice The last aggregate root we propagated to spoke chains. Used to prevent sending redundant
+   * aggregate roots in `propagate`.
+   */
+  bytes32 public lastPropagatedRoot;
+
+  /**
    * @notice MerkleTreeManager contract instance. Will hold the active tree of aggregated inbound roots.
    * The root of this tree will be distributed crosschain to all spoke domains.
    */
@@ -191,6 +197,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     // Dequeue verified roots from the queue and insert into the tree.
     (bytes32 _aggregateRoot, uint256 _count) = dequeue();
 
+    // Sanity check: make sure we are not propagating a redundant aggregate root.
+    require(_aggregateRoot != lastPropagatedRoot, "redundant root");
+    lastPropagatedRoot = _aggregateRoot;
+
     uint256 sum = msg.value;
     for (uint32 i; i < _numDomains; ) {
       // Try to send the message with appropriate encoded data and fees
@@ -242,9 +252,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     // Get all of the verified roots from the queue.
     bytes32[] memory _verifiedInboundRoots = pendingInboundRoots.dequeueVerified(delayBlocks, DEQUEUE_MAX);
 
-    // Sanity check: there must be some verified roots to aggregate and send: otherwise we would be
-    // propagating a redundant aggregate root.
-    require(_verifiedInboundRoots.length != 0, "no verified roots");
+    // If there's nothing dequeued, just return the root and count.
+    if (_verifiedInboundRoots.length == 0) {
+      return MERKLE.rootAndCount();
+    }
 
     // Insert the leaves into the aggregator tree (method will also calculate and return the current
     // aggregate root and count).

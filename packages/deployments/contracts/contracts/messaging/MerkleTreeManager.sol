@@ -67,6 +67,13 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     return tree.count;
   }
 
+  /**
+   * @notice Convenience getter: returns the root and count.
+   */
+  function rootAndCount() public view returns (bytes32, uint256) {
+    return (tree.root(), tree.count);
+  }
+
   // ======== Initializer =========
 
   function initialize(address _arborist) public initializer {
