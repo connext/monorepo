@@ -16,7 +16,7 @@ import {TokenId} from "./TokenId.sol";
 // Admin    - 3
 enum Role {
   None,
-  Router,
+  RouterAdmin,
   Watcher,
   Admin
 }
