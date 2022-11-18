@@ -403,7 +403,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     uint256 amount,
     uint256[] calldata minAmounts,
     uint256 deadline
-  ) external override nonReentrant deadlineCheck(deadline) returns (uint256[] memory) {
+  ) external override nonReentrant whenNotPaused deadlineCheck(deadline) returns (uint256[] memory) {
     return swapStorage.removeLiquidity(amount, minAmounts);
   }
 

@@ -61,7 +61,7 @@ nxtp$ yarn workspace @connext/nxtp-contracts coverage
 ### Contract Deployment
 
 <aside>
-Before deploying, you should ensure that precompiles available on the chain cannot be abused, specifically by the arbitrary calldata supported by the `IXReceiver` contracts called in `execute`.
+💡 Before deploying, you should ensure that precompiles available on the chain cannot be abused, specifically by the arbitrary calldata supported by the `IXReceiver` contracts called in `execute`.
 
 Last updated deployment guide on: May 3 2022
 
@@ -96,7 +96,7 @@ Contracts are deployed via the [hardhat deploy](https://hardhat.org/plugins/hard
 
 Congratulations! You have deployed a new set of amarok contracts. Now, we have to configure them.
 
-1. You must enroll the remote handlers using the `enroll-handlers` task. This is done so the handlers know to accept messages from each other across domains, and must be done on each nomad router. You can specify a `type` as the remote handlers you want to enroll (may be `all`, `promise`, `relayer`), and the `chains` you want to enroll the remotes for
+1. You must enroll the remote handlers using the `enroll-handlers` task. This is done so the handlers know to accept messages from each other across domains, and must be done on each router. You can specify a `type` as the remote handlers you want to enroll (may be `all`, `promise`, `relayer`), and the `chains` you want to enroll the remotes for
 
    ```bash
    $ yarn workspace @connext/nxtp-contracts hardhat enroll-handler --type \<HANDLER_TYPE\> --chains \<REMOTE_CHAIN_IDS\> --network \<NETWORK_NAME\>
@@ -139,7 +139,7 @@ Congratulations! You have deployed a new set of amarok contracts. Now, we have t
 
 **Upgrading** **Contracts**
 
-The `Connext` is using `TransparentProxy` of OpenZeppelin. When executing the deploy script using [hardhat deploy](https://hardhat.org/plugins/hardhat-deploy.html) plugin, it will automatically detect if the proxy and implementation must be deployed, or if the proxy must simply be upgraded. The nomad contracts (`TokenRegistry`) are using a custom upgrade scheme, but the deploy script will automatically detect if fresh deployments or only upgrades are needed.
+The `Connext` is using `TransparentProxy` of OpenZeppelin. When executing the deploy script using [hardhat deploy](https://hardhat.org/plugins/hardhat-deploy.html) plugin, it will automatically detect if the proxy and implementation must be deployed, or if the proxy must simply be upgraded. The contracts (`TokenRegistry`) are using a custom upgrade scheme, but the deploy script will automatically detect if fresh deployments or only upgrades are needed.
 
 If want to deploy completely new proxy contracts, remove the `.json` files from the `deployments` directory. (ie. `TokenRegistry`, `TokenRegistryUpgradeBeacon`, `TokenRegistryUpgradeBeaconProxy`, `ConnextHandler_Implementation`, `ConnextHandler_Proxy`), and execute the deploy script again.
 
@@ -254,14 +254,6 @@ $ yarn workspace @connext/nxtp-contracts hardhat xcall --transacting-asset-id 0x
 This task can be used to run load tests by specifying the number of `--runs`. It can also be configured to run stress tests with multiple accounts in parallel, simulating "bursty" requests to the network.
 
 The max number of accounts used is specified in `hardhat.config.ts` under each chain's `accounts: { mnemonic, count: 100 }` (default 20 if unspecified). The `--accounts` flag determines the first N of these accounts to use for this task.
-
-### trace
-
-`trace` allows you to check the status of a nomad message from the origin domain (use the `xcall` transaction hash:
-
-```bash
-$ yarn workspace @connext/nxtp-contracts hardhat trace-message --transaction \<TRANSACTION_HASH\> --destination \<DESTINATION_DOMAIN\> --network \<ORIGIN_NETWORK_NAME\>
-```
 
 ### renounce-ownership
 

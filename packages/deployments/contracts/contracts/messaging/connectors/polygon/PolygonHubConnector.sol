@@ -15,10 +15,9 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     address _checkPointManager
   )
-    HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
+    HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
     FxBaseRootTunnel(_checkPointManager, _amb)
   {}
 
@@ -29,7 +28,9 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
     return false;
   }
 
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should not include specialized calldata
+    require(_encodedData.length == 0, "!data length");
     _sendMessageToChild(_data);
   }
 

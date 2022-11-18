@@ -25,11 +25,6 @@ variable "environment" {
   default     = "testnet"
 }
 
-variable "nomad_environment" {
-  description = "nomad environment type"
-  default     = "staging"
-}
-
 variable "full_image_name_router_publisher" {
   type        = string
   description = "router image name"
@@ -72,6 +67,12 @@ variable "full_image_name_lighthouse_process_from_root" {
   default     = "ghcr.io/connext/lighthouse-process-from-root:latest"
 }
 
+variable "full_image_name_lighthouse_propagate" {
+  type        = string
+  description = "lighthouse process from root image name"
+  default     = "ghcr.io/connext/lighthouse-propagate:latest"
+}
+
 variable "mnemonic" {
   type        = string
   description = "mnemonic"
@@ -112,6 +113,14 @@ variable "optgoerli_alchemy_key_0" {
 }
 
 variable "optgoerli_alchemy_key_1" {
+  type = string
+}
+
+variable "arbgoerli_alchemy_key_0" {
+  type = string
+}
+
+variable "arbgoerli_alchemy_key_1" {
   type = string
 }
 

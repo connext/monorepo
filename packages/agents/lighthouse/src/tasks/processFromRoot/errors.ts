@@ -35,3 +35,13 @@ export class ProcessConfigNotAvailable extends NxtpError {
     });
   }
 }
+
+export class ConfirmDataDoesNotMatch extends NxtpError {
+  constructor(public readonly confirmData: string, public readonly encoded: string, public readonly context: any = {}) {
+    super(`Confirm data does not match`, {
+      ...context,
+      confirmData,
+      encoded,
+    });
+  }
+}

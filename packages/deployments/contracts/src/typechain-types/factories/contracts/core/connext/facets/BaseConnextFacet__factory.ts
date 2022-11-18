@@ -27,7 +27,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
+    name: "BaseConnextFacet__nonXCallReentrant_reentrantCall",
     type: "error",
   },
   {
@@ -63,7 +63,7 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122012dd1eaa25a52a4b800a69fbe9f53fa99b10dc7a7f495fe2f8283bf4470c071f64736f6c63430008110033";
+  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122035a57cfe3543ec710ad922c614a3d07cbad2efde86ccd52ac7a6a339ba9071f064736f6c63430008110033";
 
 type BaseConnextFacetConstructorParams =
   | [signer?: Signer]

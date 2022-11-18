@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {AppStorage, TokenId} from "../libraries/LibConnextStorage.sol";
+import {RouterConfig} from "../libraries/LibConnextStorage.sol";
+import {TokenId} from "../libraries/TokenId.sol";
 
 /**
  * @notice
@@ -27,14 +26,14 @@ import {AppStorage, TokenId} from "../libraries/LibConnextStorage.sol";
 contract RoutersFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error RoutersFacet__acceptProposedRouterOwner_notElapsed();
+  error RoutersFacet__acceptProposedRouterOwner_badCaller();
+  error RoutersFacet__initializeRouter_configNotEmpty();
   error RoutersFacet__setRouterRecipient_notNewRecipient();
   error RoutersFacet__onlyRouterOwner_notRouterOwner();
-  error RoutersFacet__onlyProposedRouterOwner_notRouterOwner();
-  error RoutersFacet__onlyProposedRouterOwner_notProposedRouterOwner();
   error RoutersFacet__removeRouter_routerEmpty();
   error RoutersFacet__removeRouter_notAdded();
-  error RoutersFacet__setupRouter_routerEmpty();
-  error RoutersFacet__setupRouter_alreadyAdded();
+  error RoutersFacet__approveRouter_routerEmpty();
+  error RoutersFacet__approveRouter_alreadyAdded();
   error RoutersFacet__proposeRouterOwner_notNewOwner();
   error RoutersFacet__proposeRouterOwner_badRouter();
   error RoutersFacet__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
@@ -51,6 +50,7 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__approveRouterForPortal_notAdded();
   error RoutersFacet__approveRouterForPortal_alreadyApproved();
   error RoutersFacet__unapproveRouterForPortal_notApproved();
+  error RoutersFacet__setRouterOwner_noChange();
 
   // ============ Properties ============
 
@@ -96,6 +96,14 @@ contract RoutersFacet is BaseConnextFacet {
    * @param newOwner  - The address of the new owner of the router
    */
   event RouterOwnerAccepted(address indexed router, address indexed prevOwner, address indexed newOwner);
+
+  /**
+   * @notice Emitted when a router adds a config via `addRouterConfig`
+   * @dev This does not confer permissions onto the router, only the configuration
+   * @param router The router initialized
+   *
+   */
+  event RouterInitialized(address indexed router);
 
   /**
    * @notice Emitted when the maxRoutersPerTransfer variable is updated
@@ -155,28 +163,10 @@ contract RoutersFacet is BaseConnextFacet {
   // ============ Modifiers ============
 
   /**
-   * @notice Asserts caller is the router owner (if set) or the router itself
+   * @notice Asserts caller is the router owner
    */
   modifier onlyRouterOwner(address _router) {
-    address owner = s.routerPermissionInfo.routerOwners[_router];
-    if (!((owner == address(0) && msg.sender == _router) || owner == msg.sender))
-      revert RoutersFacet__onlyRouterOwner_notRouterOwner();
-    _;
-  }
-
-  /**
-   * @notice Asserts caller is the proposed router. If proposed router is address(0), then asserts
-   * the owner is calling the function (if set), or the router itself is calling the function
-   */
-  modifier onlyProposedRouterOwner(address _router) {
-    address proposed = s.routerPermissionInfo.proposedRouterOwners[_router];
-    if (proposed == address(0)) {
-      address owner = s.routerPermissionInfo.routerOwners[_router];
-      if (!((owner == address(0) && msg.sender == _router) || owner == msg.sender))
-        revert RoutersFacet__onlyProposedRouterOwner_notRouterOwner();
-    } else {
-      if (msg.sender != proposed) revert RoutersFacet__onlyProposedRouterOwner_notProposedRouterOwner();
-    }
+    if (s.routerConfigs[_router].owner != msg.sender) revert RoutersFacet__onlyRouterOwner_notRouterOwner();
     _;
   }
 
@@ -195,7 +185,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _router The relevant router address
    */
   function getRouterApproval(address _router) public view returns (bool) {
-    return s.routerPermissionInfo.approvedRouters[_router];
+    return s.routerConfigs[_router].approved;
   }
 
   /**
@@ -204,18 +194,15 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _router The relevant router address
    */
   function getRouterRecipient(address _router) public view returns (address) {
-    return s.routerPermissionInfo.routerRecipients[_router];
+    return s.routerConfigs[_router].recipient;
   }
 
   /**
    * @notice Returns the router owner if it is set, or the router itself if not
-   * @dev Uses logic function here to handle the case where router owner is not set.
-   * Other getters within this interface use explicitly the stored value
    * @param _router The relevant router address
    */
   function getRouterOwner(address _router) public view returns (address) {
-    address _owner = s.routerPermissionInfo.routerOwners[_router];
-    return _owner == address(0) ? _router : _owner;
+    return s.routerConfigs[_router].owner;
   }
 
   /**
@@ -224,7 +211,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _router The relevant router address
    */
   function getProposedRouterOwner(address _router) public view returns (address) {
-    return s.routerPermissionInfo.proposedRouterOwners[_router];
+    return s.routerConfigs[_router].proposed;
   }
 
   /**
@@ -233,7 +220,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _router The relevant router address
    */
   function getProposedRouterOwnerTimestamp(address _router) public view returns (uint256) {
-    return s.routerPermissionInfo.proposedRouterTimestamp[_router];
+    return s.routerConfigs[_router].proposedTimestamp;
   }
 
   function maxRoutersPerTransfer() public view returns (uint256) {
@@ -249,86 +236,47 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _router The relevant router address
    */
   function getRouterApprovalForPortal(address _router) public view returns (bool) {
-    return s.routerPermissionInfo.approvedForPortalRouters[_router];
+    return s.routerConfigs[_router].portalApproved;
   }
 
   // ============ Admin methods ==============
 
   /**
-   * @notice Used to set router initial properties
-   * @param router Router address to setup
-   * @param owner Initial Owner of router
-   * @param recipient Initial Recipient of router
+   * @notice Used to whitelist a given router
+   * @param _router Router address to setup
    */
-  function setupRouter(
-    address router,
-    address owner,
-    address recipient
-  ) external onlyOwnerOrRouter {
+  function approveRouter(address _router) external onlyOwnerOrRouter {
     // Sanity check: not empty
-    if (router == address(0)) revert RoutersFacet__setupRouter_routerEmpty();
+    if (_router == address(0)) revert RoutersFacet__approveRouter_routerEmpty();
 
     // Sanity check: needs approval
-    if (s.routerPermissionInfo.approvedRouters[router]) revert RoutersFacet__setupRouter_alreadyAdded();
+    if (s.routerConfigs[_router].approved) revert RoutersFacet__approveRouter_alreadyAdded();
 
     // Approve router
-    s.routerPermissionInfo.approvedRouters[router] = true;
+    s.routerConfigs[_router].approved = true;
 
     // Emit event
-    emit RouterAdded(router, msg.sender);
-
-    // Update routerOwner (zero address possible)
-    if (owner != address(0)) {
-      s.routerPermissionInfo.routerOwners[router] = owner;
-      emit RouterOwnerAccepted(router, address(0), owner);
-    }
-
-    // Update router recipient
-    if (recipient != address(0)) {
-      s.routerPermissionInfo.routerRecipients[router] = recipient;
-      emit RouterRecipientSet(router, address(0), recipient);
-    }
+    emit RouterAdded(_router, msg.sender);
   }
 
   /**
    * @notice Used to remove routers that can transact crosschain
-   * @param router Router address to remove
+   * @param _router Router address to remove
    */
-  function removeRouter(address router) external onlyOwnerOrRouter {
+  function unapproveRouter(address _router) external onlyOwnerOrRouter {
     // Sanity check: not empty
-    if (router == address(0)) revert RoutersFacet__removeRouter_routerEmpty();
+    if (_router == address(0)) revert RoutersFacet__removeRouter_routerEmpty();
 
     // Sanity check: needs removal
-    if (!s.routerPermissionInfo.approvedRouters[router]) revert RoutersFacet__removeRouter_notAdded();
+    RouterConfig memory config = s.routerConfigs[_router];
+    if (!config.approved) revert RoutersFacet__removeRouter_notAdded();
 
-    // Update mapping
-    s.routerPermissionInfo.approvedRouters[router] = false;
+    // Update approvals in config mapping
+    s.routerConfigs[_router].approved = false;
+    s.routerConfigs[_router].portalApproved = false;
 
     // Emit event
-    emit RouterRemoved(router, msg.sender);
-
-    // Remove router owner
-    address _owner = s.routerPermissionInfo.routerOwners[router];
-    if (_owner != address(0)) {
-      emit RouterOwnerAccepted(router, _owner, address(0));
-      // delete routerOwners[router];
-      s.routerPermissionInfo.routerOwners[router] = address(0);
-    }
-
-    // Remove router recipient
-    address _recipient = s.routerPermissionInfo.routerRecipients[router];
-    if (_recipient != address(0)) {
-      emit RouterRecipientSet(router, _recipient, address(0));
-      // delete routerRecipients[router];
-      s.routerPermissionInfo.routerRecipients[router] = address(0);
-    }
-
-    // Clear any proposed ownership changes
-    delete s.routerPermissionInfo.proposedRouterOwners[router];
-    delete s.routerPermissionInfo.proposedRouterTimestamp[router];
-
-    // Clear approvedForPortal status.
-    delete s.routerPermissionInfo.approvedForPortalRouters[router];
+    emit RouterRemoved(_router, msg.sender);
   }
 
   /**
@@ -366,12 +314,11 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _router - The router address to approve
    */
   function approveRouterForPortal(address _router) external onlyOwnerOrAdmin {
-    if (!s.routerPermissionInfo.approvedRouters[_router] && !_isRouterWhitelistRemoved())
-      revert RoutersFacet__approveRouterForPortal_notAdded();
-    if (s.routerPermissionInfo.approvedForPortalRouters[_router])
-      revert RoutersFacet__approveRouterForPortal_alreadyApproved();
+    RouterConfig memory config = s.routerConfigs[_router];
+    if (!config.approved && !_isRouterWhitelistRemoved()) revert RoutersFacet__approveRouterForPortal_notAdded();
+    if (config.portalApproved) revert RoutersFacet__approveRouterForPortal_alreadyApproved();
 
-    s.routerPermissionInfo.approvedForPortalRouters[_router] = true;
+    s.routerConfigs[_router].portalApproved = true;
 
     emit RouterApprovedForPortal(_router, msg.sender);
   }
@@ -381,10 +328,9 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _router - The router address to remove approval
    */
   function unapproveRouterForPortal(address _router) external onlyOwnerOrAdmin {
-    if (!s.routerPermissionInfo.approvedForPortalRouters[_router])
-      revert RoutersFacet__unapproveRouterForPortal_notApproved();
+    if (!s.routerConfigs[_router].portalApproved) revert RoutersFacet__unapproveRouterForPortal_notApproved();
 
-    delete s.routerPermissionInfo.approvedForPortalRouters[_router];
+    s.routerConfigs[_router].portalApproved = false;
 
     emit RouterUnapprovedForPortal(_router, msg.sender);
   }
@@ -395,67 +341,96 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Sets the designated recipient for a router
    * @dev Router should only be able to set this once otherwise if router key compromised,
    * no problem is solved since attacker could just update recipient
-   * @param router Router address to set recipient
-   * @param recipient Recipient Address to set to router
+   * @param _router Router address to set recipient
+   * @param _recipient Recipient Address to set to router
    */
-  function setRouterRecipient(address router, address recipient) external onlyRouterOwner(router) {
-    // Check recipient is changing
-    address _prevRecipient = s.routerPermissionInfo.routerRecipients[router];
-    if (_prevRecipient == recipient) revert RoutersFacet__setRouterRecipient_notNewRecipient();
-
-    // Set new recipient
-    s.routerPermissionInfo.routerRecipients[router] = recipient;
-
-    // Emit event
-    emit RouterRecipientSet(router, _prevRecipient, recipient);
+  function setRouterRecipient(address _router, address _recipient) external onlyRouterOwner(_router) {
+    _setRouterRecipient(_router, _recipient, s.routerConfigs[_router].recipient);
   }
 
   /**
    * @notice Current owner or router may propose a new router owner
-   * @param router Router address to set recipient
-   * @param proposed Proposed owner Address to set to router
+   * @dev If routers burn their ownership, they can no longer update the recipient
+   * @param _router Router address to set recipient
+   * @param _proposed Proposed owner Address to set to router
    */
-  function proposeRouterOwner(address router, address proposed) external onlyRouterOwner(router) {
+  function proposeRouterOwner(address _router, address _proposed) external onlyRouterOwner(_router) {
+    // NOTE: If routers burn their ownership, they can no longer update the recipient
+
     // Check that proposed is different than current owner
-    if (getRouterOwner(router) == proposed) revert RoutersFacet__proposeRouterOwner_notNewOwner();
+    RouterConfig memory config = s.routerConfigs[_router];
+    if (config.owner == _proposed) revert RoutersFacet__proposeRouterOwner_notNewOwner();
 
     // Check that proposed is different than current proposed
-    address _currentProposed = s.routerPermissionInfo.proposedRouterOwners[router];
-    if (_currentProposed == proposed) revert RoutersFacet__proposeRouterOwner_badRouter();
+    if (config.proposed == _proposed) revert RoutersFacet__proposeRouterOwner_badRouter();
 
     // Set proposed owner + timestamp
-    s.routerPermissionInfo.proposedRouterOwners[router] = proposed;
-    s.routerPermissionInfo.proposedRouterTimestamp[router] = block.timestamp;
+    s.routerConfigs[_router].proposed = _proposed;
+    s.routerConfigs[_router].proposedTimestamp = block.timestamp;
 
     // Emit event
-    emit RouterOwnerProposed(router, _currentProposed, proposed);
+    emit RouterOwnerProposed(_router, config.proposed, _proposed);
   }
 
   /**
    * @notice New router owner must accept role, or previous if proposed is 0x0
-   * @param router Router address to set recipient
+   * @param _router Router address to set recipient
    */
-  function acceptProposedRouterOwner(address router) external onlyProposedRouterOwner(router) {
-    address owner = getRouterOwner(router);
+  function acceptProposedRouterOwner(address _router) external {
+    RouterConfig memory config = s.routerConfigs[_router];
 
     // Check timestamp has passed
-    if (block.timestamp - s.routerPermissionInfo.proposedRouterTimestamp[router] <= _delay)
+    if (block.timestamp - config.proposedTimestamp <= _delay)
       revert RoutersFacet__acceptProposedRouterOwner_notElapsed();
 
-    // Get current owner + proposed
-    address _proposed = s.routerPermissionInfo.proposedRouterOwners[router];
+    // Check the caller
+    address expected = config.proposed == address(0) ? config.owner : config.proposed;
+    if (msg.sender != expected) {
+      revert RoutersFacet__acceptProposedRouterOwner_badCaller();
+    }
 
     // Update the current owner
-    s.routerPermissionInfo.routerOwners[router] = _proposed;
+    _setRouterOwner(_router, config.proposed, config.owner);
 
     // Reset proposal + timestamp
-    if (_proposed != address(0)) {
-      delete s.routerPermissionInfo.proposedRouterOwners[router];
+    if (config.proposed != address(0)) {
+      s.routerConfigs[_router].proposed = address(0);
     }
-    delete s.routerPermissionInfo.proposedRouterTimestamp[router];
+    s.routerConfigs[_router].proposedTimestamp = 0;
+  }
+
+  /**
+   * @notice Can be called by anyone to set a config for their router (the msg.sender)
+   * @dev Does not set whitelisting permissions, only owner and recipient
+   * @param _owner The owner (can change recipient, proposes new owners)
+   * @param _recipient Where liquidity will be withdrawn to
+   */
+  function initializeRouter(address _owner, address _recipient) external {
+    // Ensure the config is empty
+    RouterConfig memory config = s.routerConfigs[msg.sender];
+    if (
+      config.owner != address(0) ||
+      config.recipient != address(0) ||
+      config.proposed != address(0) ||
+      config.proposedTimestamp > 0
+    ) {
+      revert RoutersFacet__initializeRouter_configNotEmpty();
+    }
+
+    // Default owner should be router
+    if (_owner == address(0)) {
+      _owner = msg.sender;
+    }
+    // Update routerOwner (zero address possible)
+    _setRouterOwner(msg.sender, _owner, address(0));
+
+    // Update router recipient (fine to have no recipient provided)
+    if (_recipient != address(0)) {
+      _setRouterRecipient(msg.sender, _recipient, address(0));
+    }
 
     // Emit event
-    emit RouterOwnerAccepted(router, owner, _proposed);
+    emit RouterInitialized(msg.sender);
   }
 
   /**
@@ -501,9 +476,10 @@ contract RoutersFacet is BaseConnextFacet {
     address payable _to,
     address _router
   ) external nonReentrant whenNotPaused {
-    // Caller must be the router owner
-    if (msg.sender != getRouterOwner(_router)) revert RoutersFacet__removeRouterLiquidityFor_notOwner();
-
+    // Caller must be the router owner, if defined, else the router
+    address owner = s.routerConfigs[_router].owner;
+    address permissioned = owner == address(0) ? _router : owner;
+    if (msg.sender != permissioned) revert RoutersFacet__removeRouterLiquidityFor_notOwner();
     // Remove liquidity
     _removeLiquidityForRouter(_amount, _local, _to, _router);
   }
@@ -526,11 +502,53 @@ contract RoutersFacet is BaseConnextFacet {
   // ============ Internal functions ============
 
   /**
+   * @notice Sets the router recipient
+   * @param _router The router to set the recipient for
+   * @param _updated The recipient to set
+   * @param _previous The existing recipient
+   */
+  function _setRouterRecipient(
+    address _router,
+    address _updated,
+    address _previous
+  ) internal {
+    // Check recipient is changing
+    if (_previous == _updated) revert RoutersFacet__setRouterRecipient_notNewRecipient();
+
+    // Set new recipient
+    s.routerConfigs[_router].recipient = _updated;
+
+    // Emit event
+    emit RouterRecipientSet(_router, _previous, _updated);
+  }
+
+  /**
+   * @notice Sets the router owner
+   * @param _router The router to set the owner for
+   * @param _updated The owner to set
+   * @param _previous The existing owner
+   */
+  function _setRouterOwner(
+    address _router,
+    address _updated,
+    address _previous
+  ) internal {
+    // Check owner is changing
+    if (_previous == _updated) revert RoutersFacet__setRouterOwner_noChange();
+
+    // Set new owner
+    s.routerConfigs[_router].owner = _updated;
+
+    // Emit event
+    emit RouterOwnerAccepted(_router, _previous, _updated);
+  }
+
+  /**
    * @notice Contains the logic to verify + increment a given routers liquidity
    * @dev The liquidity will be held in the local asset, which is the representation if you
    * are *not* on the canonical domain, and the canonical asset otherwise.
    * @param _amount - The amount of liquidity to add for the router
-   * @param _local - The address of the nomad representation of the asset
+   * @param _local - The address of the bridge representation of the asset
    * @param _router - The router you are adding liquidity on behalf of
    */
   function _addLiquidityForRouter(
@@ -550,15 +568,6 @@ contract RoutersFacet is BaseConnextFacet {
     // Sanity check: router is approved.
     if (!_isRouterWhitelistRemoved() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
-
-    if (s.domain == canonical.domain) {
-      // Sanity check: caps not reached
-      uint256 custodied = IERC20(_local).balanceOf(address(this)) + _amount;
-      uint256 cap = s.caps[key];
-      if (cap > 0 && custodied > cap) {
-        revert RoutersFacet__addLiquidityForRouter_capReached();
-      }
-    }
 
     // Transfer funds to contract.
     AssetLogic.handleIncomingAsset(_local, _amount);

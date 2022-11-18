@@ -20,11 +20,6 @@ variable "environment" {
   default     = "mainnet"
 }
 
-variable "nomad_environment" {
-  description = "nomad environment type"
-  default     = "none"
-}
-
 variable "domain" {
   default = "core"
 }
@@ -69,6 +64,12 @@ variable "full_image_name_lighthouse_process_from_root" {
   type        = string
   description = "lighthouse process from root image name"
   default     = "ghcr.io/connext/lighthouse-process-from-root:0.2.1-beta.0"
+}
+
+variable "full_image_name_lighthouse_propagate" {
+  type        = string
+  description = "lighthouse process from root image name"
+  default     = "ghcr.io/connext/lighthouse-propagate:0.2.1-beta.0"
 }
 
 variable "mnemonic" {
@@ -121,6 +122,14 @@ variable "polygon_alchemy_key_1" {
   type = string
 }
 
+variable "arbitrum_alchemy_key_0" {
+  type = string
+}
+
+variable "arbitrum_alchemy_key_1" {
+  type = string
+}
+
 variable "router_web3_signer_private_key" {
   type = string
 }
@@ -137,6 +146,11 @@ variable "gelato_api_key" {
   type = string
 }
 
+variable "connext_relayer_api_key" {
+  type    = string
+  default = "foo"
+}
+
 variable "postgres_password" {
   type = string
 }
@@ -151,6 +165,10 @@ variable "lighthouse_prover_heartbeat" {
 }
 
 variable "lighthouse_processor_heartbeat" {
+  type = string
+}
+
+variable "lighthouse_propagate_heartbeat" {
   type = string
 }
 

@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {TransferInfo, AppStorage, TokenId, Role} from "../libraries/LibConnextStorage.sol";
+import {TransferInfo, AppStorage, Role} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
+import {TokenId} from "../libraries/TokenId.sol";
 
 contract BaseConnextFacet {
   AppStorage internal s;
@@ -18,7 +19,6 @@ contract BaseConnextFacet {
 
   // ========== Custom Errors ===========
 
-  error BaseConnextFacet__onlyBridgeRouter_notBridgeRouter();
   error BaseConnextFacet__onlyOwner_notOwner();
   error BaseConnextFacet__onlyProposed_notProposedOwner();
   error BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter();
@@ -26,6 +26,7 @@ contract BaseConnextFacet {
   error BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin();
   error BaseConnextFacet__whenNotPaused_paused();
   error BaseConnextFacet__nonReentrant_reentrantCall();
+  error BaseConnextFacet__nonXCallReentrant_reentrantCall();
   error BaseConnextFacet__getAdoptedAsset_notWhitelisted();
   error BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
 
@@ -50,6 +51,20 @@ contract BaseConnextFacet {
     // By storing the original value once again, a refund is triggered (see
     // https://eips.ethereum.org/EIPS/eip-2200)
     s._status = _NOT_ENTERED;
+  }
+
+  modifier nonXCallReentrant() {
+    // On the first call to nonReentrant, _notEntered will be true
+    if (s._xcallStatus == _ENTERED) revert BaseConnextFacet__nonXCallReentrant_reentrantCall();
+
+    // Any calls to nonReentrant after this point will fail
+    s._xcallStatus = _ENTERED;
+
+    _;
+
+    // By storing the original value once again, a refund is triggered (see
+    // https://eips.ethereum.org/EIPS/eip-2200)
+    s._xcallStatus = _NOT_ENTERED;
   }
 
   /**

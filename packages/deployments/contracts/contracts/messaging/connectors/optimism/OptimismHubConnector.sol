@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {OptimismAmb} from "../../interfaces/ambs/optimism/OptimismAmb.sol";
-import {IStateCommitmentChain, ChainBatchHeader, ChainInclusionProof, L2MessageInclusionProof} from "../../interfaces/ambs/optimism/IStateCommitmentChain.sol";
+import {IStateCommitmentChain, L2MessageInclusionProof} from "../../interfaces/ambs/optimism/IStateCommitmentChain.sol";
 
 import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 
@@ -22,7 +22,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
   using TypedMemView for bytes29;
 
   // ============ Storage ============
-  IStateCommitmentChain public stateCommitmentChain;
+  IStateCommitmentChain public immutable stateCommitmentChain;
 
   // NOTE: This is needed because we need to track the roots we've
   // already sent across chains. When sending an optimism message, we send calldata
@@ -38,9 +38,9 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
-    address _stateCommitmentChain
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) BaseOptimism() {
+    address _stateCommitmentChain,
+    uint256 _gasCap
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) BaseOptimism(_gasCap) {
     stateCommitmentChain = IStateCommitmentChain(_stateCommitmentChain);
   }
 
@@ -52,13 +52,13 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
   /**
    * @dev Sends `aggregateRoot` to messaging on l2
    */
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
     // Get the calldata
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
     // Dispatch message
-    OptimismAmb(AMB).sendMessage(mirrorConnector, _calldata, uint32(mirrorGas));
+    OptimismAmb(AMB).sendMessage(mirrorConnector, _calldata, uint32(gasCap));
   }
 
   /**

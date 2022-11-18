@@ -107,6 +107,7 @@ export const getDeployments = (args: {
 
   return {
     Connext: getContract("Connext_DiamondProxy"),
+    RelayerProxy: getContract("RelayerProxy"),
     messaging: isHub
       ? {
           RootManager: getContract("RootManager"),
