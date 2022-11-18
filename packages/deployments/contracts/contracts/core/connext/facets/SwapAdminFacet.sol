@@ -230,7 +230,7 @@ contract SwapAdminFacet is BaseConnextFacet {
     if (s.swapStorages[_key].disabled) revert SwapAdminFacet__disableSwap_alreadyDisabled();
 
     s.swapStorages[_key].disabled = true;
-    s.swapStorages[_key].removeTime = block.timestamp + SwapUtils.REMOVE_DELAY;
+    s.swapStorages[_key].removeTime = block.timestamp + Constants.REMOVE_DELAY;
 
     emit SwapDisabled(_key, msg.sender);
   }

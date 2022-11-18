@@ -107,6 +107,9 @@ library Constants {
    */
   uint256 public constant MAX_LOOP_LIMIT = 256;
 
+  // Constant value used as max delay time for removing swap after disabled
+  uint256 internal constant REMOVE_DELAY = 7 days;
+
   /**
    * @notice constant values used in ramping A calculations
    * @dev stored here to keep easily in sync between `SwapUtils` and `SwapUtilsExternal`

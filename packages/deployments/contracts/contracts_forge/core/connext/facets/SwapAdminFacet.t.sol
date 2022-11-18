@@ -482,7 +482,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     this.disableSwap(_canonicalKey);
 
     assertEq(s.swapStorages[_canonicalKey].disabled, true);
-    assertEq(s.swapStorages[_canonicalKey].removeTime, block.timestamp + SwapUtils.REMOVE_DELAY);
+    assertEq(s.swapStorages[_canonicalKey].removeTime, block.timestamp + Constants.REMOVE_DELAY);
 
     vm.stopPrank();
   }
@@ -524,7 +524,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
     this.disableSwap(_canonicalKey);
     assertEq(this.isDisabled(_canonicalKey), true);
-    assertEq(s.swapStorages[_canonicalKey].removeTime, block.timestamp + SwapUtils.REMOVE_DELAY);
+    assertEq(s.swapStorages[_canonicalKey].removeTime, block.timestamp + Constants.REMOVE_DELAY);
 
     vm.expectRevert(SwapAdminFacet.SwapAdminFacet__removeSwap_delayNotElapsed.selector);
     this.removeSwap(_canonicalKey);
@@ -538,9 +538,9 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
     this.disableSwap(_canonicalKey);
     assertEq(this.isDisabled(_canonicalKey), true);
-    assertEq(s.swapStorages[_canonicalKey].removeTime, currentBlockTimestamp + SwapUtils.REMOVE_DELAY);
+    assertEq(s.swapStorages[_canonicalKey].removeTime, currentBlockTimestamp + Constants.REMOVE_DELAY);
 
-    vm.warp(currentBlockTimestamp + SwapUtils.REMOVE_DELAY + 1);
+    vm.warp(currentBlockTimestamp + Constants.REMOVE_DELAY + 1);
 
     vm.expectEmit(true, true, true, true);
     emit AdminFeesWithdrawn(_canonicalKey, _owner);
@@ -561,7 +561,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     vm.expectEmit(true, false, false, true);
     emit SwapRemoved(_canonicalKey, _owner);
 
-    vm.warp(block.timestamp + SwapUtils.REMOVE_DELAY + 1);
+    vm.warp(block.timestamp + Constants.REMOVE_DELAY + 1);
     this.removeSwap(_canonicalKey);
     vm.stopPrank();
   }
@@ -582,7 +582,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     utils_removeAllLiquidity();
 
     this.disableSwap(_canonicalKey);
-    vm.warp(block.timestamp + SwapUtils.REMOVE_DELAY + 1);
+    vm.warp(block.timestamp + Constants.REMOVE_DELAY + 1);
 
     vm.expectEmit(true, true, true, true);
     emit AdminFeesWithdrawn(_canonicalKey, _owner);
@@ -606,7 +606,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     utils_removeAllLiquidity();
 
     this.disableSwap(_canonicalKey);
-    vm.warp(block.timestamp + SwapUtils.REMOVE_DELAY + 1);
+    vm.warp(block.timestamp + Constants.REMOVE_DELAY + 1);
 
     vm.expectEmit(true, false, false, true);
     emit SwapRemoved(_canonicalKey, _owner);
