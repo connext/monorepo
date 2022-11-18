@@ -28,7 +28,7 @@ export const waitForTx = async (
   const prefix = `${log.prefix.base({ chain: tx.chainId, deployment })} ${_name}() `;
   const confirmations = info?.confirmations ?? DEFAULT_CONFIRMATIONS;
   console.log(`${prefix}Transaction sent: ${tx.hash}\n\t\tWaiting for ${confirmations} confirmations.`);
-  const receipt = await tx.wait(confirmations);
+  const receipt = await tx.wait(confirmations as number);
   console.log(`${prefix}Transaction mined:`, receipt.transactionHash);
 
   let value: any | undefined = undefined;
