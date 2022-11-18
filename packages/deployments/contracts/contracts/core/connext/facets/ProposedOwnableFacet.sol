@@ -162,7 +162,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * @notice Indicates if the ownership of the asset allowlist has
    * been renounced
    */
-  function removeRouterAllowlist() public onlyOwnerOrAdmin delayElapsed(s._routerWhitelistTimestamp) {
+  function removeRouterAllowlist() public onlyOwnerOrAdmin delayElapsed(s._routerAllowlistTimestamp) {
     // Contract as sounce of truth
     // Will fail if all ownership is renounced by modifier
     if (s._routerAllowlistRemoved) revert ProposedOwnableFacet__removeRouterAllowlist_noOwnershipChange();
@@ -191,7 +191,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * @notice Indicates if the ownership of the asset allowlist has
    * been renounced
    */
-  function removeAssetAllowlist() public onlyOwnerOrAdmin delayElapsed(s._assetWhitelistTimestamp) {
+  function removeAssetAllowlist() public onlyOwnerOrAdmin delayElapsed(s._assetAllowlistTimestamp) {
     // Contract as source of truth
     // Will fail if all ownership is renounced by modifier
     if (s._assetAllowlistRemoved) revert ProposedOwnableFacet__removeAssetAllowlist_noOwnershipChange();
