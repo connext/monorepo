@@ -16,14 +16,14 @@ abstract contract DomainIndexer {
    * are naturally unbounded, but the gas cost of reading these arrays in `updateHashes()` is bounded by
    * the block's gas limit.
    *
-   * If we want to set a hard ceiling for gas costs for the `updateHashes()` method at approx. 2M gas,
+   * If we want to set a hard ceiling for gas costs for the `updateHashes()` method at approx. 500K gas,
    * with an average SLOAD cost of 900 gas per domain (1 uint32, 1 address):
-   *       2M / 900 = ~2222 domains
+   *       500K / 900 = ~555 domains
    *
    * Realistically, the cap on the number of domains will likely exist in other places, but we cap it
    * here as a last resort.
    */
-  uint256 public constant MAX_DOMAINS = 2000;
+  uint256 public constant MAX_DOMAINS = 500;
 
   /**
    * @notice Domains array tracks currently subscribed domains to this hub aggregator.
