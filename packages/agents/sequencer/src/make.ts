@@ -3,22 +3,37 @@ import { SequencerConfig } from "./lib/entities";
 
 export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
   /// MARK - Context
-  await setupContext(_configOverride);
+  try {
+    await setupContext(_configOverride);
 
-  _makeSubscriber();
+    await _makeSubscriber();
+  } catch (err: unknown) {
+    console.error("Error starting sequencer :(", err);
+    process.exit(1);
+  }
 };
 
 export const makePublisher = async (_configOverride?: SequencerConfig) => {
   /// MARK - Context
-  await setupContext(_configOverride);
+  try {
+    await setupContext(_configOverride);
 
-  _makePublisher();
+    await _makePublisher();
+  } catch (err: unknown) {
+    console.error("Error starting sequencer :(", err);
+    process.exit(1);
+  }
 };
 
 export const makeSequencer = async (_configOverride?: SequencerConfig) => {
-  /// MARK - Context
-  await setupContext(_configOverride);
+  try {
+    /// MARK - Context
+    await setupContext(_configOverride);
 
-  _makeSubscriber();
-  _makePublisher();
+    await _makeSubscriber();
+    await _makePublisher();
+  } catch (err: unknown) {
+    console.error("Error starting sequencer :(", err);
+    process.exit(1);
+  }
 };

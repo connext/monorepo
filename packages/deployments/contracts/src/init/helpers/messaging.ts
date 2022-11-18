@@ -63,12 +63,16 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         // Set hub connector address for this domain on RootManager.
         console.log("\tVerifying RootManager `connectors` has HubConnector set correctly.");
         try {
-          const currentValue = await getValue({
+          const currentValue: undefined | string = await getValue({
             deployment: RootManager,
             read: { method: "getConnectorForDomain", args: [spoke.domain] },
           });
           // If the current connector address is not correct and isn't empty, we need to remove the connector first.
-          if (currentValue !== HubConnector.address && currentValue !== constants.AddressZero) {
+          if (
+            currentValue &&
+            currentValue.toLowerCase() !== HubConnector.address.toLowerCase() &&
+            currentValue.toLowerCase() !== constants.AddressZero
+          ) {
             await updateIfNeeded({
               deployment: RootManager,
               desired: constants.AddressZero,

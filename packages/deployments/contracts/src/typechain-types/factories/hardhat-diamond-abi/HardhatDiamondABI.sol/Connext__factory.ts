@@ -32,11 +32,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin",
     type: "error",
   },
@@ -212,11 +207,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__xcall_canonicalAssetNotReceived",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BridgeFacet__xcall_capReached",
     type: "error",
   },
@@ -233,11 +223,6 @@ const _abi = [
   {
     inputs: [],
     name: "BridgeFacet__xcall_nativeAssetNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BridgeFacet__xcall_notSupportedAsset",
     type: "error",
   },
   {
@@ -3783,6 +3768,16 @@ const _abi = [
             name: "adminFees",
             type: "uint256[]",
           },
+          {
+            internalType: "bool",
+            name: "disabled",
+            type: "bool",
+          },
+          {
+            internalType: "uint256",
+            name: "removeTime",
+            type: "uint256",
+          },
         ],
         internalType: "struct SwapUtils.Swap",
         name: "",
@@ -4129,11 +4124,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "TokenFacet__addAssetId_nativeAsset",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical",
     type: "error",
   },
@@ -4155,6 +4145,11 @@ const _abi = [
   {
     inputs: [],
     name: "TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__setupAsset_invalidCanonicalConfiguration",
     type: "error",
   },
   {

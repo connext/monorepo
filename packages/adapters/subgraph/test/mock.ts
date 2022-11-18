@@ -228,5 +228,9 @@ export const mockSubgraph = () =>
     getDestinationTransfersById: Promise.resolve(mockDestinationSubgraphResponse),
     getAssetBalancesRouters: Promise.resolve(mockRouterResponse),
     getConnectorMeta: Promise.resolve(mockConnectorMeta) as any,
-    getDomainsForHub: Promise.resolve([mock.domain.A, mock.domain.B]),
+    getRootManagerMeta: Promise.resolve({
+      domains: [mock.domain.A, mock.domain.B],
+      connectors: [mkAddress("0x1"), mkAddress("0x2")],
+      id: "ROOT_MANAGER_META_ID",
+    }),
   });
