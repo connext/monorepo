@@ -10,6 +10,7 @@ import {IStableSwap} from "../interfaces/IStableSwap.sol";
 
 import {LibConnextStorage, AppStorage} from "./LibConnextStorage.sol";
 import {SwapUtils} from "./SwapUtils.sol";
+import {Constants} from "./Constants.sol";
 import {TokenId} from "./TokenId.sol";
 
 library AssetLogic {
@@ -186,7 +187,12 @@ library AssetLogic {
         // NOTE: To get the slippage boundary here, you must take the slippage % off of the
         // normalized amount in (at 18 decimals by convention), then convert that amount
         // to the proper decimals of adopted.
-        calculateSlippageBoundary(uint8(18), IERC20Metadata(adopted).decimals(), _normalizedIn, _slippage)
+        calculateSlippageBoundary(
+          Constants.DEFAULT_NORMALIZED_DECIMALS,
+          IERC20Metadata(adopted).decimals(),
+          _normalizedIn,
+          _slippage
+        )
       );
   }
 
@@ -261,7 +267,10 @@ library AssetLogic {
       assetIn.safeIncreaseAllowance(address(pool), _amount);
 
       // NOTE: If pool is not registered here, then this call will revert.
-      return (pool.swapExact(_amount, _assetIn, _assetOut, _minOut, block.timestamp + 3600), _assetOut);
+      return (
+        pool.swapExact(_amount, _assetIn, _assetOut, _minOut, block.timestamp + Constants.DEFAULT_DEADLINE_EXTENSION),
+        _assetOut
+      );
     }
   }
 
@@ -307,8 +316,7 @@ library AssetLogic {
       IStableSwap pool = s.adoptedToLocalExternalPools[_key];
       address poolAddress = address(pool);
 
-      // NOTE: We revert here if the external stableswap pool doesn't exist.
-      if (poolAddress == address(0)) revert AssetLogic__swapAsset_externalStableSwapPoolDoesNotExist();
+      // NOTE: This call will revert if the external stableswap pool doesn't exist.
 
       // Perform the swap.
       // Edge case with some tokens: Example USDT in ETH Mainnet, after the backUnbacked call
@@ -321,7 +329,13 @@ library AssetLogic {
       assetIn.safeApprove(poolAddress, 0);
       assetIn.safeIncreaseAllowance(poolAddress, _maxIn);
 
-      uint256 out = pool.swapExactOut(_amountOut, _assetIn, _assetOut, _maxIn, block.timestamp + 3600);
+      uint256 out = pool.swapExactOut(
+        _amountOut,
+        _assetIn,
+        _assetOut,
+        _maxIn,
+        block.timestamp + Constants.DEFAULT_DEADLINE_EXTENSION
+      );
 
       // Reset allowance
       assetIn.safeApprove(poolAddress, 0);
@@ -517,7 +531,7 @@ library AssetLogic {
       return 0;
     }
     // Get the min recieved (in same decimals as _amountIn)
-    uint256 min = (_amountIn * (10_000 - _slippage)) / 10_000;
+    uint256 min = (_amountIn * (Constants.BPS_FEE_DENOMINATOR - _slippage)) / Constants.BPS_FEE_DENOMINATOR;
     return normalizeDecimals(_in, _out, min);
   }
 

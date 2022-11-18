@@ -7,6 +7,7 @@ import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/se
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {SwapUtilsExternal as SwapUtils} from "../libraries/SwapUtilsExternal.sol";
+import {Constants} from "../libraries/Constants.sol";
 
 import {OwnerPausableUpgradeable} from "./OwnerPausableUpgradeable.sol";
 import {LPToken} from "./LPToken.sol";
@@ -77,8 +78,8 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     __ReentrancyGuard_init();
 
     // Check _pooledTokens and precisions parameter
-    require(_pooledTokens.length > 1, "_pooledTokens.length <= 1");
-    require(_pooledTokens.length <= 32, "_pooledTokens.length > 32");
+    require(_pooledTokens.length > Constants.MINIMUM_POOLED_TOKENS - 1, "_pooledTokens.length insufficient");
+    require(_pooledTokens.length < Constants.MAXIMUM_POOLED_TOKENS + 1, "_pooledTokens.length too large");
     require(_pooledTokens.length == decimals.length, "_pooledTokens decimals mismatch");
 
     uint256[] memory precisionMultipliers = new uint256[](decimals.length);
@@ -92,15 +93,15 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
         );
       }
       require(address(_pooledTokens[i]) != address(0), "The 0 address isn't an ERC-20");
-      require(decimals[i] <= SwapUtils.POOL_PRECISION_DECIMALS, "Token decimals exceeds max");
-      precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - decimals[i]);
+      require(decimals[i] <= Constants.POOL_PRECISION_DECIMALS, "Token decimals exceeds max");
+      precisionMultipliers[i] = 10**uint256(Constants.POOL_PRECISION_DECIMALS - decimals[i]);
       tokenIndexes[address(_pooledTokens[i])] = uint8(i);
     }
 
     // Check _a, _fee, _adminFee, _withdrawFee parameters
-    require(_a < SwapUtils.MAX_A, "_a exceeds maximum");
-    require(_fee < SwapUtils.MAX_SWAP_FEE, "_fee exceeds maximum");
-    require(_adminFee < SwapUtils.MAX_ADMIN_FEE, "_adminFee exceeds maximum");
+    require(_a < Constants.MAX_A, "_a exceeds maximum");
+    require(_fee < Constants.MAX_SWAP_FEE, "_fee exceeds maximum");
+    require(_adminFee < Constants.MAX_ADMIN_FEE, "_adminFee exceeds maximum");
 
     // Initialize a LPToken contract
     LPToken lpToken = LPToken(Clones.clone(lpTokenTargetAddress));
@@ -112,8 +113,8 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     swapStorage.tokenPrecisionMultipliers = precisionMultipliers;
     swapStorage.balances = new uint256[](_pooledTokens.length);
     swapStorage.adminFees = new uint256[](_pooledTokens.length);
-    swapStorage.initialA = _a * SwapUtils.A_PRECISION;
-    swapStorage.futureA = _a * SwapUtils.A_PRECISION;
+    swapStorage.initialA = _a * Constants.A_PRECISION;
+    swapStorage.futureA = _a * Constants.A_PRECISION;
     // swapStorage.initialATime = 0;
     // swapStorage.futureATime = 0;
     swapStorage.swapFee = _fee;

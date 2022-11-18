@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {BaseConnextFacet} from "./BaseConnextFacet.sol";
+import {Constants} from "../libraries/Constants.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {RouterConfig} from "../libraries/LibConnextStorage.sol";
 import {TokenId} from "../libraries/TokenId.sol";
+
+import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 /**
  * @notice
@@ -53,9 +55,6 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__setRouterOwner_noChange();
 
   // ============ Properties ============
-
-  // ============ Constants ============
-  uint256 private constant _delay = 7 days;
 
   // ============ Events ============
 
@@ -177,7 +176,7 @@ contract RoutersFacet is BaseConnextFacet {
   }
 
   function LIQUIDITY_FEE_DENOMINATOR() public pure returns (uint256) {
-    return BPS_FEE_DENOMINATOR;
+    return Constants.BPS_FEE_DENOMINATOR;
   }
 
   /**
@@ -300,7 +299,7 @@ contract RoutersFacet is BaseConnextFacet {
   function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwnerOrAdmin {
     // Slightly misleading: the liquidity fee numerator is not the amount charged,
     // but the amount received after fees are deducted (e.g. 9995/10000 would be .005%).
-    uint256 denominator = BPS_FEE_DENOMINATOR;
+    uint256 denominator = Constants.BPS_FEE_DENOMINATOR;
     if (_numerator < (denominator * 95) / 100) revert RoutersFacet__setLiquidityFeeNumerator_tooSmall();
 
     if (_numerator > denominator) revert RoutersFacet__setLiquidityFeeNumerator_tooLarge();
@@ -380,7 +379,7 @@ contract RoutersFacet is BaseConnextFacet {
     RouterConfig memory config = s.routerConfigs[_router];
 
     // Check timestamp has passed
-    if (block.timestamp - config.proposedTimestamp <= _delay)
+    if (block.timestamp - config.proposedTimestamp <= Constants.GOVERNANCE_DELAY)
       revert RoutersFacet__acceptProposedRouterOwner_notElapsed();
 
     // Check the caller

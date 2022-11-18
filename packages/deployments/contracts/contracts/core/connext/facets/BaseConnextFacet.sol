@@ -5,17 +5,10 @@ import {TransferInfo, AppStorage, Role} from "../libraries/LibConnextStorage.sol
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {TokenId} from "../libraries/TokenId.sol";
+import {Constants} from "../libraries/Constants.sol";
 
 contract BaseConnextFacet {
   AppStorage internal s;
-
-  // ========== Properties ===========
-  uint256 internal constant _NOT_ENTERED = 1;
-  uint256 internal constant _ENTERED = 2;
-  uint256 internal constant BPS_FEE_DENOMINATOR = 10_000;
-
-  // Contains hash of empty bytes
-  bytes32 internal constant EMPTY_HASH = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
 
   // ========== Custom Errors ===========
 
@@ -41,30 +34,30 @@ contract BaseConnextFacet {
    */
   modifier nonReentrant() {
     // On the first call to nonReentrant, _notEntered will be true
-    if (s._status == _ENTERED) revert BaseConnextFacet__nonReentrant_reentrantCall();
+    if (s._status == Constants.ENTERED) revert BaseConnextFacet__nonReentrant_reentrantCall();
 
     // Any calls to nonReentrant after this point will fail
-    s._status = _ENTERED;
+    s._status = Constants.ENTERED;
 
     _;
 
     // By storing the original value once again, a refund is triggered (see
     // https://eips.ethereum.org/EIPS/eip-2200)
-    s._status = _NOT_ENTERED;
+    s._status = Constants.NOT_ENTERED;
   }
 
   modifier nonXCallReentrant() {
     // On the first call to nonReentrant, _notEntered will be true
-    if (s._xcallStatus == _ENTERED) revert BaseConnextFacet__nonXCallReentrant_reentrantCall();
+    if (s._xcallStatus == Constants.ENTERED) revert BaseConnextFacet__nonXCallReentrant_reentrantCall();
 
     // Any calls to nonReentrant after this point will fail
-    s._xcallStatus = _ENTERED;
+    s._xcallStatus = Constants.ENTERED;
 
     _;
 
     // By storing the original value once again, a refund is triggered (see
     // https://eips.ethereum.org/EIPS/eip-2200)
-    s._xcallStatus = _NOT_ENTERED;
+    s._xcallStatus = Constants.NOT_ENTERED;
   }
 
   /**

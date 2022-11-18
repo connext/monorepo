@@ -145,8 +145,8 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
   function test_StableSwapFacet__getSwapStorage_shouldWork() public {
     SwapUtils.Swap memory swapStorage = this.getSwapStorage(utils_calculateCanonicalHash());
 
-    assertEq(swapStorage.initialA, INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
-    assertEq(swapStorage.futureA, INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
+    assertEq(swapStorage.initialA, INITIAL_A_VALUE * Constants.A_PRECISION);
+    assertEq(swapStorage.futureA, INITIAL_A_VALUE * Constants.A_PRECISION);
     assertEq(swapStorage.swapFee, SWAP_FEE);
     assertEq(swapStorage.adminFee, 0);
   }
