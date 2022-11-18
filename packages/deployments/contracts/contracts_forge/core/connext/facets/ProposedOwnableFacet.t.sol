@@ -55,32 +55,6 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     assertTrue(this.routerWhitelistRemoved());
   }
 
-  function utils_proposeRenounceAssetAndAssert() public {
-    assertEq(this.assetWhitelistTimestamp(), 0);
-
-    vm.expectEmit(true, true, true, true);
-    emit AssetWhitelistRemovalProposed(block.timestamp);
-
-    vm.prank(this.owner());
-    this.proposeAssetWhitelistRemoval();
-
-    assertEq(this.assetWhitelistTimestamp(), block.timestamp);
-    assertTrue(!this.assetWhitelistRemoved());
-  }
-
-  function utils_renounceAssetAndAssert() public {
-    assertTrue(this.assetWhitelistTimestamp() != 0);
-
-    vm.expectEmit(true, true, true, true);
-    emit AssetWhitelistRemoved(true);
-
-    vm.prank(this.owner());
-    this.removeAssetWhitelist();
-
-    assertEq(this.assetWhitelistTimestamp(), 0);
-    assertTrue(this.assetWhitelistRemoved());
-  }
-
   function utils_proposeNewOwnerAndAssert(address _proposed) public {
     // Assert change
     address current = this.owner();
@@ -190,9 +164,6 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
   // ============ routerWhitelistRemoved ============
   // tested in assertion functions
 
-  // ============ assetWhitelistRemoved ============
-  // tested in assertion functions
-
   // ============ proposed ============
   // tested in assertion functions
 
@@ -200,9 +171,6 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
   // tested in assertion functions
 
   // ============ routerWhitelistTimestamp ============
-  // tested in assertion functions
-
-  // ============ assetWhitelistTimestamp ============
   // tested in assertion functions
 
   // ============ queryRole ============
@@ -286,82 +254,6 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
 
     vm.prank(_adminAgent1);
     this.removeRouterWhitelist();
-  }
-
-  // ============ proposeAssetWhitelistRemoval ============
-  function test_ProposedOwnableFacet__proposeAssetWhitelistRemoval_failsIfNotOwnerOrAdmin() public {
-    vm.prank(_adminAgent2);
-    vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
-    this.proposeAssetWhitelistRemoval();
-  }
-
-  function test_ProposedOwnableFacet__proposeAssetWhitelistRemoval_failsIfAlreadyRenounced() public {
-    utils_proposeRenounceAssetAndAssert();
-    vm.warp(block.timestamp + this.delay() + 1);
-    utils_renounceAssetAndAssert();
-
-    vm.expectRevert(ProposedOwnableFacet__proposeAssetWhitelistRemoval_noOwnershipChange.selector);
-    vm.prank(_owner);
-    this.proposeAssetWhitelistRemoval();
-  }
-
-  function test_ProposedOwnableFacet__proposeAssetWhitelistRemoval_worksIfOwner() public {
-    utils_proposeRenounceAssetAndAssert();
-  }
-
-  function test_ProposedOwnableFacet__proposeAssetWhitelistRemoval_worksIfAdmin() public {
-    vm.prank(_owner);
-    this.assignRoleAdmin(_adminAgent1);
-
-    vm.prank(_adminAgent1);
-    this.proposeAssetWhitelistRemoval();
-  }
-
-  // ============ removeAssetWhitelist ============
-  function test_ProposedOwnableFacet__removeAssetWhitelist_failsIfNotOwnerOrAdmin() public {
-    utils_proposeRenounceAssetAndAssert();
-    vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
-    this.removeAssetWhitelist();
-  }
-
-  function test_ProposedOwnableFacet__removeAssetWhitelist_failsIfAlreadyRenounced() public {
-    utils_proposeRenounceAssetAndAssert();
-    vm.warp(block.timestamp + this.delay() + 1);
-    utils_renounceAssetAndAssert();
-
-    vm.prank(this.owner());
-    vm.expectRevert(ProposedOwnableFacet__removeAssetWhitelist_noOwnershipChange.selector);
-    this.removeAssetWhitelist();
-  }
-
-  function test_ProposedOwnableFacet__removeAssetWhitelist_failsIfNotProposed() public {
-    vm.prank(this.owner());
-    vm.expectRevert(ProposedOwnableFacet__removeAssetWhitelist_noProposal.selector);
-    this.removeAssetWhitelist();
-  }
-
-  function test_ProposedOwnableFacet__removeAssetWhitelist_failsIfDelayNotElapsed() public {
-    utils_proposeRenounceAssetAndAssert();
-    vm.prank(this.owner());
-    vm.expectRevert(ProposedOwnableFacet__removeAssetWhitelist_delayNotElapsed.selector);
-    this.removeAssetWhitelist();
-  }
-
-  function test_ProposedOwnableFacet__removeAssetWhitelist_worksIfOwner() public {
-    utils_proposeRenounceAssetAndAssert();
-    vm.warp(block.timestamp + this.delay() + 1);
-    utils_renounceAssetAndAssert();
-  }
-
-  function test_ProposedOwnableFacet__removeAssetWhitelist_worksIfAdmin() public {
-    utils_proposeRenounceAssetAndAssert();
-    vm.warp(block.timestamp + this.delay() + 1);
-
-    vm.prank(_owner);
-    this.assignRoleAdmin(_adminAgent1);
-
-    vm.prank(_adminAgent1);
-    this.removeAssetWhitelist();
   }
 
   // ============ proposeNewOwner ============

@@ -238,10 +238,6 @@ struct AppStorage {
   bool _routerWhitelistRemoved;
   // 25
   uint256 _routerWhitelistTimestamp;
-  // 26
-  bool _assetWhitelistRemoved;
-  // 27
-  uint256 _assetWhitelistTimestamp;
   /**
    * @notice Stores a mapping of address to Roles
    * @dev returns uint representing the enum Role value

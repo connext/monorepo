@@ -126,12 +126,6 @@ contract BaseConnextFacet {
     return LibDiamond.contractOwner() == address(0) || s._routerWhitelistRemoved;
   }
 
-  /**
-   * @notice Indicates if the asset whitelist has been removed
-   */
-  function _isAssetWhitelistRemoved() internal view returns (bool) {
-    return LibDiamond.contractOwner() == address(0) || s._assetWhitelistRemoved;
-  }
 
   /**
    * @notice Returns the adopted assets for given canonical information
@@ -202,7 +196,7 @@ contract BaseConnextFacet {
   function _getApprovedCanonicalId(address _candidate) internal view returns (TokenId memory, bytes32) {
     TokenId memory _canonical = _getCanonicalTokenId(_candidate);
     bytes32 _key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
-    if (!_isAssetWhitelistRemoved() && !s.approvedAssets[_key]) {
+    if (!s.approvedAssets[_key]) {
       revert BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
     }
     return (_canonical, _key);

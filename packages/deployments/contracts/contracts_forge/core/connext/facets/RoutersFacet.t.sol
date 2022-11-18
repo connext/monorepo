@@ -819,6 +819,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     s.routerConfigs[_routerAgent0].recipient = address(0);
     s.routerConfigs[_routerAgent0].owner = address(0);
     s.routerBalances[_routerAgent0][_local] = 10 ether;
+    s.custodied[_local] = 10 ether;
 
     address to = address(1234);
     uint256 amount = 100;
@@ -833,7 +834,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
     assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
     assertEq(IERC20(_local).balanceOf(to), initBalance + amount);
-    assertEq(s.custodied[_local], 10 ether);
+    assertEq(s.custodied[_local], 10 ether);// shouldnt change
   }
 
   function test_RoutersFacet__removeRouterLiquidity_worksOnCanonical() public {

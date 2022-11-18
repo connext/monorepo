@@ -577,7 +577,7 @@ contract RoutersFacet is BaseConnextFacet {
       canonical.id = TypeCasts.addressToBytes32(_local);
     }
     bytes32 key = AssetLogic.calculateCanonicalHash(canonical.id, canonical.domain);
-    if (!_isAssetWhitelistRemoved() && !s.approvedAssets[key]) {
+    if (!s.approvedAssets[key]) {
       revert BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
     }
 

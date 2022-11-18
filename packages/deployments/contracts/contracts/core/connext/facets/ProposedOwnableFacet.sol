@@ -32,10 +32,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   error ProposedOwnableFacet__removeRouterWhitelist_noOwnershipChange();
   error ProposedOwnableFacet__removeRouterWhitelist_noProposal();
   error ProposedOwnableFacet__removeRouterWhitelist_delayNotElapsed();
-  error ProposedOwnableFacet__proposeAssetWhitelistRemoval_noOwnershipChange();
-  error ProposedOwnableFacet__removeAssetWhitelist_noOwnershipChange();
-  error ProposedOwnableFacet__removeAssetWhitelist_noProposal();
-  error ProposedOwnableFacet__removeAssetWhitelist_delayNotElapsed();
   error ProposedOwnableFacet__proposeNewOwner_invalidProposal();
   error ProposedOwnableFacet__proposeNewOwner_noOwnershipChange();
   error ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
@@ -50,10 +46,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   event RouterWhitelistRemovalProposed(uint256 timestamp);
 
   event RouterWhitelistRemoved(bool renounced);
-
-  event AssetWhitelistRemovalProposed(uint256 timestamp);
-
-  event AssetWhitelistRemoved(bool renounced);
 
   event RevokeRole(address revokedAddress, Role revokedRole);
 
@@ -84,13 +76,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   }
 
   /**
-   * @notice Returns if the asset whitelist is removed.
-   */
-  function assetWhitelistRemoved() public view returns (bool) {
-    return s._assetWhitelistRemoved;
-  }
-
-  /**
    * @notice Returns the address of the proposed owner.
    */
   function proposed() public view returns (address) {
@@ -109,13 +94,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    */
   function routerWhitelistTimestamp() public view returns (uint256) {
     return s._routerWhitelistTimestamp;
-  }
-
-  /**
-   * @notice Returns the timestamp when asset whitelist was last proposed to be removed
-   */
-  function assetWhitelistTimestamp() public view returns (uint256) {
-    return s._assetWhitelistTimestamp;
   }
 
   /**
@@ -167,39 +145,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
     // Set renounced, emit event, reset timestamp to 0
     _setRouterWhitelistRemoved(true);
-  }
-
-  /**
-   * @notice Indicates if the ownership of the asset whitelist has
-   * been renounced
-   */
-  function proposeAssetWhitelistRemoval() public onlyOwnerOrAdmin {
-    // Contract as source of truth
-    // Will fail if all ownership is renounced by modifier
-    if (s._assetWhitelistRemoved) revert ProposedOwnableFacet__proposeAssetWhitelistRemoval_noOwnershipChange();
-
-    // Start cycle, emit event
-    _setAssetWhitelistTimestamp();
-  }
-
-  /**
-   * @notice Indicates if the ownership of the asset whitelist has
-   * been renounced
-   */
-  function removeAssetWhitelist() public onlyOwnerOrAdmin {
-    // Contract as source of truth
-    // Will fail if all ownership is renounced by modifier
-    if (s._assetWhitelistRemoved) revert ProposedOwnableFacet__removeAssetWhitelist_noOwnershipChange();
-
-    // Ensure there has been a proposal cycle started
-    if (s._assetWhitelistTimestamp == 0) revert ProposedOwnableFacet__removeAssetWhitelist_noProposal();
-
-    // Ensure delay has elapsed
-    if ((block.timestamp - s._assetWhitelistTimestamp) <= delay())
-      revert ProposedOwnableFacet__removeAssetWhitelist_delayNotElapsed();
-
-    // Set ownership, reset timestamp, emit event
-    _setAssetWhitelistRemoved(true);
   }
 
   /**
@@ -326,17 +271,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     s._routerWhitelistRemoved = value;
     delete s._routerWhitelistTimestamp;
     emit RouterWhitelistRemoved(value);
-  }
-
-  function _setAssetWhitelistTimestamp() private {
-    s._assetWhitelistTimestamp = block.timestamp;
-    emit AssetWhitelistRemovalProposed(block.timestamp);
-  }
-
-  function _setAssetWhitelistRemoved(bool value) private {
-    s._assetWhitelistRemoved = value;
-    delete s._assetWhitelistTimestamp;
-    emit AssetWhitelistRemoved(value);
   }
 
   function _setOwner(address newOwner) private {
