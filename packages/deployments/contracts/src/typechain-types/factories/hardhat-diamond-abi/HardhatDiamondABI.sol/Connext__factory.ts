@@ -12,12 +12,12 @@ import type {
 const _abi = [
   {
     inputs: [],
-    name: "BaseConnextFacet__getAdoptedAsset_notWhitelisted",
+    name: "BaseConnextFacet__getAdoptedAsset_notAllowlisted",
     type: "error",
   },
   {
     inputs: [],
-    name: "BaseConnextFacet__getApprovedCanonicalId_notWhitelisted",
+    name: "BaseConnextFacet__getApprovedCanonicalId_notAllowlisted",
     type: "error",
   },
   {
@@ -28,11 +28,6 @@ const _abi = [
   {
     inputs: [],
     name: "BaseConnextFacet__nonXCallReentrant_reentrantCall",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
     type: "error",
   },
   {
@@ -212,11 +207,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__xcall_canonicalAssetNotReceived",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BridgeFacet__xcall_capReached",
     type: "error",
   },
@@ -233,11 +223,6 @@ const _abi = [
   {
     inputs: [],
     name: "BridgeFacet__xcall_nativeAssetNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BridgeFacet__xcall_notSupportedAsset",
     type: "error",
   },
   {
@@ -2011,7 +1996,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__proposeAssetWhitelistRemoval_noOwnershipChange",
+    name: "ProposedOwnableFacet__proposeAssetAllowlistRemoval_noOwnershipChange",
     type: "error",
   },
   {
@@ -2026,37 +2011,37 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__proposeRouterWhitelistRemoval_noOwnershipChange",
+    name: "ProposedOwnableFacet__proposeRouterAllowlistRemoval_noOwnershipChange",
     type: "error",
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__removeAssetWhitelist_delayNotElapsed",
+    name: "ProposedOwnableFacet__removeAssetAllowlist_delayNotElapsed",
     type: "error",
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__removeAssetWhitelist_noOwnershipChange",
+    name: "ProposedOwnableFacet__removeAssetAllowlist_noOwnershipChange",
     type: "error",
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__removeAssetWhitelist_noProposal",
+    name: "ProposedOwnableFacet__removeAssetAllowlist_noProposal",
     type: "error",
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__removeRouterWhitelist_delayNotElapsed",
+    name: "ProposedOwnableFacet__removeRouterAllowlist_delayNotElapsed",
     type: "error",
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__removeRouterWhitelist_noOwnershipChange",
+    name: "ProposedOwnableFacet__removeRouterAllowlist_noOwnershipChange",
     type: "error",
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__removeRouterWhitelist_noProposal",
+    name: "ProposedOwnableFacet__removeRouterAllowlist_noProposal",
     type: "error",
   },
   {
@@ -2074,7 +2059,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "AssetWhitelistRemovalProposed",
+    name: "AssetAllowlistRemovalProposed",
     type: "event",
   },
   {
@@ -2087,7 +2072,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "AssetWhitelistRemoved",
+    name: "AssetAllowlistRemoved",
     type: "event",
   },
   {
@@ -2196,7 +2181,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "RouterWhitelistRemovalProposed",
+    name: "RouterAllowlistRemovalProposed",
     type: "event",
   },
   {
@@ -2209,7 +2194,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "RouterWhitelistRemoved",
+    name: "RouterAllowlistRemoved",
     type: "event",
   },
   {
@@ -2227,7 +2212,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "assetWhitelistRemoved",
+    name: "assetAllowlistRemoved",
     outputs: [
       {
         internalType: "bool",
@@ -2240,7 +2225,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "assetWhitelistTimestamp",
+    name: "assetAllowlistTimestamp",
     outputs: [
       {
         internalType: "uint256",
@@ -2325,7 +2310,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "proposeAssetWhitelistRemoval",
+    name: "proposeAssetAllowlistRemoval",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2345,7 +2330,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "proposeRouterWhitelistRemoval",
+    name: "proposeRouterAllowlistRemoval",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2397,14 +2382,14 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "removeAssetWhitelist",
+    name: "removeAssetAllowlist",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
     inputs: [],
-    name: "removeRouterWhitelist",
+    name: "removeRouterAllowlist",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2424,7 +2409,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "routerWhitelistRemoved",
+    name: "routerAllowlistRemoved",
     outputs: [
       {
         internalType: "bool",
@@ -2437,7 +2422,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "routerWhitelistTimestamp",
+    name: "routerAllowlistTimestamp",
     outputs: [
       {
         internalType: "uint256",
@@ -3783,6 +3768,16 @@ const _abi = [
             name: "adminFees",
             type: "uint256[]",
           },
+          {
+            internalType: "bool",
+            name: "disabled",
+            type: "bool",
+          },
+          {
+            internalType: "uint256",
+            name: "removeTime",
+            type: "uint256",
+          },
         ],
         internalType: "struct SwapUtils.Swap",
         name: "",
@@ -4129,11 +4124,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "TokenFacet__addAssetId_nativeAsset",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical",
     type: "error",
   },
@@ -4155,6 +4145,11 @@ const _abi = [
   {
     inputs: [],
     name: "TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__setupAsset_invalidCanonicalConfiguration",
     type: "error",
   },
   {

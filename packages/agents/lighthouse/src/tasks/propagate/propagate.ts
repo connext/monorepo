@@ -1,6 +1,5 @@
 import { ChainReader, contractDeployments, getAmbABIs } from "@connext/nxtp-txservice";
 import { createLoggingContext, getChainData, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
-import { closeDatabase } from "@connext/nxtp-adapters-database";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
@@ -96,7 +95,6 @@ export const makePropagate = async () => {
   } catch (e: unknown) {
     console.error("Error starting Propagate task. Sad! :(", e);
   } finally {
-    await closeDatabase();
     process.exit();
   }
 };

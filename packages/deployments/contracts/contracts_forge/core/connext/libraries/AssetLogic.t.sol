@@ -68,7 +68,9 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
       // the pool balance of each token, in the token's precision
       // the contract's actual token balance might differ
       balances: _balances,
-      adminFees: new uint256[](2)
+      adminFees: new uint256[](2),
+      disabled: false,
+      removeTime: 0
     });
 
     s.swapStorages[_canonicalKey] = swap;

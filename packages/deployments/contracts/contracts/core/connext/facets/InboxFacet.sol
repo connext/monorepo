@@ -31,7 +31,6 @@ contract InboxFacet is BaseConnextFacet {
   error InboxFacet__onlyReplica_notReplica();
   error InboxFacet__onlyRemoteRouter_notRemote();
   error InboxFacet__handle_notTransfer();
-  error InboxFacet__reconcile_notConnext();
   error InboxFacet__reconcile_alreadyReconciled();
   error InboxFacet__reconcile_noPortalRouter();
 

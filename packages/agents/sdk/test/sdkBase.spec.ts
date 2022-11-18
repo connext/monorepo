@@ -153,6 +153,38 @@ describe("SdkBase", () => {
       expect(res).to.be.deep.eq(mockXCallRequest);
     });
 
+    it("happy: should use xCallIntoLocal if receiveLocal is used", async () => {
+      const mockXcallArgs = mock.entity.xcallArgs();
+      const data = getConnextInterface().encodeFunctionData("xcallIntoLocal", [
+        mockXcallArgs.destination,
+        mockXcallArgs.to,
+        mockXcallArgs.asset,
+        mockXcallArgs.delegate,
+        mockXcallArgs.amount,
+        mockXcallArgs.slippage,
+        mockXcallArgs.callData,
+      ]);
+      const mockXCallRequest: providers.TransactionRequest = {
+        to: mockConnextAddresss,
+        data,
+        from: mock.config().signerAddress,
+        value: relayerFee,
+        chainId,
+      };
+
+      const origin = mock.entity.callParams().originDomain;
+      // const relayerFeeStr = relayerFee.toString();
+      const sdkXcallArgs = {
+        ...mock.entity.xcallArgs(),
+        origin,
+        relayerFee: relayerFee.toString(),
+        receiveLocal: true,
+      };
+
+      const res = await nxtpSdkBase.xcall(sdkXcallArgs);
+      expect(res).to.be.deep.eq(mockXCallRequest);
+    });
+
     // TODO: Add relayer fee calculation at xcall
     it.skip("happy: should calculate the relayerFee if args.relayerFee is zero", async () => {
       getConversionRateStub.resolves(1);
