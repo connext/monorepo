@@ -67,7 +67,7 @@ library QueueLib {
   ) internal returns (bytes32[] memory) {
     uint128 first = queue.first;
     uint128 last = queue.last;
-    require(last + 1 > first, "queue empty");
+    require(last >= first, "queue empty");
     require(first != 0, "queue !init'd");
     require(max > 0, "!acceptable max");
 

@@ -718,7 +718,7 @@ library SwapUtils {
     uint256 dyFee;
     uint256[] memory balances = self.balances;
     (dy, dyFee) = _calculateSwap(self, tokenIndexFrom, tokenIndexTo, dx, balances);
-    require(dy + 1 > minDy, "dy < minDy");
+    require(dy >= minDy, "dy < minDy");
 
     uint256 dyAdminFee = (dyFee * self.adminFee) / FEE_DENOMINATOR / self.tokenPrecisionMultipliers[tokenIndexTo];
 
@@ -803,7 +803,7 @@ library SwapUtils {
     uint256 dyFee;
     uint256[] memory balances = self.balances;
     (dy, dyFee) = _calculateSwap(self, tokenIndexFrom, tokenIndexTo, dx, balances);
-    require(dy + 1 > minDy, "dy < minDy");
+    require(dy >= minDy, "dy < minDy");
 
     uint256 dyAdminFee = (dyFee * self.adminFee) / FEE_DENOMINATOR / self.tokenPrecisionMultipliers[tokenIndexTo];
 
@@ -938,7 +938,7 @@ library SwapUtils {
       toMint = ((v.d2 - v.d0) * v.totalSupply) / v.d0;
     }
 
-    require(toMint + 1 > minToMint, "mint < min");
+    require(toMint >= minToMint, "mint < min");
 
     // mint the user's LP tokens
     v.lpToken.mint(msg.sender, toMint);
@@ -974,7 +974,7 @@ library SwapUtils {
 
     uint256 numAmounts = amounts.length;
     for (uint256 i; i < numAmounts; ) {
-      require(amounts[i] + 1 > minAmounts[i], "amounts[i] < minAmounts[i]");
+      require(amounts[i] >= minAmounts[i], "amounts[i] < minAmounts[i]");
       self.balances[i] = balances[i] - amounts[i];
       AssetLogic.handleOutgoingAsset(address(self.pooledTokens[i]), msg.sender, amounts[i]);
 
@@ -1014,7 +1014,7 @@ library SwapUtils {
 
     (uint256 dy, uint256 dyFee) = _calculateWithdrawOneToken(self, tokenAmount, tokenIndex, totalSupply);
 
-    require(dy + 1 > minAmount, "dy < minAmount");
+    require(dy >= minAmount, "dy < minAmount");
 
     uint256 adminFee = (dyFee * self.adminFee) / FEE_DENOMINATOR;
     self.balances[tokenIndex] = self.balances[tokenIndex] - (dy + adminFee);
@@ -1068,7 +1068,7 @@ library SwapUtils {
       uint256[] memory balances1 = new uint256[](numTokens);
       v.d0 = getD(_xp(v.balances, v.multipliers), v.preciseA);
       for (uint256 i; i < numTokens; ) {
-        require(v.balances[i] + 1 > amounts[i], "withdraw more than available");
+        require(v.balances[i] >= amounts[i], "withdraw more than available");
 
         unchecked {
           balances1[i] = v.balances[i] - amounts[i];
