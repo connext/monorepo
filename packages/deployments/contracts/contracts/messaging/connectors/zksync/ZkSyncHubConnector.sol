@@ -80,14 +80,8 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
     );
   }
 
-  /**
-   * @notice Processes messages
-   * @dev Should do nothing because all messages must be processed via `processMessageFromRoot`
-   * to enforce inclusion in the message root.
-   *
-   * @param _data Message sent from L2 (should be the outbound root)
-   */
-  function _processMessage(bytes memory _data) internal override {}
+  // DO NOT override _processMessage, should revert from `Connector` class. All messages must use the
+  // `processMessageFromRoot` flow.
 
   /**
    * @notice Processes message and proves inclusion of that message in the root.

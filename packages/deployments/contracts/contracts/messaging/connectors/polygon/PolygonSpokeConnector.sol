@@ -70,10 +70,8 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
     emit MessageProcessed(data, msg.sender);
   }
 
-  function _processMessage(bytes memory _data) internal override {
-    // Does nothing, all messages should go through the `_processMessageFromChild` path
-    revert Connector__processMessage_notUsed();
-  }
+  // DO NOT override _processMessage, should revert from `Connector` class. All messages must use the
+  // `processMessageFromRoot` flow.
 
   function _setMirrorConnector(address _mirrorConnector) internal override {
     super._setMirrorConnector(_mirrorConnector);
