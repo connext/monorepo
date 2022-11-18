@@ -77,6 +77,6 @@ contract DiamondInitTest is DiamondInit, FacetHelper {
     assertEq(s.maxRoutersPerTransfer, 5);
     assertEq(address(s.xAppConnectionManager), _xAppConnectionManager);
     assertTrue(s.initialized);
-    assertEq(s._status, _NOT_ENTERED);
+    assertEq(s._status, 1);
   }
 }

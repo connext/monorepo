@@ -3,12 +3,12 @@
   "abi": [
     {
       "inputs": [],
-      "name": "BaseConnextFacet__getAdoptedAsset_notWhitelisted",
+      "name": "BaseConnextFacet__getAdoptedAsset_notAllowlisted",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "BaseConnextFacet__getApprovedCanonicalId_notWhitelisted",
+      "name": "BaseConnextFacet__getApprovedCanonicalId_notAllowlisted",
       "type": "error"
     },
     {
@@ -78,7 +78,7 @@
     },
     {
       "inputs": [],
-      "name": "ProposedOwnableFacet__proposeAssetWhitelistRemoval_noOwnershipChange",
+      "name": "ProposedOwnableFacet__proposeAssetAllowlistRemoval_noOwnershipChange",
       "type": "error"
     },
     {
@@ -93,37 +93,37 @@
     },
     {
       "inputs": [],
-      "name": "ProposedOwnableFacet__proposeRouterWhitelistRemoval_noOwnershipChange",
+      "name": "ProposedOwnableFacet__proposeRouterAllowlistRemoval_noOwnershipChange",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "ProposedOwnableFacet__removeAssetWhitelist_delayNotElapsed",
+      "name": "ProposedOwnableFacet__removeAssetAllowlist_delayNotElapsed",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "ProposedOwnableFacet__removeAssetWhitelist_noOwnershipChange",
+      "name": "ProposedOwnableFacet__removeAssetAllowlist_noOwnershipChange",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "ProposedOwnableFacet__removeAssetWhitelist_noProposal",
+      "name": "ProposedOwnableFacet__removeAssetAllowlist_noProposal",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "ProposedOwnableFacet__removeRouterWhitelist_delayNotElapsed",
+      "name": "ProposedOwnableFacet__removeRouterAllowlist_delayNotElapsed",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "ProposedOwnableFacet__removeRouterWhitelist_noOwnershipChange",
+      "name": "ProposedOwnableFacet__removeRouterAllowlist_noOwnershipChange",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "ProposedOwnableFacet__removeRouterWhitelist_noProposal",
+      "name": "ProposedOwnableFacet__removeRouterAllowlist_noProposal",
       "type": "error"
     },
     {
@@ -141,7 +141,7 @@
           "type": "uint256"
         }
       ],
-      "name": "AssetWhitelistRemovalProposed",
+      "name": "AssetAllowlistRemovalProposed",
       "type": "event"
     },
     {
@@ -154,7 +154,7 @@
           "type": "bool"
         }
       ],
-      "name": "AssetWhitelistRemoved",
+      "name": "AssetAllowlistRemoved",
       "type": "event"
     },
     {
@@ -263,7 +263,7 @@
           "type": "uint256"
         }
       ],
-      "name": "RouterWhitelistRemovalProposed",
+      "name": "RouterAllowlistRemovalProposed",
       "type": "event"
     },
     {
@@ -276,7 +276,7 @@
           "type": "bool"
         }
       ],
-      "name": "RouterWhitelistRemoved",
+      "name": "RouterAllowlistRemoved",
       "type": "event"
     },
     {
@@ -294,7 +294,7 @@
     },
     {
       "inputs": [],
-      "name": "assetWhitelistRemoved",
+      "name": "assetAllowlistRemoved",
       "outputs": [
         {
           "internalType": "bool",
@@ -307,7 +307,7 @@
     },
     {
       "inputs": [],
-      "name": "assetWhitelistTimestamp",
+      "name": "assetAllowlistTimestamp",
       "outputs": [
         {
           "internalType": "uint256",
@@ -392,7 +392,7 @@
     },
     {
       "inputs": [],
-      "name": "proposeAssetWhitelistRemoval",
+      "name": "proposeAssetAllowlistRemoval",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -412,7 +412,7 @@
     },
     {
       "inputs": [],
-      "name": "proposeRouterWhitelistRemoval",
+      "name": "proposeRouterAllowlistRemoval",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -464,14 +464,14 @@
     },
     {
       "inputs": [],
-      "name": "removeAssetWhitelist",
+      "name": "removeAssetAllowlist",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "inputs": [],
-      "name": "removeRouterWhitelist",
+      "name": "removeRouterAllowlist",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -491,7 +491,7 @@
     },
     {
       "inputs": [],
-      "name": "routerWhitelistRemoved",
+      "name": "routerAllowlistRemoved",
       "outputs": [
         {
           "internalType": "bool",
@@ -504,7 +504,7 @@
     },
     {
       "inputs": [],
-      "name": "routerWhitelistTimestamp",
+      "name": "routerAllowlistTimestamp",
       "outputs": [
         {
           "internalType": "uint256",
@@ -566,19 +566,19 @@
     "kind": "dev",
     "methods": {
       "assignRoleAdmin(address)": {
-        "details": "requested address will be whitelisted as Role.Admin under mapping roles",
+        "details": "requested address will be allowlisted as Role.Admin under mapping roles",
         "params": {
           "_admin": "- The address to beassigned as Role.Admin under roles"
         }
       },
       "assignRoleRouter(address)": {
-        "details": "requested address will be whitelisted as Role.Router under mapping roles",
+        "details": "requested address will be allowlisted as Role.Router under mapping roles",
         "params": {
           "_router": "- The address to be assigned as Role.Router under roles"
         }
       },
       "assignRoleWatcher(address)": {
-        "details": "requested address will be whitelisted as Role.Watcher under mapping roles",
+        "details": "requested address will be allowlisted as Role.Watcher under mapping roles",
         "params": {
           "_watcher": "- The address to be assigned as Role.Watcher under roles"
         }
@@ -605,11 +605,11 @@
       "acceptProposedOwner()": {
         "notice": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the proposed owner."
       },
-      "assetWhitelistRemoved()": {
-        "notice": "Returns if the asset whitelist is removed."
+      "assetAllowlistRemoved()": {
+        "notice": "Returns if the asset allowlist is removed."
       },
-      "assetWhitelistTimestamp()": {
-        "notice": "Returns the timestamp when asset whitelist was last proposed to be removed"
+      "assetAllowlistTimestamp()": {
+        "notice": "Returns the timestamp when asset allowlist was last proposed to be removed"
       },
       "assignRoleAdmin(address)": {
         "notice": "Use to assign an address Admin role Address with Admin role has permission to all else of Router & Watcher role Can only be called by Owner or Role.Admin"
@@ -626,14 +626,14 @@
       "owner()": {
         "notice": "Returns the address of the current owner."
       },
-      "proposeAssetWhitelistRemoval()": {
-        "notice": "Indicates if the ownership of the asset whitelist has been renounced"
+      "proposeAssetAllowlistRemoval()": {
+        "notice": "Indicates if the ownership of the asset allowlist has been renounced"
       },
       "proposeNewOwner(address)": {
         "notice": "Sets the timestamp for an owner to be proposed, and sets the newly proposed owner as step 1 in a 2-step process"
       },
-      "proposeRouterWhitelistRemoval()": {
-        "notice": "Indicates if the ownership of the router whitelist has been renounced"
+      "proposeRouterAllowlistRemoval()": {
+        "notice": "Indicates if the ownership of the router allowlist has been renounced"
       },
       "proposed()": {
         "notice": "Returns the address of the proposed owner."
@@ -644,20 +644,20 @@
       "queryRole(address)": {
         "notice": "Returns the Role of the address"
       },
-      "removeAssetWhitelist()": {
-        "notice": "Indicates if the ownership of the asset whitelist has been renounced"
+      "removeAssetAllowlist()": {
+        "notice": "Indicates if the ownership of the asset allowlist has been renounced"
       },
-      "removeRouterWhitelist()": {
-        "notice": "Indicates if the ownership of the asset whitelist has been renounced"
+      "removeRouterAllowlist()": {
+        "notice": "Indicates if the ownership of the asset allowlist has been renounced"
       },
       "revokeRole(address)": {
         "notice": "Use to revoke the Role of an address to None Can only be called by Owner or Role.Admin"
       },
-      "routerWhitelistRemoved()": {
-        "notice": "Returns if the router whitelist is removed."
+      "routerAllowlistRemoved()": {
+        "notice": "Returns if the router allowlist is removed."
       },
-      "routerWhitelistTimestamp()": {
-        "notice": "Returns the timestamp when router whitelist was last proposed to be removed"
+      "routerAllowlistTimestamp()": {
+        "notice": "Returns the timestamp when router allowlist was last proposed to be removed"
       }
     },
     "notice": "Contract module which provides a basic access control mechanism, where there is an account (an owner) that can be granted exclusive access to specific functions. By default, the owner account will be the one that deploys the contract. This can later be changed via a two step process: 1. Call `proposeOwner` 2. Wait out the delay period 3. Call `acceptOwner`",
@@ -1041,7 +1041,7 @@
           {
             "astId": 27146,
             "contract": "contracts/core/connext/facets/ProposedOwnableFacet.sol:ProposedOwnableFacet",
-            "label": "_routerWhitelistRemoved",
+            "label": "_routerAllowlistRemoved",
             "offset": 0,
             "slot": "23",
             "type": "t_bool"
@@ -1049,7 +1049,7 @@
           {
             "astId": 27148,
             "contract": "contracts/core/connext/facets/ProposedOwnableFacet.sol:ProposedOwnableFacet",
-            "label": "_routerWhitelistTimestamp",
+            "label": "_routerAllowlistTimestamp",
             "offset": 0,
             "slot": "24",
             "type": "t_uint256"
@@ -1057,7 +1057,7 @@
           {
             "astId": 27150,
             "contract": "contracts/core/connext/facets/ProposedOwnableFacet.sol:ProposedOwnableFacet",
-            "label": "_assetWhitelistRemoved",
+            "label": "_assetAllowlistRemoved",
             "offset": 0,
             "slot": "25",
             "type": "t_bool"
@@ -1065,7 +1065,7 @@
           {
             "astId": 27152,
             "contract": "contracts/core/connext/facets/ProposedOwnableFacet.sol:ProposedOwnableFacet",
-            "label": "_assetWhitelistTimestamp",
+            "label": "_assetAllowlistTimestamp",
             "offset": 0,
             "slot": "26",
             "type": "t_uint256"
