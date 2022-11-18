@@ -33,7 +33,7 @@ export const waitForTx = async (
   let value: any | undefined = undefined;
   if (checkResult?.desired != undefined && typeof checkResult.method === "function") {
     value = await checkResult.method();
-    if (value !== checkResult.desired) {
+    if (value.toString().toLowerCase() !== checkResult.desired.toString().toLowerCase()) {
       throw new Error(`${prefix}Checking result of update failed: ${value} !== ${checkResult.desired}`);
     }
   }
