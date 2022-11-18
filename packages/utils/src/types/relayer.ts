@@ -54,6 +54,19 @@ export type RelayerRequest = {
   feeToken?: string;
 };
 
+export type RelayerSyncFeeRequest = {
+  // Chain ID of the chain where the target smart contract is deployed
+  chainId: number;
+  // Address of the target smart contract
+  target: string;
+  // Encoded payload data (usually a function selector plus the required arguments) used to call the required target address
+  data: string;
+  // An optional boolean (default: true) denoting what data you would prefer appended to the end of the calldata.
+  isRelayContext?: boolean | undefined;
+  // Address of the token that is to be used for payment
+  feeToken: string;
+};
+
 // Gelato SDK send response.
 export type RelayResponse = {
   // Unique relay task ID which can be used for monitoring and data analytics.

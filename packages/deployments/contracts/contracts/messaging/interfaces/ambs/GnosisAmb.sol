@@ -38,4 +38,8 @@ interface GnosisAmb {
   function sourceChainId() external view returns (uint256);
 
   function destinationChainId() external view returns (uint256);
+
+  function executeSignatures(bytes memory _data, bytes memory _signatures) external;
+
+  function safeExecuteSignaturesWithAutoGasLimit(bytes memory _data, bytes memory _signatures) external;
 }
