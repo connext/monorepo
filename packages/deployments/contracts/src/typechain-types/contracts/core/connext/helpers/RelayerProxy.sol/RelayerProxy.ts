@@ -111,6 +111,7 @@ export declare namespace ISpokeConnector {
 
 export interface RelayerProxyInterface extends utils.Interface {
   functions: {
+    "GELATO_RELAYER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "addRelayer(address)": FunctionFragment;
     "allowedRelayer(address)": FunctionFragment;
@@ -133,6 +134,7 @@ export interface RelayerProxyInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "GELATO_RELAYER"
       | "acceptProposedOwner"
       | "addRelayer"
       | "allowedRelayer"
@@ -153,6 +155,10 @@ export interface RelayerProxyInterface extends utils.Interface {
       | "withdraw"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "GELATO_RELAYER",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
     values?: undefined
@@ -214,6 +220,10 @@ export interface RelayerProxyInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
 
+  decodeFunctionResult(
+    functionFragment: "GELATO_RELAYER",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
     data: BytesLike
@@ -403,6 +413,8 @@ export interface RelayerProxy extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    GELATO_RELAYER(overrides?: CallOverrides): Promise<[string]>;
+
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -423,7 +435,7 @@ export interface RelayerProxy extends BaseContract {
 
     execute(
       _args: ExecuteArgsStruct,
-      fee: PromiseOrValue<BigNumberish>,
+      _fee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -443,7 +455,7 @@ export interface RelayerProxy extends BaseContract {
       _aggregateRoot: PromiseOrValue<BytesLike>,
       _aggregatePath: PromiseOrValue<BytesLike>[],
       _aggregateIndex: PromiseOrValue<BigNumberish>,
-      fee: PromiseOrValue<BigNumberish>,
+      _fee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -475,6 +487,8 @@ export interface RelayerProxy extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  GELATO_RELAYER(overrides?: CallOverrides): Promise<string>;
+
   acceptProposedOwner(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -495,7 +509,7 @@ export interface RelayerProxy extends BaseContract {
 
   execute(
     _args: ExecuteArgsStruct,
-    fee: PromiseOrValue<BigNumberish>,
+    _fee: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -515,7 +529,7 @@ export interface RelayerProxy extends BaseContract {
     _aggregateRoot: PromiseOrValue<BytesLike>,
     _aggregatePath: PromiseOrValue<BytesLike>[],
     _aggregateIndex: PromiseOrValue<BigNumberish>,
-    fee: PromiseOrValue<BigNumberish>,
+    _fee: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -547,6 +561,8 @@ export interface RelayerProxy extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    GELATO_RELAYER(overrides?: CallOverrides): Promise<string>;
+
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
     addRelayer(
@@ -565,7 +581,7 @@ export interface RelayerProxy extends BaseContract {
 
     execute(
       _args: ExecuteArgsStruct,
-      fee: PromiseOrValue<BigNumberish>,
+      _fee: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -585,7 +601,7 @@ export interface RelayerProxy extends BaseContract {
       _aggregateRoot: PromiseOrValue<BytesLike>,
       _aggregatePath: PromiseOrValue<BytesLike>[],
       _aggregateIndex: PromiseOrValue<BigNumberish>,
-      fee: PromiseOrValue<BigNumberish>,
+      _fee: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -674,6 +690,8 @@ export interface RelayerProxy extends BaseContract {
   };
 
   estimateGas: {
+    GELATO_RELAYER(overrides?: CallOverrides): Promise<BigNumber>;
+
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -694,7 +712,7 @@ export interface RelayerProxy extends BaseContract {
 
     execute(
       _args: ExecuteArgsStruct,
-      fee: PromiseOrValue<BigNumberish>,
+      _fee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -714,7 +732,7 @@ export interface RelayerProxy extends BaseContract {
       _aggregateRoot: PromiseOrValue<BytesLike>,
       _aggregatePath: PromiseOrValue<BytesLike>[],
       _aggregateIndex: PromiseOrValue<BigNumberish>,
-      fee: PromiseOrValue<BigNumberish>,
+      _fee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -747,6 +765,8 @@ export interface RelayerProxy extends BaseContract {
   };
 
   populateTransaction: {
+    GELATO_RELAYER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -767,7 +787,7 @@ export interface RelayerProxy extends BaseContract {
 
     execute(
       _args: ExecuteArgsStruct,
-      fee: PromiseOrValue<BigNumberish>,
+      _fee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -787,7 +807,7 @@ export interface RelayerProxy extends BaseContract {
       _aggregateRoot: PromiseOrValue<BytesLike>,
       _aggregatePath: PromiseOrValue<BytesLike>[],
       _aggregateIndex: PromiseOrValue<BigNumberish>,
-      fee: PromiseOrValue<BigNumberish>,
+      _fee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

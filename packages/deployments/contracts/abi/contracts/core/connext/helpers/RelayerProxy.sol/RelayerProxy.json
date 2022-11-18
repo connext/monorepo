@@ -17,6 +17,7 @@
   "event RelayerRemoved(address)",
   "event Setup(address,address)",
   "event SpokeConnectorChanged(address,address)",
+  "function GELATO_RELAYER() view returns (address)",
   "function acceptProposedOwner()",
   "function addRelayer(address)",
   "function allowedRelayer(address) view returns (bool)",
