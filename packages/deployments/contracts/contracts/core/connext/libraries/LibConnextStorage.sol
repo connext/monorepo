@@ -16,7 +16,7 @@ import {TokenId} from "./TokenId.sol";
 // Admin    - 3
 enum Role {
   None,
-  Router,
+  RouterAdmin,
   Watcher,
   Admin
 }
@@ -163,33 +163,6 @@ struct AppStorage {
   // 4
   uint32 domain;
   /**
-<<<<<<< HEAD
-=======
-   * @notice Mapping holding the AMMs for swapping in and out of local assets.
-   * @dev Swaps for an adopted asset <> local asset (i.e. POS USDC <> nextUSDC on polygon).
-   * This mapping is keyed on the hash of the canonical id + domain for local asset.
-   */
-  // 6
-  mapping(bytes32 => IStableSwap) adoptedToLocalExternalPools;
-  /**
-   * @notice Mapping of allowlisted assets on same domain as contract.
-   * @dev Mapping is keyed on the hash of the canonical id and domain
-   */
-  // 7
-  mapping(bytes32 => bool) approvedAssets;
-  /**
-   * @notice Mapping of liquidity caps of allowlisted assets. If 0, no cap is enforced.
-   * @dev Mapping is keyed on the hash of the canonical id and domain
-   */
-  // 7
-  mapping(bytes32 => uint256) caps;
-  /**
-   * @notice Mapping of custodied balance by address
-   * @dev Used to enforce cap
-   */
-  mapping(address => uint256) custodied;
-  /**
->>>>>>> 2152-spearbit-audit-fixes
    * @notice Mapping of adopted to canonical asset information.
    */
   mapping(address => TokenId) adoptedToCanonical;

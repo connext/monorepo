@@ -12,6 +12,7 @@ import {IConnectorManager} from "../../../../contracts/messaging/interfaces/ICon
 import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
+import {Constants} from "../../../../contracts/core/connext/libraries/Constants.sol";
 import {TransferInfo, ExecuteArgs, TokenId, DestinationTransferStatus} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
@@ -232,7 +233,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function utils_getFastTransferAmount(uint256 _amount) public returns (uint256) {
     // This is the method used internally to get the amount of tokens to transfer after liquidity
     // fees are taken.
-    return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / BPS_FEE_DENOMINATOR;
+    return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / Constants.BPS_FEE_DENOMINATOR;
   }
 
   // ============== Helpers ==================
@@ -984,6 +985,17 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // fails if asset cap would be exceeded on the canonical domain
+  function test_BridgeFacet__xcall_failIfEmptyLocal() public {
+    // setup asset with local == adopted, on remote domain
+    utils_setupAsset(true, false);
+
+    // ensure stored value returns 0
+    s.canonicalToRepresentation[utils_calculateCanonicalHash()] = address(0);
+
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet_xcall__emptyLocalAsset.selector);
+  }
+
+  // fails if asset cap would be exceeded on the canonical domain
   function test_BridgeFacet__xcall_failIfCapReachedOnCanoncal() public {
     // setup asset with local == adopted, on canonical domain
     utils_setupAsset(true, true);
@@ -1579,7 +1591,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     s.routerBalances[_args.routers[0]][_local] += 10 ether;
 
-    vm.expectRevert("fails");
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_externalCallFailed.selector);
     this.execute(_args);
   }
 

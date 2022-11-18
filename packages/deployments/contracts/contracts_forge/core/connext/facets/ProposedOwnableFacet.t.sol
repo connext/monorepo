@@ -149,9 +149,9 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     vm.expectEmit(true, true, true, true);
     emit AssignRoleRouter(routerAgent);
     vm.prank(caller);
-    this.assignRoleRouter(routerAgent);
+    this.assignRoleRouterAdmin(routerAgent);
 
-    if (this.queryRole(routerAgent) == Role.Router) {
+    if (this.queryRole(routerAgent) == Role.RouterAdmin) {
       assertTrue(true);
     } else {
       assertTrue(false);
@@ -267,7 +267,7 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
   function test_ProposedOwnableFacet__removeRouterAllowlist_failsIfDelayNotElapsed() public {
     utils_proposeRenounceRouterAndAssert();
     vm.prank(this.owner());
-    vm.expectRevert(ProposedOwnableFacet__removeRouterAllowlist_delayNotElapsed.selector);
+    vm.expectRevert(ProposedOwnableFacet__delayElapsed_delayNotElapsed.selector);
     this.removeRouterAllowlist();
   }
 
@@ -343,7 +343,7 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
   function test_ProposedOwnableFacet__removeAssetAllowlist_failsIfDelayNotElapsed() public {
     utils_proposeRenounceAssetAndAssert();
     vm.prank(this.owner());
-    vm.expectRevert(ProposedOwnableFacet__removeAssetAllowlist_delayNotElapsed.selector);
+    vm.expectRevert(ProposedOwnableFacet__delayElapsed_delayNotElapsed.selector);
     this.removeAssetAllowlist();
   }
 
@@ -408,6 +408,8 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     utils_proposeNewOwnerAndAssert(proposed);
 
     LibDiamond.setContractOwner(proposed);
+    // Fast-forward from delay
+    vm.warp(block.timestamp + 7 days + 1);
 
     vm.prank(proposed);
     vm.expectRevert(ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange.selector);
@@ -419,7 +421,7 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     utils_proposeNewOwnerAndAssert(proposed);
 
     vm.prank(proposed);
-    vm.expectRevert(ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed.selector);
+    vm.expectRevert(ProposedOwnableFacet__delayElapsed_delayNotElapsed.selector);
     this.acceptProposedOwner();
   }
 
@@ -461,11 +463,11 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     utils_revokeRole(_routerAgent1, _adminAgent1);
   }
 
-  // ============ assignRoleRouter ============
+  // ============ assignRoleRouterAdmin ============
   function test_ProposedOwnableFacet__assignRoleRouter_failsIfNotOwnerOrAdmin() public {
     vm.prank(_routerAgent2);
     vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
-    this.assignRoleRouter(_routerAgent1);
+    this.assignRoleRouterAdmin(_routerAgent1);
   }
 
   function test_ProposedOwnableFacet__assignRoleRouter_failsIfAlreadyAdded() public {
@@ -473,13 +475,13 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
 
     vm.prank(_owner);
     vm.expectRevert(ProposedOwnableFacet__assignRoleRouter_invalidInput.selector);
-    this.assignRoleRouter(_routerAgent1);
+    this.assignRoleRouterAdmin(_routerAgent1);
   }
 
   function test_ProposedOwnableFacet__assignRoleRouter_failsIfInputAddressZero() public {
     vm.prank(_owner);
     vm.expectRevert(ProposedOwnableFacet__assignRoleRouter_invalidInput.selector);
-    this.assignRoleRouter(address(0));
+    this.assignRoleRouterAdmin(address(0));
   }
 
   function test_ProposedOwnableFacet__assignRoleRouter_worksIfCallerIsOwner() public {
