@@ -562,7 +562,7 @@ contract RoutersFacet is BaseConnextFacet {
     if (_amount == 0) revert RoutersFacet__addLiquidityForRouter_amountIsZero();
 
     // Get the canonical asset ID from the representation.
-    (TokenId memory canonical, bytes32 key) = _getApprovedCanonicalId(_local);
+    (, bytes32 key) = _getApprovedCanonicalId(_local);
 
     // Sanity check: router is approved.
     if (!_isRouterAllowlistRemoved() && !getRouterApproval(_router))
