@@ -1654,6 +1654,16 @@ const _abi = [
             name: "adminFees",
             type: "uint256[]",
           },
+          {
+            internalType: "bool",
+            name: "disabled",
+            type: "bool",
+          },
+          {
+            internalType: "uint256",
+            name: "removeTime",
+            type: "uint256",
+          },
         ],
         internalType: "struct SwapUtils.Swap",
         name: "",

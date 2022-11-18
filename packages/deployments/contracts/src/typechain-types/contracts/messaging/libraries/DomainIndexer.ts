@@ -11,7 +11,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -125,8 +129,32 @@ export interface DomainIndexerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "DomainAdded(uint32,address)": EventFragment;
+    "DomainRemoved(uint32)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "DomainAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DomainRemoved"): EventFragment;
 }
+
+export interface DomainAddedEventObject {
+  domain: number;
+  connector: string;
+}
+export type DomainAddedEvent = TypedEvent<
+  [number, string],
+  DomainAddedEventObject
+>;
+
+export type DomainAddedEventFilter = TypedEventFilter<DomainAddedEvent>;
+
+export interface DomainRemovedEventObject {
+  domain: number;
+}
+export type DomainRemovedEvent = TypedEvent<[number], DomainRemovedEventObject>;
+
+export type DomainRemovedEventFilter = TypedEventFilter<DomainRemovedEvent>;
 
 export interface DomainIndexer extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -284,7 +312,16 @@ export interface DomainIndexer extends BaseContract {
     ): Promise<void>;
   };
 
-  filters: {};
+  filters: {
+    "DomainAdded(uint32,address)"(
+      domain?: null,
+      connector?: null
+    ): DomainAddedEventFilter;
+    DomainAdded(domain?: null, connector?: null): DomainAddedEventFilter;
+
+    "DomainRemoved(uint32)"(domain?: null): DomainRemovedEventFilter;
+    DomainRemoved(domain?: null): DomainRemovedEventFilter;
+  };
 
   estimateGas: {
     MAX_DOMAINS(overrides?: CallOverrides): Promise<BigNumber>;

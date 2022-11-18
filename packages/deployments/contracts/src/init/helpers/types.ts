@@ -70,6 +70,7 @@ export type SpokeMessagingDeployments = {
 export type DomainDeployments = {
   // Diamond.
   Connext: Deployment;
+  RelayerProxy: Deployment;
 
   // Messaging Layer.
   // ConnectorManager
@@ -118,6 +119,7 @@ export type CallSchema<T> = {
     method: string;
     args?: any[];
   };
+  chainData?: any;
 };
 
 // NOTE: Used to do a sanity check when loading default config from json files
