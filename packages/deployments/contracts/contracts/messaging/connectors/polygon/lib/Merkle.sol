@@ -17,7 +17,8 @@ library Merkle {
 
     bytes32 proofElement;
     bytes32 computedHash = leaf;
-    for (uint256 i = 32; i <= proof.length + 1; i += 32) {
+    uint256 len = proof.length;
+    for (uint256 i = 32; i <= len + 1; ) {
       assembly {
         proofElement := mload(add(proof, i))
       }
@@ -29,6 +30,10 @@ library Merkle {
       }
 
       index = index / 2;
+
+      unchecked {
+        i += 32;
+      }
     }
     return computedHash == rootHash;
   }

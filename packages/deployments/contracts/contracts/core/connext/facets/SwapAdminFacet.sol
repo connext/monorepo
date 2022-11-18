@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
+import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 import {AmplificationUtils, SwapUtils} from "../libraries/AmplificationUtils.sol";
+import {Constants} from "../libraries/Constants.sol";
+
 import {LPToken} from "../helpers/LPToken.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
@@ -20,6 +21,7 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
  * their use to the owner.
  */
 contract SwapAdminFacet is BaseConnextFacet {
+  using SafeERC20 for IERC20;
   using SwapUtils for SwapUtils.Swap;
   using AmplificationUtils for SwapUtils.Swap;
 
@@ -34,6 +36,12 @@ contract SwapAdminFacet is BaseConnextFacet {
   error SwapAdminFacet__initializeSwap_feeExceedMax();
   error SwapAdminFacet__initializeSwap_adminFeeExceedMax();
   error SwapAdminFacet__initializeSwap_failedInitLpTokenClone();
+  error SwapAdminFacet__removeSwap_notInitialized();
+  error SwapAdminFacet__removeSwap_nonZeroBalance();
+  error SwapAdminFacet__removeSwap_notDisabledPool();
+  error SwapAdminFacet__removeSwap_delayNotElapsed();
+  error SwapAdminFacet__disableSwap_notInitialized();
+  error SwapAdminFacet__disableSwap_alreadyDisabled();
 
   // ============ Properties ============
 
@@ -46,6 +54,20 @@ contract SwapAdminFacet is BaseConnextFacet {
    * @param caller - The caller of the function
    */
   event SwapInitialized(bytes32 indexed key, SwapUtils.Swap swap, address caller);
+
+  /**
+   * @notice Emitted when the owner calls `removeSwap`
+   * @param key - Identifier for asset
+   * @param caller - The caller of the function
+   */
+  event SwapRemoved(bytes32 indexed key, address caller);
+
+  /**
+   * @notice Emitted when the owner calls `disableSwap`
+   * @param key - Identifier for asset
+   * @param caller - The caller of the function
+   */
+  event SwapDisabled(bytes32 indexed key, address caller);
 
   /**
    * @notice Emitted when the owner withdraws admin fees
@@ -87,6 +109,14 @@ contract SwapAdminFacet is BaseConnextFacet {
   event RampAStopped(bytes32 indexed key, address caller);
 
   // ============ External: Getters ============
+  /**
+   * @notice Return if the pool is disabled
+   * @param key Hash of the canonical id + domain
+   * @return disabled flag
+   */
+  function isDisabled(bytes32 key) external view returns (bool) {
+    return s.swapStorages[key].disabled;
+  }
 
   /*** StableSwap ADMIN FUNCTIONS ***/
   /**
@@ -126,8 +156,12 @@ contract SwapAdminFacet is BaseConnextFacet {
     if (s.swapStorages[_key].pooledTokens.length != 0) revert SwapAdminFacet__initializeSwap_alreadyInitialized();
 
     // Check _pooledTokens and precisions parameter
-    if (_pooledTokens.length < 1 + 1 || _pooledTokens.length > 32)
+    if (
+      _pooledTokens.length < Constants.MINIMUM_POOLED_TOKENS + 1 ||
+      _pooledTokens.length > Constants.MAXIMUM_POOLED_TOKENS + 1
+    ) {
       revert SwapAdminFacet__initializeSwap_invalidPooledTokens();
+    }
 
     uint256 numPooledTokens = _pooledTokens.length;
 
@@ -143,10 +177,10 @@ contract SwapAdminFacet is BaseConnextFacet {
       }
       if (address(_pooledTokens[i]) == address(0)) revert SwapAdminFacet__initializeSwap_zeroTokenAddress();
 
-      if (decimals[i] > SwapUtils.POOL_PRECISION_DECIMALS)
+      if (decimals[i] > Constants.POOL_PRECISION_DECIMALS)
         revert SwapAdminFacet__initializeSwap_tokenDecimalsExceedMax();
 
-      precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - decimals[i]);
+      precisionMultipliers[i] = 10**uint256(Constants.POOL_PRECISION_DECIMALS - decimals[i]);
       // NOTE: safe to cast to uint8 as the numPooledTokens is that type and the loop ceiling
       s.tokenIndexes[_key][address(_pooledTokens[i])] = uint8(i);
 
@@ -156,9 +190,9 @@ contract SwapAdminFacet is BaseConnextFacet {
     }
 
     // Check _a, _fee, _adminFee, _withdrawFee parameters
-    if (_a > AmplificationUtils.MAX_A - 1) revert SwapAdminFacet__initializeSwap_aExceedMax();
-    if (_fee > SwapUtils.MAX_SWAP_FEE - 1) revert SwapAdminFacet__initializeSwap_feeExceedMax();
-    if (_adminFee > SwapUtils.MAX_ADMIN_FEE - 1) revert SwapAdminFacet__initializeSwap_adminFeeExceedMax();
+    if (_a >= Constants.MAX_A - 1) revert SwapAdminFacet__initializeSwap_aExceedMax();
+    if (_fee >= Constants.MAX_SWAP_FEE - 1) revert SwapAdminFacet__initializeSwap_feeExceedMax();
+    if (_adminFee >= Constants.MAX_ADMIN_FEE - 1) revert SwapAdminFacet__initializeSwap_adminFeeExceedMax();
 
     // Initialize a LPToken contract
     LPToken lpToken = LPToken(Clones.clone(lpTokenTargetAddress));
@@ -167,8 +201,8 @@ contract SwapAdminFacet is BaseConnextFacet {
     // Initialize swapStorage struct
     SwapUtils.Swap memory entry = SwapUtils.Swap({
       key: _key,
-      initialA: _a * AmplificationUtils.A_PRECISION,
-      futureA: _a * AmplificationUtils.A_PRECISION,
+      initialA: _a * Constants.A_PRECISION,
+      futureA: _a * Constants.A_PRECISION,
       swapFee: _fee,
       adminFee: _adminFee,
       lpToken: lpToken,
@@ -177,10 +211,62 @@ contract SwapAdminFacet is BaseConnextFacet {
       balances: new uint256[](_pooledTokens.length),
       adminFees: new uint256[](_pooledTokens.length),
       initialATime: 0,
-      futureATime: 0
+      futureATime: 0,
+      disabled: false,
+      removeTime: 0
     });
     s.swapStorages[_key] = entry;
     emit SwapInitialized(_key, entry, msg.sender);
+  }
+
+  /**
+   * @notice disable swap for key
+   *
+   * @param _key the hash of the canonical id and domain for token
+   */
+  function disableSwap(bytes32 _key) external onlyOwnerOrAdmin {
+    uint256 numPooledTokens = s.swapStorages[_key].pooledTokens.length;
+
+    if (numPooledTokens == 0) revert SwapAdminFacet__disableSwap_notInitialized();
+    if (s.swapStorages[_key].disabled) revert SwapAdminFacet__disableSwap_alreadyDisabled();
+
+    s.swapStorages[_key].disabled = true;
+    s.swapStorages[_key].removeTime = block.timestamp + Constants.REMOVE_DELAY;
+
+    emit SwapDisabled(_key, msg.sender);
+  }
+
+  /**
+   * @notice remove Swap Struct for key
+   *
+   * @param _key the hash of the canonical id and domain for token
+   */
+  function removeSwap(bytes32 _key) external onlyOwnerOrAdmin {
+    uint256 numPooledTokens = s.swapStorages[_key].pooledTokens.length;
+    if (numPooledTokens == 0) revert SwapAdminFacet__removeSwap_notInitialized();
+
+    if (!s.swapStorages[_key].disabled) revert SwapAdminFacet__removeSwap_notDisabledPool();
+    if (s.swapStorages[_key].removeTime > block.timestamp) revert SwapAdminFacet__removeSwap_delayNotElapsed();
+
+    for (uint256 i; i < numPooledTokens; ) {
+      IERC20 pooledToken = s.swapStorages[_key].pooledTokens[i];
+      if (s.swapStorages[_key].balances[i] > 0) {
+        // if there is not removed balance, transfer to admin wallet.
+        pooledToken.safeTransfer(msg.sender, s.swapStorages[_key].balances[i]);
+      }
+
+      delete s.tokenIndexes[_key][address(pooledToken)];
+
+      unchecked {
+        ++i;
+      }
+    }
+
+    _withdrawAdminFees(_key, msg.sender);
+
+    delete s.swapStorages[_key];
+
+    emit SwapRemoved(_key, msg.sender);
   }
 
   /**
@@ -188,8 +274,17 @@ contract SwapAdminFacet is BaseConnextFacet {
    * @param key Hash of the canonical domain and id
    */
   function withdrawSwapAdminFees(bytes32 key) external onlyOwnerOrAdmin nonReentrant {
-    s.swapStorages[key].withdrawAdminFees(msg.sender);
-    emit AdminFeesWithdrawn(key, msg.sender);
+    _withdrawAdminFees(key, msg.sender);
+  }
+
+  /**
+   * @notice Withdraws all admin fees for pool at key to provided address and emits event
+   * @param _key Hash of the canonical domain and id
+   * @param _to Recipient of fees
+   */
+  function _withdrawAdminFees(bytes32 _key, address _to) internal {
+    s.swapStorages[_key].withdrawAdminFees(_to);
+    emit AdminFeesWithdrawn(_key, _to);
   }
 
   /**

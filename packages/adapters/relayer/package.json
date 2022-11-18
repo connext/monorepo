@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-relayer",
-  "version": "0.2.1-beta.2",
+  "version": "0.2.1-beta.4",
   "description": "adapter for handling communication with relayer",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -48,8 +48,12 @@ describe("Helpers: Bnb", () => {
     });
 
     it("should return necessary data successfully", async () => {
-      const result = await getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext);
-      expect(result).to.be.deep.eq({ encodedData: "0x", value: constants.One });
+      const data = await getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext);
+      expect(data).to.deep.eq({
+        _connector: "",
+        _fee: constants.One,
+        _encodedData: "0x",
+      });
     });
   });
 });

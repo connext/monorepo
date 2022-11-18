@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.2.1-beta.2",
+  "version": "0.2.1-beta.4",
   "description": "",
   "scripts": {
     "test": "yarn forge test --gas-report --no-match-contract 'LiveTest'",
@@ -8,7 +8,7 @@
     "forge:install": "forge install",
     "build": "hardhat compile && tsc --build ./tsconfig.build.json",
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js",
-    "whitelist": "ts-node ./src/whitelist.ts",
+    "allowlist": "ts-node ./src/allowlist.ts",
     "create-router": "ts-node ./src/createRouter.ts",
     "prepublish": "yarn build",
     "export": "hardhat export --export-all ./deployments.json",
