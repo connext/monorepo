@@ -61,6 +61,71 @@ enum staginggoerli_AggregatedMessageRoot_orderBy {
   domain
 }
 
+type staginggoerli_ArbitrumConnectorMeta {
+  id: ID!
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+  amb: staginggoerli_Bytes!
+  rootManager: staginggoerli_Bytes!
+  mirrorConnector: staginggoerli_Bytes!
+}
+
+input staginggoerli_ArbitrumConnectorMeta_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  hubDomain: BigInt
+  hubDomain_not: BigInt
+  hubDomain_gt: BigInt
+  hubDomain_lt: BigInt
+  hubDomain_gte: BigInt
+  hubDomain_lte: BigInt
+  hubDomain_in: [BigInt!]
+  hubDomain_not_in: [BigInt!]
+  amb: staginggoerli_Bytes
+  amb_not: staginggoerli_Bytes
+  amb_in: [staginggoerli_Bytes!]
+  amb_not_in: [staginggoerli_Bytes!]
+  amb_contains: staginggoerli_Bytes
+  amb_not_contains: staginggoerli_Bytes
+  rootManager: staginggoerli_Bytes
+  rootManager_not: staginggoerli_Bytes
+  rootManager_in: [staginggoerli_Bytes!]
+  rootManager_not_in: [staginggoerli_Bytes!]
+  rootManager_contains: staginggoerli_Bytes
+  rootManager_not_contains: staginggoerli_Bytes
+  mirrorConnector: staginggoerli_Bytes
+  mirrorConnector_not: staginggoerli_Bytes
+  mirrorConnector_in: [staginggoerli_Bytes!]
+  mirrorConnector_not_in: [staginggoerli_Bytes!]
+  mirrorConnector_contains: staginggoerli_Bytes
+  mirrorConnector_not_contains: staginggoerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: staginggoerli_BlockChangedFilter
+}
+
+enum staginggoerli_ArbitrumConnectorMeta_orderBy {
+  id
+  spokeDomain
+  hubDomain
+  amb
+  rootManager
+  mirrorConnector
+}
+
 scalar staginggoerli_BigDecimal
 
 scalar BigInt
@@ -75,7 +140,137 @@ input staginggoerli_Block_height {
   number_gte: Int
 }
 
+type staginggoerli_BnbConnectorMeta {
+  id: ID!
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+  amb: staginggoerli_Bytes!
+  rootManager: staginggoerli_Bytes!
+  mirrorConnector: staginggoerli_Bytes!
+}
+
+input staginggoerli_BnbConnectorMeta_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  hubDomain: BigInt
+  hubDomain_not: BigInt
+  hubDomain_gt: BigInt
+  hubDomain_lt: BigInt
+  hubDomain_gte: BigInt
+  hubDomain_lte: BigInt
+  hubDomain_in: [BigInt!]
+  hubDomain_not_in: [BigInt!]
+  amb: staginggoerli_Bytes
+  amb_not: staginggoerli_Bytes
+  amb_in: [staginggoerli_Bytes!]
+  amb_not_in: [staginggoerli_Bytes!]
+  amb_contains: staginggoerli_Bytes
+  amb_not_contains: staginggoerli_Bytes
+  rootManager: staginggoerli_Bytes
+  rootManager_not: staginggoerli_Bytes
+  rootManager_in: [staginggoerli_Bytes!]
+  rootManager_not_in: [staginggoerli_Bytes!]
+  rootManager_contains: staginggoerli_Bytes
+  rootManager_not_contains: staginggoerli_Bytes
+  mirrorConnector: staginggoerli_Bytes
+  mirrorConnector_not: staginggoerli_Bytes
+  mirrorConnector_in: [staginggoerli_Bytes!]
+  mirrorConnector_not_in: [staginggoerli_Bytes!]
+  mirrorConnector_contains: staginggoerli_Bytes
+  mirrorConnector_not_contains: staginggoerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: staginggoerli_BlockChangedFilter
+}
+
+enum staginggoerli_BnbConnectorMeta_orderBy {
+  id
+  spokeDomain
+  hubDomain
+  amb
+  rootManager
+  mirrorConnector
+}
+
 scalar staginggoerli_Bytes
+
+type staginggoerli_GnosisConnectorMeta {
+  id: ID!
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+  amb: staginggoerli_Bytes!
+  rootManager: staginggoerli_Bytes!
+  mirrorConnector: staginggoerli_Bytes!
+}
+
+input staginggoerli_GnosisConnectorMeta_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  hubDomain: BigInt
+  hubDomain_not: BigInt
+  hubDomain_gt: BigInt
+  hubDomain_lt: BigInt
+  hubDomain_gte: BigInt
+  hubDomain_lte: BigInt
+  hubDomain_in: [BigInt!]
+  hubDomain_not_in: [BigInt!]
+  amb: staginggoerli_Bytes
+  amb_not: staginggoerli_Bytes
+  amb_in: [staginggoerli_Bytes!]
+  amb_not_in: [staginggoerli_Bytes!]
+  amb_contains: staginggoerli_Bytes
+  amb_not_contains: staginggoerli_Bytes
+  rootManager: staginggoerli_Bytes
+  rootManager_not: staginggoerli_Bytes
+  rootManager_in: [staginggoerli_Bytes!]
+  rootManager_not_in: [staginggoerli_Bytes!]
+  rootManager_contains: staginggoerli_Bytes
+  rootManager_not_contains: staginggoerli_Bytes
+  mirrorConnector: staginggoerli_Bytes
+  mirrorConnector_not: staginggoerli_Bytes
+  mirrorConnector_in: [staginggoerli_Bytes!]
+  mirrorConnector_not_in: [staginggoerli_Bytes!]
+  mirrorConnector_contains: staginggoerli_Bytes
+  mirrorConnector_not_contains: staginggoerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: staginggoerli_BlockChangedFilter
+}
+
+enum staginggoerli_GnosisConnectorMeta_orderBy {
+  id
+  spokeDomain
+  hubDomain
+  amb
+  rootManager
+  mirrorConnector
+}
 
 type staginggoerli_OptimismConnectorMeta {
   id: ID!
@@ -292,6 +487,32 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [staginggoerli_AggregatedMessageRoot!]!
+  staginggoerli_rootManagerMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): staginggoerli_RootManagerMeta
+  staginggoerli_rootManagerMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_RootManagerMeta_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_RootManagerMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [staginggoerli_RootManagerMeta!]!
   staginggoerli_polygonConnectorMeta(
     id: ID!
     """
@@ -344,6 +565,84 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [staginggoerli_OptimismConnectorMeta!]!
+  staginggoerli_bnbConnectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): staginggoerli_BnbConnectorMeta
+  staginggoerli_bnbConnectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_BnbConnectorMeta_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_BnbConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [staginggoerli_BnbConnectorMeta!]!
+  staginggoerli_arbitrumConnectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): staginggoerli_ArbitrumConnectorMeta
+  staginggoerli_arbitrumConnectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_ArbitrumConnectorMeta_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_ArbitrumConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [staginggoerli_ArbitrumConnectorMeta!]!
+  staginggoerli_gnosisConnectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): staginggoerli_GnosisConnectorMeta
+  staginggoerli_gnosisConnectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_GnosisConnectorMeta_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_GnosisConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [staginggoerli_GnosisConnectorMeta!]!
   staginggoerli_rootMessageProcessed(
     id: ID!
     """
@@ -421,6 +720,43 @@ enum staginggoerli_RootAggregated_orderBy {
   domain
   receivedRoot
   index
+}
+
+type staginggoerli_RootManagerMeta {
+  id: ID!
+  domains: [BigInt!]
+  connectors: [staginggoerli_Bytes!]
+}
+
+input staginggoerli_RootManagerMeta_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  domains: [BigInt!]
+  domains_not: [BigInt!]
+  domains_contains: [BigInt!]
+  domains_contains_nocase: [BigInt!]
+  domains_not_contains: [BigInt!]
+  domains_not_contains_nocase: [BigInt!]
+  connectors: [staginggoerli_Bytes!]
+  connectors_not: [staginggoerli_Bytes!]
+  connectors_contains: [staginggoerli_Bytes!]
+  connectors_contains_nocase: [staginggoerli_Bytes!]
+  connectors_not_contains: [staginggoerli_Bytes!]
+  connectors_not_contains_nocase: [staginggoerli_Bytes!]
+  """Filter for the block changed event."""
+  _change_block: staginggoerli_BlockChangedFilter
+}
+
+enum staginggoerli_RootManagerMeta_orderBy {
+  id
+  domains
+  connectors
 }
 
 type staginggoerli_RootMessageProcessed {
@@ -531,7 +867,7 @@ enum staginggoerli_RootMessageProcessed_orderBy {
 type staginggoerli_RootPropagated {
   id: ID!
   aggregate: staginggoerli_Bytes!
-  domains: [BigInt!]
+  domainsHash: staginggoerli_Bytes!
   count: BigInt!
 }
 
@@ -550,12 +886,12 @@ input staginggoerli_RootPropagated_filter {
   aggregate_not_in: [staginggoerli_Bytes!]
   aggregate_contains: staginggoerli_Bytes
   aggregate_not_contains: staginggoerli_Bytes
-  domains: [BigInt!]
-  domains_not: [BigInt!]
-  domains_contains: [BigInt!]
-  domains_contains_nocase: [BigInt!]
-  domains_not_contains: [BigInt!]
-  domains_not_contains_nocase: [BigInt!]
+  domainsHash: staginggoerli_Bytes
+  domainsHash_not: staginggoerli_Bytes
+  domainsHash_in: [staginggoerli_Bytes!]
+  domainsHash_not_in: [staginggoerli_Bytes!]
+  domainsHash_contains: staginggoerli_Bytes
+  domainsHash_not_contains: staginggoerli_Bytes
   count: BigInt
   count_not: BigInt
   count_gt: BigInt
@@ -571,7 +907,7 @@ input staginggoerli_RootPropagated_filter {
 enum staginggoerli_RootPropagated_orderBy {
   id
   aggregate
-  domains
+  domainsHash
   count
 }
 
@@ -654,6 +990,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [staginggoerli_AggregatedMessageRoot!]!
+  staginggoerli_rootManagerMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): staginggoerli_RootManagerMeta
+  staginggoerli_rootManagerMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_RootManagerMeta_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_RootManagerMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [staginggoerli_RootManagerMeta!]!
   staginggoerli_polygonConnectorMeta(
     id: ID!
     """
@@ -706,6 +1068,84 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [staginggoerli_OptimismConnectorMeta!]!
+  staginggoerli_bnbConnectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): staginggoerli_BnbConnectorMeta
+  staginggoerli_bnbConnectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_BnbConnectorMeta_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_BnbConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [staginggoerli_BnbConnectorMeta!]!
+  staginggoerli_arbitrumConnectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): staginggoerli_ArbitrumConnectorMeta
+  staginggoerli_arbitrumConnectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_ArbitrumConnectorMeta_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_ArbitrumConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [staginggoerli_ArbitrumConnectorMeta!]!
+  staginggoerli_gnosisConnectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): staginggoerli_GnosisConnectorMeta
+  staginggoerli_gnosisConnectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_GnosisConnectorMeta_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_GnosisConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [staginggoerli_GnosisConnectorMeta!]!
   staginggoerli_rootMessageProcessed(
     id: ID!
     """

@@ -125,6 +125,19 @@ export const getEnvConfig = (
           }
           return res.address;
         })(),
+
+      relayerProxy:
+        chainConfig.deployments?.relayerProxy ??
+        (() => {
+          const res = chainDataForChain
+            ? deployments.relayerProxy(chainDataForChain.chainId, contractPostfix)
+            : undefined;
+
+          if (!res) {
+            throw new Error(`No RelayerProxy contract address for domain ${domainId}`);
+          }
+          return res.address;
+        })(),
     };
 
     if (!chainConfig.confirmations) {

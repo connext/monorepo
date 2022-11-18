@@ -5,16 +5,11 @@ pragma solidity 0.8.17;
 import "@matterlabs/zksync-contracts/l1/contracts/zksync/interfaces/IZkSync.sol";
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
-import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 import {HubConnector} from "../HubConnector.sol";
 import {Connector} from "../Connector.sol";
 import {GasCap} from "../GasCap.sol";
 
 contract ZkSyncHubConnector is HubConnector, GasCap {
-  // ============ Libraries ============
-  using TypedMemView for bytes;
-  using TypedMemView for bytes29;
-
   // ============ Storage ============
 
   // NOTE: This is needed because we need to track the roots we've
@@ -111,8 +106,8 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
     // Merkle proof for the message
     bytes32[] calldata _proof
   ) external {
-    // sanity check root length (fn selector + 32 bytes root)
-    require(_message.length == 36, "!length");
+    // sanity check root length (32 bytes root)
+    require(_message.length == 32, "!length");
 
     IZkSync zksync = IZkSync(AMB);
     L2Message memory message = L2Message({
@@ -124,9 +119,7 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
     bool success = zksync.proveL2MessageInclusion(_l2BlockNumber, _l2MessageIndex, message, _proof);
     require(success, "!proven");
 
-    // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
-    bytes29 _view = _message.ref(0);
-    bytes32 _root = _view.index(_view.len() - 32, 32);
+    bytes32 _root = bytes32(_message);
 
     // NOTE: there are no guarantees the messages are processed once, so processed roots
     // must be tracked within the connector. See:

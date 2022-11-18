@@ -1,4 +1,5 @@
 import { BigNumberish, constants, Contract, utils } from "ethers";
+import { defaultAbiCoder, solidityKeccak256 } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
 import { Env, getDeploymentName, mustGetEnv } from "../../src/utils";
@@ -53,9 +54,12 @@ export default task("add-swap-liquidity", "Add liquidity to the stable swap pool
       console.log("domain: ", domain);
       console.log("canonicalId: ", canonicalId);
 
+      const key = solidityKeccak256(["bytes"], [defaultAbiCoder.encode(["bytes32", "uint32"], [canonicalId, domain])]);
+      console.log({ key });
+
       const [canonicalAsset, adoptedAsset] = await Promise.all([
-        connext.getSwapToken(canonicalId, 0),
-        connext.getSwapToken(canonicalId, 1),
+        connext.getSwapToken(key, 0),
+        connext.getSwapToken(key, 1),
       ]);
 
       if (canonicalAsset == constants.AddressZero || adoptedAsset === constants.AddressZero) {
@@ -102,7 +106,7 @@ export default task("add-swap-liquidity", "Add liquidity to the stable swap pool
       }
 
       const tx = await connext.addSwapLiquidity(
-        canonicalId,
+        key,
         [canonicalAmount, adoptedAmount],
         _minToMint ?? 0,
         Math.floor(new Date().getTime() / 1000 + 600),
