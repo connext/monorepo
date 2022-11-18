@@ -75,13 +75,12 @@
   "function send(bytes) payable",
   "function sentMessageRoots(bytes32) view returns (bool)",
   "function setDelayBlocks(uint256)",
-  "function setFxRootTunnel(address)",
   "function setMirrorConnector(address)",
   "function setRateLimitBlocks(uint256)",
   "function setWatcherManager(address)",
   "function unpause()",
   "function verifySender(address) returns (bool)",
   "function watcherManager() view returns (address)",
-  "function whitelistedSenders(address) view returns (bool)",
+  "function allowlistedSenders(address) view returns (bool)",
   "function withdrawFunds(address)"
 ]

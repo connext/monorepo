@@ -18,12 +18,12 @@
     },
     {
       "inputs": [],
-      "name": "BaseConnextFacet__getAdoptedAsset_notWhitelisted",
+      "name": "BaseConnextFacet__getAdoptedAsset_notAllowlisted",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "BaseConnextFacet__getApprovedCanonicalId_notWhitelisted",
+      "name": "BaseConnextFacet__getApprovedCanonicalId_notAllowlisted",
       "type": "error"
     },
     {
@@ -1065,7 +1065,7 @@
         }
       },
       "initializeRouter(address,address)": {
-        "details": "Does not set whitelisting permissions, only owner and recipient",
+        "details": "Does not set allowlisting permissions, only owner and recipient",
         "params": {
           "_owner": "The owner (can change recipient, proposes new owners)",
           "_recipient": "Where liquidity will be withdrawn to"
@@ -1175,7 +1175,7 @@
         "notice": "This is used by anyone to increase a router's available liquidity for a given asset."
       },
       "approveRouter(address)": {
-        "notice": "Used to whitelist a given router"
+        "notice": "Used to allowlist a given router"
       },
       "approveRouterForPortal(address)": {
         "notice": "Allow router to use Portals"
@@ -1226,7 +1226,7 @@
         "notice": "Remove router access to use Portals"
       }
     },
-    "notice": "This contract is designed to manage router access, meaning it maintains the router recipients, owners, and the router whitelist itself. As a router, there are three important permissions: `router` - this is the address that will sign bids sent to the sequencer `routerRecipient` - this is the address that receives funds when liquidity is withdrawn `routerOwner` - this is the address permitted to update recipients and propose new owners In cases where the owner is not set, the caller should be the `router` itself. In cases where the `routerRecipient` is not set, the funds can be removed to anywhere. When setting a new `routerOwner`, the current owner (or router) must create a proposal, which can be accepted by the proposed owner after the delay period. If the proposed owner is the empty address, then it must be accepted by the current owner.",
+    "notice": "This contract is designed to manage router access, meaning it maintains the router recipients, owners, and the router allowlist itself. As a router, there are three important permissions: `router` - this is the address that will sign bids sent to the sequencer `routerRecipient` - this is the address that receives funds when liquidity is withdrawn `routerOwner` - this is the address permitted to update recipients and propose new owners In cases where the owner is not set, the caller should be the `router` itself. In cases where the `routerRecipient` is not set, the funds can be removed to anywhere. When setting a new `routerOwner`, the current owner (or router) must create a proposal, which can be accepted by the proposed owner after the delay period. If the proposed owner is the empty address, then it must be accepted by the current owner.",
     "version": 1
   },
   "storageLayout": {
@@ -1607,7 +1607,7 @@
           {
             "astId": 27146,
             "contract": "contracts/core/connext/facets/RoutersFacet.sol:RoutersFacet",
-            "label": "_routerWhitelistRemoved",
+            "label": "_routerAllowlistRemoved",
             "offset": 0,
             "slot": "23",
             "type": "t_bool"
@@ -1615,7 +1615,7 @@
           {
             "astId": 27148,
             "contract": "contracts/core/connext/facets/RoutersFacet.sol:RoutersFacet",
-            "label": "_routerWhitelistTimestamp",
+            "label": "_routerAllowlistTimestamp",
             "offset": 0,
             "slot": "24",
             "type": "t_uint256"
@@ -1623,7 +1623,7 @@
           {
             "astId": 27150,
             "contract": "contracts/core/connext/facets/RoutersFacet.sol:RoutersFacet",
-            "label": "_assetWhitelistRemoved",
+            "label": "_assetAllowlistRemoved",
             "offset": 0,
             "slot": "25",
             "type": "t_bool"
@@ -1631,7 +1631,7 @@
           {
             "astId": 27152,
             "contract": "contracts/core/connext/facets/RoutersFacet.sol:RoutersFacet",
-            "label": "_assetWhitelistTimestamp",
+            "label": "_assetAllowlistTimestamp",
             "offset": 0,
             "slot": "26",
             "type": "t_uint256"

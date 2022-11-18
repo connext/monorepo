@@ -117,19 +117,19 @@ Congratulations! You have deployed a new set of amarok contracts. Now, we have t
 
 3. Once you have enrolled the handlers and set up the local assets, you should run the `preflight` task. The preflight task will do the following in an idempotent way:
 
-   - Whitelist a specified router
+   - Allowlist a specified router
    - Setup an asset
    - Add router liquidity (by minting tokens, so a mintable token must be enrolled as the local token)
-   - Whitelist a specified relayer
+   - Allowlist a specified relayer
 
    You can provide these values via a `.env` file, via arguments to the hardhat task, or a combination of the two. Sample:
 
    ```bash
    # Sample .env file contents for preflight
-   ROUTER_ADDRESS= # router to whitelist + add liq for
+   ROUTER_ADDRESS= # router to allowlist + add liq for
    CANONICAL_DOMAIN= # on our current testnet setup, is kovan domain
    CANONICAL_TOKEN= # on our current testnet setup, is TestERC20 on kovan
-   RELAYER_ADDRESS= # relayer to whitelist
+   RELAYER_ADDRESS= # relayer to allowlist
    ENV= # staging or production, defaults to staging
    ```
 
@@ -198,12 +198,12 @@ There are helper tasks defined in the [`./src/tasks`](./src/tasks) directory. Th
 yarn workspace @connext/nxtp-contracts hardhat add-liquidity --network goerli --amount 2500000000000000000000000 --router 0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6 --asset-id 0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682
 ```
 
-### whitelist
+### allowlist
 
-Whitelist command for a single router across multiple networks
+Allowlist command for a single router across multiple networks
 
 ```bash
-yarn workspace @connext/nxtp-contracts whitelist <router-address>
+yarn workspace @connext/nxtp-contracts allowlist <router-address>
 ```
 
 ### read-balances
@@ -257,7 +257,7 @@ The max number of accounts used is specified in `hardhat.config.ts` under each c
 
 ### renounce-ownership
 
-`renounce-ownership` allows you to relinquish whitelist privileges (though it will take a week to take effect):
+`renounce-ownership` allows you to relinquish allowlist privileges (though it will take a week to take effect):
 
 ```bash
 $ yarn workspace @connext/nxtp-contracts hardhat renounce-ownership --type \<TYPE\> --network \<NETWORK\>

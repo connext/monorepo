@@ -12,6 +12,7 @@ import {IConnectorManager} from "../../../../contracts/messaging/interfaces/ICon
 import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
+import {Constants} from "../../../../contracts/core/connext/libraries/Constants.sol";
 import {TransferInfo, ExecuteArgs, TokenId, DestinationTransferStatus} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
@@ -111,7 +112,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.approvedRelayers[address(this)] = true;
     s.approvedSequencers[_sequencer] = true;
     s.maxRoutersPerTransfer = 5;
-    s._routerWhitelistRemoved = true;
+    s._routerAllowlistRemoved = true;
     s.relayerFeeVault = _relayerFeeVault;
     s.domain = _originDomain;
 
@@ -232,7 +233,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function utils_getFastTransferAmount(uint256 _amount) public returns (uint256) {
     // This is the method used internally to get the amount of tokens to transfer after liquidity
     // fees are taken.
-    return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / BPS_FEE_DENOMINATOR;
+    return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / Constants.BPS_FEE_DENOMINATOR;
   }
 
   // ============== Helpers ==================
@@ -983,7 +984,18 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     s.approvedAssets[utils_calculateCanonicalHash()] = false;
 
-    helpers_xcallAndAssert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notWhitelisted.selector);
+    helpers_xcallAndAssert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notAllowlisted.selector);
+  }
+
+  // fails if asset cap would be exceeded on the canonical domain
+  function test_BridgeFacet__xcall_failIfEmptyLocal() public {
+    // setup asset with local == adopted, on remote domain
+    utils_setupAsset(true, false);
+
+    // ensure stored value returns 0
+    s.canonicalToRepresentation[utils_calculateCanonicalHash()] = address(0);
+
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet_xcall__emptyLocalAsset.selector);
   }
 
   // fails if asset cap would be exceeded on the canonical domain
@@ -1235,7 +1247,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should fail if the router is not approved and ownership is not renounced
   function test_BridgeFacet__execute_failIfRouterNotApproved() public {
-    s._routerWhitelistRemoved = false;
+    s._routerAllowlistRemoved = false;
 
     (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
     s.routerConfigs[args.routers[0]].approved = false;
@@ -1501,8 +1513,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // should work with unapproved router if router ownership is renounced
-  function test_BridgeFacet__execute_worksWithUnapprovedIfNoWhitelist() public {
-    s._routerWhitelistRemoved = true;
+  function test_BridgeFacet__execute_worksWithUnapprovedIfNoAllowlist() public {
+    s._routerAllowlistRemoved = true;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
@@ -1582,7 +1594,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     s.routerBalances[_args.routers[0]][_local] += 10 ether;
 
-    vm.expectRevert("fails");
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_externalCallFailed.selector);
     this.execute(_args);
   }
 
@@ -1746,7 +1758,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ bumpTransfer ============
   // ============ bumpTransfer fail cases
-  // should work with unapproved router if router-whitelist ownership renouncedcanonicalId
+  // should work with unapproved router if router-allowlist ownership renouncedcanonicalId
 
   // ============ forceUpdateSlippage ============
   function test_BridgeFacet__forceUpdateSlippage_failsIfNotDelegate() public {

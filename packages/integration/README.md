@@ -130,9 +130,9 @@ deploying "PromiseRouterUpgradeBeacon" (tx: 0x1e4ee5f49b5d24aee11490387ac8fe26e9
 deploying "PromiseRouterUpgradeBeaconProxy" (tx: 0x1f2afa8ea9d1502438b5209fc36f03a6b755d96426a7fd774e3f9d8418662f7d)...: deployed at 0xbbE595Df857805ab3734f15BE990f9A30CBB89F3 with 279312 gas
 PromiseRouter deployed to 0xbbE595Df857805ab3734f15BE990f9A30CBB89F3
 PromiseRouter owner set to 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
-whitelisting router on connector: 0xCB152A2Aa90055a0D255cA7dbaeb85eDFdc86096
-whitelist tx: 0x487630a1500e13f2bb883cc3e5e07c0415270b9e10284074222936523ea5646f
-whitelist tx mined
+allowlisting router on connector: 0xCB152A2Aa90055a0D255cA7dbaeb85eDFdc86096
+allowlist tx: 0x487630a1500e13f2bb883cc3e5e07c0415270b9e10284074222936523ea5646f
+allowlist tx mined
 Deploying RelayerFeeRouter
 Deploying RelayerFeeRouter with upgradeable scheme
 deploying "RelayerFeeRouter" (tx: 0xd49394c408edcc5dcf64ba9729753419f16d636b17a6cd4dfb5106db9981f64c)...: deployed at 0xA509542aDa3196a38bD6fD03b253547EE09220C4 with 1528032 gas
@@ -141,9 +141,9 @@ deploying "RelayerFeeRouterUpgradeBeacon" (tx: 0x90a293784141e3530b8fd6a488b463d
 deploying "RelayerFeeRouterUpgradeBeaconProxy" (tx: 0x8d839f0fe1bf6c38e372693d1624d7ab4863c898d1baab11d66478fdcc526b8a)...: deployed at 0x27032850077AbEf46Fc9c2b39b96885b40ABc3Ec with 235016 gas
 RelayerFeeRouter deployed to 0x27032850077AbEf46Fc9c2b39b96885b40ABc3Ec
 RelayerFeeRouter owner set to 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
-whitelisting router on connector: 0xCB152A2Aa90055a0D255cA7dbaeb85eDFdc86096
-whitelist tx: 0xbcc9a4425736a6e38524d4cd6526f5acbbf0eb5067232c1fa9fb996ec25e4605
-whitelist tx mined
+allowlisting router on connector: 0xCB152A2Aa90055a0D255cA7dbaeb85eDFdc86096
+allowlist tx: 0xbcc9a4425736a6e38524d4cd6526f5acbbf0eb5067232c1fa9fb996ec25e4605
+allowlist tx mined
 Deploying BridgeRouter
 Deploying BridgeRouter with upgradeable scheme
 deploying "BridgeRouter" (tx: 0x7b4f5eea907d4fb91e6511bd8003108f9f155e4d4d08b5ffab21f66e6101dac2)...: deployed at 0xABa7902442c5739c6f0c182691d48D63d06A212E with 2824942 gas
@@ -152,9 +152,9 @@ deploying "BridgeRouterUpgradeBeacon" (tx: 0xb69cd71dd00c04048a933b825c3488d893e
 deploying "BridgeRouterUpgradeBeaconProxy" (tx: 0xb636e6c0e633eab87ceeef82015658ac1d0416d9846c1fbae0bae27a6e56462b)...: deployed at 0x5034F49b27353CeDc562b49eA91C7438Ea351d36 with 257832 gas
 BridgeRouter deployed to 0x5034F49b27353CeDc562b49eA91C7438Ea351d36
 BridgeRouter owner set to 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
-whitelisting router on connector: 0xCB152A2Aa90055a0D255cA7dbaeb85eDFdc86096
-whitelist tx: 0x4c40bb9bcee9ea82c2712bf01b204f9a55692b802fe52e77d1edea3559bff69e
-whitelist tx mined
+allowlisting router on connector: 0xCB152A2Aa90055a0D255cA7dbaeb85eDFdc86096
+allowlist tx: 0x4c40bb9bcee9ea82c2712bf01b204f9a55692b802fe52e77d1edea3559bff69e
+allowlist tx mined
 
 ============================= Deploying Connext Contracts ===============================
 deployer:  0x627306090abaB3A6e1400e9345bC60c78a8BEf57
@@ -259,9 +259,9 @@ deploying "PromiseRouterUpgradeBeacon" (tx: 0x6f2a8962a71b7164453e34ed32c35f0c70
 deploying "PromiseRouterUpgradeBeaconProxy" (tx: 0xea0e3d5ef569bb2b05526688d72de1e1a5c3a69863fcb35cd7ab9a5e07c6eb5e)...: deployed at 0xD95B1DbEc167C6cf547d018dDEcF41a4cb2e2f73 with 279324 gas
 PromiseRouter deployed to 0xD95B1DbEc167C6cf547d018dDEcF41a4cb2e2f73
 PromiseRouter owner set to 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
-whitelisting router on connector: 0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca
-whitelist tx: 0x97601ff844cd37217c42e7bda3cb361c8edb0d42cd1257d90255015af98dc768
-whitelist tx mined
+allowlisting router on connector: 0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca
+allowlist tx: 0x97601ff844cd37217c42e7bda3cb361c8edb0d42cd1257d90255015af98dc768
+allowlist tx mined
 Deploying RelayerFeeRouter
 Deploying RelayerFeeRouter with  upgradeable scheme
 deploying "RelayerFeeRouter" (tx: 0xd7fae2e280210cdafff14dc962c3890307fa9b33a14a8ce57b1f738d27d91679)...: deployed at 0xe134EeE40A4A313a413E9B1DA94Bb5D01B79F433 with 1528032 gas
@@ -270,9 +270,9 @@ deploying "RelayerFeeRouterUpgradeBeacon" (tx: 0x36d146966384d1857862d076eecc691
 deploying "RelayerFeeRouterUpgradeBeaconProxy" (tx: 0x2eb5994a8035d91ef5658d32509b4adcbb982b3f8d1f5836894fb4cce82805cc)...: deployed at 0xbbE595Df857805ab3734f15BE990f9A30CBB89F3 with 235028 gas
 RelayerFeeRouter deployed to 0xbbE595Df857805ab3734f15BE990f9A30CBB89F3
 RelayerFeeRouter owner set to 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
-whitelisting router on connector: 0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca
-whitelist tx: 0xc3d45fc5a7a12d1c628399f5ceb3b21a62e04f9625d8dd49c58393e68bf70be0
-whitelist tx mined
+allowlisting router on connector: 0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca
+allowlist tx: 0xc3d45fc5a7a12d1c628399f5ceb3b21a62e04f9625d8dd49c58393e68bf70be0
+allowlist tx mined
 Deploying BridgeRouter
 Deploying BridgeRouter with  upgradeable scheme
 deploying "BridgeRouter" (tx: 0x79d5aac8e7e07a8d8fa1ec9f804cdddfd505f9a5c2d36a92d26c393cc8880a33)...: deployed at 0xA509542aDa3196a38bD6fD03b253547EE09220C4 with 2824942 gas
@@ -281,9 +281,9 @@ deploying "BridgeRouterUpgradeBeacon" (tx: 0xeb9455a2e0386e1b42539ed95076c51a865
 deploying "BridgeRouterUpgradeBeaconProxy" (tx: 0xb7ac115763f20175085b0535507d3c642cd64543c9cf21cb9e11cfff1dd03409)...: deployed at 0x27032850077AbEf46Fc9c2b39b96885b40ABc3Ec with 257844 gas
 BridgeRouter deployed to 0x27032850077AbEf46Fc9c2b39b96885b40ABc3Ec
 BridgeRouter owner set to 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
-whitelisting router on connector: 0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca
-whitelist tx: 0xc9af32451a4b5dbb9a164d74c9962ea2a6892c645e5586cbd8cffc2afdc3208a
-whitelist tx mined
+allowlisting router on connector: 0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca
+allowlist tx: 0xc9af32451a4b5dbb9a164d74c9962ea2a6892c645e5586cbd8cffc2afdc3208a
+allowlist tx mined
 
 ============================= Deploying Connext Contracts ===============================
 deployer:  0x627306090abaB3A6e1400e9345bC60c78a8BEf57
