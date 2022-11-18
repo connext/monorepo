@@ -243,7 +243,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       [DESTINATION.domain]: DESTINATION.config,
     },
     network: "testnet",
-    maxSlippage: 1,
+    slippage: 10000,
     mode: {
       cleanup: false,
       diagnostic: false,
