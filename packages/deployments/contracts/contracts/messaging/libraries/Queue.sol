@@ -69,7 +69,7 @@ library QueueLib {
     uint128 last = queue.last;
 
     // If queue is empty, short-circuit here.
-    if (last >= first) {
+    if (last < first) {
       return new bytes32[](0);
     }
 
