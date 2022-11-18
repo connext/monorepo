@@ -207,8 +207,8 @@ export interface IConnextInterface extends utils.Interface {
     "approvedAssets((uint32,bytes32))": FunctionFragment;
     "approvedRelayers(address)": FunctionFragment;
     "approvedSequencers(address)": FunctionFragment;
-    "assetWhitelistRemoved()": FunctionFragment;
-    "assetWhitelistTimestamp()": FunctionFragment;
+    "assetAllowlistRemoved()": FunctionFragment;
+    "assetAllowlistTimestamp()": FunctionFragment;
     "bumpTransfer(bytes32)": FunctionFragment;
     "calculateRemoveSwapLiquidity(bytes32,uint256)": FunctionFragment;
     "calculateRemoveSwapLiquidityOneToken(bytes32,uint256,uint8)": FunctionFragment;
@@ -257,11 +257,11 @@ export interface IConnextInterface extends utils.Interface {
     "nonce()": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
-    "proposeAssetWhitelistRemoval()": FunctionFragment;
+    "proposeAssetAllowlistRemoval()": FunctionFragment;
     "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposeRouterOwner(address,address)": FunctionFragment;
-    "proposeRouterWhitelistRemoval()": FunctionFragment;
+    "proposeRouterAllowlistRemoval()": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "rampA(bytes32,uint256,uint256)": FunctionFragment;
@@ -269,11 +269,11 @@ export interface IConnextInterface extends utils.Interface {
     "remote(uint32)": FunctionFragment;
     "removeAssetId((uint32,bytes32),address,address)": FunctionFragment;
     "removeAssetId(bytes32,address,address)": FunctionFragment;
-    "removeAssetWhitelist()": FunctionFragment;
+    "removeAssetAllowlist()": FunctionFragment;
     "removeRelayer(address)": FunctionFragment;
     "removeRouterLiquidity(uint256,address,address)": FunctionFragment;
     "removeRouterLiquidityFor(uint256,address,address,address)": FunctionFragment;
-    "removeRouterWhitelist()": FunctionFragment;
+    "removeRouterAllowlist()": FunctionFragment;
     "removeSequencer(address)": FunctionFragment;
     "removeSwapLiquidity(bytes32,uint256,uint256[],uint256)": FunctionFragment;
     "removeSwapLiquidityImbalance(bytes32,uint256[],uint256,uint256)": FunctionFragment;
@@ -284,8 +284,8 @@ export interface IConnextInterface extends utils.Interface {
     "rescindDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
-    "routerWhitelistRemoved()": FunctionFragment;
-    "routerWhitelistTimestamp()": FunctionFragment;
+    "routerAllowlistRemoved()": FunctionFragment;
+    "routerAllowlistTimestamp()": FunctionFragment;
     "setAavePool(address)": FunctionFragment;
     "setAavePortalFee(uint256)": FunctionFragment;
     "setLiquidityFeeNumerator(uint256)": FunctionFragment;
@@ -337,8 +337,8 @@ export interface IConnextInterface extends utils.Interface {
       | "approvedAssets((uint32,bytes32))"
       | "approvedRelayers"
       | "approvedSequencers"
-      | "assetWhitelistRemoved"
-      | "assetWhitelistTimestamp"
+      | "assetAllowlistRemoved"
+      | "assetAllowlistTimestamp"
       | "bumpTransfer"
       | "calculateRemoveSwapLiquidity"
       | "calculateRemoveSwapLiquidityOneToken"
@@ -387,11 +387,11 @@ export interface IConnextInterface extends utils.Interface {
       | "nonce"
       | "owner"
       | "pause"
-      | "proposeAssetWhitelistRemoval"
+      | "proposeAssetAllowlistRemoval"
       | "proposeDiamondCut"
       | "proposeNewOwner"
       | "proposeRouterOwner"
-      | "proposeRouterWhitelistRemoval"
+      | "proposeRouterAllowlistRemoval"
       | "proposed"
       | "proposedTimestamp"
       | "rampA"
@@ -399,11 +399,11 @@ export interface IConnextInterface extends utils.Interface {
       | "remote"
       | "removeAssetId((uint32,bytes32),address,address)"
       | "removeAssetId(bytes32,address,address)"
-      | "removeAssetWhitelist"
+      | "removeAssetAllowlist"
       | "removeRelayer"
       | "removeRouterLiquidity"
       | "removeRouterLiquidityFor"
-      | "removeRouterWhitelist"
+      | "removeRouterAllowlist"
       | "removeSequencer"
       | "removeSwapLiquidity"
       | "removeSwapLiquidityImbalance"
@@ -414,8 +414,8 @@ export interface IConnextInterface extends utils.Interface {
       | "rescindDiamondCut"
       | "routedTransfers"
       | "routerBalances"
-      | "routerWhitelistRemoved"
-      | "routerWhitelistTimestamp"
+      | "routerAllowlistRemoved"
+      | "routerAllowlistTimestamp"
       | "setAavePool"
       | "setAavePortalFee"
       | "setLiquidityFeeNumerator"
@@ -538,11 +538,11 @@ export interface IConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "assetWhitelistRemoved",
+    functionFragment: "assetAllowlistRemoved",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "assetWhitelistTimestamp",
+    functionFragment: "assetAllowlistTimestamp",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -760,7 +760,7 @@ export interface IConnextInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "proposeAssetWhitelistRemoval",
+    functionFragment: "proposeAssetAllowlistRemoval",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -780,7 +780,7 @@ export interface IConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "proposeRouterWhitelistRemoval",
+    functionFragment: "proposeRouterAllowlistRemoval",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
@@ -817,7 +817,7 @@ export interface IConnextInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeAssetWhitelist",
+    functionFragment: "removeAssetAllowlist",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -842,7 +842,7 @@ export interface IConnextInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeRouterWhitelist",
+    functionFragment: "removeRouterAllowlist",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -915,11 +915,11 @@ export interface IConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "routerWhitelistRemoved",
+    functionFragment: "routerAllowlistRemoved",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "routerWhitelistTimestamp",
+    functionFragment: "routerAllowlistTimestamp",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -1154,11 +1154,11 @@ export interface IConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "assetWhitelistRemoved",
+    functionFragment: "assetAllowlistRemoved",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "assetWhitelistTimestamp",
+    functionFragment: "assetAllowlistTimestamp",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1321,7 +1321,7 @@ export interface IConnextInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "proposeAssetWhitelistRemoval",
+    functionFragment: "proposeAssetAllowlistRemoval",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1337,7 +1337,7 @@ export interface IConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "proposeRouterWhitelistRemoval",
+    functionFragment: "proposeRouterAllowlistRemoval",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
@@ -1360,7 +1360,7 @@ export interface IConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "removeAssetWhitelist",
+    functionFragment: "removeAssetAllowlist",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1376,7 +1376,7 @@ export interface IConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "removeRouterWhitelist",
+    functionFragment: "removeRouterAllowlist",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1420,11 +1420,11 @@ export interface IConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "routerWhitelistRemoved",
+    functionFragment: "routerAllowlistRemoved",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "routerWhitelistTimestamp",
+    functionFragment: "routerAllowlistTimestamp",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1689,9 +1689,9 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    assetWhitelistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
+    assetAllowlistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
 
-    assetWhitelistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+    assetAllowlistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     bumpTransfer(
       _transferId: PromiseOrValue<BytesLike>,
@@ -1952,7 +1952,7 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    proposeAssetWhitelistRemoval(
+    proposeAssetAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1974,7 +1974,7 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    proposeRouterWhitelistRemoval(
+    proposeRouterAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2010,7 +2010,7 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    removeAssetWhitelist(
+    removeAssetAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2034,7 +2034,7 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    removeRouterWhitelist(
+    removeRouterAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2106,9 +2106,9 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    routerWhitelistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
+    routerAllowlistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
 
-    routerWhitelistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+    routerAllowlistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     setAavePool(
       _aavePool: PromiseOrValue<string>,
@@ -2380,9 +2380,9 @@ export interface IConnext extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  assetWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
+  assetAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
 
-  assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+  assetAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   bumpTransfer(
     _transferId: PromiseOrValue<BytesLike>,
@@ -2635,7 +2635,7 @@ export interface IConnext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  proposeAssetWhitelistRemoval(
+  proposeAssetAllowlistRemoval(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2657,7 +2657,7 @@ export interface IConnext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  proposeRouterWhitelistRemoval(
+  proposeRouterAllowlistRemoval(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2693,7 +2693,7 @@ export interface IConnext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  removeAssetWhitelist(
+  removeAssetAllowlist(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2717,7 +2717,7 @@ export interface IConnext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  removeRouterWhitelist(
+  removeRouterAllowlist(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2789,9 +2789,9 @@ export interface IConnext extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  routerWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
+  routerAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
 
-  routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+  routerAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   setAavePool(
     _aavePool: PromiseOrValue<string>,
@@ -3061,9 +3061,9 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    assetWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
+    assetAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
 
-    assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+    assetAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     bumpTransfer(
       _transferId: PromiseOrValue<BytesLike>,
@@ -3316,7 +3316,7 @@ export interface IConnext extends BaseContract {
 
     pause(overrides?: CallOverrides): Promise<void>;
 
-    proposeAssetWhitelistRemoval(overrides?: CallOverrides): Promise<void>;
+    proposeAssetAllowlistRemoval(overrides?: CallOverrides): Promise<void>;
 
     proposeDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
@@ -3336,7 +3336,7 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    proposeRouterWhitelistRemoval(overrides?: CallOverrides): Promise<void>;
+    proposeRouterAllowlistRemoval(overrides?: CallOverrides): Promise<void>;
 
     proposed(overrides?: CallOverrides): Promise<string>;
 
@@ -3370,7 +3370,7 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    removeAssetWhitelist(overrides?: CallOverrides): Promise<void>;
+    removeAssetAllowlist(overrides?: CallOverrides): Promise<void>;
 
     removeRelayer(
       _relayer: PromiseOrValue<string>,
@@ -3392,7 +3392,7 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    removeRouterWhitelist(overrides?: CallOverrides): Promise<void>;
+    removeRouterAllowlist(overrides?: CallOverrides): Promise<void>;
 
     removeSequencer(
       _sequencer: PromiseOrValue<string>,
@@ -3462,9 +3462,9 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    routerWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
+    routerAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
 
-    routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+    routerAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     setAavePool(
       _aavePool: PromiseOrValue<string>,
@@ -3772,9 +3772,9 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    assetWhitelistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
+    assetAllowlistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
 
-    assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+    assetAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     bumpTransfer(
       _transferId: PromiseOrValue<BytesLike>,
@@ -4027,7 +4027,7 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    proposeAssetWhitelistRemoval(
+    proposeAssetAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4049,7 +4049,7 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    proposeRouterWhitelistRemoval(
+    proposeRouterAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4085,7 +4085,7 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    removeAssetWhitelist(
+    removeAssetAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4109,7 +4109,7 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    removeRouterWhitelist(
+    removeRouterAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4181,9 +4181,9 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    routerWhitelistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
+    routerAllowlistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
 
-    routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+    routerAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     setAavePool(
       _aavePool: PromiseOrValue<string>,
@@ -4460,11 +4460,11 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    assetWhitelistRemoved(
+    assetAllowlistRemoved(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    assetWhitelistTimestamp(
+    assetAllowlistTimestamp(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -4721,7 +4721,7 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    proposeAssetWhitelistRemoval(
+    proposeAssetAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -4743,7 +4743,7 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    proposeRouterWhitelistRemoval(
+    proposeRouterAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -4779,7 +4779,7 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    removeAssetWhitelist(
+    removeAssetAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -4803,7 +4803,7 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    removeRouterWhitelist(
+    removeRouterAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -4875,11 +4875,11 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    routerWhitelistRemoved(
+    routerAllowlistRemoved(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    routerWhitelistTimestamp(
+    routerAllowlistTimestamp(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

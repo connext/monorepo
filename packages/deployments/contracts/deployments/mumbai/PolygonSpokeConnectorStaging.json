@@ -1164,7 +1164,7 @@
           "type": "address"
         }
       ],
-      "name": "whitelistedSenders",
+      "name": "allowlistedSenders",
       "outputs": [
         {
           "internalType": "bool",
@@ -1274,7 +1274,7 @@
     "kind": "dev",
     "methods": {
       "addSender(address)": {
-        "details": "Only whitelisted routers (senders) can call `dispatch`."
+        "details": "Only allowlisted routers (senders) can call `dispatch`."
       },
       "dispatch(uint32,bytes32,bytes)": {
         "details": "The root of this tree will eventually be dispatched to mainnet via `send`. On mainnet (the \"hub\"), it will be combined into a single aggregate root by RootManager (along with outbound roots from other chains). This aggregate root will be redistributed to all destination chains. NOTE: okay to leave dispatch operational when paused as pause is designed for crosschain interactions"
@@ -1312,7 +1312,7 @@
         }
       },
       "removeSender(address)": {
-        "details": "Only whitelisted routers (senders) can call `dispatch`."
+        "details": "Only allowlisted routers (senders) can call `dispatch`."
       },
       "renounceOwnership()": {
         "details": "Renounce ownership should be impossible as long as it is impossible in the WatcherClient, and as long as only the owner can remove pending roots in case of fraud."
@@ -1374,7 +1374,7 @@
         "notice": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
       },
       "addSender(address)": {
-        "notice": "Adds a sender to the whitelist."
+        "notice": "Adds a sender to the allowlist."
       },
       "delay()": {
         "notice": "Returns the delay period before a new owner can be accepted."
@@ -1446,7 +1446,7 @@
         "notice": "Manually remove a pending aggregateRoot by owner if the contract is paused."
       },
       "removeSender(address)": {
-        "notice": "Removes a sender from the whitelist."
+        "notice": "Removes a sender from the allowlist."
       },
       "renounceOwnership()": {
         "notice": "Remove ability to renounce ownership"
@@ -1479,7 +1479,7 @@
         "notice": "Checks the cross domain sender for a given address"
       },
       "watcherManager()": {
-        "notice": "The `WatcherManager` contract governs the watcher whitelist."
+        "notice": "The `WatcherManager` contract governs the watcher allowlist."
       },
       "withdrawFunds(address)": {
         "notice": "This function should be callable by owner, and send funds trapped on a connector to the provided recipient."
@@ -1604,7 +1604,7 @@
       {
         "astId": 38157,
         "contract": "contracts/messaging/connectors/polygon/PolygonSpokeConnector.sol:PolygonSpokeConnector",
-        "label": "whitelistedSenders",
+        "label": "allowlistedSenders",
         "offset": 0,
         "slot": "13",
         "type": "t_mapping(t_address,t_bool)"
