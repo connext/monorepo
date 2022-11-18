@@ -1,4 +1,5 @@
-import { RequestContext, createLoggingContext, Bid, OriginTransfer } from "@connext/nxtp-utils";
+import { RequestContext, createLoggingContext, Bid, OriginTransfer, NATIVE_TOKEN } from "@connext/nxtp-utils";
+import { GelatoRelaySDK } from "@gelatonetwork/relay-sdk";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { getContext } from "../../../sequencer";
@@ -55,8 +56,17 @@ export const sendExecuteFastToRelayer = async (
     gas: gas.toString(),
   });
 
+  const gasLimit = gas.add(200_000); // Add extra overhead for gelato
+  const fee = await GelatoRelaySDK.getEstimatedFee(destinationChainId, NATIVE_TOKEN, gasLimit, true);
   const destinationRelayerProxyAddress = config.chains[transfer.xparams.destinationDomain].deployments.relayerProxy;
-  const encodedData = await encodeRelayerProxyExecuteFromBids(round, bids, transfer, gas, requestContext);
+  const encodedData = await encodeRelayerProxyExecuteFromBids(round, bids, transfer, fee, requestContext);
+
+  logger.info("Encoding for Relayer Proxy", requestContext, methodContext, {
+    relayerProxyAddress: destinationRelayerProxyAddress,
+    gasLimit: gasLimit.toString(),
+    relayerFee: fee.toString(),
+    relayerProxyEncodedData: encodedData,
+  });
 
   return await sendWithRelayerWithBackup(
     destinationChainId,
