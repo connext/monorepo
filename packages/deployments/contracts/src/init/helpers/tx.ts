@@ -14,14 +14,15 @@ type WaitForTxArguments = {
     method: () => Promise<any>;
     desired?: any;
   };
+  chainData?: any;
 };
 
 export const waitForTx = async (
   args: WaitForTxArguments,
 ): Promise<{ receipt: providers.TransactionReceipt; result?: any }> => {
-  const { tx, name: _name, checkResult, deployment } = args;
+  const { tx, name: _name, checkResult, deployment, chainData: _chainData } = args;
   // Try to get the desired amount of confirmations from chain data.
-  const chainData = await getChainData(true, true);
+  const chainData = _chainData ?? (await getChainData(true, true));
   const info = chainData.get(tx.chainId.toString());
 
   const prefix = `${log.prefix.base({ chain: tx.chainId, deployment })} ${_name}() `;
@@ -42,7 +43,7 @@ export const waitForTx = async (
 };
 
 export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> => {
-  const { deployment, read: _read, write: _write, desired } = schema;
+  const { deployment, read: _read, write: _write, desired, chainData } = schema;
   const { contract } = deployment;
 
   // Sanity check: write method included.
@@ -80,17 +81,17 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
   const readCall = async (): Promise<T> => {
     return await contract.callStatic[read.method](...read.args);
   };
-  // const writeCall = async (chain: number): Promise<providers.TransactionResponse> => {
-  //   return await contract[write.method](...write.args, {
-  //     gasLimit: 2000000,
-  //     gasPrice: chain === 137 ? "100000000000" : "450000000000", // TODO: need to put gasPrice properly for each chain
-  //   });
-  // };
-
   const writeCall = async (chain: number): Promise<providers.TransactionResponse> => {
-    return await contract[write.method](...write.args, {
-      gasLimit: 2000000,
-    });
+    if (chain === 137) {
+      return await contract[write.method](...write.args, {
+        gasLimit: 2000000,
+        gasPrice: "100000000000",
+      });
+    } else {
+      return await contract[write.method](...write.args, {
+        gasLimit: 2000000,
+      });
+    }
   };
 
   const network = await contract.provider.getNetwork();
@@ -113,6 +114,7 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
       deployment,
       tx,
       name: write.method,
+      chainData,
     };
 
     if (desiredExists) {
