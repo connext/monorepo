@@ -267,7 +267,7 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
   function test_ProposedOwnableFacet__removeRouterAllowlist_failsIfDelayNotElapsed() public {
     utils_proposeRenounceRouterAndAssert();
     vm.prank(this.owner());
-    vm.expectRevert(ProposedOwnableFacet__removeRouterAllowlist_delayNotElapsed.selector);
+    vm.expectRevert(ProposedOwnableFacet__delayElapsed_delayNotElapsed.selector);
     this.removeRouterAllowlist();
   }
 
@@ -343,7 +343,7 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
   function test_ProposedOwnableFacet__removeAssetAllowlist_failsIfDelayNotElapsed() public {
     utils_proposeRenounceAssetAndAssert();
     vm.prank(this.owner());
-    vm.expectRevert(ProposedOwnableFacet__removeAssetAllowlist_delayNotElapsed.selector);
+    vm.expectRevert(ProposedOwnableFacet__delayElapsed_delayNotElapsed.selector);
     this.removeAssetAllowlist();
   }
 
@@ -408,6 +408,8 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     utils_proposeNewOwnerAndAssert(proposed);
 
     LibDiamond.setContractOwner(proposed);
+    // Fast-forward from delay
+    vm.warp(block.timestamp + 7 days + 1);
 
     vm.prank(proposed);
     vm.expectRevert(ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange.selector);
@@ -419,7 +421,7 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     utils_proposeNewOwnerAndAssert(proposed);
 
     vm.prank(proposed);
-    vm.expectRevert(ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed.selector);
+    vm.expectRevert(ProposedOwnableFacet__delayElapsed_delayNotElapsed.selector);
     this.acceptProposedOwner();
   }
 
