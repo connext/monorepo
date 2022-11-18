@@ -64,7 +64,7 @@ export const NxtpRouterConfigSchema = Type.Object({
       }),
     }),
   ]),
-  maxSlippage: Type.Integer({ minimum: 0, maximum: 100 }),
+  slippage: Type.Integer({ minimum: 0, maximum: 10000 }),
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   polling: TPollingConfig,
@@ -155,11 +155,7 @@ export const getEnvConfig = (
       diagnostic:
         process.env.NXTP_DIAGNOSTIC_MODE || configJson.mode?.diagnostic || configFile.mode?.diagnostic || false,
     },
-    maxSlippage:
-      process.env.NXTP_ALLOWED_TOLERANCE ||
-      configJson.allowedTolerance ||
-      configFile.allowedTolerance ||
-      DEFAULT_SLIPPAGE,
+    slippage: process.env.NXTP_SLIPPAGE || configJson.slippage || configFile.slippage || DEFAULT_SLIPPAGE,
     sequencerUrl: process.env.NXTP_SEQUENCER || configJson.sequencerUrl || configFile.sequencerUrl,
     cartographerUrl: process.env.NXTP_CARTOGRAPHER || configJson.cartographerUrl || configFile.cartographerUrl,
     polling: {

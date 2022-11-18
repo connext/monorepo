@@ -96,7 +96,7 @@ export const mock = {
       adminToken: "blahblahblah",
     },
     network: "testnet",
-    maxSlippage: 0,
+    slippage: 10000,
     mode: {
       diagnostic: false,
       cleanup: false,
