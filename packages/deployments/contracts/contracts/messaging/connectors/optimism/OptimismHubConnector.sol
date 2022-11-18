@@ -58,7 +58,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     // Get the calldata
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
     // Dispatch message
-    OptimismAmb(AMB).sendMessage(mirrorConnector, _calldata, uint32(_getGasFromEncoded(_encodedData)));
+    OptimismAmb(AMB).sendMessage(mirrorConnector, _calldata, uint32(gasCap));
   }
 
   /**

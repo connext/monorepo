@@ -17,7 +17,7 @@ type TaskArgs = {
   networkType?: ProtocolNetwork;
 };
 
-export default task("add-sender", "Add sender to connector whitelist")
+export default task("add-sender", "Add sender to connector allowlist")
   .addParam("sender", "The address of sender to add")
   .addOptionalParam("connectorAddress", "Override connector address")
   .addOptionalParam("env", "Environment of contracts")
@@ -49,8 +49,8 @@ export default task("add-sender", "Add sender to connector whitelist")
 
       const connector = new Contract(connectorAddress, connectorDeployment.abi, deployer);
 
-      if (await connector.whitelistedSenders(connectorAddress)) {
-        console.log(`sender already whitelisted`);
+      if (await connector.allowlistedSenders(connectorAddress)) {
+        console.log(`sender already allowlisted`);
         return;
       }
 

@@ -64,6 +64,7 @@ export const mock = {
         providers: ["http://example.com"],
         deployments: {
           connext: mkAddress("0xabcdef123"),
+          relayerProxy: mkAddress("0xabcdef123"),
         },
         gasStations: [],
       },
@@ -73,6 +74,7 @@ export const mock = {
         providers: ["http://example.com"],
         deployments: {
           connext: mkAddress("0xabcdef123"),
+          relayerProxy: mkAddress("0xabcdef123"),
         },
         gasStations: [],
       },
@@ -96,7 +98,7 @@ export const mock = {
       adminToken: "blahblahblah",
     },
     network: "testnet",
-    maxSlippage: 0,
+    slippage: 10000,
     mode: {
       diagnostic: false,
       cleanup: false,
@@ -187,6 +189,10 @@ export const mock = {
       connext.encodeFunctionData.returns(encodedDataMock);
       connext.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const relayerProxy = createStubInstance(utils.Interface);
+      relayerProxy.encodeFunctionData.returns(encodedDataMock);
+      relayerProxy.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       const priceOracle = createStubInstance(utils.Interface);
       priceOracle.encodeFunctionData.returns(encodedDataMock);
       priceOracle.decodeFunctionResult.returns([BigNumber.from(1000)]);
@@ -203,13 +209,20 @@ export const mock = {
       erc20.encodeFunctionData.returns(encodedDataMock);
       erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const rootManagerPropagateWrapper = createStubInstance(utils.Interface);
+      erc20.encodeFunctionData.returns(encodedDataMock);
+      erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       return {
         erc20: erc20 as any,
         connext: connext as unknown as ConnextContractInterfaces["connext"],
+        relayerProxy: relayerProxy as unknown as ConnextContractInterfaces["relayerProxy"],
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
         erc20Extended: erc20 as unknown as ConnextContractInterfaces["erc20Extended"],
         spokeConnector: spokeConnector as unknown as ConnextContractInterfaces["spokeConnector"],
+        rootManagerPropagateWrapper:
+          rootManagerPropagateWrapper as unknown as ConnextContractInterfaces["rootManagerPropagateWrapper"],
       };
     },
     deployments: (): ConnextContractDeployments => {
@@ -218,10 +231,15 @@ export const mock = {
           address: mkAddress("0xbadcab"),
           abi: {},
         }),
+        relayerProxy: (_: number) => ({
+          address: mkAddress("0xbadcab"),
+          abi: {},
+        }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
         hubConnector: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
         spokeConnector: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
+        rootManagerPropagateWrapper: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
       };
     },
   },

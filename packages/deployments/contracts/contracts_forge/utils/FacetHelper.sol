@@ -90,6 +90,7 @@ contract FacetHelper is ForgeHelper {
       // on canonical, local is always adopted && local is always canonical
       _local = _canonical;
       _adopted = _canonical;
+      _stableSwap = address(0);
     } else {
       // Ensure stored domain is not canonical domain
       if (s.domain == _canonicalDomain) {
@@ -132,7 +133,7 @@ contract FacetHelper is ForgeHelper {
     s.adoptedToLocalExternalPools[_canonicalKey] = IStableSwap(_stableSwap);
     s.canonicalToAdopted[_canonicalKey] = _adopted;
 
-    // Add to whitelist
+    // Add to allowlist
     s.approvedAssets[_canonicalKey] = true;
 
     // // Log stored vars

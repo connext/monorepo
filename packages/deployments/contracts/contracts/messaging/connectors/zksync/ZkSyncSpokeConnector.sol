@@ -39,6 +39,12 @@ contract ZkSyncSpokeConnector is SpokeConnector {
   function _verifySender(address _expected) internal view override returns (bool) {
     // NOTE: msg.sender is preserved for L1 -> L2 calls. See the L2 contract in the tutorial
     // here: https://v2-docs.zksync.io/dev/tutorials/cross-chain-tutorial.html#l2-counter
+
+    // NOTE: if an attacker controls the msg.sender, they could insert malicious roots.
+    // From the zksync team:
+    // 'We have a different address generation schema that would not allow address
+    // to be claimed on L2 by an adversary. Even if you deploy same address and same
+    // private key it would still be different'
     return msg.sender == _expected;
   }
 
@@ -48,9 +54,8 @@ contract ZkSyncSpokeConnector is SpokeConnector {
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should not include specialized calldata
     require(_encodedData.length == 0, "!data length");
-    bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
     // Dispatch message through zkSync AMB
-    L1_MESSENGER_CONTRACT.sendToL1(_calldata);
+    L1_MESSENGER_CONTRACT.sendToL1(_data);
   }
 
   /**

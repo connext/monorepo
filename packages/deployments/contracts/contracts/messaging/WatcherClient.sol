@@ -21,7 +21,7 @@ contract WatcherClient is ProposedOwnable, Pausable {
 
   // ============ Properties ============
   /**
-   * @notice The `WatcherManager` contract governs the watcher whitelist.
+   * @notice The `WatcherManager` contract governs the watcher allowlist.
    * @dev Multiple clients can share a watcher set using the same manager
    */
   WatcherManager public watcherManager;

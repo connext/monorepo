@@ -86,14 +86,13 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "send(bytes)": FunctionFragment;
     "sentMessageRoots(bytes32)": FunctionFragment;
     "setDelayBlocks(uint256)": FunctionFragment;
-    "setFxRootTunnel(address)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setRateLimitBlocks(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
     "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
     "watcherManager()": FunctionFragment;
-    "whitelistedSenders(address)": FunctionFragment;
+    "allowlistedSenders(address)": FunctionFragment;
     "withdrawFunds(address)": FunctionFragment;
   };
 
@@ -141,14 +140,13 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "send"
       | "sentMessageRoots"
       | "setDelayBlocks"
-      | "setFxRootTunnel"
       | "setMirrorConnector"
       | "setRateLimitBlocks"
       | "setWatcherManager"
       | "unpause"
       | "verifySender"
       | "watcherManager"
-      | "whitelistedSenders"
+      | "allowlistedSenders"
       | "withdrawFunds"
   ): FunctionFragment;
 
@@ -301,10 +299,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setFxRootTunnel",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setMirrorConnector",
     values: [PromiseOrValue<string>]
   ): string;
@@ -326,7 +320,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "whitelistedSenders",
+    functionFragment: "allowlistedSenders",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -452,10 +446,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setFxRootTunnel",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setMirrorConnector",
     data: BytesLike
   ): Result;
@@ -477,7 +467,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "whitelistedSenders",
+    functionFragment: "allowlistedSenders",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -897,11 +887,6 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setFxRootTunnel(
-      _fxRootTunnel: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -928,7 +913,7 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     watcherManager(overrides?: CallOverrides): Promise<[string]>;
 
-    whitelistedSenders(
+    allowlistedSenders(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
@@ -1087,11 +1072,6 @@ export interface PolygonSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setFxRootTunnel(
-    _fxRootTunnel: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1118,7 +1098,7 @@ export interface PolygonSpokeConnector extends BaseContract {
 
   watcherManager(overrides?: CallOverrides): Promise<string>;
 
-  whitelistedSenders(
+  allowlistedSenders(
     arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
@@ -1271,11 +1251,6 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setFxRootTunnel(
-      _fxRootTunnel: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1300,7 +1275,7 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     watcherManager(overrides?: CallOverrides): Promise<string>;
 
-    whitelistedSenders(
+    allowlistedSenders(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -1582,11 +1557,6 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setFxRootTunnel(
-      _fxRootTunnel: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1613,7 +1583,7 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     watcherManager(overrides?: CallOverrides): Promise<BigNumber>;
 
-    whitelistedSenders(
+    allowlistedSenders(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1773,11 +1743,6 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setFxRootTunnel(
-      _fxRootTunnel: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1804,7 +1769,7 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     watcherManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    whitelistedSenders(
+    allowlistedSenders(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
