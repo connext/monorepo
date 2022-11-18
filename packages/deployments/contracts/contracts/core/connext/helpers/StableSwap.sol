@@ -84,7 +84,8 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
 
     uint256[] memory precisionMultipliers = new uint256[](decimals.length);
 
-    for (uint256 i = 0; i < _pooledTokens.length; i++) {
+    uint256 len = _pooledTokens.length;
+    for (uint256 i = 0; i < len; ) {
       if (i != 0) {
         // Check if index is already used. Check if 0th element is a duplicate.
         require(
@@ -96,6 +97,10 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
       require(decimals[i] <= Constants.POOL_PRECISION_DECIMALS, "Token decimals exceeds max");
       precisionMultipliers[i] = 10**uint256(Constants.POOL_PRECISION_DECIMALS - decimals[i]);
       tokenIndexes[address(_pooledTokens[i])] = uint8(i);
+
+      unchecked {
+        ++i;
+      }
     }
 
     // Check _a, _fee, _adminFee, _withdrawFee parameters

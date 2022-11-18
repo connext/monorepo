@@ -137,7 +137,8 @@ library MerkleTrie {
     TrieNode memory currentNode;
 
     // Proof is top-down, so we start at the first element (root).
-    for (uint256 i = 0; i < _proof.length; i++) {
+    uint256 len = _proof.length;
+    for (uint256 i = 0; i < len; ) {
       currentNode = _proof[i];
       currentKeyIndex += currentKeyIncrement;
 
@@ -154,6 +155,11 @@ library MerkleTrie {
       } else {
         // Nodes smaller than 31 bytes aren't hashed.
         require(BytesUtils.toBytes32(currentNode.encoded) == currentNodeID, "Invalid internal node hash");
+      }
+
+      // unreachable code if it's below the if statement under this
+      unchecked {
+        ++i;
       }
 
       if (currentNode.decoded.length == BRANCH_NODE_LENGTH) {
@@ -224,9 +230,14 @@ library MerkleTrie {
     RLPReader.RLPItem[] memory nodes = RLPReader.readList(_proof);
     TrieNode[] memory proof = new TrieNode[](nodes.length);
 
-    for (uint256 i = 0; i < nodes.length; i++) {
+    uint256 len = nodes.length;
+    for (uint256 i = 0; i < len; ) {
       bytes memory encoded = RLPReader.readBytes(nodes[i]);
       proof[i] = TrieNode({encoded: encoded, decoded: RLPReader.readList(encoded)});
+
+      unchecked {
+        ++i;
+      }
     }
 
     return proof;
