@@ -251,8 +251,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
       TokenId(s.domain, _canonicalId),
       asset,
       adoptedAssetId,
-      stableSwap,
-      100000 ether
+      stableSwap
     );
   }
 
@@ -276,7 +275,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     vm.prank(_owner);
     // no error message given bc shouldnt be able to find function
     vm.expectRevert();
-    this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0), 0);
+    this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0));
   }
 
   function test_TokenFacet__setupAssetWithDeployedRepresentation_failIfOnRemoteAndCannotBurn() public {
@@ -290,7 +289,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     vm.prank(_owner);
     // no error message given bc shouldnt be able to find function
     vm.expectRevert();
-    this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0), 0);
+    this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0));
   }
 
   function test_TokenFacet__addStableSwapPool_success() public {
@@ -330,6 +329,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     setupAssetAndAssert(_adopted, bytes4(""));
 
     s.custodied[_canonical] = 0;
+    vm.mockCall(_local, abi.encodeWithSelector(IERC20.balanceOf.selector, address(this)), abi.encode(0));
     removeAssetAndAssert(utils_calculateCanonicalHash(), _deployedLocal, _adopted);
   }
 
