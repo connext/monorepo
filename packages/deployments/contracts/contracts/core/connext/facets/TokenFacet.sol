@@ -18,13 +18,12 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 contract TokenFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
-  error TokenFacet__addAssetId_nativeAsset();
   error TokenFacet__addAssetId_alreadyAdded();
   error TokenFacet__removeAssetId_notAdded();
   error TokenFacet__removeAssetId_invalidParams();
   error TokenFacet__updateDetails_localNotFound();
   error TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
-  error TokenFacet__setupAsset_invalidAdoptedAssetOnCanonicalDomain();
+  error TokenFacet__setupAsset_invalidCanonicalConfiguration();
   error TokenFacet__setupAssetWithDeployedRepresentation_invalidRepresentation();
   error TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
   error TokenFacet__setLiquidityCap_notCanonicalDomain();
@@ -90,7 +89,7 @@ contract TokenFacet is BaseConnextFacet {
   );
 
   /**
-   * @notice Emitted when an asset is removed from whitelists
+   * @notice Emitted when an asset is removed from allowlists
    * @param key - The hash of the canonical identifier and domain of the token removed
    * @param caller - The account that called the function
    */
@@ -156,13 +155,13 @@ contract TokenFacet is BaseConnextFacet {
   /**
    * @notice Used to add supported assets. This is an admin only function
    *
-   * @dev When whitelisting the canonical asset, all representational assets would be
-   * whitelisted as well. In the event you have a different adopted asset (i.e. PoS USDC
-   * on polygon), you should *not* whitelist the adopted asset. The stable swap pool
+   * @dev When allowlisting the canonical asset, all representational assets would be
+   * allowlisted as well. In the event you have a different adopted asset (i.e. PoS USDC
+   * on polygon), you should *not* allowlist the adopted asset. The stable swap pool
    * address used should allow you to swap between the local <> adopted asset.
    *
    * @param _canonical - The canonical asset to add by id and domain. All representations
-   * will be whitelisted as well
+   * will be allowlisted as well
    * @param _adoptedAssetId - The used asset id for this domain (e.g. PoS USDC for
    * polygon)
    * @param _stableSwapPool - The address of the local stableswap pool, if it exists.
@@ -183,13 +182,14 @@ contract TokenFacet is BaseConnextFacet {
 
       // Sanity check: ensure adopted asset ID == canonical address (or empty).
       // This could reflect a user error or miscalculation and lead to unexpected behavior.
-      if (_adoptedAssetId != address(0) && _adoptedAssetId != _local) {
-        revert TokenFacet__setupAsset_invalidAdoptedAssetOnCanonicalDomain();
+      // NOTE: Since we're on canonical domain, there should be no stableswap pool provided.
+      if ((_adoptedAssetId != address(0) && _adoptedAssetId != _local) || _stableSwapPool != address(0)) {
+        revert TokenFacet__setupAsset_invalidCanonicalConfiguration();
       }
 
       // Enroll the asset. Pass in address(0) for adopted: it should use the local asset (i.e. the
       // canonical asset in this case) instead for both adopted and local.
-      _enrollAdoptedAndLocalAssets(true, address(0), _local, _stableSwapPool, _canonical, _cap);
+      _enrollAdoptedAndLocalAssets(true, address(0), _local, address(0), _canonical, _cap);
     } else {
       // On remote, deploy a local representation.
       _local = _deployRepresentation(
@@ -244,7 +244,7 @@ contract TokenFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Used to remove assets from the whitelist
+   * @notice Used to remove assets from the allowlist
    * @param _key - The hash of the canonical id and domain to remove (mapping key)
    * @param _adoptedAssetId - Corresponding adopted asset to remove
       * @param _representation - Corresponding representation asset to remove
@@ -259,7 +259,7 @@ contract TokenFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Used to remove assets from the whitelist
+   * @notice Used to remove assets from the allowlist
    * @param _canonical - The canonical id and domain to remove
    * @param _adoptedAssetId - Corresponding adopted asset to remove
    * @param _representation - Corresponding representation asset to remove
@@ -344,7 +344,7 @@ contract TokenFacet is BaseConnextFacet {
       s.representationToCanonical[_local].id = _canonical.id;
       // Update swap (on the canonical domain, there is no representation / pool).
       _addStableSwapPool(_canonical, _stableSwapPool, _key);
-    } else {
+    } else if (_cap > 0) {
       // Update cap (only on canonical domain).
       _setLiquidityCap(_canonical, _cap, _key);
     }
@@ -407,7 +407,7 @@ contract TokenFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Used to remove assets from the whitelist
+   * @notice Used to remove assets from the allowlist
    * @param _key - The hash of the canonical id and domain to remove (mapping key)
    * @param _adoptedAssetId - Corresponding adopted asset to remove
    */

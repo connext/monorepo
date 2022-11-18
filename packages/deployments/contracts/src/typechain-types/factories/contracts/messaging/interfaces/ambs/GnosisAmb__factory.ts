@@ -26,6 +26,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes",
+        name: "_data",
+        type: "bytes",
+      },
+      {
+        internalType: "bytes",
+        name: "_signatures",
+        type: "bytes",
+      },
+    ],
+    name: "executeSignatures",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "_messageId",
         type: "bytes32",
@@ -230,6 +248,24 @@ const _abi = [
         type: "bytes32",
       },
     ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "_data",
+        type: "bytes",
+      },
+      {
+        internalType: "bytes",
+        name: "_signatures",
+        type: "bytes",
+      },
+    ],
+    name: "safeExecuteSignaturesWithAutoGasLimit",
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },

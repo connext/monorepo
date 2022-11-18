@@ -185,6 +185,12 @@ export const CONNECTOR_META_ENTITY = `
       spokeDomain
 `;
 
+export const ROOT_MANAGER_META_ENTITY = `
+      id
+      connectors
+      domains
+`;
+
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };
@@ -778,7 +784,7 @@ export const getRootManagerMetaQuery = (domain: string) => {
   return gql`
     query GetRootManagerMeta {
         ${prefix}_rootManagerMeta (id: "${ROOT_MANAGER_META_ID}") {
-        ${ROOT_MANAGER_META_ID}
+        ${ROOT_MANAGER_META_ENTITY}
       }
     }
   `;

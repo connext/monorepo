@@ -19,7 +19,6 @@ contract BaseConnextFacet {
 
   // ========== Custom Errors ===========
 
-  error BaseConnextFacet__onlyBridgeRouter_notBridgeRouter();
   error BaseConnextFacet__onlyOwner_notOwner();
   error BaseConnextFacet__onlyProposed_notProposedOwner();
   error BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter();
@@ -29,7 +28,7 @@ contract BaseConnextFacet {
   error BaseConnextFacet__nonReentrant_reentrantCall();
   error BaseConnextFacet__nonXCallReentrant_reentrantCall();
   error BaseConnextFacet__getAdoptedAsset_assetNotFound();
-  error BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
+  error BaseConnextFacet__getApprovedCanonicalId_notAllowlisted();
 
   // ============ Modifiers ============
 
@@ -121,17 +120,17 @@ contract BaseConnextFacet {
 
   // ============ Internal functions ============
   /**
-   * @notice Indicates if the router whitelist has been removed
+   * @notice Indicates if the router allowlist has been removed
    */
-  function _isRouterWhitelistRemoved() internal view returns (bool) {
-    return LibDiamond.contractOwner() == address(0) || s._routerWhitelistRemoved;
+  function _isRouterAllowlistRemoved() internal view returns (bool) {
+    return LibDiamond.contractOwner() == address(0) || s._routerAllowlistRemoved;
   }
 
   /**
-   * @notice Indicates if the asset whitelist has been removed
+   * @notice Indicates if the asset allowlist has been removed
    */
-  function _isAssetWhitelistRemoved() internal view returns (bool) {
-    return LibDiamond.contractOwner() == address(0) || s._assetWhitelistRemoved;
+  function _isAssetAllowlistRemoved() internal view returns (bool) {
+    return LibDiamond.contractOwner() == address(0) || s._assetAllowlistRemoved;
   }
 
   /**
@@ -203,8 +202,8 @@ contract BaseConnextFacet {
   function _getApprovedCanonicalId(address _candidate) internal view returns (TokenId memory, bytes32) {
     TokenId memory _canonical = _getCanonicalTokenId(_candidate);
     bytes32 _key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
-    if (!_isAssetWhitelistRemoved() && !AssetLogic.getConfig(_key).approval) {
-      revert BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
+    if (!_isAssetAllowlistRemoved() && !AssetLogic.getConfig(_key).approval) {
+      revert BaseConnextFacet__getApprovedCanonicalId_notAllowlisted();
     }
     return (_canonical, _key);
   }

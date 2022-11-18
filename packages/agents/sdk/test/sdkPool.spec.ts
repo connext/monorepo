@@ -56,6 +56,10 @@ describe("NxtpSdkPool", () => {
       expect(nxtpPool.getPool).to.be.a("function");
       expect(nxtpPool.getUserPools).to.be.a("function");
       expect(nxtpPool.getPoolStats).to.be.a("function");
+      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
+      expect(nxtpPool.calculateAddLiquidityPriceImpact).to.be.a("function");
+      expect(nxtpPool.calculateRemoveLiquidityPriceImpact).to.be.a("function");
+      expect(nxtpPool.calculatePriceImpact).to.be.a("function");
     });
   });
 
@@ -190,6 +194,7 @@ describe("NxtpSdkPool", () => {
     const mockParams = {
       domainId: mock.domain.A,
       canonicalId: utils.formatBytes32String("0"),
+      key: utils.formatBytes32String("0"),
       tokenAddress: mock.asset.A.address,
       poolName: `${mock.asset.A.symbol}-Pool`,
       poolSymbol: `${mock.asset.A.symbol}-next${mock.asset.A.symbol}`,
@@ -300,6 +305,43 @@ describe("NxtpSdkPool", () => {
       await setTimeout(() => {
         expect(res).to.have.lengthOf(1);
       }, 100);
+    });
+  });
+
+  describe("#calculatePriceImpact", () => {
+    const mockParams = {
+      totalReservesIn: BigNumber.from("1000"),
+      lpTokensOut: BigNumber.from("1000"),
+      totalReservesOut: BigNumber.from("1000"),
+      lpTokensIn: BigNumber.from("1000"),
+      virtualPrice: BigNumber.from("1"),
+    };
+
+    it("happy: should work with deposits", async () => {
+      const res = await nxtpPool.calculatePriceImpact(
+        mockParams.totalReservesIn,
+        mockParams.lpTokensOut,
+        mockParams.virtualPrice,
+      );
+
+      expect(res.toString()).to.equal(BigNumber.from("-999999999999999999").toString());
+    });
+
+    it("happy: should work with withdrawals", async () => {
+      const res = await nxtpPool.calculatePriceImpact(
+        mockParams.lpTokensIn,
+        mockParams.totalReservesOut,
+        mockParams.virtualPrice,
+        false,
+      );
+
+      expect(res.toString()).to.equal(BigNumber.from("1000000000000000000000000000000000000").toString());
+    });
+
+    it("should return 0 when amounts are 0", async () => {
+      const res = await nxtpPool.calculatePriceImpact(BigNumber.from(0), BigNumber.from(0), mockParams.virtualPrice);
+
+      expect(res.toString()).to.equal(BigNumber.from("0").toString());
     });
   });
 

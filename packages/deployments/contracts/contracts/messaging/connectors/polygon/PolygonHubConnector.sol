@@ -53,6 +53,13 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
   }
 
   function _setMirrorConnector(address _mirrorConnector) internal override {
+    // NOTE: FxBaseRootTunnel has the following code in their `setFxChildTunnel`:
+    // ```
+    // require(fxChildTunnel == address(0x0), "FxBaseRootTunnel: CHILD_TUNNEL_ALREADY_SET");
+    // ```
+    // Which means this function will revert if updating the `mirrorConnector`. In that case, in
+    // changes  the
+    // hub connector should also be redeployed
     super._setMirrorConnector(_mirrorConnector);
 
     setFxChildTunnel(_mirrorConnector);

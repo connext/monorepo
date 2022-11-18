@@ -89,6 +89,7 @@ contract FacetHelper is ForgeHelper {
       // on canonical, local is always adopted && local is always canonical
       _local = _canonical;
       _adopted = _canonical;
+      _stableSwap = address(0);
     } else {
       // Ensure stored domain is not canonical domain
       if (s.domain == _canonicalDomain) {
@@ -141,6 +142,9 @@ contract FacetHelper is ForgeHelper {
     s.tokenConfigs[_canonicalKey].adoptedDecimals = 18;
     s.tokenConfigs[_canonicalKey].adoptedToLocalExternalPools = _stableSwap;
     // s.tokenConfigs[_canonicalKey].cap = 10_000_000 ether;
+
+    s.adoptedToLocalExternalPools[_canonicalKey] = IStableSwap(_stableSwap);
+    s.canonicalToAdopted[_canonicalKey] = _adopted;
 
     // // Log stored vars
     // console.log("setup asset:");

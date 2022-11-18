@@ -1,5 +1,6 @@
 [
   "function destinationChainId() view returns (uint256)",
+  "function executeSignatures(bytes,bytes)",
   "function failedMessageDataHash(bytes32) view returns (bytes32)",
   "function failedMessageReceiver(bytes32) view returns (address)",
   "function failedMessageSender(bytes32) view returns (address)",
@@ -11,6 +12,7 @@
   "function requireToConfirmMessage(address,bytes,uint256) returns (bytes32)",
   "function requireToGetInformation(bytes32,bytes) returns (bytes32)",
   "function requireToPassMessage(address,bytes,uint256) returns (bytes32)",
+  "function safeExecuteSignaturesWithAutoGasLimit(bytes,bytes)",
   "function sourceChainId() view returns (uint256)",
   "function transactionHash() view returns (bytes32)"
 ]
