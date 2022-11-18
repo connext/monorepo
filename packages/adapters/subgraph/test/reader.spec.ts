@@ -477,20 +477,24 @@ describe("SubgraphReader", () => {
 
   describe("#getGetAggregatedRootsByDomain", () => {
     it("should return the aggregated roots", async () => {
-      const roots = [mock.entity.aggregatedRoot({ domain: "1111" }), mock.entity.aggregatedRoot({ domain: "1111" })];
+      const roots = [mock.entity.aggregatedRoot(), mock.entity.aggregatedRoot()];
       response.set("1111", [roots]);
       executeStub.resolves(response);
 
       const aggregatedRoots = await subgraphReader.getGetAggregatedRootsByDomain([
-        { hub: "1111", domain: "1111", index: 0, limit: 100 },
+        { hub: "1111", index: 0, limit: 100 },
       ]);
-      expect(aggregatedRoots).to.be.deep.eq(roots);
+      expect(aggregatedRoots).to.be.deep.eq(
+        roots.map((r) => {
+          return { ...r, domain: "1111" };
+        }),
+      );
     });
   });
 
   describe("#getGetPropagatedRoots", () => {
     it("should return the propagated roots", async () => {
-      const root = mock.entity.propagatedRoot({ domains: ["1111", "2222"] });
+      const root = mock.entity.propagatedRoot();
       response.set("1111", [root]);
       executeStub.resolves(response);
 
