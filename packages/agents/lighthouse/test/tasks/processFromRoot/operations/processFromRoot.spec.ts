@@ -9,19 +9,6 @@ import { ProcessConfigNotAvailable } from "../../../../src/tasks/processFromRoot
 describe("Operations: ProcessFromRoot", () => {
   describe("#processSingleRootMessage", () => {
     let configStub: SinonStub<any[], any>;
-    let sendWithRelayerWithBackupStub: SinonStub<
-      [
-        chainId: number,
-        domain: string,
-        destinationAddress: string,
-        data: string,
-        relayers: { instance: Relayer; apiKey: string; type: RelayerType }[],
-        chainReader: ChainReader,
-        logger: Logger,
-        _requestContext: BaseRequestContext,
-      ],
-      Promise<{ taskId: string }>
-    >;
 
     beforeEach(() => {
       configStub = stub(ProcessFromRootFns, "processorConfigs").value({

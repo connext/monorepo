@@ -5,10 +5,7 @@ import { proveAndProcess, processMessages } from "../../../../src/tasks/prover/o
 import * as ProveAndProcessFns from "../../../../src/tasks/prover/operations/proveAndProcess";
 import * as MockableFns from "../../../../src/mockable";
 import { mockXMessage1, mockXMessage2, mockRootMessage } from "../../../mock";
-import { proverCtxMock } from "../../../globalTestHook";
-import { mockTaskId } from "@connext/nxtp-adapters-relayer/test/mock";
-import { Relayer } from "@connext/nxtp-adapters-relayer";
-import { ChainReader } from "@connext/nxtp-txservice";
+import { proverCtxMock, sendWithRelayerWithBackupStub } from "../../../globalTestHook";
 
 describe("Operations: ProveAndProcess", () => {
   describe("#proveAndProcess", () => {
@@ -37,19 +34,6 @@ describe("Operations: ProveAndProcess", () => {
   });
 
   describe("#processMessages", () => {
-    let sendWithRelayerWithBackupStub: SinonStub<
-      [
-        chainId: number,
-        domain: string,
-        destinationAddress: string,
-        data: string,
-        relayers: { instance: Relayer; apiKey: string; type: RelayerType }[],
-        chainReader: ChainReader,
-        logger: Logger,
-        _requestContext: BaseRequestContext,
-      ],
-      Promise<{ taskId: string }>
-    >;
     beforeEach(() => {
       (proverCtxMock.adapters.database.getMessageRootFromIndex as SinonStub).resolves(mockXMessage1.origin.root);
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(mockXMessage1.origin.index);
@@ -57,14 +41,11 @@ describe("Operations: ProveAndProcess", () => {
       (proverCtxMock.adapters.database.getAggregateRoot as SinonStub).resolves(mockXMessage1.origin.root);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(mockXMessage1.origin.index);
       stub(SparseMerkleTree.prototype, "getProof").resolves([]);
-      sendWithRelayerWithBackupStub = stub(MockableFns, "sendWithRelayerWithBackup").resolves({
-        taskId: mockTaskId,
-      });
     });
 
-    it("should error if spoke connector not found", async () => {
-      await expect(processMessages([mockXMessage1], mockXMessage1.originDomain, "1234", "ROOT"));
-      // expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.be.calledWithExactly(
+    it("should handle error if spoke connector not found", async () => {
+      await expect(processMessages([mockXMessage1], mockXMessage1.originDomain, "1234", "ROOT")).to.eventually.not.be
+        .rejected;
     });
 
     it("should process a message", async () => {
@@ -74,19 +55,6 @@ describe("Operations: ProveAndProcess", () => {
   });
 
   describe("#processMessages with exceptions", () => {
-    let sendWithRelayerWithBackupStub: SinonStub<
-      [
-        chainId: number,
-        domain: string,
-        destinationAddress: string,
-        data: string,
-        relayers: { instance: Relayer; apiKey: string; type: RelayerType }[],
-        chainReader: ChainReader,
-        logger: Logger,
-        _requestContext: BaseRequestContext,
-      ],
-      Promise<{ taskId: string }>
-    >;
     beforeEach(() => {
       (proverCtxMock.adapters.database.getMessageRootFromIndex as SinonStub).resolves(mockXMessage1.origin.root);
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(mockXMessage1.origin.index);
@@ -94,9 +62,6 @@ describe("Operations: ProveAndProcess", () => {
       (proverCtxMock.adapters.database.getAggregateRoot as SinonStub).resolves(mockXMessage1.origin.root);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(mockXMessage1.origin.index);
       stub(SparseMerkleTree.prototype, "getProof").resolves([]);
-      sendWithRelayerWithBackupStub = stub(MockableFns, "sendWithRelayerWithBackup").resolves({
-        taskId: mockTaskId,
-      });
     });
 
     it("should catch error", async () => {
