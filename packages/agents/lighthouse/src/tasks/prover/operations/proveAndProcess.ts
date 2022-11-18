@@ -205,13 +205,13 @@ export const processMessage = async (message: XMessage) => {
     proveAndProcessEncodedData,
   );
 
-  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const encodedData = contracts.relayerProxy.encodeFunctionData("proveAndProcess", [
     proofs,
     aggregateRoot,
     aggregatePath,
     aggregateIndex,
-    fee as any,
+    fee,
   ]);
 
   logger.info("Encoding for Relayer Proxy", requestContext, methodContext, {
