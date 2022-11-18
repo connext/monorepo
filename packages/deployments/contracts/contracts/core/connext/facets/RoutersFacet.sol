@@ -578,7 +578,7 @@ contract RoutersFacet is BaseConnextFacet {
     }
     bytes32 key = AssetLogic.calculateCanonicalHash(canonical.id, canonical.domain);
     if (!s.approvedAssets[key]) {
-      revert BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
+      revert BaseConnextFacet__getApprovedCanonicalId_notAllowlisted();
     }
 
     // Sanity check: router is approved.
