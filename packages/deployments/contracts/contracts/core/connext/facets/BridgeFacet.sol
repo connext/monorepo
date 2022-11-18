@@ -42,9 +42,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__setXAppConnectionManager_domainsDontMatch();
   error BridgeFacet__xcall_nativeAssetNotSupported();
   error BridgeFacet__xcall_emptyTo();
-  error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_invalidSlippage();
-  error BridgeFacet__xcall_canonicalAssetNotReceived();
   error BridgeFacet__xcall_capReached();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
@@ -171,14 +169,14 @@ contract BridgeFacet is BaseConnextFacet {
   event RemoteAdded(uint32 domain, address remote, address caller);
 
   /**
-   * @notice Emitted when a sequencer is added or removed from whitelists
+   * @notice Emitted when a sequencer is added or removed from allowlists
    * @param sequencer - The sequencer address to be added or removed
    * @param caller - The account that called the function
    */
   event SequencerAdded(address sequencer, address caller);
 
   /**
-   * @notice Emitted when a sequencer is added or removed from whitelists
+   * @notice Emitted when a sequencer is added or removed from allowlists
    * @param sequencer - The sequencer address to be added or removed
    * @param caller - The account that called the function
    */
@@ -228,7 +226,7 @@ contract BridgeFacet is BaseConnextFacet {
   // ============ Admin Functions ==============
 
   /**
-   * @notice Used to add an approved sequencer to the whitelist.
+   * @notice Used to add an approved sequencer to the allowlist.
    * @param _sequencer - The sequencer address to add.
    */
   function addSequencer(address _sequencer) external onlyOwnerOrAdmin {
@@ -241,7 +239,7 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Used to remove an approved sequencer from the whitelist.
+   * @notice Used to remove an approved sequencer from the allowlist.
    * @param _sequencer - The sequencer address to remove.
    */
   function removeSequencer(address _sequencer) external onlyOwnerOrAdmin {
@@ -519,7 +517,7 @@ contract BridgeFacet is BaseConnextFacet {
       // NOTE: Above we check that you can only have `address(0)` as the input asset if this is a
       // 0-value transfer. Because 0-value transfers short-circuit all checks on mappings keyed on
       // hash(canonicalId, canonicalDomain), this is safe even when the address(0) asset is not
-      // whitelisted.
+      // allowlisted.
       bytes32 key;
       if (_asset != address(0)) {
         // Retrieve the canonical token information.
@@ -662,9 +660,9 @@ contract BridgeFacet is BaseConnextFacet {
 
       for (uint256 i; i < pathLength; ) {
         // Make sure the router is approved, if applicable.
-        // If router ownership is renounced (_RouterOwnershipRenounced() is true), then the router whitelist
+        // If router ownership is renounced (_RouterOwnershipRenounced() is true), then the router allowlist
         // no longer applies and we can skip this approval step.
-        if (!_isRouterWhitelistRemoved() && !s.routerConfigs[_args.routers[i]].approved) {
+        if (!_isRouterAllowlistRemoved() && !s.routerConfigs[_args.routers[i]].approved) {
           revert BridgeFacet__execute_notSupportedRouter();
         }
 

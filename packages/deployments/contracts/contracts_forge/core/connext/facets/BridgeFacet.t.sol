@@ -112,7 +112,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.approvedRelayers[address(this)] = true;
     s.approvedSequencers[_sequencer] = true;
     s.maxRoutersPerTransfer = 5;
-    s._routerWhitelistRemoved = true;
+    s._routerAllowlistRemoved = true;
     s.relayerFeeVault = _relayerFeeVault;
     s.domain = _originDomain;
 
@@ -981,7 +981,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     s.approvedAssets[utils_calculateCanonicalHash()] = false;
 
-    helpers_xcallAndAssert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notWhitelisted.selector);
+    helpers_xcallAndAssert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notAllowlisted.selector);
   }
 
   // fails if asset cap would be exceeded on the canonical domain
@@ -1233,7 +1233,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should fail if the router is not approved and ownership is not renounced
   function test_BridgeFacet__execute_failIfRouterNotApproved() public {
-    s._routerWhitelistRemoved = false;
+    s._routerAllowlistRemoved = false;
 
     (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
     s.routerConfigs[args.routers[0]].approved = false;
@@ -1499,8 +1499,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // should work with unapproved router if router ownership is renounced
-  function test_BridgeFacet__execute_worksWithUnapprovedIfNoWhitelist() public {
-    s._routerWhitelistRemoved = true;
+  function test_BridgeFacet__execute_worksWithUnapprovedIfNoAllowlist() public {
+    s._routerAllowlistRemoved = true;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
@@ -1744,7 +1744,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ bumpTransfer ============
   // ============ bumpTransfer fail cases
-  // should work with unapproved router if router-whitelist ownership renouncedcanonicalId
+  // should work with unapproved router if router-allowlist ownership renouncedcanonicalId
 
   // ============ forceUpdateSlippage ============
   function test_BridgeFacet__forceUpdateSlippage_failsIfNotDelegate() public {

@@ -17,20 +17,6 @@ interface AggregatorV3Interface {
 
   function version() external view returns (uint256);
 
-  // getRoundData and latestRoundData should both raise "No data present"
-  // if they do not have data to report, instead of returning unset values
-  // which could be misinterpreted as actual reported values.
-  function getRoundData(uint80 _roundId)
-    external
-    view
-    returns (
-      uint80 roundId,
-      int256 answer,
-      uint256 startedAt,
-      uint256 updatedAt,
-      uint80 answeredInRound
-    );
-
   function latestRoundData()
     external
     view
@@ -74,8 +60,6 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
   mapping(address => Price) public assetPrices;
 
-  event NewAdmin(address oldAdmin, address newAdmin);
-  event PriceRecordUpdated(address token, address baseToken, address lpToken, bool _active);
   event DirectPriceUpdated(address token, uint256 oldPrice, uint256 newPrice);
   event AggregatorUpdated(address tokenAddress, address source);
   event V1PriceOracleUpdated(address oldAddress, address newAddress);

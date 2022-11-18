@@ -83,6 +83,10 @@ library SwapUtils {
     uint256[] balances;
     // the admin fee balance of each token, in the token's precision
     uint256[] adminFees;
+    // the flag if this pool disabled by admin. once disabled, only remove liquidity will work.
+    bool disabled;
+    // once pool disabled, admin can remove pool after passed removeTime. and reinitialize.
+    uint256 removeTime;
   }
 
   // Struct storing variables used in calculations in the
@@ -265,6 +269,8 @@ library SwapUtils {
 
     uint256 b = s + ((d * Constants.A_PRECISION) / nA);
     uint256 yPrev;
+    // Select d as the starting point of the Newton method. Because y < D
+    // D is the best option as the starting point in case the pool is very imbalanced.
     uint256 y = d;
     for (uint256 i; i < Constants.MAX_LOOP_LIMIT; ) {
       yPrev = y;
@@ -689,6 +695,7 @@ library SwapUtils {
     uint256 dx,
     uint256 minDy
   ) internal returns (uint256) {
+    require(!self.disabled, "disabled pool");
     {
       IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
       require(dx <= tokenFrom.balanceOf(msg.sender), "swap more than you own");
@@ -735,6 +742,7 @@ library SwapUtils {
     uint256 dy,
     uint256 maxDx
   ) internal returns (uint256) {
+    require(!self.disabled, "disabled pool");
     require(dy <= self.balances[tokenIndexTo], ">pool balance");
 
     uint256 dx;
@@ -783,6 +791,7 @@ library SwapUtils {
     uint256 dx,
     uint256 minDy
   ) internal returns (uint256) {
+    require(!self.disabled, "disabled pool");
     require(dx <= self.balances[tokenIndexFrom], "more than pool balance");
 
     uint256 dy;
@@ -817,6 +826,7 @@ library SwapUtils {
     uint256 dy,
     uint256 maxDx
   ) internal returns (uint256) {
+    require(!self.disabled, "disabled pool");
     require(dy <= self.balances[tokenIndexTo], "more than pool balance");
 
     uint256 dx;
@@ -855,6 +865,8 @@ library SwapUtils {
     uint256[] memory amounts,
     uint256 minToMint
   ) internal returns (uint256) {
+    require(!self.disabled, "disabled pool");
+
     uint256 numTokens = self.pooledTokens.length;
     require(amounts.length == numTokens, "mismatch pooled tokens");
 
@@ -1159,6 +1171,6 @@ library SwapUtils {
    * @return bool true if this stableswap pool is valid, false if not.
    */
   function exists(Swap storage self) internal view returns (bool) {
-    return self.pooledTokens.length != 0;
+    return !self.disabled && self.pooledTokens.length != 0;
   }
 }
