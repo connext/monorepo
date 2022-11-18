@@ -9,12 +9,8 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-<<<<<<< HEAD
 import {Constants} from "../libraries/Constants.sol";
-import {TokenId, TransferInfo} from "../libraries/LibConnextStorage.sol";
-=======
 import {TransferInfo} from "../libraries/LibConnextStorage.sol";
->>>>>>> 2152-spearbit-audit-fixes
 
 contract PortalFacet is BaseConnextFacet {
   // ========== Custom Errors ===========

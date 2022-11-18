@@ -1,18 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-<<<<<<< HEAD
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {Constants} from "../libraries/Constants.sol";
-import {AppStorage, TokenId, RouterConfig} from "../libraries/LibConnextStorage.sol";
-=======
-import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {RouterConfig} from "../libraries/LibConnextStorage.sol";
 import {TokenId} from "../libraries/TokenId.sol";
->>>>>>> 2152-spearbit-audit-fixes
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
