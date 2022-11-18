@@ -121,6 +121,10 @@ export const mock = {
       connext.encodeFunctionData.returns(encodedDataMock);
       connext.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const relayerProxy = createStubInstance(utils.Interface);
+      relayerProxy.encodeFunctionData.returns(encodedDataMock);
+      relayerProxy.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       const priceOracle = createStubInstance(utils.Interface);
       priceOracle.encodeFunctionData.returns(encodedDataMock);
       priceOracle.decodeFunctionResult.returns([BigNumber.from(1000)]);
@@ -139,7 +143,7 @@ export const mock = {
 
       return {
         erc20: erc20 as unknown as ConnextContractInterfaces["erc20"],
-        erc20Extended: erc20 as unknown as ConnextContractInterfaces["erc20Extended"],
+        relayerProxy: relayerProxy as unknown as ConnextContractInterfaces["relayerProxy"],
         connext: connext as unknown as ConnextContractInterfaces["connext"],
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
@@ -149,6 +153,7 @@ export const mock = {
     deployments: (): SinonStubbedInstance<ConnextContractDeployments> => {
       return {
         connext: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        relayerProxy: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         hubConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         priceOracle: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         spokeConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
@@ -178,6 +183,10 @@ export const mock = {
     deployments: (): ConnextContractDeployments => {
       return {
         connext: (_: number) => ({
+          address: mkAddress("0xbadcab"),
+          abi: {},
+        }),
+        relayerProxy: (_: number) => ({
           address: mkAddress("0xbadcab"),
           abi: {},
         }),
