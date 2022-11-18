@@ -15,6 +15,7 @@
   "error TokenFacet__removeAssetId_notAdded()",
   "error TokenFacet__setLiquidityCap_notCanonicalDomain()",
   "error TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain()",
+  "error TokenFacet__setupAsset_invalidCanonicalConfiguration()",
   "error TokenFacet__updateDetails_localNotFound()",
   "event AssetAdded(bytes32 indexed,bytes32 indexed,uint32 indexed,address,address,address)",
   "event AssetRemoved(bytes32 indexed,address)",
