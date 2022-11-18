@@ -99,7 +99,7 @@ Content-Type: application/json
 {
   "domainId": "9991",
   "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
-  "amounts": ["10000000000000000", "10000000000000000"]
+  "amounts": ["1000000000000000", "1000000000000000"]
 }
 
 ##############
