@@ -114,6 +114,30 @@ Content-Type: application/json
 }
 
 ##############
+### POST calculateAddLiquidityPriceImpact
+POST {{baseUrl}}/calculateAddLiquidityPriceImpact
+Content-Type: application/json
+
+{
+  "domainId": "9991",
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "amountX": "10000000000000000",
+  "amountY": "10000000000000000" 
+}
+
+##############
+### POST calculateRemoveLiquidityPriceImpact
+POST {{baseUrl}}/calculateRemoveLiquidityPriceImpact
+Content-Type: application/json
+
+{
+  "domainId": "9991",
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "amountX": "10000000000000000",
+  "amountY": "10000000000000000" 
+}
+
+##############
 ### POST getPool
 POST {{baseUrl}}/getPool
 Content-Type: application/json
