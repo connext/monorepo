@@ -29,6 +29,7 @@
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
   "function root() view returns (bytes32)",
+  "function rootAndCount() view returns (bytes32, uint256)",
   "function setArborist(address)",
   "function tree() view returns (uint256)"
 ]

@@ -4159,6 +4159,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "TokenFacet__setupAsset_invalidCanonicalConfiguration",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "TokenFacet__updateDetails_localNotFound",
     type: "error",
   },
