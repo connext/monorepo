@@ -1,5 +1,6 @@
 import {
   encodeExecuteFromBids,
+  encodeRelayerProxyExecuteFromBids,
   getDestinationLocalAsset,
   getBidsRoundMap,
   getAllSubsets,
@@ -10,6 +11,7 @@ export const getHelpers = () => {
   return {
     auctions: {
       encodeExecuteFromBids,
+      encodeRelayerProxyExecuteFromBids,
       getDestinationLocalAsset,
       getBidsRoundMap,
       getAllSubsets,

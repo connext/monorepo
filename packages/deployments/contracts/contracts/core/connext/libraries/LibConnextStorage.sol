@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager.sol";
 import {SwapUtils} from "./SwapUtils.sol";
+import {TokenId} from "./TokenId.sol";
 
 // ============= Enum =============
 
@@ -15,7 +16,7 @@ import {SwapUtils} from "./SwapUtils.sol";
 // Admin    - 3
 enum Role {
   None,
-  Router,
+  RouterAdmin,
   Watcher,
   Admin
 }
@@ -31,13 +32,6 @@ enum DestinationTransferStatus {
   Reconciled, // 1
   Executed, // 2
   Completed // 3 - executed + reconciled
-}
-
-// ============= Structs =============
-
-struct TokenId {
-  uint32 domain;
-  bytes32 id;
 }
 
 /**
@@ -97,8 +91,8 @@ struct ExecuteArgs {
 
 /**
  * @notice Contains configs for each router
- * @param approved Whether the router is whitelisted, settable by admin
- * @param portalApproved Whether the router is whitelisted for portals, settable by admin
+ * @param approved Whether the router is allowlisted, settable by admin
+ * @param portalApproved Whether the router is allowlisted for portals, settable by admin
  * @param routerOwners The address that can update the `recipient`
  * @param proposedRouterOwners Owner candidates
  * @param proposedRouterTimestamp When owner candidate was proposed (there is a delay to acceptance)
@@ -146,13 +140,13 @@ struct AppStorage {
   // 6
   mapping(bytes32 => IStableSwap) adoptedToLocalExternalPools;
   /**
-   * @notice Mapping of whitelisted assets on same domain as contract.
+   * @notice Mapping of allowlisted assets on same domain as contract.
    * @dev Mapping is keyed on the hash of the canonical id and domain
    */
   // 7
   mapping(bytes32 => bool) approvedAssets;
   /**
-   * @notice Mapping of liquidity caps of whitelisted assets. If 0, no cap is enforced.
+   * @notice Mapping of liquidity caps of allowlisted assets. If 0, no cap is enforced.
    * @dev Mapping is keyed on the hash of the canonical id and domain
    */
   // 7
@@ -241,13 +235,13 @@ struct AppStorage {
   // 23
   uint256 _proposedOwnershipTimestamp;
   // 24
-  bool _routerWhitelistRemoved;
+  bool _routerAllowlistRemoved;
   // 25
-  uint256 _routerWhitelistTimestamp;
+  uint256 _routerAllowlistTimestamp;
   // 26
-  bool _assetWhitelistRemoved;
+  bool _assetAllowlistRemoved;
   // 27
-  uint256 _assetWhitelistTimestamp;
+  uint256 _assetAllowlistTimestamp;
   /**
    * @notice Stores a mapping of address to Roles
    * @dev returns uint representing the enum Role value
@@ -264,6 +258,7 @@ struct AppStorage {
   //
   // 30
   uint256 _status;
+  uint256 _xcallStatus;
   //
   // StableSwap
   //

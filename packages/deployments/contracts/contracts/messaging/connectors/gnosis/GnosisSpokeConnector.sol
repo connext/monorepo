@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
-import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {GnosisAmb} from "../../interfaces/ambs/GnosisAmb.sol";
 
 import {SpokeConnector, ProposedOwnable} from "../SpokeConnector.sol";
@@ -82,7 +81,7 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!mirrorConnector");
     // ensure it is headed to this domain
-    require(GnosisAmb(AMB).destinationChainId() == block.chainid, "!destinationChain");
+    require(GnosisAmb(AMB).sourceChainId() == block.chainid, "!destinationChain");
     // update the aggregate root on the domain
     receiveAggregateRoot(bytes32(_data));
   }

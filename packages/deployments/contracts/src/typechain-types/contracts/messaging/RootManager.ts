@@ -330,6 +330,8 @@ export interface RootManagerInterface extends utils.Interface {
     "ConnectorAdded(uint32,address,uint32[],address[])": EventFragment;
     "ConnectorRemoved(uint32,address,uint32[],address[],address)": EventFragment;
     "DelayBlocksUpdated(uint256,uint256)": EventFragment;
+    "DomainAdded(uint32,address)": EventFragment;
+    "DomainRemoved(uint32)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused(address)": EventFragment;
@@ -344,6 +346,8 @@ export interface RootManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ConnectorAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ConnectorRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DelayBlocksUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DomainAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DomainRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
@@ -394,6 +398,24 @@ export type DelayBlocksUpdatedEvent = TypedEvent<
 
 export type DelayBlocksUpdatedEventFilter =
   TypedEventFilter<DelayBlocksUpdatedEvent>;
+
+export interface DomainAddedEventObject {
+  domain: number;
+  connector: string;
+}
+export type DomainAddedEvent = TypedEvent<
+  [number, string],
+  DomainAddedEventObject
+>;
+
+export type DomainAddedEventFilter = TypedEventFilter<DomainAddedEvent>;
+
+export interface DomainRemovedEventObject {
+  domain: number;
+}
+export type DomainRemovedEvent = TypedEvent<[number], DomainRemovedEventObject>;
+
+export type DomainRemovedEventFilter = TypedEventFilter<DomainRemovedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -941,6 +963,15 @@ export interface RootManager extends BaseContract {
       previous?: null,
       updated?: null
     ): DelayBlocksUpdatedEventFilter;
+
+    "DomainAdded(uint32,address)"(
+      domain?: null,
+      connector?: null
+    ): DomainAddedEventFilter;
+    DomainAdded(domain?: null, connector?: null): DomainAddedEventFilter;
+
+    "DomainRemoved(uint32)"(domain?: null): DomainRemovedEventFilter;
+    DomainRemoved(domain?: null): DomainRemovedEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null

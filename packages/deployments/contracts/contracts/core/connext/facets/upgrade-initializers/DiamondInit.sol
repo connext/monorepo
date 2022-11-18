@@ -13,6 +13,7 @@ import {IDiamondCut} from "../../interfaces/IDiamondCut.sol";
 import {IERC165} from "../../interfaces/IERC165.sol";
 
 import {LibDiamond} from "../../libraries/LibDiamond.sol";
+import {Constants} from "../../libraries/Constants.sol";
 
 import {BaseConnextFacet} from "../BaseConnextFacet.sol";
 
@@ -32,6 +33,8 @@ contract DiamondInit is BaseConnextFacet {
 
   // You can add parameters to this function in order to pass in
   // data to set your own state variables
+  // NOTE: not requiring a longer delay related to constant as we want to be able to test
+  // with shorter governance delays
   function init(
     uint32 _domain,
     address _xAppConnectionManager,
@@ -70,12 +73,13 @@ contract DiamondInit is BaseConnextFacet {
     // More info here: https://eips.ethereum.org/EIPS/eip-2535#diamond-interface
 
     // __ReentrancyGuard_init_unchained
-    s._status = _NOT_ENTERED;
+    s._status = Constants.NOT_ENTERED;
+    s._xcallStatus = Constants.NOT_ENTERED;
 
     // Connext
     s.domain = _domain;
-    s.LIQUIDITY_FEE_NUMERATOR = 9995;
-    s.maxRoutersPerTransfer = 5;
+    s.LIQUIDITY_FEE_NUMERATOR = Constants.INITIAL_LIQUIDITY_FEE_NUMERATOR;
+    s.maxRoutersPerTransfer = Constants.INITIAL_MAX_ROUTERS;
     s.xAppConnectionManager = manager;
   }
 }

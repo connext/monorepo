@@ -12,12 +12,12 @@ import type {
 const _abi = [
   {
     inputs: [],
-    name: "BaseConnextFacet__getAdoptedAsset_notWhitelisted",
+    name: "BaseConnextFacet__getAdoptedAsset_notAllowlisted",
     type: "error",
   },
   {
     inputs: [],
-    name: "BaseConnextFacet__getApprovedCanonicalId_notWhitelisted",
+    name: "BaseConnextFacet__getApprovedCanonicalId_notAllowlisted",
     type: "error",
   },
   {
@@ -27,7 +27,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
+    name: "BaseConnextFacet__nonXCallReentrant_reentrantCall",
     type: "error",
   },
   {
@@ -63,7 +63,7 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220262a5f92f00841cae775164cab674046c202ac468d0309280cfb70d1f647b94664736f6c63430008110033";
+  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212205e8640e5d027ddb8cede023095662f847946dbd729cf24d81ddf09d86f42c52464736f6c63430008110033";
 
 type BaseConnextFacetConstructorParams =
   | [signer?: Signer]

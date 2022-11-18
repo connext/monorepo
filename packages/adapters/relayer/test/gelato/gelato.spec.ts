@@ -184,24 +184,28 @@ describe("Adapters: Gelato", () => {
 
   describe("#gelatoSDKSend", () => {
     it("should fail to send", async () => {
-      stub(MockableFns, "gelatoRelayWithSponsoredCall").throws();
+      stub(MockableFns, "gelatoRelayWithSyncFee").throws();
       const request = {
         chainId: 1337,
         target: mkAddress("0x1"),
         data: "0xfee",
+        relayContext: true,
+        feeToken: "0x",
       };
       const apiKey = "apikey";
-      await expect(gelatoSDKSend(request, apiKey)).to.be.rejectedWith(RelayerSendFailed);
+      await expect(gelatoSDKSend(request)).to.be.rejectedWith(RelayerSendFailed);
     });
     it("happy: should send data successfully!", async () => {
-      stub(MockableFns, "gelatoRelayWithSponsoredCall").resolves(mockGelatoSDKSuccessResponse);
+      stub(MockableFns, "gelatoRelayWithSyncFee").resolves(mockGelatoSDKSuccessResponse);
       const request = {
         chainId: 1337,
         target: mkAddress("0x1"),
         data: "0xfee",
+        relayContext: true,
+        feeToken: "0x",
       };
       const apiKey = "apikey";
-      const res = await gelatoSDKSend(request, apiKey);
+      const res = await gelatoSDKSend(request);
       expect(res).to.be.deep.eq(mockGelatoSDKSuccessResponse);
     });
   });

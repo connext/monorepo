@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {OptimismAmb} from "../../interfaces/ambs/optimism/OptimismAmb.sol";
-import {IStateCommitmentChain, ChainBatchHeader, ChainInclusionProof, L2MessageInclusionProof} from "../../interfaces/ambs/optimism/IStateCommitmentChain.sol";
+import {IStateCommitmentChain, L2MessageInclusionProof} from "../../interfaces/ambs/optimism/IStateCommitmentChain.sol";
 
 import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 
@@ -58,7 +58,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     // Get the calldata
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
     // Dispatch message
-    OptimismAmb(AMB).sendMessage(mirrorConnector, _calldata, uint32(_getGasFromEncoded(_encodedData)));
+    OptimismAmb(AMB).sendMessage(mirrorConnector, _calldata, uint32(gasCap));
   }
 
   /**
