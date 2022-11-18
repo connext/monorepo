@@ -81,7 +81,7 @@ library AmplificationUtils {
     if (futureAPrecise < initialAPrecise) {
       require(futureAPrecise * MAX_A_CHANGE + 1 > initialAPrecise, "futureA_ is too small");
     } else {
-      require(futureAPrecise < 1 + initialAPrecise * MAX_A_CHANGE, "futureA_ is too large");
+      require(futureAPrecise <= initialAPrecise * MAX_A_CHANGE, "futureA_ is too large");
     }
 
     self.initialA = initialAPrecise;

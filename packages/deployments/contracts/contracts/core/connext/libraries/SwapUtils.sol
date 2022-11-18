@@ -206,7 +206,7 @@ library SwapUtils {
     v.d0 = getD(xp, v.preciseA);
     v.d1 = v.d0 - ((tokenAmount * v.d0) / totalSupply);
 
-    require(tokenAmount < 1 + xp[tokenIndex], "exceeds available");
+    require(tokenAmount <= xp[tokenIndex], "exceeds available");
 
     v.newY = getYD(v.preciseA, tokenIndex, xp, v.d1);
 
@@ -602,7 +602,7 @@ library SwapUtils {
     uint256 amount,
     uint256 totalSupply
   ) internal pure returns (uint256[] memory) {
-    require(amount < 1 + totalSupply, "exceed total supply");
+    require(amount <= totalSupply, "exceed total supply");
 
     uint256 numBalances = balances.length;
     uint256[] memory amounts = new uint256[](numBalances);
@@ -709,7 +709,7 @@ library SwapUtils {
   ) internal returns (uint256) {
     {
       IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
-      require(dx < 1 + tokenFrom.balanceOf(msg.sender), "swap more than you own");
+      require(dx <= tokenFrom.balanceOf(msg.sender), "swap more than you own");
       // Reverts for fee on transfer
       AssetLogic.handleIncomingAsset(address(tokenFrom), dx);
     }
@@ -751,13 +751,13 @@ library SwapUtils {
     uint256 dy,
     uint256 maxDx
   ) internal returns (uint256) {
-    require(dy < 1 + self.balances[tokenIndexTo], ">pool balance");
+    require(dy <= self.balances[tokenIndexTo], ">pool balance");
 
     uint256 dx;
     uint256 dxFee;
     uint256[] memory balances = self.balances;
     (dx, dxFee) = _calculateSwapInv(self, tokenIndexFrom, tokenIndexTo, dy, balances);
-    require(dx < 1 + maxDx, "dx > maxDx");
+    require(dx <= maxDx, "dx > maxDx");
 
     uint256 dxAdminFee = (dxFee * self.adminFee) / FEE_DENOMINATOR / self.tokenPrecisionMultipliers[tokenIndexFrom];
 
@@ -769,7 +769,7 @@ library SwapUtils {
 
     {
       IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
-      require(dx < 1 + tokenFrom.balanceOf(msg.sender), "more than you own");
+      require(dx <= tokenFrom.balanceOf(msg.sender), "more than you own");
       // Reverts for fee on transfer
       AssetLogic.handleIncomingAsset(address(tokenFrom), dx);
     }
@@ -797,7 +797,7 @@ library SwapUtils {
     uint256 dx,
     uint256 minDy
   ) internal returns (uint256) {
-    require(dx < 1 + self.balances[tokenIndexFrom], "more than pool balance");
+    require(dx <= self.balances[tokenIndexFrom], "more than pool balance");
 
     uint256 dy;
     uint256 dyFee;
@@ -829,13 +829,13 @@ library SwapUtils {
     uint256 dy,
     uint256 maxDx
   ) internal returns (uint256) {
-    require(dy < 1 + self.balances[tokenIndexTo], "more than pool balance");
+    require(dy <= self.balances[tokenIndexTo], "more than pool balance");
 
     uint256 dx;
     uint256 dxFee;
     uint256[] memory balances = self.balances;
     (dx, dxFee) = _calculateSwapInv(self, tokenIndexFrom, tokenIndexTo, dy, balances);
-    require(dx < 1 + maxDx, "dx > maxDx");
+    require(dx <= maxDx, "dx > maxDx");
 
     uint256 dxAdminFee = (dxFee * self.adminFee) / FEE_DENOMINATOR / self.tokenPrecisionMultipliers[tokenIndexFrom];
 
@@ -963,7 +963,7 @@ library SwapUtils {
     uint256[] calldata minAmounts
   ) internal returns (uint256[] memory) {
     LPToken lpToken = self.lpToken;
-    require(amount < 1 + lpToken.balanceOf(msg.sender), ">LP.balanceOf");
+    require(amount <= lpToken.balanceOf(msg.sender), ">LP.balanceOf");
     uint256 numTokens = self.pooledTokens.length;
     require(minAmounts.length == numTokens, "mismatch poolTokens");
 
@@ -1006,7 +1006,7 @@ library SwapUtils {
   ) internal returns (uint256) {
     LPToken lpToken = self.lpToken;
 
-    require(tokenAmount < 1 + lpToken.balanceOf(msg.sender), ">LP.balanceOf");
+    require(tokenAmount <= lpToken.balanceOf(msg.sender), ">LP.balanceOf");
     uint256 numTokens = self.pooledTokens.length;
     require(tokenIndex < numTokens, "not found");
 
@@ -1060,7 +1060,7 @@ library SwapUtils {
     uint256 numAmounts = amounts.length;
     require(numAmounts == numTokens, "mismatch pool tokens");
 
-    require(maxBurnAmount < 1 + v.lpToken.balanceOf(msg.sender) && maxBurnAmount != 0, ">LP.balanceOf");
+    require(maxBurnAmount <= v.lpToken.balanceOf(msg.sender) && maxBurnAmount != 0, ">LP.balanceOf");
 
     uint256 feePerToken = _feePerToken(self.swapFee, numTokens);
     uint256[] memory fees = new uint256[](numTokens);
@@ -1099,7 +1099,7 @@ library SwapUtils {
     require(tokenAmount != 0, "!zero amount");
     tokenAmount = tokenAmount + 1;
 
-    require(tokenAmount < 1 + maxBurnAmount, "tokenAmount > maxBurnAmount");
+    require(tokenAmount <= maxBurnAmount, "tokenAmount > maxBurnAmount");
 
     v.lpToken.burnFrom(msg.sender, tokenAmount);
 
@@ -1144,7 +1144,7 @@ library SwapUtils {
    * @param newAdminFee new admin fee to be applied on future transactions
    */
   function setAdminFee(Swap storage self, uint256 newAdminFee) internal {
-    // instead of < 1 + MAX_ADMIN_FEE
+    // instead of <= MAX_ADMIN_FEE
     require(newAdminFee < MAX_ADMIN_FEE + 1, "too high");
     self.adminFee = newAdminFee;
 
@@ -1158,7 +1158,7 @@ library SwapUtils {
    * @param newSwapFee new swap fee to be applied on future transactions
    */
   function setSwapFee(Swap storage self, uint256 newSwapFee) internal {
-    // instead of < 1 + MAX_SWAP_FEE
+    // instead of <= MAX_SWAP_FEE
     require(newSwapFee < MAX_SWAP_FEE + 1, "too high");
     self.swapFee = newSwapFee;
 

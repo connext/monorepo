@@ -115,7 +115,7 @@ library LibDiamond {
     bytes32 key = keccak256(abi.encode(_diamondCut, _init, _calldata));
     if (ds.facetAddresses.length != 0) {
       uint256 time = ds.acceptanceTimes[key];
-      require(time != 0 && time < 1 + block.timestamp, "LibDiamond: delay not elapsed");
+      require(time != 0 && time <= block.timestamp, "LibDiamond: delay not elapsed");
       // Reset the acceptance time to ensure the same set of updates cannot be replayed
       // without going through a proposal window
 
