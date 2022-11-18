@@ -412,7 +412,8 @@ export const getUnProcessedMessages = async (
 };
 
 export const getUnProcessedMessagesByIndex = async (
-  domain: string,
+  origin_domain: string,
+  destination_domain: string,
   index: number,
   offset: number,
   limit = 100,
@@ -423,7 +424,7 @@ export const getUnProcessedMessagesByIndex = async (
   const messages = await db
     .select(
       "messages",
-      { processed: false, origin_domain: domain, index: dc.lte(index) },
+      { processed: false, origin_domain: origin_domain, destination_domain: destination_domain, index: dc.lte(index) },
       { offset, limit, order: { by: "index", direction: orderDirection } },
     )
     .run(poolToUse);

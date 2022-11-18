@@ -1,7 +1,15 @@
 import { utils, BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { ConnextContractDeployments, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, mkBytes32, createLoggingContext, XMessage } from "@connext/nxtp-utils";
+import {
+  mkAddress,
+  Logger,
+  mock as _mock,
+  mkBytes32,
+  createLoggingContext,
+  XMessage,
+  RootMessage,
+} from "@connext/nxtp-utils";
 
 import { NxtpLighthouseConfig } from "../src/config";
 import { ProverContext } from "../src/tasks/prover/context";
@@ -16,6 +24,7 @@ export const encodedDataMock = "0xabcde";
 export const requestContext = createLoggingContext("LIGHTHOUSE-TEST").requestContext;
 
 export const mockXMessage1: XMessage = { ..._mock.entity.xMessage(), transferId: mkBytes32("0xabc") };
+export const mockRootMessage: RootMessage = _mock.entity.rootMessage();
 
 export const mockXMessage2: XMessage = {
   ..._mock.entity.xMessage(),

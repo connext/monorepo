@@ -92,7 +92,8 @@ export type Database = {
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage[]>;
   getUnProcessedMessagesByIndex: (
-    domain: string,
+    origin_domain: string,
+    destination_domain: string,
     index: number,
     offset: number,
     limit?: number,

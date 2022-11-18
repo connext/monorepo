@@ -32,40 +32,61 @@ export const proveAndProcess = async () => {
   // Only process configured chains.
   const domains: string[] = Object.keys(config.chains);
 
-  // process messages
+  // Batch size of proofs to send to relayer.
+  const batchSize = 100;
+
+  // Process messages
+  // Batch messages to be processed by origin_domain and destination_domain.
   await Promise.all(
-    domains.map(async (domain) => {
+    domains.map(async (originDomain) => {
       try {
-        const latestMessageRoot: RootMessage | undefined = await database.getLatestMessageRoot(domain);
+        const latestMessageRoot: RootMessage | undefined = await database.getLatestMessageRoot(originDomain);
         if (!latestMessageRoot) {
-          throw new NoTargetMessageRoot(domain);
+          throw new NoTargetMessageRoot(originDomain);
         }
 
-        // Paginate through all unprocessed messages from the domain
-        let offset = 0;
-        let end = false;
-        while (!end) {
-          const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
-            domain,
-            latestMessageRoot.count,
-            offset,
-            100,
-          );
-          if (unprocessed.length > 0) {
-            // Batch process messages from the same origin domain
-            await processMessages(unprocessed, domain, latestMessageRoot.root);
-            offset += unprocessed.length;
-            logger.info("Got unprocessed messages by domain", requestContext, methodContext, {
-              unprocessed,
-              domain,
-              offset,
-            });
-          } else {
-            // End the loop if no more messages are found
-            end = true;
-            logger.info("No unprocessed messages from the domain", requestContext, methodContext, { domain, offset });
-          }
-        }
+        await Promise.all(
+          domains.map(async (destinationDomain) => {
+            // Paginate through all unprocessed messages from the domain
+            let offset = 0;
+            let end = false;
+            while (!end) {
+              const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
+                originDomain,
+                destinationDomain,
+                latestMessageRoot.count,
+                offset,
+                batchSize,
+              );
+              if (unprocessed.length > 0) {
+                // Batch process messages from the same origin domain
+                await processMessages(unprocessed, originDomain, destinationDomain, latestMessageRoot.root);
+                offset += unprocessed.length;
+                logger.info("Got unprocessed messages for origin and destination pair", requestContext, methodContext, {
+                  unprocessed,
+                  originDomain,
+                  destinationDomain,
+                  offset,
+                });
+              } else {
+                // End the loop if no more messages are found
+                end = true;
+                if (offset === 0) {
+                  logger.info(
+                    "No unprocessed messages for origin and destination pair",
+                    requestContext,
+                    methodContext,
+                    {
+                      originDomain,
+                      destinationDomain,
+                      offset,
+                    },
+                  );
+                }
+              }
+            }
+          }),
+        );
       } catch (err: unknown) {
         logger.error("Error processing messages", requestContext, methodContext, jsonifyError(err as NxtpError));
       }
@@ -73,7 +94,12 @@ export const proveAndProcess = async () => {
   );
 };
 
-export const processMessages = async (messages: XMessage[], originDomain: string, targetMessageRoot: string) => {
+export const processMessages = async (
+  messages: XMessage[],
+  originDomain: string,
+  destinationDomain: string,
+  targetMessageRoot: string,
+) => {
   const {
     logger,
     adapters: { contracts, relayers, database, chainreader },
@@ -112,10 +138,8 @@ export const processMessages = async (messages: XMessage[], originDomain: string
   const spokeSMT = new SparseMerkleTree(spokeStore);
   const hubSMT = new SparseMerkleTree(hubStore);
 
-  // Organize the messages by their destination domain
-  const messagesByDestination = new Map<string, any[]>();
-
   // process messages
+  const messageProofs: any[] = [];
   for (const message of messages) {
     const messageProof = {
       message: message.origin.message,
@@ -146,12 +170,10 @@ export const processMessages = async (messages: XMessage[], originDomain: string
         targetMessageRoot,
         messageVerification,
       });
+      // Do not process message if proof verification fails.
+      continue;
     }
-
-    if (!messagesByDestination.has(message.destinationDomain)) {
-      messagesByDestination.set(message.destinationDomain, []);
-    }
-    messagesByDestination.get(message.destinationDomain)?.push(messageProof);
+    messageProofs.push(messageProof);
   }
 
   // Proof path for proving inclusion of messageRoot in aggregateRoot.
@@ -178,44 +200,41 @@ export const processMessages = async (messages: XMessage[], originDomain: string
     });
   }
   // Batch submit messages by destination domain
-  await Promise.all(
-    Array.from(messagesByDestination).map(async ([destinationDomain, messageProofs]) => {
-      try {
-        const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
-          messageProofs,
-          targetAggregateRoot,
-          messageRootProof,
-          messageRootIndex,
-        ]);
+  try {
+    const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
+      messageProofs,
+      targetAggregateRoot,
+      messageRootProof,
+      messageRootIndex,
+    ]);
 
-        const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
-        if (!destinationSpokeConnector) {
-          throw new NoDestinationDomainForProof(destinationDomain);
-        }
-        logger.info("Proving and processing messages", requestContext, methodContext, {
-          messages,
-          data,
-          destinationSpokeConnector,
-        });
-        const chainId = chainData.get(destinationDomain)!.chainId;
+    const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
+    if (!destinationSpokeConnector) {
+      throw new NoDestinationDomainForProof(destinationDomain);
+    }
+    logger.info("Proving and processing messages", requestContext, methodContext, {
+      destinationDomain,
+      data,
+      destinationSpokeConnector,
+    });
 
-        const { taskId } = await sendWithRelayerWithBackup(
-          chainId,
-          destinationDomain,
-          destinationSpokeConnector,
-          data,
-          relayers,
-          chainreader,
-          logger,
-          requestContext,
-        );
-        logger.info("Proved and processed messages sent to relayer", requestContext, methodContext, {
-          taskId,
-          destinationDomain,
-        });
-      } catch (err: unknown) {
-        logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
-      }
-    }),
-  );
+    const chainId = chainData.get(destinationDomain)!.chainId;
+
+    const { taskId } = await sendWithRelayerWithBackup(
+      chainId,
+      destinationDomain,
+      destinationSpokeConnector,
+      data,
+      relayers,
+      chainreader,
+      logger,
+      requestContext,
+    );
+    logger.info("Proved and processed messages sent to relayer", requestContext, methodContext, {
+      taskId,
+      destinationDomain,
+    });
+  } catch (err: unknown) {
+    logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
+  }
 };
