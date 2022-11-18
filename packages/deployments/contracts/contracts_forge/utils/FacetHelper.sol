@@ -137,14 +137,13 @@ contract FacetHelper is ForgeHelper {
     // Setup the storage variables for adopted
     s.adoptedToCanonical[_adopted].domain = _canonicalDomain;
     s.adoptedToCanonical[_adopted].id = _canonicalId;
+
+    // Remaining config
     s.tokenConfigs[_canonicalKey].approval = true;
     s.tokenConfigs[_canonicalKey].adopted = _adopted;
     s.tokenConfigs[_canonicalKey].adoptedDecimals = 18;
     s.tokenConfigs[_canonicalKey].adoptedToLocalExternalPools = _stableSwap;
-    // s.tokenConfigs[_canonicalKey].cap = 10_000_000 ether;
-
-    s.adoptedToLocalExternalPools[_canonicalKey] = IStableSwap(_stableSwap);
-    s.canonicalToAdopted[_canonicalKey] = _adopted;
+    s.tokenConfigs[_canonicalKey].cap = _cap; //10_000_000 ether;
 
     // // Log stored vars
     // console.log("setup asset:");

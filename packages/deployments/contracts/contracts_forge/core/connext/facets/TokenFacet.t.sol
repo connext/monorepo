@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {IERC20Metadata} from "@openzeppelin/contracts/interfaces/IERC20Metadata.sol";
+import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
@@ -82,8 +83,8 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
       "nextTest",
       "nTST",
       adoptedInput,
-      _stableSwap,
-      _cap
+      isCanonical ? address(0) : _stableSwap,
+      _cap // Will be ignored if not on canonical domain.
     );
 
     TokenConfig storage config = s.tokenConfigs[_canonicalKey];
@@ -99,31 +100,28 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     assertEq(s.adoptedToCanonical[isCanonical ? _canonical : adoptedInput].id, _canonicalId);
     assertEq(s.adoptedToCanonical[isCanonical ? _canonical : adoptedInput].domain, _canonicalDomain);
 
-    // Check: canonical <> adopted mapping
-    assertEq(s.canonicalToAdopted[key], isCanonical ? _canonical : adoptedInput);
-
     // Check: the local <> canonical mapping
     assertEq(s.representationToCanonical[isCanonical ? _canonical : _local].domain, isCanonical ? 0 : _canonicalDomain);
     assertEq(
       s.representationToCanonical[isCanonical ? _canonical : _local].id,
       isCanonical ? bytes32(0) : _canonicalId
     );
-    // Check: the canonical <> local mapping
-    assertEq(s.canonicalToRepresentation[key], isCanonical ? address(0) : _local);
 
     // Check: should update the pool if nonzero
-    if (_stableSwap != address(0)) {
-      assertEq(address(s.adoptedToLocalExternalPools[key]), _stableSwap);
+    if (isCanonical) {
+      // Check: should update liquidity cap if on canonical
+      assertEq(config.cap, _cap);
+      // Check: no stableswap on canonical
+      assertEq(config.adoptedToLocalExternalPools, address(0));
+    } else if (_stableSwap != address(0)) {
+      // Check: stableswap configured
+      assertEq(config.adoptedToLocalExternalPools, _stableSwap);
     }
 
-    // Check: should update liquidity cap if on canonical
-    assertEq(s.caps[key], isCanonical ? _cap : 0);
-
     // Check: config is set up as expected
-    assertEq(config.adopted, asset);
+    assertEq(config.adopted, adoptedInput);
     assertEq(config.representationDecimals, 18);
     assertEq(config.adoptedDecimals, 18);
-    assertEq(config.adoptedToLocalExternalPools, pool);
   }
 
   // Calls removeAsset and asserts state changes/events
@@ -143,8 +141,9 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     TokenConfig memory config = s.tokenConfigs[_canonicalKey];
     assertEq(config.approval, false);
     assertEq(config.adopted, address(0));
-    assertEq(config.representationDecimals, 0);
     assertEq(config.adoptedDecimals, 0);
+    assertEq(config.representation, address(0));
+    assertEq(config.representationDecimals, 0);
     assertEq(config.cap, 0);
     assertEq(config.custodied, 0);
     assertEq(config.adoptedToLocalExternalPools, address(0));
@@ -153,8 +152,6 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     assertEq(s.adoptedToCanonical[isCanonical ? _canonical : adopted].id, bytes32(0));
     assertEq(s.representationToCanonical[representation].domain, 0);
     assertEq(s.representationToCanonical[representation].id, bytes32(0));
-    assertEq(s.canonicalToAdopted[key], address(0));
-    assertEq(s.canonicalToRepresentation[key], address(0));
   }
 
   // ============ Getters ============
@@ -395,7 +392,6 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     _stableSwap = address(0);
     setupAssetAndAssert(_adopted, bytes4(""));
 
-    s.custodied[_canonical] = 0;
     removeAssetAndAssert(utils_calculateCanonicalHash(), _deployedLocal, _adopted);
   }
 
@@ -418,9 +414,9 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
   function test_TokenFacet__removeAssetId_failIfNotConsistentPair() public {
     bytes32 key = utils_calculateCanonicalHash();
-    s.approvedAssets[key] = true;
-    s.canonicalToAdopted[key] = _local;
-    s.canonicalToRepresentation[key] = address(123);
+    s.tokenConfigs[key].approval = true;
+    s.tokenConfigs[key].adopted = _local;
+    s.tokenConfigs[key].representation = address(123);
 
     vm.expectRevert(TokenFacet.TokenFacet__removeAssetId_invalidParams.selector);
 
@@ -431,14 +427,14 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   function test_TokenFacet__removeAssetId_failIfOnCanonicalAndHasCustodied() public {
     bytes32 key = utils_calculateCanonicalHash();
     s.domain = _domain;
-    s.approvedAssets[key] = true;
+    s.tokenConfigs[key].approval = true;
 
     // Using canonical asset as adopted (and local) here.
     address adopted = TypeCasts.bytes32ToAddress(_canonicalId);
 
-    s.canonicalToAdopted[key] = adopted;
-    s.canonicalToRepresentation[key] = adopted;
-    s.custodied[adopted] = 123;
+    s.tokenConfigs[key].adopted = adopted;
+    s.tokenConfigs[key].representation = adopted;
+    s.tokenConfigs[key].custodied = 123;
 
     vm.expectRevert(TokenFacet.TokenFacet__removeAssetId_remainsCustodied.selector);
 
@@ -449,9 +445,9 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   function test_TokenFacet__removeAssetId_failIfOnRemoteAndHasSupply() public {
     bytes32 key = utils_calculateCanonicalHash();
     s.domain = _domain + 1;
-    s.approvedAssets[key] = true;
-    s.canonicalToAdopted[key] = _local;
-    s.canonicalToRepresentation[key] = _local;
+    s.tokenConfigs[key].approval = true;
+    s.tokenConfigs[key].adopted = _local;
+    s.tokenConfigs[key].representation = _local;
 
     vm.mockCall(_local, abi.encodeWithSelector(IERC20.totalSupply.selector), abi.encode(10));
 

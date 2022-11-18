@@ -431,9 +431,7 @@ contract TokenFacet is BaseConnextFacet {
 
     if (s.domain == _canonical.domain) {
       // Sanity check: no value custodied if on canonical domain.
-      address canonicalAsset = TypeCasts.bytes32ToAddress(_canonical.id);
-      // Check custodied amount for the given canonical asset address.
-      if (s.custodied[canonicalAsset] > 0) {
+      if (config.custodied > 0) {
         revert TokenFacet__removeAssetId_remainsCustodied();
       }
     } else {
