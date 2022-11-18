@@ -212,11 +212,11 @@ export const send = async (
     gas: gas.toString(),
   });
 
-  const request = {
+  const request: RelayerSyncFeeRequest = {
     chainId: chainId,
     target: destinationAddress,
     data: encodedData,
-    relayContext: true,
+    isRelayContext: false,
     feeToken: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // native token
   };
 
