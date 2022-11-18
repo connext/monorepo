@@ -23,12 +23,12 @@
     },
     {
       "inputs": [],
-      "name": "BaseConnextFacet__getAdoptedAsset_notWhitelisted",
+      "name": "BaseConnextFacet__getAdoptedAsset_notAllowlisted",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "BaseConnextFacet__getApprovedCanonicalId_notWhitelisted",
+      "name": "BaseConnextFacet__getApprovedCanonicalId_notAllowlisted",
       "type": "error"
     },
     {
@@ -1407,10 +1407,10 @@
         "notice": "Emitted when a new remote instance is added"
       },
       "SequencerAdded(address,address)": {
-        "notice": "Emitted when a sequencer is added or removed from whitelists"
+        "notice": "Emitted when a sequencer is added or removed from allowlists"
       },
       "SequencerRemoved(address,address)": {
-        "notice": "Emitted when a sequencer is added or removed from whitelists"
+        "notice": "Emitted when a sequencer is added or removed from allowlists"
       },
       "SlippageUpdated(bytes32,uint256)": {
         "notice": "Emitted when `forceUpdateSlippage` is called by user-delegated EOA on the destination domain"
@@ -1425,7 +1425,7 @@
     "kind": "user",
     "methods": {
       "addSequencer(address)": {
-        "notice": "Used to add an approved sequencer to the whitelist."
+        "notice": "Used to add an approved sequencer to the allowlist."
       },
       "bumpTransfer(bytes32)": {
         "notice": "Anyone can call this function on the origin domain to increase the relayer fee for a transfer."
@@ -1443,7 +1443,7 @@
         "notice": "Allows a user-specified account to update the slippage they are willing to take on destination transfers."
       },
       "removeSequencer(address)": {
-        "notice": "Used to remove an approved sequencer from the whitelist."
+        "notice": "Used to remove an approved sequencer from the allowlist."
       },
       "setXAppConnectionManager(address)": {
         "notice": "Modify the contract the xApp uses to validate Replica contracts"
@@ -1829,7 +1829,7 @@
           {
             "astId": 27146,
             "contract": "contracts/core/connext/facets/BridgeFacet.sol:BridgeFacet",
-            "label": "_routerWhitelistRemoved",
+            "label": "_routerAllowlistRemoved",
             "offset": 0,
             "slot": "23",
             "type": "t_bool"
@@ -1837,7 +1837,7 @@
           {
             "astId": 27148,
             "contract": "contracts/core/connext/facets/BridgeFacet.sol:BridgeFacet",
-            "label": "_routerWhitelistTimestamp",
+            "label": "_routerAllowlistTimestamp",
             "offset": 0,
             "slot": "24",
             "type": "t_uint256"
@@ -1845,7 +1845,7 @@
           {
             "astId": 27150,
             "contract": "contracts/core/connext/facets/BridgeFacet.sol:BridgeFacet",
-            "label": "_assetWhitelistRemoved",
+            "label": "_assetAllowlistRemoved",
             "offset": 0,
             "slot": "25",
             "type": "t_bool"
@@ -1853,7 +1853,7 @@
           {
             "astId": 27152,
             "contract": "contracts/core/connext/facets/BridgeFacet.sol:BridgeFacet",
-            "label": "_assetWhitelistTimestamp",
+            "label": "_assetAllowlistTimestamp",
             "offset": 0,
             "slot": "26",
             "type": "t_uint256"

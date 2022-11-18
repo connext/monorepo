@@ -141,13 +141,13 @@ contract Deployer {
   {
     bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](12);
     proposedOwnableFacetSelectors[0] = ProposedOwnableFacet.owner.selector;
-    proposedOwnableFacetSelectors[1] = ProposedOwnableFacet.routerWhitelistRemoved.selector;
+    proposedOwnableFacetSelectors[1] = ProposedOwnableFacet.routerAllowlistRemoved.selector;
     proposedOwnableFacetSelectors[2] = ProposedOwnableFacet.proposed.selector;
     proposedOwnableFacetSelectors[3] = ProposedOwnableFacet.proposedTimestamp.selector;
-    proposedOwnableFacetSelectors[4] = ProposedOwnableFacet.routerWhitelistTimestamp.selector;
+    proposedOwnableFacetSelectors[4] = ProposedOwnableFacet.routerAllowlistTimestamp.selector;
     proposedOwnableFacetSelectors[5] = ProposedOwnableFacet.delay.selector;
-    proposedOwnableFacetSelectors[6] = ProposedOwnableFacet.proposeRouterWhitelistRemoval.selector;
-    proposedOwnableFacetSelectors[7] = ProposedOwnableFacet.removeRouterWhitelist.selector;
+    proposedOwnableFacetSelectors[6] = ProposedOwnableFacet.proposeRouterAllowlistRemoval.selector;
+    proposedOwnableFacetSelectors[7] = ProposedOwnableFacet.removeRouterAllowlist.selector;
     proposedOwnableFacetSelectors[8] = ProposedOwnableFacet.proposeNewOwner.selector;
     proposedOwnableFacetSelectors[9] = ProposedOwnableFacet.acceptProposedOwner.selector;
     proposedOwnableFacetSelectors[10] = ProposedOwnableFacet.pause.selector;

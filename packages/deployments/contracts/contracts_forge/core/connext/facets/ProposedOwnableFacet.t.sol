@@ -30,29 +30,29 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
 
   // ============ Utils ============
   function utils_proposeRenounceRouterAndAssert() public {
-    assertEq(this.routerWhitelistTimestamp(), 0);
+    assertEq(this.routerAllowlistTimestamp(), 0);
 
     vm.expectEmit(true, true, true, true);
-    emit RouterWhitelistRemovalProposed(block.timestamp);
+    emit RouterAllowlistRemovalProposed(block.timestamp);
 
     vm.prank(this.owner());
-    this.proposeRouterWhitelistRemoval();
+    this.proposeRouterAllowlistRemoval();
 
-    assertEq(this.routerWhitelistTimestamp(), block.timestamp);
-    assertTrue(!this.routerWhitelistRemoved());
+    assertEq(this.routerAllowlistTimestamp(), block.timestamp);
+    assertTrue(!this.routerAllowlistRemoved());
   }
 
   function utils_renounceRouterAndAssert() public {
-    assertTrue(this.routerWhitelistTimestamp() != 0);
+    assertTrue(this.routerAllowlistTimestamp() != 0);
 
     vm.expectEmit(true, true, true, true);
-    emit RouterWhitelistRemoved(true);
+    emit RouterAllowlistRemoved(true);
 
     vm.prank(this.owner());
-    this.removeRouterWhitelist();
+    this.removeRouterAllowlist();
 
-    assertEq(this.routerWhitelistTimestamp(), 0);
-    assertTrue(this.routerWhitelistRemoved());
+    assertEq(this.routerAllowlistTimestamp(), 0);
+    assertTrue(this.routerAllowlistRemoved());
   }
 
   function utils_proposeNewOwnerAndAssert(address _proposed) public {
@@ -161,7 +161,7 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
   // ============ owner ============
   // tested in assertion functions
 
-  // ============ routerWhitelistRemoved ============
+  // ============ routerAllowlistRemoved ============
   // tested in assertion functions
 
   // ============ proposed ============
@@ -170,7 +170,7 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
   // ============ proposedTimestamp ============
   // tested in assertion functions
 
-  // ============ routerWhitelistTimestamp ============
+  // ============ routerAllowlistTimestamp ============
   // tested in assertion functions
 
   // ============ queryRole ============
@@ -181,71 +181,71 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     assertEq(this.delay(), DELAY);
   }
 
-  // ============ proposeRouterWhitelistRemoval ============
-  function test_ProposedOwnableFacet__proposeRouterWhitelistRemoval_failsIfNotOwnerOrAdmin() public {
+  // ============ proposeRouterAllowlistRemoval ============
+  function test_ProposedOwnableFacet__proposeRouterAllowlistRemoval_failsIfNotOwnerOrAdmin() public {
     vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
-    this.proposeRouterWhitelistRemoval();
+    this.proposeRouterAllowlistRemoval();
   }
 
-  function test_ProposedOwnableFacet__proposeRouterWhitelistRemoval_failsIfAlreadyRenounced() public {
+  function test_ProposedOwnableFacet__proposeRouterAllowlistRemoval_failsIfAlreadyRenounced() public {
     utils_proposeRenounceRouterAndAssert();
     vm.warp(block.timestamp + this.delay() + 1);
     utils_renounceRouterAndAssert();
 
-    vm.expectRevert(ProposedOwnableFacet__proposeRouterWhitelistRemoval_noOwnershipChange.selector);
+    vm.expectRevert(ProposedOwnableFacet__proposeRouterAllowlistRemoval_noOwnershipChange.selector);
     vm.prank(_owner);
-    this.proposeRouterWhitelistRemoval();
+    this.proposeRouterAllowlistRemoval();
   }
 
-  function test_ProposedOwnableFacet__proposeRouterWhitelistRemoval_worksIfOwner() public {
+  function test_ProposedOwnableFacet__proposeRouterAllowlistRemoval_worksIfOwner() public {
     utils_proposeRenounceRouterAndAssert();
   }
 
-  function test_ProposedOwnableFacet__proposeRouterWhitelistRemoval_worksIfAdmin() public {
+  function test_ProposedOwnableFacet__proposeRouterAllowlistRemoval_worksIfAdmin() public {
     vm.prank(_owner);
     this.assignRoleAdmin(_adminAgent1);
 
     vm.prank(_adminAgent1);
-    this.proposeRouterWhitelistRemoval();
+    this.proposeRouterAllowlistRemoval();
   }
 
-  // ============ removeRouterWhitelist ============
-  function test_ProposedOwnableFacet__removeRouterWhitelist_failsIfNotOwnerOrAdmin() public {
+  // ============ removeRouterAllowlist ============
+  function test_ProposedOwnableFacet__removeRouterAllowlist_failsIfNotOwnerOrAdmin() public {
     utils_proposeRenounceRouterAndAssert();
     vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
-    this.removeRouterWhitelist();
+    this.removeRouterAllowlist();
   }
 
-  function test_ProposedOwnableFacet__removeRouterWhitelist_failsIfAlreadyRenounced() public {
+  function test_ProposedOwnableFacet__removeRouterAllowlist_failsIfAlreadyRenounced() public {
     utils_proposeRenounceRouterAndAssert();
     vm.warp(block.timestamp + this.delay() + 1);
     utils_renounceRouterAndAssert();
 
     vm.prank(this.owner());
-    vm.expectRevert(ProposedOwnableFacet__removeRouterWhitelist_noOwnershipChange.selector);
-    this.removeRouterWhitelist();
+    vm.expectRevert(ProposedOwnableFacet__removeRouterAllowlist_noOwnershipChange.selector);
+    this.removeRouterAllowlist();
   }
 
-  function test_ProposedOwnableFacet__removeRouterWhitelist_failsIfNotProposed() public {
+  function test_ProposedOwnableFacet__removeRouterAllowlist_failsIfNotProposed() public {
     vm.prank(this.owner());
-    vm.expectRevert(ProposedOwnableFacet__removeRouterWhitelist_noProposal.selector);
-    this.removeRouterWhitelist();
+    vm.expectRevert(ProposedOwnableFacet__removeRouterAllowlist_noProposal.selector);
+    this.removeRouterAllowlist();
   }
 
-  function test_ProposedOwnableFacet__removeRouterWhitelist_failsIfDelayNotElapsed() public {
+  function test_ProposedOwnableFacet__removeRouterAllowlist_failsIfDelayNotElapsed() public {
     utils_proposeRenounceRouterAndAssert();
     vm.prank(this.owner());
-    vm.expectRevert(ProposedOwnableFacet__removeRouterWhitelist_delayNotElapsed.selector);
-    this.removeRouterWhitelist();
+    vm.expectRevert(ProposedOwnableFacet__removeRouterAllowlist_delayNotElapsed.selector);
+    this.removeRouterAllowlist();
   }
 
-  function test_ProposedOwnableFacet__removeRouterWhitelist_worksIfOwner() public {
+  function test_ProposedOwnableFacet__removeRouterAllowlist_worksIfOwner() public {
     utils_proposeRenounceRouterAndAssert();
     vm.warp(block.timestamp + this.delay() + 1);
     utils_renounceRouterAndAssert();
   }
 
-  function test_ProposedOwnableFacet__removeRouterWhitelist_worksIfAdmin() public {
+  function test_ProposedOwnableFacet__removeRouterAllowlist_worksIfAdmin() public {
     utils_proposeRenounceRouterAndAssert();
     vm.warp(block.timestamp + this.delay() + 1);
 
@@ -253,7 +253,7 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     this.assignRoleAdmin(_adminAgent1);
 
     vm.prank(_adminAgent1);
-    this.removeRouterWhitelist();
+    this.removeRouterAllowlist();
   }
 
   // ============ proposeNewOwner ============
