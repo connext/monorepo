@@ -264,8 +264,7 @@ contract TokenFacet is BaseConnextFacet {
     TokenId calldata _canonical,
     address _representation,
     address _adoptedAssetId,
-    address _stableSwapPool,
-    uint256 _cap
+    address _stableSwapPool
   ) external onlyOwnerOrAdmin returns (address) {
     if (_canonical.domain == s.domain) {
       revert TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
@@ -274,9 +273,6 @@ contract TokenFacet is BaseConnextFacet {
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
     _enrollAdoptedAndLocalAssets(_adoptedAssetId, _representation, _stableSwapPool, _canonical, key);
 
-    if (_cap != 0) {
-      _setLiquidityCap(_canonical, _cap, key);
-    }
     return _representation;
   }
 
@@ -505,7 +501,13 @@ contract TokenFacet is BaseConnextFacet {
       // Sanity check: no value custodied if on canonical domain
       address canonicalAsset = TypeCasts.bytes32ToAddress(_canonical.id);
       // Check custodied amount for the given canonical asset address.
-      if (s.custodied[canonicalAsset] > 0) {
+      // NOTE: if the `cap` is not set, the `custodied` value will not continue to be updated,
+      // so you must use the `balanceOf` for accurate accounting. If there are funds held
+      // on these contracts, then when you remove the asset id, the assets cannot be bridged back and
+      // become worthless. This means the bridged assets would become worthless.
+      // An attacker could prevent admins from removing an asset by sending funds to this contract,
+      // but all of the liquidity should already be removed before this function is called.
+      if (IERC20(canonicalAsset).balanceOf(address(this)) > 0) {
         revert TokenFacet__removeAssetId_remainsCustodied();
       }
     } else {
