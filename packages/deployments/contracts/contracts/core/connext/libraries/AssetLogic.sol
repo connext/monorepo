@@ -334,7 +334,6 @@ library AssetLogic {
       // Reset allowance
       assetIn.safeApprove(poolAddress, 0);
       return (out, _assetOut);
->>>>>>> 2152-spearbit-audit-fixes
     }
   }
 
