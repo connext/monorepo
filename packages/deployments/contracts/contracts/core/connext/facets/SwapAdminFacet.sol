@@ -5,6 +5,8 @@ import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeE
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 import {AmplificationUtils, SwapUtils} from "../libraries/AmplificationUtils.sol";
+import {Constants} from "../libraries/Constants.sol";
+
 import {LPToken} from "../helpers/LPToken.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
@@ -155,9 +157,11 @@ contract SwapAdminFacet is BaseConnextFacet {
     if (s.swapStorages[_key].pooledTokens.length != 0) revert SwapAdminFacet__initializeSwap_alreadyInitialized();
 
     // Check _pooledTokens and precisions parameter
-    // _pooledTokens length should be in 2 ~ 16
-    if (_pooledTokens.length < 2 || _pooledTokens.length > 16)
+    if (
+      _pooledTokens.length < Constants.MINIMUM_POOLED_TOKENS || _pooledTokens.length > Constants.MAXIMUM_POOLED_TOKENS
+    ) {
       revert SwapAdminFacet__initializeSwap_invalidPooledTokens();
+    }
 
     uint256 numPooledTokens = _pooledTokens.length;
 
@@ -173,10 +177,10 @@ contract SwapAdminFacet is BaseConnextFacet {
       }
       if (address(_pooledTokens[i]) == address(0)) revert SwapAdminFacet__initializeSwap_zeroTokenAddress();
 
-      if (decimals[i] > SwapUtils.POOL_PRECISION_DECIMALS)
+      if (decimals[i] > Constants.POOL_PRECISION_DECIMALS)
         revert SwapAdminFacet__initializeSwap_tokenDecimalsExceedMax();
 
-      precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - decimals[i]);
+      precisionMultipliers[i] = 10**uint256(Constants.POOL_PRECISION_DECIMALS - decimals[i]);
       // NOTE: safe to cast to uint8 as the numPooledTokens is that type and the loop ceiling
       s.tokenIndexes[_key][address(_pooledTokens[i])] = uint8(i);
 
@@ -186,9 +190,9 @@ contract SwapAdminFacet is BaseConnextFacet {
     }
 
     // Check _a, _fee, _adminFee, _withdrawFee parameters
-    if (_a >= AmplificationUtils.MAX_A) revert SwapAdminFacet__initializeSwap_aExceedMax();
-    if (_fee >= SwapUtils.MAX_SWAP_FEE) revert SwapAdminFacet__initializeSwap_feeExceedMax();
-    if (_adminFee >= SwapUtils.MAX_ADMIN_FEE) revert SwapAdminFacet__initializeSwap_adminFeeExceedMax();
+    if (_a >= Constants.MAX_A) revert SwapAdminFacet__initializeSwap_aExceedMax();
+    if (_fee >= Constants.MAX_SWAP_FEE) revert SwapAdminFacet__initializeSwap_feeExceedMax();
+    if (_adminFee >= Constants.MAX_ADMIN_FEE) revert SwapAdminFacet__initializeSwap_adminFeeExceedMax();
 
     // Initialize a LPToken contract
     LPToken lpToken = LPToken(Clones.clone(lpTokenTargetAddress));
@@ -197,8 +201,8 @@ contract SwapAdminFacet is BaseConnextFacet {
     // Initialize swapStorage struct
     SwapUtils.Swap memory entry = SwapUtils.Swap({
       key: _key,
-      initialA: _a * AmplificationUtils.A_PRECISION,
-      futureA: _a * AmplificationUtils.A_PRECISION,
+      initialA: _a * Constants.A_PRECISION,
+      futureA: _a * Constants.A_PRECISION,
       swapFee: _fee,
       adminFee: _adminFee,
       lpToken: lpToken,
@@ -227,7 +231,7 @@ contract SwapAdminFacet is BaseConnextFacet {
     if (s.swapStorages[_key].disabled) revert SwapAdminFacet__disableSwap_alreadyDisabled();
 
     s.swapStorages[_key].disabled = true;
-    s.swapStorages[_key].removeTime = block.timestamp + SwapUtils.REMOVE_DELAY;
+    s.swapStorages[_key].removeTime = block.timestamp + Constants.REMOVE_DELAY;
 
     emit SwapDisabled(_key, msg.sender);
   }

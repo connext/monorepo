@@ -61,6 +61,52 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "TypedMemView__index_indexMoreThan32Bytes",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "loc",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "len",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "index",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "slice",
+        type: "uint256",
+      },
+    ],
+    name: "TypedMemView__index_overrun",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__unsafeCopyTo_identityOOG",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__unsafeCopyTo_invalidPointer",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__unsafeCopyTo_nullPointer",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -1042,7 +1088,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "whitelistedSenders",
+    name: "allowlistedSenders",
     outputs: [
       {
         internalType: "bool",

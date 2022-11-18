@@ -54,12 +54,14 @@ export const sendExecuteFastToRelayer = async (
     domain,
     gas: gas.toString(),
   });
+
+  const destinationRelayerProxyAddress = config.chains[transfer.xparams.destinationDomain].deployments.relayerProxy;
   const encodedData = await encodeRelayerProxyExecuteFromBids(round, bids, transfer, gas, requestContext);
 
   return await sendWithRelayerWithBackup(
     destinationChainId,
     transfer.xparams.destinationDomain,
-    destinationConnextAddress,
+    destinationRelayerProxyAddress,
     encodedData,
     relayers,
     chainreader,

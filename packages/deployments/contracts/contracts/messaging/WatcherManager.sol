@@ -39,7 +39,7 @@ contract WatcherManager is ProposedOwnable {
    */
   function removeWatcher(address _watcher) external onlyOwner {
     require(isWatcher[_watcher], "!exist");
-    isWatcher[_watcher] = false;
+    delete isWatcher[_watcher];
     emit WatcherRemoved(_watcher);
   }
 

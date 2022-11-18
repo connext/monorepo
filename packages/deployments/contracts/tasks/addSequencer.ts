@@ -10,7 +10,7 @@ type TaskArgs = {
   env?: Env;
 };
 
-export default task("add-sequencer", "Add Sequencer to whitelist")
+export default task("add-sequencer", "Add Sequencer to allowlist")
   .addParam("sequencer", "The address of sequencer to add")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("env", "Environment of contracts")

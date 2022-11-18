@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-database",
-  "version": "0.2.1-beta.3",
+  "version": "0.2.1-beta.4",
   "description": "adapter for handling communication with Redis cache for nxtp protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

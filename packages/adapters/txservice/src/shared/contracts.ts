@@ -45,6 +45,15 @@ export const getDeployedConnextContract = (
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
+export const getDeployedRelayerProxyContract = (
+  chainId: number,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  const contract = record[0]?.contracts ? record[0]?.contracts[`RelayerProxy${postfix}`] : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
 export const getDeployedSpokeConnecterContract = (
   chainId: number,
   prefix: string,
@@ -162,6 +171,7 @@ export type RootManagerPropagateWrapperGetter = (
 
 export type ConnextContractDeployments = {
   connext: ConnextContractDeploymentGetter;
+  relayerProxy: ConnextContractDeploymentGetter;
   priceOracle: ConnextContractDeploymentGetter;
   stableSwap: ConnextContractDeploymentGetter;
   spokeConnector: SpokeConnectorDeploymentGetter;
@@ -171,6 +181,7 @@ export type ConnextContractDeployments = {
 
 export const contractDeployments: ConnextContractDeployments = {
   connext: getDeployedConnextContract,
+  relayerProxy: getDeployedRelayerProxyContract,
   priceOracle: getDeployedPriceOracleContract,
   stableSwap: getDeployedStableSwapContract,
   spokeConnector: getDeployedSpokeConnecterContract,

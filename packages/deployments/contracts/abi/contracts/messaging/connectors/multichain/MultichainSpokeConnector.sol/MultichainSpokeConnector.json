@@ -10,6 +10,11 @@
   "error ProposedOwnable__renounceOwnership_invalidProposal()",
   "error ProposedOwnable__renounceOwnership_noProposal()",
   "error RateLimited__rateLimited_messageSendRateExceeded()",
+  "error TypedMemView__index_indexMoreThan32Bytes()",
+  "error TypedMemView__index_overrun(uint256,uint256,uint256,uint256)",
+  "error TypedMemView__unsafeCopyTo_identityOOG()",
+  "error TypedMemView__unsafeCopyTo_invalidPointer()",
+  "error TypedMemView__unsafeCopyTo_nullPointer()",
   "event AggregateRootReceived(bytes32)",
   "event AggregateRootRemoved(bytes32)",
   "event Dispatch(bytes32,uint256,bytes32,bytes)",
@@ -75,6 +80,6 @@
   "function unpause()",
   "function verifySender(address) returns (bool)",
   "function watcherManager() view returns (address)",
-  "function whitelistedSenders(address) view returns (bool)",
+  "function allowlistedSenders(address) view returns (bool)",
   "function withdrawFunds(address)"
 ]
