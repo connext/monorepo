@@ -234,9 +234,15 @@ contract SwapUtilsTest is ForgeHelper {
 
   function test_SwapUtils__getY_zeroForZero(uint256 liq1, uint256 liq2) public {
     vm.assume(liq1 < 10 ether && liq2 < 10 ether);
+    vm.assume(liq1 > 1 && liq2 > 1);
     vm.assume(liq1 != liq2);
 
     utils_addLiquidity(liq1, liq2);
+
+    vm.startPrank(_user1);
+    caller.swap(1, 0, liq2 - 1, 0, block.timestamp + 1);
+    vm.stopPrank();
+
     uint256[] memory xp = SwapUtils._xp(swapStorage);
     uint256 dx = 0;
     uint256 x = dx * swapStorage.tokenPrecisionMultipliers[0] + xp[0];
