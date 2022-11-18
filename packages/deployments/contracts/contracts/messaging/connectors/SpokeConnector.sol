@@ -222,7 +222,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @dev Only allowlisted routers (senders) can call `dispatch`.
    */
   function removeSender(address _sender) public onlyOwner {
-    allowlistedSenders[_sender] = false;
+    delete allowlistedSenders[_sender];
     emit SenderRemoved(_sender);
   }
 

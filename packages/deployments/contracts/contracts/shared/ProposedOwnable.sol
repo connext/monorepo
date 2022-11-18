@@ -160,8 +160,8 @@ abstract contract ProposedOwnable is IProposedOwnable {
   function _setOwner(address newOwner) internal {
     emit OwnershipTransferred(_owner, newOwner);
     _owner = newOwner;
-    _proposedOwnershipTimestamp = 0;
-    _proposed = address(0);
+    delete _proposedOwnershipTimestamp;
+    delete _proposed;
   }
 
   function _setProposed(address newlyProposed) private {
