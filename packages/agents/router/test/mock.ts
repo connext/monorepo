@@ -209,6 +209,10 @@ export const mock = {
       erc20.encodeFunctionData.returns(encodedDataMock);
       erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const rootManagerPropagateWrapper = createStubInstance(utils.Interface);
+      erc20.encodeFunctionData.returns(encodedDataMock);
+      erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       return {
         erc20: erc20 as any,
         connext: connext as unknown as ConnextContractInterfaces["connext"],
@@ -217,6 +221,8 @@ export const mock = {
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
         erc20Extended: erc20 as unknown as ConnextContractInterfaces["erc20Extended"],
         spokeConnector: spokeConnector as unknown as ConnextContractInterfaces["spokeConnector"],
+        rootManagerPropagateWrapper:
+          rootManagerPropagateWrapper as unknown as ConnextContractInterfaces["rootManagerPropagateWrapper"],
       };
     },
     deployments: (): ConnextContractDeployments => {
@@ -233,6 +239,7 @@ export const mock = {
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
         hubConnector: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
         spokeConnector: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
+        rootManagerPropagateWrapper: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
       };
     },
   },
