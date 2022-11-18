@@ -444,6 +444,12 @@ export const mock = {
           abi: "fakeAbi()",
         };
       },
+      relayerProxy: function (_: number) {
+        return {
+          address: mkAddress("0x123123"),
+          abi: "fakeAbi()",
+        };
+      },
       priceOracle: function (_: number) {
         return {
           address: mkAddress("0x321321"),

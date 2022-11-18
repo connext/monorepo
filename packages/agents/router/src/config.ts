@@ -13,7 +13,7 @@ import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txser
 
 import { existsSync, readFileSync } from "./mockable";
 
-const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
+const DEFAULT_SLIPPAGE = 100000; // in BPS
 
 // Polling mins and defaults.
 const MIN_SUBGRAPH_POLL_INTERVAL = 2_000;
@@ -64,7 +64,7 @@ export const NxtpRouterConfigSchema = Type.Object({
       }),
     }),
   ]),
-  maxSlippage: Type.Integer({ minimum: 0, maximum: 100 }),
+  slippage: Type.Integer({ minimum: 0, maximum: 100000 }),
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   polling: TPollingConfig,
@@ -155,11 +155,7 @@ export const getEnvConfig = (
       diagnostic:
         process.env.NXTP_DIAGNOSTIC_MODE || configJson.mode?.diagnostic || configFile.mode?.diagnostic || false,
     },
-    maxSlippage:
-      process.env.NXTP_ALLOWED_TOLERANCE ||
-      configJson.allowedTolerance ||
-      configFile.allowedTolerance ||
-      DEFAULT_ALLOWED_TOLERANCE,
+    slippage: process.env.NXTP_SLIPPAGE || configJson.slippage || configFile.slippage || DEFAULT_SLIPPAGE,
     sequencerUrl: process.env.NXTP_SEQUENCER || configJson.sequencerUrl || configFile.sequencerUrl,
     cartographerUrl: process.env.NXTP_CARTOGRAPHER || configJson.cartographerUrl || configFile.cartographerUrl,
     polling: {
@@ -223,6 +219,19 @@ export const getEnvConfig = (
           const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);
+          }
+          return res.address;
+        })(),
+
+      relayerProxy:
+        chainConfig.deployments?.relayerProxy ??
+        (() => {
+          const res = chainDataForChain
+            ? deployments.relayerProxy(chainDataForChain.chainId, contractPostfix)
+            : undefined;
+
+          if (!res) {
+            throw new Error(`No RelayerProxy contract address for domain ${domainId}`);
           }
           return res.address;
         })(),
