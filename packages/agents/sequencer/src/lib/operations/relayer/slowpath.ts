@@ -61,12 +61,13 @@ export const sendExecuteSlowToRelayer = async (
   const [args] = contracts.connext.decodeFunctionResult("execute", executeEncodedData);
 
   const executeArgs: ExecuteArgs = args;
+  const destinationRelayerProxyAddress = config.chains[transfer.xparams.destinationDomain].deployments.relayerProxy;
   const encodedData = contracts.relayerProxy.encodeFunctionData("execute", [executeArgs, gas]);
 
   return await sendWithRelayerWithBackup(
     destinationChainId,
     transfer.xparams.destinationDomain,
-    destinationConnextAddress,
+    destinationRelayerProxyAddress,
     encodedData,
     relayers,
     chainreader,
