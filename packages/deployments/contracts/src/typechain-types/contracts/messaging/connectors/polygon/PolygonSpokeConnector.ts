@@ -86,7 +86,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "send(bytes)": FunctionFragment;
     "sentMessageRoots(bytes32)": FunctionFragment;
     "setDelayBlocks(uint256)": FunctionFragment;
-    "setFxRootTunnel(address)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setRateLimitBlocks(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
@@ -141,7 +140,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "send"
       | "sentMessageRoots"
       | "setDelayBlocks"
-      | "setFxRootTunnel"
       | "setMirrorConnector"
       | "setRateLimitBlocks"
       | "setWatcherManager"
@@ -301,10 +299,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setFxRootTunnel",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setMirrorConnector",
     values: [PromiseOrValue<string>]
   ): string;
@@ -449,10 +443,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setDelayBlocks",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setFxRootTunnel",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -897,11 +887,6 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setFxRootTunnel(
-      _fxRootTunnel: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1087,11 +1072,6 @@ export interface PolygonSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setFxRootTunnel(
-    _fxRootTunnel: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1268,11 +1248,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setFxRootTunnel(
-      _fxRootTunnel: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1582,11 +1557,6 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setFxRootTunnel(
-      _fxRootTunnel: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1770,11 +1740,6 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setFxRootTunnel(
-      _fxRootTunnel: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

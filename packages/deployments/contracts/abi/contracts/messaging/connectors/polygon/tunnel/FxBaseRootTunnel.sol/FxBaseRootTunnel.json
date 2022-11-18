@@ -4,6 +4,5 @@
   "function fxChildTunnel() view returns (address)",
   "function fxRoot() view returns (address)",
   "function processedExits(bytes32) view returns (bool)",
-  "function receiveMessage(bytes)",
-  "function setFxChildTunnel(address)"
+  "function receiveMessage(bytes)"
 ]

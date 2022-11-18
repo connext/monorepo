@@ -985,6 +985,17 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // fails if asset cap would be exceeded on the canonical domain
+  function test_BridgeFacet__xcall_failIfEmptyLocal() public {
+    // setup asset with local == adopted, on remote domain
+    utils_setupAsset(true, false);
+
+    // ensure stored value returns 0
+    s.canonicalToRepresentation[utils_calculateCanonicalHash()] = address(0);
+
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet_xcall__emptyLocalAsset.selector);
+  }
+
+  // fails if asset cap would be exceeded on the canonical domain
   function test_BridgeFacet__xcall_failIfCapReachedOnCanoncal() public {
     // setup asset with local == adopted, on canonical domain
     utils_setupAsset(true, true);
