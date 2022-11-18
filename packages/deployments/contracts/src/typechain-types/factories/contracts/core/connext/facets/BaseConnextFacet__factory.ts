@@ -32,11 +32,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin",
     type: "error",
   },
@@ -68,7 +63,7 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122002291c2a1b9b935a75b3109734c18272b0219db30fabd4c1311ad4a634c8597064736f6c63430008110033";
+  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212205e8640e5d027ddb8cede023095662f847946dbd729cf24d81ddf09d86f42c52464736f6c63430008110033";
 
 type BaseConnextFacetConstructorParams =
   | [signer?: Signer]

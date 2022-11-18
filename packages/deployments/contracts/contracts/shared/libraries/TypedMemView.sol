@@ -304,16 +304,6 @@ library TypedMemView {
   }
 
   /**
-   * @notice          Optimized type comparison. Checks that the 5-byte type flag is equal.
-   * @param left      The first view
-   * @param right     The second view
-   * @return          bool - True if the 5-byte type flag is equal
-   */
-  function sameType(bytes29 left, bytes29 right) internal pure returns (bool) {
-    return (left ^ right) >> TWENTY_SEVEN_BYTES == 0;
-  }
-
-  /**
    * @notice          Return the memory address of the underlying bytes.
    * @param memView   The view
    * @return          _loc - The memory address

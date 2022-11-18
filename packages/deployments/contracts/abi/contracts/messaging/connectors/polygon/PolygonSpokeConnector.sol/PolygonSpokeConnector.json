@@ -75,6 +75,7 @@
   "function send(bytes) payable",
   "function sentMessageRoots(bytes32) view returns (bool)",
   "function setDelayBlocks(uint256)",
+  "function setFxRootTunnel(address)",
   "function setMirrorConnector(address)",
   "function setRateLimitBlocks(uint256)",
   "function setWatcherManager(address)",

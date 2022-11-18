@@ -51,6 +51,7 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "sendMessage(bytes,bytes)": FunctionFragment;
+    "setFxChildTunnel(address)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
   };
@@ -78,6 +79,7 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
       | "renounceOwnership"
       | "renounced"
       | "sendMessage"
+      | "setFxChildTunnel"
       | "setMirrorConnector"
       | "verifySender"
   ): FunctionFragment;
@@ -144,6 +146,10 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "sendMessage",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setFxChildTunnel",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setMirrorConnector",
@@ -215,6 +221,10 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "sendMessage",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setFxChildTunnel",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -405,6 +415,11 @@ export interface PolygonHubConnector extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setFxChildTunnel(
+      _fxChildTunnel: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -478,6 +493,11 @@ export interface PolygonHubConnector extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setFxChildTunnel(
+    _fxChildTunnel: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -544,6 +564,11 @@ export interface PolygonHubConnector extends BaseContract {
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
       _encodedData: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setFxChildTunnel(
+      _fxChildTunnel: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -680,6 +705,11 @@ export interface PolygonHubConnector extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setFxChildTunnel(
+      _fxChildTunnel: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -754,6 +784,11 @@ export interface PolygonHubConnector extends BaseContract {
       _data: PromiseOrValue<BytesLike>,
       _encodedData: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setFxChildTunnel(
+      _fxChildTunnel: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setMirrorConnector(

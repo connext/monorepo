@@ -340,10 +340,11 @@ export interface RootManagerInterface extends utils.Interface {
     "ConnectorAdded(uint32,address,uint32[],address[])": EventFragment;
     "ConnectorRemoved(uint32,address,uint32[],address[],address)": EventFragment;
     "DelayBlocksUpdated(uint256,uint256)": EventFragment;
+    "DomainAdded(uint32,address)": EventFragment;
+    "DomainRemoved(uint32)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused(address)": EventFragment;
-    "PropagateFailed(uint32,address)": EventFragment;
     "RootDiscarded(bytes32)": EventFragment;
     "RootPropagated(bytes32,uint256,bytes32)": EventFragment;
     "RootReceived(uint32,bytes32,uint256)": EventFragment;
@@ -355,10 +356,11 @@ export interface RootManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ConnectorAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ConnectorRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DelayBlocksUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DomainAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DomainRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PropagateFailed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootDiscarded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootPropagated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootReceived"): EventFragment;
@@ -407,6 +409,24 @@ export type DelayBlocksUpdatedEvent = TypedEvent<
 export type DelayBlocksUpdatedEventFilter =
   TypedEventFilter<DelayBlocksUpdatedEvent>;
 
+export interface DomainAddedEventObject {
+  domain: number;
+  connector: string;
+}
+export type DomainAddedEvent = TypedEvent<
+  [number, string],
+  DomainAddedEventObject
+>;
+
+export type DomainAddedEventFilter = TypedEventFilter<DomainAddedEvent>;
+
+export interface DomainRemovedEventObject {
+  domain: number;
+}
+export type DomainRemovedEvent = TypedEvent<[number], DomainRemovedEventObject>;
+
+export type DomainRemovedEventFilter = TypedEventFilter<DomainRemovedEvent>;
+
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
 }
@@ -436,17 +456,6 @@ export interface PausedEventObject {
 export type PausedEvent = TypedEvent<[string], PausedEventObject>;
 
 export type PausedEventFilter = TypedEventFilter<PausedEvent>;
-
-export interface PropagateFailedEventObject {
-  domain: number;
-  connector: string;
-}
-export type PropagateFailedEvent = TypedEvent<
-  [number, string],
-  PropagateFailedEventObject
->;
-
-export type PropagateFailedEventFilter = TypedEventFilter<PropagateFailedEvent>;
 
 export interface RootDiscardedEventObject {
   fraudulentRoot: string;
@@ -971,6 +980,15 @@ export interface RootManager extends BaseContract {
       updated?: null
     ): DelayBlocksUpdatedEventFilter;
 
+    "DomainAdded(uint32,address)"(
+      domain?: null,
+      connector?: null
+    ): DomainAddedEventFilter;
+    DomainAdded(domain?: null, connector?: null): DomainAddedEventFilter;
+
+    "DomainRemoved(uint32)"(domain?: null): DomainRemovedEventFilter;
+    DomainRemoved(domain?: null): DomainRemovedEventFilter;
+
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
     ): OwnershipProposedEventFilter;
@@ -989,15 +1007,6 @@ export interface RootManager extends BaseContract {
 
     "Paused(address)"(account?: null): PausedEventFilter;
     Paused(account?: null): PausedEventFilter;
-
-    "PropagateFailed(uint32,address)"(
-      domain?: null,
-      connector?: null
-    ): PropagateFailedEventFilter;
-    PropagateFailed(
-      domain?: null,
-      connector?: null
-    ): PropagateFailedEventFilter;
 
     "RootDiscarded(bytes32)"(fraudulentRoot?: null): RootDiscardedEventFilter;
     RootDiscarded(fraudulentRoot?: null): RootDiscardedEventFilter;
