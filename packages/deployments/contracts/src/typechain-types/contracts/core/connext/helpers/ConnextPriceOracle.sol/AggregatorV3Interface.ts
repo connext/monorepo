@@ -4,7 +4,6 @@
 import type {
   BaseContract,
   BigNumber,
-  BigNumberish,
   BytesLike,
   CallOverrides,
   PopulatedTransaction,
@@ -25,7 +24,6 @@ export interface AggregatorV3InterfaceInterface extends utils.Interface {
   functions: {
     "decimals()": FunctionFragment;
     "description()": FunctionFragment;
-    "getRoundData(uint80)": FunctionFragment;
     "latestRoundData()": FunctionFragment;
     "version()": FunctionFragment;
   };
@@ -34,7 +32,6 @@ export interface AggregatorV3InterfaceInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "decimals"
       | "description"
-      | "getRoundData"
       | "latestRoundData"
       | "version"
   ): FunctionFragment;
@@ -45,10 +42,6 @@ export interface AggregatorV3InterfaceInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getRoundData",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "latestRoundData",
     values?: undefined
   ): string;
@@ -57,10 +50,6 @@ export interface AggregatorV3InterfaceInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "description",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getRoundData",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -103,19 +92,6 @@ export interface AggregatorV3Interface extends BaseContract {
 
     description(overrides?: CallOverrides): Promise<[string]>;
 
-    getRoundData(
-      _roundId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        roundId: BigNumber;
-        answer: BigNumber;
-        startedAt: BigNumber;
-        updatedAt: BigNumber;
-        answeredInRound: BigNumber;
-      }
-    >;
-
     latestRoundData(
       overrides?: CallOverrides
     ): Promise<
@@ -135,19 +111,6 @@ export interface AggregatorV3Interface extends BaseContract {
 
   description(overrides?: CallOverrides): Promise<string>;
 
-  getRoundData(
-    _roundId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-      roundId: BigNumber;
-      answer: BigNumber;
-      startedAt: BigNumber;
-      updatedAt: BigNumber;
-      answeredInRound: BigNumber;
-    }
-  >;
-
   latestRoundData(
     overrides?: CallOverrides
   ): Promise<
@@ -166,19 +129,6 @@ export interface AggregatorV3Interface extends BaseContract {
     decimals(overrides?: CallOverrides): Promise<number>;
 
     description(overrides?: CallOverrides): Promise<string>;
-
-    getRoundData(
-      _roundId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        roundId: BigNumber;
-        answer: BigNumber;
-        startedAt: BigNumber;
-        updatedAt: BigNumber;
-        answeredInRound: BigNumber;
-      }
-    >;
 
     latestRoundData(
       overrides?: CallOverrides
@@ -202,11 +152,6 @@ export interface AggregatorV3Interface extends BaseContract {
 
     description(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getRoundData(
-      _roundId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     latestRoundData(overrides?: CallOverrides): Promise<BigNumber>;
 
     version(overrides?: CallOverrides): Promise<BigNumber>;
@@ -216,11 +161,6 @@ export interface AggregatorV3Interface extends BaseContract {
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     description(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getRoundData(
-      _roundId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     latestRoundData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

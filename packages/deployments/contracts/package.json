@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.2.1-beta.3",
+  "version": "0.2.1-beta.4",
   "description": "",
   "scripts": {
     "test": "yarn forge test --gas-report --no-match-contract 'LiveTest'",
@@ -72,6 +72,7 @@
   },
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
+    "@gelatonetwork/relay-context": "^1.0.0",
     "@openzeppelin/hardhat-upgrades": "1.17.0",
     "@typescript-eslint/eslint-plugin": "5.42.0",
     "adv": "0.1.5",

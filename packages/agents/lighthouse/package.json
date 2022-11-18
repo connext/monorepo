@@ -1,6 +1,6 @@
 {
   "name": "@connext/lighthouse",
-  "version": "0.2.1-beta.3",
+  "version": "0.2.1-beta.4",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,6 +31,7 @@
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@eth-optimism/sdk": "1.6.9",
+    "@gelatonetwork/relay-sdk": "^2.1.0",
     "@sinclair/typebox": "0.25.2",
     "dd-trace": "3.6.0",
     "dotenv": "16.0.3",

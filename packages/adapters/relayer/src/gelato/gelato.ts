@@ -5,7 +5,7 @@ import {
   jsonifyError,
   NxtpError,
   RelayerTaskStatus,
-  RelayerRequest,
+  RelayerSyncFeeRequest,
   RelayResponse,
   RelayRequestOptions,
   GELATO_RELAYER_ADDRESS,
@@ -19,7 +19,7 @@ import {
   UnableToGetTransactionHash,
 } from "../errors";
 import { ChainReader } from "../../../txservice/dist";
-import { gelatoRelayWithSponsoredCall, axiosGet } from "../mockable";
+import { gelatoRelayWithSyncFee, axiosGet } from "../mockable";
 
 import { url } from ".";
 
@@ -148,13 +148,12 @@ export const getTransactionHash = async (taskId: string): Promise<string> => {
 };
 
 export const gelatoSDKSend = async (
-  request: RelayerRequest,
-  sponsorApiKey: string,
+  request: RelayerSyncFeeRequest,
   options: RelayRequestOptions = {},
 ): Promise<RelayResponse> => {
   let response;
   try {
-    response = await gelatoRelayWithSponsoredCall(request, sponsorApiKey, options);
+    response = await gelatoRelayWithSyncFee(request, options);
   } catch (error: unknown) {
     throw new RelayerSendFailed({
       error: jsonifyError(error as Error),
@@ -165,7 +164,7 @@ export const gelatoSDKSend = async (
   return response;
 };
 
-const GAS_LIMIT_FOR_RELAYER = "2000000";
+const GAS_LIMIT_FOR_RELAYER = "4000000";
 
 export const getRelayerAddress = async (chainId: number, logger: Logger): Promise<string> => {
   const relayerAddress = await getGelatoRelayerAddress(chainId, logger);
@@ -213,15 +212,22 @@ export const send = async (
     gas: gas.toString(),
   });
 
-  const request = {
+  const request: RelayerSyncFeeRequest = {
     chainId: chainId,
     target: destinationAddress,
     data: encodedData,
+    isRelayContext: false,
+    feeToken: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // native token
   };
 
   logger.info("Sending to Gelato network", requestContext, methodContext, request);
 
-  const response = await gelatoSDKSend(request, gelatoApiKey, { gasLimit: GAS_LIMIT_FOR_RELAYER });
+  // Future intented way to call
+  //const response = await gelatoSDKSend(request, gelatoApiKey, { gasLimit: GAS_LIMIT_FOR_RELAYER });
+
+  const options = { gasLimit: GAS_LIMIT_FOR_RELAYER };
+
+  const response = await gelatoSDKSend(request, options);
 
   if (!response) {
     throw new RelayerSendFailed({ response: response });
