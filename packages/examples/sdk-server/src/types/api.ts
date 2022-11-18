@@ -6,7 +6,7 @@ export const getCanonicalTokenSchema = Type.Object({
   tokenAddress: Type.String(),
 });
 
-export const getCanonicalKeySchema = Type.Object({
+export const calculateCanonicalKeySchema = Type.Object({
   domainId: Type.String(),
   tokenId: Type.String(),
 });
@@ -70,6 +70,20 @@ export const calculateRemoveSwapLiquiditySchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
   amount: Type.String(),
+});
+
+export const calculateAddLiquidityPriceImpactSchema = Type.Object({
+  domainId: Type.String(),
+  tokenAddress: Type.String(),
+  amountX: Type.String(),
+  amountY: Type.String(),
+});
+
+export const calculateRemoveLiquidityPriceImpactSchema = Type.Object({
+  domainId: Type.String(),
+  tokenAddress: Type.String(),
+  amountX: Type.String(),
+  amountY: Type.String(),
 });
 
 export const getPoolSchema = Type.Object({

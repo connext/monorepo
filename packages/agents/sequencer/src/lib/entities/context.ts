@@ -18,7 +18,7 @@ export type AppContext = {
     chainreader: ChainReader; // For reading blockchain using RPC providers.
     contracts: ConnextContractInterfaces; // Used to encode/decode fn data for smart contracts.
     relayers: { instance: Relayer; apiKey: string; type: RelayerType }[]; // Relayer for sending transactions to the blockchain.
-    // Should be signer for sequencer's whitelisted EOA. Used for signing permits.
+    // Should be signer for sequencer's allowlisted EOA. Used for signing permits.
     wallet: Wallet | Web3Signer;
     mqClient: typeof Broker; // Broker for interacting with the message queue
   };

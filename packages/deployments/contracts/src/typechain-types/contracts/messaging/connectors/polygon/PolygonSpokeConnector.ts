@@ -92,7 +92,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
     "watcherManager()": FunctionFragment;
-    "whitelistedSenders(address)": FunctionFragment;
+    "allowlistedSenders(address)": FunctionFragment;
     "withdrawFunds(address)": FunctionFragment;
   };
 
@@ -146,7 +146,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "unpause"
       | "verifySender"
       | "watcherManager"
-      | "whitelistedSenders"
+      | "allowlistedSenders"
       | "withdrawFunds"
   ): FunctionFragment;
 
@@ -320,7 +320,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "whitelistedSenders",
+    functionFragment: "allowlistedSenders",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -467,7 +467,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "whitelistedSenders",
+    functionFragment: "allowlistedSenders",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -913,7 +913,7 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     watcherManager(overrides?: CallOverrides): Promise<[string]>;
 
-    whitelistedSenders(
+    allowlistedSenders(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
@@ -1098,7 +1098,7 @@ export interface PolygonSpokeConnector extends BaseContract {
 
   watcherManager(overrides?: CallOverrides): Promise<string>;
 
-  whitelistedSenders(
+  allowlistedSenders(
     arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
@@ -1275,7 +1275,7 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     watcherManager(overrides?: CallOverrides): Promise<string>;
 
-    whitelistedSenders(
+    allowlistedSenders(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -1583,7 +1583,7 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     watcherManager(overrides?: CallOverrides): Promise<BigNumber>;
 
-    whitelistedSenders(
+    allowlistedSenders(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1769,7 +1769,7 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     watcherManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    whitelistedSenders(
+    allowlistedSenders(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

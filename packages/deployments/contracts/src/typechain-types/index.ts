@@ -140,6 +140,10 @@ export type { OwnerPausableUpgradeable } from "./contracts/core/connext/helpers/
 export { OwnerPausableUpgradeable__factory } from "./factories/contracts/core/connext/helpers/OwnerPausableUpgradeable__factory";
 export type { PriceOracle } from "./contracts/core/connext/helpers/PriceOracle";
 export { PriceOracle__factory } from "./factories/contracts/core/connext/helpers/PriceOracle__factory";
+export type { ISpokeConnector } from "./contracts/core/connext/helpers/RelayerProxy.sol/ISpokeConnector";
+export { ISpokeConnector__factory } from "./factories/contracts/core/connext/helpers/RelayerProxy.sol/ISpokeConnector__factory";
+export type { RelayerProxy } from "./contracts/core/connext/helpers/RelayerProxy.sol/RelayerProxy";
+export { RelayerProxy__factory } from "./factories/contracts/core/connext/helpers/RelayerProxy.sol/RelayerProxy__factory";
 export type { StableSwap } from "./contracts/core/connext/helpers/StableSwap";
 export { StableSwap__factory } from "./factories/contracts/core/connext/helpers/StableSwap__factory";
 export type { IAavePool } from "./contracts/core/connext/interfaces/IAavePool";

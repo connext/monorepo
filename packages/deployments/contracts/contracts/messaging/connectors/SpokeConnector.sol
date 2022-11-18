@@ -140,10 +140,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   mapping(bytes32 => bool) public sentMessageRoots;
 
   /**
-   * @dev This is used for the `onlyWhitelistedSender` modifier, which gates who
+   * @dev This is used for the `onlyAllowlistedSender` modifier, which gates who
    * can send messages using `dispatch`.
    */
-  mapping(address => bool) public whitelistedSenders;
+  mapping(address => bool) public allowlistedSenders;
 
   /**
    * @notice domain => next available nonce for the domain.
@@ -157,8 +157,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
   // ============ Modifiers ============
 
-  modifier onlyWhitelistedSender() {
-    require(whitelistedSenders[msg.sender], "!whitelisted");
+  modifier onlyAllowlistedSender() {
+    require(allowlistedSenders[msg.sender], "!allowlisted");
     _;
   }
 
@@ -209,20 +209,20 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   // ============ Admin Functions ============
 
   /**
-   * @notice Adds a sender to the whitelist.
-   * @dev Only whitelisted routers (senders) can call `dispatch`.
+   * @notice Adds a sender to the allowlist.
+   * @dev Only allowlisted routers (senders) can call `dispatch`.
    */
   function addSender(address _sender) public onlyOwner {
-    whitelistedSenders[_sender] = true;
+    allowlistedSenders[_sender] = true;
     emit SenderAdded(_sender);
   }
 
   /**
-   * @notice Removes a sender from the whitelist.
-   * @dev Only whitelisted routers (senders) can call `dispatch`.
+   * @notice Removes a sender from the allowlist.
+   * @dev Only allowlisted routers (senders) can call `dispatch`.
    */
   function removeSender(address _sender) public onlyOwner {
-    whitelistedSenders[_sender] = false;
+    delete allowlistedSenders[_sender];
     emit SenderRemoved(_sender);
   }
 
@@ -323,7 +323,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     uint32 _destinationDomain,
     bytes32 _recipientAddress,
     bytes memory _messageBody
-  ) external onlyWhitelistedSender returns (bytes32) {
+  ) external onlyAllowlistedSender returns (bytes32) {
     // Get the next nonce for the destination domain, then increment it.
     uint32 _nonce = nonces[_destinationDomain]++;
 

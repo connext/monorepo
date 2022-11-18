@@ -7,6 +7,7 @@ import {LPToken} from "../helpers/LPToken.sol";
 
 import {MathUtils} from "./MathUtils.sol";
 import {AssetLogic} from "./AssetLogic.sol";
+import {Constants} from "./Constants.sol";
 
 /**
  * @title SwapUtilsExternal library
@@ -64,7 +65,7 @@ library SwapUtilsExternal {
     LPToken lpToken;
     // contract references for all tokens being pooled
     IERC20[] pooledTokens;
-    // multipliers for each pooled token's precision to get to POOL_PRECISION_DECIMALS
+    // multipliers for each pooled token's precision to get to Constants.POOL_PRECISION_DECIMALS
     // for example, TBTC has 18 decimals, so the multiplier should be 1. WBTC
     // has 8, so the multiplier should be 10 ** 18 / 10 ** 8 => 10 ** 10
     uint256[] tokenPrecisionMultipliers;
@@ -98,31 +99,6 @@ library SwapUtilsExternal {
     uint256[] multipliers;
   }
 
-  // the precision all pools tokens will be converted to
-  uint8 internal constant POOL_PRECISION_DECIMALS = 18;
-
-  // the denominator used to calculate admin and LP fees. For example, an
-  // LP fee might be something like tradeAmount.mul(fee).div(FEE_DENOMINATOR)
-  uint256 internal constant FEE_DENOMINATOR = 1e10;
-
-  // Max swap fee is 1% or 100bps of each swap
-  uint256 internal constant MAX_SWAP_FEE = 1e8;
-
-  // Max adminFee is 100% of the swapFee
-  // adminFee does not add additional fee on top of swapFee
-  // Instead it takes a certain % of the swapFee. Therefore it has no impact on the
-  // users but only on the earnings of LPs
-  uint256 internal constant MAX_ADMIN_FEE = 1e10;
-
-  // Constant value used as max loop limit
-  uint256 internal constant MAX_LOOP_LIMIT = 256;
-
-  // Constant values used in ramping A calculations
-  uint256 public constant A_PRECISION = 100;
-  uint256 public constant MAX_A = 10**6;
-  uint256 private constant MAX_A_CHANGE = 2;
-  uint256 private constant MIN_RAMP_TIME = 14 days;
-
   /*** VIEW & PURE FUNCTIONS ***/
   /**
    * @notice Return A, the amplification coefficient * n ** (n - 1)
@@ -131,7 +107,7 @@ library SwapUtilsExternal {
    * @return A parameter
    */
   function getA(Swap storage self) external view returns (uint256) {
-    return _getAPrecise(self) / A_PRECISION;
+    return _getAPrecise(self) / Constants.A_PRECISION;
   }
 
   /**
@@ -249,11 +225,11 @@ library SwapUtilsExternal {
       uint256 xpi = xp[i];
       // if i == tokenIndex, dxExpected = xp[i] * d1 / d0 - newY
       // else dxExpected = xp[i] - (xp[i] * d1 / d0)
-      // xpReduced[i] -= dxExpected * fee / FEE_DENOMINATOR
+      // xpReduced[i] -= dxExpected * fee / Constants.FEE_DENOMINATOR
       xpReduced[i] =
         xpi -
         ((((i == tokenIndex) ? ((xpi * v.d1) / v.d0 - v.newY) : (xpi - (xpi * v.d1) / v.d0)) * v.feePerToken) /
-          FEE_DENOMINATOR);
+          Constants.FEE_DENOMINATOR);
 
       unchecked {
         ++i;
@@ -310,12 +286,12 @@ library SwapUtilsExternal {
         ++i;
       }
     }
-    c = (c * d * A_PRECISION) / (nA * numTokens);
+    c = (c * d * Constants.A_PRECISION) / (nA * numTokens);
 
-    uint256 b = s + ((d * A_PRECISION) / nA);
+    uint256 b = s + ((d * Constants.A_PRECISION) / nA);
     uint256 yPrev;
     uint256 y = d;
-    for (uint256 i; i < MAX_LOOP_LIMIT; ) {
+    for (uint256 i; i < Constants.MAX_LOOP_LIMIT; ) {
       yPrev = y;
       y = ((y * y) + c) / ((y * 2) + b - d);
       if (y.within1(yPrev)) {
@@ -333,7 +309,7 @@ library SwapUtilsExternal {
    * @notice Get D, the StableSwap invariant, based on a set of balances and a particular A.
    * @param xp a precision-adjusted set of pool balances. Array should be the same cardinality
    * as the pool.
-   * @param a the amplification coefficient * n ** (n - 1) in A_PRECISION.
+   * @param a the amplification coefficient * n ** (n - 1) in Constants.A_PRECISION.
    * See the StableSwap paper for details
    * @return the invariant, at the precision of the pool
    */
@@ -355,7 +331,7 @@ library SwapUtilsExternal {
     uint256 d = s;
     uint256 nA = a * numTokens;
 
-    for (uint256 i; i < MAX_LOOP_LIMIT; ) {
+    for (uint256 i; i < Constants.MAX_LOOP_LIMIT; ) {
       uint256 dP = d;
       for (uint256 j; j < numTokens; ) {
         dP = (dP * d) / (xp[j] * numTokens);
@@ -369,8 +345,8 @@ library SwapUtilsExternal {
       }
       prevD = d;
       d =
-        (((nA * s) / A_PRECISION + dP * numTokens) * d) /
-        ((((nA - A_PRECISION) * d) / A_PRECISION + (numTokens + 1) * dP));
+        (((nA * s) / Constants.A_PRECISION + dP * numTokens) * d) /
+        ((((nA - Constants.A_PRECISION) * d) / Constants.A_PRECISION + (numTokens + 1) * dP));
       if (d.within1(prevD)) {
         return d;
       }
@@ -430,14 +406,14 @@ library SwapUtilsExternal {
   /**
    * @notice Get the virtual price, to help calculate profit
    * @param self Swap struct to read from
-   * @return the virtual price, scaled to precision of POOL_PRECISION_DECIMALS
+   * @return the virtual price, scaled to precision of Constants.POOL_PRECISION_DECIMALS
    */
   function getVirtualPrice(Swap storage self) external view returns (uint256) {
     uint256 d = getD(_xp(self), _getAPrecise(self));
     LPToken lpToken = self.lpToken;
     uint256 supply = lpToken.totalSupply();
     if (supply != 0) {
-      return (d * (10**uint256(POOL_PRECISION_DECIMALS))) / supply;
+      return (d * (10**uint256(Constants.POOL_PRECISION_DECIMALS))) / supply;
     }
     return 0;
   }
@@ -493,13 +469,13 @@ library SwapUtilsExternal {
         ++i;
       }
     }
-    c = (c * d * A_PRECISION) / (nA * numTokens);
-    uint256 b = s + ((d * A_PRECISION) / nA);
+    c = (c * d * Constants.A_PRECISION) / (nA * numTokens);
+    uint256 b = s + ((d * Constants.A_PRECISION) / nA);
     uint256 yPrev;
     uint256 y = d;
 
     // iterative approximation
-    for (uint256 i; i < MAX_LOOP_LIMIT; ) {
+    for (uint256 i; i < Constants.MAX_LOOP_LIMIT; ) {
       yPrev = y;
       y = ((y * y) + c) / ((y * 2) + b - d);
       if (y.within1(yPrev)) {
@@ -560,7 +536,7 @@ library SwapUtilsExternal {
    * @param dx the number of tokens to sell. If the token charges a fee on transfers,
    * use the amount that gets transferred after the fee.
    * @return dy the number of tokens the user will get in the token's precision. ex WBTC -> 8
-   * @return dyFee the associated fee in multiplied precision (POOL_PRECISION_DECIMALS)
+   * @return dyFee the associated fee in multiplied precision (Constants.POOL_PRECISION_DECIMALS)
    */
   function _calculateSwap(
     Swap storage self,
@@ -575,7 +551,7 @@ library SwapUtilsExternal {
     uint256 x = dx * multipliers[tokenIndexFrom] + xp[tokenIndexFrom];
     uint256 y = getY(_getAPrecise(self), tokenIndexFrom, tokenIndexTo, x, xp);
     dy = xp[tokenIndexTo] - y - 1;
-    dyFee = (dy * self.swapFee) / FEE_DENOMINATOR;
+    dyFee = (dy * self.swapFee) / Constants.FEE_DENOMINATOR;
     dy = (dy - dyFee) / multipliers[tokenIndexTo];
   }
 
@@ -591,7 +567,7 @@ library SwapUtilsExternal {
    * @param dy the number of tokens to buy. If the token charges a fee on transfers,
    * use the amount that gets transferred after the fee.
    * @return dx the number of tokens the user have to deposit in the token's precision. ex WBTC -> 8
-   * @return dxFee the associated fee in multiplied precision (POOL_PRECISION_DECIMALS)
+   * @return dxFee the associated fee in multiplied precision (Constants.POOL_PRECISION_DECIMALS)
    */
   function _calculateSwapInv(
     Swap storage self,
@@ -611,7 +587,7 @@ library SwapUtilsExternal {
     xp[tokenIndexTo] = xp[tokenIndexTo] - (dy * multipliers[tokenIndexTo]);
     uint256 x = getYD(a, tokenIndexFrom, xp, d0);
     dx = x - xp[tokenIndexFrom] + 1;
-    dxFee = (dx * self.swapFee) / FEE_DENOMINATOR;
+    dxFee = (dx * self.swapFee) / Constants.FEE_DENOMINATOR;
     dx = (dx + dxFee) / multipliers[tokenIndexFrom];
   }
 
@@ -749,7 +725,9 @@ library SwapUtilsExternal {
     (dy, dyFee) = _calculateSwap(self, tokenIndexFrom, tokenIndexTo, dx, balances);
     require(dy >= minDy, "dy < minDy");
 
-    uint256 dyAdminFee = (dyFee * self.adminFee) / FEE_DENOMINATOR / self.tokenPrecisionMultipliers[tokenIndexTo];
+    uint256 dyAdminFee = (dyFee * self.adminFee) /
+      Constants.FEE_DENOMINATOR /
+      self.tokenPrecisionMultipliers[tokenIndexTo];
 
     self.balances[tokenIndexFrom] = balances[tokenIndexFrom] + dx;
     self.balances[tokenIndexTo] = balances[tokenIndexTo] - dy - dyAdminFee;
@@ -788,7 +766,9 @@ library SwapUtilsExternal {
     (dx, dxFee) = _calculateSwapInv(self, tokenIndexFrom, tokenIndexTo, dy, balances);
     require(dx <= maxDx, "dx > maxDx");
 
-    uint256 dxAdminFee = (dxFee * self.adminFee) / FEE_DENOMINATOR / self.tokenPrecisionMultipliers[tokenIndexFrom];
+    uint256 dxAdminFee = (dxFee * self.adminFee) /
+      Constants.FEE_DENOMINATOR /
+      self.tokenPrecisionMultipliers[tokenIndexFrom];
 
     self.balances[tokenIndexFrom] = balances[tokenIndexFrom] + dx - dxAdminFee;
     self.balances[tokenIndexTo] = balances[tokenIndexTo] - dy;
@@ -874,8 +854,8 @@ library SwapUtilsExternal {
       uint256 feePerToken = _feePerToken(self.swapFee, numTokens);
       for (uint256 i; i < numTokens; ) {
         uint256 idealBalance = (v.d1 * v.balances[i]) / v.d0;
-        fees[i] = (feePerToken * (idealBalance.difference(newBalances[i]))) / FEE_DENOMINATOR;
-        uint256 adminFee = (fees[i] * self.adminFee) / FEE_DENOMINATOR;
+        fees[i] = (feePerToken * (idealBalance.difference(newBalances[i]))) / Constants.FEE_DENOMINATOR;
+        uint256 adminFee = (fees[i] * self.adminFee) / Constants.FEE_DENOMINATOR;
         self.balances[i] = newBalances[i] - adminFee;
         self.adminFees[i] = self.adminFees[i] + adminFee;
         newBalances[i] = newBalances[i] - fees[i];
@@ -975,7 +955,7 @@ library SwapUtilsExternal {
 
     require(dy >= minAmount, "dy < minAmount");
 
-    uint256 adminFee = (dyFee * self.adminFee) / FEE_DENOMINATOR;
+    uint256 adminFee = (dyFee * self.adminFee) / Constants.FEE_DENOMINATOR;
     self.balances[tokenIndex] = self.balances[tokenIndex] - (dy + adminFee);
     if (adminFee != 0) {
       self.adminFees[tokenIndex] = self.adminFees[tokenIndex] + adminFee;
@@ -1040,9 +1020,9 @@ library SwapUtilsExternal {
         {
           uint256 idealBalance = (v.d1 * v.balances[i]) / v.d0;
           uint256 difference = idealBalance.difference(balances1[i]);
-          fees[i] = (feePerToken * difference) / FEE_DENOMINATOR;
+          fees[i] = (feePerToken * difference) / Constants.FEE_DENOMINATOR;
         }
-        uint256 adminFee = (fees[i] * self.adminFee) / FEE_DENOMINATOR;
+        uint256 adminFee = (fees[i] * self.adminFee) / Constants.FEE_DENOMINATOR;
         self.balances[i] = balances1[i] - adminFee;
         self.adminFees[i] = self.adminFees[i] + adminFee;
         balances1[i] = balances1[i] - fees[i];
@@ -1086,7 +1066,7 @@ library SwapUtilsExternal {
       IERC20 token = self.pooledTokens[i];
       uint256 balance = self.adminFees[i];
       if (balance != 0) {
-        self.adminFees[i] = 0;
+        delete self.adminFees[i];
         AssetLogic.handleOutgoingAsset(address(token), to, balance);
       }
 
@@ -1103,7 +1083,7 @@ library SwapUtilsExternal {
    * @param newAdminFee new admin fee to be applied on future transactions
    */
   function setAdminFee(Swap storage self, uint256 newAdminFee) external {
-    require(newAdminFee <= MAX_ADMIN_FEE, "too high");
+    require(newAdminFee <= Constants.MAX_ADMIN_FEE, "too high");
     self.adminFee = newAdminFee;
 
     emit NewAdminFee(newAdminFee);
@@ -1116,7 +1096,7 @@ library SwapUtilsExternal {
    * @param newSwapFee new swap fee to be applied on future transactions
    */
   function setSwapFee(Swap storage self, uint256 newSwapFee) external {
-    require(newSwapFee <= MAX_SWAP_FEE, "too high");
+    require(newSwapFee <= Constants.MAX_SWAP_FEE, "too high");
     self.swapFee = newSwapFee;
 
     emit NewSwapFee(newSwapFee);
@@ -1135,17 +1115,17 @@ library SwapUtilsExternal {
     uint256 futureA_,
     uint256 futureTime_
   ) external {
-    require(block.timestamp >= self.initialATime + 1 days, "Wait 1 day before starting ramp");
-    require(futureTime_ >= block.timestamp + MIN_RAMP_TIME, "Insufficient ramp time");
-    require(futureA_ != 0 && futureA_ < MAX_A, "futureA_ must be > 0 and < MAX_A");
+    require(block.timestamp >= self.initialATime + Constants.MIN_RAMP_DELAY, "Wait 1 day before starting ramp");
+    require(futureTime_ >= block.timestamp + Constants.MIN_RAMP_TIME, "Insufficient ramp time");
+    require(futureA_ != 0 && futureA_ < Constants.MAX_A, "futureA_ must be > 0 and < Constants.MAX_A");
 
     uint256 initialAPrecise = _getAPrecise(self);
-    uint256 futureAPrecise = futureA_ * A_PRECISION;
+    uint256 futureAPrecise = futureA_ * Constants.A_PRECISION;
 
     if (futureAPrecise < initialAPrecise) {
-      require(futureAPrecise * MAX_A_CHANGE >= initialAPrecise, "futureA_ is too small");
+      require(futureAPrecise * Constants.MAX_A_CHANGE >= initialAPrecise, "futureA_ is too small");
     } else {
-      require(futureAPrecise <= initialAPrecise * MAX_A_CHANGE, "futureA_ is too large");
+      require(futureAPrecise <= initialAPrecise * Constants.MAX_A_CHANGE, "futureA_ is too large");
     }
 
     self.initialA = initialAPrecise;
