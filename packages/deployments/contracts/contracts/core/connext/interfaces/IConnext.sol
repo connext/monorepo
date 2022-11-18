@@ -53,8 +53,7 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
     TokenId calldata _canonical,
     address _representation,
     address _adoptedAssetId,
-    address _stableSwapPool,
-    uint256 _cap
+    address _stableSwapPool
   ) external returns (address);
 
   function addStableSwapPool(TokenId calldata _canonical, address _stableSwapPool) external;

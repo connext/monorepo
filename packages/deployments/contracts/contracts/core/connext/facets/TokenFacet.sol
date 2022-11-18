@@ -228,8 +228,7 @@ contract TokenFacet is BaseConnextFacet {
     TokenId calldata _canonical,
     address _representation,
     address _adoptedAssetId,
-    address _stableSwapPool,
-    uint256 _cap
+    address _stableSwapPool
   ) external onlyOwnerOrAdmin returns (address) {
     if (_canonical.domain == s.domain) {
       revert TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
@@ -238,9 +237,6 @@ contract TokenFacet is BaseConnextFacet {
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
     _enrollAdoptedAndLocalAssets(_adoptedAssetId, _representation, _stableSwapPool, _canonical, key);
 
-    if (_cap != 0) {
-      _setLiquidityCap(_canonical, _cap, key);
-    }
     return _representation;
   }
 
