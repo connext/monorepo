@@ -7,6 +7,7 @@ import {
   NATIVE_TOKEN,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
+
 import {
   NoDestinationDomainForProof,
   NoAggregatedRoot,
@@ -188,9 +189,9 @@ export const processMessage = async (message: XMessage) => {
   let fee = BigNumber.from(0);
   try {
     fee = await getEstimatedFee(chainId, NATIVE_TOKEN, gasLimit, true);
-  } catch (e) {
+  } catch (error: unknown) {
     logger.warn("Error at Gelato Estimate Fee", requestContext, methodContext, {
-      error: e as NxtpError,
+      error: error as NxtpError,
       relayerProxyAddress: destinationRelayerProxyAddress,
       gasLimit: gasLimit.toString(),
       relayerFee: fee.toString(),
@@ -204,12 +205,13 @@ export const processMessage = async (message: XMessage) => {
     proveAndProcessEncodedData,
   );
 
+  // @ts-ignore
   const encodedData = contracts.relayerProxy.encodeFunctionData("proveAndProcess", [
     proofs,
     aggregateRoot,
     aggregatePath,
     aggregateIndex,
-    fee,
+    fee as any,
   ]);
 
   logger.info("Encoding for Relayer Proxy", requestContext, methodContext, {

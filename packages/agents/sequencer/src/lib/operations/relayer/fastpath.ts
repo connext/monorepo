@@ -69,7 +69,7 @@ export const sendExecuteFastToRelayer = async (
   let fee = BigNumber.from(0);
   try {
     fee = await getEstimatedFee(destinationChainId, NATIVE_TOKEN, gasLimit, true);
-  } catch (e) {
+  } catch (e: unknown) {
     logger.warn("Error at Gelato Estimate Fee", requestContext, methodContext, {
       error: e as NxtpError,
       relayerProxyAddress: destinationRelayerProxyAddress,
