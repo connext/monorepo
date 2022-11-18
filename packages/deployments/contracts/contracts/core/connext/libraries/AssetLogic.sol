@@ -329,7 +329,13 @@ library AssetLogic {
       assetIn.safeApprove(poolAddress, 0);
       assetIn.safeIncreaseAllowance(poolAddress, _maxIn);
 
-      uint256 out = pool.swapExactOut(_amountOut, _assetIn, _assetOut, _maxIn, block.timestamp + 3600);
+      uint256 out = pool.swapExactOut(
+        _amountOut,
+        _assetIn,
+        _assetOut,
+        _maxIn,
+        block.timestamp + Constants.DEFAULT_DEADLINE_EXTENSION
+      );
 
       // Reset allowance
       assetIn.safeApprove(poolAddress, 0);

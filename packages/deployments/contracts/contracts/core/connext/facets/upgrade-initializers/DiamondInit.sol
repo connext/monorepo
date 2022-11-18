@@ -73,8 +73,8 @@ contract DiamondInit is BaseConnextFacet {
     // More info here: https://eips.ethereum.org/EIPS/eip-2535#diamond-interface
 
     // __ReentrancyGuard_init_unchained
-    s._status = _NOT_ENTERED;
-    s._xcallStatus = _NOT_ENTERED;
+    s._status = Constants.NOT_ENTERED;
+    s._xcallStatus = Constants.NOT_ENTERED;
 
     // Connext
     s.domain = _domain;

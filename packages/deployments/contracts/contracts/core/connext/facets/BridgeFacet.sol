@@ -65,14 +65,6 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ============ Properties ============
 
-  uint16 public constant AAVE_REFERRAL_CODE = 0;
-
-  /**
-   * @notice Required gas amount to be leftover after passing in `gasleft` when
-   * executing calldata (see `_executeCalldata` method).
-   */
-  uint256 public constant EXECUTE_CALLDATA_RESERVE_GAS = 10_000;
-
   // ============ Events ============
 
   /**
@@ -849,7 +841,7 @@ contract BridgeFacet is BaseConnextFacet {
     TransferInfo calldata _params
   ) internal {
     // execute the calldata
-    if (keccak256(_params.callData) == EMPTY_HASH) {
+    if (keccak256(_params.callData) == Constants.EMPTY_HASH) {
       // no call data, return amount out
       return;
     }
@@ -862,16 +854,16 @@ contract BridgeFacet is BaseConnextFacet {
       // after this function executes:
       // - 2 events are emitted
       // - transfer id is returned
-      // -> reserve `EXECUTE_CALLDATA_RESERVE_GAS` in gas units
+      // -> reserve `Constants.EXECUTE_CALLDATA_RESERVE_GAS` in gas units
 
-      if (gasleft() < EXECUTE_CALLDATA_RESERVE_GAS + 1) {
+      if (gasleft() < Constants.EXECUTE_CALLDATA_RESERVE_GAS + 1) {
         revert BridgeFacet__excecute_insufficientGas();
       }
 
       // Use SafeCall here
       (success, returnData) = ExcessivelySafeCall.excessivelySafeCall(
         _params.to,
-        gasleft() - EXECUTE_CALLDATA_RESERVE_GAS,
+        gasleft() - Constants.EXECUTE_CALLDATA_RESERVE_GAS,
         0, // native asset value (always 0)
         Constants.DEFAULT_COPY_BYTES, // only copy 256 bytes back as calldata
         abi.encodeWithSelector(
@@ -912,7 +904,7 @@ contract BridgeFacet is BaseConnextFacet {
     // Calculate local to adopted swap output if needed
     address adopted = _getAdoptedAsset(_key);
 
-    IAavePool(s.aavePool).mintUnbacked(adopted, _fastTransferAmount, address(this), AAVE_REFERRAL_CODE);
+    IAavePool(s.aavePool).mintUnbacked(adopted, _fastTransferAmount, address(this), Constants.AAVE_REFERRAL_CODE);
 
     // Improvement: Instead of withdrawing to address(this), withdraw directly to the user or executor to save 1 transfer
     uint256 amountWithdrawn = IAavePool(s.aavePool).withdraw(adopted, _fastTransferAmount, address(this));

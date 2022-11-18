@@ -22,12 +22,22 @@ library Constants {
   // =============
 
   // ============= Unchangeable Values =============
-  // TODO:
-  // - _NOT_ENTERED
-  // - _ENTERED
-  // - EMPTY_HASH
-
   // ============= Facets
+
+  /**
+   * @notice Reentrancy modifier for diamond
+   */
+  uint256 internal constant NOT_ENTERED = 1;
+
+  /**
+   * @notice Reentrancy modifier for diamond
+   */
+  uint256 internal constant ENTERED = 2;
+
+  /**
+   * @notice Contains hash of empty bytes
+   */
+  bytes32 internal constant EMPTY_HASH = keccak256("");
 
   /**
    * @notice Denominator for BPS values
@@ -38,6 +48,17 @@ library Constants {
    * @notice Value for delay used on governance
    */
   uint256 public constant GOVERNANCE_DELAY = 7 days;
+
+  /**
+   * @notice Required gas amount to be leftover after passing in `gasleft` when
+   * executing calldata (see `_executeCalldata` method).
+   */
+  uint256 public constant EXECUTE_CALLDATA_RESERVE_GAS = 10_000;
+
+  /**
+   * @notice Portal referral code
+   */
+  uint16 public constant AAVE_REFERRAL_CODE = 0;
 
   // ============= ConnextPriceOracle
   /**
@@ -66,7 +87,6 @@ library Constants {
   uint256 public constant DEFAULT_DEADLINE_EXTENSION = 3600;
 
   // ============= Swaps
-
   /**
    * @notice the precision all pools tokens will be converted to
    * @dev stored here to keep easily in sync between `SwapUtils` and `SwapUtilsExternal`

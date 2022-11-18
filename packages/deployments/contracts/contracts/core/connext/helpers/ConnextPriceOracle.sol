@@ -40,8 +40,6 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
   address public wrapped;
   address public v1PriceOracle;
 
-  uint256 public constant VALID_PERIOD = 1 minutes;
-
   /// @notice Price sources
   enum PriceSource {
     NA,
@@ -81,8 +79,8 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
     // First check the direct price which stored in contract. Only owner can set direct price.
     uint256 tokenPrice = assetPrices[tokenAddress].price;
-    // only accept up to and not including VALID_PERIOD time deviation
-    if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) < VALID_PERIOD)) {
+    // only accept up to and not including Constants.ORACLE_VALID_PERIOD time deviation
+    if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) < Constants.ORACLE_VALID_PERIOD)) {
       return (tokenPrice, uint256(PriceSource.DIRECT));
     }
 
@@ -119,10 +117,15 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
         uint80 answeredInRound
       ) {
         // It's fine for price to be 0. We have more price feeds.
-        if (answer == 0 || answeredInRound < roundId || updateAt == 0 || block.timestamp > updateAt + VALID_PERIOD) {
+        if (
+          answer == 0 ||
+          answeredInRound < roundId ||
+          updateAt == 0 ||
+          block.timestamp > updateAt + Constants.ORACLE_VALID_PERIOD
+        ) {
           // answeredInRound > roundId ===> ChainLink Error: Stale price
           // updatedAt = 0 ===> ChainLink Error: Round not complete
-          // block.timestamp - updateAt > VALID_PERIOD ===> too old data
+          // block.timestamp - updateAt > Constants.ORACLE_VALID_PERIOD ===> too old data
           return 0;
         }
 
@@ -130,10 +133,10 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
         uint256 price;
         // Make the decimals to 1e18.
         uint256 aggregatorDecimals = uint256(aggregator.decimals());
-        if (aggregatorDecimals > 18) {
-          price = retVal / (10**(aggregatorDecimals - 18));
+        if (aggregatorDecimals > Constants.DEFAULT_NORMALIZED_DECIMALS) {
+          price = retVal / (10**(aggregatorDecimals - Constants.DEFAULT_NORMALIZED_DECIMALS));
         } else {
-          price = retVal * (10**(18 - aggregatorDecimals));
+          price = retVal * (10**(Constants.DEFAULT_NORMALIZED_DECIMALS - aggregatorDecimals));
         }
 
         return price;
