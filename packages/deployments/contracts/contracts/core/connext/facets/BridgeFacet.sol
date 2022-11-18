@@ -55,6 +55,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_notApprovedForPortals();
   error BridgeFacet__execute_badFastLiquidityStatus();
   error BridgeFacet__execute_notReconciled();
+  error BridgeFacet__execute_externalCallFailed();
   error BridgeFacet__excecute_insufficientGas();
   error BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn();
   error BridgeFacet__bumpTransfer_valueIsZero();
@@ -850,47 +851,25 @@ contract BridgeFacet is BaseConnextFacet {
       return;
     }
 
-    bool success;
-    bytes memory returnData;
-
-    // See above devnote
-    if (_reconciled) {
-      // after this function executes:
-      // - 2 events are emitted
-      // - transfer id is returned
-      // -> reserve `Constants.EXECUTE_CALLDATA_RESERVE_GAS` in gas units
-
-      if (gasleft() < Constants.EXECUTE_CALLDATA_RESERVE_GAS + 1) {
-        revert BridgeFacet__excecute_insufficientGas();
-      }
-
-      // Use SafeCall here
-      (success, returnData) = ExcessivelySafeCall.excessivelySafeCall(
-        _params.to,
-        gasleft() - Constants.EXECUTE_CALLDATA_RESERVE_GAS,
-        0, // native asset value (always 0)
-        Constants.DEFAULT_COPY_BYTES, // only copy 256 bytes back as calldata
-        abi.encodeWithSelector(
-          IXReceiver.xReceive.selector,
-          _transferId,
-          _amount,
-          _asset,
-          _params.originSender, // use passed in value iff authenticated
-          _params.originDomain,
-          _params.callData
-        )
-      );
-    } else {
-      // use address(0) for origin sender on fast path
-      returnData = IXReceiver(_params.to).xReceive(
+    (bool success, bytes memory returnData) = ExcessivelySafeCall.excessivelySafeCall(
+      _params.to,
+      gasleft() - Constants.EXECUTE_CALLDATA_RESERVE_GAS,
+      0, // native asset value (always 0)
+      Constants.DEFAULT_COPY_BYTES, // only copy 256 bytes back as calldata
+      abi.encodeWithSelector(
+        IXReceiver.xReceive.selector,
         _transferId,
         _amount,
         _asset,
-        address(0),
+        _reconciled ? _params.originSender : address(0), // use passed in value iff authenticated
         _params.originDomain,
         _params.callData
-      );
-      success = true;
+      )
+    );
+
+    if (!_reconciled && !success) {
+      // See above devnote, reverts if unsuccessful on fast path
+      revert BridgeFacet__execute_externalCallFailed();
     }
 
     emit ExternalCalldataExecuted(_transferId, success, returnData);
