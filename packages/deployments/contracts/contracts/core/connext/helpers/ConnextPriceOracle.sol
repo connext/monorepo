@@ -5,6 +5,8 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 import {IPriceOracle} from "../interfaces/IPriceOracle.sol";
 
+import {Constants} from "../libraries/Constants.sol";
+
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
 import {PriceOracle} from "./PriceOracle.sol";
 
@@ -14,20 +16,6 @@ interface AggregatorV3Interface {
   function description() external view returns (string memory);
 
   function version() external view returns (uint256);
-
-  // getRoundData and latestRoundData should both raise "No data present"
-  // if they do not have data to report, instead of returning unset values
-  // which could be misinterpreted as actual reported values.
-  function getRoundData(uint80 _roundId)
-    external
-    view
-    returns (
-      uint80 roundId,
-      int256 answer,
-      uint256 startedAt,
-      uint256 updatedAt,
-      uint80 answeredInRound
-    );
 
   function latestRoundData()
     external
@@ -52,8 +40,6 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
   address public wrapped;
   address public v1PriceOracle;
 
-  uint256 public constant VALID_PERIOD = 1 minutes;
-
   /// @notice Price sources
   enum PriceSource {
     NA,
@@ -72,8 +58,6 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
   mapping(address => Price) public assetPrices;
 
-  event NewAdmin(address oldAdmin, address newAdmin);
-  event PriceRecordUpdated(address token, address baseToken, address lpToken, bool _active);
   event DirectPriceUpdated(address token, uint256 oldPrice, uint256 newPrice);
   event AggregatorUpdated(address tokenAddress, address source);
   event V1PriceOracleUpdated(address oldAddress, address newAddress);
@@ -95,8 +79,8 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
     // First check the direct price which stored in contract. Only owner can set direct price.
     uint256 tokenPrice = assetPrices[tokenAddress].price;
-    // only accept up to and not including VALID_PERIOD time deviation
-    if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) < VALID_PERIOD)) {
+    // only accept up to and not including Constants.ORACLE_VALID_PERIOD time deviation
+    if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) < Constants.ORACLE_VALID_PERIOD)) {
       return (tokenPrice, uint256(PriceSource.DIRECT));
     }
 
@@ -133,10 +117,15 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
         uint80 answeredInRound
       ) {
         // It's fine for price to be 0. We have more price feeds.
-        if (answer == 0 || answeredInRound < roundId || updateAt == 0 || block.timestamp > updateAt + VALID_PERIOD) {
+        if (
+          answer == 0 ||
+          answeredInRound < roundId ||
+          updateAt == 0 ||
+          block.timestamp > updateAt + Constants.ORACLE_VALID_PERIOD
+        ) {
           // answeredInRound > roundId ===> ChainLink Error: Stale price
           // updatedAt = 0 ===> ChainLink Error: Round not complete
-          // block.timestamp - updateAt > VALID_PERIOD ===> too old data
+          // block.timestamp - updateAt > Constants.ORACLE_VALID_PERIOD ===> too old data
           return 0;
         }
 
@@ -144,10 +133,10 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
         uint256 price;
         // Make the decimals to 1e18.
         uint256 aggregatorDecimals = uint256(aggregator.decimals());
-        if (aggregatorDecimals > 18) {
-          price = retVal / (10**(aggregatorDecimals - 18));
+        if (aggregatorDecimals > Constants.DEFAULT_NORMALIZED_DECIMALS) {
+          price = retVal / (10**(aggregatorDecimals - Constants.DEFAULT_NORMALIZED_DECIMALS));
         } else {
-          price = retVal * (10**(18 - aggregatorDecimals));
+          price = retVal * (10**(Constants.DEFAULT_NORMALIZED_DECIMALS - aggregatorDecimals));
         }
 
         return price;
@@ -168,10 +157,10 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
     require(_price != 0, "bad price");
     if (block.timestamp > _timestamp) {
       // reject stale price
-      require(block.timestamp - _timestamp < VALID_PERIOD, "bad timestamp");
+      require(block.timestamp - _timestamp < Constants.ORACLE_VALID_PERIOD, "bad timestamp");
     } else {
       // reject future timestamp (<3s is allowed)
-      require(_timestamp - block.timestamp < 3, "in future");
+      require(_timestamp - block.timestamp < Constants.FUTURE_TIME_BUFFER, "in future");
       _timestamp = block.timestamp;
     }
 

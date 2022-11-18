@@ -1,0 +1,107 @@
+{
+  "logLevel": "debug",
+  "server": {
+    "adminToken": "a"
+  },
+  "chains": {
+    "1735356532": {
+      "assets": [
+        {
+          "address": "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF",
+          "name": "TEST"
+        }
+      ],
+      "providers": [
+        "https://goerli.optimism.io"
+      ]
+    },
+    "1735353714": {
+      "assets": [
+        {
+          "address": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
+          "name": "TEST"
+        }
+      ],
+      "providers": [
+        "https://rpc.ankr.com/eth_goerli"
+      ]
+    },
+    "9991": {
+      "assets": [
+        {
+          "address": "0xeDb95D8037f769B72AAab41deeC92903A98C9E16",
+          "name": "TEST"
+        }
+      ],
+      "providers": [
+        "https://matic-mumbai.chainstacklabs.com"
+      ]
+    }
+  },
+  "environment": "production",
+  "messageQueue": {
+    "connection": {
+      "uri": "amqp://guest:guest@localhost:5672"
+    },
+    "exchanges": [
+      {
+        "name": "sequencerX",
+        "type": "direct",
+        "publishTimeout": 1000,
+        "persistent": true,
+        "durable": true
+      }
+    ],
+    "queues": [
+      {
+        "name": "1735356532",
+        "limit": 5,
+        "queueLimit": 10000,
+        "subscribe": true
+      },
+      {
+        "name": "1735353714",
+        "limit": 5,
+        "queueLimit": 10000,
+        "subscribe": true
+      },
+      {
+        "name": "9991",
+        "limit": 5,
+        "queueLimit": 10000,
+        "subscribe": true
+      }
+    ],
+    "bindings": [
+      {
+        "exchange": "sequencerX",
+        "target": "1735356532",
+        "keys": [
+          "1735356532"
+        ]
+      },
+      {
+        "exchange": "sequencerX",
+        "target": "1735353714",
+        "keys": [
+          "1735353714"
+        ]
+      },
+      {
+        "exchange": "sequencerX",
+        "target": "9991",
+        "keys": [
+          "9991"
+        ]
+      }
+    ],
+    "executerTimeout": 300000,
+    "publisher": "sequencerX"
+  },
+  "mnemonic": "...",
+  "redis": {
+    "host": "localhost",
+    "port": 6379
+  },
+  "relayers": []
+}

@@ -146,6 +146,8 @@ export declare namespace SwapUtils {
     tokenPrecisionMultipliers: PromiseOrValue<BigNumberish>[];
     balances: PromiseOrValue<BigNumberish>[];
     adminFees: PromiseOrValue<BigNumberish>[];
+    disabled: PromiseOrValue<boolean>;
+    removeTime: PromiseOrValue<BigNumberish>;
   };
 
   export type SwapStructOutput = [
@@ -160,7 +162,9 @@ export declare namespace SwapUtils {
     string[],
     BigNumber[],
     BigNumber[],
-    BigNumber[]
+    BigNumber[],
+    boolean,
+    BigNumber
   ] & {
     key: string;
     initialA: BigNumber;
@@ -174,6 +178,8 @@ export declare namespace SwapUtils {
     tokenPrecisionMultipliers: BigNumber[];
     balances: BigNumber[];
     adminFees: BigNumber[];
+    disabled: boolean;
+    removeTime: BigNumber;
   };
 }
 
@@ -215,25 +221,25 @@ export interface ConnextInterface extends utils.Interface {
     "setAavePool(address)": FunctionFragment;
     "setAavePortalFee(uint256)": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
-    "assetWhitelistRemoved()": FunctionFragment;
-    "assetWhitelistTimestamp()": FunctionFragment;
+    "assetAllowlistRemoved()": FunctionFragment;
+    "assetAllowlistTimestamp()": FunctionFragment;
     "assignRoleAdmin(address)": FunctionFragment;
     "assignRoleRouter(address)": FunctionFragment;
     "assignRoleWatcher(address)": FunctionFragment;
     "delay()": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
-    "proposeAssetWhitelistRemoval()": FunctionFragment;
+    "proposeAssetAllowlistRemoval()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
-    "proposeRouterWhitelistRemoval()": FunctionFragment;
+    "proposeRouterAllowlistRemoval()": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "queryRole(address)": FunctionFragment;
-    "removeAssetWhitelist()": FunctionFragment;
-    "removeRouterWhitelist()": FunctionFragment;
+    "removeAssetAllowlist()": FunctionFragment;
+    "removeRouterAllowlist()": FunctionFragment;
     "revokeRole(address)": FunctionFragment;
-    "routerWhitelistRemoved()": FunctionFragment;
-    "routerWhitelistTimestamp()": FunctionFragment;
+    "routerAllowlistRemoved()": FunctionFragment;
+    "routerAllowlistTimestamp()": FunctionFragment;
     "unpause()": FunctionFragment;
     "addRelayer(address)": FunctionFragment;
     "approvedRelayers(address)": FunctionFragment;
@@ -343,25 +349,25 @@ export interface ConnextInterface extends utils.Interface {
       | "setAavePool"
       | "setAavePortalFee"
       | "acceptProposedOwner"
-      | "assetWhitelistRemoved"
-      | "assetWhitelistTimestamp"
+      | "assetAllowlistRemoved"
+      | "assetAllowlistTimestamp"
       | "assignRoleAdmin"
       | "assignRoleRouter"
       | "assignRoleWatcher"
       | "delay"
       | "owner"
       | "pause"
-      | "proposeAssetWhitelistRemoval"
+      | "proposeAssetAllowlistRemoval"
       | "proposeNewOwner"
-      | "proposeRouterWhitelistRemoval"
+      | "proposeRouterAllowlistRemoval"
       | "proposed"
       | "proposedTimestamp"
       | "queryRole"
-      | "removeAssetWhitelist"
-      | "removeRouterWhitelist"
+      | "removeAssetAllowlist"
+      | "removeRouterAllowlist"
       | "revokeRole"
-      | "routerWhitelistRemoved"
-      | "routerWhitelistTimestamp"
+      | "routerAllowlistRemoved"
+      | "routerAllowlistTimestamp"
       | "unpause"
       | "addRelayer"
       | "approvedRelayers"
@@ -607,11 +613,11 @@ export interface ConnextInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "assetWhitelistRemoved",
+    functionFragment: "assetAllowlistRemoved",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "assetWhitelistTimestamp",
+    functionFragment: "assetAllowlistTimestamp",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -630,7 +636,7 @@ export interface ConnextInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "proposeAssetWhitelistRemoval",
+    functionFragment: "proposeAssetAllowlistRemoval",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -638,7 +644,7 @@ export interface ConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "proposeRouterWhitelistRemoval",
+    functionFragment: "proposeRouterAllowlistRemoval",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
@@ -651,11 +657,11 @@ export interface ConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeAssetWhitelist",
+    functionFragment: "removeAssetAllowlist",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "removeRouterWhitelist",
+    functionFragment: "removeRouterAllowlist",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -663,11 +669,11 @@ export interface ConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "routerWhitelistRemoved",
+    functionFragment: "routerAllowlistRemoved",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "routerWhitelistTimestamp",
+    functionFragment: "routerAllowlistTimestamp",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
@@ -1151,11 +1157,11 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "assetWhitelistRemoved",
+    functionFragment: "assetAllowlistRemoved",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "assetWhitelistTimestamp",
+    functionFragment: "assetAllowlistTimestamp",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1174,7 +1180,7 @@ export interface ConnextInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "proposeAssetWhitelistRemoval",
+    functionFragment: "proposeAssetAllowlistRemoval",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1182,7 +1188,7 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "proposeRouterWhitelistRemoval",
+    functionFragment: "proposeRouterAllowlistRemoval",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
@@ -1192,20 +1198,20 @@ export interface ConnextInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "queryRole", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "removeAssetWhitelist",
+    functionFragment: "removeAssetAllowlist",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "removeRouterWhitelist",
+    functionFragment: "removeRouterAllowlist",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "routerWhitelistRemoved",
+    functionFragment: "routerAllowlistRemoved",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "routerWhitelistTimestamp",
+    functionFragment: "routerAllowlistTimestamp",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
@@ -1479,8 +1485,8 @@ export interface ConnextInterface extends utils.Interface {
     "DiamondCutProposed(tuple[],address,bytes,uint256)": EventFragment;
     "DiamondCutRescinded(tuple[],address,bytes)": EventFragment;
     "AavePortalRepayment(bytes32,address,uint256,uint256,address)": EventFragment;
-    "AssetWhitelistRemovalProposed(uint256)": EventFragment;
-    "AssetWhitelistRemoved(bool)": EventFragment;
+    "AssetAllowlistRemovalProposed(uint256)": EventFragment;
+    "AssetAllowlistRemoved(bool)": EventFragment;
     "AssignRoleAdmin(address)": EventFragment;
     "AssignRoleRouter(address)": EventFragment;
     "AssignRoleWatcher(address)": EventFragment;
@@ -1488,8 +1494,8 @@ export interface ConnextInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused()": EventFragment;
     "RevokeRole(address,uint8)": EventFragment;
-    "RouterWhitelistRemovalProposed(uint256)": EventFragment;
-    "RouterWhitelistRemoved(bool)": EventFragment;
+    "RouterAllowlistRemovalProposed(uint256)": EventFragment;
+    "RouterAllowlistRemoved(bool)": EventFragment;
     "Unpaused()": EventFragment;
     "RelayerAdded(address,address)": EventFragment;
     "RelayerFeeVaultUpdated(address,address,address)": EventFragment;
@@ -1530,9 +1536,9 @@ export interface ConnextInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "DiamondCutRescinded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AavePortalRepayment"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "AssetWhitelistRemovalProposed"
+    nameOrSignatureOrTopic: "AssetAllowlistRemovalProposed"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AssetWhitelistRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AssetAllowlistRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssignRoleAdmin"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssignRoleRouter"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssignRoleWatcher"): EventFragment;
@@ -1541,9 +1547,9 @@ export interface ConnextInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RevokeRole"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RouterWhitelistRemovalProposed"
+    nameOrSignatureOrTopic: "RouterAllowlistRemovalProposed"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterWhitelistRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RouterAllowlistRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerFeeVaultUpdated"): EventFragment;
@@ -1762,27 +1768,27 @@ export type AavePortalRepaymentEvent = TypedEvent<
 export type AavePortalRepaymentEventFilter =
   TypedEventFilter<AavePortalRepaymentEvent>;
 
-export interface AssetWhitelistRemovalProposedEventObject {
+export interface AssetAllowlistRemovalProposedEventObject {
   timestamp: BigNumber;
 }
-export type AssetWhitelistRemovalProposedEvent = TypedEvent<
+export type AssetAllowlistRemovalProposedEvent = TypedEvent<
   [BigNumber],
-  AssetWhitelistRemovalProposedEventObject
+  AssetAllowlistRemovalProposedEventObject
 >;
 
-export type AssetWhitelistRemovalProposedEventFilter =
-  TypedEventFilter<AssetWhitelistRemovalProposedEvent>;
+export type AssetAllowlistRemovalProposedEventFilter =
+  TypedEventFilter<AssetAllowlistRemovalProposedEvent>;
 
-export interface AssetWhitelistRemovedEventObject {
+export interface AssetAllowlistRemovedEventObject {
   renounced: boolean;
 }
-export type AssetWhitelistRemovedEvent = TypedEvent<
+export type AssetAllowlistRemovedEvent = TypedEvent<
   [boolean],
-  AssetWhitelistRemovedEventObject
+  AssetAllowlistRemovedEventObject
 >;
 
-export type AssetWhitelistRemovedEventFilter =
-  TypedEventFilter<AssetWhitelistRemovedEvent>;
+export type AssetAllowlistRemovedEventFilter =
+  TypedEventFilter<AssetAllowlistRemovedEvent>;
 
 export interface AssignRoleAdminEventObject {
   admin: string;
@@ -1855,27 +1861,27 @@ export type RevokeRoleEvent = TypedEvent<
 
 export type RevokeRoleEventFilter = TypedEventFilter<RevokeRoleEvent>;
 
-export interface RouterWhitelistRemovalProposedEventObject {
+export interface RouterAllowlistRemovalProposedEventObject {
   timestamp: BigNumber;
 }
-export type RouterWhitelistRemovalProposedEvent = TypedEvent<
+export type RouterAllowlistRemovalProposedEvent = TypedEvent<
   [BigNumber],
-  RouterWhitelistRemovalProposedEventObject
+  RouterAllowlistRemovalProposedEventObject
 >;
 
-export type RouterWhitelistRemovalProposedEventFilter =
-  TypedEventFilter<RouterWhitelistRemovalProposedEvent>;
+export type RouterAllowlistRemovalProposedEventFilter =
+  TypedEventFilter<RouterAllowlistRemovalProposedEvent>;
 
-export interface RouterWhitelistRemovedEventObject {
+export interface RouterAllowlistRemovedEventObject {
   renounced: boolean;
 }
-export type RouterWhitelistRemovedEvent = TypedEvent<
+export type RouterAllowlistRemovedEvent = TypedEvent<
   [boolean],
-  RouterWhitelistRemovedEventObject
+  RouterAllowlistRemovedEventObject
 >;
 
-export type RouterWhitelistRemovedEventFilter =
-  TypedEventFilter<RouterWhitelistRemovedEvent>;
+export type RouterAllowlistRemovedEventFilter =
+  TypedEventFilter<RouterAllowlistRemovedEvent>;
 
 export interface UnpausedEventObject {}
 export type UnpausedEvent = TypedEvent<[], UnpausedEventObject>;
@@ -2352,9 +2358,9 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    assetWhitelistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
+    assetAllowlistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
 
-    assetWhitelistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+    assetAllowlistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     assignRoleAdmin(
       _admin: PromiseOrValue<string>,
@@ -2379,7 +2385,7 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    proposeAssetWhitelistRemoval(
+    proposeAssetAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2388,7 +2394,7 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    proposeRouterWhitelistRemoval(
+    proposeRouterAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2401,11 +2407,11 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[number]>;
 
-    removeAssetWhitelist(
+    removeAssetAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    removeRouterWhitelist(
+    removeRouterAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2414,9 +2420,9 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    routerWhitelistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
+    routerAllowlistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
 
-    routerWhitelistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+    routerAllowlistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -3004,9 +3010,9 @@ export interface Connext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  assetWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
+  assetAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
 
-  assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+  assetAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   assignRoleAdmin(
     _admin: PromiseOrValue<string>,
@@ -3031,7 +3037,7 @@ export interface Connext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  proposeAssetWhitelistRemoval(
+  proposeAssetAllowlistRemoval(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3040,7 +3046,7 @@ export interface Connext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  proposeRouterWhitelistRemoval(
+  proposeRouterAllowlistRemoval(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3053,11 +3059,11 @@ export interface Connext extends BaseContract {
     overrides?: CallOverrides
   ): Promise<number>;
 
-  removeAssetWhitelist(
+  removeAssetAllowlist(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  removeRouterWhitelist(
+  removeRouterAllowlist(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3066,9 +3072,9 @@ export interface Connext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  routerWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
+  routerAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
 
-  routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+  routerAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   unpause(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -3656,9 +3662,9 @@ export interface Connext extends BaseContract {
 
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
-    assetWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
+    assetAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
 
-    assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+    assetAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     assignRoleAdmin(
       _admin: PromiseOrValue<string>,
@@ -3681,14 +3687,14 @@ export interface Connext extends BaseContract {
 
     pause(overrides?: CallOverrides): Promise<void>;
 
-    proposeAssetWhitelistRemoval(overrides?: CallOverrides): Promise<void>;
+    proposeAssetAllowlistRemoval(overrides?: CallOverrides): Promise<void>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    proposeRouterWhitelistRemoval(overrides?: CallOverrides): Promise<void>;
+    proposeRouterAllowlistRemoval(overrides?: CallOverrides): Promise<void>;
 
     proposed(overrides?: CallOverrides): Promise<string>;
 
@@ -3699,18 +3705,18 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<number>;
 
-    removeAssetWhitelist(overrides?: CallOverrides): Promise<void>;
+    removeAssetAllowlist(overrides?: CallOverrides): Promise<void>;
 
-    removeRouterWhitelist(overrides?: CallOverrides): Promise<void>;
+    removeRouterAllowlist(overrides?: CallOverrides): Promise<void>;
 
     revokeRole(
       _revoke: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    routerWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
+    routerAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
 
-    routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+    routerAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     unpause(overrides?: CallOverrides): Promise<void>;
 
@@ -4280,17 +4286,17 @@ export interface Connext extends BaseContract {
       caller?: null
     ): AavePortalRepaymentEventFilter;
 
-    "AssetWhitelistRemovalProposed(uint256)"(
+    "AssetAllowlistRemovalProposed(uint256)"(
       timestamp?: null
-    ): AssetWhitelistRemovalProposedEventFilter;
-    AssetWhitelistRemovalProposed(
+    ): AssetAllowlistRemovalProposedEventFilter;
+    AssetAllowlistRemovalProposed(
       timestamp?: null
-    ): AssetWhitelistRemovalProposedEventFilter;
+    ): AssetAllowlistRemovalProposedEventFilter;
 
-    "AssetWhitelistRemoved(bool)"(
+    "AssetAllowlistRemoved(bool)"(
       renounced?: null
-    ): AssetWhitelistRemovedEventFilter;
-    AssetWhitelistRemoved(renounced?: null): AssetWhitelistRemovedEventFilter;
+    ): AssetAllowlistRemovedEventFilter;
+    AssetAllowlistRemoved(renounced?: null): AssetAllowlistRemovedEventFilter;
 
     "AssignRoleAdmin(address)"(admin?: null): AssignRoleAdminEventFilter;
     AssignRoleAdmin(admin?: null): AssignRoleAdminEventFilter;
@@ -4329,17 +4335,17 @@ export interface Connext extends BaseContract {
       revokedRole?: null
     ): RevokeRoleEventFilter;
 
-    "RouterWhitelistRemovalProposed(uint256)"(
+    "RouterAllowlistRemovalProposed(uint256)"(
       timestamp?: null
-    ): RouterWhitelistRemovalProposedEventFilter;
-    RouterWhitelistRemovalProposed(
+    ): RouterAllowlistRemovalProposedEventFilter;
+    RouterAllowlistRemovalProposed(
       timestamp?: null
-    ): RouterWhitelistRemovalProposedEventFilter;
+    ): RouterAllowlistRemovalProposedEventFilter;
 
-    "RouterWhitelistRemoved(bool)"(
+    "RouterAllowlistRemoved(bool)"(
       renounced?: null
-    ): RouterWhitelistRemovedEventFilter;
-    RouterWhitelistRemoved(renounced?: null): RouterWhitelistRemovedEventFilter;
+    ): RouterAllowlistRemovedEventFilter;
+    RouterAllowlistRemoved(renounced?: null): RouterAllowlistRemovedEventFilter;
 
     "Unpaused()"(): UnpausedEventFilter;
     Unpaused(): UnpausedEventFilter;
@@ -4744,9 +4750,9 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    assetWhitelistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
+    assetAllowlistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
 
-    assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+    assetAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     assignRoleAdmin(
       _admin: PromiseOrValue<string>,
@@ -4771,7 +4777,7 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    proposeAssetWhitelistRemoval(
+    proposeAssetAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4780,7 +4786,7 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    proposeRouterWhitelistRemoval(
+    proposeRouterAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4793,11 +4799,11 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    removeAssetWhitelist(
+    removeAssetAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    removeRouterWhitelist(
+    removeRouterAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4806,9 +4812,9 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    routerWhitelistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
+    routerAllowlistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
 
-    routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+    routerAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -5401,11 +5407,11 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    assetWhitelistRemoved(
+    assetAllowlistRemoved(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    assetWhitelistTimestamp(
+    assetAllowlistTimestamp(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -5432,7 +5438,7 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    proposeAssetWhitelistRemoval(
+    proposeAssetAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5441,7 +5447,7 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    proposeRouterWhitelistRemoval(
+    proposeRouterAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5454,11 +5460,11 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    removeAssetWhitelist(
+    removeAssetAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    removeRouterWhitelist(
+    removeRouterAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5467,11 +5473,11 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    routerWhitelistRemoved(
+    routerAllowlistRemoved(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    routerWhitelistTimestamp(
+    routerAllowlistTimestamp(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

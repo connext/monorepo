@@ -5,6 +5,8 @@ import type * as connextPriceOracleSol from "./ConnextPriceOracle.sol";
 export type { connextPriceOracleSol };
 import type * as ozerc20Sol from "./OZERC20.sol";
 export type { ozerc20Sol };
+import type * as relayerProxySol from "./RelayerProxy.sol";
+export type { relayerProxySol };
 export type { BridgeToken } from "./BridgeToken";
 export type { ConnextDiamond } from "./ConnextDiamond";
 export type { ConnextProxyAdmin } from "./ConnextProxyAdmin";

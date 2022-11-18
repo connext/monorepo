@@ -81,7 +81,7 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!mirrorConnector");
     // ensure it is headed to this domain
-    require(GnosisAmb(AMB).destinationChainId() == block.chainid, "!destinationChain");
+    require(GnosisAmb(AMB).sourceChainId() == block.chainid, "!destinationChain");
     // update the aggregate root on the domain
     receiveAggregateRoot(bytes32(_data));
   }

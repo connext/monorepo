@@ -31,7 +31,6 @@ contract InboxFacet is BaseConnextFacet {
   error InboxFacet__onlyReplica_notReplica();
   error InboxFacet__onlyRemoteRouter_notRemote();
   error InboxFacet__handle_notTransfer();
-  error InboxFacet__reconcile_notConnext();
   error InboxFacet__reconcile_alreadyReconciled();
   error InboxFacet__reconcile_noPortalRouter();
 
@@ -94,8 +93,8 @@ contract InboxFacet is BaseConnextFacet {
    * @param _origin The domain the message is coming from.
    * @param _router The address the message is coming from.
    */
-  modifier onlyRemoteRouter(uint32 _origin, bytes32 _router) {
-    if (!_isRemoteRouter(_origin, _router)) {
+  modifier onlyRemoteHandler(uint32 _origin, bytes32 _router) {
+    if (!_isRemoteHandler(_origin, _router)) {
       revert InboxFacet__onlyRemoteRouter_notRemote();
     }
     _;
@@ -116,7 +115,7 @@ contract InboxFacet is BaseConnextFacet {
     uint32 _nonce,
     bytes32 _sender,
     bytes memory _message
-  ) external onlyReplica onlyRemoteRouter(_origin, _sender) {
+  ) external onlyReplica onlyRemoteHandler(_origin, _sender) {
     // Parse token ID and action from message body.
     bytes29 _msg = _message.ref(0).mustBeMessage();
     bytes29 _tokenId = _msg.tokenId();
@@ -210,10 +209,10 @@ contract InboxFacet is BaseConnextFacet {
   /**
    * @notice Return true if the given domain / router is the address of a remote xApp Router
    * @param _domain The domain of the potential remote xApp Router
-   * @param _router The address of the potential remote xApp Router
+   * @param _xAppHandler The address of the potential remote xApp handler
    */
-  function _isRemoteRouter(uint32 _domain, bytes32 _router) internal view returns (bool) {
-    return s.remotes[_domain] == _router && _router != bytes32(0);
+  function _isRemoteHandler(uint32 _domain, bytes32 _xAppHandler) internal view returns (bool) {
+    return s.remotes[_domain] == _xAppHandler && _xAppHandler != bytes32(0);
   }
 
   /**

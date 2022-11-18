@@ -9,6 +9,11 @@ pragma solidity 0.8.17;
  * those we keep in storage.
  */
 abstract contract DomainIndexer {
+  // ============ Events ============
+
+  event DomainAdded(uint32 domain, address connector);
+  event DomainRemoved(uint32 domain);
+
   // ============ Properties ============
 
   /**
@@ -99,6 +104,8 @@ abstract contract DomainIndexer {
    * @param _connectors The given connectors array to check.
    */
   function validateDomains(uint32[] calldata _domains, address[] calldata _connectors) public view {
+    // Sanity check: arguments are same length.
+    require(_domains.length == _connectors.length, "!matching length");
     // Validate that given domains match the current array in storage.
     require(keccak256(abi.encode(_domains)) == domainsHash, "!domains");
     // Validate that given connectors match the current array in storage.
@@ -140,6 +147,8 @@ abstract contract DomainIndexer {
 
     // Update the hashes for the given arrays.
     updateHashes();
+
+    emit DomainAdded(_domain, _connector);
   }
 
   /**
@@ -173,6 +182,8 @@ abstract contract DomainIndexer {
 
     // Update the hashes for the given arrays.
     updateHashes();
+
+    emit DomainRemoved(_domain);
 
     return _connector;
   }

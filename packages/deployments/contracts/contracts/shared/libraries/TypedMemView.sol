@@ -304,16 +304,6 @@ library TypedMemView {
   }
 
   /**
-   * @notice          Optimized type comparison. Checks that the 5-byte type flag is equal.
-   * @param left      The first view
-   * @param right     The second view
-   * @return          bool - True if the 5-byte type flag is equal
-   */
-  function sameType(bytes29 left, bytes29 right) internal pure returns (bool) {
-    return (left ^ right) >> TWENTY_SEVEN_BYTES == 0;
-  }
-
-  /**
    * @notice          Return the memory address of the underlying bytes.
    * @param memView   The view
    * @return          _loc - The memory address
@@ -640,11 +630,13 @@ library TypedMemView {
     }
 
     uint256 _offset = 0;
-    for (uint256 i = 0; i < memViews.length; i++) {
+    uint256 _len = memViews.length;
+    for (uint256 i = 0; i < _len; ) {
       bytes29 memView = memViews[i];
       unchecked {
         unsafeCopyTo(memView, _location + _offset);
         _offset += len(memView);
+        ++i;
       }
     }
     unsafeView = unsafeBuildUnchecked(0, _location, _offset);

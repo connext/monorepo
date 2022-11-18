@@ -2,6 +2,15 @@
 
 ## Next Release
 
+## Amarok 0.2.1-beta.4
+
+- [sdk] add support for priceImpact
+- [contracts] new deployments for staging
+
+## Amarok 0.2.1-beta.3
+
+- [sdk] add support for xCallIntoLocal
+
 ## Amarok 0.2.1-beta.2
 
 - [all] multi fixes
