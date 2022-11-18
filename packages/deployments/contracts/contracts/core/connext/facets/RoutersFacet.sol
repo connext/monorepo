@@ -3,10 +3,12 @@ pragma solidity 0.8.17;
 
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 
-import {BaseConnextFacet} from "./BaseConnextFacet.sol";
+import {Constants} from "../libraries/Constants.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {RouterConfig} from "../libraries/LibConnextStorage.sol";
 import {TokenId} from "../libraries/TokenId.sol";
+
+import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 /**
  * @notice
@@ -32,8 +34,8 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__initializeRouter_configNotEmpty();
   error RoutersFacet__setRouterRecipient_notNewRecipient();
   error RoutersFacet__onlyRouterOwner_notRouterOwner();
-  error RoutersFacet__removeRouter_routerEmpty();
-  error RoutersFacet__removeRouter_notAdded();
+  error RoutersFacet__unapproveRouter_routerEmpty();
+  error RoutersFacet__unapproveRouter_notAdded();
   error RoutersFacet__approveRouter_routerEmpty();
   error RoutersFacet__approveRouter_alreadyAdded();
   error RoutersFacet__proposeRouterOwner_notNewOwner();
@@ -55,9 +57,6 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__setRouterOwner_noChange();
 
   // ============ Properties ============
-
-  // ============ Constants ============
-  uint256 private constant _delay = 7 days;
 
   // ============ Events ============
 
@@ -179,7 +178,7 @@ contract RoutersFacet is BaseConnextFacet {
   }
 
   function LIQUIDITY_FEE_DENOMINATOR() public pure returns (uint256) {
-    return BPS_FEE_DENOMINATOR;
+    return Constants.BPS_FEE_DENOMINATOR;
   }
 
   /**
@@ -267,15 +266,15 @@ contract RoutersFacet is BaseConnextFacet {
    */
   function unapproveRouter(address _router) external onlyOwnerOrRouter {
     // Sanity check: not empty
-    if (_router == address(0)) revert RoutersFacet__removeRouter_routerEmpty();
+    if (_router == address(0)) revert RoutersFacet__unapproveRouter_routerEmpty();
 
     // Sanity check: needs removal
     RouterConfig memory config = s.routerConfigs[_router];
-    if (!config.approved) revert RoutersFacet__removeRouter_notAdded();
+    if (!config.approved) revert RoutersFacet__unapproveRouter_notAdded();
 
     // Update approvals in config mapping
-    s.routerConfigs[_router].approved = false;
-    s.routerConfigs[_router].portalApproved = false;
+    delete s.routerConfigs[_router].approved;
+    delete s.routerConfigs[_router].portalApproved;
 
     // Emit event
     emit RouterRemoved(_router, msg.sender);
@@ -302,7 +301,7 @@ contract RoutersFacet is BaseConnextFacet {
   function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwnerOrAdmin {
     // Slightly misleading: the liquidity fee numerator is not the amount charged,
     // but the amount received after fees are deducted (e.g. 9995/10000 would be .005%).
-    uint256 denominator = BPS_FEE_DENOMINATOR;
+    uint256 denominator = Constants.BPS_FEE_DENOMINATOR;
     if (_numerator < (denominator * 95) / 100) revert RoutersFacet__setLiquidityFeeNumerator_tooSmall();
 
     if (_numerator > denominator) revert RoutersFacet__setLiquidityFeeNumerator_tooLarge();
@@ -332,7 +331,7 @@ contract RoutersFacet is BaseConnextFacet {
   function unapproveRouterForPortal(address _router) external onlyOwnerOrAdmin {
     if (!s.routerConfigs[_router].portalApproved) revert RoutersFacet__unapproveRouterForPortal_notApproved();
 
-    s.routerConfigs[_router].portalApproved = false;
+    delete s.routerConfigs[_router].portalApproved;
 
     emit RouterUnapprovedForPortal(_router, msg.sender);
   }
@@ -382,7 +381,7 @@ contract RoutersFacet is BaseConnextFacet {
     RouterConfig memory config = s.routerConfigs[_router];
 
     // Check timestamp has passed
-    if (block.timestamp - config.proposedTimestamp <= _delay)
+    if (block.timestamp - config.proposedTimestamp <= Constants.GOVERNANCE_DELAY)
       revert RoutersFacet__acceptProposedRouterOwner_notElapsed();
 
     // Check the caller
@@ -396,9 +395,9 @@ contract RoutersFacet is BaseConnextFacet {
 
     // Reset proposal + timestamp
     if (config.proposed != address(0)) {
-      s.routerConfigs[_router].proposed = address(0);
+      delete s.routerConfigs[_router].proposed;
     }
-    s.routerConfigs[_router].proposedTimestamp = 0;
+    delete s.routerConfigs[_router].proposedTimestamp;
   }
 
   /**

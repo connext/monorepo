@@ -222,7 +222,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @dev Only allowlisted routers (senders) can call `dispatch`.
    */
   function removeSender(address _sender) public onlyOwner {
-    allowlistedSenders[_sender] = false;
+    delete allowlistedSenders[_sender];
     emit SenderRemoved(_sender);
   }
 
@@ -400,7 +400,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
     // Now we handle proving all remaining messages in the batch - they should all share the same
     // inbound root!
-    for (uint32 i = 1; i < _proofs.length; ) {
+    uint256 len = _proofs.length;
+    for (uint32 i = 1; i < len; ) {
       _messageHash = keccak256(_proofs[i].message);
       bytes32 _calculatedRoot = calculateMessageRoot(_messageHash, _proofs[i].path, _proofs[i].index);
       // Make sure this root matches the validated inbound root.
@@ -416,7 +417,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     // All messages have been proven. We iterate separately here to process each message in the batch.
     // NOTE: Going through the proving phase for all messages in the batch BEFORE processing ensures
     // we hit reverts before we consume unbounded gas from `process` calls.
-    for (uint32 i = 0; i < _proofs.length; ) {
+    for (uint32 i = 0; i < len; ) {
       process(_proofs[i].message);
       unchecked {
         ++i;
