@@ -1,4 +1,7 @@
 [
+  "error AssetLogic__handleIncomingAsset_feeOnTransferNotSupported()",
+  "error AssetLogic__handleIncomingAsset_nativeAssetNotSupported()",
+  "error AssetLogic__handleOutgoingAsset_notNative()",
   "event AddLiquidity(address indexed,uint256[],uint256[],uint256,uint256)",
   "event NewAdminFee(uint256)",
   "event NewSwapFee(uint256)",
