@@ -22,13 +22,13 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "destAddr",
+        name: "to",
         type: "address",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "amount",
+        name: "value",
         type: "uint256",
       },
       {
@@ -99,6 +99,18 @@ const _abi = [
         name: "messageDataHash",
         type: "bytes32",
       },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "baseFeeL1",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint64",
+        name: "timestamp",
+        type: "uint64",
+      },
     ],
     name: "MessageDelivered",
     type: "event",
@@ -123,6 +135,19 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "newSequencerInbox",
+        type: "address",
+      },
+    ],
+    name: "SequencerInboxUpdated",
+    type: "event",
+  },
+  {
     inputs: [],
     name: "activeOutbox",
     outputs: [
@@ -138,12 +163,31 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "allowedDelayedInboxList",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "inbox",
         type: "address",
       },
     ],
-    name: "allowedInboxes",
+    name: "allowedDelayedInboxes",
     outputs: [
       {
         internalType: "bool",
@@ -152,6 +196,25 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "allowedOutboxList",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -176,6 +239,38 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "delayedInboxAccs",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "delayedMessageCount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint8",
         name: "kind",
         type: "uint8",
@@ -191,7 +286,7 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "deliverMessageToInbox",
+    name: "enqueueDelayedMessage",
     outputs: [
       {
         internalType: "uint256",
@@ -205,13 +300,62 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "dataHash",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "afterDelayedMessagesRead",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "prevMessageCount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "newMessageCount",
+        type: "uint256",
+      },
+    ],
+    name: "enqueueSequencerMessage",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "seqMessageIndex",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes32",
+        name: "beforeAcc",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "delayedAcc",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "acc",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
-        name: "destAddr",
+        name: "to",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "amount",
+        name: "value",
         type: "uint256",
       },
       {
@@ -239,12 +383,51 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "rollup_",
+        type: "address",
+      },
+    ],
+    name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "rollup",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "sequencerInbox",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
-        name: "index",
+        name: "",
         type: "uint256",
       },
     ],
-    name: "inboxAccs",
+    name: "sequencerInboxAccs",
     outputs: [
       {
         internalType: "bytes32",
@@ -257,7 +440,20 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "messageCount",
+    name: "sequencerMessageCount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "sequencerReportedSubMessageCount",
     outputs: [
       {
         internalType: "uint256",
@@ -281,7 +477,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "setInbox",
+    name: "setDelayedInbox",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -301,6 +497,43 @@ const _abi = [
     ],
     name: "setOutbox",
     outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_sequencerInbox",
+        type: "address",
+      },
+    ],
+    name: "setSequencerInbox",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "batchPoster",
+        type: "address",
+      },
+      {
+        internalType: "bytes32",
+        name: "dataHash",
+        type: "bytes32",
+      },
+    ],
+    name: "submitBatchSpendingReport",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "msgNum",
+        type: "uint256",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },

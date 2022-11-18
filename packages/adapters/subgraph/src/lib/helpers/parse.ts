@@ -8,6 +8,7 @@ import {
   PropagatedRoot,
   OriginTransfer,
   ConnectorMeta,
+  RootManagerMeta,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
@@ -372,5 +373,26 @@ export const connectorMeta = (entity: any): ConnectorMeta => {
     amb: entity.amb,
     mirrorConnector: entity.mirrorConnector,
     rootManager: entity.rootManager,
+  };
+};
+
+export const rootManagerMeta = (entity: any): RootManagerMeta => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `RootManagerMeta` entity parser: RootManagerMeta, entity is `undefined`.");
+  }
+  for (const field of ["id", "connectors", "domains"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `RootManagerMeta` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    connectors: entity.connectors,
+    domains: entity.domains,
   };
 };

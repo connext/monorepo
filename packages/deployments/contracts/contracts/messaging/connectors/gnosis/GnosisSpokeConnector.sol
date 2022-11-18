@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
-import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {GnosisAmb} from "../../interfaces/ambs/GnosisAmb.sol";
 
-import {SpokeConnector} from "../SpokeConnector.sol";
+import {SpokeConnector, ProposedOwnable} from "../SpokeConnector.sol";
 import {Connector} from "../Connector.sol";
 
 import {GnosisBase} from "./GnosisBase.sol";
@@ -17,12 +16,12 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
     address _merkle,
-    address _watcherManager
+    address _watcherManager,
+    uint256 _gasCap // gas to be provided on L1 execution
   )
     SpokeConnector(
       _domain,
@@ -30,15 +29,19 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorGas,
       _processGas,
       _reserveGas,
       _delayBlocks,
       _merkle,
       _watcherManager
     )
-    GnosisBase()
+    GnosisBase(_gasCap)
   {}
+
+  /**
+   * @notice Should not be able to renounce ownership
+   */
+  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {}
 
   // ============ Private fns ============
   /**
@@ -50,13 +53,21 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
 
   /**
    * @dev Messaging uses this function to send data to mainnet via amb
+   * @param _encodedData Should be encoding of gas to be provided in execution of the method call on
+   * the mirror domain
    */
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should always be dispatching the outbound root
+    require(_data.length == 32, "!length");
+
+    // Should include gas info in specialized calldata
+    require(_encodedData.length == 32, "!data length");
+
     // send the message to the l1 connector by calling `processMessage`
     GnosisAmb(AMB).requireToPassMessage(
       mirrorConnector,
       abi.encodeWithSelector(Connector.processMessage.selector, _data),
-      mirrorGas
+      _getGasFromEncoded(_encodedData)
     );
   }
 
@@ -64,10 +75,13 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
    * @dev AMB calls this function to store aggregate root that is sent up by the root manager
    */
   function _processMessage(bytes memory _data) internal override {
+    // get the data (should be the aggregate root)
+    require(_data.length == 32, "!length");
+
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!mirrorConnector");
     // ensure it is headed to this domain
-    require(GnosisAmb(AMB).destinationChainId() == block.chainid, "!destinationChain");
+    require(GnosisAmb(AMB).sourceChainId() == block.chainid, "!destinationChain");
     // update the aggregate root on the domain
     receiveAggregateRoot(bytes32(_data));
   }

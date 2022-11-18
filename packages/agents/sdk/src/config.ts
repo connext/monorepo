@@ -5,7 +5,7 @@ import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txser
 
 import { getChainData } from "./lib/helpers";
 
-const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
+const DEFAULT_SLIPPAGE = 10000; // in BPS
 
 export const TAssetDescription = Type.Object({
   name: Type.String(),
@@ -37,7 +37,7 @@ export const NxtpSdkConfigSchema = Type.Object({
   signerAddress: Type.Optional(TAddress),
   logLevel: Type.Optional(TLogLevel),
   cartographerUrl: Type.Optional(Type.String()),
-  maxSlippage: Type.Optional(Type.Number({ minimum: 0, maximum: 100 })),
+  slippage: Type.Optional(Type.Number({ minimum: 0, maximum: 10000 })),
   network: Type.Optional(Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")])),
   environment: Type.Optional(Type.Union([Type.Literal("staging"), Type.Literal("production")])),
 });
@@ -60,7 +60,7 @@ export const NxtpValidationSdkConfigSchema = Type.Object({
   signerAddress: Type.Optional(TAddress),
   logLevel: TLogLevel,
   cartographerUrl: Type.String(),
-  maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
+  slippage: Type.Number({ minimum: 0, maximum: 10000 }),
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
@@ -79,7 +79,7 @@ export const getEnvConfig = (
     ..._nxtpConfig,
     logLevel: _nxtpConfig.logLevel || "info",
     network: _nxtpConfig.network || "mainnet",
-    maxSlippage: _nxtpConfig.maxSlippage || DEFAULT_ALLOWED_TOLERANCE,
+    slippage: _nxtpConfig.slippage || DEFAULT_SLIPPAGE,
     environment: _nxtpConfig.environment || "production",
     cartographerUrl: _nxtpConfig.cartographerUrl || "https://postgrest.testnet.connext.ninja",
   };

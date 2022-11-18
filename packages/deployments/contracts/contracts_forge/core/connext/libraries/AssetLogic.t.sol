@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import "../../../../contracts/core/connext/libraries/SwapUtils.sol";
@@ -68,7 +68,9 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
       // the pool balance of each token, in the token's precision
       // the contract's actual token balance might differ
       balances: _balances,
-      adminFees: new uint256[](2)
+      adminFees: new uint256[](2),
+      disabled: false,
+      removeTime: 0
     });
 
     s.swapStorages[_canonicalKey] = swap;

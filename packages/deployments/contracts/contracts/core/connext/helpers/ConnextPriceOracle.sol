@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {IERC20Extended} from "../interfaces/IERC20Extended.sol";
 import {IPriceOracle} from "../interfaces/IPriceOracle.sol";
 
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
@@ -15,20 +14,6 @@ interface AggregatorV3Interface {
   function description() external view returns (string memory);
 
   function version() external view returns (uint256);
-
-  // getRoundData and latestRoundData should both raise "No data present"
-  // if they do not have data to report, instead of returning unset values
-  // which could be misinterpreted as actual reported values.
-  function getRoundData(uint80 _roundId)
-    external
-    view
-    returns (
-      uint80 roundId,
-      int256 answer,
-      uint256 startedAt,
-      uint256 updatedAt,
-      uint80 answeredInRound
-    );
 
   function latestRoundData()
     external
@@ -42,9 +27,14 @@ interface AggregatorV3Interface {
     );
 }
 
+/**
+ * @title ConnextPriceOracle
+ * @notice Simple interface for querying a variety of price feeds
+ *
+ * @dev If ownership is renounced, the direct price, aggregators, and price oracles
+ * can no longer be updated
+ */
 contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
-  using SafeERC20 for IERC20Extended;
-
   address public wrapped;
   address public v1PriceOracle;
 
@@ -55,7 +45,6 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
     NA,
     DIRECT,
     CHAINLINK,
-    DEX,
     V1_ORACLE
   }
 
@@ -69,41 +58,47 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
   mapping(address => Price) public assetPrices;
 
-  event NewAdmin(address oldAdmin, address newAdmin);
-  event PriceRecordUpdated(address token, address baseToken, address lpToken, bool _active);
   event DirectPriceUpdated(address token, uint256 oldPrice, uint256 newPrice);
   event AggregatorUpdated(address tokenAddress, address source);
   event V1PriceOracleUpdated(address oldAddress, address newAddress);
 
   constructor(address _wrapped) {
+    require(_wrapped != address(0), "zero wrapped address!");
+
     wrapped = _wrapped;
     _setOwner(msg.sender);
   }
 
   function getTokenPrice(address _tokenAddress) public view override returns (uint256, uint256) {
     address tokenAddress = _tokenAddress;
-    PriceSource source = PriceSource.NA;
 
+    // For native tokens, get price of the wrapped token
     if (_tokenAddress == address(0)) {
       tokenAddress = wrapped;
     }
+
+    // First check the direct price which stored in contract. Only owner can set direct price.
     uint256 tokenPrice = assetPrices[tokenAddress].price;
-    if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) <= VALID_PERIOD)) {
+    // only accept up to and not including VALID_PERIOD time deviation
+    if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) < VALID_PERIOD)) {
       return (tokenPrice, uint256(PriceSource.DIRECT));
-    } else {
-      tokenPrice = 0;
     }
 
-    if (tokenPrice == 0) {
-      tokenPrice = getPriceFromOracle(tokenAddress);
-      source = PriceSource.CHAINLINK;
+    // Second, check ChainLink aggregator, If current token is supported by chainlink, return
+    tokenPrice = getPriceFromOracle(tokenAddress);
+    if (tokenPrice != 0) {
+      return (tokenPrice, uint256(PriceSource.CHAINLINK));
     }
-    if (tokenPrice == 0 && v1PriceOracle != address(0)) {
+
+    // Third, If v1 oracle price contract is set, check v1 price
+    if (v1PriceOracle != address(0)) {
       tokenPrice = IPriceOracle(v1PriceOracle).getTokenPrice(tokenAddress);
-      source = PriceSource.V1_ORACLE;
+      if (tokenPrice != 0) {
+        return (tokenPrice, uint256(PriceSource.V1_ORACLE));
+      }
     }
 
-    return (tokenPrice, uint256(source));
+    return (0, uint256(PriceSource.NA));
   }
 
   function getPriceFromOracle(address _tokenAddress) public view returns (uint256) {

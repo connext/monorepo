@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IProposedOwnable} from "../../shared/interfaces/IProposedOwnable.sol";
 
@@ -44,9 +44,10 @@ interface IConnector is IProposedOwnable {
   /**
    * @notice Emitted whenever a message is successfully sent over an AMB
    * @param data The contents of the message
+   * @param encodedData Data used to send the message; specific to connector
    * @param caller Who called the function (sent the message)
    */
-  event MessageSent(bytes data, address caller);
+  event MessageSent(bytes data, bytes encodedData, address caller);
 
   /**
    * @notice Emitted whenever a message is successfully received over an AMB

@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -36,7 +37,6 @@ export interface HubConnectorInterface extends utils.Interface {
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
-    "mirrorGas()": FunctionFragment;
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
@@ -44,9 +44,8 @@ export interface HubConnectorInterface extends utils.Interface {
     "proposedTimestamp()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "sendMessage(bytes)": FunctionFragment;
+    "sendMessage(bytes,bytes)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
-    "setMirrorGas(uint256)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
   };
 
@@ -59,7 +58,6 @@ export interface HubConnectorInterface extends utils.Interface {
       | "acceptProposedOwner"
       | "delay"
       | "mirrorConnector"
-      | "mirrorGas"
       | "owner"
       | "processMessage"
       | "proposeNewOwner"
@@ -69,7 +67,6 @@ export interface HubConnectorInterface extends utils.Interface {
       | "renounced"
       | "sendMessage"
       | "setMirrorConnector"
-      | "setMirrorGas"
       | "verifySender"
   ): FunctionFragment;
 
@@ -92,7 +89,6 @@ export interface HubConnectorInterface extends utils.Interface {
     functionFragment: "mirrorConnector",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "mirrorGas", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processMessage",
@@ -114,15 +110,11 @@ export interface HubConnectorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "sendMessage",
-    values: [PromiseOrValue<BytesLike>]
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "setMirrorConnector",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMirrorGas",
-    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "verifySender",
@@ -148,7 +140,6 @@ export interface HubConnectorInterface extends utils.Interface {
     functionFragment: "mirrorConnector",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "mirrorGas", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processMessage",
@@ -177,19 +168,14 @@ export interface HubConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setMirrorGas",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "verifySender",
     data: BytesLike
   ): Result;
 
   events: {
     "MessageProcessed(bytes,address)": EventFragment;
-    "MessageSent(bytes,address)": EventFragment;
+    "MessageSent(bytes,bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
-    "MirrorGasUpdated(uint256,uint256)": EventFragment;
     "NewConnector(uint32,uint32,address,address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
@@ -198,7 +184,6 @@ export interface HubConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MirrorGasUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewConnector"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
@@ -218,10 +203,11 @@ export type MessageProcessedEventFilter =
 
 export interface MessageSentEventObject {
   data: string;
+  encodedData: string;
   caller: string;
 }
 export type MessageSentEvent = TypedEvent<
-  [string, string],
+  [string, string, string],
   MessageSentEventObject
 >;
 
@@ -238,18 +224,6 @@ export type MirrorConnectorUpdatedEvent = TypedEvent<
 
 export type MirrorConnectorUpdatedEventFilter =
   TypedEventFilter<MirrorConnectorUpdatedEvent>;
-
-export interface MirrorGasUpdatedEventObject {
-  previous: BigNumber;
-  current: BigNumber;
-}
-export type MirrorGasUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  MirrorGasUpdatedEventObject
->;
-
-export type MirrorGasUpdatedEventFilter =
-  TypedEventFilter<MirrorGasUpdatedEvent>;
 
 export interface NewConnectorEventObject {
   domain: number;
@@ -331,8 +305,6 @@ export interface HubConnector extends BaseContract {
 
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
 
-    mirrorGas(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     processMessage(
@@ -357,16 +329,12 @@ export interface HubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _encodedData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setMirrorGas(
-      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -392,8 +360,6 @@ export interface HubConnector extends BaseContract {
 
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
-  mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
-
   owner(overrides?: CallOverrides): Promise<string>;
 
   processMessage(
@@ -418,16 +384,12 @@ export interface HubConnector extends BaseContract {
 
   sendMessage(
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    _encodedData: PromiseOrValue<BytesLike>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setMirrorGas(
-    _mirrorGas: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -451,8 +413,6 @@ export interface HubConnector extends BaseContract {
 
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
-    mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
-
     owner(overrides?: CallOverrides): Promise<string>;
 
     processMessage(
@@ -475,16 +435,12 @@ export interface HubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
+      _encodedData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setMirrorGas(
-      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -501,11 +457,16 @@ export interface HubConnector extends BaseContract {
     ): MessageProcessedEventFilter;
     MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
 
-    "MessageSent(bytes,address)"(
+    "MessageSent(bytes,bytes,address)"(
       data?: null,
+      encodedData?: null,
       caller?: null
     ): MessageSentEventFilter;
-    MessageSent(data?: null, caller?: null): MessageSentEventFilter;
+    MessageSent(
+      data?: null,
+      encodedData?: null,
+      caller?: null
+    ): MessageSentEventFilter;
 
     "MirrorConnectorUpdated(address,address)"(
       previous?: null,
@@ -515,15 +476,6 @@ export interface HubConnector extends BaseContract {
       previous?: null,
       current?: null
     ): MirrorConnectorUpdatedEventFilter;
-
-    "MirrorGasUpdated(uint256,uint256)"(
-      previous?: null,
-      current?: null
-    ): MirrorGasUpdatedEventFilter;
-    MirrorGasUpdated(
-      previous?: null,
-      current?: null
-    ): MirrorGasUpdatedEventFilter;
 
     "NewConnector(uint32,uint32,address,address,address)"(
       domain?: PromiseOrValue<BigNumberish> | null,
@@ -574,8 +526,6 @@ export interface HubConnector extends BaseContract {
 
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
 
-    mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
-
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     processMessage(
@@ -600,16 +550,12 @@ export interface HubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _encodedData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setMirrorGas(
-      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -636,8 +582,6 @@ export interface HubConnector extends BaseContract {
 
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    mirrorGas(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     processMessage(
@@ -662,16 +606,12 @@ export interface HubConnector extends BaseContract {
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _encodedData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMirrorGas(
-      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

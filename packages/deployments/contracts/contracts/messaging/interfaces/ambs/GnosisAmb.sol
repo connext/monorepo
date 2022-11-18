@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 // Taken from: https://github.com/omni/tokenbridge-contracts/blob/master/contracts/interfaces/IAMB.sol
 interface GnosisAmb {
@@ -38,4 +38,8 @@ interface GnosisAmb {
   function sourceChainId() external view returns (uint256);
 
   function destinationChainId() external view returns (uint256);
+
+  function executeSignatures(bytes memory _data, bytes memory _signatures) external;
+
+  function safeExecuteSignaturesWithAutoGasLimit(bytes memory _data, bytes memory _signatures) external;
 }

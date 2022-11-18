@@ -38,12 +38,15 @@ const loggingContext = mock.loggingContext("RELAYER-TEST");
 describe("Operations:ExecuteFast", () => {
   describe("#sendExecuteFastToRelayer", () => {
     let encodeExecuteFromBidsStub: SinonStub;
+    let encodeRelayerProxyExecuteFromBids: SinonStub;
     let sendWithRelayerWithBackupStub: SinonStub;
     beforeEach(() => {
       encodeExecuteFromBidsStub = stub();
+      encodeRelayerProxyExecuteFromBids = stub();
       getHelpersStub.returns({
         auctions: {
           encodeExecuteFromBids: encodeExecuteFromBidsStub.returns("0xbeef"),
+          encodeRelayerProxyExecuteFromBids: encodeExecuteFromBidsStub.returns("0xbeef"),
         },
       });
       sendWithRelayerWithBackupStub = stub(MockableFns, "sendWithRelayerWithBackup").resolves({

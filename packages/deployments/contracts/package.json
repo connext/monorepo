@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.2.1-beta.2",
+  "version": "0.2.1-beta.4",
   "description": "",
   "scripts": {
     "test": "yarn forge test --gas-report --no-match-contract 'LiveTest'",
@@ -42,8 +42,8 @@
     "@nomiclabs/hardhat-ethers": "2.2.1",
     "@nomiclabs/hardhat-etherscan": "3.1.2",
     "@nomiclabs/hardhat-waffle": "2.0.3",
-    "@openzeppelin/contracts": "4.7.3",
-    "@openzeppelin/contracts-upgradeable": "4.7.3",
+    "@openzeppelin/contracts": "4.8.0",
+    "@openzeppelin/contracts-upgradeable": "4.8.0",
     "@sinclair/typebox": "0.25.2",
     "@typechain/ethers-v5": "10.1.0",
     "@typechain/hardhat": "6.1.3",

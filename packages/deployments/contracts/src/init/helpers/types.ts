@@ -70,10 +70,10 @@ export type SpokeMessagingDeployments = {
 export type DomainDeployments = {
   // Diamond.
   Connext: Deployment;
+  RelayerProxy: Deployment;
 
   // Messaging Layer.
   // ConnectorManager
-  // SendOutboundRootResolver
 
   // The messaging layer deployments are different depending on whether this
   // is the hub domain or spoke domain.
