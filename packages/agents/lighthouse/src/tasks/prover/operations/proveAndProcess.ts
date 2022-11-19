@@ -200,8 +200,8 @@ export const processMessage = async (message: XMessage) => {
     fee = gasLimit.mul(await chainreader.getGasPrice(domain, requestContext));
   }
 
-  const [proofs, aggregateRoot, aggregatePath, aggregateIndex] = contracts.connext.decodeFunctionResult(
-    "execute",
+  const [proofs, aggregateRoot, aggregatePath, aggregateIndex] = contracts.relayerProxy.decodeFunctionResult(
+    "proveAndProcess",
     proveAndProcessEncodedData,
   );
 
