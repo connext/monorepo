@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager.sol";
 import {SwapUtils} from "./SwapUtils.sol";
+import {TokenId} from "./TokenId.sol";
 
 // ============= Enum =============
 
@@ -15,7 +16,7 @@ import {SwapUtils} from "./SwapUtils.sol";
 // Admin    - 3
 enum Role {
   None,
-  Router,
+  RouterAdmin,
   Watcher,
   Admin
 }
@@ -33,25 +34,18 @@ enum DestinationTransferStatus {
   Completed // 3 - executed + reconciled
 }
 
-// ============= Structs =============
-
-struct TokenId {
-  uint32 domain;
-  bytes32 id;
-}
-
 /**
  * @notice These are the parameters that will remain constant between the
  * two chains. They are supplied on `xcall` and should be asserted on `execute`
  * @property to - The account that receives funds, in the event of a crosschain call,
  * will receive funds if the call fails.
  *
- * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
- * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
+ * @param originDomain - The originating domain (i.e. where `xcall` is called)
+ * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called)\
  * @param canonicalDomain - The canonical domain of the asset you are bridging
  * @param to - The address you are sending funds (and potentially data) to
  * @param delegate - An address who can execute txs on behalf of `to`, in addition to allowing relayers
- * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
+ * @param receiveLocal - If true, will use the local asset on the destination instead of adopted.
  * @param callData - The data to execute on the receiving chain. If no crosschain call is needed, then leave empty.
  * @param slippage - Slippage user is willing to accept from original amount in expressed in BPS (i.e. if
  * a user takes 1% slippage, this is expressed as 1_000)
@@ -97,8 +91,8 @@ struct ExecuteArgs {
 
 /**
  * @notice Contains configs for each router
- * @param approved Whether the router is whitelisted, settable by admin
- * @param portalApproved Whether the router is whitelisted for portals, settable by admin
+ * @param approved Whether the router is allowlisted, settable by admin
+ * @param portalApproved Whether the router is allowlisted for portals, settable by admin
  * @param routerOwners The address that can update the `recipient`
  * @param proposedRouterOwners Owner candidates
  * @param proposedRouterTimestamp When owner candidate was proposed (there is a delay to acceptance)
@@ -134,25 +128,25 @@ struct AppStorage {
   uint256 nonce;
   /**
    * @notice The domain this contract exists on.
-   * @dev Must match the nomad domain, which is distinct from the "chainId".
+   * @dev Must match the domain identifier, which is distinct from the "chainId".
    */
   // 4
   uint32 domain;
   /**
    * @notice Mapping holding the AMMs for swapping in and out of local assets.
-   * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon).
+   * @dev Swaps for an adopted asset <> local asset (i.e. POS USDC <> nextUSDC on polygon).
    * This mapping is keyed on the hash of the canonical id + domain for local asset.
    */
   // 6
   mapping(bytes32 => IStableSwap) adoptedToLocalExternalPools;
   /**
-   * @notice Mapping of whitelisted assets on same domain as contract.
+   * @notice Mapping of allowlisted assets on same domain as contract.
    * @dev Mapping is keyed on the hash of the canonical id and domain
    */
   // 7
   mapping(bytes32 => bool) approvedAssets;
   /**
-   * @notice Mapping of liquidity caps of whitelisted assets. If 0, no cap is enforced.
+   * @notice Mapping of liquidity caps of allowlisted assets. If 0, no cap is enforced.
    * @dev Mapping is keyed on the hash of the canonical id and domain
    */
   // 7
@@ -201,7 +195,7 @@ struct AppStorage {
   /**
    * @notice Mapping of router to available balance of an asset.
    * @dev Routers should always store liquidity that they can expect to receive via the bridge on
-   * this domain (the nomad local asset).
+   * this domain (the local asset).
    */
   // 14
   mapping(address => mapping(address => uint256)) routerBalances;
@@ -241,13 +235,13 @@ struct AppStorage {
   // 23
   uint256 _proposedOwnershipTimestamp;
   // 24
-  bool _routerWhitelistRemoved;
+  bool _routerAllowlistRemoved;
   // 25
-  uint256 _routerWhitelistTimestamp;
+  uint256 _routerAllowlistTimestamp;
   // 26
-  bool _assetWhitelistRemoved;
+  bool _assetAllowlistRemoved;
   // 27
-  uint256 _assetWhitelistTimestamp;
+  uint256 _assetAllowlistTimestamp;
   /**
    * @notice Stores a mapping of address to Roles
    * @dev returns uint representing the enum Role value
@@ -264,12 +258,13 @@ struct AppStorage {
   //
   // 30
   uint256 _status;
+  uint256 _xcallStatus;
   //
   // StableSwap
   //
   /**
    * @notice Mapping holding the AMM storages for swapping in and out of local assets
-   * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon)
+   * @dev Swaps for an adopted asset <> local asset (i.e. POS USDC <> nextUSDC on polygon)
    * Struct storing data responsible for automatic market maker functionalities. In order to
    * access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol.
    */
@@ -282,9 +277,15 @@ struct AppStorage {
   // 32
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
   /**
-   * @notice Stores whether or not bribing, AMMs, have been paused.
+   * The address of an existing LPToken contract to use as a target
+   * this target must be the address which connext deployed on this chain.
    */
   // 33
+  address lpTokenTargetAddress;
+  /**
+   * @notice Stores whether or not bribing, AMMs, have been paused.
+   */
+  // 34
   bool _paused;
   //
   // AavePortals
@@ -292,35 +293,35 @@ struct AppStorage {
   /**
    * @notice Address of Aave Pool contract.
    */
-  // 34
+  // 35
   address aavePool;
   /**
    * @notice Fee percentage numerator for using Portal liquidity.
    * @dev Assumes the same basis points as the liquidity fee.
    */
-  // 35
+  // 36
   uint256 aavePortalFeeNumerator;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals.
    */
-  // 36
+  // 37
   mapping(bytes32 => uint256) portalDebt;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals.
    */
-  // 37
+  // 38
   mapping(bytes32 => uint256) portalFeeDebt;
   /**
    * @notice Mapping of approved sequencers
    * @dev Sequencer address provided must belong to an approved sequencer in order to call `execute`
    * for the fast liquidity route.
    */
-  // 38
+  // 39
   mapping(address => bool) approvedSequencers;
   /**
    * @notice Remote connection manager for xapp.
    */
-  // 39
+  // 40
   IConnectorManager xAppConnectionManager;
 }
 

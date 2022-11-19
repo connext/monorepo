@@ -17,15 +17,21 @@ contract GnosisHubConnector is HubConnector, GnosisBase {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _gasCap
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) GnosisBase(_gasCap) {}
+    uint256 _gasCap,
+    uint256 _mirrorChainId
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) GnosisBase(_gasCap, _mirrorChainId) {}
+
+  // https://docs.gnosischain.com/bridges/tutorials/using-amb
+  function executeSignatures(bytes memory _data, bytes memory _signatures) external {
+    GnosisAmb(AMB).executeSignatures(_data, _signatures);
+  }
 
   // ============ Private fns ============
   /**
    * @dev Asserts the sender of a cross domain message
    */
   function _verifySender(address _expected) internal view override returns (bool) {
-    return _verifySender(AMB, _expected);
+    return _verifySender(AMB, _expected, GnosisAmb(AMB).sourceChainId());
   }
 
   /**

@@ -113,9 +113,9 @@ contract QueueLibTest is ForgeHelper {
     assertEq(verified.length, 0);
   }
 
-  function test_Queue__dequeueVerifiedFailsIfQueueIsEmpty() public {
-    vm.expectRevert("queue empty");
-    queue.dequeueVerified(123, 99999999999);
+  function test_Queue__dequeueVerifiedReturnsIfQueueIsEmpty() public {
+    bytes32[] memory verified = queue.dequeueVerified(0, 99999999999);
+    assertEq(verified.length, 0);
   }
 
   function test_Queue__dequeueVerifiedWithMaximumWorks() public {
@@ -136,6 +136,35 @@ contract QueueLibTest is ForgeHelper {
 
     for (uint256 i; i < verified.length; i++) {
       assertEq(verified[i], entries[i].message);
+    }
+  }
+
+  function test_Queue__dequeueVerifiedWithRemovedWorks() public {
+    // 100 entries spaced 1 block apart.
+    uint256 testEntryCount = 100;
+    Entry[] memory entries = utils_generateEntries(testEntryCount, 1);
+    for (uint256 i; i < testEntryCount; i++) {
+      Entry memory entry = entries[i];
+      utils_enqueueEntry(entry);
+    }
+
+    // Remove one of the entries.
+    uint256 badRootIndex = 54;
+    queue.remove(entries[badRootIndex].message);
+
+    // Delay blocks will be 10 below. Let's roll ahead 20 blocks and we can be sure that
+    // normally, the whole queue would be verified.
+    vm.roll(block.number + 20);
+    // If one of the roots was removed we should get 99 roots back.
+    bytes32[] memory verified = queue.dequeueVerified(10, 10000);
+    assertEq(verified.length, 99);
+
+    for (uint256 i; i < badRootIndex; i++) {
+      assertEq(verified[i], entries[i].message);
+    }
+
+    for (uint256 i = badRootIndex; i < verified.length; i++) {
+      assertEq(verified[i], entries[i + 1].message);
     }
   }
 }

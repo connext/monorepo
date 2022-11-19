@@ -3,8 +3,9 @@ pragma solidity 0.8.17;
 
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {IERC20Extended} from "../interfaces/IERC20Extended.sol";
 import {IPriceOracle} from "../interfaces/IPriceOracle.sol";
+
+import {Constants} from "../libraries/Constants.sol";
 
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
 import {PriceOracle} from "./PriceOracle.sol";
@@ -15,20 +16,6 @@ interface AggregatorV3Interface {
   function description() external view returns (string memory);
 
   function version() external view returns (uint256);
-
-  // getRoundData and latestRoundData should both raise "No data present"
-  // if they do not have data to report, instead of returning unset values
-  // which could be misinterpreted as actual reported values.
-  function getRoundData(uint80 _roundId)
-    external
-    view
-    returns (
-      uint80 roundId,
-      int256 answer,
-      uint256 startedAt,
-      uint256 updatedAt,
-      uint80 answeredInRound
-    );
 
   function latestRoundData()
     external
@@ -50,12 +37,8 @@ interface AggregatorV3Interface {
  * can no longer be updated
  */
 contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
-  using SafeERC20 for IERC20Extended;
-
   address public wrapped;
   address public v1PriceOracle;
-
-  uint256 public constant VALID_PERIOD = 1 minutes;
 
   /// @notice Price sources
   enum PriceSource {
@@ -75,8 +58,6 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
   mapping(address => Price) public assetPrices;
 
-  event NewAdmin(address oldAdmin, address newAdmin);
-  event PriceRecordUpdated(address token, address baseToken, address lpToken, bool _active);
   event DirectPriceUpdated(address token, uint256 oldPrice, uint256 newPrice);
   event AggregatorUpdated(address tokenAddress, address source);
   event V1PriceOracleUpdated(address oldAddress, address newAddress);
@@ -90,28 +71,34 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
   function getTokenPrice(address _tokenAddress) public view override returns (uint256, uint256) {
     address tokenAddress = _tokenAddress;
-    PriceSource source = PriceSource.NA;
 
+    // For native tokens, get price of the wrapped token
     if (_tokenAddress == address(0)) {
       tokenAddress = wrapped;
     }
+
+    // First check the direct price which stored in contract. Only owner can set direct price.
     uint256 tokenPrice = assetPrices[tokenAddress].price;
-    if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) <= VALID_PERIOD)) {
+    // only accept up to and not including Constants.ORACLE_VALID_PERIOD time deviation
+    if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) < Constants.ORACLE_VALID_PERIOD)) {
       return (tokenPrice, uint256(PriceSource.DIRECT));
-    } else {
-      tokenPrice = 0;
     }
 
-    if (tokenPrice == 0) {
-      tokenPrice = getPriceFromOracle(tokenAddress);
-      source = PriceSource.CHAINLINK;
+    // Second, check ChainLink aggregator, If current token is supported by chainlink, return
+    tokenPrice = getPriceFromOracle(tokenAddress);
+    if (tokenPrice != 0) {
+      return (tokenPrice, uint256(PriceSource.CHAINLINK));
     }
-    if (tokenPrice == 0 && v1PriceOracle != address(0)) {
+
+    // Third, If v1 oracle price contract is set, check v1 price
+    if (v1PriceOracle != address(0)) {
       tokenPrice = IPriceOracle(v1PriceOracle).getTokenPrice(tokenAddress);
-      source = PriceSource.V1_ORACLE;
+      if (tokenPrice != 0) {
+        return (tokenPrice, uint256(PriceSource.V1_ORACLE));
+      }
     }
 
-    return (tokenPrice, uint256(source));
+    return (0, uint256(PriceSource.NA));
   }
 
   function getPriceFromOracle(address _tokenAddress) public view returns (uint256) {
@@ -130,10 +117,15 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
         uint80 answeredInRound
       ) {
         // It's fine for price to be 0. We have more price feeds.
-        if (answer == 0 || answeredInRound < roundId || updateAt == 0 || block.timestamp > updateAt + VALID_PERIOD) {
+        if (
+          answer == 0 ||
+          answeredInRound < roundId ||
+          updateAt == 0 ||
+          block.timestamp > updateAt + Constants.ORACLE_VALID_PERIOD
+        ) {
           // answeredInRound > roundId ===> ChainLink Error: Stale price
           // updatedAt = 0 ===> ChainLink Error: Round not complete
-          // block.timestamp - updateAt > VALID_PERIOD ===> too old data
+          // block.timestamp - updateAt > Constants.ORACLE_VALID_PERIOD ===> too old data
           return 0;
         }
 
@@ -141,10 +133,10 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
         uint256 price;
         // Make the decimals to 1e18.
         uint256 aggregatorDecimals = uint256(aggregator.decimals());
-        if (aggregatorDecimals > 18) {
-          price = retVal / (10**(aggregatorDecimals - 18));
+        if (aggregatorDecimals > Constants.DEFAULT_NORMALIZED_DECIMALS) {
+          price = retVal / (10**(aggregatorDecimals - Constants.DEFAULT_NORMALIZED_DECIMALS));
         } else {
-          price = retVal * (10**(18 - aggregatorDecimals));
+          price = retVal * (10**(Constants.DEFAULT_NORMALIZED_DECIMALS - aggregatorDecimals));
         }
 
         return price;
@@ -165,10 +157,10 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
     require(_price != 0, "bad price");
     if (block.timestamp > _timestamp) {
       // reject stale price
-      require(block.timestamp - _timestamp < VALID_PERIOD, "bad timestamp");
+      require(block.timestamp - _timestamp < Constants.ORACLE_VALID_PERIOD, "bad timestamp");
     } else {
       // reject future timestamp (<3s is allowed)
-      require(_timestamp - block.timestamp < 3, "in future");
+      require(_timestamp - block.timestamp < Constants.FUTURE_TIME_BUFFER, "in future");
       _timestamp = block.timestamp;
     }
 

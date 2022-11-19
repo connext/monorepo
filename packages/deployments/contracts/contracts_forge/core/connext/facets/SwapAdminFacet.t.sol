@@ -5,6 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {SwapUtils} from "../../../../contracts/core/connext/libraries/SwapUtils.sol";
+import {Constants} from "../../../../contracts/core/connext/libraries/Constants.sol";
 import {AmplificationUtils} from "../../../../contracts/core/connext/libraries/AmplificationUtils.sol";
 import {LPToken} from "../../../../contracts/core/connext/helpers/LPToken.sol";
 
@@ -44,17 +45,19 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     // we are on the origin domain where local != canonical
     s.domain = _originDomain;
     utils_setupAsset(false, false);
-    console.log("setup asset");
 
     // set the owner to this contract
     setOwner(_owner);
 
+    // set lpTokenTargetAddress
+    _lpTokenTarget = new LPToken();
+    _lpTokenTarget.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
+    s.lpTokenTargetAddress = address(_lpTokenTarget);
+
     // _stableSwapFacet = address(new StableSwapFacet());
 
     utils_initializeSwap();
-    console.log("setup swap");
     utils_addLiquidity(1 ether, 1 ether);
-    console.log("setup swap funds");
   }
 
   // ============ Utils ==============
@@ -98,21 +101,9 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     uint256 _adminFee = 0;
     uint256 _fee = SWAP_FEE;
 
-    _lpTokenTarget = new LPToken();
-    _lpTokenTarget.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
-
-    vm.prank(_owner);
-    this.initializeSwap(
-      _canonicalKey,
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      _a,
-      _fee,
-      _adminFee,
-      address(_lpTokenTarget)
-    );
+    vm.startPrank(_owner);
+    this.initializeSwap(_canonicalKey, _pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, _a, _fee, _adminFee);
+    vm.stopPrank();
 
     assertEq(this.getSwapVirtualPrice(_canonicalKey), 0);
   }
@@ -142,6 +133,18 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     return this.swapExact(_canonicalKey, amountIn, assetIn, assetOut, minAmountOut, blockTimestamp + 10);
   }
 
+  function utils_removeAllLiquidity() public {
+    address swapToken = this.getSwapLPToken(_canonicalKey);
+    uint256 totalSupply = IERC20(swapToken).totalSupply();
+
+    uint256[] memory expectedAmounts = new uint256[](2);
+    expectedAmounts = this.calculateRemoveSwapLiquidity(_canonicalKey, totalSupply);
+
+    IERC20(swapToken).approve(address(this), totalSupply);
+
+    this.removeSwapLiquidity(_canonicalKey, totalSupply, expectedAmounts, blockTimestamp + 1);
+  }
+
   // =========== Admin Functions ============
   function test_SwapAdminFacet__initializeSwap_failIfNotOwner() public {
     IERC20[] memory _pooledTokens = new IERC20[](2);
@@ -160,17 +163,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     vm.prank(address(1));
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
 
-    this.initializeSwap(
-      key,
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      INITIAL_A_VALUE,
-      SWAP_FEE,
-      0,
-      address(_lpTokenTarget)
-    );
+    this.initializeSwap(key, _pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, INITIAL_A_VALUE, SWAP_FEE, 0);
   }
 
   function test_SwapAdminFacet__initializeSwap_failIfDuplicatedTokens() public {
@@ -188,17 +181,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     vm.prank(_owner);
     vm.expectRevert(SwapAdminFacet.SwapAdminFacet__initializeSwap_duplicateTokens.selector);
 
-    this.initializeSwap(
-      key,
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      INITIAL_A_VALUE,
-      SWAP_FEE,
-      0,
-      address(_lpTokenTarget)
-    );
+    this.initializeSwap(key, _pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, INITIAL_A_VALUE, SWAP_FEE, 0);
   }
 
   function test_SwapAdminFacet__initializeSwap_failIfAlreadyInitialized() public {
@@ -221,8 +204,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       LP_TOKEN_SYMBOL,
       INITIAL_A_VALUE,
       SWAP_FEE,
-      0,
-      address(_lpTokenTarget)
+      0
     );
   }
 
@@ -240,17 +222,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     vm.prank(_owner);
     vm.expectRevert(SwapAdminFacet.SwapAdminFacet__initializeSwap_decimalsMismatch.selector);
 
-    this.initializeSwap(
-      key,
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      INITIAL_A_VALUE,
-      SWAP_FEE,
-      0,
-      address(_lpTokenTarget)
-    );
+    this.initializeSwap(key, _pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, INITIAL_A_VALUE, SWAP_FEE, 0);
   }
 
   function test_SwapAdminFacet__initializeSwap_failIfZeroTokenAddress() public {
@@ -268,17 +240,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     vm.prank(_owner);
     vm.expectRevert(SwapAdminFacet.SwapAdminFacet__initializeSwap_zeroTokenAddress.selector);
 
-    this.initializeSwap(
-      key,
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      INITIAL_A_VALUE,
-      SWAP_FEE,
-      0,
-      address(_lpTokenTarget)
-    );
+    this.initializeSwap(key, _pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, INITIAL_A_VALUE, SWAP_FEE, 0);
   }
 
   function test_SwapAdminFacet__initializeSwap_failIfAExceedMax() public {
@@ -296,17 +258,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     vm.prank(_owner);
     vm.expectRevert(SwapAdminFacet.SwapAdminFacet__initializeSwap_aExceedMax.selector);
 
-    this.initializeSwap(
-      key,
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      AmplificationUtils.MAX_A,
-      SWAP_FEE,
-      0,
-      address(_lpTokenTarget)
-    );
+    this.initializeSwap(key, _pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, Constants.MAX_A, SWAP_FEE, 0);
   }
 
   function test_SwapAdminFacet__initializeSwap_failIfFeeExceedMax() public {
@@ -330,10 +282,9 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       _decimals,
       LP_TOKEN_NAME,
       LP_TOKEN_SYMBOL,
-      AmplificationUtils.MAX_A - 1,
-      SwapUtils.MAX_SWAP_FEE,
-      SwapUtils.MAX_ADMIN_FEE - 1,
-      address(_lpTokenTarget)
+      Constants.MAX_A - 1,
+      Constants.MAX_SWAP_FEE,
+      Constants.MAX_ADMIN_FEE - 1
     );
   }
 
@@ -358,10 +309,9 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       _decimals,
       LP_TOKEN_NAME,
       LP_TOKEN_SYMBOL,
-      AmplificationUtils.MAX_A - 1,
-      SwapUtils.MAX_SWAP_FEE - 1,
-      SwapUtils.MAX_ADMIN_FEE,
-      address(_lpTokenTarget)
+      Constants.MAX_A - 1,
+      Constants.MAX_SWAP_FEE - 1,
+      Constants.MAX_ADMIN_FEE
     );
   }
 
@@ -385,7 +335,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
     uint256[] memory precisionMultipliers = new uint256[](_pooledTokens.length);
     for (uint8 i = 0; i < _pooledTokens.length; i++) {
-      precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - _decimals[i]);
+      precisionMultipliers[i] = 10**uint256(Constants.POOL_PRECISION_DECIMALS - _decimals[i]);
       s.tokenIndexes[_canonicalId][address(_pooledTokens[i])] = i;
     }
 
@@ -394,8 +344,8 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       key,
       SwapUtils.Swap({
         key: key,
-        initialA: a * AmplificationUtils.A_PRECISION,
-        futureA: a * AmplificationUtils.A_PRECISION,
+        initialA: a * Constants.A_PRECISION,
+        futureA: a * Constants.A_PRECISION,
         swapFee: fee,
         adminFee: adminFee,
         lpToken: LPToken(address(0x3A1148FE01e3c4721D93fe8A36c2b5C29109B6ae)),
@@ -404,30 +354,224 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
         balances: new uint256[](_pooledTokens.length),
         adminFees: new uint256[](_pooledTokens.length),
         initialATime: 0,
-        futureATime: 0
+        futureATime: 0,
+        disabled: false,
+        removeTime: 0
       }),
       _owner
     );
 
     vm.prank(_owner);
-    this.initializeSwap(
-      key,
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      a,
-      fee,
-      adminFee,
-      address(_lpTokenTarget)
-    );
+    this.initializeSwap(key, _pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, a, fee, adminFee);
 
-    assertEq(s.swapStorages[key].initialA, a * AmplificationUtils.A_PRECISION);
-    assertEq(s.swapStorages[key].futureA, a * AmplificationUtils.A_PRECISION);
+    assertEq(s.swapStorages[key].initialA, a * Constants.A_PRECISION);
+    assertEq(s.swapStorages[key].futureA, a * Constants.A_PRECISION);
     assertEq(s.swapStorages[key].swapFee, fee);
     assertEq(s.swapStorages[key].adminFee, adminFee);
     assertEq(address(s.swapStorages[key].pooledTokens[0]), address(_pooledTokens[0]));
     assertEq(s.swapStorages[key].balances[0], 0);
+  }
+
+  // function test_SwapAdminFacet__disableSwap
+  function test_SwapAdminFacet__disableSwap_failIfNotOwner() public {
+    assertTrue(_owner != address(1));
+
+    vm.prank(address(1));
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
+
+    this.disableSwap(_canonicalKey);
+  }
+
+  function test_SwapAdminFacet__disableSwap_failIfNotInitialized() public {
+    vm.startPrank(_owner);
+
+    bytes32 canonicalId = bytes32(abi.encodePacked(address(0)));
+    bytes32 key = keccak256(abi.encode(canonicalId, _canonicalDomain));
+
+    vm.expectRevert(SwapAdminFacet.SwapAdminFacet__disableSwap_notInitialized.selector);
+
+    this.disableSwap(key);
+    vm.stopPrank();
+  }
+
+  function test_SwapAdminFacet__disableSwap_failIfAlreadyDisabled() public {
+    vm.startPrank(_owner);
+
+    this.disableSwap(_canonicalKey);
+
+    vm.expectRevert(SwapAdminFacet.SwapAdminFacet__disableSwap_alreadyDisabled.selector);
+
+    this.disableSwap(_canonicalKey);
+    vm.stopPrank();
+  }
+
+  function test_SwapAdminFacet__disableSwap_shouldWork() public {
+    vm.startPrank(_owner);
+
+    vm.expectEmit(true, false, false, true);
+    emit SwapDisabled(_canonicalKey, _owner);
+
+    this.disableSwap(_canonicalKey);
+
+    assertEq(s.swapStorages[_canonicalKey].disabled, true);
+    assertEq(s.swapStorages[_canonicalKey].removeTime, block.timestamp + Constants.REMOVE_DELAY);
+
+    vm.stopPrank();
+  }
+
+  // function test_SwapAdminFacet__removeSwap
+  function test_SwapAdminFacet__removeSwap_failIfNotOwner() public {
+    assertTrue(_owner != address(1));
+
+    vm.prank(address(1));
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
+
+    this.removeSwap(_canonicalKey);
+  }
+
+  function test_SwapAdminFacet__removeSwap_failIfNotInitialized() public {
+    vm.startPrank(_owner);
+
+    bytes32 canonicalId = bytes32(abi.encodePacked(address(0)));
+    bytes32 key = keccak256(abi.encode(canonicalId, _canonicalDomain));
+
+    vm.expectRevert(SwapAdminFacet.SwapAdminFacet__removeSwap_notInitialized.selector);
+
+    this.removeSwap(key);
+    vm.stopPrank();
+  }
+
+  function test_SwapAdminFacet__removeSwap_failedIfNotDisabled() public {
+    vm.startPrank(_owner);
+
+    assertEq(this.isDisabled(_canonicalKey), false);
+
+    vm.expectRevert(SwapAdminFacet.SwapAdminFacet__removeSwap_notDisabledPool.selector);
+    this.removeSwap(_canonicalKey);
+    vm.stopPrank();
+  }
+
+  function test_SwapAdminFacet__removeSwap_failedIfDisabledButNotElapsed() public {
+    vm.startPrank(_owner);
+
+    this.disableSwap(_canonicalKey);
+    assertEq(this.isDisabled(_canonicalKey), true);
+    assertEq(s.swapStorages[_canonicalKey].removeTime, block.timestamp + Constants.REMOVE_DELAY);
+
+    vm.expectRevert(SwapAdminFacet.SwapAdminFacet__removeSwap_delayNotElapsed.selector);
+    this.removeSwap(_canonicalKey);
+    vm.stopPrank();
+  }
+
+  function test_SwapAdminFacet__removeSwap_shouldWorkIfNotZeroBalance() public {
+    vm.startPrank(_owner);
+
+    uint256 currentBlockTimestamp = block.timestamp;
+
+    this.disableSwap(_canonicalKey);
+    assertEq(this.isDisabled(_canonicalKey), true);
+    assertEq(s.swapStorages[_canonicalKey].removeTime, currentBlockTimestamp + Constants.REMOVE_DELAY);
+
+    vm.warp(currentBlockTimestamp + Constants.REMOVE_DELAY + 1);
+
+    vm.expectEmit(true, true, true, true);
+    emit AdminFeesWithdrawn(_canonicalKey, _owner);
+
+    vm.expectEmit(true, false, false, true);
+    emit SwapRemoved(_canonicalKey, _owner);
+
+    this.removeSwap(_canonicalKey);
+    vm.stopPrank();
+  }
+
+  function test_SwapAdminFacet__removeSwap_shouldWork() public {
+    vm.startPrank(_owner);
+    utils_removeAllLiquidity();
+
+    this.disableSwap(_canonicalKey);
+
+    vm.expectEmit(true, false, false, true);
+    emit SwapRemoved(_canonicalKey, _owner);
+
+    vm.warp(block.timestamp + Constants.REMOVE_DELAY + 1);
+    this.removeSwap(_canonicalKey);
+    vm.stopPrank();
+  }
+
+  function test_SwapAdminFacet__removeSwap_shouldWorkWithAdminFee() public {
+    vm.startPrank(_owner);
+
+    this.setSwapAdminFee(_canonicalKey, 1e8);
+    utils_swapExact(1e17, _local, _adopted, 0);
+    utils_swapExact(1e17, _adopted, _local, 0);
+
+    assertEq(this.getSwapAdminBalance(_canonicalKey, 0), 1001973776101);
+    assertEq(this.getSwapAdminBalance(_canonicalKey, 1), 998024139765);
+
+    uint256 beforeBalance0 = IERC20(_local).balanceOf(_owner);
+    uint256 beforeBalance1 = IERC20(_adopted).balanceOf(_owner);
+
+    utils_removeAllLiquidity();
+
+    this.disableSwap(_canonicalKey);
+    vm.warp(block.timestamp + Constants.REMOVE_DELAY + 1);
+
+    vm.expectEmit(true, true, true, true);
+    emit AdminFeesWithdrawn(_canonicalKey, _owner);
+
+    vm.expectEmit(true, false, false, true);
+    emit SwapRemoved(_canonicalKey, _owner);
+
+    this.removeSwap(_canonicalKey);
+    vm.stopPrank();
+  }
+
+  function test_SwapAdminFacet__removeSwap_shouldDeleteNestedArrays() public {
+    vm.startPrank(_owner);
+
+    this.setSwapAdminFee(_canonicalKey, 1e8);
+    utils_swapExact(1e17, _local, _adopted, 0);
+    utils_swapExact(1e17, _adopted, _local, 0);
+
+    IERC20[] memory pooledTokens = s.swapStorages[_canonicalKey].pooledTokens;
+
+    utils_removeAllLiquidity();
+
+    this.disableSwap(_canonicalKey);
+    vm.warp(block.timestamp + Constants.REMOVE_DELAY + 1);
+
+    vm.expectEmit(true, false, false, true);
+    emit SwapRemoved(_canonicalKey, _owner);
+
+    this.removeSwap(_canonicalKey);
+
+    assert(s.tokenIndexes[_canonicalKey][address(pooledTokens[0])] == 0);
+    assert(s.tokenIndexes[_canonicalKey][address(pooledTokens[1])] == 0);
+
+    SwapUtils.Swap memory entry = SwapUtils.Swap({
+      key: _canonicalKey,
+      initialA: 0,
+      futureA: 0,
+      swapFee: 0,
+      adminFee: 0,
+      lpToken: LPToken(address(0)),
+      pooledTokens: new IERC20[](2),
+      tokenPrecisionMultipliers: new uint256[](2),
+      balances: new uint256[](2),
+      adminFees: new uint256[](2),
+      initialATime: 0,
+      futureATime: 0,
+      disabled: false,
+      removeTime: 0
+    });
+    s.swapStorages[_canonicalKey] = entry;
+
+    assert(address(s.swapStorages[_canonicalKey].pooledTokens[0]) == address(0));
+    assert(address(s.swapStorages[_canonicalKey].pooledTokens[1]) == address(0));
+    assert(s.swapStorages[_canonicalKey].balances[0] == 0);
+    assert(s.swapStorages[_canonicalKey].balances[1] == 0);
+
+    vm.stopPrank();
   }
 
   // function test_SwapAdminFacet__withdrawSwapAdminFees
@@ -489,17 +633,17 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
   function test_SwapAdminFacet__setSwapAdminFee_failIfHigherThanLimit() public {
     vm.startPrank(_owner);
-    this.setSwapAdminFee(_canonicalKey, SwapUtils.MAX_ADMIN_FEE);
-    assertEq(this.getSwapStorage(_canonicalKey).adminFee, SwapUtils.MAX_ADMIN_FEE);
+    this.setSwapAdminFee(_canonicalKey, Constants.MAX_ADMIN_FEE);
+    assertEq(this.getSwapStorage(_canonicalKey).adminFee, Constants.MAX_ADMIN_FEE);
 
     vm.expectRevert("too high");
-    this.setSwapAdminFee(_canonicalKey, SwapUtils.MAX_ADMIN_FEE + 1);
+    this.setSwapAdminFee(_canonicalKey, Constants.MAX_ADMIN_FEE + 1);
     vm.stopPrank();
   }
 
   function test_SwapAdminFacet__setSwapAdminFee_shouldWork() public {
     vm.startPrank(_owner);
-    uint256 adminFee = SwapUtils.MAX_ADMIN_FEE;
+    uint256 adminFee = Constants.MAX_ADMIN_FEE;
     vm.expectEmit(true, true, true, true);
     emit AdminFeesSet(_canonicalKey, adminFee, _owner);
     this.setSwapAdminFee(_canonicalKey, adminFee);
@@ -519,17 +663,17 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
   function test_SwapAdminFacet__setSwapFee_failIfHigherThanLimit() public {
     vm.startPrank(_owner);
-    this.setSwapFee(_canonicalKey, SwapUtils.MAX_SWAP_FEE);
-    assertEq(this.getSwapStorage(_canonicalKey).swapFee, SwapUtils.MAX_SWAP_FEE);
+    this.setSwapFee(_canonicalKey, Constants.MAX_SWAP_FEE);
+    assertEq(this.getSwapStorage(_canonicalKey).swapFee, Constants.MAX_SWAP_FEE);
 
     vm.expectRevert("too high");
-    this.setSwapFee(_canonicalKey, SwapUtils.MAX_SWAP_FEE + 1);
+    this.setSwapFee(_canonicalKey, Constants.MAX_SWAP_FEE + 1);
     vm.stopPrank();
   }
 
   function test_SwapAdminFacet__setSwapFee_shouldWork() public {
     vm.startPrank(_owner);
-    uint256 swapFee = SwapUtils.MAX_SWAP_FEE;
+    uint256 swapFee = Constants.MAX_SWAP_FEE;
     vm.expectEmit(true, true, true, true);
     emit SwapFeesSet(_canonicalKey, swapFee, _owner);
     this.setSwapFee(_canonicalKey, swapFee);
@@ -562,20 +706,20 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
     // +0 seconds since ramp A
     assertEq(this.getSwapA(_canonicalKey), INITIAL_A_VALUE);
-    assertEq(this.getSwapAPrecise(_canonicalKey), INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000167146429976812);
+    assertEq(this.getSwapAPrecise(_canonicalKey), INITIAL_A_VALUE * Constants.A_PRECISION);
+    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000167146429977312);
 
     // set timestamp to +100000 seconds
     vm.warp(blockTimestamp + 100000);
     assertEq(this.getSwapA(_canonicalKey), 54);
     assertEq(this.getSwapAPrecise(_canonicalKey), 5413);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000258443200230795);
+    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000258443200231295);
 
     // set timestamp to the end of ramp period
     vm.warp(endTimestamp);
     assertEq(this.getSwapA(_canonicalKey), 100);
     assertEq(this.getSwapAPrecise(_canonicalKey), 10000);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000771363829404568);
+    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000771363829405068);
 
     vm.stopPrank();
   }
@@ -594,20 +738,20 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
     // +0 seconds since ramp A
     assertEq(this.getSwapA(_canonicalKey), INITIAL_A_VALUE);
-    assertEq(this.getSwapAPrecise(_canonicalKey), INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000167146429976812);
+    assertEq(this.getSwapAPrecise(_canonicalKey), INITIAL_A_VALUE * Constants.A_PRECISION);
+    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000167146429977312);
 
     // set timestamp to +100000 seconds
     vm.warp(blockTimestamp + 100000);
     assertEq(this.getSwapA(_canonicalKey), 47);
-    assertEq(this.getSwapAPrecise(_canonicalKey), 4794);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000115870150391394);
+    assertEq(this.getSwapAPrecise(_canonicalKey), 4793);
+    assertEq(this.getSwapVirtualPrice(_canonicalKey), 1000115610744866506);
 
     // set timestamp to the end of ramp period
     vm.warp(endTimestamp);
     assertEq(this.getSwapA(_canonicalKey), 25);
     assertEq(this.getSwapAPrecise(_canonicalKey), 2500);
-    assertEq(this.getSwapVirtualPrice(_canonicalKey), 998999574522334973);
+    assertEq(this.getSwapVirtualPrice(_canonicalKey), 998999574522335473);
 
     vm.stopPrank();
   }

@@ -223,6 +223,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     { name: getDeploymentName("StableSwapFacet"), contract: "StableSwapFacet", args: [] },
     { name: getDeploymentName("SwapAdminFacet"), contract: "SwapAdminFacet", args: [] },
     { name: getDeploymentName("DiamondCutFacet"), contract: "DiamondCutFacet", args: [] },
+    { name: getDeploymentName("DiamondInit"), contract: "DiamondInit", args: [] },
   ];
   let connext;
   if (isDiamondUpgrade) {
@@ -279,13 +280,25 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         : {
             contract: "DiamondInit",
             methodName: "init",
-            args: [domain, connectorManagerDeployment.address, acceptanceDelay],
+            args: [domain, connectorManagerDeployment.address, acceptanceDelay, lpTokenDeployment.address],
           },
     });
   }
 
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
+
+  console.log("Deploying Relayer Proxy...");
+
+  const spokeConnector = await hre.ethers.getContract(getDeploymentName(getConnectorName(protocol, +chainId)));
+  const relayerProxy = await hre.deployments.deploy(getDeploymentName("RelayerProxy"), {
+    from: deployer.address,
+    log: true,
+    contract: "RelayerProxy",
+    args: [connextAddress, spokeConnector.address],
+  });
+
+  console.log("relayerProxy: ", relayerProxy.address);
 
   if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain...");

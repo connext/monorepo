@@ -28,11 +28,6 @@
       },
       {
         "internalType": "uint256",
-        "name": "_mirrorGas",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
         "name": "_processGas",
         "type": "uint256"
       },
@@ -59,6 +54,11 @@
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "Connector__processMessage_notUsed",
+    "type": "error"
   },
   {
     "inputs": [],
@@ -98,6 +98,11 @@
   {
     "inputs": [],
     "name": "ProposedOwnable__renounceOwnership_noProposal",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RateLimited__rateLimited_messageSendRateExceeded",
     "type": "error"
   },
   {
@@ -161,6 +166,25 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "FundsWithdrawn",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": false,
         "internalType": "bytes",
         "name": "data",
@@ -183,6 +207,12 @@
         "indexed": false,
         "internalType": "bytes",
         "name": "data",
+        "type": "bytes"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "encodedData",
         "type": "bytes"
       },
       {
@@ -212,25 +242,6 @@
       }
     ],
     "name": "MirrorConnectorUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "previous",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "current",
-        "type": "uint256"
-      }
-    ],
-    "name": "MirrorGasUpdated",
     "type": "event"
   },
   {
@@ -338,6 +349,25 @@
       }
     ],
     "name": "Process",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "updater",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newRateLimit",
+        "type": "uint256"
+      }
+    ],
+    "name": "SendRateLimitUpdated",
     "type": "event"
   },
   {
@@ -592,6 +622,19 @@
   },
   {
     "inputs": [],
+    "name": "lastSentBlock",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "localDomain",
     "outputs": [
       {
@@ -630,19 +673,6 @@
         "internalType": "address",
         "name": "",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "mirrorGas",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -868,6 +898,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "rateLimitBlocks",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -914,10 +957,16 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "_encodedData",
+        "type": "bytes"
+      }
+    ],
     "name": "send",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -926,11 +975,35 @@
         "internalType": "bytes",
         "name": "_data",
         "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_encodedData",
+        "type": "bytes"
       }
     ],
     "name": "sendMessage",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "sentMessageRoots",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -963,11 +1036,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_mirrorGas",
+        "name": "_rateLimit",
         "type": "uint256"
       }
     ],
-    "name": "setMirrorGas",
+    "name": "setRateLimitBlocks",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1012,6 +1085,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "watcherManager",
+    "outputs": [
+      {
+        "internalType": "contract WatcherManager",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -1019,7 +1105,7 @@
         "type": "address"
       }
     ],
-    "name": "whitelistedSenders",
+    "name": "allowlistedSenders",
     "outputs": [
       {
         "internalType": "bool",
@@ -1029,5 +1115,22 @@
     ],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_to",
+        "type": "address"
+      }
+    ],
+    "name": "withdrawFunds",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]

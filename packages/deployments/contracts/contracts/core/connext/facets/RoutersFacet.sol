@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {Constants} from "../libraries/Constants.sol";
+import {AssetLogic} from "../libraries/AssetLogic.sol";
+import {RouterConfig} from "../libraries/LibConnextStorage.sol";
+import {TokenId} from "../libraries/TokenId.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
-import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {AppStorage, TokenId, RouterConfig} from "../libraries/LibConnextStorage.sol";
 
 /**
  * @notice
  * This contract is designed to manage router access, meaning it maintains the
- * router recipients, owners, and the router whitelist itself.
+ * router recipients, owners, and the router allowlist itself.
  *
  * As a router, there are three important permissions:
  * `router` - this is the address that will sign bids sent to the sequencer
@@ -31,10 +32,10 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__initializeRouter_configNotEmpty();
   error RoutersFacet__setRouterRecipient_notNewRecipient();
   error RoutersFacet__onlyRouterOwner_notRouterOwner();
-  error RoutersFacet__removeRouter_routerEmpty();
-  error RoutersFacet__removeRouter_notAdded();
-  error RoutersFacet__addRouter_routerEmpty();
-  error RoutersFacet__addRouter_alreadyAdded();
+  error RoutersFacet__unapproveRouter_routerEmpty();
+  error RoutersFacet__unapproveRouter_notAdded();
+  error RoutersFacet__approveRouter_routerEmpty();
+  error RoutersFacet__approveRouter_alreadyAdded();
   error RoutersFacet__proposeRouterOwner_notNewOwner();
   error RoutersFacet__proposeRouterOwner_badRouter();
   error RoutersFacet__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
@@ -54,9 +55,6 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__setRouterOwner_noChange();
 
   // ============ Properties ============
-
-  // ============ Constants ============
-  uint256 private constant _delay = 7 days;
 
   // ============ Events ============
 
@@ -178,7 +176,7 @@ contract RoutersFacet is BaseConnextFacet {
   }
 
   function LIQUIDITY_FEE_DENOMINATOR() public pure returns (uint256) {
-    return BPS_FEE_DENOMINATOR;
+    return Constants.BPS_FEE_DENOMINATOR;
   }
 
   /**
@@ -243,15 +241,15 @@ contract RoutersFacet is BaseConnextFacet {
   // ============ Admin methods ==============
 
   /**
-   * @notice Used to whitelist a given router
+   * @notice Used to allowlist a given router
    * @param _router Router address to setup
    */
   function approveRouter(address _router) external onlyOwnerOrRouter {
     // Sanity check: not empty
-    if (_router == address(0)) revert RoutersFacet__addRouter_routerEmpty();
+    if (_router == address(0)) revert RoutersFacet__approveRouter_routerEmpty();
 
     // Sanity check: needs approval
-    if (s.routerConfigs[_router].approved) revert RoutersFacet__addRouter_alreadyAdded();
+    if (s.routerConfigs[_router].approved) revert RoutersFacet__approveRouter_alreadyAdded();
 
     // Approve router
     s.routerConfigs[_router].approved = true;
@@ -266,15 +264,15 @@ contract RoutersFacet is BaseConnextFacet {
    */
   function unapproveRouter(address _router) external onlyOwnerOrRouter {
     // Sanity check: not empty
-    if (_router == address(0)) revert RoutersFacet__removeRouter_routerEmpty();
+    if (_router == address(0)) revert RoutersFacet__unapproveRouter_routerEmpty();
 
     // Sanity check: needs removal
     RouterConfig memory config = s.routerConfigs[_router];
-    if (!config.approved) revert RoutersFacet__removeRouter_notAdded();
+    if (!config.approved) revert RoutersFacet__unapproveRouter_notAdded();
 
     // Update approvals in config mapping
-    s.routerConfigs[_router].approved = false;
-    s.routerConfigs[_router].portalApproved = false;
+    delete s.routerConfigs[_router].approved;
+    delete s.routerConfigs[_router].portalApproved;
 
     // Emit event
     emit RouterRemoved(_router, msg.sender);
@@ -301,7 +299,7 @@ contract RoutersFacet is BaseConnextFacet {
   function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwnerOrAdmin {
     // Slightly misleading: the liquidity fee numerator is not the amount charged,
     // but the amount received after fees are deducted (e.g. 9995/10000 would be .005%).
-    uint256 denominator = BPS_FEE_DENOMINATOR;
+    uint256 denominator = Constants.BPS_FEE_DENOMINATOR;
     if (_numerator < (denominator * 95) / 100) revert RoutersFacet__setLiquidityFeeNumerator_tooSmall();
 
     if (_numerator > denominator) revert RoutersFacet__setLiquidityFeeNumerator_tooLarge();
@@ -316,7 +314,7 @@ contract RoutersFacet is BaseConnextFacet {
    */
   function approveRouterForPortal(address _router) external onlyOwnerOrAdmin {
     RouterConfig memory config = s.routerConfigs[_router];
-    if (!config.approved && !_isRouterWhitelistRemoved()) revert RoutersFacet__approveRouterForPortal_notAdded();
+    if (!config.approved && !_isRouterAllowlistRemoved()) revert RoutersFacet__approveRouterForPortal_notAdded();
     if (config.portalApproved) revert RoutersFacet__approveRouterForPortal_alreadyApproved();
 
     s.routerConfigs[_router].portalApproved = true;
@@ -331,7 +329,7 @@ contract RoutersFacet is BaseConnextFacet {
   function unapproveRouterForPortal(address _router) external onlyOwnerOrAdmin {
     if (!s.routerConfigs[_router].portalApproved) revert RoutersFacet__unapproveRouterForPortal_notApproved();
 
-    s.routerConfigs[_router].portalApproved = false;
+    delete s.routerConfigs[_router].portalApproved;
 
     emit RouterUnapprovedForPortal(_router, msg.sender);
   }
@@ -381,7 +379,7 @@ contract RoutersFacet is BaseConnextFacet {
     RouterConfig memory config = s.routerConfigs[_router];
 
     // Check timestamp has passed
-    if (block.timestamp - config.proposedTimestamp <= _delay)
+    if (block.timestamp - config.proposedTimestamp <= Constants.GOVERNANCE_DELAY)
       revert RoutersFacet__acceptProposedRouterOwner_notElapsed();
 
     // Check the caller
@@ -395,14 +393,14 @@ contract RoutersFacet is BaseConnextFacet {
 
     // Reset proposal + timestamp
     if (config.proposed != address(0)) {
-      s.routerConfigs[_router].proposed = address(0);
+      delete s.routerConfigs[_router].proposed;
     }
-    s.routerConfigs[_router].proposedTimestamp = 0;
+    delete s.routerConfigs[_router].proposedTimestamp;
   }
 
   /**
    * @notice Can be called by anyone to set a config for their router (the msg.sender)
-   * @dev Does not set whitelisting permissions, only owner and recipient
+   * @dev Does not set allowlisting permissions, only owner and recipient
    * @param _owner The owner (can change recipient, proposes new owners)
    * @param _recipient Where liquidity will be withdrawn to
    */
@@ -549,7 +547,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @dev The liquidity will be held in the local asset, which is the representation if you
    * are *not* on the canonical domain, and the canonical asset otherwise.
    * @param _amount - The amount of liquidity to add for the router
-   * @param _local - The address of the nomad representation of the asset
+   * @param _local - The address of the bridge representation of the asset
    * @param _router - The router you are adding liquidity on behalf of
    */
   function _addLiquidityForRouter(
@@ -564,20 +562,11 @@ contract RoutersFacet is BaseConnextFacet {
     if (_amount == 0) revert RoutersFacet__addLiquidityForRouter_amountIsZero();
 
     // Get the canonical asset ID from the representation.
-    (TokenId memory canonical, bytes32 key) = _getApprovedCanonicalId(_local);
+    (, bytes32 key) = _getApprovedCanonicalId(_local);
 
     // Sanity check: router is approved.
-    if (!_isRouterWhitelistRemoved() && !getRouterApproval(_router))
+    if (!_isRouterAllowlistRemoved() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
-
-    uint256 cap = s.caps[key];
-    if (s.domain == canonical.domain && cap > 0) {
-      // Sanity check: caps not reached
-      if (s.custodied[_local] > cap - _amount) {
-        revert RoutersFacet__addLiquidityForRouter_capReached();
-      }
-      s.custodied[_local] += _amount;
-    }
 
     // Transfer funds to contract.
     AssetLogic.handleIncomingAsset(_local, _amount);
@@ -623,13 +612,6 @@ contract RoutersFacet is BaseConnextFacet {
 
     // Sanity check: amount can be deducted for the router.
     if (routerBalance < _amount) revert RoutersFacet__removeRouterLiquidity_insufficientFunds();
-
-    // If it is the canonical domain, decrease custodied value
-    if (s.domain == canonical.domain && s.caps[key] > 0) {
-      // NOTE: safe to use the amount here because routers should always supply liquidity
-      // in canonical asset on the canonical domain
-      s.custodied[_local] -= _amount;
-    }
 
     // Update router balances.
     unchecked {

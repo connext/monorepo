@@ -89,6 +89,8 @@ contract RootManagerTest is ForgeHelper {
         bytes32 inboundRoot = keccak256(abi.encode(bytes("test"), i));
         vm.prank(_connectors[i]);
         _rootManager.aggregate(_domains[i], inboundRoot);
+        console.log("aggregated!", i);
+        console.logBytes32(inboundRoot);
       }
 
       if (willPropagate) {
@@ -252,13 +254,24 @@ contract RootManagerTest is ForgeHelper {
     assertEq(_rootManager.getPendingInboundRootsCount(), 0);
   }
 
-  function test_RootManager__propagate_shouldRevertIfNoVerifiedPending(bytes32 inbound) public {
+  function test_RootManager__propagate_shouldRevertIfRedundantRoot(bytes32 inbound) public {
     uint256 numSpokes = 20;
-    utils_generateAndAddConnectors(numSpokes, true, false);
+    utils_generateAndAddConnectors(numSpokes, true, true);
+    assertEq(_rootManager.getPendingInboundRootsCount(), numSpokes);
 
-    // Delay blocks have not been surpassed: the given root should not be included, and this call should revert
-    // because an empty propagate is useless.
-    vm.expectRevert(bytes("no verified roots"));
+    // Fast forward delayBlocks number of blocks so all of the inbound roots are considered verified.
+    vm.roll(block.number + _rootManager.delayBlocks());
+
+    // Dequeue separately so we can get an updated root.
+    _rootManager.dequeue();
+    bytes32 currentRoot = MerkleTreeManager(_merkle).root();
+
+    _rootManager.propagate(_connectors, _fees, _encodedData);
+    assertEq(_rootManager.lastPropagatedRoot(), currentRoot);
+
+    // The current root has already been sent, the following call should revert since sending
+    // again would be redundant.
+    vm.expectRevert(bytes("redundant root"));
     _rootManager.propagate(_connectors, _fees, _encodedData);
   }
 }

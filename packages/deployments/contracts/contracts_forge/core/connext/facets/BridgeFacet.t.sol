@@ -8,9 +8,11 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {TypeCasts} from "../../../../contracts/shared/libraries/TypeCasts.sol";
 import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.sol";
 
+import {IConnectorManager} from "../../../../contracts/messaging/interfaces/IConnectorManager.sol";
 import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
+import {Constants} from "../../../../contracts/core/connext/libraries/Constants.sol";
 import {TransferInfo, ExecuteArgs, TokenId, DestinationTransferStatus} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
@@ -21,8 +23,6 @@ import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
-
-import "forge-std/console.sol";
 
 contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ Libs ============
@@ -112,7 +112,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.approvedRelayers[address(this)] = true;
     s.approvedSequencers[_sequencer] = true;
     s.maxRoutersPerTransfer = 5;
-    s._routerWhitelistRemoved = true;
+    s._routerAllowlistRemoved = true;
     s.relayerFeeVault = _relayerFeeVault;
     s.domain = _originDomain;
 
@@ -233,7 +233,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function utils_getFastTransferAmount(uint256 _amount) public returns (uint256) {
     // This is the method used internally to get the amount of tokens to transfer after liquidity
     // fees are taken.
-    return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / BPS_FEE_DENOMINATOR;
+    return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / Constants.BPS_FEE_DENOMINATOR;
   }
 
   // ============== Helpers ==================
@@ -842,6 +842,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.addSequencer(sequencer);
   }
 
+  function test_BridgeFacet__addSequencer_failIfEmptyAddress() public {
+    address sequencer = address(0);
+
+    vm.prank(LibDiamond.contractOwner());
+    vm.expectRevert(BridgeFacet.BridgeFacet__addSequencer_invalidSequencer.selector);
+    this.addSequencer(sequencer);
+  }
+
   function test_BridgeFacet__addSequencer_failIfAlreadyApproved() public {
     // constants
     address sequencer = address(123);
@@ -907,6 +915,34 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     assertEq(s.approvedSequencers[sequencer], false);
   }
 
+  // ============ setXAppConnectionManager ============
+  function test_BridgeFacet__setXAppConnectionManager_failsIfDomainMismatch() public {
+    // constants
+    address manager = address(123);
+
+    // set mock
+    vm.mockCall(manager, abi.encodeWithSelector(IConnectorManager.localDomain.selector), abi.encode(s.domain + 1));
+
+    // test revert
+    vm.prank(LibDiamond.contractOwner());
+    vm.expectRevert(BridgeFacet.BridgeFacet__setXAppConnectionManager_domainsDontMatch.selector);
+    this.setXAppConnectionManager(manager);
+  }
+
+  function test_BridgeFacet__setXAppConnectionManager_works() public {
+    // constants
+    address manager = address(123);
+
+    // set mock
+    vm.mockCall(manager, abi.encodeWithSelector(IConnectorManager.localDomain.selector), abi.encode(s.domain));
+
+    // test revert
+    vm.prank(LibDiamond.contractOwner());
+    this.setXAppConnectionManager(manager);
+
+    assertEq(address(s.xAppConnectionManager), manager);
+  }
+
   // ============ Public methods ==============
 
   // ============ xcall ============
@@ -945,7 +981,18 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     s.approvedAssets[utils_calculateCanonicalHash()] = false;
 
-    helpers_xcallAndAssert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notWhitelisted.selector);
+    helpers_xcallAndAssert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notAllowlisted.selector);
+  }
+
+  // fails if asset cap would be exceeded on the canonical domain
+  function test_BridgeFacet__xcall_failIfEmptyLocal() public {
+    // setup asset with local == adopted, on remote domain
+    utils_setupAsset(true, false);
+
+    // ensure stored value returns 0
+    s.canonicalToRepresentation[utils_calculateCanonicalHash()] = address(0);
+
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet_xcall__emptyLocalAsset.selector);
   }
 
   // fails if asset cap would be exceeded on the canonical domain
@@ -1197,7 +1244,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should fail if the router is not approved and ownership is not renounced
   function test_BridgeFacet__execute_failIfRouterNotApproved() public {
-    s._routerWhitelistRemoved = false;
+    s._routerAllowlistRemoved = false;
 
     (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
     s.routerConfigs[args.routers[0]].approved = false;
@@ -1463,8 +1510,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // should work with unapproved router if router ownership is renounced
-  function test_BridgeFacet__execute_worksWithUnapprovedIfNoWhitelist() public {
-    s._routerWhitelistRemoved = true;
+  function test_BridgeFacet__execute_worksWithUnapprovedIfNoAllowlist() public {
+    s._routerAllowlistRemoved = true;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
@@ -1544,7 +1591,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     s.routerBalances[_args.routers[0]][_local] += 10 ether;
 
-    vm.expectRevert("fails");
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_externalCallFailed.selector);
     this.execute(_args);
   }
 
@@ -1708,7 +1755,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ bumpTransfer ============
   // ============ bumpTransfer fail cases
-  // should work with unapproved router if router-whitelist ownership renouncedcanonicalId
+  // should work with unapproved router if router-allowlist ownership renouncedcanonicalId
 
   // ============ forceUpdateSlippage ============
   function test_BridgeFacet__forceUpdateSlippage_failsIfNotDelegate() public {

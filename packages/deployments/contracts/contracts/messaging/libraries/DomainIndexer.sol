@@ -9,7 +9,26 @@ pragma solidity 0.8.17;
  * those we keep in storage.
  */
 abstract contract DomainIndexer {
+  // ============ Events ============
+
+  event DomainAdded(uint32 domain, address connector);
+  event DomainRemoved(uint32 domain);
+
   // ============ Properties ============
+
+  /**
+   * @notice The absolute maximum number of domains that we should support. Domain and connector arrays
+   * are naturally unbounded, but the gas cost of reading these arrays in `updateHashes()` is bounded by
+   * the block's gas limit.
+   *
+   * If we want to set a hard ceiling for gas costs for the `updateHashes()` method at approx. 500K gas,
+   * with an average SLOAD cost of 900 gas per domain (1 uint32, 1 address):
+   *       500K / 900 = ~555 domains
+   *
+   * Realistically, the cap on the number of domains will likely exist in other places, but we cap it
+   * here as a last resort.
+   */
+  uint256 public constant MAX_DOMAINS = 500;
 
   /**
    * @notice Domains array tracks currently subscribed domains to this hub aggregator.
@@ -85,6 +104,8 @@ abstract contract DomainIndexer {
    * @param _connectors The given connectors array to check.
    */
   function validateDomains(uint32[] calldata _domains, address[] calldata _connectors) public view {
+    // Sanity check: arguments are same length.
+    require(_domains.length == _connectors.length, "!matching length");
     // Validate that given domains match the current array in storage.
     require(keccak256(abi.encode(_domains)) == domainsHash, "!domains");
     // Validate that given connectors match the current array in storage.
@@ -114,6 +135,8 @@ abstract contract DomainIndexer {
     require(!isDomainSupported(_domain), "exists");
     // Sanity check: connector is reasonable.
     require(_connector != address(0), "!connector");
+    // Sanity check: Under maximum.
+    require(domains.length < MAX_DOMAINS, "DomainIndexer at capacity");
 
     // Push domain and connector to respective arrays.
     domains.push(_domain);
@@ -124,6 +147,8 @@ abstract contract DomainIndexer {
 
     // Update the hashes for the given arrays.
     updateHashes();
+
+    emit DomainAdded(_domain, _connector);
   }
 
   /**
@@ -157,6 +182,8 @@ abstract contract DomainIndexer {
 
     // Update the hashes for the given arrays.
     updateHashes();
+
+    emit DomainRemoved(_domain);
 
     return _connector;
   }

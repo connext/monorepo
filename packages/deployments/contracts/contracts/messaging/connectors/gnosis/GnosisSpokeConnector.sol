@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
-import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {GnosisAmb} from "../../interfaces/ambs/GnosisAmb.sol";
 
 import {SpokeConnector, ProposedOwnable} from "../SpokeConnector.sol";
@@ -22,7 +21,8 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
     uint256 _delayBlocks,
     address _merkle,
     address _watcherManager,
-    uint256 _gasCap // gas to be provided on L1 execution
+    uint256 _gasCap, // gas to be provided on L1 execution
+    uint256 _mirrorChainId
   )
     SpokeConnector(
       _domain,
@@ -36,7 +36,7 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
       _merkle,
       _watcherManager
     )
-    GnosisBase(_gasCap)
+    GnosisBase(_gasCap, _mirrorChainId)
   {}
 
   /**
@@ -49,7 +49,7 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
    * @dev Asserts the sender of a cross domain message
    */
   function _verifySender(address _expected) internal view override returns (bool) {
-    return _verifySender(AMB, _expected);
+    return _verifySender(AMB, _expected, GnosisAmb(AMB).sourceChainId());
   }
 
   /**
@@ -78,7 +78,6 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
   function _processMessage(bytes memory _data) internal override {
     // get the data (should be the aggregate root)
     require(_data.length == 32, "!length");
-
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!mirrorConnector");
     // ensure it is headed to this domain
