@@ -26,6 +26,9 @@ interface ISpokeConnector {
 contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollector {
   // ============ Properties ============
   address public gelatoRelayer;
+  address public feeCollector;
+  IConnext public connext;
+  ISpokeConnector public spokeConnector;
 
   mapping(address => bool) public allowedRelayer;
 
@@ -54,11 +57,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   event ConnextChanged(address updated, address previous);
   event SpokeConnectorChanged(address updated, address previous);
   event RelayerChanged(address updated, address previous);
-
-  // ============ Properties ============
-
-  IConnext public connext;
-  ISpokeConnector public spokeConnector;
+  event FeeCollectorChanged(address updated, address previous);
 
   // ============ Constructor ============
 
@@ -69,35 +68,42 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   constructor(
     address _connext,
     address _spokeConnector,
-    address _gelatoRelayer
+    address _gelatoRelayer,
+    address _feeCollector
   ) ProposedOwnable() {
     _setOwner(msg.sender);
-    _setGelatoRelayer(_gelatoRelayer);
-    _setSpokeConnector(_spokeConnector);
     _setConnext(_connext);
+    _setSpokeConnector(_spokeConnector);
+    _setGelatoRelayer(_gelatoRelayer);
+    _setFeeCollector(_feeCollector);
+
     _addRelayer(_gelatoRelayer);
   }
 
   // ============ Admin Functions ============
 
-  function addRelayer(address _relayer) external onlyOwner {
+  function addRelayer(address _relayer) external onlyOwner definedAddress(_relayer) {
     _addRelayer(_relayer);
   }
 
-  function removeRelayer(address _relayer) external onlyOwner {
+  function removeRelayer(address _relayer) external onlyOwner definedAddress(_relayer) {
     _removeRelayer(_relayer);
   }
 
-  function setConnext(address _connext) external onlyOwner {
+  function setConnext(address _connext) external onlyOwner definedAddress(_connext) {
     _setConnext(_connext);
   }
 
-  function setSpokeConnector(address _spokeConnector) external onlyOwner {
+  function setSpokeConnector(address _spokeConnector) external onlyOwner definedAddress(_spokeConnector) {
     _setSpokeConnector(_spokeConnector);
   }
 
-  function setGelatoRelayer(address _gelatoRelayer) external onlyOwner {
+  function setGelatoRelayer(address _gelatoRelayer) external onlyOwner definedAddress(_gelatoRelayer) {
     _setGelatoRelayer(_gelatoRelayer);
+  }
+
+  function setFeeCollector(address _feeCollector) external onlyOwner definedAddress(_feeCollector) {
+    _setFeeCollector(_feeCollector);
   }
 
   function withdraw() external onlyOwner nonReentrant {
@@ -139,35 +145,34 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   function transferFee(uint256 _fee) internal {
     if (msg.sender == gelatoRelayer) {
-      address feeCollector = _getFeeCollector();
       Address.sendValue(payable(feeCollector), _fee);
     } else {
       Address.sendValue(payable(msg.sender), _fee);
     }
   }
 
-  function _addRelayer(address _relayer) internal definedAddress(_relayer) {
+  function _addRelayer(address _relayer) internal {
     require(!allowedRelayer[_relayer], "added");
 
     allowedRelayer[_relayer] = true;
     emit RelayerAdded(_relayer);
   }
 
-  function _removeRelayer(address _relayer) internal definedAddress(_relayer) {
+  function _removeRelayer(address _relayer) internal {
     require(allowedRelayer[_relayer], "!added");
 
     allowedRelayer[_relayer] = false;
     emit RelayerRemoved(_relayer);
   }
 
-  function _setConnext(address _connext) internal definedAddress(_connext) {
+  function _setConnext(address _connext) internal {
     address oldConnext = address(connext);
     require(_connext != oldConnext, "!change");
     emit ConnextChanged(_connext, oldConnext);
     connext = IConnext(_connext);
   }
 
-  function _setSpokeConnector(address _spokeConnector) internal definedAddress(_spokeConnector) {
+  function _setSpokeConnector(address _spokeConnector) internal {
     address oldSpokeConnector = address(spokeConnector);
     require(_spokeConnector != oldSpokeConnector, "!change");
     emit SpokeConnectorChanged(_spokeConnector, oldSpokeConnector);
@@ -175,11 +180,19 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     spokeConnector = ISpokeConnector(_spokeConnector);
   }
 
-  function _setGelatoRelayer(address _gelatoRelayer) internal definedAddress(_gelatoRelayer) {
+  function _setGelatoRelayer(address _gelatoRelayer) internal {
     address previous = address(gelatoRelayer);
     require(_gelatoRelayer != previous, "!change");
     emit RelayerChanged(_gelatoRelayer, previous);
 
     gelatoRelayer = _gelatoRelayer;
+  }
+
+  function _setFeeCollector(address _feeCollector) internal {
+    address previous = address(feeCollector);
+    require(_feeCollector != previous, "!change");
+    emit FeeCollectorChanged(_feeCollector, previous);
+
+    feeCollector = _feeCollector;
   }
 }
