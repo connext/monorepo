@@ -120,6 +120,7 @@ export type CallSchema<T> = {
     args?: any[];
   };
   chainData?: any;
+  caseSensitive?: boolean;
 };
 
 // NOTE: Used to do a sanity check when loading default config from json files
