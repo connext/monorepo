@@ -6,7 +6,7 @@ import { FacetCut, FacetCutAction, ExtendedArtifact, DeploymentSubmission } from
 import { mergeABIs } from "hardhat-deploy/dist/src/utils";
 
 import { SKIP_SETUP } from "../src/constants";
-import { getConnectorName, getDeploymentName, getProtocolNetwork } from "../src/utils";
+import { getConnectorName, getDeploymentName, getProtocolNetwork, getRelayerProxyConfig } from "../src/utils";
 import { chainIdToDomain } from "../src";
 import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
 
@@ -290,12 +290,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   console.log("Deploying Relayer Proxy...");
 
+  const { feeCollector, gelatoRelayer } = getRelayerProxyConfig(chainId);
   const spokeConnector = await hre.ethers.getContract(getDeploymentName(getConnectorName(protocol, +chainId)));
   const relayerProxy = await hre.deployments.deploy(getDeploymentName("RelayerProxy"), {
     from: deployer.address,
     log: true,
     contract: "RelayerProxy",
-    args: [connextAddress, spokeConnector.address],
+    args: [connextAddress, spokeConnector.address, gelatoRelayer, feeCollector],
   });
 
   console.log("relayerProxy: ", relayerProxy.address);
