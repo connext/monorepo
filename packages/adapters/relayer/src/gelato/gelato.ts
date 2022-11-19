@@ -8,7 +8,6 @@ import {
   RelayerSyncFeeRequest,
   RelayResponse,
   RelayRequestOptions,
-  GELATO_RELAYER_ADDRESS,
   NATIVE_TOKEN,
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
@@ -41,37 +40,13 @@ export const isChainSupportedByGelato = async (chainId: number): Promise<boolean
   return result.includes(chainId.toString());
 };
 
-export const getGelatoRelayerAddress = async (_chainId: number, _logger?: Logger): Promise<string> => {
-  return GELATO_RELAYER_ADDRESS;
-};
-
-export const getGelatoRelayChains = async (logger?: Logger): Promise<string[]> => {
+export const getGelatoRelayChains = async (): Promise<string[]> => {
   let result = [];
   try {
     const res = await axiosGet(`${url}/relays/`);
     result = res.data.relays;
   } catch (error: unknown) {
-    if (logger) logger.error("Error in getGelatoRelayChains", undefined, undefined, jsonifyError(error as Error));
-  }
-
-  return result;
-};
-
-export const isPaymentTokenSupported = async (chainId: number, token: string): Promise<boolean> => {
-  const paymentTokens = await getPaymentTokens(chainId);
-  const lowerPaymentTokens = paymentTokens.map((address) => {
-    return address.toLowerCase();
-  });
-  return lowerPaymentTokens.includes(token.toString().toLowerCase());
-};
-
-export const getPaymentTokens = async (chainId: number, logger?: Logger): Promise<string[]> => {
-  let result = [];
-  try {
-    const res = await axiosGet(`${url}/oracles/${chainId}/paymentTokens/`);
-    result = res.data.paymentTokens;
-  } catch (error: unknown) {
-    if (logger) logger.error("Error in getPaymentTokens", undefined, undefined, jsonifyError(error as Error));
+    throw new UnableToGetGelatoSupportedChains(0, { err: jsonifyError(error as Error) });
   }
 
   return result;
@@ -204,9 +179,13 @@ export const gelatoV0Send = async (
   return response.data;
 };
 
-export const getRelayerAddress = async (chainId: number, logger: Logger): Promise<string> => {
-  const relayerAddress = await getGelatoRelayerAddress(chainId, logger);
-  return relayerAddress;
+export const getRelayerAddress = async (chainId: number): Promise<string> => {
+  try {
+    const res = await axiosGet(`${url}/relays/address/${chainId}`);
+    return res.data.address;
+  } catch (error: unknown) {
+    throw new UnableToGetGelatoSupportedChains(chainId, { err: jsonifyError(error as Error) });
+  }
 };
 
 export const send = async (
@@ -227,7 +206,7 @@ export const send = async (
   }
 
   // Validate the call will succeed on chain.
-  const relayerAddress = await getRelayerAddress(chainId, logger);
+  const relayerAddress = await getRelayerAddress(chainId);
 
   logger.debug("Getting gas estimate", requestContext, methodContext, {
     chainId,
