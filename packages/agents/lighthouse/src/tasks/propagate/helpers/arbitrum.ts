@@ -27,7 +27,7 @@ export const getPropagateParams = async (
   }
 
   // must be ETH mainnet for arbitrum SDK
-  const l1RpcUrl = "https://mainnet.infura.io/v3/d1caeba320f94122ba8f791f50122c4c";
+  const l1RpcUrl = "https://rpc.ankr.com/eth";
   // TODO: use below when mainnet is deployed
   // const l1RpcUrl = config.chains["6648936"]?.providers[0];
   if (!l1RpcUrl) {
