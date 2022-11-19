@@ -106,13 +106,11 @@ export const getPropagateParams = async (
      * In nitro, submission fee will be charged in L1 based on L1 basefee, revert on L1 side upon insufficient fee.
      */
     submissionPriceWei = _submissionPriceWei.mul(5);
-    console.log("submissionPriceWei: ", submissionPriceWei);
 
     /**
      * With these three values, we can calculate the total callvalue we'll need our L1 transaction to send to L2
      */
     callValue = submissionPriceWei.add(gasPriceBid.mul(maxGas));
-    console.log("callValue: ", callValue);
   } catch (err: unknown) {
     logger.error("Error getting propagate params for Arbitrum", requestContext, methodContext, err as NxtpError);
     submissionPriceWei = "0";
@@ -121,9 +119,6 @@ export const getPropagateParams = async (
     callValue = "0";
   }
 
-  console.log("submissionPriceWei: ", submissionPriceWei);
-  console.log("maxGas: ", maxGas);
-  console.log("gasPriceBid: ", gasPriceBid);
   // (uint256 maxSubmissionCost, uint256 maxGas, uint256 gasPrice) = abi.decode(
   const encodedData = utils.defaultAbiCoder.encode(
     ["uint256", "uint256", "uint256"],
