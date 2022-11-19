@@ -649,6 +649,10 @@ contract BridgeFacet is BaseConnextFacet {
         revert BridgeFacet__execute_notSupportedSequencer();
       }
       // Check to make sure the sequencer provided did sign the transfer ID and router path provided.
+      // NOTE: when caps are enforced, this signature also acts as protection from malicious routers looking
+      // to block the network. routers could `execute` a fake transaction, and use up the rest of the `custodied`
+      // bandwidth, causing future `execute`s to fail. this would also cause a break in the accounting, where the
+      // `custodied` balance no longer tracks representation asset minting / burning
       if (
         _args.sequencer != _recoverSignature(keccak256(abi.encode(transferId, _args.routers)), _args.sequencerSignature)
       ) {
