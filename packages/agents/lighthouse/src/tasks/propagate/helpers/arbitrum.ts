@@ -1,5 +1,5 @@
 import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
-import { constants, utils } from "ethers";
+import { BigNumber, constants, utils } from "ethers";
 
 import { getContext } from "../propagate";
 import { NoSpokeConnector, NoHubConnector, NoProviderForDomain } from "../errors";
@@ -40,13 +40,15 @@ export const getPropagateParams = async (
   // example encoded payload: 0x4ff746f6000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000207465737400000000000000000000000000000000000000000000000000000000
   // length = 200 not including 0x = 100 bytes
   // TODO: verify this is the correct payload to use
-  const messageBytesLength = 100 + 4; // 4 bytes func identifier
-  const l1Provider = getJsonRpcProvider(l1RpcUrl);
-  const _submissionPriceWei = await l1ToL2MessageGasEstimate.estimateSubmissionFee(
-    l1Provider,
-    await l1Provider.getGasPrice(),
-    messageBytesLength,
-  );
+  // const messageBytesLength = 100 + 4; // 4 bytes func identifier
+  // const l1Provider = getJsonRpcProvider(l1RpcUrl);
+  // const _submissionPriceWei = await l1ToL2MessageGasEstimate.estimateSubmissionFee(
+  //   l1Provider,
+  //   await l1Provider.getGasPrice(),
+  //   messageBytesLength,
+  // );
+
+  const _submissionPriceWei = BigNumber.from("21938254772368");
 
   logger.info(
     `Got current retryable base submission price: ${_submissionPriceWei.toString()}`,
