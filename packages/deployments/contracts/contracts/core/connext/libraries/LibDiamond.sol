@@ -11,7 +11,7 @@ import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
 // The loupe functions are required by the EIP2535 Diamonds standard
 
 library LibDiamond {
-  bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("diamond.standard.diamond.storage");
+  bytes32 constant DIAMOND_STORAGE_POSITION = bytes32(uint256(keccak256("diamond.standard.diamond.storage")) - 1);
 
   struct FacetAddressAndPosition {
     address facetAddress;
