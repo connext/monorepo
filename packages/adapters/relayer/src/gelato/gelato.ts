@@ -11,7 +11,6 @@ import {
   GELATO_RELAYER_ADDRESS,
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
-import { constants } from "ethers";
 
 import {
   RelayerSendFailed,
@@ -213,12 +212,12 @@ export const send = async (
     gas: gas.toString(),
   });
 
-  const request = {
+  const request: RelayerSyncFeeRequest = {
     chainId: chainId,
     target: destinationAddress,
     data: encodedData,
-    relayContext: true,
-    feeToken: constants.AddressZero,
+    isRelayContext: false,
+    feeToken: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // native token
   };
 
   logger.info("Sending to Gelato network", requestContext, methodContext, request);

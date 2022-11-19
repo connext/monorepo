@@ -1,4 +1,4 @@
-import { createLoggingContext, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
+import { createLoggingContext, RelayerType, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
 
 import { encodePropagate, sendWithRelayerWithBackup } from "../../../mockable";
 import { NoChainIdForHubDomain, RootManagerPropagateWrapperNotFound } from "../errors";
@@ -77,7 +77,7 @@ export const propagate = async () => {
     config.hubDomain,
     target.address,
     encodedData,
-    relayers,
+    [relayers.find((r) => r.type === RelayerType.Connext)!],
     chainreader,
     logger,
     requestContext,

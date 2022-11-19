@@ -1,6 +1,14 @@
-import { RequestContext, createLoggingContext, Bid, OriginTransfer } from "@connext/nxtp-utils";
+import {
+  RequestContext,
+  createLoggingContext,
+  Bid,
+  OriginTransfer,
+  NATIVE_TOKEN,
+  NxtpError,
+} from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
 
-import { sendWithRelayerWithBackup } from "../../../mockable";
+import { sendWithRelayerWithBackup, getEstimatedFee } from "../../../mockable";
 import { getContext } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
 
@@ -55,8 +63,31 @@ export const sendExecuteFastToRelayer = async (
     gas: gas.toString(),
   });
 
+  const gasLimit = gas.add(200_000); // Add extra overhead for gelato
   const destinationRelayerProxyAddress = config.chains[transfer.xparams.destinationDomain].deployments.relayerProxy;
-  const encodedData = await encodeRelayerProxyExecuteFromBids(round, bids, transfer, gas, requestContext);
+
+  let fee = BigNumber.from(0);
+  try {
+    fee = await getEstimatedFee(destinationChainId, NATIVE_TOKEN, gasLimit, true);
+  } catch (e: unknown) {
+    logger.warn("Error at Gelato Estimate Fee", requestContext, methodContext, {
+      error: e as NxtpError,
+      relayerProxyAddress: destinationRelayerProxyAddress,
+      gasLimit: gasLimit.toString(),
+      relayerFee: fee.toString(),
+    });
+
+    fee = gasLimit.mul(await chainreader.getGasPrice(domain, requestContext));
+  }
+
+  const encodedData = await encodeRelayerProxyExecuteFromBids(round, bids, transfer, fee, requestContext);
+
+  logger.info("Encoding for Relayer Proxy", requestContext, methodContext, {
+    relayerProxyAddress: destinationRelayerProxyAddress,
+    gasLimit: gasLimit.toString(),
+    relayerFee: fee.toString(),
+    relayerProxyEncodedData: encodedData,
+  });
 
   return await sendWithRelayerWithBackup(
     destinationChainId,

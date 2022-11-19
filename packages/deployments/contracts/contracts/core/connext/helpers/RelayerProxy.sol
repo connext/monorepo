@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {GelatoRelayFeeCollector} from "@gelatonetwork/relay-context/contracts/GelatoRelayFeeCollector.sol";
 
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
 import {IConnext, ExecuteArgs} from "../interfaces/IConnext.sol";
@@ -22,8 +23,9 @@ interface ISpokeConnector {
   ) external;
 }
 
-contract RelayerProxy is ProposedOwnable, ReentrancyGuard {
+contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollector {
   // ============ Properties ============
+  address public immutable GELATO_RELAYER = 0xaBcC9b596420A9E9172FD5938620E265a0f9Df92;
 
   mapping(address => bool) public allowedRelayer;
 
@@ -61,6 +63,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard {
    */
   constructor(address _connext, address _spokeConnector) ProposedOwnable() {
     _setOwner(msg.sender);
+    allowedRelayer[GELATO_RELAYER] = true; // Gelato relayer is allowed by default
 
     require(_connext != address(0), "!zero connext");
     require(_spokeConnector != address(0), "!zero spoke connector");
@@ -112,15 +115,24 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard {
 
   // ============ External Functions ============
 
-  function execute(ExecuteArgs calldata _args, uint256 fee)
+  function execute(ExecuteArgs calldata _args, uint256 _fee)
     external
     onlyRelayer
     nonReentrant
     returns (bytes32 transferId)
   {
     transferId = connext.execute(_args);
-    Address.sendValue(payable(msg.sender), fee);
-    emit FundsDeducted(fee, address(this).balance);
+    transferFee(_fee);
+    emit FundsDeducted(_fee, address(this).balance);
+  }
+
+  function transferFee(uint256 _fee) internal {
+    if (msg.sender == GELATO_RELAYER) {
+      address feeCollector = _getFeeCollector();
+      Address.sendValue(payable(feeCollector), _fee);
+    } else {
+      Address.sendValue(payable(msg.sender), _fee);
+    }
   }
 
   function proveAndProcess(
@@ -128,11 +140,11 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard {
     bytes32 _aggregateRoot,
     bytes32[32] calldata _aggregatePath,
     uint256 _aggregateIndex,
-    uint256 fee
+    uint256 _fee
   ) external onlyRelayer nonReentrant {
     spokeConnector.proveAndProcess(_proofs, _aggregateRoot, _aggregatePath, _aggregateIndex);
-    Address.sendValue(payable(msg.sender), fee);
-    emit FundsDeducted(fee, address(this).balance);
+    transferFee(_fee);
+    emit FundsDeducted(_fee, address(this).balance);
   }
 
   receive() external payable {

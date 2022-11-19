@@ -15,6 +15,7 @@ const formatConnectorArgs = (
     rootManager: string;
     merkleManager?: string;
     watcherManager?: string;
+    amb?: string;
   },
 ): any[] => {
   const { deploymentChainId, mirrorChainId, rootManager, connectorChainId, merkleManager, watcherManager } = args;
@@ -26,11 +27,13 @@ const formatConnectorArgs = (
   const deploymentDomain = BigNumber.from(chainIdToDomain(deploymentChainId).toString());
   const mirrorDomain = BigNumber.from(chainIdToDomain(mirrorChainId).toString());
 
+  let amb = args.amb ?? isHub ? config.ambs.hub : config.ambs.spoke;
+
   const hubArgs = [
     deploymentDomain,
     // Mirror domain should be known.
     mirrorDomain,
-    isHub ? config.ambs.hub : config.ambs.spoke,
+    amb,
     rootManager,
     constants.AddressZero,
     ...Object.values((isHub ? config?.custom?.hub : {}) ?? {}),
@@ -254,6 +257,27 @@ const handleDeploySpoke = async (
   const merkleTreeManager = await deployBeaconProxy("MerkleTreeManager", [constants.AddressZero], deployer, hre);
 
   // Deploy Spoke Connector
+
+  let amb: undefined | string;
+  if (protocol.configs[deploymentChainId].prefix.includes("Arbitrum")) {
+    // NOTE: If the spoke network is arbitrum, the AMB should be set to the alias address.
+    // For more info, see alias address in docs:
+    // https://developer.offchainlabs.com/arbos/l1-to-l2-messaging
+    const arbitrumHubConnector = await hre.companionNetworks["hub"].deployments.getOrNull(
+      getDeploymentName("ArbitrumHubConnector"),
+    );
+    if (!arbitrumHubConnector) {
+      throw new Error(
+        "Could not find the ArbitrumHubConnector contract deployment; " +
+          "address is needed in order to deploy ArbitrumSpokeConnector",
+      );
+    }
+    // Alias is the origin sender address + 0x1111000000000000000000000000000000001111.
+    amb = BigNumber.from(arbitrumHubConnector.address)
+      .add(BigNumber.from("0x1111000000000000000000000000000000001111"))
+      .toHexString();
+  }
+
   console.log(`Deploying ${contract}...`);
   const deployment = await hre.deployments.deploy(
     getDeploymentName(contract, undefined, protocol.configs[deploymentChainId].networkName),
