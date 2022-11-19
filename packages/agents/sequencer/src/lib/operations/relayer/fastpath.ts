@@ -5,7 +5,6 @@ import {
   OriginTransfer,
   NATIVE_TOKEN,
   NxtpError,
-  GELATO_RELAYER_ADDRESS,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
