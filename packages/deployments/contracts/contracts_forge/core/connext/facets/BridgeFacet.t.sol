@@ -686,7 +686,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       if (s.tokenConfigs[_canonicalKey].cap > 0) {
         assertEq(
           s.tokenConfigs[_canonicalKey].custodied,
-          prevBalances.bridge - _args.params.bridgedAmt,
+          prevBalances.bridge - routerAmt,
           "custodied amount is incorrect"
         );
       }

@@ -396,12 +396,12 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     _local = _canonical;
     _stableSwap = address(0);
 
-    vm.mockCall(_deployedLocal, abi.encodeWithSelector(IERC20.totalSupply.selector), abi.encode(0));
-    vm.mockCall(_deployedLocal, abi.encodeWithSelector(IERC20Metadata.decimals.selector), abi.encode(18));
+    vm.mockCall(_local, abi.encodeWithSelector(IERC20.balanceOf.selector), abi.encode(0));
+    vm.mockCall(_adopted, abi.encodeWithSelector(IERC20Metadata.decimals.selector), abi.encode(18));
 
     setupAssetAndAssert(_adopted, bytes4(""));
 
-    removeAssetAndAssert(utils_calculateCanonicalHash(), _deployedLocal, _adopted);
+    removeAssetAndAssert(utils_calculateCanonicalHash(), _local, _adopted);
   }
 
   function test_TokenFacet__removeAssetId_worksOnRemote() public {
