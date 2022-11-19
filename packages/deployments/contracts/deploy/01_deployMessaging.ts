@@ -109,17 +109,6 @@ const handleDeployHub = async (
   });
   console.log(`RootManager deployed to ${rootManager.address}`);
 
-  // Deploy RootManager.
-  console.log("Deploying RootManagerPropagateWrapper...");
-  const rootManagerPropagateWrapper = await hre.deployments.deploy(getDeploymentName("RootManagerPropagateWrapper"), {
-    contract: "RootManagerPropagateWrapper",
-    from: deployer.address,
-    args: [rootManager.address],
-    skipIfAlreadyDeployed: true,
-    log: true,
-  });
-  console.log(`RootManagerPropagateWrapper deployed to ${rootManagerPropagateWrapper.address}`);
-
   // setArborist to Merkle for RootManager
   const merkleForRootContract = await hre.ethers.getContractAt(
     "MerkleTreeManager",
