@@ -17,6 +17,7 @@ import { GetProcessArgsParams } from ".";
 export const getProcessFromArbitrumRootArgs = async ({
   spokeChainId,
   hubChainId,
+  hubDomainId,
   spokeProvider,
   hubProvider,
   sendHash,
@@ -106,7 +107,6 @@ export const getProcessFromArbitrumRootArgs = async ({
   );
   const blocksForLog = await Promise.all(
     logs.map(async (l) => {
-      console.log("l: ", l);
       const ret = await (msg as any).getBlockFromNodeLog(spokeJsonProvider, l);
       return {
         ...ret,
@@ -119,7 +119,7 @@ export const getProcessFromArbitrumRootArgs = async ({
   // verify confirm data to ensure the node is correct
   const iface = RollupUserLogic__factory.createInterface();
   const nodeData = await chainreader.readTx({
-    chainId: hubChainId, // TODO which to use?
+    chainId: +hubDomainId, // TODO which to use?
     data: iface.encodeFunctionData("getNode", [event.nodeNum as BigNumberish]),
     to: arbNetwork.ethBridge.rollup,
   });
