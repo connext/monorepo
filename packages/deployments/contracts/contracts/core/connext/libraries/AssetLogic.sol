@@ -10,12 +10,14 @@ import {IStableSwap} from "../interfaces/IStableSwap.sol";
 
 import {LibConnextStorage, AppStorage} from "./LibConnextStorage.sol";
 import {SwapUtils} from "./SwapUtils.sol";
+import {Constants} from "./Constants.sol";
 import {TokenId} from "./TokenId.sol";
 
 library AssetLogic {
   // ============ Libraries ============
 
   using SwapUtils for SwapUtils.Swap;
+  using SafeERC20 for IERC20Metadata;
 
   // ============ Errors ============
 
@@ -25,6 +27,7 @@ library AssetLogic {
   error AssetLogic__swapToLocalAssetIfNeeded_swapPaused();
   error AssetLogic__swapFromLocalAssetIfNeeded_swapPaused();
   error AssetLogic__getTokenIndexFromStableSwapPool_notExist();
+  error AssetLogic__swapAsset_externalStableSwapPoolDoesNotExist();
 
   // ============ Internal: Handle Transfer ============
 
@@ -45,14 +48,16 @@ library AssetLogic {
       revert AssetLogic__handleIncomingAsset_nativeAssetNotSupported();
     }
 
+    IERC20Metadata asset = IERC20Metadata(_asset);
+
     // Record starting amount to validate correct amount is transferred.
-    uint256 starting = IERC20Metadata(_asset).balanceOf(address(this));
+    uint256 starting = asset.balanceOf(address(this));
 
     // Transfer asset to contract.
-    SafeERC20.safeTransferFrom(IERC20Metadata(_asset), msg.sender, address(this), _amount);
+    asset.safeTransferFrom(msg.sender, address(this), _amount);
 
     // Ensure correct amount was transferred (i.e. this was not a fee-on-transfer token).
-    if (IERC20Metadata(_asset).balanceOf(address(this)) - starting != _amount) {
+    if (asset.balanceOf(address(this)) - starting != _amount) {
       revert AssetLogic__handleIncomingAsset_feeOnTransferNotSupported();
     }
   }
@@ -182,7 +187,12 @@ library AssetLogic {
         // NOTE: To get the slippage boundary here, you must take the slippage % off of the
         // normalized amount in (at 18 decimals by convention), then convert that amount
         // to the proper decimals of adopted.
-        calculateSlippageBoundary(uint8(18), IERC20Metadata(adopted).decimals(), _normalizedIn, _slippage)
+        calculateSlippageBoundary(
+          Constants.DEFAULT_NORMALIZED_DECIMALS,
+          IERC20Metadata(adopted).decimals(),
+          _normalizedIn,
+          _slippage
+        )
       );
   }
 
@@ -251,11 +261,16 @@ library AssetLogic {
       // Otherwise, swap via external stableswap pool.
       IStableSwap pool = s.adoptedToLocalExternalPools[_key];
 
-      SafeERC20.safeApprove(IERC20Metadata(_assetIn), address(pool), 0);
-      SafeERC20.safeIncreaseAllowance(IERC20Metadata(_assetIn), address(pool), _amount);
+      IERC20Metadata assetIn = IERC20Metadata(_assetIn);
+
+      assetIn.safeApprove(address(pool), 0);
+      assetIn.safeIncreaseAllowance(address(pool), _amount);
 
       // NOTE: If pool is not registered here, then this call will revert.
-      return (pool.swapExact(_amount, _assetIn, _assetOut, _minOut, block.timestamp + 3600), _assetOut);
+      return (
+        pool.swapExact(_amount, _assetIn, _assetOut, _minOut, block.timestamp + Constants.DEFAULT_DEADLINE_EXTENSION),
+        _assetOut
+      );
     }
   }
 
@@ -299,6 +314,7 @@ library AssetLogic {
     } else {
       // Otherwise, swap via external stableswap pool.
       IStableSwap pool = s.adoptedToLocalExternalPools[_key];
+      address poolAddress = address(pool);
 
       // NOTE: This call will revert if the external stableswap pool doesn't exist.
 
@@ -308,11 +324,21 @@ library AssetLogic {
       // Later, if we try to increase the allowance it will fail. USDT demands if allowance
       // is not 0, it has to be set to 0 first.
       // Example: https://github.com/aave/aave-v3-periphery/blob/ca184e5278bcbc10d28c3dbbc604041d7cfac50b/contracts/adapters/paraswap/ParaSwapRepayAdapter.sol#L138-L140
-      SafeERC20.safeApprove(IERC20Metadata(_assetIn), address(pool), 0);
-      SafeERC20.safeIncreaseAllowance(IERC20Metadata(_assetIn), address(pool), _maxIn);
-      uint256 out = pool.swapExactOut(_amountOut, _assetIn, _assetOut, _maxIn, block.timestamp + 3600);
+      IERC20Metadata assetIn = IERC20Metadata(_assetIn);
+
+      assetIn.safeApprove(poolAddress, 0);
+      assetIn.safeIncreaseAllowance(poolAddress, _maxIn);
+
+      uint256 out = pool.swapExactOut(
+        _amountOut,
+        _assetIn,
+        _assetOut,
+        _maxIn,
+        block.timestamp + Constants.DEFAULT_DEADLINE_EXTENSION
+      );
+
       // Reset allowance
-      SafeERC20.safeApprove(IERC20Metadata(_assetIn), address(pool), 0);
+      assetIn.safeApprove(poolAddress, 0);
       return (out, _assetOut);
     }
   }
@@ -505,7 +531,7 @@ library AssetLogic {
       return 0;
     }
     // Get the min recieved (in same decimals as _amountIn)
-    uint256 min = (_amountIn * (10_000 - _slippage)) / 10_000;
+    uint256 min = (_amountIn * (Constants.BPS_FEE_DENOMINATOR - _slippage)) / Constants.BPS_FEE_DENOMINATOR;
     return normalizeDecimals(_in, _out, min);
   }
 

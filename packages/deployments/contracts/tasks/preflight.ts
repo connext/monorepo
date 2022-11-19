@@ -213,15 +213,15 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         if (approved) {
           console.log("*** Relayer already approved!");
         } else {
-          console.log("*** Whitelisting relayer!");
+          console.log("*** Allowlisting relayer!");
           // Add relayer
           const tx = await connext.addRelayer(relayer);
           console.log("addRelayer tx:", tx.hash);
           await tx.wait(1);
-          console.log("*** Added relayer to whitelist", relayer);
+          console.log("*** Added relayer to allowlist", relayer);
         }
       } else {
-        console.log("*** No relayer to whitelist!");
+        console.log("*** No relayer to allowlist!");
       }
     },
   );

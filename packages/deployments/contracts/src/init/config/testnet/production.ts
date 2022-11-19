@@ -58,16 +58,16 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
   ],
   agents: {
     watchers: {
-      whitelist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
+      allowlist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
     },
     routers: {
-      whitelist: ["0xD2aD711861ab345977B7379c81165708C8717fF1"],
+      allowlist: ["0xD2aD711861ab345977B7379c81165708C8717fF1"],
     },
     sequencers: {
-      whitelist: ["0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C"],
+      allowlist: ["0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C"],
     },
     relayers: {
-      whitelist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", "0x7198C77022566F8F1f8A9A41C7B9C084bD18F934"],
+      allowlist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", "0x7198C77022566F8F1f8A9A41C7B9C084bD18F934"],
     },
   },
 };

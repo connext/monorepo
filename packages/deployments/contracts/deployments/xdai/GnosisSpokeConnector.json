@@ -1008,7 +1008,7 @@
           "type": "address"
         }
       ],
-      "name": "whitelistedSenders",
+      "name": "allowlistedSenders",
       "outputs": [
         {
           "internalType": "bool",
@@ -1050,9 +1050,7 @@
         "blockNumber": 24957956,
         "transactionHash": "0xe0b8483d29c1167c6541d333f988fb49520e73ff6c86b648fb7acb6da69f35ae",
         "address": "0x93d3FCE8F4460700bB2F89dd4aeDcfF211Cd0e92",
-        "topics": [
-          "0x34b09b90f4cfa8747776f5cffd7d53ce7863a9b1f1fc8121903d22543a256511"
-        ],
+        "topics": ["0x34b09b90f4cfa8747776f5cffd7d53ce7863a9b1f1fc8121903d22543a256511"],
         "data": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000cf850",
         "logIndex": 6,
         "blockHash": "0xf435c92503ed40993e4f93ea7ae520f4d83799579d528d3efa533ed0c9d0195b"
@@ -1099,7 +1097,7 @@
     "kind": "dev",
     "methods": {
       "addSender(address)": {
-        "details": "Only whitelisted routers (senders) can call `dispatch`."
+        "details": "Only allowlisted routers (senders) can call `dispatch`."
       },
       "dispatch(uint32,bytes32,bytes)": {
         "details": "The root of this tree will eventually be dispatched to mainnet via `send`. On mainnet (the \"hub\"), it will be combined into a single aggregate root by RootManager (along with outbound roots from other chains). This aggregate root will be redistributed to all destination chains. NOTE: okay to leave dispatch operational when paused as pause is designed for crosschain interactions"
@@ -1137,7 +1135,7 @@
         }
       },
       "removeSender(address)": {
-        "details": "Only whitelisted routers (senders) can call `dispatch`."
+        "details": "Only allowlisted routers (senders) can call `dispatch`."
       },
       "setWatcherManager(address)": {
         "details": "Owner can enroll a watcher (abilities are defined by inheriting contracts)"
@@ -1181,7 +1179,7 @@
         "notice": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
       },
       "addSender(address)": {
-        "notice": "Adds a sender to the whitelist."
+        "notice": "Adds a sender to the allowlist."
       },
       "delay()": {
         "notice": "Returns the delay period before a new owner can be accepted."
@@ -1247,7 +1245,7 @@
         "notice": "Manually remove a pending aggregateRoot by owner if the contract is paused."
       },
       "removeSender(address)": {
-        "notice": "Removes a sender from the whitelist."
+        "notice": "Removes a sender from the allowlist."
       },
       "renounceOwnership()": {
         "notice": "Renounces ownership of the contract after a delay"
@@ -1374,7 +1372,7 @@
       {
         "astId": 37798,
         "contract": "contracts/messaging/connectors/gnosis/GnosisSpokeConnector.sol:GnosisSpokeConnector",
-        "label": "whitelistedSenders",
+        "label": "allowlistedSenders",
         "offset": 0,
         "slot": "11",
         "type": "t_mapping(t_address,t_bool)"

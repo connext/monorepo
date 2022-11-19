@@ -67,6 +67,13 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     return tree.count;
   }
 
+  /**
+   * @notice Convenience getter: returns the root and count.
+   */
+  function rootAndCount() public view returns (bytes32, uint256) {
+    return (tree.root(), tree.count);
+  }
+
   // ======== Initializer =========
 
   function initialize(address _arborist) public initializer {
@@ -119,24 +126,25 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    * provided for convenience.
    */
   function insert(bytes32[] memory leaves) public onlyArborist returns (bytes32 _root, uint256 _count) {
-    // TODO: Considerably more efficient to put this tree into memory, conduct operations,
+    // For > 1 leaf, considerably more efficient to put this tree into memory, conduct operations,
     // then re-assign it to storage - *especially* if we have multiple leaves to insert.
-    // MerkleLib.Tree memory _tree = tree;
+    MerkleLib.Tree memory _tree = tree;
 
-    for (uint256 i; i < leaves.length; ) {
-      // Insert the new node.
-      tree.insert(leaves[i]);
+    uint256 leafCount = leaves.length;
+    for (uint256 i; i < leafCount; ) {
+      // Insert the new node (using in-memory method).
+      _tree = _tree.insert(leaves[i]);
       unchecked {
         ++i;
       }
     }
+    // Write the newly updated tree to storage.
+    tree = _tree;
 
     // Get return details for convenience.
+    _count = _tree.count;
+    // NOTE: Root calculation method currently reads from storage only.
     _root = tree.root();
-    _count = tree.count;
-
-    // TODO: IFF using tree assigned to memory, write the newly updated tree to storage.
-    // tree = _tree;
   }
 
   /**
@@ -148,7 +156,7 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    */
   function insert(bytes32 leaf) public onlyArborist returns (bytes32 _root, uint256 _count) {
     // Insert the new node.
-    tree.insert(leaf);
+    tree = tree.insert(leaf);
     _count = tree.count;
     _root = tree.root();
   }

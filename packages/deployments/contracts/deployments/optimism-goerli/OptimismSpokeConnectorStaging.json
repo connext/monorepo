@@ -1126,7 +1126,7 @@
           "type": "address"
         }
       ],
-      "name": "whitelistedSenders",
+      "name": "allowlistedSenders",
       "outputs": [
         {
           "internalType": "bool",
@@ -1199,9 +1199,7 @@
         "blockNumber": 2734958,
         "transactionHash": "0xea25d7ce87fc46c36dd68d93102402fc53a0d22a52ef08501ad408cb25fbd327",
         "address": "0x0B48226f9596532d83E881E27b40a34b08f04d92",
-        "topics": [
-          "0x877a02cb809da0364d23adca3cd50c451b53f279d3df632e1fc11eb66335bce5"
-        ],
+        "topics": ["0x877a02cb809da0364d23adca3cd50c451b53f279d3df632e1fc11eb66335bce5"],
         "data": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000cf850",
         "logIndex": 2,
         "blockHash": "0xa941b08b1c3366f51741670c18ddde5ad75e3009d77286014310d22c592dd751"
@@ -1234,7 +1232,7 @@
     "kind": "dev",
     "methods": {
       "addSender(address)": {
-        "details": "Only whitelisted routers (senders) can call `dispatch`."
+        "details": "Only allowlisted routers (senders) can call `dispatch`."
       },
       "dispatch(uint32,bytes32,bytes)": {
         "details": "The root of this tree will eventually be dispatched to mainnet via `send`. On mainnet (the \"hub\"), it will be combined into a single aggregate root by RootManager (along with outbound roots from other chains). This aggregate root will be redistributed to all destination chains. NOTE: okay to leave dispatch operational when paused as pause is designed for crosschain interactions"
@@ -1272,7 +1270,7 @@
         }
       },
       "removeSender(address)": {
-        "details": "Only whitelisted routers (senders) can call `dispatch`."
+        "details": "Only allowlisted routers (senders) can call `dispatch`."
       },
       "setRateLimitBlocks(uint256)": {
         "details": "Rate limit is used to mitigate DoS vectors. (See `RateLimited` for more info.)",
@@ -1334,7 +1332,7 @@
         "notice": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
       },
       "addSender(address)": {
-        "notice": "Adds a sender to the whitelist."
+        "notice": "Adds a sender to the allowlist."
       },
       "delay()": {
         "notice": "Returns the delay period before a new owner can be accepted."
@@ -1406,7 +1404,7 @@
         "notice": "Manually remove a pending aggregateRoot by owner if the contract is paused."
       },
       "removeSender(address)": {
-        "notice": "Removes a sender from the whitelist."
+        "notice": "Removes a sender from the allowlist."
       },
       "renounceOwnership()": {
         "notice": "Should not be able to renounce ownership"
@@ -1439,7 +1437,7 @@
         "notice": "Checks the cross domain sender for a given address"
       },
       "watcherManager()": {
-        "notice": "The `WatcherManager` contract governs the watcher whitelist."
+        "notice": "The `WatcherManager` contract governs the watcher allowlist."
       },
       "withdrawFunds(address)": {
         "notice": "This function should be callable by owner, and send funds trapped on a connector to the provided recipient."
@@ -1564,7 +1562,7 @@
       {
         "astId": 38165,
         "contract": "contracts/messaging/connectors/optimism/OptimismSpokeConnector.sol:OptimismSpokeConnector",
-        "label": "whitelistedSenders",
+        "label": "allowlistedSenders",
         "offset": 0,
         "slot": "13",
         "type": "t_mapping(t_address,t_bool)"
