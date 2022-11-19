@@ -121,7 +121,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     returns (bytes32 transferId)
   {
     transferId = connext.execute(_args);
-    transferFee(_fee);
+    transferRelayerFee(_fee);
   }
 
   function proveAndProcess(
@@ -132,12 +132,17 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     uint256 _fee
   ) external onlyRelayer nonReentrant {
     spokeConnector.proveAndProcess(_proofs, _aggregateRoot, _aggregatePath, _aggregateIndex);
-    transferFee(_fee);
+    transferRelayerFee(_fee);
   }
 
-  function send(bytes memory _encodedData, uint256 _fee) external onlyRelayer nonReentrant {
-    spokeConnector.send{value: _fee}(_encodedData);
-    emit FundsDeducted(_fee, address(this).balance);
+  function send(
+    bytes memory _encodedData,
+    uint256 _messageFee,
+    uint256 _relayerFee
+  ) external onlyRelayer nonReentrant {
+    spokeConnector.send{value: _messageFee}(_encodedData);
+    emit FundsDeducted(_messageFee, address(this).balance);
+    transferRelayerFee(_relayerFee);
   }
 
   receive() external payable {
@@ -146,7 +151,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   // ============ Internal Functions ============
 
-  function transferFee(uint256 _fee) internal {
+  function transferRelayerFee(uint256 _fee) internal {
     if (msg.sender == gelatoRelayer) {
       Address.sendValue(payable(feeCollector), _fee);
     } else {
