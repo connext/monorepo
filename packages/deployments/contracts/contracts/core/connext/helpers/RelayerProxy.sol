@@ -25,6 +25,12 @@ interface ISpokeConnector {
   function send(bytes memory _encodedData) external payable;
 }
 
+/**
+ * @title RelayerProxy
+ * @author Connext Labs, Inc.
+ * @notice This is a temporary contract that wraps fast path functions in the Connext interface so that they can be called by
+ * Gelato's legacy relayer network. The contract stores native assets and pays them to the relayer on function call.
+ */
 contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollector {
   // ============ Properties ============
   address public gelatoRelayer;
@@ -48,17 +54,58 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   // ============ Events ============
 
+  /**
+  * @notice Emitted when funds added to the contract
+  * @param amount The amount added
+  * @param balance The updated balance of the contract
+  */
   event FundsReceived(uint256 amount, uint256 balance);
 
+  /**
+  * @notice Emitted when funds removed from the contract by admin
+  * @param amount The amount removed
+  * @param balance The updated balance of the contract
+  */
   event FundsDeducted(uint256 amount, uint256 balance);
 
+  /**
+  * @notice Emitted when a new relayer is allowlisted by admin
+  * @param relayer Address of the added relayer
+  */
   event RelayerAdded(address relayer);
 
+  /**
+  * @notice Emitted when a relayer is removed from allowlist by admin
+  * @param relayer Address of the removed relayer
+  */
   event RelayerRemoved(address relayer);
 
+  /**
+  * @notice Emitted when Connext contract address is updated by admin
+  * @param updated New Connext address in the contract
+  * @param previous Old Connext address in the contract
+  */
   event ConnextChanged(address updated, address previous);
+
+  /**
+  * @notice Emitted when SpokeConnector contract address is updated by admin
+  * @param updated New SpokeConnector address in the contract
+  * @param previous Old SpokeConnector address in the contract
+  */
   event SpokeConnectorChanged(address updated, address previous);
-  event RelayerChanged(address updated, address previous);
+
+    /**
+  * @notice Emitted when GelatoRelayer address is updated by admin
+  * @param updated New GelatoRelayer address in the contract
+  * @param previous Old Gelatorelayer address in the contract
+  */
+  event GelatoRelayerChanged(address updated, address previous);
+
+  /**
+  * @notice Emitted when FeeCollectorChanged address is updated by admin
+  * @param updated New FeeCollectorChanged address in the contract
+  * @param previous Old FeeCollectorChanged address in the contract
+  */
   event FeeCollectorChanged(address updated, address previous);
 
   // ============ Constructor ============
@@ -66,6 +113,9 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   /**
    * @notice
    * @param _connext The address of the Connext on this domain.
+   * @param _spokeConnector The address of the SpokeConnector on this domain.
+   * @param _gelatoRelayer The address of the Gelato relayer on this domain.
+   * @param _feeCollector The address of the Gelato Fee Collector on this domain.
    */
   constructor(
     address _connext,
@@ -84,30 +134,63 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   // ============ Admin Functions ============
 
+  /**
+   * @notice Adds a relayer address to the allowed relayers mapping.
+   *
+   * @param _relayer - Relayer address to add.
+   */
   function addRelayer(address _relayer) external onlyOwner definedAddress(_relayer) {
     _addRelayer(_relayer);
   }
 
+  /**
+   * @notice Removes a relayer address from the allowed relayers mapping.
+   *
+   * @param _relayer - Relayer address to remove.
+   */
   function removeRelayer(address _relayer) external onlyOwner definedAddress(_relayer) {
     _removeRelayer(_relayer);
   }
 
+  /**
+   * @notice Updates the Connext address on this contract.
+   *
+   * @param _connext - New Connext address.
+   */
   function setConnext(address _connext) external onlyOwner definedAddress(_connext) {
     _setConnext(_connext);
   }
 
+  /**
+   * @notice Updates the SpokeConnector address on this contract.
+   *
+   * @param _spokeConnector - New SpokeConnector address.
+   */
   function setSpokeConnector(address _spokeConnector) external onlyOwner definedAddress(_spokeConnector) {
     _setSpokeConnector(_spokeConnector);
   }
 
+  /**
+   * @notice Updates the Gelato relayer address on this contract.
+   *
+   * @param _gelatoRelayer - New Gelato relayer address.
+   */
   function setGelatoRelayer(address _gelatoRelayer) external onlyOwner definedAddress(_gelatoRelayer) {
     _setGelatoRelayer(_gelatoRelayer);
   }
 
+  /**
+   * @notice Updates the Gelato Fee Collector address on this contract.
+   *
+   * @param _feeCollector - New Gelato Fee Collector address.
+   */
   function setFeeCollector(address _feeCollector) external onlyOwner definedAddress(_feeCollector) {
     _setFeeCollector(_feeCollector);
   }
 
+  /**
+   * @notice Withdraws all funds stored on this contract to msg.sender.
+   */
   function withdraw() external onlyOwner nonReentrant {
     uint256 balance = address(this).balance;
     Address.sendValue(payable(msg.sender), balance);
@@ -116,6 +199,15 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   // ============ External Functions ============
 
+  /**
+   * @notice Wraps the call to execute() on Connext and pays either the caller or hardcoded relayer from this 
+   * contract's balance for completing the transaction.
+   *
+   * @param _args - ExecuteArgs arguments.
+   * @param _fee - Fee to be paid to relayer.
+   * @return bytes32 - The transfer ID of the crosschain transfer. Should match the xcall's transfer ID in order for
+   * reconciliation to occur.
+   */
   function execute(ExecuteArgs calldata _args, uint256 _fee)
     external
     onlyRelayer
@@ -126,6 +218,17 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     transferRelayerFee(_fee);
   }
 
+  /**
+   * @notice Wraps the call to proveAndProcess() on SpokeConnector and pays either the caller or hardcoded relayer  
+   * from this contract's balance for completing the transaction.
+   *
+   * @param _proofs Batch of Proofs containing messages for proving/processing.
+   * @param _aggregateRoot The target aggregate root we want to prove inclusion for. This root must have
+   * already been delivered to this spoke connector contract and surpassed the validation period.
+   * @param _aggregatePath Merkle path of inclusion for the inbound root.
+   * @param _aggregateIndex Index of the inbound root in the aggregator's merkle tree in the hub.
+   * @param _fee - Fee to be paid to relayer.
+   */
   function proveAndProcess(
     ISpokeConnector.Proof[] calldata _proofs,
     bytes32 _aggregateRoot,
@@ -137,6 +240,14 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     transferRelayerFee(_fee);
   }
 
+  /**
+   * @notice Wraps the call to send() on SpokeConnector and pays either the caller or hardcoded relayer from this 
+   * contract's balance for completing the transaction.
+   *
+   * @param _encodedData - Data to be sent to Connext SpokeConnector
+   * @param _messageFee - Fee to be paid to the SpokeConnector for connected AMBs that require fees.
+   * @param _relayerFee - Fee to be paid to relayer.
+   */
   function send(
     bytes memory _encodedData,
     uint256 _messageFee,
@@ -153,6 +264,12 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   // ============ Internal Functions ============
 
+  /**
+   * @notice helper function to transfer fees to either Gelato relayer via Fee Collector or to our
+   * backup relayer (msg.sender).
+   *
+   * @param _fee - Fee to be paid to relayer.
+   */
   function transferRelayerFee(uint256 _fee) internal {
     if (msg.sender == gelatoRelayer) {
       Address.sendValue(payable(feeCollector), _fee);
@@ -194,7 +311,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   function _setGelatoRelayer(address _gelatoRelayer) internal {
     address previous = address(gelatoRelayer);
     require(_gelatoRelayer != previous, "!change");
-    emit RelayerChanged(_gelatoRelayer, previous);
+    emit GelatoRelayerChanged(_gelatoRelayer, previous);
 
     gelatoRelayer = _gelatoRelayer;
   }
