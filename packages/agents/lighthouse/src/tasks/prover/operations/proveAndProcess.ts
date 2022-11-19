@@ -191,7 +191,7 @@ export const processMessage = async (message: XMessage) => {
     fee = await getEstimatedFee(chainId, NATIVE_TOKEN, gasLimit, true);
   } catch (error: unknown) {
     logger.warn("Error at Gelato Estimate Fee", requestContext, methodContext, {
-      error: error as NxtpError,
+      error: jsonifyError(error as NxtpError),
       relayerProxyAddress: destinationRelayerProxyAddress,
       gasLimit: gasLimit.toString(),
       relayerFee: fee.toString(),
