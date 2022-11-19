@@ -43,6 +43,7 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "root()": FunctionFragment;
+    "rootAndCount()": FunctionFragment;
     "setArborist(address)": FunctionFragment;
     "tree()": FunctionFragment;
   };
@@ -64,6 +65,7 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
       | "renounceOwnership"
       | "renounced"
       | "root"
+      | "rootAndCount"
       | "setArborist"
       | "tree"
   ): FunctionFragment;
@@ -105,6 +107,10 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(functionFragment: "root", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "rootAndCount",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "setArborist",
     values: [PromiseOrValue<string>]
   ): string;
@@ -143,6 +149,10 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "root", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "rootAndCount",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setArborist",
     data: BytesLike
@@ -276,6 +286,8 @@ export interface MerkleTreeManager extends BaseContract {
 
     root(overrides?: CallOverrides): Promise<[string]>;
 
+    rootAndCount(overrides?: CallOverrides): Promise<[string, BigNumber]>;
+
     setArborist(
       newArborist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -332,6 +344,8 @@ export interface MerkleTreeManager extends BaseContract {
 
   root(overrides?: CallOverrides): Promise<string>;
 
+  rootAndCount(overrides?: CallOverrides): Promise<[string, BigNumber]>;
+
   setArborist(
     newArborist: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -381,6 +395,8 @@ export interface MerkleTreeManager extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
     root(overrides?: CallOverrides): Promise<string>;
+
+    rootAndCount(overrides?: CallOverrides): Promise<[string, BigNumber]>;
 
     setArborist(
       newArborist: PromiseOrValue<string>,
@@ -467,6 +483,8 @@ export interface MerkleTreeManager extends BaseContract {
 
     root(overrides?: CallOverrides): Promise<BigNumber>;
 
+    rootAndCount(overrides?: CallOverrides): Promise<BigNumber>;
+
     setArborist(
       newArborist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -521,6 +539,8 @@ export interface MerkleTreeManager extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     root(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    rootAndCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     setArborist(
       newArborist: PromiseOrValue<string>,
