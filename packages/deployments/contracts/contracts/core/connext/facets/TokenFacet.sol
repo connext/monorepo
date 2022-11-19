@@ -183,8 +183,6 @@ contract TokenFacet is BaseConnextFacet {
    * @param _adoptedAssetId - The used asset id for this domain (e.g. PoS USDC for
    * polygon)
    * @param _stableSwapPool - The address of the local stableswap pool, if it exists.
-   * @param _cap - The liquidity cap enforced when accepting incoming assets. Should be 0 for
-   * all non-canonical domains.
    */
   function setupAsset(
     TokenId calldata _canonical,
@@ -257,8 +255,6 @@ contract TokenFacet is BaseConnextFacet {
    * @param _adoptedAssetId - The used asset id for this domain (e.g. PoS USDC for
    * polygon)
    * @param _stableSwapPool - The address of the local stableswap pool, if it exists.
-   * @param _cap - The liquidity cap enforced when accepting incoming assets. Should be 0 for
-   * all non-canonical domains.
    */
   function setupAssetWithDeployedRepresentation(
     TokenId calldata _canonical,
