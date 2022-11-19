@@ -140,6 +140,7 @@ export const mock = {
       const spokeConnector = createStubInstance(utils.Interface);
       spokeConnector.encodeFunctionData.returns(encodedDataMock);
       spokeConnector.decodeFunctionResult.returns([BigNumber.from(1000)]);
+      spokeConnector.decodeFunctionData.returns([BigNumber.from(1000)]);
 
       return {
         erc20: erc20 as unknown as ConnextContractInterfaces["erc20"],
