@@ -72,16 +72,16 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
   ],
   agents: {
     watchers: {
-      whitelist: ["0xade09131C6f43fe22C2CbABb759636C43cFc181e"],
+      allowlist: ["0xade09131C6f43fe22C2CbABb759636C43cFc181e"],
     },
     routers: {
-      whitelist: ["0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c"],
+      allowlist: ["0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c"],
     },
     sequencers: {
-      whitelist: ["0x4fFA5968857a6C8242E4A6Ded2418155D33e82E7"],
+      allowlist: ["0x4fFA5968857a6C8242E4A6Ded2418155D33e82E7"],
     },
     relayers: {
-      whitelist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", "0x935AaAe0f5b02007c08512F0629a9d37Af2E1A47"],
+      allowlist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", "0x935AaAe0f5b02007c08512F0629a9d37Af2E1A47"],
     },
   },
 };

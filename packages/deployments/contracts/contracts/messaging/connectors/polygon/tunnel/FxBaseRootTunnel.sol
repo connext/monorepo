@@ -55,7 +55,7 @@ abstract contract FxBaseRootTunnel {
   }
 
   // set fxChildTunnel if not set already
-  function setFxChildTunnel(address _fxChildTunnel) internal virtual {
+  function setFxChildTunnel(address _fxChildTunnel) public virtual {
     require(fxChildTunnel == address(0x0), "FxBaseRootTunnel: CHILD_TUNNEL_ALREADY_SET");
     fxChildTunnel = _fxChildTunnel;
   }

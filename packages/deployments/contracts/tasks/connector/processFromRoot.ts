@@ -15,8 +15,8 @@ import {
   mustGetEnv,
   ProtocolNetwork,
 } from "../../src/utils";
-import { RollupUserLogic__factory } from "../abis/RollupUserLogic__factory";
-import { Outbox__factory } from "../abis/Outbox__factory";
+import { RollupUserLogic__factory } from "../../src/abis/RollupUserLogic__factory";
+import { Outbox__factory } from "../../src/abis/Outbox__factory";
 import { MessagingProtocolConfig } from "../../deployConfig/shared";
 import { delay } from "../../src";
 

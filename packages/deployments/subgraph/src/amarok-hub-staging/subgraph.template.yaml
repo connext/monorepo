@@ -87,3 +87,30 @@ dataSources:
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleOptimismNewConnector
       file: ./src/amarok-hub-staging/mapping/optimism.ts
+  # ArbitrumHubConnector.sol events
+  - kind: ethereum/contract
+    name: ArbitrumHubConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: ArbitrumHubConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: ArbitrumHubConnector
+          file: ./src/amarok-hub-staging/abis/ArbitrumHubConnector.json
+      eventHandlers:
+        - event: MessageProcessed(bytes,address)
+          handler: handleArbitrumMessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handleArbitrumNewConnector
+      file: ./src/amarok-hub-staging/mapping/arbitrum.ts

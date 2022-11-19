@@ -9,6 +9,7 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
+import {Constants} from "../libraries/Constants.sol";
 import {TransferInfo} from "../libraries/LibConnextStorage.sol";
 
 contract PortalFacet is BaseConnextFacet {
@@ -64,7 +65,7 @@ contract PortalFacet is BaseConnextFacet {
    * @param _aavePortalFeeNumerator The new value for the Aave Portal fee numerator
    */
   function setAavePortalFee(uint256 _aavePortalFeeNumerator) external onlyOwnerOrAdmin {
-    if (_aavePortalFeeNumerator > BPS_FEE_DENOMINATOR) revert PortalFacet__setAavePortalFee_invalidFee();
+    if (_aavePortalFeeNumerator > Constants.BPS_FEE_DENOMINATOR) revert PortalFacet__setAavePortalFee_invalidFee();
 
     s.aavePortalFeeNumerator = _aavePortalFeeNumerator;
   }
