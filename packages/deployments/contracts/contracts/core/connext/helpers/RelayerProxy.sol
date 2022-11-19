@@ -21,6 +21,12 @@ interface ISpokeConnector {
     bytes32[32] calldata _aggregatePath,
     uint256 _aggregateIndex
   ) external;
+
+  function send(
+    bytes memory _encodedData,
+    uint256 _messageFee,
+    uint256 _relayerFee
+  ) external;
 }
 
 contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollector {
