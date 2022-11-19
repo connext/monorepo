@@ -1,4 +1,6 @@
 [
+  "event DomainAdded(uint32,address)",
+  "event DomainRemoved(uint32)",
   "function MAX_DOMAINS() view returns (uint256)",
   "function connectors(uint256) view returns (address)",
   "function connectorsHash() view returns (bytes32)",

@@ -94,7 +94,7 @@ contract TokenFacet is BaseConnextFacet {
   );
 
   /**
-   * @notice Emitted when an asset is removed from whitelists
+   * @notice Emitted when an asset is removed from allowlists
    * @param key - The hash of the canonical identifier and domain of the token removed
    * @param caller - The account that called the function
    */
@@ -160,9 +160,9 @@ contract TokenFacet is BaseConnextFacet {
   /**
    * @notice Used to add supported assets. This is an admin only function
    *
-   * @dev When whitelisting the canonical asset, all representational assets would be
-   * whitelisted as well. In the event you have a different adopted asset (i.e. PoS USDC
-   * on polygon), you should *not* whitelist the adopted asset. The stable swap pool
+   * @dev When allowlisting the canonical asset, all representational assets would be
+   * allowlisted as well. In the event you have a different adopted asset (i.e. PoS USDC
+   * on polygon), you should *not* allowlist the adopted asset. The stable swap pool
    * address used should allow you to swap between the local <> adopted asset.
    *
    * If a representation has been deployed at any point, `setupAssetWithDeployedRepresentation`
@@ -175,7 +175,7 @@ contract TokenFacet is BaseConnextFacet {
    * Whereas the `_cap` can only be added on the canonical domain
    *
    * @param _canonical - The canonical asset to add by id and domain. All representations
-   * will be whitelisted as well
+   * will be allowlisted as well
    * @param _canonicalDecimals - The decimals of the canonical asset (will be used for deployed
    * representation)
    * @param _representationName - The name to be used for the deployed asset
@@ -295,7 +295,7 @@ contract TokenFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Used to remove assets from the whitelist
+   * @notice Used to remove assets from the allowlist
    * @param _key - The hash of the canonical id and domain to remove (mapping key)
    * @param _adoptedAssetId - Corresponding adopted asset to remove
    */
@@ -309,7 +309,7 @@ contract TokenFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Used to remove assets from the whitelist
+   * @notice Used to remove assets from the allowlist
    * @param _canonical - The canonical id and domain to remove
    * @param _adoptedAssetId - Corresponding adopted asset to remove
    */
@@ -472,7 +472,7 @@ contract TokenFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Used to remove assets from the whitelist
+   * @notice Used to remove assets from the allowlist
    *
    * @dev When you are removing an asset, `xcall` will fail but `handle` and `execute` will not to
    * allow for inflight transfers to be addressed. Similarly, the `repayAavePortal` function will

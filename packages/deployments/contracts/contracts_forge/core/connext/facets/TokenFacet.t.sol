@@ -151,9 +151,9 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     assertTrue(this.canonicalToAdopted(_canonicalId) == _local);
   }
 
-  // if the canonicalToAdopted lookup fails using the helper, we revert: adopted asset not whitelisted
+  // if the canonicalToAdopted lookup fails using the helper, we revert: adopted asset not allowlisted
   function test_TokenFacet__canonicalToAdopted_notFound() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__getAdoptedAsset_notWhitelisted.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__getAdoptedAsset_notAllowlisted.selector);
     this.canonicalToAdopted(_canonicalId);
   }
 
