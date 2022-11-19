@@ -36,6 +36,10 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     _;
   }
 
+  modifier definedAddress(address _input) {
+    require(_input != address(0), "empty");
+  }
+
   // ============ Events ============
 
   event FundsReceived(uint256 amount, uint256 balance);
@@ -46,9 +50,9 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   event RelayerRemoved(address relayer);
 
-  event Setup(address connext, address spokeConnector);
-  event ConnextChanged(address connext, address oldConnext);
-  event SpokeConnectorChanged(address spokeConnector, address oldSpokeConnector);
+  event ConnextChanged(address updated, address previous);
+  event SpokeConnectorChanged(address updated, address previous);
+  event RelayerChanged(address updated, address previous);
 
   // ============ Properties ============
 
@@ -71,48 +75,43 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     setSpokeConnector(_spokeConnector);
     setConnext(_connext);
     addRelayer(_gelatoRelayer);
-
-    emit Setup(_connext, _spokeConnector);
   }
 
   // ============ Admin Functions ============
 
-  function addRelayer(address _relayer) external onlyOwner {
-    require(_relayer != address(0), "!zero relayer");
-    require(!allowedRelayer[_relayer], "already added");
+  function addRelayer(address _relayer) external onlyOwner definedAddress(_relayer) {
+    require(!allowedRelayer[_relayer], "added");
 
     allowedRelayer[_relayer] = true;
     emit RelayerAdded(_relayer);
   }
 
-  function removeRelayer(address _relayer) external onlyOwner {
-    require(_relayer != address(0), "!zero relayer");
-    require(allowedRelayer[_relayer], "relayer not added");
+  function removeRelayer(address _relayer) external onlyOwner definedAddress(_relayer) {
+    require(allowedRelayer[_relayer], "!added");
 
     allowedRelayer[_relayer] = false;
     emit RelayerRemoved(_relayer);
   }
 
-  function setConnext(address _connext) external onlyOwner {
-    require(_connext != address(0), "!zero connext");
+  function setConnext(address _connext) external onlyOwner definedAddress(_connext) {
     address oldConnext = address(connext);
-
-    connext = IConnext(_connext);
+    require(_connext != oldConnext, "!change");
     emit ConnextChanged(_connext, oldConnext);
+    connext = IConnext(_connext);
   }
 
-  function setSpokeConnector(address _spokeConnector) external onlyOwner {
-    require(_spokeConnector != address(0), "!zero spoke connector");
+  function setSpokeConnector(address _spokeConnector) external onlyOwner definedAddress(_spokeConnector) {
     address oldSpokeConnector = address(spokeConnector);
+    require(_spokeConnector != oldSpokeConnector, "!change");
+    emit SpokeConnectorChanged(_spokeConnector, oldSpokeConnector);
 
     spokeConnector = ISpokeConnector(_spokeConnector);
-    emit ConnextChanged(_spokeConnector, oldSpokeConnector);
   }
 
-  function setGelatoRelayer(address _gelatoRelayer) external onlyOwner {
-    require(_gelatoRelayer != address(0), "!relayer");
-    require(_gelatoRelayer != gelatoRelayer, "!change");
-    emit RelayerChanged(_gelatoRelayer, gelatoRelayer);
+  function setGelatoRelayer(address _gelatoRelayer) external onlyOwner definedAddress(_gelatoRelayer) {
+    address previous = address(gelatoRelayer);
+    require(_gelatoRelayer != previous, "!change");
+    emit RelayerChanged(_gelatoRelayer, previous);
 
     gelatoRelayer = _gelatoRelayer;
   }
@@ -136,15 +135,6 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     emit FundsDeducted(_fee, address(this).balance);
   }
 
-  function transferFee(uint256 _fee) internal {
-    if (msg.sender == GELATO_RELAYER) {
-      address feeCollector = _getFeeCollector();
-      Address.sendValue(payable(feeCollector), _fee);
-    } else {
-      Address.sendValue(payable(msg.sender), _fee);
-    }
-  }
-
   function proveAndProcess(
     ISpokeConnector.Proof[] calldata _proofs,
     bytes32 _aggregateRoot,
@@ -159,5 +149,16 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   receive() external payable {
     emit FundsReceived(msg.value, address(this).balance);
+  }
+
+  // ============ Internal Functions ============
+
+  function transferFee(uint256 _fee) internal {
+    if (msg.sender == GELATO_RELAYER) {
+      address feeCollector = _getFeeCollector();
+      Address.sendValue(payable(feeCollector), _fee);
+    } else {
+      Address.sendValue(payable(msg.sender), _fee);
+    }
   }
 }
