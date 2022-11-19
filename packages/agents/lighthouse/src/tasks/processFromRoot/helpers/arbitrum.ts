@@ -123,7 +123,7 @@ export const getProcessFromArbitrumRootArgs = async ({
     data: iface.encodeFunctionData("getNode", [event.nodeNum as BigNumberish]),
     to: arbNetwork.ethBridge.rollup,
   });
-  const node = iface.decodeFunctionResult("getNode", nodeData);
+  const [node] = iface.decodeFunctionResult("getNode", nodeData);
   const confirmData = node.confirmData.toLowerCase() as string;
   const encoded = utils
     .keccak256(utils.defaultAbiCoder.encode(["bytes32", "bytes32"], [event.hash, event.sendRoot]))
