@@ -59,7 +59,8 @@ export const getGelatoRelayChains = async (): Promise<string[]> => {
  */
 export const getTaskStatus = async (taskId: string): Promise<RelayerTaskStatus> => {
   try {
-    const apiEndpoint = `${url}/tasks/status/${taskId}`;
+    // const apiEndpoint = `${url}/tasks/status/${taskId}`;
+    const apiEndpoint = `${url}/tasks/${taskId}`; // old endpoint
     const res = await axiosGet(apiEndpoint);
     return res.data.task?.taskState ?? RelayerTaskStatus.NotFound;
   } catch (error: unknown) {
@@ -181,7 +182,7 @@ export const gelatoV0Send = async (
 
 export const getRelayerAddress = async (chainId: number): Promise<string> => {
   try {
-    const res = await axiosGet(`${url}/relays/address/${chainId}`);
+    const res = await axiosGet(`${url}/relays/${chainId}/address`);
     return res.data.address;
   } catch (error: unknown) {
     throw new UnableToGetGelatoSupportedChains(chainId, { err: jsonifyError(error as Error) });
