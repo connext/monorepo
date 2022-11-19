@@ -340,7 +340,6 @@ contract TokenFacet is BaseConnextFacet {
     // NOTE: Using address(0) for stable swap, then using `_addStableSwap`. Slightly less
     // efficient, but preserves events. Same case for cap / custodied.
     // NOTE: IFF on canonical domain, `representation` must *always* be address(0)!
-    console.log("getting decimals of", adopted);
     s.tokenConfigs[_key] = TokenConfig(
       _onCanonical ? address(0) : _local, // representation
       _localDecimals, // representationDecimals
