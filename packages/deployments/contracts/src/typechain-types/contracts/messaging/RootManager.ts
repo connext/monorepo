@@ -48,6 +48,7 @@ export interface RootManagerInterface extends utils.Interface {
     "getDomainIndex(uint32)": FunctionFragment;
     "getPendingInboundRootsCount()": FunctionFragment;
     "isDomainSupported(uint32)": FunctionFragment;
+    "lastPropagatedRoot()": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
     "paused()": FunctionFragment;
@@ -87,6 +88,7 @@ export interface RootManagerInterface extends utils.Interface {
       | "getDomainIndex"
       | "getPendingInboundRootsCount"
       | "isDomainSupported"
+      | "lastPropagatedRoot"
       | "owner"
       | "pause"
       | "paused"
@@ -168,6 +170,10 @@ export interface RootManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "isDomainSupported",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lastPropagatedRoot",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
@@ -276,6 +282,10 @@ export interface RootManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isDomainSupported",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "lastPropagatedRoot",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -603,6 +613,8 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    lastPropagatedRoot(overrides?: CallOverrides): Promise<[string]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     pause(
@@ -736,6 +748,8 @@ export interface RootManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  lastPropagatedRoot(overrides?: CallOverrides): Promise<string>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   pause(
@@ -864,6 +878,8 @@ export interface RootManager extends BaseContract {
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    lastPropagatedRoot(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -1106,6 +1122,8 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    lastPropagatedRoot(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     pause(
@@ -1237,6 +1255,10 @@ export interface RootManager extends BaseContract {
 
     isDomainSupported(
       _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    lastPropagatedRoot(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

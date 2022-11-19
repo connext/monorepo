@@ -2001,6 +2001,13 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "proposeRouterAllowlistRemoval",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -2014,13 +2021,6 @@ const _abi = [
       },
     ],
     name: "proposeRouterOwner",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "proposeRouterAllowlistRemoval",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2107,6 +2107,13 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "removeAssetAllowlist",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         components: [
@@ -2165,13 +2172,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "removeAssetAllowlist",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "address",
@@ -2180,6 +2180,13 @@ const _abi = [
       },
     ],
     name: "removeRelayer",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "removeRouterAllowlist",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2231,13 +2238,6 @@ const _abi = [
       },
     ],
     name: "removeRouterLiquidityFor",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "removeRouterAllowlist",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2638,30 +2638,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_router",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_asset",
-        type: "address",
-      },
-    ],
-    name: "routerBalances",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "routerAllowlistRemoved",
     outputs: [
@@ -2677,6 +2653,30 @@ const _abi = [
   {
     inputs: [],
     name: "routerAllowlistTimestamp",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_router",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_asset",
+        type: "address",
+      },
+    ],
+    name: "routerBalances",
     outputs: [
       {
         internalType: "uint256",

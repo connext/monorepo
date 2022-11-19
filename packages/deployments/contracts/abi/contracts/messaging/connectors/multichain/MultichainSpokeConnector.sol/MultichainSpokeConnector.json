@@ -42,6 +42,7 @@
   "function ROOT_MANAGER() view returns (address)",
   "function acceptProposedOwner()",
   "function addSender(address)",
+  "function allowlistedSenders(address) view returns (bool)",
   "function anyExecute(bytes) returns (bool, bytes)",
   "function delay() view returns (uint256)",
   "function delayBlocks() view returns (uint256)",
@@ -80,6 +81,5 @@
   "function unpause()",
   "function verifySender(address) returns (bool)",
   "function watcherManager() view returns (address)",
-  "function allowlistedSenders(address) view returns (bool)",
   "function withdrawFunds(address)"
 ]

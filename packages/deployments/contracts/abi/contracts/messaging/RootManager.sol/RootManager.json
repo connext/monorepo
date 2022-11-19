@@ -40,6 +40,7 @@
   "function getDomainIndex(uint32) view returns (uint256)",
   "function getPendingInboundRootsCount() view returns (uint256)",
   "function isDomainSupported(uint32) view returns (bool)",
+  "function lastPropagatedRoot() view returns (bytes32)",
   "function owner() view returns (address)",
   "function pause()",
   "function paused() view returns (bool)",
