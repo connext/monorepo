@@ -2,5 +2,6 @@
   "event MessageSent(bytes)",
   "function fxChild() view returns (address)",
   "function fxRootTunnel() view returns (address)",
-  "function processMessageFromRoot(uint256,address,bytes)"
+  "function processMessageFromRoot(uint256,address,bytes)",
+  "function setFxRootTunnel(address)"
 ]

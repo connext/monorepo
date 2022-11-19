@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -40,9 +41,12 @@ export declare namespace ISpokeConnector {
 export interface ISpokeConnectorInterface extends utils.Interface {
   functions: {
     "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32,bytes32[32],uint256)": FunctionFragment;
+    "send(bytes)": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "proveAndProcess"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: "proveAndProcess" | "send"
+  ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "proveAndProcess",
@@ -53,11 +57,16 @@ export interface ISpokeConnectorInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "send",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "proveAndProcess",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
 
   events: {};
 }
@@ -96,6 +105,11 @@ export interface ISpokeConnector extends BaseContract {
       _aggregateIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    send(
+      _encodedData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   proveAndProcess(
@@ -106,12 +120,22 @@ export interface ISpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  send(
+    _encodedData: PromiseOrValue<BytesLike>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     proveAndProcess(
       _proofs: ISpokeConnector.ProofStruct[],
       _aggregateRoot: PromiseOrValue<BytesLike>,
       _aggregatePath: PromiseOrValue<BytesLike>[],
       _aggregateIndex: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    send(
+      _encodedData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -126,6 +150,11 @@ export interface ISpokeConnector extends BaseContract {
       _aggregateIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    send(
+      _encodedData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -135,6 +164,11 @@ export interface ISpokeConnector extends BaseContract {
       _aggregatePath: PromiseOrValue<BytesLike>[],
       _aggregateIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    send(
+      _encodedData: PromiseOrValue<BytesLike>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

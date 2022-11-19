@@ -111,13 +111,14 @@ export declare namespace ISpokeConnector {
 
 export interface RelayerProxyInterface extends utils.Interface {
   functions: {
-    "GELATO_RELAYER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "addRelayer(address)": FunctionFragment;
     "allowedRelayer(address)": FunctionFragment;
     "connext()": FunctionFragment;
     "delay()": FunctionFragment;
     "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes),uint256)": FunctionFragment;
+    "feeCollector()": FunctionFragment;
+    "gelatoRelayer()": FunctionFragment;
     "owner()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
@@ -126,7 +127,10 @@ export interface RelayerProxyInterface extends utils.Interface {
     "removeRelayer(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
+    "send(bytes,uint256,uint256)": FunctionFragment;
     "setConnext(address)": FunctionFragment;
+    "setFeeCollector(address)": FunctionFragment;
+    "setGelatoRelayer(address)": FunctionFragment;
     "setSpokeConnector(address)": FunctionFragment;
     "spokeConnector()": FunctionFragment;
     "withdraw()": FunctionFragment;
@@ -134,13 +138,14 @@ export interface RelayerProxyInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "GELATO_RELAYER"
       | "acceptProposedOwner"
       | "addRelayer"
       | "allowedRelayer"
       | "connext"
       | "delay"
       | "execute"
+      | "feeCollector"
+      | "gelatoRelayer"
       | "owner"
       | "proposeNewOwner"
       | "proposed"
@@ -149,16 +154,15 @@ export interface RelayerProxyInterface extends utils.Interface {
       | "removeRelayer"
       | "renounceOwnership"
       | "renounced"
+      | "send"
       | "setConnext"
+      | "setFeeCollector"
+      | "setGelatoRelayer"
       | "setSpokeConnector"
       | "spokeConnector"
       | "withdraw"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "GELATO_RELAYER",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
     values?: undefined
@@ -176,6 +180,14 @@ export interface RelayerProxyInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "execute",
     values: [ExecuteArgsStruct, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "feeCollector",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "gelatoRelayer",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -207,7 +219,23 @@ export interface RelayerProxyInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "send",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setConnext",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setFeeCollector",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setGelatoRelayer",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -221,10 +249,6 @@ export interface RelayerProxyInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
 
   decodeFunctionResult(
-    functionFragment: "GELATO_RELAYER",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
     data: BytesLike
   ): Result;
@@ -236,6 +260,14 @@ export interface RelayerProxyInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "connext", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "feeCollector",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "gelatoRelayer",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
@@ -259,7 +291,16 @@ export interface RelayerProxyInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setConnext", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setFeeCollector",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setGelatoRelayer",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setSpokeConnector",
     data: BytesLike
@@ -272,30 +313,32 @@ export interface RelayerProxyInterface extends utils.Interface {
 
   events: {
     "ConnextChanged(address,address)": EventFragment;
+    "FeeCollectorChanged(address,address)": EventFragment;
     "FundsDeducted(uint256,uint256)": EventFragment;
     "FundsReceived(uint256,uint256)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "RelayerAdded(address)": EventFragment;
+    "RelayerChanged(address,address)": EventFragment;
     "RelayerRemoved(address)": EventFragment;
-    "Setup(address,address)": EventFragment;
     "SpokeConnectorChanged(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "ConnextChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FeeCollectorChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsDeducted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RelayerChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerRemoved"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Setup"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SpokeConnectorChanged"): EventFragment;
 }
 
 export interface ConnextChangedEventObject {
-  connext: string;
-  oldConnext: string;
+  updated: string;
+  previous: string;
 }
 export type ConnextChangedEvent = TypedEvent<
   [string, string],
@@ -303,6 +346,18 @@ export type ConnextChangedEvent = TypedEvent<
 >;
 
 export type ConnextChangedEventFilter = TypedEventFilter<ConnextChangedEvent>;
+
+export interface FeeCollectorChangedEventObject {
+  updated: string;
+  previous: string;
+}
+export type FeeCollectorChangedEvent = TypedEvent<
+  [string, string],
+  FeeCollectorChangedEventObject
+>;
+
+export type FeeCollectorChangedEventFilter =
+  TypedEventFilter<FeeCollectorChangedEvent>;
 
 export interface FundsDeductedEventObject {
   amount: BigNumber;
@@ -356,6 +411,17 @@ export type RelayerAddedEvent = TypedEvent<[string], RelayerAddedEventObject>;
 
 export type RelayerAddedEventFilter = TypedEventFilter<RelayerAddedEvent>;
 
+export interface RelayerChangedEventObject {
+  updated: string;
+  previous: string;
+}
+export type RelayerChangedEvent = TypedEvent<
+  [string, string],
+  RelayerChangedEventObject
+>;
+
+export type RelayerChangedEventFilter = TypedEventFilter<RelayerChangedEvent>;
+
 export interface RelayerRemovedEventObject {
   relayer: string;
 }
@@ -366,17 +432,9 @@ export type RelayerRemovedEvent = TypedEvent<
 
 export type RelayerRemovedEventFilter = TypedEventFilter<RelayerRemovedEvent>;
 
-export interface SetupEventObject {
-  connext: string;
-  spokeConnector: string;
-}
-export type SetupEvent = TypedEvent<[string, string], SetupEventObject>;
-
-export type SetupEventFilter = TypedEventFilter<SetupEvent>;
-
 export interface SpokeConnectorChangedEventObject {
-  spokeConnector: string;
-  oldSpokeConnector: string;
+  updated: string;
+  previous: string;
 }
 export type SpokeConnectorChangedEvent = TypedEvent<
   [string, string],
@@ -413,8 +471,6 @@ export interface RelayerProxy extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    GELATO_RELAYER(overrides?: CallOverrides): Promise<[string]>;
-
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -438,6 +494,10 @@ export interface RelayerProxy extends BaseContract {
       _fee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    feeCollector(overrides?: CallOverrides): Promise<[string]>;
+
+    gelatoRelayer(overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -470,8 +530,25 @@ export interface RelayerProxy extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
+    send(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _messageFee: PromiseOrValue<BigNumberish>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setConnext(
       _connext: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setFeeCollector(
+      _feeCollector: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setGelatoRelayer(
+      _gelatoRelayer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -486,8 +563,6 @@ export interface RelayerProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
-
-  GELATO_RELAYER(overrides?: CallOverrides): Promise<string>;
 
   acceptProposedOwner(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -512,6 +587,10 @@ export interface RelayerProxy extends BaseContract {
     _fee: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  feeCollector(overrides?: CallOverrides): Promise<string>;
+
+  gelatoRelayer(overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -544,8 +623,25 @@ export interface RelayerProxy extends BaseContract {
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
+  send(
+    _encodedData: PromiseOrValue<BytesLike>,
+    _messageFee: PromiseOrValue<BigNumberish>,
+    _relayerFee: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setConnext(
     _connext: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setFeeCollector(
+    _feeCollector: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setGelatoRelayer(
+    _gelatoRelayer: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -561,8 +657,6 @@ export interface RelayerProxy extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    GELATO_RELAYER(overrides?: CallOverrides): Promise<string>;
-
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
     addRelayer(
@@ -584,6 +678,10 @@ export interface RelayerProxy extends BaseContract {
       _fee: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    feeCollector(overrides?: CallOverrides): Promise<string>;
+
+    gelatoRelayer(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -614,8 +712,25 @@ export interface RelayerProxy extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
+    send(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _messageFee: PromiseOrValue<BigNumberish>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setConnext(
       _connext: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setFeeCollector(
+      _feeCollector: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setGelatoRelayer(
+      _gelatoRelayer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -631,13 +746,19 @@ export interface RelayerProxy extends BaseContract {
 
   filters: {
     "ConnextChanged(address,address)"(
-      connext?: null,
-      oldConnext?: null
+      updated?: null,
+      previous?: null
     ): ConnextChangedEventFilter;
-    ConnextChanged(
-      connext?: null,
-      oldConnext?: null
-    ): ConnextChangedEventFilter;
+    ConnextChanged(updated?: null, previous?: null): ConnextChangedEventFilter;
+
+    "FeeCollectorChanged(address,address)"(
+      updated?: null,
+      previous?: null
+    ): FeeCollectorChangedEventFilter;
+    FeeCollectorChanged(
+      updated?: null,
+      previous?: null
+    ): FeeCollectorChangedEventFilter;
 
     "FundsDeducted(uint256,uint256)"(
       amount?: null,
@@ -670,28 +791,26 @@ export interface RelayerProxy extends BaseContract {
     "RelayerAdded(address)"(relayer?: null): RelayerAddedEventFilter;
     RelayerAdded(relayer?: null): RelayerAddedEventFilter;
 
+    "RelayerChanged(address,address)"(
+      updated?: null,
+      previous?: null
+    ): RelayerChangedEventFilter;
+    RelayerChanged(updated?: null, previous?: null): RelayerChangedEventFilter;
+
     "RelayerRemoved(address)"(relayer?: null): RelayerRemovedEventFilter;
     RelayerRemoved(relayer?: null): RelayerRemovedEventFilter;
 
-    "Setup(address,address)"(
-      connext?: null,
-      spokeConnector?: null
-    ): SetupEventFilter;
-    Setup(connext?: null, spokeConnector?: null): SetupEventFilter;
-
     "SpokeConnectorChanged(address,address)"(
-      spokeConnector?: null,
-      oldSpokeConnector?: null
+      updated?: null,
+      previous?: null
     ): SpokeConnectorChangedEventFilter;
     SpokeConnectorChanged(
-      spokeConnector?: null,
-      oldSpokeConnector?: null
+      updated?: null,
+      previous?: null
     ): SpokeConnectorChangedEventFilter;
   };
 
   estimateGas: {
-    GELATO_RELAYER(overrides?: CallOverrides): Promise<BigNumber>;
-
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -715,6 +834,10 @@ export interface RelayerProxy extends BaseContract {
       _fee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    feeCollector(overrides?: CallOverrides): Promise<BigNumber>;
+
+    gelatoRelayer(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -747,8 +870,25 @@ export interface RelayerProxy extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
+    send(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _messageFee: PromiseOrValue<BigNumberish>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setConnext(
       _connext: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setFeeCollector(
+      _feeCollector: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setGelatoRelayer(
+      _gelatoRelayer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -765,8 +905,6 @@ export interface RelayerProxy extends BaseContract {
   };
 
   populateTransaction: {
-    GELATO_RELAYER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -790,6 +928,10 @@ export interface RelayerProxy extends BaseContract {
       _fee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    feeCollector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    gelatoRelayer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -822,8 +964,25 @@ export interface RelayerProxy extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    send(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _messageFee: PromiseOrValue<BigNumberish>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setConnext(
       _connext: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setFeeCollector(
+      _feeCollector: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setGelatoRelayer(
+      _gelatoRelayer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

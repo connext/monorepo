@@ -47,6 +47,7 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     "AMB()": FunctionFragment;
     "DOMAIN()": FunctionFragment;
     "MERKLE()": FunctionFragment;
+    "MIRROR_CHAIN_ID()": FunctionFragment;
     "MIRROR_DOMAIN()": FunctionFragment;
     "PROCESS_GAS()": FunctionFragment;
     "RESERVE_GAS()": FunctionFragment;
@@ -99,6 +100,7 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
       | "AMB"
       | "DOMAIN"
       | "MERKLE"
+      | "MIRROR_CHAIN_ID"
       | "MIRROR_DOMAIN"
       | "PROCESS_GAS"
       | "RESERVE_GAS"
@@ -149,6 +151,10 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
   encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
   encodeFunctionData(functionFragment: "MERKLE", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "MIRROR_CHAIN_ID",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "MIRROR_DOMAIN",
     values?: undefined
@@ -318,6 +324,10 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "MERKLE", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "MIRROR_CHAIN_ID",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "MIRROR_DOMAIN",
     data: BytesLike
@@ -721,6 +731,8 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     MERKLE(overrides?: CallOverrides): Promise<[string]>;
 
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<[number]>;
 
     PROCESS_GAS(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -900,6 +912,8 @@ export interface GnosisSpokeConnector extends BaseContract {
 
   MERKLE(overrides?: CallOverrides): Promise<string>;
 
+  MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
+
   MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
 
   PROCESS_GAS(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1078,6 +1092,8 @@ export interface GnosisSpokeConnector extends BaseContract {
     DOMAIN(overrides?: CallOverrides): Promise<number>;
 
     MERKLE(overrides?: CallOverrides): Promise<string>;
+
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
 
@@ -1383,6 +1399,8 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     MERKLE(overrides?: CallOverrides): Promise<BigNumber>;
 
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
+
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
 
     PROCESS_GAS(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1562,6 +1580,8 @@ export interface GnosisSpokeConnector extends BaseContract {
     DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     MERKLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

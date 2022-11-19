@@ -252,7 +252,8 @@ export interface IConnextInterface extends utils.Interface {
     "getTokenId(address)": FunctionFragment;
     "handle(uint32,uint32,bytes32,bytes)": FunctionFragment;
     "initializeRouter(address,address)": FunctionFragment;
-    "initializeSwap(bytes32,address[],uint8[],string,string,uint256,uint256,uint256,address)": FunctionFragment;
+    "initializeSwap(bytes32,address[],uint8[],string,string,uint256,uint256,uint256)": FunctionFragment;
+    "lpTokenTargetAddress()": FunctionFragment;
     "maxRoutersPerTransfer()": FunctionFragment;
     "nonce()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -296,7 +297,7 @@ export interface IConnextInterface extends utils.Interface {
     "setSwapFee(bytes32,uint256)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
     "setupAsset((uint32,bytes32),uint8,string,string,address,address,uint256)": FunctionFragment;
-    "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address,uint256)": FunctionFragment;
+    "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address)": FunctionFragment;
     "stopRampA(bytes32)": FunctionFragment;
     "swap(bytes32,uint8,uint8,uint256,uint256,uint256)": FunctionFragment;
     "swapExact(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
@@ -307,6 +308,7 @@ export interface IConnextInterface extends utils.Interface {
     "unpause()": FunctionFragment;
     "updateDetails((uint32,bytes32),string,string)": FunctionFragment;
     "updateLiquidityCap((uint32,bytes32),uint256)": FunctionFragment;
+    "updateLpTokenTarget(address)": FunctionFragment;
     "withdrawSwapAdminFees(bytes32)": FunctionFragment;
     "xAppConnectionManager()": FunctionFragment;
     "xcall(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
@@ -383,6 +385,7 @@ export interface IConnextInterface extends utils.Interface {
       | "handle"
       | "initializeRouter"
       | "initializeSwap"
+      | "lpTokenTargetAddress"
       | "maxRoutersPerTransfer"
       | "nonce"
       | "owner"
@@ -437,6 +440,7 @@ export interface IConnextInterface extends utils.Interface {
       | "unpause"
       | "updateDetails"
       | "updateLiquidityCap"
+      | "updateLpTokenTarget"
       | "withdrawSwapAdminFees"
       | "xAppConnectionManager"
       | "xcall"
@@ -748,9 +752,12 @@ export interface IConnextInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
+      PromiseOrValue<BigNumberish>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lpTokenTargetAddress",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "maxRoutersPerTransfer",
@@ -976,8 +983,7 @@ export interface IConnextInterface extends utils.Interface {
       TokenIdStruct,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
+      PromiseOrValue<string>
     ]
   ): string;
   encodeFunctionData(
@@ -1037,6 +1043,10 @@ export interface IConnextInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "updateLiquidityCap",
     values: [TokenIdStruct, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateLpTokenTarget",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "withdrawSwapAdminFees",
@@ -1314,6 +1324,10 @@ export interface IConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "lpTokenTargetAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "maxRoutersPerTransfer",
     data: BytesLike
   ): Result;
@@ -1491,6 +1505,10 @@ export interface IConnextInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "updateLiquidityCap",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateLpTokenTarget",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1938,9 +1956,10 @@ export interface IConnext extends BaseContract {
       _a: PromiseOrValue<BigNumberish>,
       _fee: PromiseOrValue<BigNumberish>,
       _adminFee: PromiseOrValue<BigNumberish>,
-      lpTokenTargetAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    lpTokenTargetAddress(overrides?: CallOverrides): Promise<[string]>;
 
     maxRoutersPerTransfer(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -2174,7 +2193,6 @@ export interface IConnext extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2242,6 +2260,11 @@ export interface IConnext extends BaseContract {
     updateLiquidityCap(
       _canonical: TokenIdStruct,
       _updated: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    updateLpTokenTarget(
+      newAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2621,9 +2644,10 @@ export interface IConnext extends BaseContract {
     _a: PromiseOrValue<BigNumberish>,
     _fee: PromiseOrValue<BigNumberish>,
     _adminFee: PromiseOrValue<BigNumberish>,
-    lpTokenTargetAddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  lpTokenTargetAddress(overrides?: CallOverrides): Promise<string>;
 
   maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -2857,7 +2881,6 @@ export interface IConnext extends BaseContract {
     _representation: PromiseOrValue<string>,
     _adoptedAssetId: PromiseOrValue<string>,
     _stableSwapPool: PromiseOrValue<string>,
-    _cap: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2925,6 +2948,11 @@ export interface IConnext extends BaseContract {
   updateLiquidityCap(
     _canonical: TokenIdStruct,
     _updated: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  updateLpTokenTarget(
+    newAddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3304,9 +3332,10 @@ export interface IConnext extends BaseContract {
       _a: PromiseOrValue<BigNumberish>,
       _fee: PromiseOrValue<BigNumberish>,
       _adminFee: PromiseOrValue<BigNumberish>,
-      lpTokenTargetAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    lpTokenTargetAddress(overrides?: CallOverrides): Promise<string>;
 
     maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -3530,7 +3559,6 @@ export interface IConnext extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -3596,6 +3624,11 @@ export interface IConnext extends BaseContract {
     updateLiquidityCap(
       _canonical: TokenIdStruct,
       _updated: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateLpTokenTarget(
+      newAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -4013,9 +4046,10 @@ export interface IConnext extends BaseContract {
       _a: PromiseOrValue<BigNumberish>,
       _fee: PromiseOrValue<BigNumberish>,
       _adminFee: PromiseOrValue<BigNumberish>,
-      lpTokenTargetAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    lpTokenTargetAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -4249,7 +4283,6 @@ export interface IConnext extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4317,6 +4350,11 @@ export interface IConnext extends BaseContract {
     updateLiquidityCap(
       _canonical: TokenIdStruct,
       _updated: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    updateLpTokenTarget(
+      newAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4705,8 +4743,11 @@ export interface IConnext extends BaseContract {
       _a: PromiseOrValue<BigNumberish>,
       _fee: PromiseOrValue<BigNumberish>,
       _adminFee: PromiseOrValue<BigNumberish>,
-      lpTokenTargetAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    lpTokenTargetAddress(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     maxRoutersPerTransfer(
@@ -4947,7 +4988,6 @@ export interface IConnext extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5015,6 +5055,11 @@ export interface IConnext extends BaseContract {
     updateLiquidityCap(
       _canonical: TokenIdStruct,
       _updated: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateLpTokenTarget(
+      newAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
