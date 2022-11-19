@@ -22,11 +22,7 @@ interface ISpokeConnector {
     uint256 _aggregateIndex
   ) external;
 
-  function send(
-    bytes memory _encodedData,
-    uint256 _messageFee,
-    uint256 _relayerFee
-  ) external;
+  function send(bytes memory _encodedData) external payable;
 }
 
 contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollector {
