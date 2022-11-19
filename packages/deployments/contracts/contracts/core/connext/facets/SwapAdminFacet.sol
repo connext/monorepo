@@ -158,7 +158,7 @@ contract SwapAdminFacet is BaseConnextFacet {
     // Check _pooledTokens and precisions parameter
     if (
       _pooledTokens.length < Constants.MINIMUM_POOLED_TOKENS ||
-      _pooledTokens.length > Constants.MAXIMUM_POOLED_TOKENS + 1
+      _pooledTokens.length > Constants.MAXIMUM_POOLED_TOKENS
     ) {
       revert SwapAdminFacet__initializeSwap_invalidPooledTokens();
     }
