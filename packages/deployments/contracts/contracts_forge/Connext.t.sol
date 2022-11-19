@@ -215,8 +215,7 @@ contract ConnextTest is ForgeHelper, Deployer {
         TokenId(canonicalDomain, canonicalId),
         _originLocal,
         localIsAdopted ? address(0) : _originAdopted,
-        address(0),
-        originCap
+        address(0)
       );
     }
 
@@ -238,8 +237,7 @@ contract ConnextTest is ForgeHelper, Deployer {
         TokenId(canonicalDomain, canonicalId),
         _destinationLocal,
         localIsAdopted ? address(0) : _destinationAdopted,
-        address(0),
-        destinationCap
+        address(0)
       );
     }
 
