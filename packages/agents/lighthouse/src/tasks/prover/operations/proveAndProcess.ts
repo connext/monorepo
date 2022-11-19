@@ -200,10 +200,12 @@ export const processMessage = async (message: XMessage) => {
     fee = gasLimit.mul(await chainreader.getGasPrice(domain, requestContext));
   }
 
-  const [proofs, aggregateRoot, aggregatePath, aggregateIndex] = contracts.relayerProxy.decodeFunctionResult(
-    "proveAndProcess",
-    proveAndProcessEncodedData,
-  );
+  const {
+    _proofs: proofs,
+    _aggregateRoot: aggregateRoot,
+    _aggregatePath: aggregatePath,
+    _aggregateIndex: aggregateIndex,
+  } = contracts.spokeConnector.decodeFunctionData("proveAndProcess", proveAndProcessEncodedData);
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const encodedData = contracts.relayerProxy.encodeFunctionData("proveAndProcess", [
@@ -224,7 +226,7 @@ export const processMessage = async (message: XMessage) => {
   const { taskId } = await sendWithRelayerWithBackup(
     chainId,
     message.destinationDomain,
-    destinationSpokeConnector,
+    destinationRelayerProxyAddress as string,
     encodedData,
     relayers,
     chainreader,
