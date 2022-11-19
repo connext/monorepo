@@ -292,14 +292,27 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   const { feeCollector, gelatoRelayer } = getRelayerProxyConfig(chainId);
   const spokeConnector = await hre.ethers.getContract(getDeploymentName(getConnectorName(protocol, +chainId)));
-  const relayerProxy = await hre.deployments.deploy(getDeploymentName("RelayerProxy"), {
-    from: deployer.address,
-    log: true,
-    contract: "RelayerProxy",
-    args: [connextAddress, spokeConnector.address, gelatoRelayer, feeCollector],
-  });
 
-  console.log("relayerProxy: ", relayerProxy.address);
+  if (protocol.hub === domain) {
+    const rootManager = await hre.ethers.getContract(getDeploymentName("RootMamager"));
+    const relayerProxyHub = await hre.deployments.deploy(getDeploymentName("RelayerProxyHub"), {
+      from: deployer.address,
+      log: true,
+      contract: "RelayerProxyHub",
+      args: [connextAddress, spokeConnector.address, gelatoRelayer, feeCollector, rootManager],
+    });
+
+    console.log("relayerProxyHub: ", relayerProxyHub.address);
+  } else {
+    const relayerProxy = await hre.deployments.deploy(getDeploymentName("RelayerProxy"), {
+      from: deployer.address,
+      log: true,
+      contract: "RelayerProxy",
+      args: [connextAddress, spokeConnector.address, gelatoRelayer, feeCollector],
+    });
+
+    console.log("relayerProxy: ", relayerProxy.address);
+  }
 
   if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain...");
