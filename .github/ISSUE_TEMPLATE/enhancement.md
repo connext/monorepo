@@ -1,8 +1,8 @@
 ---
-name: User Story (Enhancement)
+name: Enhancement
 about: This is intentional new work. We want to intentionally add, improve, optimize
   something.
-title: As a [dev user / end user / router], I want ___ in order to ___
+title: As a ____ user, I want ___ in order to ___.
 labels: "enhancement \U0001F9D8"
 assignees: ''
 
