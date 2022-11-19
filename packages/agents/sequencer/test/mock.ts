@@ -122,6 +122,7 @@ export const mock = {
       const connext = createStubInstance(utils.Interface);
       connext.encodeFunctionData.returns(encodedDataMock);
       connext.decodeFunctionResult.returns([BigNumber.from(1000)]);
+      connext.decodeFunctionData.returns([BigNumber.from(1000)]);
 
       const priceOracle = createStubInstance(utils.Interface);
       priceOracle.encodeFunctionData.returns(encodedDataMock);

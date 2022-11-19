@@ -61,7 +61,7 @@ export const sendExecuteSlowToRelayer = async (
     gas: gas.toString(),
   });
 
-  const [args] = contracts.connext.decodeFunctionResult("execute", executeEncodedData);
+  const { _args: args } = contracts.connext.decodeFunctionData("execute", executeEncodedData);
 
   const executeArgs: ExecuteArgs = args;
 
