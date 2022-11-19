@@ -316,10 +316,10 @@ export interface RelayerProxyInterface extends utils.Interface {
     "FeeCollectorChanged(address,address)": EventFragment;
     "FundsDeducted(uint256,uint256)": EventFragment;
     "FundsReceived(uint256,uint256)": EventFragment;
+    "GelatoRelayerChanged(address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "RelayerAdded(address)": EventFragment;
-    "RelayerChanged(address,address)": EventFragment;
     "RelayerRemoved(address)": EventFragment;
     "SpokeConnectorChanged(address,address)": EventFragment;
   };
@@ -328,10 +328,10 @@ export interface RelayerProxyInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "FeeCollectorChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsDeducted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsReceived"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GelatoRelayerChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RelayerChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SpokeConnectorChanged"): EventFragment;
 }
@@ -381,6 +381,18 @@ export type FundsReceivedEvent = TypedEvent<
 
 export type FundsReceivedEventFilter = TypedEventFilter<FundsReceivedEvent>;
 
+export interface GelatoRelayerChangedEventObject {
+  updated: string;
+  previous: string;
+}
+export type GelatoRelayerChangedEvent = TypedEvent<
+  [string, string],
+  GelatoRelayerChangedEventObject
+>;
+
+export type GelatoRelayerChangedEventFilter =
+  TypedEventFilter<GelatoRelayerChangedEvent>;
+
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
 }
@@ -410,17 +422,6 @@ export interface RelayerAddedEventObject {
 export type RelayerAddedEvent = TypedEvent<[string], RelayerAddedEventObject>;
 
 export type RelayerAddedEventFilter = TypedEventFilter<RelayerAddedEvent>;
-
-export interface RelayerChangedEventObject {
-  updated: string;
-  previous: string;
-}
-export type RelayerChangedEvent = TypedEvent<
-  [string, string],
-  RelayerChangedEventObject
->;
-
-export type RelayerChangedEventFilter = TypedEventFilter<RelayerChangedEvent>;
 
 export interface RelayerRemovedEventObject {
   relayer: string;
@@ -772,6 +773,15 @@ export interface RelayerProxy extends BaseContract {
     ): FundsReceivedEventFilter;
     FundsReceived(amount?: null, balance?: null): FundsReceivedEventFilter;
 
+    "GelatoRelayerChanged(address,address)"(
+      updated?: null,
+      previous?: null
+    ): GelatoRelayerChangedEventFilter;
+    GelatoRelayerChanged(
+      updated?: null,
+      previous?: null
+    ): GelatoRelayerChangedEventFilter;
+
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
     ): OwnershipProposedEventFilter;
@@ -790,12 +800,6 @@ export interface RelayerProxy extends BaseContract {
 
     "RelayerAdded(address)"(relayer?: null): RelayerAddedEventFilter;
     RelayerAdded(relayer?: null): RelayerAddedEventFilter;
-
-    "RelayerChanged(address,address)"(
-      updated?: null,
-      previous?: null
-    ): RelayerChangedEventFilter;
-    RelayerChanged(updated?: null, previous?: null): RelayerChangedEventFilter;
 
     "RelayerRemoved(address)"(relayer?: null): RelayerRemovedEventFilter;
     RelayerRemoved(relayer?: null): RelayerRemovedEventFilter;
