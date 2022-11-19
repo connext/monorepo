@@ -157,7 +157,7 @@ contract SwapAdminFacet is BaseConnextFacet {
 
     // Check _pooledTokens and precisions parameter
     if (
-      _pooledTokens.length < Constants.MINIMUM_POOLED_TOKENS + 1 ||
+      _pooledTokens.length < Constants.MINIMUM_POOLED_TOKENS ||
       _pooledTokens.length > Constants.MAXIMUM_POOLED_TOKENS + 1
     ) {
       revert SwapAdminFacet__initializeSwap_invalidPooledTokens();
@@ -190,9 +190,9 @@ contract SwapAdminFacet is BaseConnextFacet {
     }
 
     // Check _a, _fee, _adminFee, _withdrawFee parameters
-    if (_a >= Constants.MAX_A - 1) revert SwapAdminFacet__initializeSwap_aExceedMax();
-    if (_fee >= Constants.MAX_SWAP_FEE - 1) revert SwapAdminFacet__initializeSwap_feeExceedMax();
-    if (_adminFee >= Constants.MAX_ADMIN_FEE - 1) revert SwapAdminFacet__initializeSwap_adminFeeExceedMax();
+    if (_a > Constants.MAX_A - 1) revert SwapAdminFacet__initializeSwap_aExceedMax();
+    if (_fee > Constants.MAX_SWAP_FEE - 1) revert SwapAdminFacet__initializeSwap_feeExceedMax();
+    if (_adminFee > Constants.MAX_ADMIN_FEE - 1) revert SwapAdminFacet__initializeSwap_adminFeeExceedMax();
 
     // Initialize a LPToken contract
     LPToken lpToken = LPToken(Clones.clone(lpTokenTargetAddress));
