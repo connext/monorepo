@@ -111,7 +111,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   // ============ Constructor ============
 
   /**
-   * @notice
+   * @notice Creates a new RelayerProxy instance.
    * @param _connext The address of the Connext on this domain.
    * @param _spokeConnector The address of the SpokeConnector on this domain.
    * @param _gelatoRelayer The address of the Gelato relayer on this domain.
