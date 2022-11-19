@@ -42,7 +42,7 @@ contract FacetHelper is ForgeHelper {
   address _stableSwap = address(5555555555555555555);
 
   // safe cap
-  uint256 _cap = 10**4;
+  uint256 _cap = 10_000_000 ether;
 
   // ============ Fees
   // fees
@@ -127,7 +127,8 @@ contract FacetHelper is ForgeHelper {
     // - token registry should always return the canonical
     // - if you are not on canonical domain, ensure the local origin returns false
     //   (indicates whether token should be burned or not)
-    if (s.domain != _canonicalDomain) {
+    bool isCanonical = s.domain == _canonicalDomain;
+    if (!isCanonical) {
       s.representationToCanonical[_local].domain = _canonicalDomain;
       s.representationToCanonical[_local].id = _canonicalId;
 
@@ -143,7 +144,7 @@ contract FacetHelper is ForgeHelper {
     s.tokenConfigs[_canonicalKey].adopted = _adopted;
     s.tokenConfigs[_canonicalKey].adoptedDecimals = 18;
     s.tokenConfigs[_canonicalKey].adoptedToLocalExternalPools = _stableSwap;
-    s.tokenConfigs[_canonicalKey].cap = s.domain == _canonicalDomain ? _cap : 0; //10_000_000 ether;
+    s.tokenConfigs[_canonicalKey].cap = isCanonical ? _cap : 0; //10_000_000 ether;
     s.tokenConfigs[_canonicalKey].custodied = 0;
 
     // // Log stored vars

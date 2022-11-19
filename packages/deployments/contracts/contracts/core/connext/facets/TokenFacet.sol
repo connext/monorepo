@@ -16,8 +16,6 @@ import {BridgeToken} from "../helpers/BridgeToken.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
-import "forge-std/console.sol";
-
 contract TokenFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error TokenFacet__addAssetId_alreadyAdded();

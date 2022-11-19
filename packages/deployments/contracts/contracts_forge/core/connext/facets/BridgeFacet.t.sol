@@ -415,10 +415,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bytes32 ret = helpers_wrappedXCall(params, asset, amount);
 
     if (shouldSucceed) {
-      assertEq(ret, transferId);
+      assertEq(ret, transferId, "transfer ID non match");
 
       // Nonce should have increased.
-      assertEq(s.nonce, params.nonce + 1);
+      assertEq(s.nonce, params.nonce + 1, "nonce did not match");
 
       TestERC20 tokenIn = TestERC20(asset != address(0) ? asset : _local);
 
@@ -431,9 +431,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // console.log(TestERC20(_local).balanceOf(address(this)));
 
       // Contract should have received relayer fee from user.
-      assertEq(s.relayerFeeVault.balance, balances.relayerEth + _relayerFee);
+      assertEq(s.relayerFeeVault.balance, balances.relayerEth + _relayerFee, "relayer did not receive fee");
       // User should have been debited relayer fee ETH and tx cost.
-      assertLe(params.originSender.balance, balances.callerEth - _relayerFee);
+      assertLe(params.originSender.balance, balances.callerEth - _relayerFee, "user not debited eth");
 
       // Check that the contract has been credited the correct amount of tokens and that the user has
       // been debited the correct amount of tokens.
@@ -445,15 +445,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         assertEq(tokenIn.balanceOf(address(this)), balances.contractAsset);
       } else if (isCanonical) {
         // User should have been debited tokens.
-        assertEq(tokenIn.balanceOf(params.originSender), balances.callerAsset - amount);
+        assertEq(tokenIn.balanceOf(params.originSender), balances.callerAsset - amount, "user not debited tokens");
         // The contract should have stored the asset in escrow.
         assertEq(tokenIn.balanceOf(address(this)), balances.contractAsset + amount);
-        console.log("asserted bridged");
         // Custodied balance should have increased if sending in canonical
         if (s.tokenConfigs[_canonicalKey].cap > 0) {
-          console.log("asserting custodied", balances.contractAsset, s.tokenConfigs[_canonicalKey].custodied, amount);
           assertEq(s.tokenConfigs[_canonicalKey].custodied, balances.custodied + amount);
-          console.log("asserted custodied");
         }
       } else {
         // NOTE: Normally the adopted asset would be swapped into the local asset and then
@@ -640,6 +637,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // get pre-execute balance here in local
     IERC20 token = IERC20(_inputs.token);
     ExecuteBalances memory prevBalances = utils_getExecuteBalances(transferId, _inputs.token, _args.params.to);
+    s.tokenConfigs[_canonicalKey].custodied = prevBalances.bridge;
 
     // execute
     // expected amount is impacted by (1) fast liquidity fees (2) slippage
@@ -678,14 +676,19 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         for (uint256 i; i < pathLen; i++) {
           assertEq(
             s.routerBalances[_args.routers[i]][_local],
-            _inputs.usesPortals ? prevLiquidity[i] : prevLiquidity[i] - (_inputs.routerAmt / pathLen)
+            _inputs.usesPortals ? prevLiquidity[i] : prevLiquidity[i] - (_inputs.routerAmt / pathLen),
+            "did not decrement router balance"
           );
         }
       }
 
       // if on canonical domain, should decrease
       if (s.tokenConfigs[_canonicalKey].cap > 0) {
-        assertEq(s.tokenConfigs[_canonicalKey].custodied, prevBalances.bridge - routerAmt);
+        assertEq(
+          s.tokenConfigs[_canonicalKey].custodied,
+          prevBalances.bridge - _args.params.bridgedAmt,
+          "custodied amount is incorrect"
+        );
       }
     }
 
@@ -701,7 +704,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         // but we are not adding any funds from the pool, so always decrement
         assertEq(
           finalBalances.bridge,
-          _inputs.usesPortals ? prevBalances.bridge : prevBalances.bridge - _inputs.routerAmt
+          _inputs.usesPortals ? prevBalances.bridge : prevBalances.bridge - _inputs.routerAmt,
+          "final balance of the bridge was incorrect"
         );
       }
 
@@ -721,7 +725,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     DestinationTransferStatus expected = _inputs.isSlow
       ? DestinationTransferStatus.Completed
       : DestinationTransferStatus.Executed;
-    assertTrue(s.transferStatus[transferId] == expected);
+    assertTrue(s.transferStatus[transferId] == expected, "transfer status not updated");
 
     // should have assigned transfer as routed
     address[] memory savedRouters = s.routedTransfers[transferId];
