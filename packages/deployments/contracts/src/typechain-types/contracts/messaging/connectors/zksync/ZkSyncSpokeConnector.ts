@@ -53,6 +53,7 @@ export interface ZkSyncSpokeConnectorInterface extends utils.Interface {
     "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "addSender(address)": FunctionFragment;
+    "allowlistedSenders(address)": FunctionFragment;
     "delay()": FunctionFragment;
     "delayBlocks()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
@@ -89,7 +90,6 @@ export interface ZkSyncSpokeConnectorInterface extends utils.Interface {
     "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
     "watcherManager()": FunctionFragment;
-    "whitelistedSenders(address)": FunctionFragment;
     "withdrawFunds(address)": FunctionFragment;
   };
 
@@ -104,6 +104,7 @@ export interface ZkSyncSpokeConnectorInterface extends utils.Interface {
       | "ROOT_MANAGER"
       | "acceptProposedOwner"
       | "addSender"
+      | "allowlistedSenders"
       | "delay"
       | "delayBlocks"
       | "dispatch"
@@ -140,7 +141,6 @@ export interface ZkSyncSpokeConnectorInterface extends utils.Interface {
       | "unpause"
       | "verifySender"
       | "watcherManager"
-      | "whitelistedSenders"
       | "withdrawFunds"
   ): FunctionFragment;
 
@@ -169,6 +169,10 @@ export interface ZkSyncSpokeConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "addSender",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "allowlistedSenders",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
@@ -301,10 +305,6 @@ export interface ZkSyncSpokeConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "whitelistedSenders",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "withdrawFunds",
     values: [PromiseOrValue<string>]
   ): string;
@@ -333,6 +333,10 @@ export interface ZkSyncSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "addSender", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "allowlistedSenders",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "delayBlocks",
@@ -436,10 +440,6 @@ export interface ZkSyncSpokeConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "watcherManager",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "whitelistedSenders",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -718,6 +718,11 @@ export interface ZkSyncSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     delayBlocks(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -858,11 +863,6 @@ export interface ZkSyncSpokeConnector extends BaseContract {
 
     watcherManager(overrides?: CallOverrides): Promise<[string]>;
 
-    whitelistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     withdrawFunds(
       _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -891,6 +891,11 @@ export interface ZkSyncSpokeConnector extends BaseContract {
     _sender: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  allowlistedSenders(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1032,11 +1037,6 @@ export interface ZkSyncSpokeConnector extends BaseContract {
 
   watcherManager(overrides?: CallOverrides): Promise<string>;
 
-  whitelistedSenders(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   withdrawFunds(
     _to: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1063,6 +1063,11 @@ export interface ZkSyncSpokeConnector extends BaseContract {
       _sender: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1197,11 +1202,6 @@ export interface ZkSyncSpokeConnector extends BaseContract {
     ): Promise<boolean>;
 
     watcherManager(overrides?: CallOverrides): Promise<string>;
-
-    whitelistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
 
     withdrawFunds(
       _to: PromiseOrValue<string>,
@@ -1359,6 +1359,11 @@ export interface ZkSyncSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     delayBlocks(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1499,11 +1504,6 @@ export interface ZkSyncSpokeConnector extends BaseContract {
 
     watcherManager(overrides?: CallOverrides): Promise<BigNumber>;
 
-    whitelistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     withdrawFunds(
       _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1532,6 +1532,11 @@ export interface ZkSyncSpokeConnector extends BaseContract {
     addSender(
       _sender: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1673,11 +1678,6 @@ export interface ZkSyncSpokeConnector extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     watcherManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    whitelistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     withdrawFunds(
       _to: PromiseOrValue<string>,

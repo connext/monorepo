@@ -88,10 +88,19 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
 
   function utils_repayPortalFor(
     TransferInfo memory params,
+    address borrowedAsset,
     uint256 backingAmount,
     uint256 feeAmount
   ) public {
-    this.repayAavePortalFor(params, backingAmount, feeAmount);
+    this.repayAavePortalFor(params, borrowedAsset, backingAmount, feeAmount);
+  }
+
+  function utils_repayPortalFor(
+    TransferInfo memory params,
+    uint256 backingAmount,
+    uint256 feeAmount
+  ) public {
+    this.repayAavePortalFor(params, _adopted, backingAmount, feeAmount);
   }
 
   // ============ setAavePool ============
@@ -179,6 +188,27 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
 
     // assert balance decrement
     assertEq(s.routerBalances[router][_local], init - backing - fee);
+  }
+
+  // fails if asset removed
+  function test_PortalFacet__repayAavePortal_failsIfRemoved() public {
+    // set approval context
+    s.routerConfigs[router].portalApproved = true;
+
+    (TransferInfo memory params, ) = utils_getParams();
+    s.approvedAssets[utils_calculateCanonicalHash()] = false;
+
+    // set liquidity
+    assertEq(s.routerBalances[router][_local], 0);
+
+    // set debt amount
+    uint256 backing = 1111;
+    uint256 fee = 111;
+
+    // call coming from router
+    vm.prank(router);
+    vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortal_assetNotApproved.selector));
+    utils_repayPortal(params, backing, fee, backing);
   }
 
   // fails if not enough balance
@@ -333,6 +363,20 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   //   vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortalFor_notSupportedAsset.selector));
   //   utils_repayPortalFor(params, backing, fee);
   // }
+
+  // fails if zero amount
+  function test_PortalFacet__repayAavePortalFor_failsIfWhitelistedAndBadParams() public {
+    // set debt amount
+    uint256 backing = 0;
+    uint256 fee = 0;
+
+    // we are on the destination domain where local != canonical
+    utils_setupAsset(false, false);
+    (TransferInfo memory params, ) = utils_getParams();
+
+    vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortalFor_invalidAsset.selector));
+    utils_repayPortalFor(params, address(1231236546545), backing, fee);
+  }
 
   // fails if zero amount
   function test_PortalFacet__repayAavePortalFor_failsIfZeroTotalAmount() public {
