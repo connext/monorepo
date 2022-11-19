@@ -65,15 +65,15 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
         emit StableSwapAdded(key, _canonicalId, _canonicalDomain, _stableSwap, _owner);
       }
 
-      // Should emit an AssetAdded event
-      vm.expectEmit(true, true, true, true);
-      emit AssetAdded(key, _canonicalId, _canonicalDomain, isCanonical ? _canonical : adoptedInput, _local, _owner);
-
       // Should emit a cap event
       if (_cap > 0 && isCanonical) {
         vm.expectEmit(true, true, true, true);
         emit LiquidityCapUpdated(key, _canonicalId, _canonicalDomain, _cap, _owner);
       }
+
+      // Should emit an AssetAdded event
+      vm.expectEmit(true, true, true, true);
+      emit AssetAdded(key, _canonicalId, _canonicalDomain, isCanonical ? _canonical : adoptedInput, _local, _owner);
     }
     // Make call
     vm.prank(_owner);
@@ -83,7 +83,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
       "nextTest",
       "nTST",
       adoptedInput,
-      isCanonical ? address(0) : _stableSwap,
+      _stableSwap,
       _cap // Will be ignored if not on canonical domain.
     );
 
@@ -119,7 +119,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     }
 
     // Check: config is set up as expected
-    assertEq(config.adopted, adoptedInput);
+    assertEq(config.adopted, isCanonical ? _canonical : adoptedInput);
     assertEq(config.representationDecimals, 18);
     assertEq(config.adoptedDecimals, 18);
   }
@@ -208,7 +208,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
   // ============ Admin functions ============
   // ============ setupAsset ============
-  function test_TokenFacet__setupAsset_failsIfInvalidCanonicalCofig() public {
+  function test_TokenFacet__setupAsset_failsIfInvalidCanonicalConfig() public {
     // local is adopted, on canonical
     s.domain = _canonicalDomain;
     _adopted = _canonical;
@@ -390,6 +390,10 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     _adopted = address(0);
     _local = _canonical;
     _stableSwap = address(0);
+
+    vm.mockCall(_deployedLocal, abi.encodeWithSelector(IERC20.totalSupply.selector), abi.encode(0));
+    vm.mockCall(_deployedLocal, abi.encodeWithSelector(IERC20Metadata.decimals.selector), abi.encode(18));
+
     setupAssetAndAssert(_adopted, bytes4(""));
 
     removeAssetAndAssert(utils_calculateCanonicalHash(), _deployedLocal, _adopted);
@@ -398,9 +402,11 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   function test_TokenFacet__removeAssetId_worksOnRemote() public {
     s.domain = _canonicalDomain + 1;
     _adopted = address(12312391263);
-    setupAssetAndAssert(_adopted, bytes4(""));
 
     vm.mockCall(_deployedLocal, abi.encodeWithSelector(IERC20.totalSupply.selector), abi.encode(0));
+    vm.mockCall(_deployedLocal, abi.encodeWithSelector(IERC20Metadata.decimals.selector), abi.encode(18));
+
+    setupAssetAndAssert(_adopted, bytes4(""));
 
     removeAssetAndAssert(utils_calculateCanonicalHash(), _adopted, _deployedLocal);
   }
