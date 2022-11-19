@@ -292,7 +292,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
     vm.prank(_owner);
     vm.expectRevert(TokenFacet.TokenFacet__addAssetId_badMint.selector);
-    this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0), 0);
+    this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0));
   }
 
   function test_TokenFacet__setupAssetWithDeployedRepresentation_failIfOnRemoteAndCannotBurn() public {
@@ -488,9 +488,11 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
   // works
   function test_TokenFacet__updateDetails_works() public {
+    _local = address(new TestERC20("Test", "t"));
     s.domain = _canonicalDomain + 2;
     bytes32 key = utils_calculateCanonicalHash();
     s.canonicalToRepresentation[key] = _local;
+    s.approvedAssets[key] = true;
 
     // Inputs
     string memory updatedName = "asdfkj";

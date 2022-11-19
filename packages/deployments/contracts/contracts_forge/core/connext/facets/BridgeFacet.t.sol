@@ -1080,7 +1080,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     vm.prank(_defaultOriginSender);
     localToken.approve(address(this), 10 ether);
 
-    vm.expectRevert("ERC20: transfer amount exceeds allowance");
+    vm.expectRevert("ERC20: insufficient allowance");
     vm.prank(_defaultOriginSender);
     this.xcall{value: _relayerFee}(
       _defaultParams.destinationDomain,
