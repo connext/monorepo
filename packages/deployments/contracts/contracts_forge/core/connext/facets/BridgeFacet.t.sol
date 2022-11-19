@@ -37,6 +37,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 contractAsset;
     uint256 callerEth;
     uint256 callerAsset;
+    uint256 custodied;
   }
 
   // ============ Constants ============
@@ -123,6 +124,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     vm.prank(address(this));
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     ds.contractOwner = _ds_owner;
+
+    // default cap is v high
+    _cap = 100_000 ether;
   }
 
   // ============ Utils ============
@@ -376,6 +380,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       balances.callerAsset = tokenIn.balanceOf(params.originSender);
       balances.relayerEth = s.relayerFeeVault.balance;
       balances.contractAsset = tokenIn.balanceOf(address(this));
+      balances.custodied = s.tokenConfigs[_canonicalKey].custodied;
 
       // Debugging logs.
       // console.log("initial balances");
@@ -443,9 +448,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         assertEq(tokenIn.balanceOf(params.originSender), balances.callerAsset - amount);
         // The contract should have stored the asset in escrow.
         assertEq(tokenIn.balanceOf(address(this)), balances.contractAsset + amount);
+        console.log("asserted bridged");
         // Custodied balance should have increased if sending in canonical
         if (s.tokenConfigs[_canonicalKey].cap > 0) {
-          assertEq(s.tokenConfigs[_canonicalKey].custodied, balances.contractAsset + amount);
+          console.log("asserting custodied", balances.contractAsset, s.tokenConfigs[_canonicalKey].custodied, amount);
+          assertEq(s.tokenConfigs[_canonicalKey].custodied, balances.custodied + amount);
+          console.log("asserted custodied");
         }
       } else {
         // NOTE: Normally the adopted asset would be swapped into the local asset and then
@@ -1496,15 +1504,29 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // works when on canonical domain
-  function test_BridgeFacet__execute_worksOnCanonical() public {
+  function test_BridgeFacet__execute_worksOnCanonicalWithoutCap() public {
     // set asset context (local == adopted)
     _canonicalDomain = _destinationDomain;
+    _cap = 0;
     utils_setupAsset(true, true);
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_canonical] += 10 ether;
-    // s.routerConfigs[args.routers[0]].approved = true;
+
+    helpers_executeAndAssert(transferId, args);
+  }
+
+  function test_BridgeFacet__execute_worksOnCanonicalWithCap() public {
+    // set asset context (local == adopted)
+    _canonicalDomain = _destinationDomain;
+    _cap = 10 ether;
+    utils_setupAsset(true, true);
+    s.tokenConfigs[utils_calculateCanonicalHash()].custodied = IERC20(_canonical).balanceOf(address(this));
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][_canonical] += 10 ether;
 
     helpers_executeAndAssert(transferId, args);
   }

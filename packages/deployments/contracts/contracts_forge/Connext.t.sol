@@ -23,6 +23,9 @@ import "./utils/Mock.sol";
 import "./utils/Deployer.sol";
 import {MessagingUtils} from "./utils/Messaging.sol";
 
+
+import "forge-std/console.sol";
+
 // Holds all balances that are impacted by an xcall
 struct XCallBalances {
   uint256 bridgeTransacting;

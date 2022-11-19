@@ -16,6 +16,8 @@ import {BridgeToken} from "../helpers/BridgeToken.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
+import "forge-std/console.sol";
+
 contract TokenFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error TokenFacet__addAssetId_alreadyAdded();
@@ -190,7 +192,7 @@ contract TokenFacet is BaseConnextFacet {
 
       // Enroll the asset. Pass in address(0) for adopted: it should use the local asset (i.e. the
       // canonical asset in this case) instead for both adopted and local.
-      _enrollAdoptedAndLocalAssets(true, address(0), _local, address(0), _canonical, _cap);
+      _enrollAdoptedAndLocalAssets(true, _canonicalDecimals, address(0), _local, address(0), _canonical, _cap);
     } else {
       // On remote, deploy a local representation.
       _local = _deployRepresentation(
@@ -201,7 +203,15 @@ contract TokenFacet is BaseConnextFacet {
         _representationSymbol
       );
       // Enroll the asset.
-      _enrollAdoptedAndLocalAssets(false, _adoptedAssetId, _local, _stableSwapPool, _canonical, _cap);
+      _enrollAdoptedAndLocalAssets(
+        false,
+        _canonicalDecimals,
+        _adoptedAssetId,
+        _local,
+        _stableSwapPool,
+        _canonical,
+        _cap
+      );
     }
   }
 
@@ -221,7 +231,15 @@ contract TokenFacet is BaseConnextFacet {
       revert TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
     }
 
-    _enrollAdoptedAndLocalAssets(onCanonical, _adoptedAssetId, _representation, _stableSwapPool, _canonical, _cap);
+    _enrollAdoptedAndLocalAssets(
+      onCanonical,
+      IERC20Metadata(_representation).decimals(),
+      _adoptedAssetId,
+      _representation,
+      _stableSwapPool,
+      _canonical,
+      _cap
+    );
 
     return _representation;
   }
@@ -298,6 +316,7 @@ contract TokenFacet is BaseConnextFacet {
 
   function _enrollAdoptedAndLocalAssets(
     bool _onCanonical,
+    uint8 _localDecimals,
     address _adopted,
     address _local,
     address _stableSwapPool,
@@ -323,12 +342,12 @@ contract TokenFacet is BaseConnextFacet {
     // NOTE: Using address(0) for stable swap, then using `_addStableSwap`. Slightly less
     // efficient, but preserves events. Same case for cap / custodied.
     // NOTE: IFF on canonical domain, `representation` must *always* be address(0)!
-    uint8 localDecimals = IERC20Metadata(_local).decimals();
+    console.log("getting decimals of", adopted);
     s.tokenConfigs[_key] = TokenConfig(
       _onCanonical ? address(0) : _local, // representation
-      localDecimals, // representationDecimals
+      _localDecimals, // representationDecimals
       adopted, // adopted
-      adoptedIsLocal ? localDecimals : IERC20Metadata(adopted).decimals(), // adoptedDecimals
+      adoptedIsLocal ? _localDecimals : IERC20Metadata(adopted).decimals(), // adoptedDecimals
       address(0), // adoptedToLocalExternalPools, see note
       true, // approval
       0, // cap, see note

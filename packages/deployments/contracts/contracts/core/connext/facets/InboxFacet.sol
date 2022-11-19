@@ -235,6 +235,17 @@ contract InboxFacet is BaseConnextFacet {
   ) internal returns (address, uint256) {
     bytes32 _canonicalId = _tokenId.id();
     uint32 _canonicalDomain = _tokenId.domain();
+
+    // Load amount once.
+    uint256 _amount = _action.amnt();
+
+    // Check for the empty case -- if it is 0 value there is no strict requirement the
+    // canonical information be defined (i.e. you can supply address(0) to xcall). If this
+    // is the case, return _token as address(0)
+    if (_amount == 0 && _canonicalDomain == 0 && _canonicalId == bytes32(0)) {
+      return (address(0), 0);
+    }
+
     // Get the token contract for the given tokenId on this chain.
     address _token = _getLocalAsset(
       AssetLogic.calculateCanonicalHash(_canonicalId, _canonicalDomain),
@@ -242,8 +253,6 @@ contract InboxFacet is BaseConnextFacet {
       _canonicalDomain
     );
 
-    // Load amount once.
-    uint256 _amount = _action.amnt();
     if (_amount == 0) {
       // Emit Receive event and short-circuit remaining logic: no tokens need to be delivered.
       emit Receive(_originAndNonce(_origin, _nonce), _token, address(this), address(0), _amount);

@@ -65,15 +65,15 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
         emit StableSwapAdded(key, _canonicalId, _canonicalDomain, _stableSwap, _owner);
       }
 
-      // Should emit an AssetAdded event
-      vm.expectEmit(true, true, true, true);
-      emit AssetAdded(key, _canonicalId, _canonicalDomain, isCanonical ? _canonical : adoptedInput, _local, _owner);
-
       // Should emit a cap event
       if (_cap > 0 && isCanonical) {
         vm.expectEmit(true, true, true, true);
         emit LiquidityCapUpdated(key, _canonicalId, _canonicalDomain, _cap, _owner);
       }
+
+      // Should emit an AssetAdded event
+      vm.expectEmit(true, true, true, true);
+      emit AssetAdded(key, _canonicalId, _canonicalDomain, isCanonical ? _canonical : adoptedInput, _local, _owner);
     }
     // Make call
     vm.prank(_owner);
@@ -112,14 +112,17 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
       // Check: should update liquidity cap if on canonical
       assertEq(config.cap, _cap);
       // Check: no stableswap on canonical
+      console.log("checking pool");
       assertEq(config.adoptedToLocalExternalPools, address(0));
+      console.log("pool verified");
     } else if (_stableSwap != address(0)) {
       // Check: stableswap configured
       assertEq(config.adoptedToLocalExternalPools, _stableSwap);
     }
 
     // Check: config is set up as expected
-    assertEq(config.adopted, adoptedInput);
+    assertEq(config.adopted, isCanonical ? _canonical : adoptedInput);
+    console.log("adopted verified");
     assertEq(config.representationDecimals, 18);
     assertEq(config.adoptedDecimals, 18);
   }
@@ -141,12 +144,15 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     TokenConfig memory config = s.tokenConfigs[_canonicalKey];
     assertEq(config.approval, false);
     assertEq(config.adopted, address(0));
+    console.log("asserted adopted");
     assertEq(config.adoptedDecimals, 0);
     assertEq(config.representation, address(0));
+    console.log("asserted adopted");
     assertEq(config.representationDecimals, 0);
     assertEq(config.cap, 0);
     assertEq(config.custodied, 0);
     assertEq(config.adoptedToLocalExternalPools, address(0));
+    console.log("asserted pool");
 
     assertEq(s.adoptedToCanonical[isCanonical ? _canonical : adopted].domain, 0);
     assertEq(s.adoptedToCanonical[isCanonical ? _canonical : adopted].id, bytes32(0));
@@ -216,7 +222,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
     // revert if nonzero stable swap
     _stableSwap = address(123123);
-    setupAssetAndAssert(address(0), TokenFacet.TokenFacet__setupAsset_invalidCanonicalConfiguration.selector);
+    setupAssetAndAssert(address(2), TokenFacet.TokenFacet__setupAsset_invalidCanonicalConfiguration.selector);
 
     // revert if adopted != (address(0), _canonical)
     _stableSwap = address(0);
@@ -390,6 +396,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     _adopted = address(0);
     _local = _canonical;
     _stableSwap = address(0);
+    vm.mockCall(_local, abi.encodeWithSelector(IERC20.balanceOf.selector, address(this)), abi.encode(0));
     setupAssetAndAssert(_adopted, bytes4(""));
 
     removeAssetAndAssert(utils_calculateCanonicalHash(), _deployedLocal, _adopted);
@@ -398,6 +405,8 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   function test_TokenFacet__removeAssetId_worksOnRemote() public {
     s.domain = _canonicalDomain + 1;
     _adopted = address(12312391263);
+    vm.mockCall(_adopted, abi.encodeWithSelector(IERC20Metadata.decimals.selector), abi.encode(18));
+
     setupAssetAndAssert(_adopted, bytes4(""));
 
     vm.mockCall(_deployedLocal, abi.encodeWithSelector(IERC20.totalSupply.selector), abi.encode(0));

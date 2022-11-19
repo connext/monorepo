@@ -735,13 +735,6 @@ contract BridgeFacet is BaseConnextFacet {
       return (0, local, local);
     }
 
-    // If it is the canonical domain, decrease custodied value
-    if (s.domain == _args.params.canonicalDomain && AssetLogic.getConfig(_key).cap > 0) {
-      // NOTE: safe to use the amount here instead of post-swap because there are no
-      // AMMs on the canonical domain (assuming canonical == adopted on canonical domain)
-      s.tokenConfigs[_key].custodied -= _args.params.bridgedAmt;
-    }
-
     // Get the receive local status
     bool receiveLocal = _args.params.receiveLocal || s.receiveLocalOverride[_transferId];
 
@@ -791,6 +784,13 @@ contract BridgeFacet is BaseConnextFacet {
         uint256 toSweep = routerAmount + (toSwap % pathLen);
         s.routerBalances[_args.routers[pathLen - 1]][local] -= toSweep;
       }
+    }
+
+    // If it is the canonical domain, decrease custodied value
+    if (s.domain == _args.params.canonicalDomain && AssetLogic.getConfig(_key).cap > 0) {
+      // NOTE: safe to use the amount here instead of post-swap because there are no
+      // AMMs on the canonical domain (assuming canonical == adopted on canonical domain)
+      s.tokenConfigs[_key].custodied -= toSwap;
     }
 
     // If the local asset is specified, or the adopted asset was overridden (e.g. when user facing slippage
