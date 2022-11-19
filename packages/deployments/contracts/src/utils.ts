@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { BigNumber, Contract, ContractInterface, providers, Signer } from "ethers";
+import { BigNumber, constants, Contract, ContractInterface, providers, Signer } from "ethers";
 import { HardhatRuntimeEnvironment, HardhatUserConfig } from "hardhat/types";
 import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
 
@@ -49,6 +49,36 @@ export const getProtocolNetwork = (_chain: string | number): string => {
   const chain = _chain.toString();
   // If chain 1337 or 1338, use local network.
   return ProtocolNetworks[chain] ?? ProtocolNetwork.LOCAL;
+};
+
+export type RelayerProxyConfig = {
+  gelatoRelayer: string;
+  feeCollector: string;
+};
+
+export const getRelayerProxyConfig = (_chain: string | number): RelayerProxyConfig => {
+  const chain = _chain.toString();
+  const feeCollector = constants.AddressZero;
+  let gelatoRelayer = constants.AddressZero;
+  switch (chain) {
+    case "5":
+      gelatoRelayer = "0xCDdE9992Fb66038Dd8419b56149a75CC79Df133C";
+      break;
+    case "420":
+      gelatoRelayer = "0xaB0A8DCb1590C4565C35cC785dc25A0590398054";
+      break;
+    case "80001":
+      gelatoRelayer = "0x24D677f8A59A486BfC6d87E9453C4f1fEfcB0958";
+      break;
+    // case "97":
+    //   break;
+    // case "421613":
+    //   break;
+    default:
+      throw new Error(`Missing relayer proxy config for ${chain}`);
+  }
+
+  return { feeCollector, gelatoRelayer };
 };
 
 export const getConnectorName = (
