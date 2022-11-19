@@ -25,7 +25,7 @@ interface ISpokeConnector {
 
 contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollector {
   // ============ Properties ============
-  address public immutable GELATO_RELAYER = 0xaBcC9b596420A9E9172FD5938620E265a0f9Df92;
+  address public gelatoRelayer;
 
   mapping(address => bool) public allowedRelayer;
 
@@ -61,15 +61,17 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    * @notice
    * @param _connext The address of the Connext on this domain.
    */
-  constructor(address _connext, address _spokeConnector) ProposedOwnable() {
+  constructor(
+    address _connext,
+    address _spokeConnector,
+    address _gelatoRelayer
+  ) ProposedOwnable() {
     _setOwner(msg.sender);
-    allowedRelayer[GELATO_RELAYER] = true; // Gelato relayer is allowed by default
+    setGelatoRelayer(_gelatoRelayer);
+    setSpokeConnector(_spokeConnector);
+    setConnext(_connext);
+    addRelayer(_gelatoRelayer);
 
-    require(_connext != address(0), "!zero connext");
-    require(_spokeConnector != address(0), "!zero spoke connector");
-
-    connext = IConnext(_connext);
-    spokeConnector = ISpokeConnector(_spokeConnector);
     emit Setup(_connext, _spokeConnector);
   }
 
@@ -105,6 +107,14 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
     spokeConnector = ISpokeConnector(_spokeConnector);
     emit ConnextChanged(_spokeConnector, oldSpokeConnector);
+  }
+
+  function setGelatoRelayer(address _gelatoRelayer) external onlyOwner {
+    require(_gelatoRelayer != address(0), "!relayer");
+    require(_gelatoRelayer != gelatoRelayer, "!change");
+    emit RelayerChanged(_gelatoRelayer, gelatoRelayer);
+
+    gelatoRelayer = _gelatoRelayer;
   }
 
   function withdraw() external onlyOwner nonReentrant {
