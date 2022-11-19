@@ -122,7 +122,6 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   {
     transferId = connext.execute(_args);
     transferFee(_fee);
-    emit FundsDeducted(_fee, address(this).balance);
   }
 
   function proveAndProcess(
@@ -134,6 +133,10 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   ) external onlyRelayer nonReentrant {
     spokeConnector.proveAndProcess(_proofs, _aggregateRoot, _aggregatePath, _aggregateIndex);
     transferFee(_fee);
+  }
+
+  function send(bytes memory _encodedData, uint256 _fee) external onlyRelayer nonReentrant {
+    spokeConnector.send{value: _fee}(_encodedData);
     emit FundsDeducted(_fee, address(this).balance);
   }
 
@@ -149,6 +152,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     } else {
       Address.sendValue(payable(msg.sender), _fee);
     }
+    emit FundsDeducted(_fee, address(this).balance);
   }
 
   function _addRelayer(address _relayer) internal {
