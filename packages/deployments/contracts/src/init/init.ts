@@ -300,7 +300,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         console.log("\n\nWHITELIST RELAYERS");
 
         for (const network of protocol.networks) {
-          let relayerProxyAddress = network.deployments.messaging.RelayerProxy.address;
+          const relayerProxyAddress = network.deployments.messaging.RelayerProxy.address;
           await updateIfNeeded({
             deployment: network.deployments.Connext,
             desired: true,
