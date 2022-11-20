@@ -113,11 +113,11 @@ locals {
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
-      {
-        type   = "Gelato",
-        apiKey = "${var.gelato_api_key}",
-        url    = "https://relay.gelato.digital"
-      },
+      # {
+      #   type   = "Gelato",
+      #   apiKey = "${var.gelato_api_key}",
+      #   url    = "https://relay.gelato.digital"
+      # },
       {
         type   = "Connext",
         apiKey = "foo",
@@ -290,11 +290,11 @@ locals {
     }
     gelatoApiKey = "${var.gelato_api_key}"
     relayers = [
-      {
-        type   = "Gelato",
-        apiKey = "${var.gelato_api_key}",
-        url    = "https://relay.gelato.digital"
-      },
+      # {
+      #   type   = "Gelato",
+      #   apiKey = "${var.gelato_api_key}",
+      #   url    = "https://relay.gelato.digital"
+      # },
       {
         type   = "Connext",
         apiKey = "foo",
