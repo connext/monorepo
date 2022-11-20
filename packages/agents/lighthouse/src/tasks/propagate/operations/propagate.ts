@@ -116,7 +116,13 @@ export const propagate = async () => {
 
     fee = gasLimit.mul(await chainreader.getGasPrice(+config.hubDomain, requestContext));
   }
-  logger.info("Got fees", requestContext, methodContext, { fee: fee.toString(), gasLimit: gasLimit.toString() });
+  logger.info("Got params for sending", requestContext, methodContext, {
+    fee: fee.toString(),
+    gasLimit: gasLimit.toString(),
+    _connectors,
+    _fees,
+    _encodedData,
+  });
 
   const encodedDataForRelayer = contractInterfaces.relayerProxyHub.encodeFunctionData("propagate", [
     _connectors,
