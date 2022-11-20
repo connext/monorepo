@@ -64,8 +64,8 @@ export const makePropagate = async () => {
         type: relayerConfig.type as RelayerType,
       });
     }
-    context.adapters.contracts = contractDeployments;
-    context.adapters.contractInterfaces = getContractInterfaces();
+    context.adapters.deployments = contractDeployments;
+    context.adapters.contracts = getContractInterfaces();
     context.adapters.ambs = getAmbABIs();
     context.adapters.subgraph = await SubgraphReader.create(
       chainData,
