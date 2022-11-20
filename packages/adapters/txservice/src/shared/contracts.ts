@@ -47,7 +47,7 @@ export const getDeployedConnextContract = (
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
-export const getDeployedRelayerProxyContract = (
+export const _getDeployedRelayerProxyContract = (
   chainId: number,
   postfix: ContractPostfix = "",
 ): { address: string; abi: any } | undefined => {
@@ -56,13 +56,24 @@ export const getDeployedRelayerProxyContract = (
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
-export const getDeployedRelayerProxyHubContract = (
+export const _getDeployedRelayerProxyHubContract = (
   chainId: number,
   postfix: ContractPostfix = "",
 ): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
   const contract = record[0]?.contracts ? record[0]?.contracts[`RelayerProxyHub${postfix}`] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+export const getDeployedRelayerProxyContract = (
+  chainId: number,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
+  if (chainId === 5 || chainId === 1) {
+    return _getDeployedRelayerProxyHubContract(chainId, postfix);
+  }
+
+  return _getDeployedRelayerProxyContract(chainId, postfix);
 };
 
 export const getDeployedSpokeConnecterContract = (
@@ -174,7 +185,6 @@ export type RootManagerPropagateWrapperGetter = (
 export type ConnextContractDeployments = {
   connext: ConnextContractDeploymentGetter;
   relayerProxy: ConnextContractDeploymentGetter;
-  relayerProxyHub: ConnextContractDeploymentGetter;
   priceOracle: ConnextContractDeploymentGetter;
   stableSwap: ConnextContractDeploymentGetter;
   spokeConnector: SpokeConnectorDeploymentGetter;
@@ -188,7 +198,6 @@ export const contractDeployments: ConnextContractDeployments = {
   stableSwap: getDeployedStableSwapContract,
   spokeConnector: getDeployedSpokeConnecterContract,
   hubConnector: getDeployedHubConnecterContract,
-  relayerProxyHub: getDeployedRelayerProxyHubContract,
 };
 
 /// MARK - CONTRACT INTERFACES

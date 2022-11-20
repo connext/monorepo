@@ -21,7 +21,7 @@ describe("Operations: Propagate", () => {
     });
 
     it("should throw an error if relayer proxy not found", async () => {
-      (propagateCtxMock.adapters.contracts.relayerProxyHub as SinonStub).returns(undefined);
+      (propagateCtxMock.adapters.contracts.relayerProxy as SinonStub).returns(undefined);
       await expect(propagate()).to.eventually.be.rejectedWith(RelayerProxyHubNotFound);
     });
 

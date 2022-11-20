@@ -54,7 +54,7 @@ export const propagate = async () => {
     throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const target = contracts.relayerProxyHub(hubChainId, config.environment === "staging" ? "Staging" : "");
+  const target = contracts.relayerProxy(hubChainId, config.environment === "staging" ? "Staging" : "");
   if (!target) {
     throw new RelayerProxyHubNotFound(config.hubDomain, requestContext, methodContext);
   }
