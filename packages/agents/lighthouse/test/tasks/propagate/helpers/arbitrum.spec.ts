@@ -31,14 +31,14 @@ describe("Helpers: Arbitrum ", () => {
     });
 
     it("should throw an error if no spoke connector", async () => {
-      (propagateCtxMock.adapters.contracts.spokeConnector as SinonStub).returns(undefined);
+      (propagateCtxMock.adapters.deployments.spokeConnector as SinonStub).returns(undefined);
       await expect(
         getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext),
       ).to.eventually.be.rejectedWith(NoSpokeConnector);
     });
 
     it("should throw an error if no hub connector", async () => {
-      (propagateCtxMock.adapters.contracts.hubConnector as SinonStub).returns(undefined);
+      (propagateCtxMock.adapters.deployments.hubConnector as SinonStub).returns(undefined);
       await expect(
         getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext),
       ).to.eventually.be.rejectedWith(NoHubConnector);

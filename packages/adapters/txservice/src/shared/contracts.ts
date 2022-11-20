@@ -8,7 +8,9 @@ import {
   SpokeConnector as TSpokeConnector,
   RelayerProxy as TRelayerProxy,
   RelayerProxyHub as TRelayerProxyHub,
+  RootManager as TRootManager,
 } from "@connext/nxtp-contracts";
+import RootManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/RootManager.sol/RootManager.json";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-abi/HardhatDiamondABI.sol/Connext.json";
 import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
@@ -44,6 +46,15 @@ export const getDeployedConnextContract = (
 ): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
   const contract = record[0]?.contracts ? record[0]?.contracts[`Connext${postfix}`] : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+export const getDeployedRootManagerContract = (
+  chainId: number,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  const contract = record[0]?.contracts ? record[0]?.contracts[`RootManager${postfix}`] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -226,12 +237,15 @@ export const getStableSwapInterface = () => new utils.Interface(StableSwapArtifa
 export const getSpokeConnectorInterface = () =>
   new utils.Interface(SpokeConnectorArtifact.abi) as TSpokeConnector["interface"];
 
+export const getRootManagerInterface = () => new utils.Interface(RootManagerArtifact.abi) as TRootManager["interface"];
+
 export type ConnextContractInterfaces = {
   erc20: TIERC20Minimal["interface"];
   connext: TConnext["interface"];
   priceOracle: TConnextPriceOracle["interface"];
   stableSwap: TStableSwap["interface"];
   spokeConnector: TSpokeConnector["interface"];
+  rootManager: TRootManager["interface"];
   relayerProxy: TRelayerProxy["interface"];
   relayerProxyHub: TRelayerProxyHub["interface"];
 };
@@ -242,6 +256,7 @@ export const getContractInterfaces = (): ConnextContractInterfaces => ({
   priceOracle: getPriceOracleInterface(),
   stableSwap: getStableSwapInterface(),
   spokeConnector: getSpokeConnectorInterface(),
+  rootManager: getRootManagerInterface(),
   relayerProxy: getRelayerProxyInterface(),
   relayerProxyHub: getRelayerProxyHubInterface(),
 });
