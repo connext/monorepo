@@ -38,7 +38,7 @@ export const propagate = async () => {
     logger,
     config,
     chainData,
-    adapters: { chainreader, contractInterfaces, relayers, subgraph },
+    adapters: { chainreader, contracts, relayers, subgraph },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(propagate.name);
   logger.info("Starting propagate operation", requestContext, methodContext);
@@ -79,11 +79,7 @@ export const propagate = async () => {
   }
 
   // encode data
-  const encodedData = contractInterfaces.rootManager.encodeFunctionData("propagate", [
-    _connectors,
-    _fees,
-    _encodedData,
-  ]);
+  const encodedData = contracts.rootManager.encodeFunctionData("propagate", [_connectors, _fees, _encodedData]);
 
   const relayerAddress = await relayers[0].instance.getRelayerAddress(hubChainId);
   logger.debug("Getting gas estimate", requestContext, methodContext, {
@@ -124,7 +120,7 @@ export const propagate = async () => {
     _encodedData,
   });
 
-  const encodedDataForRelayer = contractInterfaces.relayerProxyHub.encodeFunctionData("propagate", [
+  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("propagate", [
     _connectors,
     _fees,
     _encodedData,

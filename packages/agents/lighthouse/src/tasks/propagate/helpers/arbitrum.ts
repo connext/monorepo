@@ -16,7 +16,7 @@ export const getPropagateParams = async (
   const {
     config,
     logger,
-    adapters: { chainreader, contracts },
+    adapters: { chainreader, deployments },
   } = getContext();
   const { methodContext, requestContext } = createLoggingContext(getPropagateParams.name, _requestContext);
   logger.info("Getting propagate params for Arbitrum", requestContext, methodContext, { l2domain });
@@ -38,7 +38,7 @@ export const getPropagateParams = async (
   let gasPriceBid;
   let callValue;
 
-  const l2SpokeConnector = contracts.spokeConnector(
+  const l2SpokeConnector = deployments.spokeConnector(
     l2ChainId,
     "Arbitrum",
     config.environment === "staging" ? "Staging" : "",
@@ -47,7 +47,7 @@ export const getPropagateParams = async (
     throw new NoSpokeConnector(l2ChainId, requestContext, methodContext);
   }
 
-  const l1HubConnector = contracts.hubConnector(
+  const l1HubConnector = deployments.hubConnector(
     l1ChainId,
     "Arbitrum",
     config.environment === "staging" ? "Staging" : "",

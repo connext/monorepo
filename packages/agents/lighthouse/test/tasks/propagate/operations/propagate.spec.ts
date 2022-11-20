@@ -13,16 +13,12 @@ describe("Operations: Propagate", () => {
     beforeEach(() => {
       stub(Mockable, "encodePropagate").returns("0xbeef");
       stub(Mockable, "encodePropagateForRelayerProxy").returns("0xbeef");
+      stub(Mockable, "getDeployedRootManagerContract").returns({ address: "0xbeef", abi: [] });
     });
 
     it("should throw an error if no hub domain id", async () => {
       propagateCtxMock.chainData = new Map();
       await expect(propagate()).to.eventually.be.rejectedWith(NoChainIdForHubDomain);
-    });
-
-    it("should throw an error if relayer proxy not found", async () => {
-      (propagateCtxMock.adapters.contracts.relayerProxy as SinonStub).returns(undefined);
-      await expect(propagate()).to.eventually.be.rejectedWith(RelayerProxyHubNotFound);
     });
 
     it("should send encoded data to relayer succesfully", async () => {
