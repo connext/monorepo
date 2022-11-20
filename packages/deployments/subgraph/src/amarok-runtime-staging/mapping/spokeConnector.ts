@@ -49,19 +49,19 @@ export function handleMessageSent(event: MessageSent): void {
     meta = new ConnectorMeta(DEFAULT_CONNECTOR_META_ID);
   }
 
-  let message = RootMessageSent.load(`${event.params.data.toHexString()}-${meta.spokeDomain!.toString()}`);
+  let message = RootMessageSent.load(`${event.params.message.toHexString()}-${meta.spokeDomain!.toString()}`);
   if (message == null) {
-    message = new RootMessageSent(`${event.params.data.toHexString()}-${meta.spokeDomain!.toString()}`);
+    message = new RootMessageSent(`${event.params.message.toHexString()}-${meta.spokeDomain!.toString()}`);
   }
 
   message.spokeDomain = meta.spokeDomain;
   message.hubDomain = meta.hubDomain;
 
-  message.root = event.params.data;
+  message.root = event.params.message;
 
-  let rootCount = RootCount.load(event.params.data.toHexString());
+  let rootCount = RootCount.load(event.params.message.toHexString());
   if (rootCount == null) {
-    rootCount = new RootCount(event.params.data.toHexString());
+    rootCount = new RootCount(event.params.message.toHexString());
   }
 
   message.count = rootCount.count;
