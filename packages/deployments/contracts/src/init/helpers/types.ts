@@ -59,18 +59,19 @@ export type HubMessagingDeployments = {
   WatcherManager: Deployment;
   MerkleTreeManagerForRoot: Deployment;
   MerkleTreeManagerForSpoke: Deployment;
+  RelayerProxy: Deployment;
 };
 
 export type SpokeMessagingDeployments = {
   SpokeConnector: Deployment;
   MerkleTreeManager: Deployment;
   WatcherManager: Deployment;
+  RelayerProxy: Deployment;
 };
 
 export type DomainDeployments = {
   // Diamond.
   Connext: Deployment;
-  RelayerProxy: Deployment;
 
   // Messaging Layer.
   // ConnectorManager

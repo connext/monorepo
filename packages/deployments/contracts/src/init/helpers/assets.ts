@@ -117,7 +117,7 @@ export const setupAsset = async (args: {
         read: { method: "canonicalToAdopted(bytes32)", args: [key] },
         write: {
           method: "setupAssetWithDeployedRepresentation",
-          args: [[canonical.domain, canonical.id], representation.local, desiredAdopted, stableswapPool, 0],
+          args: [[canonical.domain, canonical.id], representation.local, desiredAdopted, stableswapPool],
         },
       });
     } else {
