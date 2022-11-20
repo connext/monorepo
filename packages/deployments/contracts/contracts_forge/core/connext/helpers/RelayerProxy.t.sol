@@ -40,9 +40,6 @@ contract RelayerProxyTest is ForgeHelper {
     emit SpokeConnectorChanged(_spokeConnector, address(0));
 
     vm.expectEmit(true, true, true, true);
-    emit RelayerChanged(_gelatoRelayer, address(0));
-
-    vm.expectEmit(true, true, true, true);
     emit FeeCollectorChanged(_feeCollector, address(0));
 
     vm.expectEmit(true, true, true, true);
