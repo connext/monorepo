@@ -14,7 +14,7 @@ import { setupRelayer as _setupConnextRelayer } from "./connext";
 import { RelayerSendFailed } from "./errors";
 
 export type Relayer = {
-  getRelayerAddress: (chainId: number, logger: Logger) => Promise<string>;
+  getRelayerAddress: (chainId: number) => Promise<string>;
   send: (
     chainId: number,
     domain: string,
@@ -25,7 +25,7 @@ export type Relayer = {
     logger: Logger,
     _requestContext?: RequestContext,
   ) => Promise<string>;
-  getTaskStatus: (taskId: string, logger?: Logger) => Promise<RelayerTaskStatus>;
+  getTaskStatus: (taskId: string) => Promise<RelayerTaskStatus>;
   waitForTaskCompletion: (
     taskId: string,
     logger: Logger,

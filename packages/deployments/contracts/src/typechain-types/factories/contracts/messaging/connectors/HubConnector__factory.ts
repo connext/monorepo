@@ -17,11 +17,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "ProposedOwnable__onlyOwner_notOwner",
     type: "error",
   },
@@ -32,17 +27,17 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "ProposedOwnable__ownershipDelayElapsed_delayNotElapsed",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ProposedOwnable__proposeNewOwner_invalidProposal",
     type: "error",
   },
   {
     inputs: [],
     name: "ProposedOwnable__proposeNewOwner_noOwnershipChange",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "ProposedOwnable__renounceOwnership_delayNotElapsed",
     type: "error",
   },
   {

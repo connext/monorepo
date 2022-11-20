@@ -6,16 +6,26 @@ import {GnosisAmb} from "../../interfaces/ambs/GnosisAmb.sol";
 import {GasCap} from "../GasCap.sol";
 
 abstract contract GnosisBase is GasCap {
+  // ============ Storage ============
+  uint256 public immutable MIRROR_CHAIN_ID;
+
   // ============ Constructor ============
-  constructor(uint256 _gasCap) GasCap(_gasCap) {}
+  constructor(uint256 _gasCap, uint256 _mirrorChainId) GasCap(_gasCap) {
+    MIRROR_CHAIN_ID = _mirrorChainId;
+  }
 
   // ============ Private fns ============
 
   /**
    * @dev Asserts the sender of a cross domain message
    */
-  function _verifySender(address _amb, address _expected) internal view returns (bool) {
+  function _verifySender(
+    address _amb,
+    address _expected,
+    uint256 _sourceChain
+  ) internal view returns (bool) {
     require(msg.sender == _amb, "!bridge");
+    require(_sourceChain == MIRROR_CHAIN_ID, "!source");
     return GnosisAmb(_amb).messageSender() == _expected;
   }
 

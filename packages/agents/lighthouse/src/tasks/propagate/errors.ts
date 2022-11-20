@@ -15,14 +15,14 @@ export class NoChainIdForHubDomain extends NxtpError {
   }
 }
 
-export class RootManagerPropagateWrapperNotFound extends NxtpError {
+export class RelayerProxyHubNotFound extends NxtpError {
   constructor(
     public readonly hubDomain: string,
     public readonly requestContext: RequestContext,
     public readonly methodContext: MethodContext,
     public readonly context: any = {},
   ) {
-    super(`RootManagerPropagateWrapperNotFound for domain ${hubDomain}`, {
+    super(`RelayerProxyHub not found for domain ${hubDomain}`, {
       ...context,
       requestContext,
       methodContext,

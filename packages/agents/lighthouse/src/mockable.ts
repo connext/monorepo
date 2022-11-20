@@ -46,6 +46,11 @@ export const encodePropagate = (abi: any[], args: any[]): string => {
   return encodedData;
 };
 
+export const encodePropagateForRelayerProxy = (abi: any[], args: any[]): string => {
+  const encodedData = new utils.Interface(abi as string[]).encodeFunctionData("propagate", args);
+  return encodedData;
+};
+
 export const getJsonRpcProvider = (url: string): providers.JsonRpcProvider => {
   return new providers.JsonRpcProvider(url);
 };

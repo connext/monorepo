@@ -130,8 +130,11 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
 };
 
 export const assertValue = async <T>(schema: CallSchema<T>): Promise<void> => {
-  const { deployment, read: _read, desired } = schema;
+  const { deployment, desired: _desired, read: _read, caseSensitive: _caseSensitive } = schema;
   const { contract } = deployment;
+
+  const caseSensitive = _caseSensitive ?? false;
+  const desired = caseSensitive ? _desired : (_desired as any).toString().toLowerCase();
 
   const read =
     typeof _read === "string"
@@ -161,7 +164,10 @@ export const assertValue = async <T>(schema: CallSchema<T>): Promise<void> => {
   const network = await contract.provider.getNetwork();
   const chain = network.chainId;
 
-  const value = await readCall();
+  let value = await readCall();
+  if (!caseSensitive) {
+    value = (value as any).toString().toLowerCase();
+  }
 
   if (value === desired) {
     log.info.value({ chain, deployment, call: read, value, valid: true });

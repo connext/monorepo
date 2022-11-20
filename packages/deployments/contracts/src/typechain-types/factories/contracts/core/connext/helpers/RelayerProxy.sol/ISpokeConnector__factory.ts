@@ -55,6 +55,19 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "_encodedData",
+        type: "bytes",
+      },
+    ],
+    name: "send",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
 ];
 
 export class ISpokeConnector__factory {

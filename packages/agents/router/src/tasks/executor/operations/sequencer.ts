@@ -43,6 +43,7 @@ export const sendExecuteSlowToSequencer = async (
 
   // Validate the bid's fulfill call will succeed on chain.
   // note: using gelato's relayer address since it will be whitelisted everywhere
+  // another note: we are using the old system, but new system will have this relayer whitelisted still
   const relayerAddress = GELATO_RELAYER_ADDRESS;
 
   logger.debug("Getting gas estimate", requestContext, methodContext, {
