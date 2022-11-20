@@ -293,13 +293,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const { feeCollector, gelatoRelayer } = getRelayerProxyConfig(chainId);
   const spokeConnector = await hre.ethers.getContract(getDeploymentName(getConnectorName(protocol, +chainId)));
 
-  if (protocol.hub === domain) {
-    const rootManager = await hre.ethers.getContract(getDeploymentName("RootMamager"));
+  if (protocol.hub === network.chainId) {
+    const rootManager = await hre.ethers.getContract(getDeploymentName("RootManager"));
     const relayerProxyHub = await hre.deployments.deploy(getDeploymentName("RelayerProxyHub"), {
       from: deployer.address,
       log: true,
       contract: "RelayerProxyHub",
-      args: [connextAddress, spokeConnector.address, gelatoRelayer, feeCollector, rootManager],
+      args: [connextAddress, spokeConnector.address, gelatoRelayer, feeCollector, rootManager.address],
     });
 
     console.log("relayerProxyHub: ", relayerProxyHub.address);
