@@ -67,6 +67,9 @@ export const getRelayerProxyConfig = (_chain: string | number): RelayerProxyConf
     case "420":
       gelatoRelayer = "0xaB0A8DCb1590C4565C35cC785dc25A0590398054";
       break;
+    case "421613":
+      gelatoRelayer = constants.AddressZero;
+      break;
     case "80001":
       gelatoRelayer = "0x24D677f8A59A486BfC6d87E9453C4f1fEfcB0958";
       break;
