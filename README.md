@@ -38,7 +38,7 @@
   <summary>Table of Contents</summary>
   <ol>
     <li>
-      <a href="#about-nxtp">About NXTP </a>
+      <a href="#about-connext">About Connext </a>
        <ul>
         <li><a href="#built-with">Architecture</a></li>
       </ul>
@@ -71,9 +71,9 @@ The Connext architecture can be seen as a layered system, as follows:
 | `Messaging - Verification Layer` | `Watcher`                              |
 | `Messaging - Transport Layer`    | `AMBs`                                 |
 
-## About NXTP
+## About Connext
 
-Connext is public infrastructure powering fast, trust-minimized communication between blockchains. [Read More](https://docs.connext.network/core-concepts/understanding-connext)
+Connext is a modular stack for trust-minimized, generalized communication between blockchains. [Read More](https://docs.connext.network/core-concepts/understanding-connext)
 
 ### Architecture
 
