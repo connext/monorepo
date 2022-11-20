@@ -38,7 +38,7 @@ export const sendExecuteSlowToRelayer = async (
 
   /// Temp: Using relayer proxy
   const domain = +transfer.xparams.destinationDomain;
-  const relayerAddress = await relayers[0].instance.getRelayerAddress(destinationChainId, logger);
+  const relayerAddress = await relayers[0].instance.getRelayerAddress(destinationChainId);
 
   logger.debug("Getting gas estimate", requestContext, methodContext, {
     destinationChainId,
