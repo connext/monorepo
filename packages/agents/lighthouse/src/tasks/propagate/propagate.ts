@@ -1,4 +1,4 @@
-import { ChainReader, contractDeployments, getAmbABIs } from "@connext/nxtp-txservice";
+import { ChainReader, contractDeployments, getAmbABIs, getContractInterfaces } from "@connext/nxtp-txservice";
 import { createLoggingContext, getChainData, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -65,6 +65,7 @@ export const makePropagate = async () => {
       });
     }
     context.adapters.contracts = contractDeployments;
+    context.adapters.contractInterfaces = getContractInterfaces();
     context.adapters.ambs = getAmbABIs();
     context.adapters.subgraph = await SubgraphReader.create(
       chainData,
