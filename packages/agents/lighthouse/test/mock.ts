@@ -83,12 +83,14 @@ export const mock = {
         providers: ["http://example.com"],
         deployments: {
           spokeConnector: mkAddress("0xfedcba321"),
+          relayerProxy: mkAddress("0xfedcba321"),
         },
       },
       [mock.domain.B]: {
         providers: ["http://example.com"],
         deployments: {
           spokeConnector: mkAddress("0xfedcba321"),
+          relayerProxy: mkAddress("0xfedcba321"),
         },
       },
     },
@@ -125,6 +127,10 @@ export const mock = {
       relayerProxy.encodeFunctionData.returns(encodedDataMock);
       relayerProxy.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const relayerProxyHub = createStubInstance(utils.Interface);
+      relayerProxyHub.encodeFunctionData.returns(encodedDataMock);
+      relayerProxyHub.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       const priceOracle = createStubInstance(utils.Interface);
       priceOracle.encodeFunctionData.returns(encodedDataMock);
       priceOracle.decodeFunctionResult.returns([BigNumber.from(1000)]);
@@ -149,6 +155,7 @@ export const mock = {
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
         spokeConnector: spokeConnector as unknown as ConnextContractInterfaces["spokeConnector"],
+        relayerProxyHub: createStubInstance(utils.Interface) as unknown as ConnextContractInterfaces["relayerProxyHub"],
       };
     },
     deployments: (): SinonStubbedInstance<ConnextContractDeployments> => {
@@ -159,7 +166,7 @@ export const mock = {
         priceOracle: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         spokeConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         stableSwap: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
-        rootManagerPropagateWrapper: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        relayerProxyHub: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
       };
     },
     relayers: () => [
@@ -195,7 +202,7 @@ export const mock = {
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbdddf"), abi: {} }),
         spokeConnector: (_: number) => ({ address: mkAddress("0xbbbddda"), abi: {} }),
         hubConnector: (_: number) => ({ address: mkAddress("0xbbbdddb"), abi: {} }),
-        rootManagerPropagateWrapper: (_: number) => ({ address: mkAddress("0xbbbdddc"), abi: {} }),
+        relayerProxyHub: (_: number) => ({ address: mkAddress("0xbbbdddc"), abi: {} }),
       };
     },
   },

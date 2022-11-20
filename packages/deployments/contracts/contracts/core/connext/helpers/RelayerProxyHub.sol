@@ -31,7 +31,7 @@ contract RelayerProxyHub is RelayerProxy {
    * @param _spokeConnector The address of the SpokeConnector on this domain.
    * @param _gelatoRelayer The address of the Gelato relayer on this domain.
    * @param _feeCollector The address of the Gelato Fee Collector on this domain.
-   * @param _rootManager The address of the Root Manager on this domain.   
+   * @param _rootManager The address of the Root Manager on this domain.
    */
   constructor(
     address _connext,
@@ -56,7 +56,7 @@ contract RelayerProxyHub is RelayerProxy {
   // ============ External Functions ============
 
   /**
-   * @notice Wraps the call to propagate() on RootManager and pays either the caller or hardcoded relayer  
+   * @notice Wraps the call to propagate() on RootManager and pays either the caller or hardcoded relayer
    * from this contract's balance for completing the transaction.
    *
    * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage;

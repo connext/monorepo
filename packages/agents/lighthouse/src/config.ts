@@ -18,6 +18,7 @@ export const TChainConfig = Type.Object({
   deployments: Type.Object({
     spokeConnector: TAddress,
     relayerProxy: TAddress,
+    relayerProxyHub: TAddress,
   }),
 });
 
@@ -185,6 +186,19 @@ export const getEnvConfig = (
 
           if (!res) {
             throw new Error(`No RelayerProxy contract address for domain ${domainId}`);
+          }
+          return res.address;
+        })(),
+
+      relayerProxyHub:
+        chainConfig.deployments?.relayerProxyHub ??
+        (() => {
+          const res = chainDataForChain
+            ? deployments.relayerProxyHub(chainDataForChain.chainId, contractPostfix)
+            : undefined;
+
+          if (!res) {
+            throw new Error(`No RelayerProxyHub contract address for domain ${domainId}`);
           }
           return res.address;
         })(),
