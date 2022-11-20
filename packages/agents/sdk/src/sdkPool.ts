@@ -263,28 +263,61 @@ export class NxtpSdkPool {
 
   /**
    * Returns the price impact depending on whether liquidity is being deposited or withdrawn.
-   * @param amountIn The amount of inbound tokens (LP tokens for withdrawals, total tokens for deposits).
-   * @param amountOut The amount of outbound tokens (total tokens for withdrawals, LP tokens for deposits).
+   * @param tokenInputAmount The amount of inbound tokens (LP tokens for withdrawals, total tokens for deposits).
+   * @param tokenOutputAmount The amount of outbound tokens (total tokens for withdrawals, LP tokens for deposits).
    * @param virtualPrice The current virtual price of the pool.
    * @param isDeposit Whether this is a deposit or withdrawal.
    */
-  async calculatePriceImpact(
-    amountIn: BigNumber,
-    amountOut: BigNumber,
-    virtualPrice: BigNumber,
+  calculatePriceImpact(
+    tokenInputAmount: BigNumber, // assumed to be 18d precision
+    tokenOutputAmount: BigNumber,
+    virtualPrice = BigNumber.from(10).pow(18),
     isDeposit = true,
-  ): Promise<BigNumber> {
-    if (amountIn.eq(0) && amountOut.eq(0)) {
-      return BigNumber.from(0);
+  ): BigNumber {
+    // We want to multiply the lpTokenAmount by virtual price
+    // Deposits: (VP * output) / input - 1
+    // Swaps: (1 * output) / input - 1
+    // Withdraws: output / (input * VP) - 1
+    if (tokenInputAmount.lte(0)) return constants.Zero;
+
+    return isDeposit
+      ? virtualPrice.mul(tokenOutputAmount).div(tokenInputAmount).sub(BigNumber.from(10).pow(18))
+      : tokenOutputAmount
+          .mul(BigNumber.from(10).pow(36))
+          .div(tokenInputAmount.mul(virtualPrice))
+          .sub(BigNumber.from(10).pow(18));
+  }
+
+  /**
+   * Returns the price impact on a swap.
+   * @param domainId The domain id of the pool.
+   * @param dx The amount of tokens to swap.
+   * @param tokenAddressFrom The address of the token to swap from.
+   * @param tokenAddressTo The address of the token to swap to.
+   */
+  async calculateSwapPriceImpact(domainId: string, dx: string, tokenAddressFrom: string, tokenAddressTo: string) {
+    const connextAddr = this.config.chains[domainId].deployments!.connext;
+    if (!connextAddr) {
+      throw new ContractAddressMissing();
     }
 
-    if (isDeposit) {
-      return amountIn.gt(0)
-        ? virtualPrice.mul(amountOut).div(amountIn).sub(BigNumber.from(10).pow(18))
-        : constants.Zero;
-    }
+    const [tokenIndexFrom, tokenIndexTo] = await Promise.all([
+      this.getPoolTokenIndex(domainId, tokenAddressFrom, tokenAddressFrom),
+      this.getPoolTokenIndex(domainId, tokenAddressFrom, tokenAddressTo),
+    ]);
 
-    return amountOut.mul(BigNumber.from(10).pow(36)).div(amountIn.mul(virtualPrice));
+    const [canonicalDomain, canonicalId] = await this.getCanonicalToken(domainId, tokenAddressFrom);
+    const key = getCanonicalHash(canonicalDomain, canonicalId);
+
+    const data = this.connext.encodeFunctionData("calculateSwap", [key, tokenIndexFrom, tokenIndexTo, dx]);
+    const encoded = await this.chainReader.readTx({
+      chainId: Number(domainId),
+      to: connextAddr,
+      data: data,
+    });
+    const [dy] = this.connext.decodeFunctionResult("calculateSwap", encoded);
+
+    return dy;
   }
 
   // ------------------- Read Operations ------------------- //
