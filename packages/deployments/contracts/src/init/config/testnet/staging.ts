@@ -5,7 +5,7 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
   supportedDomains: [
     "1735353714",
     "1735356532",
-    "1734439522", /// ARBITRUM-GOERLI
+    // "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
   ],
   assets: [
@@ -25,11 +25,11 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
           local: "0xeDb95D8037f769B72AAab41deeC92903A98C9E16",
           adopted: "0xeDb95D8037f769B72AAab41deeC92903A98C9E16",
         },
-        /// ARBITRUM-GOERLI
-        "1734439522": {
-          local: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
-          adopted: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
-        },
+        // /// ARBITRUM-GOERLI
+        // "1734439522": {
+        //   local: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
+        //   adopted: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
+        // },
       },
     },
     {
@@ -48,11 +48,11 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
           local: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
           adopted: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
         },
-        // / ARBITRUM-GOERLI
-        "1734439522": {
-          local: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
-          adopted: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
-        },
+        // // / ARBITRUM-GOERLI
+        // "1734439522": {
+        //   local: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
+        //   adopted: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
+        // },
       },
     },
   ],
