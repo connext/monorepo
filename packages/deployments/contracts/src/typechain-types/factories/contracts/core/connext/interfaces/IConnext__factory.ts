@@ -560,7 +560,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "assetWhitelistRemoved",
+    name: "assetAllowlistRemoved",
     outputs: [
       {
         internalType: "bool",
@@ -573,7 +573,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "assetWhitelistTimestamp",
+    name: "assetAllowlistTimestamp",
     outputs: [
       {
         internalType: "uint256",
@@ -1883,15 +1883,23 @@ const _abi = [
         name: "_adminFee",
         type: "uint256",
       },
-      {
-        internalType: "address",
-        name: "lpTokenTargetAddress",
-        type: "address",
-      },
     ],
     name: "initializeSwap",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "lpTokenTargetAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -1942,7 +1950,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "proposeAssetWhitelistRemoval",
+    name: "proposeAssetAllowlistRemoval",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2001,6 +2009,13 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "proposeRouterAllowlistRemoval",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -2014,13 +2029,6 @@ const _abi = [
       },
     ],
     name: "proposeRouterOwner",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "proposeRouterWhitelistRemoval",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2107,6 +2115,13 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "removeAssetAllowlist",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         components: [
@@ -2165,13 +2180,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "removeAssetWhitelist",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "address",
@@ -2180,6 +2188,13 @@ const _abi = [
       },
     ],
     name: "removeRelayer",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "removeRouterAllowlist",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2231,13 +2246,6 @@ const _abi = [
       },
     ],
     name: "removeRouterLiquidityFor",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "removeRouterWhitelist",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2638,6 +2646,32 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "routerAllowlistRemoved",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "routerAllowlistTimestamp",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -2651,32 +2685,6 @@ const _abi = [
       },
     ],
     name: "routerBalances",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "routerWhitelistRemoved",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "routerWhitelistTimestamp",
     outputs: [
       {
         internalType: "uint256",
@@ -2913,11 +2921,6 @@ const _abi = [
         internalType: "address",
         name: "_stableSwapPool",
         type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_cap",
-        type: "uint256",
       },
     ],
     name: "setupAssetWithDeployedRepresentation",
@@ -3189,6 +3192,19 @@ const _abi = [
       },
     ],
     name: "updateLiquidityCap",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newAddress",
+        type: "address",
+      },
+    ],
+    name: "updateLpTokenTarget",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

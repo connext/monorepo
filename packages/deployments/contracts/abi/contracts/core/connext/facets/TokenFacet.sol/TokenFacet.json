@@ -1,6 +1,6 @@
 [
-  "error BaseConnextFacet__getAdoptedAsset_notWhitelisted()",
-  "error BaseConnextFacet__getApprovedCanonicalId_notWhitelisted()",
+  "error BaseConnextFacet__getAdoptedAsset_notAllowlisted()",
+  "error BaseConnextFacet__getApprovedCanonicalId_notAllowlisted()",
   "error BaseConnextFacet__nonReentrant_reentrantCall()",
   "error BaseConnextFacet__nonXCallReentrant_reentrantCall()",
   "error BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin()",
@@ -13,9 +13,13 @@
   "error TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical()",
   "error TokenFacet__removeAssetId_invalidParams()",
   "error TokenFacet__removeAssetId_notAdded()",
+  "error TokenFacet__removeAssetId_remainsCustodied()",
   "error TokenFacet__setLiquidityCap_notCanonicalDomain()",
   "error TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain()",
+  "error TokenFacet__setupAsset_invalidCanonicalConfiguration()",
+  "error TokenFacet__setupAsset_representationListed()",
   "error TokenFacet__updateDetails_localNotFound()",
+  "error TokenFacet__updateDetails_notApproved()",
   "event AssetAdded(bytes32 indexed,bytes32 indexed,uint32 indexed,address,address,address)",
   "event AssetRemoved(bytes32 indexed,address)",
   "event LiquidityCapUpdated(bytes32 indexed,bytes32 indexed,uint32 indexed,uint256,address)",
@@ -37,7 +41,7 @@
   "function removeAssetId(bytes32,address,address)",
   "function representationToCanonical(address) view returns (tuple(uint32,bytes32))",
   "function setupAsset(tuple(uint32,bytes32),uint8,string,string,address,address,uint256) returns (address)",
-  "function setupAssetWithDeployedRepresentation(tuple(uint32,bytes32),address,address,address,uint256) returns (address)",
+  "function setupAssetWithDeployedRepresentation(tuple(uint32,bytes32),address,address,address) returns (address)",
   "function updateDetails(tuple(uint32,bytes32),string,string)",
   "function updateLiquidityCap(tuple(uint32,bytes32),uint256)"
 ]

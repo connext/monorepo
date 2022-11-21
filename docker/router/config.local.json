@@ -19,7 +19,8 @@
     "1337": {
       "providers": ["http://chain-1337:8545"],
       "deployments": {
-        "connext": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5"
+        "connext": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5",
+        "relayerProxy": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5"
       },
       "assets": [
         {
@@ -31,7 +32,8 @@
     "1338": {
       "providers": ["http://chain-1338:8545"],
       "deployments": {
-        "connext": "0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc"
+        "connext": "0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc",
+        "relayerProxy": "0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc"
       },
       "assets": [
         {

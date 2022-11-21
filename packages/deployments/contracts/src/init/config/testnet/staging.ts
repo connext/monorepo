@@ -58,16 +58,22 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
   ],
   agents: {
     watchers: {
-      whitelist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
+      allowlist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
     },
     routers: {
-      whitelist: ["0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"],
+      allowlist: ["0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"],
     },
     sequencers: {
-      whitelist: ["0xAFCBcdF90776bCFBcB334a6908fdEDa02A75B983"],
+      allowlist: ["0xAFCBcdF90776bCFBcB334a6908fdEDa02A75B983"],
     },
     relayers: {
-      whitelist: ["0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", "0xED6fbBB952F5dA88bE9B507A9b2289B1ec07d494"],
+      allowlist: [
+        "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92",
+        "0xED6fbBB952F5dA88bE9B507A9b2289B1ec07d494",
+        "0x24d677f8a59a486bfc6d87e9453c4f1fefcb0958",
+        "0xaB0A8DCb1590C4565C35cC785dc25A0590398054",
+        "0xCDdE9992Fb66038Dd8419b56149a75CC79Df133C",
+      ],
     },
   },
 };
