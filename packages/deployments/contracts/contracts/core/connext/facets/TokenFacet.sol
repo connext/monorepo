@@ -437,7 +437,7 @@ contract TokenFacet is BaseConnextFacet {
     address _representation,
     TokenId memory _canonical
   ) internal {
-    TokenConfig memory config = s.tokenConfigs[_key];
+    TokenConfig storage config = s.tokenConfigs[_key];
     // Sanity check: already approval
     if (!config.approval) revert TokenFacet__removeAssetId_notAdded();
 
