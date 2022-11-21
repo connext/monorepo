@@ -144,6 +144,8 @@ export type { ISpokeConnector } from "./contracts/core/connext/helpers/RelayerPr
 export { ISpokeConnector__factory } from "./factories/contracts/core/connext/helpers/RelayerProxy.sol/ISpokeConnector__factory";
 export type { RelayerProxy } from "./contracts/core/connext/helpers/RelayerProxy.sol/RelayerProxy";
 export { RelayerProxy__factory } from "./factories/contracts/core/connext/helpers/RelayerProxy.sol/RelayerProxy__factory";
+export type { RelayerProxyHub } from "./contracts/core/connext/helpers/RelayerProxyHub";
+export { RelayerProxyHub__factory } from "./factories/contracts/core/connext/helpers/RelayerProxyHub__factory";
 export type { StableSwap } from "./contracts/core/connext/helpers/StableSwap";
 export { StableSwap__factory } from "./factories/contracts/core/connext/helpers/StableSwap__factory";
 export type { IAavePool } from "./contracts/core/connext/interfaces/IAavePool";
@@ -166,6 +168,8 @@ export type { AmplificationUtils } from "./contracts/core/connext/libraries/Ampl
 export { AmplificationUtils__factory } from "./factories/contracts/core/connext/libraries/AmplificationUtils__factory";
 export type { AssetLogic } from "./contracts/core/connext/libraries/AssetLogic";
 export { AssetLogic__factory } from "./factories/contracts/core/connext/libraries/AssetLogic__factory";
+export type { Constants } from "./contracts/core/connext/libraries/Constants";
+export { Constants__factory } from "./factories/contracts/core/connext/libraries/Constants__factory";
 export type { LibDiamond } from "./contracts/core/connext/libraries/LibDiamond";
 export { LibDiamond__factory } from "./factories/contracts/core/connext/libraries/LibDiamond__factory";
 export type { SwapUtils } from "./contracts/core/connext/libraries/SwapUtils";

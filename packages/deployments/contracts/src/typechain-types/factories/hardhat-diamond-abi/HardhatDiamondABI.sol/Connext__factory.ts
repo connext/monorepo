@@ -4,7 +4,10 @@
 
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
-import type { Connext, ConnextInterface } from "../../../hardhat-diamond-abi/HardhatDiamondABI.sol/Connext";
+import type {
+  Connext,
+  ConnextInterface,
+} from "../../../hardhat-diamond-abi/HardhatDiamondABI.sol/Connext";
 
 const _abi = [
   {
@@ -124,6 +127,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BridgeFacet__execute_externalCallFailed",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BridgeFacet__execute_invalidRouterSignature",
     type: "error",
   },
@@ -220,6 +228,11 @@ const _abi = [
   {
     inputs: [],
     name: "BridgeFacet__xcall_nativeAssetNotSupported",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BridgeFacet_xcall__emptyLocalAsset",
     type: "error",
   },
   {
@@ -656,19 +669,6 @@ const _abi = [
     ],
     name: "XCalled",
     type: "event",
-  },
-  {
-    inputs: [],
-    name: "AAVE_REFERRAL_CODE",
-    outputs: [
-      {
-        internalType: "uint16",
-        name: "",
-        type: "uint16",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
   },
   {
     inputs: [
@@ -1641,7 +1641,17 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "PortalFacet__repayAavePortalFor_invalidAsset",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "PortalFacet__repayAavePortalFor_zeroAmount",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "PortalFacet__repayAavePortal_assetNotApproved",
     type: "error",
   },
   {
@@ -1925,6 +1935,11 @@ const _abi = [
         type: "tuple",
       },
       {
+        internalType: "address",
+        name: "_portalAsset",
+        type: "address",
+      },
+      {
         internalType: "uint256",
         name: "_backingAmount",
         type: "uint256",
@@ -1968,11 +1983,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange",
     type: "error",
   },
@@ -1989,6 +1999,11 @@ const _abi = [
   {
     inputs: [],
     name: "ProposedOwnableFacet__assignRoleWatcher_invalidInput",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableFacet__delayElapsed_delayNotElapsed",
     type: "error",
   },
   {
@@ -2013,22 +2028,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__removeAssetAllowlist_delayNotElapsed",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "ProposedOwnableFacet__removeAssetAllowlist_noOwnershipChange",
     type: "error",
   },
   {
     inputs: [],
     name: "ProposedOwnableFacet__removeAssetAllowlist_noProposal",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "ProposedOwnableFacet__removeRouterAllowlist_delayNotElapsed",
     type: "error",
   },
   {
@@ -2254,7 +2259,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "assignRoleRouter",
+    name: "assignRoleRouterAdmin",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2693,16 +2698,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "RoutersFacet__removeRouter_notAdded",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "RoutersFacet__removeRouter_routerEmpty",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "RoutersFacet__setLiquidityFeeNumerator_tooLarge",
     type: "error",
   },
@@ -2729,6 +2724,16 @@ const _abi = [
   {
     inputs: [],
     name: "RoutersFacet__unapproveRouterForPortal_notApproved",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RoutersFacet__unapproveRouter_notAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RoutersFacet__unapproveRouter_routerEmpty",
     type: "error",
   },
   {
@@ -4136,6 +4141,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "TokenFacet__removeAssetId_remainsCustodied",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "TokenFacet__setLiquidityCap_notCanonicalDomain",
     type: "error",
   },
@@ -4151,7 +4161,17 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "TokenFacet__setupAsset_representationListed",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "TokenFacet__updateDetails_localNotFound",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__updateDetails_notApproved",
     type: "error",
   },
   {
@@ -4820,11 +4840,6 @@ const _abi = [
         name: "_stableSwapPool",
         type: "address",
       },
-      {
-        internalType: "uint256",
-        name: "_cap",
-        type: "uint256",
-      },
     ],
     name: "setupAssetWithDeployedRepresentation",
     outputs: [
@@ -4909,7 +4924,10 @@ export class Connext__factory {
   static createInterface(): ConnextInterface {
     return new utils.Interface(_abi) as ConnextInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): Connext {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): Connext {
     return new Contract(address, _abi, signerOrProvider) as Connext;
   }
 }

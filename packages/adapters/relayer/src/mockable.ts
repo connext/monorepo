@@ -26,3 +26,5 @@ export const gelatoRelayWithSyncFee = (
 export const axiosGet = _axiosGet;
 
 export const axiosPost = _axiosPost;
+
+export const getEstimatedFee = GelatoRelaySDK.getEstimatedFee;

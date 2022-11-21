@@ -172,7 +172,7 @@ export const ROOT_AGGREGATED_ENTITY = `
 export const ROOT_PROPAGATED_ENTITY = `
       id
       aggregate
-      domains
+      domainsHash
       count
 `;
 

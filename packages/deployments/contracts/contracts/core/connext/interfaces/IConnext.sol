@@ -53,8 +53,7 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
     TokenId calldata _canonical,
     address _representation,
     address _adoptedAssetId,
-    address _stableSwapPool,
-    uint256 _cap
+    address _stableSwapPool
   ) external returns (address);
 
   function addStableSwapPool(TokenId calldata _canonical, address _stableSwapPool) external;
@@ -388,8 +387,7 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
     string memory lpTokenSymbol,
     uint256 _a,
     uint256 _fee,
-    uint256 _adminFee,
-    address lpTokenTargetAddress
+    uint256 _adminFee
   ) external;
 
   function withdrawSwapAdminFees(bytes32 canonicalId) external;
@@ -405,4 +403,8 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
   ) external;
 
   function stopRampA(bytes32 canonicalId) external;
+
+  function lpTokenTargetAddress() external view returns (address);
+
+  function updateLpTokenTarget(address newAddress) external;
 }

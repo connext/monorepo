@@ -277,9 +277,15 @@ struct AppStorage {
   // 32
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
   /**
-   * @notice Stores whether or not bribing, AMMs, have been paused.
+   * The address of an existing LPToken contract to use as a target
+   * this target must be the address which connext deployed on this chain.
    */
   // 33
+  address lpTokenTargetAddress;
+  /**
+   * @notice Stores whether or not bribing, AMMs, have been paused.
+   */
+  // 34
   bool _paused;
   //
   // AavePortals
@@ -287,35 +293,35 @@ struct AppStorage {
   /**
    * @notice Address of Aave Pool contract.
    */
-  // 34
+  // 35
   address aavePool;
   /**
    * @notice Fee percentage numerator for using Portal liquidity.
    * @dev Assumes the same basis points as the liquidity fee.
    */
-  // 35
+  // 36
   uint256 aavePortalFeeNumerator;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals.
    */
-  // 36
+  // 37
   mapping(bytes32 => uint256) portalDebt;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals.
    */
-  // 37
+  // 38
   mapping(bytes32 => uint256) portalFeeDebt;
   /**
    * @notice Mapping of approved sequencers
    * @dev Sequencer address provided must belong to an approved sequencer in order to call `execute`
    * for the fast liquidity route.
    */
-  // 38
+  // 39
   mapping(address => bool) approvedSequencers;
   /**
    * @notice Remote connection manager for xapp.
    */
-  // 39
+  // 40
   IConnectorManager xAppConnectionManager;
 }
 

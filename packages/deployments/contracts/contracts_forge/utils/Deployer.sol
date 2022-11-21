@@ -244,13 +244,15 @@ contract Deployer {
   }
 
   function getSwapAdminFacetCut(address _swapAdminFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory adminFacetSelectors = new bytes4[](6);
+    bytes4[] memory adminFacetSelectors = new bytes4[](8);
     adminFacetSelectors[0] = SwapAdminFacet.initializeSwap.selector;
     adminFacetSelectors[1] = SwapAdminFacet.withdrawSwapAdminFees.selector;
     adminFacetSelectors[2] = SwapAdminFacet.setSwapAdminFee.selector;
     adminFacetSelectors[3] = SwapAdminFacet.setSwapFee.selector;
     adminFacetSelectors[4] = SwapAdminFacet.rampA.selector;
     adminFacetSelectors[5] = SwapAdminFacet.stopRampA.selector;
+    adminFacetSelectors[6] = SwapAdminFacet.lpTokenTargetAddress.selector;
+    adminFacetSelectors[7] = SwapAdminFacet.updateLpTokenTarget.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _swapAdminFacet,
@@ -313,13 +315,15 @@ contract Deployer {
   function deployConnext(
     uint256 domain,
     address xAppConnectionManager,
-    uint256 acceptanceDelay
+    uint256 acceptanceDelay,
+    address lpTokenTargetAddress
   ) internal returns (address) {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       domain,
       xAppConnectionManager,
-      acceptanceDelay
+      acceptanceDelay,
+      lpTokenTargetAddress
     );
 
     deployFacets();
