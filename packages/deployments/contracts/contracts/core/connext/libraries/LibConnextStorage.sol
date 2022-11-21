@@ -6,6 +6,14 @@ import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager
 import {SwapUtils} from "./SwapUtils.sol";
 import {TokenId} from "./TokenId.sol";
 
+/**
+ * @notice THIS FILE DEFINES OUR STORAGE LAYOUT AND ID GENERATION SCHEMA. IT CAN ONLY BE MODIFIED FREELY FOR FRESH
+ * DEPLOYS. If you are modifiying this file for an upgrade, you must **CAREFULLY** ensure
+ * the contract storage layout is not impacted.
+ *
+ * BE VERY CAREFUL MODIFYING THE VALUES IN THIS FILE!
+ */
+
 // ============= Enum =============
 
 /// @notice Enum representing address role
@@ -238,10 +246,6 @@ struct AppStorage {
   bool _routerAllowlistRemoved;
   // 25
   uint256 _routerAllowlistTimestamp;
-  // 26
-  bool _assetAllowlistRemoved;
-  // 27
-  uint256 _assetAllowlistTimestamp;
   /**
    * @notice Stores a mapping of address to Roles
    * @dev returns uint representing the enum Role value

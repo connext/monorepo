@@ -120,13 +120,6 @@ contract BaseConnextFacet {
   }
 
   /**
-   * @notice Indicates if the asset allowlist has been removed
-   */
-  function _isAssetAllowlistRemoved() internal view returns (bool) {
-    return LibDiamond.contractOwner() == address(0) || s._assetAllowlistRemoved;
-  }
-
-  /**
    * @notice Returns the adopted assets for given canonical information
    */
   function _getAdoptedAsset(bytes32 _key) internal view returns (address) {
@@ -195,7 +188,7 @@ contract BaseConnextFacet {
   function _getApprovedCanonicalId(address _candidate) internal view returns (TokenId memory, bytes32) {
     TokenId memory _canonical = _getCanonicalTokenId(_candidate);
     bytes32 _key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
-    if (!_isAssetAllowlistRemoved() && !s.approvedAssets[_key]) {
+    if (!s.approvedAssets[_key]) {
       revert BaseConnextFacet__getApprovedCanonicalId_notAllowlisted();
     }
     return (_canonical, _key);

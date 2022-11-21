@@ -139,23 +139,19 @@ contract Deployer {
     pure
     returns (IDiamondCut.FacetCut memory)
   {
-    bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](16);
+    bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](12);
     proposedOwnableFacetSelectors[0] = ProposedOwnableFacet.owner.selector;
     proposedOwnableFacetSelectors[1] = ProposedOwnableFacet.routerAllowlistRemoved.selector;
-    proposedOwnableFacetSelectors[2] = ProposedOwnableFacet.assetAllowlistRemoved.selector;
-    proposedOwnableFacetSelectors[3] = ProposedOwnableFacet.proposed.selector;
-    proposedOwnableFacetSelectors[4] = ProposedOwnableFacet.proposedTimestamp.selector;
-    proposedOwnableFacetSelectors[5] = ProposedOwnableFacet.routerAllowlistTimestamp.selector;
-    proposedOwnableFacetSelectors[6] = ProposedOwnableFacet.assetAllowlistTimestamp.selector;
-    proposedOwnableFacetSelectors[7] = ProposedOwnableFacet.delay.selector;
-    proposedOwnableFacetSelectors[8] = ProposedOwnableFacet.proposeRouterAllowlistRemoval.selector;
-    proposedOwnableFacetSelectors[9] = ProposedOwnableFacet.removeRouterAllowlist.selector;
-    proposedOwnableFacetSelectors[10] = ProposedOwnableFacet.proposeAssetAllowlistRemoval.selector;
-    proposedOwnableFacetSelectors[11] = ProposedOwnableFacet.removeAssetAllowlist.selector;
-    proposedOwnableFacetSelectors[12] = ProposedOwnableFacet.proposeNewOwner.selector;
-    proposedOwnableFacetSelectors[13] = ProposedOwnableFacet.acceptProposedOwner.selector;
-    proposedOwnableFacetSelectors[14] = ProposedOwnableFacet.pause.selector;
-    proposedOwnableFacetSelectors[15] = ProposedOwnableFacet.unpause.selector;
+    proposedOwnableFacetSelectors[2] = ProposedOwnableFacet.proposed.selector;
+    proposedOwnableFacetSelectors[3] = ProposedOwnableFacet.proposedTimestamp.selector;
+    proposedOwnableFacetSelectors[4] = ProposedOwnableFacet.routerAllowlistTimestamp.selector;
+    proposedOwnableFacetSelectors[5] = ProposedOwnableFacet.delay.selector;
+    proposedOwnableFacetSelectors[6] = ProposedOwnableFacet.proposeRouterAllowlistRemoval.selector;
+    proposedOwnableFacetSelectors[7] = ProposedOwnableFacet.removeRouterAllowlist.selector;
+    proposedOwnableFacetSelectors[8] = ProposedOwnableFacet.proposeNewOwner.selector;
+    proposedOwnableFacetSelectors[9] = ProposedOwnableFacet.acceptProposedOwner.selector;
+    proposedOwnableFacetSelectors[10] = ProposedOwnableFacet.pause.selector;
+    proposedOwnableFacetSelectors[11] = ProposedOwnableFacet.unpause.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _proposedOwnableFacet,
