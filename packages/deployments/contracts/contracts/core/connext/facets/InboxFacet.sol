@@ -239,10 +239,12 @@ contract InboxFacet is BaseConnextFacet {
     // Load amount once.
     uint256 _amount = _action.amnt();
 
-    // Check for the empty case -- if it is 0 value there is no strict requirement the
+    // Check for the empty case -- if it is 0 value there is no strict requirement for the
     // canonical information be defined (i.e. you can supply address(0) to xcall). If this
     // is the case, return _token as address(0)
     if (_amount == 0 && _canonicalDomain == 0 && _canonicalId == bytes32(0)) {
+      // Emit Receive event and short-circuit remaining logic: no tokens need to be delivered.
+      emit Receive(_originAndNonce(_origin, _nonce), address(0), address(this), address(0), _amount);
       return (address(0), 0);
     }
 
