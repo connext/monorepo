@@ -247,19 +247,6 @@
       {
         "indexed": false,
         "internalType": "bytes",
-        "name": "message",
-        "type": "bytes"
-      }
-    ],
-    "name": "MessageSent",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bytes",
         "name": "data",
         "type": "bytes"
       },
@@ -663,32 +650,6 @@
   },
   {
     "inputs": [],
-    "name": "fxChild",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "fxRootTunnel",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "home",
     "outputs": [
       {
@@ -870,29 +831,6 @@
       }
     ],
     "name": "processMessage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "stateId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "rootMessageSender",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes",
-        "name": "data",
-        "type": "bytes"
-      }
-    ],
-    "name": "processMessageFromRoot",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1094,6 +1032,24 @@
   {
     "inputs": [
       {
+        "internalType": "bytes",
+        "name": "_data",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_encodedData",
+        "type": "bytes"
+      }
+    ],
+    "name": "sendMessage",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
@@ -1119,19 +1075,6 @@
       }
     ],
     "name": "setDelayBlocks",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_fxRootTunnel",
-        "type": "address"
-      }
-    ],
-    "name": "setFxRootTunnel",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
