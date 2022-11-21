@@ -373,7 +373,7 @@ library AssetLogic {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // If the adopted asset is the local asset, no need to swap.
-    TokenConfig memory config = getConfig(_key);
+    TokenConfig storage config = getConfig(_key);
     address adopted = config.adopted;
     if (adopted == _asset) {
       return (_amount, adopted);
