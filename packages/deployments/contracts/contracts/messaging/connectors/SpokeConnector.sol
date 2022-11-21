@@ -46,9 +46,13 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
   event AggregateRootRemoved(bytes32 root);
 
+  event AggregateRootVerified(bytes32 indexed root);
+
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
 
   event Process(bytes32 leaf, bool success, bytes returnData);
+
+  event DelayBlocksUpdated(uint256 indexed updated, address caller);
 
   /**
    * @notice Emitted when funds are withdrawn by the admin
@@ -57,6 +61,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param amount The amount withdrawn
    */
   event FundsWithdrawn(address indexed to, uint256 amount);
+
+  event MessageProven(bytes32 indexed leaf, bytes32 indexed aggregateRoot, uint256 aggregateIndex);
 
   // ============ Structs ============
 
@@ -232,6 +238,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    */
   function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
     require(_delayBlocks != delayBlocks, "!delayBlocks");
+    emit DelayBlocksUpdated(_delayBlocks, msg.sender);
     delayBlocks = _delayBlocks;
   }
 
@@ -469,6 +476,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     // 4. The target aggregate root has surpassed verification period, we can move it over to the
     // proven mapping.
     provenAggregateRoots[_aggregateRoot] = true;
+    emit AggregateRootVerified(_aggregateRoot);
     // May as well delete the pending aggregate root entry for the gas refund: it should no longer
     // be needed.
     delete pendingAggregateRoots[_aggregateRoot];
@@ -531,6 +539,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
     // This inbound root has been proven. We should specify that to optimize future calls.
     provenMessageRoots[_messageRoot] = true;
+    emit MessageProven(_messageRoot, _aggregateRoot, _aggregateIndex);
   }
 
   /**

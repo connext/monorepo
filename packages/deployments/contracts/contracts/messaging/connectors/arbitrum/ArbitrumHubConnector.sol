@@ -184,11 +184,8 @@ contract ArbitrumHubConnector is HubConnector {
     emit RetryableTicketCreated(ticketID);
   }
 
-  function _processMessage(bytes memory _data) internal override {
-    // Does nothing, all messages should go through the `processMessageFromRoot` path
-    // when handling l2 -> l1 messages. See note in `recordOutputAsSpent`
-    revert Connector__processMessage_notUsed();
-  }
+  // DO NOT override _processMessage, should revert from `Connector` class. All messages must use the
+  // `processMessageFromRoot` flow.
 
   function processMessageFromRoot(
     uint64 _nodeNum,

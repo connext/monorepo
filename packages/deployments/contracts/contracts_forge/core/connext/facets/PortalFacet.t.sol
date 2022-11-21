@@ -110,6 +110,9 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     s.aavePool = address(0);
     assertEq(this.aavePool(), address(0));
 
+    vm.expectEmit(true, true, true, true);
+    emit AavePoolUpdated(aavePool, address(this));
+
     this.setAavePool(aavePool);
 
     assertEq(this.aavePool(), aavePool);
@@ -131,6 +134,8 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     uint256 fee = 125;
     assertEq(this.aavePortalFee(), _portalFeeNumerator);
 
+    vm.expectEmit(true, true, true, true);
+    emit AavePortalFeeUpdated(fee, address(this));
     this.setAavePortalFee(fee);
 
     assertEq(this.aavePortalFee(), fee);

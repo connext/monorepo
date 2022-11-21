@@ -936,7 +936,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // set mock
     vm.mockCall(manager, abi.encodeWithSelector(IConnectorManager.localDomain.selector), abi.encode(s.domain));
 
-    // test revert
+    vm.expectEmit(true, true, true, true);
+    emit XAppConnectionManagerSet(manager, LibDiamond.contractOwner());
+
+    // test
     vm.prank(LibDiamond.contractOwner());
     this.setXAppConnectionManager(manager);
 

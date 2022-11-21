@@ -23,6 +23,20 @@ contract PortalFacet is BaseConnextFacet {
   // ============ Events ============
 
   /**
+   * @notice Emitted `setAavePool` is updated
+   * @param updated - The updated address
+   * @param caller - The account that called the function
+   */
+  event AavePoolUpdated(address updated, address caller);
+
+  /**
+   * @notice Emitted `setAavePortalFee` is updated
+   * @param updated - The updated fee numerator
+   * @param caller - The account that called the function
+   */
+  event AavePortalFeeUpdated(uint256 updated, address caller);
+
+  /**
    * @notice Emitted when a repayment on an Aave portal loan is made
    * @param transferId - The transfer debt that was repaid
    * @param asset - The asset that was repaid
@@ -58,6 +72,7 @@ contract PortalFacet is BaseConnextFacet {
    */
   function setAavePool(address _aavePool) external onlyOwnerOrAdmin {
     s.aavePool = _aavePool;
+    emit AavePoolUpdated(_aavePool, msg.sender);
   }
 
   /**
@@ -68,6 +83,7 @@ contract PortalFacet is BaseConnextFacet {
     if (_aavePortalFeeNumerator > Constants.BPS_FEE_DENOMINATOR) revert PortalFacet__setAavePortalFee_invalidFee();
 
     s.aavePortalFeeNumerator = _aavePortalFeeNumerator;
+    emit AavePortalFeeUpdated(_aavePortalFeeNumerator, msg.sender);
   }
 
   /**
