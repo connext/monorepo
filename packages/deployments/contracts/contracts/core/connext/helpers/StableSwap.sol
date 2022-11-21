@@ -94,7 +94,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
         );
       }
       require(address(_pooledTokens[i]) != address(0), "The 0 address isn't an ERC-20");
-      require(decimals[i] <= Constants.POOL_PRECISION_DECIMALS, "Token decimals exceeds max");
+      require(decimals[i] < Constants.POOL_PRECISION_DECIMALS + 1, "Token decimals exceeds max");
       precisionMultipliers[i] = 10**uint256(Constants.POOL_PRECISION_DECIMALS - decimals[i]);
       tokenIndexes[address(_pooledTokens[i])] = uint8(i);
 
