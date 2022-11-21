@@ -68,6 +68,7 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
     },
     relayers: {
       allowlist: [
+        "0xf6d4f65325b258b2d70797CA7576CF8CD03Ed7b8",
         "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92",
         "0xED6fbBB952F5dA88bE9B507A9b2289B1ec07d494",
         "0x24d677f8a59a486bfc6d87e9453c4f1fefcb0958",
