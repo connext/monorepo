@@ -48,7 +48,7 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
   }
 
   // DO NOT override _processMessage, should revert from `Connector` class. All messages must use the
-  // `processMessageFromRoot` flow.
+  // `_processMessageFromChild` flow.
 
   function _setMirrorConnector(address _mirrorConnector) internal override {
     // NOTE: FxBaseRootTunnel has the following code in their `setFxChildTunnel`:
