@@ -23,13 +23,14 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
   // NOTE: this is pulled from test logs, should calculate what address the
   // TokenFacet deploys to in tests
-  address _deployedLocal = 0xf5a2fE45F4f1308502b1C136b9EF8af136141382;
+  address _deployedLocal;
 
   // ============ Test set up ============
   function setUp() public {
     setOwner(_owner);
     utils_deployAssetContracts();
     utils_setFees();
+    _deployedLocal = addressFrom(address(this), vm.getNonce(address(this)));
     _local = _deployedLocal;
   }
 
@@ -221,8 +222,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   function test_TokenFacet__setupAsset_worksOnRemote() public {
     // local != adopted, on remote
     s.domain = 123123;
-    // TODO: this was pulled from test logs, ideally calculate
-    _local = address(0xf5a2fE45F4f1308502b1C136b9EF8af136141382);
+    _local = addressFrom(address(this), vm.getNonce(address(this)));
     _stableSwap = address(0);
     setupAssetAndAssert(_adopted, bytes4(""));
   }
@@ -327,6 +327,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     _local = _canonical;
     _stableSwap = address(0);
     setupAssetAndAssert(_adopted, bytes4(""));
+    _deployedLocal = addressFrom(address(this), vm.getNonce(address(this)));
 
     s.custodied[_canonical] = 0;
     vm.mockCall(_local, abi.encodeWithSelector(IERC20.balanceOf.selector, address(this)), abi.encode(0));
@@ -337,6 +338,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     s.domain = _canonicalDomain + 1;
     _adopted = address(12312391263);
     setupAssetAndAssert(_adopted, bytes4(""));
+    _deployedLocal = addressFrom(address(this), vm.getNonce(address(this)));
 
     vm.mockCall(_deployedLocal, abi.encodeWithSelector(IERC20.totalSupply.selector), abi.encode(0));
 
