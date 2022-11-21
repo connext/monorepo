@@ -161,7 +161,7 @@ export const processMessage = async (message: XMessage) => {
 
   /// Temp: Using relayer proxy
   const domain = +message.destinationDomain;
-  const relayerAddress = await relayers[0].instance.getRelayerAddress(domain);
+  const relayerAddress = await relayers[0].instance.getRelayerAddress(chainId);
 
   logger.debug("Getting gas estimate", requestContext, methodContext, {
     chainId,
