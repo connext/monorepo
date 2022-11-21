@@ -339,28 +339,6 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
       s.tokenIndexes[_canonicalId][address(_pooledTokens[i])] = i;
     }
 
-    vm.expectEmit(true, true, true, true);
-    emit SwapInitialized(
-      key,
-      SwapUtils.Swap({
-        key: key,
-        initialA: a * Constants.A_PRECISION,
-        futureA: a * Constants.A_PRECISION,
-        swapFee: fee,
-        adminFee: adminFee,
-        lpToken: LPToken(address(0x3A1148FE01e3c4721D93fe8A36c2b5C29109B6ae)),
-        pooledTokens: _pooledTokens,
-        tokenPrecisionMultipliers: precisionMultipliers,
-        balances: new uint256[](_pooledTokens.length),
-        adminFees: new uint256[](_pooledTokens.length),
-        initialATime: 0,
-        futureATime: 0,
-        disabled: false,
-        removeTime: 0
-      }),
-      _owner
-    );
-
     vm.prank(_owner);
     this.initializeSwap(key, _pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, a, fee, adminFee);
 
