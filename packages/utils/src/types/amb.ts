@@ -67,7 +67,7 @@ export type AggregatedRoot = Static<typeof AggregatedRootSchema>;
 export const PropagatedRootSchema = Type.Object({
   id: Type.String(),
   aggregate: Type.String(),
-  domains: Type.Array(Type.String()),
+  domainsHash: Type.String(),
   count: Type.Number({ minimum: 0 }),
 });
 export type PropagatedRoot = Static<typeof PropagatedRootSchema>;

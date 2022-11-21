@@ -12,11 +12,6 @@ import type {
 const _abi = [
   {
     inputs: [],
-    name: "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "ProposedOwnable__onlyOwner_notOwner",
     type: "error",
   },
@@ -27,17 +22,17 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "ProposedOwnable__ownershipDelayElapsed_delayNotElapsed",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ProposedOwnable__proposeNewOwner_invalidProposal",
     type: "error",
   },
   {
     inputs: [],
     name: "ProposedOwnable__proposeNewOwner_noOwnershipChange",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "ProposedOwnable__renounceOwnership_delayNotElapsed",
     type: "error",
   },
   {
@@ -100,6 +95,19 @@ const _abi = [
     ],
     name: "OwnershipTransferred",
     type: "event",
+  },
+  {
+    inputs: [],
+    name: "MIRROR_CHAIN_ID",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],

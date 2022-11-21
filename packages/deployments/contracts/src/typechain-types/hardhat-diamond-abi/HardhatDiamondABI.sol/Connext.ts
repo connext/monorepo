@@ -185,7 +185,6 @@ export declare namespace SwapUtils {
 
 export interface ConnextInterface extends utils.Interface {
   functions: {
-    "AAVE_REFERRAL_CODE()": FunctionFragment;
     "addSequencer(address)": FunctionFragment;
     "approvedSequencers(address)": FunctionFragment;
     "bumpTransfer(bytes32)": FunctionFragment;
@@ -217,14 +216,14 @@ export interface ConnextInterface extends utils.Interface {
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
     "repayAavePortal((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256,uint256)": FunctionFragment;
-    "repayAavePortalFor((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256)": FunctionFragment;
+    "repayAavePortalFor((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address,uint256,uint256)": FunctionFragment;
     "setAavePool(address)": FunctionFragment;
     "setAavePortalFee(uint256)": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "assetAllowlistRemoved()": FunctionFragment;
     "assetAllowlistTimestamp()": FunctionFragment;
     "assignRoleAdmin(address)": FunctionFragment;
-    "assignRoleRouter(address)": FunctionFragment;
+    "assignRoleRouterAdmin(address)": FunctionFragment;
     "assignRoleWatcher(address)": FunctionFragment;
     "delay()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -306,14 +305,13 @@ export interface ConnextInterface extends utils.Interface {
     "removeAssetId(bytes32,address,address)": FunctionFragment;
     "representationToCanonical(address)": FunctionFragment;
     "setupAsset((uint32,bytes32),uint8,string,string,address,address,uint256)": FunctionFragment;
-    "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address,uint256)": FunctionFragment;
+    "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address)": FunctionFragment;
     "updateDetails((uint32,bytes32),string,string)": FunctionFragment;
     "updateLiquidityCap((uint32,bytes32),uint256)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "AAVE_REFERRAL_CODE"
       | "addSequencer"
       | "approvedSequencers"
       | "bumpTransfer"
@@ -352,7 +350,7 @@ export interface ConnextInterface extends utils.Interface {
       | "assetAllowlistRemoved"
       | "assetAllowlistTimestamp"
       | "assignRoleAdmin"
-      | "assignRoleRouter"
+      | "assignRoleRouterAdmin"
       | "assignRoleWatcher"
       | "delay"
       | "owner"
@@ -439,10 +437,6 @@ export interface ConnextInterface extends utils.Interface {
       | "updateLiquidityCap"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "AAVE_REFERRAL_CODE",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "addSequencer",
     values: [PromiseOrValue<string>]
@@ -596,6 +590,7 @@ export interface ConnextInterface extends utils.Interface {
     functionFragment: "repayAavePortalFor",
     values: [
       TransferInfoStruct,
+      PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
@@ -625,7 +620,7 @@ export interface ConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "assignRoleRouter",
+    functionFragment: "assignRoleRouterAdmin",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -1023,8 +1018,7 @@ export interface ConnextInterface extends utils.Interface {
       TokenIdStruct,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
+      PromiseOrValue<string>
     ]
   ): string;
   encodeFunctionData(
@@ -1036,10 +1030,6 @@ export interface ConnextInterface extends utils.Interface {
     values: [TokenIdStruct, PromiseOrValue<BigNumberish>]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "AAVE_REFERRAL_CODE",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "addSequencer",
     data: BytesLike
@@ -1169,7 +1159,7 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "assignRoleRouter",
+    functionFragment: "assignRoleRouterAdmin",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -2168,8 +2158,6 @@ export interface Connext extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<[number]>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2339,6 +2327,7 @@ export interface Connext extends BaseContract {
 
     repayAavePortalFor(
       _params: TransferInfoStruct,
+      _portalAsset: PromiseOrValue<string>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -2367,7 +2356,7 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -2810,7 +2799,6 @@ export interface Connext extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2827,8 +2815,6 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
-
-  AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
 
   addSequencer(
     _sequencer: PromiseOrValue<string>,
@@ -2991,6 +2977,7 @@ export interface Connext extends BaseContract {
 
   repayAavePortalFor(
     _params: TransferInfoStruct,
+    _portalAsset: PromiseOrValue<string>,
     _backingAmount: PromiseOrValue<BigNumberish>,
     _feeAmount: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -3019,7 +3006,7 @@ export interface Connext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  assignRoleRouter(
+  assignRoleRouterAdmin(
     _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -3462,7 +3449,6 @@ export interface Connext extends BaseContract {
     _representation: PromiseOrValue<string>,
     _adoptedAssetId: PromiseOrValue<string>,
     _stableSwapPool: PromiseOrValue<string>,
-    _cap: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3480,8 +3466,6 @@ export interface Connext extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -3645,6 +3629,7 @@ export interface Connext extends BaseContract {
 
     repayAavePortalFor(
       _params: TransferInfoStruct,
+      _portalAsset: PromiseOrValue<string>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -3671,7 +3656,7 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -4102,7 +4087,6 @@ export interface Connext extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -4568,8 +4552,6 @@ export interface Connext extends BaseContract {
   };
 
   estimateGas: {
-    AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<BigNumber>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4731,6 +4713,7 @@ export interface Connext extends BaseContract {
 
     repayAavePortalFor(
       _params: TransferInfoStruct,
+      _portalAsset: PromiseOrValue<string>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -4759,7 +4742,7 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -5202,7 +5185,6 @@ export interface Connext extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -5221,10 +5203,6 @@ export interface Connext extends BaseContract {
   };
 
   populateTransaction: {
-    AAVE_REFERRAL_CODE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -5388,6 +5366,7 @@ export interface Connext extends BaseContract {
 
     repayAavePortalFor(
       _params: TransferInfoStruct,
+      _portalAsset: PromiseOrValue<string>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -5420,7 +5399,7 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -5873,7 +5852,6 @@ export interface Connext extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

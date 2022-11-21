@@ -38,7 +38,8 @@ contract DiamondInit is BaseConnextFacet {
   function init(
     uint32 _domain,
     address _xAppConnectionManager,
-    uint256 _acceptanceDelay
+    uint256 _acceptanceDelay,
+    address _lpTokenTargetAddress
   ) external {
     // should not init twice
     if (s.initialized) {
@@ -81,5 +82,6 @@ contract DiamondInit is BaseConnextFacet {
     s.LIQUIDITY_FEE_NUMERATOR = Constants.INITIAL_LIQUIDITY_FEE_NUMERATOR;
     s.maxRoutersPerTransfer = Constants.INITIAL_MAX_ROUTERS;
     s.xAppConnectionManager = manager;
+    s.lpTokenTargetAddress = _lpTokenTargetAddress;
   }
 }

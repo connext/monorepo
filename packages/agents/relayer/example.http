@@ -1,12 +1,12 @@
 @relayerUrl = http://localhost:8080
-# @relayerUrl = https://relayer.testnet.staging.connext.ninja
+@relayerUrl = https://relayer.testnet.staging.connext.ninja
 @adminToken = bar
 
 ### PING
 GET {{relayerUrl}}/ping
 
 ### STATUS
-GET {{relayerUrl}}/tasks/status/0x2895eed549ed42935384eb435de39b5f45f18e63aa607f051c8b2176c3de10a4
+GET {{relayerUrl}}/tasks/status/0x857b76afdd26924bca5efa67e4fb20e22e58cd1fb7b062f13193e14b299c6e83
 
 ### RELAY
 POST {{relayerUrl}}/relays/5

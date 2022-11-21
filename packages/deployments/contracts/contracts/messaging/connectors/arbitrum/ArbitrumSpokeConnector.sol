@@ -43,6 +43,8 @@ contract ArbitrumSpokeConnector is SpokeConnector {
   }
 
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should always be dispatching the aggregate root
+    require(_data.length == 32, "!length");
     // Should not include specialized calldata
     require(_encodedData.length == 0, "!data length");
     // Get the calldata

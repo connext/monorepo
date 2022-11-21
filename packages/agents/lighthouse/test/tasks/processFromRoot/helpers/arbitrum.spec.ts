@@ -47,7 +47,9 @@ describe("Helpers: Arbitrum", () => {
     stub(MockableFns, "JsonRpcProvider").value(MockJsonRpcProvider);
     stub(MockableFns, "EventFetcher").value(MockEventFetcher);
     stub(MockableFns, "Outbox__factory").value(mockOutboxFactory);
-    confirmData = stub().returns({ confirmData: "0x950ed348e2b49c023a3402410751876c1ea3d07c85b315cec0aae5a46e546b34" });
+    confirmData = stub().returns([
+      { confirmData: "0x950ed348e2b49c023a3402410751876c1ea3d07c85b315cec0aae5a46e546b34" },
+    ]);
     stub(MockableFns, "RollupUserLogic__factory").value({
       createInterface: stub().returns({
         encodeFunctionData: stub().returns("0x123"),
@@ -65,6 +67,7 @@ describe("Helpers: Arbitrum", () => {
         spokeProvider: "world",
         hubChainId: 1,
         hubDomainId: "2",
+        blockNumber: 1,
         hubProvider: "hello",
         sendHash: mkHash("0xbaa"),
         _requestContext: createRequestContext("foo"),
@@ -73,13 +76,14 @@ describe("Helpers: Arbitrum", () => {
   });
 
   it("should throw error if confirm data does not match", async () => {
-    confirmData.returns({ confirmData: "0xfoo" });
+    confirmData.returns([{ confirmData: "0xfoo" }]);
     await expect(
       getProcessFromArbitrumRootArgs({
         spokeChainId: 42161,
         spokeDomainId: "1",
         spokeProvider: "world",
         hubChainId: 1,
+        blockNumber: 1,
         hubDomainId: "2",
         hubProvider: "hello",
         sendHash: mkHash("0xbaa"),
@@ -97,6 +101,7 @@ describe("Helpers: Arbitrum", () => {
       hubDomainId: "2",
       hubProvider: "hello",
       sendHash: mkHash("0xbaa"),
+      blockNumber: 1,
       _requestContext: createRequestContext("foo"),
     });
     expect(args).to.be.ok;

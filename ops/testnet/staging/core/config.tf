@@ -85,7 +85,7 @@ locals {
         ]
       }
       "9991" = {
-        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
+        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
         assets = [
           {
             name    = "TEST"
@@ -98,7 +98,7 @@ locals {
         ]
       }
       "1734439522" = {
-        providers = ["https://goerli-rollup.arbitrum.io/rpc", "https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}"]
+        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
         assets = [
           {
             name    = "TEST"
@@ -238,7 +238,7 @@ locals {
         ]
       }
       "9991" = {
-        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
+        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
         assets = [
           {
             name    = "TEST"
@@ -251,7 +251,7 @@ locals {
         ]
       }
       "1734439522" = {
-        providers = ["https://goerli-rollup.arbitrum.io/rpc", "https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_1}"]
+        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_1}", "https://goerli-rollup.arbitrum.io/rpc"]
         assets = [
           {
             name    = "TEST"
@@ -282,10 +282,10 @@ locals {
         providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
       }
       "9991" = {
-        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
+        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
       }
       "1734439522" = {
-        providers = ["https://goerli-rollup.arbitrum.io/rpc", "https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}"]
+        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
@@ -323,10 +323,10 @@ locals {
         providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
       }
       "9991" = {
-        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
+        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
       }
       "1734439522" = {
-        providers = ["https://goerli-rollup.arbitrum.io/rpc", "https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}"]
+        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
     }
     environment   = var.stage

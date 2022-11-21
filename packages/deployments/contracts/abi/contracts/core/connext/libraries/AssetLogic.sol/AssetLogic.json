@@ -3,6 +3,7 @@
   "error AssetLogic__handleIncomingAsset_feeOnTransferNotSupported()",
   "error AssetLogic__handleIncomingAsset_nativeAssetNotSupported()",
   "error AssetLogic__handleOutgoingAsset_notNative()",
+  "error AssetLogic__swapAsset_externalStableSwapPoolDoesNotExist()",
   "error AssetLogic__swapFromLocalAssetIfNeeded_swapPaused()",
   "error AssetLogic__swapToLocalAssetIfNeeded_swapPaused()"
 ]

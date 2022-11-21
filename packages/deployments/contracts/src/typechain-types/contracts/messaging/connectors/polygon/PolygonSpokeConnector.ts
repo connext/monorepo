@@ -53,6 +53,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "addSender(address)": FunctionFragment;
+    "allowlistedSenders(address)": FunctionFragment;
     "delay()": FunctionFragment;
     "delayBlocks()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
@@ -86,13 +87,13 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "send(bytes)": FunctionFragment;
     "sentMessageRoots(bytes32)": FunctionFragment;
     "setDelayBlocks(uint256)": FunctionFragment;
+    "setFxRootTunnel(address)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setRateLimitBlocks(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
     "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
     "watcherManager()": FunctionFragment;
-    "allowlistedSenders(address)": FunctionFragment;
     "withdrawFunds(address)": FunctionFragment;
   };
 
@@ -107,6 +108,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "ROOT_MANAGER"
       | "acceptProposedOwner"
       | "addSender"
+      | "allowlistedSenders"
       | "delay"
       | "delayBlocks"
       | "dispatch"
@@ -140,13 +142,13 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "send"
       | "sentMessageRoots"
       | "setDelayBlocks"
+      | "setFxRootTunnel"
       | "setMirrorConnector"
       | "setRateLimitBlocks"
       | "setWatcherManager"
       | "unpause"
       | "verifySender"
       | "watcherManager"
-      | "allowlistedSenders"
       | "withdrawFunds"
   ): FunctionFragment;
 
@@ -175,6 +177,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "addSender",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "allowlistedSenders",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
@@ -299,6 +305,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setFxRootTunnel",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setMirrorConnector",
     values: [PromiseOrValue<string>]
   ): string;
@@ -318,10 +328,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "watcherManager",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "allowlistedSenders",
-    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "withdrawFunds",
@@ -352,6 +358,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "addSender", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "allowlistedSenders",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "delayBlocks",
@@ -446,6 +456,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setFxRootTunnel",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setMirrorConnector",
     data: BytesLike
   ): Result;
@@ -464,10 +478,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "watcherManager",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "allowlistedSenders",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -762,6 +772,11 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     delayBlocks(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -887,6 +902,11 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setFxRootTunnel(
+      _fxRootTunnel: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -912,11 +932,6 @@ export interface PolygonSpokeConnector extends BaseContract {
     ): Promise<ContractTransaction>;
 
     watcherManager(overrides?: CallOverrides): Promise<[string]>;
-
-    allowlistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
 
     withdrawFunds(
       _to: PromiseOrValue<string>,
@@ -946,6 +961,11 @@ export interface PolygonSpokeConnector extends BaseContract {
     _sender: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  allowlistedSenders(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1072,6 +1092,11 @@ export interface PolygonSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setFxRootTunnel(
+    _fxRootTunnel: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1097,11 +1122,6 @@ export interface PolygonSpokeConnector extends BaseContract {
   ): Promise<ContractTransaction>;
 
   watcherManager(overrides?: CallOverrides): Promise<string>;
-
-  allowlistedSenders(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
 
   withdrawFunds(
     _to: PromiseOrValue<string>,
@@ -1129,6 +1149,11 @@ export interface PolygonSpokeConnector extends BaseContract {
       _sender: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1251,6 +1276,11 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setFxRootTunnel(
+      _fxRootTunnel: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1274,11 +1304,6 @@ export interface PolygonSpokeConnector extends BaseContract {
     ): Promise<boolean>;
 
     watcherManager(overrides?: CallOverrides): Promise<string>;
-
-    allowlistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
 
     withdrawFunds(
       _to: PromiseOrValue<string>,
@@ -1432,6 +1457,11 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     delayBlocks(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1557,6 +1587,11 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setFxRootTunnel(
+      _fxRootTunnel: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1582,11 +1617,6 @@ export interface PolygonSpokeConnector extends BaseContract {
     ): Promise<BigNumber>;
 
     watcherManager(overrides?: CallOverrides): Promise<BigNumber>;
-
-    allowlistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     withdrawFunds(
       _to: PromiseOrValue<string>,
@@ -1616,6 +1646,11 @@ export interface PolygonSpokeConnector extends BaseContract {
     addSender(
       _sender: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1743,6 +1778,11 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    setFxRootTunnel(
+      _fxRootTunnel: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1768,11 +1808,6 @@ export interface PolygonSpokeConnector extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     watcherManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    allowlistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     withdrawFunds(
       _to: PromiseOrValue<string>,

@@ -12,7 +12,9 @@
   "error BaseConnextFacet__onlyOwner_notOwner()",
   "error BaseConnextFacet__onlyProposed_notProposedOwner()",
   "error BaseConnextFacet__whenNotPaused_paused()",
+  "error PortalFacet__repayAavePortalFor_invalidAsset()",
   "error PortalFacet__repayAavePortalFor_zeroAmount()",
+  "error PortalFacet__repayAavePortal_assetNotApproved()",
   "error PortalFacet__repayAavePortal_insufficientFunds()",
   "error PortalFacet__setAavePortalFee_invalidFee()",
   "event AavePortalRepayment(bytes32 indexed,address,uint256,uint256,address)",
@@ -21,7 +23,7 @@
   "function getAavePortalDebt(bytes32) view returns (uint256)",
   "function getAavePortalFeeDebt(bytes32) view returns (uint256)",
   "function repayAavePortal(tuple(uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256,uint256)",
-  "function repayAavePortalFor(tuple(uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256) payable",
+  "function repayAavePortalFor(tuple(uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address,uint256,uint256) payable",
   "function setAavePool(address)",
   "function setAavePortalFee(uint256)"
 ]

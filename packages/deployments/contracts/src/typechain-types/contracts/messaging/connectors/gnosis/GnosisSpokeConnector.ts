@@ -47,12 +47,14 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     "AMB()": FunctionFragment;
     "DOMAIN()": FunctionFragment;
     "MERKLE()": FunctionFragment;
+    "MIRROR_CHAIN_ID()": FunctionFragment;
     "MIRROR_DOMAIN()": FunctionFragment;
     "PROCESS_GAS()": FunctionFragment;
     "RESERVE_GAS()": FunctionFragment;
     "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "addSender(address)": FunctionFragment;
+    "allowlistedSenders(address)": FunctionFragment;
     "delay()": FunctionFragment;
     "delayBlocks()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
@@ -90,7 +92,6 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
     "watcherManager()": FunctionFragment;
-    "allowlistedSenders(address)": FunctionFragment;
     "withdrawFunds(address)": FunctionFragment;
   };
 
@@ -99,12 +100,14 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
       | "AMB"
       | "DOMAIN"
       | "MERKLE"
+      | "MIRROR_CHAIN_ID"
       | "MIRROR_DOMAIN"
       | "PROCESS_GAS"
       | "RESERVE_GAS"
       | "ROOT_MANAGER"
       | "acceptProposedOwner"
       | "addSender"
+      | "allowlistedSenders"
       | "delay"
       | "delayBlocks"
       | "dispatch"
@@ -142,13 +145,16 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
       | "unpause"
       | "verifySender"
       | "watcherManager"
-      | "allowlistedSenders"
       | "withdrawFunds"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
   encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
   encodeFunctionData(functionFragment: "MERKLE", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "MIRROR_CHAIN_ID",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "MIRROR_DOMAIN",
     values?: undefined
@@ -171,6 +177,10 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "addSender",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "allowlistedSenders",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
@@ -307,10 +317,6 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "allowlistedSenders",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "withdrawFunds",
     values: [PromiseOrValue<string>]
   ): string;
@@ -318,6 +324,10 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "MERKLE", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "MIRROR_CHAIN_ID",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "MIRROR_DOMAIN",
     data: BytesLike
@@ -339,6 +349,10 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "addSender", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "allowlistedSenders",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "delayBlocks",
@@ -443,10 +457,6 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "watcherManager",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "allowlistedSenders",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -721,6 +731,8 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     MERKLE(overrides?: CallOverrides): Promise<[string]>;
 
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<[number]>;
 
     PROCESS_GAS(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -737,6 +749,11 @@ export interface GnosisSpokeConnector extends BaseContract {
       _sender: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -883,11 +900,6 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     watcherManager(overrides?: CallOverrides): Promise<[string]>;
 
-    allowlistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     withdrawFunds(
       _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -899,6 +911,8 @@ export interface GnosisSpokeConnector extends BaseContract {
   DOMAIN(overrides?: CallOverrides): Promise<number>;
 
   MERKLE(overrides?: CallOverrides): Promise<string>;
+
+  MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
 
   MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
 
@@ -916,6 +930,11 @@ export interface GnosisSpokeConnector extends BaseContract {
     _sender: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  allowlistedSenders(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1062,11 +1081,6 @@ export interface GnosisSpokeConnector extends BaseContract {
 
   watcherManager(overrides?: CallOverrides): Promise<string>;
 
-  allowlistedSenders(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   withdrawFunds(
     _to: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1078,6 +1092,8 @@ export interface GnosisSpokeConnector extends BaseContract {
     DOMAIN(overrides?: CallOverrides): Promise<number>;
 
     MERKLE(overrides?: CallOverrides): Promise<string>;
+
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
 
@@ -1093,6 +1109,11 @@ export interface GnosisSpokeConnector extends BaseContract {
       _sender: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1232,11 +1253,6 @@ export interface GnosisSpokeConnector extends BaseContract {
     ): Promise<boolean>;
 
     watcherManager(overrides?: CallOverrides): Promise<string>;
-
-    allowlistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
 
     withdrawFunds(
       _to: PromiseOrValue<string>,
@@ -1383,6 +1399,8 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     MERKLE(overrides?: CallOverrides): Promise<BigNumber>;
 
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
+
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
 
     PROCESS_GAS(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1398,6 +1416,11 @@ export interface GnosisSpokeConnector extends BaseContract {
     addSender(
       _sender: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1545,11 +1568,6 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     watcherManager(overrides?: CallOverrides): Promise<BigNumber>;
 
-    allowlistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     withdrawFunds(
       _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1562,6 +1580,8 @@ export interface GnosisSpokeConnector extends BaseContract {
     DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     MERKLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1578,6 +1598,11 @@ export interface GnosisSpokeConnector extends BaseContract {
     addSender(
       _sender: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1724,11 +1749,6 @@ export interface GnosisSpokeConnector extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     watcherManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    allowlistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     withdrawFunds(
       _to: PromiseOrValue<string>,

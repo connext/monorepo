@@ -1,5 +1,5 @@
 import { createRequestContext, expect } from "@connext/nxtp-utils";
-import { createStubInstance, SinonStub, stub } from "sinon";
+import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import { constants, providers } from "ethers";
 
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../../../../src/tasks/propagate/errors";
@@ -13,13 +13,13 @@ const requestContext = createRequestContext("test");
 
 const estimateSubmissionFee = Promise.resolve(constants.One);
 const estimateRetryableTicketGasLimit = Promise.resolve(constants.Two);
+let l1ToL2: SinonStubbedInstance<L1ToL2MessageGasEstimator>;
 
 describe("Helpers: Arbitrum ", () => {
   beforeEach(() => {
+    l1ToL2 = createStubInstance(L1ToL2MessageGasEstimator, { estimateSubmissionFee, estimateRetryableTicketGasLimit });
     stub(Mockable, "getJsonRpcProvider").returns(createStubInstance(providers.JsonRpcProvider));
-    stub(Mockable, "getL1ToL2MessageGasEstimator").returns(
-      createStubInstance(L1ToL2MessageGasEstimator, { estimateSubmissionFee, estimateRetryableTicketGasLimit }),
-    );
+    stub(Mockable, "getL1ToL2MessageGasEstimator").returns(l1ToL2);
   });
 
   describe("#getPropagateParams", () => {
@@ -31,14 +31,14 @@ describe("Helpers: Arbitrum ", () => {
     });
 
     it("should throw an error if no spoke connector", async () => {
-      (propagateCtxMock.adapters.contracts.spokeConnector as SinonStub).returns(undefined);
+      (propagateCtxMock.adapters.deployments.spokeConnector as SinonStub).returns(undefined);
       await expect(
         getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext),
       ).to.eventually.be.rejectedWith(NoSpokeConnector);
     });
 
     it("should throw an error if no hub connector", async () => {
-      (propagateCtxMock.adapters.contracts.hubConnector as SinonStub).returns(undefined);
+      (propagateCtxMock.adapters.deployments.hubConnector as SinonStub).returns(undefined);
       await expect(
         getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext),
       ).to.eventually.be.rejectedWith(NoHubConnector);
@@ -48,9 +48,20 @@ describe("Helpers: Arbitrum ", () => {
       const data = await getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext);
       expect(data).to.deep.eq({
         _connector: "",
-        _fee: "89",
+        _fee: "109691273861924",
         _encodedData:
-          "0x00000000000000000000000000000000000000000000000000000000000000050000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000002a",
+          "0x000000000000000000000000000000000000000000000000000063c37d69dad00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000002a",
+      });
+    });
+
+    it("should return dummy data if errors", async () => {
+      l1ToL2.estimateRetryableTicketGasLimit.rejects("foo");
+      const data = await getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext);
+      expect(data).to.deep.eq({
+        _connector: "",
+        _fee: "0",
+        _encodedData:
+          "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       });
     });
   });
