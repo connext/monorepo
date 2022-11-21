@@ -5,6 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
+import {IBridgeToken} from "../../../../contracts/core/connext/interfaces/IBridgeToken.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {ERC20} from "../../../../contracts/core/connext/helpers/OZERC20.sol";
 import {TokenFacet} from "../../../../contracts/core/connext/facets/TokenFacet.sol";
@@ -278,6 +279,22 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0));
   }
 
+  function test_TokenFacet__setupAssetWithDeployedRepresentation_failIfOnRemoteAndCannotMintExactlyOne() public {
+    TokenId memory canonical = TokenId(_domain, _canonicalId);
+    s.domain = _domain + 1;
+    ERC20 asset = new ERC20(18, "Test Token", "TEST", "1");
+
+    // mint should work
+    vm.mockCall(address(asset), abi.encodeWithSelector(TestERC20.mint.selector), abi.encode(true));
+
+    // balanceOf should return constant value
+    vm.mockCall(address(asset), abi.encodeWithSelector(TestERC20.balanceOf.selector), abi.encode(12321));
+
+    vm.prank(_owner);
+    vm.expectRevert(TokenFacet.TokenFacet__addAssetId_badMint.selector);
+    this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0));
+  }
+
   function test_TokenFacet__setupAssetWithDeployedRepresentation_failIfOnRemoteAndCannotBurn() public {
     TokenId memory canonical = TokenId(_domain, _canonicalId);
     s.domain = _domain + 1;
@@ -439,5 +456,54 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     // assertEq
     assertEq(s.custodied[_canonical], balance);
     assertEq(s.caps[key], updated);
+  }
+
+  // updateDetails
+  function test_TokenFacet__updateDetails_failsIfNoLocal() public {
+    s.domain = _canonicalDomain + 2;
+    bytes32 key = utils_calculateCanonicalHash();
+    s.canonicalToRepresentation[key] = address(0);
+
+    // Inputs
+    string memory updatedName = "asdfkj";
+    string memory updatedSymbol = "lkjliji";
+
+    vm.expectRevert(TokenFacet.TokenFacet__updateDetails_localNotFound.selector);
+    vm.prank(_owner);
+    this.updateDetails(TokenId(_canonicalDomain, _canonicalId), updatedName, updatedSymbol);
+  }
+
+  function test_TokenFacet__updateDetails_failsOnCanonical() public {
+    s.domain = _canonicalDomain;
+    bytes32 key = utils_calculateCanonicalHash();
+    s.canonicalToRepresentation[key] = _local;
+
+    // Inputs
+    string memory updatedName = "asdfkj";
+    string memory updatedSymbol = "lkjliji";
+
+    vm.expectRevert(TokenFacet.TokenFacet__updateDetails_onlyRemote.selector);
+    vm.prank(_owner);
+    this.updateDetails(TokenId(_canonicalDomain, _canonicalId), updatedName, updatedSymbol);
+  }
+
+  // works
+  function test_TokenFacet__updateDetails_works() public {
+    _local = address(new TestERC20("Test", "t"));
+    s.domain = _canonicalDomain + 2;
+    bytes32 key = utils_calculateCanonicalHash();
+    s.canonicalToRepresentation[key] = _local;
+    s.approvedAssets[key] = true;
+
+    // Inputs
+    string memory updatedName = "asdfkj";
+    string memory updatedSymbol = "lkjliji";
+
+    vm.prank(_owner);
+    this.updateDetails(TokenId(_canonicalDomain, _canonicalId), updatedName, updatedSymbol);
+
+    // assertEq
+    assertEq(IBridgeToken(_local).name(), updatedName);
+    assertEq(IBridgeToken(_local).symbol(), updatedSymbol);
   }
 }
