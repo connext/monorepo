@@ -273,6 +273,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       owner: deployer.address,
       log: true,
       facets,
+      diamondContract: "ConnextDiamond",
       defaultOwnershipFacet: false,
       defaultCutFacet: false,
       execute: isDiamondUpgrade
