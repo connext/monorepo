@@ -90,6 +90,12 @@ library Constants {
   /**
    * @notice the precision all pools tokens will be converted to
    * @dev stored here to keep easily in sync between `SwapUtils` and `SwapUtilsExternal`
+   *
+   * The minimum in a pool is 2 (nextUSDC, USDC), and the maximum allowed is 16. While
+   * we do not have pools supporting this number of token, allowing a larger value leaves
+   * the possibility open to pool multiple stable local/adopted pairs, garnering greater
+   * capital efficiency. 16 specifically was chosen as a bit of a sweet spot between the
+   * default of 32 and what we will realistically host in pools.
    */
   uint256 public constant MINIMUM_POOLED_TOKENS = 2;
   uint256 public constant MAXIMUM_POOLED_TOKENS = 16;

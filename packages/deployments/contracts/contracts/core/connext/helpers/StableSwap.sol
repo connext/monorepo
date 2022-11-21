@@ -77,15 +77,16 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     __OwnerPausable_init();
     __ReentrancyGuard_init();
 
+    uint256 numPooledTokens = _pooledTokens.length;
+
     // Check _pooledTokens and precisions parameter
-    require(_pooledTokens.length > Constants.MINIMUM_POOLED_TOKENS - 1, "_pooledTokens.length insufficient");
-    require(_pooledTokens.length < Constants.MAXIMUM_POOLED_TOKENS + 1, "_pooledTokens.length too large");
-    require(_pooledTokens.length == decimals.length, "_pooledTokens decimals mismatch");
+    require(numPooledTokens > Constants.MINIMUM_POOLED_TOKENS - 1, "_pooledTokens.length insufficient");
+    require(numPooledTokens < Constants.MAXIMUM_POOLED_TOKENS + 1, "_pooledTokens.length too large");
+    require(numPooledTokens == decimals.length, "_pooledTokens decimals mismatch");
 
     uint256[] memory precisionMultipliers = new uint256[](decimals.length);
 
-    uint256 len = _pooledTokens.length;
-    for (uint256 i = 0; i < len; ) {
+    for (uint256 i = 0; i < numPooledTokens; ) {
       if (i != 0) {
         // Check if index is already used. Check if 0th element is a duplicate.
         require(
@@ -116,8 +117,8 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     swapStorage.lpToken = lpToken;
     swapStorage.pooledTokens = _pooledTokens;
     swapStorage.tokenPrecisionMultipliers = precisionMultipliers;
-    swapStorage.balances = new uint256[](_pooledTokens.length);
-    swapStorage.adminFees = new uint256[](_pooledTokens.length);
+    swapStorage.balances = new uint256[](numPooledTokens);
+    swapStorage.adminFees = new uint256[](numPooledTokens);
     swapStorage.initialA = _a * Constants.A_PRECISION;
     swapStorage.futureA = _a * Constants.A_PRECISION;
     // swapStorage.initialATime = 0;

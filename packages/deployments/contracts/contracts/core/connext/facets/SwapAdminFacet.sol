@@ -147,7 +147,8 @@ contract SwapAdminFacet is BaseConnextFacet {
    * correct value.
    *
    * @param _key the hash of the canonical id and domain for token
-   * @param _pooledTokens an array of ERC20s this pool will accept
+   * @param _pooledTokens an array of ERC20s this pool will accept.
+   * length of this array should be in 2 ~ 16
    * @param decimals the decimals to use for each pooled token,
    * eg 8 for WBTC. Cannot be larger than POOL_PRECISION_DECIMALS(18)
    * Only fixed decimal tokens are allowed.
