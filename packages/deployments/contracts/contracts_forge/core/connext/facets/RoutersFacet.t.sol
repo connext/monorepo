@@ -706,6 +706,29 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity + amount);
   }
 
+  function test_RoutersFacet__addLiquidityForRouter_worksForCanonicalDomain() public {
+    utils_setupAsset(true, true);
+    s.routerConfigs[_routerAgent0].approved = true;
+    address caller = address(1233422312);
+    TestERC20(_canonical).mint(caller, 10 ether);
+
+    uint256 amount = 10000;
+
+    uint256 initCaller = IERC20(_canonical).balanceOf(caller);
+    uint256 initLiquidity = this.routerBalances(_routerAgent0, _canonical);
+
+    vm.prank(caller);
+    IERC20(_canonical).approve(address(this), amount);
+
+    vm.expectEmit(true, true, true, true);
+    emit RouterLiquidityAdded(_routerAgent0, _canonical, _canonicalKey, amount, caller);
+    vm.prank(caller);
+    this.addRouterLiquidityFor(amount, _canonical, _routerAgent0);
+
+    assertEq(IERC20(_canonical).balanceOf(caller), initCaller - amount);
+    assertEq(this.routerBalances(_routerAgent0, _canonical), initLiquidity + amount);
+  }
+
   // addLiquidity
   function test_RoutersFacet__addLiquidity_routerIsSender() public {
     s.routerConfigs[_routerAgent0].approved = true;
@@ -834,7 +857,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
     assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
     assertEq(IERC20(_local).balanceOf(to), initBalance + amount);
-    assertEq(s.custodied[_local], 10 ether);// shouldnt change
+    assertEq(s.custodied[_local], 10 ether); // shouldnt change
   }
 
   function test_RoutersFacet__removeRouterLiquidity_worksOnCanonical() public {

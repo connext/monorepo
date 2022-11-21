@@ -569,7 +569,7 @@ contract RoutersFacet is BaseConnextFacet {
     // Get the canonical asset ID from the representation.
     // NOTE: not using `_getApprovedCanonicalId` because candidate can *only* be local
     TokenId memory canonical = s.representationToCanonical[_local];
-    if (canonical.domain == 0) {
+    if (canonical.domain == 0 && canonical.id == bytes32(0)) {
       // Assume you are on the canonical domain, which does not update the above mapping
       // If this is an incorrect assumption, the approval should fail
       canonical.domain = s.domain;
