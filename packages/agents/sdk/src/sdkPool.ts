@@ -226,13 +226,45 @@ export class NxtpSdkPool {
   }
 
   /**
+   * Returns the price impact depending on whether liquidity is being deposited or withdrawn.
+   * @param tokenInputAmount The amount of inbound tokens (LP tokens for withdrawals, total tokens for deposits, dx for swaps).
+   * @param tokenOutputAmount The amount of outbound tokens (total tokens for withdrawals, LP tokens for deposits, dy for swaps).
+   * @param virtualPrice The current virtual price of the pool.
+   * @param isDeposit Whether this is a deposit or withdrawal.
+   */
+  calculatePriceImpact(
+    tokenInputAmount: BigNumber, // assumed to be 18d precision
+    tokenOutputAmount: BigNumber,
+    virtualPrice = BigNumber.from(10).pow(18),
+    isDeposit = true,
+  ): BigNumber {
+    // We want to multiply the lpTokenAmount by virtual price
+    // Deposits: (VP * output) / input - 1
+    // Swaps: (1 * output) / input - 1
+    // Withdraws: output / (input * VP) - 1
+    if (tokenInputAmount.lte(0)) return constants.Zero;
+
+    return isDeposit
+      ? virtualPrice.mul(tokenOutputAmount).div(tokenInputAmount).sub(BigNumber.from(10).pow(18))
+      : tokenOutputAmount
+          .mul(BigNumber.from(10).pow(36))
+          .div(tokenInputAmount.mul(virtualPrice))
+          .sub(BigNumber.from(10).pow(18));
+  }
+
+  /**
    * Returns the price impact of adding liquidity to a pool.
    * @param domainId The domain id of the pool.
    * @param tokenAddress The address of local or adopted token.
    * @param amountX The amount of asset X.
    * @param amountY The amount of asset Y.
    */
-  async calculateAddLiquidityPriceImpact(domainId: string, tokenAddress: string, amountX: string, amountY: string) {
+  async calculateAddLiquidityPriceImpact(
+    domainId: string,
+    tokenAddress: string,
+    amountX: string,
+    amountY: string,
+  ): Promise<BigNumber> {
     const [virtualPrice, lpTokenAmount] = await Promise.all([
       this.getVirtualPrice(domainId, tokenAddress),
       this.calculateTokenAmount(domainId, tokenAddress, [amountX, amountY]),
@@ -250,7 +282,12 @@ export class NxtpSdkPool {
    * @param amountX The amount of asset X.
    * @param amountY The amount of asset Y.
    */
-  async calculateRemoveLiquidityPriceImpact(domainId: string, tokenAddress: string, amountX: string, amountY: string) {
+  async calculateRemoveLiquidityPriceImpact(
+    domainId: string,
+    tokenAddress: string,
+    amountX: string,
+    amountY: string,
+  ): Promise<BigNumber> {
     const [virtualPrice, lpTokenAmount] = await Promise.all([
       this.getVirtualPrice(domainId, tokenAddress),
       this.calculateTokenAmount(domainId, tokenAddress, [amountX, amountY], false),
@@ -262,29 +299,60 @@ export class NxtpSdkPool {
   }
 
   /**
-   * Returns the price impact depending on whether liquidity is being deposited or withdrawn.
-   * @param amountIn The amount of inbound tokens (LP tokens for withdrawals, total tokens for deposits).
-   * @param amountOut The amount of outbound tokens (total tokens for withdrawals, LP tokens for deposits).
-   * @param virtualPrice The current virtual price of the pool.
-   * @param isDeposit Whether this is a deposit or withdrawal.
+   * Returns the price impact of a swap.
+   * @param domainId The domain id of the pool.
+   * @param amountX The amount of tokens to swap.
+   * @param tokenX The address of the token to swap from.
+   * @param tokenY The address of the token to swap to.
    */
-  async calculatePriceImpact(
-    amountIn: BigNumber,
-    amountOut: BigNumber,
-    virtualPrice: BigNumber,
-    isDeposit = true,
+  async calculateSwapPriceImpact(
+    domainId: string,
+    amountX: string,
+    tokenX: string,
+    tokenY: string,
   ): Promise<BigNumber> {
-    if (amountIn.eq(0) && amountOut.eq(0)) {
-      return BigNumber.from(0);
+    const connextAddr = this.config.chains[domainId].deployments!.connext;
+    if (!connextAddr) {
+      throw new ContractAddressMissing();
     }
 
-    if (isDeposit) {
-      return amountIn.gt(0)
-        ? virtualPrice.mul(amountOut).div(amountIn).sub(BigNumber.from(10).pow(18))
-        : constants.Zero;
-    }
+    const [tokenIndexFrom, tokenIndexTo] = await Promise.all([
+      this.getPoolTokenIndex(domainId, tokenX, tokenX),
+      this.getPoolTokenIndex(domainId, tokenX, tokenY),
+    ]);
 
-    return amountOut.mul(BigNumber.from(10).pow(36)).div(amountIn.mul(virtualPrice));
+    const [canonicalDomain, canonicalId] = await this.getCanonicalToken(domainId, tokenX);
+    const key = getCanonicalHash(canonicalDomain, canonicalId);
+
+    const amountYData = this.connext.encodeFunctionData("calculateSwap", [key, tokenIndexFrom, tokenIndexTo, amountX]);
+    const amountXNoSlippage = BigNumber.from(1000);
+    const amountYNoSlippageData = this.connext.encodeFunctionData("calculateSwap", [
+      key,
+      tokenIndexFrom,
+      tokenIndexTo,
+      amountXNoSlippage,
+    ]);
+
+    const [amountYEncoded, amountYNoSlippageEncoded] = await Promise.all([
+      this.chainReader.readTx({
+        chainId: Number(domainId),
+        to: connextAddr,
+        data: amountYData,
+      }),
+      this.chainReader.readTx({
+        chainId: Number(domainId),
+        to: connextAddr,
+        data: amountYNoSlippageData,
+      }),
+    ]);
+
+    const [amountY] = this.connext.decodeFunctionResult("calculateSwap", amountYEncoded);
+    const [amountYNoSlippage] = this.connext.decodeFunctionResult("calculateSwap", amountYNoSlippageEncoded);
+
+    const rate = BigNumber.from(amountY).mul(BigNumber.from(10).pow(18)).div(amountX);
+    const marketRate = BigNumber.from(amountYNoSlippage).mul(BigNumber.from(10).pow(18)).div(amountXNoSlippage);
+
+    return this.calculatePriceImpact(rate, marketRate);
   }
 
   // ------------------- Read Operations ------------------- //
