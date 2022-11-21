@@ -11,5 +11,5 @@
   "error BaseConnextFacet__whenNotPaused_paused()",
   "error DiamondInit__init_alreadyInitialized()",
   "error DiamondInit__init_domainsDontMatch()",
-  "function init(uint32,address,uint256)"
+  "function init(uint32,address,uint256,address)"
 ]

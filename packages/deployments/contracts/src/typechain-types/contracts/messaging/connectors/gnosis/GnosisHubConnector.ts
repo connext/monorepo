@@ -32,6 +32,7 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
   functions: {
     "AMB()": FunctionFragment;
     "DOMAIN()": FunctionFragment;
+    "MIRROR_CHAIN_ID()": FunctionFragment;
     "MIRROR_DOMAIN()": FunctionFragment;
     "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
@@ -55,6 +56,7 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "AMB"
       | "DOMAIN"
+      | "MIRROR_CHAIN_ID"
       | "MIRROR_DOMAIN"
       | "ROOT_MANAGER"
       | "acceptProposedOwner"
@@ -76,6 +78,10 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
   encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "MIRROR_CHAIN_ID",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "MIRROR_DOMAIN",
     values?: undefined
@@ -135,6 +141,10 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
 
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "MIRROR_CHAIN_ID",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "MIRROR_DOMAIN",
     data: BytesLike
@@ -323,6 +333,8 @@ export interface GnosisHubConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<[number]>;
 
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<[number]>;
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<[string]>;
@@ -389,6 +401,8 @@ export interface GnosisHubConnector extends BaseContract {
 
   DOMAIN(overrides?: CallOverrides): Promise<number>;
 
+  MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
+
   MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
 
   ROOT_MANAGER(overrides?: CallOverrides): Promise<string>;
@@ -454,6 +468,8 @@ export interface GnosisHubConnector extends BaseContract {
     AMB(overrides?: CallOverrides): Promise<string>;
 
     DOMAIN(overrides?: CallOverrides): Promise<number>;
+
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
 
@@ -583,6 +599,8 @@ export interface GnosisHubConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
 
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
+
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<BigNumber>;
@@ -649,6 +667,8 @@ export interface GnosisHubConnector extends BaseContract {
     AMB(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

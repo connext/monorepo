@@ -13,7 +13,7 @@ import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txser
 
 import { existsSync, readFileSync } from "./mockable";
 
-const DEFAULT_SLIPPAGE = 100000; // in BPS
+const DEFAULT_SLIPPAGE = 10000; // in BPS
 
 // Polling mins and defaults.
 const MIN_SUBGRAPH_POLL_INTERVAL = 2_000;
@@ -64,7 +64,7 @@ export const NxtpRouterConfigSchema = Type.Object({
       }),
     }),
   ]),
-  slippage: Type.Integer({ minimum: 0, maximum: 100000 }),
+  slippage: Type.Integer({ minimum: 0, maximum: 10000 }),
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   polling: TPollingConfig,

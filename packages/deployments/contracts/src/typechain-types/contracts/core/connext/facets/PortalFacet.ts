@@ -81,7 +81,7 @@ export interface PortalFacetInterface extends utils.Interface {
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
     "repayAavePortal((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256,uint256)": FunctionFragment;
-    "repayAavePortalFor((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256)": FunctionFragment;
+    "repayAavePortalFor((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address,uint256,uint256)": FunctionFragment;
     "setAavePool(address)": FunctionFragment;
     "setAavePortalFee(uint256)": FunctionFragment;
   };
@@ -124,6 +124,7 @@ export interface PortalFacetInterface extends utils.Interface {
     functionFragment: "repayAavePortalFor",
     values: [
       TransferInfoStruct,
+      PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
@@ -240,6 +241,7 @@ export interface PortalFacet extends BaseContract {
 
     repayAavePortalFor(
       _params: TransferInfoStruct,
+      _portalAsset: PromiseOrValue<string>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -280,6 +282,7 @@ export interface PortalFacet extends BaseContract {
 
   repayAavePortalFor(
     _params: TransferInfoStruct,
+    _portalAsset: PromiseOrValue<string>,
     _backingAmount: PromiseOrValue<BigNumberish>,
     _feeAmount: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -320,6 +323,7 @@ export interface PortalFacet extends BaseContract {
 
     repayAavePortalFor(
       _params: TransferInfoStruct,
+      _portalAsset: PromiseOrValue<string>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -378,6 +382,7 @@ export interface PortalFacet extends BaseContract {
 
     repayAavePortalFor(
       _params: TransferInfoStruct,
+      _portalAsset: PromiseOrValue<string>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -419,6 +424,7 @@ export interface PortalFacet extends BaseContract {
 
     repayAavePortalFor(
       _params: TransferInfoStruct,
+      _portalAsset: PromiseOrValue<string>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }

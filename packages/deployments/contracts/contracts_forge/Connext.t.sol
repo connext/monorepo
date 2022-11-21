@@ -164,11 +164,28 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   function utils_deployConnext() public {
+    // deploy LP token
+    string memory LP_TOKEN_NAME = "Test LP Token Name";
+    string memory LP_TOKEN_SYMBOL = "TESTLP";
+
+    // Origin
+    LPToken _originLp = new LPToken();
+    _originLp.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
+
+    // Destination
+    LPToken _destinationLp = new LPToken();
+    _destinationLp.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
+
     // deploy connext
-    address originConnext = deployConnext(_origin, address(_originManager), 7 days);
+    address originConnext = deployConnext(_origin, address(_originManager), 7 days, address(_originLp));
     _originConnext = IConnext(originConnext);
 
-    address destinationConnext = deployConnext(_destination, address(_destinationManager), 7 days);
+    address destinationConnext = deployConnext(
+      _destination,
+      address(_destinationManager),
+      7 days,
+      address(_destinationLp)
+    );
     _destinationConnext = IConnext(destinationConnext);
 
     // allowlist contract as router
@@ -215,8 +232,7 @@ contract ConnextTest is ForgeHelper, Deployer {
         TokenId(canonicalDomain, canonicalId),
         _originLocal,
         localIsAdopted ? address(0) : _originAdopted,
-        address(0),
-        originCap
+        address(0)
       );
     }
 
@@ -238,8 +254,7 @@ contract ConnextTest is ForgeHelper, Deployer {
         TokenId(canonicalDomain, canonicalId),
         _destinationLocal,
         localIsAdopted ? address(0) : _destinationAdopted,
-        address(0),
-        destinationCap
+        address(0)
       );
     }
 
@@ -287,24 +302,14 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     IConnext connext = isOrigin ? _originConnext : _destinationConnext;
 
-    string memory LP_TOKEN_NAME = "Test LP Token Name";
-    string memory LP_TOKEN_SYMBOL = "TESTLP";
-    {
-      // deploy LP token
-      LPToken token = new LPToken();
-      // initialize
-      token.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
-      if (isOrigin) {
-        _originLp = address(token);
-      } else {
-        _destinationLp = address(token);
-      }
-    }
-
     {
       console.log("initializing swap between:");
       console.log("- ", address(pooledTokens[0]));
       console.log("- ", address(pooledTokens[1]));
+
+      string memory LP_TOKEN_NAME = "Test LP Token Name";
+      string memory LP_TOKEN_SYMBOL = "TESTLP";
+
       // initialize pool
       connext.initializeSwap(
         canonicalKey, // canonicalkey
@@ -314,8 +319,7 @@ contract ConnextTest is ForgeHelper, Deployer {
         LP_TOKEN_SYMBOL, // lp token symbol
         50, // initialAValue
         0, // fee
-        0, // admin fee
-        isOrigin ? _originLp : _destinationLp // lp token address
+        0
       );
 
       if (amount == 0) {

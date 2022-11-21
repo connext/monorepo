@@ -113,9 +113,9 @@ contract QueueLibTest is ForgeHelper {
     assertEq(verified.length, 0);
   }
 
-  function test_Queue__dequeueVerifiedFailsIfQueueIsEmpty() public {
-    vm.expectRevert("queue empty");
-    queue.dequeueVerified(123, 99999999999);
+  function test_Queue__dequeueVerifiedReturnsIfQueueIsEmpty() public {
+    bytes32[] memory verified = queue.dequeueVerified(0, 99999999999);
+    assertEq(verified.length, 0);
   }
 
   function test_Queue__dequeueVerifiedWithMaximumWorks() public {

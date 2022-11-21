@@ -313,7 +313,6 @@ export const setupAsset = async (
     local,
     constants.AddressZero,
     constants.AddressZero,
-    constants.Zero,
   ]);
   const tx = await deployer.sendTransaction({
     chainId: chain,

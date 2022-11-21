@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC20, Address, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 import {AmplificationUtils, SwapUtils} from "../libraries/AmplificationUtils.sol";
@@ -36,8 +37,8 @@ contract SwapAdminFacet is BaseConnextFacet {
   error SwapAdminFacet__initializeSwap_feeExceedMax();
   error SwapAdminFacet__initializeSwap_adminFeeExceedMax();
   error SwapAdminFacet__initializeSwap_failedInitLpTokenClone();
+  error SwapAdminFacet__updateLpTokenTarget_invalidNewAddress();
   error SwapAdminFacet__removeSwap_notInitialized();
-  error SwapAdminFacet__removeSwap_nonZeroBalance();
   error SwapAdminFacet__removeSwap_notDisabledPool();
   error SwapAdminFacet__removeSwap_delayNotElapsed();
   error SwapAdminFacet__disableSwap_notInitialized();
@@ -108,7 +109,23 @@ contract SwapAdminFacet is BaseConnextFacet {
    */
   event RampAStopped(bytes32 indexed key, address caller);
 
+  /**
+   * @notice Emitted when the owner update lpTokenTargetAddress
+   * @param oldAddress - The old lpTokenTargetAddress
+   * @param newAddress - Updated address
+   * @param caller - The caller of the function
+   */
+  event LPTokenTargetUpdated(address oldAddress, address newAddress, address caller);
+
   // ============ External: Getters ============
+  /**
+   * @notice Returns the lp target token address
+   * @return address
+   */
+  function lpTokenTargetAddress() public view returns (address) {
+    return s.lpTokenTargetAddress;
+  }
+
   /**
    * @notice Return if the pool is disabled
    * @param key Hash of the canonical id + domain
@@ -130,7 +147,8 @@ contract SwapAdminFacet is BaseConnextFacet {
    * correct value.
    *
    * @param _key the hash of the canonical id and domain for token
-   * @param _pooledTokens an array of ERC20s this pool will accept
+   * @param _pooledTokens an array of ERC20s this pool will accept.
+   * length of this array should be in 2 ~ 16
    * @param decimals the decimals to use for each pooled token,
    * eg 8 for WBTC. Cannot be larger than POOL_PRECISION_DECIMALS(18)
    * Only fixed decimal tokens are allowed.
@@ -140,7 +158,6 @@ contract SwapAdminFacet is BaseConnextFacet {
    * StableSwap paper for details
    * @param _fee default swap fee to be initialized with
    * @param _adminFee default adminFee to be initialized with
-   * @param lpTokenTargetAddress the address of an existing LPToken contract to use as a target
    */
   function initializeSwap(
     bytes32 _key,
@@ -150,14 +167,14 @@ contract SwapAdminFacet is BaseConnextFacet {
     string memory lpTokenSymbol,
     uint256 _a,
     uint256 _fee,
-    uint256 _adminFee,
-    address lpTokenTargetAddress
+    uint256 _adminFee
   ) external onlyOwnerOrAdmin {
     if (s.swapStorages[_key].pooledTokens.length != 0) revert SwapAdminFacet__initializeSwap_alreadyInitialized();
 
     // Check _pooledTokens and precisions parameter
     if (
-      _pooledTokens.length < Constants.MINIMUM_POOLED_TOKENS || _pooledTokens.length > Constants.MAXIMUM_POOLED_TOKENS
+      _pooledTokens.length < Constants.MINIMUM_POOLED_TOKENS ||
+      _pooledTokens.length > Constants.MAXIMUM_POOLED_TOKENS
     ) {
       revert SwapAdminFacet__initializeSwap_invalidPooledTokens();
     }
@@ -189,12 +206,12 @@ contract SwapAdminFacet is BaseConnextFacet {
     }
 
     // Check _a, _fee, _adminFee, _withdrawFee parameters
-    if (_a >= Constants.MAX_A) revert SwapAdminFacet__initializeSwap_aExceedMax();
-    if (_fee >= Constants.MAX_SWAP_FEE) revert SwapAdminFacet__initializeSwap_feeExceedMax();
-    if (_adminFee >= Constants.MAX_ADMIN_FEE) revert SwapAdminFacet__initializeSwap_adminFeeExceedMax();
+    if (_a > Constants.MAX_A - 1) revert SwapAdminFacet__initializeSwap_aExceedMax();
+    if (_fee > Constants.MAX_SWAP_FEE - 1) revert SwapAdminFacet__initializeSwap_feeExceedMax();
+    if (_adminFee > Constants.MAX_ADMIN_FEE - 1) revert SwapAdminFacet__initializeSwap_adminFeeExceedMax();
 
     // Initialize a LPToken contract
-    LPToken lpToken = LPToken(Clones.clone(lpTokenTargetAddress));
+    LPToken lpToken = LPToken(Clones.clone(s.lpTokenTargetAddress));
     if (!lpToken.initialize(lpTokenName, lpTokenSymbol)) revert SwapAdminFacet__initializeSwap_failedInitLpTokenClone();
 
     // Initialize swapStorage struct
@@ -330,5 +347,15 @@ contract SwapAdminFacet is BaseConnextFacet {
   function stopRampA(bytes32 key) external onlyOwnerOrAdmin {
     s.swapStorages[key].stopRampA();
     emit RampAStopped(key, msg.sender);
+  }
+
+  /**
+   * @notice Update lpTokenTargetAddress
+   * @param newAddress New lpTokenTargetAddress
+   */
+  function updateLpTokenTarget(address newAddress) external onlyOwnerOrAdmin {
+    if (!Address.isContract(newAddress)) revert SwapAdminFacet__updateLpTokenTarget_invalidNewAddress();
+    emit LPTokenTargetUpdated(s.lpTokenTargetAddress, newAddress, msg.sender);
+    s.lpTokenTargetAddress = newAddress;
   }
 }

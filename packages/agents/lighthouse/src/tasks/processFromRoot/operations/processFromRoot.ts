@@ -4,6 +4,7 @@ import {
   createRequestContext,
   jsonifyError,
   NxtpError,
+  RelayerType,
   RequestContext,
   RootMessage,
 } from "@connext/nxtp-utils";
@@ -15,6 +16,7 @@ import {
   getProcessFromOptimismRootArgs,
   getProcessFromPolygonRootArgs,
   getProcessFromGnosisRootArgs,
+  getProcessFromArbitrumRootArgs,
 } from "../helpers";
 import { getContext } from "../processFromRoot";
 
@@ -34,6 +36,11 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     getArgs: getProcessFromPolygonRootArgs,
     hubConnectorPrefix: "Polygon",
     processorFunctionName: "receiveMessage",
+  },
+  "1734439522": {
+    getArgs: getProcessFromArbitrumRootArgs,
+    hubConnectorPrefix: "Arbitrum",
+    processorFunctionName: "processMessageFromRoot",
   },
   "1869640809": {
     getArgs: getProcessFromOptimismRootArgs,
@@ -145,7 +152,7 @@ export const processSingleRootMessage = async (
     rootMessage.hubDomain,
     hubConnector.address,
     encodedData,
-    relayers,
+    [relayers.find((r) => r.type === RelayerType.Connext)!],
     chainreader,
     logger,
     requestContext,

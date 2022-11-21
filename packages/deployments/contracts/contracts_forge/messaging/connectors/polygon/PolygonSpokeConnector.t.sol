@@ -50,25 +50,20 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
     assertTrue(!PolygonSpokeConnector(_l2Connector).verifySender(expected));
   }
 
-  // ============ PolygonSpokeConnector.setFxRootTunnel ============
-  function test_PolygonSpokeConnector__setFxRootTunnel_shouldWork() public {
-    PolygonSpokeConnector(_l2Connector).setFxRootTunnel(_l1Connector);
-    assertEq(PolygonSpokeConnector(_l2Connector).fxRootTunnel(), _l1Connector);
-  }
-
+  // ============ PolygonSpokeConnector.setMirrorConnector ============
   function test_PolygonSpokeConnector__setMirrorConnector_shouldWork() public {
     PolygonSpokeConnector(_l2Connector).setMirrorConnector(_l1Connector);
     assertEq(PolygonSpokeConnector(_l2Connector).mirrorConnector(), _l1Connector);
     assertEq(PolygonSpokeConnector(_l2Connector).fxRootTunnel(), _l1Connector);
   }
 
-  function test_PolygonSpokeConnector__setFxRootTunnel_failedIfAlreadySet() public {
-    PolygonSpokeConnector(_l2Connector).setFxRootTunnel(_l1Connector);
+  function test_PolygonSpokeConnector__setMirrorConnector_failedIfAlreadySet() public {
+    PolygonSpokeConnector(_l2Connector).setMirrorConnector(_l1Connector);
     assertEq(PolygonSpokeConnector(_l2Connector).fxRootTunnel(), _l1Connector);
 
     vm.expectRevert(bytes("FxBaseChildTunnel: ROOT_TUNNEL_ALREADY_SET"));
 
-    PolygonSpokeConnector(_l2Connector).setFxRootTunnel(_l1Connector);
+    PolygonSpokeConnector(_l2Connector).setMirrorConnector(_l1Connector);
   }
 
   // ============ PolygonSpokeConnector.sendMessage ============
