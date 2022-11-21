@@ -327,18 +327,17 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     _local = _canonical;
     _stableSwap = address(0);
     setupAssetAndAssert(_adopted, bytes4(""));
-    _deployedLocal = addressFrom(address(this), vm.getNonce(address(this)));
 
     s.custodied[_canonical] = 0;
     vm.mockCall(_local, abi.encodeWithSelector(IERC20.balanceOf.selector, address(this)), abi.encode(0));
-    removeAssetAndAssert(utils_calculateCanonicalHash(), _deployedLocal, _adopted);
+    removeAssetAndAssert(utils_calculateCanonicalHash(), _local, _adopted);
   }
 
   function test_TokenFacet__removeAssetId_worksOnRemote() public {
     s.domain = _canonicalDomain + 1;
     _adopted = address(12312391263);
-    setupAssetAndAssert(_adopted, bytes4(""));
     _deployedLocal = addressFrom(address(this), vm.getNonce(address(this)));
+    setupAssetAndAssert(_adopted, bytes4(""));
 
     vm.mockCall(_deployedLocal, abi.encodeWithSelector(IERC20.totalSupply.selector), abi.encode(0));
 
