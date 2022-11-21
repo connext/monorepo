@@ -15,7 +15,7 @@ export const getPropagateParams = async (
   const {
     config,
     logger,
-    adapters: { contracts, ambs },
+    adapters: { deployments, ambs },
   } = getContext();
   const { methodContext, requestContext } = createLoggingContext(getPropagateParams.name, _requestContext);
   logger.info("Getting propagate params for BNB", requestContext, methodContext, { l2domain });
@@ -29,7 +29,7 @@ export const getPropagateParams = async (
     throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const l2SpokeConnector = contracts.spokeConnector(
+  const l2SpokeConnector = deployments.spokeConnector(
     l2ChainId,
     "Bnb",
     config.environment === "staging" ? "Staging" : "",
@@ -38,7 +38,7 @@ export const getPropagateParams = async (
     throw new NoSpokeConnector(l2ChainId, requestContext, methodContext);
   }
 
-  const l1HubConnector = contracts.hubConnector(l1ChainId, "Bnb", config.environment === "staging" ? "Staging" : "");
+  const l1HubConnector = deployments.hubConnector(l1ChainId, "Bnb", config.environment === "staging" ? "Staging" : "");
   if (!l1HubConnector) {
     throw new NoHubConnector(l1ChainId, requestContext, methodContext);
   }

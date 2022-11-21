@@ -32,6 +32,7 @@ export interface FxBaseChildTunnelInterface extends utils.Interface {
     "fxChild()": FunctionFragment;
     "fxRootTunnel()": FunctionFragment;
     "processMessageFromRoot(uint256,address,bytes)": FunctionFragment;
+    "setFxRootTunnel(address)": FunctionFragment;
   };
 
   getFunction(
@@ -39,6 +40,7 @@ export interface FxBaseChildTunnelInterface extends utils.Interface {
       | "fxChild"
       | "fxRootTunnel"
       | "processMessageFromRoot"
+      | "setFxRootTunnel"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "fxChild", values?: undefined): string;
@@ -54,6 +56,10 @@ export interface FxBaseChildTunnelInterface extends utils.Interface {
       PromiseOrValue<BytesLike>
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "setFxRootTunnel",
+    values: [PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "fxChild", data: BytesLike): Result;
   decodeFunctionResult(
@@ -62,6 +68,10 @@ export interface FxBaseChildTunnelInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "processMessageFromRoot",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setFxRootTunnel",
     data: BytesLike
   ): Result;
 
@@ -116,6 +126,11 @@ export interface FxBaseChildTunnel extends BaseContract {
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    setFxRootTunnel(
+      _fxRootTunnel: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   fxChild(overrides?: CallOverrides): Promise<string>;
@@ -129,6 +144,11 @@ export interface FxBaseChildTunnel extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setFxRootTunnel(
+    _fxRootTunnel: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     fxChild(overrides?: CallOverrides): Promise<string>;
 
@@ -138,6 +158,11 @@ export interface FxBaseChildTunnel extends BaseContract {
       stateId: PromiseOrValue<BigNumberish>,
       rootMessageSender: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setFxRootTunnel(
+      _fxRootTunnel: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -158,6 +183,11 @@ export interface FxBaseChildTunnel extends BaseContract {
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    setFxRootTunnel(
+      _fxRootTunnel: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -169,6 +199,11 @@ export interface FxBaseChildTunnel extends BaseContract {
       stateId: PromiseOrValue<BigNumberish>,
       rootMessageSender: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setFxRootTunnel(
+      _fxRootTunnel: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

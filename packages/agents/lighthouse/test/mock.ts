@@ -68,7 +68,8 @@ export const mock = {
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
       adapters: {
         chainreader: mock.adapters.chainreader() as unknown as ChainReader,
-        contracts: mock.adapters.deployments(),
+        deployments: mock.adapters.deployments(),
+        contracts: mock.adapters.contracts(),
         relayers: mock.adapters.relayers(),
         subgraph: mock.adapters.subgraph(),
         ambs: mock.adapters.ambs(),
@@ -83,12 +84,14 @@ export const mock = {
         providers: ["http://example.com"],
         deployments: {
           spokeConnector: mkAddress("0xfedcba321"),
+          relayerProxy: mkAddress("0xfedcba321"),
         },
       },
       [mock.domain.B]: {
         providers: ["http://example.com"],
         deployments: {
           spokeConnector: mkAddress("0xfedcba321"),
+          relayerProxy: mkAddress("0xfedcba321"),
         },
       },
     },
@@ -121,9 +124,17 @@ export const mock = {
       connext.encodeFunctionData.returns(encodedDataMock);
       connext.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const rootManager = createStubInstance(utils.Interface);
+      rootManager.encodeFunctionData.returns(encodedDataMock);
+      rootManager.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       const relayerProxy = createStubInstance(utils.Interface);
       relayerProxy.encodeFunctionData.returns(encodedDataMock);
       relayerProxy.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
+      const relayerProxyHub = createStubInstance(utils.Interface);
+      relayerProxyHub.encodeFunctionData.returns(encodedDataMock);
+      relayerProxyHub.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
       const priceOracle = createStubInstance(utils.Interface);
       priceOracle.encodeFunctionData.returns(encodedDataMock);
@@ -146,9 +157,11 @@ export const mock = {
         erc20: erc20 as unknown as ConnextContractInterfaces["erc20"],
         relayerProxy: relayerProxy as unknown as ConnextContractInterfaces["relayerProxy"],
         connext: connext as unknown as ConnextContractInterfaces["connext"],
+        rootManager: rootManager as unknown as ConnextContractInterfaces["rootManager"],
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
         spokeConnector: spokeConnector as unknown as ConnextContractInterfaces["spokeConnector"],
+        relayerProxyHub: createStubInstance(utils.Interface) as unknown as ConnextContractInterfaces["relayerProxyHub"],
       };
     },
     deployments: (): SinonStubbedInstance<ConnextContractDeployments> => {
@@ -159,7 +172,6 @@ export const mock = {
         priceOracle: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         spokeConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         stableSwap: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
-        rootManagerPropagateWrapper: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
       };
     },
     relayers: () => [
@@ -195,7 +207,6 @@ export const mock = {
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbdddf"), abi: {} }),
         spokeConnector: (_: number) => ({ address: mkAddress("0xbbbddda"), abi: {} }),
         hubConnector: (_: number) => ({ address: mkAddress("0xbbbdddb"), abi: {} }),
-        rootManagerPropagateWrapper: (_: number) => ({ address: mkAddress("0xbbbdddc"), abi: {} }),
       };
     },
   },

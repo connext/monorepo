@@ -1,6 +1,7 @@
 import * as fs from "fs";
 
 import { generateExitPayload as _generateExitPayload } from "@connext/nxtp-utils";
+import { getDeployedRootManagerContract as _getDeployedRootManagerContract } from "@connext/nxtp-txservice";
 import { CrossChainMessenger as _CrossChainMessenger } from "@eth-optimism/sdk";
 import { GelatoRelaySDK } from "@gelatonetwork/relay-sdk";
 import { sendWithRelayerWithBackup as _sendWithRelayerWithBackup } from "@connext/nxtp-adapters-relayer";
@@ -14,6 +15,8 @@ import {
   Outbox__factory as _Outbox__factory,
 } from "@connext/nxtp-contracts";
 import { Contract, ContractInterface, providers, utils } from "ethers";
+
+export const getDeployedRootManagerContract = _getDeployedRootManagerContract;
 
 export const existsSync = fs.existsSync;
 
@@ -42,6 +45,11 @@ export const Outbox__factory = _Outbox__factory;
 export const JsonRpcProvider = providers.JsonRpcProvider;
 
 export const encodePropagate = (abi: any[], args: any[]): string => {
+  const encodedData = new utils.Interface(abi as string[]).encodeFunctionData("propagate", args);
+  return encodedData;
+};
+
+export const encodePropagateForRelayerProxy = (abi: any[], args: any[]): string => {
   const encodedData = new utils.Interface(abi as string[]).encodeFunctionData("propagate", args);
   return encodedData;
 };

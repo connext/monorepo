@@ -1883,15 +1883,23 @@ const _abi = [
         name: "_adminFee",
         type: "uint256",
       },
-      {
-        internalType: "address",
-        name: "lpTokenTargetAddress",
-        type: "address",
-      },
     ],
     name: "initializeSwap",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "lpTokenTargetAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -2914,11 +2922,6 @@ const _abi = [
         name: "_stableSwapPool",
         type: "address",
       },
-      {
-        internalType: "uint256",
-        name: "_cap",
-        type: "uint256",
-      },
     ],
     name: "setupAssetWithDeployedRepresentation",
     outputs: [
@@ -3189,6 +3192,19 @@ const _abi = [
       },
     ],
     name: "updateLiquidityCap",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newAddress",
+        type: "address",
+      },
+    ],
+    name: "updateLpTokenTarget",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

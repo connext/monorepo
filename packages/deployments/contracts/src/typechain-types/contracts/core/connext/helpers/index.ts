@@ -13,4 +13,5 @@ export type { ConnextProxyAdmin } from "./ConnextProxyAdmin";
 export type { LPToken } from "./LPToken";
 export type { OwnerPausableUpgradeable } from "./OwnerPausableUpgradeable";
 export type { PriceOracle } from "./PriceOracle";
+export type { RelayerProxyHub } from "./RelayerProxyHub";
 export type { StableSwap } from "./StableSwap";
