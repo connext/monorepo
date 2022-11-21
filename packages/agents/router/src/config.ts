@@ -13,7 +13,7 @@ import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txser
 
 import { existsSync, readFileSync } from "./mockable";
 
-const DEFAULT_SLIPPAGE = 100000; // in BPS
+const DEFAULT_SLIPPAGE = 10000; // in BPS
 
 // Polling mins and defaults.
 const MIN_SUBGRAPH_POLL_INTERVAL = 2_000;
@@ -219,6 +219,19 @@ export const getEnvConfig = (
           const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);
+          }
+          return res.address;
+        })(),
+
+      relayerProxy:
+        chainConfig.deployments?.relayerProxy ??
+        (() => {
+          const res = chainDataForChain
+            ? deployments.relayerProxy(chainDataForChain.chainId, contractPostfix)
+            : undefined;
+
+          if (!res) {
+            throw new Error(`No RelayerProxy contract address for domain ${domainId}`);
           }
           return res.address;
         })(),

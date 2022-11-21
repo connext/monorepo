@@ -10,4 +10,5 @@ export { ConnextProxyAdmin__factory } from "./ConnextProxyAdmin__factory";
 export { LPToken__factory } from "./LPToken__factory";
 export { OwnerPausableUpgradeable__factory } from "./OwnerPausableUpgradeable__factory";
 export { PriceOracle__factory } from "./PriceOracle__factory";
+export { RelayerProxyHub__factory } from "./RelayerProxyHub__factory";
 export { StableSwap__factory } from "./StableSwap__factory";

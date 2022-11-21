@@ -19,6 +19,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   uint256 acceptanceDelay = 7 days;
   uint256 ownershipDelay = 6 days;
   address internal xAppConnectionManager = address(1);
+  address internal lpTokenTargetAddress = address(2);
 
   // ============ Setup ============
 
@@ -30,7 +31,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       abi.encode(domain)
     );
     // Deploy token beacon
-    deployConnext(uint256(domain), xAppConnectionManager, acceptanceDelay);
+    deployConnext(uint256(domain), xAppConnectionManager, acceptanceDelay, lpTokenTargetAddress);
 
     connextHandler = IConnext(address(connextDiamondProxy));
   }
@@ -51,7 +52,8 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       DiamondInit.init.selector,
       newDomain,
       newXAppConnectionManager,
-      acceptanceDelay
+      acceptanceDelay,
+      lpTokenTargetAddress
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
@@ -104,7 +106,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // Diamond cut after setting 0 acceptance delay should work.
   function test_LibDiamond__initializeDiamondCut_withZeroAcceptanceDelay_works() public {
-    deployConnext(uint256(domain), xAppConnectionManager, 0);
+    deployConnext(uint256(domain), xAppConnectionManager, 0, lpTokenTargetAddress);
 
     connextHandler = IConnext(address(connextDiamondProxy));
 
@@ -130,7 +132,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   // ============ diamondCut ============
   // Should fail if it includes `proposeDiamondCut` selector
   function test_LibDiamond__diamondCut_failsIfProposeCutRemoved() public {
-    deployConnext(uint256(domain), xAppConnectionManager, 0);
+    deployConnext(uint256(domain), xAppConnectionManager, 0, lpTokenTargetAddress);
 
     connextHandler = IConnext(address(connextDiamondProxy));
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
@@ -150,7 +152,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // Should fail if it includes `diamondCut` selector
   function test_LibDiamond__diamondCut_failsIfCutRemoved() public {
-    deployConnext(uint256(domain), xAppConnectionManager, 0);
+    deployConnext(uint256(domain), xAppConnectionManager, 0, lpTokenTargetAddress);
 
     connextHandler = IConnext(address(connextDiamondProxy));
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);

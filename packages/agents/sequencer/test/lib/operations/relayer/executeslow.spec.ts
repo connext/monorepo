@@ -1,5 +1,6 @@
 import { expect, mkAddress, mkBytes32, RelayerTaskStatus, RelayerType } from "@connext/nxtp-utils";
 import { stub, SinonStub } from "sinon";
+import { BigNumber } from "ethers";
 import { MissingTransfer } from "../../../../src/lib/errors";
 import * as MockableFns from "../../../../src/mockable";
 import { sendExecuteSlowToRelayer } from "../../../../src/lib/operations/relayer";
@@ -25,6 +26,8 @@ describe("Operations:ExecuteSlow", () => {
     sendWithRelayerWithBackupStub = stub(MockableFns, "sendWithRelayerWithBackup").resolves({
       taskId: mockTaskId,
     });
+
+    stub(MockableFns, "getEstimatedFee").resolves(BigNumber.from("1"));
   });
 
   describe("#sendExecuteSlowToRelayer", () => {

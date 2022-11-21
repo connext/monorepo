@@ -18,7 +18,7 @@ export const addSequencer = async (
     });
     const [isApproved] = ConnextInterface.decodeFunctionResult("approvedSequencers", encoded);
     if (!isApproved) {
-      logger.info("Whitelisting sequencer...", requestContext, methodContext, { domain, sequencer, isApproved });
+      logger.info("Allowlisting sequencer...", requestContext, methodContext, { domain, sequencer, isApproved });
       const approveRelayerData = ConnextInterface.encodeFunctionData("addSequencer", [sequencer]);
       await txService.sendTx(
         {
@@ -30,7 +30,7 @@ export const addSequencer = async (
         requestContext,
       );
     } else {
-      logger.info("Sequencer already whitelisted for this domain.", requestContext, methodContext, {
+      logger.info("Sequencer already allowlisted for this domain.", requestContext, methodContext, {
         domain,
         sequencer,
         isApproved,

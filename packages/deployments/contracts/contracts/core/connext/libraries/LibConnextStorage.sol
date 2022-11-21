@@ -16,7 +16,7 @@ import {TokenId} from "./TokenId.sol";
 // Admin    - 3
 enum Role {
   None,
-  Router,
+  RouterAdmin,
   Watcher,
   Admin
 }
@@ -91,8 +91,8 @@ struct ExecuteArgs {
 
 /**
  * @notice Contains configs for each router
- * @param approved Whether the router is whitelisted, settable by admin
- * @param portalApproved Whether the router is whitelisted for portals, settable by admin
+ * @param approved Whether the router is allowlisted, settable by admin
+ * @param portalApproved Whether the router is allowlisted for portals, settable by admin
  * @param routerOwners The address that can update the `recipient`
  * @param proposedRouterOwners Owner candidates
  * @param proposedRouterTimestamp When owner candidate was proposed (there is a delay to acceptance)
@@ -140,13 +140,13 @@ struct AppStorage {
   // 6
   mapping(bytes32 => IStableSwap) adoptedToLocalExternalPools;
   /**
-   * @notice Mapping of whitelisted assets on same domain as contract.
+   * @notice Mapping of allowlisted assets on same domain as contract.
    * @dev Mapping is keyed on the hash of the canonical id and domain
    */
   // 7
   mapping(bytes32 => bool) approvedAssets;
   /**
-   * @notice Mapping of liquidity caps of whitelisted assets. If 0, no cap is enforced.
+   * @notice Mapping of liquidity caps of allowlisted assets. If 0, no cap is enforced.
    * @dev Mapping is keyed on the hash of the canonical id and domain
    */
   // 7
@@ -235,13 +235,13 @@ struct AppStorage {
   // 23
   uint256 _proposedOwnershipTimestamp;
   // 24
-  bool _routerWhitelistRemoved;
+  bool _routerAllowlistRemoved;
   // 25
-  uint256 _routerWhitelistTimestamp;
+  uint256 _routerAllowlistTimestamp;
   // 26
-  bool _assetWhitelistRemoved;
+  bool _assetAllowlistRemoved;
   // 27
-  uint256 _assetWhitelistTimestamp;
+  uint256 _assetAllowlistTimestamp;
   /**
    * @notice Stores a mapping of address to Roles
    * @dev returns uint representing the enum Role value
@@ -277,9 +277,15 @@ struct AppStorage {
   // 32
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
   /**
-   * @notice Stores whether or not bribing, AMMs, have been paused.
+   * The address of an existing LPToken contract to use as a target
+   * this target must be the address which connext deployed on this chain.
    */
   // 33
+  address lpTokenTargetAddress;
+  /**
+   * @notice Stores whether or not bribing, AMMs, have been paused.
+   */
+  // 34
   bool _paused;
   //
   // AavePortals
@@ -287,35 +293,35 @@ struct AppStorage {
   /**
    * @notice Address of Aave Pool contract.
    */
-  // 34
+  // 35
   address aavePool;
   /**
    * @notice Fee percentage numerator for using Portal liquidity.
    * @dev Assumes the same basis points as the liquidity fee.
    */
-  // 35
+  // 36
   uint256 aavePortalFeeNumerator;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals.
    */
-  // 36
+  // 37
   mapping(bytes32 => uint256) portalDebt;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals.
    */
-  // 37
+  // 38
   mapping(bytes32 => uint256) portalFeeDebt;
   /**
    * @notice Mapping of approved sequencers
    * @dev Sequencer address provided must belong to an approved sequencer in order to call `execute`
    * for the fast liquidity route.
    */
-  // 38
+  // 39
   mapping(address => bool) approvedSequencers;
   /**
    * @notice Remote connection manager for xapp.
    */
-  // 39
+  // 40
   IConnectorManager xAppConnectionManager;
 }
 

@@ -19,14 +19,14 @@ contract RelayerFacet is BaseConnextFacet {
   event RelayerFeeVaultUpdated(address oldVault, address newVault, address caller);
 
   /**
-   * @notice Emitted when a relayer is added or removed from whitelists
+   * @notice Emitted when a relayer is added or removed from allowlists
    * @param relayer - The relayer address to be added or removed
    * @param caller - The account that called the function
    */
   event RelayerAdded(address relayer, address caller);
 
   /**
-   * @notice Emitted when a relayer is added or removed from whitelists
+   * @notice Emitted when a relayer is added or removed from allowlists
    * @param relayer - The relayer address to be added or removed
    * @param caller - The account that called the function
    */

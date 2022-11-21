@@ -124,12 +124,12 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
           write: { method: "setXAppConnectionManager", args: [SpokeConnector.address] },
         });
 
-        /// MARK - Connectors: Whitelist Senders
-        console.log(`\tVerifying whitelistSender of SpokeConnector are set correctly.`, spoke.chain);
+        /// MARK - Connectors: Allowlist Senders
+        console.log(`\tVerifying allowlistSender of SpokeConnector are set correctly.`, spoke.chain);
         await updateIfNeeded({
           deployment: SpokeConnector,
           desired: true,
-          read: { method: "whitelistedSenders", args: [spoke.deployments.Connext.address] },
+          read: { method: "allowlistedSenders", args: [spoke.deployments.Connext.address] },
           write: { method: "addSender", args: [spoke.deployments.Connext.address] },
         });
       }
@@ -210,7 +210,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
   await updateIfNeeded({
     deployment: MainnetConnector,
     desired: true,
-    read: { method: "whitelistedSenders", args: [hub.deployments.Connext.address] },
+    read: { method: "allowlistedSenders", args: [hub.deployments.Connext.address] },
     write: { method: "addSender", args: [hub.deployments.Connext.address] },
   });
 };
