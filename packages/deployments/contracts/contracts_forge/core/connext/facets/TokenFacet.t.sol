@@ -298,22 +298,13 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   }
 
   function test_TokenFacet__setupAssetWithDeployedRepresentation_works() public {
-    address asset = address(1234);
+    address asset = address(new TestERC20("Test Token", "TEST"));
     address stableSwap = address(0);
     address adoptedAssetId = address(0);
     _cap = 0;
 
     // Get key
     bytes32 _canonicalKey = utils_calculateCanonicalHash();
-
-    // Mock call to .decimals()
-    vm.mockCall(asset, abi.encodeWithSelector(IERC20Metadata.decimals.selector), abi.encode(18));
-    // Mock call to .balanceOf()
-    vm.mockCall(asset, abi.encodeWithSelector(IERC20.balanceOf.selector), abi.encode(0));
-    // Mock call to .mint()
-    vm.mockCall(asset, abi.encodeWithSelector(IBridgeToken.mint.selector), abi.encode(18));
-    // Mock call to .burn()
-    vm.mockCall(asset, abi.encodeWithSelector(IBridgeToken.burn.selector), abi.encode(18));
 
     // Setup event calls
     if (stableSwap != address(0)) {
@@ -582,7 +573,8 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   function test_TokenFacet__updateDetails_failsIfNoLocal() public {
     s.domain = _canonicalDomain + 2;
     bytes32 key = utils_calculateCanonicalHash();
-    s.canonicalToRepresentation[key] = address(0);
+    s.tokenConfigs[key].representation = address(0);
+    s.tokenConfigs[key].adoptedDecimals = 1;
 
     // Inputs
     string memory updatedName = "asdfkj";
@@ -596,7 +588,8 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   function test_TokenFacet__updateDetails_failsOnCanonical() public {
     s.domain = _canonicalDomain;
     bytes32 key = utils_calculateCanonicalHash();
-    s.canonicalToRepresentation[key] = _local;
+    s.tokenConfigs[key].representation = _local;
+    s.tokenConfigs[key].adoptedDecimals = 1;
 
     // Inputs
     string memory updatedName = "asdfkj";
@@ -612,8 +605,9 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     _local = address(new TestERC20("Test", "t"));
     s.domain = _canonicalDomain + 2;
     bytes32 key = utils_calculateCanonicalHash();
-    s.canonicalToRepresentation[key] = _local;
-    s.approvedAssets[key] = true;
+    s.tokenConfigs[key].adoptedDecimals = 1;
+    s.tokenConfigs[key].representation = _local;
+    s.tokenConfigs[key].approval = true;
 
     // Inputs
     string memory updatedName = "asdfkj";
