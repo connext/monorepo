@@ -205,7 +205,7 @@ contract TokenFacet is BaseConnextFacet {
 
       // Enroll the asset. Pass in address(0) for adopted: it should use the local asset (i.e. the
       // canonical asset in this case) instead for both adopted and local.
-      _enrollAdoptedAndLocalAssets(true, _canonicalDecimals, address(0), _local, address(0), _canonical, _cap);
+      _enrollAdoptedAndLocalAssets(true, _canonicalDecimals, address(0), _local, address(0), _canonical, _cap, key);
     } else {
       // Cannot already have an assigned representation.
       // NOTE: *If* it does, it can still be replaced with `setupAssetWithDeployedRepresentation`
@@ -222,7 +222,16 @@ contract TokenFacet is BaseConnextFacet {
         _representationSymbol
       );
       // Enroll the asset.
-      _enrollAdoptedAndLocalAssets(false, _canonicalDecimals, _adoptedAssetId, _local, _stableSwapPool, _canonical, 0);
+      _enrollAdoptedAndLocalAssets(
+        false,
+        _canonicalDecimals,
+        _adoptedAssetId,
+        _local,
+        _stableSwapPool,
+        _canonical,
+        0,
+        key
+      );
     }
   }
 
@@ -240,6 +249,9 @@ contract TokenFacet is BaseConnextFacet {
       revert TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain();
     }
 
+    // Calculate the canonical key.
+    bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
+
     _enrollAdoptedAndLocalAssets(
       false,
       IERC20Metadata(_representation).decimals(),
@@ -247,7 +259,8 @@ contract TokenFacet is BaseConnextFacet {
       _representation,
       _stableSwapPool,
       _canonical,
-      0
+      0,
+      key
     );
 
     return _representation;
@@ -338,8 +351,9 @@ contract TokenFacet is BaseConnextFacet {
     address _local,
     address _stableSwapPool,
     TokenId calldata _canonical,
-    uint256 _cap
-  ) internal returns (bytes32 _key) {
+    uint256 _cap,
+    bytes32 _key
+  ) internal {
     // Sanity check: canonical ID and domain are not 0.
     if (_canonical.domain == 0 || _canonical.id == bytes32("")) {
       revert TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
@@ -359,8 +373,8 @@ contract TokenFacet is BaseConnextFacet {
     if (!onCanonical) {
       IBridgeToken localToken = IBridgeToken(_local);
       uint256 balance = localToken.balanceOf(address(this));
-      IBridgeToken(_local).mint(address(this), 1);
-      IBridgeToken(_local).burn(address(this), 1);
+      localToken.mint(address(this), 1);
+      localToken.burn(address(this), 1);
       if (balance != localToken.balanceOf(address(this))) {
         revert TokenFacet__addAssetId_invalidLocalAsset();
       }
@@ -509,7 +523,7 @@ contract TokenFacet is BaseConnextFacet {
     delete s.tokenConfigs[_key].adoptedToLocalExternalPools;
     delete s.tokenConfigs[_key].approval;
     delete s.tokenConfigs[_key].cap;
-    delete s.tokenConfigs[_key].custodied;
+    // NOTE: custodied will always be 0 at this point
 
     // Delete from reverse lookups
     delete s.representationToCanonical[_representation];
