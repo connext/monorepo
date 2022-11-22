@@ -38,7 +38,7 @@ library ExitPayloadReader {
     if (len == 0) return;
 
     // copy as many word sizes as possible
-    for (; len >= WORD_SIZE; len -= WORD_SIZE) {
+    for (; len > WORD_SIZE - 1; len -= WORD_SIZE) {
       assembly {
         mstore(dest, mload(src))
       }
