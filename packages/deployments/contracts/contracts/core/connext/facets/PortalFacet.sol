@@ -104,7 +104,7 @@ contract PortalFacet is BaseConnextFacet {
     bytes32 key = AssetLogic.calculateCanonicalHash(_params.canonicalId, _params.canonicalDomain);
 
     // Ensure the asset is approved
-    if (!s.approvedAssets[key]) {
+    if (!s.tokenConfigs[key].approval) {
       revert PortalFacet__repayAavePortal_assetNotApproved();
     }
 
@@ -163,9 +163,9 @@ contract PortalFacet is BaseConnextFacet {
     // Get the adopted address
     // NOTE: using storage directly because if `_getAdoptedAsset` is used, will revert if
     // the asset is not whitelisted (and this fn should work if asset is removed)
-    address adopted = s.canonicalToAdopted[
-      AssetLogic.calculateCanonicalHash(_params.canonicalId, _params.canonicalDomain)
-    ];
+    address adopted = s
+      .tokenConfigs[AssetLogic.calculateCanonicalHash(_params.canonicalId, _params.canonicalDomain)]
+      .adopted;
 
     // Verify asset
     // NOTE: if asset is removed, `adopted` will be `address(0)`, so you cannot verify the asset
