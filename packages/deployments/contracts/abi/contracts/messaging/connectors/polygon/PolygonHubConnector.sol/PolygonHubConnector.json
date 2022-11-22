@@ -35,7 +35,6 @@
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
   "function sendMessage(bytes,bytes) payable",
-  "function setFxChildTunnel(address)",
   "function setMirrorConnector(address)",
   "function verifySender(address) returns (bool)"
 ]
