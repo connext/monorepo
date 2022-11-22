@@ -348,7 +348,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
         futureA: a * Constants.A_PRECISION,
         swapFee: fee,
         adminFee: adminFee,
-        lpToken: LPToken(address(0x3A1148FE01e3c4721D93fe8A36c2b5C29109B6ae)),
+        lpToken: LPToken(addressFrom(address(this), vm.getNonce(address(this)))),
         pooledTokens: _pooledTokens,
         tokenPrecisionMultipliers: precisionMultipliers,
         balances: new uint256[](_pooledTokens.length),

@@ -8,7 +8,7 @@ import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 
-import {LibConnextStorage, AppStorage} from "./LibConnextStorage.sol";
+import {LibConnextStorage, AppStorage, TokenConfig} from "./LibConnextStorage.sol";
 import {SwapUtils} from "./SwapUtils.sol";
 import {Constants} from "./Constants.sol";
 import {TokenId} from "./TokenId.sol";
@@ -24,12 +24,26 @@ library AssetLogic {
   error AssetLogic__handleIncomingAsset_nativeAssetNotSupported();
   error AssetLogic__handleIncomingAsset_feeOnTransferNotSupported();
   error AssetLogic__handleOutgoingAsset_notNative();
-  error AssetLogic__swapToLocalAssetIfNeeded_swapPaused();
-  error AssetLogic__swapFromLocalAssetIfNeeded_swapPaused();
   error AssetLogic__getTokenIndexFromStableSwapPool_notExist();
+  error AssetLogic__getConfig_notRegistered();
   error AssetLogic__swapAsset_externalStableSwapPoolDoesNotExist();
 
   // ============ Internal: Handle Transfer ============
+
+  function getConfig(bytes32 _key) internal view returns (TokenConfig storage) {
+    AppStorage storage s = LibConnextStorage.connextStorage();
+    TokenConfig storage config = s.tokenConfigs[_key];
+
+    // Sanity check: not empty
+    // NOTE: adopted decimals will *always* be nonzero (or reflect what is onchain
+    // for the asset). The same is not true for the representation assets, which
+    // will always have 0 decimals on the canonical domain
+    if (config.adoptedDecimals < 1) {
+      revert AssetLogic__getConfig_notRegistered();
+    }
+
+    return config;
+  }
 
   /**
    * @notice Handles transferring funds from msg.sender to the Connext contract.
@@ -129,18 +143,16 @@ library AssetLogic {
       return _amount;
     }
 
+    // Get the configs.
+    TokenConfig storage config = getConfig(_key);
+
     // Swap the asset to the proper local asset.
     (uint256 out, ) = _swapAsset(
       _key,
       _asset,
       _local,
       _amount,
-      calculateSlippageBoundary(
-        IERC20Metadata(_asset).decimals(),
-        IERC20Metadata(_local).decimals(),
-        _amount,
-        _slippage
-      )
+      calculateSlippageBoundary(config.adoptedDecimals, config.representationDecimals, _amount, _slippage)
     );
     return out;
   }
@@ -164,10 +176,11 @@ library AssetLogic {
     uint256 _slippage,
     uint256 _normalizedIn
   ) internal returns (uint256, address) {
-    AppStorage storage s = LibConnextStorage.connextStorage();
+    // Get the token config.
+    TokenConfig storage config = getConfig(_key);
+    address adopted = config.adopted;
 
     // If the adopted asset is the local asset, no need to swap.
-    address adopted = s.canonicalToAdopted[_key];
     if (adopted == _asset) {
       return (_amount, adopted);
     }
@@ -189,7 +202,7 @@ library AssetLogic {
         // to the proper decimals of adopted.
         calculateSlippageBoundary(
           Constants.DEFAULT_NORMALIZED_DECIMALS,
-          IERC20Metadata(adopted).decimals(),
+          config.adoptedDecimals,
           _normalizedIn,
           _slippage
         )
@@ -212,10 +225,10 @@ library AssetLogic {
     uint256 _amount,
     uint256 _maxIn
   ) internal returns (uint256, address) {
-    AppStorage storage s = LibConnextStorage.connextStorage();
+    TokenConfig storage config = getConfig(_key);
 
     // If the adopted asset is the local asset, no need to swap.
-    address adopted = s.canonicalToAdopted[_key];
+    address adopted = config.adopted;
     if (adopted == _asset) {
       return (_amount, adopted);
     }
@@ -259,7 +272,7 @@ library AssetLogic {
       );
     } else {
       // Otherwise, swap via external stableswap pool.
-      IStableSwap pool = s.adoptedToLocalExternalPools[_key];
+      IStableSwap pool = IStableSwap(getConfig(_key).adoptedToLocalExternalPools);
 
       IERC20Metadata assetIn = IERC20Metadata(_assetIn);
 
@@ -313,10 +326,9 @@ library AssetLogic {
       );
     } else {
       // Otherwise, swap via external stableswap pool.
-      IStableSwap pool = s.adoptedToLocalExternalPools[_key];
-      address poolAddress = address(pool);
-
       // NOTE: This call will revert if the external stableswap pool doesn't exist.
+      IStableSwap pool = IStableSwap(getConfig(_key).adoptedToLocalExternalPools);
+      address poolAddress = address(pool);
 
       // Perform the swap.
       // Edge case with some tokens: Example USDT in ETH Mainnet, after the backUnbacked call
@@ -361,7 +373,8 @@ library AssetLogic {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // If the adopted asset is the local asset, no need to swap.
-    address adopted = s.canonicalToAdopted[_key];
+    TokenConfig storage config = getConfig(_key);
+    address adopted = config.adopted;
     if (adopted == _asset) {
       return (_amount, adopted);
     }
@@ -376,7 +389,7 @@ library AssetLogic {
       return (ipool.calculateSwap(tokenIndexIn, tokenIndexOut, _amount), adopted);
     } else {
       // Otherwise, try to calculate with external pool.
-      IStableSwap pool = s.adoptedToLocalExternalPools[_key];
+      IStableSwap pool = IStableSwap(config.adoptedToLocalExternalPools);
       // NOTE: This call will revert if no external pool exists.
       return (pool.calculateSwapFromAddress(_asset, adopted, _amount), adopted);
     }
@@ -413,7 +426,7 @@ library AssetLogic {
       uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(_key, _local);
       return (ipool.calculateSwap(tokenIndexIn, tokenIndexOut, _amount), _local);
     } else {
-      IStableSwap pool = s.adoptedToLocalExternalPools[_key];
+      IStableSwap pool = IStableSwap(getConfig(_key).adoptedToLocalExternalPools);
 
       return (pool.calculateSwapFromAddress(_asset, _local, _amount), _local);
     }
@@ -492,7 +505,7 @@ library AssetLogic {
       return TypeCasts.bytes32ToAddress(_id);
     } else {
       // Token is a representation of a token of remote origin
-      return s.canonicalToRepresentation[_key];
+      return getConfig(_key).representation;
     }
   }
 
