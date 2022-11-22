@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 /**
  * @title RLPReader
@@ -142,7 +142,8 @@ library RLPReader {
    * @return Decoded bytes32.
    */
   function readBytes32(RLPItem memory _in) internal pure returns (bytes32) {
-    require(_in.length <= 33, "Invalid RLP bytes32 value.");
+    // instead of <= 33
+    require(_in.length < 33 + 1, "Invalid RLP bytes32 value.");
 
     (uint256 itemOffset, uint256 itemLength, RLPItemType itemType) = _decodeLength(_in);
 
@@ -278,11 +279,11 @@ library RLPReader {
       prefix := byte(0, mload(ptr))
     }
 
-    if (prefix <= 0x7f) {
+    if (prefix < 0x7f + 1) {
       // Single byte.
 
       return (0, 1, RLPItemType.DATA_ITEM);
-    } else if (prefix <= 0xb7) {
+    } else if (prefix < 0xb7 + 1) {
       // Short string.
 
       // slither-disable-next-line variable-scope
@@ -291,7 +292,7 @@ library RLPReader {
       require(_in.length > strLen, "Invalid RLP short string.");
 
       return (1, strLen, RLPItemType.DATA_ITEM);
-    } else if (prefix <= 0xbf) {
+    } else if (prefix < 0xbf + 1) {
       // Long string.
       uint256 lenOfStrLen = prefix - 0xb7;
 
@@ -306,7 +307,7 @@ library RLPReader {
       require(_in.length > lenOfStrLen + strLen, "Invalid RLP long string.");
 
       return (1 + lenOfStrLen, strLen, RLPItemType.DATA_ITEM);
-    } else if (prefix <= 0xf7) {
+    } else if (prefix < 0xf7 + 1) {
       // Short list.
       // slither-disable-next-line variable-scope
       uint256 listLen = prefix - 0xc0;
@@ -356,13 +357,17 @@ library RLPReader {
     }
 
     // Copy over as many complete words as we can.
-    for (uint256 i = 0; i < _length / 32; i++) {
+    for (uint256 i = 0; i < _length / 32; ) {
       assembly {
         mstore(dest, mload(src))
       }
 
       src += 32;
       dest += 32;
+
+      unchecked {
+        ++i;
+      }
     }
 
     // Pick out the remaining bytes.

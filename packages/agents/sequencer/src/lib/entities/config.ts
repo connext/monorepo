@@ -6,6 +6,7 @@ export const TChainConfig = Type.Object({
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
   deployments: Type.Object({
     connext: TAddress,
+    relayerProxy: TAddress,
   }),
 });
 

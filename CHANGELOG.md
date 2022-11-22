@@ -2,6 +2,27 @@
 
 ## Next Release
 
+## Amarok 0.2.1-beta.6
+
+- [sdk] pool price impact
+
+## Amarok 0.2.1-beta.5
+
+- [all] new release for npm
+
+## Amarok 0.2.1-beta.4
+
+- [sdk] add support for priceImpact
+- [contracts] new deployments for staging
+
+## Amarok 0.2.1-beta.3
+
+- [sdk] add support for xCallIntoLocal
+
+## Amarok 0.2.1-beta.2
+
+- [all] multi fixes
+
 ## Amarok 0.2.1-beta.0
 
 - [all] working prod, mainnet in progress

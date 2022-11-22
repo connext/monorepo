@@ -27,22 +27,15 @@ import type {
 
 export interface SwapUtilsExternalInterface extends utils.Interface {
   functions: {
-    "A_PRECISION()": FunctionFragment;
-    "MAX_A()": FunctionFragment;
     "getD(uint256[],uint256)": FunctionFragment;
     "getY(uint256,uint8,uint8,uint256,uint256[])": FunctionFragment;
     "getYD(uint256,uint8,uint256[],uint256)": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "A_PRECISION" | "MAX_A" | "getD" | "getY" | "getYD"
+    nameOrSignatureOrTopic: "getD" | "getY" | "getYD"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "A_PRECISION",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "MAX_A", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getD",
     values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<BigNumberish>]
@@ -67,11 +60,6 @@ export interface SwapUtilsExternalInterface extends utils.Interface {
     ]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "A_PRECISION",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "MAX_A", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getD", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getY", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getYD", data: BytesLike): Result;
@@ -234,10 +222,6 @@ export interface SwapUtilsExternal extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    A_PRECISION(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    MAX_A(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     getD(
       xp: PromiseOrValue<BigNumberish>[],
       a: PromiseOrValue<BigNumberish>,
@@ -261,10 +245,6 @@ export interface SwapUtilsExternal extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
   };
-
-  A_PRECISION(overrides?: CallOverrides): Promise<BigNumber>;
-
-  MAX_A(overrides?: CallOverrides): Promise<BigNumber>;
 
   getD(
     xp: PromiseOrValue<BigNumberish>[],
@@ -290,10 +270,6 @@ export interface SwapUtilsExternal extends BaseContract {
   ): Promise<BigNumber>;
 
   callStatic: {
-    A_PRECISION(overrides?: CallOverrides): Promise<BigNumber>;
-
-    MAX_A(overrides?: CallOverrides): Promise<BigNumber>;
-
     getD(
       xp: PromiseOrValue<BigNumberish>[],
       a: PromiseOrValue<BigNumberish>,
@@ -417,10 +393,6 @@ export interface SwapUtilsExternal extends BaseContract {
   };
 
   estimateGas: {
-    A_PRECISION(overrides?: CallOverrides): Promise<BigNumber>;
-
-    MAX_A(overrides?: CallOverrides): Promise<BigNumber>;
-
     getD(
       xp: PromiseOrValue<BigNumberish>[],
       a: PromiseOrValue<BigNumberish>,
@@ -446,10 +418,6 @@ export interface SwapUtilsExternal extends BaseContract {
   };
 
   populateTransaction: {
-    A_PRECISION(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    MAX_A(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     getD(
       xp: PromiseOrValue<BigNumberish>[],
       a: PromiseOrValue<BigNumberish>,

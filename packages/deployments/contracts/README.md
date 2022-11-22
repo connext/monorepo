@@ -61,14 +61,14 @@ nxtp$ yarn workspace @connext/nxtp-contracts coverage
 ### Contract Deployment
 
 <aside>
-💡 Important to note that this deployment guide was written when we had to deploy our own `TokenRegistry.sol`. In production, these are for the Nomad team to deploy and set up not us!
+💡 Before deploying, you should ensure that precompiles available on the chain cannot be abused, specifically by the arbitrary calldata supported by the `IXReceiver` contracts called in `execute`.
 
 Last updated deployment guide on: May 3 2022
 
 </aside>
 
 <aside>
-⚠️ When using any tasks that require the address of an upgradeable contract, make sure you use the address stored as the `[ContractName]UpgradeBeaconProxy` address, not the implementation address. (i.e. if it requires the `TokenRegistry` address, use the `TokenRegistryUpgradeBeaconProxy` address from the `deployments` directory). Keep in mind staging deployments will append `Staging` to the end of the deployed artifact name as well
+⚠️ When using any tasks that require the address of an upgradeable contract, make sure you use the address stored as the `[ContractName]UpgradeBeaconProxy` address, not the implementation address. Keep in mind staging deployments will append `Staging` to the end of the deployed artifact name as well
 
 </aside>
 
@@ -96,7 +96,7 @@ Contracts are deployed via the [hardhat deploy](https://hardhat.org/plugins/hard
 
 Congratulations! You have deployed a new set of amarok contracts. Now, we have to configure them.
 
-1. You must enroll the remote handlers using the `enroll-handlers` task. This is done so the handlers know to accept messages from each other across domains, and must be done on each nomad router. You can specify a `type` as the remote handlers you want to enroll (may be `all`, `promise`, `relayer`), and the `chains` you want to enroll the remotes for
+1. You must enroll the remote handlers using the `enroll-handlers` task. This is done so the handlers know to accept messages from each other across domains, and must be done on each router. You can specify a `type` as the remote handlers you want to enroll (may be `all`, `promise`, `relayer`), and the `chains` you want to enroll the remotes for
 
    ```bash
    $ yarn workspace @connext/nxtp-contracts hardhat enroll-handler --type \<HANDLER_TYPE\> --chains \<REMOTE_CHAIN_IDS\> --network \<NETWORK_NAME\>
@@ -117,19 +117,19 @@ Congratulations! You have deployed a new set of amarok contracts. Now, we have t
 
 3. Once you have enrolled the handlers and set up the local assets, you should run the `preflight` task. The preflight task will do the following in an idempotent way:
 
-   - Whitelist a specified router
+   - Allowlist a specified router
    - Setup an asset
    - Add router liquidity (by minting tokens, so a mintable token must be enrolled as the local token)
-   - Whitelist a specified relayer
+   - Allowlist a specified relayer
 
    You can provide these values via a `.env` file, via arguments to the hardhat task, or a combination of the two. Sample:
 
    ```bash
    # Sample .env file contents for preflight
-   ROUTER_ADDRESS= # router to whitelist + add liq for
+   ROUTER_ADDRESS= # router to allowlist + add liq for
    CANONICAL_DOMAIN= # on our current testnet setup, is kovan domain
    CANONICAL_TOKEN= # on our current testnet setup, is TestERC20 on kovan
-   RELAYER_ADDRESS= # relayer to whitelist
+   RELAYER_ADDRESS= # relayer to allowlist
    ENV= # staging or production, defaults to staging
    ```
 
@@ -139,7 +139,7 @@ Congratulations! You have deployed a new set of amarok contracts. Now, we have t
 
 **Upgrading** **Contracts**
 
-The `Connext` is using `TransparentProxy` of OpenZeppelin. When executing the deploy script using [hardhat deploy](https://hardhat.org/plugins/hardhat-deploy.html) plugin, it will automatically detect if the proxy and implementation must be deployed, or if the proxy must simply be upgraded. The nomad contracts (`TokenRegistry`) are using a custom upgrade scheme, but the deploy script will automatically detect if fresh deployments or only upgrades are needed.
+The `Connext` is using `TransparentProxy` of OpenZeppelin. When executing the deploy script using [hardhat deploy](https://hardhat.org/plugins/hardhat-deploy.html) plugin, it will automatically detect if the proxy and implementation must be deployed, or if the proxy must simply be upgraded. The contracts (`TokenRegistry`) are using a custom upgrade scheme, but the deploy script will automatically detect if fresh deployments or only upgrades are needed.
 
 If want to deploy completely new proxy contracts, remove the `.json` files from the `deployments` directory. (ie. `TokenRegistry`, `TokenRegistryUpgradeBeacon`, `TokenRegistryUpgradeBeaconProxy`, `ConnextHandler_Implementation`, `ConnextHandler_Proxy`), and execute the deploy script again.
 
@@ -198,12 +198,12 @@ There are helper tasks defined in the [`./src/tasks`](./src/tasks) directory. Th
 yarn workspace @connext/nxtp-contracts hardhat add-liquidity --network goerli --amount 2500000000000000000000000 --router 0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6 --asset-id 0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682
 ```
 
-### whitelist
+### allowlist
 
-Whitelist command for a single router across multiple networks
+Allowlist command for a single router across multiple networks
 
 ```bash
-yarn workspace @connext/nxtp-contracts whitelist <router-address>
+yarn workspace @connext/nxtp-contracts allowlist <router-address>
 ```
 
 ### read-balances
@@ -255,17 +255,9 @@ This task can be used to run load tests by specifying the number of `--runs`. It
 
 The max number of accounts used is specified in `hardhat.config.ts` under each chain's `accounts: { mnemonic, count: 100 }` (default 20 if unspecified). The `--accounts` flag determines the first N of these accounts to use for this task.
 
-### trace
-
-`trace` allows you to check the status of a nomad message from the origin domain (use the `xcall` transaction hash:
-
-```bash
-$ yarn workspace @connext/nxtp-contracts hardhat trace-message --transaction \<TRANSACTION_HASH\> --destination \<DESTINATION_DOMAIN\> --network \<ORIGIN_NETWORK_NAME\>
-```
-
 ### renounce-ownership
 
-`renounce-ownership` allows you to relinquish whitelist privileges (though it will take a week to take effect):
+`renounce-ownership` allows you to relinquish allowlist privileges (though it will take a week to take effect):
 
 ```bash
 $ yarn workspace @connext/nxtp-contracts hardhat renounce-ownership --type \<TYPE\> --network \<NETWORK\>

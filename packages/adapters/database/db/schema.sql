@@ -230,8 +230,8 @@ CREATE TABLE public.messages (
 CREATE TABLE public.propagated_roots (
     id character(66) NOT NULL,
     aggregate_root character(66) NOT NULL,
-    domains text[] NOT NULL,
-    leaf_count numeric NOT NULL
+    leaf_count numeric NOT NULL,
+    domains_hash text
 );
 
 
@@ -491,4 +491,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20221019094510'),
     ('20221025060119'),
     ('20221026084236'),
-    ('20221027123722');
+    ('20221027123722'),
+    ('20221118203009');

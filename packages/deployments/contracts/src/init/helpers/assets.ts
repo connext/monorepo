@@ -106,7 +106,7 @@ export const setupAsset = async (args: {
       }
     } catch (e: any) {
       console.log(`Failed to lookup canonical to adopted, or remove asset:`, e.message);
-      // `canonicalToAdopted` function reverts if `key` didn't get whitelisted
+      // `canonicalToAdopted` function reverts if `key` didn't get allowlisted
       setupAssetDone = false;
     }
 
@@ -117,7 +117,7 @@ export const setupAsset = async (args: {
         read: { method: "canonicalToAdopted(bytes32)", args: [key] },
         write: {
           method: "setupAssetWithDeployedRepresentation",
-          args: [[canonical.domain, canonical.id], representation.local, desiredAdopted, stableswapPool, 0],
+          args: [[canonical.domain, canonical.id], representation.local, desiredAdopted, stableswapPool],
         },
       });
     } else {

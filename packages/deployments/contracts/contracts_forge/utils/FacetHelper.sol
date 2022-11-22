@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
 
@@ -23,10 +23,13 @@ contract FacetHelper is ForgeHelper {
   // ============ CallParam defaults
   bool _receiveLocal = false;
 
+  string tokenName = "Test Token";
+  string tokenSymbol = "Test";
   // ============ Assets
   // canonical token details
   address _canonical;
   bytes32 _canonicalId;
+  uint8 _canonicalDecimals = 18;
   uint32 _canonicalDomain = _originDomain;
   bytes32 _canonicalKey;
 
@@ -37,6 +40,9 @@ contract FacetHelper is ForgeHelper {
 
   // stable swap address
   address _stableSwap = address(5555555555555555555);
+
+  // safe cap
+  uint256 _cap = 10_000_000 ether;
 
   // ============ Fees
   // fees
@@ -59,11 +65,11 @@ contract FacetHelper is ForgeHelper {
   function utils_deployAssetContracts() public {
     AppStorage storage s = LibConnextStorage.connextStorage();
     // Deploy the adopted token.
-    _adopted = address(new TestERC20("Test Token", "TEST"));
+    _adopted = address(new TestERC20(tokenName, tokenSymbol));
     // Deploy the local token.
-    _local = address(new TestERC20("Test Token", "TEST"));
+    _local = address(new TestERC20(tokenName, tokenSymbol));
     // Deploy the canonical token.
-    _canonical = address(new TestERC20("Test Token", "TEST"));
+    _canonical = address(new TestERC20(tokenName, tokenSymbol));
     _canonicalId = TypeCasts.addressToBytes32(_canonical);
     _canonicalKey = keccak256(abi.encode(_canonicalId, _canonicalDomain));
   }
@@ -73,10 +79,9 @@ contract FacetHelper is ForgeHelper {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // clear any previous listings
+    delete s.tokenConfigs[_canonicalKey];
     delete s.adoptedToCanonical[_local];
     delete s.representationToCanonical[_local];
-    delete s.canonicalToRepresentation[utils_calculateCanonicalHash()];
-    delete s.canonicalToAdopted[utils_calculateCanonicalHash()];
 
     if (onCanonical) {
       // set domain
@@ -84,6 +89,7 @@ contract FacetHelper is ForgeHelper {
       // on canonical, local is always adopted && local is always canonical
       _local = _canonical;
       _adopted = _canonical;
+      _stableSwap = address(0);
     } else {
       // Ensure stored domain is not canonical domain
       if (s.domain == _canonicalDomain) {
@@ -93,7 +99,7 @@ contract FacetHelper is ForgeHelper {
       // If the local is already set to the canonical (i.e. from some defaults)
       // redeploy
       if (_local == _canonical) {
-        _local = address(new TestERC20("Test Token", "TEST"));
+        _local = address(new TestERC20(tokenName, tokenSymbol));
       }
 
       // If the local is adopted, ensure addresses align
@@ -104,30 +110,42 @@ contract FacetHelper is ForgeHelper {
         _stableSwap = address(5555555555555555555);
         // ensure addresses are unique
         if (_adopted == _local) {
-          _adopted = address(new TestERC20("Test Token", "TEST"));
+          _adopted = address(new TestERC20(tokenName, tokenSymbol));
         }
       }
     }
 
     _canonicalKey = keccak256(abi.encode(_canonicalId, _canonicalDomain));
 
+    // Regardless of whether there are two different assets for representation and adopted,
+    // the representation decimals must be set (the default behavior in TokenFacet for configuring
+    // new assets involves setting the adopted decimals to the local decimals of the latter does
+    // not exist).
+    // IFF on the canonical domain, however, representation should be address(0)!
+    s.tokenConfigs[_canonicalKey].representationDecimals = 18;
+
     // - token registry should always return the canonical
     // - if you are not on canonical domain, ensure the local origin returns false
     //   (indicates whether token should be burned or not)
-    if (s.domain != _canonicalDomain) {
+    bool isCanonical = s.domain == _canonicalDomain;
+    if (!isCanonical) {
       s.representationToCanonical[_local].domain = _canonicalDomain;
       s.representationToCanonical[_local].id = _canonicalId;
-      s.canonicalToRepresentation[_canonicalKey] = _local;
+
+      s.tokenConfigs[_canonicalKey].representation = _local;
     }
 
     // Setup the storage variables for adopted
     s.adoptedToCanonical[_adopted].domain = _canonicalDomain;
     s.adoptedToCanonical[_adopted].id = _canonicalId;
-    s.adoptedToLocalPools[_canonicalKey] = IStableSwap(_stableSwap);
-    s.canonicalToAdopted[_canonicalKey] = _adopted;
 
-    // Add to whitelist
-    s.approvedAssets[_canonicalKey] = true;
+    // Remaining config
+    s.tokenConfigs[_canonicalKey].approval = true;
+    s.tokenConfigs[_canonicalKey].adopted = _adopted;
+    s.tokenConfigs[_canonicalKey].adoptedDecimals = 18;
+    s.tokenConfigs[_canonicalKey].adoptedToLocalExternalPools = _stableSwap;
+    s.tokenConfigs[_canonicalKey].cap = isCanonical ? _cap : 0; //10_000_000 ether;
+    s.tokenConfigs[_canonicalKey].custodied = 0;
 
     // // Log stored vars
     // console.log("setup asset:");

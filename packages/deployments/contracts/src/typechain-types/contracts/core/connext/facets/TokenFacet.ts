@@ -41,8 +41,8 @@ export interface TokenFacetInterface extends utils.Interface {
   functions: {
     "addStableSwapPool((uint32,bytes32),address)": FunctionFragment;
     "adoptedToCanonical(address)": FunctionFragment;
-    "adoptedToLocalPools(bytes32)": FunctionFragment;
-    "adoptedToLocalPools((uint32,bytes32))": FunctionFragment;
+    "adoptedToLocalExternalPools((uint32,bytes32))": FunctionFragment;
+    "adoptedToLocalExternalPools(bytes32)": FunctionFragment;
     "approvedAssets(bytes32)": FunctionFragment;
     "approvedAssets((uint32,bytes32))": FunctionFragment;
     "canonicalToAdopted(bytes32)": FunctionFragment;
@@ -55,7 +55,7 @@ export interface TokenFacetInterface extends utils.Interface {
     "removeAssetId(bytes32,address,address)": FunctionFragment;
     "representationToCanonical(address)": FunctionFragment;
     "setupAsset((uint32,bytes32),uint8,string,string,address,address,uint256)": FunctionFragment;
-    "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address,uint256)": FunctionFragment;
+    "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address)": FunctionFragment;
     "updateDetails((uint32,bytes32),string,string)": FunctionFragment;
     "updateLiquidityCap((uint32,bytes32),uint256)": FunctionFragment;
   };
@@ -64,8 +64,8 @@ export interface TokenFacetInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "addStableSwapPool"
       | "adoptedToCanonical"
-      | "adoptedToLocalPools(bytes32)"
-      | "adoptedToLocalPools((uint32,bytes32))"
+      | "adoptedToLocalExternalPools((uint32,bytes32))"
+      | "adoptedToLocalExternalPools(bytes32)"
       | "approvedAssets(bytes32)"
       | "approvedAssets((uint32,bytes32))"
       | "canonicalToAdopted(bytes32)"
@@ -92,12 +92,12 @@ export interface TokenFacetInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "adoptedToLocalPools(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "adoptedToLocalExternalPools((uint32,bytes32))",
+    values: [TokenIdStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "adoptedToLocalPools((uint32,bytes32))",
-    values: [TokenIdStruct]
+    functionFragment: "adoptedToLocalExternalPools(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "approvedAssets(bytes32)",
@@ -165,8 +165,7 @@ export interface TokenFacetInterface extends utils.Interface {
       TokenIdStruct,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
+      PromiseOrValue<string>
     ]
   ): string;
   encodeFunctionData(
@@ -187,11 +186,11 @@ export interface TokenFacetInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "adoptedToLocalPools(bytes32)",
+    functionFragment: "adoptedToLocalExternalPools((uint32,bytes32))",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "adoptedToLocalPools((uint32,bytes32))",
+    functionFragment: "adoptedToLocalExternalPools(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -369,13 +368,13 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[TokenIdStructOutput]>;
 
-    "adoptedToLocalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalExternalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    "adoptedToLocalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalExternalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
@@ -455,7 +454,6 @@ export interface TokenFacet extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -484,13 +482,13 @@ export interface TokenFacet extends BaseContract {
     overrides?: CallOverrides
   ): Promise<TokenIdStructOutput>;
 
-  "adoptedToLocalPools(bytes32)"(
-    _key: PromiseOrValue<BytesLike>,
+  "adoptedToLocalExternalPools((uint32,bytes32))"(
+    _canonical: TokenIdStruct,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  "adoptedToLocalPools((uint32,bytes32))"(
-    _canonical: TokenIdStruct,
+  "adoptedToLocalExternalPools(bytes32)"(
+    _key: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string>;
 
@@ -570,7 +568,6 @@ export interface TokenFacet extends BaseContract {
     _representation: PromiseOrValue<string>,
     _adoptedAssetId: PromiseOrValue<string>,
     _stableSwapPool: PromiseOrValue<string>,
-    _cap: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -599,13 +596,13 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<TokenIdStructOutput>;
 
-    "adoptedToLocalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalExternalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "adoptedToLocalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalExternalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -685,7 +682,6 @@ export interface TokenFacet extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -784,13 +780,13 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "adoptedToLocalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalExternalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "adoptedToLocalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalExternalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -870,7 +866,6 @@ export interface TokenFacet extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -900,13 +895,13 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "adoptedToLocalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalExternalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "adoptedToLocalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalExternalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -986,7 +981,6 @@ export interface TokenFacet extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

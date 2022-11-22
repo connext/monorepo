@@ -295,7 +295,7 @@ const getTransferById = async (sdkUtils: NxtpSdkUtils, domain: string, transferI
 
 const onchainSetup = async (sdkBase: NxtpSdkBase) => {
   // TODO: Mirror connectors set up for messaging
-  // TODO: Whitelist messaging routers as callers of dispatch?
+  // TODO: Allowlist messaging routers as callers of dispatch?
   // TODO: Approve relayers as caller for connectors and root manager?
 
   logger.info("Setting up router...");
@@ -653,7 +653,7 @@ describe("LOCAL:E2E", () => {
 
     // Enroll an EOA (the deployer) as the replica address for this domain.
     // NOTE: In a production environment the replica address will always be a contract. We're using an EOA here in order
-    // to circumvent the nomad message lifecycle / nomad ecosystem.
+    // to circumvent the message lifecycle
     // await enrollReplica(deployer);
 
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
@@ -666,7 +666,7 @@ describe("LOCAL:E2E", () => {
     const iface = getConnextInterface();
     const connext = new Contract(PARAMETERS.B.DEPLOYMENTS.Connext, iface as ContractInterface, deployer);
 
-    // Extract the xchain nomad message bytes from the XCalled event logged.
+    // Extract the xchain message bytes from the XCalled event logged.
     const xcalledEvent = connext.filters.XCalled(null).address;
     let message: string | undefined = undefined;
     for (const log of receipt.logs) {

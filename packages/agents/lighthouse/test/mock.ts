@@ -1,14 +1,25 @@
 import { utils, BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
-import { ConnextContractDeployments, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, mkBytes32, createLoggingContext, XMessage } from "@connext/nxtp-utils";
+import { ChainReader, ConnextContractDeployments, ConnextContractInterfaces } from "@connext/nxtp-txservice";
+import {
+  mkAddress,
+  Logger,
+  mock as _mock,
+  mkBytes32,
+  createLoggingContext,
+  XMessage,
+  RelayerType,
+} from "@connext/nxtp-utils";
+import { Relayer } from "@connext/nxtp-adapters-relayer";
+import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
+import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
+import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
 
 import { NxtpLighthouseConfig } from "../src/config";
 import { ProverContext } from "../src/tasks/prover/context";
 import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
-import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
-import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
-import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
+import { PropagateContext } from "../src/tasks/propagate/context";
+import { mockSubgraph } from "@connext/nxtp-adapters-subgraph/test/mock";
 
 export const mockTaskId = mkBytes32("0xabcdef123");
 export const mockRelayerAddress = mkAddress("0xabcdef123");
@@ -30,7 +41,7 @@ export const mock = {
     return {
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
       adapters: {
-        chainreader: mock.adapters.chainreader(),
+        chainreader: mock.adapters.chainreader() as unknown as ChainReader,
         contracts: mock.adapters.contracts(),
         relayers: mock.adapters.relayers(),
         database: mock.adapters.database(),
@@ -43,10 +54,25 @@ export const mock = {
     return {
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
       adapters: {
-        chainreader: mock.adapters.chainreader(),
+        chainreader: mock.adapters.chainreader() as unknown as ChainReader,
         contracts: mock.adapters.deployments(),
         relayers: mock.adapters.relayers(),
         database: mock.adapters.database(),
+      },
+      config: mock.config(),
+      chainData: mock.chainData(),
+    };
+  },
+  propagateCtx: (): PropagateContext => {
+    return {
+      logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
+      adapters: {
+        chainreader: mock.adapters.chainreader() as unknown as ChainReader,
+        deployments: mock.adapters.deployments(),
+        contracts: mock.adapters.contracts(),
+        relayers: mock.adapters.relayers(),
+        subgraph: mock.adapters.subgraph(),
+        ambs: mock.adapters.ambs(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -58,12 +84,14 @@ export const mock = {
         providers: ["http://example.com"],
         deployments: {
           spokeConnector: mkAddress("0xfedcba321"),
+          relayerProxy: mkAddress("0xfedcba321"),
         },
       },
       [mock.domain.B]: {
         providers: ["http://example.com"],
         deployments: {
           spokeConnector: mkAddress("0xfedcba321"),
+          relayerProxy: mkAddress("0xfedcba321"),
         },
       },
     },
@@ -80,7 +108,7 @@ export const mock = {
     environment: "staging",
     database: { url: "postgres://localhost:5432/lighthouse" },
     healthUrls: {},
-    hubDomain: "1337",
+    hubDomain: mock.domain.A,
     relayers: [
       {
         type: "Connext",
@@ -95,6 +123,18 @@ export const mock = {
       const connext = createStubInstance(utils.Interface);
       connext.encodeFunctionData.returns(encodedDataMock);
       connext.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
+      const rootManager = createStubInstance(utils.Interface);
+      rootManager.encodeFunctionData.returns(encodedDataMock);
+      rootManager.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
+      const relayerProxy = createStubInstance(utils.Interface);
+      relayerProxy.encodeFunctionData.returns(encodedDataMock);
+      relayerProxy.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
+      const relayerProxyHub = createStubInstance(utils.Interface);
+      relayerProxyHub.encodeFunctionData.returns(encodedDataMock);
+      relayerProxyHub.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
       const priceOracle = createStubInstance(utils.Interface);
       priceOracle.encodeFunctionData.returns(encodedDataMock);
@@ -111,32 +151,55 @@ export const mock = {
       const spokeConnector = createStubInstance(utils.Interface);
       spokeConnector.encodeFunctionData.returns(encodedDataMock);
       spokeConnector.decodeFunctionResult.returns([BigNumber.from(1000)]);
+      spokeConnector.decodeFunctionData.returns([BigNumber.from(1000)]);
 
       return {
         erc20: erc20 as unknown as ConnextContractInterfaces["erc20"],
-        erc20Extended: erc20 as unknown as ConnextContractInterfaces["erc20Extended"],
+        relayerProxy: relayerProxy as unknown as ConnextContractInterfaces["relayerProxy"],
         connext: connext as unknown as ConnextContractInterfaces["connext"],
+        rootManager: rootManager as unknown as ConnextContractInterfaces["rootManager"],
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
         spokeConnector: spokeConnector as unknown as ConnextContractInterfaces["spokeConnector"],
+        relayerProxyHub: createStubInstance(utils.Interface) as unknown as ConnextContractInterfaces["relayerProxyHub"],
       };
     },
     deployments: (): SinonStubbedInstance<ConnextContractDeployments> => {
       return {
         connext: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        relayerProxy: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         hubConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         priceOracle: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         spokeConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         stableSwap: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
       };
     },
-    relayers: () => [{ instance: mockRelayer(), type: "Backup", apiKey: "foo" }],
+    relayers: () => [
+      { instance: mockRelayer(), type: "Mock", apiKey: "foo" } as {
+        instance: Relayer;
+        type: RelayerType;
+        apiKey: string;
+      },
+    ],
     database: () => mockDatabase(),
+    subgraph: () => mockSubgraph(),
+    ambs: () => {
+      return {
+        optimism: [],
+        gnosis: [],
+        arbitrum: [],
+        bnb: [],
+      };
+    },
   },
   contracts: {
     deployments: (): ConnextContractDeployments => {
       return {
         connext: (_: number) => ({
+          address: mkAddress("0xbadcab"),
+          abi: {},
+        }),
+        relayerProxy: (_: number) => ({
           address: mkAddress("0xbadcab"),
           abi: {},
         }),

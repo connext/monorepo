@@ -1,5 +1,6 @@
 import { stub, restore, reset, SinonStub } from "sinon";
 import { mkAddress, expect, OriginTransfer, XTransfer, RelayerTaskStatus } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
 
 import { mock } from "../../../mock";
 import { sendExecuteFastToRelayer } from "../../../../src/lib/operations/relayer";
@@ -38,17 +39,22 @@ const loggingContext = mock.loggingContext("RELAYER-TEST");
 describe("Operations:ExecuteFast", () => {
   describe("#sendExecuteFastToRelayer", () => {
     let encodeExecuteFromBidsStub: SinonStub;
+    let encodeRelayerProxyExecuteFromBids: SinonStub;
     let sendWithRelayerWithBackupStub: SinonStub;
     beforeEach(() => {
       encodeExecuteFromBidsStub = stub();
+      encodeRelayerProxyExecuteFromBids = stub();
       getHelpersStub.returns({
         auctions: {
           encodeExecuteFromBids: encodeExecuteFromBidsStub.returns("0xbeef"),
+          encodeRelayerProxyExecuteFromBids: encodeExecuteFromBidsStub.returns("0xbeef"),
         },
       });
       sendWithRelayerWithBackupStub = stub(MockableFns, "sendWithRelayerWithBackup").resolves({
         taskId: mockTaskId,
       });
+
+      stub(MockableFns, "getEstimatedFee").resolves(BigNumber.from("1"));
     });
 
     it("should send the bid to the relayer", async () => {

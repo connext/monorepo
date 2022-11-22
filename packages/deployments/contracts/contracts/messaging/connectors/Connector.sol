@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {ProposedOwnable} from "../../shared/ProposedOwnable.sol";
 import {IConnector} from "../interfaces/IConnector.sol";
@@ -11,10 +11,17 @@ import {IConnector} from "../interfaces/IConnector.sol";
  *
  * @dev This contract stores information about mirror connectors, but can be used as a
  * base for contracts that do not have a mirror (i.e. the connector handling messaging on
- * mainnet). In this case, the `mirrorConnector`, `MIRROR_DOMAIN`, and `mirrorGas`
+ * mainnet). In this case, the `mirrorConnector` and `MIRROR_DOMAIN`
  * will be empty
+ *
+ * @dev If ownership is renounced, this contract will be unable to update its `mirrorConnector`
+ * or `mirrorGas`
  */
 abstract contract Connector is ProposedOwnable, IConnector {
+  // ========== Custom Errors ===========
+
+  error Connector__processMessage_notUsed();
+
   // ============ Events ============
 
   event NewConnector(
@@ -26,8 +33,6 @@ abstract contract Connector is ProposedOwnable, IConnector {
   );
 
   event MirrorConnectorUpdated(address previous, address current);
-
-  event MirrorGasUpdated(uint256 previous, uint256 current);
 
   // ============ Public Storage ============
 
@@ -55,11 +60,6 @@ abstract contract Connector is ProposedOwnable, IConnector {
    * @notice Connector on L2 for L1 connectors, and vice versa.
    */
   address public mirrorConnector;
-
-  /**
-   * @notice Gas costs forwarded to the `processMessage` call on the mirror domain
-   */
-  uint256 public mirrorGas;
 
   // ============ Modifiers ============
 
@@ -92,15 +92,13 @@ abstract contract Connector is ProposedOwnable, IConnector {
    * @param _amb The address of the amb on the domain this connector lives on
    * @param _rootManager The address of the RootManager on mainnet
    * @param _mirrorConnector The address of the spoke connector
-   * @param _mirrorGas The gas costs required to process a message on mirror
    */
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    address _mirrorConnector,
-    uint256 _mirrorGas
+    address _mirrorConnector
   ) ProposedOwnable() {
     // set the owner
     _setOwner(msg.sender);
@@ -120,12 +118,15 @@ abstract contract Connector is ProposedOwnable, IConnector {
       _setMirrorConnector(_mirrorConnector);
     }
 
-    if (_mirrorGas != 0) {
-      _setMirrorGas(_mirrorGas);
-    }
-
     emit NewConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector);
   }
+
+  // ============ Receivable ============
+  /**
+   * @notice Connectors may need to receive native asset to handle fees when sending a
+   * message
+   */
+  receive() external payable {}
 
   // ============ Admin Functions ============
 
@@ -134,13 +135,6 @@ abstract contract Connector is ProposedOwnable, IConnector {
    */
   function setMirrorConnector(address _mirrorConnector) public onlyOwner {
     _setMirrorConnector(_mirrorConnector);
-  }
-
-  /**
-   * @notice Sets the address of the l2Connector for this domain
-   */
-  function setMirrorGas(uint256 _mirrorGas) public onlyOwner {
-    _setMirrorGas(_mirrorGas);
   }
 
   // ============ Public Functions ============
@@ -166,14 +160,22 @@ abstract contract Connector is ProposedOwnable, IConnector {
   /**
    * @notice This function is used by the Connext contract on the l2 domain to send a message to the
    * l1 domain (i.e. called by Connext on optimism to send a message to mainnet with roots)
+   * @param _data The contents of the message
+   * @param _encodedData Data used to send the message; specific to connector
    */
-  function _sendMessage(bytes memory _data) internal virtual;
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal virtual;
 
   /**
    * @notice This function is used by the AMBs to handle incoming messages. Should store the latest
    * root generated on the l2 domain.
    */
-  function _processMessage(bytes memory _data) internal virtual;
+  function _processMessage(
+    bytes memory /* _data */
+  ) internal virtual {
+    // By default, reverts. This is to ensure the call path is not used unless this function is
+    // overridden by the inheriting class
+    revert Connector__processMessage_notUsed();
+  }
 
   /**
    * @notice Verify that the msg.sender is the correct AMB contract, and that the message's origin sender
@@ -187,10 +189,5 @@ abstract contract Connector is ProposedOwnable, IConnector {
   function _setMirrorConnector(address _mirrorConnector) internal virtual {
     emit MirrorConnectorUpdated(mirrorConnector, _mirrorConnector);
     mirrorConnector = _mirrorConnector;
-  }
-
-  function _setMirrorGas(uint256 _mirrorGas) internal {
-    emit MirrorGasUpdated(mirrorGas, _mirrorGas);
-    mirrorGas = _mirrorGas;
   }
 }

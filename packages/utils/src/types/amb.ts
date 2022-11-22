@@ -67,7 +67,7 @@ export type AggregatedRoot = Static<typeof AggregatedRootSchema>;
 export const PropagatedRootSchema = Type.Object({
   id: Type.String(),
   aggregate: Type.String(),
-  domains: Type.Array(Type.String()),
+  domainsHash: Type.String(),
   count: Type.Number({ minimum: 0 }),
 });
 export type PropagatedRoot = Static<typeof PropagatedRootSchema>;
@@ -81,3 +81,10 @@ export const ConnectorMetaSchema = Type.Object({
   amb: Type.String(),
 });
 export type ConnectorMeta = Static<typeof ConnectorMetaSchema>;
+
+export const RootManagerMetaSchema = Type.Object({
+  id: Type.String(),
+  connectors: Type.Array(Type.String()),
+  domains: Type.Array(Type.String()),
+});
+export type RootManagerMeta = Static<typeof RootManagerMetaSchema>;

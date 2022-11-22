@@ -16,7 +16,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
   /// ******************** MESSAGING ********************
   /// MARK - Init
   // TODO: Currently unused, as messaging init checks are not needed with the AMB-compatible stack.
-  // However, they will be useful as sanity checks for Nomad deployments in the future - thus, leaving
+  // However, they will be useful as sanity checks for deployments in the future - thus, leaving
   // this placeholder here for now...
 
   /// MARK - Connector Mirrors
@@ -63,12 +63,16 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         // Set hub connector address for this domain on RootManager.
         console.log("\tVerifying RootManager `connectors` has HubConnector set correctly.");
         try {
-          const currentValue = await getValue({
+          const currentValue: undefined | string = await getValue({
             deployment: RootManager,
             read: { method: "getConnectorForDomain", args: [spoke.domain] },
           });
           // If the current connector address is not correct and isn't empty, we need to remove the connector first.
-          if (currentValue !== HubConnector.address && currentValue !== constants.AddressZero) {
+          if (
+            currentValue &&
+            currentValue.toLowerCase() !== HubConnector.address.toLowerCase() &&
+            currentValue.toLowerCase() !== constants.AddressZero
+          ) {
             await updateIfNeeded({
               deployment: RootManager,
               desired: constants.AddressZero,
@@ -105,8 +109,8 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         console.log("\tVerifying merkle tree managers are set correctly.");
         await updateIfNeeded({
           deployment: MerkleTreeManager,
-          desired: true,
-          read: { method: "arborists", args: [SpokeConnector.address] },
+          desired: SpokeConnector.address,
+          read: { method: "arborist", args: [] },
           write: { method: "setArborist", args: [SpokeConnector.address] },
         });
 
@@ -120,12 +124,12 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
           write: { method: "setXAppConnectionManager", args: [SpokeConnector.address] },
         });
 
-        /// MARK - Connectors: Whitelist Senders
-        console.log(`\tVerifying whitelistSender of SpokeConnector are set correctly.`, spoke.chain);
+        /// MARK - Connectors: Allowlist Senders
+        console.log(`\tVerifying allowlistSender of SpokeConnector are set correctly.`, spoke.chain);
         await updateIfNeeded({
           deployment: SpokeConnector,
           desired: true,
-          read: { method: "whitelistedSenders", args: [spoke.deployments.Connext.address] },
+          read: { method: "allowlistedSenders", args: [spoke.deployments.Connext.address] },
           write: { method: "addSender", args: [spoke.deployments.Connext.address] },
         });
       }
@@ -184,15 +188,15 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
 
   await updateIfNeeded({
     deployment: MerkleTreeManagerForRoot,
-    desired: true,
-    read: { method: "arborists", args: [RootManager.address] },
+    desired: RootManager.address,
+    read: { method: "arborist", args: [] },
     write: { method: "setArborist", args: [RootManager.address] },
   });
 
   await updateIfNeeded({
     deployment: MerkleTreeManagerForSpoke,
-    desired: true,
-    read: { method: "arborists", args: [MainnetConnector.address] },
+    desired: MainnetConnector.address,
+    read: { method: "arborist", args: [] },
     write: { method: "setArborist", args: [MainnetConnector.address] },
   });
 
@@ -206,7 +210,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
   await updateIfNeeded({
     deployment: MainnetConnector,
     desired: true,
-    read: { method: "whitelistedSenders", args: [hub.deployments.Connext.address] },
+    read: { method: "allowlistedSenders", args: [hub.deployments.Connext.address] },
     write: { method: "addSender", args: [hub.deployments.Connext.address] },
   });
 };

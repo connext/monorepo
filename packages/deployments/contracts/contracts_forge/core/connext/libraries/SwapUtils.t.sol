@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import "../../../utils/ForgeHelper.sol";
 
@@ -147,7 +147,7 @@ contract SwapUtilsTest is ForgeHelper {
     uint256 lpTokenSupply = lpToken.totalSupply();
     uint256 amount = 0.01 ether;
     uint256 availableTokenAmount = caller.calculateRemoveLiquidityOneToken(amount, 0);
-    assertEq(availableTokenAmount, 9994508116007038);
+    assertEq(availableTokenAmount, 9994508116007042);
   }
 
   // =========== calculateWithdrawOneTokenDY ============
@@ -161,8 +161,8 @@ contract SwapUtilsTest is ForgeHelper {
     uint256 amount = 0.01 ether;
 
     (dy, newY, currentY) = swapStorage.calculateWithdrawOneTokenDY(0, amount, lpTokenSupply);
-    assertEq(dy, uint256(9994508116007038));
-    assertEq(newY, uint256(990000492622791690));
+    assertEq(dy, uint256(9994508116007042));
+    assertEq(newY, uint256(990000492622791685));
     assertEq(currentY, uint256(1000000000000000000));
   }
 
@@ -180,7 +180,7 @@ contract SwapUtilsTest is ForgeHelper {
 
     uint256 newY = SwapUtils.getYD(swapStorage.getAPrecise(), 0, xp, d1);
 
-    assertEq(newY, uint256(990000492622791690));
+    assertEq(newY, uint256(990000492622791685));
   }
 
   // ============ getD ============
@@ -215,7 +215,7 @@ contract SwapUtilsTest is ForgeHelper {
     uint256[] memory xp = SwapUtils._xp(swapStorage);
     uint256 d = SwapUtils.getD(xp, swapStorage.getAPrecise());
 
-    uint256 verify = (d * (10**uint256(SwapUtils.POOL_PRECISION_DECIMALS))) / lpTokenSupply;
+    uint256 verify = (d * (10**uint256(Constants.POOL_PRECISION_DECIMALS))) / lpTokenSupply;
 
     assertEq(virtualPrice, uint256(verify));
   }
@@ -264,8 +264,8 @@ contract SwapUtilsTest is ForgeHelper {
     uint256 amount = 0.01 ether;
     uint256[] memory res = SwapUtils._calculateRemoveLiquidity(swapStorage.balances, amount, lpTokenSupply);
 
-    assertEq(res[0], 4999999999999997);
-    assertEq(res[1], 4999999999999997);
+    assertEq(res[0], 5000000000000000);
+    assertEq(res[1], 5000000000000000);
   }
 
   // ============ calculateSwapInv ============

@@ -12,6 +12,12 @@ export class UnableToGetTaskStatus extends NxtpError {
   }
 }
 
+export class UnableToGetGelatoSupportedChains extends NxtpError {
+  constructor(chainId: number, context: any = {}) {
+    super(`Unable to get chains from gelato`, { ...context, chainId }, UnableToGetGelatoSupportedChains.name);
+  }
+}
+
 export class UnableToGetTransactionHash extends NxtpError {
   constructor(taskId: string, context: any = {}) {
     super(`Unable to get transaction hash`, { ...context, taskId }, UnableToGetTransactionHash.name);

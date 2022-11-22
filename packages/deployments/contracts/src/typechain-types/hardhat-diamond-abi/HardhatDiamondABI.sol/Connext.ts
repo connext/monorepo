@@ -146,6 +146,8 @@ export declare namespace SwapUtils {
     tokenPrecisionMultipliers: PromiseOrValue<BigNumberish>[];
     balances: PromiseOrValue<BigNumberish>[];
     adminFees: PromiseOrValue<BigNumberish>[];
+    disabled: PromiseOrValue<boolean>;
+    removeTime: PromiseOrValue<BigNumberish>;
   };
 
   export type SwapStructOutput = [
@@ -160,7 +162,9 @@ export declare namespace SwapUtils {
     string[],
     BigNumber[],
     BigNumber[],
-    BigNumber[]
+    BigNumber[],
+    boolean,
+    BigNumber
   ] & {
     key: string;
     initialA: BigNumber;
@@ -174,18 +178,20 @@ export declare namespace SwapUtils {
     tokenPrecisionMultipliers: BigNumber[];
     balances: BigNumber[];
     adminFees: BigNumber[];
+    disabled: boolean;
+    removeTime: BigNumber;
   };
 }
 
 export interface ConnextInterface extends utils.Interface {
   functions: {
-    "AAVE_REFERRAL_CODE()": FunctionFragment;
     "addSequencer(address)": FunctionFragment;
     "approvedSequencers(address)": FunctionFragment;
     "bumpTransfer(bytes32)": FunctionFragment;
     "domain()": FunctionFragment;
     "enrollRemoteRouter(uint32,bytes32)": FunctionFragment;
     "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes))": FunctionFragment;
+    "forceReceiveLocal((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32))": FunctionFragment;
     "forceUpdateSlippage((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256)": FunctionFragment;
     "nonce()": FunctionFragment;
     "remote(uint32)": FunctionFragment;
@@ -210,31 +216,25 @@ export interface ConnextInterface extends utils.Interface {
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
     "repayAavePortal((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256,uint256)": FunctionFragment;
-    "repayAavePortalFor((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256,uint256)": FunctionFragment;
+    "repayAavePortalFor((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address,uint256,uint256)": FunctionFragment;
     "setAavePool(address)": FunctionFragment;
     "setAavePortalFee(uint256)": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
-    "assetWhitelistRemoved()": FunctionFragment;
-    "assetWhitelistTimestamp()": FunctionFragment;
     "assignRoleAdmin(address)": FunctionFragment;
-    "assignRoleRouter(address)": FunctionFragment;
+    "assignRoleRouterAdmin(address)": FunctionFragment;
     "assignRoleWatcher(address)": FunctionFragment;
     "delay()": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
-    "proposeAssetWhitelistRemoval()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
-    "proposeRouterWhitelistRemoval()": FunctionFragment;
+    "proposeRouterAllowlistRemoval()": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "queryRole(address)": FunctionFragment;
-    "removeAssetWhitelist()": FunctionFragment;
-    "removeRouterWhitelist()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "renounced()": FunctionFragment;
+    "removeRouterAllowlist()": FunctionFragment;
     "revokeRole(address)": FunctionFragment;
-    "routerWhitelistRemoved()": FunctionFragment;
-    "routerWhitelistTimestamp()": FunctionFragment;
+    "routerAllowlistRemoved()": FunctionFragment;
+    "routerAllowlistTimestamp()": FunctionFragment;
     "unpause()": FunctionFragment;
     "addRelayer(address)": FunctionFragment;
     "approvedRelayers(address)": FunctionFragment;
@@ -246,6 +246,7 @@ export interface ConnextInterface extends utils.Interface {
     "acceptProposedRouterOwner(address)": FunctionFragment;
     "addRouterLiquidity(uint256,address)": FunctionFragment;
     "addRouterLiquidityFor(uint256,address,address)": FunctionFragment;
+    "approveRouter(address)": FunctionFragment;
     "approveRouterForPortal(address)": FunctionFragment;
     "getProposedRouterOwner(address)": FunctionFragment;
     "getProposedRouterOwnerTimestamp(address)": FunctionFragment;
@@ -253,16 +254,16 @@ export interface ConnextInterface extends utils.Interface {
     "getRouterApprovalForPortal(address)": FunctionFragment;
     "getRouterOwner(address)": FunctionFragment;
     "getRouterRecipient(address)": FunctionFragment;
+    "initializeRouter(address,address)": FunctionFragment;
     "maxRoutersPerTransfer()": FunctionFragment;
     "proposeRouterOwner(address,address)": FunctionFragment;
-    "removeRouter(address)": FunctionFragment;
-    "removeRouterLiquidity(uint256,address,address)": FunctionFragment;
-    "removeRouterLiquidityFor(uint256,address,address,address)": FunctionFragment;
+    "removeRouterLiquidity((uint32,bytes32),uint256,address)": FunctionFragment;
+    "removeRouterLiquidityFor((uint32,bytes32),uint256,address,address)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
     "setLiquidityFeeNumerator(uint256)": FunctionFragment;
     "setMaxRoutersPerTransfer(uint256)": FunctionFragment;
     "setRouterRecipient(address,address)": FunctionFragment;
-    "setupRouter(address,address,address)": FunctionFragment;
+    "unapproveRouter(address)": FunctionFragment;
     "unapproveRouterForPortal(address)": FunctionFragment;
     "addSwapLiquidity(bytes32,uint256[],uint256,uint256)": FunctionFragment;
     "calculateRemoveSwapLiquidity(bytes32,uint256)": FunctionFragment;
@@ -286,8 +287,8 @@ export interface ConnextInterface extends utils.Interface {
     "swapExactOut(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
     "addStableSwapPool((uint32,bytes32),address)": FunctionFragment;
     "adoptedToCanonical(address)": FunctionFragment;
-    "adoptedToLocalPools(bytes32)": FunctionFragment;
-    "adoptedToLocalPools((uint32,bytes32))": FunctionFragment;
+    "adoptedToLocalExternalPools((uint32,bytes32))": FunctionFragment;
+    "adoptedToLocalExternalPools(bytes32)": FunctionFragment;
     "approvedAssets(bytes32)": FunctionFragment;
     "approvedAssets((uint32,bytes32))": FunctionFragment;
     "canonicalToAdopted(bytes32)": FunctionFragment;
@@ -300,20 +301,20 @@ export interface ConnextInterface extends utils.Interface {
     "removeAssetId(bytes32,address,address)": FunctionFragment;
     "representationToCanonical(address)": FunctionFragment;
     "setupAsset((uint32,bytes32),uint8,string,string,address,address,uint256)": FunctionFragment;
-    "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address,uint256)": FunctionFragment;
+    "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address)": FunctionFragment;
     "updateDetails((uint32,bytes32),string,string)": FunctionFragment;
     "updateLiquidityCap((uint32,bytes32),uint256)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "AAVE_REFERRAL_CODE"
       | "addSequencer"
       | "approvedSequencers"
       | "bumpTransfer"
       | "domain"
       | "enrollRemoteRouter"
       | "execute"
+      | "forceReceiveLocal"
       | "forceUpdateSlippage"
       | "nonce"
       | "remote"
@@ -342,27 +343,21 @@ export interface ConnextInterface extends utils.Interface {
       | "setAavePool"
       | "setAavePortalFee"
       | "acceptProposedOwner"
-      | "assetWhitelistRemoved"
-      | "assetWhitelistTimestamp"
       | "assignRoleAdmin"
-      | "assignRoleRouter"
+      | "assignRoleRouterAdmin"
       | "assignRoleWatcher"
       | "delay"
       | "owner"
       | "pause"
-      | "proposeAssetWhitelistRemoval"
       | "proposeNewOwner"
-      | "proposeRouterWhitelistRemoval"
+      | "proposeRouterAllowlistRemoval"
       | "proposed"
       | "proposedTimestamp"
       | "queryRole"
-      | "removeAssetWhitelist"
-      | "removeRouterWhitelist"
-      | "renounceOwnership"
-      | "renounced"
+      | "removeRouterAllowlist"
       | "revokeRole"
-      | "routerWhitelistRemoved"
-      | "routerWhitelistTimestamp"
+      | "routerAllowlistRemoved"
+      | "routerAllowlistTimestamp"
       | "unpause"
       | "addRelayer"
       | "approvedRelayers"
@@ -374,6 +369,7 @@ export interface ConnextInterface extends utils.Interface {
       | "acceptProposedRouterOwner"
       | "addRouterLiquidity"
       | "addRouterLiquidityFor"
+      | "approveRouter"
       | "approveRouterForPortal"
       | "getProposedRouterOwner"
       | "getProposedRouterOwnerTimestamp"
@@ -381,16 +377,16 @@ export interface ConnextInterface extends utils.Interface {
       | "getRouterApprovalForPortal"
       | "getRouterOwner"
       | "getRouterRecipient"
+      | "initializeRouter"
       | "maxRoutersPerTransfer"
       | "proposeRouterOwner"
-      | "removeRouter"
       | "removeRouterLiquidity"
       | "removeRouterLiquidityFor"
       | "routerBalances"
       | "setLiquidityFeeNumerator"
       | "setMaxRoutersPerTransfer"
       | "setRouterRecipient"
-      | "setupRouter"
+      | "unapproveRouter"
       | "unapproveRouterForPortal"
       | "addSwapLiquidity"
       | "calculateRemoveSwapLiquidity"
@@ -414,8 +410,8 @@ export interface ConnextInterface extends utils.Interface {
       | "swapExactOut"
       | "addStableSwapPool"
       | "adoptedToCanonical"
-      | "adoptedToLocalPools(bytes32)"
-      | "adoptedToLocalPools((uint32,bytes32))"
+      | "adoptedToLocalExternalPools((uint32,bytes32))"
+      | "adoptedToLocalExternalPools(bytes32)"
       | "approvedAssets(bytes32)"
       | "approvedAssets((uint32,bytes32))"
       | "canonicalToAdopted(bytes32)"
@@ -433,10 +429,6 @@ export interface ConnextInterface extends utils.Interface {
       | "updateLiquidityCap"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "AAVE_REFERRAL_CODE",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "addSequencer",
     values: [PromiseOrValue<string>]
@@ -457,6 +449,10 @@ export interface ConnextInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "execute",
     values: [ExecuteArgsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "forceReceiveLocal",
+    values: [TransferInfoStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "forceUpdateSlippage",
@@ -586,6 +582,7 @@ export interface ConnextInterface extends utils.Interface {
     functionFragment: "repayAavePortalFor",
     values: [
       TransferInfoStruct,
+      PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
@@ -603,19 +600,11 @@ export interface ConnextInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "assetWhitelistRemoved",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "assetWhitelistTimestamp",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "assignRoleAdmin",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "assignRoleRouter",
+    functionFragment: "assignRoleRouterAdmin",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -626,15 +615,11 @@ export interface ConnextInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "proposeAssetWhitelistRemoval",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "proposeNewOwner",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "proposeRouterWhitelistRemoval",
+    functionFragment: "proposeRouterAllowlistRemoval",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
@@ -647,28 +632,19 @@ export interface ConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeAssetWhitelist",
+    functionFragment: "removeRouterAllowlist",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "removeRouterWhitelist",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "revokeRole",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "routerWhitelistRemoved",
+    functionFragment: "routerAllowlistRemoved",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "routerWhitelistTimestamp",
+    functionFragment: "routerAllowlistTimestamp",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
@@ -717,6 +693,10 @@ export interface ConnextInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "approveRouter",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "approveRouterForPortal",
     values: [PromiseOrValue<string>]
   ): string;
@@ -745,6 +725,10 @@ export interface ConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "initializeRouter",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "maxRoutersPerTransfer",
     values?: undefined
   ): string;
@@ -753,22 +737,18 @@ export interface ConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeRouter",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "removeRouterLiquidity",
     values: [
+      TokenIdStruct,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
       PromiseOrValue<string>
     ]
   ): string;
   encodeFunctionData(
     functionFragment: "removeRouterLiquidityFor",
     values: [
+      TokenIdStruct,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>
     ]
@@ -790,12 +770,8 @@ export interface ConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setupRouter",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    functionFragment: "unapproveRouter",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "unapproveRouterForPortal",
@@ -945,12 +921,12 @@ export interface ConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "adoptedToLocalPools(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "adoptedToLocalExternalPools((uint32,bytes32))",
+    values: [TokenIdStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "adoptedToLocalPools((uint32,bytes32))",
-    values: [TokenIdStruct]
+    functionFragment: "adoptedToLocalExternalPools(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "approvedAssets(bytes32)",
@@ -1018,8 +994,7 @@ export interface ConnextInterface extends utils.Interface {
       TokenIdStruct,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
+      PromiseOrValue<string>
     ]
   ): string;
   encodeFunctionData(
@@ -1031,10 +1006,6 @@ export interface ConnextInterface extends utils.Interface {
     values: [TokenIdStruct, PromiseOrValue<BigNumberish>]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "AAVE_REFERRAL_CODE",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "addSequencer",
     data: BytesLike
@@ -1053,6 +1024,10 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "forceReceiveLocal",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "forceUpdateSlippage",
     data: BytesLike
@@ -1148,19 +1123,11 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "assetWhitelistRemoved",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "assetWhitelistTimestamp",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "assignRoleAdmin",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "assignRoleRouter",
+    functionFragment: "assignRoleRouterAdmin",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1171,15 +1138,11 @@ export interface ConnextInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "proposeAssetWhitelistRemoval",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "proposeRouterWhitelistRemoval",
+    functionFragment: "proposeRouterAllowlistRemoval",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
@@ -1189,25 +1152,16 @@ export interface ConnextInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "queryRole", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "removeAssetWhitelist",
+    functionFragment: "removeRouterAllowlist",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeRouterWhitelist",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "routerWhitelistRemoved",
+    functionFragment: "routerAllowlistRemoved",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "routerWhitelistTimestamp",
+    functionFragment: "routerAllowlistTimestamp",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
@@ -1249,6 +1203,10 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "approveRouter",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "approveRouterForPortal",
     data: BytesLike
   ): Result;
@@ -1277,15 +1235,15 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "initializeRouter",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "maxRoutersPerTransfer",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "proposeRouterOwner",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeRouter",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1313,7 +1271,7 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setupRouter",
+    functionFragment: "unapproveRouter",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1400,11 +1358,11 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "adoptedToLocalPools(bytes32)",
+    functionFragment: "adoptedToLocalExternalPools((uint32,bytes32))",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "adoptedToLocalPools((uint32,bytes32))",
+    functionFragment: "adoptedToLocalExternalPools(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1466,18 +1424,20 @@ export interface ConnextInterface extends utils.Interface {
     "AavePortalMintUnbacked(bytes32,address,address,uint256)": EventFragment;
     "Executed(bytes32,address,address,tuple,address,uint256,address)": EventFragment;
     "ExternalCalldataExecuted(bytes32,bool,bytes)": EventFragment;
+    "ForceReceiveLocal(bytes32)": EventFragment;
     "RemoteAdded(uint32,address,address)": EventFragment;
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
     "SlippageUpdated(bytes32,uint256)": EventFragment;
     "TransferRelayerFeesIncreased(bytes32,uint256,address)": EventFragment;
+    "XAppConnectionManagerSet(address,address)": EventFragment;
     "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)": EventFragment;
     "DiamondCut(tuple[],address,bytes)": EventFragment;
     "DiamondCutProposed(tuple[],address,bytes,uint256)": EventFragment;
     "DiamondCutRescinded(tuple[],address,bytes)": EventFragment;
+    "AavePoolUpdated(address,address)": EventFragment;
+    "AavePortalFeeUpdated(uint256,address)": EventFragment;
     "AavePortalRepayment(bytes32,address,uint256,uint256,address)": EventFragment;
-    "AssetWhitelistRemovalProposed(uint256)": EventFragment;
-    "AssetWhitelistRemoved(bool)": EventFragment;
     "AssignRoleAdmin(address)": EventFragment;
     "AssignRoleRouter(address)": EventFragment;
     "AssignRoleWatcher(address)": EventFragment;
@@ -1485,8 +1445,8 @@ export interface ConnextInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused()": EventFragment;
     "RevokeRole(address,uint8)": EventFragment;
-    "RouterWhitelistRemovalProposed(uint256)": EventFragment;
-    "RouterWhitelistRemoved(bool)": EventFragment;
+    "RouterAllowlistRemovalProposed(uint256)": EventFragment;
+    "RouterAllowlistRemoved(bool)": EventFragment;
     "Unpaused()": EventFragment;
     "RelayerAdded(address,address)": EventFragment;
     "RelayerFeeVaultUpdated(address,address,address)": EventFragment;
@@ -1495,6 +1455,7 @@ export interface ConnextInterface extends utils.Interface {
     "MaxRoutersPerTransferUpdated(uint256,address)": EventFragment;
     "RouterAdded(address,address)": EventFragment;
     "RouterApprovedForPortal(address,address)": EventFragment;
+    "RouterInitialized(address)": EventFragment;
     "RouterLiquidityAdded(address,address,bytes32,uint256,address)": EventFragment;
     "RouterLiquidityRemoved(address,address,address,bytes32,uint256,address)": EventFragment;
     "RouterOwnerAccepted(address,address,address)": EventFragment;
@@ -1512,6 +1473,7 @@ export interface ConnextInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "AavePortalMintUnbacked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ExternalCalldataExecuted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ForceReceiveLocal"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RemoteAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerRemoved"): EventFragment;
@@ -1519,15 +1481,14 @@ export interface ConnextInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "TransferRelayerFeesIncreased"
   ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "XAppConnectionManagerSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DiamondCut"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DiamondCutProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DiamondCutRescinded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AavePoolUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AavePortalFeeUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AavePortalRepayment"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AssetWhitelistRemovalProposed"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AssetWhitelistRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssignRoleAdmin"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssignRoleRouter"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssignRoleWatcher"): EventFragment;
@@ -1536,9 +1497,9 @@ export interface ConnextInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RevokeRole"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RouterWhitelistRemovalProposed"
+    nameOrSignatureOrTopic: "RouterAllowlistRemovalProposed"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterWhitelistRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RouterAllowlistRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerFeeVaultUpdated"): EventFragment;
@@ -1551,6 +1512,7 @@ export interface ConnextInterface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterApprovedForPortal"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RouterInitialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterLiquidityAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterLiquidityRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterOwnerAccepted"): EventFragment;
@@ -1607,6 +1569,17 @@ export type ExternalCalldataExecutedEvent = TypedEvent<
 
 export type ExternalCalldataExecutedEventFilter =
   TypedEventFilter<ExternalCalldataExecutedEvent>;
+
+export interface ForceReceiveLocalEventObject {
+  transferId: string;
+}
+export type ForceReceiveLocalEvent = TypedEvent<
+  [string],
+  ForceReceiveLocalEventObject
+>;
+
+export type ForceReceiveLocalEventFilter =
+  TypedEventFilter<ForceReceiveLocalEvent>;
 
 export interface RemoteAddedEventObject {
   domain: number;
@@ -1666,6 +1639,18 @@ export type TransferRelayerFeesIncreasedEvent = TypedEvent<
 
 export type TransferRelayerFeesIncreasedEventFilter =
   TypedEventFilter<TransferRelayerFeesIncreasedEvent>;
+
+export interface XAppConnectionManagerSetEventObject {
+  updated: string;
+  caller: string;
+}
+export type XAppConnectionManagerSetEvent = TypedEvent<
+  [string, string],
+  XAppConnectionManagerSetEventObject
+>;
+
+export type XAppConnectionManagerSetEventFilter =
+  TypedEventFilter<XAppConnectionManagerSetEvent>;
 
 export interface XCalledEventObject {
   transferId: string;
@@ -1730,6 +1715,29 @@ export type DiamondCutRescindedEvent = TypedEvent<
 export type DiamondCutRescindedEventFilter =
   TypedEventFilter<DiamondCutRescindedEvent>;
 
+export interface AavePoolUpdatedEventObject {
+  updated: string;
+  caller: string;
+}
+export type AavePoolUpdatedEvent = TypedEvent<
+  [string, string],
+  AavePoolUpdatedEventObject
+>;
+
+export type AavePoolUpdatedEventFilter = TypedEventFilter<AavePoolUpdatedEvent>;
+
+export interface AavePortalFeeUpdatedEventObject {
+  updated: BigNumber;
+  caller: string;
+}
+export type AavePortalFeeUpdatedEvent = TypedEvent<
+  [BigNumber, string],
+  AavePortalFeeUpdatedEventObject
+>;
+
+export type AavePortalFeeUpdatedEventFilter =
+  TypedEventFilter<AavePortalFeeUpdatedEvent>;
+
 export interface AavePortalRepaymentEventObject {
   transferId: string;
   asset: string;
@@ -1744,28 +1752,6 @@ export type AavePortalRepaymentEvent = TypedEvent<
 
 export type AavePortalRepaymentEventFilter =
   TypedEventFilter<AavePortalRepaymentEvent>;
-
-export interface AssetWhitelistRemovalProposedEventObject {
-  timestamp: BigNumber;
-}
-export type AssetWhitelistRemovalProposedEvent = TypedEvent<
-  [BigNumber],
-  AssetWhitelistRemovalProposedEventObject
->;
-
-export type AssetWhitelistRemovalProposedEventFilter =
-  TypedEventFilter<AssetWhitelistRemovalProposedEvent>;
-
-export interface AssetWhitelistRemovedEventObject {
-  renounced: boolean;
-}
-export type AssetWhitelistRemovedEvent = TypedEvent<
-  [boolean],
-  AssetWhitelistRemovedEventObject
->;
-
-export type AssetWhitelistRemovedEventFilter =
-  TypedEventFilter<AssetWhitelistRemovedEvent>;
 
 export interface AssignRoleAdminEventObject {
   admin: string;
@@ -1838,27 +1824,27 @@ export type RevokeRoleEvent = TypedEvent<
 
 export type RevokeRoleEventFilter = TypedEventFilter<RevokeRoleEvent>;
 
-export interface RouterWhitelistRemovalProposedEventObject {
+export interface RouterAllowlistRemovalProposedEventObject {
   timestamp: BigNumber;
 }
-export type RouterWhitelistRemovalProposedEvent = TypedEvent<
+export type RouterAllowlistRemovalProposedEvent = TypedEvent<
   [BigNumber],
-  RouterWhitelistRemovalProposedEventObject
+  RouterAllowlistRemovalProposedEventObject
 >;
 
-export type RouterWhitelistRemovalProposedEventFilter =
-  TypedEventFilter<RouterWhitelistRemovalProposedEvent>;
+export type RouterAllowlistRemovalProposedEventFilter =
+  TypedEventFilter<RouterAllowlistRemovalProposedEvent>;
 
-export interface RouterWhitelistRemovedEventObject {
+export interface RouterAllowlistRemovedEventObject {
   renounced: boolean;
 }
-export type RouterWhitelistRemovedEvent = TypedEvent<
+export type RouterAllowlistRemovedEvent = TypedEvent<
   [boolean],
-  RouterWhitelistRemovedEventObject
+  RouterAllowlistRemovedEventObject
 >;
 
-export type RouterWhitelistRemovedEventFilter =
-  TypedEventFilter<RouterWhitelistRemovedEvent>;
+export type RouterAllowlistRemovedEventFilter =
+  TypedEventFilter<RouterAllowlistRemovedEvent>;
 
 export interface UnpausedEventObject {}
 export type UnpausedEvent = TypedEvent<[], UnpausedEventObject>;
@@ -1946,6 +1932,17 @@ export type RouterApprovedForPortalEvent = TypedEvent<
 
 export type RouterApprovedForPortalEventFilter =
   TypedEventFilter<RouterApprovedForPortalEvent>;
+
+export interface RouterInitializedEventObject {
+  router: string;
+}
+export type RouterInitializedEvent = TypedEvent<
+  [string],
+  RouterInitializedEventObject
+>;
+
+export type RouterInitializedEventFilter =
+  TypedEventFilter<RouterInitializedEvent>;
 
 export interface RouterLiquidityAddedEventObject {
   router: string;
@@ -2134,8 +2131,6 @@ export interface Connext extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<[number]>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2161,6 +2156,11 @@ export interface Connext extends BaseContract {
 
     execute(
       _args: ExecuteArgsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    forceReceiveLocal(
+      _params: TransferInfoStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2300,6 +2300,7 @@ export interface Connext extends BaseContract {
 
     repayAavePortalFor(
       _params: TransferInfoStruct,
+      _portalAsset: PromiseOrValue<string>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -2319,16 +2320,12 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    assetWhitelistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
-
-    assetWhitelistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     assignRoleAdmin(
       _admin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -2346,16 +2343,12 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    proposeAssetWhitelistRemoval(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    proposeRouterWhitelistRemoval(
+    proposeRouterAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2368,28 +2361,18 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[number]>;
 
-    removeAssetWhitelist(
+    removeRouterAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    removeRouterWhitelist(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     revokeRole(
       _revoke: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    routerWhitelistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
+    routerAllowlistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
 
-    routerWhitelistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+    routerAllowlistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2422,7 +2405,7 @@ export interface Connext extends BaseContract {
     LIQUIDITY_FEE_NUMERATOR(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     acceptProposedRouterOwner(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2437,6 +2420,11 @@ export interface Connext extends BaseContract {
       _local: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    approveRouter(
+      _router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     approveRouterForPortal(
@@ -2474,29 +2462,30 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    maxRoutersPerTransfer(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    proposeRouterOwner(
-      router: PromiseOrValue<string>,
-      proposed: PromiseOrValue<string>,
+    initializeRouter(
+      _owner: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    removeRouter(
-      router: PromiseOrValue<string>,
+    maxRoutersPerTransfer(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    proposeRouterOwner(
+      _router: PromiseOrValue<string>,
+      _proposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     removeRouterLiquidity(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     removeRouterLiquidityFor(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2519,15 +2508,13 @@ export interface Connext extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setRouterRecipient(
-      router: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setupRouter(
-      router: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+    unapproveRouter(
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2687,13 +2674,13 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[TokenIdStructOutput]>;
 
-    "adoptedToLocalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalExternalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    "adoptedToLocalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalExternalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
@@ -2773,7 +2760,6 @@ export interface Connext extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2790,8 +2776,6 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
-
-  AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
 
   addSequencer(
     _sequencer: PromiseOrValue<string>,
@@ -2818,6 +2802,11 @@ export interface Connext extends BaseContract {
 
   execute(
     _args: ExecuteArgsStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  forceReceiveLocal(
+    _params: TransferInfoStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2949,6 +2938,7 @@ export interface Connext extends BaseContract {
 
   repayAavePortalFor(
     _params: TransferInfoStruct,
+    _portalAsset: PromiseOrValue<string>,
     _backingAmount: PromiseOrValue<BigNumberish>,
     _feeAmount: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -2968,16 +2958,12 @@ export interface Connext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  assetWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
-
-  assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
   assignRoleAdmin(
     _admin: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  assignRoleRouter(
+  assignRoleRouterAdmin(
     _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -2995,16 +2981,12 @@ export interface Connext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  proposeAssetWhitelistRemoval(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  proposeRouterWhitelistRemoval(
+  proposeRouterAllowlistRemoval(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3017,28 +2999,18 @@ export interface Connext extends BaseContract {
     overrides?: CallOverrides
   ): Promise<number>;
 
-  removeAssetWhitelist(
+  removeRouterAllowlist(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  removeRouterWhitelist(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  renounced(overrides?: CallOverrides): Promise<boolean>;
 
   revokeRole(
     _revoke: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  routerWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
+  routerAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
 
-  routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+  routerAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   unpause(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -3071,7 +3043,7 @@ export interface Connext extends BaseContract {
   LIQUIDITY_FEE_NUMERATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
   acceptProposedRouterOwner(
-    router: PromiseOrValue<string>,
+    _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3086,6 +3058,11 @@ export interface Connext extends BaseContract {
     _local: PromiseOrValue<string>,
     _router: PromiseOrValue<string>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  approveRouter(
+    _router: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   approveRouterForPortal(
@@ -3123,29 +3100,30 @@ export interface Connext extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
-
-  proposeRouterOwner(
-    router: PromiseOrValue<string>,
-    proposed: PromiseOrValue<string>,
+  initializeRouter(
+    _owner: PromiseOrValue<string>,
+    _recipient: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  removeRouter(
-    router: PromiseOrValue<string>,
+  maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
+
+  proposeRouterOwner(
+    _router: PromiseOrValue<string>,
+    _proposed: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   removeRouterLiquidity(
+    _canonical: TokenIdStruct,
     _amount: PromiseOrValue<BigNumberish>,
-    _local: PromiseOrValue<string>,
     _to: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   removeRouterLiquidityFor(
+    _canonical: TokenIdStruct,
     _amount: PromiseOrValue<BigNumberish>,
-    _local: PromiseOrValue<string>,
     _to: PromiseOrValue<string>,
     _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -3168,15 +3146,13 @@ export interface Connext extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setRouterRecipient(
-    router: PromiseOrValue<string>,
-    recipient: PromiseOrValue<string>,
+    _router: PromiseOrValue<string>,
+    _recipient: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setupRouter(
-    router: PromiseOrValue<string>,
-    owner: PromiseOrValue<string>,
-    recipient: PromiseOrValue<string>,
+  unapproveRouter(
+    _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3336,13 +3312,13 @@ export interface Connext extends BaseContract {
     overrides?: CallOverrides
   ): Promise<TokenIdStructOutput>;
 
-  "adoptedToLocalPools(bytes32)"(
-    _key: PromiseOrValue<BytesLike>,
+  "adoptedToLocalExternalPools((uint32,bytes32))"(
+    _canonical: TokenIdStruct,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  "adoptedToLocalPools((uint32,bytes32))"(
-    _canonical: TokenIdStruct,
+  "adoptedToLocalExternalPools(bytes32)"(
+    _key: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string>;
 
@@ -3422,7 +3398,6 @@ export interface Connext extends BaseContract {
     _representation: PromiseOrValue<string>,
     _adoptedAssetId: PromiseOrValue<string>,
     _stableSwapPool: PromiseOrValue<string>,
-    _cap: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3440,8 +3415,6 @@ export interface Connext extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -3469,6 +3442,11 @@ export interface Connext extends BaseContract {
       _args: ExecuteArgsStruct,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    forceReceiveLocal(
+      _params: TransferInfoStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     forceUpdateSlippage(
       _params: TransferInfoStruct,
@@ -3600,6 +3578,7 @@ export interface Connext extends BaseContract {
 
     repayAavePortalFor(
       _params: TransferInfoStruct,
+      _portalAsset: PromiseOrValue<string>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -3617,16 +3596,12 @@ export interface Connext extends BaseContract {
 
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
-    assetWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
-
-    assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
     assignRoleAdmin(
       _admin: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -3642,14 +3617,12 @@ export interface Connext extends BaseContract {
 
     pause(overrides?: CallOverrides): Promise<void>;
 
-    proposeAssetWhitelistRemoval(overrides?: CallOverrides): Promise<void>;
-
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    proposeRouterWhitelistRemoval(overrides?: CallOverrides): Promise<void>;
+    proposeRouterAllowlistRemoval(overrides?: CallOverrides): Promise<void>;
 
     proposed(overrides?: CallOverrides): Promise<string>;
 
@@ -3660,22 +3633,16 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<number>;
 
-    removeAssetWhitelist(overrides?: CallOverrides): Promise<void>;
-
-    removeRouterWhitelist(overrides?: CallOverrides): Promise<void>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    renounced(overrides?: CallOverrides): Promise<boolean>;
+    removeRouterAllowlist(overrides?: CallOverrides): Promise<void>;
 
     revokeRole(
       _revoke: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    routerWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
+    routerAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
 
-    routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+    routerAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     unpause(overrides?: CallOverrides): Promise<void>;
 
@@ -3706,7 +3673,7 @@ export interface Connext extends BaseContract {
     LIQUIDITY_FEE_NUMERATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
     acceptProposedRouterOwner(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3719,6 +3686,11 @@ export interface Connext extends BaseContract {
     addRouterLiquidityFor(
       _amount: PromiseOrValue<BigNumberish>,
       _local: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    approveRouter(
       _router: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -3758,29 +3730,30 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
-
-    proposeRouterOwner(
-      router: PromiseOrValue<string>,
-      proposed: PromiseOrValue<string>,
+    initializeRouter(
+      _owner: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    removeRouter(
-      router: PromiseOrValue<string>,
+    maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
+
+    proposeRouterOwner(
+      _router: PromiseOrValue<string>,
+      _proposed: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     removeRouterLiquidity(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     removeRouterLiquidityFor(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -3803,15 +3776,13 @@ export interface Connext extends BaseContract {
     ): Promise<void>;
 
     setRouterRecipient(
-      router: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setupRouter(
-      router: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+    unapproveRouter(
+      _router: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3971,13 +3942,13 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<TokenIdStructOutput>;
 
-    "adoptedToLocalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalExternalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "adoptedToLocalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalExternalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -4057,7 +4028,6 @@ export interface Connext extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -4119,6 +4089,13 @@ export interface Connext extends BaseContract {
       returnData?: null
     ): ExternalCalldataExecutedEventFilter;
 
+    "ForceReceiveLocal(bytes32)"(
+      transferId?: PromiseOrValue<BytesLike> | null
+    ): ForceReceiveLocalEventFilter;
+    ForceReceiveLocal(
+      transferId?: PromiseOrValue<BytesLike> | null
+    ): ForceReceiveLocalEventFilter;
+
     "RemoteAdded(uint32,address,address)"(
       domain?: null,
       remote?: null,
@@ -4164,6 +4141,15 @@ export interface Connext extends BaseContract {
       increase?: null,
       caller?: null
     ): TransferRelayerFeesIncreasedEventFilter;
+
+    "XAppConnectionManagerSet(address,address)"(
+      updated?: null,
+      caller?: null
+    ): XAppConnectionManagerSetEventFilter;
+    XAppConnectionManagerSet(
+      updated?: null,
+      caller?: null
+    ): XAppConnectionManagerSetEventFilter;
 
     "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
@@ -4219,6 +4205,21 @@ export interface Connext extends BaseContract {
       _calldata?: null
     ): DiamondCutRescindedEventFilter;
 
+    "AavePoolUpdated(address,address)"(
+      updated?: null,
+      caller?: null
+    ): AavePoolUpdatedEventFilter;
+    AavePoolUpdated(updated?: null, caller?: null): AavePoolUpdatedEventFilter;
+
+    "AavePortalFeeUpdated(uint256,address)"(
+      updated?: null,
+      caller?: null
+    ): AavePortalFeeUpdatedEventFilter;
+    AavePortalFeeUpdated(
+      updated?: null,
+      caller?: null
+    ): AavePortalFeeUpdatedEventFilter;
+
     "AavePortalRepayment(bytes32,address,uint256,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       asset?: null,
@@ -4233,18 +4234,6 @@ export interface Connext extends BaseContract {
       fee?: null,
       caller?: null
     ): AavePortalRepaymentEventFilter;
-
-    "AssetWhitelistRemovalProposed(uint256)"(
-      timestamp?: null
-    ): AssetWhitelistRemovalProposedEventFilter;
-    AssetWhitelistRemovalProposed(
-      timestamp?: null
-    ): AssetWhitelistRemovalProposedEventFilter;
-
-    "AssetWhitelistRemoved(bool)"(
-      renounced?: null
-    ): AssetWhitelistRemovedEventFilter;
-    AssetWhitelistRemoved(renounced?: null): AssetWhitelistRemovedEventFilter;
 
     "AssignRoleAdmin(address)"(admin?: null): AssignRoleAdminEventFilter;
     AssignRoleAdmin(admin?: null): AssignRoleAdminEventFilter;
@@ -4283,17 +4272,17 @@ export interface Connext extends BaseContract {
       revokedRole?: null
     ): RevokeRoleEventFilter;
 
-    "RouterWhitelistRemovalProposed(uint256)"(
+    "RouterAllowlistRemovalProposed(uint256)"(
       timestamp?: null
-    ): RouterWhitelistRemovalProposedEventFilter;
-    RouterWhitelistRemovalProposed(
+    ): RouterAllowlistRemovalProposedEventFilter;
+    RouterAllowlistRemovalProposed(
       timestamp?: null
-    ): RouterWhitelistRemovalProposedEventFilter;
+    ): RouterAllowlistRemovalProposedEventFilter;
 
-    "RouterWhitelistRemoved(bool)"(
+    "RouterAllowlistRemoved(bool)"(
       renounced?: null
-    ): RouterWhitelistRemovedEventFilter;
-    RouterWhitelistRemoved(renounced?: null): RouterWhitelistRemovedEventFilter;
+    ): RouterAllowlistRemovedEventFilter;
+    RouterAllowlistRemoved(renounced?: null): RouterAllowlistRemovedEventFilter;
 
     "Unpaused()"(): UnpausedEventFilter;
     Unpaused(): UnpausedEventFilter;
@@ -4356,6 +4345,13 @@ export interface Connext extends BaseContract {
       router?: null,
       caller?: null
     ): RouterApprovedForPortalEventFilter;
+
+    "RouterInitialized(address)"(
+      router?: PromiseOrValue<string> | null
+    ): RouterInitializedEventFilter;
+    RouterInitialized(
+      router?: PromiseOrValue<string> | null
+    ): RouterInitializedEventFilter;
 
     "RouterLiquidityAdded(address,address,bytes32,uint256,address)"(
       router?: PromiseOrValue<string> | null,
@@ -4509,8 +4505,6 @@ export interface Connext extends BaseContract {
   };
 
   estimateGas: {
-    AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<BigNumber>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4536,6 +4530,11 @@ export interface Connext extends BaseContract {
 
     execute(
       _args: ExecuteArgsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    forceReceiveLocal(
+      _params: TransferInfoStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4667,6 +4666,7 @@ export interface Connext extends BaseContract {
 
     repayAavePortalFor(
       _params: TransferInfoStruct,
+      _portalAsset: PromiseOrValue<string>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -4686,16 +4686,12 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    assetWhitelistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
-
-    assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
     assignRoleAdmin(
       _admin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -4713,16 +4709,12 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    proposeAssetWhitelistRemoval(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    proposeRouterWhitelistRemoval(
+    proposeRouterAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4735,28 +4727,18 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    removeAssetWhitelist(
+    removeRouterAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    removeRouterWhitelist(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     revokeRole(
       _revoke: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    routerWhitelistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
+    routerAllowlistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
 
-    routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+    routerAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4789,7 +4771,7 @@ export interface Connext extends BaseContract {
     LIQUIDITY_FEE_NUMERATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
     acceptProposedRouterOwner(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4804,6 +4786,11 @@ export interface Connext extends BaseContract {
       _local: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    approveRouter(
+      _router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     approveRouterForPortal(
@@ -4841,29 +4828,30 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
-
-    proposeRouterOwner(
-      router: PromiseOrValue<string>,
-      proposed: PromiseOrValue<string>,
+    initializeRouter(
+      _owner: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    removeRouter(
-      router: PromiseOrValue<string>,
+    maxRoutersPerTransfer(overrides?: CallOverrides): Promise<BigNumber>;
+
+    proposeRouterOwner(
+      _router: PromiseOrValue<string>,
+      _proposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     removeRouterLiquidity(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     removeRouterLiquidityFor(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4886,15 +4874,13 @@ export interface Connext extends BaseContract {
     ): Promise<BigNumber>;
 
     setRouterRecipient(
-      router: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setupRouter(
-      router: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+    unapproveRouter(
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -5054,13 +5040,13 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "adoptedToLocalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalExternalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "adoptedToLocalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalExternalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -5140,7 +5126,6 @@ export interface Connext extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -5159,10 +5144,6 @@ export interface Connext extends BaseContract {
   };
 
   populateTransaction: {
-    AAVE_REFERRAL_CODE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -5188,6 +5169,11 @@ export interface Connext extends BaseContract {
 
     execute(
       _args: ExecuteArgsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    forceReceiveLocal(
+      _params: TransferInfoStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5321,6 +5307,7 @@ export interface Connext extends BaseContract {
 
     repayAavePortalFor(
       _params: TransferInfoStruct,
+      _portalAsset: PromiseOrValue<string>,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -5340,20 +5327,12 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    assetWhitelistRemoved(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    assetWhitelistTimestamp(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     assignRoleAdmin(
       _admin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -5371,16 +5350,12 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    proposeAssetWhitelistRemoval(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    proposeRouterWhitelistRemoval(
+    proposeRouterAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5393,30 +5368,20 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    removeAssetWhitelist(
+    removeRouterAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    removeRouterWhitelist(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     revokeRole(
       _revoke: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    routerWhitelistRemoved(
+    routerAllowlistRemoved(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    routerWhitelistTimestamp(
+    routerAllowlistTimestamp(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -5455,7 +5420,7 @@ export interface Connext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     acceptProposedRouterOwner(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5470,6 +5435,11 @@ export interface Connext extends BaseContract {
       _local: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    approveRouter(
+      _router: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     approveRouterForPortal(
@@ -5507,31 +5477,32 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    initializeRouter(
+      _owner: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     maxRoutersPerTransfer(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     proposeRouterOwner(
-      router: PromiseOrValue<string>,
-      proposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    removeRouter(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _proposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     removeRouterLiquidity(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     removeRouterLiquidityFor(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -5554,15 +5525,13 @@ export interface Connext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setRouterRecipient(
-      router: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setupRouter(
-      router: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+    unapproveRouter(
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5722,13 +5691,13 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "adoptedToLocalPools(bytes32)"(
-      _key: PromiseOrValue<BytesLike>,
+    "adoptedToLocalExternalPools((uint32,bytes32))"(
+      _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "adoptedToLocalPools((uint32,bytes32))"(
-      _canonical: TokenIdStruct,
+    "adoptedToLocalExternalPools(bytes32)"(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -5808,7 +5777,6 @@ export interface Connext extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
-      _cap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

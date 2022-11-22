@@ -1,41 +1,52 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {GnosisSpokeConnector} from "../../../../contracts/messaging/connectors/gnosis/GnosisSpokeConnector.sol";
 import {GnosisAmb} from "../../../../contracts/messaging/interfaces/ambs/GnosisAmb.sol";
-import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/MerkleTreeManager.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
 
 contract GnosisSpokeConnectorTest is ConnectorHelper {
+  // setup chain ids
+  uint256 _mirrorChainId = 1238786754;
+  uint256 _chainId = 123213;
+
   function setUp() public {
     // Allow future contract mock
     vm.etch(_amb, new bytes(0x42));
+    // Set chain id
+    vm.chainId(_chainId);
 
     _merkle = address(new MerkleTreeManager());
 
-    _l1Connector = address(123123);
-    _l2Connector = address(
-      new GnosisSpokeConnector(
-        _l2Domain,
-        _l1Domain,
-        _amb,
-        _rootManager,
-        _l1Connector,
-        _mirrorGas,
-        _processGas,
-        _reserveGas,
-        0, // uint256 _delayBlocks
-        _merkle,
-        address(1) // watcher manager
+    _l1Connector = payable(address(123123));
+    _l2Connector = payable(
+      address(
+        new GnosisSpokeConnector(
+          _l2Domain,
+          _l1Domain,
+          _amb,
+          _rootManager,
+          _l1Connector,
+          _processGas,
+          _reserveGas,
+          0, // uint256 _delayBlocks
+          _merkle,
+          address(1), // watcher manager
+          _gasCap,
+          _mirrorChainId
+        )
       )
     );
   }
 
   // ============ Utils ============
   function utils_setSpokeConnectorVerifyMocks(address _sender) public {
-    // 1. call to amb on message sender
+    // 1. call to amb for source
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.sourceChainId.selector), abi.encode(_mirrorChainId));
+    // 2. call to amb on message sender
     vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.messageSender.selector), abi.encode(_sender));
   }
 
@@ -73,9 +84,12 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     // data
     bytes memory _data = abi.encode(GnosisSpokeConnector(_l2Connector).outboundRoot());
 
+    // encoded data
+    bytes memory _encodedData = abi.encode(_gasCap);
+
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, _encodedData, _rootManager);
 
     // should call the requireToPassMessage function of GnosisAMB
     vm.expectCall(
@@ -84,12 +98,12 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
         GnosisAmb.requireToPassMessage.selector,
         _l1Connector,
         abi.encodeWithSelector(Connector.processMessage.selector, _data),
-        _mirrorGas
+        _gasCap
       )
     );
 
     vm.prank(_rootManager);
-    GnosisSpokeConnector(_l2Connector).send();
+    GnosisSpokeConnector(_l2Connector).send(_encodedData);
   }
 
   // ============ GnosisSpokeConnector._processMessage ============
@@ -99,9 +113,7 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     // data
     bytes memory _data = abi.encodePacked(bytes32(bytes("test")));
 
-    uint256 chainId = 1337;
-    vm.chainId(chainId);
-    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(_chainId));
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
@@ -122,9 +134,7 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     // data
     bytes memory _data = abi.encodePacked(data);
 
-    uint256 chainId = 1337;
-    vm.chainId(chainId);
-    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(_chainId));
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
@@ -144,9 +154,7 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     // data
     bytes memory _data = abi.encodePacked(bytes32(bytes("test")));
 
-    uint256 chainId = 1337;
-    vm.chainId(chainId);
-    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(_chainId));
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
@@ -162,9 +170,7 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     // data
     bytes memory _data = abi.encodePacked(bytes32(bytes("test")));
 
-    uint256 chainId = 1337;
-    vm.chainId(1338);
-    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(chainId));
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(12365677777));
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));

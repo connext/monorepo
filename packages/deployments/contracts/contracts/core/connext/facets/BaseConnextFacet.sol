@@ -1,24 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
-import {TransferInfo, AppStorage, TokenId, Role} from "../libraries/LibConnextStorage.sol";
+import {TransferInfo, AppStorage, Role} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
+import {TokenId} from "../libraries/TokenId.sol";
+import {Constants} from "../libraries/Constants.sol";
 
 contract BaseConnextFacet {
   AppStorage internal s;
 
-  // ========== Properties ===========
-  uint256 internal constant _NOT_ENTERED = 1;
-  uint256 internal constant _ENTERED = 2;
-  uint256 internal constant BPS_FEE_DENOMINATOR = 10_000;
-
-  // Contains hash of empty bytes
-  bytes32 internal constant EMPTY_HASH = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
-
   // ========== Custom Errors ===========
 
-  error BaseConnextFacet__onlyBridgeRouter_notBridgeRouter();
   error BaseConnextFacet__onlyOwner_notOwner();
   error BaseConnextFacet__onlyProposed_notProposedOwner();
   error BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter();
@@ -26,8 +19,9 @@ contract BaseConnextFacet {
   error BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin();
   error BaseConnextFacet__whenNotPaused_paused();
   error BaseConnextFacet__nonReentrant_reentrantCall();
-  error BaseConnextFacet__getAdoptedAsset_notWhitelisted();
-  error BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
+  error BaseConnextFacet__nonXCallReentrant_reentrantCall();
+  error BaseConnextFacet__getAdoptedAsset_assetNotFound();
+  error BaseConnextFacet__getApprovedCanonicalId_notAllowlisted();
 
   // ============ Modifiers ============
 
@@ -40,16 +34,30 @@ contract BaseConnextFacet {
    */
   modifier nonReentrant() {
     // On the first call to nonReentrant, _notEntered will be true
-    if (s._status == _ENTERED) revert BaseConnextFacet__nonReentrant_reentrantCall();
+    if (s._status == Constants.ENTERED) revert BaseConnextFacet__nonReentrant_reentrantCall();
 
     // Any calls to nonReentrant after this point will fail
-    s._status = _ENTERED;
+    s._status = Constants.ENTERED;
 
     _;
 
     // By storing the original value once again, a refund is triggered (see
     // https://eips.ethereum.org/EIPS/eip-2200)
-    s._status = _NOT_ENTERED;
+    s._status = Constants.NOT_ENTERED;
+  }
+
+  modifier nonXCallReentrant() {
+    // On the first call to nonReentrant, _notEntered will be true
+    if (s._xcallStatus == Constants.ENTERED) revert BaseConnextFacet__nonXCallReentrant_reentrantCall();
+
+    // Any calls to nonReentrant after this point will fail
+    s._xcallStatus = Constants.ENTERED;
+
+    _;
+
+    // By storing the original value once again, a refund is triggered (see
+    // https://eips.ethereum.org/EIPS/eip-2200)
+    s._xcallStatus = Constants.NOT_ENTERED;
   }
 
   /**
@@ -72,7 +80,7 @@ contract BaseConnextFacet {
    * @notice Throws if called by any account other than the owner and router role.
    */
   modifier onlyOwnerOrRouter() {
-    if (LibDiamond.contractOwner() != msg.sender && s.roles[msg.sender] != Role.Router)
+    if (LibDiamond.contractOwner() != msg.sender && s.roles[msg.sender] != Role.RouterAdmin)
       revert BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter();
     _;
   }
@@ -105,26 +113,19 @@ contract BaseConnextFacet {
 
   // ============ Internal functions ============
   /**
-   * @notice Indicates if the router whitelist has been removed
+   * @notice Indicates if the router allowlist has been removed
    */
-  function _isRouterWhitelistRemoved() internal view returns (bool) {
-    return LibDiamond.contractOwner() == address(0) || s._routerWhitelistRemoved;
-  }
-
-  /**
-   * @notice Indicates if the asset whitelist has been removed
-   */
-  function _isAssetWhitelistRemoved() internal view returns (bool) {
-    return LibDiamond.contractOwner() == address(0) || s._assetWhitelistRemoved;
+  function _isRouterAllowlistRemoved() internal view returns (bool) {
+    return LibDiamond.contractOwner() == address(0) || s._routerAllowlistRemoved;
   }
 
   /**
    * @notice Returns the adopted assets for given canonical information
    */
   function _getAdoptedAsset(bytes32 _key) internal view returns (address) {
-    address adopted = s.canonicalToAdopted[_key];
+    address adopted = AssetLogic.getConfig(_key).adopted;
     if (adopted == address(0)) {
-      revert BaseConnextFacet__getAdoptedAsset_notWhitelisted();
+      revert BaseConnextFacet__getAdoptedAsset_assetNotFound();
     }
     return adopted;
   }
@@ -133,7 +134,7 @@ contract BaseConnextFacet {
    * @notice Returns the adopted assets for given canonical information
    */
   function _getRepresentationAsset(bytes32 _key) internal view returns (address) {
-    address representation = s.canonicalToRepresentation[_key];
+    address representation = AssetLogic.getConfig(_key).representation;
     // If this is address(0), then there is no mintable token for this asset on this
     // domain
     return representation;
@@ -187,8 +188,8 @@ contract BaseConnextFacet {
   function _getApprovedCanonicalId(address _candidate) internal view returns (TokenId memory, bytes32) {
     TokenId memory _canonical = _getCanonicalTokenId(_candidate);
     bytes32 _key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
-    if (!_isAssetWhitelistRemoved() && !s.approvedAssets[_key]) {
-      revert BaseConnextFacet__getApprovedCanonicalId_notWhitelisted();
+    if (!AssetLogic.getConfig(_key).approval) {
+      revert BaseConnextFacet__getApprovedCanonicalId_notAllowlisted();
     }
     return (_canonical, _key);
   }
