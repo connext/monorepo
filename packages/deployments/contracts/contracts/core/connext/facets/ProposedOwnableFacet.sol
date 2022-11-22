@@ -49,10 +49,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
   event RouterAllowlistRemoved(bool renounced);
 
-  event AssetAllowlistRemovalProposed(uint256 timestamp);
-
-  event AssetAllowlistRemoved(bool renounced);
-
   event RevokeRole(address revokedAddress, Role revokedRole);
 
   event AssignRoleRouter(address router);
@@ -93,13 +89,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   }
 
   /**
-   * @notice Returns if the asset allowlist is removed.
-   */
-  function assetAllowlistRemoved() public view returns (bool) {
-    return s._assetAllowlistRemoved;
-  }
-
-  /**
    * @notice Returns the address of the proposed owner.
    */
   function proposed() public view returns (address) {
@@ -118,13 +107,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    */
   function routerAllowlistTimestamp() public view returns (uint256) {
     return s._routerAllowlistTimestamp;
-  }
-
-  /**
-   * @notice Returns the timestamp when asset allowlist was last proposed to be removed
-   */
-  function assetAllowlistTimestamp() public view returns (uint256) {
-    return s._assetAllowlistTimestamp;
   }
 
   /**
@@ -172,35 +154,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
     // Set renounced, emit event, reset timestamp to 0
     _setRouterAllowlistRemoved(true);
-  }
-
-  /**
-   * @notice Indicates if the ownership of the asset allowlist has
-   * been renounced
-   */
-  function proposeAssetAllowlistRemoval() public onlyOwnerOrAdmin {
-    // Contract as source of truth
-    // Will fail if all ownership is renounced by modifier
-    if (s._assetAllowlistRemoved) revert ProposedOwnableFacet__proposeAssetAllowlistRemoval_noOwnershipChange();
-
-    // Start cycle, emit event
-    _setAssetAllowlistTimestamp();
-  }
-
-  /**
-   * @notice Indicates if the ownership of the asset allowlist has
-   * been renounced
-   */
-  function removeAssetAllowlist() public onlyOwnerOrAdmin delayElapsed(s._assetAllowlistTimestamp) {
-    // Contract as source of truth
-    // Will fail if all ownership is renounced by modifier
-    if (s._assetAllowlistRemoved) revert ProposedOwnableFacet__removeAssetAllowlist_noOwnershipChange();
-
-    // Ensure there has been a proposal cycle started
-    if (s._assetAllowlistTimestamp == 0) revert ProposedOwnableFacet__removeAssetAllowlist_noProposal();
-
-    // Set ownership, reset timestamp, emit event
-    _setAssetAllowlistRemoved(true);
   }
 
   /**
@@ -323,17 +276,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     s._routerAllowlistRemoved = value;
     delete s._routerAllowlistTimestamp;
     emit RouterAllowlistRemoved(value);
-  }
-
-  function _setAssetAllowlistTimestamp() private {
-    s._assetAllowlistTimestamp = block.timestamp;
-    emit AssetAllowlistRemovalProposed(block.timestamp);
-  }
-
-  function _setAssetAllowlistRemoved(bool value) private {
-    s._assetAllowlistRemoved = value;
-    delete s._assetAllowlistTimestamp;
-    emit AssetAllowlistRemoved(value);
   }
 
   function _setOwner(address newOwner) private {

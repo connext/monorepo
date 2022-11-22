@@ -61,15 +61,8 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     OptimismAmb(AMB).sendMessage(mirrorConnector, _calldata, uint32(gasCap));
   }
 
-  /**
-   * @notice Processes messages
-   * @param _data The message to process (should be an outbound root originating on
-   * spoke)
-   */
-  function _processMessage(bytes memory _data) internal override {
-    // Does nothing, all messages should go through the `processMessageFromRoot` path
-    revert Connector__processMessage_notUsed();
-  }
+  // DO NOT override _processMessage, should revert from `Connector` class. All messages must use the
+  // `processMessageFromRoot` flow.
 
   /**
    * @dev modified from: https://github.com/ethereum-optimism/optimism/blob/9973c1da3211e094a180a8a96ba9f8bb1ab1b389/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol#L165

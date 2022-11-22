@@ -147,7 +147,8 @@ contract SwapAdminFacet is BaseConnextFacet {
    * correct value.
    *
    * @param _key the hash of the canonical id and domain for token
-   * @param _pooledTokens an array of ERC20s this pool will accept
+   * @param _pooledTokens an array of ERC20s this pool will accept.
+   * length of this array should be in 2 ~ 16
    * @param decimals the decimals to use for each pooled token,
    * eg 8 for WBTC. Cannot be larger than POOL_PRECISION_DECIMALS(18)
    * Only fixed decimal tokens are allowed.
@@ -172,7 +173,8 @@ contract SwapAdminFacet is BaseConnextFacet {
 
     // Check _pooledTokens and precisions parameter
     if (
-      _pooledTokens.length < Constants.MINIMUM_POOLED_TOKENS || _pooledTokens.length > Constants.MAXIMUM_POOLED_TOKENS
+      _pooledTokens.length < Constants.MINIMUM_POOLED_TOKENS ||
+      _pooledTokens.length > Constants.MAXIMUM_POOLED_TOKENS
     ) {
       revert SwapAdminFacet__initializeSwap_invalidPooledTokens();
     }
@@ -204,9 +206,9 @@ contract SwapAdminFacet is BaseConnextFacet {
     }
 
     // Check _a, _fee, _adminFee, _withdrawFee parameters
-    if (_a >= Constants.MAX_A) revert SwapAdminFacet__initializeSwap_aExceedMax();
-    if (_fee >= Constants.MAX_SWAP_FEE) revert SwapAdminFacet__initializeSwap_feeExceedMax();
-    if (_adminFee >= Constants.MAX_ADMIN_FEE) revert SwapAdminFacet__initializeSwap_adminFeeExceedMax();
+    if (_a > Constants.MAX_A - 1) revert SwapAdminFacet__initializeSwap_aExceedMax();
+    if (_fee > Constants.MAX_SWAP_FEE - 1) revert SwapAdminFacet__initializeSwap_feeExceedMax();
+    if (_adminFee > Constants.MAX_ADMIN_FEE - 1) revert SwapAdminFacet__initializeSwap_adminFeeExceedMax();
 
     // Initialize a LPToken contract
     LPToken lpToken = LPToken(Clones.clone(s.lpTokenTargetAddress));

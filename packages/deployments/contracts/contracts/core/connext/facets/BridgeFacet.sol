@@ -15,7 +15,7 @@ import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {ExecuteArgs, TransferInfo, DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
+import {ExecuteArgs, TransferInfo, DestinationTransferStatus, TokenConfig} from "../libraries/LibConnextStorage.sol";
 import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 import {Constants} from "../libraries/Constants.sol";
 import {TokenId} from "../libraries/TokenId.sol";
@@ -176,6 +176,13 @@ contract BridgeFacet is BaseConnextFacet {
    */
   event SequencerRemoved(address sequencer, address caller);
 
+  /**
+   * @notice Emitted `xAppConnectionManager` is updated
+   * @param updated - The updated address
+   * @param caller - The account that called the function
+   */
+  event XAppConnectionManagerSet(address updated, address caller);
+
   // ============ Modifiers ============
 
   /**
@@ -252,6 +259,7 @@ contract BridgeFacet is BaseConnextFacet {
     if (manager.localDomain() != s.domain) {
       revert BridgeFacet__setXAppConnectionManager_domainsDontMatch();
     }
+    emit XAppConnectionManagerSet(_xAppConnectionManager, msg.sender);
     s.xAppConnectionManager = manager;
   }
 
@@ -512,53 +520,59 @@ contract BridgeFacet is BaseConnextFacet {
       // 0-value transfer. Because 0-value transfers short-circuit all checks on mappings keyed on
       // hash(canonicalId, canonicalDomain), this is safe even when the address(0) asset is not
       // allowlisted.
-      bytes32 key;
       if (_asset != address(0)) {
         // Retrieve the canonical token information.
+        bytes32 key;
         (canonical, key) = _getApprovedCanonicalId(_asset);
 
+        // Get the token config.
+        TokenConfig storage config = AssetLogic.getConfig(key);
+
+        // Set boolean flag
+        isCanonical = _params.originDomain == canonical.domain;
+
         // Get the local address
-        local = _getLocalAsset(key, canonical.id, canonical.domain);
+        local = isCanonical ? TypeCasts.bytes32ToAddress(canonical.id) : config.representation;
         if (local == address(0)) {
           revert BridgeFacet_xcall__emptyLocalAsset();
         }
 
-        // Set boolean flag
-        isCanonical = _params.originDomain == canonical.domain && local == _asset;
-
-        // Enforce liquidity caps
-        // NOTE: safe to do this before the swap because canonical domains do
-        // not hit the AMMs (local == canonical)
-        uint256 cap = s.caps[key];
-        if (isCanonical && cap > 0) {
-          // NOTE: this method includes router liquidity as part of the caps,
-          // not only the minted amount
-          uint256 updatedCap = s.custodied[_asset] + _amount;
-          if (updatedCap > cap) {
-            revert BridgeFacet__xcall_capReached();
+        {
+          // Enforce liquidity caps.
+          // NOTE: Safe to do this before the swap because canonical domains do
+          // not hit the AMMs (local == canonical).
+          uint256 cap = config.cap;
+          if (isCanonical && cap > 0) {
+            // NOTE: this method includes router liquidity as part of the caps,
+            // not only the minted amount
+            uint256 newCustodiedAmount = config.custodied + _amount;
+            if (newCustodiedAmount > cap) {
+              revert BridgeFacet__xcall_capReached();
+            }
+            s.tokenConfigs[key].custodied = newCustodiedAmount;
           }
-          s.custodied[_asset] = updatedCap;
         }
 
         // Update TransferInfo to reflect the canonical token information.
         _params.canonicalDomain = canonical.domain;
         _params.canonicalId = canonical.id;
-      }
 
-      if (_amount > 0) {
-        // Transfer funds of input asset to the contract from the user.
-        AssetLogic.handleIncomingAsset(_asset, _amount);
+        if (_amount > 0) {
+          // Transfer funds of input asset to the contract from the user.
+          AssetLogic.handleIncomingAsset(_asset, _amount);
 
-        // Swap to the local asset from adopted if applicable.
-        // TODO: drop the "IfNeeded", instead just check whether the asset is already local / needs swap here.
-        _params.bridgedAmt = AssetLogic.swapToLocalAssetIfNeeded(key, _asset, local, _amount, _params.slippage);
+          // Swap to the local asset from adopted if applicable.
+          _params.bridgedAmt = AssetLogic.swapToLocalAssetIfNeeded(key, _asset, local, _amount, _params.slippage);
 
-        // Get the normalized amount in (amount sent in by user in 18 decimals).
-        _params.normalizedIn = AssetLogic.normalizeDecimals(
-          IERC20Metadata(_asset).decimals(),
-          Constants.DEFAULT_NORMALIZED_DECIMALS,
-          _amount
-        );
+          // Get the normalized amount in (amount sent in by user in 18 decimals).
+          // NOTE: when getting the decimals from `_asset`, you don't know if you are looking for
+          // adopted or local assets
+          _params.normalizedIn = AssetLogic.normalizeDecimals(
+            _asset == local ? config.representationDecimals : config.adoptedDecimals,
+            Constants.DEFAULT_NORMALIZED_DECIMALS,
+            _amount
+          );
+        }
       }
 
       // Calculate the transfer ID.
@@ -643,6 +657,10 @@ contract BridgeFacet is BaseConnextFacet {
         revert BridgeFacet__execute_notSupportedSequencer();
       }
       // Check to make sure the sequencer provided did sign the transfer ID and router path provided.
+      // NOTE: when caps are enforced, this signature also acts as protection from malicious routers looking
+      // to block the network. routers could `execute` a fake transaction, and use up the rest of the `custodied`
+      // bandwidth, causing future `execute`s to fail. this would also cause a break in the accounting, where the
+      // `custodied` balance no longer tracks representation asset minting / burning
       if (
         _args.sequencer != _recoverSignature(keccak256(abi.encode(transferId, _args.routers)), _args.sequencerSignature)
       ) {
@@ -718,19 +736,15 @@ contract BridgeFacet is BaseConnextFacet {
     // Save the addresses of all routers providing liquidity for this transfer.
     s.routedTransfers[_transferId] = _args.routers;
 
-    // Get the local asset contract address.
-    address local = _getLocalAsset(_key, _args.params.canonicalId, _args.params.canonicalDomain);
+    // Get the local asset contract address (if applicable).
+    address local;
+    if (_args.params.canonicalDomain != 0) {
+      local = _getLocalAsset(_key, _args.params.canonicalId, _args.params.canonicalDomain);
+    }
 
     // If this is a zero-value transfer, short-circuit remaining logic.
     if (_args.params.bridgedAmt == 0) {
       return (0, local, local);
-    }
-
-    // If it is the canonical domain, decrease custodied value
-    if (s.domain == _args.params.canonicalDomain && s.caps[_key] > 0) {
-      // NOTE: safe to use the amount here instead of post-swap because there are no
-      // AMMs on the canonical domain (assuming canonical == adopted on canonical domain)
-      s.custodied[local] -= _args.params.bridgedAmt;
     }
 
     // Get the receive local status
@@ -784,9 +798,19 @@ contract BridgeFacet is BaseConnextFacet {
       }
     }
 
+    // If it is the canonical domain, decrease custodied value
+    if (s.domain == _args.params.canonicalDomain && AssetLogic.getConfig(_key).cap > 0) {
+      // NOTE: safe to use the amount here instead of post-swap because there are no
+      // AMMs on the canonical domain (assuming canonical == adopted on canonical domain)
+      s.tokenConfigs[_key].custodied -= toSwap;
+    }
+
     // If the local asset is specified, or the adopted asset was overridden (e.g. when user facing slippage
     // conditions outside of their boundaries), exit without swapping.
     if (receiveLocal) {
+      // Delete override
+      delete s.receiveLocalOverride[_transferId];
+
       return (toSwap, local, local);
     }
 
