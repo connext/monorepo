@@ -131,6 +131,38 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "bytes32",
+        name: "root",
+        type: "bytes32",
+      },
+    ],
+    name: "AggregateRootVerified",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "updated",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "DelayBlocksUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: false,
         internalType: "bytes32",
         name: "leaf",
@@ -194,6 +226,31 @@ const _abi = [
       },
     ],
     name: "MessageProcessed",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "leaf",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "aggregateRoot",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "aggregateIndex",
+        type: "uint256",
+      },
+    ],
+    name: "MessageProven",
     type: "event",
   },
   {

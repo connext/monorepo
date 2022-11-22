@@ -2,7 +2,7 @@
   "error AssetLogic__handleIncomingAsset_feeOnTransferNotSupported()",
   "error AssetLogic__handleIncomingAsset_nativeAssetNotSupported()",
   "error AssetLogic__handleOutgoingAsset_notNative()",
-  "error BaseConnextFacet__getAdoptedAsset_notAllowlisted()",
+  "error BaseConnextFacet__getAdoptedAsset_assetNotFound()",
   "error BaseConnextFacet__getApprovedCanonicalId_notAllowlisted()",
   "error BaseConnextFacet__nonReentrant_reentrantCall()",
   "error BaseConnextFacet__nonXCallReentrant_reentrantCall()",

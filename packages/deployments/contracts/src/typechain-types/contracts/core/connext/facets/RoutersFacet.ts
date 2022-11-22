@@ -28,6 +28,16 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
+export type TokenIdStruct = {
+  domain: PromiseOrValue<BigNumberish>;
+  id: PromiseOrValue<BytesLike>;
+};
+
+export type TokenIdStructOutput = [number, string] & {
+  domain: number;
+  id: string;
+};
+
 export interface RoutersFacetInterface extends utils.Interface {
   functions: {
     "LIQUIDITY_FEE_DENOMINATOR()": FunctionFragment;
@@ -46,8 +56,8 @@ export interface RoutersFacetInterface extends utils.Interface {
     "initializeRouter(address,address)": FunctionFragment;
     "maxRoutersPerTransfer()": FunctionFragment;
     "proposeRouterOwner(address,address)": FunctionFragment;
-    "removeRouterLiquidity(uint256,address,address)": FunctionFragment;
-    "removeRouterLiquidityFor(uint256,address,address,address)": FunctionFragment;
+    "removeRouterLiquidity((uint32,bytes32),uint256,address)": FunctionFragment;
+    "removeRouterLiquidityFor((uint32,bytes32),uint256,address,address)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
     "setLiquidityFeeNumerator(uint256)": FunctionFragment;
     "setMaxRoutersPerTransfer(uint256)": FunctionFragment;
@@ -155,16 +165,16 @@ export interface RoutersFacetInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "removeRouterLiquidity",
     values: [
+      TokenIdStruct,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
       PromiseOrValue<string>
     ]
   ): string;
   encodeFunctionData(
     functionFragment: "removeRouterLiquidityFor",
     values: [
+      TokenIdStruct,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>
     ]
@@ -579,15 +589,15 @@ export interface RoutersFacet extends BaseContract {
     ): Promise<ContractTransaction>;
 
     removeRouterLiquidity(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     removeRouterLiquidityFor(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -703,15 +713,15 @@ export interface RoutersFacet extends BaseContract {
   ): Promise<ContractTransaction>;
 
   removeRouterLiquidity(
+    _canonical: TokenIdStruct,
     _amount: PromiseOrValue<BigNumberish>,
-    _local: PromiseOrValue<string>,
     _to: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   removeRouterLiquidityFor(
+    _canonical: TokenIdStruct,
     _amount: PromiseOrValue<BigNumberish>,
-    _local: PromiseOrValue<string>,
     _to: PromiseOrValue<string>,
     _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -827,15 +837,15 @@ export interface RoutersFacet extends BaseContract {
     ): Promise<void>;
 
     removeRouterLiquidity(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     removeRouterLiquidityFor(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1080,15 +1090,15 @@ export interface RoutersFacet extends BaseContract {
     ): Promise<BigNumber>;
 
     removeRouterLiquidity(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     removeRouterLiquidityFor(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1211,15 +1221,15 @@ export interface RoutersFacet extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     removeRouterLiquidity(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     removeRouterLiquidityFor(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }

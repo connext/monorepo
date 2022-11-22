@@ -12,7 +12,7 @@ import type {
 const _abi = [
   {
     inputs: [],
-    name: "BaseConnextFacet__getAdoptedAsset_notAllowlisted",
+    name: "BaseConnextFacet__getAdoptedAsset_assetNotFound",
     type: "error",
   },
   {
@@ -58,6 +58,11 @@ const _abi = [
   {
     inputs: [],
     name: "BaseConnextFacet__whenNotPaused_paused",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "AssetLogic__getConfig_notRegistered",
     type: "error",
   },
   {
@@ -552,6 +557,25 @@ const _abi = [
       },
     ],
     name: "TransferRelayerFeesIncreased",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "updated",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "XAppConnectionManagerSet",
     type: "event",
   },
   {
@@ -1626,6 +1650,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "AssetLogic__getConfig_notRegistered",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "AssetLogic__getTokenIndexFromStableSwapPool_notExist",
     type: "error",
   },
@@ -1663,6 +1692,44 @@ const _abi = [
     inputs: [],
     name: "PortalFacet__setAavePortalFee_invalidFee",
     type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "updated",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "AavePoolUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "updated",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "AavePortalFeeUpdated",
+    type: "event",
   },
   {
     anonymous: false,
@@ -2056,32 +2123,6 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "uint256",
-        name: "timestamp",
-        type: "uint256",
-      },
-    ],
-    name: "AssetAllowlistRemovalProposed",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "renounced",
-        type: "bool",
-      },
-    ],
-    name: "AssetAllowlistRemoved",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
         internalType: "address",
         name: "admin",
         type: "address",
@@ -2213,32 +2254,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "assetAllowlistRemoved",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "assetAllowlistTimestamp",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "address",
@@ -2311,13 +2326,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "proposeAssetAllowlistRemoval",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "address",
@@ -2380,13 +2388,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "removeAssetAllowlist",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -3290,14 +3291,26 @@ const _abi = [
   {
     inputs: [
       {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
         internalType: "uint256",
         name: "_amount",
         type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "_local",
-        type: "address",
       },
       {
         internalType: "address payable",
@@ -3313,14 +3326,26 @@ const _abi = [
   {
     inputs: [
       {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
         internalType: "uint256",
         name: "_amount",
         type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "_local",
-        type: "address",
       },
       {
         internalType: "address payable",
@@ -4121,7 +4146,22 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "AssetLogic__getConfig_notRegistered",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "TokenFacet__addAssetId_alreadyAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__addAssetId_badBurn",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__addAssetId_badMint",
     type: "error",
   },
   {
@@ -4151,6 +4191,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "TokenFacet__setupAssetWithDeployedRepresentation_invalidRepresentation",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain",
     type: "error",
   },
@@ -4172,6 +4217,11 @@ const _abi = [
   {
     inputs: [],
     name: "TokenFacet__updateDetails_notApproved",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__updateDetails_onlyRemote",
     type: "error",
   },
   {

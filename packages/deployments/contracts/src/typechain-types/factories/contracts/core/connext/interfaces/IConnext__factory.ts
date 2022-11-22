@@ -559,32 +559,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "assetAllowlistRemoved",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "assetAllowlistTimestamp",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "bytes32",
@@ -1949,13 +1923,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "proposeAssetAllowlistRemoval",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
         components: [
@@ -2112,13 +2079,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "removeAssetAllowlist",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
