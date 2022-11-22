@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.1-beta.7
+
+- [all] Mainnet Deployments :tada:
+
 ## Amarok 0.2.1-beta.6
 
 - [sdk] pool price impact
