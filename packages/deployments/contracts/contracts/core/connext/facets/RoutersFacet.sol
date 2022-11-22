@@ -576,7 +576,7 @@ contract RoutersFacet is BaseConnextFacet {
       canonical.id = TypeCasts.addressToBytes32(_local);
     }
     bytes32 key = AssetLogic.calculateCanonicalHash(canonical.id, canonical.domain);
-    if (!s.approvedAssets[key]) {
+    if (!s.tokenConfigs[key].approval) {
       revert BaseConnextFacet__getApprovedCanonicalId_notAllowlisted();
     }
 
@@ -623,7 +623,7 @@ contract RoutersFacet is BaseConnextFacet {
     // NOTE: allow getting unapproved assets to prevent lockup on approval status change
     // NOTE: not using `_getCanonicalTokenId` because candidate can *only* be local
     bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
-    address local = onCanonical ? TypeCasts.bytes32ToAddress(_canonical.id) : s.canonicalToRepresentation[key];
+    address local = onCanonical ? TypeCasts.bytes32ToAddress(_canonical.id) : s.tokenConfigs[key].representation;
 
     // Get existing router balance.
     uint256 routerBalance = s.routerBalances[_router][local];
