@@ -62,17 +62,17 @@
   },
   {
     "inputs": [],
-    "name": "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "ProposedOwnable__onlyOwner_notOwner",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "ProposedOwnable__onlyProposed_notProposedOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnable__ownershipDelayElapsed_delayNotElapsed",
     "type": "error"
   },
   {
@@ -87,17 +87,43 @@
   },
   {
     "inputs": [],
-    "name": "ProposedOwnable__renounceOwnership_delayNotElapsed",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "ProposedOwnable__renounceOwnership_invalidProposal",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "ProposedOwnable__renounceOwnership_noProposal",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TypedMemView__index_indexMoreThan32Bytes",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "loc",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "len",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "slice",
+        "type": "uint256"
+      }
+    ],
+    "name": "TypedMemView__index_overrun",
     "type": "error"
   },
   {

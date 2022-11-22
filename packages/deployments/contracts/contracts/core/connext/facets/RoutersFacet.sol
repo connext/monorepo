@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
+import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
+
 import {Constants} from "../libraries/Constants.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {RouterConfig} from "../libraries/LibConnextStorage.sol";
@@ -463,15 +465,17 @@ contract RoutersFacet is BaseConnextFacet {
 
   /**
    * @notice This is used by any router owner to decrease their available liquidity for a given asset.
+   * @dev Using the `_canonical` information in the interface instead of the local asset to allow
+   * routers to remove liquidity even if the asset is delisted
+   * @param _canonical The canonical token information in plaintext
    * @param _amount - The amount of liquidity to remove for the router
-   * @param _local - The address of the asset you're removing liquidity from. If removing liquidity of the
    * native asset, routers may use `address(0)` or the wrapped asset
    * @param _to The address that will receive the liquidity being removed
    * @param _router The address of the router
    */
   function removeRouterLiquidityFor(
+    TokenId memory _canonical,
     uint256 _amount,
-    address _local,
     address payable _to,
     address _router
   ) external nonReentrant whenNotPaused {
@@ -480,22 +484,23 @@ contract RoutersFacet is BaseConnextFacet {
     address permissioned = owner == address(0) ? _router : owner;
     if (msg.sender != permissioned) revert RoutersFacet__removeRouterLiquidityFor_notOwner();
     // Remove liquidity
-    _removeLiquidityForRouter(_amount, _local, _to, _router);
+    _removeLiquidityForRouter(_amount, _canonical, _to, _router);
   }
 
   /**
    * @notice This is used by any router to decrease their available liquidity for a given asset.
+   * @dev Using the `_canonical` information in the interface instead of the local asset to allow
+   * routers to remove liquidity even if the asset is delisted
+   * @param _canonical The canonical token information in plaintext
    * @param _amount - The amount of liquidity to remove for the router
-   * @param _local - The address of the asset you're removing liquidity from. If removing liquidity of the
-   * native asset, routers may use `address(0)` or the wrapped asset
    * @param _to The address that will receive the liquidity being removed if no router recipient exists.
    */
   function removeRouterLiquidity(
+    TokenId memory _canonical,
     uint256 _amount,
-    address _local,
     address payable _to
   ) external nonReentrant whenNotPaused {
-    _removeLiquidityForRouter(_amount, _local, _to, msg.sender);
+    _removeLiquidityForRouter(_amount, _canonical, _to, msg.sender);
   }
 
   // ============ Internal functions ============
@@ -562,7 +567,18 @@ contract RoutersFacet is BaseConnextFacet {
     if (_amount == 0) revert RoutersFacet__addLiquidityForRouter_amountIsZero();
 
     // Get the canonical asset ID from the representation.
-    (TokenId memory canonical, bytes32 key) = _getApprovedCanonicalId(_local);
+    // NOTE: not using `_getApprovedCanonicalId` because candidate can *only* be local
+    TokenId memory canonical = s.representationToCanonical[_local];
+    if (canonical.domain == 0 && canonical.id == bytes32(0)) {
+      // Assume you are on the canonical domain, which does not update the above mapping
+      // If this is an incorrect assumption, the approval should fail
+      canonical.domain = s.domain;
+      canonical.id = TypeCasts.addressToBytes32(_local);
+    }
+    bytes32 key = AssetLogic.calculateCanonicalHash(canonical.id, canonical.domain);
+    if (!s.approvedAssets[key]) {
+      revert BaseConnextFacet__getApprovedCanonicalId_notAllowlisted();
+    }
 
     // Sanity check: router is approved.
     if (!_isRouterAllowlistRemoved() && !getRouterApproval(_router))
@@ -581,14 +597,13 @@ contract RoutersFacet is BaseConnextFacet {
   /**
    * @notice This is used by any router owner to decrease their available liquidity for a given asset.
    * @param _amount - The amount of liquidity to remove for the router
-   * @param _local - The address of the asset you're removing liquidity from. If removing liquidity of the
-   * native asset, routers may use `address(0)` or the wrapped asset
+   * @param _canonical The canonical token information in plaintext
    * @param _to The address that will receive the liquidity being removed
    * @param _router The address of the router
    */
   function _removeLiquidityForRouter(
     uint256 _amount,
-    address _local,
+    TokenId memory _canonical,
     address payable _to,
     address _router
   ) internal {
@@ -602,25 +617,28 @@ contract RoutersFacet is BaseConnextFacet {
     // Sanity check: nonzero amounts.
     if (_amount == 0) revert RoutersFacet__removeRouterLiquidity_amountIsZero();
 
-    // Get the canonical asset ID from the representation.
+    bool onCanonical = _canonical.domain == s.domain;
+
+    // Get the local asset from canonical
     // NOTE: allow getting unapproved assets to prevent lockup on approval status change
-    TokenId memory canonical = _getCanonicalTokenId(_local);
-    bytes32 key = AssetLogic.calculateCanonicalHash(canonical.id, canonical.domain);
+    // NOTE: not using `_getCanonicalTokenId` because candidate can *only* be local
+    bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
+    address local = onCanonical ? TypeCasts.bytes32ToAddress(_canonical.id) : s.canonicalToRepresentation[key];
 
     // Get existing router balance.
-    uint256 routerBalance = s.routerBalances[_router][_local];
+    uint256 routerBalance = s.routerBalances[_router][local];
 
     // Sanity check: amount can be deducted for the router.
     if (routerBalance < _amount) revert RoutersFacet__removeRouterLiquidity_insufficientFunds();
 
     // Update router balances.
     unchecked {
-      s.routerBalances[_router][_local] = routerBalance - _amount;
+      s.routerBalances[_router][local] = routerBalance - _amount;
     }
 
     // Transfer from contract to specified `to` address.
-    AssetLogic.handleOutgoingAsset(_local, recipient, _amount);
+    AssetLogic.handleOutgoingAsset(local, recipient, _amount);
 
-    emit RouterLiquidityRemoved(_router, recipient, _local, key, _amount, msg.sender);
+    emit RouterLiquidityRemoved(_router, recipient, local, key, _amount, msg.sender);
   }
 }

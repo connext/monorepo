@@ -25,7 +25,7 @@ import type {
 
 export interface DiamondInitInterface extends utils.Interface {
   functions: {
-    "init(uint32,address,uint256)": FunctionFragment;
+    "init(uint32,address,uint256,address)": FunctionFragment;
   };
 
   getFunction(nameOrSignatureOrTopic: "init"): FunctionFragment;
@@ -35,7 +35,8 @@ export interface DiamondInitInterface extends utils.Interface {
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>
     ]
   ): string;
 
@@ -75,6 +76,7 @@ export interface DiamondInit extends BaseContract {
       _domain: PromiseOrValue<BigNumberish>,
       _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
+      _lpTokenTargetAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -83,6 +85,7 @@ export interface DiamondInit extends BaseContract {
     _domain: PromiseOrValue<BigNumberish>,
     _xAppConnectionManager: PromiseOrValue<string>,
     _acceptanceDelay: PromiseOrValue<BigNumberish>,
+    _lpTokenTargetAddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -91,6 +94,7 @@ export interface DiamondInit extends BaseContract {
       _domain: PromiseOrValue<BigNumberish>,
       _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
+      _lpTokenTargetAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -102,6 +106,7 @@ export interface DiamondInit extends BaseContract {
       _domain: PromiseOrValue<BigNumberish>,
       _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
+      _lpTokenTargetAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -111,6 +116,7 @@ export interface DiamondInit extends BaseContract {
       _domain: PromiseOrValue<BigNumberish>,
       _xAppConnectionManager: PromiseOrValue<string>,
       _acceptanceDelay: PromiseOrValue<BigNumberish>,
+      _lpTokenTargetAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

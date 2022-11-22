@@ -8,19 +8,20 @@ import {
   RelayerSyncFeeRequest,
   RelayResponse,
   RelayRequestOptions,
-  GELATO_RELAYER_ADDRESS,
+  NATIVE_TOKEN,
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
-import { constants } from "ethers";
+import { BigNumber } from "ethers";
 
 import {
   RelayerSendFailed,
   TransactionHashTimeout,
+  UnableToGetGelatoSupportedChains,
   UnableToGetTaskStatus,
   UnableToGetTransactionHash,
 } from "../errors";
-import { ChainReader } from "../../../txservice/dist";
-import { gelatoRelayWithSyncFee, axiosGet } from "../mockable";
+import { ChainReader } from "../../../txservice";
+import { gelatoRelayWithSyncFee, axiosGet, axiosPost, getEstimatedFee } from "../mockable";
 
 import { url } from ".";
 
@@ -28,41 +29,24 @@ import { url } from ".";
 /// Docs: https://relay.gelato.digital/api-docs/
 
 export const isChainSupportedByGelato = async (chainId: number): Promise<boolean> => {
-  const chainsSupportedByGelato = await getGelatoRelayChains();
-  return chainsSupportedByGelato.includes(chainId.toString());
-};
-
-export const getGelatoRelayerAddress = async (_chainId: number, _logger?: Logger): Promise<string> => {
-  return GELATO_RELAYER_ADDRESS;
-};
-
-export const getGelatoRelayChains = async (logger?: Logger): Promise<string[]> => {
   let result = [];
   try {
     const res = await axiosGet(`${url}/relays/`);
     result = res.data.relays;
   } catch (error: unknown) {
-    if (logger) logger.error("Error in getGelatoRelayChains", undefined, undefined, jsonifyError(error as Error));
+    throw new UnableToGetGelatoSupportedChains(chainId, { err: jsonifyError(error as Error) });
   }
 
-  return result;
+  return result.includes(chainId.toString());
 };
 
-export const isPaymentTokenSupported = async (chainId: number, token: string): Promise<boolean> => {
-  const paymentTokens = await getPaymentTokens(chainId);
-  const lowerPaymentTokens = paymentTokens.map((address) => {
-    return address.toLowerCase();
-  });
-  return lowerPaymentTokens.includes(token.toString().toLowerCase());
-};
-
-export const getPaymentTokens = async (chainId: number, logger?: Logger): Promise<string[]> => {
+export const getGelatoRelayChains = async (): Promise<string[]> => {
   let result = [];
   try {
-    const res = await axiosGet(`${url}/oracles/${chainId}/paymentTokens/`);
-    result = res.data.paymentTokens;
+    const res = await axiosGet(`${url}/relays/`);
+    result = res.data.relays;
   } catch (error: unknown) {
-    if (logger) logger.error("Error in getPaymentTokens", undefined, undefined, jsonifyError(error as Error));
+    throw new UnableToGetGelatoSupportedChains(0, { err: jsonifyError(error as Error) });
   }
 
   return result;
@@ -75,7 +59,8 @@ export const getPaymentTokens = async (chainId: number, logger?: Logger): Promis
  */
 export const getTaskStatus = async (taskId: string): Promise<RelayerTaskStatus> => {
   try {
-    const apiEndpoint = `${url}/tasks/status/${taskId}`;
+    // const apiEndpoint = `${url}/tasks/status/${taskId}`;
+    const apiEndpoint = `${url}/tasks/${taskId}`; // old endpoint
     const res = await axiosGet(apiEndpoint);
     return res.data.task?.taskState ?? RelayerTaskStatus.NotFound;
   } catch (error: unknown) {
@@ -167,9 +152,41 @@ export const gelatoSDKSend = async (
 
 const GAS_LIMIT_FOR_RELAYER = "4000000";
 
-export const getRelayerAddress = async (chainId: number, logger: Logger): Promise<string> => {
-  const relayerAddress = await getGelatoRelayerAddress(chainId, logger);
-  return relayerAddress;
+export const gelatoV0Send = async (
+  chainId: number,
+  dest: string,
+  data: string,
+  relayerFee: string,
+  logger: Logger,
+  _requestContext: RequestContext,
+): Promise<RelayResponse> => {
+  const { requestContext, methodContext } = createLoggingContext(send.name, _requestContext);
+  let response;
+  const params = {
+    dest,
+    data,
+    token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+    relayerFee,
+    gasLimit: GAS_LIMIT_FOR_RELAYER,
+  };
+  try {
+    logger.info("Sending request to gelato relay", requestContext, methodContext, params);
+    response = await axiosPost(`${url}/relays/${chainId}`, params);
+  } catch (error: unknown) {
+    throw new RelayerSendFailed({
+      error: jsonifyError(error as Error),
+    });
+  }
+  return response.data;
+};
+
+export const getRelayerAddress = async (chainId: number): Promise<string> => {
+  try {
+    const res = await axiosGet(`${url}/relays/${chainId}/address`);
+    return res.data.address;
+  } catch (error: unknown) {
+    throw new UnableToGetGelatoSupportedChains(chainId, { err: jsonifyError(error as Error) });
+  }
 };
 
 export const send = async (
@@ -190,7 +207,7 @@ export const send = async (
   }
 
   // Validate the call will succeed on chain.
-  const relayerAddress = await getRelayerAddress(chainId, logger);
+  const relayerAddress = await getRelayerAddress(chainId);
 
   logger.debug("Getting gas estimate", requestContext, methodContext, {
     chainId,
@@ -213,12 +230,27 @@ export const send = async (
     gas: gas.toString(),
   });
 
-  const request = {
+  const gasLimit = gas.add(200_000); // Add extra overhead for gelato
+  let fee = BigNumber.from(0);
+  try {
+    fee = await getEstimatedFee(chainId, NATIVE_TOKEN as string, gasLimit, true);
+  } catch (e: unknown) {
+    logger.warn("Error at Gelato Estimate Fee", requestContext, methodContext, {
+      error: e as NxtpError,
+      destinationAddress: destinationAddress,
+      gasLimit: gasLimit.toString(),
+      relayerFee: fee.toString(),
+    });
+
+    fee = gasLimit.mul(await chainReader.getGasPrice(+domain, requestContext));
+  }
+
+  const request: RelayerSyncFeeRequest = {
     chainId: chainId,
     target: destinationAddress,
     data: encodedData,
-    relayContext: true,
-    feeToken: constants.AddressZero,
+    isRelayContext: false,
+    feeToken: NATIVE_TOKEN,
   };
 
   logger.info("Sending to Gelato network", requestContext, methodContext, request);
@@ -226,9 +258,7 @@ export const send = async (
   // Future intented way to call
   //const response = await gelatoSDKSend(request, gelatoApiKey, { gasLimit: GAS_LIMIT_FOR_RELAYER });
 
-  const options = { gasLimit: GAS_LIMIT_FOR_RELAYER };
-
-  const response = await gelatoSDKSend(request, options);
+  const response = await gelatoV0Send(chainId, destinationAddress, encodedData, fee.toString(), logger, requestContext);
 
   if (!response) {
     throw new RelayerSendFailed({ response: response });

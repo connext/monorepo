@@ -1151,17 +1151,17 @@ declare module 'zapatos/schema' {
       */
       aggregate_root: string;
       /**
-      * **propagated_roots.domains**
-      * - `_text` in database
-      * - `NOT NULL`, no default
-      */
-      domains: string[];
-      /**
       * **propagated_roots.leaf_count**
       * - `numeric` in database
       * - `NOT NULL`, no default
       */
       leaf_count: number;
+      /**
+      * **propagated_roots.domains_hash**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      domains_hash: string | null;
     }
     export interface JSONSelectable {
       /**
@@ -1177,17 +1177,17 @@ declare module 'zapatos/schema' {
       */
       aggregate_root: string;
       /**
-      * **propagated_roots.domains**
-      * - `_text` in database
-      * - `NOT NULL`, no default
-      */
-      domains: string[];
-      /**
       * **propagated_roots.leaf_count**
       * - `numeric` in database
       * - `NOT NULL`, no default
       */
       leaf_count: number;
+      /**
+      * **propagated_roots.domains_hash**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      domains_hash: string | null;
     }
     export interface Whereable {
       /**
@@ -1203,17 +1203,17 @@ declare module 'zapatos/schema' {
       */
       aggregate_root?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **propagated_roots.domains**
-      * - `_text` in database
-      * - `NOT NULL`, no default
-      */
-      domains?: string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn>;
-      /**
       * **propagated_roots.leaf_count**
       * - `numeric` in database
       * - `NOT NULL`, no default
       */
       leaf_count?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **propagated_roots.domains_hash**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      domains_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -1229,17 +1229,17 @@ declare module 'zapatos/schema' {
       */
       aggregate_root: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **propagated_roots.domains**
-      * - `_text` in database
-      * - `NOT NULL`, no default
-      */
-      domains: string[] | db.Parameter<string[]> | db.SQLFragment;
-      /**
       * **propagated_roots.leaf_count**
       * - `numeric` in database
       * - `NOT NULL`, no default
       */
       leaf_count: number | db.Parameter<number> | db.SQLFragment;
+      /**
+      * **propagated_roots.domains_hash**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      domains_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -1255,17 +1255,17 @@ declare module 'zapatos/schema' {
       */
       aggregate_root?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **propagated_roots.domains**
-      * - `_text` in database
-      * - `NOT NULL`, no default
-      */
-      domains?: string[] | db.Parameter<string[]> | db.SQLFragment | db.SQLFragment<any, string[] | db.Parameter<string[]> | db.SQLFragment>;
-      /**
       * **propagated_roots.leaf_count**
       * - `numeric` in database
       * - `NOT NULL`, no default
       */
       leaf_count?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+      /**
+      * **propagated_roots.domains_hash**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      domains_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'propagated_roots_aggregate_root_key' | 'propagated_roots_pkey';
     export type Column = keyof Selectable;

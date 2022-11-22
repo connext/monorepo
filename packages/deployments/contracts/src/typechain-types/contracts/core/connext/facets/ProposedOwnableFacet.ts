@@ -32,7 +32,7 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     "assetAllowlistRemoved()": FunctionFragment;
     "assetAllowlistTimestamp()": FunctionFragment;
     "assignRoleAdmin(address)": FunctionFragment;
-    "assignRoleRouter(address)": FunctionFragment;
+    "assignRoleRouterAdmin(address)": FunctionFragment;
     "assignRoleWatcher(address)": FunctionFragment;
     "delay()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -57,7 +57,7 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
       | "assetAllowlistRemoved"
       | "assetAllowlistTimestamp"
       | "assignRoleAdmin"
-      | "assignRoleRouter"
+      | "assignRoleRouterAdmin"
       | "assignRoleWatcher"
       | "delay"
       | "owner"
@@ -93,7 +93,7 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "assignRoleRouter",
+    functionFragment: "assignRoleRouterAdmin",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -163,7 +163,7 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "assignRoleRouter",
+    functionFragment: "assignRoleRouterAdmin",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -403,7 +403,7 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -478,7 +478,7 @@ export interface ProposedOwnableFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  assignRoleRouter(
+  assignRoleRouterAdmin(
     _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -551,7 +551,7 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -681,7 +681,7 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -761,7 +761,7 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

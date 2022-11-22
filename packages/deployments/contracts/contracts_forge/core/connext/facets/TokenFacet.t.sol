@@ -6,6 +6,7 @@ import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
+import {ERC20} from "../../../../contracts/core/connext/helpers/OZERC20.sol";
 import {TokenFacet} from "../../../../contracts/core/connext/facets/TokenFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import {TokenId} from "../../../../contracts/core/connext/libraries/TokenId.sol";
@@ -60,7 +61,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
       }
 
       // Should emit a pool event if added
-      if (_stableSwap != address(0) && isCanonical) {
+      if (_stableSwap != address(0) && !isCanonical) {
         vm.expectEmit(true, true, true, true);
         emit StableSwapAdded(key, _canonicalId, _canonicalDomain, _stableSwap, _owner);
       }
@@ -155,6 +156,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
     assertEq(s.adoptedToCanonical[isCanonical ? _canonical : adopted].domain, 0);
     assertEq(s.adoptedToCanonical[isCanonical ? _canonical : adopted].id, bytes32(0));
+    // representation should never change
     assertEq(s.representationToCanonical[representation].domain, 0);
     assertEq(s.representationToCanonical[representation].id, bytes32(0));
   }
@@ -270,8 +272,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
       TokenId(s.domain, _canonicalId),
       asset,
       adoptedAssetId,
-      stableSwap,
-      100000 ether
+      stableSwap
     );
   }
 
@@ -360,6 +361,43 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   //   this.setupAsset(canonical, asset, address(0));
   // }
 
+  function test_TokenFacet__setupAsset_failIfOnRemoteAndRepresentationPresent() public {
+    TokenId memory canonical = TokenId(_domain, _canonicalId);
+    s.domain = _domain + 1;
+    address asset = address(new TestERC20("Test Token", "TEST"));
+    s.tokenConfigs[_canonicalKey].representation = asset;
+
+    vm.prank(_owner);
+    vm.expectRevert(TokenFacet.TokenFacet__setupAsset_representationListed.selector);
+    this.setupAsset(canonical, 18, "nextTest", "nTest", asset, address(0), 0);
+  }
+
+  // setupAssetWithDeployedRepresentation
+  function test_TokenFacet__setupAssetWithDeployedRepresentation_failIfOnRemoteAndCannotMint() public {
+    TokenId memory canonical = TokenId(_domain, _canonicalId);
+    s.domain = _domain + 1;
+    ERC20 asset = new ERC20(18, "Test Token", "TEST", "1");
+
+    vm.prank(_owner);
+    // no error message given bc shouldnt be able to find function
+    vm.expectRevert();
+    this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0));
+  }
+
+  function test_TokenFacet__setupAssetWithDeployedRepresentation_failIfOnRemoteAndCannotBurn() public {
+    TokenId memory canonical = TokenId(_domain, _canonicalId);
+    s.domain = _domain + 1;
+    ERC20 asset = new ERC20(18, "Test Token", "TEST", "1");
+
+    // mint should work
+    vm.mockCall(address(asset), abi.encodeWithSelector(TestERC20.mint.selector), abi.encode(true));
+
+    vm.prank(_owner);
+    // no error message given bc shouldnt be able to find function
+    vm.expectRevert();
+    this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0));
+  }
+
   // ============ addStableSwapPool ============
   function test_TokenFacet__addStableSwapPool_success() public {
     address stableSwap = address(65);
@@ -401,7 +439,9 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
     setupAssetAndAssert(_adopted, bytes4(""));
 
-    removeAssetAndAssert(utils_calculateCanonicalHash(), _local, _adopted);
+    s.custodied[_canonical] = 0;
+    vm.mockCall(_local, abi.encodeWithSelector(IERC20.balanceOf.selector, address(this)), abi.encode(0));
+    removeAssetAndAssert(utils_calculateCanonicalHash(), _deployedLocal, _adopted);
   }
 
   function test_TokenFacet__removeAssetId_worksOnRemote() public {

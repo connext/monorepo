@@ -29,7 +29,6 @@ import type {
 
 export interface ConnextPriceOracleInterface extends utils.Interface {
   functions: {
-    "VALID_PERIOD()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "aggregators(address)": FunctionFragment;
     "assetPrices(address)": FunctionFragment;
@@ -53,7 +52,6 @@ export interface ConnextPriceOracleInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "VALID_PERIOD"
       | "acceptProposedOwner"
       | "aggregators"
       | "assetPrices"
@@ -75,10 +73,6 @@ export interface ConnextPriceOracleInterface extends utils.Interface {
       | "wrapped"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "VALID_PERIOD",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
     values?: undefined
@@ -145,10 +139,6 @@ export interface ConnextPriceOracleInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "wrapped", values?: undefined): string;
 
-  decodeFunctionResult(
-    functionFragment: "VALID_PERIOD",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
     data: BytesLike
@@ -313,8 +303,6 @@ export interface ConnextPriceOracle extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    VALID_PERIOD(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -389,8 +377,6 @@ export interface ConnextPriceOracle extends BaseContract {
 
     wrapped(overrides?: CallOverrides): Promise<[string]>;
   };
-
-  VALID_PERIOD(overrides?: CallOverrides): Promise<BigNumber>;
 
   acceptProposedOwner(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -467,8 +453,6 @@ export interface ConnextPriceOracle extends BaseContract {
   wrapped(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    VALID_PERIOD(overrides?: CallOverrides): Promise<BigNumber>;
-
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
     aggregators(
@@ -588,8 +572,6 @@ export interface ConnextPriceOracle extends BaseContract {
   };
 
   estimateGas: {
-    VALID_PERIOD(overrides?: CallOverrides): Promise<BigNumber>;
-
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -664,8 +646,6 @@ export interface ConnextPriceOracle extends BaseContract {
   };
 
   populateTransaction: {
-    VALID_PERIOD(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

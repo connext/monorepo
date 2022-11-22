@@ -17,8 +17,9 @@ contract GnosisHubConnector is HubConnector, GnosisBase {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _gasCap
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) GnosisBase(_gasCap) {}
+    uint256 _gasCap,
+    uint256 _mirrorChainId
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) GnosisBase(_gasCap, _mirrorChainId) {}
 
   // https://docs.gnosischain.com/bridges/tutorials/using-amb
   function executeSignatures(bytes memory _data, bytes memory _signatures) external {
@@ -30,7 +31,7 @@ contract GnosisHubConnector is HubConnector, GnosisBase {
    * @dev Asserts the sender of a cross domain message
    */
   function _verifySender(address _expected) internal view override returns (bool) {
-    return _verifySender(AMB, _expected);
+    return _verifySender(AMB, _expected, GnosisAmb(AMB).sourceChainId());
   }
 
   /**
@@ -55,7 +56,7 @@ contract GnosisHubConnector is HubConnector, GnosisBase {
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!l2Connector");
     // ensure it is headed to this domain
-    require(GnosisAmb(AMB).sourceChainId() == block.chainid, "!destinationChain");
+    require(GnosisAmb(AMB).destinationChainId() == block.chainid, "!destinationChain");
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
     // update the root on the root manager

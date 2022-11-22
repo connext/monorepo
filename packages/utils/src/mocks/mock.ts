@@ -411,7 +411,7 @@ export const mock = {
     propagatedRoot: (overrides: Partial<PropagatedRoot> = {}): PropagatedRoot => ({
       id: getRandomBytes32(),
       aggregate: getRandomBytes32(),
-      domains: [mock.domain.A, mock.domain.B],
+      domainsHash: getRandomBytes32(),
       count: Math.floor(Date.now() / 1000),
       ...overrides,
     }),

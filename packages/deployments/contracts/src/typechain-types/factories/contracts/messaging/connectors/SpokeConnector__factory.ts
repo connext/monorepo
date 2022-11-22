@@ -17,11 +17,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "ProposedOwnable__onlyOwner_notOwner",
     type: "error",
   },
@@ -32,17 +27,17 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "ProposedOwnable__ownershipDelayElapsed_delayNotElapsed",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ProposedOwnable__proposeNewOwner_invalidProposal",
     type: "error",
   },
   {
     inputs: [],
     name: "ProposedOwnable__proposeNewOwner_noOwnershipChange",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "ProposedOwnable__renounceOwnership_delayNotElapsed",
     type: "error",
   },
   {
@@ -532,6 +527,25 @@ const _abi = [
     name: "addSender",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "allowlistedSenders",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -1075,25 +1089,6 @@ const _abi = [
         internalType: "contract WatcherManager",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    name: "allowlistedSenders",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
       },
     ],
     stateMutability: "view",

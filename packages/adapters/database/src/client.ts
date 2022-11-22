@@ -122,7 +122,7 @@ const convertToDbPropagatedRoot = (root: PropagatedRoot): s.propagated_roots.Ins
   return {
     id: root.id,
     aggregate_root: root.aggregate,
-    domains: root.domains,
+    domains_hash: root.domainsHash,
     leaf_count: root.count,
   };
 };

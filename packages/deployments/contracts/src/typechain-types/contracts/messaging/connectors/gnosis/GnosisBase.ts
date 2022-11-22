@@ -29,6 +29,7 @@ import type {
 
 export interface GnosisBaseInterface extends utils.Interface {
   functions: {
+    "MIRROR_CHAIN_ID()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -42,6 +43,7 @@ export interface GnosisBaseInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "MIRROR_CHAIN_ID"
       | "acceptProposedOwner"
       | "delay"
       | "owner"
@@ -53,6 +55,10 @@ export interface GnosisBaseInterface extends utils.Interface {
       | "setGasCap"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "MIRROR_CHAIN_ID",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
     values?: undefined
@@ -78,6 +84,10 @@ export interface GnosisBaseInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "MIRROR_CHAIN_ID",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
     data: BytesLike
@@ -172,6 +182,8 @@ export interface GnosisBase extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -200,6 +212,8 @@ export interface GnosisBase extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
 
   acceptProposedOwner(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -230,6 +244,8 @@ export interface GnosisBase extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
+
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -280,6 +296,8 @@ export interface GnosisBase extends BaseContract {
   };
 
   estimateGas: {
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
+
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -310,6 +328,8 @@ export interface GnosisBase extends BaseContract {
   };
 
   populateTransaction: {
+    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

@@ -15,10 +15,26 @@ import {TransferInfo} from "../libraries/LibConnextStorage.sol";
 contract PortalFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error PortalFacet__setAavePortalFee_invalidFee();
+  error PortalFacet__repayAavePortal_assetNotApproved();
   error PortalFacet__repayAavePortal_insufficientFunds();
   error PortalFacet__repayAavePortalFor_zeroAmount();
+  error PortalFacet__repayAavePortalFor_invalidAsset();
 
   // ============ Events ============
+
+  /**
+   * @notice Emitted `setAavePool` is updated
+   * @param updated - The updated address
+   * @param caller - The account that called the function
+   */
+  event AavePoolUpdated(address updated, address caller);
+
+  /**
+   * @notice Emitted `setAavePortalFee` is updated
+   * @param updated - The updated fee numerator
+   * @param caller - The account that called the function
+   */
+  event AavePortalFeeUpdated(uint256 updated, address caller);
 
   /**
    * @notice Emitted when a repayment on an Aave portal loan is made
@@ -56,6 +72,7 @@ contract PortalFacet is BaseConnextFacet {
    */
   function setAavePool(address _aavePool) external onlyOwnerOrAdmin {
     s.aavePool = _aavePool;
+    emit AavePoolUpdated(_aavePool, msg.sender);
   }
 
   /**
@@ -66,12 +83,13 @@ contract PortalFacet is BaseConnextFacet {
     if (_aavePortalFeeNumerator > Constants.BPS_FEE_DENOMINATOR) revert PortalFacet__setAavePortalFee_invalidFee();
 
     s.aavePortalFeeNumerator = _aavePortalFeeNumerator;
+    emit AavePortalFeeUpdated(_aavePortalFeeNumerator, msg.sender);
   }
 
   /**
    * @notice Used by routers to perform a manual repayment to Aave Portals to cover any outstanding debt
    * @dev The router must be approved for portal and with enough liquidity, and must be the caller of this
-   * function
+   * function. If the asset is not whitelisted, must use the `repayAavePortalFor` function.
    * @param _params TransferInfo associated with the transfer
    * @param _backingAmount The principle to be paid (in adopted asset)
    * @param _feeAmount The fee to be paid (in adopted asset)
@@ -84,6 +102,12 @@ contract PortalFacet is BaseConnextFacet {
     uint256 _maxIn
   ) external nonReentrant {
     bytes32 key = AssetLogic.calculateCanonicalHash(_params.canonicalId, _params.canonicalDomain);
+
+    // Ensure the asset is approved
+    if (!s.approvedAssets[key]) {
+      revert PortalFacet__repayAavePortal_assetNotApproved();
+    }
+
     address local = _getLocalAsset(key, _params.canonicalId, _params.canonicalDomain);
 
     uint256 routerBalance = s.routerBalances[msg.sender][local];
@@ -122,19 +146,33 @@ contract PortalFacet is BaseConnextFacet {
    * @notice This allows anyone to repay the portal in the adopted asset for a given router
    * and transfer
    *
-   * @dev Should always be paying in the backing asset for the aave loan
+   * @dev Should always be paying in the backing asset for the aave loan. NOTE: This will *NOT*
+   * work if an asset is removed.
    *
    * @param _params TransferInfo associated with the transfer
+   * @param _portalAsset The asset you borrowed (adopted asset)
    * @param _backingAmount Amount of principle to repay
    * @param _feeAmount Amount of fees to repay
    */
   function repayAavePortalFor(
     TransferInfo calldata _params,
+    address _portalAsset,
     uint256 _backingAmount,
     uint256 _feeAmount
   ) external payable nonReentrant {
     // Get the adopted address
-    address adopted = _getAdoptedAsset(AssetLogic.calculateCanonicalHash(_params.canonicalId, _params.canonicalDomain));
+    // NOTE: using storage directly because if `_getAdoptedAsset` is used, will revert if
+    // the asset is not whitelisted (and this fn should work if asset is removed)
+    address adopted = s.canonicalToAdopted[
+      AssetLogic.calculateCanonicalHash(_params.canonicalId, _params.canonicalDomain)
+    ];
+
+    // Verify asset
+    // NOTE: if asset is removed, `adopted` will be `address(0)`, so you cannot verify the asset
+    // but should still allow for portal loans to be repaid.
+    if (adopted != address(0) && _portalAsset != adopted) {
+      revert PortalFacet__repayAavePortalFor_invalidAsset();
+    }
 
     // Here, generate the transfer id. This allows us to ensure the `_adopted` asset
     // is the correct one associated with the transfer. Otherwise, anyone could pay back
