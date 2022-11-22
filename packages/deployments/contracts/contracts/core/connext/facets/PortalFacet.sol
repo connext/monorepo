@@ -23,6 +23,20 @@ contract PortalFacet is BaseConnextFacet {
   // ============ Events ============
 
   /**
+   * @notice Emitted `setAavePool` is updated
+   * @param updated - The updated address
+   * @param caller - The account that called the function
+   */
+  event AavePoolUpdated(address updated, address caller);
+
+  /**
+   * @notice Emitted `setAavePortalFee` is updated
+   * @param updated - The updated fee numerator
+   * @param caller - The account that called the function
+   */
+  event AavePortalFeeUpdated(uint256 updated, address caller);
+
+  /**
    * @notice Emitted when a repayment on an Aave portal loan is made
    * @param transferId - The transfer debt that was repaid
    * @param asset - The asset that was repaid
@@ -58,6 +72,7 @@ contract PortalFacet is BaseConnextFacet {
    */
   function setAavePool(address _aavePool) external onlyOwnerOrAdmin {
     s.aavePool = _aavePool;
+    emit AavePoolUpdated(_aavePool, msg.sender);
   }
 
   /**
@@ -68,6 +83,7 @@ contract PortalFacet is BaseConnextFacet {
     if (_aavePortalFeeNumerator > Constants.BPS_FEE_DENOMINATOR) revert PortalFacet__setAavePortalFee_invalidFee();
 
     s.aavePortalFeeNumerator = _aavePortalFeeNumerator;
+    emit AavePortalFeeUpdated(_aavePortalFeeNumerator, msg.sender);
   }
 
   /**
@@ -88,7 +104,7 @@ contract PortalFacet is BaseConnextFacet {
     bytes32 key = AssetLogic.calculateCanonicalHash(_params.canonicalId, _params.canonicalDomain);
 
     // Ensure the asset is approved
-    if (!s.approvedAssets[key]) {
+    if (!s.tokenConfigs[key].approval) {
       revert PortalFacet__repayAavePortal_assetNotApproved();
     }
 
@@ -147,9 +163,9 @@ contract PortalFacet is BaseConnextFacet {
     // Get the adopted address
     // NOTE: using storage directly because if `_getAdoptedAsset` is used, will revert if
     // the asset is not whitelisted (and this fn should work if asset is removed)
-    address adopted = s.canonicalToAdopted[
-      AssetLogic.calculateCanonicalHash(_params.canonicalId, _params.canonicalDomain)
-    ];
+    address adopted = s
+      .tokenConfigs[AssetLogic.calculateCanonicalHash(_params.canonicalId, _params.canonicalDomain)]
+      .adopted;
 
     // Verify asset
     // NOTE: if asset is removed, `adopted` will be `address(0)`, so you cannot verify the asset

@@ -154,25 +154,17 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function routerAllowlistRemoved() external view returns (bool);
 
-  function assetAllowlistRemoved() external view returns (bool);
-
   function proposed() external view returns (address);
 
   function proposedTimestamp() external view returns (uint256);
 
   function routerAllowlistTimestamp() external view returns (uint256);
 
-  function assetAllowlistTimestamp() external view returns (uint256);
-
   function delay() external view returns (uint256);
 
   function proposeRouterAllowlistRemoval() external;
 
   function removeRouterAllowlist() external;
-
-  function proposeAssetAllowlistRemoval() external;
-
-  function removeAssetAllowlist() external;
 
   function proposeNewOwner(address newlyProposed) external;
 

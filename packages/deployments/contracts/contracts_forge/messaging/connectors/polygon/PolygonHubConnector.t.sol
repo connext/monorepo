@@ -29,10 +29,6 @@ contract PolygonHubConnectorTest is ConnectorHelper {
   }
 
   // ============ PolygonHubConnector.setFxChildTunnel ============
-  function test_PolygonHubConnector__setFxChildTunnel_shouldWork() public {
-    PolygonHubConnector(_l1Connector).setFxChildTunnel(_l2Connector);
-    assertEq(PolygonHubConnector(_l1Connector).fxChildTunnel(), _l2Connector);
-  }
 
   function test_PolygonHubConnector__setMirrorConnector_shouldWork() public {
     PolygonHubConnector(_l1Connector).setMirrorConnector(_l2Connector);
@@ -41,13 +37,13 @@ contract PolygonHubConnectorTest is ConnectorHelper {
   }
 
   function test_PolygonHubConnector__setFxChildTunnel_failedIfAlreadySet() public {
-    PolygonHubConnector(_l1Connector).setFxChildTunnel(_l2Connector);
+    PolygonHubConnector(_l1Connector).setMirrorConnector(_l2Connector);
     assertEq(PolygonHubConnector(_l1Connector).fxChildTunnel(), _l2Connector);
 
     _l2Connector = payable(address(2));
     vm.expectRevert(bytes("FxBaseRootTunnel: CHILD_TUNNEL_ALREADY_SET"));
 
-    PolygonHubConnector(_l1Connector).setFxChildTunnel(_l2Connector);
+    PolygonHubConnector(_l1Connector).setMirrorConnector(_l2Connector);
   }
 
   // ============ PolygonHubConnector.sendMessage ============

@@ -42,7 +42,7 @@ contract FacetHelper is ForgeHelper {
   address _stableSwap = address(5555555555555555555);
 
   // safe cap
-  uint256 _cap = 10**4;
+  uint256 _cap = 10_000_000 ether;
 
   // ============ Fees
   // fees
@@ -79,10 +79,9 @@ contract FacetHelper is ForgeHelper {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // clear any previous listings
+    delete s.tokenConfigs[_canonicalKey];
     delete s.adoptedToCanonical[_local];
     delete s.representationToCanonical[_local];
-    delete s.canonicalToRepresentation[utils_calculateCanonicalHash()];
-    delete s.canonicalToAdopted[utils_calculateCanonicalHash()];
 
     if (onCanonical) {
       // set domain
@@ -118,23 +117,35 @@ contract FacetHelper is ForgeHelper {
 
     _canonicalKey = keccak256(abi.encode(_canonicalId, _canonicalDomain));
 
+    // Regardless of whether there are two different assets for representation and adopted,
+    // the representation decimals must be set (the default behavior in TokenFacet for configuring
+    // new assets involves setting the adopted decimals to the local decimals of the latter does
+    // not exist).
+    // IFF on the canonical domain, however, representation should be address(0)!
+    s.tokenConfigs[_canonicalKey].representationDecimals = 18;
+
     // - token registry should always return the canonical
     // - if you are not on canonical domain, ensure the local origin returns false
     //   (indicates whether token should be burned or not)
-    if (s.domain != _canonicalDomain) {
+    bool isCanonical = s.domain == _canonicalDomain;
+    if (!isCanonical) {
       s.representationToCanonical[_local].domain = _canonicalDomain;
       s.representationToCanonical[_local].id = _canonicalId;
-      s.canonicalToRepresentation[_canonicalKey] = _local;
+
+      s.tokenConfigs[_canonicalKey].representation = _local;
     }
 
     // Setup the storage variables for adopted
     s.adoptedToCanonical[_adopted].domain = _canonicalDomain;
     s.adoptedToCanonical[_adopted].id = _canonicalId;
-    s.adoptedToLocalExternalPools[_canonicalKey] = IStableSwap(_stableSwap);
-    s.canonicalToAdopted[_canonicalKey] = _adopted;
 
-    // Add to allowlist
-    s.approvedAssets[_canonicalKey] = true;
+    // Remaining config
+    s.tokenConfigs[_canonicalKey].approval = true;
+    s.tokenConfigs[_canonicalKey].adopted = _adopted;
+    s.tokenConfigs[_canonicalKey].adoptedDecimals = 18;
+    s.tokenConfigs[_canonicalKey].adoptedToLocalExternalPools = _stableSwap;
+    s.tokenConfigs[_canonicalKey].cap = isCanonical ? _cap : 0; //10_000_000 ether;
+    s.tokenConfigs[_canonicalKey].custodied = 0;
 
     // // Log stored vars
     // console.log("setup asset:");

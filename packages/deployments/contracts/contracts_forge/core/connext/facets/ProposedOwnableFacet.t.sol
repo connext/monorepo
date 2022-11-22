@@ -55,32 +55,6 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
     assertTrue(this.routerAllowlistRemoved());
   }
 
-  function utils_proposeRenounceAssetAndAssert() public {
-    assertEq(this.assetAllowlistTimestamp(), 0);
-
-    vm.expectEmit(true, true, true, true);
-    emit AssetAllowlistRemovalProposed(block.timestamp);
-
-    vm.prank(this.owner());
-    this.proposeAssetAllowlistRemoval();
-
-    assertEq(this.assetAllowlistTimestamp(), block.timestamp);
-    assertTrue(!this.assetAllowlistRemoved());
-  }
-
-  function utils_renounceAssetAndAssert() public {
-    assertTrue(this.assetAllowlistTimestamp() != 0);
-
-    vm.expectEmit(true, true, true, true);
-    emit AssetAllowlistRemoved(true);
-
-    vm.prank(this.owner());
-    this.removeAssetAllowlist();
-
-    assertEq(this.assetAllowlistTimestamp(), 0);
-    assertTrue(this.assetAllowlistRemoved());
-  }
-
   function utils_proposeNewOwnerAndAssert(address _proposed) public {
     // Assert change
     address current = this.owner();
@@ -190,9 +164,6 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
   // ============ routerAllowlistRemoved ============
   // tested in assertion functions
 
-  // ============ assetAllowlistRemoved ============
-  // tested in assertion functions
-
   // ============ proposed ============
   // tested in assertion functions
 
@@ -200,9 +171,6 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
   // tested in assertion functions
 
   // ============ routerAllowlistTimestamp ============
-  // tested in assertion functions
-
-  // ============ assetAllowlistTimestamp ============
   // tested in assertion functions
 
   // ============ queryRole ============
@@ -286,82 +254,6 @@ contract ProposedOwnableFacetTest is ProposedOwnableFacet, FacetHelper {
 
     vm.prank(_adminAgent1);
     this.removeRouterAllowlist();
-  }
-
-  // ============ proposeAssetAllowlistRemoval ============
-  function test_ProposedOwnableFacet__proposeAssetAllowlistRemoval_failsIfNotOwnerOrAdmin() public {
-    vm.prank(_adminAgent2);
-    vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
-    this.proposeAssetAllowlistRemoval();
-  }
-
-  function test_ProposedOwnableFacet__proposeAssetAllowlistRemoval_failsIfAlreadyRenounced() public {
-    utils_proposeRenounceAssetAndAssert();
-    vm.warp(block.timestamp + this.delay() + 1);
-    utils_renounceAssetAndAssert();
-
-    vm.expectRevert(ProposedOwnableFacet__proposeAssetAllowlistRemoval_noOwnershipChange.selector);
-    vm.prank(_owner);
-    this.proposeAssetAllowlistRemoval();
-  }
-
-  function test_ProposedOwnableFacet__proposeAssetAllowlistRemoval_worksIfOwner() public {
-    utils_proposeRenounceAssetAndAssert();
-  }
-
-  function test_ProposedOwnableFacet__proposeAssetAllowlistRemoval_worksIfAdmin() public {
-    vm.prank(_owner);
-    this.assignRoleAdmin(_adminAgent1);
-
-    vm.prank(_adminAgent1);
-    this.proposeAssetAllowlistRemoval();
-  }
-
-  // ============ removeAssetAllowlist ============
-  function test_ProposedOwnableFacet__removeAssetAllowlist_failsIfNotOwnerOrAdmin() public {
-    utils_proposeRenounceAssetAndAssert();
-    vm.expectRevert(BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin.selector);
-    this.removeAssetAllowlist();
-  }
-
-  function test_ProposedOwnableFacet__removeAssetAllowlist_failsIfAlreadyRenounced() public {
-    utils_proposeRenounceAssetAndAssert();
-    vm.warp(block.timestamp + this.delay() + 1);
-    utils_renounceAssetAndAssert();
-
-    vm.prank(this.owner());
-    vm.expectRevert(ProposedOwnableFacet__removeAssetAllowlist_noOwnershipChange.selector);
-    this.removeAssetAllowlist();
-  }
-
-  function test_ProposedOwnableFacet__removeAssetAllowlist_failsIfNotProposed() public {
-    vm.prank(this.owner());
-    vm.expectRevert(ProposedOwnableFacet__removeAssetAllowlist_noProposal.selector);
-    this.removeAssetAllowlist();
-  }
-
-  function test_ProposedOwnableFacet__removeAssetAllowlist_failsIfDelayNotElapsed() public {
-    utils_proposeRenounceAssetAndAssert();
-    vm.prank(this.owner());
-    vm.expectRevert(ProposedOwnableFacet__delayElapsed_delayNotElapsed.selector);
-    this.removeAssetAllowlist();
-  }
-
-  function test_ProposedOwnableFacet__removeAssetAllowlist_worksIfOwner() public {
-    utils_proposeRenounceAssetAndAssert();
-    vm.warp(block.timestamp + this.delay() + 1);
-    utils_renounceAssetAndAssert();
-  }
-
-  function test_ProposedOwnableFacet__removeAssetAllowlist_worksIfAdmin() public {
-    utils_proposeRenounceAssetAndAssert();
-    vm.warp(block.timestamp + this.delay() + 1);
-
-    vm.prank(_owner);
-    this.assignRoleAdmin(_adminAgent1);
-
-    vm.prank(_adminAgent1);
-    this.removeAssetAllowlist();
   }
 
   // ============ proposeNewOwner ============

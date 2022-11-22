@@ -5,6 +5,7 @@ import {
   XMessage,
   SparseMerkleTree,
   NATIVE_TOKEN,
+  GELATO_RELAYER_ADDRESS,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
@@ -161,7 +162,7 @@ export const processMessage = async (message: XMessage) => {
 
   /// Temp: Using relayer proxy
   const domain = +message.destinationDomain;
-  const relayerAddress = await relayers[0].instance.getRelayerAddress(chainId);
+  const relayerAddress = GELATO_RELAYER_ADDRESS; // hardcoded gelato address will always be whitelisted
 
   logger.debug("Getting gas estimate", requestContext, methodContext, {
     chainId,

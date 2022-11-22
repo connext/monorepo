@@ -29,21 +29,17 @@ import type {
 export interface ProposedOwnableFacetInterface extends utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
-    "assetAllowlistRemoved()": FunctionFragment;
-    "assetAllowlistTimestamp()": FunctionFragment;
     "assignRoleAdmin(address)": FunctionFragment;
     "assignRoleRouterAdmin(address)": FunctionFragment;
     "assignRoleWatcher(address)": FunctionFragment;
     "delay()": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
-    "proposeAssetAllowlistRemoval()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposeRouterAllowlistRemoval()": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "queryRole(address)": FunctionFragment;
-    "removeAssetAllowlist()": FunctionFragment;
     "removeRouterAllowlist()": FunctionFragment;
     "revokeRole(address)": FunctionFragment;
     "routerAllowlistRemoved()": FunctionFragment;
@@ -54,21 +50,17 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "acceptProposedOwner"
-      | "assetAllowlistRemoved"
-      | "assetAllowlistTimestamp"
       | "assignRoleAdmin"
       | "assignRoleRouterAdmin"
       | "assignRoleWatcher"
       | "delay"
       | "owner"
       | "pause"
-      | "proposeAssetAllowlistRemoval"
       | "proposeNewOwner"
       | "proposeRouterAllowlistRemoval"
       | "proposed"
       | "proposedTimestamp"
       | "queryRole"
-      | "removeAssetAllowlist"
       | "removeRouterAllowlist"
       | "revokeRole"
       | "routerAllowlistRemoved"
@@ -78,14 +70,6 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "assetAllowlistRemoved",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "assetAllowlistTimestamp",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -104,10 +88,6 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "proposeAssetAllowlistRemoval",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "proposeNewOwner",
     values: [PromiseOrValue<string>]
   ): string;
@@ -123,10 +103,6 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "queryRole",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeAssetAllowlist",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "removeRouterAllowlist",
@@ -151,14 +127,6 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "assetAllowlistRemoved",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "assetAllowlistTimestamp",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "assignRoleAdmin",
     data: BytesLike
   ): Result;
@@ -174,10 +142,6 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "proposeAssetAllowlistRemoval",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
   ): Result;
@@ -191,10 +155,6 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "queryRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "removeAssetAllowlist",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "removeRouterAllowlist",
     data: BytesLike
@@ -211,8 +171,6 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
 
   events: {
-    "AssetAllowlistRemovalProposed(uint256)": EventFragment;
-    "AssetAllowlistRemoved(bool)": EventFragment;
     "AssignRoleAdmin(address)": EventFragment;
     "AssignRoleRouter(address)": EventFragment;
     "AssignRoleWatcher(address)": EventFragment;
@@ -225,10 +183,6 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     "Unpaused()": EventFragment;
   };
 
-  getEvent(
-    nameOrSignatureOrTopic: "AssetAllowlistRemovalProposed"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AssetAllowlistRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssignRoleAdmin"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssignRoleRouter"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssignRoleWatcher"): EventFragment;
@@ -242,28 +196,6 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "RouterAllowlistRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
 }
-
-export interface AssetAllowlistRemovalProposedEventObject {
-  timestamp: BigNumber;
-}
-export type AssetAllowlistRemovalProposedEvent = TypedEvent<
-  [BigNumber],
-  AssetAllowlistRemovalProposedEventObject
->;
-
-export type AssetAllowlistRemovalProposedEventFilter =
-  TypedEventFilter<AssetAllowlistRemovalProposedEvent>;
-
-export interface AssetAllowlistRemovedEventObject {
-  renounced: boolean;
-}
-export type AssetAllowlistRemovedEvent = TypedEvent<
-  [boolean],
-  AssetAllowlistRemovedEventObject
->;
-
-export type AssetAllowlistRemovedEventFilter =
-  TypedEventFilter<AssetAllowlistRemovedEvent>;
 
 export interface AssignRoleAdminEventObject {
   admin: string;
@@ -394,10 +326,6 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    assetAllowlistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
-
-    assetAllowlistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     assignRoleAdmin(
       _admin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -421,10 +349,6 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    proposeAssetAllowlistRemoval(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -442,10 +366,6 @@ export interface ProposedOwnableFacet extends BaseContract {
       _role: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[number]>;
-
-    removeAssetAllowlist(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     removeRouterAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -468,10 +388,6 @@ export interface ProposedOwnableFacet extends BaseContract {
   acceptProposedOwner(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  assetAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
-
-  assetAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   assignRoleAdmin(
     _admin: PromiseOrValue<string>,
@@ -496,10 +412,6 @@ export interface ProposedOwnableFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  proposeAssetAllowlistRemoval(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -517,10 +429,6 @@ export interface ProposedOwnableFacet extends BaseContract {
     _role: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<number>;
-
-  removeAssetAllowlist(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   removeRouterAllowlist(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -541,10 +449,6 @@ export interface ProposedOwnableFacet extends BaseContract {
 
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
-
-    assetAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
-
-    assetAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     assignRoleAdmin(
       _admin: PromiseOrValue<string>,
@@ -567,8 +471,6 @@ export interface ProposedOwnableFacet extends BaseContract {
 
     pause(overrides?: CallOverrides): Promise<void>;
 
-    proposeAssetAllowlistRemoval(overrides?: CallOverrides): Promise<void>;
-
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -585,8 +487,6 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<number>;
 
-    removeAssetAllowlist(overrides?: CallOverrides): Promise<void>;
-
     removeRouterAllowlist(overrides?: CallOverrides): Promise<void>;
 
     revokeRole(
@@ -602,18 +502,6 @@ export interface ProposedOwnableFacet extends BaseContract {
   };
 
   filters: {
-    "AssetAllowlistRemovalProposed(uint256)"(
-      timestamp?: null
-    ): AssetAllowlistRemovalProposedEventFilter;
-    AssetAllowlistRemovalProposed(
-      timestamp?: null
-    ): AssetAllowlistRemovalProposedEventFilter;
-
-    "AssetAllowlistRemoved(bool)"(
-      renounced?: null
-    ): AssetAllowlistRemovedEventFilter;
-    AssetAllowlistRemoved(renounced?: null): AssetAllowlistRemovedEventFilter;
-
     "AssignRoleAdmin(address)"(admin?: null): AssignRoleAdminEventFilter;
     AssignRoleAdmin(admin?: null): AssignRoleAdminEventFilter;
 
@@ -672,10 +560,6 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    assetAllowlistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
-
-    assetAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
     assignRoleAdmin(
       _admin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -699,10 +583,6 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    proposeAssetAllowlistRemoval(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -719,10 +599,6 @@ export interface ProposedOwnableFacet extends BaseContract {
     queryRole(
       _role: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    removeAssetAllowlist(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     removeRouterAllowlist(
@@ -748,14 +624,6 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    assetAllowlistRemoved(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    assetAllowlistTimestamp(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     assignRoleAdmin(
       _admin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -779,10 +647,6 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    proposeAssetAllowlistRemoval(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -799,10 +663,6 @@ export interface ProposedOwnableFacet extends BaseContract {
     queryRole(
       _role: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    removeAssetAllowlist(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     removeRouterAllowlist(
