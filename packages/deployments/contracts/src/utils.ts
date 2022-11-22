@@ -58,7 +58,7 @@ export type RelayerProxyConfig = {
 
 export const getRelayerProxyConfig = (_chain: string | number): RelayerProxyConfig => {
   const feeCollector = constants.AddressZero;
-  let gelatoRelayer = constants.AddressZero;
+  const gelatoRelayer = constants.AddressZero;
 
   return { feeCollector, gelatoRelayer };
 };
