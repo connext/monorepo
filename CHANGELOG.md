@@ -2,7 +2,7 @@
 
 ## Next Release
 
-## Amarok 0.2.1-beta.7
+## Amarok 0.2.1-beta.8
 
 - [all] Mainnet Deployments :tada:
 
