@@ -26,8 +26,12 @@ dataSources:
       eventHandlers:
         - event: RootReceived(uint32,bytes32,uint256)
           handler: handleRootReceived
-        - event: RootPropagated(bytes32,uint256,uint32[],bytes32[])
+        - event: RootsAggregated(bytes32,uint256,bytes32[])
+          handler: handleRootsAggregated
+        - event: RootPropagated(bytes32,uint256,bytes32)
           handler: handleRootPropagated
+        - event: ConnectorAdded(uint32,address,uint32[],address[])
+          handler: handleConnectorAdded
       file: ./src/amarok-hub-v0/mapping/rootManager.ts
   # PolygonHubConnector.sol events
   - kind: ethereum/contract
