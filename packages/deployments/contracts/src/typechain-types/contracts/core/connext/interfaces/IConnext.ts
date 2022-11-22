@@ -207,8 +207,6 @@ export interface IConnextInterface extends utils.Interface {
     "approvedAssets((uint32,bytes32))": FunctionFragment;
     "approvedRelayers(address)": FunctionFragment;
     "approvedSequencers(address)": FunctionFragment;
-    "assetAllowlistRemoved()": FunctionFragment;
-    "assetAllowlistTimestamp()": FunctionFragment;
     "bumpTransfer(bytes32)": FunctionFragment;
     "calculateRemoveSwapLiquidity(bytes32,uint256)": FunctionFragment;
     "calculateRemoveSwapLiquidityOneToken(bytes32,uint256,uint8)": FunctionFragment;
@@ -258,7 +256,6 @@ export interface IConnextInterface extends utils.Interface {
     "nonce()": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
-    "proposeAssetAllowlistRemoval()": FunctionFragment;
     "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposeRouterAllowlistRemoval()": FunctionFragment;
@@ -268,7 +265,6 @@ export interface IConnextInterface extends utils.Interface {
     "rampA(bytes32,uint256,uint256)": FunctionFragment;
     "relayerFeeVault()": FunctionFragment;
     "remote(uint32)": FunctionFragment;
-    "removeAssetAllowlist()": FunctionFragment;
     "removeAssetId((uint32,bytes32),address,address)": FunctionFragment;
     "removeAssetId(bytes32,address,address)": FunctionFragment;
     "removeRelayer(address)": FunctionFragment;
@@ -339,8 +335,6 @@ export interface IConnextInterface extends utils.Interface {
       | "approvedAssets((uint32,bytes32))"
       | "approvedRelayers"
       | "approvedSequencers"
-      | "assetAllowlistRemoved"
-      | "assetAllowlistTimestamp"
       | "bumpTransfer"
       | "calculateRemoveSwapLiquidity"
       | "calculateRemoveSwapLiquidityOneToken"
@@ -390,7 +384,6 @@ export interface IConnextInterface extends utils.Interface {
       | "nonce"
       | "owner"
       | "pause"
-      | "proposeAssetAllowlistRemoval"
       | "proposeDiamondCut"
       | "proposeNewOwner"
       | "proposeRouterAllowlistRemoval"
@@ -400,7 +393,6 @@ export interface IConnextInterface extends utils.Interface {
       | "rampA"
       | "relayerFeeVault"
       | "remote"
-      | "removeAssetAllowlist"
       | "removeAssetId((uint32,bytes32),address,address)"
       | "removeAssetId(bytes32,address,address)"
       | "removeRelayer"
@@ -540,14 +532,6 @@ export interface IConnextInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "approvedSequencers",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "assetAllowlistRemoved",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "assetAllowlistTimestamp",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "bumpTransfer",
@@ -767,10 +751,6 @@ export interface IConnextInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "proposeAssetAllowlistRemoval",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "proposeDiamondCut",
     values: [
       IDiamondCut.FacetCutStruct[],
@@ -810,10 +790,6 @@ export interface IConnextInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "remote",
     values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeAssetAllowlist",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "removeAssetId((uint32,bytes32),address,address)",
@@ -1164,14 +1140,6 @@ export interface IConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "assetAllowlistRemoved",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "assetAllowlistTimestamp",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "bumpTransfer",
     data: BytesLike
   ): Result;
@@ -1335,10 +1303,6 @@ export interface IConnextInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "proposeAssetAllowlistRemoval",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "proposeDiamondCut",
     data: BytesLike
   ): Result;
@@ -1365,10 +1329,6 @@ export interface IConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "remote", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "removeAssetAllowlist",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "removeAssetId((uint32,bytes32),address,address)",
     data: BytesLike
@@ -1707,10 +1667,6 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    assetAllowlistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
-
-    assetAllowlistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     bumpTransfer(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -1971,10 +1927,6 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    proposeAssetAllowlistRemoval(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     proposeDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
       _init: PromiseOrValue<string>,
@@ -2014,10 +1966,6 @@ export interface IConnext extends BaseContract {
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[string]>;
-
-    removeAssetAllowlist(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
@@ -2403,10 +2351,6 @@ export interface IConnext extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  assetAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
-
-  assetAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
   bumpTransfer(
     _transferId: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -2659,10 +2603,6 @@ export interface IConnext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  proposeAssetAllowlistRemoval(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   proposeDiamondCut(
     _diamondCut: IDiamondCut.FacetCutStruct[],
     _init: PromiseOrValue<string>,
@@ -2702,10 +2642,6 @@ export interface IConnext extends BaseContract {
     _domain: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<string>;
-
-  removeAssetAllowlist(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   "removeAssetId((uint32,bytes32),address,address)"(
     _canonical: TokenIdStruct,
@@ -3089,10 +3025,6 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    assetAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
-
-    assetAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
     bumpTransfer(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -3345,8 +3277,6 @@ export interface IConnext extends BaseContract {
 
     pause(overrides?: CallOverrides): Promise<void>;
 
-    proposeAssetAllowlistRemoval(overrides?: CallOverrides): Promise<void>;
-
     proposeDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
       _init: PromiseOrValue<string>,
@@ -3384,8 +3314,6 @@ export interface IConnext extends BaseContract {
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    removeAssetAllowlist(overrides?: CallOverrides): Promise<void>;
 
     "removeAssetId((uint32,bytes32),address,address)"(
       _canonical: TokenIdStruct,
@@ -3805,10 +3733,6 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    assetAllowlistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
-
-    assetAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
     bumpTransfer(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -4061,10 +3985,6 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    proposeAssetAllowlistRemoval(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     proposeDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
       _init: PromiseOrValue<string>,
@@ -4103,10 +4023,6 @@ export interface IConnext extends BaseContract {
     remote(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    removeAssetAllowlist(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "removeAssetId((uint32,bytes32),address,address)"(
@@ -4498,14 +4414,6 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    assetAllowlistRemoved(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    assetAllowlistTimestamp(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     bumpTransfer(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -4762,10 +4670,6 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    proposeAssetAllowlistRemoval(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     proposeDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
       _init: PromiseOrValue<string>,
@@ -4804,10 +4708,6 @@ export interface IConnext extends BaseContract {
     remote(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    removeAssetAllowlist(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "removeAssetId((uint32,bytes32),address,address)"(

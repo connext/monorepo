@@ -169,11 +169,38 @@ export interface PortalFacetInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "AavePoolUpdated(address,address)": EventFragment;
+    "AavePortalFeeUpdated(uint256,address)": EventFragment;
     "AavePortalRepayment(bytes32,address,uint256,uint256,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AavePoolUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AavePortalFeeUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AavePortalRepayment"): EventFragment;
 }
+
+export interface AavePoolUpdatedEventObject {
+  updated: string;
+  caller: string;
+}
+export type AavePoolUpdatedEvent = TypedEvent<
+  [string, string],
+  AavePoolUpdatedEventObject
+>;
+
+export type AavePoolUpdatedEventFilter = TypedEventFilter<AavePoolUpdatedEvent>;
+
+export interface AavePortalFeeUpdatedEventObject {
+  updated: BigNumber;
+  caller: string;
+}
+export type AavePortalFeeUpdatedEvent = TypedEvent<
+  [BigNumber, string],
+  AavePortalFeeUpdatedEventObject
+>;
+
+export type AavePortalFeeUpdatedEventFilter =
+  TypedEventFilter<AavePortalFeeUpdatedEvent>;
 
 export interface AavePortalRepaymentEventObject {
   transferId: string;
@@ -341,6 +368,21 @@ export interface PortalFacet extends BaseContract {
   };
 
   filters: {
+    "AavePoolUpdated(address,address)"(
+      updated?: null,
+      caller?: null
+    ): AavePoolUpdatedEventFilter;
+    AavePoolUpdated(updated?: null, caller?: null): AavePoolUpdatedEventFilter;
+
+    "AavePortalFeeUpdated(uint256,address)"(
+      updated?: null,
+      caller?: null
+    ): AavePortalFeeUpdatedEventFilter;
+    AavePortalFeeUpdated(
+      updated?: null,
+      caller?: null
+    ): AavePortalFeeUpdatedEventFilter;
+
     "AavePortalRepayment(bytes32,address,uint256,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       asset?: null,
