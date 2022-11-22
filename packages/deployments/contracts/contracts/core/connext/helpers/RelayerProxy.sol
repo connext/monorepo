@@ -23,59 +23,6 @@ interface ISpokeConnector {
   ) external;
 
   function send(bytes memory _encodedData) external payable;
-
-  // Polygon
-  function receiveMessage(bytes memory inputData) external;
-
-  // Optimism
-  struct ChainBatchHeader {
-    uint256 batchIndex;
-    bytes32 batchRoot;
-    uint256 batchSize;
-    uint256 prevTotalElements;
-    bytes extraData;
-  }
-
-  struct ChainInclusionProof {
-    uint256 index;
-    bytes32[] siblings;
-  }
-
-  struct L2MessageInclusionProof {
-    bytes32 stateRoot;
-    ChainBatchHeader stateRootBatchHeader;
-    ChainInclusionProof stateRootProof;
-    bytes stateTrieWitness;
-    bytes storageTrieWitness;
-  }
-
-  function processMessageFromRoot(
-    address _target,
-    address _sender,
-    bytes memory _message,
-    uint256 _messageNonce,
-    L2MessageInclusionProof memory _proof
-  ) external;
-
-  // Arbitrum
-  struct L2Message {
-    address l2Sender;
-    address to;
-    uint256 l2Block;
-    uint256 l1Block;
-    uint256 l2Timestamp;
-    uint256 value;
-    bytes callData;
-  }
-
-  function processMessageFromRoot(
-    uint64 _nodeNum,
-    bytes32 _sendRoot,
-    bytes32 _blockHash,
-    bytes32[] calldata _proof,
-    uint256 _index,
-    L2Message calldata _message
-  ) external;
 }
 
 /**
@@ -307,14 +254,6 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     uint256 _relayerFee
   ) external onlyRelayer nonReentrant {
     spokeConnector.send{value: _messageFee}(_encodedData);
-    emit FundsDeducted(_messageFee, address(this).balance);
-    transferRelayerFee(_relayerFee);
-  }
-
-  function receiveSpokeRoot(bytes memory _encodedData, uint256 _relayerFee) external onlyRelayer nonReentrant {
-    if (block.chainId == 137 || block.chainId == 80001) {
-      abi.decode()
-    }
     emit FundsDeducted(_messageFee, address(this).balance);
     transferRelayerFee(_relayerFee);
   }

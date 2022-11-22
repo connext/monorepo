@@ -1,0 +1,5 @@
+[
+  "function processMessageFromRoot(address,address,bytes,uint256,tuple(bytes32,tuple(uint256,bytes32,uint256,uint256,bytes),tuple(uint256,bytes32[]),bytes,bytes))",
+  "function processMessageFromRoot(uint64,bytes32,bytes32,bytes32[],uint256,tuple(address,address,uint256,uint256,uint256,uint256,bytes))",
+  "function receiveMessage(bytes)"
+]

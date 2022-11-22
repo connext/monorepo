@@ -4126,6 +4126,16 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "TokenFacet__addAssetId_badBurn",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__addAssetId_badMint",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical",
     type: "error",
   },
@@ -4172,6 +4182,11 @@ const _abi = [
   {
     inputs: [],
     name: "TokenFacet__updateDetails_notApproved",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__updateDetails_onlyRemote",
     type: "error",
   },
   {
