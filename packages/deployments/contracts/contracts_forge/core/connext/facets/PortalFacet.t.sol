@@ -201,7 +201,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     s.routerConfigs[router].portalApproved = true;
 
     (TransferInfo memory params, ) = utils_getParams();
-    s.approvedAssets[utils_calculateCanonicalHash()] = false;
+    s.tokenConfigs[utils_calculateCanonicalHash()].approval = false;
 
     // set liquidity
     assertEq(s.routerBalances[router][_local], 0);

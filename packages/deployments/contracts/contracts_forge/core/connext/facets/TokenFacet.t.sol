@@ -11,6 +11,7 @@ import {TokenFacet} from "../../../../contracts/core/connext/facets/TokenFacet.s
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import {TokenId} from "../../../../contracts/core/connext/libraries/TokenId.sol";
 import {TokenConfig} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {IBridgeToken} from "../../../../contracts/core/connext/interfaces/IBridgeToken.sol";
 
 import "../../../utils/FacetHelper.sol";
 
@@ -133,6 +134,9 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     address adopted,
     address representation
   ) public {
+    // Get previous representation values
+    uint8 representationDecimals = s.tokenConfigs[key].representationDecimals;
+    address representationStored = s.tokenConfigs[key].representation;
     // Get shortcut
     bool isCanonical = s.domain == _canonicalDomain;
 
@@ -146,9 +150,9 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     assertEq(config.adopted, address(0));
     console.log("asserted adopted");
     assertEq(config.adoptedDecimals, 0);
-    assertEq(config.representation, address(0));
+    assertEq(config.representation, representationStored);
     console.log("asserted adopted");
-    assertEq(config.representationDecimals, 0);
+    assertEq(config.representationDecimals, representationDecimals);
     assertEq(config.cap, 0);
     assertEq(config.custodied, 0);
     assertEq(config.adoptedToLocalExternalPools, address(0));
@@ -156,7 +160,6 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
     assertEq(s.adoptedToCanonical[isCanonical ? _canonical : adopted].domain, 0);
     assertEq(s.adoptedToCanonical[isCanonical ? _canonical : adopted].id, bytes32(0));
-    // representation should never change
     assertEq(s.representationToCanonical[representation].domain, 0);
     assertEq(s.representationToCanonical[representation].id, bytes32(0));
   }
@@ -288,8 +291,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
       TokenId(s.domain, _canonicalId),
       asset,
       adoptedAssetId,
-      stableSwap,
-      100000 ether
+      stableSwap
     );
   }
 
@@ -304,6 +306,12 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
     // Mock call to .decimals()
     vm.mockCall(asset, abi.encodeWithSelector(IERC20Metadata.decimals.selector), abi.encode(18));
+    // Mock call to .balanceOf()
+    vm.mockCall(asset, abi.encodeWithSelector(IERC20.balanceOf.selector), abi.encode(0));
+    // Mock call to .mint()
+    vm.mockCall(asset, abi.encodeWithSelector(IBridgeToken.mint.selector), abi.encode(18));
+    // Mock call to .burn()
+    vm.mockCall(asset, abi.encodeWithSelector(IBridgeToken.burn.selector), abi.encode(18));
 
     // Setup event calls
     if (stableSwap != address(0)) {
@@ -331,8 +339,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
       TokenId(_canonicalDomain, _canonicalId),
       asset,
       adoptedAssetId,
-      stableSwap,
-      _cap
+      stableSwap
     );
 
     // verification
@@ -439,7 +446,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
     setupAssetAndAssert(_adopted, bytes4(""));
 
-    s.custodied[_canonical] = 0;
+    s.tokenConfigs[utils_calculateCanonicalHash()].custodied = 0;
     vm.mockCall(_local, abi.encodeWithSelector(IERC20.balanceOf.selector, address(this)), abi.encode(0));
     removeAssetAndAssert(utils_calculateCanonicalHash(), _deployedLocal, _adopted);
   }
