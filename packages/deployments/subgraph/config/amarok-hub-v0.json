@@ -17,21 +17,6 @@
         "name": "OptimismHubConnector",
         "address": "0xd2ceB2a4D219438C3850CeA4E643FebB66116F96",
         "startBlock": 15795944
-      },
-      {
-        "name": "BnbHubConnector",
-        "address": "0x172F55db1ec560Ea877FEC0B4AfE9a780E5FD52A",
-        "startBlock": 15891342
-      },
-      {
-        "name": "ArbitrumHubConnector",
-        "address": "0x803aBa13C15fA0cd8D858d42f8D68D9736dFbA6A",
-        "startBlock": 15891175
-      },
-      {
-        "name": "GnosisHubConnector",
-        "address": "0xD246Cb68391B596FAb645feD3718A103E48Cf5ca",
-        "startBlock": 15926817
       }
     ]
   },
