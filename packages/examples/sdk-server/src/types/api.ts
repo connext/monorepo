@@ -86,6 +86,13 @@ export const calculateRemoveLiquidityPriceImpactSchema = Type.Object({
   amountY: Type.String(),
 });
 
+export const calculateSwapPriceImpactSchema = Type.Object({
+  domainId: Type.String(),
+  amountX: Type.String(),
+  tokenX: Type.String(),
+  tokenY: Type.String(),
+});
+
 export const getPoolSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),

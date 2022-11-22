@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployResult } from "hardhat-deploy/types";
-import { BigNumber, constants, Wallet } from "ethers";
+import { BigNumber, constants, Wallet, utils } from "ethers";
 
 import { chainIdToDomain, getConnectorName, getDeploymentName, getProtocolNetwork, deployBeaconProxy } from "../src";
 import { MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
@@ -261,10 +261,26 @@ const handleDeploySpoke = async (
           "address is needed in order to deploy ArbitrumSpokeConnector",
       );
     }
+
     // Alias is the origin sender address + 0x1111000000000000000000000000000000001111.
-    amb = BigNumber.from(arbitrumHubConnector.address)
-      .add(BigNumber.from("0x1111000000000000000000000000000000001111"))
-      .toHexString();
+    // We can't just add that value here: if there's any 'f' hex digits there will be a
+    // leftover/remainder that will expand the address to include extra digits.
+    // TODO: Make util?
+    const L1_TO_L2_ALIAS_OFFSET = "0x1111000000000000000000000000000000001111";
+    let bn = BigNumber.from(arbitrumHubConnector.address).add(L1_TO_L2_ALIAS_OFFSET);
+    bn = BigNumber.from(bn);
+    if (bn.lt(0)) {
+      bn = BigNumber.from("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").add(bn).add(1);
+    }
+    let addr = bn.toHexString();
+    if (addr.includes("0x")) {
+      addr.replace("0x", "");
+    }
+    addr = addr.padStart(40, "0");
+    addr = addr.slice(addr.length - 40, addr.length);
+    addr = "0x" + addr;
+    // Set the AMB address we'll use.
+    amb = utils.getAddress(addr);
   }
 
   console.log(`Deploying ${contract}...`);

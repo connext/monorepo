@@ -14,7 +14,6 @@ type TaskArgs = {
   a?: string;
   fee?: string;
   adminFee?: string;
-  lpTokenTargetAddress?: string;
   connextAddress?: string;
   env?: Env;
 };
@@ -34,7 +33,6 @@ export default task("initialize-stableswap", "Initializes stable swap")
   .addOptionalParam("a", "Override connext address")
   .addOptionalParam("fee", "Override connext address")
   .addOptionalParam("adminFee", "Override connext address")
-  .addOptionalParam("lpTokenTargetAddress", "Override LP token target address")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("env", "Environment of contracts")
   .setAction(
@@ -47,7 +45,6 @@ export default task("initialize-stableswap", "Initializes stable swap")
         a: _a,
         fee: _fee,
         adminFee: _adminFee,
-        lpTokenTargetAddress: _lpTokenTargetAddress,
         connextAddress: _connextAddress,
         env: _env,
       }: TaskArgs,
@@ -125,8 +122,6 @@ export default task("initialize-stableswap", "Initializes stable swap")
       }
 
       const lpTokenDeployment = await deployments.get(getDeploymentName("LPToken", env));
-      const lpTokenTargetAddress = _lpTokenTargetAddress ?? lpTokenDeployment.address;
-      console.log("lpTokenTargetAddress: ", lpTokenTargetAddress);
 
       const decimals = await Promise.all([
         (await ethers.getContractAt("TestERC20", local)).decimals(),
@@ -143,7 +138,6 @@ export default task("initialize-stableswap", "Initializes stable swap")
         a,
         fee,
         adminFee,
-        lpTokenTargetAddress,
         {
           gasLimit: 2_000_000,
         },

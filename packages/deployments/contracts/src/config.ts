@@ -63,7 +63,7 @@ export const hardhatNetworks = {
     accounts: { mnemonic },
     chainId: 5,
     url: urlOverride || process.env.GOERLI_ETH_PROVIDER_URL || "http://localhost:8545",
-    gasPrice: utils.parseUnits("10", "gwei").toNumber(),
+    gasPrice: utils.parseUnits("50", "gwei").toNumber(),
   },
   optimism: {
     accounts: { mnemonic },

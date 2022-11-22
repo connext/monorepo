@@ -9,6 +9,5 @@ import type * as libraries from "./libraries";
 export type { libraries };
 export type { MerkleTreeManager } from "./MerkleTreeManager";
 export type { RootManager } from "./RootManager";
-export type { RootManagerPropagateWrapper } from "./RootManagerPropagateWrapper";
 export type { WatcherClient } from "./WatcherClient";
 export type { WatcherManager } from "./WatcherManager";

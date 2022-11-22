@@ -19,11 +19,13 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 contract TokenFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error TokenFacet__addAssetId_alreadyAdded();
-  error TokenFacet__addAssetId_invalidLocalAsset();
+  error TokenFacet__addAssetId_badMint();
+  error TokenFacet__addAssetId_badBurn();
   error TokenFacet__removeAssetId_notAdded();
   error TokenFacet__removeAssetId_invalidParams();
   error TokenFacet__removeAssetId_remainsCustodied();
   error TokenFacet__updateDetails_localNotFound();
+  error TokenFacet__updateDetails_onlyRemote();
   error TokenFacet__updateDetails_notApproved();
   error TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
   error TokenFacet__setupAsset_representationListed();
@@ -164,17 +166,21 @@ contract TokenFacet is BaseConnextFacet {
    * on polygon), you should *not* allowlist the adopted asset. The stable swap pool
    * address used should allow you to swap between the local <> adopted asset.
    *
+   * If a representation has been deployed at any point, `setupAssetWithDeployedRepresentation`
+   * should be used instead.
+   *
    * The following can only be added on *REMOTE* domains:
    * - `_adoptedAssetId`
    * - `_stableSwapPool`
    *
    * Whereas the `_cap` can only be added on the canonical domain
    *
-   * @dev If a representation has been deployed at any point, `setupAssetWithDeployedRepresentation`
-   * should be used instead
-   *
    * @param _canonical - The canonical asset to add by id and domain. All representations
    * will be allowlisted as well
+   * @param _canonicalDecimals - The decimals of the canonical asset (will be used for deployed
+   * representation)
+   * @param _representationName - The name to be used for the deployed asset
+   * @param _representationSymbol - The symbol used for the deployed asset
    * @param _adoptedAssetId - The used asset id for this domain (e.g. PoS USDC for
    * polygon)
    * @param _stableSwapPool - The address of the local stableswap pool, if it exists.
@@ -235,6 +241,32 @@ contract TokenFacet is BaseConnextFacet {
     }
   }
 
+  /**
+   * @notice Used to add supported assets, without deploying a unique representation
+   * asset, and instead using what admins have provided. This is an admin only function
+   *
+   * @dev This function does very minimal checks to ensure the correct `_representation`
+   * token is used. The only enforced checks are:
+   * - Bridge can mint, and balance of bridge will increase
+   * - Bridge can burn, and balance of bridge will decrease
+   *
+   * However, there are many things that must be checked manually to avoid enrolling a bad
+   * representation:
+   * - decimals must always be equal to canonical decimals
+   * - regular `mint`, `burn`, `ERC20` functionality could be implemented improperly
+   * - the required interface functions (see `IBridgeToken`) may not be implemented
+   * - upgradeability could interfere with required functionality
+   *
+   * Using this method allows admins to override existing local tokens, and should be used
+   * carefully.
+   *
+   * @param _canonical - The canonical asset to add by id and domain. All representations
+   * will be whitelisted as well
+   * @param _representation - The address of the representative asset
+   * @param _adoptedAssetId - The used asset id for this domain (e.g. PoS USDC for
+   * polygon)
+   * @param _stableSwapPool - The address of the local stableswap pool, if it exists.
+   */
   function setupAssetWithDeployedRepresentation(
     TokenId calldata _canonical,
     address _representation,
@@ -332,6 +364,11 @@ contract TokenFacet is BaseConnextFacet {
       revert TokenFacet__updateDetails_localNotFound();
     }
 
+    // Can only happen on remote domains
+    if (s.domain == _canonical.domain) {
+      revert TokenFacet__updateDetails_onlyRemote();
+    }
+
     // ensure asset is currently approved because `s.canonicalToRepresentation` does
     // not get cleared when asset is removed from allowlist
     if (!s.tokenConfigs[key].approval) {
@@ -371,12 +408,15 @@ contract TokenFacet is BaseConnextFacet {
 
     // Sanity check: bridge can mint / burn on remote
     if (!onCanonical) {
-      IBridgeToken localToken = IBridgeToken(_local);
-      uint256 balance = localToken.balanceOf(address(this));
-      localToken.mint(address(this), 1);
-      localToken.burn(address(this), 1);
-      if (balance != localToken.balanceOf(address(this))) {
-        revert TokenFacet__addAssetId_invalidLocalAsset();
+      IBridgeToken candidate = IBridgeToken(_local);
+      uint256 starting = candidate.balanceOf(address(this));
+      candidate.mint(address(this), 1);
+      if (candidate.balanceOf(address(this)) != starting + 1) {
+        revert TokenFacet__addAssetId_badMint();
+      }
+      candidate.burn(address(this), 1);
+      if (candidate.balanceOf(address(this)) != starting) {
+        revert TokenFacet__addAssetId_badBurn();
       }
     }
 

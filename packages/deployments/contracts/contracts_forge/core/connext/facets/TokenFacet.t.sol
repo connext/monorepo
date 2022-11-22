@@ -5,6 +5,8 @@ import {IERC20Metadata} from "@openzeppelin/contracts/interfaces/IERC20Metadata.
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
+import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
+import {IBridgeToken} from "../../../../contracts/core/connext/interfaces/IBridgeToken.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {ERC20} from "../../../../contracts/core/connext/helpers/OZERC20.sol";
 import {TokenFacet} from "../../../../contracts/core/connext/facets/TokenFacet.sol";
@@ -32,7 +34,8 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     setOwner(_owner);
     utils_deployAssetContracts();
     utils_setFees();
-    _local = addressFrom(address(this), vm.getNonce(address(this)));
+    _deployedLocal = addressFrom(address(this), vm.getNonce(address(this)));
+    _local = _deployedLocal;
   }
 
   // ============ Utils ==============
@@ -245,8 +248,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
   function test_TokenFacet__setupAsset_worksOnRemote() public {
     // local != adopted, on remote
     s.domain = 123123;
-    // TODO: this was pulled from test logs, ideally calculate
-    _local = address(0xf5a2fE45F4f1308502b1C136b9EF8af136141382);
+    _local = addressFrom(address(this), vm.getNonce(address(this)));
     _stableSwap = address(0);
     setupAssetAndAssert(_adopted, bytes4(""));
   }
@@ -388,6 +390,22 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     vm.prank(_owner);
     // no error message given bc shouldnt be able to find function
     vm.expectRevert();
+    this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0));
+  }
+
+  function test_TokenFacet__setupAssetWithDeployedRepresentation_failIfOnRemoteAndCannotMintExactlyOne() public {
+    TokenId memory canonical = TokenId(_domain, _canonicalId);
+    s.domain = _domain + 1;
+    ERC20 asset = new ERC20(18, "Test Token", "TEST", "1");
+
+    // mint should work
+    vm.mockCall(address(asset), abi.encodeWithSelector(TestERC20.mint.selector), abi.encode(true));
+
+    // balanceOf should return constant value
+    vm.mockCall(address(asset), abi.encodeWithSelector(TestERC20.balanceOf.selector), abi.encode(12321));
+
+    vm.prank(_owner);
+    vm.expectRevert(TokenFacet.TokenFacet__addAssetId_badMint.selector);
     this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0));
   }
 
@@ -558,5 +576,54 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     // assertEq
     assertEq(s.tokenConfigs[key].custodied, balance);
     assertEq(s.tokenConfigs[key].cap, updated);
+  }
+
+  // updateDetails
+  function test_TokenFacet__updateDetails_failsIfNoLocal() public {
+    s.domain = _canonicalDomain + 2;
+    bytes32 key = utils_calculateCanonicalHash();
+    s.canonicalToRepresentation[key] = address(0);
+
+    // Inputs
+    string memory updatedName = "asdfkj";
+    string memory updatedSymbol = "lkjliji";
+
+    vm.expectRevert(TokenFacet.TokenFacet__updateDetails_localNotFound.selector);
+    vm.prank(_owner);
+    this.updateDetails(TokenId(_canonicalDomain, _canonicalId), updatedName, updatedSymbol);
+  }
+
+  function test_TokenFacet__updateDetails_failsOnCanonical() public {
+    s.domain = _canonicalDomain;
+    bytes32 key = utils_calculateCanonicalHash();
+    s.canonicalToRepresentation[key] = _local;
+
+    // Inputs
+    string memory updatedName = "asdfkj";
+    string memory updatedSymbol = "lkjliji";
+
+    vm.expectRevert(TokenFacet.TokenFacet__updateDetails_onlyRemote.selector);
+    vm.prank(_owner);
+    this.updateDetails(TokenId(_canonicalDomain, _canonicalId), updatedName, updatedSymbol);
+  }
+
+  // works
+  function test_TokenFacet__updateDetails_works() public {
+    _local = address(new TestERC20("Test", "t"));
+    s.domain = _canonicalDomain + 2;
+    bytes32 key = utils_calculateCanonicalHash();
+    s.canonicalToRepresentation[key] = _local;
+    s.approvedAssets[key] = true;
+
+    // Inputs
+    string memory updatedName = "asdfkj";
+    string memory updatedSymbol = "lkjliji";
+
+    vm.prank(_owner);
+    this.updateDetails(TokenId(_canonicalDomain, _canonicalId), updatedName, updatedSymbol);
+
+    // assertEq
+    assertEq(IBridgeToken(_local).name(), updatedName);
+    assertEq(IBridgeToken(_local).symbol(), updatedSymbol);
   }
 }

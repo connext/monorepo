@@ -43,7 +43,7 @@ Content-Type: application/json
 
 ##############
 ### GET getCanonicalToken
-GET {{baseUrl}}/getCanonicalToken/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
+GET {{baseUrl}}/getCanonicalToken/1735356532/0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E
 
 ##############
 ### GET getLPTokenAddress
@@ -97,9 +97,9 @@ POST {{baseUrl}}/calculateTokenAmount
 Content-Type: application/json
 
 {
-  "domainId": "9991",
-  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
-  "amounts": ["1000000000000000", "1000000000000000"]
+  "domainId": "1735356532",
+  "tokenAddress": "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E",
+  "amounts": ["10000000000000000", "10000000000000000"]
 }
 
 ##############
@@ -135,6 +135,18 @@ Content-Type: application/json
   "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
   "amountX": "10000000000000000",
   "amountY": "10000000000000000" 
+}
+
+##############
+### POST calculateSwapPriceImpact
+POST {{baseUrl}}/calculateSwapPriceImpact
+Content-Type: application/json
+
+{
+  "domainId": "9991",
+  "amountX": "10000000000000000",
+  "tokenX": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "tokenY": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9"
 }
 
 ##############
