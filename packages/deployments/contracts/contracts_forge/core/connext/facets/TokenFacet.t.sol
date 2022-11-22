@@ -25,14 +25,14 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
   // NOTE: this is pulled from test logs, should calculate what address the
   // TokenFacet deploys to in tests
-  address _deployedLocal = 0xf5a2fE45F4f1308502b1C136b9EF8af136141382;
+  address _deployedLocal;
 
   // ============ Test set up ============
   function setUp() public {
     setOwner(_owner);
     utils_deployAssetContracts();
     utils_setFees();
-    _local = _deployedLocal;
+    _local = addressFrom(address(this), vm.getNonce(address(this)));
   }
 
   // ============ Utils ==============
@@ -448,7 +448,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
     s.tokenConfigs[utils_calculateCanonicalHash()].custodied = 0;
     vm.mockCall(_local, abi.encodeWithSelector(IERC20.balanceOf.selector, address(this)), abi.encode(0));
-    removeAssetAndAssert(utils_calculateCanonicalHash(), _deployedLocal, _adopted);
+    removeAssetAndAssert(utils_calculateCanonicalHash(), _canonical, _adopted);
   }
 
   function test_TokenFacet__removeAssetId_worksOnRemote() public {
@@ -457,6 +457,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
     vm.mockCall(_adopted, abi.encodeWithSelector(IERC20Metadata.decimals.selector), abi.encode(18));
 
+    _deployedLocal = addressFrom(address(this), vm.getNonce(address(this)));
     setupAssetAndAssert(_adopted, bytes4(""));
 
     removeAssetAndAssert(utils_calculateCanonicalHash(), _adopted, _deployedLocal);
