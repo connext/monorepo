@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {LibArbitrumL1} from "@openzeppelin/contracts/crosschain/arbitrum/LibArbitrumL1.sol";
 
@@ -29,16 +29,66 @@ contract ArbitrumHubConnector is HubConnector {
   using TypedMemView for bytes29;
 
   // ============ Storage ============
-  uint256 public defaultGasPrice;
 
   IArbitrumOutbox public outbox;
   IArbitrumRollup public rollup;
 
-  // Tracks which messages have been processed from bridge
+  /**
+   * @notice Sets cap on maxSubmissionCost used in `createRetryableTicket`
+   * @dev The value used in `createRetryableTicket` is the lesser of the cap or
+   * a value passed in via `_encodedData` in `_sendMessage`.
+   *
+   * This value represents amount of ETH allocated to pay for the base submission fee
+   */
+  uint256 public maxSubmissionCostCap;
+
+  /**
+   * @notice Sets cap on maxGas used in `createRetryableTicket`
+   * @dev The value used in `createRetryableTicket` is the lesser of the cap or
+   * a value passed in via `_encodedData` in `_sendMessage`.
+   *
+   * This value represents gas limit for immediate L2 execution attempt
+   */
+  uint256 public maxGasCap;
+
+  /**
+   * @notice Sets cap on gasPrice used in `createRetryableTicket`
+   * @dev The value used in `createRetryableTicket` is the lesser of the cap or
+   * a value passed in via `_encodedData` in `_sendMessage`.
+   *
+   * This value represents L2 gas price bid for immediate L2 execution attempt
+   */
+  uint256 public gasPriceCap;
+
+  /**
+   * @notice Tracks which messages have been processed from bridge
+   */
   mapping(uint256 => bool) public processed;
 
   // ============ Events ============
-  event DefaultGasPriceUpdated(uint256 previous, uint256 current);
+  // TODO: do we need any other information from the ticket to link to message?
+  event RetryableTicketCreated(uint256 indexed ticketId);
+
+  /**
+   * @notice Emitted when admin updates the maxSubmissionCap
+   * @param _previous The starting value
+   * @param _updated The final value
+   */
+  event MaxSubmissionCapUpdated(uint256 _previous, uint256 _updated);
+
+  /**
+   * @notice Emitted when admin updates the maxGasCap
+   * @param _previous The starting value
+   * @param _updated The final value
+   */
+  event MaxGasCapUpdated(uint256 _previous, uint256 _updated);
+
+  /**
+   * @notice Emitted when admin updates the gasPriceCap
+   * @param _previous The starting value
+   * @param _updated The final value
+   */
+  event GasPriceCapUpdated(uint256 _previous, uint256 _updated);
 
   // ============ Constructor ============
   constructor(
@@ -47,20 +97,47 @@ contract ArbitrumHubConnector is HubConnector {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
-    uint256 _defaultGasPrice,
-    address _outbox
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) {
-    defaultGasPrice = _defaultGasPrice;
+    address _outbox,
+    uint256 _maxSubmissionCostCap,
+    uint256 _maxGasCap,
+    uint256 _gasPriceCap
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) {
     outbox = IArbitrumOutbox(_outbox);
     rollup = IArbitrumRollup(outbox.rollup());
+
+    // Set initial caps for L1 -> L2 messages
+    maxSubmissionCostCap = _maxSubmissionCostCap;
+    maxGasCap = _maxGasCap;
+    gasPriceCap = _gasPriceCap;
   }
 
   // ============ Admin fns ============
 
-  function setDefaultGasPrice(uint256 _defaultGasPrice) external onlyOwner {
-    emit DefaultGasPriceUpdated(defaultGasPrice, _defaultGasPrice);
-    defaultGasPrice = _defaultGasPrice;
+  /**
+   * @notice Used (by admin) to update the maxSubmissionCostCap
+   * @param _updated The new value
+   */
+  function setMaxSubmissionCostCap(uint256 _updated) public onlyOwner {
+    emit MaxSubmissionCapUpdated(maxSubmissionCostCap, _updated);
+    maxSubmissionCostCap = _updated;
+  }
+
+  /**
+   * @notice Used (by admin) to update the maxGasCap
+   * @param _updated The new value
+   */
+  function setMaxGasCap(uint256 _updated) public onlyOwner {
+    emit MaxGasCapUpdated(maxGasCap, _updated);
+    maxGasCap = _updated;
+  }
+
+  /**
+   * @notice Used (by admin) to update the gasPriceCap
+   * @param _updated The new value
+   */
+  function setGasPriceCap(uint256 _updated) public onlyOwner {
+    emit GasPriceCapUpdated(maxSubmissionCostCap, _updated);
+    gasPriceCap = _updated;
   }
 
   // ============ Private fns ============
@@ -69,19 +146,46 @@ contract ArbitrumHubConnector is HubConnector {
     return _expected == LibArbitrumL1.crossChainSender(AMB);
   }
 
-  function _sendMessage(bytes memory _data) internal override {
+  /**
+   * @notice Helper to return the lesser of two values
+   * @param _a Some number
+   * @param _b Some number
+   */
+  function _lesserOf(uint256 _a, uint256 _b) internal pure returns (uint256) {
+    return _a < _b ? _a : _b;
+  }
+
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
     // Get the calldata
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
+
+    // Should include specialized calldata
+    require(_encodedData.length == (32 * 3), "!data length");
+
+    // Decode all of the gas-related parameters
+    (uint256 maxSubmissionCost, uint256 maxGas, uint256 gasPrice) = abi.decode(
+      _encodedData,
+      (uint256, uint256, uint256)
+    );
+
     // dispatch to l2
-    IArbitrumInbox(AMB).sendContractTransaction(mirrorGas, defaultGasPrice, mirrorConnector, 0, _calldata);
+    uint256 ticketID = IArbitrumInbox(AMB).createRetryableTicket{value: msg.value}(
+      mirrorConnector, // destAddr
+      0, // arbTxCallValue
+      _lesserOf(maxSubmissionCost, maxSubmissionCostCap), // maxSubmissionCost: Amount of ETH allocated to pay for the base submission fee
+      mirrorConnector, // submissionRefundAddress: Address to which all excess gas is credited on L2
+      mirrorConnector, // valueRefundAddress: Address to which CallValue will be credited to on L2 if the retryable ticket times out or is cancelled
+      _lesserOf(maxGas, maxGasCap), // maxGas: Gas limit for immediate L2 execution attempt
+      _lesserOf(gasPrice, gasPriceCap), // gasPriceBid: L2 Gas price bid for immediate L2 execution attempt
+      _calldata // data
+    );
+    emit RetryableTicketCreated(ticketID);
   }
 
-  function _processMessage(bytes memory _data) internal override {
-    // Does nothing, all messages should go through the `processMessageFromRoot` path
-    // when handling l2 -> l1 messages. See note in `recordOutputAsSpent`
-  }
+  // DO NOT override _processMessage, should revert from `Connector` class. All messages must use the
+  // `processMessageFromRoot` flow.
 
   function processMessageFromRoot(
     uint64 _nodeNum,
@@ -175,7 +279,7 @@ contract ArbitrumHubConnector is HubConnector {
     bytes32 _sendRoot
   ) internal {
     require(_proof.length < 256, "proof length");
-    require(_index < 2**_proof.length, "!minimal proof");
+    require((_index >> _proof.length) == 0, "!minimal proof");
 
     // NOTE: in the arbitrum contracts, they check that the message index is not yet spent
     // Because the spoke connector calls `processMessage`, which does nothing, it is important

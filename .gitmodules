@@ -7,3 +7,9 @@
 [submodule "packages/deployments/contracts/lib/openzeppelin-contracts"]
 	path = packages/deployments/contracts/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "packages/deployments/contracts/lib/ExcessivelySafeCall"]
+	path = packages/deployments/contracts/lib/ExcessivelySafeCall
+	url = https://github.com/nomad-xyz/ExcessivelySafeCall
+[submodule "packages/deployments/contracts/lib/relay-context-contracts"]
+	path = packages/deployments/contracts/lib/relay-context-contracts
+	url = https://github.com/gelatodigital/relay-context-contracts

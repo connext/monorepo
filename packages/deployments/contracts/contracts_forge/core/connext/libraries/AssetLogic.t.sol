@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import "../../../../contracts/core/connext/libraries/SwapUtils.sol";
@@ -68,7 +68,9 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
       // the pool balance of each token, in the token's precision
       // the contract's actual token balance might differ
       balances: _balances,
-      adminFees: new uint256[](2)
+      adminFees: new uint256[](2),
+      disabled: false,
+      removeTime: 0
     });
 
     s.swapStorages[_canonicalKey] = swap;
@@ -157,6 +159,14 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     uint256 swapOut,
     uint256 slippage
   ) internal {
+    // remove internal stableswap pool reference so we're using the external pool
+    delete s.swapStorages[_canonicalKey];
+
+    // Retrieve internal swap pool reference.
+    SwapUtils.Swap storage ipool = s.swapStorages[_canonicalKey];
+
+    console.log(ipool.pooledTokens.length);
+
     // set mock
     vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector), abi.encode(swapOut));
 
@@ -167,6 +177,10 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
       // expect swap
       vm.expectCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector, amount, _adopted, _local));
     }
+
+    console.logBytes32(_canonicalKey);
+    console.logBytes32(AssetLogic.calculateCanonicalHash(_canonicalId, _canonicalDomain));
+    console.log(_stableSwap);
 
     uint256 received = AssetLogic.swapToLocalAssetIfNeeded(
       AssetLogic.calculateCanonicalHash(_canonicalId, _canonicalDomain),

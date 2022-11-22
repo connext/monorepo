@@ -29,7 +29,6 @@ import type {
 
 export interface ConnextPriceOracleInterface extends utils.Interface {
   functions: {
-    "VALID_PERIOD()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "aggregators(address)": FunctionFragment;
     "assetPrices(address)": FunctionFragment;
@@ -53,7 +52,6 @@ export interface ConnextPriceOracleInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "VALID_PERIOD"
       | "acceptProposedOwner"
       | "aggregators"
       | "assetPrices"
@@ -75,10 +73,6 @@ export interface ConnextPriceOracleInterface extends utils.Interface {
       | "wrapped"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "VALID_PERIOD",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
     values?: undefined
@@ -146,10 +140,6 @@ export interface ConnextPriceOracleInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "wrapped", values?: undefined): string;
 
   decodeFunctionResult(
-    functionFragment: "VALID_PERIOD",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
     data: BytesLike
   ): Result;
@@ -214,19 +204,15 @@ export interface ConnextPriceOracleInterface extends utils.Interface {
   events: {
     "AggregatorUpdated(address,address)": EventFragment;
     "DirectPriceUpdated(address,uint256,uint256)": EventFragment;
-    "NewAdmin(address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "PriceRecordUpdated(address,address,address,bool)": EventFragment;
     "V1PriceOracleUpdated(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AggregatorUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DirectPriceUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewAdmin"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PriceRecordUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "V1PriceOracleUpdated"): EventFragment;
 }
 
@@ -255,14 +241,6 @@ export type DirectPriceUpdatedEvent = TypedEvent<
 export type DirectPriceUpdatedEventFilter =
   TypedEventFilter<DirectPriceUpdatedEvent>;
 
-export interface NewAdminEventObject {
-  oldAdmin: string;
-  newAdmin: string;
-}
-export type NewAdminEvent = TypedEvent<[string, string], NewAdminEventObject>;
-
-export type NewAdminEventFilter = TypedEventFilter<NewAdminEvent>;
-
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
 }
@@ -285,20 +263,6 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
-
-export interface PriceRecordUpdatedEventObject {
-  token: string;
-  baseToken: string;
-  lpToken: string;
-  _active: boolean;
-}
-export type PriceRecordUpdatedEvent = TypedEvent<
-  [string, string, string, boolean],
-  PriceRecordUpdatedEventObject
->;
-
-export type PriceRecordUpdatedEventFilter =
-  TypedEventFilter<PriceRecordUpdatedEvent>;
 
 export interface V1PriceOracleUpdatedEventObject {
   oldAddress: string;
@@ -339,8 +303,6 @@ export interface ConnextPriceOracle extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    VALID_PERIOD(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -415,8 +377,6 @@ export interface ConnextPriceOracle extends BaseContract {
 
     wrapped(overrides?: CallOverrides): Promise<[string]>;
   };
-
-  VALID_PERIOD(overrides?: CallOverrides): Promise<BigNumber>;
 
   acceptProposedOwner(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -493,8 +453,6 @@ export interface ConnextPriceOracle extends BaseContract {
   wrapped(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    VALID_PERIOD(overrides?: CallOverrides): Promise<BigNumber>;
-
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
     aggregators(
@@ -587,12 +545,6 @@ export interface ConnextPriceOracle extends BaseContract {
       newPrice?: null
     ): DirectPriceUpdatedEventFilter;
 
-    "NewAdmin(address,address)"(
-      oldAdmin?: null,
-      newAdmin?: null
-    ): NewAdminEventFilter;
-    NewAdmin(oldAdmin?: null, newAdmin?: null): NewAdminEventFilter;
-
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
     ): OwnershipProposedEventFilter;
@@ -609,19 +561,6 @@ export interface ConnextPriceOracle extends BaseContract {
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
 
-    "PriceRecordUpdated(address,address,address,bool)"(
-      token?: null,
-      baseToken?: null,
-      lpToken?: null,
-      _active?: null
-    ): PriceRecordUpdatedEventFilter;
-    PriceRecordUpdated(
-      token?: null,
-      baseToken?: null,
-      lpToken?: null,
-      _active?: null
-    ): PriceRecordUpdatedEventFilter;
-
     "V1PriceOracleUpdated(address,address)"(
       oldAddress?: null,
       newAddress?: null
@@ -633,8 +572,6 @@ export interface ConnextPriceOracle extends BaseContract {
   };
 
   estimateGas: {
-    VALID_PERIOD(overrides?: CallOverrides): Promise<BigNumber>;
-
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -709,8 +646,6 @@ export interface ConnextPriceOracle extends BaseContract {
   };
 
   populateTransaction: {
-    VALID_PERIOD(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

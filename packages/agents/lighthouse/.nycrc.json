@@ -13,11 +13,18 @@
     "src/tasks/prover/index.ts",
     "src/tasks/prover/prover.ts",
     "src/tasks/processFromRoot/helpers/index.ts",
+    "src/tasks/processFromRoot/helpers/gnosis/args.ts",
     "src/tasks/processFromRoot/operations/index.ts",
     "src/tasks/processFromRoot/context.ts",
     "src/tasks/processFromRoot/index.ts",
     "src/tasks/processFromRoot/processFromRoot.ts",
     "src/tasks/processFromRoot/errors.ts",
+    "src/tasks/propagate/errors.ts",
+    "src/tasks/propagate/context.ts",
+    "src/tasks/propagate/index.ts",
+    "src/tasks/propagate/propagate.ts",
+    "src/tasks/propagate/operations/index.ts",
+    "src/tasks/propagate/helpers/index.ts",
     "test/**/*.ts",
     "./globalTestHook.ts"
   ]

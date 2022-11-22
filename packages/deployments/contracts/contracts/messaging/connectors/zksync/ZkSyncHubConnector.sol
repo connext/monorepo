@@ -1,19 +1,15 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 // Importing zkSync contract interface
 import "@matterlabs/zksync-contracts/l1/contracts/zksync/interfaces/IZkSync.sol";
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
-import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 import {HubConnector} from "../HubConnector.sol";
 import {Connector} from "../Connector.sol";
+import {GasCap} from "../GasCap.sol";
 
-contract ZkSyncHubConnector is HubConnector {
-  // ============ Libraries ============
-  using TypedMemView for bytes;
-  using TypedMemView for bytes29;
-
+contract ZkSyncHubConnector is HubConnector, GasCap {
   // ============ Storage ============
 
   // NOTE: This is needed because we need to track the roots we've
@@ -30,9 +26,9 @@ contract ZkSyncHubConnector is HubConnector {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
-    address _stateCommitmentChain
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) {}
+    address _stateCommitmentChain,
+    uint256 _gasCap
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) GasCap(_gasCap) {}
 
   // ============ Override Fns ============
   function _verifySender(address) internal pure override returns (bool) {
@@ -46,18 +42,31 @@ contract ZkSyncHubConnector is HubConnector {
   /**
    * @dev Sends `aggregateRoot` to messaging on l2
    */
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should include gasPrice value for `l2TransactionBaseCOst` specialized calldata
+    require(_encodedData.length == 32, "!data length");
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
     // Get the calldata
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
+    // Get the gas data
+    uint256 gasPrice = abi.decode(_encodedData, (uint256));
+
+    // Declare the ergs limit
+    uint256 ERGS_LIMIT = 10000;
+
+    // Get the max supplied
+    uint256 fee = _getGas(msg.value);
+
+    // Ensure it is above minimum
+    require(fee > IZkSync(AMB).l2TransactionBaseCost(gasPrice, ERGS_LIMIT, uint32(_calldata.length)), "!fees");
 
     // Dispatch message
     // https://v2-docs.zksync.io/dev/developer-guides/Bridging/l1-l2.html#structure
     // calling L2 smart contract from L1 Example contract
     // note: msg.value must be passed in and can be retrieved from the AMB view function `l2TransactionBaseCost`
     // https://v2-docs.zksync.io/dev/developer-guides/Bridging/l1-l2.html#using-contract-interface-in-your-project
-    IZkSync(AMB).requestL2Transaction{value: msg.value}(
+    IZkSync(AMB).requestL2Transaction{value: fee}(
       // The address of the L2 contract to call
       mirrorConnector,
       // We pass no ETH with the call
@@ -65,20 +74,14 @@ contract ZkSyncHubConnector is HubConnector {
       // Encoding the calldata for the execute
       _calldata,
       // Ergs limit
-      10000,
+      ERGS_LIMIT,
       // factory dependencies
       new bytes[](0)
     );
   }
 
-  /**
-   * @notice Processes messages
-   * @dev Should do nothing because all messages must be processed via `processMessageFromRoot`
-   * to enforce inclusion in the message root.
-   *
-   * @param _data Message sent from L2 (should be the outbound root)
-   */
-  function _processMessage(bytes memory _data) internal override {}
+  // DO NOT override _processMessage, should revert from `Connector` class. All messages must use the
+  // `processMessageFromRoot` flow.
 
   /**
    * @notice Processes message and proves inclusion of that message in the root.
@@ -97,8 +100,8 @@ contract ZkSyncHubConnector is HubConnector {
     // Merkle proof for the message
     bytes32[] calldata _proof
   ) external {
-    // sanity check root length (fn selector + 32 bytes root)
-    require(_message.length == 36, "!length");
+    // sanity check root length (32 bytes root)
+    require(_message.length == 32, "!length");
 
     IZkSync zksync = IZkSync(AMB);
     L2Message memory message = L2Message({
@@ -110,9 +113,7 @@ contract ZkSyncHubConnector is HubConnector {
     bool success = zksync.proveL2MessageInclusion(_l2BlockNumber, _l2MessageIndex, message, _proof);
     require(success, "!proven");
 
-    // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
-    bytes29 _view = _message.ref(0);
-    bytes32 _root = _view.index(_view.len() - 32, 32);
+    bytes32 _root = bytes32(_message);
 
     // NOTE: there are no guarantees the messages are processed once, so processed roots
     // must be tracked within the connector. See:
@@ -122,6 +123,7 @@ contract ZkSyncHubConnector is HubConnector {
       processed[_root] = true;
       // update the root on the root manager
       IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _root);
+      emit MessageProcessed(_message, msg.sender);
     } // otherwise root was already sent to root manager
   }
 }

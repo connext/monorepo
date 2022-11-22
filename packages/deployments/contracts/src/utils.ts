@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { BigNumber, Contract, ContractInterface, providers, Signer } from "ethers";
+import { BigNumber, constants, Contract, ContractInterface, providers, Signer } from "ethers";
 import { HardhatRuntimeEnvironment, HardhatUserConfig } from "hardhat/types";
 import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
 
@@ -34,6 +34,7 @@ export const ProtocolNetworks: Record<string, string> = {
   "420": ProtocolNetwork.TESTNET,
   "80001": ProtocolNetwork.TESTNET,
   "97": ProtocolNetwork.TESTNET,
+  "421613": ProtocolNetwork.TESTNET,
 
   // mainnets
   "1": ProtocolNetwork.MAINNET,
@@ -48,6 +49,18 @@ export const getProtocolNetwork = (_chain: string | number): string => {
   const chain = _chain.toString();
   // If chain 1337 or 1338, use local network.
   return ProtocolNetworks[chain] ?? ProtocolNetwork.LOCAL;
+};
+
+export type RelayerProxyConfig = {
+  gelatoRelayer: string;
+  feeCollector: string;
+};
+
+export const getRelayerProxyConfig = (_chain: string | number): RelayerProxyConfig => {
+  const feeCollector = constants.AddressZero;
+  let gelatoRelayer = constants.AddressZero;
+
+  return { feeCollector, gelatoRelayer };
 };
 
 export const getConnectorName = (

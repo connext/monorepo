@@ -1,8 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
-
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+pragma solidity 0.8.17;
 
 import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 
@@ -10,7 +7,6 @@ import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 import {DestinationTransferStatus} from "../libraries/LibConnextStorage.sol";
 
-import {IAavePool} from "../interfaces/IAavePool.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
@@ -35,7 +31,6 @@ contract InboxFacet is BaseConnextFacet {
   error InboxFacet__onlyReplica_notReplica();
   error InboxFacet__onlyRemoteRouter_notRemote();
   error InboxFacet__handle_notTransfer();
-  error InboxFacet__reconcile_notConnext();
   error InboxFacet__reconcile_alreadyReconciled();
   error InboxFacet__reconcile_noPortalRouter();
 
@@ -84,7 +79,7 @@ contract InboxFacet is BaseConnextFacet {
   // ============ Modifiers ============
 
   /**
-   * @notice Only accept messages from an Nomad Replica contract.
+   * @notice Only accept messages from a registered inbox contract.
    */
   modifier onlyReplica() {
     if (!_isReplica(msg.sender)) {
@@ -98,8 +93,8 @@ contract InboxFacet is BaseConnextFacet {
    * @param _origin The domain the message is coming from.
    * @param _router The address the message is coming from.
    */
-  modifier onlyRemoteRouter(uint32 _origin, bytes32 _router) {
-    if (!_isRemoteRouter(_origin, _router)) {
+  modifier onlyRemoteHandler(uint32 _origin, bytes32 _router) {
+    if (!_isRemoteHandler(_origin, _router)) {
       revert InboxFacet__onlyRemoteRouter_notRemote();
     }
     _;
@@ -120,7 +115,7 @@ contract InboxFacet is BaseConnextFacet {
     uint32 _nonce,
     bytes32 _sender,
     bytes memory _message
-  ) external onlyReplica onlyRemoteRouter(_origin, _sender) {
+  ) external onlyReplica onlyRemoteHandler(_origin, _sender) {
     // Parse token ID and action from message body.
     bytes29 _msg = _message.ref(0).mustBeMessage();
     bytes29 _tokenId = _msg.tokenId();
@@ -214,10 +209,10 @@ contract InboxFacet is BaseConnextFacet {
   /**
    * @notice Return true if the given domain / router is the address of a remote xApp Router
    * @param _domain The domain of the potential remote xApp Router
-   * @param _router The address of the potential remote xApp Router
+   * @param _xAppHandler The address of the potential remote xApp handler
    */
-  function _isRemoteRouter(uint32 _domain, bytes32 _router) internal view returns (bool) {
-    return s.remotes[_domain] == _router && _router != bytes32(0);
+  function _isRemoteHandler(uint32 _domain, bytes32 _xAppHandler) internal view returns (bool) {
+    return s.remotes[_domain] == _xAppHandler && _xAppHandler != bytes32(0);
   }
 
   /**
@@ -240,6 +235,19 @@ contract InboxFacet is BaseConnextFacet {
   ) internal returns (address, uint256) {
     bytes32 _canonicalId = _tokenId.id();
     uint32 _canonicalDomain = _tokenId.domain();
+
+    // Load amount once.
+    uint256 _amount = _action.amnt();
+
+    // Check for the empty case -- if it is 0 value there is no strict requirement for the
+    // canonical information be defined (i.e. you can supply address(0) to xcall). If this
+    // is the case, return _token as address(0)
+    if (_amount == 0 && _canonicalDomain == 0 && _canonicalId == bytes32(0)) {
+      // Emit Receive event and short-circuit remaining logic: no tokens need to be delivered.
+      emit Receive(_originAndNonce(_origin, _nonce), address(0), address(this), address(0), _amount);
+      return (address(0), 0);
+    }
+
     // Get the token contract for the given tokenId on this chain.
     address _token = _getLocalAsset(
       AssetLogic.calculateCanonicalHash(_canonicalId, _canonicalDomain),
@@ -247,8 +255,6 @@ contract InboxFacet is BaseConnextFacet {
       _canonicalDomain
     );
 
-    // Load amount once.
-    uint256 _amount = _action.amnt();
     if (_amount == 0) {
       // Emit Receive event and short-circuit remaining logic: no tokens need to be delivered.
       emit Receive(_originAndNonce(_origin, _nonce), _token, address(this), address(0), _amount);

@@ -12,7 +12,7 @@ import type {
 const _abi = [
   {
     inputs: [],
-    name: "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
+    name: "Connector__processMessage_notUsed",
     type: "error",
   },
   {
@@ -27,6 +27,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "ProposedOwnable__ownershipDelayElapsed_delayNotElapsed",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ProposedOwnable__proposeNewOwner_invalidProposal",
     type: "error",
   },
@@ -37,17 +42,63 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ProposedOwnable__renounceOwnership_delayNotElapsed",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "ProposedOwnable__renounceOwnership_invalidProposal",
     type: "error",
   },
   {
     inputs: [],
     name: "ProposedOwnable__renounceOwnership_noProposal",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RateLimited__rateLimited_messageSendRateExceeded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__index_indexMoreThan32Bytes",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "loc",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "len",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "index",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "slice",
+        type: "uint256",
+      },
+    ],
+    name: "TypedMemView__index_overrun",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__unsafeCopyTo_identityOOG",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__unsafeCopyTo_invalidPointer",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TypedMemView__unsafeCopyTo_nullPointer",
     type: "error",
   },
   {
@@ -74,6 +125,38 @@ const _abi = [
       },
     ],
     name: "AggregateRootRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "root",
+        type: "bytes32",
+      },
+    ],
+    name: "AggregateRootVerified",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "updated",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "DelayBlocksUpdated",
     type: "event",
   },
   {
@@ -111,6 +194,25 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "FundsWithdrawn",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: false,
         internalType: "bytes",
         name: "data",
@@ -130,9 +232,40 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "bytes32",
+        name: "leaf",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "aggregateRoot",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "aggregateIndex",
+        type: "uint256",
+      },
+    ],
+    name: "MessageProven",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: false,
         internalType: "bytes",
         name: "data",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "encodedData",
         type: "bytes",
       },
       {
@@ -162,25 +295,6 @@ const _abi = [
       },
     ],
     name: "MirrorConnectorUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "previous",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "current",
-        type: "uint256",
-      },
-    ],
-    name: "MirrorGasUpdated",
     type: "event",
   },
   {
@@ -288,6 +402,25 @@ const _abi = [
       },
     ],
     name: "Process",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "updater",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "newRateLimit",
+        type: "uint256",
+      },
+    ],
+    name: "SendRateLimitUpdated",
     type: "event",
   },
   {
@@ -454,6 +587,25 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "allowlistedSenders",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "delay",
     outputs: [
@@ -542,6 +694,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "lastSentBlock",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "localDomain",
     outputs: [
       {
@@ -580,19 +745,6 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "mirrorGas",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -818,6 +970,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "rateLimitBlocks",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes32",
@@ -864,10 +1029,35 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "_encodedData",
+        type: "bytes",
+      },
+    ],
     name: "send",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    name: "sentMessageRoots",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -900,11 +1090,11 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "_mirrorGas",
+        name: "_rateLimit",
         type: "uint256",
       },
     ],
-    name: "setMirrorGas",
+    name: "setRateLimitBlocks",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -949,23 +1139,34 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
+    inputs: [],
+    name: "watcherManager",
+    outputs: [
       {
-        internalType: "address",
+        internalType: "contract WatcherManager",
         name: "",
         type: "address",
       },
     ],
-    name: "whitelistedSenders",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
     stateMutability: "view",
     type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+    ],
+    name: "withdrawFunds",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ];
 

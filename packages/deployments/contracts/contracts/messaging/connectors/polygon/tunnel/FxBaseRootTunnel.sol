@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // https://github.com/fx-portal/contracts/blob/main/contracts/tunnel/FxBaseRootTunnel.sol
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {RLPReader} from "../lib/RLPReader.sol";
 import {MerklePatriciaProof} from "../lib/MerklePatriciaProof.sol";
@@ -55,7 +55,7 @@ abstract contract FxBaseRootTunnel {
   }
 
   // set fxChildTunnel if not set already
-  function setFxChildTunnel(address _fxChildTunnel) public virtual {
+  function setFxChildTunnel(address _fxChildTunnel) internal virtual {
     require(fxChildTunnel == address(0x0), "FxBaseRootTunnel: CHILD_TUNNEL_ALREADY_SET");
     fxChildTunnel = _fxChildTunnel;
   }

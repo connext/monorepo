@@ -1,4 +1,7 @@
 [
+  "error AssetLogic__handleIncomingAsset_feeOnTransferNotSupported()",
+  "error AssetLogic__handleIncomingAsset_nativeAssetNotSupported()",
+  "error AssetLogic__handleOutgoingAsset_notNative()",
   "event AddLiquidity(address indexed,uint256[],uint256[],uint256,uint256)",
   "event NewAdminFee(uint256)",
   "event NewSwapFee(uint256)",
@@ -8,8 +11,6 @@
   "event RemoveLiquidityOne(address indexed,uint256,uint256,uint256,uint256)",
   "event StopRampA(uint256,uint256)",
   "event TokenSwap(address indexed,uint256,uint256,uint128,uint128)",
-  "function A_PRECISION() view returns (uint256)",
-  "function MAX_A() view returns (uint256)",
   "function getD(uint256[],uint256) pure returns (uint256)",
   "function getY(uint256,uint8,uint8,uint256,uint256[]) pure returns (uint256)",
   "function getYD(uint256,uint8,uint256[],uint256) pure returns (uint256)"

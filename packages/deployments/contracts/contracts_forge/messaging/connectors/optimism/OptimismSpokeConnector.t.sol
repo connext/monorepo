@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/crosschain/errors.sol";
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 
 import {OptimismSpokeConnector} from "../../../../contracts/messaging/connectors/optimism/OptimismSpokeConnector.sol";
 import {OptimismAmb} from "../../../../contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol";
-import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/MerkleTreeManager.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -19,24 +19,26 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
 
   // ============ Test set up ============
   function setUp() public {
-    _l1Connector = address(123321123);
+    _l1Connector = payable(address(123321123));
 
     _merkle = address(new MerkleTreeManager());
 
     // deploy
-    _l2Connector = address(
-      new OptimismSpokeConnector(
-        _l2Domain,
-        _l1Domain,
-        _amb,
-        _rootManager,
-        _l1Connector,
-        _mirrorGas,
-        _processGas,
-        _reserveGas,
-        0, // delay blocks
-        _merkle,
-        address(0) // watcher manager
+    _l2Connector = payable(
+      address(
+        new OptimismSpokeConnector(
+          _l2Domain,
+          _l1Domain,
+          _amb,
+          _rootManager,
+          _l1Connector,
+          _processGas,
+          _reserveGas,
+          0, // delay blocks
+          _merkle,
+          address(0), // watcher manager
+          _gasCap
+        )
       )
     );
   }
@@ -79,8 +81,12 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
 
     vm.mockCall(_amb, abi.encodeWithSelector(OptimismAmb.sendMessage.selector), abi.encode());
 
+    // encoded data
+    bytes memory _encodedData = abi.encode(_gasCap);
+
+    // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, _encodedData, _rootManager);
 
     vm.expectCall(
       _amb,
@@ -88,12 +94,12 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
         OptimismAmb.sendMessage.selector,
         _l1Connector,
         abi.encodeWithSelector(Connector.processMessage.selector, _data),
-        _mirrorGas
+        _gasCap
       )
     );
 
     vm.prank(_rootManager);
-    OptimismSpokeConnector(_l2Connector).send();
+    OptimismSpokeConnector(_l2Connector).send(_encodedData);
   }
 
   // ============ OptimismSpokeConnector.processMessage ============

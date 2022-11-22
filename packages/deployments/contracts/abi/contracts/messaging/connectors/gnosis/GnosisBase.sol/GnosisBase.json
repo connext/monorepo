@@ -1,0 +1,22 @@
+[
+  "error ProposedOwnable__onlyOwner_notOwner()",
+  "error ProposedOwnable__onlyProposed_notProposedOwner()",
+  "error ProposedOwnable__ownershipDelayElapsed_delayNotElapsed()",
+  "error ProposedOwnable__proposeNewOwner_invalidProposal()",
+  "error ProposedOwnable__proposeNewOwner_noOwnershipChange()",
+  "error ProposedOwnable__renounceOwnership_invalidProposal()",
+  "error ProposedOwnable__renounceOwnership_noProposal()",
+  "event GasCapUpdated(uint256,uint256)",
+  "event OwnershipProposed(address indexed)",
+  "event OwnershipTransferred(address indexed,address indexed)",
+  "function MIRROR_CHAIN_ID() view returns (uint256)",
+  "function acceptProposedOwner()",
+  "function delay() view returns (uint256)",
+  "function owner() view returns (address)",
+  "function proposeNewOwner(address)",
+  "function proposed() view returns (address)",
+  "function proposedTimestamp() view returns (uint256)",
+  "function renounceOwnership()",
+  "function renounced() view returns (bool)",
+  "function setGasCap(uint256)"
+]

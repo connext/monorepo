@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 /**
  * @title MathUtils library
@@ -16,7 +16,7 @@ library MathUtils {
    *         otherwise return false
    */
   function within1(uint256 a, uint256 b) internal pure returns (bool) {
-    return (difference(a, b) <= 1);
+    return (difference(a, b) < 1 + 1); // instead of <=1
   }
 
   /**

@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
-
-import {IRootManager} from "../../interfaces/IRootManager.sol";
+pragma solidity 0.8.17;
 
 import {FxBaseChildTunnel} from "./tunnel/FxBaseChildTunnel.sol";
 
@@ -23,7 +21,6 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
@@ -36,7 +33,6 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorGas,
       _processGas,
       _reserveGas,
       _delayBlocks,
@@ -54,7 +50,9 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
     return false;
   }
 
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should not include specialized calldata
+    require(_encodedData.length == 0, "!data length");
     _sendMessageToRoot(_data);
   }
 
@@ -63,8 +61,7 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
     address sender,
     bytes memory data
   ) internal override validateSender(sender) {
-    // make sure the sender is the mirror connector
-    require(sender == mirrorConnector, "!sender");
+    // NOTE: Don't need to check that sender is mirrorConnector as this is checked in validateSender()
     // get the data (should be the aggregate root)
     require(data.length == 32, "!length");
     // update the aggregate root on the domain
@@ -73,9 +70,16 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
     emit MessageProcessed(data, msg.sender);
   }
 
-  function _processMessage(bytes memory _data) internal override {}
+  // DO NOT override _processMessage, should revert from `Connector` class. All messages must use the
+  // `processMessageFromRoot` flow.
 
   function _setMirrorConnector(address _mirrorConnector) internal override {
+    // NOTE: FxBaseChildTunnel has the following code in their `setFxRootTunnel`:
+    // ```
+    // require(setFxRootTunnel == address(0x0), "FxBaseChildTunnel: ROOT_TUNNEL_ALREADY_SET");
+    // ```
+    // Which means this function will revert if updating the `mirrorConnector`. In that case, in
+    // changes the spoke connector should also be redeployed
     super._setMirrorConnector(_mirrorConnector);
 
     setFxRootTunnel(_mirrorConnector);

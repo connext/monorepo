@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // https://github.com/fx-portal/contracts/blob/main/contracts/lib/Merkle.sol
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 library Merkle {
   function checkMembership(
@@ -17,7 +17,8 @@ library Merkle {
 
     bytes32 proofElement;
     bytes32 computedHash = leaf;
-    for (uint256 i = 32; i <= proof.length; i += 32) {
+    uint256 len = proof.length + 1;
+    for (uint256 i = 32; i < len; ) {
       assembly {
         proofElement := mload(add(proof, i))
       }
@@ -29,6 +30,10 @@ library Merkle {
       }
 
       index = index / 2;
+
+      unchecked {
+        i += 32;
+      }
     }
     return computedHash == rootHash;
   }

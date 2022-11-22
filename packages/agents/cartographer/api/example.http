@@ -6,9 +6,39 @@
 
 # just a few examples, more examples here: https://postgrest.org/en/stable/api.html#horizontal-filtering-rows
 
+
 ### GET ALL TRANSFERS
+GET {{postgrestUrl}}/transfers?limit=1&order=nonce.desc
+Prefer: count=planned
+
+### GET ALL TRANSFERS
+# XCalled
 GET {{postgrestUrl}}/transfers?status=eq.XCalled&limit=1&order=nonce.desc
 Prefer: count=planned
+
+### GET ALL TRANSFERS
+# Executed
+GET {{postgrestUrl}}/transfers?status=eq.Executed&limit=1&order=nonce.desc
+Prefer: count=planned
+
+
+### GET ALL TRANSFERS
+# Reconciled
+GET {{postgrestUrl}}/transfers?status=eq.Reconciled&limit=1&order=nonce.desc
+Prefer: count=planned
+
+
+### GET ALL TRANSFERS
+# CompletedFast
+GET {{postgrestUrl}}/transfers?status=eq.CompletedFast&limit=1&order=nonce.desc
+Prefer: count=planned
+
+
+### GET ALL TRANSFERS
+# CompletedSlow
+GET {{postgrestUrl}}/transfers?status=eq.CompletedSlow&limit=1&order=nonce.desc
+Prefer: count=planned
+
 
 ### GET ALL TRANSFERS FOR SPECIFIC DOMAINS
 GET {{postgrestUrl}}/transfers?and=(origin_domain.in.("1111","2221"),destination_domain.in.("1111","2221"))

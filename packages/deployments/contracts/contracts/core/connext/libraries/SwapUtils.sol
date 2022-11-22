@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -7,6 +7,8 @@ import {LPToken} from "../helpers/LPToken.sol";
 
 import {AmplificationUtils} from "./AmplificationUtils.sol";
 import {MathUtils} from "./MathUtils.sol";
+import {AssetLogic} from "./AssetLogic.sol";
+import {Constants} from "./Constants.sol";
 
 /**
  * @title SwapUtils library
@@ -59,8 +61,8 @@ library SwapUtils {
 
   struct Swap {
     // variables around the ramp management of A,
-    // the amplification coefficient * n * (n - 1)
-    // see https://www.curve.fi/stableswap-paper.pdf for details
+    // the amplification coefficient * n ** (n - 1)
+    // see Curve stableswap paper for details
     bytes32 key;
     uint256 initialA;
     uint256 futureA;
@@ -72,7 +74,7 @@ library SwapUtils {
     LPToken lpToken;
     // contract references for all tokens being pooled
     IERC20[] pooledTokens;
-    // multipliers for each pooled token's precision to get to POOL_PRECISION_DECIMALS
+    // multipliers for each pooled token's precision to get to Constants.POOL_PRECISION_DECIMALS
     // for example, TBTC has 18 decimals, so the multiplier should be 1. WBTC
     // has 8, so the multiplier should be 10 ** 18 / 10 ** 8 => 10 ** 10
     uint256[] tokenPrecisionMultipliers;
@@ -81,6 +83,10 @@ library SwapUtils {
     uint256[] balances;
     // the admin fee balance of each token, in the token's precision
     uint256[] adminFees;
+    // the flag if this pool disabled by admin. once disabled, only remove liquidity will work.
+    bool disabled;
+    // once pool disabled, admin can remove pool after passed removeTime. and reinitialize.
+    uint256 removeTime;
   }
 
   // Struct storing variables used in calculations in the
@@ -105,25 +111,6 @@ library SwapUtils {
     uint256[] balances;
     uint256[] multipliers;
   }
-
-  // the precision all pools tokens will be converted to
-  uint8 internal constant POOL_PRECISION_DECIMALS = 18;
-
-  // the denominator used to calculate admin and LP fees. For example, an
-  // LP fee might be something like tradeAmount.mul(fee).div(FEE_DENOMINATOR)
-  uint256 internal constant FEE_DENOMINATOR = 1e10;
-
-  // Max swap fee is 1% or 100bps of each swap
-  uint256 internal constant MAX_SWAP_FEE = 1e8;
-
-  // Max adminFee is 100% of the swapFee
-  // adminFee does not add additional fee on top of swapFee
-  // Instead it takes a certain % of the swapFee. Therefore it has no impact on the
-  // users but only on the earnings of LPs
-  uint256 internal constant MAX_ADMIN_FEE = 1e10;
-
-  // Constant value used as max loop limit
-  uint256 internal constant MAX_LOOP_LIMIT = 256;
 
   /*** VIEW & PURE FUNCTIONS ***/
 
@@ -213,15 +200,16 @@ library SwapUtils {
 
     v.feePerToken = _feePerToken(self.swapFee, xp.length);
     // TODO: Set a length variable (at top) instead of reading xp.length on each loop.
-    for (uint256 i; i < xp.length; ) {
+    uint256 len = xp.length;
+    for (uint256 i; i < len; ) {
       uint256 xpi = xp[i];
       // if i == tokenIndex, dxExpected = xp[i] * d1 / d0 - newY
       // else dxExpected = xp[i] - (xp[i] * d1 / d0)
-      // xpReduced[i] -= dxExpected * fee / FEE_DENOMINATOR
+      // xpReduced[i] -= dxExpected * fee / Constants.FEE_DENOMINATOR
       xpReduced[i] =
         xpi -
         ((((i == tokenIndex) ? ((xpi * v.d1) / v.d0 - v.newY) : (xpi - (xpi * v.d1) / v.d0)) * v.feePerToken) /
-          FEE_DENOMINATOR);
+          Constants.FEE_DENOMINATOR);
 
       unchecked {
         ++i;
@@ -245,7 +233,7 @@ library SwapUtils {
    * x_1**2 + b*x_1 = c
    * x_1 = (x_1**2 + c) / (2*x_1 + b)
    *
-   * @param a the amplification coefficient * n * (n - 1). See the StableSwap paper for details.
+   * @param a the amplification coefficient * n ** (n - 1). See the StableSwap paper for details.
    * @param tokenIndex Index of token we are calculating for.
    * @param xp a precision-adjusted set of pool balances. Array should be
    * the same cardinality as the pool.
@@ -278,12 +266,14 @@ library SwapUtils {
         ++i;
       }
     }
-    c = (c * d * AmplificationUtils.A_PRECISION) / (nA * numTokens);
+    c = (c * d * Constants.A_PRECISION) / (nA * numTokens);
 
-    uint256 b = s + ((d * AmplificationUtils.A_PRECISION) / nA);
+    uint256 b = s + ((d * Constants.A_PRECISION) / nA);
     uint256 yPrev;
+    // Select d as the starting point of the Newton method. Because y < D
+    // D is the best option as the starting point in case the pool is very imbalanced.
     uint256 y = d;
-    for (uint256 i; i < MAX_LOOP_LIMIT; ) {
+    for (uint256 i; i < Constants.MAX_LOOP_LIMIT; ) {
       yPrev = y;
       y = ((y * y) + c) / ((y * 2) + b - d);
       if (y.within1(yPrev)) {
@@ -301,7 +291,7 @@ library SwapUtils {
    * @notice Get D, the StableSwap invariant, based on a set of balances and a particular A.
    * @param xp a precision-adjusted set of pool balances. Array should be the same cardinality
    * as the pool.
-   * @param a the amplification coefficient * n * (n - 1) in A_PRECISION.
+   * @param a the amplification coefficient * n ** (n - 1) in A_PRECISION.
    * See the StableSwap paper for details
    * @return the invariant, at the precision of the pool
    */
@@ -323,7 +313,7 @@ library SwapUtils {
     uint256 d = s;
     uint256 nA = a * numTokens;
 
-    for (uint256 i; i < MAX_LOOP_LIMIT; ) {
+    for (uint256 i; i < Constants.MAX_LOOP_LIMIT; ) {
       uint256 dP = d;
       for (uint256 j; j < numTokens; ) {
         dP = (dP * d) / (xp[j] * numTokens);
@@ -337,8 +327,8 @@ library SwapUtils {
       }
       prevD = d;
       d =
-        (((nA * s) / AmplificationUtils.A_PRECISION + dP * numTokens) * d) /
-        ((((nA - AmplificationUtils.A_PRECISION) * d) / AmplificationUtils.A_PRECISION + (numTokens + 1) * dP));
+        (((nA * s) / Constants.A_PRECISION + dP * numTokens) * d) /
+        ((((nA - Constants.A_PRECISION) * d) / Constants.A_PRECISION + (numTokens + 1) * dP));
       if (d.within1(prevD)) {
         return d;
       }
@@ -398,14 +388,14 @@ library SwapUtils {
   /**
    * @notice Get the virtual price, to help calculate profit
    * @param self Swap struct to read from
-   * @return the virtual price, scaled to precision of POOL_PRECISION_DECIMALS
+   * @return the virtual price, scaled to precision of Constants.POOL_PRECISION_DECIMALS
    */
   function getVirtualPrice(Swap storage self) internal view returns (uint256) {
     uint256 d = getD(_xp(self), _getAPrecise(self));
     LPToken lpToken = self.lpToken;
     uint256 supply = lpToken.totalSupply();
     if (supply != 0) {
-      return (d * (10**uint256(POOL_PRECISION_DECIMALS))) / supply;
+      return (d * (10**uint256(Constants.POOL_PRECISION_DECIMALS))) / supply;
     }
     return 0;
   }
@@ -461,13 +451,13 @@ library SwapUtils {
         ++i;
       }
     }
-    c = (c * d * AmplificationUtils.A_PRECISION) / (nA * numTokens);
-    uint256 b = s + ((d * AmplificationUtils.A_PRECISION) / nA);
+    c = (c * d * Constants.A_PRECISION) / (nA * numTokens);
+    uint256 b = s + ((d * Constants.A_PRECISION) / nA);
     uint256 yPrev;
     uint256 y = d;
 
     // iterative approximation
-    for (uint256 i; i < MAX_LOOP_LIMIT; ) {
+    for (uint256 i; i < Constants.MAX_LOOP_LIMIT; ) {
       yPrev = y;
       y = ((y * y) + c) / ((y * 2) + b - d);
       if (y.within1(yPrev)) {
@@ -528,7 +518,7 @@ library SwapUtils {
    * @param dx the number of tokens to sell. If the token charges a fee on transfers,
    * use the amount that gets transferred after the fee.
    * @return dy the number of tokens the user will get in the token's precision. ex WBTC -> 8
-   * @return dyFee the associated fee in multiplied precision (POOL_PRECISION_DECIMALS)
+   * @return dyFee the associated fee in multiplied precision (Constants.POOL_PRECISION_DECIMALS)
    */
   function _calculateSwap(
     Swap storage self,
@@ -543,7 +533,7 @@ library SwapUtils {
     uint256 x = dx * multipliers[tokenIndexFrom] + xp[tokenIndexFrom];
     uint256 y = getY(_getAPrecise(self), tokenIndexFrom, tokenIndexTo, x, xp);
     dy = xp[tokenIndexTo] - y - 1;
-    dyFee = (dy * self.swapFee) / FEE_DENOMINATOR;
+    dyFee = (dy * self.swapFee) / Constants.FEE_DENOMINATOR;
     dy = (dy - dyFee) / multipliers[tokenIndexTo];
   }
 
@@ -559,7 +549,7 @@ library SwapUtils {
    * @param dy the number of tokens to buy. If the token charges a fee on transfers,
    * use the amount that gets transferred after the fee.
    * @return dx the number of tokens the user have to deposit in the token's precision. ex WBTC -> 8
-   * @return dxFee the associated fee in multiplied precision (POOL_PRECISION_DECIMALS)
+   * @return dxFee the associated fee in multiplied precision (Constants.POOL_PRECISION_DECIMALS)
    */
   function _calculateSwapInv(
     Swap storage self,
@@ -578,8 +568,8 @@ library SwapUtils {
 
     xp[tokenIndexTo] = xp[tokenIndexTo] - (dy * multipliers[tokenIndexTo]);
     uint256 x = getYD(a, tokenIndexFrom, xp, d0);
-    dx = x - xp[tokenIndexFrom] + 1;
-    dxFee = (dx * self.swapFee) / FEE_DENOMINATOR;
+    dx = (x + 1) - xp[tokenIndexFrom];
+    dxFee = (dx * self.swapFee) / Constants.FEE_DENOMINATOR;
     dx = (dx + dxFee) / multipliers[tokenIndexFrom];
   }
 
@@ -638,11 +628,13 @@ library SwapUtils {
     uint256[] calldata amounts,
     bool deposit
   ) internal view returns (uint256) {
-    uint256 a = _getAPrecise(self);
     uint256[] memory balances = self.balances;
+    uint256 numBalances = balances.length;
+    require(amounts.length == numBalances, "invalid length of amounts");
+
+    uint256 a = _getAPrecise(self);
     uint256[] memory multipliers = self.tokenPrecisionMultipliers;
 
-    uint256 numBalances = balances.length;
     uint256 d0 = getD(_xp(balances, multipliers), a);
     for (uint256 i; i < numBalances; ) {
       if (deposit) {
@@ -704,15 +696,12 @@ library SwapUtils {
     uint256 dx,
     uint256 minDy
   ) internal returns (uint256) {
+    require(!self.disabled, "disabled pool");
     {
       IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
       require(dx <= tokenFrom.balanceOf(msg.sender), "swap more than you own");
-      // Transfer tokens first to see if a fee was charged on transfer
-      uint256 beforeBalance = tokenFrom.balanceOf(address(this));
-      tokenFrom.safeTransferFrom(msg.sender, address(this), dx);
-
-      // Use the actual transferred amount for AMM math
-      require(dx == tokenFrom.balanceOf(address(this)) - beforeBalance, "no fee token support");
+      // Reverts for fee on transfer
+      AssetLogic.handleIncomingAsset(address(tokenFrom), dx);
     }
 
     uint256 dy;
@@ -721,7 +710,9 @@ library SwapUtils {
     (dy, dyFee) = _calculateSwap(self, tokenIndexFrom, tokenIndexTo, dx, balances);
     require(dy >= minDy, "dy < minDy");
 
-    uint256 dyAdminFee = (dyFee * self.adminFee) / FEE_DENOMINATOR / self.tokenPrecisionMultipliers[tokenIndexTo];
+    uint256 dyAdminFee = (dyFee * self.adminFee) /
+      Constants.FEE_DENOMINATOR /
+      self.tokenPrecisionMultipliers[tokenIndexTo];
 
     self.balances[tokenIndexFrom] = balances[tokenIndexFrom] + dx;
     self.balances[tokenIndexTo] = balances[tokenIndexTo] - dy - dyAdminFee;
@@ -729,7 +720,7 @@ library SwapUtils {
       self.adminFees[tokenIndexTo] = self.adminFees[tokenIndexTo] + dyAdminFee;
     }
 
-    self.pooledTokens[tokenIndexTo].safeTransfer(msg.sender, dy);
+    AssetLogic.handleOutgoingAsset(address(self.pooledTokens[tokenIndexTo]), msg.sender, dy);
 
     emit TokenSwap(self.key, msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
 
@@ -752,6 +743,7 @@ library SwapUtils {
     uint256 dy,
     uint256 maxDx
   ) internal returns (uint256) {
+    require(!self.disabled, "disabled pool");
     require(dy <= self.balances[tokenIndexTo], ">pool balance");
 
     uint256 dx;
@@ -760,7 +752,9 @@ library SwapUtils {
     (dx, dxFee) = _calculateSwapInv(self, tokenIndexFrom, tokenIndexTo, dy, balances);
     require(dx <= maxDx, "dx > maxDx");
 
-    uint256 dxAdminFee = (dxFee * self.adminFee) / FEE_DENOMINATOR / self.tokenPrecisionMultipliers[tokenIndexFrom];
+    uint256 dxAdminFee = (dxFee * self.adminFee) /
+      Constants.FEE_DENOMINATOR /
+      self.tokenPrecisionMultipliers[tokenIndexFrom];
 
     self.balances[tokenIndexFrom] = balances[tokenIndexFrom] + dx - dxAdminFee;
     self.balances[tokenIndexTo] = balances[tokenIndexTo] - dy;
@@ -771,15 +765,11 @@ library SwapUtils {
     {
       IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
       require(dx <= tokenFrom.balanceOf(msg.sender), "more than you own");
-      // Transfer tokens first to see if a fee was charged on transfer
-      uint256 beforeBalance = tokenFrom.balanceOf(address(this));
-      tokenFrom.safeTransferFrom(msg.sender, address(this), dx);
-
-      // Use the actual transferred amount for AMM math
-      require(dx == tokenFrom.balanceOf(address(this)) - beforeBalance, "not support fee token");
+      // Reverts for fee on transfer
+      AssetLogic.handleIncomingAsset(address(tokenFrom), dx);
     }
 
-    self.pooledTokens[tokenIndexTo].safeTransfer(msg.sender, dy);
+    AssetLogic.handleOutgoingAsset(address(self.pooledTokens[tokenIndexTo]), msg.sender, dy);
 
     emit TokenSwap(self.key, msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
 
@@ -802,6 +792,7 @@ library SwapUtils {
     uint256 dx,
     uint256 minDy
   ) internal returns (uint256) {
+    require(!self.disabled, "disabled pool");
     require(dx <= self.balances[tokenIndexFrom], "more than pool balance");
 
     uint256 dy;
@@ -810,7 +801,9 @@ library SwapUtils {
     (dy, dyFee) = _calculateSwap(self, tokenIndexFrom, tokenIndexTo, dx, balances);
     require(dy >= minDy, "dy < minDy");
 
-    uint256 dyAdminFee = (dyFee * self.adminFee) / FEE_DENOMINATOR / self.tokenPrecisionMultipliers[tokenIndexTo];
+    uint256 dyAdminFee = (dyFee * self.adminFee) /
+      Constants.FEE_DENOMINATOR /
+      self.tokenPrecisionMultipliers[tokenIndexTo];
 
     self.balances[tokenIndexFrom] = balances[tokenIndexFrom] + dx;
     self.balances[tokenIndexTo] = balances[tokenIndexTo] - dy - dyAdminFee;
@@ -834,6 +827,7 @@ library SwapUtils {
     uint256 dy,
     uint256 maxDx
   ) internal returns (uint256) {
+    require(!self.disabled, "disabled pool");
     require(dy <= self.balances[tokenIndexTo], "more than pool balance");
 
     uint256 dx;
@@ -842,7 +836,9 @@ library SwapUtils {
     (dx, dxFee) = _calculateSwapInv(self, tokenIndexFrom, tokenIndexTo, dy, balances);
     require(dx <= maxDx, "dx > maxDx");
 
-    uint256 dxAdminFee = (dxFee * self.adminFee) / FEE_DENOMINATOR / self.tokenPrecisionMultipliers[tokenIndexFrom];
+    uint256 dxAdminFee = (dxFee * self.adminFee) /
+      Constants.FEE_DENOMINATOR /
+      self.tokenPrecisionMultipliers[tokenIndexFrom];
 
     self.balances[tokenIndexFrom] = balances[tokenIndexFrom] + dx - dxAdminFee;
     self.balances[tokenIndexTo] = balances[tokenIndexTo] - dy;
@@ -870,6 +866,8 @@ library SwapUtils {
     uint256[] memory amounts,
     uint256 minToMint
   ) internal returns (uint256) {
+    require(!self.disabled, "disabled pool");
+
     uint256 numTokens = self.pooledTokens.length;
     require(amounts.length == numTokens, "mismatch pooled tokens");
 
@@ -897,11 +895,8 @@ library SwapUtils {
       // Transfer tokens first to see if a fee was charged on transfer
       if (amounts[i] != 0) {
         IERC20 token = self.pooledTokens[i];
-        uint256 beforeBalance = token.balanceOf(address(this));
-        token.safeTransferFrom(msg.sender, address(this), amounts[i]);
-
-        // Update the amounts[] with actual transfer amount
-        amounts[i] = token.balanceOf(address(this)) - beforeBalance;
+        // Reverts for fee on transfer
+        AssetLogic.handleIncomingAsset(address(token), amounts[i]);
       }
 
       newBalances[i] = v.balances[i] + amounts[i];
@@ -923,8 +918,8 @@ library SwapUtils {
       uint256 feePerToken = _feePerToken(self.swapFee, numTokens);
       for (uint256 i; i < numTokens; ) {
         uint256 idealBalance = (v.d1 * v.balances[i]) / v.d0;
-        fees[i] = (feePerToken * (idealBalance.difference(newBalances[i]))) / FEE_DENOMINATOR;
-        uint256 adminFee = (fees[i] * self.adminFee) / FEE_DENOMINATOR;
+        fees[i] = (feePerToken * (idealBalance.difference(newBalances[i]))) / Constants.FEE_DENOMINATOR;
+        uint256 adminFee = (fees[i] * self.adminFee) / Constants.FEE_DENOMINATOR;
         self.balances[i] = newBalances[i] - adminFee;
         self.adminFees[i] = self.adminFees[i] + adminFee;
         newBalances[i] = newBalances[i] - fees[i];
@@ -984,7 +979,7 @@ library SwapUtils {
     for (uint256 i; i < numAmounts; ) {
       require(amounts[i] >= minAmounts[i], "amounts[i] < minAmounts[i]");
       self.balances[i] = balances[i] - amounts[i];
-      self.pooledTokens[i].safeTransfer(msg.sender, amounts[i]);
+      AssetLogic.handleOutgoingAsset(address(self.pooledTokens[i]), msg.sender, amounts[i]);
 
       unchecked {
         ++i;
@@ -1024,13 +1019,13 @@ library SwapUtils {
 
     require(dy >= minAmount, "dy < minAmount");
 
-    uint256 adminFee = (dyFee * self.adminFee) / FEE_DENOMINATOR;
+    uint256 adminFee = (dyFee * self.adminFee) / Constants.FEE_DENOMINATOR;
     self.balances[tokenIndex] = self.balances[tokenIndex] - (dy + adminFee);
     if (adminFee != 0) {
       self.adminFees[tokenIndex] = self.adminFees[tokenIndex] + adminFee;
     }
     lpToken.burnFrom(msg.sender, tokenAmount);
-    self.pooledTokens[tokenIndex].safeTransfer(msg.sender, dy);
+    AssetLogic.handleOutgoingAsset(address(self.pooledTokens[tokenIndex]), msg.sender, dy);
 
     emit RemoveLiquidityOne(self.key, msg.sender, tokenAmount, totalSupply, tokenIndex, dy);
 
@@ -1089,9 +1084,9 @@ library SwapUtils {
         {
           uint256 idealBalance = (v.d1 * v.balances[i]) / v.d0;
           uint256 difference = idealBalance.difference(balances1[i]);
-          fees[i] = (feePerToken * difference) / FEE_DENOMINATOR;
+          fees[i] = (feePerToken * difference) / Constants.FEE_DENOMINATOR;
         }
-        uint256 adminFee = (fees[i] * self.adminFee) / FEE_DENOMINATOR;
+        uint256 adminFee = (fees[i] * self.adminFee) / Constants.FEE_DENOMINATOR;
         self.balances[i] = balances1[i] - adminFee;
         self.adminFees[i] = self.adminFees[i] + adminFee;
         balances1[i] = balances1[i] - fees[i];
@@ -1112,7 +1107,7 @@ library SwapUtils {
     v.lpToken.burnFrom(msg.sender, tokenAmount);
 
     for (uint256 i; i < numTokens; ) {
-      self.pooledTokens[i].safeTransfer(msg.sender, amounts[i]);
+      AssetLogic.handleOutgoingAsset(address(self.pooledTokens[i]), msg.sender, amounts[i]);
 
       unchecked {
         ++i;
@@ -1135,8 +1130,8 @@ library SwapUtils {
       IERC20 token = self.pooledTokens[i];
       uint256 balance = self.adminFees[i];
       if (balance != 0) {
-        self.adminFees[i] = 0;
-        token.safeTransfer(to, balance);
+        delete self.adminFees[i];
+        AssetLogic.handleOutgoingAsset(address(token), to, balance);
       }
 
       unchecked {
@@ -1152,7 +1147,7 @@ library SwapUtils {
    * @param newAdminFee new admin fee to be applied on future transactions
    */
   function setAdminFee(Swap storage self, uint256 newAdminFee) internal {
-    require(newAdminFee <= MAX_ADMIN_FEE, "too high");
+    require(newAdminFee < Constants.MAX_ADMIN_FEE + 1, "too high");
     self.adminFee = newAdminFee;
 
     emit NewAdminFee(self.key, newAdminFee);
@@ -1165,7 +1160,7 @@ library SwapUtils {
    * @param newSwapFee new swap fee to be applied on future transactions
    */
   function setSwapFee(Swap storage self, uint256 newSwapFee) internal {
-    require(newSwapFee <= MAX_SWAP_FEE, "too high");
+    require(newSwapFee < Constants.MAX_SWAP_FEE + 1, "too high");
     self.swapFee = newSwapFee;
 
     emit NewSwapFee(self.key, newSwapFee);
@@ -1177,6 +1172,6 @@ library SwapUtils {
    * @return bool true if this stableswap pool is valid, false if not.
    */
   function exists(Swap storage self) internal view returns (bool) {
-    return self.pooledTokens.length != 0;
+    return !self.disabled && self.pooledTokens.length != 0;
   }
 }

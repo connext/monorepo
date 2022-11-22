@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // https://github.com/fx-portal/contracts/blob/main/contracts/lib/ExitPayloadReader.sol
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {RLPReader} from "./RLPReader.sol";
 
@@ -38,7 +38,7 @@ library ExitPayloadReader {
     if (len == 0) return;
 
     // copy as many word sizes as possible
-    for (; len >= WORD_SIZE; len -= WORD_SIZE) {
+    for (; len > WORD_SIZE - 1; len -= WORD_SIZE) {
       assembly {
         mstore(dest, mload(src))
       }

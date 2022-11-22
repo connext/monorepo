@@ -2,7 +2,7 @@ specVersion: 0.0.4
 schema:
   file: ./src/amarok-runtime-v0/schema.graphql
 dataSources:
-  # Connext.sol events
+  # CONNEXT events
   - kind: ethereum/contract
     name: Connext
     network: "{{network}}"
@@ -64,7 +64,7 @@ dataSources:
         - event: MaxRoutersPerTransferUpdated(uint256,address)
           handler: handleMaxRoutersPerTransferUpdated
       file: ./src/amarok-runtime-v0/mapping/index.ts
-  # SpokeConnector.sol events
+  # SPOKE CONNECTOR events
   - kind: ethereum/contract
     name: SpokeConnector
     network: "{{network}}"
@@ -94,7 +94,7 @@ dataSources:
         # Process(bytes32 leaf, bool success, bytes returnData);
         - event: Process(bytes32,bool,bytes)
           handler: handleProcess
-        - event: MessageSent(bytes,address)
+        - event: MessageSent(bytes,bytes,address)
           handler: handleMessageSent
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleNewConnector

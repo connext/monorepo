@@ -1,15 +1,19 @@
 /* eslint-disable prefer-const */
-import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 
 import {
   RootPropagated as RootPropagatedEvent,
-  RootAggregated as RootAggregatedEvent,
+  RootReceived as RootReceivedEvent,
+  RootsAggregated as RootsAggregatedEvent,
+  ConnectorAdded as ConnectorAddedEvent,
 } from "../../../generated/RootManager/RootManager";
-import { RootPropagated, AggregatedMessageRoot, RootAggregated } from "../../../generated/schema";
+import { RootPropagated, AggregatedMessageRoot, RootAggregated, RootManagerMeta } from "../../../generated/schema";
+
+const ROOT_MANAGER_META_ID = "ROOT_MANAGER_META_ID";
 
 /// MARK - ROOT MANAGER
 // TODO: Needed?
-export function handleRootAggregated(event: RootAggregatedEvent): void {
+export function handleRootReceived(event: RootReceivedEvent): void {
   let instance = RootAggregated.load(event.params.receivedRoot.toHexString());
   if (instance == null) {
     instance = new RootAggregated(event.params.receivedRoot.toHexString());
@@ -22,7 +26,7 @@ export function handleRootAggregated(event: RootAggregatedEvent): void {
   instance.save();
 }
 
-export function handleRootPropagated(event: RootPropagatedEvent): void {
+export function handleRootsAggregated(event: RootsAggregatedEvent): void {
   const key = event.params.aggregateRoot.toHexString();
   const numMessageRootsAggregated = event.params.aggregatedMessageRoots.length;
   // Pre-count = the number of nodes in the tree *before* we inserted these message root nodes.
@@ -44,18 +48,32 @@ export function handleRootPropagated(event: RootPropagatedEvent): void {
     instance.receivedRoot = Bytes.fromHexString(leaf);
     instance.save();
   }
+}
 
+export function handleRootPropagated(event: RootPropagatedEvent): void {
+  const key = event.params.aggregateRoot.toHexString();
   // Create the RootPropagated entity: this is used to track aggregate roots / propagated
   // snapshots for the sake of proof generation off-chain.
+  let instance = RootPropagated.load(key);
   // This should ALWAYS be null. Sending the same agg root twice is not possible in current
   // construction.
-  let instance = RootPropagated.load(key);
   if (instance == null) {
     instance = new RootPropagated(key);
   }
   instance.aggregate = event.params.aggregateRoot;
-  instance.domains = event.params.domains;
+  instance.domainsHash = event.params.domainsHash;
   instance.count = event.params.count;
+
+  instance.save();
+}
+
+export function handleConnectorAdded(event: ConnectorAddedEvent): void {
+  let instance = RootManagerMeta.load(ROOT_MANAGER_META_ID);
+  if (instance == null) {
+    instance = new RootManagerMeta(ROOT_MANAGER_META_ID);
+  }
+  instance.domains = event.params.domains;
+  instance.connectors = event.params.connectors.map<Bytes>((c: Address): Bytes => Bytes.fromHexString(c.toHexString()));
 
   instance.save();
 }

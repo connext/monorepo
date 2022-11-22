@@ -4,13 +4,20 @@ import {
   createRequestContext,
   jsonifyError,
   NxtpError,
+  RelayerType,
   RequestContext,
   RootMessage,
 } from "@connext/nxtp-utils";
 
 import { encodeProcessMessageFromRoot, sendWithRelayerWithBackup } from "../../../mockable";
 import { ProcessConfigNotAvailable } from "../errors";
-import { GetProcessArgsParams, getProcessFromOptimismRootArgs, getProcessFromPolygonRootArgs } from "../helpers";
+import {
+  GetProcessArgsParams,
+  getProcessFromOptimismRootArgs,
+  getProcessFromPolygonRootArgs,
+  getProcessFromGnosisRootArgs,
+  getProcessFromArbitrumRootArgs,
+} from "../helpers";
 import { getContext } from "../processFromRoot";
 
 export type ProcessConfig = {
@@ -30,6 +37,11 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     hubConnectorPrefix: "Polygon",
     processorFunctionName: "receiveMessage",
   },
+  "1734439522": {
+    getArgs: getProcessFromArbitrumRootArgs,
+    hubConnectorPrefix: "Arbitrum",
+    processorFunctionName: "processMessageFromRoot",
+  },
   "1869640809": {
     getArgs: getProcessFromOptimismRootArgs,
     hubConnectorPrefix: "Optimism",
@@ -39,6 +51,11 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     getArgs: getProcessFromPolygonRootArgs,
     hubConnectorPrefix: "Polygon",
     processorFunctionName: "receiveMessage",
+  },
+  "6778479": {
+    getArgs: getProcessFromGnosisRootArgs,
+    hubConnectorPrefix: "Gnosis",
+    processorFunctionName: "executeSignatures",
   },
 };
 
@@ -113,6 +130,7 @@ export const processSingleRootMessage = async (
     spokeDomainId: rootMessage.spokeDomain,
     hubDomainId: rootMessage.hubDomain,
     sendHash: rootMessage.transactionHash,
+    blockNumber: rootMessage.blockNumber,
     _requestContext: requestContext,
   });
 
@@ -134,7 +152,7 @@ export const processSingleRootMessage = async (
     rootMessage.hubDomain,
     hubConnector.address,
     encodedData,
-    relayers,
+    [relayers.find((r) => r.type === RelayerType.Connext)!],
     chainreader,
     logger,
     requestContext,

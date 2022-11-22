@@ -1,22 +1,21 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {LibArbitrumL2} from "@openzeppelin/contracts/crosschain/arbitrum/LibArbitrumL2.sol";
 
-import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {ArbitrumL2Amb} from "../../interfaces/ambs/arbitrum/ArbitrumL2Amb.sol";
 
 import {SpokeConnector} from "../SpokeConnector.sol";
 import {Connector} from "../Connector.sol";
 
 contract ArbitrumSpokeConnector is SpokeConnector {
+  // ============ Constructor ============
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas,
     uint256 _delayBlocks,
@@ -29,7 +28,6 @@ contract ArbitrumSpokeConnector is SpokeConnector {
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorGas,
       _processGas,
       _reserveGas,
       _delayBlocks,
@@ -44,7 +42,11 @@ contract ArbitrumSpokeConnector is SpokeConnector {
     return _expected == LibArbitrumL2.crossChainSender(AMB);
   }
 
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+    // Should always be dispatching the aggregate root
+    require(_data.length == 32, "!length");
+    // Should not include specialized calldata
+    require(_encodedData.length == 0, "!data length");
     // Get the calldata
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
     // Send to L1

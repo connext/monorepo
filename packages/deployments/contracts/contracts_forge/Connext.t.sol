@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 import {IConnectorManager} from "../contracts/messaging/interfaces/IConnectorManager.sol";
 import {TypeCasts} from "../contracts/shared/libraries/TypeCasts.sol";
+import {TokenId} from "../contracts/core/connext/libraries/TokenId.sol";
 
 import {IBridgeToken} from "../contracts/core/connext/interfaces/IBridgeToken.sol";
 import {IConnext} from "../contracts/core/connext/interfaces/IConnext.sol";
 import {BridgeMessage} from "../contracts/core/connext/libraries/BridgeMessage.sol";
 import {BridgeFacet, ExecuteArgs} from "../contracts/core/connext/facets/BridgeFacet.sol";
-import {TokenId, DestinationTransferStatus} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {DestinationTransferStatus} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LPToken} from "../contracts/core/connext/helpers/LPToken.sol";
 
 import {TestERC20} from "../contracts/test/TestERC20.sol";
@@ -21,6 +22,9 @@ import "./utils/ForgeHelper.sol";
 import "./utils/Mock.sol";
 import "./utils/Deployer.sol";
 import {MessagingUtils} from "./utils/Messaging.sol";
+
+
+import "forge-std/console.sol";
 
 // Holds all balances that are impacted by an xcall
 struct XCallBalances {
@@ -133,7 +137,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   function setUp() public {
     // Deploy all the contracts
     utils_deployAssets();
-    utils_deployNomad();
+    utils_deployMessaging();
     utils_deployConnext();
   }
 
@@ -148,7 +152,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     _destinationAdopted = address(new TestERC20("Test Token", "TEST"));
   }
 
-  function utils_deployNomad() public {
+  function utils_deployMessaging() public {
     // Deploy mock home
     MockHome originHome = new MockHome(_origin);
     MockHome destinationHome = new MockHome(_destination);
@@ -163,14 +167,31 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   function utils_deployConnext() public {
+    // deploy LP token
+    string memory LP_TOKEN_NAME = "Test LP Token Name";
+    string memory LP_TOKEN_SYMBOL = "TESTLP";
+
+    // Origin
+    LPToken _originLp = new LPToken();
+    _originLp.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
+
+    // Destination
+    LPToken _destinationLp = new LPToken();
+    _destinationLp.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
+
     // deploy connext
-    address originConnext = deployConnext(_origin, address(_originManager), 7 days);
+    address originConnext = deployConnext(_origin, address(_originManager), 7 days, address(_originLp));
     _originConnext = IConnext(originConnext);
 
-    address destinationConnext = deployConnext(_destination, address(_destinationManager), 7 days);
+    address destinationConnext = deployConnext(
+      _destination,
+      address(_destinationManager),
+      7 days,
+      address(_destinationLp)
+    );
     _destinationConnext = IConnext(destinationConnext);
 
-    // whitelist contract as router
+    // allowlist contract as router
     _originConnext.addRelayer(address(this));
     _destinationConnext.addRelayer(address(this));
 
@@ -189,36 +210,56 @@ contract ConnextTest is ForgeHelper, Deployer {
     _canonicalDomain = canonicalDomain;
     _canonicalKey = keccak256(abi.encode(canonicalId, _canonicalDomain));
 
+    uint256 originCap;
+    uint256 destinationCap;
     if (_origin == canonicalDomain) {
       // The canonical domain is the origin, meaning any local
       // assets on the origin should be the canonical
       _originAdopted = _canonical;
       _originLocal = _canonical;
+      originCap = 10_000 ether;
     } else if (_destination == canonicalDomain) {
       _destinationAdopted = _canonical;
       _destinationLocal = _canonical;
+      destinationCap = 10_000 ether;
     } // otherwise, could be anything
 
     // Handle origin
-    // Setup asset whitelist
-    console.log("setting up asset on origin");
-    _originConnext.setupAssetWithDeployedRepresentation(
-      TokenId(canonicalDomain, canonicalId),
-      _originLocal,
-      localIsAdopted ? address(0) : _originAdopted,
-      address(0),
-      10_000 ether // cap
-    );
+    // Set up asset allowlist
+    if (_origin == canonicalDomain) {
+      console.log("setting up canonical asset on origin");
+      _originConnext.setupAsset(TokenId(canonicalDomain, canonicalId), 18, "", "", address(0), address(0), originCap);
+    } else {
+      console.log("setting up asset on origin");
+      _originConnext.setupAssetWithDeployedRepresentation(
+        TokenId(canonicalDomain, canonicalId),
+        _originLocal,
+        localIsAdopted ? address(0) : _originAdopted,
+        address(0)
+      );
+    }
 
-    // Setup asset whitelist
-    console.log("setting up asset on destination");
-    _destinationConnext.setupAssetWithDeployedRepresentation(
-      TokenId(canonicalDomain, canonicalId),
-      _destinationLocal,
-      localIsAdopted ? address(0) : _destinationAdopted,
-      address(0),
-      10_000 ether // cap
-    );
+    // Set up asset allowlist
+    if (_destination == canonicalDomain) {
+      console.log("setting up canonical asset on destination");
+      _destinationConnext.setupAsset(
+        TokenId(canonicalDomain, canonicalId),
+        18,
+        "",
+        "",
+        address(0),
+        address(0),
+        destinationCap
+      );
+    } else {
+      console.log("setting up asset on destination");
+      _destinationConnext.setupAssetWithDeployedRepresentation(
+        TokenId(canonicalDomain, canonicalId),
+        _destinationLocal,
+        localIsAdopted ? address(0) : _destinationAdopted,
+        address(0)
+      );
+    }
 
     if (localIsAdopted) {
       _originAdopted = _originLocal;
@@ -264,24 +305,14 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     IConnext connext = isOrigin ? _originConnext : _destinationConnext;
 
-    string memory LP_TOKEN_NAME = "Test LP Token Name";
-    string memory LP_TOKEN_SYMBOL = "TESTLP";
-    {
-      // deploy LP token
-      LPToken token = new LPToken();
-      // initialize
-      token.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
-      if (isOrigin) {
-        _originLp = address(token);
-      } else {
-        _destinationLp = address(token);
-      }
-    }
-
     {
       console.log("initializing swap between:");
       console.log("- ", address(pooledTokens[0]));
       console.log("- ", address(pooledTokens[1]));
+
+      string memory LP_TOKEN_NAME = "Test LP Token Name";
+      string memory LP_TOKEN_SYMBOL = "TESTLP";
+
       // initialize pool
       connext.initializeSwap(
         canonicalKey, // canonicalkey
@@ -291,8 +322,7 @@ contract ConnextTest is ForgeHelper, Deployer {
         LP_TOKEN_SYMBOL, // lp token symbol
         50, // initialAValue
         0, // fee
-        0, // admin fee
-        isOrigin ? _originLp : _destinationLp // lp token address
+        0
       );
 
       if (amount == 0) {
@@ -444,17 +474,23 @@ contract ConnextTest is ForgeHelper, Deployer {
     if (liquidity != 0) {
       IERC20(_destinationLocal).approve(address(_destinationConnext), liquidity * num);
     }
-    for (uint256 i; i < num; i++) {
+    for (uint256 i; i < num; ) {
       routers[i] = vm.addr(777 + i);
       (uint8 v, bytes32 r, bytes32 _s) = vm.sign(777 + i, toSign);
       signatures[i] = abi.encodePacked(r, _s, v);
 
-      // whitelist all routers
-      _destinationConnext.setupRouter(routers[i], address(0), address(0));
+      // allowlist all routers
+      _destinationConnext.approveRouter(routers[i]);
+      vm.prank(routers[i]);
+      _destinationConnext.initializeRouter(address(0), address(0));
 
       // add liquidity for all routers
       if (liquidity != 0) {
         _destinationConnext.addRouterLiquidityFor(liquidity, _destinationLocal, routers[i]);
+      }
+
+      unchecked {
+        ++i;
       }
     }
 
@@ -508,8 +544,11 @@ contract ConnextTest is ForgeHelper, Deployer {
     address[] memory routers
   ) public returns (ExecuteBalances memory) {
     uint256[] memory routerBalances = new uint256[](routers.length);
-    for (uint256 i; i < routers.length; i++) {
+    for (uint256 i; i < routers.length; ) {
       routerBalances[i] = _destinationConnext.routerBalances(routers[i], local);
+      unchecked {
+        ++i;
+      }
     }
     return
       ExecuteBalances(
@@ -902,7 +941,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   //     args.amount,
   //     0
   //   );
-  //   // whitelist routers for portal
+  //   // allowlist routers for portal
   //   _destinationConnext.approveRouterForPortal(execute.routers[0]);
   //   assertTrue(_destinationConnext.getRouterApprovalForPortal(execute.routers[0]));
   //   utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(args.amount), 0, true);

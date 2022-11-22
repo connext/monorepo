@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
-import "../../shared/libraries/TypedMemView.sol";
-
+import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
 import {TypeCasts} from "../../shared/libraries/TypeCasts.sol";
 
 /**
@@ -94,7 +93,11 @@ library Message {
     return _message.slice(PREFIX_LENGTH, _message.len() - PREFIX_LENGTH, 0);
   }
 
-  function leaf(bytes29 _message) internal view returns (bytes32) {
+  function leaf(bytes29 _message) internal pure returns (bytes32) {
+    uint256 loc = _message.loc();
+    uint256 len = _message.len();
+    /*
+    prev:
     return
       messageHash(
         origin(_message),
@@ -104,5 +107,13 @@ library Message {
         recipient(_message),
         TypedMemView.clone(body(_message))
       );
+
+      below added for gas optimization
+     */
+    bytes32 hash;
+    assembly {
+      hash := keccak256(loc, len)
+    }
+    return hash;
   }
 }

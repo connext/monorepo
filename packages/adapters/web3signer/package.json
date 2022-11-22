@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-web3signer",
-  "version": "0.2.1-beta.2",
+  "version": "0.2.1-beta.6",
   "description": "adapter for subgraph interaction of nxtp protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
