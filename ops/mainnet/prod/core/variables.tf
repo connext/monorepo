@@ -68,7 +68,7 @@ variable "full_image_name_lighthouse_process_from_root" {
 
 variable "full_image_name_lighthouse_propagate" {
   type        = string
-  description = "lighthouse process from root image name"
+  description = "lighthouse propagate image name"
   default     = "ghcr.io/connext/lighthouse-propagate:0.2.1-beta.8"
 }
 
