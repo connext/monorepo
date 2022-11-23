@@ -41,6 +41,7 @@ describe("NxtpSdkPool", () => {
 
       expect(nxtpPool.getCanonicalToken).to.be.a("function");
       expect(nxtpPool.getLPTokenAddress).to.be.a("function");
+      expect(nxtpPool.getLPTokenSupply).to.be.a("function");
       expect(nxtpPool.getLPTokenUserBalance).to.be.a("function");
       expect(nxtpPool.getPoolTokenIndex).to.be.a("function");
       expect(nxtpPool.getPoolTokenBalance).to.be.a("function");
