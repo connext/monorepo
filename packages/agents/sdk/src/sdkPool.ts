@@ -404,6 +404,18 @@ export class NxtpSdkPool {
     return lpTokenAddress;
   }
 
+  async getLPTokenSupply(domainId: string, lpTokenAddress: string): Promise<BigNumber> {
+    const data = this.erc20.encodeFunctionData("totalSupply");
+    const encoded = await this.chainReader.readTx({
+      chainId: Number(domainId),
+      to: lpTokenAddress,
+      data: data,
+    });
+    const [amount] = this.erc20.decodeFunctionResult("totalSupply", encoded);
+
+    return amount;
+  }
+
   async getLPTokenUserBalance(domainId: string, lpTokenAddress: string, userAddress: string): Promise<BigNumber> {
     const data = this.erc20.encodeFunctionData("balanceOf", [userAddress]);
     const encoded = await this.chainReader.readTx({
