@@ -10,7 +10,7 @@ import { IPoolStats, IPoolData } from "./interfaces";
 export class Pool implements IPoolData {
   domainId: string;
   name: string;
-  symbol: string; // in the form of <TKN>-mad<TKN>
+  symbol: string; // in the form of <TKN>-next<TKN>
   tokens: string[]; // index order specified when the pool was initialized
   decimals: number[];
   balances: BigNumber[];
