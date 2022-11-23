@@ -270,7 +270,12 @@ export class NxtpSdkPool {
       this.calculateTokenAmount(domainId, tokenAddress, [amountX, amountY]),
     ]);
 
-    const totalAmount = BigNumber.from(amountX).add(BigNumber.from(amountY));
+    let totalAmount = BigNumber.from(amountX).add(BigNumber.from(amountY));
+
+    // Normalize to 18 decimals
+    const pool = await this.getPool(domainId, tokenAddress);
+    const decimals = pool.decimals[0];
+    totalAmount = totalAmount.mul(BigNumber.from(10).pow(18 - decimals));
 
     return this.calculatePriceImpact(totalAmount, lpTokenAmount, virtualPrice);
   }
@@ -293,7 +298,12 @@ export class NxtpSdkPool {
       this.calculateTokenAmount(domainId, tokenAddress, [amountX, amountY], false),
     ]);
 
-    const totalAmount = BigNumber.from(amountX).add(BigNumber.from(amountY));
+    let totalAmount = BigNumber.from(amountX).add(BigNumber.from(amountY));
+
+    // Normalize to 18 decimals
+    const pool = await this.getPool(domainId, tokenAddress);
+    const decimals = pool.decimals[0];
+    totalAmount = totalAmount.mul(BigNumber.from(10).pow(18 - decimals));
 
     return this.calculatePriceImpact(lpTokenAmount, totalAmount, virtualPrice, false);
   }
@@ -652,7 +662,7 @@ export class NxtpSdkPool {
    * @param domainId The domain id of the pool.
    * @param tokenAddress The address of local or adopted token.
    */
-  async getPool(domainId: string, tokenAddress: string): Promise<Pool | undefined> {
+  async getPool(domainId: string, tokenAddress: string): Promise<Pool> {
     const [canonicalDomain, canonicalId] = await this.getCanonicalToken(domainId, tokenAddress);
 
     if (canonicalDomain == domainId) {
@@ -784,10 +794,10 @@ export class NxtpSdkPool {
     const pool = await this.getPool(domainId, tokenAddress);
 
     const stats: IPoolStats = {
-      liquidity: await pool!.getLiquidity(),
-      volume: await pool!.getVolume(),
-      fees: await pool!.getFees(),
-      apy: await pool!.getApy(),
+      liquidity: await pool.getLiquidity(),
+      volume: await pool.getVolume(),
+      fees: await pool.getFees(),
+      apy: await pool.getApy(),
     };
 
     return stats;
