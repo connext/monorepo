@@ -75,10 +75,10 @@ export const sendExecuteSlowToSequencer = async (
     });
   } catch (err: unknown) {
     logger.error("Failed to estimate gas,", requestContext, methodContext, jsonifyError(err as NxtpError), {
-      relayer: relayerAddress,
-      connext: destinationConnextAddress,
-      domain: args.params.destinationDomain,
-      relayerFee,
+      chainId: destinationChainId,
+      to: destinationConnextAddress,
+      data: encodedData,
+      from: relayerAddress,
       transferId: transferId,
     });
 
