@@ -8,7 +8,6 @@ import {
   formatUrl,
   getChainIdFromDomain,
   ExecutorPostDataRequest,
-  GELATO_RELAYER_ADDRESS,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../executor";
@@ -44,7 +43,11 @@ export const sendExecuteSlowToSequencer = async (
   // Validate the bid's fulfill call will succeed on chain.
   // note: using gelato's relayer address since it will be whitelisted everywhere
   // another note: we are using the old system, but new system will have this relayer whitelisted still
-  const relayerAddress = GELATO_RELAYER_ADDRESS;
+  // const relayerAddress = GELATO_RELAYER_ADDRESS;
+
+  // TEMP: Relayer proxy
+  const relayerProxyAddress = config.chains[args.params.destinationDomain].deployments.relayerProxy;
+  const relayerAddress = relayerProxyAddress;
 
   logger.debug("Getting gas estimate", requestContext, methodContext, {
     chainId: destinationChainId,
