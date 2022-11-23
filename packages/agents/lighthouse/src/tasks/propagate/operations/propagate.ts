@@ -127,12 +127,14 @@ export const propagate = async () => {
     fee,
   ]);
 
+  const relayerType = RelayerType.Connext;
+
   const { taskId } = await sendWithRelayerWithBackup(
     hubChainId,
     config.hubDomain,
     relayerProxyHubAddress,
     encodedDataForRelayer,
-    relayers,
+    [relayers.find((r) => r.type === relayerType)!],
     chainreader,
     logger,
     requestContext,
