@@ -495,6 +495,18 @@ describe("Database client", () => {
     await saveSentRootMessages(messages, pool);
     await saveProcessedRootMessages(messages, pool);
 
+    let firstRoot = await getMessageRootFromIndex(messages[0].spokeDomain, 0, pool);
+    expect(firstRoot).to.eq(undefined);
+
+    const roots: AggregatedRoot[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const m = mock.entity.aggregatedRoot();
+      m.index = _i;
+      m.receivedRoot = messages[_i].root;
+      roots.push(m);
+    }
+    await saveAggregatedRoots(roots, pool);
+
     const _messages = await getRootMessages(undefined, 100, "ASC", pool);
     expect(_messages).to.deep.eq(
       messages.map((m) => {
@@ -502,7 +514,7 @@ describe("Database client", () => {
       }),
     );
 
-    const firstRoot = await getMessageRootFromIndex(messages[0].spokeDomain, 0, pool);
+    firstRoot = await getMessageRootFromIndex(messages[0].spokeDomain, 0, pool);
     expect(firstRoot).to.eq(messages[0].root);
     // Index the message leaf just after the count of the previous aggregate root
     const lastRoot = await getMessageRootFromIndex(messages[batchSize - 1].spokeDomain, 2 * (batchSize - 2) + 1, pool);
