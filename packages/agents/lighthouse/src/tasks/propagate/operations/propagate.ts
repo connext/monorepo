@@ -132,7 +132,7 @@ export const propagate = async () => {
     config.hubDomain,
     relayerProxyHubAddress,
     encodedDataForRelayer,
-    [relayers.find((r) => r.type === RelayerType.Connext)!],
+    relayers,
     chainreader,
     logger,
     requestContext,
