@@ -463,7 +463,7 @@ describe("Database client", () => {
       message.destination!.processed = true;
     }
     await saveMessages(messages, pool);
-    const pendingMessages = await getUnProcessedMessages(100, "ASC", pool);
+    const pendingMessages = await getUnProcessedMessages(100, 0, "ASC", pool);
     for (const message of pendingMessages) {
       expect(message.destination!.processed).equal(true);
     }
@@ -692,19 +692,26 @@ describe("Database client", () => {
     await expect(saveAggregatedRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(savePropagatedRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getTransfersByTransferIds(undefined as any, undefined as any)).to.eventually.not.be.rejected;
-    await expect(getUnProcessedMessages(undefined as any, undefined as any, undefined as any)).to.eventually;
-    await expect(getAggregateRoot(undefined as any, undefined as any)).to.eventually;
-    await expect(getAggregateRootCount(undefined as any, undefined as any)).to.eventually;
-    await expect(getMessageRootIndex(undefined as any, undefined as any, undefined as any)).to.eventually;
-    await expect(getMessageRootFromIndex(undefined as any, undefined as any, undefined as any)).to.eventually;
-    await expect(getMessageRootCount(undefined as any, undefined as any, undefined as any)).to.eventually;
-    await expect(getSpokeNode(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually;
+    await expect(getUnProcessedMessages(undefined as any, undefined as any, undefined as any, undefined as any)).to
+      .eventually.not.be.rejected;
+    await expect(getAggregateRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getMessageRootIndex(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
+      .rejected;
+    await expect(getMessageRootFromIndex(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
+      .rejected;
+    await expect(getMessageRootCount(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
+      .rejected;
+    await expect(getSpokeNode(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually.not
+      .be.rejected;
     await expect(
       getSpokeNodes(undefined as any, undefined as any, undefined as any, undefined as any, undefined as any),
-    ).to.eventually;
-    await expect(getHubNode(undefined as any, undefined as any, undefined as any)).to.eventually;
-    await expect(getHubNodes(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually;
-    await expect(getRoot(undefined as any, undefined as any, undefined as any)).to.eventually;
-    await expect(putRoot(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually;
+    ).to.eventually.not.be.rejected;
+    await expect(getHubNode(undefined as any, undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getHubNodes(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually.not
+      .be.rejected;
+    await expect(getRoot(undefined as any, undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(putRoot(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually.not.be
+      .rejected;
   });
 });

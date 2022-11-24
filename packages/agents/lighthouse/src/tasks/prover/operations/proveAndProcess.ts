@@ -30,19 +30,44 @@ export const proveAndProcess = async () => {
     adapters: { database },
   } = getContext();
 
-  const unprocessed = await database.getUnProcessedMessages();
-  logger.info("Got unprocessed messages", requestContext, methodContext, { unprocessed });
+  // Paginate through all unprocessed messages
+  let nextPage = true;
+  let offset = 0;
+  const pageSize = 100;
 
-  // process messages
-  await Promise.all(
-    unprocessed.map(async (message) => {
-      try {
-        await processMessage(message);
-      } catch (err: unknown) {
-        logger.error("Error processing message", requestContext, methodContext, jsonifyError(err as NxtpError));
+  while (nextPage) {
+    logger.debug(`Processing page`, requestContext, methodContext, {
+      offset,
+    });
+    try {
+      const unprocessed = await database.getUnProcessedMessages(pageSize, offset);
+      logger.info("Got unprocessed messages", requestContext, methodContext, { unprocessed });
+      if (unprocessed.length > 0) {
+        // process messages
+        await Promise.all(
+          unprocessed.map(async (message) => {
+            try {
+              await processMessage(message);
+            } catch (err: unknown) {
+              logger.error("Error processing message", requestContext, methodContext, jsonifyError(err as NxtpError));
+            }
+          }),
+        );
+      } else {
+        nextPage = false;
+        logger.info("Reached end of unprocessed messages", requestContext, methodContext, { offset });
       }
-    }),
-  );
+      offset += unprocessed.length;
+    } catch (error: any) {
+      nextPage = false;
+      logger.error(
+        "Error getting unprocessed messages",
+        requestContext,
+        methodContext,
+        jsonifyError(error as NxtpError),
+      );
+    }
+  }
 };
 
 export const processMessage = async (message: XMessage) => {

@@ -401,12 +401,21 @@ export const transaction = async (
 
 export const getUnProcessedMessages = async (
   limit = 100,
+  offset = 0,
   orderDirection: "ASC" | "DESC" = "ASC",
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<XMessage[]> => {
   const poolToUse = _pool ?? pool;
   const messages = await db
-    .select("messages", { processed: false }, { limit, order: { by: "index", direction: orderDirection } })
+    .select(
+      "messages",
+      { processed: false },
+      {
+        limit,
+        offset,
+        order: { by: "index", direction: orderDirection },
+      },
+    )
     .run(poolToUse);
   return messages.map(convertFromDbMessage);
 };
