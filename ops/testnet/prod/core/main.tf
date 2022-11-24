@@ -268,8 +268,8 @@ module "lighthouse_prover_cron" {
   docker_image            = var.full_image_name_lighthouse_prover
   container_family        = "lighthouse_prover_cron"
   container_port          = 8080
-  cpu                     = 256
-  memory                  = 512
+  cpu                     = 1024
+  memory                  = 2048
   instance_count          = 1
   environment             = var.environment
   stage                   = var.stage

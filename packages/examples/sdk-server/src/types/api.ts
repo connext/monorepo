@@ -16,6 +16,11 @@ export const getLPTokenAddressSchema = Type.Object({
   tokenAddress: Type.String(),
 });
 
+export const getLPTokenSupplySchema = Type.Object({
+  domainId: Type.String(),
+  lpTokenAddress: Type.String(),
+});
+
 export const getLPTokenUserBalanceSchema = Type.Object({
   domainId: Type.String(),
   lpTokenAddress: Type.String(),

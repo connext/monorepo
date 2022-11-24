@@ -86,6 +86,7 @@ export type Database = {
   savePropagatedRoots: (roots: PropagatedRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   getUnProcessedMessages: (
     limit?: number,
+    offset?: number,
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage[]>;
