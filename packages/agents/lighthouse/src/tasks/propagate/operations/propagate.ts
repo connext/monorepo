@@ -1,11 +1,4 @@
-import {
-  createLoggingContext,
-  NATIVE_TOKEN,
-  NxtpError,
-  RelayerType,
-  RequestContext,
-  RootManagerMeta,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, NATIVE_TOKEN, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
 import { getEstimatedFee, sendWithRelayerWithBackup, getDeployedRootManagerContract } from "../../../mockable";
@@ -127,14 +120,12 @@ export const propagate = async () => {
     fee,
   ]);
 
-  const relayerType = RelayerType.Connext;
-
   const { taskId } = await sendWithRelayerWithBackup(
     hubChainId,
     config.hubDomain,
     relayerProxyHubAddress,
     encodedDataForRelayer,
-    [relayers.find((r) => r.type === relayerType)!],
+    relayers,
     chainreader,
     logger,
     requestContext,
