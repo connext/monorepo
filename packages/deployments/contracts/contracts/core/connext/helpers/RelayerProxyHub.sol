@@ -70,7 +70,7 @@ contract RelayerProxyHub is RelayerProxy {
     uint256[] calldata _messageFees,
     bytes[] memory _encodedData,
     uint256 _relayerFee
-  ) external {
+  ) external onlyRelayer nonReentrant {
     uint256 sum = 0;
     uint256 length = _connectors.length;
     for (uint32 i; i < length; ) {

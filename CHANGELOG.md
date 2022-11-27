@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## Amarok 0.2.1-beta.10
+
+- [all] Multiple fixes
+- [contracts] prod testnet update
+
 ## Amarok 0.2.1-beta.8
 
 - [all] Mainnet Deployments :tada:
