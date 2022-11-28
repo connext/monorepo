@@ -1,7 +1,8 @@
-import { providers, BigNumber, constants } from "ethers";
+import { providers, BigNumber, constants, utils } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData, getCanonicalHash } from "@connext/nxtp-utils";
 import { getContractInterfaces, contractDeployments, ChainReader } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
+import BlockDater from "ethereum-block-by-date";
 
 import { NxtpSdkConfig, getConfig, AssetDescription } from "./config";
 import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined, PoolDoesNotExist } from "./lib/errors";
@@ -131,6 +132,18 @@ export class NxtpSdkPool {
   async getERC20(domainId: string, tokenAddress: string): Promise<IERC20> {
     const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
     return IERC20__factory.connect(tokenAddress, provider);
+  }
+
+  async getBlockNumberFromDate(domainId: string, date: Date): Promise<number> {
+    const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
+    const blockDater = new BlockDater(provider);
+
+    const closestBlock = await blockDater.getDate(date);
+
+    if (!closestBlock) {
+      throw new Error("Could not retrieve block number");
+    }
+    return closestBlock.block;
   }
 
   /**
@@ -661,5 +674,118 @@ export class NxtpSdkPool {
     };
 
     return stats;
+  }
+
+  async getYieldStatsForDay(
+    domainId: string,
+    tokenAddress: string,
+    unixTimestamp: number,
+  ): Promise<{
+    totalFeesFormatted: number;
+    totalLiquidityFormatted: number;
+    totalVolume: BigNumber;
+    totalVolumeFormatted: number;
+  }> {
+    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
+      this.getConnext(domainId),
+      this.getCanonicalTokenId(domainId, tokenAddress),
+    ]);
+    const key: string = getCanonicalHash(canonicalDomain, canonicalId);
+    const pool = await this.getPool(domainId, tokenAddress);
+
+    const endDate = new Date(unixTimestamp * 1000);
+    const endBlock = await this.getBlockNumberFromDate(domainId, endDate);
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - 1);
+    let startBlock = await this.getBlockNumberFromDate(domainId, startDate);
+
+    const perBatch = 1000;
+    let endBatchBlock = Math.min(startBlock + perBatch, endBlock);
+
+    const tokenSwapEvents: any[] = [];
+    while (startBlock < endBlock) {
+      tokenSwapEvents.push(
+        ...(await connextContract.queryFilter(connextContract.filters.TokenSwap(), startBlock, endBatchBlock)),
+      );
+
+      startBlock = endBatchBlock;
+      endBatchBlock = Math.min(endBatchBlock + perBatch, endBlock);
+    }
+
+    const swapStorage = await connextContract.getSwapStorage(key);
+    const basisPoints = swapStorage.swapFee;
+    const FEE_DENOMINATOR = "10000000000"; // 10**10
+    const decimals = pool.decimals[0];
+
+    let totalVolume = BigNumber.from(0);
+    let totalFees = BigNumber.from(0);
+    for (const event of tokenSwapEvents) {
+      const tokensSold: BigNumber = event.args.tokensSold;
+      totalFees = totalFees.add(tokensSold.mul(BigNumber.from(basisPoints)).div(BigNumber.from(FEE_DENOMINATOR)));
+
+      totalVolume = totalVolume.add(tokensSold);
+    }
+
+    const reserveX = pool.balances[0];
+    const reserveY = pool.balances[1];
+    const totalLiquidity = reserveX.add(reserveY);
+    const totalLiquidityFormatted = Number(utils.formatUnits(totalLiquidity, decimals));
+    const totalFeesFormatted = Number(utils.formatUnits(totalFees, decimals));
+    const totalVolumeFormatted = Number(utils.formatUnits(totalVolume, decimals));
+
+    return {
+      totalFeesFormatted,
+      totalLiquidityFormatted,
+      totalVolume,
+      totalVolumeFormatted,
+    };
+  }
+
+  calculateAPY(feesEarned: number, feesEarnedAgo: number, principal: number, days: number): number {
+    const rate = (feesEarned - feesEarnedAgo) / principal;
+    const period = 365 / days;
+    return (1 + rate) ** period - 1;
+  }
+
+  async getYieldData(
+    domainId: string,
+    tokenAddress: string,
+    days = 1,
+  ): Promise<{
+    apy: number;
+    volume: BigNumber;
+    volumeFormatted: number;
+  }> {
+    const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
+    const block = await provider.getBlock("latest");
+    const endTimestamp = block.timestamp;
+    const endDate = new Date(endTimestamp * 1000);
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - days);
+    const startTimestamp = Math.floor(startDate.getTime() / 1000);
+
+    const {
+      totalFeesFormatted: feesEarnedToday,
+      totalLiquidityFormatted: totalLiquidityToday,
+      totalVolume,
+      totalVolumeFormatted,
+    } = await this.getYieldStatsForDay(domainId, tokenAddress, endTimestamp);
+
+    let feesEarnedDaysAgo = 0;
+    if (days > 1) {
+      ({ totalFeesFormatted: feesEarnedDaysAgo } = await this.getYieldStatsForDay(
+        domainId,
+        tokenAddress,
+        startTimestamp,
+      ));
+    }
+
+    const apy = this.calculateAPY(feesEarnedToday, feesEarnedDaysAgo, totalLiquidityToday, days);
+
+    return {
+      apy: Math.max(apy, 0),
+      volume: totalVolume,
+      volumeFormatted: totalVolumeFormatted,
+    };
   }
 }
