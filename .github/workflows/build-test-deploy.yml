@@ -337,7 +337,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          file: docker/cartographer/Dokerfile.lambda
+          file: docker/cartographer/Dockerfile.lambda
 
     outputs:
       json: ${{ steps.meta.outputs.json }}
@@ -1063,13 +1063,10 @@ jobs:
       router-publisher-tags: ${{ needs.e2e-tests.outputs.router-publisher-tags }}
       router-subscriber-tags: ${{ needs.e2e-tests.outputs.router-subscriber-tags }}
       router-executor-tags: ${{ needs.e2e-tests.outputs.router-executor-tags }}
+      cartographer-tags: ${{ needs.e2e-tests.outputs.json }}
       lighthouse-prover-tags: ${{ needs.e2e-tests.outputs.lighthouse-prover-tags }}
       lighthouse-process-from-root-tags: ${{ needs.e2e-tests.outputs.lighthouse-process-from-root-tags }}
-
-      cartographer-routers-tags: ${{ needs.e2e-tests.outputs.cartographer-routers-tags }}
-      cartographer-transfers-tags: ${{ needs.e2e-tests.outputs.cartographer-transfers-tags }}
-      cartographer-messages-tags: ${{ needs.e2e-tests.outputs.cartographer-messages-tags }}
-      cartographer-roots-tags: ${{ needs.e2e-tests.outputs.cartographer-roots-tags }}
+      lighthouse-propagate-tags: ${{ needs.e2e-tests.outputs.lighthouse-propagate-tags }}
       relayer-tags: ${{ needs.e2e-tests.outputs.relayer-tags }}
 
   terraform-services-backend-prod-mainnet:
