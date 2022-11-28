@@ -33,13 +33,13 @@
   },
   "devDependencies": {
     "@types/mocha": "10.0.0",
-    "eslint": "8.26.0",
+    "eslint": "8.28.0",
     "mocha": "10.1.0",
     "nyc": "15.1.0",
     "ts-mocha": "10.0.0",
     "ts-node": "10.9.1",
-    "tslib": "2.4.0",
-    "typescript": "4.8.4"
+    "tslib": "2.4.1",
+    "typescript": "4.9.3"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "stableVersion": "0.2.0-alpha.29"

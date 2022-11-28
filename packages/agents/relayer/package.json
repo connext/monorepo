@@ -32,22 +32,22 @@
     "@connext/nxtp-adapters-web3signer": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "0.25.2",
+    "@sinclair/typebox": "0.25.10",
     "ethers": "5.7.2",
-    "fastify": "4.9.2",
+    "fastify": "4.10.2",
     "interval-promise": "1.4.0",
     "pino": "8.7.0",
     "tsc": "2.0.4"
   },
   "devDependencies": {
-    "concurrently": "7.5.0",
-    "eslint": "8.26.0",
+    "concurrently": "7.6.0",
+    "eslint": "8.28.0",
     "mocha": "10.1.0",
     "nyc": "15.1.0",
     "rimraf": "3.0.2",
-    "sinon": "14.0.1",
+    "sinon": "14.0.2",
     "ts-mocha": "10.0.0",
-    "typescript": "4.8.4"
+    "typescript": "4.9.3"
   },
   "stableVersion": "0.0.1"
 }
