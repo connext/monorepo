@@ -4,7 +4,7 @@ import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { getCanonicalHash } from "@connext/nxtp-utils";
 
 import {
-  getCanonicalTokenSchema,
+  getCanonicalTokenIdSchema,
   calculateCanonicalKeySchema,
   getLPTokenAddressSchema,
   getLPTokenSupplySchema,
@@ -34,15 +34,15 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
   // ------------------- Read Operations ------------------- //
 
   s.get(
-    "/getCanonicalToken/:domainId/:tokenAddress",
+    "/getCanonicalTokenId/:domainId/:tokenAddress",
     {
       schema: {
-        params: getCanonicalTokenSchema,
+        params: getCanonicalTokenIdSchema,
       },
     },
     async (request, reply) => {
       const { domainId, tokenAddress } = request.params;
-      const res = await sdkPoolInstance.getCanonicalToken(domainId, tokenAddress);
+      const res = await sdkPoolInstance.getCanonicalTokenId(domainId, tokenAddress);
       reply.status(200).send(res);
     },
   );
