@@ -1,10 +1,11 @@
 import { createStubInstance, reset, restore, stub, spy } from "sinon";
 import { expect, getCanonicalHash } from "@connext/nxtp-utils";
 import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
-import { providers, utils, BigNumber } from "ethers";
+import { providers, utils, BigNumber, Contract } from "ethers";
 import { mock } from "./mock";
 import { NxtpSdkPool, Pool } from "../src/sdkPool";
 import { getEnvConfig, NxtpSdkConfig } from "../src/config";
+import { Connext__factory } from "@connext/nxtp-contracts";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -42,10 +43,9 @@ describe("NxtpSdkPool", () => {
       expect(nxtpPool.getCanonicalTokenId).to.be.a("function");
       expect(nxtpPool.getLPTokenAddress).to.be.a("function");
       expect(nxtpPool.getLPTokenSupply).to.be.a("function");
-      expect(nxtpPool.getLPTokenUserBalance).to.be.a("function");
+      expect(nxtpPool.getTokenUserBalance).to.be.a("function");
       expect(nxtpPool.getPoolTokenIndex).to.be.a("function");
       expect(nxtpPool.getPoolTokenBalance).to.be.a("function");
-      expect(nxtpPool.getPoolTokenUserBalance).to.be.a("function");
       expect(nxtpPool.getPoolTokenAddress).to.be.a("function");
       expect(nxtpPool.getVirtualPrice).to.be.a("function");
       expect(nxtpPool.calculateSwap).to.be.a("function");
@@ -87,8 +87,6 @@ describe("NxtpSdkPool", () => {
       const mockRequest: providers.TransactionRequest = {
         to: mockParams.connextAddress,
         data,
-        from: mock.config().signerAddress,
-        value: 0,
       };
 
       stub(nxtpPool, "getCanonicalTokenId").resolves([mockParams.domainId, mockParams.canonicalId]);
@@ -127,8 +125,6 @@ describe("NxtpSdkPool", () => {
       const mockRequest: providers.TransactionRequest = {
         to: mockParams.connextAddress,
         data,
-        from: mock.config().signerAddress,
-        value: 0,
       };
 
       stub(nxtpPool, "getCanonicalTokenId").resolves([mockParams.domainId, mockParams.canonicalId]);
@@ -171,8 +167,6 @@ describe("NxtpSdkPool", () => {
       const mockRequest: providers.TransactionRequest = {
         to: mockParams.connextAddress,
         data,
-        from: mock.config().signerAddress,
-        value: 0,
       };
 
       stub(nxtpPool, "getCanonicalTokenId").resolves([mockParams.domainId, mockParams.canonicalId]);
@@ -203,35 +197,15 @@ describe("NxtpSdkPool", () => {
       poolDecimals: [18, 18],
       poolBalances: [BigNumber.from("100"), BigNumber.from("100")],
       lpTokenAddress: utils.formatBytes32String("2"),
+      connextAddress: mockConfig.chains[mock.domain.A].deployments!.connext,
     };
 
     it("happy: should work", async () => {
-      const key = getCanonicalHash(mockParams.domainId, mockParams.canonicalId);
-
       stub(nxtpPool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.canonicalId]);
-      stub(chainReader, "readTx").onCall(0).resolves("0x");
-
-      stub(nxtpPool.connext, "decodeFunctionResult")
-        .onCall(0) // stub call to canonicalToRepresentation()
-        .returns([mockParams.poolTokens[1]])
-        .onCall(1) // stub call to canonicalToAdopted()
-        .returns([mockParams.poolTokens[0]])
-        .onCall(2) // stub call to getSwapLPToken()
-        .returns([mockParams.lpTokenAddress]);
-
-      stub(nxtpPool.erc20, "decodeFunctionResult")
-        .onCall(0) // stub call to adopted's decimals()
-        .returns([mockParams.poolDecimals[0]])
-        .onCall(1) // stub call to local's decimals()
-        .returns([mockParams.poolDecimals[1]])
-        .onCall(2) // stub call to symbol()
-        .returns([mock.asset.A.symbol]);
-
-      stub(nxtpPool, "getPoolTokenBalance")
-        .onCall(0) // stub call to adopted's balance
-        .resolves(mockParams.poolBalances[0])
-        .onCall(1) // stub call to local's balance
-        .resolves(mockParams.poolBalances[1]);
+      stub(nxtpPool, "getLPTokenAddress").resolves(mockParams.lpTokenAddress);
+      stub(nxtpPool, "getConnext").resolves(
+        Connext__factory.connect(mockParams.connextAddress, providers.getDefaultProvider()),
+      );
 
       const res = await nxtpPool.getPool(mockParams.domainId, mockParams.tokenAddress);
 
@@ -244,7 +218,7 @@ describe("NxtpSdkPool", () => {
       expect(res!.lpTokenAddress).to.equal(mockParams.lpTokenAddress);
     });
 
-    it("happy: should throw if local domain is canonical", async () => {
+    it("should throw if local domain is canonical", async () => {
       stub(nxtpPool, "getCanonicalTokenId").resolves([mockParams.domainId, mockParams.key]);
 
       expect(nxtpPool.getPool(mockParams.domainId, mockParams.tokenAddress)).to.be.rejectedWith(
@@ -252,7 +226,7 @@ describe("NxtpSdkPool", () => {
       );
     });
 
-    it("happy: should return undefined if local token is adopted", async () => {
+    it("should return undefined if local token is adopted", async () => {
       stub(nxtpPool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.key]);
       stub(chainReader, "readTx").onCall(0).resolves("0x");
 
@@ -292,12 +266,12 @@ describe("NxtpSdkPool", () => {
       );
 
       stub(nxtpPool, "getPool").resolves(mockPool);
-      // stub(chainReader, "readTx").onCall(0).resolves("0x");
-      stub(nxtpPool, "getLPTokenUserBalance").resolves(mockParams.lpTokenUserBalance);
-      stub(nxtpPool, "getPoolTokenUserBalance")
+      stub(nxtpPool, "getTokenUserBalance")
         .onCall(0)
-        .resolves(mockParams.poolTokenUserBalances[0])
+        .resolves(mockParams.lpTokenUserBalance)
         .onCall(1)
+        .resolves(mockParams.poolTokenUserBalances[0])
+        .onCall(2)
         .resolves(mockParams.poolTokenUserBalances[1]);
 
       const res = await nxtpPool.getUserPools(mockParams.domainId, mockParams.userAddress);
