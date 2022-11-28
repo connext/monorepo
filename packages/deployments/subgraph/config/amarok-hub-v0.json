@@ -26,18 +26,18 @@
     "source": [
       {
         "name": "RootManager",
-        "address": "0x8Ea7D3855ffB7b41e68934555751d239a64cA7B9",
-        "startBlock": 7797609
+        "address": "0xdEFcb49A7E32028Ea2A5CD4dc2ba9C1B72027D78",
+        "startBlock": 8004163
       },
       {
         "name": "PolygonHubConnector",
-        "address": "0x7e3E85B7CBBA50D17C0e116928726cdD2Dd200Ba",
-        "startBlock": 7797625
+        "address": "0xbf0BC241679EE1854D19C17B45FEbEED870e5366",
+        "startBlock": 8005151
       },
       {
         "name": "OptimismHubConnector",
-        "address": "0xC6FF904c84E7A6fb3499E92D4A202Ef193f1Ac04",
-        "startBlock": 7797621
+        "address": "0x3CA7bf21Ed40D708Aaf884b17D447C0Fd5246067",
+        "startBlock": 8005149
       }
     ]
   }

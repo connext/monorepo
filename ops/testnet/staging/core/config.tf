@@ -118,11 +118,11 @@ locals {
         apiKey = "${var.gelato_api_key}",
         url    = "https://relay.gelato.digital"
       },
-      {
-        type   = "Connext",
-        apiKey = "foo",
-        url    = "https://${module.relayer.service_endpoint}"
-      }
+      # {
+      #   type   = "Connext",
+      #   apiKey = "foo",
+      #   url    = "https://${module.relayer.service_endpoint}"
+      # }
     ]
     environment = var.stage
     messageQueue = {

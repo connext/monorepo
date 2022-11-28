@@ -16,14 +16,15 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       canonical: {
         domain: "6648936",
         address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        decimals: 6,
       },
       representations: {
         "1869640809": {
-          local: "0x85FB8e2903Ad92A2ab0C6a725806636666ee2Ab4",
+          local: "0xc7d36fE97cC7A8D10FdD3F678b660118fb13D548",
           adopted: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
         },
         "1886350457": {
-          local: "0x2ABe2d4F09ea3124DE56AD91ae0950A3B71eCD11",
+          local: "0x11DAd8C97a7688d9deD484a7270efDc4a7Fe04C5",
           adopted: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         },
         // "1634886255": {
@@ -45,14 +46,15 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       canonical: {
         domain: "6648936",
         address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        decimals: 18,
       },
       representations: {
         "1869640809": {
-          local: "0xfD5C16a50b717338Cbcb44e34e10d735709E9Cb9",
+          local: "0x20bf24AfE0A935f15059d65cF24ff6bA360E6c97",
           adopted: "0x4200000000000000000000000000000000000006",
         },
         "1886350457": {
-          local: "0x2BD5B3cfB2b16F2B10e7BA41dc1cb93d61B36bB8",
+          local: "0xe918780FdC803388B8281caEe8E096CB2c227E4A",
           adopted: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
         },
         // "1634886255": {
