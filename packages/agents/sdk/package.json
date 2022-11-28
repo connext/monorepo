@@ -37,9 +37,11 @@
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "0.25.2",
+    "ethereum-block-by-date": "^1.4.1",
     "ethers": "5.7.2"
   },
   "devDependencies": {
+    "@types/ethereum-block-by-date": "^1.4.1",
     "eslint": "8.26.0",
     "mocha": "10.1.0",
     "nyc": "15.1.0",
