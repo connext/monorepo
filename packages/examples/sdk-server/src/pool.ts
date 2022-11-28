@@ -25,6 +25,8 @@ import {
   calculateAddLiquidityPriceImpactSchema,
   calculateRemoveLiquidityPriceImpactSchema,
   calculateSwapPriceImpactSchema,
+  getYieldStatsForDaySchema,
+  getYieldDataSchema,
 } from "./types/api";
 
 export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpSdkPool): Promise<any> => {
@@ -326,6 +328,34 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
     async (request, reply) => {
       const { canonicalDomain, canonicalId } = request.body;
       const res = getCanonicalHash(canonicalDomain, canonicalId);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.get(
+    "/getYieldStatsForDay/:domainId/:tokenAddress/:unixTimestamp",
+    {
+      schema: {
+        params: getYieldStatsForDaySchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, tokenAddress, unixTimestamp } = request.params;
+      const res = await sdkPoolInstance.getYieldStatsForDay(domainId, tokenAddress, unixTimestamp);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.get(
+    "/getYieldData/:domainId/:tokenAddress",
+    {
+      schema: {
+        params: getYieldDataSchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, tokenAddress, days } = request.params;
+      const res = await sdkPoolInstance.getYieldData(domainId, tokenAddress, days);
       reply.status(200).send(res);
     },
   );

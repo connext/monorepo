@@ -42,8 +42,8 @@ Content-Type: application/json
 }
 
 ##############
-### GET getCanonicalToken
-GET {{baseUrl}}/getCanonicalToken/1869640809/0x4200000000000000000000000000000000000006
+### GET getCanonicalTokenId
+GET {{baseUrl}}/getCanonicalTokenId/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
 
 ##############
 ### GET getLPTokenAddress
@@ -55,11 +55,11 @@ GET {{baseUrl}}/getLPTokenSupply/9991/0xd17aD94cc781eCf7f5beB8cD518AdAfb718b574a
 
 ##############
 ### GET calculateCanonicalKey
-GET {{baseUrl}}/calculateCanonicalKey/6648936/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+GET {{baseUrl}}/calculateCanonicalKey/6648936/0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
 ##############
 
 ### GET getLPTokenUserBalance
-GET {{baseUrl}}/getLPTokenUserBalance/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/{{yourAddress}}
+GET {{baseUrl}}/getTokenUserBalance/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/{{yourAddress}}
 
 ##############
 ### GET getPoolTokenIndex
@@ -69,10 +69,6 @@ GET {{baseUrl}}/getPoolTokenIndex/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E6
 ##############
 ### GET getPoolTokenBalance
 GET {{baseUrl}}/getPoolTokenBalance/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
-
-##############
-### GET getPoolTokenUserBalance
-GET {{baseUrl}}/getPoolTokenUserBalance/9991/0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9/{{yourAddress}}
 
 ##############
 ### GET getPoolTokenAddress
@@ -101,9 +97,10 @@ POST {{baseUrl}}/calculateTokenAmount
 Content-Type: application/json
 
 {
-  "domainId": "9991",
-  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
-  "amounts": ["10000000000000000", "10000000000000000"]
+  "domainId": "1735356532",
+  "tokenAddress": "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E",
+  "amounts": ["10000000000000000000", "10000000000000000000"],
+  "isDeposit": "false"
 }
 
 ##############
@@ -123,10 +120,10 @@ POST {{baseUrl}}/calculateAddLiquidityPriceImpact
 Content-Type: application/json
 
 {
-  "domainId": "9991",
-  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
-  "amountX": "10000000000000000",
-  "amountY": "0" 
+  "domainId": "1735356532",
+  "tokenAddress": "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E",
+  "amountX": "1000000",
+  "amountY": "1000000" 
 }
 
 ##############
@@ -159,8 +156,8 @@ POST {{baseUrl}}/getPool
 Content-Type: application/json
 
 {
-  "domainId": "1886350457",
-  "tokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+  "domainId": "9991",
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
 }
 
 ##############
@@ -169,7 +166,7 @@ POST {{baseUrl}}/getUserPools
 Content-Type: application/json
 
 {
-  "domainId": "1886350457",
+  "domainId": "9991",
   "userAddress": "{{yourAddress}}"
 }
 
@@ -292,3 +289,11 @@ Content-Type: application/json
 ##############
 ### GET getRoutersData
 GET {{baseUrl}}/getRoutersData
+
+##############
+### GET getYieldStatsForDay
+GET {{baseUrl}}/getYieldStatsForDay/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/1669444476
+
+##############
+### GET getYieldData
+GET {{baseUrl}}/getYieldData/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69

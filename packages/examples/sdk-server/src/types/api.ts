@@ -196,3 +196,15 @@ export const getTransfersSchema = Type.Object({
     ),
   }),
 });
+
+export const getYieldStatsForDaySchema = Type.Object({
+  domainId: Type.String(),
+  tokenAddress: Type.String(),
+  unixTimestamp: Type.Number(),
+});
+
+export const getYieldDataSchema = Type.Object({
+  domainId: Type.String(),
+  tokenAddress: Type.String(),
+  days: Type.Optional(Type.Number()),
+});
