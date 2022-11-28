@@ -21,7 +21,7 @@ export const getLPTokenSupplySchema = Type.Object({
   lpTokenAddress: Type.String(),
 });
 
-export const getLPTokenUserBalanceSchema = Type.Object({
+export const getTokenUserBalanceSchema = Type.Object({
   domainId: Type.String(),
   lpTokenAddress: Type.String(),
   userAddress: Type.String(),
@@ -37,12 +37,6 @@ export const getPoolTokenBalanceSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
   poolTokenAddress: Type.String(),
-});
-
-export const getPoolTokenUserBalanceSchema = Type.Object({
-  domainId: Type.String(),
-  poolTokenAddress: Type.String(),
-  userAddress: Type.String(),
 });
 
 export const getPoolTokenAddressSchema = Type.Object({

@@ -8,10 +8,9 @@ import {
   calculateCanonicalKeySchema,
   getLPTokenAddressSchema,
   getLPTokenSupplySchema,
-  getLPTokenUserBalanceSchema,
+  getTokenUserBalanceSchema,
   getPoolTokenIndexSchema,
   getPoolTokenBalanceSchema,
-  getPoolTokenUserBalanceSchema,
   getPoolTokenAddressSchema,
   getVirtualPriceSchema,
   calculateSwapSchema,
@@ -90,15 +89,15 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
   );
 
   s.get(
-    "/getLPTokenUserBalance/:domainId/:lpTokenAddress/:userAddress",
+    "/getTokenUserBalance/:domainId/:lpTokenAddress/:userAddress",
     {
       schema: {
-        params: getLPTokenUserBalanceSchema,
+        params: getTokenUserBalanceSchema,
       },
     },
     async (request, reply) => {
       const { domainId, lpTokenAddress, userAddress } = request.params;
-      const res = await sdkPoolInstance.getLPTokenUserBalance(domainId, lpTokenAddress, userAddress);
+      const res = await sdkPoolInstance.getTokenUserBalance(domainId, lpTokenAddress, userAddress);
       reply.status(200).send(res);
     },
   );
@@ -127,20 +126,6 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
     async (request, reply) => {
       const { domainId, tokenAddress, poolTokenAddress } = request.params;
       const res = await sdkPoolInstance.getPoolTokenBalance(domainId, tokenAddress, poolTokenAddress);
-      reply.status(200).send(res);
-    },
-  );
-
-  s.get(
-    "/getPoolTokenUserBalance/:domainId/:poolTokenAddress/:userAddress",
-    {
-      schema: {
-        params: getPoolTokenUserBalanceSchema,
-      },
-    },
-    async (request, reply) => {
-      const { domainId, poolTokenAddress, userAddress } = request.params;
-      const res = await sdkPoolInstance.getPoolTokenUserBalance(domainId, poolTokenAddress, userAddress);
       reply.status(200).send(res);
     },
   );
