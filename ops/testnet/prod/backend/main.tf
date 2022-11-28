@@ -108,6 +108,23 @@ module "cartographer-routers-cron" {
   schedule_expression     = "cron(* * * * ? *)"
 }
 
+module "cartographer-router-lambda-cron" {
+  source                  = "../../../modules/lambda"
+  region                  = var.region
+  dd_api_key              = var.dd_api_key
+  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
+  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
+  vpc_id                  = module.network.vpc_id
+  private_subnets         = module.network.private_subnets
+  docker_image            = var.full_image_name_cartographer
+  container_family        = "cartographer_routers_cron"
+  environment             = var.environment
+  stage                   = var.stage
+  domain                  = var.domain
+  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  container_env_vars      = concat(local.cartographer_env_vars, [{ DD_SERVICE = "cartographer-routers-${var.environment}", "SERVICE" = "routers" }])
+  schedule_expression     = "cron(* * * * ? *)"
+}
 
 module "cartographer-transfers-cron" {
   source                  = "../../../modules/cron"
