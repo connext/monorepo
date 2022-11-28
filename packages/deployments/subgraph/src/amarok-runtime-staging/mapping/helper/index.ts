@@ -24,7 +24,7 @@ export function getChainId(): BigInt {
     chainId = BigInt.fromI32(56);
   } else if (network == "chapel") {
     chainId = BigInt.fromI32(97);
-  } else if (network == "xdai") {
+  } else if (network == "gnosis") {
     chainId = BigInt.fromI32(100);
   } else if (network == "matic") {
     chainId = BigInt.fromI32(137);
@@ -46,6 +46,8 @@ export function getChainId(): BigInt {
     chainId = BigInt.fromI32(80001);
   } else if (network == "arbitrum-rinkeby") {
     chainId = BigInt.fromI32(421611);
+  } else if (network == "arbitrum-goerli") {
+    chainId = BigInt.fromI32(421613);
   } else {
     throw new Error(`No chainName for network ${network}`);
   }

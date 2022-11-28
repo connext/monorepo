@@ -5,33 +5,18 @@
     "source": [
       {
         "name": "RootManager",
-        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
-        "startBlock": 15795862
+        "address": "0xaADbb1083ba67c6022F6281Dc820470Cdfeda616",
+        "startBlock": 16023336
       },
       {
         "name": "PolygonHubConnector",
-        "address": "0x6f8537dbaE3cE2a83547eBA87Ce2Bbe65a9a14C4",
-        "startBlock": 15795946
+        "address": "0xCdb88cE83e026046CF3aAFA0650EB5F4EB2F3048",
+        "startBlock": 16023344
       },
       {
         "name": "OptimismHubConnector",
-        "address": "0xd2ceB2a4D219438C3850CeA4E643FebB66116F96",
-        "startBlock": 15795944
-      },
-      {
-        "name": "BnbHubConnector",
-        "address": "0x172F55db1ec560Ea877FEC0B4AfE9a780E5FD52A",
-        "startBlock": 15891342
-      },
-      {
-        "name": "ArbitrumHubConnector",
-        "address": "0x803aBa13C15fA0cd8D858d42f8D68D9736dFbA6A",
-        "startBlock": 15891175
-      },
-      {
-        "name": "GnosisHubConnector",
-        "address": "0xc92FC5A968886C09668d3128A2802C88d9eB9CEB",
-        "startBlock": 15891331
+        "address": "0xc324B7984990248D86dfe90edf7E3657De2565bA",
+        "startBlock": 16023343
       }
     ]
   },
@@ -41,18 +26,18 @@
     "source": [
       {
         "name": "RootManager",
-        "address": "0x8Ea7D3855ffB7b41e68934555751d239a64cA7B9",
-        "startBlock": 7797609
+        "address": "0xdEFcb49A7E32028Ea2A5CD4dc2ba9C1B72027D78",
+        "startBlock": 8004163
       },
       {
         "name": "PolygonHubConnector",
-        "address": "0x7e3E85B7CBBA50D17C0e116928726cdD2Dd200Ba",
-        "startBlock": 7797625
+        "address": "0xbf0BC241679EE1854D19C17B45FEbEED870e5366",
+        "startBlock": 8005151
       },
       {
         "name": "OptimismHubConnector",
-        "address": "0xC6FF904c84E7A6fb3499E92D4A202Ef193f1Ac04",
-        "startBlock": 7797621
+        "address": "0x3CA7bf21Ed40D708Aaf884b17D447C0Fd5246067",
+        "startBlock": 8005149
       }
     ]
   }

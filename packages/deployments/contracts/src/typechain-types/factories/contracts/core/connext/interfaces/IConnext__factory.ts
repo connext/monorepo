@@ -397,25 +397,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes32",
-        name: "_key",
-        type: "bytes32",
-      },
-    ],
-    name: "adoptedToLocalPools",
-    outputs: [
-      {
-        internalType: "contract IStableSwap",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         components: [
           {
             internalType: "uint32",
@@ -433,7 +414,7 @@ const _abi = [
         type: "tuple",
       },
     ],
-    name: "adoptedToLocalPools",
+    name: "adoptedToLocalExternalPools",
     outputs: [
       {
         internalType: "contract IStableSwap",
@@ -442,6 +423,38 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_key",
+        type: "bytes32",
+      },
+    ],
+    name: "adoptedToLocalExternalPools",
+    outputs: [
+      {
+        internalType: "contract IStableSwap",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "approveRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -540,32 +553,6 @@ const _abi = [
         internalType: "bool",
         name: "",
         type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "assetWhitelistRemoved",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "assetWhitelistTimestamp",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -1170,6 +1157,86 @@ const _abi = [
         name: "_params",
         type: "tuple",
       },
+    ],
+    name: "forceReceiveLocal",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "originDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "destinationDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "canonicalDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "address",
+            name: "to",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "delegate",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "receiveLocal",
+            type: "bool",
+          },
+          {
+            internalType: "bytes",
+            name: "callData",
+            type: "bytes",
+          },
+          {
+            internalType: "uint256",
+            name: "slippage",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "originSender",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "bridgedAmt",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "normalizedIn",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "nonce",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes32",
+            name: "canonicalId",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TransferInfo",
+        name: "_params",
+        type: "tuple",
+      },
       {
         internalType: "uint256",
         name: "_slippage",
@@ -1217,6 +1284,52 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "facetAddress",
+            type: "address",
+          },
+          {
+            internalType: "enum IDiamondCut.FacetCutAction",
+            name: "action",
+            type: "uint8",
+          },
+          {
+            internalType: "bytes4[]",
+            name: "functionSelectors",
+            type: "bytes4[]",
+          },
+        ],
+        internalType: "struct IDiamondCut.FacetCut[]",
+        name: "_diamondCut",
+        type: "tuple[]",
+      },
+      {
+        internalType: "address",
+        name: "_init",
+        type: "address",
+      },
+      {
+        internalType: "bytes",
+        name: "_calldata",
+        type: "bytes",
+      },
+    ],
+    name: "getAcceptanceTime",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1515,6 +1628,16 @@ const _abi = [
             name: "adminFees",
             type: "uint256[]",
           },
+          {
+            internalType: "bool",
+            name: "disabled",
+            type: "bool",
+          },
+          {
+            internalType: "uint256",
+            name: "removeTime",
+            type: "uint256",
+          },
         ],
         internalType: "struct SwapUtils.Swap",
         name: "",
@@ -1677,6 +1800,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "recipient",
+        type: "address",
+      },
+    ],
+    name: "initializeRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "_canonicalId",
         type: "bytes32",
@@ -1716,15 +1857,23 @@ const _abi = [
         name: "_adminFee",
         type: "uint256",
       },
-      {
-        internalType: "address",
-        name: "lpTokenTargetAddress",
-        type: "address",
-      },
     ],
     name: "initializeSwap",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "lpTokenTargetAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -1769,13 +1918,6 @@ const _abi = [
   {
     inputs: [],
     name: "pause",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "proposeAssetWhitelistRemoval",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1834,6 +1976,13 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "proposeRouterAllowlistRemoval",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -1847,13 +1996,6 @@ const _abi = [
       },
     ],
     name: "proposeRouterOwner",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "proposeRouterWhitelistRemoval",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1998,13 +2140,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "removeAssetWhitelist",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "address",
@@ -2018,14 +2153,8 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-    ],
-    name: "removeRouter",
+    inputs: [],
+    name: "removeRouterAllowlist",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2077,13 +2206,6 @@ const _abi = [
       },
     ],
     name: "removeRouterLiquidityFor",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "removeRouterWhitelist",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2206,26 +2328,6 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "renounceOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "renounced",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -2504,6 +2606,32 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "routerAllowlistRemoved",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "routerAllowlistTimestamp",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -2517,32 +2645,6 @@ const _abi = [
       },
     ],
     name: "routerBalances",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "routerWhitelistRemoved",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "routerWhitelistTimestamp",
     outputs: [
       {
         internalType: "uint256",
@@ -2780,11 +2882,6 @@ const _abi = [
         name: "_stableSwapPool",
         type: "address",
       },
-      {
-        internalType: "uint256",
-        name: "_cap",
-        type: "uint256",
-      },
     ],
     name: "setupAssetWithDeployedRepresentation",
     outputs: [
@@ -2794,29 +2891,6 @@ const _abi = [
         type: "address",
       },
     ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "recipient",
-        type: "address",
-      },
-    ],
-    name: "setupRouter",
-    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -2988,6 +3062,19 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "unapproveRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "_router",
         type: "address",
       },
@@ -3065,6 +3152,19 @@ const _abi = [
       },
     ],
     name: "updateLiquidityCap",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newAddress",
+        type: "address",
+      },
+    ],
+    name: "updateLpTokenTarget",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

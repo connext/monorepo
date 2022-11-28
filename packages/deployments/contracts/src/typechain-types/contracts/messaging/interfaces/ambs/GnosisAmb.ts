@@ -26,6 +26,7 @@ import type {
 export interface GnosisAmbInterface extends utils.Interface {
   functions: {
     "destinationChainId()": FunctionFragment;
+    "executeSignatures(bytes,bytes)": FunctionFragment;
     "failedMessageDataHash(bytes32)": FunctionFragment;
     "failedMessageReceiver(bytes32)": FunctionFragment;
     "failedMessageSender(bytes32)": FunctionFragment;
@@ -37,6 +38,7 @@ export interface GnosisAmbInterface extends utils.Interface {
     "requireToConfirmMessage(address,bytes,uint256)": FunctionFragment;
     "requireToGetInformation(bytes32,bytes)": FunctionFragment;
     "requireToPassMessage(address,bytes,uint256)": FunctionFragment;
+    "safeExecuteSignaturesWithAutoGasLimit(bytes,bytes)": FunctionFragment;
     "sourceChainId()": FunctionFragment;
     "transactionHash()": FunctionFragment;
   };
@@ -44,6 +46,7 @@ export interface GnosisAmbInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "destinationChainId"
+      | "executeSignatures"
       | "failedMessageDataHash"
       | "failedMessageReceiver"
       | "failedMessageSender"
@@ -55,6 +58,7 @@ export interface GnosisAmbInterface extends utils.Interface {
       | "requireToConfirmMessage"
       | "requireToGetInformation"
       | "requireToPassMessage"
+      | "safeExecuteSignaturesWithAutoGasLimit"
       | "sourceChainId"
       | "transactionHash"
   ): FunctionFragment;
@@ -62,6 +66,10 @@ export interface GnosisAmbInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "destinationChainId",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "executeSignatures",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "failedMessageDataHash",
@@ -113,6 +121,10 @@ export interface GnosisAmbInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "safeExecuteSignaturesWithAutoGasLimit",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "sourceChainId",
     values?: undefined
   ): string;
@@ -123,6 +135,10 @@ export interface GnosisAmbInterface extends utils.Interface {
 
   decodeFunctionResult(
     functionFragment: "destinationChainId",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "executeSignatures",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -167,6 +183,10 @@ export interface GnosisAmbInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "safeExecuteSignaturesWithAutoGasLimit",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "sourceChainId",
     data: BytesLike
   ): Result;
@@ -206,6 +226,12 @@ export interface GnosisAmb extends BaseContract {
 
   functions: {
     destinationChainId(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    executeSignatures(
+      _data: PromiseOrValue<BytesLike>,
+      _signatures: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     failedMessageDataHash(
       _messageId: PromiseOrValue<BytesLike>,
@@ -255,12 +281,24 @@ export interface GnosisAmb extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    safeExecuteSignaturesWithAutoGasLimit(
+      _data: PromiseOrValue<BytesLike>,
+      _signatures: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     sourceChainId(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     transactionHash(overrides?: CallOverrides): Promise<[string]>;
   };
 
   destinationChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+  executeSignatures(
+    _data: PromiseOrValue<BytesLike>,
+    _signatures: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   failedMessageDataHash(
     _messageId: PromiseOrValue<BytesLike>,
@@ -310,12 +348,24 @@ export interface GnosisAmb extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  safeExecuteSignaturesWithAutoGasLimit(
+    _data: PromiseOrValue<BytesLike>,
+    _signatures: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   sourceChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
   transactionHash(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     destinationChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    executeSignatures(
+      _data: PromiseOrValue<BytesLike>,
+      _signatures: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     failedMessageDataHash(
       _messageId: PromiseOrValue<BytesLike>,
@@ -365,6 +415,12 @@ export interface GnosisAmb extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    safeExecuteSignaturesWithAutoGasLimit(
+      _data: PromiseOrValue<BytesLike>,
+      _signatures: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     sourceChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
     transactionHash(overrides?: CallOverrides): Promise<string>;
@@ -374,6 +430,12 @@ export interface GnosisAmb extends BaseContract {
 
   estimateGas: {
     destinationChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    executeSignatures(
+      _data: PromiseOrValue<BytesLike>,
+      _signatures: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     failedMessageDataHash(
       _messageId: PromiseOrValue<BytesLike>,
@@ -423,6 +485,12 @@ export interface GnosisAmb extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    safeExecuteSignaturesWithAutoGasLimit(
+      _data: PromiseOrValue<BytesLike>,
+      _signatures: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     sourceChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
     transactionHash(overrides?: CallOverrides): Promise<BigNumber>;
@@ -431,6 +499,12 @@ export interface GnosisAmb extends BaseContract {
   populateTransaction: {
     destinationChainId(
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    executeSignatures(
+      _data: PromiseOrValue<BytesLike>,
+      _signatures: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     failedMessageDataHash(
@@ -480,6 +554,12 @@ export interface GnosisAmb extends BaseContract {
       _contract: PromiseOrValue<string>,
       _data: PromiseOrValue<BytesLike>,
       _gas: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    safeExecuteSignaturesWithAutoGasLimit(
+      _data: PromiseOrValue<BytesLike>,
+      _signatures: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

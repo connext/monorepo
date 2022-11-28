@@ -8,7 +8,6 @@ import {
   formatUrl,
   getChainIdFromDomain,
   ExecutorPostDataRequest,
-  GELATO_RELAYER_ADDRESS,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../executor";
@@ -43,7 +42,12 @@ export const sendExecuteSlowToSequencer = async (
 
   // Validate the bid's fulfill call will succeed on chain.
   // note: using gelato's relayer address since it will be whitelisted everywhere
-  const relayerAddress = GELATO_RELAYER_ADDRESS;
+  // another note: we are using the old system, but new system will have this relayer whitelisted still
+  // const relayerAddress = GELATO_RELAYER_ADDRESS;
+
+  // TEMP: Relayer proxy
+  const relayerProxyAddress = config.chains[args.params.destinationDomain].deployments.relayerProxy;
+  const relayerAddress = relayerProxyAddress;
 
   logger.debug("Getting gas estimate", requestContext, methodContext, {
     chainId: destinationChainId,
@@ -71,10 +75,10 @@ export const sendExecuteSlowToSequencer = async (
     });
   } catch (err: unknown) {
     logger.error("Failed to estimate gas,", requestContext, methodContext, jsonifyError(err as NxtpError), {
-      relayer: relayerAddress,
-      connext: destinationConnextAddress,
-      domain: args.params.destinationDomain,
-      relayerFee,
+      chainId: destinationChainId,
+      to: destinationConnextAddress,
+      data: encodedData,
+      from: relayerAddress,
       transferId: transferId,
     });
 

@@ -47,6 +47,7 @@ export const hardhatNetworks = {
     accounts: { mnemonic },
     chainId: 1,
     url: urlOverride || process.env.MAINNET_ETH_PROVIDER_URL || "https://cloudflare-eth.com",
+    gasPrice: utils.parseUnits("15", "gwei").toNumber(),
   },
   ropsten: {
     accounts: { mnemonic },
@@ -63,6 +64,7 @@ export const hardhatNetworks = {
     accounts: { mnemonic },
     chainId: 5,
     url: urlOverride || process.env.GOERLI_ETH_PROVIDER_URL || "http://localhost:8545",
+    gasPrice: utils.parseUnits("50", "gwei").toNumber(),
   },
   optimism: {
     accounts: { mnemonic },

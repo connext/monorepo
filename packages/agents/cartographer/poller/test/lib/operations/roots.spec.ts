@@ -1,12 +1,12 @@
 import { SinonStub } from "sinon";
 import { expect } from "@connext/nxtp-utils";
-
 import {
-  mockAggregatedRootSubgraphResponse,
   mockConnectorMeta,
+  mockAggregatedRootSubgraphResponse,
   mockOriginMessageSubgraphResponse,
   mockPropagatedRootSubgraphResponse,
-} from "../../mock";
+} from "@connext/nxtp-adapters-subgraph/test/mock";
+
 import { mockContext } from "../../globalTestHook";
 import { updateAggregatedRoots, updatePropagatedRoots } from "../../../src/lib/operations";
 

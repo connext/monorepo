@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/crosschain/errors.sol";
 
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
-import {MerkleTreeManager} from "../../../../contracts/messaging/Merkle.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/MerkleTreeManager.sol";
 
 import {PolygonSpokeConnector} from "../../../../contracts/messaging/connectors/polygon/PolygonSpokeConnector.sol";
 
@@ -18,23 +18,24 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
   // ============ Test set up ============
   function setUp() public {
     // deploy
-    _l1Connector = address(123);
+    _l1Connector = payable(address(123));
 
     _merkle = address(new MerkleTreeManager());
 
-    _l2Connector = address(
-      new PolygonSpokeConnector(
-        _l2Domain,
-        _l1Domain,
-        _amb,
-        _rootManager,
-        address(0),
-        _mirrorGas,
-        _processGas,
-        _reserveGas,
-        0, // uint256 _delayBlocks
-        _merkle,
-        address(1) // watcher manager
+    _l2Connector = payable(
+      address(
+        new PolygonSpokeConnector(
+          _l2Domain,
+          _l1Domain,
+          _amb,
+          _rootManager,
+          address(0),
+          _processGas,
+          _reserveGas,
+          0, // uint256 _delayBlocks
+          _merkle,
+          address(1) // watcher manager
+        )
       )
     );
   }
@@ -49,25 +50,20 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
     assertTrue(!PolygonSpokeConnector(_l2Connector).verifySender(expected));
   }
 
-  // ============ PolygonSpokeConnector.setFxRootTunnel ============
-  function test_PolygonSpokeConnector__setFxRootTunnel_shouldWork() public {
-    PolygonSpokeConnector(_l2Connector).setFxRootTunnel(_l1Connector);
-    assertEq(PolygonSpokeConnector(_l2Connector).fxRootTunnel(), _l1Connector);
-  }
-
+  // ============ PolygonSpokeConnector.setMirrorConnector ============
   function test_PolygonSpokeConnector__setMirrorConnector_shouldWork() public {
     PolygonSpokeConnector(_l2Connector).setMirrorConnector(_l1Connector);
     assertEq(PolygonSpokeConnector(_l2Connector).mirrorConnector(), _l1Connector);
     assertEq(PolygonSpokeConnector(_l2Connector).fxRootTunnel(), _l1Connector);
   }
 
-  function test_PolygonSpokeConnector__setFxRootTunnel_failedIfAlreadySet() public {
-    PolygonSpokeConnector(_l2Connector).setFxRootTunnel(_l1Connector);
+  function test_PolygonSpokeConnector__setMirrorConnector_failedIfAlreadySet() public {
+    PolygonSpokeConnector(_l2Connector).setMirrorConnector(_l1Connector);
     assertEq(PolygonSpokeConnector(_l2Connector).fxRootTunnel(), _l1Connector);
 
     vm.expectRevert(bytes("FxBaseChildTunnel: ROOT_TUNNEL_ALREADY_SET"));
 
-    PolygonSpokeConnector(_l2Connector).setFxRootTunnel(_l1Connector);
+    PolygonSpokeConnector(_l2Connector).setMirrorConnector(_l1Connector);
   }
 
   // ============ PolygonSpokeConnector.sendMessage ============
@@ -81,10 +77,10 @@ contract PolygonSpokeConnectorTest is ConnectorHelper {
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, _rootManager);
+    emit MessageSent(_data, bytes(""), _rootManager);
 
     vm.prank(_rootManager);
-    PolygonSpokeConnector(_l2Connector).send();
+    PolygonSpokeConnector(_l2Connector).send(bytes(""));
   }
 
   // ============ PolygonSpokeConnector.processMessage ============

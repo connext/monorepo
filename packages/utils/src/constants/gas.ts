@@ -1,5 +1,6 @@
 import { ChainData, getChainData } from "..";
 
+export const NATIVE_TOKEN = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 export const DEFAULT_GAS_ESTIMATES = {
   xcall: "190000",
   execute: "190000",

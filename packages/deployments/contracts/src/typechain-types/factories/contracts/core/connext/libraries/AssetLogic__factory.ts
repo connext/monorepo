@@ -12,6 +12,11 @@ import type {
 const _abi = [
   {
     inputs: [],
+    name: "AssetLogic__getConfig_notRegistered",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "AssetLogic__getTokenIndexFromStableSwapPool_notExist",
     type: "error",
   },
@@ -32,18 +37,13 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "AssetLogic__swapFromLocalAssetIfNeeded_swapPaused",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__swapToLocalAssetIfNeeded_swapPaused",
+    name: "AssetLogic__swapAsset_externalStableSwapPoolDoesNotExist",
     type: "error",
   },
 ];
 
 const _bytecode =
-  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea264697066735822122088da7b82f03c49d3289f2e2fbb28d8a21697eeebd46f62bcd09a854b4832c26364736f6c634300080f0033";
+  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea264697066735822122088f33b4f2891a3b3e93efa5dacac32b0052eb70f27bf9041ccec7535c441ee0864736f6c63430008110033";
 
 type AssetLogicConstructorParams =
   | [signer?: Signer]

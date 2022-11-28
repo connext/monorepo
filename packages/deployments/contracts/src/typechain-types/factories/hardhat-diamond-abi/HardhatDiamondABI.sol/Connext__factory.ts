@@ -12,12 +12,12 @@ import type {
 const _abi = [
   {
     inputs: [],
-    name: "BaseConnextFacet__getAdoptedAsset_notWhitelisted",
+    name: "BaseConnextFacet__getAdoptedAsset_assetNotFound",
     type: "error",
   },
   {
     inputs: [],
-    name: "BaseConnextFacet__getApprovedCanonicalId_notWhitelisted",
+    name: "BaseConnextFacet__getApprovedCanonicalId_notAllowlisted",
     type: "error",
   },
   {
@@ -27,7 +27,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
+    name: "BaseConnextFacet__nonXCallReentrant_reentrantCall",
     type: "error",
   },
   {
@@ -62,6 +62,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "AssetLogic__getConfig_notRegistered",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "AssetLogic__getTokenIndexFromStableSwapPool_notExist",
     type: "error",
   },
@@ -87,7 +92,17 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BridgeFacet__addRemote_invalidRouter",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BridgeFacet__addSequencer_alreadyApproved",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BridgeFacet__addSequencer_invalidSequencer",
     type: "error",
   },
   {
@@ -102,12 +117,22 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BridgeFacet__excecute_insufficientGas",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn",
     type: "error",
   },
   {
     inputs: [],
     name: "BridgeFacet__execute_badFastLiquidityStatus",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BridgeFacet__execute_externalCallFailed",
     type: "error",
   },
   {
@@ -157,6 +182,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BridgeFacet__forceReceiveLocal_notDestination",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BridgeFacet__forceUpdateSlippage_invalidSlippage",
     type: "error",
   },
@@ -182,7 +212,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__xcall_canonicalAssetNotReceived",
+    name: "BridgeFacet__setXAppConnectionManager_domainsDontMatch",
     type: "error",
   },
   {
@@ -207,7 +237,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__xcall_notSupportedAsset",
+    name: "BridgeFacet_xcall__emptyLocalAsset",
     type: "error",
   },
   {
@@ -413,6 +443,19 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "bytes32",
+        name: "transferId",
+        type: "bytes32",
+      },
+    ],
+    name: "ForceReceiveLocal",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: false,
         internalType: "uint32",
         name: "domain",
@@ -514,6 +557,25 @@ const _abi = [
       },
     ],
     name: "TransferRelayerFeesIncreased",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "updated",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "XAppConnectionManagerSet",
     type: "event",
   },
   {
@@ -631,19 +693,6 @@ const _abi = [
     ],
     name: "XCalled",
     type: "event",
-  },
-  {
-    inputs: [],
-    name: "AAVE_REFERRAL_CODE",
-    outputs: [
-      {
-        internalType: "uint16",
-        name: "",
-        type: "uint16",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
   },
   {
     inputs: [
@@ -831,6 +880,86 @@ const _abi = [
         type: "bytes32",
       },
     ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "originDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "destinationDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "canonicalDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "address",
+            name: "to",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "delegate",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "receiveLocal",
+            type: "bool",
+          },
+          {
+            internalType: "bytes",
+            name: "callData",
+            type: "bytes",
+          },
+          {
+            internalType: "uint256",
+            name: "slippage",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "originSender",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "bridgedAmt",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "normalizedIn",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "nonce",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes32",
+            name: "canonicalId",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TransferInfo",
+        name: "_params",
+        type: "tuple",
+      },
+    ],
+    name: "forceReceiveLocal",
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -1521,6 +1650,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "AssetLogic__getConfig_notRegistered",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "AssetLogic__getTokenIndexFromStableSwapPool_notExist",
     type: "error",
   },
@@ -1536,7 +1670,17 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "PortalFacet__repayAavePortalFor_invalidAsset",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "PortalFacet__repayAavePortalFor_zeroAmount",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "PortalFacet__repayAavePortal_assetNotApproved",
     type: "error",
   },
   {
@@ -1546,13 +1690,46 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "PortalFacet__repayAavePortal_swapFailed",
+    name: "PortalFacet__setAavePortalFee_invalidFee",
     type: "error",
   },
   {
-    inputs: [],
-    name: "PortalFacet__setAavePortalFee_invalidFee",
-    type: "error",
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "updated",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "AavePoolUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "updated",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "AavePortalFeeUpdated",
+    type: "event",
   },
   {
     anonymous: false,
@@ -1825,6 +2002,11 @@ const _abi = [
         type: "tuple",
       },
       {
+        internalType: "address",
+        name: "_portalAsset",
+        type: "address",
+      },
+      {
         internalType: "uint256",
         name: "_backingAmount",
         type: "uint256",
@@ -1868,11 +2050,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange",
     type: "error",
   },
@@ -1893,7 +2070,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__proposeAssetWhitelistRemoval_noOwnershipChange",
+    name: "ProposedOwnableFacet__delayElapsed_delayNotElapsed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableFacet__proposeAssetAllowlistRemoval_noOwnershipChange",
     type: "error",
   },
   {
@@ -1908,84 +2090,33 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__proposeRouterWhitelistRemoval_noOwnershipChange",
+    name: "ProposedOwnableFacet__proposeRouterAllowlistRemoval_noOwnershipChange",
     type: "error",
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__removeAssetWhitelist_delayNotElapsed",
+    name: "ProposedOwnableFacet__removeAssetAllowlist_noOwnershipChange",
     type: "error",
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__removeAssetWhitelist_noOwnershipChange",
+    name: "ProposedOwnableFacet__removeAssetAllowlist_noProposal",
     type: "error",
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__removeAssetWhitelist_noProposal",
+    name: "ProposedOwnableFacet__removeRouterAllowlist_noOwnershipChange",
     type: "error",
   },
   {
     inputs: [],
-    name: "ProposedOwnableFacet__removeRouterWhitelist_delayNotElapsed",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "ProposedOwnableFacet__removeRouterWhitelist_noOwnershipChange",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "ProposedOwnableFacet__removeRouterWhitelist_noProposal",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "ProposedOwnableFacet__renounceOwnership_delayNotElapsed",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "ProposedOwnableFacet__renounceOwnership_invalidProposal",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "ProposedOwnableFacet__renounceOwnership_noProposal",
+    name: "ProposedOwnableFacet__removeRouterAllowlist_noProposal",
     type: "error",
   },
   {
     inputs: [],
     name: "ProposedOwnableFacet__revokeRole_invalidInput",
     type: "error",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "timestamp",
-        type: "uint256",
-      },
-    ],
-    name: "AssetWhitelistRemovalProposed",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "renounced",
-        type: "bool",
-      },
-    ],
-    name: "AssetWhitelistRemoved",
-    type: "event",
   },
   {
     anonymous: false,
@@ -2093,7 +2224,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "RouterWhitelistRemovalProposed",
+    name: "RouterAllowlistRemovalProposed",
     type: "event",
   },
   {
@@ -2106,7 +2237,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "RouterWhitelistRemoved",
+    name: "RouterAllowlistRemoved",
     type: "event",
   },
   {
@@ -2120,32 +2251,6 @@ const _abi = [
     name: "acceptProposedOwner",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "assetWhitelistRemoved",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "assetWhitelistTimestamp",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -2169,7 +2274,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "assignRoleRouter",
+    name: "assignRoleRouterAdmin",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2221,13 +2326,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "proposeAssetWhitelistRemoval",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "address",
@@ -2242,7 +2340,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "proposeRouterWhitelistRemoval",
+    name: "proposeRouterAllowlistRemoval",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2294,36 +2392,9 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "removeAssetWhitelist",
+    name: "removeRouterAllowlist",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "removeRouterWhitelist",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "renounceOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "renounced",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -2341,7 +2412,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "routerWhitelistRemoved",
+    name: "routerAllowlistRemoved",
     outputs: [
       {
         internalType: "bool",
@@ -2354,7 +2425,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "routerWhitelistTimestamp",
+    name: "routerAllowlistTimestamp",
     outputs: [
       {
         internalType: "uint256",
@@ -2538,6 +2609,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "RoutersFacet__acceptProposedRouterOwner_badCaller",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "RoutersFacet__acceptProposedRouterOwner_notElapsed",
     type: "error",
   },
@@ -2573,12 +2649,17 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "RoutersFacet__onlyProposedRouterOwner_notProposedRouterOwner",
+    name: "RoutersFacet__approveRouter_alreadyAdded",
     type: "error",
   },
   {
     inputs: [],
-    name: "RoutersFacet__onlyProposedRouterOwner_notRouterOwner",
+    name: "RoutersFacet__approveRouter_routerEmpty",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RoutersFacet__initializeRouter_configNotEmpty",
     type: "error",
   },
   {
@@ -2618,16 +2699,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "RoutersFacet__removeRouter_notAdded",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "RoutersFacet__removeRouter_routerEmpty",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "RoutersFacet__setLiquidityFeeNumerator_tooLarge",
     type: "error",
   },
@@ -2643,22 +2714,27 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "RoutersFacet__setRouterOwner_noChange",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "RoutersFacet__setRouterRecipient_notNewRecipient",
     type: "error",
   },
   {
     inputs: [],
-    name: "RoutersFacet__setupRouter_alreadyAdded",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "RoutersFacet__setupRouter_routerEmpty",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "RoutersFacet__unapproveRouterForPortal_notApproved",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RoutersFacet__unapproveRouter_notAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RoutersFacet__unapproveRouter_routerEmpty",
     type: "error",
   },
   {
@@ -2735,6 +2811,19 @@ const _abi = [
       },
     ],
     name: "RouterApprovedForPortal",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "RouterInitialized",
     type: "event",
   },
   {
@@ -2960,7 +3049,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "router",
+        name: "_router",
         type: "address",
       },
     ],
@@ -3008,6 +3097,19 @@ const _abi = [
     name: "addRouterLiquidityFor",
     outputs: [],
     stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_router",
+        type: "address",
+      },
+    ],
+    name: "approveRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -3138,6 +3240,24 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_recipient",
+        type: "address",
+      },
+    ],
+    name: "initializeRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "maxRoutersPerTransfer",
     outputs: [
@@ -3154,12 +3274,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "router",
+        name: "_router",
         type: "address",
       },
       {
         internalType: "address",
-        name: "proposed",
+        name: "_proposed",
         type: "address",
       },
     ],
@@ -3171,27 +3291,26 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "router",
-        type: "address",
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
       },
-    ],
-    name: "removeRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
       {
         internalType: "uint256",
         name: "_amount",
         type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "_local",
-        type: "address",
       },
       {
         internalType: "address payable",
@@ -3207,14 +3326,26 @@ const _abi = [
   {
     inputs: [
       {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
         internalType: "uint256",
         name: "_amount",
         type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "_local",
-        type: "address",
       },
       {
         internalType: "address payable",
@@ -3286,12 +3417,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "router",
+        name: "_router",
         type: "address",
       },
       {
         internalType: "address",
-        name: "recipient",
+        name: "_recipient",
         type: "address",
       },
     ],
@@ -3304,21 +3435,11 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "recipient",
+        name: "_router",
         type: "address",
       },
     ],
-    name: "setupRouter",
+    name: "unapproveRouter",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -3335,6 +3456,21 @@ const _abi = [
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
+  },
+  {
+    inputs: [],
+    name: "AssetLogic__handleIncomingAsset_feeOnTransferNotSupported",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "AssetLogic__handleOutgoingAsset_notNative",
+    type: "error",
   },
   {
     inputs: [],
@@ -3658,6 +3794,16 @@ const _abi = [
             internalType: "uint256[]",
             name: "adminFees",
             type: "uint256[]",
+          },
+          {
+            internalType: "bool",
+            name: "disabled",
+            type: "bool",
+          },
+          {
+            internalType: "uint256",
+            name: "removeTime",
+            type: "uint256",
           },
         ],
         internalType: "struct SwapUtils.Swap",
@@ -4000,12 +4146,32 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "AssetLogic__getConfig_notRegistered",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "TokenFacet__addAssetId_alreadyAdded",
     type: "error",
   },
   {
     inputs: [],
-    name: "TokenFacet__addAssetId_nativeAsset",
+    name: "TokenFacet__addAssetId_badBurn",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__addAssetId_badMint",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__removeAssetId_invalidParams",
     type: "error",
   },
   {
@@ -4015,7 +4181,47 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "TokenFacet__removeAssetId_remainsCustodied",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__setLiquidityCap_notCanonicalDomain",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__setupAssetWithDeployedRepresentation_invalidRepresentation",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__setupAsset_invalidCanonicalConfiguration",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__setupAsset_representationListed",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "TokenFacet__updateDetails_localNotFound",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__updateDetails_notApproved",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__updateDetails_onlyRemote",
     type: "error",
   },
   {
@@ -4243,25 +4449,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes32",
-        name: "_key",
-        type: "bytes32",
-      },
-    ],
-    name: "adoptedToLocalPools",
-    outputs: [
-      {
-        internalType: "contract IStableSwap",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         components: [
           {
             internalType: "uint32",
@@ -4279,7 +4466,26 @@ const _abi = [
         type: "tuple",
       },
     ],
-    name: "adoptedToLocalPools",
+    name: "adoptedToLocalExternalPools",
+    outputs: [
+      {
+        internalType: "contract IStableSwap",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_key",
+        type: "bytes32",
+      },
+    ],
+    name: "adoptedToLocalExternalPools",
     outputs: [
       {
         internalType: "contract IStableSwap",
@@ -4683,11 +4889,6 @@ const _abi = [
         internalType: "address",
         name: "_stableSwapPool",
         type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_cap",
-        type: "uint256",
       },
     ],
     name: "setupAssetWithDeployedRepresentation",

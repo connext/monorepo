@@ -98,13 +98,13 @@ export type ExecuteArgsStructOutput = [
 
 export interface BridgeFacetInterface extends utils.Interface {
   functions: {
-    "AAVE_REFERRAL_CODE()": FunctionFragment;
     "addSequencer(address)": FunctionFragment;
     "approvedSequencers(address)": FunctionFragment;
     "bumpTransfer(bytes32)": FunctionFragment;
     "domain()": FunctionFragment;
     "enrollRemoteRouter(uint32,bytes32)": FunctionFragment;
     "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes))": FunctionFragment;
+    "forceReceiveLocal((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32))": FunctionFragment;
     "forceUpdateSlippage((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256)": FunctionFragment;
     "nonce()": FunctionFragment;
     "remote(uint32)": FunctionFragment;
@@ -119,13 +119,13 @@ export interface BridgeFacetInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "AAVE_REFERRAL_CODE"
       | "addSequencer"
       | "approvedSequencers"
       | "bumpTransfer"
       | "domain"
       | "enrollRemoteRouter"
       | "execute"
+      | "forceReceiveLocal"
       | "forceUpdateSlippage"
       | "nonce"
       | "remote"
@@ -138,10 +138,6 @@ export interface BridgeFacetInterface extends utils.Interface {
       | "xcallIntoLocal"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "AAVE_REFERRAL_CODE",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "addSequencer",
     values: [PromiseOrValue<string>]
@@ -162,6 +158,10 @@ export interface BridgeFacetInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "execute",
     values: [ExecuteArgsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "forceReceiveLocal",
+    values: [TransferInfoStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "forceUpdateSlippage",
@@ -218,10 +218,6 @@ export interface BridgeFacetInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "AAVE_REFERRAL_CODE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "addSequencer",
     data: BytesLike
   ): Result;
@@ -239,6 +235,10 @@ export interface BridgeFacetInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "forceReceiveLocal",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "forceUpdateSlippage",
     data: BytesLike
@@ -275,17 +275,20 @@ export interface BridgeFacetInterface extends utils.Interface {
     "AavePortalMintUnbacked(bytes32,address,address,uint256)": EventFragment;
     "Executed(bytes32,address,address,tuple,address,uint256,address)": EventFragment;
     "ExternalCalldataExecuted(bytes32,bool,bytes)": EventFragment;
+    "ForceReceiveLocal(bytes32)": EventFragment;
     "RemoteAdded(uint32,address,address)": EventFragment;
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
     "SlippageUpdated(bytes32,uint256)": EventFragment;
     "TransferRelayerFeesIncreased(bytes32,uint256,address)": EventFragment;
+    "XAppConnectionManagerSet(address,address)": EventFragment;
     "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AavePortalMintUnbacked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ExternalCalldataExecuted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ForceReceiveLocal"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RemoteAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerRemoved"): EventFragment;
@@ -293,6 +296,7 @@ export interface BridgeFacetInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "TransferRelayerFeesIncreased"
   ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "XAppConnectionManagerSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
 }
 
@@ -338,6 +342,17 @@ export type ExternalCalldataExecutedEvent = TypedEvent<
 
 export type ExternalCalldataExecutedEventFilter =
   TypedEventFilter<ExternalCalldataExecutedEvent>;
+
+export interface ForceReceiveLocalEventObject {
+  transferId: string;
+}
+export type ForceReceiveLocalEvent = TypedEvent<
+  [string],
+  ForceReceiveLocalEventObject
+>;
+
+export type ForceReceiveLocalEventFilter =
+  TypedEventFilter<ForceReceiveLocalEvent>;
 
 export interface RemoteAddedEventObject {
   domain: number;
@@ -398,6 +413,18 @@ export type TransferRelayerFeesIncreasedEvent = TypedEvent<
 export type TransferRelayerFeesIncreasedEventFilter =
   TypedEventFilter<TransferRelayerFeesIncreasedEvent>;
 
+export interface XAppConnectionManagerSetEventObject {
+  updated: string;
+  caller: string;
+}
+export type XAppConnectionManagerSetEvent = TypedEvent<
+  [string, string],
+  XAppConnectionManagerSetEventObject
+>;
+
+export type XAppConnectionManagerSetEventFilter =
+  TypedEventFilter<XAppConnectionManagerSetEvent>;
+
 export interface XCalledEventObject {
   transferId: string;
   nonce: BigNumber;
@@ -449,8 +476,6 @@ export interface BridgeFacet extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<[number]>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -476,6 +501,11 @@ export interface BridgeFacet extends BaseContract {
 
     execute(
       _args: ExecuteArgsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    forceReceiveLocal(
+      _params: TransferInfoStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -537,8 +567,6 @@ export interface BridgeFacet extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
-
   addSequencer(
     _sequencer: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -564,6 +592,11 @@ export interface BridgeFacet extends BaseContract {
 
   execute(
     _args: ExecuteArgsStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  forceReceiveLocal(
+    _params: TransferInfoStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -625,8 +658,6 @@ export interface BridgeFacet extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -654,6 +685,11 @@ export interface BridgeFacet extends BaseContract {
       _args: ExecuteArgsStruct,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    forceReceiveLocal(
+      _params: TransferInfoStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     forceUpdateSlippage(
       _params: TransferInfoStruct,
@@ -757,6 +793,13 @@ export interface BridgeFacet extends BaseContract {
       returnData?: null
     ): ExternalCalldataExecutedEventFilter;
 
+    "ForceReceiveLocal(bytes32)"(
+      transferId?: PromiseOrValue<BytesLike> | null
+    ): ForceReceiveLocalEventFilter;
+    ForceReceiveLocal(
+      transferId?: PromiseOrValue<BytesLike> | null
+    ): ForceReceiveLocalEventFilter;
+
     "RemoteAdded(uint32,address,address)"(
       domain?: null,
       remote?: null,
@@ -803,6 +846,15 @@ export interface BridgeFacet extends BaseContract {
       caller?: null
     ): TransferRelayerFeesIncreasedEventFilter;
 
+    "XAppConnectionManagerSet(address,address)"(
+      updated?: null,
+      caller?: null
+    ): XAppConnectionManagerSetEventFilter;
+    XAppConnectionManagerSet(
+      updated?: null,
+      caller?: null
+    ): XAppConnectionManagerSetEventFilter;
+
     "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
@@ -824,8 +876,6 @@ export interface BridgeFacet extends BaseContract {
   };
 
   estimateGas: {
-    AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<BigNumber>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -851,6 +901,11 @@ export interface BridgeFacet extends BaseContract {
 
     execute(
       _args: ExecuteArgsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    forceReceiveLocal(
+      _params: TransferInfoStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -913,10 +968,6 @@ export interface BridgeFacet extends BaseContract {
   };
 
   populateTransaction: {
-    AAVE_REFERRAL_CODE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -942,6 +993,11 @@ export interface BridgeFacet extends BaseContract {
 
     execute(
       _args: ExecuteArgsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    forceReceiveLocal(
+      _params: TransferInfoStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

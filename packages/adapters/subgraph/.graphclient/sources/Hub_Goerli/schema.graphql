@@ -61,6 +61,71 @@ enum goerli_AggregatedMessageRoot_orderBy {
   domain
 }
 
+type goerli_ArbitrumConnectorMeta {
+  id: ID!
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+  amb: goerli_Bytes!
+  rootManager: goerli_Bytes!
+  mirrorConnector: goerli_Bytes!
+}
+
+input goerli_ArbitrumConnectorMeta_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  hubDomain: BigInt
+  hubDomain_not: BigInt
+  hubDomain_gt: BigInt
+  hubDomain_lt: BigInt
+  hubDomain_gte: BigInt
+  hubDomain_lte: BigInt
+  hubDomain_in: [BigInt!]
+  hubDomain_not_in: [BigInt!]
+  amb: goerli_Bytes
+  amb_not: goerli_Bytes
+  amb_in: [goerli_Bytes!]
+  amb_not_in: [goerli_Bytes!]
+  amb_contains: goerli_Bytes
+  amb_not_contains: goerli_Bytes
+  rootManager: goerli_Bytes
+  rootManager_not: goerli_Bytes
+  rootManager_in: [goerli_Bytes!]
+  rootManager_not_in: [goerli_Bytes!]
+  rootManager_contains: goerli_Bytes
+  rootManager_not_contains: goerli_Bytes
+  mirrorConnector: goerli_Bytes
+  mirrorConnector_not: goerli_Bytes
+  mirrorConnector_in: [goerli_Bytes!]
+  mirrorConnector_not_in: [goerli_Bytes!]
+  mirrorConnector_contains: goerli_Bytes
+  mirrorConnector_not_contains: goerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: goerli_BlockChangedFilter
+}
+
+enum goerli_ArbitrumConnectorMeta_orderBy {
+  id
+  spokeDomain
+  hubDomain
+  amb
+  rootManager
+  mirrorConnector
+}
+
 scalar goerli_BigDecimal
 
 scalar BigInt
@@ -75,7 +140,137 @@ input goerli_Block_height {
   number_gte: Int
 }
 
+type goerli_BnbConnectorMeta {
+  id: ID!
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+  amb: goerli_Bytes!
+  rootManager: goerli_Bytes!
+  mirrorConnector: goerli_Bytes!
+}
+
+input goerli_BnbConnectorMeta_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  hubDomain: BigInt
+  hubDomain_not: BigInt
+  hubDomain_gt: BigInt
+  hubDomain_lt: BigInt
+  hubDomain_gte: BigInt
+  hubDomain_lte: BigInt
+  hubDomain_in: [BigInt!]
+  hubDomain_not_in: [BigInt!]
+  amb: goerli_Bytes
+  amb_not: goerli_Bytes
+  amb_in: [goerli_Bytes!]
+  amb_not_in: [goerli_Bytes!]
+  amb_contains: goerli_Bytes
+  amb_not_contains: goerli_Bytes
+  rootManager: goerli_Bytes
+  rootManager_not: goerli_Bytes
+  rootManager_in: [goerli_Bytes!]
+  rootManager_not_in: [goerli_Bytes!]
+  rootManager_contains: goerli_Bytes
+  rootManager_not_contains: goerli_Bytes
+  mirrorConnector: goerli_Bytes
+  mirrorConnector_not: goerli_Bytes
+  mirrorConnector_in: [goerli_Bytes!]
+  mirrorConnector_not_in: [goerli_Bytes!]
+  mirrorConnector_contains: goerli_Bytes
+  mirrorConnector_not_contains: goerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: goerli_BlockChangedFilter
+}
+
+enum goerli_BnbConnectorMeta_orderBy {
+  id
+  spokeDomain
+  hubDomain
+  amb
+  rootManager
+  mirrorConnector
+}
+
 scalar goerli_Bytes
+
+type goerli_GnosisConnectorMeta {
+  id: ID!
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+  amb: goerli_Bytes!
+  rootManager: goerli_Bytes!
+  mirrorConnector: goerli_Bytes!
+}
+
+input goerli_GnosisConnectorMeta_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  hubDomain: BigInt
+  hubDomain_not: BigInt
+  hubDomain_gt: BigInt
+  hubDomain_lt: BigInt
+  hubDomain_gte: BigInt
+  hubDomain_lte: BigInt
+  hubDomain_in: [BigInt!]
+  hubDomain_not_in: [BigInt!]
+  amb: goerli_Bytes
+  amb_not: goerli_Bytes
+  amb_in: [goerli_Bytes!]
+  amb_not_in: [goerli_Bytes!]
+  amb_contains: goerli_Bytes
+  amb_not_contains: goerli_Bytes
+  rootManager: goerli_Bytes
+  rootManager_not: goerli_Bytes
+  rootManager_in: [goerli_Bytes!]
+  rootManager_not_in: [goerli_Bytes!]
+  rootManager_contains: goerli_Bytes
+  rootManager_not_contains: goerli_Bytes
+  mirrorConnector: goerli_Bytes
+  mirrorConnector_not: goerli_Bytes
+  mirrorConnector_in: [goerli_Bytes!]
+  mirrorConnector_not_in: [goerli_Bytes!]
+  mirrorConnector_contains: goerli_Bytes
+  mirrorConnector_not_contains: goerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: goerli_BlockChangedFilter
+}
+
+enum goerli_GnosisConnectorMeta_orderBy {
+  id
+  spokeDomain
+  hubDomain
+  amb
+  rootManager
+  mirrorConnector
+}
 
 type goerli_OptimismConnectorMeta {
   id: ID!
@@ -292,6 +487,32 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_AggregatedMessageRoot!]!
+  goerli_rootManagerMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): goerli_RootManagerMeta
+  goerli_rootManagerMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_RootManagerMeta_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_RootManagerMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [goerli_RootManagerMeta!]!
   goerli_polygonConnectorMeta(
     id: ID!
     """
@@ -344,6 +565,84 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_OptimismConnectorMeta!]!
+  goerli_bnbConnectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): goerli_BnbConnectorMeta
+  goerli_bnbConnectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_BnbConnectorMeta_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_BnbConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [goerli_BnbConnectorMeta!]!
+  goerli_arbitrumConnectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): goerli_ArbitrumConnectorMeta
+  goerli_arbitrumConnectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_ArbitrumConnectorMeta_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_ArbitrumConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [goerli_ArbitrumConnectorMeta!]!
+  goerli_gnosisConnectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): goerli_GnosisConnectorMeta
+  goerli_gnosisConnectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_GnosisConnectorMeta_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_GnosisConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [goerli_GnosisConnectorMeta!]!
   goerli_rootMessageProcessed(
     id: ID!
     """
@@ -421,6 +720,43 @@ enum goerli_RootAggregated_orderBy {
   domain
   receivedRoot
   index
+}
+
+type goerli_RootManagerMeta {
+  id: ID!
+  domains: [BigInt!]
+  connectors: [goerli_Bytes!]
+}
+
+input goerli_RootManagerMeta_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  domains: [BigInt!]
+  domains_not: [BigInt!]
+  domains_contains: [BigInt!]
+  domains_contains_nocase: [BigInt!]
+  domains_not_contains: [BigInt!]
+  domains_not_contains_nocase: [BigInt!]
+  connectors: [goerli_Bytes!]
+  connectors_not: [goerli_Bytes!]
+  connectors_contains: [goerli_Bytes!]
+  connectors_contains_nocase: [goerli_Bytes!]
+  connectors_not_contains: [goerli_Bytes!]
+  connectors_not_contains_nocase: [goerli_Bytes!]
+  """Filter for the block changed event."""
+  _change_block: goerli_BlockChangedFilter
+}
+
+enum goerli_RootManagerMeta_orderBy {
+  id
+  domains
+  connectors
 }
 
 type goerli_RootMessageProcessed {
@@ -531,7 +867,7 @@ enum goerli_RootMessageProcessed_orderBy {
 type goerli_RootPropagated {
   id: ID!
   aggregate: goerli_Bytes!
-  domains: [BigInt!]
+  domainsHash: goerli_Bytes!
   count: BigInt!
 }
 
@@ -550,12 +886,12 @@ input goerli_RootPropagated_filter {
   aggregate_not_in: [goerli_Bytes!]
   aggregate_contains: goerli_Bytes
   aggregate_not_contains: goerli_Bytes
-  domains: [BigInt!]
-  domains_not: [BigInt!]
-  domains_contains: [BigInt!]
-  domains_contains_nocase: [BigInt!]
-  domains_not_contains: [BigInt!]
-  domains_not_contains_nocase: [BigInt!]
+  domainsHash: goerli_Bytes
+  domainsHash_not: goerli_Bytes
+  domainsHash_in: [goerli_Bytes!]
+  domainsHash_not_in: [goerli_Bytes!]
+  domainsHash_contains: goerli_Bytes
+  domainsHash_not_contains: goerli_Bytes
   count: BigInt
   count_not: BigInt
   count_gt: BigInt
@@ -571,7 +907,7 @@ input goerli_RootPropagated_filter {
 enum goerli_RootPropagated_orderBy {
   id
   aggregate
-  domains
+  domainsHash
   count
 }
 
@@ -654,6 +990,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_AggregatedMessageRoot!]!
+  goerli_rootManagerMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): goerli_RootManagerMeta
+  goerli_rootManagerMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_RootManagerMeta_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_RootManagerMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [goerli_RootManagerMeta!]!
   goerli_polygonConnectorMeta(
     id: ID!
     """
@@ -706,6 +1068,84 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_OptimismConnectorMeta!]!
+  goerli_bnbConnectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): goerli_BnbConnectorMeta
+  goerli_bnbConnectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_BnbConnectorMeta_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_BnbConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [goerli_BnbConnectorMeta!]!
+  goerli_arbitrumConnectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): goerli_ArbitrumConnectorMeta
+  goerli_arbitrumConnectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_ArbitrumConnectorMeta_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_ArbitrumConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [goerli_ArbitrumConnectorMeta!]!
+  goerli_gnosisConnectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): goerli_GnosisConnectorMeta
+  goerli_gnosisConnectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_GnosisConnectorMeta_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_GnosisConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [goerli_GnosisConnectorMeta!]!
   goerli_rootMessageProcessed(
     id: ID!
     """

@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
-import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
-import {ProposedOwnable, ProposedOwnableUpgradeable} from "../../contracts/shared/ProposedOwnable.sol";
+import {ProposedOwnable} from "../../contracts/shared/ProposedOwnable.sol";
 
 import "../utils/ForgeHelper.sol";
 import "../utils/Mock.sol";
@@ -90,6 +87,12 @@ contract ProposedOwnableTest is ProposedOwnable, ForgeHelper {
     assertEq(this.delay(), 7 days);
   }
 
+  function test_DHFKDJFKDJFKJF() public {
+    uint256 _27_BYTES_IN_BITS = 8 * 27; // <--- also used this named constant where ever 216 is used.
+    uint256 LOW_27_BYTES_MASK = (1 << _27_BYTES_IN_BITS) - 1;
+    emit log_named_uint("LOW_27_BYTES_MASK", LOW_27_BYTES_MASK);
+  }
+
   // ============ renounced ============
   // tested in assertions
 
@@ -100,6 +103,14 @@ contract ProposedOwnableTest is ProposedOwnable, ForgeHelper {
   }
 
   function test_ProposedOwnable__proposeNewOwner_failsIfNoChange() public {
+    utils_proposeNewOwnerAndAssert(address(12));
+
+    vm.expectRevert(ProposedOwnable__proposeNewOwner_invalidProposal.selector);
+    vm.prank(_default);
+    this.proposeNewOwner(address(12));
+  }
+
+  function test_ProposedOwnable__proposeNewOwner_failsIfDuplicateCall() public {
     utils_proposeNewOwnerAndAssert(address(12));
 
     vm.expectRevert(ProposedOwnable__proposeNewOwner_invalidProposal.selector);
@@ -135,7 +146,7 @@ contract ProposedOwnableTest is ProposedOwnable, ForgeHelper {
     utils_proposeNewOwnerAndAssert(address(1));
 
     vm.prank(_default);
-    vm.expectRevert(ProposedOwnable__renounceOwnership_delayNotElapsed.selector);
+    vm.expectRevert(ProposedOwnable__ownershipDelayElapsed_delayNotElapsed.selector);
     this.renounceOwnership();
   }
 
@@ -169,53 +180,11 @@ contract ProposedOwnableTest is ProposedOwnable, ForgeHelper {
     utils_proposeNewOwnerAndAssert(proposed);
 
     vm.prank(proposed);
-    vm.expectRevert(ProposedOwnable__acceptProposedOwner_delayNotElapsed.selector);
+    vm.expectRevert(ProposedOwnable__ownershipDelayElapsed_delayNotElapsed.selector);
     this.acceptProposedOwner();
   }
 
   function test_ProposedOwnable__acceptProposedOwner_works() public {
     utils_transferOwnership(address(12));
-  }
-}
-
-contract OwnableHelper is Initializable, ProposedOwnableUpgradeable {
-  function initialize() public initializer {
-    __ProposedOwnable_init();
-  }
-}
-
-contract Proxy is ERC1967Proxy {
-  constructor(address _logic, bytes memory _data) ERC1967Proxy(_logic, _data) {}
-
-  function upgradeTo(address newImpl) public {
-    _upgradeTo(newImpl);
-  }
-
-  function implementation() public returns (address) {
-    return _implementation();
-  }
-}
-
-contract ProposedOwnableUpgradeableTest is ForgeHelper {
-  OwnableHelper upgradeable;
-  Proxy proxy;
-
-  function setUp() public {
-    OwnableHelper impl = new OwnableHelper();
-
-    proxy = new Proxy(address(impl), abi.encodeWithSelector(OwnableHelper.initialize.selector, bytes("")));
-
-    upgradeable = OwnableHelper(payable(address(proxy)));
-  }
-
-  function test_ProposedOwnableUpgradeable__initialize_works() public {
-    assertEq(upgradeable.owner(), address(this));
-  }
-
-  function test_ProposedOwnableUpgradeable__upgrade_works() public {
-    OwnableHelper impl = new OwnableHelper();
-    proxy.upgradeTo(address(impl));
-    assertEq(proxy.implementation(), address(impl));
-    assertEq(upgradeable.owner(), address(this));
   }
 }

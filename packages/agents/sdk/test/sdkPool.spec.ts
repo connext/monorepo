@@ -41,6 +41,7 @@ describe("NxtpSdkPool", () => {
 
       expect(nxtpPool.getCanonicalToken).to.be.a("function");
       expect(nxtpPool.getLPTokenAddress).to.be.a("function");
+      expect(nxtpPool.getLPTokenSupply).to.be.a("function");
       expect(nxtpPool.getLPTokenUserBalance).to.be.a("function");
       expect(nxtpPool.getPoolTokenIndex).to.be.a("function");
       expect(nxtpPool.getPoolTokenBalance).to.be.a("function");
@@ -56,6 +57,10 @@ describe("NxtpSdkPool", () => {
       expect(nxtpPool.getPool).to.be.a("function");
       expect(nxtpPool.getUserPools).to.be.a("function");
       expect(nxtpPool.getPoolStats).to.be.a("function");
+      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
+      expect(nxtpPool.calculateAddLiquidityPriceImpact).to.be.a("function");
+      expect(nxtpPool.calculateRemoveLiquidityPriceImpact).to.be.a("function");
+      expect(nxtpPool.calculatePriceImpact).to.be.a("function");
     });
   });
 
@@ -190,6 +195,7 @@ describe("NxtpSdkPool", () => {
     const mockParams = {
       domainId: mock.domain.A,
       canonicalId: utils.formatBytes32String("0"),
+      key: utils.formatBytes32String("0"),
       tokenAddress: mock.asset.A.address,
       poolName: `${mock.asset.A.symbol}-Pool`,
       poolSymbol: `${mock.asset.A.symbol}-next${mock.asset.A.symbol}`,
@@ -300,6 +306,51 @@ describe("NxtpSdkPool", () => {
       await setTimeout(() => {
         expect(res).to.have.lengthOf(1);
       }, 100);
+    });
+  });
+
+  describe("#calculatePriceImpact", () => {
+    const mockParams = {
+      totalReservesIn: BigNumber.from("100"),
+      lpTokensOut: BigNumber.from("101"),
+      totalReservesOut: BigNumber.from("101"),
+      lpTokensIn: BigNumber.from("100"),
+      virtualPrice: BigNumber.from(10).pow(18),
+      rate: BigNumber.from("100"),
+      marketRate: BigNumber.from("101"),
+    };
+
+    it("happy: should work with deposits", async () => {
+      const res = await nxtpPool.calculatePriceImpact(
+        mockParams.totalReservesIn,
+        mockParams.lpTokensOut,
+        mockParams.virtualPrice,
+      );
+
+      expect(res.toString()).to.equal(BigNumber.from(10).pow(16).toString());
+    });
+
+    it("happy: should work with withdrawals", async () => {
+      const res = await nxtpPool.calculatePriceImpact(
+        mockParams.lpTokensIn,
+        mockParams.totalReservesOut,
+        mockParams.virtualPrice,
+        false,
+      );
+
+      expect(res.toString()).to.equal(BigNumber.from(10).pow(16).toString());
+    });
+
+    it("happy: should work with swaps", async () => {
+      const res = await nxtpPool.calculatePriceImpact(mockParams.rate, mockParams.marketRate);
+
+      expect(res.toString()).to.equal(BigNumber.from("10000000000000000").toString());
+    });
+
+    it("should return 0 when amounts are 0", async () => {
+      const res = await nxtpPool.calculatePriceImpact(BigNumber.from(0), BigNumber.from(0), mockParams.virtualPrice);
+
+      expect(res.toString()).to.equal(BigNumber.from("0").toString());
     });
   });
 

@@ -122,6 +122,7 @@ export const mock = {
       const connext = createStubInstance(utils.Interface);
       connext.encodeFunctionData.returns(encodedDataMock);
       connext.decodeFunctionResult.returns([BigNumber.from(1000)]);
+      connext.decodeFunctionData.returns([BigNumber.from(1000)]);
 
       const priceOracle = createStubInstance(utils.Interface);
       priceOracle.encodeFunctionData.returns(encodedDataMock);
@@ -139,12 +140,16 @@ export const mock = {
       spokeConnector.encodeFunctionData.returns(encodedDataMock);
       spokeConnector.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const relayerProxy = createStubInstance(utils.Interface);
+      relayerProxy.encodeFunctionData.returns(encodedDataMock);
+      relayerProxy.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       return {
         erc20: erc20 as any,
         connext: connext as unknown as ConnextInterface,
         priceOracle: priceOracle as unknown as ConnextPriceOracleInterface,
         stableSwap: stableSwap as unknown as StableSwapInterface,
-        erc20Extended: erc20 as any,
+        relayerProxy: relayerProxy as any,
         spokeConnector: spokeConnector as any,
       };
     },

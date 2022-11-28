@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 // Taken from: https://github.com/nomad-xyz/ExcessivelySafeCall
 // NOTE: There is a difference between npm latest and github main versions
@@ -123,7 +123,7 @@ library ExcessivelySafeCall {
    * @param _buf The encoded contract args
    */
   function swapSelector(bytes4 _newSelector, bytes memory _buf) internal pure {
-    require(_buf.length >= 4);
+    require(_buf.length > 4 - 1);
     uint256 _mask = LOW_28_MASK;
     assembly {
       // load the first word of

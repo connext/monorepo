@@ -14,30 +14,30 @@ export class ExecuteError extends NxtpError {
 
 export class ParamsInvalid extends ExecuteError {
   constructor(context: any = {}) {
-    super("Params invalid", context, ParamsInvalid.name);
+    super("Params invalid", context, ParamsInvalid.name, undefined, false);
   }
 }
 
 export class MissingXCall extends ExecuteError {
   constructor(context: any = {}) {
-    super("Transfer is missing XCall information", context, MissingXCall.name);
+    super("Transfer is missing XCall information", context, MissingXCall.name, undefined, false);
   }
 }
-export class RouterVersionInvalid extends NxtpError {
+export class RouterVersionInvalid extends ExecuteError {
   constructor(context: any = {}) {
-    super(`Router version is not supported by the sequencer`, context, RouterVersionInvalid.name);
+    super(`Router version is not supported by the sequencer`, context, RouterVersionInvalid.name, undefined, false);
   }
 }
 
 export class SenderChainDataInvalid extends ExecuteError {
   constructor(context: any = {}) {
-    super("Invalid data on sending chain", context, SenderChainDataInvalid.name);
+    super("Invalid data on sending chain", context, SenderChainDataInvalid.name, undefined, false);
   }
 }
 
 export class SlippageInvalid extends ExecuteError {
   constructor(context: any = {}) {
-    super("Slippage invalid", context, SlippageInvalid.name);
+    super("Slippage invalid", context, SlippageInvalid.name, undefined, false);
   }
 }
 
@@ -49,13 +49,13 @@ export class ExpiryInvalid extends ExecuteError {
 
 export class BidExpiryInvalid extends ExecuteError {
   constructor(expiry: number, current: number, context: any = {}) {
-    super(`Bid expiry ${expiry} invalid, current: ${current}`, context, BidExpiryInvalid.name);
+    super(`Bid expiry ${expiry} invalid, current: ${current}`, context, BidExpiryInvalid.name, undefined, false);
   }
 }
 
 export class AmountInvalid extends ExecuteError {
   constructor(amount: string, context: any = {}) {
-    super(`Amount (${amount}) is invalid`, context, AmountInvalid.name);
+    super(`Amount (${amount}) is invalid`, context, AmountInvalid.name, undefined, false);
   }
 }
 
@@ -65,25 +65,33 @@ export class NotEnoughLiquidity extends ExecuteError {
       "Not enough liquidity for bid.",
       { ...context, chainId, assetId, balance, amountRequested },
       NotEnoughLiquidity.name,
+      undefined,
+      false,
     );
   }
 }
 
 export class NotEnoughAmount extends ExecuteError {
   constructor(context: any = {}) {
-    super("Not enough tokens for swap", context, NotEnoughAmount.name);
+    super("Not enough tokens for swap", context, NotEnoughAmount.name, undefined, false);
   }
 }
 
 export class CallDataForNonContract extends ExecuteError {
   constructor(context: any = {}) {
-    super("Calldata specified for an address that is not a contract", context, CallDataForNonContract.name);
+    super(
+      "Calldata specified for an address that is not a contract",
+      context,
+      CallDataForNonContract.name,
+      undefined,
+      false,
+    );
   }
 }
 
 export class RouterNotApproved extends ExecuteError {
   constructor(context: any = {}) {
-    super("Router not approved", context, RouterNotApproved.name);
+    super("Router not approved", context, RouterNotApproved.name, undefined, false);
   }
 }
 
@@ -95,25 +103,25 @@ export class SequencerResponseInvalid extends ExecuteError {
 
 export class AuctionExpired extends ExecuteError {
   constructor(context: any = {}) {
-    super("Auction has already expired for this transfer.", context, AuctionExpired.name);
+    super("Auction has already expired for this transfer.", context, AuctionExpired.name, undefined, false);
   }
 }
 
 export class SanityCheckFailed extends ExecuteError {
   constructor(context: any = {}) {
-    super("Sanity check failed", context, SanityCheckFailed.name);
+    super("Sanity check failed", context, SanityCheckFailed.name, undefined, false);
   }
 }
 
 export class InvalidAuctionRound extends ExecuteError {
   constructor(context: any = {}) {
-    super("Invalid auction round", context, InvalidAuctionRound.name);
+    super("Invalid auction round", context, InvalidAuctionRound.name, undefined, false);
   }
 }
 
 export class UnableToGetAsset extends ExecuteError {
   constructor(context: any = {}) {
-    super("Unable to get asset", context, UnableToGetAsset.name);
+    super("Unable to get asset", context, UnableToGetAsset.name, undefined, false);
   }
 }
 
@@ -131,7 +139,13 @@ export class NonRetryableBidPostError extends ExecuteError {
 
 export class CartoApiRequestFailed extends ExecuteError {
   constructor(context: any = {}) {
-    super("Cartographer api request failed, waiting for next loop", context, CartoApiRequestFailed.name);
+    super(
+      "Cartographer api request failed, waiting for next loop",
+      context,
+      CartoApiRequestFailed.name,
+      undefined,
+      false,
+    );
   }
 }
 

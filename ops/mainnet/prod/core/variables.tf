@@ -27,43 +27,49 @@ variable "domain" {
 variable "full_image_name_router_publisher" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-publisher:0.2.1-beta.0"
+  default     = "ghcr.io/connext/router-publisher:0.2.1-beta.8"
 }
 
 variable "full_image_name_router_subscriber" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-subscriber:0.2.1-beta.0"
+  default     = "ghcr.io/connext/router-subscriber:0.2.1-beta.8"
 }
 
 variable "full_image_name_router_executor" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-executor:0.2.1-beta.0"
+  default     = "ghcr.io/connext/router-executor:0.2.1-beta.8"
 }
 
 variable "full_image_name_sequencer_publisher" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer-publisher:0.2.1-beta.0"
+  default     = "ghcr.io/connext/sequencer-publisher:0.2.1-beta.8"
 }
 
 variable "full_image_name_sequencer_subscriber" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer-subscriber:0.2.1-beta.0"
+  default     = "ghcr.io/connext/sequencer-subscriber:0.2.1-beta.8"
 }
 
 variable "full_image_name_lighthouse_prover" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/lighthouse-prover:0.2.1-beta.0"
+  default     = "ghcr.io/connext/lighthouse-prover:0.2.1-beta.8"
 }
 
 variable "full_image_name_lighthouse_process_from_root" {
   type        = string
   description = "lighthouse process from root image name"
-  default     = "ghcr.io/connext/lighthouse-process-from-root:0.2.1-beta.0"
+  default     = "ghcr.io/connext/lighthouse-process-from-root:0.2.1-beta.8"
+}
+
+variable "full_image_name_lighthouse_propagate" {
+  type        = string
+  description = "lighthouse process from root image name"
+  default     = "ghcr.io/connext/lighthouse-propagate:0.2.1-beta.8"
 }
 
 variable "mnemonic" {
@@ -116,6 +122,14 @@ variable "polygon_alchemy_key_1" {
   type = string
 }
 
+variable "arbitrum_alchemy_key_0" {
+  type = string
+}
+
+variable "arbitrum_alchemy_key_1" {
+  type = string
+}
+
 variable "router_web3_signer_private_key" {
   type = string
 }
@@ -130,6 +144,11 @@ variable "dd_api_key" {
 
 variable "gelato_api_key" {
   type = string
+}
+
+variable "connext_relayer_api_key" {
+  type    = string
+  default = "foo"
 }
 
 variable "postgres_password" {
@@ -149,10 +168,14 @@ variable "lighthouse_processor_heartbeat" {
   type = string
 }
 
+variable "lighthouse_propagate_heartbeat" {
+  type = string
+}
+
 variable "full_image_name_relayer" {
   type        = string
   description = "relayer image name"
-  default     = "ghcr.io/connext/relayer:0.2.1-beta.0"
+  default     = "ghcr.io/connext/relayer:0.2.1-beta.8"
 }
 variable "relayer_web3_signer_private_key" {
   type = string

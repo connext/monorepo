@@ -17,6 +17,7 @@ export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   deployments: Type.Object({
     spokeConnector: TAddress,
+    relayerProxy: TAddress,
   }),
 });
 
@@ -48,8 +49,13 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   ),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   database: TDatabaseConfig,
+  subgraphPrefix: Type.Optional(Type.String()),
   healthUrls: Type.Partial(
-    Type.Object({ prover: Type.String({ format: "uri" }), processor: Type.String({ format: "uri" }) }),
+    Type.Object({
+      prover: Type.String({ format: "uri" }),
+      processor: Type.String({ format: "uri" }),
+      propagate: Type.String({ format: "uri" }),
+    }),
   ),
 });
 
@@ -61,10 +67,14 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "1735356532": "Optimism",
   "1735353714": "Mainnet",
   "9991": "Polygon",
+  "1734439522": "Arbitrum",
   // MAINNET
   "1869640809": "Optimism",
   "6648936": "Mainnet",
   "1886350457": "Polygon",
+  "6778479": "Gnosis",
+  "1634886255": "Arbitrum",
+  "6450786": "Bnb",
 };
 
 /**
@@ -126,6 +136,7 @@ export const getEnvConfig = (
     database: { url: process.env.DATABASE_URL || configJson.databaseUrl || configFile.databaseUrl },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
+    subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     healthUrls: process.env.NXTP_HEALTH_URLS || configJson.healthUrls || configFile.healthUrls || {},
   };
 
@@ -141,7 +152,7 @@ export const getEnvConfig = (
       : (`${nxtpConfig.environment[0].toUpperCase()}${nxtpConfig.environment.slice(1)}` as ContractPostfix);
 
   // add contract deployments if they exist
-  Object.entries(nxtpConfig.chains).forEach(([domainId]) => {
+  Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
     const chainDataForChain = chainData.get(domainId);
     // Make sure deployments is filled out correctly.
     // allow passed in address to override
@@ -161,6 +172,19 @@ export const getEnvConfig = (
             throw new Error(
               `No ${prefix}SpokeConnector${contractPostfix} contract address for domain ${domainId}, chain ${chainDataForChain?.chainId}`,
             );
+          }
+          return res.address;
+        })(),
+
+      relayerProxy:
+        chainConfig.deployments?.relayerProxy ??
+        (() => {
+          const res = chainDataForChain
+            ? deployments.relayerProxy(chainDataForChain.chainId, contractPostfix)
+            : undefined;
+
+          if (!res) {
+            throw new Error(`No RelayerProxy contract address for domain ${domainId}`);
           }
           return res.address;
         })(),

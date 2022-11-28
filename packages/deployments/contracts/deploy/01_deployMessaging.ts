@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployResult } from "hardhat-deploy/types";
-import { BigNumber, constants, Wallet } from "ethers";
+import { BigNumber, constants, Wallet, utils } from "ethers";
 
 import { chainIdToDomain, getConnectorName, getDeploymentName, getProtocolNetwork, deployBeaconProxy } from "../src";
 import { MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
@@ -15,6 +15,7 @@ const formatConnectorArgs = (
     rootManager: string;
     merkleManager?: string;
     watcherManager?: string;
+    amb?: string;
   },
 ): any[] => {
   const { deploymentChainId, mirrorChainId, rootManager, connectorChainId, merkleManager, watcherManager } = args;
@@ -26,17 +27,21 @@ const formatConnectorArgs = (
   const deploymentDomain = BigNumber.from(chainIdToDomain(deploymentChainId).toString());
   const mirrorDomain = BigNumber.from(chainIdToDomain(mirrorChainId).toString());
 
+  let amb = args.amb ?? isHub ? config.ambs.hub : config.ambs.spoke;
+
   const hubArgs = [
     deploymentDomain,
     // Mirror domain should be known.
     mirrorDomain,
-    isHub ? config.ambs.hub : config.ambs.spoke,
+    amb,
     rootManager,
     constants.AddressZero,
-    config.processGas,
     ...Object.values((isHub ? config?.custom?.hub : {}) ?? {}),
   ];
   if (isHub) {
+    if (config.prefix.includes("Optimism")) {
+      hubArgs.push(config.processGas);
+    }
     console.log(
       `hub connector constructorArgs:`,
       hubArgs.map((c) => c.toString()),
@@ -52,6 +57,9 @@ const formatConnectorArgs = (
     watcherManager!,
     ...Object.values(config?.custom?.spoke ?? {}),
   ];
+  if (config.prefix.includes("Optimism")) {
+    constructorArgs.push(config.processGas);
+  }
   console.log(
     `spoke connector constructorArgs:`,
     constructorArgs.map((c) => c.toString()),
@@ -107,7 +115,7 @@ const handleDeployHub = async (
     merkleTreeManagerForRoot.address,
     deployer,
   );
-  if (!(await merkleForRootContract.arborists(rootManager.address.toLowerCase()))) {
+  if (!(await merkleForRootContract.arborist())) {
     const tx = await merkleForRootContract.setArborist(rootManager.address);
     console.log(`setArborist for RootManager tx submitted:`, tx.hash);
     await tx.wait();
@@ -149,24 +157,11 @@ const handleDeployHub = async (
     merkleTreeManagerForSpoke.address,
     deployer,
   );
-  if (!(await merkleForSpokeContract.arborists(deployment.address.toLowerCase()))) {
+  if (!(await merkleForSpokeContract.arborist())) {
     const tx = await merkleForSpokeContract.setArborist(deployment.address);
     console.log(`setArborist for MainnetSpokeConnector tx submitted:`, tx.hash);
     await tx.wait();
   }
-
-  console.log(`Deploying ${connectorName} SendOutboundRootResolver...`);
-  const resolverDeployment = await hre.deployments.deploy(
-    getDeploymentName(`${connectorName}SendOutboundRootResolver`),
-    {
-      contract: "SendOutboundRootResolver",
-      from: deployer.address,
-      args: [deployment.address, 30 * 60], // 30 min
-      skipIfAlreadyDeployed: true,
-      log: true,
-    },
-  );
-  console.log(`${connectorName} SendOutboundRootResolver deployed to ${resolverDeployment.address}`);
 
   /// HUBCONNECTOR DEPLOYMENT
   // Loop through every HubConnector configuration (except for the actual hub's) and deploy.
@@ -196,22 +191,6 @@ const handleDeployHub = async (
       log: true,
     });
     console.log(`${contract} deployed to ${deployment.address}`);
-
-    const resolverDeploymentName = getDeploymentName(
-      `${contract}SendOutboundRootResolver`,
-      undefined,
-      protocol.configs[mirrorChainId].networkName,
-    );
-
-    console.log(`Deploying ${contract} SendOutboundRootResolver...`);
-    const resolverDeployment = await hre.deployments.deploy(resolverDeploymentName, {
-      contract: "SendOutboundRootResolver",
-      from: deployer.address,
-      args: [deployment.address, 30 * 60],
-      skipIfAlreadyDeployed: true,
-      log: true,
-    });
-    console.log(`${contract} SendOutboundRootResolver deployed to ${resolverDeployment.address}`);
   }
 };
 
@@ -267,6 +246,43 @@ const handleDeploySpoke = async (
   const merkleTreeManager = await deployBeaconProxy("MerkleTreeManager", [constants.AddressZero], deployer, hre);
 
   // Deploy Spoke Connector
+
+  let amb: undefined | string;
+  if (protocol.configs[deploymentChainId].prefix.includes("Arbitrum")) {
+    // NOTE: If the spoke network is arbitrum, the AMB should be set to the alias address.
+    // For more info, see alias address in docs:
+    // https://developer.offchainlabs.com/arbos/l1-to-l2-messaging
+    const arbitrumHubConnector = await hre.companionNetworks["hub"].deployments.getOrNull(
+      getDeploymentName("ArbitrumHubConnector"),
+    );
+    if (!arbitrumHubConnector) {
+      throw new Error(
+        "Could not find the ArbitrumHubConnector contract deployment; " +
+          "address is needed in order to deploy ArbitrumSpokeConnector",
+      );
+    }
+
+    // Alias is the origin sender address + 0x1111000000000000000000000000000000001111.
+    // We can't just add that value here: if there's any 'f' hex digits there will be a
+    // leftover/remainder that will expand the address to include extra digits.
+    // TODO: Make util?
+    const L1_TO_L2_ALIAS_OFFSET = "0x1111000000000000000000000000000000001111";
+    let bn = BigNumber.from(arbitrumHubConnector.address).add(L1_TO_L2_ALIAS_OFFSET);
+    bn = BigNumber.from(bn);
+    if (bn.lt(0)) {
+      bn = BigNumber.from("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").add(bn).add(1);
+    }
+    let addr = bn.toHexString();
+    if (addr.includes("0x")) {
+      addr.replace("0x", "");
+    }
+    addr = addr.padStart(40, "0");
+    addr = addr.slice(addr.length - 40, addr.length);
+    addr = "0x" + addr;
+    // Set the AMB address we'll use.
+    amb = utils.getAddress(addr);
+  }
+
   console.log(`Deploying ${contract}...`);
   const deployment = await hre.deployments.deploy(
     getDeploymentName(contract, undefined, protocol.configs[deploymentChainId].networkName),
@@ -289,29 +305,14 @@ const handleDeploySpoke = async (
 
   // setArborist to Merkle
   const merkleContract = await hre.ethers.getContractAt("MerkleTreeManager", merkleTreeManager.address, deployer);
+  console.log("merkleContract: ", merkleContract.address);
 
-  if (!(await merkleContract.arborists(deployment.address.toLowerCase()))) {
+  console.log("await merkleContract.arborist(): ", await merkleContract.arborist());
+  if (!(await merkleContract.arborist())) {
     const tx = await merkleContract.setArborist(deployment.address);
     console.log(`setArborist tx submitted:`, tx.hash);
     await tx.wait();
   }
-
-  console.log(`Deploying ${contract} SendOutboundRootResolver...`);
-  const resolverDeployment = await hre.deployments.deploy(
-    getDeploymentName(
-      `${contract}SendOutboundRootResolver`,
-      undefined,
-      protocol.configs[deploymentChainId].networkName,
-    ),
-    {
-      contract: "SendOutboundRootResolver",
-      from: deployer.address,
-      args: [deployment.address, 30 * 60], // 30 min
-      skipIfAlreadyDeployed: true,
-      log: true,
-    },
-  );
-  console.log(`${contract} SendOutboundRootResolver deployed to ${resolverDeployment.address}`);
   return deployment;
 };
 

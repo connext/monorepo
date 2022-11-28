@@ -122,7 +122,7 @@ const convertToDbPropagatedRoot = (root: PropagatedRoot): s.propagated_roots.Ins
   return {
     id: root.id,
     aggregate_root: root.aggregate,
-    domains: root.domains,
+    domains_hash: root.domainsHash,
     leaf_count: root.count,
   };
 };
@@ -401,12 +401,21 @@ export const transaction = async (
 
 export const getUnProcessedMessages = async (
   limit = 100,
+  offset = 0,
   orderDirection: "ASC" | "DESC" = "ASC",
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<XMessage[]> => {
   const poolToUse = _pool ?? pool;
   const messages = await db
-    .select("messages", { processed: false }, { limit, order: { by: "index", direction: orderDirection } })
+    .select(
+      "messages",
+      { processed: false },
+      {
+        limit,
+        offset,
+        order: { by: "index", direction: orderDirection },
+      },
+    )
     .run(poolToUse);
   return messages.map(convertFromDbMessage);
 };
@@ -447,20 +456,19 @@ export const getMessageRootIndex = async (
 };
 
 export const getMessageRootFromIndex = async (
-  domain: string,
+  spoke_domain: string,
   index: number,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string | undefined> => {
   const poolToUse = _pool ?? pool;
   // Find the first published outbound root that contains the index, for a given domain
-  const dbRoot = await db
-    .selectOne(
-      "root_messages",
-      { spoke_domain: domain, leaf_count: dc.gte(index) },
-      { limit: 1, order: { by: "leaf_count", direction: "ASC" } },
-    )
-    .run(poolToUse);
-  return dbRoot ? convertFromDbRootMessage(dbRoot).root : undefined;
+  const root = await db.sql<
+    s.root_messages.SQL,
+    s.root_messages.Selectable[]
+  >`select * from ${"root_messages"} where ${"root"} in (select received_root from aggregated_roots) and ${{
+    spoke_domain,
+  }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 1`.run(poolToUse);
+  return root.length > 0 ? convertFromDbRootMessage(root[0]).root : undefined;
 };
 
 export const getMessageRootCount = async (

@@ -41,6 +41,8 @@ export declare namespace SwapUtils {
     tokenPrecisionMultipliers: PromiseOrValue<BigNumberish>[];
     balances: PromiseOrValue<BigNumberish>[];
     adminFees: PromiseOrValue<BigNumberish>[];
+    disabled: PromiseOrValue<boolean>;
+    removeTime: PromiseOrValue<BigNumberish>;
   };
 
   export type SwapStructOutput = [
@@ -55,7 +57,9 @@ export declare namespace SwapUtils {
     string[],
     BigNumber[],
     BigNumber[],
-    BigNumber[]
+    BigNumber[],
+    boolean,
+    BigNumber
   ] & {
     key: string;
     initialA: BigNumber;
@@ -69,29 +73,45 @@ export declare namespace SwapUtils {
     tokenPrecisionMultipliers: BigNumber[];
     balances: BigNumber[];
     adminFees: BigNumber[];
+    disabled: boolean;
+    removeTime: BigNumber;
   };
 }
 
 export interface SwapAdminFacetInterface extends utils.Interface {
   functions: {
-    "initializeSwap(bytes32,address[],uint8[],string,string,uint256,uint256,uint256,address)": FunctionFragment;
+    "disableSwap(bytes32)": FunctionFragment;
+    "initializeSwap(bytes32,address[],uint8[],string,string,uint256,uint256,uint256)": FunctionFragment;
+    "isDisabled(bytes32)": FunctionFragment;
+    "lpTokenTargetAddress()": FunctionFragment;
     "rampA(bytes32,uint256,uint256)": FunctionFragment;
+    "removeSwap(bytes32)": FunctionFragment;
     "setSwapAdminFee(bytes32,uint256)": FunctionFragment;
     "setSwapFee(bytes32,uint256)": FunctionFragment;
     "stopRampA(bytes32)": FunctionFragment;
+    "updateLpTokenTarget(address)": FunctionFragment;
     "withdrawSwapAdminFees(bytes32)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "disableSwap"
       | "initializeSwap"
+      | "isDisabled"
+      | "lpTokenTargetAddress"
       | "rampA"
+      | "removeSwap"
       | "setSwapAdminFee"
       | "setSwapFee"
       | "stopRampA"
+      | "updateLpTokenTarget"
       | "withdrawSwapAdminFees"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "disableSwap",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
   encodeFunctionData(
     functionFragment: "initializeSwap",
     values: [
@@ -102,9 +122,16 @@ export interface SwapAdminFacetInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
+      PromiseOrValue<BigNumberish>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isDisabled",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lpTokenTargetAddress",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "rampA",
@@ -113,6 +140,10 @@ export interface SwapAdminFacetInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeSwap",
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "setSwapAdminFee",
@@ -127,21 +158,39 @@ export interface SwapAdminFacetInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "updateLpTokenTarget",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "withdrawSwapAdminFees",
     values: [PromiseOrValue<BytesLike>]
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "disableSwap",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "initializeSwap",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "isDisabled", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "lpTokenTargetAddress",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "rampA", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "removeSwap", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setSwapAdminFee",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setSwapFee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "stopRampA", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "updateLpTokenTarget",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "withdrawSwapAdminFees",
     data: BytesLike
@@ -150,18 +199,24 @@ export interface SwapAdminFacetInterface extends utils.Interface {
   events: {
     "AdminFeesSet(bytes32,uint256,address)": EventFragment;
     "AdminFeesWithdrawn(bytes32,address)": EventFragment;
+    "LPTokenTargetUpdated(address,address,address)": EventFragment;
     "RampAStarted(bytes32,uint256,uint256,address)": EventFragment;
     "RampAStopped(bytes32,address)": EventFragment;
+    "SwapDisabled(bytes32,address)": EventFragment;
     "SwapFeesSet(bytes32,uint256,address)": EventFragment;
     "SwapInitialized(bytes32,tuple,address)": EventFragment;
+    "SwapRemoved(bytes32,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AdminFeesSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AdminFeesWithdrawn"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "LPTokenTargetUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RampAStarted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RampAStopped"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SwapDisabled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SwapFeesSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SwapInitialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SwapRemoved"): EventFragment;
 }
 
 export interface AdminFeesSetEventObject {
@@ -188,6 +243,19 @@ export type AdminFeesWithdrawnEvent = TypedEvent<
 export type AdminFeesWithdrawnEventFilter =
   TypedEventFilter<AdminFeesWithdrawnEvent>;
 
+export interface LPTokenTargetUpdatedEventObject {
+  oldAddress: string;
+  newAddress: string;
+  caller: string;
+}
+export type LPTokenTargetUpdatedEvent = TypedEvent<
+  [string, string, string],
+  LPTokenTargetUpdatedEventObject
+>;
+
+export type LPTokenTargetUpdatedEventFilter =
+  TypedEventFilter<LPTokenTargetUpdatedEvent>;
+
 export interface RampAStartedEventObject {
   key: string;
   futureA: BigNumber;
@@ -212,6 +280,17 @@ export type RampAStoppedEvent = TypedEvent<
 
 export type RampAStoppedEventFilter = TypedEventFilter<RampAStoppedEvent>;
 
+export interface SwapDisabledEventObject {
+  key: string;
+  caller: string;
+}
+export type SwapDisabledEvent = TypedEvent<
+  [string, string],
+  SwapDisabledEventObject
+>;
+
+export type SwapDisabledEventFilter = TypedEventFilter<SwapDisabledEvent>;
+
 export interface SwapFeesSetEventObject {
   key: string;
   newSwapFee: BigNumber;
@@ -235,6 +314,17 @@ export type SwapInitializedEvent = TypedEvent<
 >;
 
 export type SwapInitializedEventFilter = TypedEventFilter<SwapInitializedEvent>;
+
+export interface SwapRemovedEventObject {
+  key: string;
+  caller: string;
+}
+export type SwapRemovedEvent = TypedEvent<
+  [string, string],
+  SwapRemovedEventObject
+>;
+
+export type SwapRemovedEventFilter = TypedEventFilter<SwapRemovedEvent>;
 
 export interface SwapAdminFacet extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -263,6 +353,11 @@ export interface SwapAdminFacet extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    disableSwap(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     initializeSwap(
       _key: PromiseOrValue<BytesLike>,
       _pooledTokens: PromiseOrValue<string>[],
@@ -272,14 +367,25 @@ export interface SwapAdminFacet extends BaseContract {
       _a: PromiseOrValue<BigNumberish>,
       _fee: PromiseOrValue<BigNumberish>,
       _adminFee: PromiseOrValue<BigNumberish>,
-      lpTokenTargetAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    isDisabled(
+      key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    lpTokenTargetAddress(overrides?: CallOverrides): Promise<[string]>;
 
     rampA(
       key: PromiseOrValue<BytesLike>,
       futureA: PromiseOrValue<BigNumberish>,
       futureTime: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    removeSwap(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -300,11 +406,21 @@ export interface SwapAdminFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    updateLpTokenTarget(
+      newAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     withdrawSwapAdminFees(
       key: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  disableSwap(
+    _key: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   initializeSwap(
     _key: PromiseOrValue<BytesLike>,
@@ -315,14 +431,25 @@ export interface SwapAdminFacet extends BaseContract {
     _a: PromiseOrValue<BigNumberish>,
     _fee: PromiseOrValue<BigNumberish>,
     _adminFee: PromiseOrValue<BigNumberish>,
-    lpTokenTargetAddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  isDisabled(
+    key: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  lpTokenTargetAddress(overrides?: CallOverrides): Promise<string>;
 
   rampA(
     key: PromiseOrValue<BytesLike>,
     futureA: PromiseOrValue<BigNumberish>,
     futureTime: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  removeSwap(
+    _key: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -343,12 +470,22 @@ export interface SwapAdminFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  updateLpTokenTarget(
+    newAddress: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   withdrawSwapAdminFees(
     key: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    disableSwap(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     initializeSwap(
       _key: PromiseOrValue<BytesLike>,
       _pooledTokens: PromiseOrValue<string>[],
@@ -358,14 +495,25 @@ export interface SwapAdminFacet extends BaseContract {
       _a: PromiseOrValue<BigNumberish>,
       _fee: PromiseOrValue<BigNumberish>,
       _adminFee: PromiseOrValue<BigNumberish>,
-      lpTokenTargetAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    isDisabled(
+      key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    lpTokenTargetAddress(overrides?: CallOverrides): Promise<string>;
 
     rampA(
       key: PromiseOrValue<BytesLike>,
       futureA: PromiseOrValue<BigNumberish>,
       futureTime: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    removeSwap(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -383,6 +531,11 @@ export interface SwapAdminFacet extends BaseContract {
 
     stopRampA(
       key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateLpTokenTarget(
+      newAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -413,6 +566,17 @@ export interface SwapAdminFacet extends BaseContract {
       caller?: null
     ): AdminFeesWithdrawnEventFilter;
 
+    "LPTokenTargetUpdated(address,address,address)"(
+      oldAddress?: null,
+      newAddress?: null,
+      caller?: null
+    ): LPTokenTargetUpdatedEventFilter;
+    LPTokenTargetUpdated(
+      oldAddress?: null,
+      newAddress?: null,
+      caller?: null
+    ): LPTokenTargetUpdatedEventFilter;
+
     "RampAStarted(bytes32,uint256,uint256,address)"(
       key?: PromiseOrValue<BytesLike> | null,
       futureA?: null,
@@ -435,6 +599,15 @@ export interface SwapAdminFacet extends BaseContract {
       caller?: null
     ): RampAStoppedEventFilter;
 
+    "SwapDisabled(bytes32,address)"(
+      key?: PromiseOrValue<BytesLike> | null,
+      caller?: null
+    ): SwapDisabledEventFilter;
+    SwapDisabled(
+      key?: PromiseOrValue<BytesLike> | null,
+      caller?: null
+    ): SwapDisabledEventFilter;
+
     "SwapFeesSet(bytes32,uint256,address)"(
       key?: PromiseOrValue<BytesLike> | null,
       newSwapFee?: null,
@@ -456,9 +629,23 @@ export interface SwapAdminFacet extends BaseContract {
       swap?: null,
       caller?: null
     ): SwapInitializedEventFilter;
+
+    "SwapRemoved(bytes32,address)"(
+      key?: PromiseOrValue<BytesLike> | null,
+      caller?: null
+    ): SwapRemovedEventFilter;
+    SwapRemoved(
+      key?: PromiseOrValue<BytesLike> | null,
+      caller?: null
+    ): SwapRemovedEventFilter;
   };
 
   estimateGas: {
+    disableSwap(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     initializeSwap(
       _key: PromiseOrValue<BytesLike>,
       _pooledTokens: PromiseOrValue<string>[],
@@ -468,14 +655,25 @@ export interface SwapAdminFacet extends BaseContract {
       _a: PromiseOrValue<BigNumberish>,
       _fee: PromiseOrValue<BigNumberish>,
       _adminFee: PromiseOrValue<BigNumberish>,
-      lpTokenTargetAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    isDisabled(
+      key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    lpTokenTargetAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     rampA(
       key: PromiseOrValue<BytesLike>,
       futureA: PromiseOrValue<BigNumberish>,
       futureTime: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    removeSwap(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -493,6 +691,11 @@ export interface SwapAdminFacet extends BaseContract {
 
     stopRampA(
       key: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    updateLpTokenTarget(
+      newAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -503,6 +706,11 @@ export interface SwapAdminFacet extends BaseContract {
   };
 
   populateTransaction: {
+    disableSwap(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     initializeSwap(
       _key: PromiseOrValue<BytesLike>,
       _pooledTokens: PromiseOrValue<string>[],
@@ -512,14 +720,27 @@ export interface SwapAdminFacet extends BaseContract {
       _a: PromiseOrValue<BigNumberish>,
       _fee: PromiseOrValue<BigNumberish>,
       _adminFee: PromiseOrValue<BigNumberish>,
-      lpTokenTargetAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    isDisabled(
+      key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    lpTokenTargetAddress(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     rampA(
       key: PromiseOrValue<BytesLike>,
       futureA: PromiseOrValue<BigNumberish>,
       futureTime: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    removeSwap(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -537,6 +758,11 @@ export interface SwapAdminFacet extends BaseContract {
 
     stopRampA(
       key: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateLpTokenTarget(
+      newAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

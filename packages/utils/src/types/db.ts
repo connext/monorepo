@@ -283,7 +283,7 @@ export const convertFromDbPropagatedRoot = (message: any): PropagatedRoot => {
   return {
     id: message.id,
     aggregate: message.aggregate_root,
-    domains: message.domains,
+    domainsHash: message.domains_hash,
     count: message.leaf_count,
   };
 };

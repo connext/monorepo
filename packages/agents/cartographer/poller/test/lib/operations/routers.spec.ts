@@ -1,7 +1,7 @@
 import { SinonStub } from "sinon";
 import { expect } from "@connext/nxtp-utils";
+import { mockRouterResponse } from "@connext/nxtp-adapters-subgraph/test/mock";
 
-import { mockRouterResponse } from "../../mock";
 import { mockContext } from "../../globalTestHook";
 import { updateRouters } from "../../../src/lib/operations";
 

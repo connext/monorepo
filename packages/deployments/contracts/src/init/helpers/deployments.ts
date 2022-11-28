@@ -115,11 +115,13 @@ export const getDeployments = (args: {
           HubConnectors: connectors,
           MerkleTreeManagerForRoot: getContract("MerkleTreeManagerRootUpgradeBeaconProxy"),
           MerkleTreeManagerForSpoke: getContract("MerkleTreeManagerSpokeUpgradeBeaconProxy"),
+          RelayerProxy: getContract("RelayerProxyHub"),
         }
       : {
           SpokeConnector: connectors[0],
           MerkleTreeManager: getContract("MerkleTreeManagerUpgradeBeaconProxy"),
           WatcherManager: getContract("WatcherManager"),
+          RelayerProxy: getContract("RelayerProxy"),
         },
   };
 };

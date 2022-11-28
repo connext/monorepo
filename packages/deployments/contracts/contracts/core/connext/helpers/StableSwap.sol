@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
@@ -7,6 +7,7 @@ import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/se
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {SwapUtilsExternal as SwapUtils} from "../libraries/SwapUtilsExternal.sol";
+import {Constants} from "../libraries/Constants.sol";
 
 import {OwnerPausableUpgradeable} from "./OwnerPausableUpgradeable.sol";
 import {LPToken} from "./LPToken.sol";
@@ -34,10 +35,6 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
   // ============ Events ============
   event SwapInitialized(SwapUtils.Swap swap, address caller);
 
-  // ============ Upgrade Gap ============
-
-  uint256[49] private __GAP; // gap for upgrade safety
-
   // ============ Storage ============
 
   // Struct storing data responsible for automatic market maker functionalities. In order to
@@ -61,7 +58,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
    * eg 8 for WBTC. Cannot be larger than POOL_PRECISION_DECIMALS
    * @param lpTokenName the long-form name of the token to be deployed
    * @param lpTokenSymbol the short symbol for the token to be deployed
-   * @param _a the amplification coefficient * n * (n - 1). See the
+   * @param _a the amplification coefficient * n ** (n - 1). See the
    * StableSwap paper for details
    * @param _fee default swap fee to be initialized with
    * @param _adminFee default adminFee to be initialized with
@@ -80,14 +77,16 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     __OwnerPausable_init();
     __ReentrancyGuard_init();
 
+    uint256 numPooledTokens = _pooledTokens.length;
+
     // Check _pooledTokens and precisions parameter
-    require(_pooledTokens.length > 1, "_pooledTokens.length <= 1");
-    require(_pooledTokens.length <= 32, "_pooledTokens.length > 32");
-    require(_pooledTokens.length == decimals.length, "_pooledTokens decimals mismatch");
+    require(numPooledTokens > Constants.MINIMUM_POOLED_TOKENS - 1, "_pooledTokens.length insufficient");
+    require(numPooledTokens < Constants.MAXIMUM_POOLED_TOKENS + 1, "_pooledTokens.length too large");
+    require(numPooledTokens == decimals.length, "_pooledTokens decimals mismatch");
 
     uint256[] memory precisionMultipliers = new uint256[](decimals.length);
 
-    for (uint8 i = 0; i < _pooledTokens.length; i++) {
+    for (uint256 i = 0; i < numPooledTokens; ) {
       if (i != 0) {
         // Check if index is already used. Check if 0th element is a duplicate.
         require(
@@ -96,15 +95,19 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
         );
       }
       require(address(_pooledTokens[i]) != address(0), "The 0 address isn't an ERC-20");
-      require(decimals[i] <= SwapUtils.POOL_PRECISION_DECIMALS, "Token decimals exceeds max");
-      precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - decimals[i]);
-      tokenIndexes[address(_pooledTokens[i])] = i;
+      require(decimals[i] < Constants.POOL_PRECISION_DECIMALS + 1, "Token decimals exceeds max");
+      precisionMultipliers[i] = 10**uint256(Constants.POOL_PRECISION_DECIMALS - decimals[i]);
+      tokenIndexes[address(_pooledTokens[i])] = uint8(i);
+
+      unchecked {
+        ++i;
+      }
     }
 
     // Check _a, _fee, _adminFee, _withdrawFee parameters
-    require(_a < SwapUtils.MAX_A, "_a exceeds maximum");
-    require(_fee < SwapUtils.MAX_SWAP_FEE, "_fee exceeds maximum");
-    require(_adminFee < SwapUtils.MAX_ADMIN_FEE, "_adminFee exceeds maximum");
+    require(_a < Constants.MAX_A, "_a exceeds maximum");
+    require(_fee < Constants.MAX_SWAP_FEE, "_fee exceeds maximum");
+    require(_adminFee < Constants.MAX_ADMIN_FEE, "_adminFee exceeds maximum");
 
     // Initialize a LPToken contract
     LPToken lpToken = LPToken(Clones.clone(lpTokenTargetAddress));
@@ -114,10 +117,10 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     swapStorage.lpToken = lpToken;
     swapStorage.pooledTokens = _pooledTokens;
     swapStorage.tokenPrecisionMultipliers = precisionMultipliers;
-    swapStorage.balances = new uint256[](_pooledTokens.length);
-    swapStorage.adminFees = new uint256[](_pooledTokens.length);
-    swapStorage.initialA = _a * SwapUtils.A_PRECISION;
-    swapStorage.futureA = _a * SwapUtils.A_PRECISION;
+    swapStorage.balances = new uint256[](numPooledTokens);
+    swapStorage.adminFees = new uint256[](numPooledTokens);
+    swapStorage.initialA = _a * Constants.A_PRECISION;
+    swapStorage.futureA = _a * Constants.A_PRECISION;
     // swapStorage.initialATime = 0;
     // swapStorage.futureATime = 0;
     swapStorage.swapFee = _fee;
@@ -140,7 +143,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
   // ============ View functions ============
 
   /**
-   * @notice Return A, the amplification coefficient * n * (n - 1)
+   * @notice Return A, the amplification coefficient * n ** (n - 1)
    * @dev See the StableSwap paper for details
    * @return A parameter
    */
@@ -405,7 +408,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     uint256 amount,
     uint256[] calldata minAmounts,
     uint256 deadline
-  ) external override nonReentrant deadlineCheck(deadline) returns (uint256[] memory) {
+  ) external override nonReentrant whenNotPaused deadlineCheck(deadline) returns (uint256[] memory) {
     return swapStorage.removeLiquidity(amount, minAmounts);
   }
 
@@ -487,4 +490,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
   function stopRampA() external onlyOwner {
     swapStorage.stopRampA();
   }
+
+  // ============ Upgrade Gap ============
+  uint256[48] private __GAP; // gap for upgrade safety
 }
