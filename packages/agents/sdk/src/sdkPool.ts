@@ -141,7 +141,7 @@ export class NxtpSdkPool {
     const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
     const blockDater = new BlockDater(provider);
 
-    const closestBlock = await blockDater.getDate(date);
+    const closestBlock = blockDater.getDate(date);
 
     if (!closestBlock) {
       throw new Error("Could not retrieve block number");
