@@ -1,6 +1,6 @@
 import { domainToChainId } from "@connext/nxtp-contracts";
 import { getDeployedConnextContract, getErc20Interface, TransactionService } from "@connext/nxtp-txservice";
-import { Logger, RequestContext } from "@connext/nxtp-utils";
+import { getCanonicalHash, Logger, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, utils } from "ethers";
 
 type CallContext = {
@@ -50,7 +50,9 @@ export const totalMintedAssets = async (
     try {
       totalSupply = BigNumber.from(totalSupplyRes);
     } catch (e: any) {
-      throw new Error(`Failed to convert totalSupply response to BigNumber. Error: ${e.toString()}`);
+      throw new Error(
+        "Failed to convert totalSupply response to BigNumber. " + `Received: ${totalSupplyRes}; Error: ${e.toString()}`,
+      );
     }
 
     // 3. Add to total.
@@ -60,4 +62,37 @@ export const totalMintedAssets = async (
   return totalMintedAmount;
 };
 
-export const totalLockedAssets = async (): Promise<void> => {};
+export const totalLockedAssets = async (
+  context: CallContext,
+  asset: {
+    canonicalId: string;
+    canonicalDomain: string;
+    address: string; // TODO: Remove this arg and parse out the address from canonical ID in method.
+  },
+): Promise<BigNumber> => {
+  const chainId = domainToChainId(+asset.canonicalDomain);
+  const connext = getDeployedConnextContract(chainId, context.isStaging ? "Staging" : "");
+  if (!connext) {
+    // TODO: Custom errors for package
+    throw new Error("Connext deployment not found!");
+  }
+
+  const assetKey = getCanonicalHash(asset.canonicalDomain, asset.canonicalId);
+
+  // 1. Call `getCustodiedAmount` (see: TokenFacet getters), will get `custodied` value from tokenConfig.
+  const getCustodiedAmountCalldata = new utils.Interface(connext.abi as string[]).encodeFunctionData("getCustodied", [
+    assetKey,
+  ]);
+  const amountRes = await context.txservice.readTx({
+    chainId,
+    to: connext.address,
+    data: getCustodiedAmountCalldata,
+  });
+  try {
+    return BigNumber.from(amountRes);
+  } catch (e: any) {
+    throw new Error(
+      "Failed to convert getCustodiedAmount response to BigNumber. " + `Received: ${amountRes}; Error: ${e.toString()}`,
+    );
+  }
+};
