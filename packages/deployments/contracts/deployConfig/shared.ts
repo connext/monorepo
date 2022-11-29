@@ -344,9 +344,11 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         custom: {
           hub: {
             mirrorChainId: "97",
+            gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
           },
           spoke: {
             mirrorChainId: "5",
+            gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
           },
         },
       },
@@ -467,9 +469,11 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       //   custom: {
       //     hub: {
       //       mirrorChainId: "56",
+      //       gasCap: "1016960000000000",   // calcSrcFee: 516960000000000
       //     },
       //     spoke: {
       //       mirrorChainId: "1",
+      //       gasCap: "280112000000000000", // calcSrcFee: 140112000000000000
       //     },
       //   },
       // },
