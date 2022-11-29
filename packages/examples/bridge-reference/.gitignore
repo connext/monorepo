@@ -20,10 +20,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# parcel-bundler cache (https://parceljs.org/)
-.cache
-dist
-.parcel-cache
+# next.js
+.next
+out
 
 # VisualStudioCode #
 .vscode/*
