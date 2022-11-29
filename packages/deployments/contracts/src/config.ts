@@ -105,7 +105,7 @@ export const hardhatNetworks = {
     },
   },
   bnb: {
-    accounts: { mnemonic },
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 56,
     url: urlOverride || process.env.BNB_PROVIDER_URL || "https://bsc-dataseed.binance.org/",
     companionNetworks: {
