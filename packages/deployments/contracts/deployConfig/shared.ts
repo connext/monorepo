@@ -452,31 +452,31 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       //   },
       // },
       // BNB Chain
-      // 56: {
-      //   prefix: "Multichain",
-      //   networkName: "Bnb",
-      //   ambs: {
-      //     // AnyCallV6Proxy on Mainnet
-      //     // https://etherscan.io/address/0xC10Ef9F491C9B59f936957026020C321651ac078
-      //     hub: "0xC10Ef9F491C9B59f936957026020C321651ac078",
-      //     // AnyCallV6Proxy on BNB Chain
-      //     // https://bscscan.com/address/0xC10Ef9F491C9B59f936957026020C321651ac078
-      //     spoke: "0xC10Ef9F491C9B59f936957026020C321651ac078",
-      //   },
-      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   custom: {
-      //     hub: {
-      //       mirrorChainId: "56",
-      //       gasCap: "1016960000000000",   // calcSrcFee: 516960000000000
-      //     },
-      //     spoke: {
-      //       mirrorChainId: "1",
-      //       gasCap: "280112000000000000", // calcSrcFee: 140112000000000000
-      //     },
-      //   },
-      // },
+      56: {
+        prefix: "Multichain",
+        networkName: "Bnb",
+        ambs: {
+          // AnyCallV6Proxy on Mainnet
+          // https://etherscan.io/address/0xC10Ef9F491C9B59f936957026020C321651ac078
+          hub: "0xC10Ef9F491C9B59f936957026020C321651ac078",
+          // AnyCallV6Proxy on BNB Chain
+          // https://bscscan.com/address/0xC10Ef9F491C9B59f936957026020C321651ac078
+          spoke: "0xC10Ef9F491C9B59f936957026020C321651ac078",
+        },
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {
+          hub: {
+            mirrorChainId: "56",
+            gasCap: "520000000000000", // calcSrcFee: 516960000000000
+          },
+          spoke: {
+            mirrorChainId: "1",
+            gasCap: "150000000000000000", // calcSrcFee: 140112000000000000
+          },
+        },
+      },
     },
   },
 };
