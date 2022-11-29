@@ -22,6 +22,7 @@
     "packages/adapters/relayer",
     "packages/adapters/subgraph",
     "packages/adapters/web3signer",
+    "packages/adapters/watcher",
     "packages/agents/router",
     "packages/agents/sequencer",
     "packages/agents/cartographer/poller",
