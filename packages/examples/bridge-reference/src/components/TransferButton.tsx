@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { BiMessageError, BiMessageCheck, BiMessageDetail } from "react-icons/bi";
 import { MdClose } from "react-icons/md";
 import { FaSpinner } from "react-icons/fa";
-import { constants, FixedNumber, utils } from "ethers";
+import { FixedNumber, utils } from "ethers";
 import { XTransferStatus } from "@connext/nxtp-utils";
 
 import { useWallet } from "../contexts/Wallet";
