@@ -327,29 +327,31 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
-      // 97: {
-      //   prefix: "Multichain",
-      //   networkName: "Chapel",
-      //   ambs: {
-      //     // FxRoot on goerli
-      //     // https://goerli.etherscan.io/address/0x965f84D915a9eFa2dD81b653e3AE736555d945f4
-      //     hub: "0x965f84D915a9eFa2dD81b653e3AE736555d945f4",
-      //     // FxChild on chapel/bsc testnet
-      //     // https://testnet.bscscan.com/address/0x484ff472d8b592E46EBC39964e84f7F758C49045
-      //     spoke: "0x484ff472d8b592E46EBC39964e84f7F758C49045",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
-      //   custom: {
-      //     hub: {
-      //       mirrorChainId: "97",
-      //     },
-      //     spoke: {
-      //       mirrorChainId: "5",
-      //     },
-      //   },
-      // },
+      97: {
+        prefix: "Multichain",
+        networkName: "Chapel",
+        ambs: {
+          // AnyCallV6Proxy on goerli
+          // https://goerli.etherscan.io/address/0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3
+          hub: "0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3",
+          // AnyCallV6Proxy on chapel/bsc testnet
+          // https://testnet.bscscan.com/address/0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045
+          spoke: "0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        custom: {
+          hub: {
+            mirrorChainId: "97",
+            gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
+          },
+          spoke: {
+            mirrorChainId: "5",
+            gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
+          },
+        },
+      },
       5: {
         prefix: "Mainnet",
         ambs: {
@@ -450,29 +452,31 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       //   },
       // },
       // BNB Chain
-      // 56: {
-      //   prefix: "Multichain",
-      //   networkName: "Bnb",
-      //   ambs: {
-      //     // FxRoot on Mainnet
-      //     // https://etherscan.io/address/0xC10Ef9F491C9B59f936957026020C321651ac078
-      //     hub: "0xC10Ef9F491C9B59f936957026020C321651ac078",
-      //     // FxChild on BNB Chain
-      //     // https://bscscan.com/address/0xC10Ef9F491C9B59f936957026020C321651ac078
-      //     spoke: "0xC10Ef9F491C9B59f936957026020C321651ac078",
-      //   },
-      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   custom: {
-      //     hub: {
-      //       mirrorChainId: "56",
-      //     },
-      //     spoke: {
-      //       mirrorChainId: "1",
-      //     },
-      //   },
-      // },
+      56: {
+        prefix: "Multichain",
+        networkName: "Bnb",
+        ambs: {
+          // AnyCallV6Proxy on Mainnet
+          // https://etherscan.io/address/0xC10Ef9F491C9B59f936957026020C321651ac078
+          hub: "0xC10Ef9F491C9B59f936957026020C321651ac078",
+          // AnyCallV6Proxy on BNB Chain
+          // https://bscscan.com/address/0xC10Ef9F491C9B59f936957026020C321651ac078
+          spoke: "0xC10Ef9F491C9B59f936957026020C321651ac078",
+        },
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {
+          hub: {
+            mirrorChainId: "56",
+            gasCap: "520000000000000", // calcSrcFee: 516960000000000
+          },
+          spoke: {
+            mirrorChainId: "1",
+            gasCap: "150000000000000000", // calcSrcFee: 140112000000000000
+          },
+        },
+      },
     },
   },
 };
