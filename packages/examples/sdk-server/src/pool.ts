@@ -27,6 +27,7 @@ import {
   calculateSwapPriceImpactSchema,
   getYieldStatsForDaySchema,
   getYieldDataSchema,
+  getBlockNumberFromUnixTimestampSchema,
 } from "./types/api";
 
 export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpSdkPool): Promise<any> => {
@@ -333,6 +334,20 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
   );
 
   s.get(
+    "/getBlockNumberFromUnixTimestamp/:domainId/:unixTimestamp",
+    {
+      schema: {
+        params: getBlockNumberFromUnixTimestampSchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, unixTimestamp } = request.params;
+      const res = await sdkPoolInstance.getBlockNumberFromUnixTimestamp(domainId, unixTimestamp);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.get(
     "/getYieldStatsForDay/:domainId/:tokenAddress/:unixTimestamp",
     {
       schema: {
@@ -347,7 +362,7 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
   );
 
   s.get(
-    "/getYieldData/:domainId/:tokenAddress",
+    "/getYieldData/:domainId/:tokenAddress/:days",
     {
       schema: {
         params: getYieldDataSchema,
