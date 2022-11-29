@@ -25,6 +25,7 @@ locals {
       "1869640809" = {}
       "1886350457" = {}
       # "1634886255" = {}
+      "6450786" = {}
     }
     environment = var.stage
     healthUrls = {
