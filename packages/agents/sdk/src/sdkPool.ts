@@ -2,7 +2,6 @@ import { providers, BigNumber, constants, utils } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData, getCanonicalHash } from "@connext/nxtp-utils";
 import { getContractInterfaces, contractDeployments, ChainReader } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
-import BlockDater from "ethereum-block-by-date";
 
 import { NxtpSdkConfig, getConfig, AssetDescription } from "./config";
 import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined, PoolDoesNotExist } from "./lib/errors";
@@ -137,16 +136,33 @@ export class NxtpSdkPool {
     return IERC20__factory.connect(tokenAddress, provider);
   }
 
-  async getBlockNumberFromDate(domainId: string, date: Date): Promise<number> {
+  /**
+   * Finds the block closest to the desired timestamp.
+   * @param domainId The domain to search for the block.
+   * @param unixTimestamp The unix time, in seconds.
+   */
+  async getBlockNumberFromUnixTimestamp(domainId: string, unixTimestamp: number): Promise<number> {
     const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
-    const blockDater = new BlockDater(provider);
 
-    const closestBlock = blockDater.getDate(date);
+    let min = 0;
+    let max = await provider.getBlockNumber();
+    let closest = Math.floor((max + min) / 2);
+    let closestBlock = await provider.getBlock(closest);
 
-    if (!closestBlock) {
-      throw new Error("Could not retrieve block number");
+    while (min <= max) {
+      if (closestBlock.timestamp === unixTimestamp) {
+        return closestBlock.number;
+      } else if (closestBlock.timestamp > unixTimestamp) {
+        max = closest - 1;
+      } else {
+        min = closest + 1;
+      }
+
+      closest = Math.floor((max + min) / 2);
+      closestBlock = await provider.getBlock(closest);
     }
-    return closestBlock.block;
+
+    return closestBlock.number;
   }
 
   /**
@@ -714,11 +730,11 @@ export class NxtpSdkPool {
     const key: string = getCanonicalHash(canonicalDomain, canonicalId);
     const pool = await this.getPool(domainId, tokenAddress);
 
-    const endDate = new Date(unixTimestamp * 1000);
-    const endBlock = await this.getBlockNumberFromDate(domainId, endDate);
-    const startDate = new Date();
-    startDate.setDate(endDate.getDate() - 1);
-    let startBlock = await this.getBlockNumberFromDate(domainId, startDate);
+    const endTimestamp = unixTimestamp;
+    const endBlock = await this.getBlockNumberFromUnixTimestamp(domainId, endTimestamp);
+
+    const startTimestamp = endTimestamp - 86_400;
+    let startBlock = await this.getBlockNumberFromUnixTimestamp(domainId, startTimestamp);
 
     const perBatch = 1000;
     let endBatchBlock = Math.min(startBlock + perBatch, endBlock);
