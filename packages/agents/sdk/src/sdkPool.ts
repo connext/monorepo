@@ -7,6 +7,7 @@ import BlockDater from "ethereum-block-by-date";
 import { NxtpSdkConfig, getConfig, AssetDescription } from "./config";
 import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined, PoolDoesNotExist } from "./lib/errors";
 import { IPoolStats, IPoolData } from "./interfaces";
+import { token } from "@connext/nxtp-contracts/dist/src/typechain-types/@openzeppelin/contracts";
 
 export class Pool implements IPoolData {
   domainId: string;
@@ -432,6 +433,17 @@ export class NxtpSdkPool {
     return representation;
   }
 
+  async canonicalToAdopted(domainId: string, tokenAddress: string): Promise<string> {
+    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
+      this.getConnext(domainId),
+      this.getCanonicalTokenId(domainId, tokenAddress),
+    ]);
+    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const adopted = await connextContract["canonicalToAdopted(bytes32)"](key);
+
+    return adopted;
+  }
+
   // ------------------- Pool Operations ------------------- //
 
   /**
@@ -568,10 +580,7 @@ export class NxtpSdkPool {
    * @param tokenAddress The address of local or adopted token.
    */
   async getPool(domainId: string, tokenAddress: string): Promise<Pool> {
-    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, tokenAddress),
-    ]);
+    const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(domainId, tokenAddress);
 
     if (canonicalDomain == domainId) {
       throw new PoolDoesNotExist(domainId, tokenAddress);
@@ -585,8 +594,8 @@ export class NxtpSdkPool {
     }
 
     const [local, adopted, lpTokenAddress] = await Promise.all([
-      connextContract["canonicalToRepresentation(bytes32)"](key),
-      connextContract["canonicalToAdopted(bytes32)"](key),
+      this.canonicalToRepresentation(domainId, tokenAddress),
+      this.canonicalToAdopted(domainId, tokenAddress),
       this.getLPTokenAddress(domainId, tokenAddress),
     ]);
 
@@ -741,10 +750,20 @@ export class NxtpSdkPool {
     };
   }
 
-  calculateAPY(feesEarned: number, feesEarnedAgo: number, principal: number, days: number): number {
+  calculateYield(
+    feesEarned: number,
+    feesEarnedAgo: number,
+    principal: number,
+    days: number,
+  ): {
+    apr: number;
+    apy: number;
+  } {
     const rate = (feesEarned - feesEarnedAgo) / principal;
     const period = 365 / days;
-    return (1 + rate) ** period - 1;
+    const apr = rate * period;
+    const apy = (1 + rate) ** period - 1;
+    return { apr, apy };
   }
 
   async getYieldData(
@@ -752,6 +771,7 @@ export class NxtpSdkPool {
     tokenAddress: string,
     days = 1,
   ): Promise<{
+    apr: number;
     apy: number;
     volume: BigNumber;
     volumeFormatted: number;
@@ -780,9 +800,10 @@ export class NxtpSdkPool {
       ));
     }
 
-    const apy = this.calculateAPY(feesEarnedToday, feesEarnedDaysAgo, totalLiquidityToday, days);
+    const { apr, apy } = this.calculateYield(feesEarnedToday, feesEarnedDaysAgo, totalLiquidityToday, days);
 
     return {
+      apr: Math.max(apr, 0),
       apy: Math.max(apy, 0),
       volume: totalVolume,
       volumeFormatted: totalVolumeFormatted,
