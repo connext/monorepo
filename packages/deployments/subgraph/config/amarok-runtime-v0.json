@@ -69,13 +69,13 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0xB20c7f8aDe683C1ad7F5b76435D9345059b1ed3F",
-        "startBlock": 22763177
+        "address": "0xB99Cd2B5d0192787950740026B4d32635d5c9Eb6",
+        "startBlock": 23471543
       },
       {
         "name": "SpokeConnector",
-        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
-        "startBlock": 22763099
+        "address": "0xca790C6CAaCB69f070092ca680760a1abB00Cd8D",
+        "startBlock": 23471500
       }
     ]
   },

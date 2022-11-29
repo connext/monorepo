@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.1-beta.11
+
+- [all] version release for sdk
+
 ## Amarok 0.2.1-beta.10
 
 - [all] Multiple fixes
