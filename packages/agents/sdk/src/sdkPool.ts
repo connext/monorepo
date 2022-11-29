@@ -7,7 +7,7 @@ import BlockDater from "ethereum-block-by-date";
 import { NxtpSdkConfig, getConfig, AssetDescription } from "./config";
 import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined, PoolDoesNotExist } from "./lib/errors";
 import { IPoolStats, IPoolData } from "./interfaces";
-import { token } from "@connext/nxtp-contracts/dist/src/typechain-types/@openzeppelin/contracts";
+import { PriceFeed } from "./lib/priceFeed";
 
 export class Pool implements IPoolData {
   domainId: string;
@@ -83,6 +83,7 @@ export class NxtpSdkPool {
 
   private readonly logger: Logger;
   private readonly chainReader: ChainReader;
+  private readonly priceFeed: PriceFeed;
 
   private pools = new Map<string, Pool>();
 
@@ -93,6 +94,7 @@ export class NxtpSdkPool {
     this.chainReader = chainReader;
     this.connext = getContractInterfaces().connext;
     this.erc20 = getContractInterfaces().erc20;
+    this.priceFeed = new PriceFeed();
   }
 
   static async create(
@@ -341,6 +343,16 @@ export class NxtpSdkPool {
     const marketRate = BigNumber.from(amountYNoSlippage).mul(BigNumber.from(10).pow(18)).div(amountXNoSlippage);
 
     return this.calculatePriceImpact(rate, marketRate);
+  }
+
+  /**
+   * Fetches the current price of a token.
+   * @param tokenSymbol The symbol for the token.
+   */
+  async getTokenPrice(tokenSymbol: string) {
+    const price = await this.priceFeed.getPriceByTokenSymbol(tokenSymbol);
+
+    return price;
   }
 
   // ------------------- Read Operations ------------------- //
@@ -808,5 +820,26 @@ export class NxtpSdkPool {
       volume: totalVolume,
       volumeFormatted: totalVolumeFormatted,
     };
+  }
+
+  async getLiquidityMiningAprPerPool(
+    totalTokens: number,
+    totalBlocks: number,
+    numPools: number,
+    tokenSymbol: string,
+    poolTVL: number,
+  ) {
+    // Numbers for Optimism:
+    //  totalTokens = 250_000
+    //  totalBlocks = 657_436 // 3 months
+    //  numPools = 2
+    const blocksPerDay = 7160;
+    const period = 365 / (totalBlocks / blocksPerDay);
+    const tokenPrice = await this.getTokenPrice(tokenSymbol);
+    const tokenValuePerPool = (totalTokens / numPools) * tokenPrice;
+    const rate = tokenValuePerPool / poolTVL;
+    const apr = rate * period;
+
+    return apr;
   }
 }
