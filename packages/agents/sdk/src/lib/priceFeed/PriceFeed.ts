@@ -8,18 +8,13 @@ const cacheTimestamps: {
   [tokenSymbol: string]: number | null;
 } = {};
 
-export type ApiKeys = {
-  coingecko?: string;
-};
-
 interface Service {
   getPriceByTokenSymbol(symbol: string): Promise<number>;
 }
 
 class PriceFeed {
   cacheTimeMs = 5 * 60 * 1000;
-  apiKeys: ApiKeys = {};
-  services: Service[] = [];
+  service: Service;
 
   aliases: { [tokenSymbol: string]: string } = {
     WETH: "ETH",
@@ -28,20 +23,8 @@ class PriceFeed {
     WXDAI: "DAI",
   };
 
-  constructor(apiKeysMap: ApiKeys = {}) {
-    if (apiKeysMap) {
-      this.apiKeys = apiKeysMap;
-    }
-    this.setServices();
-  }
-
-  setApiKeys(apiKeysMap: ApiKeys = {}) {
-    this.apiKeys = apiKeysMap;
-    this.setServices();
-  }
-
-  private setServices() {
-    this.services = [new Coinbase()];
+  constructor() {
+    this.service = new Coinbase();
   }
 
   async getPriceByTokenSymbol(tokenSymbol: string) {
@@ -54,30 +37,16 @@ class PriceFeed {
         return cache[tokenSymbol];
       }
     }
-    const promise = this._getPriceByTokenSymbol(tokenSymbol);
-    cache[tokenSymbol] = promise;
-    cacheTimestamps[tokenSymbol] = Date.now();
-    return promise;
-  }
-
-  async _getPriceByTokenSymbol(tokenSymbol: string) {
-    const errors: Error[] = [];
-    for (const service of this.services) {
-      try {
-        const price = await service.getPriceByTokenSymbol(tokenSymbol);
-        if (price === null) {
-          throw new Error(`null price for ${tokenSymbol}`);
-        }
-        return price;
-      } catch (err: any) {
-        const isLastService = this.services.indexOf(service) === this.services.length - 1;
-        errors.push(err.message);
-        if (isLastService) {
-          cache[tokenSymbol] = null;
-          cacheTimestamps[tokenSymbol] = null;
-          throw new Error(`PriceFeed error(s): ${errors.join(" ")}`);
-        }
+    try {
+      const price = this.service.getPriceByTokenSymbol(tokenSymbol);
+      if (price === null) {
+        throw new Error(`null price for ${tokenSymbol}`);
       }
+      cache[tokenSymbol] = price;
+      cacheTimestamps[tokenSymbol] = Date.now();
+      return price;
+    } catch (err: any) {
+      throw new Error(`PriceFeed error: ${err.message}`);
     }
   }
 }
