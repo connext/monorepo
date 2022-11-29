@@ -74,6 +74,7 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
         "0x24d677f8a59a486bfc6d87e9453c4f1fefcb0958",
         "0xaB0A8DCb1590C4565C35cC785dc25A0590398054",
         "0xCDdE9992Fb66038Dd8419b56149a75CC79Df133C",
+        "0x8cFAcF1d7f052faA1aED6e793f0C451b5dEA8c1E",
       ],
     },
   },
