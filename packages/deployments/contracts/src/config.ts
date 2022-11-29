@@ -111,6 +111,11 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "mainnet",
     },
+    verify: {
+      etherscan: {
+        apiKey: process.env.BNBSCAN_API_KEY!,
+      },
+    },
   },
   chapel: {
     accounts: { mnemonic },
@@ -118,6 +123,11 @@ export const hardhatNetworks = {
     url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
     companionNetworks: {
       hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.BNBSCAN_API_KEY!,
+      },
     },
   },
   xdai: {
@@ -147,6 +157,11 @@ export const hardhatNetworks = {
       hub: "mainnet",
     },
     gasPrice: utils.parseUnits("200", "gwei").toNumber(),
+    verify: {
+      etherscan: {
+        apiKey: process.env.POLYGONSCAN_API_KEY!,
+      },
+    },
   },
   ftm: {
     accounts: { mnemonic },
@@ -203,6 +218,11 @@ export const hardhatNetworks = {
     url: "https://rpc.ankr.com/polygon_mumbai",
     companionNetworks: {
       hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.POLYGONSCAN_API_KEY!,
+      },
     },
   },
   "arbitrum-rinkeby": {
