@@ -85,75 +85,43 @@ module "postgrest" {
 }
 
 module "cartographer-routers-lambda-cron" {
-  source                  = "../../../modules/lambda"
-  region                  = var.region
-  dd_api_key              = var.dd_api_key
-  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
-  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  docker_image            = var.full_image_name_cartographer
-  container_family        = "cartographer_routers"
-  environment             = var.environment
-  stage                   = var.stage
-  domain                  = var.domain
-  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-routers-${var.environment}", SERVICE = "routers" })
-  schedule_expression     = "rate(5 minute)"
+  source              = "../../../modules/lambda"
+  docker_image        = var.full_image_name_cartographer
+  container_family    = "cartographer_routers"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-routers-${var.environment}", SERVICE = "routers" })
+  schedule_expression = "rate(1 minute)"
 }
 
 module "cartographer-transfers-lambda-cron" {
-  source                  = "../../../modules/lambda"
-  region                  = var.region
-  dd_api_key              = var.dd_api_key
-  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
-  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  docker_image            = var.full_image_name_cartographer
-  container_family        = "cartographer_transfers"
-  environment             = var.environment
-  stage                   = var.stage
-  domain                  = var.domain
-  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-transfers-${var.environment}", SERVICE = "transfers" })
-  schedule_expression     = "rate(5 minute)"
+  source              = "../../../modules/lambda"
+  docker_image        = var.full_image_name_cartographer
+  container_family    = "cartographer_transfers"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-transfers-${var.environment}", SERVICE = "transfers" })
+  schedule_expression = "rate(1 minute)"
 }
 
 module "cartographer-messages-lambda-cron" {
-  source                  = "../../../modules/lambda"
-  region                  = var.region
-  dd_api_key              = var.dd_api_key
-  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
-  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  docker_image            = var.full_image_name_cartographer
-  container_family        = "cartographer_messages"
-  environment             = var.environment
-  stage                   = var.stage
-  domain                  = var.domain
-  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-messages-${var.environment}", SERVICE = "messages" })
-  schedule_expression     = "rate(5 minute)"
+  source              = "../../../modules/lambda"
+  docker_image        = var.full_image_name_cartographer
+  container_family    = "cartographer_messages"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-messages-${var.environment}", SERVICE = "messages" })
+  schedule_expression = "rate(1 minute)"
 }
 
 module "cartographer-roots-lambda-cron" {
-  source                  = "../../../modules/lambda"
-  region                  = var.region
-  dd_api_key              = var.dd_api_key
-  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
-  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  docker_image            = var.full_image_name_cartographer
-  container_family        = "cartographer_roots"
-  environment             = var.environment
-  stage                   = var.stage
-  domain                  = var.domain
-  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-roots-${var.environment}", SERVICE = "roots" })
-  schedule_expression     = "rate(5 minute)"
+  source              = "../../../modules/lambda"
+  docker_image        = var.full_image_name_cartographer
+  container_family    = "cartographer_roots"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-roots-${var.environment}", SERVICE = "roots" })
+  schedule_expression = "rate(1 minute)"
 }
 
 module "network" {
