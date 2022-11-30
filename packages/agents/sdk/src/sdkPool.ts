@@ -637,23 +637,28 @@ export class NxtpSdkPool {
       this.getERC20(domainId, adopted),
     ]);
 
-    const [adoptedDecimals, adoptedBalance, tokenSymbol, localDecimals, localBalance] = await Promise.all([
+    const [adoptedDecimals, adoptedBalance, tokenSymbol, localDecimals, localBalance, localIdx] = await Promise.all([
       adoptedErc20Contract.decimals(),
       this.getPoolTokenBalance(domainId, adopted, adopted),
       adoptedErc20Contract.symbol(),
       localErc20Contract.decimals(),
       this.getPoolTokenBalance(domainId, local, local),
+      this.getPoolTokenIndex(domainId, tokenAddress, local),
     ]);
 
-    // TODO: return pool with same index order as on-chain
+    // Use index order that appears on-chain
+    const [asset0, asset0Decimals, asset0Balance, asset1, asset1Decimals, asset1Balance] =
+      localIdx == 0
+        ? [local, localDecimals, localBalance, adopted, adoptedDecimals, adoptedBalance]
+        : [adopted, adoptedDecimals, adoptedBalance, local, localDecimals, localBalance];
 
     pool = new Pool(
       domainId,
       `${tokenSymbol}-Pool`,
       `${tokenSymbol}-next${tokenSymbol}`,
-      [adopted, local],
-      [adoptedDecimals, localDecimals],
-      [adoptedBalance, localBalance],
+      [asset0, asset1],
+      [asset0Decimals, asset1Decimals],
+      [asset0Balance, asset1Balance],
       lpTokenAddress,
       key,
     );
@@ -764,9 +769,9 @@ export class NxtpSdkPool {
       totalVolume = totalVolume.add(tokensSold);
     }
 
-    const reserveX = pool.balances[0];
-    const reserveY = pool.balances[1];
-    const totalLiquidity = reserveX.add(reserveY);
+    const reserve0 = pool.balances[0];
+    const reserve1 = pool.balances[1];
+    const totalLiquidity = reserve0.add(reserve1);
     const totalLiquidityFormatted = Number(utils.formatUnits(totalLiquidity, decimals));
     const totalFeesFormatted = Number(utils.formatUnits(totalFees, decimals));
     const totalVolumeFormatted = Number(utils.formatUnits(totalVolume, decimals));
