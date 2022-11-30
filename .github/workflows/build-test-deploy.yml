@@ -329,9 +329,6 @@ jobs:
           docker build -f docker/cartographer/Dockerfile.lambda -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-    outputs:
-      registry: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
-
   build-and-push-lighthouse-propagate-image:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
@@ -521,7 +518,6 @@ jobs:
       ROUTER_EXECUTOR_IMAGE: ${{fromJSON(needs.build-and-push-router-executor-image.outputs.json).tags[0]}}
       SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
-      CARTOGRAPHER_IMAGE: ${{ needs.build-and-push-cartographer-image.outputs.registry }}
       LIGHTHOUSE_PROVER_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-prover-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROCESS_FROM_ROOT_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-process-from-root-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROPAGATE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-propagate-image.outputs.json).tags[0]}}
@@ -548,7 +544,6 @@ jobs:
       router-executor-tags: ${{ needs.build-and-push-router-executor-image.outputs.json }}
       sequencer-publisher-tags: ${{ needs.build-and-push-sequencer-publisher-image.outputs.json }}
       sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
-      cartographer-image: ${{ needs.build-and-push-cartographer-image.outputs.registry }}
       lighthouse-prover-tags: ${{ needs.build-and-push-lighthouse-prover-image.outputs.json }}
       lighthouse-process-from-root-tags: ${{ needs.build-and-push-lighthouse-process-from-root-image.outputs.json }}
       lighthouse-propagate-tags: ${{ needs.build-and-push-lighthouse-propagate-image.outputs.json }}
@@ -577,7 +572,6 @@ jobs:
       ROUTER_EXECUTOR_IMAGE: ${{ fromJSON(needs.build-and-push-router-executor-image.outputs.json).tags[0] }}
       SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
-      CARTOGRAPHER_IMAGE: ${{ needs.build-and-push-cartographer-image.outputs.registry }}
       LIGHTHOUSE_PROVER_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-prover-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROCESS_FROM_ROOT_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-process-from-root-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROPAGATE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-propagate-image.outputs.json).tags[0]}}
@@ -613,7 +607,6 @@ jobs:
       router-executor-tags: ${{ needs.build-and-push-router-executor-image.outputs.json }}
       sequencer-publisher-tags: ${{ needs.build-and-push-sequencer-publisher-image.outputs.json }}
       sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
-      cartographer-image: ${{ needs.build-and-push-cartographer-image.outputs.registry }}
       lighthouse-prover-tags: ${{ needs.build-and-push-lighthouse-prover-image.outputs.json }}
       lighthouse-process-from-root-tags: ${{ needs.build-and-push-lighthouse-process-from-root-image.outputs.json }}
       lighthouse-propagate-tags: ${{ needs.build-and-push-lighthouse-propagate-image.outputs.json }}
@@ -718,9 +711,6 @@ jobs:
         working-directory: ./ops/testnet/staging/backend
         run: |
           terraform apply -var-file=tfvars.json -auto-approve
-
-    outputs:
-      cartographer-image: ${{ needs.smoke-tests.outputs.cartographer-image }}
 
   terraform-services-core-staging-testnet:
     needs: [smoke-tests, terraform-infra]
@@ -876,7 +866,9 @@ jobs:
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_cartographer: ${{ needs.e2e-tests.outputs.cartographer-image }}
+      REGISTRY: 679752396206.dkr.ecr.us-west-1.amazonaws.com
+      REPOSITORY: nxtp-cartographer
+      IMAGE_TAG: ${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -915,6 +907,8 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
+        env:
+          TF_VAR_full_image_name_cartographer: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
         id: plan
         working-directory: ./ops/testnet/prod/backend
         run: |
@@ -922,6 +916,8 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
+        env:
+          TF_VAR_full_image_name_cartographer: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
         id: apply
         working-directory: ./ops/testnet/prod/backend
         run: |
@@ -933,7 +929,6 @@ jobs:
       router-publisher-tags: ${{ needs.e2e-tests.outputs.router-publisher-tags }}
       router-subscriber-tags: ${{ needs.e2e-tests.outputs.router-subscriber-tags }}
       router-executor-tags: ${{ needs.e2e-tests.outputs.router-executor-tags }}
-      cartographer-image: ${{ needs.e2e-tests.outputs.cartographer-image.registry }}
       lighthouse-prover-tags: ${{ needs.e2e-tests.outputs.lighthouse-prover-tags }}
       lighthouse-process-from-root-tags: ${{ needs.e2e-tests.outputs.lighthouse-process-from-root-tags }}
       lighthouse-propagate-tags: ${{ needs.e2e-tests.outputs.lighthouse-propagate-tags }}
@@ -944,7 +939,9 @@ jobs:
     needs: [terraform-services-core-prod-testnet, terraform-services-backend-prod-testnet]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_cartographer: ${{ needs.terraform-services-backend-prod-testnet.outputs.cartographer-image }}
+      REGISTRY: 679752396206.dkr.ecr.us-east-2.amazonaws.com
+      REPOSITORY: nxtp-cartographer
+      IMAGE_TAG: ${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -983,6 +980,8 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
+        env:
+          TF_VAR_full_image_name_cartographer: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
         id: plan
         working-directory: ./ops/mainnet/prod/backend
         run: |
@@ -990,6 +989,8 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
+        env:
+          TF_VAR_full_image_name_cartographer: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
         id: apply
         working-directory: ./ops/mainnet/prod/backend
         run: |
