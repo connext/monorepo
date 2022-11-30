@@ -77,7 +77,7 @@ abstract contract BaseMultichain is GasCap {
   }
 
   function _verifySender(address _amb, address _expected) internal view returns (bool) {
-    require(msg.sender == _amb, "!bridge");
+    require(msg.sender == EXECUTOR, "!executor");
 
     (address from, uint256 fromChainId, ) = Multichain(EXECUTOR).context();
     return from == _expected && fromChainId == MIRROR_CHAIN_ID;

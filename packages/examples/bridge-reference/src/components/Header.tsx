@@ -1,7 +1,5 @@
 import React, { useEffect } from "react";
 import { create, NxtpSdkConfig } from "@connext/nxtp-sdk";
-// eslint-disable-next-line import/no-unresolved
-import connextLogo from "url:../../public/connext-white-logo.webp";
 import { ChainConfig } from "@connext/nxtp-sdk/dist/config";
 import { HiOutlineDocumentSearch } from "react-icons/hi";
 
@@ -125,7 +123,7 @@ export const Header = () => {
     <div className="py-4 border-b border-slate-900/10 px-8  dark:border-slate-300/10 mx-4 lg:mx-0">
       <div className="flex justify-between lg:px-10 items-center px-1 pb-5 md:pb-0">
         <div className="flex">
-          <img src={connextLogo} alt="Connext Logo" className="h-8 w-auto sm:h-10 sm:mr-3" />
+          {/* <img src={connextLogo} alt="Connext Logo" className="h-8 w-auto sm:h-10 sm:mr-3" /> */}
           <div className="hidden sm:block">
             <div className="normal-case text-base font-semibold text-white">Connext</div>
             <div className="max-w-min bg-blue-600 rounded whitespace-nowrap text-white pb-0.5 px-1.5 mt-0.5">

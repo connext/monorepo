@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { BiMessageError, BiMessageCheck, BiMessageDetail } from "react-icons/bi";
-import { MdClose } from "react-icons/md";
 import { FaSpinner } from "react-icons/fa";
-import { constants, FixedNumber, utils } from "ethers";
 
 import { useWallet } from "../contexts/Wallet";
 import { useAssets } from "../contexts/Assets";
 import { useChains } from "../contexts/Chains";
 import { useSdk } from "../contexts/Sdk";
 import { useBalances } from "../contexts/Balances";
-import { Chain, Asset } from "../types/chain";
+import { Chain } from "../types/chain";
+import { Asset } from "../types/asset";
 
 import { Wallet } from "./Wallet";
 import Alert from "./Alert";
@@ -26,7 +25,7 @@ type Response = { status: string; message: string; tx_hash?: string };
 
 export const AddLiquidityButton = ({ chain, asset, amount, getBalances }: Props) => {
   const {
-    state: { web3_provider, provider, address, chain_id, signer },
+    state: { web3_provider, provider, chain_id },
   } = useWallet();
 
   const {
@@ -64,7 +63,7 @@ export const AddLiquidityButton = ({ chain, asset, amount, getBalances }: Props)
       const source_contract_data = source_asset_data?.contracts?.find(
         (c) => c?.chain_id === source_chain_data?.chain_id,
       );
-      const source_symbol = source_contract_data?.symbol || source_asset_data?.symbol;
+      console.log(source_contract_data);
     }
 
     setCallProcessing(false);
@@ -86,7 +85,7 @@ export const AddLiquidityButton = ({ chain, asset, amount, getBalances }: Props)
   };
 
   const source_contract = asset?.contracts?.find((c) => c?.chain_id === chain?.chain_id);
-  const source_balance = balances?.[chain!.chain_id]?.find(
+  const source_balance = balances?.[chain.chain_id]?.find(
     (b) => b?.contract_address === source_contract?.contract_address,
   );
   const source_amount = (source_balance && Number(source_balance.amount)) || 0;
@@ -127,6 +126,12 @@ export const AddLiquidityButton = ({ chain, asset, amount, getBalances }: Props)
                 ? "The transfer amount cannot be equal or less than 0."
                 : ""}
             </span>
+            <button
+              onClick={() => reset()}
+              className="bg-red-500 dark:bg-red-400 rounded-full flex items-center justify-center text-white p-1"
+            >
+              Click me to reset
+            </button>
           </Alert>
         ) : !addLiquidity && !addLiquidityResponse ? (
           <button

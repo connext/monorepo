@@ -27,7 +27,7 @@ const formatConnectorArgs = (
   const deploymentDomain = BigNumber.from(chainIdToDomain(deploymentChainId).toString());
   const mirrorDomain = BigNumber.from(chainIdToDomain(mirrorChainId).toString());
 
-  let amb = args.amb ?? isHub ? config.ambs.hub : config.ambs.spoke;
+  const amb = args.amb ?? isHub ? config.ambs.hub : config.ambs.spoke;
 
   const hubArgs = [
     deploymentDomain,
@@ -281,6 +281,7 @@ const handleDeploySpoke = async (
     addr = "0x" + addr;
     // Set the AMB address we'll use.
     amb = utils.getAddress(addr);
+    console.log("amb address generated with alias: ", amb);
   }
 
   console.log(`Deploying ${contract}...`);
@@ -296,6 +297,7 @@ const handleDeploySpoke = async (
         rootManager: rootManagerDeployment.address,
         merkleManager: merkleTreeManager.address,
         watcherManager: watcherManager.address,
+        amb,
       }),
       skipIfAlreadyDeployed: true,
       log: true,

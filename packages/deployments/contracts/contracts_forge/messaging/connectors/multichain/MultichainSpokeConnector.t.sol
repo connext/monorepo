@@ -128,17 +128,18 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
   // }
 
   // msg.sender is not the bridge on L2
-  function test_MultichainSpokeConnector_processMessage_revertIfAmbIsNotMsgSender(address _notAmb, bytes calldata _data)
-    public
-  {
-    vm.assume(_amb != _notAmb);
+  function test_MultichainSpokeConnector_processMessage_revertIfExecutorIsNotMsgSender(
+    address _notExecutor,
+    bytes calldata _data
+  ) public {
+    vm.assume(_executor != _notExecutor);
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
-    vm.expectRevert(abi.encodePacked("!AMB"));
-    vm.prank(_notAmb);
-    MultichainSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
+    vm.expectRevert(abi.encodePacked("!executor"));
+    vm.prank(_notExecutor);
+    MultichainSpokeConnector(_l2Connector).anyExecute(_dataCorrectSize);
   }
 
   // message coming from a wrong sender on the origin chain to L2
@@ -154,8 +155,8 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
     vm.expectRevert(abi.encodePacked("!mirrorConnector"));
-    vm.prank(_amb);
-    MultichainSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
+    vm.prank(_executor);
+    MultichainSpokeConnector(_l2Connector).anyExecute(_dataCorrectSize);
   }
 
   // message coming from a wrong chain to L2
@@ -171,8 +172,8 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
     vm.expectRevert(abi.encodePacked("!mirrorConnector"));
-    vm.prank(_amb);
-    MultichainSpokeConnector(_l2Connector).processMessage(_dataCorrectSize);
+    vm.prank(_executor);
+    MultichainSpokeConnector(_l2Connector).anyExecute(_dataCorrectSize);
   }
 
   // message has a length > 32 bytes
@@ -187,8 +188,8 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     for (uint256 i; i < callDataLength; i++) _wrongLengthCalldata[i] = bytes1(keccak256(abi.encode(i)));
 
     vm.expectRevert(abi.encodePacked("!length"));
-    vm.prank(_amb);
-    MultichainSpokeConnector(_l2Connector).processMessage(_wrongLengthCalldata);
+    vm.prank(_executor);
+    MultichainSpokeConnector(_l2Connector).anyExecute(_wrongLengthCalldata);
   }
 
   // ============ verifySender ============
@@ -199,7 +200,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     vm.mockCall(_executor, abi.encodeCall(Multichain.context, ()), abi.encode(_from, 1, _chainIdL2));
 
     // multichain _amb has the same address, irrespective of underlying network
-    vm.prank(_amb);
+    vm.prank(_executor);
     assertTrue(MultichainSpokeConnector(_l2Connector).verifySender(_from));
   }
 
@@ -210,7 +211,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     vm.mockCall(_executor, abi.encodeCall(Multichain.context, ()), abi.encode(_wrongFrom, 1, _chainIdL2));
 
     // multichain _amb has the same address, irrespective of underlying network
-    vm.prank(_amb);
+    vm.prank(_executor);
     assertFalse(MultichainSpokeConnector(_l2Connector).verifySender(_from));
   }
 
@@ -221,19 +222,21 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     vm.mockCall(_executor, abi.encodeCall(Multichain.context, ()), abi.encode(_l1Connector, _wrongId, _chainIdL2));
 
     // multichain _amb has the same address, irrespective of underlying network
-    vm.prank(_amb);
+    vm.prank(_executor);
     assertFalse(MultichainSpokeConnector(_l2Connector).verifySender(_l1Connector));
   }
 
-  // reverse if sender != amb
-  function test_MultichainSpokeConnector_verifySender_revertIfSenderIsNotAmb(address _from, address _wrongAmb) public {
-    vm.assume(_wrongAmb != _amb);
+  // reverse if sender != executor
+  function test_MultichainSpokeConnector_verifySender_revertIfSenderIsNotExecutor(address _from, address _wrongExecutor)
+    public
+  {
+    vm.assume(_wrongExecutor != _executor);
 
     // Mock the call to the executor, to retrieve the context
     vm.mockCall(_executor, abi.encodeCall(Multichain.context, ()), abi.encode(_from, 1, 1));
 
-    vm.expectRevert(abi.encodePacked("!bridge"));
-    vm.prank(_wrongAmb);
+    vm.expectRevert(abi.encodePacked("!executor"));
+    vm.prank(_wrongExecutor);
     MultichainSpokeConnector(_l2Connector).verifySender(_from);
   }
 }
