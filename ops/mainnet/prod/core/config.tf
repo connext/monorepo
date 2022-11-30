@@ -98,6 +98,16 @@ locals {
       #     address = "0xfd5c16a50b717338cbcb44e34e10d735709e9cb9"
       #   }]
       # }
+      "6450786" = {
+        providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
+        assets = [{
+          name    = "USDC"
+          address = "0xe4f1ce2dc807084a874e957d5d2ac6502820bc15"
+          }, {
+          name    = "WETH"
+          address = "0x6b205aeaae9de574d76d4e45af92998aefca205b"
+        }]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -151,6 +161,12 @@ locals {
         #   queueLimit = 10000
         #   subscribe  = true
         # }
+        {
+          name       = "6450786"
+          limit      = 1
+          queueLimit = 10000
+          subscribe  = true
+        },
       ]
       bindings = [
         {
@@ -173,6 +189,11 @@ locals {
         #   target   = "1634886255"
         #   keys     = ["1634886255"]
         # }
+        {
+          exchange = "sequencerX"
+          target   = "6450786"
+          keys     = ["6450786"]
+        },
       ]
       executerTimeout = 300000
       publisher       = "sequencerX"
@@ -239,6 +260,16 @@ locals {
       #     address = "0xfd5c16a50b717338cbcb44e34e10d735709e9cb9"
       #   }]
       # }
+      "6450786" = {
+        providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
+        assets = [{
+          name    = "USDC"
+          address = "0xe4f1ce2dc807084a874e957d5d2ac6502820bc15"
+          }, {
+          name    = "WETH"
+          address = "0x6b205aeaae9de574d76d4e45af92998aefca205b"
+        }]
+      }
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -263,6 +294,9 @@ locals {
       # "1634886255" = {
       #   providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
       # }
+      "6450786" = {
+        providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
+      }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
@@ -309,6 +343,9 @@ locals {
       # "1634886255" = {
       #   providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
       # }
+      "6450786" = {
+        providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
+      }
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"

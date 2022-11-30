@@ -1463,6 +1463,13 @@ export interface ConnextInterface extends utils.Interface {
     "RouterRecipientSet(address,address,address)": EventFragment;
     "RouterRemoved(address,address)": EventFragment;
     "RouterUnapprovedForPortal(address,address)": EventFragment;
+    "AddLiquidity(bytes32,address,uint256[],uint256[],uint256,uint256)": EventFragment;
+    "NewAdminFee(bytes32,uint256)": EventFragment;
+    "NewSwapFee(bytes32,uint256)": EventFragment;
+    "RemoveLiquidity(bytes32,address,uint256[],uint256)": EventFragment;
+    "RemoveLiquidityImbalance(bytes32,address,uint256[],uint256[],uint256,uint256)": EventFragment;
+    "RemoveLiquidityOne(bytes32,address,uint256,uint256,uint256,uint256)": EventFragment;
+    "TokenSwap(bytes32,address,uint256,uint256,uint128,uint128)": EventFragment;
     "AssetAdded(bytes32,bytes32,uint32,address,address,address)": EventFragment;
     "AssetRemoved(bytes32,address)": EventFragment;
     "LiquidityCapUpdated(bytes32,bytes32,uint32,uint256,address)": EventFragment;
@@ -1520,6 +1527,13 @@ export interface ConnextInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "RouterRecipientSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterUnapprovedForPortal"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AddLiquidity"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "NewAdminFee"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "NewSwapFee"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RemoveLiquidity"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RemoveLiquidityImbalance"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RemoveLiquidityOne"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenSwap"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidityCapUpdated"): EventFragment;
@@ -2036,6 +2050,103 @@ export type RouterUnapprovedForPortalEvent = TypedEvent<
 
 export type RouterUnapprovedForPortalEventFilter =
   TypedEventFilter<RouterUnapprovedForPortalEvent>;
+
+export interface AddLiquidityEventObject {
+  key: string;
+  provider: string;
+  tokenAmounts: BigNumber[];
+  fees: BigNumber[];
+  invariant: BigNumber;
+  lpTokenSupply: BigNumber;
+}
+export type AddLiquidityEvent = TypedEvent<
+  [string, string, BigNumber[], BigNumber[], BigNumber, BigNumber],
+  AddLiquidityEventObject
+>;
+
+export type AddLiquidityEventFilter = TypedEventFilter<AddLiquidityEvent>;
+
+export interface NewAdminFeeEventObject {
+  key: string;
+  newAdminFee: BigNumber;
+}
+export type NewAdminFeeEvent = TypedEvent<
+  [string, BigNumber],
+  NewAdminFeeEventObject
+>;
+
+export type NewAdminFeeEventFilter = TypedEventFilter<NewAdminFeeEvent>;
+
+export interface NewSwapFeeEventObject {
+  key: string;
+  newSwapFee: BigNumber;
+}
+export type NewSwapFeeEvent = TypedEvent<
+  [string, BigNumber],
+  NewSwapFeeEventObject
+>;
+
+export type NewSwapFeeEventFilter = TypedEventFilter<NewSwapFeeEvent>;
+
+export interface RemoveLiquidityEventObject {
+  key: string;
+  provider: string;
+  tokenAmounts: BigNumber[];
+  lpTokenSupply: BigNumber;
+}
+export type RemoveLiquidityEvent = TypedEvent<
+  [string, string, BigNumber[], BigNumber],
+  RemoveLiquidityEventObject
+>;
+
+export type RemoveLiquidityEventFilter = TypedEventFilter<RemoveLiquidityEvent>;
+
+export interface RemoveLiquidityImbalanceEventObject {
+  key: string;
+  provider: string;
+  tokenAmounts: BigNumber[];
+  fees: BigNumber[];
+  invariant: BigNumber;
+  lpTokenSupply: BigNumber;
+}
+export type RemoveLiquidityImbalanceEvent = TypedEvent<
+  [string, string, BigNumber[], BigNumber[], BigNumber, BigNumber],
+  RemoveLiquidityImbalanceEventObject
+>;
+
+export type RemoveLiquidityImbalanceEventFilter =
+  TypedEventFilter<RemoveLiquidityImbalanceEvent>;
+
+export interface RemoveLiquidityOneEventObject {
+  key: string;
+  provider: string;
+  lpTokenAmount: BigNumber;
+  lpTokenSupply: BigNumber;
+  boughtId: BigNumber;
+  tokensBought: BigNumber;
+}
+export type RemoveLiquidityOneEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber, BigNumber, BigNumber],
+  RemoveLiquidityOneEventObject
+>;
+
+export type RemoveLiquidityOneEventFilter =
+  TypedEventFilter<RemoveLiquidityOneEvent>;
+
+export interface TokenSwapEventObject {
+  key: string;
+  buyer: string;
+  tokensSold: BigNumber;
+  tokensBought: BigNumber;
+  soldId: BigNumber;
+  boughtId: BigNumber;
+}
+export type TokenSwapEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber, BigNumber, BigNumber],
+  TokenSwapEventObject
+>;
+
+export type TokenSwapEventFilter = TypedEventFilter<TokenSwapEvent>;
 
 export interface AssetAddedEventObject {
   key: string;
@@ -4435,6 +4546,105 @@ export interface Connext extends BaseContract {
       router?: null,
       caller?: null
     ): RouterUnapprovedForPortalEventFilter;
+
+    "AddLiquidity(bytes32,address,uint256[],uint256[],uint256,uint256)"(
+      key?: PromiseOrValue<BytesLike> | null,
+      provider?: PromiseOrValue<string> | null,
+      tokenAmounts?: null,
+      fees?: null,
+      invariant?: null,
+      lpTokenSupply?: null
+    ): AddLiquidityEventFilter;
+    AddLiquidity(
+      key?: PromiseOrValue<BytesLike> | null,
+      provider?: PromiseOrValue<string> | null,
+      tokenAmounts?: null,
+      fees?: null,
+      invariant?: null,
+      lpTokenSupply?: null
+    ): AddLiquidityEventFilter;
+
+    "NewAdminFee(bytes32,uint256)"(
+      key?: PromiseOrValue<BytesLike> | null,
+      newAdminFee?: null
+    ): NewAdminFeeEventFilter;
+    NewAdminFee(
+      key?: PromiseOrValue<BytesLike> | null,
+      newAdminFee?: null
+    ): NewAdminFeeEventFilter;
+
+    "NewSwapFee(bytes32,uint256)"(
+      key?: PromiseOrValue<BytesLike> | null,
+      newSwapFee?: null
+    ): NewSwapFeeEventFilter;
+    NewSwapFee(
+      key?: PromiseOrValue<BytesLike> | null,
+      newSwapFee?: null
+    ): NewSwapFeeEventFilter;
+
+    "RemoveLiquidity(bytes32,address,uint256[],uint256)"(
+      key?: PromiseOrValue<BytesLike> | null,
+      provider?: PromiseOrValue<string> | null,
+      tokenAmounts?: null,
+      lpTokenSupply?: null
+    ): RemoveLiquidityEventFilter;
+    RemoveLiquidity(
+      key?: PromiseOrValue<BytesLike> | null,
+      provider?: PromiseOrValue<string> | null,
+      tokenAmounts?: null,
+      lpTokenSupply?: null
+    ): RemoveLiquidityEventFilter;
+
+    "RemoveLiquidityImbalance(bytes32,address,uint256[],uint256[],uint256,uint256)"(
+      key?: PromiseOrValue<BytesLike> | null,
+      provider?: PromiseOrValue<string> | null,
+      tokenAmounts?: null,
+      fees?: null,
+      invariant?: null,
+      lpTokenSupply?: null
+    ): RemoveLiquidityImbalanceEventFilter;
+    RemoveLiquidityImbalance(
+      key?: PromiseOrValue<BytesLike> | null,
+      provider?: PromiseOrValue<string> | null,
+      tokenAmounts?: null,
+      fees?: null,
+      invariant?: null,
+      lpTokenSupply?: null
+    ): RemoveLiquidityImbalanceEventFilter;
+
+    "RemoveLiquidityOne(bytes32,address,uint256,uint256,uint256,uint256)"(
+      key?: PromiseOrValue<BytesLike> | null,
+      provider?: PromiseOrValue<string> | null,
+      lpTokenAmount?: null,
+      lpTokenSupply?: null,
+      boughtId?: null,
+      tokensBought?: null
+    ): RemoveLiquidityOneEventFilter;
+    RemoveLiquidityOne(
+      key?: PromiseOrValue<BytesLike> | null,
+      provider?: PromiseOrValue<string> | null,
+      lpTokenAmount?: null,
+      lpTokenSupply?: null,
+      boughtId?: null,
+      tokensBought?: null
+    ): RemoveLiquidityOneEventFilter;
+
+    "TokenSwap(bytes32,address,uint256,uint256,uint128,uint128)"(
+      key?: PromiseOrValue<BytesLike> | null,
+      buyer?: PromiseOrValue<string> | null,
+      tokensSold?: null,
+      tokensBought?: null,
+      soldId?: null,
+      boughtId?: null
+    ): TokenSwapEventFilter;
+    TokenSwap(
+      key?: PromiseOrValue<BytesLike> | null,
+      buyer?: PromiseOrValue<string> | null,
+      tokensSold?: null,
+      tokensBought?: null,
+      soldId?: null,
+      boughtId?: null
+    ): TokenSwapEventFilter;
 
     "AssetAdded(bytes32,bytes32,uint32,address,address,address)"(
       key?: PromiseOrValue<BytesLike> | null,

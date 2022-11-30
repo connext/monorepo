@@ -410,7 +410,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
 
     vm.prank(_owner);
     // no error message given bc shouldnt be able to find function
-    vm.expectRevert();
+    vm.expectRevert(TokenFacet.TokenFacet__addAssetId_badMint.selector);
     this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0));
   }
 

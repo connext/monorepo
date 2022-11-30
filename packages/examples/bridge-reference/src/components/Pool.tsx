@@ -51,7 +51,7 @@ export const Pool = () => {
       const rpc_urls = chain?.provider_params?.[0]?.rpcUrls?.filter((url) => url) || [];
       const rpc = new providers.FallbackProvider(rpc_urls.map((url) => new providers.JsonRpcProvider(url)));
 
-      let balance: BigNumberish;
+      let balance: BigNumberish = 0;
 
       if (rpc && contract_address) {
         if (contract_address === constants.AddressZero) {
@@ -73,7 +73,7 @@ export const Pool = () => {
           chainId: chain_id,
           balance: {
             ...contract_data,
-            amount: balance && Number(utils.formatUnits(balance, decimals)),
+            amount: Number(utils.formatUnits(balance, decimals)),
           },
         },
       });
