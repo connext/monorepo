@@ -14,7 +14,7 @@ export interface IPoolData {
   domainId: string;
   name: string;
   symbol: string;
-  tokens: string[]; // [0] is adopted, [1] is representation
+  tokens: string[];
   decimals: number[];
   lpTokenAddress: string;
   canonicalHash: string;

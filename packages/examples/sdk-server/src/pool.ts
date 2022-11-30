@@ -4,14 +4,13 @@ import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { getCanonicalHash } from "@connext/nxtp-utils";
 
 import {
-  getCanonicalTokenSchema,
+  getCanonicalTokenIdSchema,
   calculateCanonicalKeySchema,
   getLPTokenAddressSchema,
   getLPTokenSupplySchema,
-  getLPTokenUserBalanceSchema,
+  getTokenUserBalanceSchema,
   getPoolTokenIndexSchema,
   getPoolTokenBalanceSchema,
-  getPoolTokenUserBalanceSchema,
   getPoolTokenAddressSchema,
   getVirtualPriceSchema,
   calculateSwapSchema,
@@ -26,6 +25,9 @@ import {
   calculateAddLiquidityPriceImpactSchema,
   calculateRemoveLiquidityPriceImpactSchema,
   calculateSwapPriceImpactSchema,
+  getYieldStatsForDaySchema,
+  getYieldDataSchema,
+  getBlockNumberFromUnixTimestampSchema,
 } from "./types/api";
 
 export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpSdkPool): Promise<any> => {
@@ -34,15 +36,15 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
   // ------------------- Read Operations ------------------- //
 
   s.get(
-    "/getCanonicalToken/:domainId/:tokenAddress",
+    "/getCanonicalTokenId/:domainId/:tokenAddress",
     {
       schema: {
-        params: getCanonicalTokenSchema,
+        params: getCanonicalTokenIdSchema,
       },
     },
     async (request, reply) => {
       const { domainId, tokenAddress } = request.params;
-      const res = await sdkPoolInstance.getCanonicalToken(domainId, tokenAddress);
+      const res = await sdkPoolInstance.getCanonicalTokenId(domainId, tokenAddress);
       reply.status(200).send(res);
     },
   );
@@ -90,15 +92,15 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
   );
 
   s.get(
-    "/getLPTokenUserBalance/:domainId/:lpTokenAddress/:userAddress",
+    "/getTokenUserBalance/:domainId/:lpTokenAddress/:userAddress",
     {
       schema: {
-        params: getLPTokenUserBalanceSchema,
+        params: getTokenUserBalanceSchema,
       },
     },
     async (request, reply) => {
       const { domainId, lpTokenAddress, userAddress } = request.params;
-      const res = await sdkPoolInstance.getLPTokenUserBalance(domainId, lpTokenAddress, userAddress);
+      const res = await sdkPoolInstance.getTokenUserBalance(domainId, lpTokenAddress, userAddress);
       reply.status(200).send(res);
     },
   );
@@ -127,20 +129,6 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
     async (request, reply) => {
       const { domainId, tokenAddress, poolTokenAddress } = request.params;
       const res = await sdkPoolInstance.getPoolTokenBalance(domainId, tokenAddress, poolTokenAddress);
-      reply.status(200).send(res);
-    },
-  );
-
-  s.get(
-    "/getPoolTokenUserBalance/:domainId/:poolTokenAddress/:userAddress",
-    {
-      schema: {
-        params: getPoolTokenUserBalanceSchema,
-      },
-    },
-    async (request, reply) => {
-      const { domainId, poolTokenAddress, userAddress } = request.params;
-      const res = await sdkPoolInstance.getPoolTokenUserBalance(domainId, poolTokenAddress, userAddress);
       reply.status(200).send(res);
     },
   );
@@ -341,6 +329,48 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
     async (request, reply) => {
       const { canonicalDomain, canonicalId } = request.body;
       const res = getCanonicalHash(canonicalDomain, canonicalId);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.get(
+    "/getBlockNumberFromUnixTimestamp/:domainId/:unixTimestamp",
+    {
+      schema: {
+        params: getBlockNumberFromUnixTimestampSchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, unixTimestamp } = request.params;
+      const res = await sdkPoolInstance.getBlockNumberFromUnixTimestamp(domainId, unixTimestamp);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.get(
+    "/getYieldStatsForDay/:domainId/:tokenAddress/:unixTimestamp",
+    {
+      schema: {
+        params: getYieldStatsForDaySchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, tokenAddress, unixTimestamp } = request.params;
+      const res = await sdkPoolInstance.getYieldStatsForDay(domainId, tokenAddress, unixTimestamp);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.get(
+    "/getYieldData/:domainId/:tokenAddress/:days",
+    {
+      schema: {
+        params: getYieldDataSchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, tokenAddress, days } = request.params;
+      const res = await sdkPoolInstance.getYieldData(domainId, tokenAddress, days);
       reply.status(200).send(res);
     },
   );

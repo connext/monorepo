@@ -36,6 +36,43 @@ contract StableSwapFacet is BaseConnextFacet {
 
   // ============ Properties ============
 
+  // ============ Events ============
+  event TokenSwap(
+    bytes32 indexed key,
+    address indexed buyer,
+    uint256 tokensSold,
+    uint256 tokensBought,
+    uint128 soldId,
+    uint128 boughtId
+  );
+  event AddLiquidity(
+    bytes32 indexed key,
+    address indexed provider,
+    uint256[] tokenAmounts,
+    uint256[] fees,
+    uint256 invariant,
+    uint256 lpTokenSupply
+  );
+  event RemoveLiquidity(bytes32 indexed key, address indexed provider, uint256[] tokenAmounts, uint256 lpTokenSupply);
+  event RemoveLiquidityOne(
+    bytes32 indexed key,
+    address indexed provider,
+    uint256 lpTokenAmount,
+    uint256 lpTokenSupply,
+    uint256 boughtId,
+    uint256 tokensBought
+  );
+  event RemoveLiquidityImbalance(
+    bytes32 indexed key,
+    address indexed provider,
+    uint256[] tokenAmounts,
+    uint256[] fees,
+    uint256 invariant,
+    uint256 lpTokenSupply
+  );
+  event NewAdminFee(bytes32 indexed key, uint256 newAdminFee);
+  event NewSwapFee(bytes32 indexed key, uint256 newSwapFee);
+
   // ============ Modifiers ============
 
   /**

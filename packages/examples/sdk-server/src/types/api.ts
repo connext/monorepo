@@ -1,7 +1,7 @@
 import { Type } from "@sinclair/typebox";
 import { XTransferStatus } from "@connext/nxtp-utils";
 
-export const getCanonicalTokenSchema = Type.Object({
+export const getCanonicalTokenIdSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
 });
@@ -21,7 +21,7 @@ export const getLPTokenSupplySchema = Type.Object({
   lpTokenAddress: Type.String(),
 });
 
-export const getLPTokenUserBalanceSchema = Type.Object({
+export const getTokenUserBalanceSchema = Type.Object({
   domainId: Type.String(),
   lpTokenAddress: Type.String(),
   userAddress: Type.String(),
@@ -37,12 +37,6 @@ export const getPoolTokenBalanceSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
   poolTokenAddress: Type.String(),
-});
-
-export const getPoolTokenUserBalanceSchema = Type.Object({
-  domainId: Type.String(),
-  poolTokenAddress: Type.String(),
-  userAddress: Type.String(),
 });
 
 export const getPoolTokenAddressSchema = Type.Object({
@@ -201,4 +195,21 @@ export const getTransfersSchema = Type.Object({
       }),
     ),
   }),
+});
+
+export const getBlockNumberFromUnixTimestampSchema = Type.Object({
+  domainId: Type.String(),
+  unixTimestamp: Type.Number(),
+});
+
+export const getYieldStatsForDaySchema = Type.Object({
+  domainId: Type.String(),
+  tokenAddress: Type.String(),
+  unixTimestamp: Type.Number(),
+});
+
+export const getYieldDataSchema = Type.Object({
+  domainId: Type.String(),
+  tokenAddress: Type.String(),
+  days: Type.Optional(Type.Number()),
 });

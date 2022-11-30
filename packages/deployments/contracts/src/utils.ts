@@ -86,7 +86,7 @@ const NON_STAGING_CONTRACTS = ["TestERC20", "TestWETH", "LPToken"];
 export const getDeploymentName = (_contractName: string, _env?: string, _networkName?: string) => {
   const env = mustGetEnv(_env);
   let contractName = _contractName;
-
+  console.log(contractName, _env, _networkName);
   if (contractName.includes("Multichain")) {
     const networkName = _networkName!.charAt(0).toUpperCase() + _networkName!.slice(1).toLowerCase();
     contractName = contractName.replace("Multichain", networkName);
