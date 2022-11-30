@@ -258,15 +258,17 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     assertFalse(MultichainHubConnector(_l1Connector).verifySender(_from));
   }
 
-  // reverse if sender != amb
-  function test_MultichainHubConnector_verifySender_revertIfSenderIsNotAmb(address _from, address _wrongAmb) public {
-    vm.assume(_wrongAmb != _amb);
+  // reverse if sender != _executor
+  function test_MultichainHubConnector_verifySender_revertIfSenderIsNotExecutor(address _from, address _wrongExecutor)
+    public
+  {
+    vm.assume(_wrongExecutor != _executor);
 
     // Mock the call to the executor, to retrieve the context
     vm.mockCall(_executor, abi.encodeCall(Multichain.context, ()), abi.encode(_from, 1, 1));
 
     vm.expectRevert(abi.encodePacked("!executor"));
-    vm.prank(_wrongAmb);
+    vm.prank(_wrongExecutor);
     MultichainHubConnector(_l1Connector).verifySender(_from);
   }
 }
