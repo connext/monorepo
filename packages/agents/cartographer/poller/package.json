@@ -1,6 +1,6 @@
 {
   "name": "@connext/cartographer-poller",
-  "version": "0.2.1-beta.4",
+  "version": "0.2.1-beta.10",
   "description": "",
   "types": "dist/index.d.ts",
   "files": [

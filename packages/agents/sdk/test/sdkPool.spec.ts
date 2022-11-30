@@ -41,6 +41,7 @@ describe("NxtpSdkPool", () => {
 
       expect(nxtpPool.getCanonicalToken).to.be.a("function");
       expect(nxtpPool.getLPTokenAddress).to.be.a("function");
+      expect(nxtpPool.getLPTokenSupply).to.be.a("function");
       expect(nxtpPool.getLPTokenUserBalance).to.be.a("function");
       expect(nxtpPool.getPoolTokenIndex).to.be.a("function");
       expect(nxtpPool.getPoolTokenBalance).to.be.a("function");
@@ -310,11 +311,13 @@ describe("NxtpSdkPool", () => {
 
   describe("#calculatePriceImpact", () => {
     const mockParams = {
-      totalReservesIn: BigNumber.from("1000"),
-      lpTokensOut: BigNumber.from("1000"),
-      totalReservesOut: BigNumber.from("1000"),
-      lpTokensIn: BigNumber.from("1000"),
-      virtualPrice: BigNumber.from("1"),
+      totalReservesIn: BigNumber.from("100"),
+      lpTokensOut: BigNumber.from("101"),
+      totalReservesOut: BigNumber.from("101"),
+      lpTokensIn: BigNumber.from("100"),
+      virtualPrice: BigNumber.from(10).pow(18),
+      rate: BigNumber.from("100"),
+      marketRate: BigNumber.from("101"),
     };
 
     it("happy: should work with deposits", async () => {
@@ -324,7 +327,7 @@ describe("NxtpSdkPool", () => {
         mockParams.virtualPrice,
       );
 
-      expect(res.toString()).to.equal(BigNumber.from("-999999999999999999").toString());
+      expect(res.toString()).to.equal(BigNumber.from(10).pow(16).toString());
     });
 
     it("happy: should work with withdrawals", async () => {
@@ -335,7 +338,13 @@ describe("NxtpSdkPool", () => {
         false,
       );
 
-      expect(res.toString()).to.equal(BigNumber.from("1000000000000000000000000000000000000").toString());
+      expect(res.toString()).to.equal(BigNumber.from(10).pow(16).toString());
+    });
+
+    it("happy: should work with swaps", async () => {
+      const res = await nxtpPool.calculatePriceImpact(mockParams.rate, mockParams.marketRate);
+
+      expect(res.toString()).to.equal(BigNumber.from("10000000000000000").toString());
     });
 
     it("should return 0 when amounts are 0", async () => {

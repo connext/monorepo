@@ -12,6 +12,7 @@ import {IConnectorManager} from "../../../../contracts/messaging/interfaces/ICon
 import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
+import {Constants} from "../../../../contracts/core/connext/libraries/Constants.sol";
 import {TransferInfo, ExecuteArgs, TokenId, DestinationTransferStatus} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
@@ -36,6 +37,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 contractAsset;
     uint256 callerEth;
     uint256 callerAsset;
+    uint256 custodied;
   }
 
   // ============ Constants ============
@@ -111,7 +113,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.approvedRelayers[address(this)] = true;
     s.approvedSequencers[_sequencer] = true;
     s.maxRoutersPerTransfer = 5;
-    s._routerWhitelistRemoved = true;
+    s._routerAllowlistRemoved = true;
     s.relayerFeeVault = _relayerFeeVault;
     s.domain = _originDomain;
 
@@ -122,6 +124,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     vm.prank(address(this));
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     ds.contractOwner = _ds_owner;
+
+    // default cap is v high
+    _cap = 100_000 ether;
   }
 
   // ============ Utils ============
@@ -232,7 +237,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function utils_getFastTransferAmount(uint256 _amount) public returns (uint256) {
     // This is the method used internally to get the amount of tokens to transfer after liquidity
     // fees are taken.
-    return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / BPS_FEE_DENOMINATOR;
+    return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / Constants.BPS_FEE_DENOMINATOR;
   }
 
   // ============== Helpers ==================
@@ -375,6 +380,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       balances.callerAsset = tokenIn.balanceOf(params.originSender);
       balances.relayerEth = s.relayerFeeVault.balance;
       balances.contractAsset = tokenIn.balanceOf(address(this));
+      balances.custodied = s.tokenConfigs[_canonicalKey].custodied;
 
       // Debugging logs.
       // console.log("initial balances");
@@ -409,10 +415,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bytes32 ret = helpers_wrappedXCall(params, asset, amount);
 
     if (shouldSucceed) {
-      assertEq(ret, transferId);
+      assertEq(ret, transferId, "transfer ID non match");
 
       // Nonce should have increased.
-      assertEq(s.nonce, params.nonce + 1);
+      assertEq(s.nonce, params.nonce + 1, "nonce did not match");
 
       TestERC20 tokenIn = TestERC20(asset != address(0) ? asset : _local);
 
@@ -425,9 +431,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // console.log(TestERC20(_local).balanceOf(address(this)));
 
       // Contract should have received relayer fee from user.
-      assertEq(s.relayerFeeVault.balance, balances.relayerEth + _relayerFee);
+      assertEq(s.relayerFeeVault.balance, balances.relayerEth + _relayerFee, "relayer did not receive fee");
       // User should have been debited relayer fee ETH and tx cost.
-      assertLe(params.originSender.balance, balances.callerEth - _relayerFee);
+      assertLe(params.originSender.balance, balances.callerEth - _relayerFee, "user not debited eth");
 
       // Check that the contract has been credited the correct amount of tokens and that the user has
       // been debited the correct amount of tokens.
@@ -439,12 +445,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         assertEq(tokenIn.balanceOf(address(this)), balances.contractAsset);
       } else if (isCanonical) {
         // User should have been debited tokens.
-        assertEq(tokenIn.balanceOf(params.originSender), balances.callerAsset - amount);
+        assertEq(tokenIn.balanceOf(params.originSender), balances.callerAsset - amount, "user not debited tokens");
         // The contract should have stored the asset in escrow.
         assertEq(tokenIn.balanceOf(address(this)), balances.contractAsset + amount);
         // Custodied balance should have increased if sending in canonical
-        if (s.caps[utils_calculateCanonicalHash()] > 0) {
-          assertEq(s.custodied[_local], balances.contractAsset + amount);
+        if (s.tokenConfigs[_canonicalKey].cap > 0) {
+          assertEq(s.tokenConfigs[_canonicalKey].custodied, balances.custodied + amount);
         }
       } else {
         // NOTE: Normally the adopted asset would be swapped into the local asset and then
@@ -631,6 +637,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // get pre-execute balance here in local
     IERC20 token = IERC20(_inputs.token);
     ExecuteBalances memory prevBalances = utils_getExecuteBalances(transferId, _inputs.token, _args.params.to);
+    s.tokenConfigs[_canonicalKey].custodied = prevBalances.bridge;
 
     // execute
     // expected amount is impacted by (1) fast liquidity fees (2) slippage
@@ -669,14 +676,19 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         for (uint256 i; i < pathLen; i++) {
           assertEq(
             s.routerBalances[_args.routers[i]][_local],
-            _inputs.usesPortals ? prevLiquidity[i] : prevLiquidity[i] - (_inputs.routerAmt / pathLen)
+            _inputs.usesPortals ? prevLiquidity[i] : prevLiquidity[i] - (_inputs.routerAmt / pathLen),
+            "did not decrement router balance"
           );
         }
       }
 
       // if on canonical domain, should decrease
-      if (s.caps[utils_calculateCanonicalHash()] > 0) {
-        assertEq(s.custodied[_local], prevBalances.bridge - routerAmt);
+      if (s.tokenConfigs[_canonicalKey].cap > 0) {
+        assertEq(
+          s.tokenConfigs[_canonicalKey].custodied,
+          prevBalances.bridge - routerAmt,
+          "custodied amount is incorrect"
+        );
       }
     }
 
@@ -692,7 +704,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         // but we are not adding any funds from the pool, so always decrement
         assertEq(
           finalBalances.bridge,
-          _inputs.usesPortals ? prevBalances.bridge : prevBalances.bridge - _inputs.routerAmt
+          _inputs.usesPortals ? prevBalances.bridge : prevBalances.bridge - _inputs.routerAmt,
+          "final balance of the bridge was incorrect"
         );
       }
 
@@ -712,7 +725,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     DestinationTransferStatus expected = _inputs.isSlow
       ? DestinationTransferStatus.Completed
       : DestinationTransferStatus.Executed;
-    assertTrue(s.transferStatus[transferId] == expected);
+    assertTrue(s.transferStatus[transferId] == expected, "transfer status not updated");
 
     // should have assigned transfer as routed
     address[] memory savedRouters = s.routedTransfers[transferId];
@@ -935,7 +948,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // set mock
     vm.mockCall(manager, abi.encodeWithSelector(IConnectorManager.localDomain.selector), abi.encode(s.domain));
 
-    // test revert
+    vm.expectEmit(true, true, true, true);
+    emit XAppConnectionManagerSet(manager, LibDiamond.contractOwner());
+
+    // test
     vm.prank(LibDiamond.contractOwner());
     this.setXAppConnectionManager(manager);
 
@@ -978,18 +994,29 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // setup asset with local != adopted, not on canonical domain
     utils_setupAsset(false, false);
 
-    s.approvedAssets[utils_calculateCanonicalHash()] = false;
+    s.tokenConfigs[utils_calculateCanonicalHash()].approval = false;
 
-    helpers_xcallAndAssert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notWhitelisted.selector);
+    helpers_xcallAndAssert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notAllowlisted.selector);
   }
 
   // fails if asset cap would be exceeded on the canonical domain
-  function test_BridgeFacet__xcall_failIfCapReachedOnCanoncal() public {
+  function test_BridgeFacet__xcall_failIfEmptyLocal() public {
+    // setup asset with local == adopted, on remote domain
+    utils_setupAsset(true, false);
+
+    // ensure stored value returns 0
+    s.tokenConfigs[utils_calculateCanonicalHash()].representation = address(0);
+
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet_xcall__emptyLocalAsset.selector);
+  }
+
+  // fails if asset cap would be exceeded on the canonical domain
+  function test_BridgeFacet__xcall_failIfCapReachedOnCanonical() public {
     // setup asset with local == adopted, on canonical domain
     utils_setupAsset(true, true);
 
-    s.caps[utils_calculateCanonicalHash()] = _defaultAmount + 1;
-    s.custodied[_canonical] = 3;
+    s.tokenConfigs[utils_calculateCanonicalHash()].cap = _defaultAmount + 1;
+    s.tokenConfigs[utils_calculateCanonicalHash()].custodied = 3;
 
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_capReached.selector);
   }
@@ -1232,7 +1259,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should fail if the router is not approved and ownership is not renounced
   function test_BridgeFacet__execute_failIfRouterNotApproved() public {
-    s._routerWhitelistRemoved = false;
+    s._routerAllowlistRemoved = false;
 
     (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
     s.routerConfigs[args.routers[0]].approved = false;
@@ -1484,22 +1511,36 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // works when on canonical domain
-  function test_BridgeFacet__execute_worksOnCanonical() public {
+  function test_BridgeFacet__execute_worksOnCanonicalWithoutCap() public {
     // set asset context (local == adopted)
     _canonicalDomain = _destinationDomain;
+    _cap = 0;
     utils_setupAsset(true, true);
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][_canonical] += 10 ether;
-    // s.routerConfigs[args.routers[0]].approved = true;
+
+    helpers_executeAndAssert(transferId, args);
+  }
+
+  function test_BridgeFacet__execute_worksOnCanonicalWithCap() public {
+    // set asset context (local == adopted)
+    _canonicalDomain = _destinationDomain;
+    _cap = 10 ether;
+    utils_setupAsset(true, true);
+    s.tokenConfigs[utils_calculateCanonicalHash()].custodied = IERC20(_canonical).balanceOf(address(this));
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][_canonical] += 10 ether;
 
     helpers_executeAndAssert(transferId, args);
   }
 
   // should work with unapproved router if router ownership is renounced
-  function test_BridgeFacet__execute_worksWithUnapprovedIfNoWhitelist() public {
-    s._routerWhitelistRemoved = true;
+  function test_BridgeFacet__execute_worksWithUnapprovedIfNoAllowlist() public {
+    s._routerAllowlistRemoved = true;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
@@ -1579,7 +1620,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     s.routerBalances[_args.routers[0]][_local] += 10 ether;
 
-    vm.expectRevert("fails");
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_externalCallFailed.selector);
     this.execute(_args);
   }
 
@@ -1743,7 +1784,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ bumpTransfer ============
   // ============ bumpTransfer fail cases
-  // should work with unapproved router if router-whitelist ownership renouncedcanonicalId
+  // should work with unapproved router if router-allowlist ownership renouncedcanonicalId
 
   // ============ forceUpdateSlippage ============
   function test_BridgeFacet__forceUpdateSlippage_failsIfNotDelegate() public {

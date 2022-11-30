@@ -9,6 +9,7 @@ import {
   OriginTransfer,
   ConnectorMeta,
   RootManagerMeta,
+  ReceivedAggregateRoot,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
@@ -335,7 +336,7 @@ export const propagatedRoot = (entity: any): PropagatedRoot => {
   if (!entity) {
     throw new NxtpError("Subgraph `PropagatedRoot` entity parser: PropagatedRoot, entity is `undefined`.");
   }
-  for (const field of ["id", "aggregate", "domains", "count"]) {
+  for (const field of ["id", "aggregate", "domainsHash", "count"]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `PropagatedRoot` entity parser: Message entity missing required field", {
         missingField: field,
@@ -347,7 +348,7 @@ export const propagatedRoot = (entity: any): PropagatedRoot => {
   return {
     id: entity.id,
     aggregate: entity.aggregate,
-    domains: entity.domains,
+    domainsHash: entity.domainsHash,
     count: entity.count,
   };
 };
@@ -394,5 +395,29 @@ export const rootManagerMeta = (entity: any): RootManagerMeta => {
     id: entity.id,
     connectors: entity.connectors,
     domains: entity.domains,
+  };
+};
+
+export const receivedAggregateRoot = (entity: any): ReceivedAggregateRoot => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError(
+      "Subgraph `ReceivedAggregateRoot` entity parser: ReceivedAggregateRoot, entity is `undefined`.",
+    );
+  }
+  for (const field of ["id", "root", "domain", "blockNumber"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `ReceivedAggregateRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    root: entity.root,
+    domain: entity.domain,
+    blockNumber: entity.blockNumber,
   };
 };

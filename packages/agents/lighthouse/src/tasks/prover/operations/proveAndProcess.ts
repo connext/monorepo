@@ -5,7 +5,10 @@ import {
   XMessage,
   SparseMerkleTree,
   RootMessage,
+  NATIVE_TOKEN,
+  GELATO_RELAYER_ADDRESS,
 } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
 
 import {
   NoDestinationDomainForProof,
@@ -17,7 +20,7 @@ import {
   NoMessageProof,
   NoTargetMessageRoot,
 } from "../../../errors";
-import { sendWithRelayerWithBackup } from "../../../mockable";
+import { sendWithRelayerWithBackup, getEstimatedFee } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper } from "../adapters";
 import { getContext } from "../prover";
 
@@ -73,7 +76,7 @@ export const proveAndProcess = async () => {
                 end = true;
                 if (offset === 0) {
                   logger.info(
-                    "No unprocessed messages for origin and destination pair",
+                    "Reached end of unprocessed messages for origin and destination pair",
                     requestContext,
                     methodContext,
                     {
@@ -218,22 +221,95 @@ export const processMessages = async (
       destinationSpokeConnector,
     });
 
+    const proveAndProcessEncodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
+      messageProofs,
+      targetAggregateRoot,
+      messageRootProof,
+      messageRootIndex,
+    ]);
+
+    logger.debug("Proving and processing messages", requestContext, methodContext, {
+      messages,
+      proveAndProcessEncodedData,
+      destinationSpokeConnector,
+    });
     const chainId = chainData.get(destinationDomain)!.chainId;
+
+    /// Temp: Using relayer proxy
+    const domain = +destinationDomain;
+    const relayerAddress = GELATO_RELAYER_ADDRESS; // hardcoded gelato address will always be whitelisted
+
+    logger.info("Getting gas estimate", requestContext, methodContext, {
+      chainId,
+      to: destinationSpokeConnector,
+      data: proveAndProcessEncodedData,
+      from: relayerAddress,
+    });
+
+    const gas = await chainreader.getGasEstimateWithRevertCode(domain, {
+      chainId: chainId,
+      to: destinationSpokeConnector,
+      data: proveAndProcessEncodedData,
+      from: relayerAddress,
+    });
+
+    logger.info("Sending tx to relayer", requestContext, methodContext, {
+      relayer: relayerAddress,
+      connext: destinationSpokeConnector,
+      domain,
+      gas: gas.toString(),
+    });
+
+    const gasLimit = gas.add(200_000); // Add extra overhead for gelato
+    const destinationRelayerProxyAddress = config.chains[destinationDomain]?.deployments.relayerProxy;
+    let fee = BigNumber.from(0);
+    try {
+      fee = await getEstimatedFee(chainId, NATIVE_TOKEN, gasLimit, true);
+    } catch (error: unknown) {
+      logger.warn("Error at Gelato Estimate Fee", requestContext, methodContext, {
+        error: jsonifyError(error as NxtpError),
+        relayerProxyAddress: destinationRelayerProxyAddress,
+        gasLimit: gasLimit.toString(),
+        relayerFee: fee.toString(),
+      });
+
+      fee = gasLimit.mul(await chainreader.getGasPrice(domain, requestContext));
+    }
+
+    const {
+      _proofs: proofs,
+      _aggregateRoot: aggregateRoot,
+      _aggregatePath: aggregatePath,
+      _aggregateIndex: aggregateIndex,
+    } = contracts.spokeConnector.decodeFunctionData("proveAndProcess", proveAndProcessEncodedData);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    const encodedData = contracts.relayerProxy.encodeFunctionData("proveAndProcess", [
+      proofs,
+      aggregateRoot,
+      aggregatePath,
+      aggregateIndex,
+      fee,
+    ]);
+
+    logger.info("Encoding for Relayer Proxy", requestContext, methodContext, {
+      relayerProxyAddress: destinationRelayerProxyAddress,
+      gasLimit: gasLimit.toString(),
+      relayerFee: fee.toString(),
+      relayerProxyEncodedData: encodedData,
+    });
 
     const { taskId } = await sendWithRelayerWithBackup(
       chainId,
       destinationDomain,
-      destinationSpokeConnector,
-      data,
+      destinationRelayerProxyAddress,
+      encodedData,
       relayers,
       chainreader,
       logger,
       requestContext,
     );
-    logger.info("Proved and processed messages sent to relayer", requestContext, methodContext, {
-      taskId,
-      destinationDomain,
-    });
+    logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
   } catch (err: unknown) {
     logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
   }

@@ -22,11 +22,6 @@
   },
   {
     "inputs": [],
-    "name": "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "ProposedOwnable__onlyOwner_notOwner",
     "type": "error"
   },
@@ -37,17 +32,17 @@
   },
   {
     "inputs": [],
+    "name": "ProposedOwnable__ownershipDelayElapsed_delayNotElapsed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ProposedOwnable__renounceOwnership_delayNotElapsed",
     "type": "error"
   },
   {
@@ -151,6 +146,38 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "domain",
+        "type": "uint32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "connector",
+        "type": "address"
+      }
+    ],
+    "name": "DomainAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "domain",
+        "type": "uint32"
+      }
+    ],
+    "name": "DomainRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "proposedOwner",
@@ -190,6 +217,38 @@
       }
     ],
     "name": "Paused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "domain",
+        "type": "uint32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "connector",
+        "type": "address"
+      }
+    ],
+    "name": "PropagateFailed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "fraudulentRoot",
+        "type": "bytes32"
+      }
+    ],
+    "name": "RootDiscarded",
     "type": "event"
   },
   {
@@ -301,6 +360,19 @@
         "internalType": "uint128",
         "name": "",
         "type": "uint128"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_DOMAINS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -441,6 +513,19 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "_root",
+        "type": "bytes32"
+      }
+    ],
+    "name": "discardRoot",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
@@ -535,6 +620,19 @@
         "internalType": "bool",
         "name": "",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "lastPropagatedRoot",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -747,6 +845,19 @@
     ],
     "name": "validateDomains",
     "outputs": [],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "watcherManager",
+    "outputs": [
+      {
+        "internalType": "contract WatcherManager",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   }

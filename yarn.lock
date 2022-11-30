@@ -833,6 +833,7 @@ __metadata:
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@eth-optimism/sdk": 1.6.9
+    "@gelatonetwork/relay-sdk": ^2.1.0
     "@graphql-codegen/cli": 2.13.8
     "@sinclair/typebox": 0.25.2
     "@types/mocha": 10.0.0
@@ -964,6 +965,7 @@ __metadata:
     "@arbitrum/sdk": 3.0.0-beta.12
     "@connext/nxtp-utils": "workspace:*"
     "@eth-optimism/sdk": 1.6.9
+    "@gelatonetwork/relay-context": ^1.0.0
     "@matterlabs/zksync-contracts": 0.4.2
     "@nomiclabs/hardhat-ethers": 2.2.1
     "@nomiclabs/hardhat-etherscan": 3.1.2
@@ -1155,6 +1157,7 @@ __metadata:
     "@connext/nxtp-adapters-web3signer": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
+    "@gelatonetwork/relay-sdk": ^2.1.0
     "@sinclair/typebox": 0.25.2
     concurrently: 7.5.0
     dd-trace: 3.6.0
@@ -2591,7 +2594,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gelatonetwork/relay-sdk@npm:2.1.0":
+"@gelatonetwork/relay-context@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@gelatonetwork/relay-context@npm:1.0.0"
+  dependencies:
+    "@openzeppelin/contracts": 4.7.3
+  checksum: 948a9fd5a66f90d0f883e0467a08ec123a85540d87f78ce99ed12e01c18049626a794c73c04dc68d9fbd377c3b1e1bca56579f4e17c48be02944807ff7dc1305
+  languageName: node
+  linkType: hard
+
+"@gelatonetwork/relay-sdk@npm:2.1.0, @gelatonetwork/relay-sdk@npm:^2.1.0":
   version: 2.1.0
   resolution: "@gelatonetwork/relay-sdk@npm:2.1.0"
   dependencies:

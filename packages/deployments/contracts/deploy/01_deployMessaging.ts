@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployResult } from "hardhat-deploy/types";
-import { BigNumber, constants, Wallet } from "ethers";
+import { BigNumber, constants, Wallet, utils } from "ethers";
 
 import { chainIdToDomain, getConnectorName, getDeploymentName, getProtocolNetwork, deployBeaconProxy } from "../src";
 import { MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
@@ -15,6 +15,7 @@ const formatConnectorArgs = (
     rootManager: string;
     merkleManager?: string;
     watcherManager?: string;
+    amb?: string;
   },
 ): any[] => {
   const { deploymentChainId, mirrorChainId, rootManager, connectorChainId, merkleManager, watcherManager } = args;
@@ -26,11 +27,13 @@ const formatConnectorArgs = (
   const deploymentDomain = BigNumber.from(chainIdToDomain(deploymentChainId).toString());
   const mirrorDomain = BigNumber.from(chainIdToDomain(mirrorChainId).toString());
 
+  const amb = args.amb ?? isHub ? config.ambs.hub : config.ambs.spoke;
+
   const hubArgs = [
     deploymentDomain,
     // Mirror domain should be known.
     mirrorDomain,
-    isHub ? config.ambs.hub : config.ambs.spoke,
+    amb,
     rootManager,
     constants.AddressZero,
     ...Object.values((isHub ? config?.custom?.hub : {}) ?? {}),
@@ -105,17 +108,6 @@ const handleDeployHub = async (
     log: true,
   });
   console.log(`RootManager deployed to ${rootManager.address}`);
-
-  // Deploy RootManager.
-  console.log("Deploying RootManagerPropagateWrapper...");
-  const rootManagerPropagateWrapper = await hre.deployments.deploy(getDeploymentName("RootManagerPropagateWrapper"), {
-    contract: "RootManagerPropagateWrapper",
-    from: deployer.address,
-    args: [rootManager.address],
-    skipIfAlreadyDeployed: true,
-    log: true,
-  });
-  console.log(`RootManagerPropagateWrapper deployed to ${rootManagerPropagateWrapper.address}`);
 
   // setArborist to Merkle for RootManager
   const merkleForRootContract = await hre.ethers.getContractAt(
@@ -254,6 +246,44 @@ const handleDeploySpoke = async (
   const merkleTreeManager = await deployBeaconProxy("MerkleTreeManager", [constants.AddressZero], deployer, hre);
 
   // Deploy Spoke Connector
+
+  let amb: undefined | string;
+  if (protocol.configs[deploymentChainId].prefix.includes("Arbitrum")) {
+    // NOTE: If the spoke network is arbitrum, the AMB should be set to the alias address.
+    // For more info, see alias address in docs:
+    // https://developer.offchainlabs.com/arbos/l1-to-l2-messaging
+    const arbitrumHubConnector = await hre.companionNetworks["hub"].deployments.getOrNull(
+      getDeploymentName("ArbitrumHubConnector"),
+    );
+    if (!arbitrumHubConnector) {
+      throw new Error(
+        "Could not find the ArbitrumHubConnector contract deployment; " +
+          "address is needed in order to deploy ArbitrumSpokeConnector",
+      );
+    }
+
+    // Alias is the origin sender address + 0x1111000000000000000000000000000000001111.
+    // We can't just add that value here: if there's any 'f' hex digits there will be a
+    // leftover/remainder that will expand the address to include extra digits.
+    // TODO: Make util?
+    const L1_TO_L2_ALIAS_OFFSET = "0x1111000000000000000000000000000000001111";
+    let bn = BigNumber.from(arbitrumHubConnector.address).add(L1_TO_L2_ALIAS_OFFSET);
+    bn = BigNumber.from(bn);
+    if (bn.lt(0)) {
+      bn = BigNumber.from("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").add(bn).add(1);
+    }
+    let addr = bn.toHexString();
+    if (addr.includes("0x")) {
+      addr.replace("0x", "");
+    }
+    addr = addr.padStart(40, "0");
+    addr = addr.slice(addr.length - 40, addr.length);
+    addr = "0x" + addr;
+    // Set the AMB address we'll use.
+    amb = utils.getAddress(addr);
+    console.log("amb address generated with alias: ", amb);
+  }
+
   console.log(`Deploying ${contract}...`);
   const deployment = await hre.deployments.deploy(
     getDeploymentName(contract, undefined, protocol.configs[deploymentChainId].networkName),
@@ -267,6 +297,7 @@ const handleDeploySpoke = async (
         rootManager: rootManagerDeployment.address,
         merkleManager: merkleTreeManager.address,
         watcherManager: watcherManager.address,
+        amb,
       }),
       skipIfAlreadyDeployed: true,
       log: true,

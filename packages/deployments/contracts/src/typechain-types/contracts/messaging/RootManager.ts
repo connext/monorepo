@@ -48,6 +48,7 @@ export interface RootManagerInterface extends utils.Interface {
     "getDomainIndex(uint32)": FunctionFragment;
     "getPendingInboundRootsCount()": FunctionFragment;
     "isDomainSupported(uint32)": FunctionFragment;
+    "lastPropagatedRoot()": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
     "paused()": FunctionFragment;
@@ -87,6 +88,7 @@ export interface RootManagerInterface extends utils.Interface {
       | "getDomainIndex"
       | "getPendingInboundRootsCount"
       | "isDomainSupported"
+      | "lastPropagatedRoot"
       | "owner"
       | "pause"
       | "paused"
@@ -168,6 +170,10 @@ export interface RootManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "isDomainSupported",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lastPropagatedRoot",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
@@ -278,6 +284,10 @@ export interface RootManagerInterface extends utils.Interface {
     functionFragment: "isDomainSupported",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "lastPropagatedRoot",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
@@ -330,9 +340,12 @@ export interface RootManagerInterface extends utils.Interface {
     "ConnectorAdded(uint32,address,uint32[],address[])": EventFragment;
     "ConnectorRemoved(uint32,address,uint32[],address[],address)": EventFragment;
     "DelayBlocksUpdated(uint256,uint256)": EventFragment;
+    "DomainAdded(uint32,address)": EventFragment;
+    "DomainRemoved(uint32)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused(address)": EventFragment;
+    "PropagateFailed(uint32,address)": EventFragment;
     "RootDiscarded(bytes32)": EventFragment;
     "RootPropagated(bytes32,uint256,bytes32)": EventFragment;
     "RootReceived(uint32,bytes32,uint256)": EventFragment;
@@ -344,9 +357,12 @@ export interface RootManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ConnectorAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ConnectorRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DelayBlocksUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DomainAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DomainRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PropagateFailed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootDiscarded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootPropagated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootReceived"): EventFragment;
@@ -395,6 +411,24 @@ export type DelayBlocksUpdatedEvent = TypedEvent<
 export type DelayBlocksUpdatedEventFilter =
   TypedEventFilter<DelayBlocksUpdatedEvent>;
 
+export interface DomainAddedEventObject {
+  domain: number;
+  connector: string;
+}
+export type DomainAddedEvent = TypedEvent<
+  [number, string],
+  DomainAddedEventObject
+>;
+
+export type DomainAddedEventFilter = TypedEventFilter<DomainAddedEvent>;
+
+export interface DomainRemovedEventObject {
+  domain: number;
+}
+export type DomainRemovedEvent = TypedEvent<[number], DomainRemovedEventObject>;
+
+export type DomainRemovedEventFilter = TypedEventFilter<DomainRemovedEvent>;
+
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
 }
@@ -424,6 +458,17 @@ export interface PausedEventObject {
 export type PausedEvent = TypedEvent<[string], PausedEventObject>;
 
 export type PausedEventFilter = TypedEventFilter<PausedEvent>;
+
+export interface PropagateFailedEventObject {
+  domain: number;
+  connector: string;
+}
+export type PropagateFailedEvent = TypedEvent<
+  [number, string],
+  PropagateFailedEventObject
+>;
+
+export type PropagateFailedEventFilter = TypedEventFilter<PropagateFailedEvent>;
 
 export interface RootDiscardedEventObject {
   fraudulentRoot: string;
@@ -581,6 +626,8 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    lastPropagatedRoot(overrides?: CallOverrides): Promise<[string]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     pause(
@@ -714,6 +761,8 @@ export interface RootManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  lastPropagatedRoot(overrides?: CallOverrides): Promise<string>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   pause(
@@ -843,6 +892,8 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    lastPropagatedRoot(overrides?: CallOverrides): Promise<string>;
+
     owner(overrides?: CallOverrides): Promise<string>;
 
     pause(overrides?: CallOverrides): Promise<void>;
@@ -942,6 +993,15 @@ export interface RootManager extends BaseContract {
       updated?: null
     ): DelayBlocksUpdatedEventFilter;
 
+    "DomainAdded(uint32,address)"(
+      domain?: null,
+      connector?: null
+    ): DomainAddedEventFilter;
+    DomainAdded(domain?: null, connector?: null): DomainAddedEventFilter;
+
+    "DomainRemoved(uint32)"(domain?: null): DomainRemovedEventFilter;
+    DomainRemoved(domain?: null): DomainRemovedEventFilter;
+
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
     ): OwnershipProposedEventFilter;
@@ -960,6 +1020,15 @@ export interface RootManager extends BaseContract {
 
     "Paused(address)"(account?: null): PausedEventFilter;
     Paused(account?: null): PausedEventFilter;
+
+    "PropagateFailed(uint32,address)"(
+      domain?: null,
+      connector?: null
+    ): PropagateFailedEventFilter;
+    PropagateFailed(
+      domain?: null,
+      connector?: null
+    ): PropagateFailedEventFilter;
 
     "RootDiscarded(bytes32)"(fraudulentRoot?: null): RootDiscardedEventFilter;
     RootDiscarded(fraudulentRoot?: null): RootDiscardedEventFilter;
@@ -1074,6 +1143,8 @@ export interface RootManager extends BaseContract {
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    lastPropagatedRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1206,6 +1277,10 @@ export interface RootManager extends BaseContract {
 
     isDomainSupported(
       _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    lastPropagatedRoot(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

@@ -29,50 +29,42 @@ import type {
 export interface ProposedOwnableFacetInterface extends utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
-    "assetWhitelistRemoved()": FunctionFragment;
-    "assetWhitelistTimestamp()": FunctionFragment;
     "assignRoleAdmin(address)": FunctionFragment;
-    "assignRoleRouter(address)": FunctionFragment;
+    "assignRoleRouterAdmin(address)": FunctionFragment;
     "assignRoleWatcher(address)": FunctionFragment;
     "delay()": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
-    "proposeAssetWhitelistRemoval()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
-    "proposeRouterWhitelistRemoval()": FunctionFragment;
+    "proposeRouterAllowlistRemoval()": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "queryRole(address)": FunctionFragment;
-    "removeAssetWhitelist()": FunctionFragment;
-    "removeRouterWhitelist()": FunctionFragment;
+    "removeRouterAllowlist()": FunctionFragment;
     "revokeRole(address)": FunctionFragment;
-    "routerWhitelistRemoved()": FunctionFragment;
-    "routerWhitelistTimestamp()": FunctionFragment;
+    "routerAllowlistRemoved()": FunctionFragment;
+    "routerAllowlistTimestamp()": FunctionFragment;
     "unpause()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "acceptProposedOwner"
-      | "assetWhitelistRemoved"
-      | "assetWhitelistTimestamp"
       | "assignRoleAdmin"
-      | "assignRoleRouter"
+      | "assignRoleRouterAdmin"
       | "assignRoleWatcher"
       | "delay"
       | "owner"
       | "pause"
-      | "proposeAssetWhitelistRemoval"
       | "proposeNewOwner"
-      | "proposeRouterWhitelistRemoval"
+      | "proposeRouterAllowlistRemoval"
       | "proposed"
       | "proposedTimestamp"
       | "queryRole"
-      | "removeAssetWhitelist"
-      | "removeRouterWhitelist"
+      | "removeRouterAllowlist"
       | "revokeRole"
-      | "routerWhitelistRemoved"
-      | "routerWhitelistTimestamp"
+      | "routerAllowlistRemoved"
+      | "routerAllowlistTimestamp"
       | "unpause"
   ): FunctionFragment;
 
@@ -81,19 +73,11 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "assetWhitelistRemoved",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "assetWhitelistTimestamp",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "assignRoleAdmin",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "assignRoleRouter",
+    functionFragment: "assignRoleRouterAdmin",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -104,15 +88,11 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "proposeAssetWhitelistRemoval",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "proposeNewOwner",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "proposeRouterWhitelistRemoval",
+    functionFragment: "proposeRouterAllowlistRemoval",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
@@ -125,11 +105,7 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeAssetWhitelist",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeRouterWhitelist",
+    functionFragment: "removeRouterAllowlist",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -137,11 +113,11 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "routerWhitelistRemoved",
+    functionFragment: "routerAllowlistRemoved",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "routerWhitelistTimestamp",
+    functionFragment: "routerAllowlistTimestamp",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
@@ -151,19 +127,11 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "assetWhitelistRemoved",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "assetWhitelistTimestamp",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "assignRoleAdmin",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "assignRoleRouter",
+    functionFragment: "assignRoleRouterAdmin",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -174,15 +142,11 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "proposeAssetWhitelistRemoval",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "proposeRouterWhitelistRemoval",
+    functionFragment: "proposeRouterAllowlistRemoval",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
@@ -192,27 +156,21 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "queryRole", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "removeAssetWhitelist",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeRouterWhitelist",
+    functionFragment: "removeRouterAllowlist",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "routerWhitelistRemoved",
+    functionFragment: "routerAllowlistRemoved",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "routerWhitelistTimestamp",
+    functionFragment: "routerAllowlistTimestamp",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
 
   events: {
-    "AssetWhitelistRemovalProposed(uint256)": EventFragment;
-    "AssetWhitelistRemoved(bool)": EventFragment;
     "AssignRoleAdmin(address)": EventFragment;
     "AssignRoleRouter(address)": EventFragment;
     "AssignRoleWatcher(address)": EventFragment;
@@ -220,15 +178,11 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused()": EventFragment;
     "RevokeRole(address,uint8)": EventFragment;
-    "RouterWhitelistRemovalProposed(uint256)": EventFragment;
-    "RouterWhitelistRemoved(bool)": EventFragment;
+    "RouterAllowlistRemovalProposed(uint256)": EventFragment;
+    "RouterAllowlistRemoved(bool)": EventFragment;
     "Unpaused()": EventFragment;
   };
 
-  getEvent(
-    nameOrSignatureOrTopic: "AssetWhitelistRemovalProposed"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AssetWhitelistRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssignRoleAdmin"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssignRoleRouter"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssignRoleWatcher"): EventFragment;
@@ -237,33 +191,11 @@ export interface ProposedOwnableFacetInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RevokeRole"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RouterWhitelistRemovalProposed"
+    nameOrSignatureOrTopic: "RouterAllowlistRemovalProposed"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterWhitelistRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RouterAllowlistRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
 }
-
-export interface AssetWhitelistRemovalProposedEventObject {
-  timestamp: BigNumber;
-}
-export type AssetWhitelistRemovalProposedEvent = TypedEvent<
-  [BigNumber],
-  AssetWhitelistRemovalProposedEventObject
->;
-
-export type AssetWhitelistRemovalProposedEventFilter =
-  TypedEventFilter<AssetWhitelistRemovalProposedEvent>;
-
-export interface AssetWhitelistRemovedEventObject {
-  renounced: boolean;
-}
-export type AssetWhitelistRemovedEvent = TypedEvent<
-  [boolean],
-  AssetWhitelistRemovedEventObject
->;
-
-export type AssetWhitelistRemovedEventFilter =
-  TypedEventFilter<AssetWhitelistRemovedEvent>;
 
 export interface AssignRoleAdminEventObject {
   admin: string;
@@ -336,27 +268,27 @@ export type RevokeRoleEvent = TypedEvent<
 
 export type RevokeRoleEventFilter = TypedEventFilter<RevokeRoleEvent>;
 
-export interface RouterWhitelistRemovalProposedEventObject {
+export interface RouterAllowlistRemovalProposedEventObject {
   timestamp: BigNumber;
 }
-export type RouterWhitelistRemovalProposedEvent = TypedEvent<
+export type RouterAllowlistRemovalProposedEvent = TypedEvent<
   [BigNumber],
-  RouterWhitelistRemovalProposedEventObject
+  RouterAllowlistRemovalProposedEventObject
 >;
 
-export type RouterWhitelistRemovalProposedEventFilter =
-  TypedEventFilter<RouterWhitelistRemovalProposedEvent>;
+export type RouterAllowlistRemovalProposedEventFilter =
+  TypedEventFilter<RouterAllowlistRemovalProposedEvent>;
 
-export interface RouterWhitelistRemovedEventObject {
+export interface RouterAllowlistRemovedEventObject {
   renounced: boolean;
 }
-export type RouterWhitelistRemovedEvent = TypedEvent<
+export type RouterAllowlistRemovedEvent = TypedEvent<
   [boolean],
-  RouterWhitelistRemovedEventObject
+  RouterAllowlistRemovedEventObject
 >;
 
-export type RouterWhitelistRemovedEventFilter =
-  TypedEventFilter<RouterWhitelistRemovedEvent>;
+export type RouterAllowlistRemovedEventFilter =
+  TypedEventFilter<RouterAllowlistRemovedEvent>;
 
 export interface UnpausedEventObject {}
 export type UnpausedEvent = TypedEvent<[], UnpausedEventObject>;
@@ -394,16 +326,12 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    assetWhitelistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
-
-    assetWhitelistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     assignRoleAdmin(
       _admin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -421,16 +349,12 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    proposeAssetWhitelistRemoval(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    proposeRouterWhitelistRemoval(
+    proposeRouterAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -443,11 +367,7 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[number]>;
 
-    removeAssetWhitelist(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    removeRouterWhitelist(
+    removeRouterAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -456,9 +376,9 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    routerWhitelistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
+    routerAllowlistRemoved(overrides?: CallOverrides): Promise<[boolean]>;
 
-    routerWhitelistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+    routerAllowlistTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -469,16 +389,12 @@ export interface ProposedOwnableFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  assetWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
-
-  assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
   assignRoleAdmin(
     _admin: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  assignRoleRouter(
+  assignRoleRouterAdmin(
     _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -496,16 +412,12 @@ export interface ProposedOwnableFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  proposeAssetWhitelistRemoval(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  proposeRouterWhitelistRemoval(
+  proposeRouterAllowlistRemoval(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -518,11 +430,7 @@ export interface ProposedOwnableFacet extends BaseContract {
     overrides?: CallOverrides
   ): Promise<number>;
 
-  removeAssetWhitelist(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  removeRouterWhitelist(
+  removeRouterAllowlist(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -531,9 +439,9 @@ export interface ProposedOwnableFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  routerWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
+  routerAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
 
-  routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+  routerAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   unpause(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -542,16 +450,12 @@ export interface ProposedOwnableFacet extends BaseContract {
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
-    assetWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
-
-    assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
     assignRoleAdmin(
       _admin: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -567,14 +471,12 @@ export interface ProposedOwnableFacet extends BaseContract {
 
     pause(overrides?: CallOverrides): Promise<void>;
 
-    proposeAssetWhitelistRemoval(overrides?: CallOverrides): Promise<void>;
-
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    proposeRouterWhitelistRemoval(overrides?: CallOverrides): Promise<void>;
+    proposeRouterAllowlistRemoval(overrides?: CallOverrides): Promise<void>;
 
     proposed(overrides?: CallOverrides): Promise<string>;
 
@@ -585,35 +487,21 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<number>;
 
-    removeAssetWhitelist(overrides?: CallOverrides): Promise<void>;
-
-    removeRouterWhitelist(overrides?: CallOverrides): Promise<void>;
+    removeRouterAllowlist(overrides?: CallOverrides): Promise<void>;
 
     revokeRole(
       _revoke: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    routerWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
+    routerAllowlistRemoved(overrides?: CallOverrides): Promise<boolean>;
 
-    routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+    routerAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     unpause(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
-    "AssetWhitelistRemovalProposed(uint256)"(
-      timestamp?: null
-    ): AssetWhitelistRemovalProposedEventFilter;
-    AssetWhitelistRemovalProposed(
-      timestamp?: null
-    ): AssetWhitelistRemovalProposedEventFilter;
-
-    "AssetWhitelistRemoved(bool)"(
-      renounced?: null
-    ): AssetWhitelistRemovedEventFilter;
-    AssetWhitelistRemoved(renounced?: null): AssetWhitelistRemovedEventFilter;
-
     "AssignRoleAdmin(address)"(admin?: null): AssignRoleAdminEventFilter;
     AssignRoleAdmin(admin?: null): AssignRoleAdminEventFilter;
 
@@ -651,17 +539,17 @@ export interface ProposedOwnableFacet extends BaseContract {
       revokedRole?: null
     ): RevokeRoleEventFilter;
 
-    "RouterWhitelistRemovalProposed(uint256)"(
+    "RouterAllowlistRemovalProposed(uint256)"(
       timestamp?: null
-    ): RouterWhitelistRemovalProposedEventFilter;
-    RouterWhitelistRemovalProposed(
+    ): RouterAllowlistRemovalProposedEventFilter;
+    RouterAllowlistRemovalProposed(
       timestamp?: null
-    ): RouterWhitelistRemovalProposedEventFilter;
+    ): RouterAllowlistRemovalProposedEventFilter;
 
-    "RouterWhitelistRemoved(bool)"(
+    "RouterAllowlistRemoved(bool)"(
       renounced?: null
-    ): RouterWhitelistRemovedEventFilter;
-    RouterWhitelistRemoved(renounced?: null): RouterWhitelistRemovedEventFilter;
+    ): RouterAllowlistRemovedEventFilter;
+    RouterAllowlistRemoved(renounced?: null): RouterAllowlistRemovedEventFilter;
 
     "Unpaused()"(): UnpausedEventFilter;
     Unpaused(): UnpausedEventFilter;
@@ -672,16 +560,12 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    assetWhitelistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
-
-    assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
     assignRoleAdmin(
       _admin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -699,16 +583,12 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    proposeAssetWhitelistRemoval(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    proposeRouterWhitelistRemoval(
+    proposeRouterAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -721,11 +601,7 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    removeAssetWhitelist(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    removeRouterWhitelist(
+    removeRouterAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -734,9 +610,9 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    routerWhitelistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
+    routerAllowlistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
 
-    routerWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+    routerAllowlistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -748,20 +624,12 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    assetWhitelistRemoved(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    assetWhitelistTimestamp(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     assignRoleAdmin(
       _admin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    assignRoleRouter(
+    assignRoleRouterAdmin(
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -779,16 +647,12 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    proposeAssetWhitelistRemoval(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    proposeRouterWhitelistRemoval(
+    proposeRouterAllowlistRemoval(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -801,11 +665,7 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    removeAssetWhitelist(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    removeRouterWhitelist(
+    removeRouterAllowlist(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -814,11 +674,11 @@ export interface ProposedOwnableFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    routerWhitelistRemoved(
+    routerAllowlistRemoved(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    routerWhitelistTimestamp(
+    routerAllowlistTimestamp(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

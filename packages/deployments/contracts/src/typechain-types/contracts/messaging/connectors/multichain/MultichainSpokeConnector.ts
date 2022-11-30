@@ -53,6 +53,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "addSender(address)": FunctionFragment;
+    "allowlistedSenders(address)": FunctionFragment;
     "anyExecute(bytes)": FunctionFragment;
     "delay()": FunctionFragment;
     "delayBlocks()": FunctionFragment;
@@ -91,7 +92,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
     "watcherManager()": FunctionFragment;
-    "whitelistedSenders(address)": FunctionFragment;
     "withdrawFunds(address)": FunctionFragment;
   };
 
@@ -106,6 +106,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
       | "ROOT_MANAGER"
       | "acceptProposedOwner"
       | "addSender"
+      | "allowlistedSenders"
       | "anyExecute"
       | "delay"
       | "delayBlocks"
@@ -144,7 +145,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
       | "unpause"
       | "verifySender"
       | "watcherManager"
-      | "whitelistedSenders"
       | "withdrawFunds"
   ): FunctionFragment;
 
@@ -173,6 +173,10 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "addSender",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "allowlistedSenders",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -313,10 +317,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "whitelistedSenders",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "withdrawFunds",
     values: [PromiseOrValue<string>]
   ): string;
@@ -345,6 +345,10 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "addSender", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "allowlistedSenders",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "anyExecute", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(
@@ -453,10 +457,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "whitelistedSenders",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "withdrawFunds",
     data: BytesLike
   ): Result;
@@ -464,10 +464,13 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   events: {
     "AggregateRootReceived(bytes32)": EventFragment;
     "AggregateRootRemoved(bytes32)": EventFragment;
+    "AggregateRootVerified(bytes32)": EventFragment;
+    "DelayBlocksUpdated(uint256,address)": EventFragment;
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
     "FundsWithdrawn(address,uint256)": EventFragment;
     "GasCapUpdated(uint256,uint256)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
+    "MessageProven(bytes32,bytes32,uint256)": EventFragment;
     "MessageSent(bytes,bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
     "NewConnector(uint32,uint32,address,address,address)": EventFragment;
@@ -484,10 +487,13 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "AggregateRootReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AggregateRootRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AggregateRootVerified"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DelayBlocksUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Dispatch"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsWithdrawn"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasCapUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MessageProven"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewConnector"): EventFragment;
@@ -523,6 +529,29 @@ export type AggregateRootRemovedEvent = TypedEvent<
 
 export type AggregateRootRemovedEventFilter =
   TypedEventFilter<AggregateRootRemovedEvent>;
+
+export interface AggregateRootVerifiedEventObject {
+  root: string;
+}
+export type AggregateRootVerifiedEvent = TypedEvent<
+  [string],
+  AggregateRootVerifiedEventObject
+>;
+
+export type AggregateRootVerifiedEventFilter =
+  TypedEventFilter<AggregateRootVerifiedEvent>;
+
+export interface DelayBlocksUpdatedEventObject {
+  updated: BigNumber;
+  caller: string;
+}
+export type DelayBlocksUpdatedEvent = TypedEvent<
+  [BigNumber, string],
+  DelayBlocksUpdatedEventObject
+>;
+
+export type DelayBlocksUpdatedEventFilter =
+  TypedEventFilter<DelayBlocksUpdatedEvent>;
 
 export interface DispatchEventObject {
   leaf: string;
@@ -570,6 +599,18 @@ export type MessageProcessedEvent = TypedEvent<
 
 export type MessageProcessedEventFilter =
   TypedEventFilter<MessageProcessedEvent>;
+
+export interface MessageProvenEventObject {
+  leaf: string;
+  aggregateRoot: string;
+  aggregateIndex: BigNumber;
+}
+export type MessageProvenEvent = TypedEvent<
+  [string, string, BigNumber],
+  MessageProvenEventObject
+>;
+
+export type MessageProvenEventFilter = TypedEventFilter<MessageProvenEvent>;
 
 export interface MessageSentEventObject {
   data: string;
@@ -745,6 +786,11 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     anyExecute(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -895,11 +941,6 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     watcherManager(overrides?: CallOverrides): Promise<[string]>;
 
-    whitelistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     withdrawFunds(
       _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -928,6 +969,11 @@ export interface MultichainSpokeConnector extends BaseContract {
     _sender: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  allowlistedSenders(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   anyExecute(
     _data: PromiseOrValue<BytesLike>,
@@ -1079,11 +1125,6 @@ export interface MultichainSpokeConnector extends BaseContract {
 
   watcherManager(overrides?: CallOverrides): Promise<string>;
 
-  whitelistedSenders(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   withdrawFunds(
     _to: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1110,6 +1151,11 @@ export interface MultichainSpokeConnector extends BaseContract {
       _sender: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     anyExecute(
       _data: PromiseOrValue<BytesLike>,
@@ -1255,11 +1301,6 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     watcherManager(overrides?: CallOverrides): Promise<string>;
 
-    whitelistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     withdrawFunds(
       _to: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1276,6 +1317,22 @@ export interface MultichainSpokeConnector extends BaseContract {
       root?: null
     ): AggregateRootRemovedEventFilter;
     AggregateRootRemoved(root?: null): AggregateRootRemovedEventFilter;
+
+    "AggregateRootVerified(bytes32)"(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootVerifiedEventFilter;
+    AggregateRootVerified(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootVerifiedEventFilter;
+
+    "DelayBlocksUpdated(uint256,address)"(
+      updated?: PromiseOrValue<BigNumberish> | null,
+      caller?: null
+    ): DelayBlocksUpdatedEventFilter;
+    DelayBlocksUpdated(
+      updated?: PromiseOrValue<BigNumberish> | null,
+      caller?: null
+    ): DelayBlocksUpdatedEventFilter;
 
     "Dispatch(bytes32,uint256,bytes32,bytes)"(
       leaf?: null,
@@ -1310,6 +1367,17 @@ export interface MultichainSpokeConnector extends BaseContract {
       caller?: null
     ): MessageProcessedEventFilter;
     MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
+
+    "MessageProven(bytes32,bytes32,uint256)"(
+      leaf?: PromiseOrValue<BytesLike> | null,
+      aggregateRoot?: PromiseOrValue<BytesLike> | null,
+      aggregateIndex?: null
+    ): MessageProvenEventFilter;
+    MessageProven(
+      leaf?: PromiseOrValue<BytesLike> | null,
+      aggregateRoot?: PromiseOrValue<BytesLike> | null,
+      aggregateIndex?: null
+    ): MessageProvenEventFilter;
 
     "MessageSent(bytes,bytes,address)"(
       data?: null,
@@ -1420,6 +1488,11 @@ export interface MultichainSpokeConnector extends BaseContract {
     addSender(
       _sender: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     anyExecute(
@@ -1572,11 +1645,6 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     watcherManager(overrides?: CallOverrides): Promise<BigNumber>;
 
-    whitelistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     withdrawFunds(
       _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1605,6 +1673,11 @@ export interface MultichainSpokeConnector extends BaseContract {
     addSender(
       _sender: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     anyExecute(
@@ -1756,11 +1829,6 @@ export interface MultichainSpokeConnector extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     watcherManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    whitelistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     withdrawFunds(
       _to: PromiseOrValue<string>,

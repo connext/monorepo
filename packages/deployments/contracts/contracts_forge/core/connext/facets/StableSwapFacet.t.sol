@@ -83,10 +83,12 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     uint256 _adminFee = 0;
     uint256 _fee = SWAP_FEE;
 
+    vm.startPrank(_owner);
+
     _lpTokenTarget = new LPToken();
     _lpTokenTarget.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
 
-    vm.prank(_owner);
+    this.updateLpTokenTarget(address(_lpTokenTarget));
     this.initializeSwap(
       utils_calculateCanonicalHash(),
       _pooledTokens,
@@ -95,9 +97,9 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
       LP_TOKEN_SYMBOL,
       _a,
       _fee,
-      _adminFee,
-      address(_lpTokenTarget)
+      _adminFee
     );
+    vm.stopPrank();
 
     assertEq(this.getSwapVirtualPrice(utils_calculateCanonicalHash()), 0);
   }
@@ -145,8 +147,8 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
   function test_StableSwapFacet__getSwapStorage_shouldWork() public {
     SwapUtils.Swap memory swapStorage = this.getSwapStorage(utils_calculateCanonicalHash());
 
-    assertEq(swapStorage.initialA, INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
-    assertEq(swapStorage.futureA, INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
+    assertEq(swapStorage.initialA, INITIAL_A_VALUE * Constants.A_PRECISION);
+    assertEq(swapStorage.futureA, INITIAL_A_VALUE * Constants.A_PRECISION);
     assertEq(swapStorage.swapFee, SWAP_FEE);
     assertEq(swapStorage.adminFee, 0);
   }

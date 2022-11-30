@@ -98,7 +98,6 @@ export type ExecuteArgsStructOutput = [
 
 export interface BridgeFacetInterface extends utils.Interface {
   functions: {
-    "AAVE_REFERRAL_CODE()": FunctionFragment;
     "addSequencer(address)": FunctionFragment;
     "approvedSequencers(address)": FunctionFragment;
     "bumpTransfer(bytes32)": FunctionFragment;
@@ -120,7 +119,6 @@ export interface BridgeFacetInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "AAVE_REFERRAL_CODE"
       | "addSequencer"
       | "approvedSequencers"
       | "bumpTransfer"
@@ -140,10 +138,6 @@ export interface BridgeFacetInterface extends utils.Interface {
       | "xcallIntoLocal"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "AAVE_REFERRAL_CODE",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "addSequencer",
     values: [PromiseOrValue<string>]
@@ -224,10 +218,6 @@ export interface BridgeFacetInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "AAVE_REFERRAL_CODE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "addSequencer",
     data: BytesLike
   ): Result;
@@ -291,6 +281,7 @@ export interface BridgeFacetInterface extends utils.Interface {
     "SequencerRemoved(address,address)": EventFragment;
     "SlippageUpdated(bytes32,uint256)": EventFragment;
     "TransferRelayerFeesIncreased(bytes32,uint256,address)": EventFragment;
+    "XAppConnectionManagerSet(address,address)": EventFragment;
     "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)": EventFragment;
   };
 
@@ -305,6 +296,7 @@ export interface BridgeFacetInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "TransferRelayerFeesIncreased"
   ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "XAppConnectionManagerSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
 }
 
@@ -421,6 +413,18 @@ export type TransferRelayerFeesIncreasedEvent = TypedEvent<
 export type TransferRelayerFeesIncreasedEventFilter =
   TypedEventFilter<TransferRelayerFeesIncreasedEvent>;
 
+export interface XAppConnectionManagerSetEventObject {
+  updated: string;
+  caller: string;
+}
+export type XAppConnectionManagerSetEvent = TypedEvent<
+  [string, string],
+  XAppConnectionManagerSetEventObject
+>;
+
+export type XAppConnectionManagerSetEventFilter =
+  TypedEventFilter<XAppConnectionManagerSetEvent>;
+
 export interface XCalledEventObject {
   transferId: string;
   nonce: BigNumber;
@@ -472,8 +476,6 @@ export interface BridgeFacet extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<[number]>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -564,8 +566,6 @@ export interface BridgeFacet extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
-
-  AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
 
   addSequencer(
     _sequencer: PromiseOrValue<string>,
@@ -658,8 +658,6 @@ export interface BridgeFacet extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -848,6 +846,15 @@ export interface BridgeFacet extends BaseContract {
       caller?: null
     ): TransferRelayerFeesIncreasedEventFilter;
 
+    "XAppConnectionManagerSet(address,address)"(
+      updated?: null,
+      caller?: null
+    ): XAppConnectionManagerSetEventFilter;
+    XAppConnectionManagerSet(
+      updated?: null,
+      caller?: null
+    ): XAppConnectionManagerSetEventFilter;
+
     "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
@@ -869,8 +876,6 @@ export interface BridgeFacet extends BaseContract {
   };
 
   estimateGas: {
-    AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<BigNumber>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -963,10 +968,6 @@ export interface BridgeFacet extends BaseContract {
   };
 
   populateTransaction: {
-    AAVE_REFERRAL_CODE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }

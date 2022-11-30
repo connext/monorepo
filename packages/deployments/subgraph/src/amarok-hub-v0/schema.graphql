@@ -20,6 +20,12 @@ type AggregatedMessageRoot @entity {
   domain: BigInt!
 }
 
+type RootManagerMeta @entity {
+  id: ID! # "ROOT_MANAGER_META_ID"
+  domains: [BigInt!]
+  connectors: [Bytes!]
+}
+
 # POLYGON
 type PolygonConnectorMeta @entity {
   id: ID! # "PolygonConnectorMeta"

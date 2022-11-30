@@ -1,4 +1,4 @@
-import { createLoggingContext, AggregatedRoot, PropagatedRoot } from "@connext/nxtp-utils";
+import { createLoggingContext, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
 
@@ -68,5 +68,38 @@ export const updatePropagatedRoots = async () => {
       await database.saveCheckPoint("propagated_root_" + hub, newOffset);
       logger.debug("Saved propageted roots", requestContext, methodContext, { offset: newOffset });
     }
+  }
+};
+
+export const updateReceivedAggregateRoots = async () => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(updateReceivedAggregateRoots.name);
+
+  for (const domain of domains) {
+    const offset = await database.getCheckPoint("received_aggregate_root" + domain);
+    const limit = 100;
+    logger.debug("Retrieving received aggregate root", requestContext, methodContext, {
+      domain: domain,
+      offset: offset,
+      limit: limit,
+    });
+
+    const receivedRoots: ReceivedAggregateRoot[] = await subgraph.getReceivedAggregatedRootsByDomain([
+      { domain, offset, limit },
+    ]);
+
+    const newOffset = receivedRoots.length == 0 ? 0 : Math.max(...receivedRoots.map((root) => root.blockNumber ?? 0));
+
+    await database.saveReceivedAggregateRoot(receivedRoots);
+
+    if (receivedRoots.length > 0 && newOffset > offset) {
+      await database.saveCheckPoint("received_aggregate_root" + domain, newOffset);
+    }
+
+    logger.debug("Saved received roots", requestContext, methodContext, { domain: domain, offset: newOffset });
   }
 };

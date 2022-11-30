@@ -16,6 +16,11 @@ export const getLPTokenAddressSchema = Type.Object({
   tokenAddress: Type.String(),
 });
 
+export const getLPTokenSupplySchema = Type.Object({
+  domainId: Type.String(),
+  lpTokenAddress: Type.String(),
+});
+
 export const getLPTokenUserBalanceSchema = Type.Object({
   domainId: Type.String(),
   lpTokenAddress: Type.String(),
@@ -84,6 +89,13 @@ export const calculateRemoveLiquidityPriceImpactSchema = Type.Object({
   tokenAddress: Type.String(),
   amountX: Type.String(),
   amountY: Type.String(),
+});
+
+export const calculateSwapPriceImpactSchema = Type.Object({
+  domainId: Type.String(),
+  amountX: Type.String(),
+  tokenX: Type.String(),
+  tokenY: Type.String(),
 });
 
 export const getPoolSchema = Type.Object({

@@ -28,18 +28,16 @@ import {IProposedOwnable} from "../../../shared/interfaces/IProposedOwnable.sol"
  */
 contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   // ========== Custom Errors ===========
-  error ProposedOwnableFacet__proposeRouterWhitelistRemoval_noOwnershipChange();
-  error ProposedOwnableFacet__removeRouterWhitelist_noOwnershipChange();
-  error ProposedOwnableFacet__removeRouterWhitelist_noProposal();
-  error ProposedOwnableFacet__removeRouterWhitelist_delayNotElapsed();
-  error ProposedOwnableFacet__proposeAssetWhitelistRemoval_noOwnershipChange();
-  error ProposedOwnableFacet__removeAssetWhitelist_noOwnershipChange();
-  error ProposedOwnableFacet__removeAssetWhitelist_noProposal();
-  error ProposedOwnableFacet__removeAssetWhitelist_delayNotElapsed();
+  error ProposedOwnableFacet__delayElapsed_delayNotElapsed();
+  error ProposedOwnableFacet__proposeRouterAllowlistRemoval_noOwnershipChange();
+  error ProposedOwnableFacet__removeRouterAllowlist_noOwnershipChange();
+  error ProposedOwnableFacet__removeRouterAllowlist_noProposal();
+  error ProposedOwnableFacet__proposeAssetAllowlistRemoval_noOwnershipChange();
+  error ProposedOwnableFacet__removeAssetAllowlist_noOwnershipChange();
+  error ProposedOwnableFacet__removeAssetAllowlist_noProposal();
   error ProposedOwnableFacet__proposeNewOwner_invalidProposal();
   error ProposedOwnableFacet__proposeNewOwner_noOwnershipChange();
   error ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
-  error ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed();
   error ProposedOwnableFacet__revokeRole_invalidInput();
   error ProposedOwnableFacet__assignRoleRouter_invalidInput();
   error ProposedOwnableFacet__assignRoleWatcher_invalidInput();
@@ -47,13 +45,9 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
   // ============ Events ============
 
-  event RouterWhitelistRemovalProposed(uint256 timestamp);
+  event RouterAllowlistRemovalProposed(uint256 timestamp);
 
-  event RouterWhitelistRemoved(bool renounced);
-
-  event AssetWhitelistRemovalProposed(uint256 timestamp);
-
-  event AssetWhitelistRemoved(bool renounced);
+  event RouterAllowlistRemoved(bool renounced);
 
   event RevokeRole(address revokedAddress, Role revokedRole);
 
@@ -67,6 +61,17 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
   event Unpaused();
 
+  // ============ Modifier ============
+  /**
+   * @notice Reverts the call if the expected delay has not elapsed.
+   * @param start Timestamp marking the beginning of the delay period.
+   */
+  modifier delayElapsed(uint256 start) {
+    // Ensure delay has elapsed
+    if ((block.timestamp - start) <= delay()) revert ProposedOwnableFacet__delayElapsed_delayNotElapsed();
+    _;
+  }
+
   // ============ External: Getters ============
 
   /**
@@ -77,17 +82,10 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   }
 
   /**
-   * @notice Returns if the router whitelist is removed.
+   * @notice Returns if the router allowlist is removed.
    */
-  function routerWhitelistRemoved() public view returns (bool) {
-    return s._routerWhitelistRemoved;
-  }
-
-  /**
-   * @notice Returns if the asset whitelist is removed.
-   */
-  function assetWhitelistRemoved() public view returns (bool) {
-    return s._assetWhitelistRemoved;
+  function routerAllowlistRemoved() public view returns (bool) {
+    return s._routerAllowlistRemoved;
   }
 
   /**
@@ -105,17 +103,10 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   }
 
   /**
-   * @notice Returns the timestamp when router whitelist was last proposed to be removed
+   * @notice Returns the timestamp when router allowlist was last proposed to be removed
    */
-  function routerWhitelistTimestamp() public view returns (uint256) {
-    return s._routerWhitelistTimestamp;
-  }
-
-  /**
-   * @notice Returns the timestamp when asset whitelist was last proposed to be removed
-   */
-  function assetWhitelistTimestamp() public view returns (uint256) {
-    return s._assetWhitelistTimestamp;
+  function routerAllowlistTimestamp() public view returns (uint256) {
+    return s._routerAllowlistTimestamp;
   }
 
   /**
@@ -137,69 +128,32 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   // ============ External ============
 
   /**
-   * @notice Indicates if the ownership of the router whitelist has
+   * @notice Indicates if the ownership of the router allowlist has
    * been renounced
    */
-  function proposeRouterWhitelistRemoval() public onlyOwnerOrAdmin {
+  function proposeRouterAllowlistRemoval() public onlyOwnerOrAdmin {
     // Use contract as source of truth
     // Will fail if all ownership is renounced by modifier
-    if (s._routerWhitelistRemoved) revert ProposedOwnableFacet__proposeRouterWhitelistRemoval_noOwnershipChange();
+    if (s._routerAllowlistRemoved) revert ProposedOwnableFacet__proposeRouterAllowlistRemoval_noOwnershipChange();
 
     // Begin delay, emit event
-    _setRouterWhitelistTimestamp();
+    _setRouterAllowlistTimestamp();
   }
 
   /**
-   * @notice Indicates if the ownership of the asset whitelist has
+   * @notice Indicates if the ownership of the asset allowlist has
    * been renounced
    */
-  function removeRouterWhitelist() public onlyOwnerOrAdmin {
+  function removeRouterAllowlist() public onlyOwnerOrAdmin delayElapsed(s._routerAllowlistTimestamp) {
     // Contract as sounce of truth
     // Will fail if all ownership is renounced by modifier
-    if (s._routerWhitelistRemoved) revert ProposedOwnableFacet__removeRouterWhitelist_noOwnershipChange();
+    if (s._routerAllowlistRemoved) revert ProposedOwnableFacet__removeRouterAllowlist_noOwnershipChange();
 
     // Ensure there has been a proposal cycle started
-    if (s._routerWhitelistTimestamp == 0) revert ProposedOwnableFacet__removeRouterWhitelist_noProposal();
-
-    // Delay has elapsed
-    if ((block.timestamp - s._routerWhitelistTimestamp) <= delay())
-      revert ProposedOwnableFacet__removeRouterWhitelist_delayNotElapsed();
+    if (s._routerAllowlistTimestamp == 0) revert ProposedOwnableFacet__removeRouterAllowlist_noProposal();
 
     // Set renounced, emit event, reset timestamp to 0
-    _setRouterWhitelistRemoved(true);
-  }
-
-  /**
-   * @notice Indicates if the ownership of the asset whitelist has
-   * been renounced
-   */
-  function proposeAssetWhitelistRemoval() public onlyOwnerOrAdmin {
-    // Contract as source of truth
-    // Will fail if all ownership is renounced by modifier
-    if (s._assetWhitelistRemoved) revert ProposedOwnableFacet__proposeAssetWhitelistRemoval_noOwnershipChange();
-
-    // Start cycle, emit event
-    _setAssetWhitelistTimestamp();
-  }
-
-  /**
-   * @notice Indicates if the ownership of the asset whitelist has
-   * been renounced
-   */
-  function removeAssetWhitelist() public onlyOwnerOrAdmin {
-    // Contract as source of truth
-    // Will fail if all ownership is renounced by modifier
-    if (s._assetWhitelistRemoved) revert ProposedOwnableFacet__removeAssetWhitelist_noOwnershipChange();
-
-    // Ensure there has been a proposal cycle started
-    if (s._assetWhitelistTimestamp == 0) revert ProposedOwnableFacet__removeAssetWhitelist_noProposal();
-
-    // Ensure delay has elapsed
-    if ((block.timestamp - s._assetWhitelistTimestamp) <= delay())
-      revert ProposedOwnableFacet__removeAssetWhitelist_delayNotElapsed();
-
-    // Set ownership, reset timestamp, emit event
-    _setAssetWhitelistRemoved(true);
+    _setRouterAllowlistRemoved(true);
   }
 
   /**
@@ -221,7 +175,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * @notice Transfers ownership of the contract to a new account (`newOwner`).
    * Can only be called by the proposed owner.
    */
-  function acceptProposedOwner() public onlyProposed {
+  function acceptProposedOwner() public onlyProposed delayElapsed(s._proposedOwnershipTimestamp) {
     // Contract as source of truth
     if (owner() == s._proposed) revert ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
 
@@ -229,10 +183,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     // the only time this would happen is if the _proposed was never
     // set (will fail from modifier) or if the owner == _proposed (checked
     // above)
-
-    // Ensure delay has elapsed
-    if ((block.timestamp - s._proposedOwnershipTimestamp) <= delay())
-      revert ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed();
 
     // Emit event, set new owner, reset timestamp
     _setOwner(s._proposed);
@@ -257,17 +207,17 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   /**
    * @notice Use to assign an address Router role
    * Address with Router has permission to add new router
-   * Can only be called by Owner or Role.Router
-   * @dev requested address will be whitelisted as Role.Router under mapping roles
-   * @param _router - The address to be assigned as Role.Router under roles
+   * Can only be called by Owner or Role.RouterAdmin
+   * @dev requested address will be whitelisted as Role.RouterAdmin under mapping roles
+   * @param _router - The address to be assigned as Role.RouterAdmin under roles
    */
-  function assignRoleRouter(address _router) public onlyOwnerOrAdmin {
+  function assignRoleRouterAdmin(address _router) public onlyOwnerOrAdmin {
     // Use contract as source of truth
     // Will fail if candidate is already added OR input address is addressZero
     if (s.roles[_router] != Role.None || _router == address(0))
       revert ProposedOwnableFacet__assignRoleRouter_invalidInput();
 
-    s.roles[_router] = Role.Router;
+    s.roles[_router] = Role.RouterAdmin;
     emit AssignRoleRouter(_router);
   }
 
@@ -275,7 +225,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * @notice Use to assign an address Watcher role
    * Address with Watcher role has permission to pause
    * Can only be called by Owner or Role.Admin
-   * @dev requested address will be whitelisted as Role.Watcher under mapping roles
+   * @dev requested address will be allowlisted as Role.Watcher under mapping roles
    * @param _watcher - The address to be assigned as Role.Watcher under roles
    */
   function assignRoleWatcher(address _watcher) public onlyOwnerOrAdmin {
@@ -292,7 +242,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * @notice Use to assign an address Admin role
    * Address with Admin role has permission to all else of Router & Watcher role
    * Can only be called by Owner or Role.Admin
-   * @dev requested address will be whitelisted as Role.Admin under mapping roles
+   * @dev requested address will be allowlisted as Role.Admin under mapping roles
    * @param _admin - The address to beassigned as Role.Admin under roles
    */
   function assignRoleAdmin(address _admin) public onlyOwnerOrAdmin {
@@ -311,32 +261,21 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   }
 
   function unpause() public onlyOwnerOrAdmin {
-    s._paused = false;
+    delete s._paused;
     emit Unpaused();
   }
 
   ////// INTERNAL //////
 
-  function _setRouterWhitelistTimestamp() private {
-    s._routerWhitelistTimestamp = block.timestamp;
-    emit RouterWhitelistRemovalProposed(block.timestamp);
+  function _setRouterAllowlistTimestamp() private {
+    s._routerAllowlistTimestamp = block.timestamp;
+    emit RouterAllowlistRemovalProposed(block.timestamp);
   }
 
-  function _setRouterWhitelistRemoved(bool value) private {
-    s._routerWhitelistRemoved = value;
-    delete s._routerWhitelistTimestamp;
-    emit RouterWhitelistRemoved(value);
-  }
-
-  function _setAssetWhitelistTimestamp() private {
-    s._assetWhitelistTimestamp = block.timestamp;
-    emit AssetWhitelistRemovalProposed(block.timestamp);
-  }
-
-  function _setAssetWhitelistRemoved(bool value) private {
-    s._assetWhitelistRemoved = value;
-    delete s._assetWhitelistTimestamp;
-    emit AssetWhitelistRemoved(value);
+  function _setRouterAllowlistRemoved(bool value) private {
+    s._routerAllowlistRemoved = value;
+    delete s._routerAllowlistTimestamp;
+    emit RouterAllowlistRemoved(value);
   }
 
   function _setOwner(address newOwner) private {

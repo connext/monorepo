@@ -1,6 +1,10 @@
 import { utils, Wallet } from "ethers";
 import { getChainData, mkBytes32, ChainData, ChainConfig } from "@connext/nxtp-utils";
-import { getDeployedConnextContract, _getContractDeployments } from "@connext/nxtp-txservice";
+import {
+  getDeployedConnextContract,
+  getDeployedRelayerProxyContract,
+  _getContractDeployments,
+} from "@connext/nxtp-txservice";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig } from "@connext/nxtp-router/src/config";
 import { version as routerPackageVersion } from "@connext/nxtp-router/package.json";
@@ -166,6 +170,14 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
     }
     return contract.address.toLowerCase();
   };
+
+  const getRelayerProxyContract = (chainId: number): string => {
+    const contract = getDeployedRelayerProxyContract(chainId, ENVIRONMENT === Environment.Staging ? "Staging" : "");
+    if (!contract) {
+      throw new Error(`No RelayerProxy contract deployed on chain ${chainId}`);
+    }
+    return contract.address.toLowerCase();
+  };
   return {
     ORIGIN: {
       name: originChainData.name,
@@ -184,6 +196,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         confirmations: originChainData.confirmations ?? 1,
         deployments: {
           connext: getConnextContract(originChainData.chainId),
+          relayerProxy: getRelayerProxyContract(originChainData.chainId),
         },
       },
     },
@@ -204,6 +217,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         confirmations: destinationChainData.confirmations ?? 1,
         deployments: {
           connext: getConnextContract(destinationChainData.chainId),
+          relayerProxy: getRelayerProxyContract(destinationChainData.chainId),
         },
       },
     },

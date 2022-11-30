@@ -1,15 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {BaseConnextFacet} from "./BaseConnextFacet.sol";
+import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
+
+import {Constants} from "../libraries/Constants.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {RouterConfig} from "../libraries/LibConnextStorage.sol";
 import {TokenId} from "../libraries/TokenId.sol";
 
+import {BaseConnextFacet} from "./BaseConnextFacet.sol";
+
 /**
  * @notice
  * This contract is designed to manage router access, meaning it maintains the
- * router recipients, owners, and the router whitelist itself.
+ * router recipients, owners, and the router allowlist itself.
  *
  * As a router, there are three important permissions:
  * `router` - this is the address that will sign bids sent to the sequencer
@@ -30,8 +34,8 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__initializeRouter_configNotEmpty();
   error RoutersFacet__setRouterRecipient_notNewRecipient();
   error RoutersFacet__onlyRouterOwner_notRouterOwner();
-  error RoutersFacet__removeRouter_routerEmpty();
-  error RoutersFacet__removeRouter_notAdded();
+  error RoutersFacet__unapproveRouter_routerEmpty();
+  error RoutersFacet__unapproveRouter_notAdded();
   error RoutersFacet__approveRouter_routerEmpty();
   error RoutersFacet__approveRouter_alreadyAdded();
   error RoutersFacet__proposeRouterOwner_notNewOwner();
@@ -53,9 +57,6 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__setRouterOwner_noChange();
 
   // ============ Properties ============
-
-  // ============ Constants ============
-  uint256 private constant _delay = 7 days;
 
   // ============ Events ============
 
@@ -177,7 +178,7 @@ contract RoutersFacet is BaseConnextFacet {
   }
 
   function LIQUIDITY_FEE_DENOMINATOR() public pure returns (uint256) {
-    return BPS_FEE_DENOMINATOR;
+    return Constants.BPS_FEE_DENOMINATOR;
   }
 
   /**
@@ -242,7 +243,7 @@ contract RoutersFacet is BaseConnextFacet {
   // ============ Admin methods ==============
 
   /**
-   * @notice Used to whitelist a given router
+   * @notice Used to allowlist a given router
    * @param _router Router address to setup
    */
   function approveRouter(address _router) external onlyOwnerOrRouter {
@@ -265,15 +266,15 @@ contract RoutersFacet is BaseConnextFacet {
    */
   function unapproveRouter(address _router) external onlyOwnerOrRouter {
     // Sanity check: not empty
-    if (_router == address(0)) revert RoutersFacet__removeRouter_routerEmpty();
+    if (_router == address(0)) revert RoutersFacet__unapproveRouter_routerEmpty();
 
     // Sanity check: needs removal
     RouterConfig memory config = s.routerConfigs[_router];
-    if (!config.approved) revert RoutersFacet__removeRouter_notAdded();
+    if (!config.approved) revert RoutersFacet__unapproveRouter_notAdded();
 
     // Update approvals in config mapping
-    s.routerConfigs[_router].approved = false;
-    s.routerConfigs[_router].portalApproved = false;
+    delete s.routerConfigs[_router].approved;
+    delete s.routerConfigs[_router].portalApproved;
 
     // Emit event
     emit RouterRemoved(_router, msg.sender);
@@ -300,7 +301,7 @@ contract RoutersFacet is BaseConnextFacet {
   function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwnerOrAdmin {
     // Slightly misleading: the liquidity fee numerator is not the amount charged,
     // but the amount received after fees are deducted (e.g. 9995/10000 would be .005%).
-    uint256 denominator = BPS_FEE_DENOMINATOR;
+    uint256 denominator = Constants.BPS_FEE_DENOMINATOR;
     if (_numerator < (denominator * 95) / 100) revert RoutersFacet__setLiquidityFeeNumerator_tooSmall();
 
     if (_numerator > denominator) revert RoutersFacet__setLiquidityFeeNumerator_tooLarge();
@@ -315,7 +316,7 @@ contract RoutersFacet is BaseConnextFacet {
    */
   function approveRouterForPortal(address _router) external onlyOwnerOrAdmin {
     RouterConfig memory config = s.routerConfigs[_router];
-    if (!config.approved && !_isRouterWhitelistRemoved()) revert RoutersFacet__approveRouterForPortal_notAdded();
+    if (!config.approved && !_isRouterAllowlistRemoved()) revert RoutersFacet__approveRouterForPortal_notAdded();
     if (config.portalApproved) revert RoutersFacet__approveRouterForPortal_alreadyApproved();
 
     s.routerConfigs[_router].portalApproved = true;
@@ -330,7 +331,7 @@ contract RoutersFacet is BaseConnextFacet {
   function unapproveRouterForPortal(address _router) external onlyOwnerOrAdmin {
     if (!s.routerConfigs[_router].portalApproved) revert RoutersFacet__unapproveRouterForPortal_notApproved();
 
-    s.routerConfigs[_router].portalApproved = false;
+    delete s.routerConfigs[_router].portalApproved;
 
     emit RouterUnapprovedForPortal(_router, msg.sender);
   }
@@ -380,7 +381,7 @@ contract RoutersFacet is BaseConnextFacet {
     RouterConfig memory config = s.routerConfigs[_router];
 
     // Check timestamp has passed
-    if (block.timestamp - config.proposedTimestamp <= _delay)
+    if (block.timestamp - config.proposedTimestamp <= Constants.GOVERNANCE_DELAY)
       revert RoutersFacet__acceptProposedRouterOwner_notElapsed();
 
     // Check the caller
@@ -394,14 +395,14 @@ contract RoutersFacet is BaseConnextFacet {
 
     // Reset proposal + timestamp
     if (config.proposed != address(0)) {
-      s.routerConfigs[_router].proposed = address(0);
+      delete s.routerConfigs[_router].proposed;
     }
-    s.routerConfigs[_router].proposedTimestamp = 0;
+    delete s.routerConfigs[_router].proposedTimestamp;
   }
 
   /**
    * @notice Can be called by anyone to set a config for their router (the msg.sender)
-   * @dev Does not set whitelisting permissions, only owner and recipient
+   * @dev Does not set allowlisting permissions, only owner and recipient
    * @param _owner The owner (can change recipient, proposes new owners)
    * @param _recipient Where liquidity will be withdrawn to
    */
@@ -464,15 +465,17 @@ contract RoutersFacet is BaseConnextFacet {
 
   /**
    * @notice This is used by any router owner to decrease their available liquidity for a given asset.
+   * @dev Using the `_canonical` information in the interface instead of the local asset to allow
+   * routers to remove liquidity even if the asset is delisted
+   * @param _canonical The canonical token information in plaintext
    * @param _amount - The amount of liquidity to remove for the router
-   * @param _local - The address of the asset you're removing liquidity from. If removing liquidity of the
    * native asset, routers may use `address(0)` or the wrapped asset
    * @param _to The address that will receive the liquidity being removed
    * @param _router The address of the router
    */
   function removeRouterLiquidityFor(
+    TokenId memory _canonical,
     uint256 _amount,
-    address _local,
     address payable _to,
     address _router
   ) external nonReentrant whenNotPaused {
@@ -481,22 +484,23 @@ contract RoutersFacet is BaseConnextFacet {
     address permissioned = owner == address(0) ? _router : owner;
     if (msg.sender != permissioned) revert RoutersFacet__removeRouterLiquidityFor_notOwner();
     // Remove liquidity
-    _removeLiquidityForRouter(_amount, _local, _to, _router);
+    _removeLiquidityForRouter(_amount, _canonical, _to, _router);
   }
 
   /**
    * @notice This is used by any router to decrease their available liquidity for a given asset.
+   * @dev Using the `_canonical` information in the interface instead of the local asset to allow
+   * routers to remove liquidity even if the asset is delisted
+   * @param _canonical The canonical token information in plaintext
    * @param _amount - The amount of liquidity to remove for the router
-   * @param _local - The address of the asset you're removing liquidity from. If removing liquidity of the
-   * native asset, routers may use `address(0)` or the wrapped asset
    * @param _to The address that will receive the liquidity being removed if no router recipient exists.
    */
   function removeRouterLiquidity(
+    TokenId memory _canonical,
     uint256 _amount,
-    address _local,
     address payable _to
   ) external nonReentrant whenNotPaused {
-    _removeLiquidityForRouter(_amount, _local, _to, msg.sender);
+    _removeLiquidityForRouter(_amount, _canonical, _to, msg.sender);
   }
 
   // ============ Internal functions ============
@@ -563,10 +567,21 @@ contract RoutersFacet is BaseConnextFacet {
     if (_amount == 0) revert RoutersFacet__addLiquidityForRouter_amountIsZero();
 
     // Get the canonical asset ID from the representation.
-    (TokenId memory canonical, bytes32 key) = _getApprovedCanonicalId(_local);
+    // NOTE: not using `_getApprovedCanonicalId` because candidate can *only* be local
+    TokenId memory canonical = s.representationToCanonical[_local];
+    if (canonical.domain == 0 && canonical.id == bytes32(0)) {
+      // Assume you are on the canonical domain, which does not update the above mapping
+      // If this is an incorrect assumption, the approval should fail
+      canonical.domain = s.domain;
+      canonical.id = TypeCasts.addressToBytes32(_local);
+    }
+    bytes32 key = AssetLogic.calculateCanonicalHash(canonical.id, canonical.domain);
+    if (!s.tokenConfigs[key].approval) {
+      revert BaseConnextFacet__getApprovedCanonicalId_notAllowlisted();
+    }
 
     // Sanity check: router is approved.
-    if (!_isRouterWhitelistRemoved() && !getRouterApproval(_router))
+    if (!_isRouterAllowlistRemoved() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
 
     // Transfer funds to contract.
@@ -582,14 +597,13 @@ contract RoutersFacet is BaseConnextFacet {
   /**
    * @notice This is used by any router owner to decrease their available liquidity for a given asset.
    * @param _amount - The amount of liquidity to remove for the router
-   * @param _local - The address of the asset you're removing liquidity from. If removing liquidity of the
-   * native asset, routers may use `address(0)` or the wrapped asset
+   * @param _canonical The canonical token information in plaintext
    * @param _to The address that will receive the liquidity being removed
    * @param _router The address of the router
    */
   function _removeLiquidityForRouter(
     uint256 _amount,
-    address _local,
+    TokenId memory _canonical,
     address payable _to,
     address _router
   ) internal {
@@ -603,25 +617,28 @@ contract RoutersFacet is BaseConnextFacet {
     // Sanity check: nonzero amounts.
     if (_amount == 0) revert RoutersFacet__removeRouterLiquidity_amountIsZero();
 
-    // Get the canonical asset ID from the representation.
+    bool onCanonical = _canonical.domain == s.domain;
+
+    // Get the local asset from canonical
     // NOTE: allow getting unapproved assets to prevent lockup on approval status change
-    TokenId memory canonical = _getCanonicalTokenId(_local);
-    bytes32 key = AssetLogic.calculateCanonicalHash(canonical.id, canonical.domain);
+    // NOTE: not using `_getCanonicalTokenId` because candidate can *only* be local
+    bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
+    address local = onCanonical ? TypeCasts.bytes32ToAddress(_canonical.id) : s.tokenConfigs[key].representation;
 
     // Get existing router balance.
-    uint256 routerBalance = s.routerBalances[_router][_local];
+    uint256 routerBalance = s.routerBalances[_router][local];
 
     // Sanity check: amount can be deducted for the router.
     if (routerBalance < _amount) revert RoutersFacet__removeRouterLiquidity_insufficientFunds();
 
     // Update router balances.
     unchecked {
-      s.routerBalances[_router][_local] = routerBalance - _amount;
+      s.routerBalances[_router][local] = routerBalance - _amount;
     }
 
     // Transfer from contract to specified `to` address.
-    AssetLogic.handleOutgoingAsset(_local, recipient, _amount);
+    AssetLogic.handleOutgoingAsset(local, recipient, _amount);
 
-    emit RouterLiquidityRemoved(_router, recipient, _local, key, _amount, msg.sender);
+    emit RouterLiquidityRemoved(_router, recipient, local, key, _amount, msg.sender);
   }
 }

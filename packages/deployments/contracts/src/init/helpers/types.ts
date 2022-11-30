@@ -2,15 +2,15 @@ import { TAddress } from "@connext/nxtp-utils";
 import { Type, Static } from "@sinclair/typebox";
 import { Contract, providers, Wallet } from "ethers";
 
-// NOTE: Agents will currently be whitelisted/blacklisted respectively on ALL domains.
+// NOTE: Agents will currently be allowlisted/blacklisted respectively on ALL domains.
 export const AgentStackSchema = Type.Object({
-  whitelist: Type.Optional(Type.Array(TAddress)),
+  allowlist: Type.Optional(Type.Array(TAddress)),
   blacklist: Type.Optional(Type.Array(TAddress)),
 });
 export type AgentStack = Static<typeof AgentStackSchema>;
 
 export const AgentsSchema = Type.Object({
-  relayers: Type.Optional(AgentStackSchema), // // NOTE: Relayers will be whitelisted for both `execute` and messaging calls.
+  relayers: Type.Optional(AgentStackSchema), // // NOTE: Relayers will be allowlisted for both `execute` and messaging calls.
   sequencers: Type.Optional(AgentStackSchema),
   routers: Type.Optional(AgentStackSchema),
   watchers: Type.Optional(AgentStackSchema),
@@ -59,18 +59,19 @@ export type HubMessagingDeployments = {
   WatcherManager: Deployment;
   MerkleTreeManagerForRoot: Deployment;
   MerkleTreeManagerForSpoke: Deployment;
+  RelayerProxy: Deployment;
 };
 
 export type SpokeMessagingDeployments = {
   SpokeConnector: Deployment;
   MerkleTreeManager: Deployment;
   WatcherManager: Deployment;
+  RelayerProxy: Deployment;
 };
 
 export type DomainDeployments = {
   // Diamond.
   Connext: Deployment;
-  RelayerProxy: Deployment;
 
   // Messaging Layer.
   // ConnectorManager
@@ -99,8 +100,8 @@ export type ProtocolStack = {
   networks: NetworkStack[];
   // Crosschain ERC20 assets to enroll.
   assets: AssetStack[];
-  // Agents that need to be whitelisted (across all domains).
-  // Leave undefined if no agents should be whitelisted in this setup.
+  // Agents that need to be allowlisted (across all domains).
+  // Leave undefined if no agents should be allowlisted in this setup.
   agents?: Agents;
 };
 
@@ -119,6 +120,8 @@ export type CallSchema<T> = {
     method: string;
     args?: any[];
   };
+  chainData?: any;
+  caseSensitive?: boolean;
 };
 
 // NOTE: Used to do a sanity check when loading default config from json files

@@ -18,9 +18,9 @@ POST {{baseUrl}}/sendTransaction/9991
 Content-Type: application/json
 
 {
-  "to": "0x84bF41BDB9F43B88913Df7001B18D8d063d3cF37",
+  "to": "0x173d82FF0294d4bb83A3AAF30Be958Cbc6D809f7",
   "value": 0,
-  "data": "0x8d365457292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000018487d24f7a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000002386f26fc10000000000000000000000000000000000000000000000000000002386f26fc10000",
+  "data": "0x8d365457292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001849bd8abcb00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002386f26fc10000",
   "from": "0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94"
 }
 
@@ -43,15 +43,19 @@ Content-Type: application/json
 
 ##############
 ### GET getCanonicalToken
-GET {{baseUrl}}/getCanonicalToken/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
+GET {{baseUrl}}/getCanonicalToken/1869640809/0x4200000000000000000000000000000000000006
 
 ##############
 ### GET getLPTokenAddress
 GET {{baseUrl}}/getLPTokenAddress/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
 
 ##############
+### GET getLPTokenSupply
+GET {{baseUrl}}/getLPTokenSupply/9991/0xd17aD94cc781eCf7f5beB8cD518AdAfb718b574a
+
+##############
 ### GET calculateCanonicalKey
-GET {{baseUrl}}/calculateCanonicalKey/1735353714/0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6
+GET {{baseUrl}}/calculateCanonicalKey/6648936/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
 ##############
 
 ### GET getLPTokenUserBalance
@@ -68,7 +72,7 @@ GET {{baseUrl}}/getPoolTokenBalance/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1
 
 ##############
 ### GET getPoolTokenUserBalance
-GET {{baseUrl}}/getPoolTokenUserBalance/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/{{yourAddress}}
+GET {{baseUrl}}/getPoolTokenUserBalance/9991/0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9/{{yourAddress}}
 
 ##############
 ### GET getPoolTokenAddress
@@ -99,7 +103,7 @@ Content-Type: application/json
 {
   "domainId": "9991",
   "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
-  "amounts": ["1000000000000000", "1000000000000000"]
+  "amounts": ["10000000000000000", "10000000000000000"]
 }
 
 ##############
@@ -122,7 +126,7 @@ Content-Type: application/json
   "domainId": "9991",
   "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
   "amountX": "10000000000000000",
-  "amountY": "10000000000000000" 
+  "amountY": "0" 
 }
 
 ##############
@@ -133,8 +137,20 @@ Content-Type: application/json
 {
   "domainId": "9991",
   "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "amountX": "0",
+  "amountY": "19000000000000000" 
+}
+
+##############
+### POST calculateSwapPriceImpact
+POST {{baseUrl}}/calculateSwapPriceImpact
+Content-Type: application/json
+
+{
+  "domainId": "9991",
   "amountX": "10000000000000000",
-  "amountY": "10000000000000000" 
+  "tokenX": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "tokenY": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9"
 }
 
 ##############
@@ -143,8 +159,8 @@ POST {{baseUrl}}/getPool
 Content-Type: application/json
 
 {
-  "domainId": "9991",
-  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
+  "domainId": "1886350457",
+  "tokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
 }
 
 ##############
@@ -153,7 +169,7 @@ POST {{baseUrl}}/getUserPools
 Content-Type: application/json
 
 {
-  "domainId": "9991",
+  "domainId": "1886350457",
   "userAddress": "{{yourAddress}}"
 }
 
@@ -165,7 +181,7 @@ Content-Type: application/json
 {
   "domainId": "9991",
   "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
-  "amounts": ["10000000000000000", "10000000000000000"]
+  "amounts": ["0", "10000000000000000"]
 }
 
 ##############
@@ -176,7 +192,7 @@ Content-Type: application/json
 {
   "domainId": "9991",
   "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
-  "amount": "20000000000000000"
+  "amount": "1398014818959611"
 }
 
 ##############

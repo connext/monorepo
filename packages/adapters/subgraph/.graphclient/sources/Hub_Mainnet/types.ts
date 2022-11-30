@@ -411,6 +411,8 @@ export type Query = {
   mainnet_rootPropagateds: Array<mainnet_RootPropagated>;
   mainnet_aggregatedMessageRoot?: Maybe<mainnet_AggregatedMessageRoot>;
   mainnet_aggregatedMessageRoots: Array<mainnet_AggregatedMessageRoot>;
+  mainnet_rootManagerMeta?: Maybe<mainnet_RootManagerMeta>;
+  mainnet_rootManagerMetas: Array<mainnet_RootManagerMeta>;
   mainnet_polygonConnectorMeta?: Maybe<mainnet_PolygonConnectorMeta>;
   mainnet_polygonConnectorMetas: Array<mainnet_PolygonConnectorMeta>;
   mainnet_optimismConnectorMeta?: Maybe<mainnet_OptimismConnectorMeta>;
@@ -477,6 +479,24 @@ export type Querymainnet_aggregatedMessageRootsArgs = {
   orderBy?: InputMaybe<mainnet_AggregatedMessageRoot_orderBy>;
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_AggregatedMessageRoot_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_rootManagerMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_rootManagerMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_RootManagerMeta_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_RootManagerMeta_filter>;
   block?: InputMaybe<mainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -642,6 +662,42 @@ export type mainnet_RootAggregated_orderBy =
   | 'receivedRoot'
   | 'index';
 
+export type mainnet_RootManagerMeta = {
+  id: Scalars['ID'];
+  domains?: Maybe<Array<Scalars['BigInt']>>;
+  connectors?: Maybe<Array<Scalars['mainnet_Bytes']>>;
+};
+
+export type mainnet_RootManagerMeta_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  domains?: InputMaybe<Array<Scalars['BigInt']>>;
+  domains_not?: InputMaybe<Array<Scalars['BigInt']>>;
+  domains_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  domains_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  domains_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  domains_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  connectors?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  connectors_not?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  connectors_contains?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  connectors_contains_nocase?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  connectors_not_contains?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  connectors_not_contains_nocase?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+};
+
+export type mainnet_RootManagerMeta_orderBy =
+  | 'id'
+  | 'domains'
+  | 'connectors';
+
 export type mainnet_RootMessageProcessed = {
   id: Scalars['ID'];
   spokeDomain: Scalars['BigInt'];
@@ -749,7 +805,7 @@ export type mainnet_RootMessageProcessed_orderBy =
 export type mainnet_RootPropagated = {
   id: Scalars['ID'];
   aggregate: Scalars['mainnet_Bytes'];
-  domains?: Maybe<Array<Scalars['BigInt']>>;
+  domainsHash: Scalars['mainnet_Bytes'];
   count: Scalars['BigInt'];
 };
 
@@ -768,12 +824,12 @@ export type mainnet_RootPropagated_filter = {
   aggregate_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   aggregate_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   aggregate_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  domains?: InputMaybe<Array<Scalars['BigInt']>>;
-  domains_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  domains_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  domains_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  domains_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  domains_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  domainsHash?: InputMaybe<Scalars['mainnet_Bytes']>;
+  domainsHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  domainsHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  domainsHash_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  domainsHash_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  domainsHash_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   count?: InputMaybe<Scalars['BigInt']>;
   count_not?: InputMaybe<Scalars['BigInt']>;
   count_gt?: InputMaybe<Scalars['BigInt']>;
@@ -789,7 +845,7 @@ export type mainnet_RootPropagated_filter = {
 export type mainnet_RootPropagated_orderBy =
   | 'id'
   | 'aggregate'
-  | 'domains'
+  | 'domainsHash'
   | 'count';
 
 export type Subscription = {
@@ -799,6 +855,8 @@ export type Subscription = {
   mainnet_rootPropagateds: Array<mainnet_RootPropagated>;
   mainnet_aggregatedMessageRoot?: Maybe<mainnet_AggregatedMessageRoot>;
   mainnet_aggregatedMessageRoots: Array<mainnet_AggregatedMessageRoot>;
+  mainnet_rootManagerMeta?: Maybe<mainnet_RootManagerMeta>;
+  mainnet_rootManagerMetas: Array<mainnet_RootManagerMeta>;
   mainnet_polygonConnectorMeta?: Maybe<mainnet_PolygonConnectorMeta>;
   mainnet_polygonConnectorMetas: Array<mainnet_PolygonConnectorMeta>;
   mainnet_optimismConnectorMeta?: Maybe<mainnet_OptimismConnectorMeta>;
@@ -865,6 +923,24 @@ export type Subscriptionmainnet_aggregatedMessageRootsArgs = {
   orderBy?: InputMaybe<mainnet_AggregatedMessageRoot_orderBy>;
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_AggregatedMessageRoot_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_rootManagerMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_rootManagerMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_RootManagerMeta_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_RootManagerMeta_filter>;
   block?: InputMaybe<mainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1027,6 +1103,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   mainnet_aggregatedMessageRoots: InContextSdkMethod<Query['mainnet_aggregatedMessageRoots'], Querymainnet_aggregatedMessageRootsArgs, MeshContext>,
   /** null **/
+  mainnet_rootManagerMeta: InContextSdkMethod<Query['mainnet_rootManagerMeta'], Querymainnet_rootManagerMetaArgs, MeshContext>,
+  /** null **/
+  mainnet_rootManagerMetas: InContextSdkMethod<Query['mainnet_rootManagerMetas'], Querymainnet_rootManagerMetasArgs, MeshContext>,
+  /** null **/
   mainnet_polygonConnectorMeta: InContextSdkMethod<Query['mainnet_polygonConnectorMeta'], Querymainnet_polygonConnectorMetaArgs, MeshContext>,
   /** null **/
   mainnet_polygonConnectorMetas: InContextSdkMethod<Query['mainnet_polygonConnectorMetas'], Querymainnet_polygonConnectorMetasArgs, MeshContext>,
@@ -1071,6 +1151,10 @@ export type _SubgraphErrorPolicy_ =
   mainnet_aggregatedMessageRoot: InContextSdkMethod<Subscription['mainnet_aggregatedMessageRoot'], Subscriptionmainnet_aggregatedMessageRootArgs, MeshContext>,
   /** null **/
   mainnet_aggregatedMessageRoots: InContextSdkMethod<Subscription['mainnet_aggregatedMessageRoots'], Subscriptionmainnet_aggregatedMessageRootsArgs, MeshContext>,
+  /** null **/
+  mainnet_rootManagerMeta: InContextSdkMethod<Subscription['mainnet_rootManagerMeta'], Subscriptionmainnet_rootManagerMetaArgs, MeshContext>,
+  /** null **/
+  mainnet_rootManagerMetas: InContextSdkMethod<Subscription['mainnet_rootManagerMetas'], Subscriptionmainnet_rootManagerMetasArgs, MeshContext>,
   /** null **/
   mainnet_polygonConnectorMeta: InContextSdkMethod<Subscription['mainnet_polygonConnectorMeta'], Subscriptionmainnet_polygonConnectorMetaArgs, MeshContext>,
   /** null **/

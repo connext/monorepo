@@ -1,7 +1,8 @@
-import { createLoggingContext, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
+import { createLoggingContext, NATIVE_TOKEN, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
 
-import { encodePropagate, sendWithRelayerWithBackup } from "../../../mockable";
-import { NoChainIdForHubDomain, RootManagerPropagateWrapperNotFound } from "../errors";
+import { getEstimatedFee, sendWithRelayerWithBackup, getDeployedRootManagerContract } from "../../../mockable";
+import { NoChainIdForHubDomain } from "../errors";
 import { getPropagateParamsArbitrum, getPropagateParamsBnb } from "../helpers";
 import { getContext } from "../propagate";
 
@@ -41,11 +42,11 @@ export const propagate = async () => {
     throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const target = contracts.rootManagerPropagateWrapper(hubChainId, config.environment === "staging" ? "Staging" : "");
-  if (!target) {
-    throw new RootManagerPropagateWrapperNotFound(config.hubDomain, requestContext, methodContext);
-  }
-
+  const rootManagerAddress = getDeployedRootManagerContract(
+    hubChainId,
+    config.environment === "staging" ? "Staging" : "",
+  )!.address;
+  const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
   const _connectors: string[] = [];
   const _encodedData: string[] = [];
   const _fees: string[] = [];
@@ -71,12 +72,59 @@ export const propagate = async () => {
   }
 
   // encode data
-  const encodedData = encodePropagate(target.abi as string[], [_connectors, _fees, _encodedData]);
+  const encodedData = contracts.rootManager.encodeFunctionData("propagate", [_connectors, _fees, _encodedData]);
+
+  const relayerAddress = await relayers[0].instance.getRelayerAddress(hubChainId);
+  logger.debug("Getting gas estimate", requestContext, methodContext, {
+    hubChainId,
+    to: rootManagerAddress,
+    data: encodedData,
+    from: relayerAddress,
+  });
+
+  const gas = await chainreader.getGasEstimateWithRevertCode(+config.hubDomain, {
+    chainId: hubChainId,
+    to: rootManagerAddress,
+    data: encodedData,
+    from: relayerAddress,
+  });
+
+  const gasLimit = gas.add(200_000); // Add extra overhead for gelato
+
+  let fee = BigNumber.from(0);
+  try {
+    fee = await getEstimatedFee(hubChainId, NATIVE_TOKEN, gasLimit, true);
+  } catch (e: unknown) {
+    logger.warn("Error at Gelato Estimate Fee", requestContext, methodContext, {
+      error: e as NxtpError,
+      rootManagerAddress: rootManagerAddress,
+      relayerProxyAddress: relayerProxyHubAddress,
+      gasLimit: gasLimit.toString(),
+      relayerFee: fee.toString(),
+    });
+
+    fee = gasLimit.mul(await chainreader.getGasPrice(+config.hubDomain, requestContext));
+  }
+  logger.info("Got params for sending", requestContext, methodContext, {
+    fee: fee.toString(),
+    gasLimit: gasLimit.toString(),
+    _connectors,
+    _fees,
+    _encodedData,
+  });
+
+  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("propagate", [
+    _connectors,
+    _fees,
+    _encodedData,
+    fee,
+  ]);
+
   const { taskId } = await sendWithRelayerWithBackup(
     hubChainId,
     config.hubDomain,
-    target.address,
-    encodedData,
+    relayerProxyHubAddress,
+    encodedDataForRelayer,
     relayers,
     chainreader,
     logger,

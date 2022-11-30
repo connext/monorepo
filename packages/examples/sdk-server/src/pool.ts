@@ -7,6 +7,7 @@ import {
   getCanonicalTokenSchema,
   calculateCanonicalKeySchema,
   getLPTokenAddressSchema,
+  getLPTokenSupplySchema,
   getLPTokenUserBalanceSchema,
   getPoolTokenIndexSchema,
   getPoolTokenBalanceSchema,
@@ -24,6 +25,7 @@ import {
   calculateCanonicalHashSchema,
   calculateAddLiquidityPriceImpactSchema,
   calculateRemoveLiquidityPriceImpactSchema,
+  calculateSwapPriceImpactSchema,
 } from "./types/api";
 
 export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpSdkPool): Promise<any> => {
@@ -69,6 +71,20 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
     async (request, reply) => {
       const { domainId, tokenAddress } = request.params;
       const res = await sdkPoolInstance.getLPTokenAddress(domainId, tokenAddress);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.get(
+    "/getLPTokenSupply/:domainId/:lpTokenAddress",
+    {
+      schema: {
+        params: getLPTokenSupplySchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, lpTokenAddress } = request.params;
+      const res = await sdkPoolInstance.getLPTokenSupply(domainId, lpTokenAddress);
       reply.status(200).send(res);
     },
   );
@@ -223,6 +239,20 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
     async (request, reply) => {
       const { domainId, tokenAddress, amountX, amountY } = request.body;
       const res = await sdkPoolInstance.calculateRemoveLiquidityPriceImpact(domainId, tokenAddress, amountX, amountY);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
+    "/calculateSwapPriceImpact",
+    {
+      schema: {
+        body: calculateSwapPriceImpactSchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, amountX, tokenX, tokenY } = request.body;
+      const res = await sdkPoolInstance.calculateSwapPriceImpact(domainId, amountX, tokenX, tokenY);
       reply.status(200).send(res);
     },
   );

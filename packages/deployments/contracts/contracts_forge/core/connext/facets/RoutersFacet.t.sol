@@ -281,13 +281,13 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__removeRouter_failsIfRouterAddressIsZero() public {
-    vm.expectRevert(RoutersFacet.RoutersFacet__removeRouter_routerEmpty.selector);
+    vm.expectRevert(RoutersFacet.RoutersFacet__unapproveRouter_routerEmpty.selector);
     vm.prank(_owner);
     this.unapproveRouter(address(0));
   }
 
   function test_RoutersFacet__removeRouter_failsIfRouterNotApproved() public {
-    vm.expectRevert(RoutersFacet.RoutersFacet__removeRouter_notAdded.selector);
+    vm.expectRevert(RoutersFacet.RoutersFacet__unapproveRouter_notAdded.selector);
     vm.prank(_owner);
     this.unapproveRouter(_routerAgent0);
   }
@@ -393,7 +393,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // fails if already approved for portals
   function test_RoutersFacet__approveRouterForPortal_failsIfAlreadyApproved() public {
-    s._routerWhitelistRemoved = true;
+    s._routerAllowlistRemoved = true;
     s.routerConfigs[_routerAgent0].portalApproved = true;
     vm.expectRevert(RoutersFacet.RoutersFacet__approveRouterForPortal_alreadyApproved.selector);
     vm.prank(_owner);
@@ -402,7 +402,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // works
   function test_RoutersFacet__approveRouterForPortal_success() public {
-    s._routerWhitelistRemoved = true;
+    s._routerAllowlistRemoved = true;
     vm.expectEmit(true, true, true, true);
     emit RouterApprovedForPortal(_routerAgent0, _owner);
 
@@ -411,11 +411,11 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     assertTrue(s.routerConfigs[_routerAgent0].portalApproved);
   }
 
-  // works if router is not whitelisted, but router ownership renounced
-  function test_RoutersFacet__approveRouterForPortal_successWhenWhitelistRemoved() public {
+  // works if router is not allowlisted, but router ownership renounced
+  function test_RoutersFacet__approveRouterForPortal_successWhenAllowlistRemoved() public {
     // ensure router ownership renounced and not whitelited
     s.routerConfigs[_routerAgent0].portalApproved = false;
-    s._routerWhitelistRemoved = true;
+    s._routerAllowlistRemoved = true;
 
     vm.expectEmit(true, true, true, true);
     emit RouterApprovedForPortal(_routerAgent0, _owner);
@@ -677,15 +677,15 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   function test_RoutersFacet__addLiquidityForRouter_failsIfAssetUnapproved() public {
     s.routerConfigs[_routerAgent0].approved = true;
-    s.approvedAssets[utils_calculateCanonicalHash()] = false;
+    s.tokenConfigs[utils_calculateCanonicalHash()].approval = false;
     uint256 amount = 10000;
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notWhitelisted.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__getApprovedCanonicalId_notAllowlisted.selector);
     this.addRouterLiquidityFor(amount, _local, _routerAgent0);
   }
 
   function test_RoutersFacet__addLiquidityForRouter_worksForToken() public {
     s.routerConfigs[_routerAgent0].approved = true;
-    s.approvedAssets[_canonicalKey] = true;
+    s.tokenConfigs[_canonicalKey].approval = true;
     address caller = address(1233422312);
     TestERC20(_local).mint(caller, 10 ether);
 
@@ -706,10 +706,33 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity + amount);
   }
 
+  function test_RoutersFacet__addLiquidityForRouter_worksForCanonicalDomain() public {
+    utils_setupAsset(true, true);
+    s.routerConfigs[_routerAgent0].approved = true;
+    address caller = address(1233422312);
+    TestERC20(_canonical).mint(caller, 10 ether);
+
+    uint256 amount = 10000;
+
+    uint256 initCaller = IERC20(_canonical).balanceOf(caller);
+    uint256 initLiquidity = this.routerBalances(_routerAgent0, _canonical);
+
+    vm.prank(caller);
+    IERC20(_canonical).approve(address(this), amount);
+
+    vm.expectEmit(true, true, true, true);
+    emit RouterLiquidityAdded(_routerAgent0, _canonical, _canonicalKey, amount, caller);
+    vm.prank(caller);
+    this.addRouterLiquidityFor(amount, _canonical, _routerAgent0);
+
+    assertEq(IERC20(_canonical).balanceOf(caller), initCaller - amount);
+    assertEq(this.routerBalances(_routerAgent0, _canonical), initLiquidity + amount);
+  }
+
   // addLiquidity
   function test_RoutersFacet__addLiquidity_routerIsSender() public {
     s.routerConfigs[_routerAgent0].approved = true;
-    s.approvedAssets[_canonicalKey] = true;
+    s.tokenConfigs[_canonicalKey].approval = true;
     TestERC20(_local).mint(_routerAgent0, 10 ether);
 
     uint256 amount = 10000;
@@ -737,7 +760,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 amount = 100;
     vm.expectRevert(RoutersFacet.RoutersFacet__removeRouterLiquidityFor_notOwner.selector);
     vm.prank(address(123567));
-    this.removeRouterLiquidityFor(amount, _local, payable(to), _routerAgent0);
+    this.removeRouterLiquidityFor(TokenId(_canonicalDomain, _canonicalId), amount, payable(to), _routerAgent0);
   }
 
   function test_RoutersFacet__removeRouterLiquidityFor_works() public {
@@ -754,7 +777,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     vm.expectEmit(true, true, true, true);
     emit RouterLiquidityRemoved(_routerAgent0, to, _local, _key, amount, _routerAgent0);
     vm.prank(_routerAgent0);
-    this.removeRouterLiquidityFor(amount, _local, payable(to), _routerAgent0);
+    this.removeRouterLiquidityFor(TokenId(_canonicalDomain, _canonicalId), amount, payable(to), _routerAgent0);
 
     assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
     assertEq(IERC20(_local).balanceOf(to), initBalance + amount);
@@ -768,7 +791,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 amount = 100;
     vm.expectRevert(RoutersFacet.RoutersFacet__removeRouterLiquidity_recipientEmpty.selector);
     vm.prank(_routerAgent0);
-    this.removeRouterLiquidity(amount, _local, payable(to));
+    this.removeRouterLiquidity(TokenId(_canonicalDomain, _canonicalId), amount, payable(to));
   }
 
   function test_RoutersFacet__removeRouterLiquidity_failsIfNoAmount() public {
@@ -778,7 +801,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 amount = 0;
     vm.expectRevert(RoutersFacet.RoutersFacet__removeRouterLiquidity_amountIsZero.selector);
     vm.prank(_routerAgent0);
-    this.removeRouterLiquidity(amount, _local, payable(to));
+    this.removeRouterLiquidity(TokenId(_canonicalDomain, _canonicalId), amount, payable(to));
   }
 
   function test_RoutersFacet__removeRouterLiquidity_failsIfNotEnoughFunds() public {
@@ -789,7 +812,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 amount = 10000;
     vm.expectRevert(RoutersFacet.RoutersFacet__removeRouterLiquidity_insufficientFunds.selector);
     vm.prank(_routerAgent0);
-    this.removeRouterLiquidity(amount, _local, payable(to));
+    this.removeRouterLiquidity(TokenId(_canonicalDomain, _canonicalId), amount, payable(to));
   }
 
   // removeLiquidity
@@ -798,6 +821,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     s.routerConfigs[_routerAgent0].owner = address(0);
     s.routerBalances[_routerAgent0][_canonical] = 10 ether;
     s.domain = _canonicalDomain;
+    s.representationToCanonical[_canonical] = TokenId(_canonicalDomain, _canonicalId);
 
     address to = address(1234);
     uint256 amount = 100;
@@ -808,7 +832,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     vm.expectEmit(true, true, true, true);
     emit RouterLiquidityRemoved(_routerAgent0, _routerRecipient0, _canonical, _key, amount, _routerAgent0);
     vm.prank(_routerAgent0);
-    this.removeRouterLiquidity(amount, _canonical, payable(to));
+    this.removeRouterLiquidity(TokenId(_canonicalDomain, _canonicalId), amount, payable(to));
 
     assertEq(this.routerBalances(_routerAgent0, _canonical), initLiquidity - amount);
     assertEq(IERC20(_canonical).balanceOf(_routerRecipient0), initBalance + amount);
@@ -818,6 +842,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     s.routerConfigs[_routerAgent0].recipient = address(0);
     s.routerConfigs[_routerAgent0].owner = address(0);
     s.routerBalances[_routerAgent0][_local] = 10 ether;
+    s.tokenConfigs[utils_calculateCanonicalHash()].custodied = 10 ether;
 
     address to = address(1234);
     uint256 amount = 100;
@@ -828,7 +853,30 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     vm.expectEmit(true, true, true, true);
     emit RouterLiquidityRemoved(_routerAgent0, to, _local, _key, amount, _routerAgent0);
     vm.prank(_routerAgent0);
-    this.removeRouterLiquidity(amount, _local, payable(to));
+    this.removeRouterLiquidity(TokenId(_canonicalDomain, _canonicalId), amount, payable(to));
+
+    assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
+    assertEq(IERC20(_local).balanceOf(to), initBalance + amount);
+    assertEq(s.tokenConfigs[utils_calculateCanonicalHash()].custodied, 10 ether); // shouldnt change
+  }
+
+  function test_RoutersFacet__removeRouterLiquidity_worksOnCanonical() public {
+    utils_setupAsset(true, true);
+    s.routerConfigs[_routerAgent0].recipient = address(0);
+    s.routerConfigs[_routerAgent0].owner = address(0);
+    s.routerBalances[_routerAgent0][_local] = 10 ether;
+    s.tokenConfigs[utils_calculateCanonicalHash()].custodied = 10 ether;
+
+    address to = address(1234);
+    uint256 amount = 100;
+
+    uint256 initLiquidity = this.routerBalances(_routerAgent0, _local);
+    uint256 initBalance = IERC20(_local).balanceOf(to);
+
+    vm.expectEmit(true, true, true, true);
+    emit RouterLiquidityRemoved(_routerAgent0, to, _local, _key, amount, _routerAgent0);
+    vm.prank(_routerAgent0);
+    this.removeRouterLiquidity(TokenId(_canonicalDomain, _canonicalId), amount, payable(to));
 
     assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
     assertEq(IERC20(_local).balanceOf(to), initBalance + amount);

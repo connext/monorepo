@@ -8,6 +8,12 @@ import {WatcherManager} from "../../contracts/messaging/WatcherManager.sol";
 
 import "../utils/ConnectorHelper.sol";
 
+contract ReverterConnector {
+  function sendMessage(bytes memory _data) external {
+    revert("revert");
+  }
+}
+
 contract RootManagerTest is ForgeHelper {
   // ============ Errors ============
   error ProposedOwnable__onlyOwner_notOwner();
@@ -22,6 +28,8 @@ contract RootManagerTest is ForgeHelper {
   event ConnectorAdded(uint32 domain, address connector, uint32[] domains, address[] connectors);
 
   event ConnectorRemoved(uint32 domain, address connector, uint32[] domains, address[] connectors, address caller);
+
+  event PropagateFailed(uint32 domain, address connector);
 
   // ============ Storage ============
   RootManager _rootManager;
@@ -89,6 +97,8 @@ contract RootManagerTest is ForgeHelper {
         bytes32 inboundRoot = keccak256(abi.encode(bytes("test"), i));
         vm.prank(_connectors[i]);
         _rootManager.aggregate(_domains[i], inboundRoot);
+        console.log("aggregated!", i);
+        console.logBytes32(inboundRoot);
       }
 
       if (willPropagate) {
@@ -252,13 +262,58 @@ contract RootManagerTest is ForgeHelper {
     assertEq(_rootManager.getPendingInboundRootsCount(), 0);
   }
 
-  function test_RootManager__propagate_shouldRevertIfNoVerifiedPending(bytes32 inbound) public {
+  function test_RootManager__propagate_shouldRevertIfRedundantRoot(bytes32 inbound) public {
     uint256 numSpokes = 20;
-    utils_generateAndAddConnectors(numSpokes, true, false);
+    utils_generateAndAddConnectors(numSpokes, true, true);
+    assertEq(_rootManager.getPendingInboundRootsCount(), numSpokes);
 
-    // Delay blocks have not been surpassed: the given root should not be included, and this call should revert
-    // because an empty propagate is useless.
-    vm.expectRevert(bytes("no verified roots"));
+    // Fast forward delayBlocks number of blocks so all of the inbound roots are considered verified.
+    vm.roll(block.number + _rootManager.delayBlocks());
+
+    // Dequeue separately so we can get an updated root.
+    _rootManager.dequeue();
+    bytes32 currentRoot = MerkleTreeManager(_merkle).root();
+
     _rootManager.propagate(_connectors, _fees, _encodedData);
+    assertEq(_rootManager.lastPropagatedRoot(), currentRoot);
+
+    // The current root has already been sent, the following call should revert since sending
+    // again would be redundant.
+    vm.expectRevert(bytes("redundant root"));
+    _rootManager.propagate(_connectors, _fees, _encodedData);
+  }
+
+  function test_RootManager__propagate_shouldNotRevertIfAmbMessageReverts() public {
+    uint256 numSpokes = 20;
+    utils_generateAndAddConnectors(numSpokes, true, true);
+    assertEq(_rootManager.getPendingInboundRootsCount(), numSpokes);
+
+    // special case to add reverting connector
+    ReverterConnector revertConnector = new ReverterConnector();
+    uint32 domain = uint32(1020);
+    _domains.push(domain);
+    _connectors.push(address(revertConnector));
+    _fees.push(0);
+    _encodedData.push(bytes(""));
+
+    vm.prank(owner);
+    _rootManager.addConnector(_domains[20], address(revertConnector));
+
+    bytes32 inboundRoot = keccak256(abi.encode(bytes("test"), 20));
+    vm.prank(address(revertConnector));
+    _rootManager.aggregate(_domains[20], inboundRoot);
+
+    vm.expectCall(_connectors[20], abi.encodeWithSelector(IHubConnector.sendMessage.selector));
+
+    assertEq(_rootManager.getPendingInboundRootsCount(), numSpokes + 1);
+
+    // Fast forward delayBlocks number of blocks so all of the inbound roots are considered verified.
+    vm.roll(block.number + _rootManager.delayBlocks());
+
+    vm.expectEmit(true, true, true, true);
+    emit PropagateFailed(_domains[20], address(revertConnector));
+
+    _rootManager.propagate(_connectors, _fees, _encodedData);
+    assertEq(_rootManager.getPendingInboundRootsCount(), 0);
   }
 }

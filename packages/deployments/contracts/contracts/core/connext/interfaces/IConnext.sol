@@ -53,8 +53,7 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
     TokenId calldata _canonical,
     address _representation,
     address _adoptedAssetId,
-    address _stableSwapPool,
-    uint256 _cap
+    address _stableSwapPool
   ) external returns (address);
 
   function addStableSwapPool(TokenId calldata _canonical, address _stableSwapPool) external;
@@ -153,27 +152,19 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function owner() external view returns (address);
 
-  function routerWhitelistRemoved() external view returns (bool);
-
-  function assetWhitelistRemoved() external view returns (bool);
+  function routerAllowlistRemoved() external view returns (bool);
 
   function proposed() external view returns (address);
 
   function proposedTimestamp() external view returns (uint256);
 
-  function routerWhitelistTimestamp() external view returns (uint256);
-
-  function assetWhitelistTimestamp() external view returns (uint256);
+  function routerAllowlistTimestamp() external view returns (uint256);
 
   function delay() external view returns (uint256);
 
-  function proposeRouterWhitelistRemoval() external;
+  function proposeRouterAllowlistRemoval() external;
 
-  function removeRouterWhitelist() external;
-
-  function proposeAssetWhitelistRemoval() external;
-
-  function removeAssetWhitelist() external;
+  function removeRouterAllowlist() external;
 
   function proposeNewOwner(address newlyProposed) external;
 
@@ -388,8 +379,7 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
     string memory lpTokenSymbol,
     uint256 _a,
     uint256 _fee,
-    uint256 _adminFee,
-    address lpTokenTargetAddress
+    uint256 _adminFee
   ) external;
 
   function withdrawSwapAdminFees(bytes32 canonicalId) external;
@@ -405,4 +395,8 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
   ) external;
 
   function stopRampA(bytes32 canonicalId) external;
+
+  function lpTokenTargetAddress() external view returns (address);
+
+  function updateLpTokenTarget(address newAddress) external;
 }

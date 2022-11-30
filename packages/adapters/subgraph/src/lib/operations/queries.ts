@@ -172,8 +172,13 @@ export const ROOT_AGGREGATED_ENTITY = `
 export const ROOT_PROPAGATED_ENTITY = `
       id
       aggregate
-      domains
+      domainsHash
       count
+`;
+export const RECEIVED_AGGREGATED_ROOT_ENTITY = `
+      id
+      root
+      blockNumber
 `;
 
 export const CONNECTOR_META_ENTITY = `
@@ -728,6 +733,31 @@ export const getAggregatedRootsByDomainQuery = (params: { hub: string; index: nu
 
   return gql`
     query GetAggregatedRoots {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getReceivedAggregatedRootsByDomainQuery = (
+  params: { domain: string; offset: number; limit: number }[],
+) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.domain].prefix;
+    combinedQuery += `
+    ${prefix}_aggregateRoots( 
+      first: ${param.limit}, 
+      where: { 
+        blockNumber_gt: ${param.offset} 
+      }
+    ) {
+      ${RECEIVED_AGGREGATED_ROOT_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetReceivedAggregateRoots {
       ${combinedQuery}
     }
   `;
