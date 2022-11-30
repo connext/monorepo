@@ -84,6 +84,7 @@ export class NxtpSdkPool {
   private readonly chainReader: ChainReader;
   private readonly priceFeed: PriceFeed;
 
+  // key is "domainId-canonicalKey"
   private pools = new Map<string, Pool>();
 
   constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>, chainReader: ChainReader) {
@@ -603,7 +604,7 @@ export class NxtpSdkPool {
   // ------------------- Pool Data ------------------- //
 
   /**
-   * Returns the StableSwap Pool for a given local asset.
+   * Returns the StableSwap Pool for a given asset.
    * @param domainId The domain id of the pool.
    * @param tokenAddress The address of local or adopted token.
    */
@@ -616,7 +617,7 @@ export class NxtpSdkPool {
 
     const key: string = getCanonicalHash(canonicalDomain, canonicalId);
 
-    let pool = this.pools.get(key);
+    let pool = this.pools.get([domainId, key].join("-"));
     if (pool) {
       return pool;
     }
@@ -656,7 +657,7 @@ export class NxtpSdkPool {
       lpTokenAddress,
       key,
     );
-    this.pools.set(key, pool);
+    this.pools.set([domainId, key].join("-"), pool);
 
     return pool;
   }
