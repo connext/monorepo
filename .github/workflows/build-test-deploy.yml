@@ -311,12 +311,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS Credentials
-        uses: Fooji/create-aws-profile-action@v1
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          profile: aws-deployer-connext
           region: us-east-1
-          key: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
-          secret: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
 
       - name: Login to Amazon ECR Public
         id: login-ecr-public
