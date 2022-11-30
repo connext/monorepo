@@ -11,11 +11,9 @@ on:
     tag:
       - "v*"
 
-# $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
 env:
-  ECR_REGISTRY_ALIAS: o5f3u7i2
   ECR_CARTOGRAPHER_REPOSITORY: nxtp-cartographer
-  SHA: ${{ github.sha }}
+  ECR_REGISTRY: 679752396206.dkr.ecr
 
 jobs:
   build-and-test:
@@ -309,6 +307,11 @@ jobs:
   build-and-push-cartographer-image:
     # if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
+    env:
+      REGISTRY: ${{ env.ECR_REGISTRY }}.us-east-1.amazonaws.com
+      IMAGE_TAG: ${{ github.sha }}
+      REPOSITORY: ${{ env.ECR_CARTOGRAPHER_REPOSITORY }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -320,24 +323,18 @@ jobs:
           aws-access-key-id: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
 
-      - name: Login to Amazon ECR Public
-        id: login-ecr-public
+      - name: Login to Amazon ECR
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-        with:
-          registry-type: public
 
       - name: Build, tag, and push docker image to Amazon ECR Public
-        env:
-          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-          REGISTRY_ALIAS: ${{ env.ECR_REGISTRY_ALIAS }}
-          REPOSITORY: ${{ env.ECR_CARTOGRAPHER_REPOSITORY}}
-          IMAGE_TAG: ${{ env.SHA }}
+
         run: |
-          docker build -f docker/cartographer/Dockerfile.lambda . -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG 
-          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
+          docker build -f docker/cartographer/Dockerfile.lambda -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
     outputs:
-      registry: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CARTOGRAPHER_REPOSITORY }}/${{ env.SHA }}
+      registry: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
 
   build-and-push-lighthouse-propagate-image:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
@@ -668,7 +665,9 @@ jobs:
     needs: [smoke-tests, terraform-infra]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_cartographer: ${{ needs.smoke-tests.outputs.cartographer-image }}
+      REGISTRY: ${{ env.ECR_REGISTRY }}.us-east-1.amazonaws.com
+      REPOSITORY: ${{ env.ECR_CARTOGRAPHER_REPOSITORY }}
+      IMAGE_TAG: ${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -707,6 +706,8 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
+        env:
+          TF_VAR_full_image_name_cartographer: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
         id: plan
         working-directory: ./ops/testnet/staging/backend
         run: |
@@ -714,6 +715,8 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
+        env:
+          TF_VAR_full_image_name_cartographer: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
         if: github.ref == 'refs/heads/staging'
         id: apply
         working-directory: ./ops/testnet/staging/backend
