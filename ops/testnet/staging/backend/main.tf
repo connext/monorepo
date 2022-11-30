@@ -98,7 +98,7 @@ module "cartographer-routers-lambda-cron" {
   stage                   = var.stage
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = concat(local.cartographer_env_vars, [{ DD_SERVICE = "cartographer-routers-${var.environment}", "SERVICE" = "routers" }])
+  container_env_vars      = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-routers-${var.environment}", SERVICE = "routers" })
   schedule_expression     = "cron(* * * * ? *)"
 }
 
@@ -116,7 +116,7 @@ module "cartographer-transfers-lambda-cron" {
   stage                   = var.stage
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = concat(local.cartographer_env_vars, [{ DD_SERVICE = "cartographer-transfers-${var.environment}", "SERVICE" = "transfers" }])
+  container_env_vars      = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-transfers-${var.environment}", SERVICE = "transfers" })
   schedule_expression     = "cron(* * * * ? *)"
 }
 
@@ -134,7 +134,7 @@ module "cartographer-messages-lambda-cron" {
   stage                   = var.stage
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = concat(local.cartographer_env_vars, [{ DD_SERVICE = "cartographer-messages-${var.environment}", "SERVICE" = "messages" }])
+  container_env_vars      = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-messages-${var.environment}", SERVICE = "messages" })
   schedule_expression     = "cron(* * * * ? *)"
 }
 
@@ -152,7 +152,7 @@ module "cartographer-roots-lambda-cron" {
   stage                   = var.stage
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = concat(local.cartographer_env_vars, [{ DD_SERVICE = "cartographer-roots-${var.environment}", "SERVICE" = "roots" }])
+  container_env_vars      = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-roots-${var.environment}", SERVICE = "roots" })
   schedule_expression     = "cron(* * * * ? *)"
 }
 

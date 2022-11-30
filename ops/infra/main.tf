@@ -18,3 +18,8 @@ module "iam" {
 module "kms" {
   source = "../modules/kms"
 }
+
+resource "aws_ecrpublic_repository" "nxtp-ecr" {
+  repository_name = "nxtp-cartographer"
+}
+

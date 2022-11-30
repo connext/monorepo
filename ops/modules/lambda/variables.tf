@@ -1,5 +1,4 @@
 variable "execution_role_arn" {}
-variable "cluster_id" {}
 variable "vpc_id" {}
 
 variable "private_subnets" {
@@ -16,6 +15,10 @@ variable "service_security_groups" {
   type = list(string)
 }
 
+
+variable "container_family" {
+  type = string
+}
 
 variable "domain" {
   description = "domain of deployment"
@@ -40,5 +43,5 @@ variable "ecs_cluster_arn" {
 
 variable "schedule_expression" {
   description = "how to schedule the cron job"
-  default = "cron(* * * * ? *)"
+  default     = "cron(* * * * ? *)"
 }

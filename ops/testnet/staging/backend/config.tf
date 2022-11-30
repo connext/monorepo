@@ -1,13 +1,12 @@
 
 locals {
-  cartographer_env_vars = [
-    { name = "CARTOGRAPHER_CONFIG", value = local.local_cartographer_config },
-    { name = "DATABASE_URL", value = "postgres://${var.postgres_user}:${var.postgres_password}@${module.cartographer_db.db_instance_endpoint}/connext" },
-    { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage },
-    { name = "DD_PROFILING_ENABLED", value = "true" },
-    { name = "DD_ENV", value = var.stage }
-  ]
+  cartographer_env_vars = {
+    CARTOGRAPHER_CONFIG = local.local_cartographer_config,
+    DATABASE_URL        = "postgres://${var.postgres_user}:${var.postgres_password}@${module.cartographer_db.db_instance_endpoint}/connext",
+    ENVIRONMENT         = var.environment,
+    STAGE               = var.stage,
+    DD_ENV              = var.stage,
+  }
 
   postgrest_env_vars = [
     { name = "PGRST_ADMIN_SERVER_PORT", value = "3001" },

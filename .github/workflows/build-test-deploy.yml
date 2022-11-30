@@ -11,6 +11,12 @@ on:
     tag:
       - "v*"
 
+# $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
+env:
+  ECR_REGISTRY_ALIAS: o5f3u7i2
+  ECR_CARTOGRAPHER_REPOSITORY: nxtp-cartographer
+  SHA: ${{ github.sha }}
+
 jobs:
   build-and-test:
     if: github.ref != 'refs/heads/staging'
@@ -302,45 +308,34 @@ jobs:
 
   build-and-push-cartographer-image:
     # if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
-    env:
-      REGISTRY: ghcr.io
-      IMAGE_NAME: connext/cartographer
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      - name: Configure AWS Credentials
+        uses: Fooji/create-aws-profile-action@v1
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          profile: aws-deployer-connext
+          region: us-east-1
+          key: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
+          secret: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v1
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,format=short
-            type=semver,pattern={{raw}}
+          registry-type: public
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          file: docker/cartographer/Dockerfile.lambda
+      - name: Build, tag, and push docker image to Amazon ECR Public
+        env:
+          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+          REGISTRY_ALIAS: ${{ env.ECR_REGISTRY_ALIAS }}
+          REPOSITORY: ${{ env.ECR_CARTOGRAPHER_REPOSITORY}}
+          IMAGE_TAG: ${{ env.SHA }}
+        run: |
+          docker build -f docker/cartographer/Dockerfile.lambda . -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG 
+          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
 
     outputs:
-      json: ${{ steps.meta.outputs.json }}
+      registry: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CARTOGRAPHER_REPOSITORY }}/${{ env.SHA }}
 
   build-and-push-lighthouse-propagate-image:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
@@ -531,7 +526,7 @@ jobs:
       ROUTER_EXECUTOR_IMAGE: ${{fromJSON(needs.build-and-push-router-executor-image.outputs.json).tags[0]}}
       SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
-      CARTOGRAPHER_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-image.outputs.json).tags[0]}}
+      CARTOGRAPHER_IMAGE: ${{ needs.build-and-push-cartographer-image.outputs.registry }}
       LIGHTHOUSE_PROVER_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-prover-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROCESS_FROM_ROOT_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-process-from-root-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROPAGATE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-propagate-image.outputs.json).tags[0]}}
@@ -558,7 +553,7 @@ jobs:
       router-executor-tags: ${{ needs.build-and-push-router-executor-image.outputs.json }}
       sequencer-publisher-tags: ${{ needs.build-and-push-sequencer-publisher-image.outputs.json }}
       sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
-      cartographer-tags: ${{ needs.build-and-push-cartographer-image.outputs.json }}
+      cartographer-image: ${{ needs.build-and-push-cartographer-image.outputs.registry }}
       lighthouse-prover-tags: ${{ needs.build-and-push-lighthouse-prover-image.outputs.json }}
       lighthouse-process-from-root-tags: ${{ needs.build-and-push-lighthouse-process-from-root-image.outputs.json }}
       lighthouse-propagate-tags: ${{ needs.build-and-push-lighthouse-propagate-image.outputs.json }}
@@ -587,7 +582,7 @@ jobs:
       ROUTER_EXECUTOR_IMAGE: ${{ fromJSON(needs.build-and-push-router-executor-image.outputs.json).tags[0] }}
       SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
-      CARTOGRAPHER_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-image.outputs.json).tags[0]}}
+      CARTOGRAPHER_IMAGE: ${{ needs.build-and-push-cartographer-image.outputs.registry }}
       LIGHTHOUSE_PROVER_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-prover-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROCESS_FROM_ROOT_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-process-from-root-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROPAGATE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-propagate-image.outputs.json).tags[0]}}
@@ -623,7 +618,7 @@ jobs:
       router-executor-tags: ${{ needs.build-and-push-router-executor-image.outputs.json }}
       sequencer-publisher-tags: ${{ needs.build-and-push-sequencer-publisher-image.outputs.json }}
       sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
-      cartographer-tags: ${{ needs.build-and-push-cartographer-image.outputs.json }}
+      cartographer-image: ${{ needs.build-and-push-cartographer-image.outputs.registry }}
       lighthouse-prover-tags: ${{ needs.build-and-push-lighthouse-prover-image.outputs.json }}
       lighthouse-process-from-root-tags: ${{ needs.build-and-push-lighthouse-process-from-root-image.outputs.json }}
       lighthouse-propagate-tags: ${{ needs.build-and-push-lighthouse-propagate-image.outputs.json }}
@@ -671,7 +666,7 @@ jobs:
     needs: [smoke-tests, terraform-infra]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_cartographer: ${{ fromJSON(needs.smoke-tests.outputs.cartographer-tags).tags[0] }}
+      TF_VAR_full_image_name_cartographer: ${{ needs.smoke-tests.outputs.cartographer-image }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -724,7 +719,7 @@ jobs:
           terraform apply -var-file=tfvars.json -auto-approve
 
     outputs:
-      cartographer-tags: ${{ needs.smoke-tests.outputs.cartographer-tags }}
+      cartographer-image: ${{ needs.smoke-tests.outputs.cartographer-image }}
 
   terraform-services-core-staging-testnet:
     needs: [smoke-tests, terraform-infra]
@@ -880,7 +875,7 @@ jobs:
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_cartographer: ${{ fromJSON(needs.e2e-tests.outputs.cartographer-tags).tags[0] }}
+      TF_VAR_full_image_name_cartographer: ${{ needs.e2e-tests.outputs.cartographer-image }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -937,7 +932,7 @@ jobs:
       router-publisher-tags: ${{ needs.e2e-tests.outputs.router-publisher-tags }}
       router-subscriber-tags: ${{ needs.e2e-tests.outputs.router-subscriber-tags }}
       router-executor-tags: ${{ needs.e2e-tests.outputs.router-executor-tags }}
-      cartographer-tags: ${{ needs.e2e-tests.outputs.json }}
+      cartographer-image: ${{ needs.e2e-tests.outputs.cartographer-image.registry }}
       lighthouse-prover-tags: ${{ needs.e2e-tests.outputs.lighthouse-prover-tags }}
       lighthouse-process-from-root-tags: ${{ needs.e2e-tests.outputs.lighthouse-process-from-root-tags }}
       lighthouse-propagate-tags: ${{ needs.e2e-tests.outputs.lighthouse-propagate-tags }}
@@ -948,7 +943,7 @@ jobs:
     needs: [terraform-services-core-prod-testnet, terraform-services-backend-prod-testnet]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_cartographer: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.cartographer-tags).tags[0] }}
+      TF_VAR_full_image_name_cartographer: ${{ needs.terraform-services-backend-prod-testnet.outputs.cartographer-image }}
 
     runs-on: ubuntu-latest
     permissions:
