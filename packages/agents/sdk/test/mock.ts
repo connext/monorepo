@@ -2,6 +2,7 @@ import { utils, BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance } from "sinon";
 import { ConnextContractDeployments, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { mkAddress, mock as _mock } from "@connext/nxtp-utils";
+import { ConnextAbi } from "@connext/nxtp-contracts";
 
 import { NxtpSdkConfig } from "../src/config";
 
@@ -83,7 +84,7 @@ export const mock = {
       return {
         connext: (_: number) => ({
           address: mkAddress("0xbadcab"),
-          abi: {},
+          abi: ConnextAbi,
         }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
