@@ -11,10 +11,6 @@ on:
     tag:
       - "v*"
 
-env:
-  ECR_CARTOGRAPHER_REPOSITORY: nxtp-cartographer
-  ECR_REGISTRY: 679752396206.dkr.ecr
-
 jobs:
   build-and-test:
     if: github.ref != 'refs/heads/staging'
@@ -308,9 +304,9 @@ jobs:
     # if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
     env:
-      REGISTRY: ${{ env.ECR_REGISTRY }}.us-east-1.amazonaws.com
+      REGISTRY: 679752396206.dkr.ecr.us-east-1.amazonaws.com
       IMAGE_TAG: ${{ github.sha }}
-      REPOSITORY: ${{ env.ECR_CARTOGRAPHER_REPOSITORY }}
+      REPOSITORY: nxtp-cartographer
 
     steps:
       - name: Checkout repository
@@ -665,8 +661,8 @@ jobs:
     needs: [smoke-tests, terraform-infra]
     env:
       AWS_PROFILE: aws-deployer-connext
-      REGISTRY: ${{ env.ECR_REGISTRY }}.us-east-1.amazonaws.com
-      REPOSITORY: ${{ env.ECR_CARTOGRAPHER_REPOSITORY }}
+      REGISTRY: 679752396206.dkr.ecr.us-east-1.amazonaws.com
+      REPOSITORY: nxtp-cartographer
       IMAGE_TAG: ${{ github.sha }}
 
     runs-on: ubuntu-latest
