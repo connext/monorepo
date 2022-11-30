@@ -450,7 +450,7 @@ export class NxtpSdkPool {
     return price;
   }
 
-  async canonicalToRepresentation(domainId: string, tokenAddress: string): Promise<string> {
+  async getRepresentation(domainId: string, tokenAddress: string): Promise<string> {
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
@@ -461,7 +461,7 @@ export class NxtpSdkPool {
     return representation;
   }
 
-  async canonicalToAdopted(domainId: string, tokenAddress: string): Promise<string> {
+  async getAdopted(domainId: string, tokenAddress: string): Promise<string> {
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
@@ -622,8 +622,8 @@ export class NxtpSdkPool {
     }
 
     const [local, adopted, lpTokenAddress] = await Promise.all([
-      this.canonicalToRepresentation(domainId, tokenAddress),
-      this.canonicalToAdopted(domainId, tokenAddress),
+      this.getRepresentation(domainId, tokenAddress),
+      this.getAdopted(domainId, tokenAddress),
       this.getLPTokenAddress(domainId, tokenAddress),
     ]);
 
