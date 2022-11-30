@@ -63,10 +63,8 @@ ENV NODE_ENV=production
 ARG COMMIT_HASH
 ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
 
-USER node
-
 WORKDIR ${LAMBDA_TASK_ROOT}
-COPY --from=build --chown=node:node /tmp/build ${LAMBDA_TASK_ROOT}
+COPY --from=build /tmp/build ${LAMBDA_TASK_ROOT}
 
 
 CMD ["packages/agents/cartographer/poller/dist/index.handler"]
