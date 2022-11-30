@@ -4,16 +4,18 @@
   "license": "MIT",
   "description": "A reference implementation to bridging ERC-20 tokens across EVM chains via Connext",
   "scripts": {
-    "start": "parcel serve src/index.html -p 8080 --open",
-    "build": "parcel build src/index.html",
-    "start:testnet": "cross-env NODE_ENV=test parcel serve src/index.html -p 8080 --open",
-    "build:testnet": "cross-env NODE_ENV=test parcel build src/index.html",
-    "start:testnet-staging": "cross-env NODE_ENV=staging parcel serve src/index.html -p 8080 --open",
-    "build:testnet-staging": "cross-env NODE_ENV=staging parcel build src/index.html",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "dev:testnet": "NODE_ENV=test next dev",
+    "build:testnet": "NODE_ENV=test next build",
+    "dev:testnet-staging": "cross-env NODE_ENV=staging next dev",
+    "build:testnet-staging": "cross-env NODE_ENV=staging next build",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "purge": "yarn clean && rimraf ./node_modules"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.4.2",
     "@coinbase/wallet-sdk": "3.5.4",
     "@connext/nxtp-sdk": "workspace:*",
     "@tailwindcss/forms": "0.5.3",
@@ -22,6 +24,7 @@
     "eslint": "8.26.0",
     "ethers": "5.7.2",
     "lodash": "4.17.21",
+    "next": "^13.0.5",
     "postcss-import": "14.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -30,7 +33,6 @@
     "web3modal": "1.9.9"
   },
   "devDependencies": {
-    "@parcel/transformer-image": "2.7.0",
     "@types/eslint": "8.4.9",
     "@types/lodash": "4.14.187",
     "@types/react": "18.0.24",
@@ -38,9 +40,9 @@
     "@types/rimraf": "3.0.2",
     "assert": "2.0.0",
     "autoprefixer": "10.4.13",
+    "file-loader": "^6.2.0",
     "https-browserify": "1.0.0",
     "os-browserify": "0.3.0",
-    "parcel": "2.7.0",
     "path-browserify": "1.0.1",
     "postcss": "8.4.14",
     "process": "0.11.10",
@@ -48,6 +50,7 @@
     "rimraf": "3.0.2",
     "stream-http": "3.2.0",
     "typescript": "4.8.4",
-    "url": "0.11.0"
+    "url": "0.11.0",
+    "url-loader": "^4.1.1"
   }
 }

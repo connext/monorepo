@@ -72,18 +72,16 @@ export const processFromRoot = async () => {
     logger.info("Got unprocessed root messages", _requestContext, methodContext, { unprocessed });
   }
 
-  await Promise.all(
-    unprocessed.map(async (msg) => {
-      const requestContext = createRequestContext("processFromRoot", msg.transactionHash);
-      logger.info("Processing root message", requestContext, methodContext, { msg });
+  for (const msg of unprocessed) {
+    const requestContext = createRequestContext("processFromRoot", msg.transactionHash);
+    logger.info("Processing root message", requestContext, methodContext, { msg });
 
-      try {
-        await processSingleRootMessage(msg, requestContext);
-      } catch (err: unknown) {
-        logger.error("Error processing from root", requestContext, methodContext, jsonifyError(err as NxtpError));
-      }
-    }),
-  );
+    try {
+      await processSingleRootMessage(msg, requestContext);
+    } catch (err: unknown) {
+      logger.error("Error processing from root", requestContext, methodContext, jsonifyError(err as NxtpError));
+    }
+  }
 };
 
 export const processSingleRootMessage = async (
