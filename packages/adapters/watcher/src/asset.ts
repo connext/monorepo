@@ -1,14 +1,9 @@
 import { domainToChainId } from "@connext/nxtp-contracts";
-import { getDeployedConnextContract, getErc20Interface, TransactionService } from "@connext/nxtp-txservice";
-import { getCanonicalHash, Logger, RequestContext } from "@connext/nxtp-utils";
+import { getDeployedConnextContract, getErc20Interface } from "@connext/nxtp-txservice";
+import { getCanonicalHash } from "@connext/nxtp-utils";
 import { BigNumber, utils } from "ethers";
 
-type CallContext = {
-  txservice: TransactionService;
-  logger: Logger;
-  _requestContext?: RequestContext;
-  isStaging?: boolean;
-};
+import { CallContext } from "./types";
 
 export const totalMintedAssets = async (
   context: CallContext,
