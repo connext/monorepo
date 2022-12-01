@@ -1,12 +1,22 @@
-variable "docker_image" {}
-
-variable "environment" {}
-
-
-variable "container_family" {
-  type = string
+variable "docker_image_tag" {
+  description = "Docker image tag"
+  type        = string
+  default     = "latest"
+}
+variable "ecr_repository_name" {
+  description = "ECR repository name"
+  type        = string
 }
 
+variable "environment" {
+  description = "Environment"
+  type        = string
+}
+
+variable "container_family" {
+  description = "Container family"
+  type        = string
+}
 
 variable "stage" {
   description = "stage of deployment"

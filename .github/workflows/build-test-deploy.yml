@@ -654,9 +654,7 @@ jobs:
     needs: [smoke-tests, terraform-infra]
     env:
       AWS_PROFILE: aws-deployer-connext
-      REGISTRY: 679752396206.dkr.ecr.us-east-1.amazonaws.com
-      REPOSITORY: nxtp-cartographer
-      IMAGE_TAG: ${{ github.sha }}
+      TF_VAR_cartographer_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -696,7 +694,7 @@ jobs:
 
       - name: Terraform Plan
         env:
-          TF_VAR_full_image_name_cartographer: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
+
         id: plan
         working-directory: ./ops/testnet/staging/backend
         run: |
@@ -704,8 +702,6 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
-        env:
-          TF_VAR_full_image_name_cartographer: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
         if: github.ref == 'refs/heads/staging'
         id: apply
         working-directory: ./ops/testnet/staging/backend
@@ -866,9 +862,7 @@ jobs:
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext
-      REGISTRY: 679752396206.dkr.ecr.us-west-1.amazonaws.com
-      REPOSITORY: nxtp-cartographer
-      IMAGE_TAG: ${{ github.sha }}
+      TF_VAR_cartographer_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -907,8 +901,6 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
-        env:
-          TF_VAR_full_image_name_cartographer: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
         id: plan
         working-directory: ./ops/testnet/prod/backend
         run: |
@@ -916,8 +908,6 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
-        env:
-          TF_VAR_full_image_name_cartographer: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
         id: apply
         working-directory: ./ops/testnet/prod/backend
         run: |
@@ -939,9 +929,7 @@ jobs:
     needs: [terraform-services-core-prod-testnet, terraform-services-backend-prod-testnet]
     env:
       AWS_PROFILE: aws-deployer-connext
-      REGISTRY: 679752396206.dkr.ecr.us-east-2.amazonaws.com
-      REPOSITORY: nxtp-cartographer
-      IMAGE_TAG: ${{ github.sha }}
+      TF_VAR_cartographer_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -980,8 +968,6 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
-        env:
-          TF_VAR_full_image_name_cartographer: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
         id: plan
         working-directory: ./ops/mainnet/prod/backend
         run: |
@@ -989,8 +975,6 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
-        env:
-          TF_VAR_full_image_name_cartographer: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
         id: apply
         working-directory: ./ops/mainnet/prod/backend
         run: |

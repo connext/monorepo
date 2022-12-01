@@ -1,3 +1,11 @@
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
+locals {
+  account_id     = data.aws_caller_identity.current.account_id
+  repository_url = "${local.account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/${var.ecr_repository_name}"
+}
+
 resource "aws_iam_role" "lambda" {
   name = "${var.container_family}-${var.environment}-${var.stage}-lambda-role"
 
@@ -34,7 +42,7 @@ resource "aws_iam_role" "lambda" {
 }
 resource "aws_lambda_function" "executable" {
   function_name = "${var.container_family}-${var.environment}-${var.stage}"
-  image_uri     = var.docker_image
+  image_uri     = "${local.repository_url}:${var.docker_image_tag}"
   package_type  = "Image"
   role          = aws_iam_role.lambda.arn
   architectures = ["x86_64"]

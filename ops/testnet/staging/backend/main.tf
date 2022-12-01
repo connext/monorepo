@@ -86,7 +86,8 @@ module "postgrest" {
 
 module "cartographer-routers-lambda-cron" {
   source              = "../../../modules/lambda"
-  docker_image        = var.full_image_name_cartographer
+  ecr_repository_name = "nxtp-cartographer"
+  docker_image_tag    = var.cartographer_image_tag
   container_family    = "cartographer_routers"
   environment         = var.environment
   stage               = var.stage
@@ -96,7 +97,8 @@ module "cartographer-routers-lambda-cron" {
 
 module "cartographer-transfers-lambda-cron" {
   source              = "../../../modules/lambda"
-  docker_image        = var.full_image_name_cartographer
+  ecr_repository_name = "nxtp-cartographer"
+  docker_image_tag    = var.cartographer_image_tag
   container_family    = "cartographer_transfers"
   environment         = var.environment
   stage               = var.stage
@@ -106,7 +108,9 @@ module "cartographer-transfers-lambda-cron" {
 
 module "cartographer-messages-lambda-cron" {
   source              = "../../../modules/lambda"
-  docker_image        = var.full_image_name_cartographer
+  ecr_repository_name = "nxtp-cartographer"
+  docker_image_tag    = var.cartographer_image_tag
+
   container_family    = "cartographer_messages"
   environment         = var.environment
   stage               = var.stage
@@ -116,7 +120,9 @@ module "cartographer-messages-lambda-cron" {
 
 module "cartographer-roots-lambda-cron" {
   source              = "../../../modules/lambda"
-  docker_image        = var.full_image_name_cartographer
+  ecr_repository_name = "nxtp-cartographer"
+  docker_image_tag    = var.cartographer_image_tag
+
   container_family    = "cartographer_roots"
   environment         = var.environment
   stage               = var.stage
