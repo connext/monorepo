@@ -693,8 +693,6 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
-        env:
-
         id: plan
         working-directory: ./ops/testnet/staging/backend
         run: |
