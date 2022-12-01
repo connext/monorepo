@@ -5,6 +5,7 @@ import {
   XMessage,
   SparseMerkleTree,
   RootMessage,
+  ReceivedAggregateRoot,
   NATIVE_TOKEN,
   GELATO_RELAYER_ADDRESS,
 } from "@connext/nxtp-utils";
@@ -19,6 +20,7 @@ import {
   NoMessageRootProof,
   NoMessageProof,
   NoTargetMessageRoot,
+  NoReceivedAggregateRoot,
 } from "../../../errors";
 import { sendWithRelayerWithBackup, getEstimatedFee } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper } from "../adapters";
@@ -41,15 +43,24 @@ export const proveAndProcess = async () => {
   // Process messages
   // Batch messages to be processed by origin_domain and destination_domain.
   await Promise.all(
-    domains.map(async (originDomain) => {
+    domains.map(async (destinationDomain) => {
       try {
-        const latestMessageRoot: RootMessage | undefined = await database.getLatestMessageRoot(originDomain);
-        if (!latestMessageRoot) {
-          throw new NoTargetMessageRoot(originDomain);
+        const curDestAggRoot: ReceivedAggregateRoot | undefined = await database.getLatestAggregateRoot(
+          destinationDomain,
+        );
+        if (!curDestAggRoot) {
+          throw new NoReceivedAggregateRoot(destinationDomain);
         }
 
         await Promise.all(
-          domains.map(async (destinationDomain) => {
+          domains.map(async (originDomain) => {
+            const latestMessageRoot: RootMessage | undefined = await database.getLatestMessageRoot(
+              originDomain,
+              curDestAggRoot.root,
+            );
+            if (!latestMessageRoot) {
+              throw new NoTargetMessageRoot(originDomain);
+            }
             // Paginate through all unprocessed messages from the domain
             let offset = 0;
             let end = false;

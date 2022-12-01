@@ -4,7 +4,7 @@ import { SinonStub, stub } from "sinon";
 import { proveAndProcess, processMessages } from "../../../../src/tasks/prover/operations/proveAndProcess";
 import * as ProveAndProcessFns from "../../../../src/tasks/prover/operations/proveAndProcess";
 import * as MockableFns from "../../../../src/mockable";
-import { mockXMessage1, mockXMessage2, mockRootMessage } from "../../../mock";
+import { mockXMessage1, mockXMessage2, mockRootMessage, mockReceivedRoot } from "../../../mock";
 import { proverCtxMock, sendWithRelayerWithBackupStub } from "../../../globalTestHook";
 
 describe("Operations: ProveAndProcess", () => {
@@ -19,6 +19,7 @@ describe("Operations: ProveAndProcess", () => {
     });
 
     it("should process messages", async () => {
+      (proverCtxMock.adapters.database.getLatestAggregateRoot as SinonStub).resolves(mockReceivedRoot);
       (proverCtxMock.adapters.database.getLatestMessageRoot as SinonStub).resolves(mockRootMessage);
       (proverCtxMock.adapters.database.getUnProcessedMessagesByIndex as SinonStub)
         .onFirstCall()

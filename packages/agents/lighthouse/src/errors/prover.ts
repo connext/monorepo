@@ -36,6 +36,11 @@ export class NoTargetMessageRoot extends NxtpError {
     super(`No target outbound root in ${domain}`, context, NoTargetMessageRoot.name);
   }
 }
+export class NoReceivedAggregateRoot extends NxtpError {
+  constructor(domain: string | undefined, context: any = {}) {
+    super(`No received aggregate root in ${domain}`, context, NoReceivedAggregateRoot.name);
+  }
+}
 
 export class NoMessageRootProof extends NxtpError {
   constructor(messageRootIndex: number | undefined, messageRoot: string, context: any = {}) {

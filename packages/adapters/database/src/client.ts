@@ -488,13 +488,20 @@ export const getMessageRootIndex = async (
 
 export const getLatestMessageRoot = async (
   spoke_domain: string,
+  aggregate_root: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<RootMessage | undefined> => {
   const poolToUse = _pool ?? pool;
+
+  type rootPropagatedSQL = s.root_messages.SQL | s.propagated_roots.SQL;
+  type rootPropagatedSelectable = s.root_messages.Selectable & { author: s.propagated_roots.Selectable };
+
   const root = await db.sql<
-    s.root_messages.SQL,
-    s.root_messages.Selectable[]
-  >`select * from ${"root_messages"} where ${"root"} in (select received_root from aggregated_roots) and ${{
+    rootPropagatedSQL,
+    rootPropagatedSelectable[]
+  >`select * from ${"root_messages"} where ${"root"} in (select received_root from aggregated_roots where domain_index <= (select leaf_count from propagated_roots where ${{
+    aggregate_root,
+  }})) and ${{
     spoke_domain,
   }} order by ${"leaf_count"} desc nulls last limit 1`.run(poolToUse);
   return root.length > 0 ? convertFromDbRootMessage(root[0]) : undefined;

@@ -40,6 +40,7 @@ import {
   getRoot,
   getMessageRootIndex,
   getLatestMessageRoot,
+  getLatestAggregateRoot,
   getAggregateRootCount,
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
@@ -626,6 +627,7 @@ describe("Database client", () => {
   it("should get getLatestMessageRoot", async () => {
     const messages: RootMessage[] = [];
     const roots: AggregatedRoot[] = [];
+    const propRoots: PropagatedRoot[] = [];
     for (let _i = 0; _i < batchSize; _i++) {
       const rootMessage = mock.entity.rootMessage();
       rootMessage.count = _i;
@@ -634,12 +636,20 @@ describe("Database client", () => {
       m.index = _i;
       m.receivedRoot = rootMessage.root;
       roots.push(m);
+      const propRoot = mock.entity.propagatedRoot();
+      propRoot.count = _i;
+      propRoots.push(propRoot);
     }
 
     await saveSentRootMessages(messages, pool);
     await saveAggregatedRoots(roots, pool);
+    await savePropagatedRoots(propRoots, pool);
 
-    const dbRoots = await getLatestMessageRoot(mock.entity.rootMessage().spokeDomain, pool);
+    const dbRoots = await getLatestMessageRoot(
+      mock.entity.rootMessage().spokeDomain,
+      propRoots[batchSize - 1].aggregate,
+      pool,
+    );
     // TODO: numeric vs integer type conversion
     dbRoots ? (dbRoots.count = batchSize - 1) : undefined;
     expect(dbRoots).to.deep.eq(messages[batchSize - 1]);
@@ -705,7 +715,8 @@ describe("Database client", () => {
     expect(await getMessageRootIndex("", "", pool)).to.eq(undefined);
     expect(await getAggregateRootCount("", pool)).to.eq(undefined);
     expect(await getAggregateRoot("", pool)).to.eq(undefined);
-    expect(await getLatestMessageRoot("", pool)).to.eq(undefined);
+    expect(await getLatestMessageRoot("", "", pool)).to.eq(undefined);
+    expect(await getLatestAggregateRoot("", "DESC", pool)).to.eq(undefined);
   });
 
   it("should throw errors", async () => {
