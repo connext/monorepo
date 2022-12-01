@@ -287,6 +287,7 @@
   "function canonicalToAdopted(tuple(uint32,bytes32)) view returns (address)",
   "function canonicalToRepresentation(bytes32) view returns (address)",
   "function canonicalToRepresentation(tuple(uint32,bytes32)) view returns (address)",
+  "function getCustodiedAmount(bytes32) view returns (uint256)",
   "function getLocalAndAdoptedToken(bytes32,uint32) view returns (address, address)",
   "function getTokenId(address) view returns (tuple(uint32,bytes32))",
   "function removeAssetId(tuple(uint32,bytes32),address,address)",
