@@ -204,8 +204,8 @@ describe("NxtpSdkPool", () => {
 
     it("happy: should work", async () => {
       stub(nxtpPool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.canonicalId]);
-      stub(nxtpPool, "canonicalToRepresentation").resolves("1");
-      stub(nxtpPool, "canonicalToAdopted").resolves("2");
+      stub(nxtpPool, "getRepresentation").resolves("1");
+      stub(nxtpPool, "getAdopted").resolves("2");
       stub(nxtpPool, "getLPTokenAddress").resolves(mockParams.lpTokenAddress);
 
       const provider = providers.getDefaultProvider();
