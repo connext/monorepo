@@ -136,6 +136,7 @@
   "function delay() view returns (uint256)",
   "function owner() view returns (address)",
   "function pause()",
+  "function paused() view returns (bool)",
   "function proposeNewOwner(address)",
   "function proposeRouterAllowlistRemoval()",
   "function proposed() view returns (address)",
