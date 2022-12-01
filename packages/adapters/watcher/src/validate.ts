@@ -1,7 +1,9 @@
 import { BigNumber } from "ethers";
 
 /**
- * Validate whether an asset is violating the invariant statement.
+ * @notice Validate whether an asset is violating the invariant statement (summing error).
+ * @dev Should compare totalMintedAssets and totalLockedAssets according to the invariant statement. If
+ * the invariant is violated, should return a value to indicate that the caller/consumer should escalate.
  *
  * @param args.totalMintedAssets - The total amount of minted bridge assets across all chain for a given
  * xchain asset.
