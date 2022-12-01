@@ -9,7 +9,10 @@ import {
   RelayerProxy as TRelayerProxy,
   RelayerProxyHub as TRelayerProxyHub,
   RootManager as TRootManager,
+  WatcherManager as TWatcherManager,
 } from "@connext/nxtp-contracts";
+
+import WatcherManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/WatcherManager.sol/WatcherManager.json";
 import RootManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/RootManager.sol/RootManager.json";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-abi/HardhatDiamondABI.sol/Connext.json";
@@ -107,6 +110,15 @@ export const getDeployedHubConnecterContract = (
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
+export const getDeployedWatcherManagerContract = (
+  chainId: number,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  const contract = record[0]?.contracts ? record[0]?.contracts[`WatcherManager${postfix}`] : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
 /**
  * A number[] list of all chain IDs on which a Connext Price Oracle Contracts
  * have been deployed.
@@ -193,6 +205,11 @@ export type RootManagerPropagateWrapperGetter = (
   postfix?: ContractPostfix,
 ) => { address: string; abi: any } | undefined;
 
+export type WatcherManagerDeploymentGetter = (
+  chainId: number,
+  postfix?: ContractPostfix,
+) => { address: string; abi: any } | undefined;
+
 export type ConnextContractDeployments = {
   connext: ConnextContractDeploymentGetter;
   relayerProxy: ConnextContractDeploymentGetter;
@@ -200,6 +217,7 @@ export type ConnextContractDeployments = {
   stableSwap: ConnextContractDeploymentGetter;
   spokeConnector: SpokeConnectorDeploymentGetter;
   hubConnector: HubConnectorDeploymentGetter;
+  watcherManager: WatcherManagerDeploymentGetter;
 };
 
 export const contractDeployments: ConnextContractDeployments = {
@@ -209,6 +227,7 @@ export const contractDeployments: ConnextContractDeployments = {
   stableSwap: getDeployedStableSwapContract,
   spokeConnector: getDeployedSpokeConnecterContract,
   hubConnector: getDeployedHubConnecterContract,
+  watcherManager: getDeployedWatcherManagerContract,
 };
 
 /// MARK - CONTRACT INTERFACES
@@ -239,6 +258,9 @@ export const getSpokeConnectorInterface = () =>
 
 export const getRootManagerInterface = () => new utils.Interface(RootManagerArtifact.abi) as TRootManager["interface"];
 
+export const getWatcherManagerInterface = () =>
+  new utils.Interface(WatcherManagerArtifact.abi) as TWatcherManager["interface"];
+
 export type ConnextContractInterfaces = {
   erc20: TIERC20Minimal["interface"];
   connext: TConnext["interface"];
@@ -246,6 +268,7 @@ export type ConnextContractInterfaces = {
   stableSwap: TStableSwap["interface"];
   spokeConnector: TSpokeConnector["interface"];
   rootManager: TRootManager["interface"];
+  watcherManager: TWatcherManager["interface"];
   relayerProxy: TRelayerProxy["interface"];
   relayerProxyHub: TRelayerProxyHub["interface"];
 };
@@ -257,6 +280,7 @@ export const getContractInterfaces = (): ConnextContractInterfaces => ({
   stableSwap: getStableSwapInterface(),
   spokeConnector: getSpokeConnectorInterface(),
   rootManager: getRootManagerInterface(),
+  watcherManager: getWatcherManagerInterface(),
   relayerProxy: getRelayerProxyInterface(),
   relayerProxyHub: getRelayerProxyHubInterface(),
 });
