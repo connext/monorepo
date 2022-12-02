@@ -369,7 +369,7 @@ jobs:
       - name: Build, tag, and push docker image to Amazon ECR Public
 
         run: |
-          docker build -f docker/lighthouse/Dockerfile.lambda -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t ghcr.io/connext/lighthouse:$IMAGE_TAG .
+          DOCKER_BUILDKIT=1 docker build -f docker/lighthouse/Dockerfile.lambda -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t ghcr.io/connext/lighthouse:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           docker push ghcr.io/connext/lighthouse:$IMAGE_TAG
 
