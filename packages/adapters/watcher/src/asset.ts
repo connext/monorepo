@@ -1,93 +1,129 @@
 import { domainToChainId } from "@connext/nxtp-contracts";
 import { getDeployedConnextContract, getErc20Interface } from "@connext/nxtp-txservice";
-import { getCanonicalHash } from "@connext/nxtp-utils";
+import { getCanonicalHash, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, utils } from "ethers";
 
-import { CallContext } from "./types";
+import { Verifier, VerifierContext } from "./types";
 
-export const totalMintedAssets = async (
-  context: CallContext,
-  assetKey: string,
-  domains: string[],
-): Promise<BigNumber> => {
-  // const canonicalToRepresentationCalldata = getConnextInterface().encodeFunctionData("canonicalToRepresentation", [assetKey]);
-  const erc20 = getErc20Interface();
+export type AssetInfo = {
+  canonicalId: string;
+  canonicalDomain: string;
+  address: string; // TODO: Remove this arg and parse out the address from canonical ID?
+};
 
-  // Loop through all domains, adding up the minted amount for the asset on each one.
-  let totalMintedAmount = BigNumber.from(0);
-  for (const domain of domains) {
-    const chainId = domainToChainId(+domain);
-    const connext = getDeployedConnextContract(chainId, context.isStaging ? "Staging" : "");
+export class AssetVerifier extends Verifier {
+  constructor(context: VerifierContext, public readonly assets: AssetInfo[]) {
+    super(context);
+  }
+
+  /**
+   * @notice Validate whether the watched asset(s) are violating the invariant statement (summing error).
+   * @dev Should compare totalMintedAssets and totalLockedAssets according to the invariant statement. If
+   * the invariant is violated, should return a value to indicate that the caller/consumer should escalate.
+   *
+   * @returns boolean - Whether the invariant was verified. `true` if ALL were verified (no pause needed).
+   * `false` if the invariant was violated (pause is needed) for ANY assets!
+   */
+  public override async checkInvariant(_requestContext: RequestContext): Promise<boolean> {
+    for (const asset of this.assets) {
+      const totalMinted = await this.totalMintedAssets(asset);
+      const totalLocked = await this.totalLockedAssets(asset);
+      // Invariant: totalMintedAssets <= totalLockedAssets
+      if (totalMinted.gt(totalLocked)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * @notice Get the total amount of minted bridge assets across all chain for a given xchain asset.
+   * @param asset - AssetInfo for the target asset.
+   * @returns BigNumber representing the total number of representative assets minted.
+   */
+  public async totalMintedAssets(asset: AssetInfo): Promise<BigNumber> {
+    // TODO: Why does this not work? :(
+    // const canonicalToRepresentationCalldata = getConnextInterface().encodeFunctionData("canonicalToRepresentation", [assetKey]);
+    const erc20 = getErc20Interface();
+    const assetKey = getCanonicalHash(asset.canonicalDomain, asset.canonicalId);
+
+    // Loop through all domains, adding up the minted amount for the asset on each one.
+    let totalMintedAmount = BigNumber.from(0);
+    for (const domain of this.context.domains) {
+      const chainId = domainToChainId(+domain);
+      const connext = getDeployedConnextContract(chainId, this.context.isStaging ? "Staging" : "");
+      if (!connext) {
+        // TODO: Custom errors for package
+        throw new Error("Connext deployment not found!");
+      }
+
+      // 1. Get the representation asset address on each domain using the canonical key.
+      const canonicalToRepresentationCalldata = new utils.Interface(connext.abi as string[]).encodeFunctionData(
+        "canonicalToRepresentation",
+        [assetKey],
+      );
+      const representation = await this.context.txservice.readTx({
+        chainId,
+        to: connext.address,
+        data: canonicalToRepresentationCalldata,
+      });
+
+      // 2. Read total supply from the representation contract.
+      const totalSupplyCalldata = erc20.encodeFunctionData("totalSupply");
+      const totalSupplyRes = await this.context.txservice.readTx({
+        chainId,
+        to: representation,
+        data: totalSupplyCalldata,
+      });
+      let totalSupply;
+      try {
+        totalSupply = BigNumber.from(totalSupplyRes);
+      } catch (e: any) {
+        throw new Error(
+          "Failed to convert totalSupply response to BigNumber. " +
+            `Received: ${totalSupplyRes}; Error: ${e.toString()}`,
+        );
+      }
+
+      // 3. Add to total.
+      totalMintedAmount = totalMintedAmount.add(totalSupply);
+    }
+
+    return totalMintedAmount;
+  }
+
+  /**
+   * @notice Get the total number of locked (custodied) assets on the canonical chain for a
+   * given xchain asset.
+   * @param asset - The AssetInfo for the target asset.
+   * @returns BigNumber representing the total number of tokens locked.
+   */
+  public async totalLockedAssets(asset: AssetInfo): Promise<BigNumber> {
+    const assetKey = getCanonicalHash(asset.canonicalDomain, asset.canonicalId);
+
+    const chainId = domainToChainId(+asset.canonicalDomain);
+    const connext = getDeployedConnextContract(chainId, this.context.isStaging ? "Staging" : "");
     if (!connext) {
       // TODO: Custom errors for package
       throw new Error("Connext deployment not found!");
     }
 
-    // 1. Get the representation asset address on each domain using the canonical key.
-    const canonicalToRepresentationCalldata = new utils.Interface(connext.abi as string[]).encodeFunctionData(
-      "canonicalToRepresentation",
-      [assetKey],
-    );
-    const representation = await context.txservice.readTx({
+    // 1. Call `getCustodiedAmount` (see: TokenFacet getters), will get `custodied` value from tokenConfig.
+    const getCustodiedAmountCalldata = new utils.Interface(connext.abi as string[]).encodeFunctionData("getCustodied", [
+      assetKey,
+    ]);
+    const amountRes = await this.context.txservice.readTx({
       chainId,
       to: connext.address,
-      data: canonicalToRepresentationCalldata,
+      data: getCustodiedAmountCalldata,
     });
-
-    // 2. Read total supply from the representation contract.
-    const totalSupplyCalldata = erc20.encodeFunctionData("totalSupply");
-    const totalSupplyRes = await context.txservice.readTx({
-      chainId,
-      to: representation,
-      data: totalSupplyCalldata,
-    });
-    let totalSupply;
     try {
-      totalSupply = BigNumber.from(totalSupplyRes);
+      return BigNumber.from(amountRes);
     } catch (e: any) {
       throw new Error(
-        "Failed to convert totalSupply response to BigNumber. " + `Received: ${totalSupplyRes}; Error: ${e.toString()}`,
+        "Failed to convert getCustodiedAmount response to BigNumber. " +
+          `Received: ${amountRes}; Error: ${e.toString()}`,
       );
     }
-
-    // 3. Add to total.
-    totalMintedAmount = totalMintedAmount.add(totalSupply);
   }
-
-  return totalMintedAmount;
-};
-
-export const totalLockedAssets = async (
-  context: CallContext,
-  asset: {
-    canonicalId: string;
-    canonicalDomain: string;
-    address: string; // TODO: Remove this arg and parse out the address from canonical ID in method.
-  },
-): Promise<BigNumber> => {
-  const chainId = domainToChainId(+asset.canonicalDomain);
-  const connext = getDeployedConnextContract(chainId, context.isStaging ? "Staging" : "");
-  if (!connext) {
-    // TODO: Custom errors for package
-    throw new Error("Connext deployment not found!");
-  }
-
-  const assetKey = getCanonicalHash(asset.canonicalDomain, asset.canonicalId);
-
-  // 1. Call `getCustodiedAmount` (see: TokenFacet getters), will get `custodied` value from tokenConfig.
-  const getCustodiedAmountCalldata = new utils.Interface(connext.abi as string[]).encodeFunctionData("getCustodied", [
-    assetKey,
-  ]);
-  const amountRes = await context.txservice.readTx({
-    chainId,
-    to: connext.address,
-    data: getCustodiedAmountCalldata,
-  });
-  try {
-    return BigNumber.from(amountRes);
-  } catch (e: any) {
-    throw new Error(
-      "Failed to convert getCustodiedAmount response to BigNumber. " + `Received: ${amountRes}; Error: ${e.toString()}`,
-    );
-  }
-};
+}
