@@ -12,6 +12,7 @@ import {IArbitrumRollup, Node} from "../../interfaces/ambs/arbitrum/IArbitrumRol
 
 import {HubConnector} from "../HubConnector.sol";
 import {Connector} from "../Connector.sol";
+import {BaseArbitrum} from "./BaseArbitrum.sol";
 
 struct L2Message {
   address l2Sender;
@@ -23,7 +24,7 @@ struct L2Message {
   bytes callData;
 }
 
-contract ArbitrumHubConnector is HubConnector {
+contract ArbitrumHubConnector is HubConnector, BaseArbitrum {
   // ============ Libraries ============
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
@@ -101,7 +102,7 @@ contract ArbitrumHubConnector is HubConnector {
     uint256 _maxSubmissionCostCap,
     uint256 _maxGasCap,
     uint256 _gasPriceCap
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) {
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) BaseArbitrum(_mirrorConnector) {
     outbox = IArbitrumOutbox(_outbox);
     rollup = IArbitrumRollup(outbox.rollup());
 
@@ -182,6 +183,15 @@ contract ArbitrumHubConnector is HubConnector {
       _calldata // data
     );
     emit RetryableTicketCreated(ticketID);
+  }
+
+  /**
+   * @notice Processes a message received by an AMB
+   * @dev This is called by AMBs to process messages originating from mirror connector
+   */
+  function processMessage(bytes memory _data) external override onlyAliased {
+    _processMessage(_data);
+    emit MessageProcessed(_data, msg.sender);
   }
 
   // DO NOT override _processMessage, should revert from `Connector` class. All messages must use the
