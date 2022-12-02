@@ -87,6 +87,29 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         // },
       },
     },
+    {
+      name: "kLP",
+      canonical: {
+        domain: "1735353714",
+        address: "0xb4A7137B024d4C0531b0164fCb6E8fc20e6777Ae",
+        decimals: 18,
+      },
+      representations: {
+        "1735356532": {
+          local: "0xA437aC90d360c7645f25f30ddE201a94fe137Af5",
+          adopted: "0xA437aC90d360c7645f25f30ddE201a94fe137Af5",
+        },
+        "9991": {
+          local: "0xCE6a21d1110876cF0C72061a24cC7d9EAB7265c9",
+          adopted: "0xCE6a21d1110876cF0C72061a24cC7d9EAB7265c9",
+        },
+        // TODO: once testnet prod contracts are deployed for chapel
+        // "1667785072": {
+        //   local: "",
+        //   adopted: "",
+        // },
+      },
+    },
   ],
   agents: {
     watchers: {
