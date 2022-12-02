@@ -2085,6 +2085,7 @@ __metadata:
   dependencies:
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
+    "@pagerduty/pdjs": ^2.2.4
     "@types/mocha": 10.0.0
     eslint: 8.26.0
     ethers: 5.7.2
@@ -6028,6 +6029,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@pagerduty/pdjs@npm:^2.2.4":
+  version: 2.2.4
+  resolution: "@pagerduty/pdjs@npm:2.2.4"
+  dependencies:
+    browser-or-node: ^2.0.0
+    cross-fetch: ^3.0.6
+  checksum: d96843d370a71908e03aa047eebcc25940eec3171f24424b953bfa83e6775f313c9886d0fa9f61b180971cc1362546c3cd6f7047794e458bba2511806c8ae80d
+  languageName: node
+  linkType: hard
+
 "@peculiar/asn1-schema@npm:^2.1.6, @peculiar/asn1-schema@npm:^2.3.0":
   version: 2.3.0
   resolution: "@peculiar/asn1-schema@npm:2.3.0"
@@ -9748,6 +9759,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"browser-or-node@npm:^2.0.0":
+  version: 2.1.1
+  resolution: "browser-or-node@npm:2.1.1"
+  checksum: b1650b579345574d2c1905c73d385915a032523066ef9589036cf129b23b27b85096b6713476dffb88feb83cda798ed0774363e699117aa2724a0409adea25aa
+  languageName: node
+  linkType: hard
+
 "browser-stdout@npm:1.3.1":
   version: 1.3.1
   resolution: "browser-stdout@npm:1.3.1"
@@ -11339,7 +11357,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-fetch@npm:^3.1.4, cross-fetch@npm:^3.1.5":
+"cross-fetch@npm:^3.0.6, cross-fetch@npm:^3.1.4, cross-fetch@npm:^3.1.5":
   version: 3.1.5
   resolution: "cross-fetch@npm:3.1.5"
   dependencies:
