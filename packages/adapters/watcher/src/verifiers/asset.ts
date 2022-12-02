@@ -3,7 +3,7 @@ import { getDeployedConnextContract, getErc20Interface } from "@connext/nxtp-txs
 import { getCanonicalHash, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, utils } from "ethers";
 
-import { Verifier, VerifierContext } from "./types";
+import { Verifier, VerifierContext } from "../types";
 
 export type AssetInfo = {
   canonicalId: string;
