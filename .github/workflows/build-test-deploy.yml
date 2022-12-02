@@ -6,7 +6,6 @@ on:
       - main
       - staging
       - prod
-      - feat/lh-as-lambda
   pull_request:
   create:
     tag:
@@ -474,9 +473,7 @@ jobs:
         build-and-push-sequencer-publisher-image,
         build-and-push-sequencer-subscriber-image,
         build-and-push-cartographer-image,
-        build-and-push-lighthouse-prover-image,
-        build-and-push-lighthouse-process-from-root-image,
-        build-and-push-lighthouse-propagate-image,
+        build-and-push-lighthouse-image,
         build-and-push-relayer-image,
       ]
     env:
