@@ -323,11 +323,19 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build, tag, and push docker image to Amazon ECR Public
 
         run: |
-          docker build -f docker/cartographer/Dockerfile.lambda -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker build -f docker/cartographer/Dockerfile.lambda -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t ghcr.io/connext/cartographer:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker push ghcr.io/connext/cartographer:$IMAGE_TAG
 
   build-and-push-lighthouse-propagate-image:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
@@ -518,6 +526,7 @@ jobs:
       ROUTER_EXECUTOR_IMAGE: ${{fromJSON(needs.build-and-push-router-executor-image.outputs.json).tags[0]}}
       SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
+      CARTOGRAPHER_IMAGE: ghcr.io/connext/cartographer:{{ github.sha }}
       LIGHTHOUSE_PROVER_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-prover-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROCESS_FROM_ROOT_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-process-from-root-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROPAGATE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-propagate-image.outputs.json).tags[0]}}
