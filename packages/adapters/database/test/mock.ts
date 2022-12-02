@@ -25,6 +25,7 @@ export const mockDatabase = (): Database => {
     getMessageRootFromIndex: stub().resolves(),
     getMessageRootCount: stub().resolves(),
     getLatestMessageRoot: stub().resolves(),
+    getLatestAggregateRoot: stub().resolves(),
     getSpokeNode: stub().resolves(),
     getSpokeNodes: stub().resolves([]),
     getHubNode: stub().resolves(),
@@ -33,5 +34,6 @@ export const mockDatabase = (): Database => {
     putRoot: stub().resolves(),
     saveAggregatedRoots: stub().resolves(),
     savePropagatedRoots: stub().resolves(),
+    saveReceivedAggregateRoot: stub().resolves(),
   };
 };
