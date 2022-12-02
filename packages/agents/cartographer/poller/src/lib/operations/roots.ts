@@ -80,7 +80,7 @@ export const updateReceivedAggregateRoots = async () => {
   const { requestContext, methodContext } = createLoggingContext(updateReceivedAggregateRoots.name);
 
   for (const domain of domains) {
-    const offset = await database.getCheckPoint("received_aggregate_root" + domain);
+    const offset = await database.getCheckPoint("received_aggregate_root_" + domain);
     const limit = 100;
     logger.debug("Retrieving received aggregate root", requestContext, methodContext, {
       domain: domain,
@@ -97,7 +97,7 @@ export const updateReceivedAggregateRoots = async () => {
     await database.saveReceivedAggregateRoot(receivedRoots);
 
     if (receivedRoots.length > 0 && newOffset > offset) {
-      await database.saveCheckPoint("received_aggregate_root" + domain, newOffset);
+      await database.saveCheckPoint("received_aggregate_root_" + domain, newOffset);
     }
 
     logger.debug("Saved received roots", requestContext, methodContext, { domain: domain, offset: newOffset });
