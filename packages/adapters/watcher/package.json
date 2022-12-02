@@ -28,7 +28,8 @@
     "@connext/nxtp-utils": "workspace:*",
     "@pagerduty/pdjs": "^2.2.4",
     "ethers": "5.7.2",
-    "interval-promise": "1.4.0"
+    "interval-promise": "1.4.0",
+    "twilio": "^3.83.4"
   },
   "devDependencies": {
     "@types/mocha": "10.0.0",
