@@ -16,6 +16,7 @@
 
 ```json
 {
+  "service": "< transfers | roots | messages | routers >",
   "logLevel": "debug",
   "environment": "staging",
   "database": {
@@ -33,8 +34,13 @@
 - Run poller:
 
 ```sh
-yarn workspace @connext/cartographer-poller start:all
+yarn workspace @connext/cartographer-poller start
 ```
+
+If you'd like to run a different poller, you can specify which one you'd
+like to run by setting the `SERVICE` env var, e.g.L
+
+SERVICE=transfers yarn workspace @connext/cartographer-poller start
 
 # Updating DB Schema
 

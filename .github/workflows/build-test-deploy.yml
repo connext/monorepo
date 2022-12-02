@@ -300,11 +300,48 @@ jobs:
     outputs:
       json: ${{ steps.meta.outputs.json }}
 
-  build-and-push-cartographer-routers-image:
+  build-and-push-cartographer-image:
+    # if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: 679752396206.dkr.ecr.us-east-1.amazonaws.com
+      IMAGE_TAG: ${{ github.sha }}
+      REPOSITORY: nxtp-cartographer
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build, tag, and push docker image to Amazon ECR Public
+
+        run: |
+          docker build -f docker/cartographer/Dockerfile.lambda -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t ghcr.io/connext/cartographer:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker push ghcr.io/connext/cartographer:$IMAGE_TAG
+
+  build-and-push-lighthouse-propagate-image:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME: connext/cartographer-routers
+      IMAGE_NAME: connext/lighthouse-propagate
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -337,133 +374,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          file: docker/cartographer/routers/Dockerfile
-
-    outputs:
-      json: ${{ steps.meta.outputs.json }}
-
-  build-and-push-cartographer-transfers-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
-    env:
-      REGISTRY: ghcr.io
-      IMAGE_NAME: connext/cartographer-transfers
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,format=short
-            type=semver,pattern={{raw}}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          file: docker/cartographer/transfers/Dockerfile
-
-    outputs:
-      json: ${{ steps.meta.outputs.json }}
-
-  build-and-push-cartographer-messages-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
-    env:
-      REGISTRY: ghcr.io
-      IMAGE_NAME: connext/cartographer-messages
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,format=short
-            type=semver,pattern={{raw}}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          file: docker/cartographer/messages/Dockerfile
-
-    outputs:
-      json: ${{ steps.meta.outputs.json }}
-
-  build-and-push-cartographer-roots-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
-    env:
-      REGISTRY: ghcr.io
-      IMAGE_NAME: connext/cartographer-roots
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,format=short
-            type=semver,pattern={{raw}}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          file: docker/cartographer/roots/Dockerfile
+          file: docker/lighthouse/propagate/Dockerfile
 
     outputs:
       json: ${{ steps.meta.outputs.json }}
@@ -552,48 +463,6 @@ jobs:
     outputs:
       json: ${{ steps.meta.outputs.json }}
 
-  build-and-push-lighthouse-propagate-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
-    env:
-      REGISTRY: ghcr.io
-      IMAGE_NAME: connext/lighthouse-propagate
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,format=short
-            type=semver,pattern={{raw}}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          file: docker/lighthouse/propagate/Dockerfile
-
-    outputs:
-      json: ${{ steps.meta.outputs.json }}
-
   build-and-push-relayer-image:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     env:
@@ -645,10 +514,7 @@ jobs:
         build-and-push-router-executor-image,
         build-and-push-sequencer-publisher-image,
         build-and-push-sequencer-subscriber-image,
-        build-and-push-cartographer-routers-image,
-        build-and-push-cartographer-transfers-image,
-        build-and-push-cartographer-messages-image,
-        build-and-push-cartographer-roots-image,
+        build-and-push-cartographer-image,
         build-and-push-lighthouse-prover-image,
         build-and-push-lighthouse-process-from-root-image,
         build-and-push-lighthouse-propagate-image,
@@ -660,10 +526,7 @@ jobs:
       ROUTER_EXECUTOR_IMAGE: ${{fromJSON(needs.build-and-push-router-executor-image.outputs.json).tags[0]}}
       SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
-      CARTOGRAPHER_TRANSFERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-transfers-image.outputs.json).tags[0]}}
-      CARTOGRAPHER_ROUTERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-routers-image.outputs.json).tags[0]}}
-      CARTOGRAPHER_MESSAGES_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-messages-image.outputs.json).tags[0]}}
-      CARTOGRAPHER_ROOTS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-roots-image.outputs.json).tags[0]}}
+      CARTOGRAPHER_IMAGE: ghcr.io/connext/cartographer:{{ github.sha }}
       LIGHTHOUSE_PROVER_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-prover-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROCESS_FROM_ROOT_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-process-from-root-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROPAGATE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-propagate-image.outputs.json).tags[0]}}
@@ -690,10 +553,6 @@ jobs:
       router-executor-tags: ${{ needs.build-and-push-router-executor-image.outputs.json }}
       sequencer-publisher-tags: ${{ needs.build-and-push-sequencer-publisher-image.outputs.json }}
       sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
-      cartographer-routers-tags: ${{ needs.build-and-push-cartographer-routers-image.outputs.json }}
-      cartographer-transfers-tags: ${{ needs.build-and-push-cartographer-transfers-image.outputs.json }}
-      cartographer-messages-tags: ${{ needs.build-and-push-cartographer-messages-image.outputs.json }}
-      cartographer-roots-tags: ${{ needs.build-and-push-cartographer-roots-image.outputs.json }}
       lighthouse-prover-tags: ${{ needs.build-and-push-lighthouse-prover-image.outputs.json }}
       lighthouse-process-from-root-tags: ${{ needs.build-and-push-lighthouse-process-from-root-image.outputs.json }}
       lighthouse-propagate-tags: ${{ needs.build-and-push-lighthouse-propagate-image.outputs.json }}
@@ -710,10 +569,7 @@ jobs:
         build-and-push-router-executor-image,
         build-and-push-sequencer-publisher-image,
         build-and-push-sequencer-subscriber-image,
-        build-and-push-cartographer-routers-image,
-        build-and-push-cartographer-transfers-image,
-        build-and-push-cartographer-messages-image,
-        build-and-push-cartographer-roots-image,
+        build-and-push-cartographer-image,
         build-and-push-lighthouse-prover-image,
         build-and-push-lighthouse-process-from-root-image,
         build-and-push-lighthouse-propagate-image,
@@ -725,10 +581,6 @@ jobs:
       ROUTER_EXECUTOR_IMAGE: ${{ fromJSON(needs.build-and-push-router-executor-image.outputs.json).tags[0] }}
       SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
-      CARTOGRAPHER_TRANSFERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-transfers-image.outputs.json).tags[0]}}
-      CARTOGRAPHER_ROUTERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-routers-image.outputs.json).tags[0]}}
-      CARTOGRAPHER_MESSAGES_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-messages-image.outputs.json).tags[0]}}
-      CARTOGRAPHER_ROOTS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-roots-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROVER_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-prover-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROCESS_FROM_ROOT_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-process-from-root-image.outputs.json).tags[0]}}
       LIGHTHOUSE_PROPAGATE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-propagate-image.outputs.json).tags[0]}}
@@ -764,10 +616,6 @@ jobs:
       router-executor-tags: ${{ needs.build-and-push-router-executor-image.outputs.json }}
       sequencer-publisher-tags: ${{ needs.build-and-push-sequencer-publisher-image.outputs.json }}
       sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
-      cartographer-routers-tags: ${{ needs.build-and-push-cartographer-routers-image.outputs.json }}
-      cartographer-transfers-tags: ${{ needs.build-and-push-cartographer-transfers-image.outputs.json }}
-      cartographer-messages-tags: ${{ needs.build-and-push-cartographer-messages-image.outputs.json }}
-      cartographer-roots-tags: ${{ needs.build-and-push-cartographer-roots-image.outputs.json }}
       lighthouse-prover-tags: ${{ needs.build-and-push-lighthouse-prover-image.outputs.json }}
       lighthouse-process-from-root-tags: ${{ needs.build-and-push-lighthouse-process-from-root-image.outputs.json }}
       lighthouse-propagate-tags: ${{ needs.build-and-push-lighthouse-propagate-image.outputs.json }}
@@ -815,10 +663,7 @@ jobs:
     needs: [smoke-tests, terraform-infra]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_cartographer_routers: ${{ fromJSON(needs.smoke-tests.outputs.cartographer-routers-tags).tags[0] }}
-      TF_VAR_full_image_name_cartographer_transfers: ${{ fromJSON(needs.smoke-tests.outputs.cartographer-transfers-tags).tags[0] }}
-      TF_VAR_full_image_name_cartographer_messages: ${{ fromJSON(needs.smoke-tests.outputs.cartographer-messages-tags).tags[0] }}
-      TF_VAR_full_image_name_cartographer_roots: ${{ fromJSON(needs.smoke-tests.outputs.cartographer-roots-tags).tags[0] }}
+      TF_VAR_cartographer_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -869,12 +714,6 @@ jobs:
         working-directory: ./ops/testnet/staging/backend
         run: |
           terraform apply -var-file=tfvars.json -auto-approve
-
-    outputs:
-      cartographer-routers-tags: ${{ needs.smoke-tests.outputs.cartographer-routers-tags }}
-      cartographer-transfers-tags: ${{ needs.smoke-tests.outputs.cartographer-transfers-tags }}
-      cartographer-messages-tags: ${{ needs.smoke-tests.outputs.cartographer-messages-tags }}
-      cartographer-roots-tags: ${{ needs.smoke-tests.outputs.cartographer-roots-tags }}
 
   terraform-services-core-staging-testnet:
     needs: [smoke-tests, terraform-infra]
@@ -1030,10 +869,7 @@ jobs:
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_cartographer_routers: ${{ fromJSON(needs.e2e-tests.outputs.cartographer-routers-tags).tags[0] }}
-      TF_VAR_full_image_name_cartographer_transfers: ${{ fromJSON(needs.e2e-tests.outputs.cartographer-transfers-tags).tags[0] }}
-      TF_VAR_full_image_name_cartographer_messages: ${{ fromJSON(needs.e2e-tests.outputs.cartographer-messages-tags).tags[0] }}
-      TF_VAR_full_image_name_cartographer_roots: ${{ fromJSON(needs.e2e-tests.outputs.cartographer-roots-tags).tags[0] }}
+      TF_VAR_cartographer_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -1093,10 +929,6 @@ jobs:
       lighthouse-prover-tags: ${{ needs.e2e-tests.outputs.lighthouse-prover-tags }}
       lighthouse-process-from-root-tags: ${{ needs.e2e-tests.outputs.lighthouse-process-from-root-tags }}
       lighthouse-propagate-tags: ${{ needs.e2e-tests.outputs.lighthouse-propagate-tags }}
-      cartographer-routers-tags: ${{ needs.e2e-tests.outputs.cartographer-routers-tags }}
-      cartographer-transfers-tags: ${{ needs.e2e-tests.outputs.cartographer-transfers-tags }}
-      cartographer-messages-tags: ${{ needs.e2e-tests.outputs.cartographer-messages-tags }}
-      cartographer-roots-tags: ${{ needs.e2e-tests.outputs.cartographer-roots-tags }}
       relayer-tags: ${{ needs.e2e-tests.outputs.relayer-tags }}
 
   terraform-services-backend-prod-mainnet:
@@ -1104,10 +936,7 @@ jobs:
     needs: [terraform-services-core-prod-testnet, terraform-services-backend-prod-testnet]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_cartographer_routers: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.cartographer-routers-tags).tags[0] }}
-      TF_VAR_full_image_name_cartographer_transfers: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.cartographer-transfers-tags).tags[0] }}
-      TF_VAR_full_image_name_cartographer_messages: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.cartographer-messages-tags).tags[0] }}
-      TF_VAR_full_image_name_cartographer_roots: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.cartographer-roots-tags).tags[0] }}
+      TF_VAR_cartographer_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:

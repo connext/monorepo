@@ -83,100 +83,50 @@ module "postgrest" {
   container_env_vars       = local.postgrest_env_vars
   domain                   = var.domain
 }
-
-
-module "cartographer-routers-cron" {
-  source                  = "../../../modules/cron"
-  region                  = var.region
-  dd_api_key              = var.dd_api_key
-  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id              = module.ecs.ecs_cluster_id
-  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  docker_image            = var.full_image_name_cartographer_routers
-  container_family        = "cartographer_routers_cron"
-  container_port          = 8080
-  cpu                     = 1024
-  memory                  = 2048
-  instance_count          = 1
-  environment             = var.environment
-  stage                   = var.stage
-  domain                  = var.domain
-  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = concat(local.cartographer_env_vars, [{ name = "DD_SERVICE", value = "cartographer-routers-${var.environment}" }])
-  schedule_expression     = "cron(* * * * ? *)"
+module "cartographer-routers-lambda-cron" {
+  source              = "../../../modules/lambda"
+  ecr_repository_name = "nxtp-cartographer"
+  docker_image_tag    = var.cartographer_image_tag
+  container_family    = "cartographer_routers"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-routers-${var.environment}", CARTOGRAPHER_SERVICE = "routers" })
+  schedule_expression = "rate(1 minute)"
 }
 
-
-module "cartographer-transfers-cron" {
-  source                  = "../../../modules/cron"
-  region                  = var.region
-  dd_api_key              = var.dd_api_key
-  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id              = module.ecs.ecs_cluster_id
-  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  docker_image            = var.full_image_name_cartographer_transfers
-  container_family        = "cartographer_transfers_cron"
-  container_port          = 8080
-  cpu                     = 1024
-  memory                  = 2048
-  instance_count          = 1
-  environment             = var.environment
-  stage                   = var.stage
-  domain                  = var.domain
-  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = concat(local.cartographer_env_vars, [{ name = "DD_SERVICE", value = "cartographer-transfers-${var.environment}" }])
-  schedule_expression     = "cron(* * * * ? *)"
+module "cartographer-transfers-lambda-cron" {
+  source              = "../../../modules/lambda"
+  ecr_repository_name = "nxtp-cartographer"
+  docker_image_tag    = var.cartographer_image_tag
+  container_family    = "cartographer_transfers"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-transfers-${var.environment}", CARTOGRAPHER_SERVICE = "transfers" })
+  schedule_expression = "rate(1 minute)"
 }
 
-module "cartographer-messages-cron" {
-  source                  = "../../../modules/cron"
-  region                  = var.region
-  dd_api_key              = var.dd_api_key
-  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id              = module.ecs.ecs_cluster_id
-  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  docker_image            = var.full_image_name_cartographer_messages
-  container_family        = "cartographer_messages_cron"
-  container_port          = 8080
-  cpu                     = 256
-  memory                  = 512
-  instance_count          = 1
-  environment             = var.environment
-  stage                   = var.stage
-  domain                  = var.domain
-  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = concat(local.cartographer_env_vars, [{ name = "DD_SERVICE", value = "cartographer-messages-${var.environment}" }])
-  schedule_expression     = "cron(* * * * ? *)"
+module "cartographer-messages-lambda-cron" {
+  source              = "../../../modules/lambda"
+  ecr_repository_name = "nxtp-cartographer"
+  docker_image_tag    = var.cartographer_image_tag
+  container_family    = "cartographer_messages"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-messages-${var.environment}", CARTOGRAPHER_SERVICE = "messages" })
+  schedule_expression = "rate(1 minute)"
 }
 
-module "cartographer-roots-cron" {
-  source                  = "../../../modules/cron"
-  region                  = var.region
-  dd_api_key              = var.dd_api_key
-  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id              = module.ecs.ecs_cluster_id
-  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  docker_image            = var.full_image_name_cartographer_roots
-  container_family        = "cartographer_roots_cron"
-  container_port          = 8080
-  cpu                     = 256
-  memory                  = 512
-  instance_count          = 1
-  environment             = var.environment
-  stage                   = var.stage
-  domain                  = var.domain
-  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = concat(local.cartographer_env_vars, [{ name = "DD_SERVICE", value = "cartographer-roots-${var.environment}" }])
-  schedule_expression     = "cron(* * * * ? *)"
+module "cartographer-roots-lambda-cron" {
+  source              = "../../../modules/lambda"
+  ecr_repository_name = "nxtp-cartographer"
+  docker_image_tag    = var.cartographer_image_tag
+  container_family    = "cartographer_roots"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-roots-${var.environment}", CARTOGRAPHER_SERVICE = "roots" })
+  schedule_expression = "rate(1 minute)"
 }
+
 
 module "network" {
   source      = "../../../modules/networking"
