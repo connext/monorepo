@@ -26,6 +26,12 @@ import { sendWithRelayerWithBackup, getEstimatedFee } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper } from "../adapters";
 import { getContext } from "../prover";
 
+export type ProofStruct = {
+  message: string;
+  path: string[];
+  index: number;
+};
+
 export const proveAndProcess = async () => {
   const { requestContext, methodContext } = createLoggingContext(proveAndProcess.name);
   const {
@@ -153,9 +159,9 @@ export const processMessages = async (
   const hubSMT = new SparseMerkleTree(hubStore);
 
   // process messages
-  const messageProofs: any[] = [];
+  const messageProofs: ProofStruct[] = [];
   for (const message of messages) {
-    const messageProof = {
+    const messageProof: ProofStruct = {
       message: message.origin.message,
       path: await spokeSMT.getProof(message.origin.index),
       index: message.origin.index,
