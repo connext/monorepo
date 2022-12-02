@@ -64,6 +64,29 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "KP3R",
+      canonical: {
+        domain: "1735353714",
+        address: "0x16F63C5036d3F48A239358656a8f123eCE85789C",
+        decimals: 18,
+      },
+      representations: {
+        "1735356532": {
+          local: "0x3Db593146464816F10d4eBA4743C76A5A4D08425",
+          adopted: "0x3Db593146464816F10d4eBA4743C76A5A4D08425",
+        },
+        "9991": {
+          local: "0xEa6943C4f6467C4E5faC8f5824C515abdeA1af3B",
+          adopted: "0xEa6943C4f6467C4E5faC8f5824C515abdeA1af3B",
+        },
+        // TODO: once testnet prod contracts are deployed for chapel
+        // "1667785072": {
+        //   local: "",
+        //   adopted: "",
+        // },
+      },
+    },
   ],
   agents: {
     watchers: {
