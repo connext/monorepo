@@ -425,7 +425,7 @@ jobs:
         build-and-push-sequencer-publisher-image,
         build-and-push-sequencer-subscriber-image,
         build-and-push-cartographer-image,
-        build-and-push-lighthouse,
+        build-and-push-lighthouse-image,
         build-and-push-relayer-image,
       ]
     env:
