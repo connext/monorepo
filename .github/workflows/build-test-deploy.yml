@@ -6,6 +6,7 @@ on:
       - main
       - staging
       - prod
+      - feat/lh-as-lambda
   pull_request:
   create:
     tag:
@@ -331,7 +332,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build, tag, and push docker image to Amazon ECR Public
-
         run: |
           docker build -f docker/cartographer/Dockerfile.lambda -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t ghcr.io/connext/cartographer:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
