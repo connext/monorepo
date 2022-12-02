@@ -33,13 +33,10 @@ export const pause = async (context: CallContext, reason: string, domains: strin
       const pauseCalldata = connextInterface.encodeFunctionData("pause", []);
 
       try {
-        const receipt = await context.txservice.sendTx(
+        await context.txservice.sendTx(
           { to: connext.address, data: pauseCalldata, value: constants.Zero, chainId },
           requestContext,
         );
-
-        if (!receipt) {
-        }
       } catch (error: unknown) {
         logger.debug(`Sending Pause Tx Get Error`, requestContext, methodContext, jsonifyError(error as Error));
       }
