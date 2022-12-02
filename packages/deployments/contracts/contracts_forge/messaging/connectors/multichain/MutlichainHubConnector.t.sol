@@ -142,16 +142,12 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
-    // Check: correct event?
-    vm.expectEmit(false, false, false, true, _l1Connector);
-    emit MessageProcessed(_dataCorrectSize, _amb);
-
     // Check: call to root manager?
     vm.expectCall(_rootManager, abi.encodeCall(IRootManager.aggregate, (_mirrorDomain, bytes32(_data))));
 
     // multichain _amb has the same address, irrespective of underlying network
-    vm.prank(_amb);
-    MultichainHubConnector(_l1Connector).processMessage(_dataCorrectSize);
+    vm.prank(_executor);
+    MultichainHubConnector(_l1Connector).anyExecute(_dataCorrectSize);
   }
 
   // msg.sender is not the bridge on L1
@@ -186,8 +182,8 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
     vm.expectRevert(abi.encodePacked("!l2Connector"));
-    vm.prank(_amb);
-    MultichainHubConnector(_l1Connector).processMessage(_dataCorrectSize);
+    vm.prank(_executor);
+    MultichainHubConnector(_l1Connector).anyExecute(_dataCorrectSize);
   }
 
   // message coming from a wrong chain to L1
@@ -208,8 +204,8 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
     vm.expectRevert(abi.encodePacked("!l2Connector"));
-    vm.prank(_amb);
-    MultichainHubConnector(_l1Connector).processMessage(_dataCorrectSize);
+    vm.prank(_executor);
+    MultichainHubConnector(_l1Connector).anyExecute(_dataCorrectSize);
   }
 
   // message has a length > 32 bytes
@@ -224,8 +220,8 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     for (uint256 i; i < callDataLength; i++) _wrongLengthCalldata[i] = bytes1(keccak256(abi.encode(i)));
 
     vm.expectRevert(abi.encodePacked("!length"));
-    vm.prank(_amb);
-    MultichainHubConnector(_l1Connector).processMessage(_wrongLengthCalldata);
+    vm.prank(_executor);
+    MultichainHubConnector(_l1Connector).anyExecute(_wrongLengthCalldata);
   }
 
   // ============ verifySender ============
@@ -236,7 +232,7 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     vm.mockCall(_executor, abi.encodeCall(Multichain.context, ()), abi.encode(_from, _chainIdL2, 1));
 
     // multichain _amb has the same address, irrespective of underlying network
-    vm.prank(_amb);
+    vm.prank(_executor);
     assertTrue(MultichainHubConnector(_l1Connector).verifySender(_from));
   }
 
@@ -247,7 +243,7 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     vm.mockCall(_executor, abi.encodeCall(Multichain.context, ()), abi.encode(_wrongFrom, _chainIdL2, 1));
 
     // multichain _amb has the same address, irrespective of underlying network
-    vm.prank(_amb);
+    vm.prank(_executor);
     assertFalse(MultichainHubConnector(_l1Connector).verifySender(_from));
   }
 
@@ -258,19 +254,21 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     vm.mockCall(_executor, abi.encodeCall(Multichain.context, ()), abi.encode(_l2Connector, _wrongId, 1));
 
     // multichain _amb has the same address, irrespective of underlying network
-    vm.prank(_amb);
+    vm.prank(_executor);
     assertFalse(MultichainHubConnector(_l1Connector).verifySender(_from));
   }
 
-  // reverse if sender != amb
-  function test_MultichainHubConnector_verifySender_revertIfSenderIsNotAmb(address _from, address _wrongAmb) public {
-    vm.assume(_wrongAmb != _amb);
+  // reverse if sender != _executor
+  function test_MultichainHubConnector_verifySender_revertIfSenderIsNotExecutor(address _from, address _wrongExecutor)
+    public
+  {
+    vm.assume(_wrongExecutor != _executor);
 
     // Mock the call to the executor, to retrieve the context
     vm.mockCall(_executor, abi.encodeCall(Multichain.context, ()), abi.encode(_from, 1, 1));
 
-    vm.expectRevert(abi.encodePacked("!bridge"));
-    vm.prank(_wrongAmb);
+    vm.expectRevert(abi.encodePacked("!executor"));
+    vm.prank(_wrongExecutor);
     MultichainHubConnector(_l1Connector).verifySender(_from);
   }
 }

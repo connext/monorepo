@@ -64,6 +64,12 @@ module.exports = {
     "no-async-promise-executor": "off",
     quotes: ["warn", "double", { allowTemplateLiterals: true, avoidEscape: true }],
     semi: ["error", "always"],
+    "import/no-unresolved": [
+      "error",
+      {
+        ignore: ["aws-lambda"],
+      },
+    ],
     "import/order": [
       1,
       {
