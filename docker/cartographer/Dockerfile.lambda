@@ -69,23 +69,3 @@ COPY --from=public.ecr.aws/datadog/lambda-extension:latest /opt/extensions/ /opt
 
 
 CMD ["node_modules/datadog-lambda-js/dist/handler.handler"]
-
-
-
-
-# ----- Copy files required at runtime by the app -----
-
-
-# COPY docker/cartographer/roots/docker-entrypoint.sh /home/node/packages/agents/cartographer/poller/docker-entrypoint.sh
-# COPY docker/cartographer/transfers/docker-entrypoint.sh /home/node/packages/agents/cartographer/poller
-# COPY docker/cartographer/routers/docker-entrypoint.sh /home/node/packages/agents/cartographer/poller
-# COPY docker/cartographer/messages/docker-entrypoint.sh /home/node/packages/agents/cartographer/poller
-
-# RUN chmod +x /home/node/packages/agents/cartographer/poller/docker-entrypoint.sh
-
-# This user is created in the base image with uid and gid = 1000.
-
-
-# WORKDIR /home/node/packages/agents/cartographer/poller/dist
-
-# CMD ["index.handler"]
