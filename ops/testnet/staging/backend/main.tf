@@ -91,7 +91,7 @@ module "cartographer-routers-lambda-cron" {
   container_family    = "cartographer_routers"
   environment         = var.environment
   stage               = var.stage
-  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-routers-${var.environment}", SERVICE = "routers" })
+  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-routers-${var.environment}", CARTOGRAPHER_SERVICE = "routers" })
   schedule_expression = "rate(1 minute)"
 }
 
@@ -102,7 +102,7 @@ module "cartographer-transfers-lambda-cron" {
   container_family    = "cartographer_transfers"
   environment         = var.environment
   stage               = var.stage
-  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-transfers-${var.environment}", SERVICE = "transfers" })
+  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-transfers-${var.environment}", CARTOGRAPHER_SERVICE = "transfers" })
   schedule_expression = "rate(1 minute)"
 }
 
@@ -114,7 +114,7 @@ module "cartographer-messages-lambda-cron" {
   container_family    = "cartographer_messages"
   environment         = var.environment
   stage               = var.stage
-  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-messages-${var.environment}", SERVICE = "messages" })
+  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-messages-${var.environment}", CARTOGRAPHER_SERVICE = "messages" })
   schedule_expression = "rate(1 minute)"
 }
 
@@ -126,7 +126,7 @@ module "cartographer-roots-lambda-cron" {
   container_family    = "cartographer_roots"
   environment         = var.environment
   stage               = var.stage
-  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-roots-${var.environment}", SERVICE = "roots" })
+  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-roots-${var.environment}", CARTOGRAPHER_SERVICE = "roots" })
   schedule_expression = "rate(1 minute)"
 }
 
