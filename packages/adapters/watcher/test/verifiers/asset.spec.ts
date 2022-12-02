@@ -3,10 +3,10 @@ import { createRequestContext, expect, Logger, mkAddress, mkBytes32 } from "@con
 import { BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub, SinonStub } from "sinon";
 
-import { AssetInfo, AssetVerifier } from "../../src/verifiers";
-import { VerifierContext } from "../../src/types";
+import { AssetVerifier } from "../../src/verifiers";
+import { AssetInfo, VerifierContext } from "../../src/types";
 
-describe.only("Watcher Adapter: AssetVerifier", () => {
+describe("Watcher Adapter: AssetVerifier", () => {
   const canonicalDomain = "1337";
 
   let readTxResult = "test 123";

@@ -3,13 +3,7 @@ import { getDeployedConnextContract, getErc20Interface } from "@connext/nxtp-txs
 import { getCanonicalHash, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, utils } from "ethers";
 
-import { Verifier, VerifierContext } from "../types";
-
-export type AssetInfo = {
-  canonicalId: string;
-  canonicalDomain: string;
-  address: string; // TODO: Remove this arg and parse out the address from canonical ID?
-};
+import { Verifier, VerifierContext, AssetInfo } from "../types";
 
 export class AssetVerifier extends Verifier {
   constructor(context: VerifierContext, public readonly assets: AssetInfo[]) {

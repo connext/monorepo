@@ -21,6 +21,14 @@ export abstract class Verifier {
   }
 }
 
+/// MARK - General
+// Used in AssetVerifier
+export type AssetInfo = {
+  canonicalId: string;
+  canonicalDomain: string;
+  address: string; // TODO: Remove this arg and parse out the address from canonical ID?
+};
+
 /// MARK - Alerts
 
 export enum ReportEventType {
