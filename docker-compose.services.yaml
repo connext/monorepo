@@ -185,7 +185,7 @@ services:
     depends_on:
       - cartographer-database
       - cartographer-api
-    image: ${CARTOGRAPHER_TRANSFERS_IMAGE}
+    image: ${CARTOGRAPHER_IMAGE}
     restart: always
     ports:
       - "8083:8080"
@@ -206,7 +206,7 @@ services:
     depends_on:
       - cartographer-database
       - cartographer-api
-    image: ${CARTOGRAPHER_ROUTERS_IMAGE}
+    image: ${CARTOGRAPHER_IMAGE}
     restart: always
     ports:
       - "8093:8080"
