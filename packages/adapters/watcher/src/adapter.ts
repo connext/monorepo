@@ -1,7 +1,7 @@
 import { RequestContext } from "@connext/nxtp-utils";
+
 import { alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram } from "./alert";
 import { Pauser } from "./pause";
-
 import { Verifier, VerifierContext, AssetInfo, Report, ReportEventType } from "./types";
 import { AssetVerifier } from "./verifiers";
 
