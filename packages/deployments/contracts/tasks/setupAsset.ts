@@ -26,7 +26,7 @@ export default task("setup-asset", "Configures an asset")
   .addParam("decimals", "Canonical token decimals")
   .addParam("representationName", "Representation token name")
   .addParam("representationSymbol", "Representation token symbol")
-  .addParam("adopted", "Adopted token address")
+  .addOptionalParam("adopted", "Adopted token address")
   .addOptionalParam("local", "Local token address")
   .addOptionalParam("withDeployedRepresentation", "Should setup asset with deployed representation")
   .addOptionalParam("pool", "Stable swap pool for adopted <> local asset")
@@ -41,7 +41,7 @@ export default task("setup-asset", "Configures an asset")
         decimals,
         representationName,
         representationSymbol,
-        adopted,
+        adopted: _adopted,
         local,
         withDeployedRepresentation: _withDeployedRepresentation,
         pool: _pool,
@@ -59,6 +59,7 @@ export default task("setup-asset", "Configures an asset")
       const env = mustGetEnv(_env);
 
       // defaults
+      const adopted = _adopted ?? constants.AddressZero;
       const withDeployedRepresentation = _withDeployedRepresentation === "true" ? true : false;
       if (withDeployedRepresentation && !local) {
         throw "setupWithDeployedRepresentation requires local";

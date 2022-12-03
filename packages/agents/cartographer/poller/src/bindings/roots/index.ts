@@ -1,10 +1,10 @@
 import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 
-import { getContext } from "../../shared";
+import { AppContext } from "../../shared";
 import { updateAggregatedRoots, updatePropagatedRoots, updateReceivedAggregateRoots } from "../../lib/operations/roots";
 
-export const bindRoots = async () => {
-  const { logger } = getContext();
+export const bindRoots = async (context: AppContext) => {
+  const { logger } = context;
   const { requestContext, methodContext } = createLoggingContext(bindRoots.name);
   try {
     logger.debug("Bind roots polling loop start", requestContext, methodContext);

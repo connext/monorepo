@@ -1,10 +1,10 @@
 import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 
-import { getContext } from "../../shared";
-import { updateRouters } from "../../lib/operations/routers";
+import { AppContext } from "../../shared";
+import { updateRouters } from "../../lib/operations";
 
-export const bindRouters = async () => {
-  const { logger } = getContext();
+export const bindRouters = async (context: AppContext) => {
+  const { logger } = context;
   const { requestContext, methodContext } = createLoggingContext(bindRouters.name);
   try {
     logger.debug("Bind routers polling loop start", requestContext, methodContext);

@@ -84,6 +84,7 @@ export class NxtpSdkPool {
   private readonly chainReader: ChainReader;
   private readonly priceFeed: PriceFeed;
 
+  // key is "domainId-canonicalKey"
   private pools = new Map<string, Pool>();
 
   constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>, chainReader: ChainReader) {
@@ -450,7 +451,7 @@ export class NxtpSdkPool {
     return price;
   }
 
-  async canonicalToRepresentation(domainId: string, tokenAddress: string): Promise<string> {
+  async getRepresentation(domainId: string, tokenAddress: string): Promise<string> {
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
@@ -461,7 +462,7 @@ export class NxtpSdkPool {
     return representation;
   }
 
-  async canonicalToAdopted(domainId: string, tokenAddress: string): Promise<string> {
+  async getAdopted(domainId: string, tokenAddress: string): Promise<string> {
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
@@ -603,7 +604,7 @@ export class NxtpSdkPool {
   // ------------------- Pool Data ------------------- //
 
   /**
-   * Returns the StableSwap Pool for a given local asset.
+   * Returns the StableSwap Pool for a given asset.
    * @param domainId The domain id of the pool.
    * @param tokenAddress The address of local or adopted token.
    */
@@ -616,14 +617,14 @@ export class NxtpSdkPool {
 
     const key: string = getCanonicalHash(canonicalDomain, canonicalId);
 
-    let pool = this.pools.get(key);
+    let pool = this.pools.get([domainId, key].join("-"));
     if (pool) {
       return pool;
     }
 
     const [local, adopted, lpTokenAddress] = await Promise.all([
-      this.canonicalToRepresentation(domainId, tokenAddress),
-      this.canonicalToAdopted(domainId, tokenAddress),
+      this.getRepresentation(domainId, tokenAddress),
+      this.getAdopted(domainId, tokenAddress),
       this.getLPTokenAddress(domainId, tokenAddress),
     ]);
 
@@ -636,27 +637,32 @@ export class NxtpSdkPool {
       this.getERC20(domainId, adopted),
     ]);
 
-    const [adoptedDecimals, adoptedBalance, tokenSymbol, localDecimals, localBalance] = await Promise.all([
+    const [adoptedDecimals, adoptedBalance, tokenSymbol, localDecimals, localBalance, localIdx] = await Promise.all([
       adoptedErc20Contract.decimals(),
       this.getPoolTokenBalance(domainId, adopted, adopted),
       adoptedErc20Contract.symbol(),
       localErc20Contract.decimals(),
       this.getPoolTokenBalance(domainId, local, local),
+      this.getPoolTokenIndex(domainId, tokenAddress, local),
     ]);
 
-    // TODO: return pool with same index order as on-chain
+    // Use index order that appears on-chain
+    const [asset0, asset0Decimals, asset0Balance, asset1, asset1Decimals, asset1Balance] =
+      localIdx == 0
+        ? [local, localDecimals, localBalance, adopted, adoptedDecimals, adoptedBalance]
+        : [adopted, adoptedDecimals, adoptedBalance, local, localDecimals, localBalance];
 
     pool = new Pool(
       domainId,
       `${tokenSymbol}-Pool`,
       `${tokenSymbol}-next${tokenSymbol}`,
-      [adopted, local],
-      [adoptedDecimals, localDecimals],
-      [adoptedBalance, localBalance],
+      [asset0, asset1],
+      [asset0Decimals, asset1Decimals],
+      [asset0Balance, asset1Balance],
       lpTokenAddress,
       key,
     );
-    this.pools.set(key, pool);
+    this.pools.set([domainId, key].join("-"), pool);
 
     return pool;
   }
@@ -763,9 +769,9 @@ export class NxtpSdkPool {
       totalVolume = totalVolume.add(tokensSold);
     }
 
-    const reserveX = pool.balances[0];
-    const reserveY = pool.balances[1];
-    const totalLiquidity = reserveX.add(reserveY);
+    const reserve0 = pool.balances[0];
+    const reserve1 = pool.balances[1];
+    const totalLiquidity = reserve0.add(reserve1);
     const totalLiquidityFormatted = Number(utils.formatUnits(totalLiquidity, decimals));
     const totalFeesFormatted = Number(utils.formatUnits(totalFees, decimals));
     const totalVolumeFormatted = Number(utils.formatUnits(totalVolume, decimals));
