@@ -94,9 +94,8 @@ export const updateReceivedAggregateRoots = async () => {
 
     const newOffset = receivedRoots.length == 0 ? 0 : Math.max(...receivedRoots.map((root) => root.blockNumber ?? 0));
 
-    await database.saveReceivedAggregateRoot(receivedRoots);
-
     if (receivedRoots.length > 0 && newOffset > offset) {
+      await database.saveReceivedAggregateRoot(receivedRoots);
       await database.saveCheckPoint("received_aggregate_root_" + domain, newOffset);
     }
 
