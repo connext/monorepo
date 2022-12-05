@@ -3,7 +3,7 @@ import fetch from "isomorphic-fetch";
 class Coinbase {
   private readonly _baseUrl: string = "https://api.pro.coinbase.com";
 
-  getPriceByTokenSymbol = async (symbol: string, base: string = "USD"): Promise<number> => {
+  getPriceByTokenSymbol = async (symbol: string, base = "USD"): Promise<number> => {
     // pair "USDC-USD" doesn't exist so just return $1
     if (symbol === "USDC") {
       return 1;

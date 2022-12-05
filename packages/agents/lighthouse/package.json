@@ -9,9 +9,9 @@
     "src/**/*"
   ],
   "scripts": {
-    "start:prover": "node --enable-source-maps dist/tasks/prover/index.js",
-    "start:process": "node --enable-source-maps dist/tasks/processFromRoot/index.js",
-    "start:propagate": "node --enable-source-maps dist/tasks/propagate/index.js",
+    "start:prover": "LIGHTHOUSE_SERVICE=prover node --enable-source-maps dist/tasks/run.js",
+    "start:process": "LIGHTHOUSE_SERVICE=process node --enable-source-maps dist/tasks/run.js",
+    "start:propagate": "LIGHTHOUSE_SERVICE=propagate node --enable-source-maps dist/tasks/run.js",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
