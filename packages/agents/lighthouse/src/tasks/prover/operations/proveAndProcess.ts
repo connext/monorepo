@@ -4,6 +4,8 @@ import {
   NxtpError,
   XMessage,
   SparseMerkleTree,
+  RootMessage,
+  ReceivedAggregateRoot,
   NATIVE_TOKEN,
   GELATO_RELAYER_ADDRESS,
 } from "@connext/nxtp-utils";
@@ -18,59 +20,106 @@ import {
   NoMessageRootProof,
   NoMessageProof,
   NoTargetMessageRoot,
+  NoReceivedAggregateRoot,
 } from "../../../errors";
 import { sendWithRelayerWithBackup, getEstimatedFee } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper } from "../adapters";
 import { getContext } from "../prover";
+
+export type ProofStruct = {
+  message: string;
+  path: string[];
+  index: number;
+};
 
 export const proveAndProcess = async () => {
   const { requestContext, methodContext } = createLoggingContext(proveAndProcess.name);
   const {
     logger,
     adapters: { database },
+    config,
   } = getContext();
 
-  // Paginate through all unprocessed messages
-  let nextPage = true;
-  let offset = 0;
-  const pageSize = 100;
+  // Only process configured chains.
+  const domains: string[] = Object.keys(config.chains);
 
-  while (nextPage) {
-    logger.debug(`Processing page`, requestContext, methodContext, {
-      offset,
-    });
-    try {
-      const unprocessed = await database.getUnProcessedMessages(pageSize, offset);
-      logger.info("Got unprocessed messages", requestContext, methodContext, { unprocessed });
-      if (unprocessed.length > 0) {
-        // process messages
+  // Batch size of proofs to send to relayer.
+  const batchSize = 100;
+
+  // Process messages
+  // Batch messages to be processed by origin_domain and destination_domain.
+  await Promise.all(
+    domains.map(async (destinationDomain) => {
+      try {
+        const curDestAggRoot: ReceivedAggregateRoot | undefined = await database.getLatestAggregateRoot(
+          destinationDomain,
+        );
+        if (!curDestAggRoot) {
+          throw new NoReceivedAggregateRoot(destinationDomain);
+        }
+
         await Promise.all(
-          unprocessed.map(async (message) => {
-            try {
-              await processMessage(message);
-            } catch (err: unknown) {
-              logger.error("Error processing message", requestContext, methodContext, jsonifyError(err as NxtpError));
+          domains.map(async (originDomain) => {
+            const latestMessageRoot: RootMessage | undefined = await database.getLatestMessageRoot(
+              originDomain,
+              curDestAggRoot.root,
+            );
+            if (!latestMessageRoot) {
+              throw new NoTargetMessageRoot(originDomain);
+            }
+            // Paginate through all unprocessed messages from the domain
+            let offset = 0;
+            let end = false;
+            while (!end) {
+              const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
+                originDomain,
+                destinationDomain,
+                latestMessageRoot.count,
+                offset,
+                batchSize,
+              );
+              if (unprocessed.length > 0) {
+                // Batch process messages from the same origin domain
+                await processMessages(unprocessed, originDomain, destinationDomain, latestMessageRoot.root);
+                offset += unprocessed.length;
+                logger.info("Got unprocessed messages for origin and destination pair", requestContext, methodContext, {
+                  unprocessed,
+                  originDomain,
+                  destinationDomain,
+                  offset,
+                });
+              } else {
+                // End the loop if no more messages are found
+                end = true;
+                if (offset === 0) {
+                  logger.info(
+                    "Reached end of unprocessed messages for origin and destination pair",
+                    requestContext,
+                    methodContext,
+                    {
+                      originDomain,
+                      destinationDomain,
+                      offset,
+                    },
+                  );
+                }
+              }
             }
           }),
         );
-      } else {
-        nextPage = false;
-        logger.info("Reached end of unprocessed messages", requestContext, methodContext, { offset });
+      } catch (err: unknown) {
+        logger.error("Error processing messages", requestContext, methodContext, jsonifyError(err as NxtpError));
       }
-      offset += unprocessed.length;
-    } catch (error: any) {
-      nextPage = false;
-      logger.error(
-        "Error getting unprocessed messages",
-        requestContext,
-        methodContext,
-        jsonifyError(error as NxtpError),
-      );
-    }
-  }
+    }),
+  );
 };
 
-export const processMessage = async (message: XMessage) => {
+export const processMessages = async (
+  messages: XMessage[],
+  originDomain: string,
+  destinationDomain: string,
+  targetMessageRoot: string,
+) => {
   const {
     logger,
     adapters: { contracts, relayers, database, chainreader },
@@ -79,21 +128,15 @@ export const processMessage = async (message: XMessage) => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("processUnprocessedMessage");
 
-  // Find the first published outbound root that contains the index, for a given domain
-  const targetMessageRoot = await database.getMessageRootFromIndex(message.originDomain, message.origin.index);
-  if (!targetMessageRoot) {
-    throw new NoTargetMessageRoot(message.originDomain, message.origin.index);
-  }
-  // Count of leaf nodes in origin domain`s outbound tree
-  const messageRootCount = await database.getMessageRootCount(message.originDomain, targetMessageRoot);
+  // Count of leaf nodes in origin domain`s outbound tree with the targetMessageRoot as root
+  const messageRootCount = await database.getMessageRootCount(originDomain, targetMessageRoot);
   if (messageRootCount === undefined) {
-    throw new NoMessageRootCount(message.originDomain, targetMessageRoot);
+    throw new NoMessageRootCount(originDomain, targetMessageRoot);
   }
   // Index of messageRoot leaf node in aggregate tree.
-  // const messageRootIndex = await database.getMessageRootIndex(message.originDomain, targetMessageRoot);
   const messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
   if (messageRootIndex === undefined) {
-    throw new NoMessageRootIndex(message.originDomain, targetMessageRoot);
+    throw new NoMessageRootIndex(originDomain, targetMessageRoot);
   }
 
   // Get the currentAggregateRoot from on-chain state (or pending, if the validation period
@@ -109,45 +152,55 @@ export const processMessage = async (message: XMessage) => {
     throw new NoAggregateRootCount(targetAggregateRoot);
   }
   // TODO: Move to per domain storage adapters in context
-  const spokeStore = new SpokeDBHelper(message.originDomain, messageRootCount + 1, database);
+  const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
   const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
 
   const spokeSMT = new SparseMerkleTree(spokeStore);
   const hubSMT = new SparseMerkleTree(hubStore);
 
-  const messageProof = {
-    message: message.origin.message,
-    path: await spokeSMT.getProof(message.origin.index),
-    index: message.origin.index,
-  };
-  if (!messageProof.path) {
-    throw new NoMessageProof(messageProof.index, message.leaf);
+  // process messages
+  const messageProofs: ProofStruct[] = [];
+  for (const message of messages) {
+    const messageProof: ProofStruct = {
+      message: message.origin.message,
+      path: await spokeSMT.getProof(message.origin.index),
+      index: message.origin.index,
+    };
+    if (!messageProof.path) {
+      throw new NoMessageProof(messageProof.index, message.leaf);
+    }
+    // Verify proof of inclusion of message in messageRoot.
+    const messageVerification = spokeSMT.verify(
+      message.origin.index,
+      message.leaf,
+      messageProof.path,
+      targetMessageRoot,
+    );
+    if (messageVerification && messageVerification.verified) {
+      logger.info("Message Verified successfully", requestContext, methodContext, {
+        messageIndex: message.origin.index,
+        leaf: message.leaf,
+        targetMessageRoot,
+        messageVerification,
+      });
+    } else {
+      logger.info("Message verification failed", requestContext, methodContext, {
+        messageIndex: message.origin.index,
+        leaf: message.leaf,
+        targetMessageRoot,
+        messageVerification,
+      });
+      // Do not process message if proof verification fails.
+      continue;
+    }
+    messageProofs.push(messageProof);
   }
 
   // Proof path for proving inclusion of messageRoot in aggregateRoot.
   const messageRootProof = await hubSMT.getProof(messageRootIndex);
   if (!messageRootProof) {
-    throw new NoMessageRootProof(messageRootIndex, message.origin.root);
+    throw new NoMessageRootProof(messageRootIndex, targetMessageRoot);
   }
-
-  // Verify proof of inclusion of message in messageRoot.
-  const messageVerification = spokeSMT.verify(message.origin.index, message.leaf, messageProof.path, targetMessageRoot);
-  if (messageVerification && messageVerification.verified) {
-    logger.info("Message Verified successfully", requestContext, methodContext, {
-      messageIndex: message.origin.index,
-      leaf: message.leaf,
-      targetMessageRoot,
-      messageVerification,
-    });
-  } else {
-    logger.info("Message verification failed", requestContext, methodContext, {
-      messageIndex: message.origin.index,
-      leaf: message.leaf,
-      targetMessageRoot,
-      messageVerification,
-    });
-  }
-
   // Verify proof of inclusion of messageRoot in aggregateRoot.
   const rootVerification = hubSMT.verify(messageRootIndex, targetMessageRoot, messageRootProof, targetAggregateRoot);
   if (rootVerification && rootVerification.verified) {
@@ -166,98 +219,115 @@ export const processMessage = async (message: XMessage) => {
       rootVerification,
     });
   }
-
-  const proveAndProcessEncodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
-    [messageProof],
-    targetAggregateRoot,
-    messageRootProof,
-    messageRootIndex,
-  ]);
-
-  const destinationSpokeConnector = config.chains[message.destinationDomain]?.deployments.spokeConnector;
-  if (!destinationSpokeConnector) {
-    throw new NoDestinationDomainForProof(message.destinationDomain);
-  }
-  logger.info("Proving and processing message", requestContext, methodContext, {
-    message,
-    proveAndProcessEncodedData,
-    destinationSpokeConnector,
-  });
-  const chainId = chainData.get(message.destinationDomain)!.chainId;
-
-  /// Temp: Using relayer proxy
-  const domain = +message.destinationDomain;
-  const relayerAddress = GELATO_RELAYER_ADDRESS; // hardcoded gelato address will always be whitelisted
-
-  logger.debug("Getting gas estimate", requestContext, methodContext, {
-    chainId,
-    to: destinationSpokeConnector,
-    data: proveAndProcessEncodedData,
-    from: relayerAddress,
-  });
-
-  const gas = await chainreader.getGasEstimateWithRevertCode(domain, {
-    chainId: chainId,
-    to: destinationSpokeConnector,
-    data: proveAndProcessEncodedData,
-    from: relayerAddress,
-  });
-
-  logger.info("Sending tx to relayer", requestContext, methodContext, {
-    relayer: relayerAddress,
-    connext: destinationSpokeConnector,
-    domain,
-    gas: gas.toString(),
-  });
-
-  const gasLimit = gas.add(200_000); // Add extra overhead for gelato
-  const destinationRelayerProxyAddress = config.chains[message.destinationDomain]?.deployments.relayerProxy;
-  let fee = BigNumber.from(0);
+  // Batch submit messages by destination domain
   try {
-    fee = await getEstimatedFee(chainId, NATIVE_TOKEN, gasLimit, true);
-  } catch (error: unknown) {
-    logger.warn("Error at Gelato Estimate Fee", requestContext, methodContext, {
-      error: jsonifyError(error as NxtpError),
+    const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
+      messageProofs,
+      targetAggregateRoot,
+      messageRootProof,
+      messageRootIndex,
+    ]);
+
+    const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
+    if (!destinationSpokeConnector) {
+      throw new NoDestinationDomainForProof(destinationDomain);
+    }
+    logger.info("Proving and processing messages", requestContext, methodContext, {
+      destinationDomain,
+      data,
+      destinationSpokeConnector,
+    });
+
+    const proveAndProcessEncodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
+      messageProofs,
+      targetAggregateRoot,
+      messageRootProof,
+      messageRootIndex,
+    ]);
+
+    logger.debug("Proving and processing messages", requestContext, methodContext, {
+      messages,
+      proveAndProcessEncodedData,
+      destinationSpokeConnector,
+    });
+    const chainId = chainData.get(destinationDomain)!.chainId;
+
+    /// Temp: Using relayer proxy
+    const domain = +destinationDomain;
+    const relayerAddress = GELATO_RELAYER_ADDRESS; // hardcoded gelato address will always be whitelisted
+
+    logger.info("Getting gas estimate", requestContext, methodContext, {
+      chainId,
+      to: destinationSpokeConnector,
+      data: proveAndProcessEncodedData,
+      from: relayerAddress,
+    });
+
+    const gas = await chainreader.getGasEstimateWithRevertCode(domain, {
+      chainId: chainId,
+      to: destinationSpokeConnector,
+      data: proveAndProcessEncodedData,
+      from: relayerAddress,
+    });
+
+    logger.info("Sending tx to relayer", requestContext, methodContext, {
+      relayer: relayerAddress,
+      connext: destinationSpokeConnector,
+      domain,
+      gas: gas.toString(),
+    });
+
+    const gasLimit = gas.add(200_000); // Add extra overhead for gelato
+    const destinationRelayerProxyAddress = config.chains[destinationDomain]?.deployments.relayerProxy;
+    let fee = BigNumber.from(0);
+    try {
+      fee = await getEstimatedFee(chainId, NATIVE_TOKEN, gasLimit, true);
+    } catch (error: unknown) {
+      logger.warn("Error at Gelato Estimate Fee", requestContext, methodContext, {
+        error: jsonifyError(error as NxtpError),
+        relayerProxyAddress: destinationRelayerProxyAddress,
+        gasLimit: gasLimit.toString(),
+        relayerFee: fee.toString(),
+      });
+
+      fee = gasLimit.mul(await chainreader.getGasPrice(domain, requestContext));
+    }
+
+    const {
+      _proofs: proofs,
+      _aggregateRoot: aggregateRoot,
+      _aggregatePath: aggregatePath,
+      _aggregateIndex: aggregateIndex,
+    } = contracts.spokeConnector.decodeFunctionData("proveAndProcess", proveAndProcessEncodedData);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    const encodedData = contracts.relayerProxy.encodeFunctionData("proveAndProcess", [
+      proofs,
+      aggregateRoot,
+      aggregatePath,
+      aggregateIndex,
+      fee,
+    ]);
+
+    logger.info("Encoding for Relayer Proxy", requestContext, methodContext, {
       relayerProxyAddress: destinationRelayerProxyAddress,
       gasLimit: gasLimit.toString(),
       relayerFee: fee.toString(),
+      relayerProxyEncodedData: encodedData,
     });
 
-    fee = gasLimit.mul(await chainreader.getGasPrice(domain, requestContext));
+    const { taskId } = await sendWithRelayerWithBackup(
+      chainId,
+      destinationDomain,
+      destinationRelayerProxyAddress,
+      encodedData,
+      relayers,
+      chainreader,
+      logger,
+      requestContext,
+    );
+    logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
+  } catch (err: unknown) {
+    logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
   }
-
-  const {
-    _proofs: proofs,
-    _aggregateRoot: aggregateRoot,
-    _aggregatePath: aggregatePath,
-    _aggregateIndex: aggregateIndex,
-  } = contracts.spokeConnector.decodeFunctionData("proveAndProcess", proveAndProcessEncodedData);
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  const encodedData = contracts.relayerProxy.encodeFunctionData("proveAndProcess", [
-    proofs,
-    aggregateRoot,
-    aggregatePath,
-    aggregateIndex,
-    fee,
-  ]);
-
-  logger.info("Encoding for Relayer Proxy", requestContext, methodContext, {
-    relayerProxyAddress: destinationRelayerProxyAddress,
-    gasLimit: gasLimit.toString(),
-    relayerFee: fee.toString(),
-    relayerProxyEncodedData: encodedData,
-  });
-
-  const { taskId } = await sendWithRelayerWithBackup(
-    chainId,
-    message.destinationDomain,
-    destinationRelayerProxyAddress,
-    encodedData,
-    relayers,
-    chainreader,
-    logger,
-    requestContext,
-  );
-  logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
 };
