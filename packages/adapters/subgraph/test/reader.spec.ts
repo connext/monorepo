@@ -551,4 +551,21 @@ describe("SubgraphReader", () => {
       expect(res).to.deep.eq([ParserFns.connectorMeta(connectorMeta1111), ParserFns.connectorMeta(connectorMeta3331)]);
     });
   });
+
+  describe("#getReceivedAggregatedRootsByDomain", () => {
+    it("should return the received aggregated roots", async () => {
+      const roots = [mock.entity.receivedAggregateRoot(), mock.entity.receivedAggregateRoot()];
+      response.set("1111", [roots]);
+      executeStub.resolves(response);
+
+      const aggregatedRoots = await subgraphReader.getReceivedAggregatedRootsByDomain([
+        { domain: "1111", offset: 0, limit: 100 },
+      ]);
+      expect(aggregatedRoots).to.be.deep.eq(
+        roots.map((r) => {
+          return { ...r, domain: "1111" };
+        }),
+      );
+    });
+  });
 });

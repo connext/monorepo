@@ -39,8 +39,11 @@ import {
   putRoot,
   getRoot,
   getMessageRootIndex,
+  getLatestMessageRoot,
+  getLatestAggregateRoot,
   getAggregateRootCount,
   getUnProcessedMessages,
+  getUnProcessedMessagesByIndex,
   getAggregateRoot,
   getMessageRootFromIndex,
   getMessageRootCount,
@@ -463,7 +466,15 @@ describe("Database client", () => {
       message.destination!.processed = true;
     }
     await saveMessages(messages, pool);
-    const pendingMessages = await getUnProcessedMessages(100, 0, "ASC", pool);
+    const pendingMessages = await getUnProcessedMessagesByIndex(
+      mock.domain.A,
+      mock.domain.B,
+      batchSize,
+      0,
+      100,
+      "ASC",
+      pool,
+    );
     for (const message of pendingMessages) {
       expect(message.destination!.processed).equal(true);
     }
@@ -613,6 +624,37 @@ describe("Database client", () => {
     expect(dbRoots).to.deep.eq(roots.slice(3, 7 + 1).map((r) => r.receivedRoot));
   });
 
+  it("should get getLatestMessageRoot", async () => {
+    const messages: RootMessage[] = [];
+    const roots: AggregatedRoot[] = [];
+    const propRoots: PropagatedRoot[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const rootMessage = mock.entity.rootMessage();
+      rootMessage.count = _i;
+      messages.push(rootMessage);
+      const m = mock.entity.aggregatedRoot();
+      m.index = _i;
+      m.receivedRoot = rootMessage.root;
+      roots.push(m);
+      const propRoot = mock.entity.propagatedRoot();
+      propRoot.count = _i;
+      propRoots.push(propRoot);
+    }
+
+    await saveSentRootMessages(messages, pool);
+    await saveAggregatedRoots(roots, pool);
+    await savePropagatedRoots(propRoots, pool);
+
+    const dbRoots = await getLatestMessageRoot(
+      mock.entity.rootMessage().spokeDomain,
+      propRoots[batchSize - 1].aggregate,
+      pool,
+    );
+    // TODO: numeric vs integer type conversion
+    dbRoots ? (dbRoots.count = batchSize - 1) : undefined;
+    expect(dbRoots).to.deep.eq(messages[batchSize - 1]);
+  });
+
   it("should upsert roots properly", async () => {
     for (let _i = 0; _i < batchSize; _i++) {
       await putRoot(mock.domain.A, _i <= 3 ? "1" : _i <= 6 ? "2" : "3", mkBytes32(`0x${_i}`), pool);
@@ -673,6 +715,8 @@ describe("Database client", () => {
     expect(await getMessageRootIndex("", "", pool)).to.eq(undefined);
     expect(await getAggregateRootCount("", pool)).to.eq(undefined);
     expect(await getAggregateRoot("", pool)).to.eq(undefined);
+    expect(await getLatestMessageRoot("", "", pool)).to.eq(undefined);
+    expect(await getLatestAggregateRoot("", "DESC", pool)).to.eq(undefined);
   });
 
   it("should throw errors", async () => {

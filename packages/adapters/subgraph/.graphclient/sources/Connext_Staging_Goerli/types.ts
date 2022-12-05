@@ -24,6 +24,7 @@ export type Scalars = {
 export type staginggoerli_AggregateRoot = {
   id: Scalars['ID'];
   root: Scalars['staginggoerli_Bytes'];
+  blockNumber: Scalars['BigInt'];
 };
 
 export type staginggoerli_AggregateRoot_filter = {
@@ -41,13 +42,22 @@ export type staginggoerli_AggregateRoot_filter = {
   root_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
   root_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   root_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
 };
 
 export type staginggoerli_AggregateRoot_orderBy =
   | 'id'
-  | 'root';
+  | 'root'
+  | 'blockNumber';
 
 export type staginggoerli_Asset = {
   id: Scalars['ID'];

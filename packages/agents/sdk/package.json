@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-sdk",
-  "version": "0.2.1-beta.11",
+  "version": "0.2.1-beta.13",
   "description": "Client-side package for interacting with the NXTP protocol for crosschain packages",
   "author": "Connext",
   "license": "MIT",
@@ -37,12 +37,10 @@
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "0.25.2",
-    "ethereum-block-by-date": "^1.4.1",
     "ethers": "5.7.2",
     "isomorphic-fetch": "^3.0.0"
   },
   "devDependencies": {
-    "@types/ethereum-block-by-date": "^1.4.1",
     "@types/isomorphic-fetch": "^0.0.36",
     "eslint": "8.26.0",
     "mocha": "10.1.0",

@@ -1,16 +1,16 @@
 import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 
-import { getContext } from "../../shared";
+import { AppContext } from "../../shared";
 import {
   retrieveOriginMessages,
   updateMessages,
   retrieveSentRootMessages,
   retrieveProcessedRootMessages,
-} from "../../lib/operations/messages";
+} from "../../lib/operations";
 
-export const bindMessages = async () => {
-  const { logger } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(bindMessages.name);
+export const bindMessages = async (context: AppContext) => {
+  const { logger, config } = context;
+  const { requestContext, methodContext } = createLoggingContext(`bindMessages-${config.service}`);
   logger.debug("Bind messages polling loop start", requestContext, methodContext);
 
   try {

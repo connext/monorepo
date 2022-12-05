@@ -2,6 +2,14 @@
 
 ## Next Release
 
+## Amarok 0.2.1-beta.13
+
+- [sdk] pool fixes
+
+## Amarok 0.2.1-beta.12
+
+- [all] pool metrics for sdk
+
 ## Amarok 0.2.1-beta.11
 
 - [all] version release for sdk

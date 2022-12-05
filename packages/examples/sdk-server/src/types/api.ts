@@ -197,6 +197,11 @@ export const getTransfersSchema = Type.Object({
   }),
 });
 
+export const getBlockNumberFromUnixTimestampSchema = Type.Object({
+  domainId: Type.String(),
+  unixTimestamp: Type.Number(),
+});
+
 export const getYieldStatsForDaySchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
