@@ -1,8 +1,8 @@
-import { RequestContext } from "@connext/nxtp-utils";
+import { jsonifyError, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
 import { alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram } from "./alert";
 import { Pauser } from "./pause";
-import { Verifier, VerifierContext, AssetInfo, Report, ReportEventType } from "./types";
+import { Verifier, VerifierContext, AssetInfo, Report } from "./types";
 import { AssetVerifier } from "./verifiers";
 
 // Aggregation class for interfacing with all adapter functionality.
@@ -32,11 +32,45 @@ export class WatcherAdapter {
     return await this.pauser.pause(reason, domains);
   }
 
-  public async alert(_requestContext: RequestContext, event: ReportEventType, report: Report): Promise<void> {
-    // TODO: Log attempt to alert.
-    await alertViaDiscord(report);
-    await alertViaPagerDuty(report);
-    await alertViaSms(report);
-    await alertViaTelegram(report);
+  public async alert(report: Report): Promise<void> {
+    const { requestContext, methodContext, logger } = report;
+    logger.info("alert: Attempt to alert", requestContext, methodContext, report);
+
+    const errors = [];
+    // attempt to alert via discord
+    try {
+      await alertViaDiscord(report);
+    } catch (e: unknown) {
+      logger.error("alert: failed to alert via discord", requestContext, methodContext, jsonifyError(e as Error));
+      errors.push(e);
+    }
+
+    // attempt to alert via pager duty
+    try {
+      await alertViaPagerDuty(report);
+    } catch (e: unknown) {
+      logger.error("alert: failed to alert via pager duty", requestContext, methodContext, jsonifyError(e as Error));
+      errors.push(e);
+    }
+
+    // attempt to alert via sms (twilio service)
+    try {
+      await alertViaSms(report);
+    } catch (e: unknown) {
+      logger.error("alert: failed to alert via sms", requestContext, methodContext, jsonifyError(e as Error));
+      errors.push(e);
+    }
+
+    // attempt to alert via telegram
+    try {
+      await alertViaTelegram(report);
+    } catch (e: unknown) {
+      logger.error("alert: failed to alert via telegram", requestContext, methodContext, jsonifyError(e as Error));
+      errors.push(e);
+    }
+
+    if (errors.length) {
+      throw NxtpError.fromJson(errors);
+    }
   }
 }
