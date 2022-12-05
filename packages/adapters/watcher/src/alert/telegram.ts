@@ -1,5 +1,7 @@
+import { jsonifyError } from "@connext/nxtp-utils";
 import https from "https";
 
+import { WatcherConfig } from "../config";
 import { Report } from "../types";
 
 enum Telegram_ParseModes {
@@ -63,11 +65,7 @@ class Telegram {
   }
 }
 
-// t.me/ConnextWatcherBot
-const apikey = "5903777140:AAEEspBx-lGTMENudZwt8vpidaJeSGaVFj0";
-const chatId = "happyliu130";
-
-export const alertViaTelegram = async (report: Report) => {
+export const alertViaTelegram = async (report: Report, config: WatcherConfig) => {
   const {
     timestamp,
     event,
@@ -81,6 +79,17 @@ export const alertViaTelegram = async (report: Report) => {
     rpcs,
   } = report;
 
+  const { telegramChatId, telegramApiKey } = config;
+  if (!telegramChatId || !telegramApiKey) {
+    logger.error(
+      "Failed to alert via telegram",
+      requestContext,
+      methodContext,
+      jsonifyError(new Error("Telegram alert config is invalid!")),
+    );
+    throw new Error("alertViaTelegram: Telegram alert config is invalid!");
+  }
+
   logger.info("Sending message via telegram", requestContext, methodContext, {
     timestamp,
     event,
@@ -91,10 +100,6 @@ export const alertViaTelegram = async (report: Report) => {
     rpcs,
   });
 
-  try {
-    const telegram = new Telegram(apikey);
-    await telegram.send(chatId, "*Hello World\\!*", Telegram_ParseModes.MarkdownV2);
-  } catch (e: unknown) {
-    console.log(e);
-  }
+  const telegram = new Telegram(telegramApiKey);
+  return await telegram.send(telegramChatId, "*Hello World\\!*", Telegram_ParseModes.MarkdownV2);
 };

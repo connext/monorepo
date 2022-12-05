@@ -1,12 +1,9 @@
-import { axiosPost } from "@connext/nxtp-utils";
+import { axiosPost, jsonifyError } from "@connext/nxtp-utils";
 
-import { Report } from "../types";
+import { WatcherConfig } from "../config";
+import { Report, ReportEventType } from "../types";
 
-// TODO should be in config
-const WEBHOOK_URL =
-  "https://discord.com/api/webhooks/1048160441009979452/dz6BmIxJdQGP-91W82jJTpKR3KTGzMQwtrVvoIPfY3cR31YgNaz0r8u2eCGL1_H3UiCz";
-
-export const alertViaDiscord = async (report: Report) => {
+export const alertViaDiscord = async (report: Report, config: WatcherConfig) => {
   const {
     timestamp,
     event,
@@ -19,6 +16,17 @@ export const alertViaDiscord = async (report: Report) => {
     relevantTransactions,
     rpcs,
   } = report;
+
+  const { discordHookUrl } = config;
+  if (!discordHookUrl) {
+    logger.error(
+      "Failed to alert via discord",
+      requestContext,
+      methodContext,
+      jsonifyError(new Error("Invalid discord hook url")),
+    );
+    throw new Error("alertViaDiscord: invalid hook url!");
+  }
 
   logger.info("Sending message to discord channel", requestContext, methodContext, {
     timestamp,
@@ -39,7 +47,7 @@ export const alertViaDiscord = async (report: Report) => {
     },
     embeds: [
       {
-        color: 0xff4444,
+        color: event == ReportEventType.Tx || ReportEventType.Rpc ? 0xff3827 : 0x0052cc,
         timestamp: new Date(timestamp * 1000),
         title: "Reason",
         description: "",
@@ -74,5 +82,5 @@ export const alertViaDiscord = async (report: Report) => {
     ],
   };
 
-  return await axiosPost(WEBHOOK_URL, params);
+  return await axiosPost(config.discordHookUrl!, params);
 };
