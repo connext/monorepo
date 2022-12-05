@@ -11,7 +11,7 @@ export class Pauser extends Verifier {
    * @param reason
    * @param domains
    * @returns boolean[] array mapped to domains[] indicating whether the pausing for each
-   * domain was succesful.
+   * domain was successful.
    */
   public async pause(reason: string, domains: string[]): Promise<boolean[]> {
     const { requestContext, methodContext } = createLoggingContext(this.pause.name);
@@ -20,7 +20,9 @@ export class Pauser extends Verifier {
     const success: boolean[] = [];
     for (const domain of domains) {
       try {
-        logger.info("pause", requestContext, methodContext, { domain });
+        logger.info(`Trying to pause for domain ${domain}. reason: ${reason}`, requestContext, methodContext, {
+          domain,
+        });
 
         const chainId = domainToChainId(+domain);
         const connext = getDeployedConnextContract(chainId, isStaging ? "Staging" : "");

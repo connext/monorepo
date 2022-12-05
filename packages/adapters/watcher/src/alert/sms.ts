@@ -1,15 +1,10 @@
+import { jsonifyError } from "@connext/nxtp-utils";
 import { Twilio } from "twilio";
 
+import { WatcherConfig } from "../config";
 import { Report } from "../types";
 
-const twilioNumber = "your-twilio-number";
-const accountSid = "AC-something";
-const authToken = "something-something";
-const phoneNumbers = ["phone-number-1", "phone-number-2"];
-
-const client = new Twilio(accountSid, authToken);
-
-export const alertViaSms = async (report: Report) => {
+export const alertViaSms = async (report: Report, config: WatcherConfig) => {
   const {
     timestamp,
     event,
@@ -23,6 +18,26 @@ export const alertViaSms = async (report: Report) => {
     rpcs,
   } = report;
 
+  const { twilioNumber, twilioAccountSid, twilioAuthToken, twilioToPhoneNumbers } = config;
+
+  if (
+    !twilioNumber ||
+    !twilioAccountSid ||
+    !twilioAuthToken ||
+    !twilioToPhoneNumbers ||
+    twilioToPhoneNumbers.length == 0
+  ) {
+    logger.error(
+      "Failed to alert via sms",
+      requestContext,
+      methodContext,
+      jsonifyError(new Error("Twilio config is invalid!")),
+    );
+    throw new Error("alertViaSms: Twilio config is invalid!");
+  }
+
+  const client = new Twilio(twilioAccountSid, twilioAuthToken);
+
   logger.info("Sending message via twilio", requestContext, methodContext, {
     timestamp,
     event,
@@ -33,21 +48,24 @@ export const alertViaSms = async (report: Report) => {
     rpcs,
   });
 
-  for (const phoneNumber of phoneNumbers) {
+  for (const phoneNumber of twilioToPhoneNumbers) {
     if (!/^\+?[1-9]\d{1,14}$/.test(phoneNumber)) {
-      throw new Error("number must be E164 format!");
+      logger.warn(
+        "Failed to alert via sms. to phoneNumber must be E164 format!, skipping...",
+        requestContext,
+        methodContext,
+      );
+      continue;
     }
 
     const textContent = {
-      body: `Watcher Alert!`,
+      body: `Watcher Alert!. Reason: ${reason}, type: ${event}, domains: ${domains.join(",")}, errors: ${errors.join(
+        ",",
+      )}, repo`,
       to: phoneNumber,
       from: twilioNumber,
     };
 
-    try {
-      await client.messages.create(textContent);
-    } catch (e: unknown) {
-      console.log(e);
-    }
+    return await client.messages.create(textContent);
   }
 };
