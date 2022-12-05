@@ -15,6 +15,12 @@ export const WatcherConfigSchema = Type.Object({
   web3SignerUrl: Type.Optional(Type.String({ format: "uri" })),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   hubDomain: Type.String(),
+  server: Type.Object({
+    adminToken: Type.String(),
+    port: Type.Number(),
+    host: Type.String(),
+  }),
+  interval: Type.Number({ minimum: 5000, maximum: 500_000 }),
 });
 
 export type WatcherConfig = Static<typeof WatcherConfigSchema>;
@@ -53,6 +59,12 @@ export const getEnvConfig = (): WatcherConfig => {
     logLevel: process.env.WATCHER_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
     environment: process.env.WATCHER_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     hubDomain: process.env.WATCHER_HUB_DOMAIN || configJson.hubDomain || configFile.hubDomain,
+    server: {
+      adminToken: process.env.WATCHER_ADMIN_TOKEN || configJson.server?.adminToken || configFile.server?.adminToken,
+      port: process.env.WATCHER_PORT || configJson.server?.port || configFile.server?.port || 8000,
+      host: process.env.WATCHER_HOST || configJson.server?.host || configFile.server?.host || "0.0.0.0",
+    },
+    interval: process.env.WATCHER_INTERVAL || configJson.interval || configFile.interval || 15000,
   };
 
   const validate = ajv.compile(WatcherConfigSchema);

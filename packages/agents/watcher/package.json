@@ -29,7 +29,8 @@
     "@sinclair/typebox": "0.25.2",
     "dd-trace": "^3.8.0",
     "dotenv": "16.0.3",
-    "ethers": "5.7.2"
+    "ethers": "5.7.2",
+    "interval-promise": "^1.4.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.108",

@@ -2468,6 +2468,7 @@ __metadata:
     dotenv: 16.0.3
     eslint: 8.26.0
     ethers: 5.7.2
+    interval-promise: ^1.4.0
     nodemon: 2.0.20
     nyc: 15.1.0
     pino-pretty: 9.1.1
@@ -16382,7 +16383,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"interval-promise@npm:1.4.0":
+"interval-promise@npm:1.4.0, interval-promise@npm:^1.4.0":
   version: 1.4.0
   resolution: "interval-promise@npm:1.4.0"
   checksum: d4e1eb4cbe7a2921ca92846aa2c745b0164d4178e8a8d734d1b4f0c5fec315831ccce31a79295ff0d1f7cfc87b7fa34119d592eb56ecfd53c7a2d6d6893bd9e9
