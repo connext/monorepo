@@ -1,10 +1,19 @@
-import { expect, mkAddress, mkBytes32, OriginMessage, DestinationMessage, RootMessage } from "@connext/nxtp-utils";
+import {
+  expect,
+  mkAddress,
+  mkBytes32,
+  OriginMessage,
+  DestinationMessage,
+  RootMessage,
+  ReceivedAggregateRoot,
+} from "@connext/nxtp-utils";
 import {
   destinationTransfer,
   originMessage,
   destinationMessage,
   rootMessage,
   originTransfer,
+  receivedAggregateRoot,
   xquery,
 } from "../../../src/lib/helpers/parse";
 import { stubContext, mockOriginTransferEntity, mockDestinationTransferEntity } from "../../mock";
@@ -426,6 +435,34 @@ describe("Helpers:parse", () => {
     it("should parse valid root message", () => {
       const entity: RootMessage = mock.entity.rootMessage();
       expect(rootMessage(entity)).to.be.deep.eq(entity);
+    });
+  });
+  describe("#receivedAggregateRoot", () => {
+    it("should throw if the entity is undefined", () => {
+      const entity = undefined;
+      expect(() => {
+        receivedAggregateRoot(entity);
+      }).to.throw("Subgraph `ReceivedAggregateRoot` entity parser: ReceivedAggregateRoot, entity is `undefined`.");
+    });
+
+    it("should throw if wrong message type", () => {
+      const entity: RootMessage = mock.entity.rootMessage();
+      expect(() => {
+        receivedAggregateRoot(entity);
+      }).to.throw("Subgraph `ReceivedAggregateRoot` entity parser: Message entity missing required field");
+    });
+
+    it("should throw if a required field is missing", () => {
+      const entity: ReceivedAggregateRoot = {};
+
+      expect(() => {
+        receivedAggregateRoot(entity);
+      }).to.throw("Subgraph `ReceivedAggregateRoot` entity parser: Message entity missing required field");
+    });
+
+    it("should parse valid received aggregate root", () => {
+      const entity: ReceivedAggregateRoot = mock.entity.receivedAggregateRoot();
+      expect(receivedAggregateRoot(entity)).to.be.deep.eq(entity);
     });
   });
 });

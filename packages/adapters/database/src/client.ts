@@ -9,8 +9,10 @@ import {
   convertFromDbRootMessage,
   convertFromDbAggregatedRoot,
   convertFromDbPropagatedRoot,
+  convertFromDbReceivedAggregateRoot,
   AggregatedRoot,
   PropagatedRoot,
+  ReceivedAggregateRoot,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -124,6 +126,15 @@ const convertToDbPropagatedRoot = (root: PropagatedRoot): s.propagated_roots.Ins
     aggregate_root: root.aggregate,
     domains_hash: root.domainsHash,
     leaf_count: root.count,
+  };
+};
+
+const convertToDbReceivedAggregateRoot = (root: ReceivedAggregateRoot): s.received_aggregate_roots.Insertable => {
+  return {
+    id: root.id,
+    domain: root.domain,
+    root: root.root,
+    block_number: root.blockNumber,
   };
 };
 
@@ -420,6 +431,26 @@ export const getUnProcessedMessages = async (
   return messages.map(convertFromDbMessage);
 };
 
+export const getUnProcessedMessagesByIndex = async (
+  origin_domain: string,
+  destination_domain: string,
+  index: number,
+  offset: number,
+  limit = 100,
+  orderDirection: "ASC" | "DESC" = "ASC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XMessage[]> => {
+  const poolToUse = _pool ?? pool;
+  const messages = await db
+    .select(
+      "messages",
+      { processed: false, origin_domain: origin_domain, destination_domain: destination_domain, index: dc.lte(index) },
+      { offset, limit, order: { by: "index", direction: orderDirection } },
+    )
+    .run(poolToUse);
+  return messages.map(convertFromDbMessage);
+};
+
 export const getAggregateRoot = async (
   messageRoot: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
@@ -453,6 +484,43 @@ export const getMessageRootIndex = async (
   // Find the index emitted from the RootAggregated event
   const root = await db.selectOne("aggregated_roots", { domain: domain, received_root: messageRoot }).run(poolToUse);
   return root ? convertFromDbAggregatedRoot(root).index : undefined;
+};
+
+export const getLatestMessageRoot = async (
+  spoke_domain: string,
+  aggregate_root: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<RootMessage | undefined> => {
+  const poolToUse = _pool ?? pool;
+
+  type rootPropagatedSQL = s.root_messages.SQL | s.propagated_roots.SQL;
+  type rootPropagatedSelectable = s.root_messages.Selectable & { author: s.propagated_roots.Selectable };
+
+  const root = await db.sql<
+    rootPropagatedSQL,
+    rootPropagatedSelectable[]
+  >`select * from ${"root_messages"} where ${"root"} in (select received_root from aggregated_roots where domain_index <= (select leaf_count from propagated_roots where ${{
+    aggregate_root,
+  }})) and ${{
+    spoke_domain,
+  }} order by ${"leaf_count"} desc nulls last limit 1`.run(poolToUse);
+  return root.length > 0 ? convertFromDbRootMessage(root[0]) : undefined;
+};
+
+export const getLatestAggregateRoot = async (
+  domain: string,
+  orderDirection: "ASC" | "DESC" = "DESC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<ReceivedAggregateRoot | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const root = await db
+    .selectOne(
+      "received_aggregate_roots",
+      { domain: domain },
+      { limit: 1, order: { by: "block_number", direction: orderDirection } },
+    )
+    .run(poolToUse);
+  return root ? convertFromDbReceivedAggregateRoot(root) : undefined;
 };
 
 export const getMessageRootFromIndex = async (
@@ -562,4 +630,16 @@ export const putRoot = async (
   const poolToUse = _pool ?? pool;
   const root = { domain: domain, domain_path: path, tree_root: hash };
   await db.upsert("merkle_cache", root, ["domain", "domain_path"], { updateColumns: [] }).run(poolToUse);
+};
+
+export const saveReceivedAggregateRoot = async (
+  _roots: ReceivedAggregateRoot[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const roots: s.received_aggregate_roots.Insertable[] = _roots
+    .map((m) => convertToDbReceivedAggregateRoot(m))
+    .map(sanitizeNull);
+
+  await db.upsert("received_aggregate_roots", roots, ["root", "domain"]).run(poolToUse);
 };

@@ -38,7 +38,8 @@ import {
   LOCAL_RELAYER_ENABLED,
   CHAIN_DATA,
   LOCAL_CARTOGRAPHER_ENABLED,
-  CARTOGRAPHER_CONFIG,
+  CARTOGRAPHER_CONFIG_TRANSFERS,
+  CARTOGRAPHER_CONFIG_ROUTERS,
   ENVIRONMENT,
 } from "./constants/testnet";
 import {
@@ -78,7 +79,8 @@ describe("TESTNET:E2E", () => {
   let routerConfig: RouterConfig;
   let sequencerConfig: SequencerConfig;
   let relayerConfig: RelayerConfig;
-  let cartographerConfig: CartographerConfig;
+  let cartographerConfigTransfers: CartographerConfig;
+  let cartographerConfigRouters: CartographerConfig;
 
   // Services.
   let chainreader: ChainReader;
@@ -103,7 +105,8 @@ describe("TESTNET:E2E", () => {
     log.next("Relayer");
     relayerConfig = await RELAYER_CONFIG;
     log.next("Cartographer");
-    cartographerConfig = await CARTOGRAPHER_CONFIG;
+    cartographerConfigTransfers = await CARTOGRAPHER_CONFIG_TRANSFERS;
+    cartographerConfigRouters = await CARTOGRAPHER_CONFIG_ROUTERS;
 
     log.info("Init Agents");
     // Init agents.
@@ -733,8 +736,8 @@ describe("TESTNET:E2E", () => {
     {
       if (LOCAL_CARTOGRAPHER_ENABLED) {
         log.next("CARTOGRAPHER START");
-        await makeRoutersPoller(cartographerConfig);
-        await makeTransfersPoller(cartographerConfig);
+        await makePoller(cartographerConfigRouters);
+        await makePoller(cartographerConfigTransfers);
         await delay(1_000);
       }
 

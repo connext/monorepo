@@ -98,6 +98,7 @@ export function handleAggregateRootReceived(event: AggregateRootReceived): void 
   }
 
   aggregateRoot.root = event.params.root;
+  aggregateRoot.blockNumber = event.block.number;
   aggregateRoot.save();
 }
 

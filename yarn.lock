@@ -1935,9 +1935,11 @@ __metadata:
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@sinclair/typebox": 0.25.2
-    "@types/pg": 8.6.5
+    "@types/aws-lambda": ^8.10.108
+    "@types/pg": ^8.6.5
     concurrently: 7.5.0
-    dd-trace: 3.6.0
+    datadog-lambda-js: ^6.85.0
+    dd-trace: ^3.8.0
     dotenv: 16.0.3
     eslint: 8.26.0
     ethers: 5.7.2
@@ -2439,6 +2441,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@datadog/native-appsec@npm:1.3.0":
+  version: 1.3.0
+  resolution: "@datadog/native-appsec@npm:1.3.0"
+  dependencies:
+    node-gyp: latest
+    node-gyp-build: ^3.9.0
+  checksum: ec5c458f7bffba7675f394f9fa1e52084e5625db6273ab0b7ca54f1fd8e2a80549850c39929f1d5b869f07d94e8bd234c16f356c67a60a5a17e8d686b0e13388
+  languageName: node
+  linkType: hard
+
 "@datadog/native-appsec@npm:^1.2.1":
   version: 1.2.1
   resolution: "@datadog/native-appsec@npm:1.2.1"
@@ -2453,7 +2465,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@datadog/native-metrics@npm:^1.4.3":
+"@datadog/native-metrics@npm:^1.4.3, @datadog/native-metrics@npm:^1.5.0":
   version: 1.5.0
   resolution: "@datadog/native-metrics@npm:1.5.0"
   dependencies:
@@ -2463,7 +2475,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@datadog/pprof@npm:^1.0.2":
+"@datadog/pprof@npm:^1.0.2, @datadog/pprof@npm:^1.1.1":
   version: 1.1.1
   resolution: "@datadog/pprof@npm:1.1.1"
   dependencies:
@@ -6575,6 +6587,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/aws-lambda@npm:^8.10.108":
+  version: 8.10.108
+  resolution: "@types/aws-lambda@npm:8.10.108"
+  checksum: 648a6cc8e627e6170fbfa523c918cea6b06cdb0a66e25aa35da99a78ed1b7345e4f2921e25f96cb2547f0a13bbd77a90823c37c650db6e9ad8e3b03752e21570
+  languageName: node
+  linkType: hard
+
 "@types/bn.js@npm:*, @types/bn.js@npm:^5.1.0":
   version: 5.1.1
   resolution: "@types/bn.js@npm:5.1.1"
@@ -6927,7 +6946,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/pg@npm:8.6.5":
+"@types/pg@npm:8.6.5, @types/pg@npm:^8.6.5":
   version: 8.6.5
   resolution: "@types/pg@npm:8.6.5"
   dependencies:
@@ -11422,6 +11441,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"datadog-lambda-js@npm:^6.85.0":
+  version: 6.85.0
+  resolution: "datadog-lambda-js@npm:6.85.0"
+  dependencies:
+    bignumber.js: ^9.0.1
+    hot-shots: 8.5.0
+    promise-retry: ^2.0.1
+    serialize-error: ^8.1.0
+    shimmer: ^1.2.1
+  checksum: b179638b7adfe8c0e2a2b9d3d7db627c57bb15148e44549ecbe3f0a9aa59fb117a02b147591a62cac0e18efdc68a0faafbfbc385f9c858af33ba97438fa34de7
+  languageName: node
+  linkType: hard
+
 "dataloader@npm:2.1.0":
   version: 2.1.0
   resolution: "dataloader@npm:2.1.0"
@@ -11494,6 +11526,38 @@ __metadata:
     retry: ^0.10.1
     semver: ^5.5.0
   checksum: 20fba3c183ee9b24c847c88fa2c30d14bcd6d8d402e1043f570799ef75eba04b70b494fb62c0861ef73b72ba8d4ea01bf59a78543d79925fa66d6a2f50083e9a
+  languageName: node
+  linkType: hard
+
+"dd-trace@npm:^3.8.0":
+  version: 3.8.0
+  resolution: "dd-trace@npm:3.8.0"
+  dependencies:
+    "@datadog/native-appsec": 1.3.0
+    "@datadog/native-metrics": ^1.5.0
+    "@datadog/pprof": ^1.1.1
+    "@datadog/sketches-js": ^2.1.0
+    crypto-randomuuid: ^1.0.0
+    diagnostics_channel: ^1.1.0
+    ignore: ^5.2.0
+    import-in-the-middle: ^1.3.4
+    ipaddr.js: ^2.0.1
+    istanbul-lib-coverage: 3.2.0
+    koalas: ^1.0.2
+    limiter: ^1.1.4
+    lodash.kebabcase: ^4.1.1
+    lodash.pick: ^4.4.0
+    lodash.sortby: ^4.7.0
+    lodash.uniq: ^4.5.0
+    lru-cache: ^7.14.0
+    methods: ^1.1.2
+    module-details-from-path: ^1.0.3
+    opentracing: ">=0.12.1"
+    path-to-regexp: ^0.1.2
+    protobufjs: ^7.1.2
+    retry: ^0.10.1
+    semver: ^5.5.0
+  checksum: 1f1753aacd8578049ecec2e70a5b741b2596e7c366d1a6a348a9620edb218a9e564a69d8db635d4709cbf3ba82f972c19331ad3acba16df497884a1438cae59a
   languageName: node
   linkType: hard
 
@@ -15138,7 +15202,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 20c10d1856a091b825c3f89d5277c69673aa410776275c83116fcae5c75da6e4555e7447157bee975b78fb61c84a8db73fd844ab2f433319b684e23aebdb61bc
+  checksum: 8d331ff800d15e05eec8045df702c08f6100a63a737ebf7af7e26892a38155ab6e625a8d74f90ce7d7f5c0e30be3c43a672fa97427e09a7deb36876d3f661853
   languageName: node
   linkType: hard
 
@@ -15825,6 +15889,18 @@ __metadata:
   version: 2.8.9
   resolution: "hosted-git-info@npm:2.8.9"
   checksum: c955394bdab888a1e9bb10eb33029e0f7ce5a2ac7b3f158099dc8c486c99e73809dca609f5694b223920ca2174db33d32b12f9a2a47141dc59607c29da5a62dd
+  languageName: node
+  linkType: hard
+
+"hot-shots@npm:8.5.0":
+  version: 8.5.0
+  resolution: "hot-shots@npm:8.5.0"
+  dependencies:
+    unix-dgram: 2.0.x
+  dependenciesMeta:
+    unix-dgram:
+      optional: true
+  checksum: 93bce0cf16fe1ce70fb40f4377f3493d5e5314fdb3ecb14a92e907cd997c7b6382c7798ebf5c21dfd20f0fae33d1f58b49b83ba10b7b505560ded2cb1f729051
   languageName: node
   linkType: hard
 
@@ -19727,7 +19803,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nan@npm:^2.14.0, nan@npm:^2.14.2":
+"nan@npm:^2.14.0, nan@npm:^2.14.2, nan@npm:^2.16.0":
   version: 2.17.0
   resolution: "nan@npm:2.17.0"
   dependencies:
@@ -21806,7 +21882,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"protobufjs@npm:^7.0.0":
+"protobufjs@npm:^7.0.0, protobufjs@npm:^7.1.2":
   version: 7.1.2
   resolution: "protobufjs@npm:7.1.2"
   dependencies:
@@ -23481,6 +23557,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"serialize-error@npm:^8.1.0":
+  version: 8.1.0
+  resolution: "serialize-error@npm:8.1.0"
+  dependencies:
+    type-fest: ^0.20.2
+  checksum: 2eef236d50edd2d7926e602c14fb500dc3a125ee52e9f08f67033181b8e0be5d1122498bdf7c23c80683cddcad083a27974e9e7111ce23165f4d3bcdd6d65102
+  languageName: node
+  linkType: hard
+
 "serialize-javascript@npm:6.0.0":
   version: 6.0.0
   resolution: "serialize-javascript@npm:6.0.0"
@@ -23647,6 +23732,13 @@ __metadata:
   bin:
     shjs: bin/shjs
   checksum: 7babc46f732a98f4c054ec1f048b55b9149b98aa2da32f6cf9844c434b43c6251efebd6eec120937bd0999e13811ebd45efe17410edb3ca938f82f9381302748
+  languageName: node
+  linkType: hard
+
+"shimmer@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "shimmer@npm:1.2.1"
+  checksum: aa0d6252ad1c682a4fdfda69e541be987f7a265ac7b00b1208e5e48cc68dc55f293955346ea4c71a169b7324b82c70f8400b3d3d2d60b2a7519f0a3522423250
   languageName: node
   linkType: hard
 
@@ -25807,6 +25899,17 @@ __metadata:
   version: 2.0.0
   resolution: "universalify@npm:2.0.0"
   checksum: 2406a4edf4a8830aa6813278bab1f953a8e40f2f63a37873ffa9a3bc8f9745d06cc8e88f3572cb899b7e509013f7f6fcc3e37e8a6d914167a5381d8440518c44
+  languageName: node
+  linkType: hard
+
+"unix-dgram@npm:2.0.x":
+  version: 2.0.6
+  resolution: "unix-dgram@npm:2.0.6"
+  dependencies:
+    bindings: ^1.5.0
+    nan: ^2.16.0
+    node-gyp: latest
+  checksum: 0ab238726fd69e0a0174664225117b4575b40bd5df546c50a01de2fadf9da602c385ec8ff2f159607a127a6e7bf67628931903d43d286db27460b5abbe8cf8ac
   languageName: node
   linkType: hard
 
