@@ -88,3 +88,11 @@ export const RootManagerMetaSchema = Type.Object({
   domains: Type.Array(Type.String()),
 });
 export type RootManagerMeta = Static<typeof RootManagerMetaSchema>;
+
+export const ReceivedAggregateRootSchema = Type.Object({
+  id: Type.String(),
+  root: Type.String(),
+  domain: Type.String(),
+  blockNumber: Type.Number(),
+});
+export type ReceivedAggregateRoot = Static<typeof ReceivedAggregateRootSchema>;

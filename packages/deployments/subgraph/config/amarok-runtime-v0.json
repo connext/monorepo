@@ -85,13 +85,13 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0x955D1693C64e5a0746130FF6F6653E2171cC6708",
-        "startBlock": 24856789
+        "address": "0xB3378c2832cfFD06660dcd78f6768D7a8FBEa95b",
+        "startBlock": 25300828
       },
       {
         "name": "SpokeConnector",
-        "address": "0x93d3FCE8F4460700bB2F89dd4aeDcfF211Cd0e92",
-        "startBlock": 24904909
+        "address": "0x5b258301f47024eA1D871d57059fADBcf5aec9A9",
+        "startBlock": 25300820
       }
     ]
   },
