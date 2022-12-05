@@ -2081,7 +2081,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-adapters-watcher@workspace:packages/adapters/watcher":
+"@connext/nxtp-adapters-watcher@workspace:*, @connext/nxtp-adapters-watcher@workspace:packages/adapters/watcher":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-adapters-watcher@workspace:packages/adapters/watcher"
   dependencies:
@@ -2450,6 +2450,34 @@ __metadata:
     eslint-plugin-import: 2.26.0
     eslint-plugin-node: 11.1.0
     rimraf: 3.0.2
+  languageName: unknown
+  linkType: soft
+
+"@connext/watcher@workspace:packages/agents/watcher":
+  version: 0.0.0-use.local
+  resolution: "@connext/watcher@workspace:packages/agents/watcher"
+  dependencies:
+    "@connext/nxtp-adapters-subgraph": "workspace:*"
+    "@connext/nxtp-adapters-watcher": "workspace:*"
+    "@connext/nxtp-adapters-web3signer": "workspace:*"
+    "@connext/nxtp-txservice": "workspace:*"
+    "@connext/nxtp-utils": "workspace:*"
+    "@sinclair/typebox": 0.25.2
+    "@types/aws-lambda": ^8.10.108
+    dd-trace: ^3.8.0
+    dotenv: 16.0.3
+    eslint: 8.26.0
+    ethers: 5.7.2
+    nodemon: 2.0.20
+    nyc: 15.1.0
+    pino-pretty: 9.1.1
+    rimraf: 3.0.2
+    sinclair: 0.2.0
+    sinon: 14.0.1
+    ts-mocha: 10.0.0
+    ts-node: 10.9.1
+    tslib: 2.4.0
+    typescript: 4.8.4
   languageName: unknown
   linkType: soft
 
@@ -13307,7 +13335,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
+  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
   languageName: node
   linkType: hard
 
@@ -15249,7 +15277,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 8d331ff800d15e05eec8045df702c08f6100a63a737ebf7af7e26892a38155ab6e625a8d74f90ce7d7f5c0e30be3c43a672fa97427e09a7deb36876d3f661853
+  checksum: 71abe7f31555f169a47510675596f79193c8f55e4beeb4e6efa06c22d41988fa9c747d5e398af7f8401cca22c08ffb7a6d57b03d764c14858513c9eba23b53b8
   languageName: node
   linkType: hard
 

@@ -29,6 +29,7 @@
     "packages/agents/sdk",
     "packages/agents/relayer",
     "packages/agents/lighthouse",
+    "packages/agents/watcher",
     "packages/integration",
     "packages/examples/sdk-server",
     "packages/examples/bridge-reference"
