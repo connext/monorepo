@@ -6,9 +6,9 @@ import {
   jsonifyError,
   NxtpError,
 } from "@connext/nxtp-utils";
-import { ReportEventType } from "@connext/nxtp-adapters-watcher";
 
 import { getContext } from "../../watcher";
+import { pauseAndAlert } from "../../operations/validateAndPause";
 
 import {
   ConfigResponse,
@@ -25,7 +25,7 @@ export const bindServer = async (): Promise<void> => {
   const {
     config,
     logger,
-    adapters: { wallet, watcher },
+    adapters: { wallet },
   } = getContext();
   const server = fastify();
 
@@ -68,31 +68,14 @@ export const bindServer = async (): Promise<void> => {
       },
     },
     async (req, res) => {
-      const { requestContext, methodContext } = createLoggingContext("GET /pause endpoint");
+      const { requestContext } = createLoggingContext("GET /pause endpoint");
       try {
         const { adminToken } = req.body;
         if (adminToken !== config.server.adminToken) {
           return res.status(401).send({ message: "Unauthorized to perform this operation" });
         }
 
-        const domains = Object.keys(config.chains);
-        logger.warn("Pausing contracts!!!", requestContext, methodContext);
-        const paused = await watcher.pause(requestContext, "TODO", domains);
-        logger.warn("Paused contracts", requestContext, methodContext, { paused });
-        await watcher.alert(requestContext, ReportEventType.Pause, {
-          domains,
-          errors: [],
-          reason: "", // TODO: need to return this from checkInvariants
-          timestamp: Date.now(),
-          event: ReportEventType.Pause,
-          logger,
-          methodContext,
-          relevantTransactions: [], // TODO: need to return this from pause function
-          requestContext,
-          rpcs: Object.entries(config.chains)
-            .map((chain) => chain[1].providers)
-            .flat(),
-        });
+        const { paused, domains } = await pauseAndAlert(requestContext, "TODO");
         return res.status(200).send({ paused, domains });
       } catch (err: unknown) {
         return res.status(500).send({ error: jsonifyError(err as NxtpError), message: "Error pausing" });

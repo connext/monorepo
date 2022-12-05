@@ -10,9 +10,11 @@ export const bindInterval = async (): Promise<void> => {
   interval(async () => {
     const { requestContext, methodContext } = createLoggingContext("Interval");
     try {
+      logger.info("Starting interval", requestContext, methodContext);
       await validateAndPause();
+      logger.info("Finished interval", requestContext, methodContext);
     } catch (err: unknown) {
-      logger.error("Error in watcher interval", requestContext, methodContext, jsonifyError(err as NxtpError));
+      logger.error("Error in watcher interval!", requestContext, methodContext, jsonifyError(err as NxtpError));
     }
   }, config.interval);
 };
