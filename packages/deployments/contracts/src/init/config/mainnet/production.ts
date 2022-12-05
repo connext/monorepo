@@ -36,7 +36,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           adopted: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
         },
         "6778479": {
-          // local: "0x2ABe2d4F09ea3124DE56AD91ae0950A3B71eCD11",
+          local: "0x67e79CC8d6b7C164Da28864875242b9210BFeb15",
           adopted: "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
         },
       },
@@ -66,7 +66,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           adopted: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
         },
         "6778479": {
-          // local: "0x2BD5B3cfB2b16F2B10e7BA41dc1cb93d61B36bB8",
+          local: "0x735c7e2035ff902EC8F7115355191Cabb05D86fd",
           adopted: "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1",
         },
       },
