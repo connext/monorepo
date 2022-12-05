@@ -1,6 +1,7 @@
 import { jsonifyError, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
 import { alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram } from "./alert";
+import { getConfig } from "./config";
 import { Pauser } from "./pause";
 import { Verifier, VerifierContext, AssetInfo, Report } from "./types";
 import { AssetVerifier } from "./verifiers";
@@ -36,10 +37,12 @@ export class WatcherAdapter {
     const { requestContext, methodContext, logger } = report;
     logger.info("alert: Attempt to alert", requestContext, methodContext, report);
 
+    const config = await getConfig();
+
     const errors = [];
     // attempt to alert via discord
     try {
-      await alertViaDiscord(report);
+      await alertViaDiscord(report, config);
     } catch (e: unknown) {
       logger.error("alert: failed to alert via discord", requestContext, methodContext, jsonifyError(e as Error));
       errors.push(e);
@@ -47,7 +50,7 @@ export class WatcherAdapter {
 
     // attempt to alert via pager duty
     try {
-      await alertViaPagerDuty(report);
+      await alertViaPagerDuty(report, config);
     } catch (e: unknown) {
       logger.error("alert: failed to alert via pager duty", requestContext, methodContext, jsonifyError(e as Error));
       errors.push(e);
@@ -63,14 +66,14 @@ export class WatcherAdapter {
 
     // attempt to alert via telegram
     try {
-      await alertViaTelegram(report);
+      await alertViaTelegram(report, config);
     } catch (e: unknown) {
       logger.error("alert: failed to alert via telegram", requestContext, methodContext, jsonifyError(e as Error));
       errors.push(e);
     }
 
     if (errors.length) {
-      throw NxtpError.fromJson(errors);
+      throw errors;
     }
   }
 }
