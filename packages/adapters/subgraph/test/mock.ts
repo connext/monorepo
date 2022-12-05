@@ -9,6 +9,7 @@ import {
   OriginMessage,
   OriginTransfer,
   PropagatedRoot,
+  ReceivedAggregateRoot,
   RootMessage,
   RouterBalance,
   XMessage,
@@ -155,6 +156,10 @@ export const mockPropagatedRootSubgraphResponse = [
   mock.entity.propagatedRoot() as PropagatedRoot,
   mock.entity.propagatedRoot() as PropagatedRoot,
 ];
+export const mockReceivedAggregateRootSubgraphResponse = [
+  mock.entity.receivedAggregateRoot() as ReceivedAggregateRoot,
+  mock.entity.receivedAggregateRoot() as ReceivedAggregateRoot,
+];
 export const mockXMessageSubgraphResponse = [mock.entity.xMessage() as XMessage, mock.entity.xMessage() as XMessage];
 
 export const mockBlockNumber: Map<string, number> = new Map();
@@ -221,6 +226,7 @@ export const mockSubgraph = () =>
     getLatestBlockNumber: Promise.resolve(mockBlockNumber),
     getGetAggregatedRootsByDomain: Promise.resolve(mockAggregatedRootSubgraphResponse),
     getGetPropagatedRoots: Promise.resolve(mockPropagatedRootSubgraphResponse),
+    getReceivedAggregatedRootsByDomain: Promise.resolve(mockReceivedAggregateRootSubgraphResponse),
     getOriginTransfersByNonce: Promise.resolve(mockOriginSubgraphResponse),
     getDestinationTransfersByNonce: Promise.resolve(mockDestinationSubgraphResponse),
     getDestinationTransfersByDomainAndReconcileTimestamp: Promise.resolve(mockDestinationSubgraphResponse),

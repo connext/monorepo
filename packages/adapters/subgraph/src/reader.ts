@@ -17,6 +17,7 @@ import {
   PropagatedRoot,
   ConnectorMeta,
   RootManagerMeta,
+  ReceivedAggregateRoot,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -44,6 +45,7 @@ import {
   getSentRootMessagesByDomainAndBlockQuery,
   getConnectorMetaQuery,
   getProcessedRootMessagesByDomainAndBlockQuery,
+  getReceivedAggregatedRootsByDomainQuery,
 } from "./lib/operations";
 import {
   getAggregatedRootsByDomainQuery,
@@ -776,5 +778,34 @@ export class SubgraphReader {
     const response = await execute(rootManagerMetaQuery);
     const values = [...response.values()];
     return parser.rootManagerMeta(values[0][0]);
+  }
+  /**
+   * Gets all the received roots starting with blocknumber for a given domain
+   * @param params - The fetch params
+   * @returns - The array of `ReceivedAggregateRoot`
+   */
+  public async getReceivedAggregatedRootsByDomain(
+    params: { domain: string; offset: number; limit: number }[],
+  ): Promise<ReceivedAggregateRoot[]> {
+    const { parser, execute } = getHelpers();
+
+    const receivedRootQuery = getReceivedAggregatedRootsByDomainQuery(params);
+    const response = await execute(receivedRootQuery);
+    const _messages: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _message = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _messages.push(_message);
+    }
+
+    const receivedRoots: ReceivedAggregateRoot[] = _messages
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.receivedAggregateRoot);
+
+    return receivedRoots;
   }
 }

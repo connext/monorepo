@@ -18,11 +18,14 @@ export const mockDatabase = (): Database => {
     saveTransfers: stub().resolves(),
     transaction: stub().yields(null),
     getUnProcessedMessages: stub().resolves([]),
+    getUnProcessedMessagesByIndex: stub().resolves([]),
     getAggregateRoot: stub().resolves(),
     getAggregateRootCount: stub().resolves(),
     getMessageRootIndex: stub().resolves(),
     getMessageRootFromIndex: stub().resolves(),
     getMessageRootCount: stub().resolves(),
+    getLatestMessageRoot: stub().resolves(),
+    getLatestAggregateRoot: stub().resolves(),
     getSpokeNode: stub().resolves(),
     getSpokeNodes: stub().resolves([]),
     getHubNode: stub().resolves(),
@@ -31,5 +34,6 @@ export const mockDatabase = (): Database => {
     putRoot: stub().resolves(),
     saveAggregatedRoots: stub().resolves(),
     savePropagatedRoots: stub().resolves(),
+    saveReceivedAggregateRoot: stub().resolves(),
   };
 };

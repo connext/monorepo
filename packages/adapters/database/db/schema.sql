@@ -201,7 +201,7 @@ CREATE VIEW public.daily_router_tvl AS
 --
 
 CREATE VIEW public.daily_transfer_metrics AS
-  SELECT (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_date,
+ SELECT (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_date,
     tf.origin_domain AS origin_chain,
     tf.destination_domain AS destination_chain,
     regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text) AS router,
@@ -258,7 +258,7 @@ CREATE VIEW public.daily_transfer_metrics AS
             WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
         END) AS slowpath_avg_ttr_in_secs
-  FROM public.transfers tf
+   FROM public.transfers tf
   GROUP BY ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
 
 
@@ -267,15 +267,14 @@ CREATE VIEW public.daily_transfer_metrics AS
 --
 
 CREATE VIEW public.daily_transfer_volume AS
-  SELECT 
-    tf.status,
+ SELECT tf.status,
     (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_date,
     tf.origin_domain AS origin_chain,
     tf.destination_domain AS destination_chain,
     regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text) AS router,
     tf.origin_transacting_asset AS asset,
-    sum(tf.origin_transacting_amount) AS volume,
-  FROM public.transfers tf
+    sum(tf.origin_transacting_amount) AS volume
+   FROM public.transfers tf
   GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
 
 
@@ -284,7 +283,7 @@ CREATE VIEW public.daily_transfer_volume AS
 --
 
 CREATE VIEW public.hourly_transfer_metrics AS
-  SELECT date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision)) AS transfer_hour,
+ SELECT date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision)) AS transfer_hour,
     tf.origin_domain AS origin_chain,
     tf.destination_domain AS destination_chain,
     regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text) AS router,
@@ -341,7 +340,7 @@ CREATE VIEW public.hourly_transfer_metrics AS
             WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
         END) AS slowpath_avg_ttr_in_secs
-  FROM public.transfers tf
+   FROM public.transfers tf
   GROUP BY (date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision))), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
 
 
@@ -350,76 +349,17 @@ CREATE VIEW public.hourly_transfer_metrics AS
 --
 
 CREATE VIEW public.hourly_transfer_volume AS
-  SELECT tf.status,
+ SELECT tf.status,
     date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision)) AS transfer_hour,
     tf.origin_domain AS origin_chain,
     tf.destination_domain AS destination_chain,
     regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text) AS router,
     tf.origin_transacting_asset AS asset,
-    sum(tf.origin_transacting_amount) AS volume,
-  FROM public.transfers tf
+    sum(tf.origin_transacting_amount) AS volume
+   FROM public.transfers tf
   GROUP BY tf.status, (date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision))), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
 
 
---
--- Name: transfers_with_ttr_ttv; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.transfers_with_ttr_ttv AS
-  SELECT 
-    tf.transfer_id,
-    tf.nonce,
-    tf."to",
-    tf.call_data,
-    tf.origin_domain,
-    tf.destination_domain,
-    tf.receive_local,
-    tf.origin_chain,
-    tf.origin_transacting_asset,
-    tf.origin_transacting_amount,
-    tf.origin_bridged_asset,
-    tf.origin_bridged_amount,
-    tf.xcall_caller,
-    tf.xcall_transaction_hash,
-    tf.xcall_timestamp,
-    tf.xcall_gas_price,
-    tf.xcall_gas_limit,
-    tf.xcall_block_number,
-    tf.destination_chain,
-    tf.status,
-    tf.routers,
-    tf.destination_transacting_asset,
-    tf.destination_transacting_amount,
-    tf.destination_local_asset,
-    tf.destination_local_amount,
-    tf.execute_caller,
-    tf.execute_transaction_hash,
-    tf.execute_timestamp,
-    tf.execute_gas_price,
-    tf.execute_gas_limit,
-    tf.execute_block_number,
-    tf.execute_origin_sender,
-    tf.reconcile_caller,
-    tf.reconcile_transaction_hash,
-    tf.reconcile_timestamp,
-    tf.reconcile_gas_price,
-    tf.reconcile_gas_limit,
-    tf.reconcile_block_number,
-    tf.update_time,
-    tf.delegate,
-    tf.message_hash,
-    tf.canonical_domain,
-    tf.slippage,
-    tf.origin_sender,
-    tf.bridged_amt,
-    tf.normalized_in,
-    tf.canonical_id,
-    tf.router_fee,
-    (tf.execute_timestamp - tf.xcall_timestamp) AS ttr,
-    (tf.reconcile_timestamp - tf.xcall_timestamp) AS ttv
-  FROM public.transfers tf;
-
-   
 --
 -- Name: merkle_cache; Type: TABLE; Schema: public; Owner: -
 --
@@ -456,6 +396,18 @@ CREATE TABLE public.propagated_roots (
     aggregate_root character(66) NOT NULL,
     leaf_count numeric NOT NULL,
     domains_hash text
+);
+
+
+--
+-- Name: received_aggregate_roots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.received_aggregate_roots (
+    id character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    root character(66) NOT NULL,
+    block_number integer NOT NULL
 );
 
 
@@ -534,6 +486,64 @@ CREATE VIEW public.transfer_volume AS
 
 
 --
+-- Name: transfers_with_ttr_ttv; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.transfers_with_ttr_ttv AS
+ SELECT tf.transfer_id,
+    tf.nonce,
+    tf."to",
+    tf.call_data,
+    tf.origin_domain,
+    tf.destination_domain,
+    tf.receive_local,
+    tf.origin_chain,
+    tf.origin_transacting_asset,
+    tf.origin_transacting_amount,
+    tf.origin_bridged_asset,
+    tf.origin_bridged_amount,
+    tf.xcall_caller,
+    tf.xcall_transaction_hash,
+    tf.xcall_timestamp,
+    tf.xcall_gas_price,
+    tf.xcall_gas_limit,
+    tf.xcall_block_number,
+    tf.destination_chain,
+    tf.status,
+    tf.routers,
+    tf.destination_transacting_asset,
+    tf.destination_transacting_amount,
+    tf.destination_local_asset,
+    tf.destination_local_amount,
+    tf.execute_caller,
+    tf.execute_transaction_hash,
+    tf.execute_timestamp,
+    tf.execute_gas_price,
+    tf.execute_gas_limit,
+    tf.execute_block_number,
+    tf.execute_origin_sender,
+    tf.reconcile_caller,
+    tf.reconcile_transaction_hash,
+    tf.reconcile_timestamp,
+    tf.reconcile_gas_price,
+    tf.reconcile_gas_limit,
+    tf.reconcile_block_number,
+    tf.update_time,
+    tf.delegate,
+    tf.message_hash,
+    tf.canonical_domain,
+    tf.slippage,
+    tf.origin_sender,
+    tf.bridged_amt,
+    tf.normalized_in,
+    tf.canonical_id,
+    tf.router_fee,
+    (tf.execute_timestamp - tf.xcall_timestamp) AS ttr,
+    (tf.reconcile_timestamp - tf.xcall_timestamp) AS ttv
+   FROM public.transfers tf;
+
+
+--
 -- Name: aggregated_roots aggregated_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -595,6 +605,14 @@ ALTER TABLE ONLY public.propagated_roots
 
 ALTER TABLE ONLY public.propagated_roots
     ADD CONSTRAINT propagated_roots_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: received_aggregate_roots received_aggregate_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.received_aggregate_roots
+    ADD CONSTRAINT received_aggregate_roots_pkey PRIMARY KEY (root, domain);
 
 
 --
@@ -716,4 +734,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20221025060119'),
     ('20221026084236'),
     ('20221027123722'),
-    ('20221118203009');
+    ('20221118203009'),
+    ('20221122235058'),
+    ('20221130222017');
