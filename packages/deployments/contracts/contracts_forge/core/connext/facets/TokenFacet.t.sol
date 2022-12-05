@@ -409,7 +409,6 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     vm.mockCall(address(asset), abi.encodeWithSelector(TestERC20.mint.selector), abi.encode(true));
 
     vm.prank(_owner);
-    // no error message given bc shouldnt be able to find function
     vm.expectRevert(TokenFacet.TokenFacet__addAssetId_badMint.selector);
     this.setupAssetWithDeployedRepresentation(canonical, address(asset), address(asset), address(0));
   }
