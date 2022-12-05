@@ -58,7 +58,7 @@ export class WatcherAdapter {
 
     // attempt to alert via sms (twilio service)
     try {
-      await alertViaSms(report);
+      await alertViaSms(report, config);
     } catch (e: unknown) {
       logger.error("alert: failed to alert via sms", requestContext, methodContext, jsonifyError(e as Error));
       errors.push(e);

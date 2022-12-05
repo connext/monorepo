@@ -101,5 +101,14 @@ export const alertViaTelegram = async (report: Report, config: WatcherConfig) =>
   });
 
   const telegram = new Telegram(telegramApiKey);
-  return await telegram.send(telegramChatId, "*Hello World\\!*", Telegram_ParseModes.MarkdownV2);
+  const message = `### Watcher Alert!
+   **Reason:** ${reason}
+   **Type:** ${event}
+   **Timestamp:** ${new Date(timestamp * 1000).toString()}
+   **Errors:** ${errors.join("\n")}
+   **Domains:** ${domains.join(", ")}
+   **Rpcs:** ${rpcs.join("\n")}
+   `;
+
+  return await telegram.send(telegramChatId, message, Telegram_ParseModes.MarkdownV2);
 };
