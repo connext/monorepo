@@ -66,6 +66,6 @@ export const alertViaSms = async (report: Report, config: WatcherConfig) => {
       from: twilioNumber,
     };
 
-    return await client.messages.create(textContent);
+    await client.messages.create(textContent);
   }
 };

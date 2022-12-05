@@ -31,7 +31,7 @@ export const pauseAndAlert = async (
   logger.warn("Pausing contracts!!!", requestContext, methodContext, { reason: "ADD REASON" });
   const paused = await watcher.pause(requestContext, reason, domains);
   logger.warn("Paused contracts, alerting", requestContext, methodContext, { paused });
-  await watcher.alert(requestContext, ReportEventType.Pause, {
+  await watcher.alert({
     domains,
     errors: [],
     reason: "", // TODO: need to return this from checkInvariants
