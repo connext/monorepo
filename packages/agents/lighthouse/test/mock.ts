@@ -8,7 +8,9 @@ import {
   mkBytes32,
   createLoggingContext,
   XMessage,
+  RootMessage,
   RelayerType,
+  ReceivedAggregateRoot,
 } from "@connext/nxtp-utils";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
 import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
@@ -27,6 +29,8 @@ export const encodedDataMock = "0xabcde";
 export const requestContext = createLoggingContext("LIGHTHOUSE-TEST").requestContext;
 
 export const mockXMessage1: XMessage = { ..._mock.entity.xMessage(), transferId: mkBytes32("0xabc") };
+export const mockRootMessage: RootMessage = _mock.entity.rootMessage();
+export const mockReceivedRoot: ReceivedAggregateRoot = _mock.entity.receivedAggregateRoot();
 
 export const mockXMessage2: XMessage = {
   ..._mock.entity.xMessage(),

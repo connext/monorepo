@@ -33,6 +33,7 @@
     "web3modal": "1.9.9"
   },
   "devDependencies": {
+    "@next/eslint-plugin-next": "^13.0.6",
     "@types/eslint": "8.4.9",
     "@types/lodash": "4.14.187",
     "@types/react": "18.0.24",
