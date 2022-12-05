@@ -398,18 +398,28 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
-      // 100: {
-      //   prefix: "Gnosis",
-      //   ambs: {
-      //     // https://etherscan.io/address/0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e
-      //     hub: "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e",
-      //     // https://blockscout.com/xdai/mainnet/address/0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59
-      //     spoke: "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
-      // },
+      100: {
+        prefix: "Gnosis",
+        ambs: {
+          // https://etherscan.io/address/0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e
+          hub: "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e",
+          // https://blockscout.com/xdai/mainnet/address/0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59
+          spoke: "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        custom: {
+          hub: {
+            mirrorChainId: "100",
+            gasCap: "4000000", // maxGasPerTx
+          },
+          spoke: {
+            mirrorChainId: "1",
+            gasCap: "2000000", // maxGasPerTx
+          },
+        },
+      },
       // Polygon
       137: {
         prefix: "Polygon",
