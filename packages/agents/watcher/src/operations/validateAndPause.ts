@@ -21,12 +21,12 @@ export const validateAndPause = async () => {
     await watcher.alert(requestContext, ReportEventType.Pause, {
       domains,
       errors: [],
-      reason, // TODO: need to return this from checkInvariants
+      reason: "", // TODO: need to return this from checkInvariants
       timestamp: Date.now(),
       event: ReportEventType.Pause,
       logger,
       methodContext,
-      relevantTransactions, // TODO: need to return this from pause function
+      relevantTransactions: [], // TODO: need to return this from pause function
       requestContext,
       rpcs: Object.entries(config.chains)
         .map((chain) => chain[1].providers)
