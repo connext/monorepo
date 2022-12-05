@@ -621,7 +621,7 @@ jobs:
       TF_VAR_full_image_name_sequencer_publisher: ${{ fromJSON(needs.smoke-tests.outputs.sequencer-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.smoke-tests.outputs.sequencer-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.smoke-tests.outputs.relayer-tags).tags[0] }}
-      TF_VAR_full_image_name_lighthouse_image_tag: ${{ github.sha }}
+      TF_VAR_lighthouse_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -692,7 +692,7 @@ jobs:
       TF_VAR_full_image_name_sequencer_publisher: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.e2e-tests.outputs.relayer-tags).tags[0] }}
-      TF_VAR_full_image_name_lighthouse_image_tag: ${{ github.sha }}
+      TF_VAR_lighthouse_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -881,7 +881,7 @@ jobs:
       TF_VAR_full_image_name_sequencer_publisher: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sequencer-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sequencer-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.relayer-tags).tags[0] }}
-      TF_VAR_full_image_name_lighthouse_image_tag: ${{ github.sha }}
+      TF_VAR_lighthouse_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:

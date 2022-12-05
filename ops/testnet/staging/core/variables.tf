@@ -55,22 +55,10 @@ variable "full_image_name_sequencer_subscriber" {
   default     = "ghcr.io/connext/sequencer-subscriber:sha-64dc7c9"
 }
 
-variable "full_image_name_lighthouse_prover" {
+variable "lighthouse_image_tag" {
   type        = string
-  description = "lighthouse prover image name"
-  default     = "ghcr.io/connext/lighthouse-prover:sha-64dc7c9"
-}
-
-variable "full_image_name_lighthouse_process_from_root" {
-  type        = string
-  description = "lighthouse process from root image name"
-  default     = "ghcr.io/connext/lighthouse-process-from-root:latest"
-}
-
-variable "full_image_name_lighthouse_propagate" {
-  type        = string
-  description = "lighthouse process from root image name"
-  default     = "ghcr.io/connext/lighthouse-propagate:latest"
+  description = "lighthouse image tag"
+  default     = "latest"
 }
 
 variable "mnemonic" {

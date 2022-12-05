@@ -257,7 +257,7 @@ module "sequencer_web3signer" {
 module "lighthouse_prover_cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "lighthouse-prover"
-  docker_image_tag    = var.cartographer_image_tag
+  docker_image_tag    = var.lighthouse_image_tag
   container_family    = "lighthouse_prover"
   environment         = var.environment
   stage               = var.stage
@@ -268,7 +268,7 @@ module "lighthouse_prover_cron" {
 module "lighthouse_process_from_root_cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "lighthouse-process-from-root"
-  docker_image_tag    = var.cartographer_image_tag
+  docker_image_tag    = var.lighthouse_image_tag
   container_family    = "lighthouse_process_from_root"
   environment         = var.environment
   stage               = var.stage
@@ -277,10 +277,10 @@ module "lighthouse_process_from_root_cron" {
 }
 
 
-module "lighthouse_process_from_root_cron" {
+module "lighthouse_propagate_cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "lighthouse-propagate"
-  docker_image_tag    = var.cartographer_image_tag
+  docker_image_tag    = var.lighthouse_image_tag
   container_family    = "lighthouse_propagate"
   environment         = var.environment
   stage               = var.stage
