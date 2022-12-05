@@ -108,6 +108,16 @@ locals {
           address = "0x6b205aeaae9de574d76d4e45af92998aefca205b"
         }]
       }
+      "6778479" = {
+        providers = ["https://rpc.gnosischain.com","https://rpc.ankr.com/gnosis"]
+        assets = [{
+          name    = "USDC"
+          address = "0x67e79CC8d6b7C164Da28864875242b9210BFeb15"
+          }, {
+          name    = "WETH"
+          address = "0x735c7e2035ff902EC8F7115355191Cabb05D86fd"
+        }]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -167,6 +177,12 @@ locals {
           queueLimit = 10000
           subscribe  = true
         },
+        {
+          name       = "6778479"
+          limit      = 1
+          queueLimit = 10000
+          subscribe  = true
+        },        
       ]
       bindings = [
         {
@@ -194,6 +210,11 @@ locals {
           target   = "6450786"
           keys     = ["6450786"]
         },
+        {
+          exchange = "sequencerX"
+          target   = "6778479"
+          keys     = ["6778479"]
+        },        
       ]
       executerTimeout = 300000
       publisher       = "sequencerX"
@@ -270,6 +291,16 @@ locals {
           address = "0x6b205aeaae9de574d76d4e45af92998aefca205b"
         }]
       }
+      "6778479" = {
+        providers = ["https://rpc.gnosischain.com","https://rpc.ankr.com/gnosis"]
+        assets = [{
+          name    = "USDC"
+          address = "0x67e79CC8d6b7C164Da28864875242b9210BFeb15"
+          }, {
+          name    = "WETH"
+          address = "0x735c7e2035ff902EC8F7115355191Cabb05D86fd"
+        }]
+      }      
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -297,6 +328,9 @@ locals {
       "6450786" = {
         providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
       }
+      "6778479" = {
+        providers = ["https://rpc.gnosischain.com","https://rpc.ankr.com/gnosis"]
+      }      
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
@@ -346,6 +380,9 @@ locals {
       "6450786" = {
         providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
       }
+      "6778479" = {
+        providers = ["https://rpc.gnosischain.com","https://rpc.ankr.com/gnosis"]
+      }      
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
