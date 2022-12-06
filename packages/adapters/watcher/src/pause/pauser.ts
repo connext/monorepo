@@ -1,4 +1,4 @@
-import { domainToChainId } from "@connext/nxtp-contracts";
+import { domainToChainId, ConnextInterface } from "@connext/nxtp-contracts";
 import { getDeployedConnextContract } from "@connext/nxtp-txservice";
 import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { constants, utils } from "ethers";
@@ -34,11 +34,12 @@ export class Pauser extends Verifier {
         const connextInterface = new utils.Interface(connext.abi as string[]);
 
         // 1. First check if paused already
-        const paused = await txservice.readTx({
+        const encoded = await txservice.readTx({
           chainId,
           to: connext.address,
           data: connextInterface.encodeFunctionData("paused", []),
         });
+        const paused = ConnextInterface.decodeFunctionResult("paused", encoded)[0];
 
         // 2. If not paused, call pause tx
         if (!paused) {
