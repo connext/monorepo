@@ -163,7 +163,6 @@ export function getOrCreateStableSwap(_stableSwap: Address): StableSwap {
     stableSwap.domain = new BigInt(0);
     stableSwap.swapPool = _stableSwap;
     stableSwap.pooledTokens = [];
-    stableSwap.balances = [];
 
     stableSwap.save();
   }

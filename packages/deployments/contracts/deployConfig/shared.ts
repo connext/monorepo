@@ -260,6 +260,18 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
+      // // Sokol testnet (for Gnosis):
+      // 77: {
+      //   prefix: "Gnosis",
+      //   ambs: {
+      //     // https://kovan.etherscan.io/address/0xfe446bef1dbf7afe24e81e05bc8b271c1ba9a560#code
+      //     hub: "0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560",
+      //     // https://blockscout.com/poa/sokol/address/0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560/contracts
+      //     spoke: "0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560",
+      //   },
+      //   processGas: DEFAULT_PROCESS_GAS,
+      //   reserveGas: DEFAULT_RESERVE_GAS,
+      // },
       // Gnosis Chiado chain
       // 100100: {
       //   prefix: "Gnosis",
@@ -274,27 +286,27 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       // },
       // Arbitrum nitro goerli testnet:
       // https://developer.offchainlabs.com/docs/Useful_Addresses
-      421613: {
-        prefix: "Arbitrum",
-        ambs: {
-          // https://goerli.etherscan.io/address/0x6BEbC4925716945D46F0Ec336D5C2564F419682C
-          hub: "0x6BEbC4925716945D46F0Ec336D5C2564F419682C",
-          // https://goerli-rollup-explorer.arbitrum.io/address/0x0000000000000000000000000000000000000064
-          spoke: "0x0000000000000000000000000000000000000064",
-        },
-        processGas: DEFAULT_PROCESS_GAS,
-        reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: DEFAULT_DELAY_BLOCKS,
-        custom: {
-          hub: {
-            // https://goerli.etherscan.io/address/0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049
-            outbox: "0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049",
-            maxSubmissionCostCap: DEFAULT_PROCESS_GAS,
-            maxGasCap: DEFAULT_PROCESS_GAS,
-            gasPriceCap: DEFAULT_RESERVE_GAS,
-          },
-        },
-      },
+      // 421613: {
+      //   prefix: "Arbitrum",
+      //   ambs: {
+      //     // https://goerli.etherscan.io/address/0x6BEbC4925716945D46F0Ec336D5C2564F419682C
+      //     hub: "0x6BEbC4925716945D46F0Ec336D5C2564F419682C",
+      //     // https://goerli-rollup-explorer.arbitrum.io/address/0x0000000000000000000000000000000000000064
+      //     spoke: "0x0000000000000000000000000000000000000064",
+      //   },
+      //   processGas: DEFAULT_PROCESS_GAS,
+      //   reserveGas: DEFAULT_RESERVE_GAS,
+      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
+      //   custom: {
+      //     hub: {
+      //       // https://goerli.etherscan.io/address/0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049
+      //       outbox: "0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049",
+      //       maxSubmissionCostCap: DEFAULT_PROCESS_GAS,
+      //       maxGasCap: DEFAULT_PROCESS_GAS,
+      //       gasPriceCap: DEFAULT_RESERVE_GAS,
+      //     },
+      //   },
+      // },
       80001: {
         prefix: "Polygon",
         ambs: {
