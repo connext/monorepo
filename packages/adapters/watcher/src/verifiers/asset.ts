@@ -45,15 +45,11 @@ export class AssetVerifier extends Verifier {
     let totalMintedAmount = BigNumber.from(0);
     for (const domain of this.context.domains) {
       const chainId = domainToChainId(+domain);
-      const connext = getDeployedConnextContract(chainId, this.context.isStaging ? "Staging" : "");
-      if (!connext) {
-        // TODO: Custom errors for package
-        throw new Error("Connext deployment not found!");
-      }
+      const connext = this.getConnextDeployment(chainId);
 
       // 1. Get the representation asset address on each domain using the canonical key.
       const canonicalToRepresentationCalldata = new utils.Interface(connext.abi as string[]).encodeFunctionData(
-        "canonicalToRepresentation",
+        "canonicalToRepresentation(bytes32)",
         [assetKey],
       );
       const representation = await this.context.txservice.readTx({
@@ -96,16 +92,13 @@ export class AssetVerifier extends Verifier {
     const assetKey = getCanonicalHash(asset.canonicalDomain, asset.canonicalId);
 
     const chainId = domainToChainId(+asset.canonicalDomain);
-    const connext = getDeployedConnextContract(chainId, this.context.isStaging ? "Staging" : "");
-    if (!connext) {
-      // TODO: Custom errors for package
-      throw new Error("Connext deployment not found!");
-    }
+    const connext = this.getConnextDeployment(chainId);
 
     // 1. Call `getCustodiedAmount` (see: TokenFacet getters), will get `custodied` value from tokenConfig.
-    const getCustodiedAmountCalldata = new utils.Interface(connext.abi as string[]).encodeFunctionData("getCustodied", [
-      assetKey,
-    ]);
+    const getCustodiedAmountCalldata = new utils.Interface(connext.abi as string[]).encodeFunctionData(
+      "getCustodiedAmount",
+      [assetKey],
+    );
     const amountRes = await this.context.txservice.readTx({
       chainId,
       to: connext.address,
