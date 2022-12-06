@@ -1,10 +1,11 @@
 import { jsonifyError } from "@connext/nxtp-utils";
 import { Twilio } from "twilio";
+import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message";
 
 import { WatcherConfig } from "../config";
 import { Report } from "../types";
 
-export const alertViaSms = async (report: Report, config: WatcherConfig) => {
+export const alertViaSms = async (report: Report, config: WatcherConfig): Promise<MessageInstance[]> => {
   const {
     timestamp,
     event,
@@ -48,6 +49,7 @@ export const alertViaSms = async (report: Report, config: WatcherConfig) => {
     rpcs,
   });
 
+  const messages: MessageInstance[] = [];
   for (const phoneNumber of twilioToPhoneNumbers) {
     if (!/^\+?[1-9]\d{1,14}$/.test(phoneNumber)) {
       logger.warn(
@@ -66,6 +68,8 @@ export const alertViaSms = async (report: Report, config: WatcherConfig) => {
       from: twilioNumber,
     };
 
-    await client.messages.create(textContent);
+    const message = await client.messages.create(textContent);
+    messages.push(message);
   }
+  return messages;
 };
