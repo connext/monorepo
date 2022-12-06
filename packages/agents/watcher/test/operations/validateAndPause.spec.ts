@@ -1,8 +1,9 @@
-import { BaseRequestContext, createRequestContext, expect } from "@connext/nxtp-utils";
-import { PauseResponse } from "@connext/nxtp-adapters-watcher";
+import { BaseRequestContext, createRequestContext, expect, mkHash } from "@connext/nxtp-utils";
+import { PauseResponse, ReportEventType } from "@connext/nxtp-adapters-watcher";
 import { stub, SinonStub } from "sinon";
 import * as ValidateAndPauseFns from "../../src/operations/validateAndPause";
 import { ctxMock } from "../globalTestHook";
+import { mock } from "../mock";
 
 const requestContext = createRequestContext("test");
 
