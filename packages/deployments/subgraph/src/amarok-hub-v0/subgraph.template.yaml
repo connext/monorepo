@@ -142,29 +142,29 @@ dataSources:
   #         handler: handleArbitrumNewConnector
   #     file: ./src/amarok-hub-v0/mapping/arbitrum.ts
   # GnosisHubConnector.sol events
-  # - kind: ethereum/contract
-  #   name: GnosisHubConnector
-  #   network: "{{network}}"
-  #   source:
-  #     address: "{{address}}"
-  #     abi: GnosisHubConnector
-  #     # prettier-ignore
-  #     startBlock: {{startBlock}}
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - Asset
-  #       - AssetBalance
-  #       - Router
-  #       - Transfer
-  #     abis:
-  #       - name: GnosisHubConnector
-  #         file: ./src/amarok-hub-v0/abis/GnosisHubConnector.json
-  #     eventHandlers:
-  #       - event: MessageProcessed(bytes,address)
-  #         handler: handleGnosisMessageProcessed
-  #       - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
-  #         handler: handleGnosisNewConnector
-  #     file: ./src/amarok-hub-v0/mapping/gnosis.ts
+  - kind: ethereum/contract
+    name: GnosisHubConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: GnosisHubConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: GnosisHubConnector
+          file: ./src/amarok-hub-v0/abis/GnosisHubConnector.json
+      eventHandlers:
+        - event: MessageProcessed(bytes,address)
+          handler: handleGnosisMessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handleGnosisNewConnector
+      file: ./src/amarok-hub-v0/mapping/gnosis.ts

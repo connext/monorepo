@@ -257,73 +257,39 @@ module "sequencer_web3signer" {
 }
 
 module "lighthouse_prover_cron" {
-  source                  = "../../../modules/cron"
-  region                  = var.region
-  dd_api_key              = var.dd_api_key
-  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id              = module.ecs.ecs_cluster_id
-  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  docker_image            = var.full_image_name_lighthouse_prover
-  container_family        = "lighthouse_prover_cron"
-  container_port          = 8080
-  cpu                     = 1024
-  memory                  = 2048
-  instance_count          = 1
-  environment             = var.environment
-  stage                   = var.stage
-  domain                  = var.domain
-  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = concat(local.lighthouse_env_vars, [{ name = "DD_SERVICE", value = "lighthouse-prover-${var.environment}" }])
-  schedule_expression     = "cron(5 * * * ? *)"
+  source              = "../../../modules/lambda"
+  ecr_repository_name = "nxtp-lighthouse"
+  docker_image_tag    = var.lighthouse_image_tag
+  container_family    = "lighthouse_prover"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.lighthouse_env_vars, { DD_SERVICE = "lighthouse-prover-${var.environment}", LIGHTHOUSE_SERVICE = "prover" })
+  schedule_expression = "rate(5 minutes)"
 }
 
 module "lighthouse_process_from_root_cron" {
-  source                  = "../../../modules/cron"
-  region                  = var.region
-  dd_api_key              = var.dd_api_key
-  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id              = module.ecs.ecs_cluster_id
-  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  docker_image            = var.full_image_name_lighthouse_process_from_root
-  container_family        = "lighthouse_process_cron"
-  container_port          = 8080
-  cpu                     = 256
-  memory                  = 512
-  instance_count          = 1
-  environment             = var.environment
-  stage                   = var.stage
-  domain                  = var.domain
-  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = concat(local.lighthouse_env_vars, [{ name = "DD_SERVICE", value = "lighthouse-process-from-root-${var.environment}" }])
-  schedule_expression     = "cron(5 * * * ? *)"
+  source              = "../../../modules/lambda"
+  ecr_repository_name = "nxtp-lighthouse"
+  docker_image_tag    = var.lighthouse_image_tag
+  container_family    = "lighthouse_process_from_root"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.lighthouse_env_vars, { DD_SERVICE = "lighthouse-process-from-root-${var.environment}", LIGHTHOUSE_SERVICE = "process" })
+  schedule_expression = "rate(5 minutes)"
 }
 
+
 module "lighthouse_propagate_cron" {
-  source                  = "../../../modules/cron"
-  region                  = var.region
-  dd_api_key              = var.dd_api_key
-  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id              = module.ecs.ecs_cluster_id
-  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  docker_image            = var.full_image_name_lighthouse_propagate
-  container_family        = "lighthouse_propagate_cron"
-  container_port          = 8080
-  cpu                     = 256
-  memory                  = 512
-  instance_count          = 1
-  environment             = var.environment
-  stage                   = var.stage
-  domain                  = var.domain
-  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = concat(local.lighthouse_env_vars, [{ name = "DD_SERVICE", value = "lighthouse-propagate-${var.environment}" }])
-  schedule_expression     = "cron(30 * * * ? *)"
+  source              = "../../../modules/lambda"
+  ecr_repository_name = "nxtp-lighthouse"
+  docker_image_tag    = var.lighthouse_image_tag
+  container_family    = "lighthouse_propagate"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.lighthouse_env_vars, { DD_SERVICE = "lighthouse-propagate-${var.environment}", LIGHTHOUSE_SERVICE = "propagate" })
+  schedule_expression = "rate(5 minutes)"
 }
+
 
 module "relayer" {
   source                   = "../../../modules/service"
