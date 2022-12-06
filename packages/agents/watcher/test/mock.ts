@@ -16,7 +16,8 @@ export const mock = {
         wallet: createStubInstance(Wallet, { getAddress: Promise.resolve(mockSequencer) }),
         watcher: createStubInstance(WatcherAdapter, {
           checkInvariants: Promise.resolve(true),
-          pause: Promise.resolve([true]),
+          pause: Promise.resolve([]),
+          alert: Promise.resolve(),
         }),
       },
       config: mock.config(),

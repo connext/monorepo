@@ -75,8 +75,8 @@ export const bindServer = async (): Promise<void> => {
           return res.status(401).send({ message: "Unauthorized to perform this operation" });
         }
 
-        const { paused, domains } = await pauseAndAlert(requestContext, "TODO");
-        return res.status(200).send({ paused, domains });
+        const paused = await pauseAndAlert(requestContext, "TODO");
+        return res.status(200).send(paused);
       } catch (err: unknown) {
         return res.status(500).send({ error: jsonifyError(err as NxtpError), message: "Error pausing" });
       }

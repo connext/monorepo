@@ -1,4 +1,4 @@
-import { ReportEventType } from "@connext/nxtp-adapters-watcher";
+import { PauseResponse, ReportEventType } from "@connext/nxtp-adapters-watcher";
 import { createLoggingContext, createMethodContext, RequestContext } from "@connext/nxtp-utils";
 
 import { getContext } from "../watcher";
@@ -16,10 +16,7 @@ export const validateAndPause = async () => {
   }
 };
 
-export const pauseAndAlert = async (
-  requestContext: RequestContext,
-  reason: string,
-): Promise<{ paused: boolean[]; domains: string[] }> => {
+export const pauseAndAlert = async (requestContext: RequestContext, reason: string): Promise<PauseResponse[]> => {
   const {
     adapters: { watcher },
     logger,
@@ -33,18 +30,18 @@ export const pauseAndAlert = async (
   logger.warn("Paused contracts, alerting", requestContext, methodContext, { paused });
   await watcher.alert({
     domains,
-    errors: [],
+    errors: paused.map((p) => p.error),
     reason: "", // TODO: need to return this from checkInvariants
     timestamp: Date.now(),
     event: ReportEventType.Pause,
     logger,
     methodContext,
-    relevantTransactions: [], // TODO: need to return this from pause function
+    relevantTransactions: paused.map((p) => p.relevantTransaction), // TODO: need to return this from pause function
     requestContext,
     rpcs: Object.entries(config.chains)
       .map((chain) => chain[1].providers)
       .flat(),
   });
   logger.info("Finished alerting after pause", requestContext, methodContext);
-  return { paused, domains };
+  return paused;
 };

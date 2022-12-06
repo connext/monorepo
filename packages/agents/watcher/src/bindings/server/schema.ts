@@ -4,10 +4,14 @@ import { Static, Type } from "@sinclair/typebox";
 export const PauseRequestSchema = Type.Intersect([AdminSchema, Type.Object({ reason: Type.String() })]);
 export type PauseRequest = Static<typeof PauseRequestSchema>;
 
-export const PauseResponseSchema = Type.Object({
-  paused: Type.Array(Type.Boolean()),
-  domains: Type.Array(Type.String()),
-});
+export const PauseResponseSchema = Type.Array(
+  Type.Object({
+    domain: Type.String(),
+    paused: Type.Boolean(),
+    error: Type.Any(),
+    relevantTransaction: Type.Any(),
+  }),
+);
 export type PauseResponse = Static<typeof PauseResponseSchema>;
 
 export const WatcherApiErrorResponseSchema = Type.Object({

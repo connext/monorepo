@@ -1,0 +1,15 @@
+{
+  "extends": "../../../.nycrc.json",
+  "exclude": [
+    "src/config.ts",
+    "src/context.ts",
+    "src/index.ts",
+    "src/watcher.ts",
+    "src/bindings/index.ts",
+    "src/bindings/interval/index.ts",
+    "src/bindings/server/index.ts",
+    "src/bindings/server/schema.ts",
+    "test/**/*.ts"
+  ],
+  "all": true
+}
