@@ -3,7 +3,7 @@ import { getErc20Interface } from "@connext/nxtp-txservice";
 import { getCanonicalHash, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, utils } from "ethers";
 
-import { Verifier, VerifierContext, AssetInfo } from "../types";
+import { Verifier, VerifierContext, AssetInfo, VerifyResponse } from "../types";
 
 export class AssetVerifier extends Verifier {
   constructor(context: VerifierContext, public readonly assets: AssetInfo[]) {
@@ -18,16 +18,21 @@ export class AssetVerifier extends Verifier {
    * @returns boolean - Whether the invariant was verified. `true` if ALL were verified (no pause needed).
    * `false` if the invariant was violated (pause is needed) for ANY assets!
    */
-  public override async checkInvariant(_requestContext: RequestContext): Promise<boolean> {
+  public override async checkInvariant(_requestContext: RequestContext): Promise<VerifyResponse> {
     for (const asset of this.assets) {
       const totalMinted = await this.totalMintedAssets(asset);
       const totalLocked = await this.totalLockedAssets(asset);
       // Invariant: totalMintedAssets <= totalLockedAssets
       if (totalMinted.gt(totalLocked)) {
-        return false;
+        return {
+          needsPause: true,
+          reason: "totalMintedAssets <= totalLockedAssets",
+        };
       }
     }
-    return true;
+    return {
+      needsPause: false,
+    };
   }
 
   /**
