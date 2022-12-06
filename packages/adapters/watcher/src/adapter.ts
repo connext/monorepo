@@ -1,4 +1,4 @@
-import { jsonifyError, NxtpError, RequestContext } from "@connext/nxtp-utils";
+import { jsonifyError, RequestContext } from "@connext/nxtp-utils";
 
 import { alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram } from "./alert";
 import { getConfig } from "./config";
