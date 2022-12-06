@@ -32,6 +32,8 @@ dataSources:
           handler: handleRootPropagated
         - event: ConnectorAdded(uint32,address,uint32[],address[])
           handler: handleConnectorAdded
+        - event: ConnectorRemoved(uint32,address,uint32[],address[],address)
+          handler: handleConnectorRemoved
       file: ./src/amarok-hub-v0/mapping/rootManager.ts
   # PolygonHubConnector.sol events
   - kind: ethereum/contract
