@@ -3,7 +3,7 @@ import { getDeployedConnextContract } from "@connext/nxtp-txservice";
 import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { constants, utils } from "ethers";
 
-import { Verifier } from "../types";
+import { PauseResponse, Verifier } from "../types";
 
 export class Pauser extends Verifier {
   /**
@@ -13,11 +13,11 @@ export class Pauser extends Verifier {
    * @returns boolean[] array mapped to domains[] indicating whether the pausing for each
    * domain was successful.
    */
-  public async pause(reason: string, domains: string[]): Promise<boolean[]> {
+  public async pause(reason: string, domains: string[]): Promise<PauseResponse[]> {
     const { requestContext, methodContext } = createLoggingContext(this.pause.name);
     const { logger, isStaging, txservice } = this.context;
 
-    const success: boolean[] = [];
+    const result: PauseResponse[] = [];
     for (const domain of domains) {
       try {
         logger.info(`Trying to pause for domain ${domain}. reason: ${reason}`, requestContext, methodContext, {
@@ -45,15 +45,32 @@ export class Pauser extends Verifier {
           const pauseCalldata = connextInterface.encodeFunctionData("pause", []);
 
           try {
-            await txservice.sendTx(
+            const receipt = await txservice.sendTx(
               { to: connext.address, data: pauseCalldata, value: constants.Zero, chainId },
               requestContext,
             );
-            success.push(true);
+            result.push({
+              domain,
+              paused: true,
+              error: null,
+              relevantTransaction: receipt.transactionHash,
+            });
           } catch (error: unknown) {
             logger.warn("Pause Tx: Transaction Failed", requestContext, methodContext, jsonifyError(error as Error));
-            success.push(false);
+            result.push({
+              domain,
+              paused: false,
+              error: error,
+              relevantTransaction: "",
+            });
           }
+        } else {
+          result.push({
+            domain,
+            paused: false,
+            error: new Error("Already Paused"),
+            relevantTransaction: "",
+          });
         }
       } catch (error: unknown) {
         logger.warn(
@@ -62,9 +79,14 @@ export class Pauser extends Verifier {
           methodContext,
           jsonifyError(error as Error),
         );
-        success.push(false);
+        result.push({
+          domain,
+          paused: false,
+          error: error,
+          relevantTransaction: "",
+        });
       }
     }
-    return success;
+    return result;
   }
 }

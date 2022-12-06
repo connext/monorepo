@@ -31,6 +31,13 @@ export abstract class Verifier {
   }
 }
 
+export type PauseResponse = {
+  domain: string;
+  paused: boolean;
+  error: any;
+  relevantTransaction: ethers.providers.TransactionResponse | string;
+};
+
 /// MARK - General
 // Used in AssetVerifier
 export type AssetInfo = {
