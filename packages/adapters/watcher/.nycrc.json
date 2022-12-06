@@ -4,10 +4,11 @@
   "exclude": [
     "src/errors.ts",
     "src/index.ts",
-    "src/mockable.ts",
-    "src/connext/index.ts",
-    "src/gelato/index.ts",
-    "src/mockable.ts",
+    "src/config.ts",
+    "src/pause/index.ts",
+    "src/verifiers/index.ts",
+    "src/alert/index.ts",
+    "src/types.ts",
     "test/**"
   ]
 }
