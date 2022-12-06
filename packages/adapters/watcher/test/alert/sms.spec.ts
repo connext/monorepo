@@ -18,8 +18,20 @@ describe("Watcher Adapter: sms", () => {
   describe("#alertViaSms", () => {
     beforeEach(() => {});
 
-    it("should throw if chatId or apiKey is invalid", async () => {
+    it("should throw if config is invalid", async () => {
       await expect(alertViaSms(TEST_REPORT, { ...config, twilioNumber: undefined })).to.be.rejectedWith(
+        "alertViaSms: Twilio config is invalid!",
+      );
+
+      await expect(alertViaSms(TEST_REPORT, { ...config, twilioAccountSid: undefined })).to.be.rejectedWith(
+        "alertViaSms: Twilio config is invalid!",
+      );
+
+      await expect(alertViaSms(TEST_REPORT, { ...config, twilioAuthToken: undefined })).to.be.rejectedWith(
+        "alertViaSms: Twilio config is invalid!",
+      );
+
+      await expect(alertViaSms(TEST_REPORT, { ...config, twilioToPhoneNumbers: undefined })).to.be.rejectedWith(
         "alertViaSms: Twilio config is invalid!",
       );
     });

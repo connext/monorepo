@@ -5,6 +5,7 @@
     "src/errors.ts",
     "src/index.ts",
     "src/config.ts",
+    "src/adapter.ts",
     "src/pause/index.ts",
     "src/verifiers/index.ts",
     "src/alert/index.ts",
