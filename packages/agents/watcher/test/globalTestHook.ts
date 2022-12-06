@@ -1,71 +1,15 @@
-import { StoreManager } from "@connext/nxtp-adapters-cache";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { ChainReader } from "@connext/nxtp-txservice";
-import { DestinationTransfer, Logger, mkAddress } from "@connext/nxtp-utils";
-import { parseEther, parseUnits } from "ethers/lib/utils";
-import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import { reset, restore, stub } from "sinon";
 
-import { AppContext } from "../src/lib/entities/context";
-import * as SequencerFns from "../src/sequencer";
-import * as operations from "../src/operations";
+import { WatcherContext } from "../src/context";
+import * as WatcherFns from "../src/watcher";
+import { mock } from "./mock";
 
-export let ctxMock: AppContext;
-export let subgraphMock: SinonStubbedInstance<SubgraphReader>;
-export let chainReaderMock: SinonStubbedInstance<ChainReader>;
-export let getOperationsStub: SinonStub;
-export let getHelpersStub: SinonStub;
+export let ctxMock: WatcherContext;
 
 export const mochaHooks = {
   async beforeEach() {
-    // setup subgraph
-    subgraphMock = createStubInstance(SubgraphReader);
-    subgraphMock.getAssetBalance.resolves(parseEther("10000"));
-    subgraphMock.getAssetBalances.resolves({ [mkAddress("0xaaa")]: parseEther("10000") });
-    subgraphMock.getDestinationXCalls.resolves([
-      mock.entity.xtransfer({
-        originDomain: "1000",
-        destinationDomain: "2000",
-      }) as DestinationTransfer,
-      mock.entity.xtransfer({
-        originDomain: "1000",
-        destinationDomain: "2000",
-      }) as DestinationTransfer,
-    ]);
-
-    // setup cache
-    const cacheParams = {
-      host: "mock",
-      port: 1234,
-      mock: true,
-      logger: mock.context().logger,
-      redis: undefined as any,
-    };
-    const cacheInstance = StoreManager.getInstance(cacheParams);
-
-    getOperationsStub = stub(operations, "getOperations");
-    getOperationsStub.returns(mock.operations);
-
-    getHelpersStub = stub(helpers, "getHelpers");
-    getHelpersStub.returns(mock.helpers);
-
-    chainReaderMock = createStubInstance(ChainReader);
-    chainReaderMock.getGasEstimate.resolves(parseUnits("1", 9));
-    chainReaderMock.getGasEstimateWithRevertCode.resolves(parseUnits("1", 9));
-    ctxMock = {
-      adapters: {
-        subgraph: subgraphMock,
-        cache: cacheInstance,
-        chainreader: chainReaderMock,
-        contracts: mock.context().adapters.contracts,
-        relayers: mock.context().adapters.relayers,
-        mqClient: mock.context().adapters.mqClient,
-        wallet: mock.context().adapters.wallet,
-      },
-      config: mock.config(),
-      chainData: mock.context().chainData,
-      logger: new Logger({ name: "test", level: process.env.LOG_LEVEL || "silent" }),
-    };
-    stub(SequencerFns, "getContext").returns(ctxMock);
+    ctxMock = mock.context();
+    stub(WatcherFns, "getContext").returns(ctxMock);
   },
 
   afterEach() {
