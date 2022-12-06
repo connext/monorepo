@@ -1,5 +1,5 @@
 import { domainToChainId } from "@connext/nxtp-contracts";
-import { getDeployedConnextContract, getErc20Interface } from "@connext/nxtp-txservice";
+import { getErc20Interface } from "@connext/nxtp-txservice";
 import { getCanonicalHash, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, utils } from "ethers";
 

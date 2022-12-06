@@ -1,5 +1,4 @@
 import { domainToChainId, ConnextInterface } from "@connext/nxtp-contracts";
-import { getDeployedConnextContract } from "@connext/nxtp-txservice";
 import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { constants, utils } from "ethers";
 
@@ -15,7 +14,7 @@ export class Pauser extends Verifier {
    */
   public async pause(reason: string, domains: string[]): Promise<PauseResponse[]> {
     const { requestContext, methodContext } = createLoggingContext(this.pause.name);
-    const { logger, isStaging, txservice } = this.context;
+    const { logger, txservice } = this.context;
 
     const result: PauseResponse[] = [];
     for (const domain of domains) {
@@ -25,11 +24,7 @@ export class Pauser extends Verifier {
         });
 
         const chainId = domainToChainId(+domain);
-        const connext = getDeployedConnextContract(chainId, isStaging ? "Staging" : "");
-        if (!connext) {
-          // TODO: Custom errors for package
-          throw new Error("Connext deployment not found!");
-        }
+        const connext = this.getConnextDeployment(chainId);
 
         const connextInterface = new utils.Interface(connext.abi as string[]);
 
