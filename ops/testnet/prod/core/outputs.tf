@@ -32,28 +32,16 @@ output "router-subscriber-service-endpoint" {
   value = module.router_subscriber.service_endpoint
 }
 
-output "lighthouse-prover-dns" {
-  value = module.lighthouse_prover_cron.daemon_service_name
-}
-
 output "lighthouse-prover-service-name" {
-  value = module.lighthouse_prover_cron.daemon_service_name
+  value = module.lighthouse_prover_cron.lambda_cron_service_name
 }
 
 output "lighthouse-process-from-root-service-name" {
-  value = module.lighthouse_process_from_root_cron.daemon_service_name
-}
-
-output "lighthouse-process-from-root-dns" {
-  value = module.lighthouse_process_from_root_cron.daemon_service_name
+  value = module.lighthouse_process_from_root_cron.lambda_cron_service_name
 }
 
 output "lighthouse-propagate-service-name" {
-  value = module.lighthouse_propagate_cron.daemon_service_name
-}
-
-output "lighthouse-propagate-dns" {
-  value = module.lighthouse_propagate_cron.daemon_service_name
+  value = module.lighthouse_propagate_cron.lambda_cron_service_name
 }
 
 output "relayer-service-endpoint" {

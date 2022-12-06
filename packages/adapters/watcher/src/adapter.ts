@@ -3,7 +3,7 @@ import { jsonifyError, NxtpError, RequestContext } from "@connext/nxtp-utils";
 import { alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram } from "./alert";
 import { getConfig } from "./config";
 import { Pauser } from "./pause";
-import { Verifier, VerifierContext, AssetInfo, Report } from "./types";
+import { Verifier, VerifierContext, AssetInfo, Report, PauseResponse } from "./types";
 import { AssetVerifier } from "./verifiers";
 
 // Aggregation class for interfacing with all adapter functionality.
@@ -28,7 +28,7 @@ export class WatcherAdapter {
     return true;
   }
 
-  public async pause(_requestContext: RequestContext, reason: string, domains: string[]): Promise<boolean[]> {
+  public async pause(_requestContext: RequestContext, reason: string, domains: string[]): Promise<PauseResponse[]> {
     // TODO: Check to make sure domains are subset of what was provided in VerifierContext in constructor...?
     return await this.pauser.pause(reason, domains);
   }
