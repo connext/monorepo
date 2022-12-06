@@ -1,6 +1,6 @@
 {
   "name": "@connext/lighthouse",
-  "version": "0.2.1-beta.12",
+  "version": "0.2.1-beta.13",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,9 +9,9 @@
     "src/**/*"
   ],
   "scripts": {
-    "start:prover": "node --enable-source-maps dist/tasks/prover/index.js",
-    "start:process": "node --enable-source-maps dist/tasks/processFromRoot/index.js",
-    "start:propagate": "node --enable-source-maps dist/tasks/propagate/index.js",
+    "start:prover": "LIGHTHOUSE_SERVICE=prover node --enable-source-maps dist/tasks/run.js",
+    "start:process": "LIGHTHOUSE_SERVICE=process node --enable-source-maps dist/tasks/run.js",
+    "start:propagate": "LIGHTHOUSE_SERVICE=propagate node --enable-source-maps dist/tasks/run.js",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
@@ -33,7 +33,9 @@
     "@eth-optimism/sdk": "1.6.9",
     "@gelatonetwork/relay-sdk": "^2.1.0",
     "@sinclair/typebox": "0.25.2",
-    "dd-trace": "3.6.0",
+    "@types/aws-lambda": "^8.10.109",
+    "datadog-lambda-js": "^6.85.0",
+    "dd-trace": "^3.9.0",
     "dotenv": "16.0.3",
     "ethers": "5.7.2",
     "fastify": "4.9.2",

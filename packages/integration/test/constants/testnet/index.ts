@@ -380,5 +380,16 @@ export const CARTOGRAPHER_CONFIG: Promise<CartographerConfig> = (async (): Promi
       [DESTINATION.domain]: {},
     },
     healthUrls: {},
+    service: "messages",
   };
+})();
+
+export const CARTOGRAPHER_CONFIG_TRANSFERS: Promise<CartographerConfig> = (async (): Promise<CartographerConfig> => {
+  const config = await CARTOGRAPHER_CONFIG;
+  return { ...config, service: "transfers" };
+})();
+
+export const CARTOGRAPHER_CONFIG_ROUTERS: Promise<CartographerConfig> = (async (): Promise<CartographerConfig> => {
+  const config = await CARTOGRAPHER_CONFIG;
+  return { ...config, service: "routers" };
 })();

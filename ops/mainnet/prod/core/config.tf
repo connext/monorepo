@@ -15,14 +15,16 @@ locals {
     { name = "DD_ENV", value = var.stage },
     { name = "DD_SERVICE", value = "router-${var.environment}" }
   ]
-  lighthouse_env_vars = [
-    { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
-    { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage },
-    { name = "DD_PROFILING_ENABLED", value = "true" },
-    { name = "DD_ENV", value = var.stage },
-    { name = "DD_SERVICE", value = "router-${var.environment}" }
-  ]
+  lighthouse_env_vars = {
+    NXTP_CONFIG       = local.local_lighthouse_config,
+    ENVIRONMENT       = var.environment,
+    STAGE             = var.stage,
+    DD_LOGS_ENABLED   = true,
+    DD_ENV            = var.stage,
+    DD_SERVICE        = "router-${var.environment}"
+    DD_API_KEY        = var.dd_api_key,
+    DD_LAMBDA_HANDLER = "packages/agents/lighthouse/dist/index.handler"
+  }
   router_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
@@ -108,6 +110,16 @@ locals {
           address = "0x6b205aeaae9de574d76d4e45af92998aefca205b"
         }]
       }
+      "6778479" = {
+        providers = ["https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
+        assets = [{
+          name    = "USDC"
+          address = "0x67e79CC8d6b7C164Da28864875242b9210BFeb15"
+          }, {
+          name    = "WETH"
+          address = "0x735c7e2035ff902EC8F7115355191Cabb05D86fd"
+        }]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -167,6 +179,12 @@ locals {
           queueLimit = 10000
           subscribe  = true
         },
+        {
+          name       = "6778479"
+          limit      = 1
+          queueLimit = 10000
+          subscribe  = true
+        },
       ]
       bindings = [
         {
@@ -193,6 +211,11 @@ locals {
           exchange = "sequencerX"
           target   = "6450786"
           keys     = ["6450786"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "6778479"
+          keys     = ["6778479"]
         },
       ]
       executerTimeout = 300000
@@ -270,6 +293,16 @@ locals {
           address = "0x6b205aeaae9de574d76d4e45af92998aefca205b"
         }]
       }
+      "6778479" = {
+        providers = ["https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
+        assets = [{
+          name    = "USDC"
+          address = "0x67e79CC8d6b7C164Da28864875242b9210BFeb15"
+          }, {
+          name    = "WETH"
+          address = "0x735c7e2035ff902EC8F7115355191Cabb05D86fd"
+        }]
+      }
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -296,6 +329,9 @@ locals {
       # }
       "6450786" = {
         providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
+      }
+      "6778479" = {
+        providers = ["https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
@@ -345,6 +381,9 @@ locals {
       # }
       "6450786" = {
         providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
+      }
+      "6778479" = {
+        providers = ["https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
       }
     }
     environment   = var.stage

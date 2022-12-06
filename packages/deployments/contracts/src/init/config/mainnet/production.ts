@@ -8,7 +8,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "1886350457", // POLYGON
     // "1634886255", // ARBITRUM ONE
     "6450786", // BNB
-    // "6778479", // GNOSIS
+    "6778479", // GNOSIS
   ],
   assets: [
     {
@@ -35,10 +35,10 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0xe4f1ce2dc807084a874e957d5d2ac6502820bc15",
           adopted: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
         },
-        // "6778479": {
-        //   local: "0x2ABe2d4F09ea3124DE56AD91ae0950A3B71eCD11",
-        //   adopted: "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
-        // },
+        "6778479": {
+          local: "0x67e79CC8d6b7C164Da28864875242b9210BFeb15",
+          adopted: "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
+        },
       },
     },
     {
@@ -65,10 +65,10 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x6b205aeaae9de574d76d4e45af92998aefca205b",
           adopted: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
         },
-        // "6778479": {
-        //   local: "0x2BD5B3cfB2b16F2B10e7BA41dc1cb93d61B36bB8",
-        //   adopted: "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1",
-        // },
+        "6778479": {
+          local: "0x735c7e2035ff902EC8F7115355191Cabb05D86fd",
+          adopted: "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1",
+        },
       },
     },
   ],
@@ -89,6 +89,8 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "0x9B077C59fDe7de5AdCeF8093Bc38B61d43FC7007",
         "0xE2Fc8F14B6cEb1AD8165623E02953eDB100288bE",
         "0xe8a5eE73f3c8F1Cd55915f6Eb5Fc7df4206f3C78",
+        "0x43728A95386D64384C76Afd416Dcc8118869BA6c",
+        "0x62B1a88CCc6BC5e6FF91FB2FCD29Ab4F819b35C6",
       ],
     },
   },

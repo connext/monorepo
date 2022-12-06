@@ -21,6 +21,7 @@ module.exports = {
     "plugin:import/errors",
     "plugin:import/warnings",
     "plugin:import/typescript",
+    "plugin:@next/next/recommended",
   ],
   rules: {
     // Importing any package in the project will likely work in dev because
@@ -64,6 +65,12 @@ module.exports = {
     "no-async-promise-executor": "off",
     quotes: ["warn", "double", { allowTemplateLiterals: true, avoidEscape: true }],
     semi: ["error", "always"],
+    "import/no-unresolved": [
+      "error",
+      {
+        ignore: ["aws-lambda"],
+      },
+    ],
     "import/order": [
       1,
       {

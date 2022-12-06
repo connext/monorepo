@@ -20,6 +20,7 @@ import {
   DestinationMessage,
   AggregatedRoot,
   PropagatedRoot,
+  ReceivedAggregateRoot,
 } from "../types";
 import { getNtpTimeSeconds } from "../helpers";
 
@@ -413,6 +414,13 @@ export const mock = {
       aggregate: getRandomBytes32(),
       domainsHash: getRandomBytes32(),
       count: Math.floor(Date.now() / 1000),
+      ...overrides,
+    }),
+    receivedAggregateRoot: (overrides: Partial<ReceivedAggregateRoot> = {}): ReceivedAggregateRoot => ({
+      id: getRandomBytes32(),
+      domain: mock.domain.A,
+      root: getRandomBytes32(),
+      blockNumber: Math.floor(Date.now() / 1000),
       ...overrides,
     }),
   },

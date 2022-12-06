@@ -8,6 +8,7 @@ import {
   Logger,
   AggregatedRoot,
   PropagatedRoot,
+  ReceivedAggregateRoot,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -27,10 +28,14 @@ import {
   getRootMessages,
   saveAggregatedRoots,
   savePropagatedRoots,
+  saveReceivedAggregateRoot,
   getUnProcessedMessages,
+  getUnProcessedMessagesByIndex,
   getAggregateRoot,
   getAggregateRootCount,
   getMessageRootIndex,
+  getLatestMessageRoot,
+  getLatestAggregateRoot,
   getMessageRootFromIndex,
   getMessageRootCount,
   getSpokeNode,
@@ -84,9 +89,22 @@ export type Database = {
   transaction: (callback: (client: TxnClientForRepeatableRead) => Promise<void>) => Promise<void>;
   saveAggregatedRoots: (roots: AggregatedRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   savePropagatedRoots: (roots: PropagatedRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveReceivedAggregateRoot: (
+    roots: ReceivedAggregateRoot[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
   getUnProcessedMessages: (
     limit?: number,
     offset?: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<XMessage[]>;
+  getUnProcessedMessagesByIndex: (
+    origin_domain: string,
+    destination_domain: string,
+    index: number,
+    offset: number,
+    limit?: number,
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage[]>;
@@ -100,6 +118,16 @@ export type Database = {
     messageRoot: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<number | undefined>;
+  getLatestMessageRoot: (
+    domain: string,
+    aggregate_root: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<RootMessage | undefined>;
+  getLatestAggregateRoot: (
+    domain: string,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<ReceivedAggregateRoot | undefined>;
   getMessageRootFromIndex: (
     domain: string,
     index: number,
@@ -162,10 +190,14 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     transaction,
     saveAggregatedRoots,
     savePropagatedRoots,
+    saveReceivedAggregateRoot,
     getUnProcessedMessages,
+    getUnProcessedMessagesByIndex,
     getAggregateRoot,
     getAggregateRootCount,
     getMessageRootIndex,
+    getLatestMessageRoot,
+    getLatestAggregateRoot,
     getMessageRootFromIndex,
     getMessageRootCount,
     getSpokeNode,

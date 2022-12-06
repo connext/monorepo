@@ -1,9 +1,9 @@
 import { ChainReader, contractDeployments, getAmbABIs, getContractInterfaces } from "@connext/nxtp-txservice";
-import { createLoggingContext, getChainData, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
+import { ChainData, createLoggingContext, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
-import { getConfig } from "../../config";
+import { NxtpLighthouseConfig } from "../../config";
 
 import { PropagateContext } from "./context";
 import { propagate } from "./operations";
@@ -11,18 +11,13 @@ import { propagate } from "./operations";
 const context: PropagateContext = {} as any;
 export const getContext = () => context;
 
-export const makePropagate = async () => {
+export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
   const { requestContext, methodContext } = createLoggingContext(makePropagate.name);
 
   try {
-    // Get ChainData and parse out configuration.
-    const chainData = await getChainData();
-    if (!chainData) {
-      throw new Error("Could not get chain data");
-    }
     context.adapters = {} as any;
     context.chainData = chainData;
-    context.config = await getConfig(context.chainData, contractDeployments);
+    context.config = config;
 
     // Make logger instance.
     context.logger = new Logger({
