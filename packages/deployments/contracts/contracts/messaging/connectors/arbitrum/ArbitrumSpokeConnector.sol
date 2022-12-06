@@ -7,8 +7,9 @@ import {ArbitrumL2Amb} from "../../interfaces/ambs/arbitrum/ArbitrumL2Amb.sol";
 
 import {SpokeConnector} from "../SpokeConnector.sol";
 import {Connector} from "../Connector.sol";
+import {BaseArbitrum} from "./BaseArbitrum.sol";
 
-contract ArbitrumSpokeConnector is SpokeConnector {
+contract ArbitrumSpokeConnector is SpokeConnector, BaseArbitrum {
   // ============ Constructor ============
   constructor(
     uint32 _domain,
@@ -34,7 +35,17 @@ contract ArbitrumSpokeConnector is SpokeConnector {
       _merkle,
       _watcherManager
     )
+    BaseArbitrum(_mirrorConnector)
   {}
+
+  /**
+   * @notice Processes a message received by an AMB
+   * @dev This is called by AMBs to process messages originating from mirror connector
+   */
+  function processMessage(bytes memory _data) external override onlyAliased {
+    _processMessage(_data);
+    emit MessageProcessed(_data, msg.sender);
+  }
 
   // ============ Private fns ============
 

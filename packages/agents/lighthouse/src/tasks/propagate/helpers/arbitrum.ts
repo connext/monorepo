@@ -85,6 +85,25 @@ export const getPropagateParams = async (
       gasPriceBid: gasPriceBid.toString(),
     });
 
+    // 0x0000000000000000000000000000000000000064
+
+    // maxGas = await l1ToL2MessageGasEstimate.estimateRetryableTicketGasLimit(
+    //   l1HubConnector.address,
+    //   l2SpokeConnector.address,
+    //   constants.Zero,
+    //   l2SpokeConnector.address, // TODO: check this
+    //   l2SpokeConnector.address,
+    //   // use example calldata since it will always be the same
+    //   // TODO: check this, it shouldnt be the same as the above example calldata
+    //   "0x4ff746f6000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000207465737400000000000000000000000000000000000000000000000000000000",
+    //   utils.parseEther("1"),
+    // );
+    // logger.info(`Got current max gas: ${maxGas.toString()}`, requestContext, methodContext, {
+    //   maxGas: maxGas.toString(),
+    // });
+
+    console.log({ hubConnector: l1HubConnector.address, spoke: l2SpokeConnector.address });
+
     maxGas = await l1ToL2MessageGasEstimate.estimateRetryableTicketGasLimit(
       l1HubConnector.address,
       l2SpokeConnector.address,

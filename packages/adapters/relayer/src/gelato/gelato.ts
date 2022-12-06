@@ -28,6 +28,10 @@ import { url } from ".";
 /// MARK - Gelato Relay API
 /// Docs: https://relay.gelato.digital/api-docs/
 
+const hardcodedAddresses: Record<number, string> = {
+  421613: "0x8cFAcF1d7f052faA1aED6e793f0C451b5dEA8c1E",
+};
+
 export const isChainSupportedByGelato = async (chainId: number): Promise<boolean> => {
   let result = [];
   try {
@@ -207,7 +211,10 @@ export const send = async (
   }
 
   // Validate the call will succeed on chain.
-  const relayerAddress = await getRelayerAddress(chainId);
+  let relayerAddress = hardcodedAddresses[chainId];
+  if (!relayerAddress) {
+    relayerAddress = await getRelayerAddress(chainId);
+  }
 
   logger.debug("Getting gas estimate", requestContext, methodContext, {
     chainId,

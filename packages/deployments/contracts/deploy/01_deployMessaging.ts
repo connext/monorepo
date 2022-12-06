@@ -248,41 +248,41 @@ const handleDeploySpoke = async (
   // Deploy Spoke Connector
 
   let amb: undefined | string;
-  if (protocol.configs[deploymentChainId].prefix.includes("Arbitrum")) {
-    // NOTE: If the spoke network is arbitrum, the AMB should be set to the alias address.
-    // For more info, see alias address in docs:
-    // https://developer.offchainlabs.com/arbos/l1-to-l2-messaging
-    const arbitrumHubConnector = await hre.companionNetworks["hub"].deployments.getOrNull(
-      getDeploymentName("ArbitrumHubConnector"),
-    );
-    if (!arbitrumHubConnector) {
-      throw new Error(
-        "Could not find the ArbitrumHubConnector contract deployment; " +
-          "address is needed in order to deploy ArbitrumSpokeConnector",
-      );
-    }
+  // if (protocol.configs[deploymentChainId].prefix.includes("Arbitrum")) {
+  //   // NOTE: If the spoke network is arbitrum, the AMB should be set to the alias address.
+  //   // For more info, see alias address in docs:
+  //   // https://developer.offchainlabs.com/arbos/l1-to-l2-messaging
+  //   const arbitrumHubConnector = await hre.companionNetworks["hub"].deployments.getOrNull(
+  //     getDeploymentName("ArbitrumHubConnector"),
+  //   );
+  //   if (!arbitrumHubConnector) {
+  //     throw new Error(
+  //       "Could not find the ArbitrumHubConnector contract deployment; " +
+  //         "address is needed in order to deploy ArbitrumSpokeConnector",
+  //     );
+  //   }
 
-    // Alias is the origin sender address + 0x1111000000000000000000000000000000001111.
-    // We can't just add that value here: if there's any 'f' hex digits there will be a
-    // leftover/remainder that will expand the address to include extra digits.
-    // TODO: Make util?
-    const L1_TO_L2_ALIAS_OFFSET = "0x1111000000000000000000000000000000001111";
-    let bn = BigNumber.from(arbitrumHubConnector.address).add(L1_TO_L2_ALIAS_OFFSET);
-    bn = BigNumber.from(bn);
-    if (bn.lt(0)) {
-      bn = BigNumber.from("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").add(bn).add(1);
-    }
-    let addr = bn.toHexString();
-    if (addr.includes("0x")) {
-      addr.replace("0x", "");
-    }
-    addr = addr.padStart(40, "0");
-    addr = addr.slice(addr.length - 40, addr.length);
-    addr = "0x" + addr;
-    // Set the AMB address we'll use.
-    amb = utils.getAddress(addr);
-    console.log("amb address generated with alias: ", amb);
-  }
+  //   // Alias is the origin sender address + 0x1111000000000000000000000000000000001111.
+  //   // We can't just add that value here: if there's any 'f' hex digits there will be a
+  //   // leftover/remainder that will expand the address to include extra digits.
+  //   // TODO: Make util?
+  //   const L1_TO_L2_ALIAS_OFFSET = "0x1111000000000000000000000000000000001111";
+  //   let bn = BigNumber.from(arbitrumHubConnector.address).add(L1_TO_L2_ALIAS_OFFSET);
+  //   bn = BigNumber.from(bn);
+  //   if (bn.lt(0)) {
+  //     bn = BigNumber.from("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").add(bn).add(1);
+  //   }
+  //   let addr = bn.toHexString();
+  //   if (addr.includes("0x")) {
+  //     addr.replace("0x", "");
+  //   }
+  //   addr = addr.padStart(40, "0");
+  //   addr = addr.slice(addr.length - 40, addr.length);
+  //   addr = "0x" + addr;
+  //   // Set the AMB address we'll use.
+  //   amb = utils.getAddress(addr);
+  //   console.log("amb address generated with alias: ", amb);
+  // }
 
   console.log(`Deploying ${contract}...`);
   const deployment = await hre.deployments.deploy(
