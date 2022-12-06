@@ -272,7 +272,7 @@ module "lighthouse_process_from_root_cron" {
   container_family    = "lighthouse_process_from_root"
   environment         = var.environment
   stage               = var.stage
-  container_env_vars  = merge(local.lighthouse_env_vars, { DD_SERVICE = "lighthouse-process-from-root-${var.environment}", LIGHTHOUSE_SERVICE = "processFromRoot" })
+  container_env_vars  = merge(local.lighthouse_env_vars, { DD_SERVICE = "lighthouse-process-from-root-${var.environment}", LIGHTHOUSE_SERVICE = "process" })
   schedule_expression = "rate(5 minutes)"
 }
 
