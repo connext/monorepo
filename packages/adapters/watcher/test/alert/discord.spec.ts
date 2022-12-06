@@ -31,6 +31,8 @@ describe("Watcher Adapter: discord", () => {
 
       await expect(alertViaDiscord(TEST_REPORT, config)).to.not.rejected;
       expect(axiosPostStub.callCount).to.be.eq(1);
+
+      axiosPostStub.restore();
     });
   });
 });
