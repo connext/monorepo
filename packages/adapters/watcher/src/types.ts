@@ -1,4 +1,5 @@
-import { TransactionService } from "@connext/nxtp-txservice";
+import { domainToChainId } from "@connext/nxtp-contracts";
+import { getDeployedConnextContract, TransactionService } from "@connext/nxtp-txservice";
 import { Logger, MethodContext, RequestContext } from "@connext/nxtp-utils";
 import { ethers } from "ethers";
 
@@ -19,7 +20,23 @@ export abstract class Verifier {
   public async checkInvariant(_requestContext: RequestContext): Promise<boolean> {
     throw new Error("not implemented");
   }
+
+  protected getConnextDeployment(chainId: number): { address: string; abi: any } {
+    const connext = getDeployedConnextContract(chainId, this.context.isStaging ? "Staging" : "");
+    if (!connext) {
+      // TODO: Custom errors for package
+      throw new Error(`Connext deployment not found for chain ${chainId}!`);
+    }
+    return connext;
+  }
 }
+
+export type PauseResponse = {
+  domain: string;
+  paused: boolean;
+  error: any;
+  relevantTransaction: ethers.providers.TransactionResponse | string;
+};
 
 /// MARK - General
 // Used in AssetVerifier
