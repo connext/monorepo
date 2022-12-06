@@ -1,4 +1,3 @@
-import { domainToChainId } from "@connext/nxtp-contracts";
 import { getDeployedConnextContract, TransactionService } from "@connext/nxtp-txservice";
 import { Logger, MethodContext, RequestContext } from "@connext/nxtp-utils";
 import { ethers } from "ethers";

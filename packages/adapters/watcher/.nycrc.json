@@ -9,6 +9,7 @@
     "src/verifiers/index.ts",
     "src/alert/index.ts",
     "src/types.ts",
+    "src/mockable.ts",
     "test/**"
   ]
 }

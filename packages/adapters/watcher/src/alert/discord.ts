@@ -1,6 +1,7 @@
-import { axiosPost, jsonifyError } from "@connext/nxtp-utils";
+import { jsonifyError } from "@connext/nxtp-utils";
 
 import { WatcherConfig } from "../config";
+import { axiosPost } from "../mockable";
 import { Report, ReportEventType } from "../types";
 
 export const alertViaDiscord = async (report: Report, config: WatcherConfig) => {

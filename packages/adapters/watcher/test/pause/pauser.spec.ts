@@ -1,8 +1,8 @@
 import { ConnextAbi } from "@connext/nxtp-contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { createRequestContext, expect, Logger, mkAddress, mkHash, mock } from "@connext/nxtp-utils";
-import { BigNumber, providers } from "ethers";
-import { createStubInstance, SinonStubbedInstance, stub, SinonStub } from "sinon";
+import { providers } from "ethers";
+import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 
 import { Pauser } from "../../src/pause";
 import { VerifierContext } from "../../src/types";
