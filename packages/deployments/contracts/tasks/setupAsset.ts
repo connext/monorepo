@@ -171,7 +171,7 @@ export default task("setup-asset", "Configures an asset")
 
       let tx;
       if (withDeployedRepresentation) {
-        tx = await connext.setupAssetWithDeployedRepresentation(canonicalTokenId, local, adopted, pool, cap);
+        tx = await connext.setupAssetWithDeployedRepresentation(canonicalTokenId, local, adopted, pool);
         console.log("setupAssetWithDeployedRepresentation tx: ", tx);
       } else {
         tx = await connext.setupAsset(

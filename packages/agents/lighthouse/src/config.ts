@@ -57,6 +57,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
       propagate: Type.String({ format: "uri" }),
     }),
   ),
+  service: Type.Union([Type.Literal("prover"), Type.Literal("propagate"), Type.Literal("process")]),
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
@@ -138,6 +139,7 @@ export const getEnvConfig = (
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
     subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     healthUrls: process.env.NXTP_HEALTH_URLS || configJson.healthUrls || configFile.healthUrls || {},
+    service: process.env.LIGHTHOUSE_SERVICE || configJson.service || configFile.service,
   };
 
   nxtpConfig.cartographerUrl =
