@@ -1,68 +1,12 @@
 import { jsonifyError } from "@connext/nxtp-utils";
-import https from "https";
 
 import { WatcherConfig } from "../config";
+import { axiosPost } from "../mockable";
 import { Report } from "../types";
 
 enum Telegram_ParseModes {
   MarkdownV2,
   HTML,
-}
-
-class Telegram {
-  private readonly api: string;
-
-  constructor(api: string) {
-    this.api = api;
-  }
-
-  public async send(id: number | string, text: string, parseMode?: Telegram_ParseModes): Promise<boolean> {
-    return (
-      await this.request("/sendMessage", {
-        chat_id: id,
-        text: text,
-        parse_mode: parseMode === undefined ? undefined : Telegram_ParseModes[parseMode],
-      })
-    ).ok;
-  }
-
-  private request<T extends Record<string, any>>(
-    path: string,
-    data?: Record<string, any>,
-  ): Promise<{ ok: boolean } & Partial<T>> {
-    return new Promise((resolve, reject) => {
-      const req = https
-        .request(
-          "https://api.telegram.org/bot" + this.api + path,
-          {
-            method: "POST",
-            headers: {
-              "content-type": "application/json",
-            },
-          },
-          (res) => {
-            let result = "";
-
-            res
-              .setEncoding("utf-8")
-              .on("data", (chunk) => {
-                result += chunk;
-              })
-              .on("end", () => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                resolve(JSON.parse(result));
-              });
-          },
-        )
-        .on("error", reject);
-
-      if (data) {
-        req.write(JSON.stringify(data));
-      }
-
-      req.end();
-    });
-  }
 }
 
 export const alertViaTelegram = async (report: Report, config: WatcherConfig) => {
@@ -100,7 +44,6 @@ export const alertViaTelegram = async (report: Report, config: WatcherConfig) =>
     rpcs,
   });
 
-  const telegram = new Telegram(telegramApiKey);
   const message = `### Watcher Alert!
    **Reason:** ${reason}
    **Type:** ${event}
@@ -110,5 +53,9 @@ export const alertViaTelegram = async (report: Report, config: WatcherConfig) =>
    **Rpcs:** ${rpcs.join("\n")}
    `;
 
-  return await telegram.send(telegramChatId, message, Telegram_ParseModes.MarkdownV2);
+  return await axiosPost(`https://api.telegram.org/bot/${telegramApiKey}/sendMessage`, {
+    chat_id: telegramChatId,
+    text: message,
+    parse_mode: Telegram_ParseModes.MarkdownV2,
+  });
 };
