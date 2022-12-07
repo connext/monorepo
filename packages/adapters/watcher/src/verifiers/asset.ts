@@ -1,7 +1,7 @@
-import { domainToChainId } from "@connext/nxtp-contracts";
+import { ConnextInterface, domainToChainId } from "@connext/nxtp-contracts";
 import { getErc20Interface } from "@connext/nxtp-txservice";
 import { getCanonicalHash, RequestContext } from "@connext/nxtp-utils";
-import { BigNumber, utils } from "ethers";
+import { BigNumber, constants, utils } from "ethers";
 
 import { Verifier, VerifierContext, AssetInfo, VerifyResponse } from "../types";
 
@@ -41,8 +41,6 @@ export class AssetVerifier extends Verifier {
    * @returns BigNumber representing the total number of representative assets minted.
    */
   public async totalMintedAssets(asset: AssetInfo): Promise<BigNumber> {
-    // TODO: Why does this not work? :(
-    // const canonicalToRepresentationCalldata = getConnextInterface().encodeFunctionData("canonicalToRepresentation", [assetKey]);
     const erc20 = getErc20Interface();
     const assetKey = getCanonicalHash(asset.canonicalDomain, asset.canonicalId);
 
@@ -53,15 +51,24 @@ export class AssetVerifier extends Verifier {
       const connext = this.getConnextDeployment(chainId);
 
       // 1. Get the representation asset address on each domain using the canonical key.
-      const canonicalToRepresentationCalldata = new utils.Interface(connext.abi as string[]).encodeFunctionData(
+      const canonicalToRepresentationCalldata = ConnextInterface.encodeFunctionData(
         "canonicalToRepresentation(bytes32)",
         [assetKey],
       );
-      const representation = await this.context.txservice.readTx({
+      const representationRes = await this.context.txservice.readTx({
         chainId: +domain,
         to: connext.address,
         data: canonicalToRepresentationCalldata,
       });
+
+      const representation = ConnextInterface.decodeFunctionResult(
+        "canonicalToRepresentation(bytes32)",
+        representationRes,
+      )[0];
+      if (representation === constants.AddressZero) {
+        // If this is address(0), then there is no mintable token for this asset on this domain
+        continue;
+      }
 
       // 2. Read total supply from the representation contract.
       const totalSupplyCalldata = erc20.encodeFunctionData("totalSupply");
@@ -72,11 +79,11 @@ export class AssetVerifier extends Verifier {
       });
       let totalSupply;
       try {
-        totalSupply = BigNumber.from(totalSupplyRes);
+        totalSupply = erc20.decodeFunctionResult("totalSupply", totalSupplyRes)[0];
       } catch (e: any) {
         throw new Error(
           "Failed to convert totalSupply response to BigNumber. " +
-            `Received: ${totalSupplyRes}; Error: ${e.toString()}`,
+            `token: ${representation}, Received: ${totalSupplyRes}; Error: ${e.toString()}`,
         );
       }
 
