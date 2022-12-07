@@ -25,28 +25,10 @@ variable "environment" {
   default     = "mainnet"
 }
 
-variable "full_image_name_cartographer_routers" {
+variable "cartographer_image_tag" {
   type        = string
-  description = "cartographer routers image name"
+  description = "cartographer image tag"
   default     = "ghcr.io/connext/cartographer-routers:0.2.0-beta.10"
-}
-
-variable "full_image_name_cartographer_transfers" {
-  type        = string
-  description = "cartographer transfers image name"
-  default     = "ghcr.io/connext/cartographer-transfers:0.2.0-beta.10"
-}
-
-variable "full_image_name_cartographer_messages" {
-  type        = string
-  description = "cartographer messages image name"
-  default     = "ghcr.io/connext/cartographer-messages:0.2.0-beta.17"
-}
-
-variable "full_image_name_cartographer_roots" {
-  type        = string
-  description = "cartographer roots image name"
-  default     = "ghcr.io/connext/cartographer-roots:0.2.0-beta.17"
 }
 
 variable "certificate_arn" {

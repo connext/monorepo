@@ -15,6 +15,16 @@ locals {
     { name = "DD_ENV", value = var.stage },
     { name = "DD_SERVICE", value = "router-${var.environment}" }
   ]
+  lighthouse_env_vars = {
+    NXTP_CONFIG       = local.local_lighthouse_config,
+    ENVIRONMENT       = var.environment,
+    STAGE             = var.stage,
+    DD_LOGS_ENABLED   = true,
+    DD_ENV            = var.stage,
+    DD_SERVICE        = "router-${var.environment}"
+    DD_API_KEY        = var.dd_api_key,
+    DD_LAMBDA_HANDLER = "packages/agents/lighthouse/dist/index.handler"
+  }
   router_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }

@@ -71,6 +71,66 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "KP3R",
+      canonical: {
+        domain: "6648936",
+        address: "0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44",
+        decimals: 18,
+      },
+      representations: {
+        // optimism
+        "1869640809": {
+          local: "0x74bcb73fA7010EB523a81feE2bB23EaB3d12c2f8",
+          adopted: "0x74bcb73fA7010EB523a81feE2bB23EaB3d12c2f8",
+        },
+        // polygon
+        "1886350457": {
+          local: "0x8b46589ACB27C66d09dBeACBcdBAFF7dcc681b13",
+          adopted: "0x8b46589ACB27C66d09dBeACBcdBAFF7dcc681b13",
+        },
+        // bnb
+        "6450786": {
+          local: "0xeC9A9073f7D386e1Ef5f931eE2A33150C9E52cd5",
+          adopted: "0xeC9A9073f7D386e1Ef5f931eE2A33150C9E52cd5",
+        },
+        // gnosis
+        "6778479": {
+          local: "0x7Cd74859273818F928d2D20472343cb61378af49",
+          adopted: "0x7Cd74859273818F928d2D20472343cb61378af49",
+        },
+      },
+    },
+    {
+      name: "kLP",
+      canonical: {
+        domain: "6648936",
+        address: "0x3f6740b5898c5D3650ec6eAce9a649Ac791e44D7",
+        decimals: 18,
+      },
+      representations: {
+        // optimism
+        "1869640809": {
+          local: "0x3007DB59A437f3F0a64b4fE26c8caf20E9Cb6f43",
+          adopted: "0x3007DB59A437f3F0a64b4fE26c8caf20E9Cb6f43",
+        },
+        // polygon
+        "1886350457": {
+          local: "0x37227A963Da5bdbe192E12add9f207fF915F470C",
+          adopted: "0x37227A963Da5bdbe192E12add9f207fF915F470C",
+        },
+        // bnb
+        "6450786": {
+          local: "0x6D9F091C2D92215b6Ab68061f0997ADe31985C3C",
+          adopted: "0x6D9F091C2D92215b6Ab68061f0997ADe31985C3C",
+        },
+        // gnosis
+        "6778479": {
+          local: "0x2F8e2b29cBf58875035eCfe41E61112c9B3be19e",
+          adopted: "0x2F8e2b29cBf58875035eCfe41E61112c9B3be19e",
+        },
+      },
+    },
   ],
   agents: {
     watchers: {
