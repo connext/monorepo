@@ -57,7 +57,7 @@ contract ArbitrumSpokeConnector is SpokeConnector {
     // only callable by mirror connector
     require(_verifySender(mirrorConnector), "!mirrorConnector");
     // get the data (should be the aggregate root)
-    require(_data.length == 100, "!length");
+    require(_data.length == 32, "!length");
     // update the aggregate root on the domain
     receiveAggregateRoot(bytes32(_data));
   }
