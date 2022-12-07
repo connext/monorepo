@@ -49,6 +49,7 @@ import {
 } from "./lib/operations";
 import {
   getAggregatedRootsByDomainQuery,
+  getAssetsByLocalsQuery,
   getPropagatedRootsQuery,
   getRootManagerMetaQuery,
 } from "./lib/operations/queries";
@@ -249,6 +250,20 @@ export class SubgraphReader {
       return undefined;
     }
     return assets[0] as Asset;
+  }
+
+  public async getAssetsByLocals(domain: string, locals: string[]): Promise<Asset[]> {
+    const { execute, getPrefixForDomain } = getHelpers();
+    const prefix = getPrefixForDomain(domain);
+
+    const query = getAssetsByLocalsQuery(
+      prefix,
+      locals.map((l) => l.toLowerCase()),
+    );
+    const response = await execute(query);
+
+    const assets: Asset[] = [...response.values()].map((v) => v.flat()).flat();
+    return assets;
   }
 
   /**

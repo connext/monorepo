@@ -117,6 +117,13 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   }
 
   /**
+   * @notice Returns if paused or not.
+   */
+  function paused() public view returns (bool) {
+    return s._paused;
+  }
+
+  /**
    * @notice Returns the Role of the address
    * @dev returns uint value of representing enum value of Role
    * @param _role The address for which Role need to be queried
