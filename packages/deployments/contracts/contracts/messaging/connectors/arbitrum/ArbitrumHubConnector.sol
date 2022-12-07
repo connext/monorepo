@@ -208,7 +208,7 @@ contract ArbitrumHubConnector is HubConnector {
     //
     // so to get the root data, we need to decode the _calldata. we can do this
     // by dropping the 4-byte selector, then using the rest as the raw _data.
-    require(_message.callData.length == 36, "!length");
+    require(_message.callData.length == 100, "!length");
 
     // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
     bytes32 _data = _message.callData.ref(0).index(4, 32);
