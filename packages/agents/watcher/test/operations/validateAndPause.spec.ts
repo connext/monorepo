@@ -15,13 +15,13 @@ describe("Operations:validateAndPause", () => {
     });
 
     it("should not call pauseAndAlert if it doesnt need pause", async () => {
-      (ctxMock.adapters.watcher.checkInvariants as SinonStub).resolves(false);
+      (ctxMock.adapters.watcher.checkInvariants as SinonStub).resolves({ needsPause: false });
       await ValidateAndPauseFns.validateAndPause();
       expect(validateAndPauseStub.callCount).to.be.eq(0);
     });
 
     it("should call pauseAndAlert if needs pause", async () => {
-      (ctxMock.adapters.watcher.checkInvariants as SinonStub).resolves(true);
+      (ctxMock.adapters.watcher.checkInvariants as SinonStub).resolves({ needsPause: true });
       await ValidateAndPauseFns.validateAndPause();
       expect(validateAndPauseStub).to.have.been.calledOnce;
     });
