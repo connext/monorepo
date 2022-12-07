@@ -58,7 +58,7 @@ export class AssetVerifier extends Verifier {
         [assetKey],
       );
       const representation = await this.context.txservice.readTx({
-        chainId,
+        chainId: +domain,
         to: connext.address,
         data: canonicalToRepresentationCalldata,
       });
@@ -66,7 +66,7 @@ export class AssetVerifier extends Verifier {
       // 2. Read total supply from the representation contract.
       const totalSupplyCalldata = erc20.encodeFunctionData("totalSupply");
       const totalSupplyRes = await this.context.txservice.readTx({
-        chainId,
+        chainId: +domain,
         to: representation,
         data: totalSupplyCalldata,
       });
@@ -105,7 +105,7 @@ export class AssetVerifier extends Verifier {
       [assetKey],
     );
     const amountRes = await this.context.txservice.readTx({
-      chainId,
+      chainId: +asset.canonicalDomain,
       to: connext.address,
       data: getCustodiedAmountCalldata,
     });

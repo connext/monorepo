@@ -30,7 +30,7 @@ export class Pauser extends Verifier {
 
         // 1. First check if paused already
         const encoded = await txservice.readTx({
-          chainId,
+          chainId: +domain,
           to: connext.address,
           data: connextInterface.encodeFunctionData("paused", []),
         });
@@ -42,7 +42,7 @@ export class Pauser extends Verifier {
 
           try {
             const receipt = await txservice.sendTx(
-              { to: connext.address, data: pauseCalldata, value: constants.Zero, chainId },
+              { to: connext.address, data: pauseCalldata, value: constants.Zero, chainId: +domain },
               requestContext,
             );
             result.push({
