@@ -74,8 +74,8 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       callData: transfer.call_data || "0x",
       slippage: transfer.slippage.toString(),
       originSender: transfer.origin_sender,
-      bridgedAmt: BigNumber.from(BigInt((transfer.bridged_amt as string) ?? "0")).toString(),
-      normalizedIn: BigNumber.from(BigInt((transfer.normalized_in as string) ?? "0")).toString(),
+      bridgedAmt: BigNumber.from(transfer.bridged_amt ?? "0").toString(),
+      normalizedIn: BigNumber.from(transfer.normalized_in ?? "0").toString(),
       nonce: BigNumber.from(transfer.nonce).toNumber(),
       canonicalId: transfer.canonical_id,
     },
@@ -86,19 +86,19 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
           messageHash: transfer.message_hash,
           assets: {
             transacting: {
-              amount: BigNumber.from(BigInt((transfer.origin_transacting_amount as string) ?? "0")).toString(),
+              amount: BigNumber.from(transfer.origin_transacting_amount ?? "0").toString(),
               asset: transfer.origin_transacting_asset!,
             },
             bridged: {
-              amount: BigNumber.from(BigInt((transfer.origin_bridged_amount as string) ?? "0")).toString(),
+              amount: BigNumber.from(transfer.origin_bridged_amount ?? "0").toString(),
               asset: transfer.origin_bridged_asset!,
             },
           },
           xcall: {
             blockNumber: transfer.xcall_block_number!,
             caller: transfer.xcall_caller!,
-            gasLimit: BigNumber.from(BigInt((transfer.xcall_gas_limit as string) ?? "0")).toString(),
-            gasPrice: BigNumber.from(BigInt((transfer.xcall_gas_price as string) ?? "0")).toString(),
+            gasLimit: BigNumber.from(transfer.xcall_gas_limit ?? "0").toString(),
+            gasPrice: BigNumber.from(transfer.xcall_gas_price ?? "0").toString(),
             timestamp: transfer.xcall_timestamp!,
             transactionHash: transfer.xcall_transaction_hash!,
           },
@@ -110,11 +110,11 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
           chain: transfer.destination_chain,
           assets: {
             transacting: {
-              amount: BigNumber.from(BigInt((transfer.destination_transacting_amount as string) ?? "0")).toString(),
+              amount: BigNumber.from(transfer.destination_transacting_amount ?? "0").toString(),
               asset: transfer.destination_transacting_asset!,
             },
             local: {
-              amount: BigNumber.from(BigInt((transfer.destination_local_amount as string) ?? "0")).toString(),
+              amount: BigNumber.from(transfer.destination_local_amount ?? "0").toString(),
               asset: transfer.destination_local_asset!,
             },
           },
@@ -123,8 +123,8 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
           execute: {
             blockNumber: transfer.execute_block_number!,
             caller: transfer.execute_caller!,
-            gasLimit: BigNumber.from(BigInt((transfer.execute_gas_limit as string) ?? "0")).toString(),
-            gasPrice: BigNumber.from(BigInt((transfer.execute_gas_price as string) ?? "0")).toString(),
+            gasLimit: BigNumber.from(transfer.execute_gas_limit ?? "0").toString(),
+            gasPrice: BigNumber.from(transfer.execute_gas_price ?? "0").toString(),
             timestamp: transfer.execute_timestamp!,
             transactionHash: transfer.execute_transaction_hash!,
             originSender: transfer.execute_origin_sender!,
@@ -132,8 +132,8 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
           reconcile: {
             blockNumber: transfer.reconcile_block_number!,
             caller: transfer.reconcile_caller!,
-            gasLimit: BigNumber.from(BigInt((transfer.reconcile_gas_limit as string) ?? "0")).toString(),
-            gasPrice: BigNumber.from(BigInt((transfer.reconcile_gas_price as string) ?? "0")).toString(),
+            gasLimit: BigNumber.from(transfer.reconcile_gas_limit ?? "0").toString(),
+            gasPrice: BigNumber.from(transfer.reconcile_gas_price ?? "0").toString(),
             timestamp: transfer.reconcile_timestamp!,
             transactionHash: transfer.reconcile_transaction_hash!,
           },
