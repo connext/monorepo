@@ -1,8 +1,8 @@
 import { jsonifyError } from "@connext/nxtp-utils";
-import { Twilio } from "twilio";
 import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message";
 
 import { WatcherConfig } from "../config";
+import { sendMessageViaTwilio } from "../mockable";
 import { Report } from "../types";
 
 export const alertViaSms = async (report: Report, config: WatcherConfig): Promise<MessageInstance[]> => {
@@ -37,8 +37,6 @@ export const alertViaSms = async (report: Report, config: WatcherConfig): Promis
     throw new Error("alertViaSms: Twilio config is invalid!");
   }
 
-  const client = new Twilio(twilioAccountSid, twilioAuthToken);
-
   logger.info("Sending message via twilio", requestContext, methodContext, {
     timestamp,
     event,
@@ -68,7 +66,7 @@ export const alertViaSms = async (report: Report, config: WatcherConfig): Promis
       from: twilioNumber,
     };
 
-    const message = await client.messages.create(textContent);
+    const message = await sendMessageViaTwilio(twilioAccountSid, twilioAuthToken, textContent);
     messages.push(message);
   }
   return messages;

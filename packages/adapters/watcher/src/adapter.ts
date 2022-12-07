@@ -1,9 +1,9 @@
-import { jsonifyError, NxtpError, RequestContext } from "@connext/nxtp-utils";
+import { jsonifyError, RequestContext } from "@connext/nxtp-utils";
 
 import { alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram } from "./alert";
 import { getConfig } from "./config";
 import { Pauser } from "./pause";
-import { Verifier, VerifierContext, AssetInfo, Report, PauseResponse } from "./types";
+import { Verifier, VerifierContext, AssetInfo, Report, PauseResponse, VerifyResponse } from "./types";
 import { AssetVerifier } from "./verifiers";
 
 // Aggregation class for interfacing with all adapter functionality.
@@ -18,14 +18,16 @@ export class WatcherAdapter {
   }
 
   // TODO: Return invariant check value and let consumer decide whether to pause, or immediately try to pause?
-  public async checkInvariants(requestContext: RequestContext): Promise<boolean> {
+  public async checkInvariants(requestContext: RequestContext): Promise<VerifyResponse> {
     for (const verifier of this.verifiers) {
       const result = await verifier.checkInvariant(requestContext);
-      if (!result) {
-        return false;
+      if (result.needsPause) {
+        return result;
       }
     }
-    return true;
+    return {
+      needsPause: false,
+    };
   }
 
   public async pause(_requestContext: RequestContext, reason: string, domains: string[]): Promise<PauseResponse[]> {

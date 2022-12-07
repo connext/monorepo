@@ -1,4 +1,3 @@
-import { domainToChainId } from "@connext/nxtp-contracts";
 import { getDeployedConnextContract, TransactionService } from "@connext/nxtp-txservice";
 import { Logger, MethodContext, RequestContext } from "@connext/nxtp-utils";
 import { ethers } from "ethers";
@@ -12,12 +11,17 @@ export type VerifierContext = {
   isStaging?: boolean;
 };
 
+export type VerifyResponse = {
+  needsPause: boolean;
+  reason?: string;
+};
+
 // Base class for all verifiers. Should be inherited by verifiers, each with their own
 // invariant condition to track and verify.
 export abstract class Verifier {
   constructor(public readonly context: VerifierContext) {}
 
-  public async checkInvariant(_requestContext: RequestContext): Promise<boolean> {
+  public async checkInvariant(_requestContext: RequestContext): Promise<VerifyResponse> {
     throw new Error("not implemented");
   }
 

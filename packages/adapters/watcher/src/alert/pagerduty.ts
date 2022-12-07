@@ -1,7 +1,7 @@
 import { jsonifyError } from "@connext/nxtp-utils";
-import { trigger } from "@pagerduty/pdjs";
 
 import { WatcherConfig } from "../config";
+import { pagerDutyTrigger } from "../mockable";
 import { Report } from "../types";
 
 export const alertViaPagerDuty = async (report: Report, config: WatcherConfig) => {
@@ -39,7 +39,7 @@ export const alertViaPagerDuty = async (report: Report, config: WatcherConfig) =
     rpcs,
   });
 
-  return await trigger({
+  return await pagerDutyTrigger({
     data: {
       payload: {
         summary: `Connext Watcher Alert - ${reason}`,
