@@ -301,7 +301,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-cartographer-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+    # if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
     env:
       REGISTRY: 679752396206.dkr.ecr.us-east-1.amazonaws.com
@@ -319,11 +319,19 @@ jobs:
           aws-access-key-id: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
 
-      - name: Login to Amazon ECR
+      - name: Login to Private ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Log in to the Container registry
+      # Avoids rate limits error on pulling from public ECR
+      - name: Login to Public ECR
+        uses: docker/login-action@v2
+        with:
+          registry: public.ecr.aws
+          username: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
+          password: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
+
+      - name: Log in to GH Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
           registry: ghcr.io
@@ -332,7 +340,7 @@ jobs:
 
       - name: Build, tag, and push docker image to Amazon ECR Public
         run: |
-          docker build -f docker/cartographer/Dockerfile.lambda -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t ghcr.io/connext/cartographer:$IMAGE_TAG .
+          docker build -f docker/cartographer/Dockerfile -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t ghcr.io/connext/cartographer:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           docker push ghcr.io/connext/cartographer:$IMAGE_TAG
 
@@ -355,11 +363,19 @@ jobs:
           aws-access-key-id: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
 
-      - name: Login to Amazon ECR
+      - name: Login to Private ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Log in to the Container registry
+      # Avoids rate limits error on pulling from public ECR
+      - name: Login to Public ECR
+        uses: docker/login-action@v2
+        with:
+          registry: public.ecr.aws
+          username: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
+          password: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
+
+      - name: Log in to GH Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
           registry: ghcr.io
@@ -369,7 +385,7 @@ jobs:
       - name: Build, tag, and push docker image to Amazon ECR Public
 
         run: |
-          DOCKER_BUILDKIT=1 docker build -f docker/lighthouse/Dockerfile.lambda -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t ghcr.io/connext/lighthouse:$IMAGE_TAG .
+          DOCKER_BUILDKIT=1 docker build -f docker/lighthouse/Dockerfile -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t ghcr.io/connext/lighthouse:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           docker push ghcr.io/connext/lighthouse:$IMAGE_TAG
 
