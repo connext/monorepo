@@ -1,10 +1,9 @@
 import { jsonifyError } from "@connext/nxtp-utils";
 
-import { WatcherConfig } from "../config";
 import { axiosPost } from "../mockable";
 import { Report, ReportEventType } from "../types";
 
-export const alertViaDiscord = async (report: Report, config: WatcherConfig) => {
+export const alertViaDiscord = async (report: Report, discordHookUrl?: string) => {
   const {
     timestamp,
     event,
@@ -18,7 +17,6 @@ export const alertViaDiscord = async (report: Report, config: WatcherConfig) => 
     rpcs,
   } = report;
 
-  const { discordHookUrl } = config;
   if (!discordHookUrl) {
     logger.error(
       "Failed to alert via discord",
@@ -83,5 +81,5 @@ export const alertViaDiscord = async (report: Report, config: WatcherConfig) => 
     ],
   };
 
-  return await axiosPost(config.discordHookUrl!, params);
+  return await axiosPost(discordHookUrl, params);
 };

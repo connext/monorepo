@@ -1,4 +1,2 @@
-export * from "./verifiers";
-export * from "./alert";
-export * from "./pause";
+export { WatcherAdapter } from "./adapter";
 export * from "./types";

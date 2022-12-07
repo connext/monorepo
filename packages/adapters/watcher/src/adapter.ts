@@ -1,9 +1,8 @@
 import { jsonifyError, RequestContext } from "@connext/nxtp-utils";
 
 import { alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram } from "./alert";
-import { getConfig } from "./config";
 import { Pauser } from "./pause";
-import { Verifier, VerifierContext, AssetInfo, Report, PauseResponse, VerifyResponse } from "./types";
+import { Verifier, VerifierContext, AssetInfo, Report, PauseResponse, VerifyResponse, WatcherConfig } from "./types";
 import { AssetVerifier } from "./verifiers";
 
 // Aggregation class for interfacing with all adapter functionality.
@@ -35,16 +34,25 @@ export class WatcherAdapter {
     return await this.pauser.pause(reason, domains);
   }
 
-  public async alert(report: Report): Promise<void> {
+  public async alert(report: Report, config: WatcherConfig): Promise<void> {
     const { requestContext, methodContext, logger } = report;
     logger.info("alert: Attempt to alert", requestContext, methodContext, report);
 
-    const config = await getConfig();
+    const {
+      discordHookUrl,
+      pagerDutyRoutingKey,
+      twilioNumber,
+      twilioAccountSid,
+      twilioAuthToken,
+      twilioToPhoneNumbers,
+      telegramApiKey,
+      telegramChatId,
+    } = config;
 
     const errors = [];
     // attempt to alert via discord
     try {
-      await alertViaDiscord(report, config);
+      await alertViaDiscord(report, discordHookUrl);
     } catch (e: unknown) {
       logger.error("alert: failed to alert via discord", requestContext, methodContext, jsonifyError(e as Error));
       errors.push(e);
@@ -52,7 +60,7 @@ export class WatcherAdapter {
 
     // attempt to alert via pager duty
     try {
-      await alertViaPagerDuty(report, config);
+      await alertViaPagerDuty(report, pagerDutyRoutingKey);
     } catch (e: unknown) {
       logger.error("alert: failed to alert via pager duty", requestContext, methodContext, jsonifyError(e as Error));
       errors.push(e);
@@ -60,7 +68,7 @@ export class WatcherAdapter {
 
     // attempt to alert via sms (twilio service)
     try {
-      await alertViaSms(report, config);
+      await alertViaSms(report, twilioAccountSid, twilioAuthToken, twilioNumber, twilioToPhoneNumbers);
     } catch (e: unknown) {
       logger.error("alert: failed to alert via sms", requestContext, methodContext, jsonifyError(e as Error));
       errors.push(e);
@@ -68,7 +76,7 @@ export class WatcherAdapter {
 
     // attempt to alert via telegram
     try {
-      await alertViaTelegram(report, config);
+      await alertViaTelegram(report, telegramApiKey, telegramChatId);
     } catch (e: unknown) {
       logger.error("alert: failed to alert via telegram", requestContext, methodContext, jsonifyError(e as Error));
       errors.push(e);

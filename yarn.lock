@@ -2084,7 +2084,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-adapters-watcher@workspace:packages/adapters/watcher":
+"@connext/nxtp-adapters-watcher@workspace:*, @connext/nxtp-adapters-watcher@workspace:packages/adapters/watcher":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-adapters-watcher@workspace:packages/adapters/watcher"
   dependencies:
@@ -2453,6 +2453,35 @@ __metadata:
     eslint-plugin-import: 2.26.0
     eslint-plugin-node: 11.1.0
     rimraf: 3.0.2
+  languageName: unknown
+  linkType: soft
+
+"@connext/watcher@workspace:packages/agents/watcher":
+  version: 0.0.0-use.local
+  resolution: "@connext/watcher@workspace:packages/agents/watcher"
+  dependencies:
+    "@connext/nxtp-adapters-subgraph": "workspace:*"
+    "@connext/nxtp-adapters-watcher": "workspace:*"
+    "@connext/nxtp-adapters-web3signer": "workspace:*"
+    "@connext/nxtp-txservice": "workspace:*"
+    "@connext/nxtp-utils": "workspace:*"
+    "@sinclair/typebox": 0.25.2
+    "@types/aws-lambda": ^8.10.108
+    dd-trace: ^3.8.0
+    dotenv: 16.0.3
+    eslint: 8.26.0
+    ethers: 5.7.2
+    interval-promise: ^1.4.0
+    nodemon: 2.0.20
+    nyc: 15.1.0
+    pino-pretty: 9.1.1
+    rimraf: 3.0.2
+    sinclair: 0.2.0
+    sinon: 14.0.1
+    ts-mocha: 10.0.0
+    ts-node: 10.9.1
+    tslib: 2.4.0
+    typescript: 4.8.4
   languageName: unknown
   linkType: soft
 
@@ -16436,7 +16465,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"interval-promise@npm:1.4.0":
+"interval-promise@npm:1.4.0, interval-promise@npm:^1.4.0":
   version: 1.4.0
   resolution: "interval-promise@npm:1.4.0"
   checksum: d4e1eb4cbe7a2921ca92846aa2c745b0164d4178e8a8d734d1b4f0c5fec315831ccce31a79295ff0d1f7cfc87b7fa34119d592eb56ecfd53c7a2d6d6893bd9e9

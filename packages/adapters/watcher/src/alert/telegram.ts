@@ -1,6 +1,5 @@
 import { jsonifyError } from "@connext/nxtp-utils";
 
-import { WatcherConfig } from "../config";
 import { axiosPost } from "../mockable";
 import { Report } from "../types";
 
@@ -9,7 +8,7 @@ enum Telegram_ParseModes {
   HTML,
 }
 
-export const alertViaTelegram = async (report: Report, config: WatcherConfig) => {
+export const alertViaTelegram = async (report: Report, apiKey?: string, chatId?: string) => {
   const {
     timestamp,
     event,
@@ -23,8 +22,7 @@ export const alertViaTelegram = async (report: Report, config: WatcherConfig) =>
     rpcs,
   } = report;
 
-  const { telegramChatId, telegramApiKey } = config;
-  if (!telegramChatId || !telegramApiKey) {
+  if (!chatId || !apiKey) {
     logger.error(
       "Failed to alert via telegram",
       requestContext,
@@ -53,8 +51,8 @@ export const alertViaTelegram = async (report: Report, config: WatcherConfig) =>
    **Rpcs:** ${rpcs.join("\n")}
    `;
 
-  return await axiosPost(`https://api.telegram.org/bot/${telegramApiKey}/sendMessage`, {
-    chat_id: telegramChatId,
+  return await axiosPost(`https://api.telegram.org/bot/${apiKey}/sendMessage`, {
+    chat_id: chatId,
     text: message,
     parse_mode: Telegram_ParseModes.MarkdownV2,
   });

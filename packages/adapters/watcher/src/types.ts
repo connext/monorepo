@@ -1,5 +1,6 @@
 import { getDeployedConnextContract, TransactionService } from "@connext/nxtp-txservice";
 import { Logger, MethodContext, RequestContext } from "@connext/nxtp-utils";
+import { Static, Type } from "@sinclair/typebox";
 import { ethers } from "ethers";
 
 /// MARK - Verifiers
@@ -70,3 +71,16 @@ export type Report = {
   relevantTransactions: (ethers.providers.TransactionResponse | string)[];
   rpcs: string[];
 };
+
+export const WatcherConfigSchema = Type.Object({
+  discordHookUrl: Type.Optional(Type.String({ format: "uri" })),
+  pagerDutyRoutingKey: Type.Optional(Type.String({ maxLength: 32, minLength: 32 })),
+  twilioNumber: Type.Optional(Type.String()),
+  twilioAccountSid: Type.Optional(Type.String()),
+  twilioAuthToken: Type.Optional(Type.String()),
+  twilioToPhoneNumbers: Type.Optional(Type.Array(Type.String())),
+  telegramApiKey: Type.Optional(Type.String()),
+  telegramChatId: Type.Optional(Type.String()),
+});
+
+export type WatcherConfig = Static<typeof WatcherConfigSchema>;
