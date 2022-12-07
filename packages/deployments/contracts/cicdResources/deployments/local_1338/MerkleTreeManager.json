@@ -1,0 +1,631 @@
+{
+  "address": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "MerkleLib__insert_treeIsFull",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "MerkleTreeManager__setArborist_alreadyArborist",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "MerkleTreeManager__setArborist_zeroAddress",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__onlyOwner_notOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__onlyProposed_notProposedOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__ownershipDelayElapsed_delayNotElapsed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__renounceOwnership_invalidProposal",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__renounceOwnership_noProposal",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "previous",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "updated",
+          "type": "address"
+        }
+      ],
+      "name": "ArboristUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "version",
+          "type": "uint8"
+        }
+      ],
+      "name": "Initialized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "proposedOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipProposed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "acceptProposedOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "arborist",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "branch",
+      "outputs": [
+        {
+          "internalType": "bytes32[32]",
+          "name": "",
+          "type": "bytes32[32]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "count",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "delay",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_arborist",
+          "type": "address"
+        }
+      ],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "leaf",
+          "type": "bytes32"
+        }
+      ],
+      "name": "insert",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_root",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_count",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "leaves",
+          "type": "bytes32[]"
+        }
+      ],
+      "name": "insert",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_root",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_count",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newlyProposed",
+          "type": "address"
+        }
+      ],
+      "name": "proposeNewOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proposed",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proposedTimestamp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounced",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "root",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "rootAndCount",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newArborist",
+          "type": "address"
+        }
+      ],
+      "name": "setArborist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "tree",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "count",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x4d6aed968390830f8a14fe9c1266a3b08fa4dd0171d46937065695181f508403",
+  "receipt": {
+    "to": null,
+    "from": "0x627306090abaB3A6e1400e9345bC60c78a8BEf57",
+    "contractAddress": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10",
+    "transactionIndex": 0,
+    "gasUsed": "1937954",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x907abd5ba41a3840d3b54cfcb9b3c6b5ec2e3551304bb5556a537f154852c8bb",
+    "transactionHash": "0x4d6aed968390830f8a14fe9c1266a3b08fa4dd0171d46937065695181f508403",
+    "logs": [],
+    "blockNumber": 376,
+    "cumulativeGasUsed": "1937954",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "08ca6ef6e120fb4cb0f5603df6e78508",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"MerkleLib__insert_treeIsFull\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"MerkleTreeManager__setArborist_alreadyArborist\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"MerkleTreeManager__setArborist_zeroAddress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__onlyOwner_notOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__onlyProposed_notProposedOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__ownershipDelayElapsed_delayNotElapsed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__proposeNewOwner_invalidProposal\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__proposeNewOwner_noOwnershipChange\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__renounceOwnership_invalidProposal\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__renounceOwnership_noProposal\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"previous\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"updated\",\"type\":\"address\"}],\"name\":\"ArboristUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"version\",\"type\":\"uint8\"}],\"name\":\"Initialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proposedOwner\",\"type\":\"address\"}],\"name\":\"OwnershipProposed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"acceptProposedOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"arborist\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"branch\",\"outputs\":[{\"internalType\":\"bytes32[32]\",\"name\":\"\",\"type\":\"bytes32[32]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"count\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"delay\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_arborist\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"leaf\",\"type\":\"bytes32\"}],\"name\":\"insert\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"_root\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"_count\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"leaves\",\"type\":\"bytes32[]\"}],\"name\":\"insert\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"_root\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"_count\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newlyProposed\",\"type\":\"address\"}],\"name\":\"proposeNewOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proposed\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proposedTimestamp\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounced\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"root\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"rootAndCount\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newArborist\",\"type\":\"address\"}],\"name\":\"setArborist\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"tree\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"count\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"On the hub domain there are two MerkleTreeManager contracts, one for the hub and one for the MainnetSpokeConnector.\",\"kind\":\"dev\",\"methods\":{\"insert(bytes32)\":{\"params\":{\"leaf\":\"The leaf to be inserted into the tree.\"},\"returns\":{\"_count\":\"Current node count (i.e. number of indices) AFTER the insertion of the new leaf, provided for convenience.\",\"_root\":\"Current root for convenience.\"}},\"insert(bytes32[])\":{\"params\":{\"leaves\":\"The leaves to be inserted into the tree.\"},\"returns\":{\"_count\":\"Current node count (i.e. number of indices) AFTER the insertion of the new leaf, provided for convenience.\",\"_root\":\"Current root for convenience.\"}},\"renounceOwnership()\":{\"details\":\"Renounce ownership should be impossible as long as there is a possibility the arborist may change.\"},\"setArborist(address)\":{\"params\":{\"newArborist\":\"The new address to set as the current arborist.\"}}},\"stateVariables\":{\"arborist\":{\"details\":\"This could be the root manager contract or a spoke connector contract, for example.\"}},\"title\":\"MerkleTreeManager\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"acceptProposedOwner()\":{\"notice\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"},\"arborist()\":{\"notice\":\"The arborist contract that has permission to write to this tree.\"},\"branch()\":{\"notice\":\"Returns the current branch.\"},\"count()\":{\"notice\":\"Returns the number of inserted leaves in the tree (current index).\"},\"delay()\":{\"notice\":\"Returns the delay period before a new owner can be accepted.\"},\"insert(bytes32)\":{\"notice\":\"Inserts the given leaf into the tree.\"},\"insert(bytes32[])\":{\"notice\":\"Inserts the given leaves into the tree.\"},\"owner()\":{\"notice\":\"Returns the address of the current owner.\"},\"proposeNewOwner(address)\":{\"notice\":\"Sets the timestamp for an owner to be proposed, and sets the newly proposed owner as step 1 in a 2-step process\"},\"proposed()\":{\"notice\":\"Returns the address of the proposed owner.\"},\"proposedTimestamp()\":{\"notice\":\"Returns the address of the proposed owner.\"},\"renounceOwnership()\":{\"notice\":\"Remove ability to renounce ownership\"},\"renounced()\":{\"notice\":\"Indicates if the ownership has been renounced() by checking if current owner is address(0)\"},\"root()\":{\"notice\":\"Calculates and returns the current root.\"},\"rootAndCount()\":{\"notice\":\"Convenience getter: returns the root and count.\"},\"setArborist(address)\":{\"notice\":\"Method for the current arborist to assign write permissions to a new arborist.\"},\"tree()\":{\"notice\":\"Core data structure with which this contract is tasked with keeping custody. Writable only by the designated arborist.\"}},\"notice\":\"Contains a Merkle tree instance and exposes read/write functions for the tree.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/messaging/MerkleTreeManager.sol\":\"MerkleTreeManager\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.8.0) (proxy/utils/Initializable.sol)\\n\\npragma solidity ^0.8.2;\\n\\nimport \\\"../../utils/AddressUpgradeable.sol\\\";\\n\\n/**\\n * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed\\n * behind a proxy. Since proxied contracts do not make use of a constructor, it's common to move constructor logic to an\\n * external initializer function, usually called `initialize`. It then becomes necessary to protect this initializer\\n * function so it can only be called once. The {initializer} modifier provided by this contract will have this effect.\\n *\\n * The initialization functions use a version number. Once a version number is used, it is consumed and cannot be\\n * reused. This mechanism prevents re-execution of each \\\"step\\\" but allows the creation of new initialization steps in\\n * case an upgrade adds a module that needs to be initialized.\\n *\\n * For example:\\n *\\n * [.hljs-theme-light.nopadding]\\n * ```\\n * contract MyToken is ERC20Upgradeable {\\n *     function initialize() initializer public {\\n *         __ERC20_init(\\\"MyToken\\\", \\\"MTK\\\");\\n *     }\\n * }\\n * contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {\\n *     function initializeV2() reinitializer(2) public {\\n *         __ERC20Permit_init(\\\"MyToken\\\");\\n *     }\\n * }\\n * ```\\n *\\n * TIP: To avoid leaving the proxy in an uninitialized state, the initializer function should be called as early as\\n * possible by providing the encoded function call as the `_data` argument to {ERC1967Proxy-constructor}.\\n *\\n * CAUTION: When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure\\n * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.\\n *\\n * [CAUTION]\\n * ====\\n * Avoid leaving a contract uninitialized.\\n *\\n * An uninitialized contract can be taken over by an attacker. This applies to both a proxy and its implementation\\n * contract, which may impact the proxy. To prevent the implementation contract from being used, you should invoke\\n * the {_disableInitializers} function in the constructor to automatically lock it when it is deployed:\\n *\\n * [.hljs-theme-light.nopadding]\\n * ```\\n * /// @custom:oz-upgrades-unsafe-allow constructor\\n * constructor() {\\n *     _disableInitializers();\\n * }\\n * ```\\n * ====\\n */\\nabstract contract Initializable {\\n    /**\\n     * @dev Indicates that the contract has been initialized.\\n     * @custom:oz-retyped-from bool\\n     */\\n    uint8 private _initialized;\\n\\n    /**\\n     * @dev Indicates that the contract is in the process of being initialized.\\n     */\\n    bool private _initializing;\\n\\n    /**\\n     * @dev Triggered when the contract has been initialized or reinitialized.\\n     */\\n    event Initialized(uint8 version);\\n\\n    /**\\n     * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,\\n     * `onlyInitializing` functions can be used to initialize parent contracts.\\n     *\\n     * Similar to `reinitializer(1)`, except that functions marked with `initializer` can be nested in the context of a\\n     * constructor.\\n     *\\n     * Emits an {Initialized} event.\\n     */\\n    modifier initializer() {\\n        bool isTopLevelCall = !_initializing;\\n        require(\\n            (isTopLevelCall && _initialized < 1) || (!AddressUpgradeable.isContract(address(this)) && _initialized == 1),\\n            \\\"Initializable: contract is already initialized\\\"\\n        );\\n        _initialized = 1;\\n        if (isTopLevelCall) {\\n            _initializing = true;\\n        }\\n        _;\\n        if (isTopLevelCall) {\\n            _initializing = false;\\n            emit Initialized(1);\\n        }\\n    }\\n\\n    /**\\n     * @dev A modifier that defines a protected reinitializer function that can be invoked at most once, and only if the\\n     * contract hasn't been initialized to a greater version before. In its scope, `onlyInitializing` functions can be\\n     * used to initialize parent contracts.\\n     *\\n     * A reinitializer may be used after the original initialization step. This is essential to configure modules that\\n     * are added through upgrades and that require initialization.\\n     *\\n     * When `version` is 1, this modifier is similar to `initializer`, except that functions marked with `reinitializer`\\n     * cannot be nested. If one is invoked in the context of another, execution will revert.\\n     *\\n     * Note that versions can jump in increments greater than 1; this implies that if multiple reinitializers coexist in\\n     * a contract, executing them in the right order is up to the developer or operator.\\n     *\\n     * WARNING: setting the version to 255 will prevent any future reinitialization.\\n     *\\n     * Emits an {Initialized} event.\\n     */\\n    modifier reinitializer(uint8 version) {\\n        require(!_initializing && _initialized < version, \\\"Initializable: contract is already initialized\\\");\\n        _initialized = version;\\n        _initializing = true;\\n        _;\\n        _initializing = false;\\n        emit Initialized(version);\\n    }\\n\\n    /**\\n     * @dev Modifier to protect an initialization function so that it can only be invoked by functions with the\\n     * {initializer} and {reinitializer} modifiers, directly or indirectly.\\n     */\\n    modifier onlyInitializing() {\\n        require(_initializing, \\\"Initializable: contract is not initializing\\\");\\n        _;\\n    }\\n\\n    /**\\n     * @dev Locks the contract, preventing any future reinitialization. This cannot be part of an initializer call.\\n     * Calling this in the constructor of a contract will prevent that contract from being initialized or reinitialized\\n     * to any version. It is recommended to use this to lock implementation contracts that are designed to be called\\n     * through proxies.\\n     *\\n     * Emits an {Initialized} event the first time it is successfully executed.\\n     */\\n    function _disableInitializers() internal virtual {\\n        require(!_initializing, \\\"Initializable: contract is initializing\\\");\\n        if (_initialized < type(uint8).max) {\\n            _initialized = type(uint8).max;\\n            emit Initialized(type(uint8).max);\\n        }\\n    }\\n\\n    /**\\n     * @dev Internal function that returns the initialized version. Returns `_initialized`\\n     */\\n    function _getInitializedVersion() internal view returns (uint8) {\\n        return _initialized;\\n    }\\n\\n    /**\\n     * @dev Internal function that returns the initialized version. Returns `_initializing`\\n     */\\n    function _isInitializing() internal view returns (bool) {\\n        return _initializing;\\n    }\\n}\\n\",\"keccak256\":\"0xe798cadb41e2da274913e4b3183a80f50fb057a42238fe8467e077268100ec27\",\"license\":\"MIT\"},\"@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.8.0) (utils/Address.sol)\\n\\npragma solidity ^0.8.1;\\n\\n/**\\n * @dev Collection of functions related to the address type\\n */\\nlibrary AddressUpgradeable {\\n    /**\\n     * @dev Returns true if `account` is a contract.\\n     *\\n     * [IMPORTANT]\\n     * ====\\n     * It is unsafe to assume that an address for which this function returns\\n     * false is an externally-owned account (EOA) and not a contract.\\n     *\\n     * Among others, `isContract` will return false for the following\\n     * types of addresses:\\n     *\\n     *  - an externally-owned account\\n     *  - a contract in construction\\n     *  - an address where a contract will be created\\n     *  - an address where a contract lived, but was destroyed\\n     * ====\\n     *\\n     * [IMPORTANT]\\n     * ====\\n     * You shouldn't rely on `isContract` to protect against flash loan attacks!\\n     *\\n     * Preventing calls from contracts is highly discouraged. It breaks composability, breaks support for smart wallets\\n     * like Gnosis Safe, and does not provide security since it can be circumvented by calling from a contract\\n     * constructor.\\n     * ====\\n     */\\n    function isContract(address account) internal view returns (bool) {\\n        // This method relies on extcodesize/address.code.length, which returns 0\\n        // for contracts in construction, since the code is only stored at the end\\n        // of the constructor execution.\\n\\n        return account.code.length > 0;\\n    }\\n\\n    /**\\n     * @dev Replacement for Solidity's `transfer`: sends `amount` wei to\\n     * `recipient`, forwarding all available gas and reverting on errors.\\n     *\\n     * https://eips.ethereum.org/EIPS/eip-1884[EIP1884] increases the gas cost\\n     * of certain opcodes, possibly making contracts go over the 2300 gas limit\\n     * imposed by `transfer`, making them unable to receive funds via\\n     * `transfer`. {sendValue} removes this limitation.\\n     *\\n     * https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn more].\\n     *\\n     * IMPORTANT: because control is transferred to `recipient`, care must be\\n     * taken to not create reentrancy vulnerabilities. Consider using\\n     * {ReentrancyGuard} or the\\n     * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].\\n     */\\n    function sendValue(address payable recipient, uint256 amount) internal {\\n        require(address(this).balance >= amount, \\\"Address: insufficient balance\\\");\\n\\n        (bool success, ) = recipient.call{value: amount}(\\\"\\\");\\n        require(success, \\\"Address: unable to send value, recipient may have reverted\\\");\\n    }\\n\\n    /**\\n     * @dev Performs a Solidity function call using a low level `call`. A\\n     * plain `call` is an unsafe replacement for a function call: use this\\n     * function instead.\\n     *\\n     * If `target` reverts with a revert reason, it is bubbled up by this\\n     * function (like regular Solidity function calls).\\n     *\\n     * Returns the raw returned data. To convert to the expected return value,\\n     * use https://solidity.readthedocs.io/en/latest/units-and-global-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].\\n     *\\n     * Requirements:\\n     *\\n     * - `target` must be a contract.\\n     * - calling `target` with `data` must not revert.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCall(address target, bytes memory data) internal returns (bytes memory) {\\n        return functionCallWithValue(target, data, 0, \\\"Address: low-level call failed\\\");\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with\\n     * `errorMessage` as a fallback revert reason when `target` reverts.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCall(\\n        address target,\\n        bytes memory data,\\n        string memory errorMessage\\n    ) internal returns (bytes memory) {\\n        return functionCallWithValue(target, data, 0, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],\\n     * but also transferring `value` wei to `target`.\\n     *\\n     * Requirements:\\n     *\\n     * - the calling contract must have an ETH balance of at least `value`.\\n     * - the called Solidity function must be `payable`.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCallWithValue(\\n        address target,\\n        bytes memory data,\\n        uint256 value\\n    ) internal returns (bytes memory) {\\n        return functionCallWithValue(target, data, value, \\\"Address: low-level call with value failed\\\");\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but\\n     * with `errorMessage` as a fallback revert reason when `target` reverts.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCallWithValue(\\n        address target,\\n        bytes memory data,\\n        uint256 value,\\n        string memory errorMessage\\n    ) internal returns (bytes memory) {\\n        require(address(this).balance >= value, \\\"Address: insufficient balance for call\\\");\\n        (bool success, bytes memory returndata) = target.call{value: value}(data);\\n        return verifyCallResultFromTarget(target, success, returndata, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],\\n     * but performing a static call.\\n     *\\n     * _Available since v3.3._\\n     */\\n    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {\\n        return functionStaticCall(target, data, \\\"Address: low-level static call failed\\\");\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],\\n     * but performing a static call.\\n     *\\n     * _Available since v3.3._\\n     */\\n    function functionStaticCall(\\n        address target,\\n        bytes memory data,\\n        string memory errorMessage\\n    ) internal view returns (bytes memory) {\\n        (bool success, bytes memory returndata) = target.staticcall(data);\\n        return verifyCallResultFromTarget(target, success, returndata, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Tool to verify that a low level call to smart-contract was successful, and revert (either by bubbling\\n     * the revert reason or using the provided one) in case of unsuccessful call or if target was not a contract.\\n     *\\n     * _Available since v4.8._\\n     */\\n    function verifyCallResultFromTarget(\\n        address target,\\n        bool success,\\n        bytes memory returndata,\\n        string memory errorMessage\\n    ) internal view returns (bytes memory) {\\n        if (success) {\\n            if (returndata.length == 0) {\\n                // only check isContract if the call was successful and the return data is empty\\n                // otherwise we already know that it was a contract\\n                require(isContract(target), \\\"Address: call to non-contract\\\");\\n            }\\n            return returndata;\\n        } else {\\n            _revert(returndata, errorMessage);\\n        }\\n    }\\n\\n    /**\\n     * @dev Tool to verify that a low level call was successful, and revert if it wasn't, either by bubbling the\\n     * revert reason or using the provided one.\\n     *\\n     * _Available since v4.3._\\n     */\\n    function verifyCallResult(\\n        bool success,\\n        bytes memory returndata,\\n        string memory errorMessage\\n    ) internal pure returns (bytes memory) {\\n        if (success) {\\n            return returndata;\\n        } else {\\n            _revert(returndata, errorMessage);\\n        }\\n    }\\n\\n    function _revert(bytes memory returndata, string memory errorMessage) private pure {\\n        // Look for revert reason and bubble it up if present\\n        if (returndata.length > 0) {\\n            // The easiest way to bubble the revert reason is using memory via assembly\\n            /// @solidity memory-safe-assembly\\n            assembly {\\n                let returndata_size := mload(returndata)\\n                revert(add(32, returndata), returndata_size)\\n            }\\n        } else {\\n            revert(errorMessage);\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x2edcb41c121abc510932e8d83ff8b82cf9cdde35e7c297622f5c29ef0af25183\",\"license\":\"MIT\"},\"contracts/messaging/MerkleTreeManager.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.17;\\n\\nimport {ProposedOwnableUpgradeable} from \\\"../shared/ProposedOwnableUpgradeable.sol\\\";\\nimport {MerkleLib} from \\\"./libraries/MerkleLib.sol\\\";\\n\\n/**\\n * @title MerkleTreeManager\\n * @notice Contains a Merkle tree instance and exposes read/write functions for the tree.\\n * @dev On the hub domain there are two MerkleTreeManager contracts, one for the hub and one for the MainnetSpokeConnector.\\n */\\ncontract MerkleTreeManager is ProposedOwnableUpgradeable {\\n  // ========== Custom Errors ===========\\n\\n  error MerkleTreeManager__setArborist_zeroAddress();\\n  error MerkleTreeManager__setArborist_alreadyArborist();\\n\\n  // ============ Events ============\\n\\n  event ArboristUpdated(address previous, address updated);\\n\\n  // ============ Libraries ============\\n\\n  using MerkleLib for MerkleLib.Tree;\\n\\n  // ============ Public Storage ============\\n\\n  /**\\n   * @notice Core data structure with which this contract is tasked with keeping custody.\\n   * Writable only by the designated arborist.\\n   */\\n  MerkleLib.Tree public tree;\\n\\n  /**\\n   * @notice The arborist contract that has permission to write to this tree.\\n   * @dev This could be the root manager contract or a spoke connector contract, for example.\\n   */\\n  address public arborist;\\n\\n  // ============ Modifiers ============\\n\\n  modifier onlyArborist() {\\n    require(arborist == msg.sender, \\\"!arborist\\\");\\n    _;\\n  }\\n\\n  // ============ Getters ============\\n\\n  /**\\n   * @notice Returns the current branch.\\n   */\\n  function branch() public view returns (bytes32[32] memory) {\\n    return tree.branch;\\n  }\\n\\n  /**\\n   * @notice Calculates and returns the current root.\\n   */\\n  function root() public view returns (bytes32) {\\n    return tree.root();\\n  }\\n\\n  /**\\n   * @notice Returns the number of inserted leaves in the tree (current index).\\n   */\\n  function count() public view returns (uint256) {\\n    return tree.count;\\n  }\\n\\n  /**\\n   * @notice Convenience getter: returns the root and count.\\n   */\\n  function rootAndCount() public view returns (bytes32, uint256) {\\n    return (tree.root(), tree.count);\\n  }\\n\\n  // ======== Initializer =========\\n\\n  function initialize(address _arborist) public initializer {\\n    __MerkleTreeManager_init(_arborist);\\n    __ProposedOwnable_init();\\n  }\\n\\n  /**\\n   * @dev Initializes MerkleTreeManager instance. Sets the msg.sender as the initial permissioned\\n   */\\n  function __MerkleTreeManager_init(address _arborist) internal onlyInitializing {\\n    __MerkleTreeManager_init_unchained(_arborist);\\n  }\\n\\n  function __MerkleTreeManager_init_unchained(address _arborist) internal onlyInitializing {\\n    arborist = _arborist;\\n  }\\n\\n  // ============ Admin Functions ==============\\n\\n  /**\\n   * @notice Method for the current arborist to assign write permissions to a new arborist.\\n   * @param newArborist The new address to set as the current arborist.\\n   */\\n  function setArborist(address newArborist) external onlyOwner {\\n    if (newArborist == address(0)) revert MerkleTreeManager__setArborist_zeroAddress();\\n    address current = arborist;\\n    if (current == newArborist) revert MerkleTreeManager__setArborist_alreadyArborist();\\n\\n    // Emit updated event\\n    emit ArboristUpdated(current, newArborist);\\n\\n    arborist = newArborist;\\n  }\\n\\n  /**\\n   * @notice Remove ability to renounce ownership\\n   * @dev Renounce ownership should be impossible as long as there is a possibility the\\n   * arborist may change.\\n   */\\n  function renounceOwnership() public virtual override onlyOwner {}\\n\\n  // ========= Public Functions =========\\n\\n  /**\\n   * @notice Inserts the given leaves into the tree.\\n   * @param leaves The leaves to be inserted into the tree.\\n   * @return _root Current root for convenience.\\n   * @return _count Current node count (i.e. number of indices) AFTER the insertion of the new leaf,\\n   * provided for convenience.\\n   */\\n  function insert(bytes32[] memory leaves) public onlyArborist returns (bytes32 _root, uint256 _count) {\\n    // For > 1 leaf, considerably more efficient to put this tree into memory, conduct operations,\\n    // then re-assign it to storage - *especially* if we have multiple leaves to insert.\\n    MerkleLib.Tree memory _tree = tree;\\n\\n    uint256 leafCount = leaves.length;\\n    for (uint256 i; i < leafCount; ) {\\n      // Insert the new node (using in-memory method).\\n      _tree = _tree.insert(leaves[i]);\\n      unchecked {\\n        ++i;\\n      }\\n    }\\n    // Write the newly updated tree to storage.\\n    tree = _tree;\\n\\n    // Get return details for convenience.\\n    _count = _tree.count;\\n    // NOTE: Root calculation method currently reads from storage only.\\n    _root = tree.root();\\n  }\\n\\n  /**\\n   * @notice Inserts the given leaf into the tree.\\n   * @param leaf The leaf to be inserted into the tree.\\n   * @return _root Current root for convenience.\\n   * @return _count Current node count (i.e. number of indices) AFTER the insertion of the new leaf,\\n   * provided for convenience.\\n   */\\n  function insert(bytes32 leaf) public onlyArborist returns (bytes32 _root, uint256 _count) {\\n    // Insert the new node.\\n    tree = tree.insert(leaf);\\n    _count = tree.count;\\n    _root = tree.root();\\n  }\\n\\n  // ============ Upgrade Gap ============\\n  uint256[48] private __GAP; // gap for upgrade safety\\n}\\n\",\"keccak256\":\"0x2a54f2d570fa252f43e007d55b2bf01d1656d3ae59fbc505c13bddee4d5f834d\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/messaging/libraries/MerkleLib.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.17;\\n\\n/**\\n * @title MerkleLib\\n * @author Illusory Systems Inc.\\n * @notice An incremental merkle tree modeled on the eth2 deposit contract.\\n **/\\nlibrary MerkleLib {\\n  // ========== Custom Errors ===========\\n\\n  error MerkleLib__insert_treeIsFull();\\n\\n  // ============ Constants =============\\n\\n  uint256 internal constant TREE_DEPTH = 32;\\n  uint256 internal constant MAX_LEAVES = 2**TREE_DEPTH - 1;\\n\\n  /**\\n   * @dev Z_i represent the hash values at different heights for a binary tree with leaf values equal to `0`.\\n   * (e.g. Z_1 is the keccak256 hash of (0x0, 0x0), Z_2 is the keccak256 hash of (Z_1, Z_1), etc...)\\n   * Z_0 is the bottom of the 33-layer tree, Z_32 is the top (i.e. root).\\n   * Used to shortcut calculation in root calculation methods below.\\n   */\\n  bytes32 internal constant Z_0 = hex\\\"0000000000000000000000000000000000000000000000000000000000000000\\\";\\n  bytes32 internal constant Z_1 = hex\\\"ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5\\\";\\n  bytes32 internal constant Z_2 = hex\\\"b4c11951957c6f8f642c4af61cd6b24640fec6dc7fc607ee8206a99e92410d30\\\";\\n  bytes32 internal constant Z_3 = hex\\\"21ddb9a356815c3fac1026b6dec5df3124afbadb485c9ba5a3e3398a04b7ba85\\\";\\n  bytes32 internal constant Z_4 = hex\\\"e58769b32a1beaf1ea27375a44095a0d1fb664ce2dd358e7fcbfb78c26a19344\\\";\\n  bytes32 internal constant Z_5 = hex\\\"0eb01ebfc9ed27500cd4dfc979272d1f0913cc9f66540d7e8005811109e1cf2d\\\";\\n  bytes32 internal constant Z_6 = hex\\\"887c22bd8750d34016ac3c66b5ff102dacdd73f6b014e710b51e8022af9a1968\\\";\\n  bytes32 internal constant Z_7 = hex\\\"ffd70157e48063fc33c97a050f7f640233bf646cc98d9524c6b92bcf3ab56f83\\\";\\n  bytes32 internal constant Z_8 = hex\\\"9867cc5f7f196b93bae1e27e6320742445d290f2263827498b54fec539f756af\\\";\\n  bytes32 internal constant Z_9 = hex\\\"cefad4e508c098b9a7e1d8feb19955fb02ba9675585078710969d3440f5054e0\\\";\\n  bytes32 internal constant Z_10 = hex\\\"f9dc3e7fe016e050eff260334f18a5d4fe391d82092319f5964f2e2eb7c1c3a5\\\";\\n  bytes32 internal constant Z_11 = hex\\\"f8b13a49e282f609c317a833fb8d976d11517c571d1221a265d25af778ecf892\\\";\\n  bytes32 internal constant Z_12 = hex\\\"3490c6ceeb450aecdc82e28293031d10c7d73bf85e57bf041a97360aa2c5d99c\\\";\\n  bytes32 internal constant Z_13 = hex\\\"c1df82d9c4b87413eae2ef048f94b4d3554cea73d92b0f7af96e0271c691e2bb\\\";\\n  bytes32 internal constant Z_14 = hex\\\"5c67add7c6caf302256adedf7ab114da0acfe870d449a3a489f781d659e8becc\\\";\\n  bytes32 internal constant Z_15 = hex\\\"da7bce9f4e8618b6bd2f4132ce798cdc7a60e7e1460a7299e3c6342a579626d2\\\";\\n  bytes32 internal constant Z_16 = hex\\\"2733e50f526ec2fa19a22b31e8ed50f23cd1fdf94c9154ed3a7609a2f1ff981f\\\";\\n  bytes32 internal constant Z_17 = hex\\\"e1d3b5c807b281e4683cc6d6315cf95b9ade8641defcb32372f1c126e398ef7a\\\";\\n  bytes32 internal constant Z_18 = hex\\\"5a2dce0a8a7f68bb74560f8f71837c2c2ebbcbf7fffb42ae1896f13f7c7479a0\\\";\\n  bytes32 internal constant Z_19 = hex\\\"b46a28b6f55540f89444f63de0378e3d121be09e06cc9ded1c20e65876d36aa0\\\";\\n  bytes32 internal constant Z_20 = hex\\\"c65e9645644786b620e2dd2ad648ddfcbf4a7e5b1a3a4ecfe7f64667a3f0b7e2\\\";\\n  bytes32 internal constant Z_21 = hex\\\"f4418588ed35a2458cffeb39b93d26f18d2ab13bdce6aee58e7b99359ec2dfd9\\\";\\n  bytes32 internal constant Z_22 = hex\\\"5a9c16dc00d6ef18b7933a6f8dc65ccb55667138776f7dea101070dc8796e377\\\";\\n  bytes32 internal constant Z_23 = hex\\\"4df84f40ae0c8229d0d6069e5c8f39a7c299677a09d367fc7b05e3bc380ee652\\\";\\n  bytes32 internal constant Z_24 = hex\\\"cdc72595f74c7b1043d0e1ffbab734648c838dfb0527d971b602bc216c9619ef\\\";\\n  bytes32 internal constant Z_25 = hex\\\"0abf5ac974a1ed57f4050aa510dd9c74f508277b39d7973bb2dfccc5eeb0618d\\\";\\n  bytes32 internal constant Z_26 = hex\\\"b8cd74046ff337f0a7bf2c8e03e10f642c1886798d71806ab1e888d9e5ee87d0\\\";\\n  bytes32 internal constant Z_27 = hex\\\"838c5655cb21c6cb83313b5a631175dff4963772cce9108188b34ac87c81c41e\\\";\\n  bytes32 internal constant Z_28 = hex\\\"662ee4dd2dd7b2bc707961b1e646c4047669dcb6584f0d8d770daf5d7e7deb2e\\\";\\n  bytes32 internal constant Z_29 = hex\\\"388ab20e2573d171a88108e79d820e98f26c0b84aa8b2f4aa4968dbb818ea322\\\";\\n  bytes32 internal constant Z_30 = hex\\\"93237c50ba75ee485f4c22adf2f741400bdf8d6a9cc7df7ecae576221665d735\\\";\\n  bytes32 internal constant Z_31 = hex\\\"8448818bb4ae4562849e949e17ac16e0be16688e156b5cf15e098c627c0056a9\\\";\\n  bytes32 internal constant Z_32 = hex\\\"27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757\\\";\\n\\n  // ============= Structs ==============\\n\\n  /**\\n   * @notice Struct representing incremental merkle tree. Contains current\\n   * branch and the number of inserted leaves in the tree.\\n   **/\\n  struct Tree {\\n    bytes32[TREE_DEPTH] branch;\\n    uint256 count;\\n  }\\n\\n  // ========= Write Methods =========\\n\\n  /**\\n   * @notice Inserts a given node (leaf) into merkle tree. Operates on an in-memory tree and\\n   * returns an updated version of that tree.\\n   * @dev Reverts if the tree is already full.\\n   * @param node Element to insert into tree.\\n   * @return Tree Updated tree.\\n   **/\\n  function insert(Tree memory tree, bytes32 node) internal pure returns (Tree memory) {\\n    // Update tree.count to increase the current count by 1 since we'll be including a new node.\\n    uint256 size = ++tree.count;\\n    if (size > MAX_LEAVES) revert MerkleLib__insert_treeIsFull();\\n\\n    // Loop starting at 0, ending when we've finished inserting the node (i.e. hashing it) into\\n    // the active branch. Each loop we cut size in half, hashing the inserted node up the active\\n    // branch along the way.\\n    for (uint256 i; i < TREE_DEPTH; ) {\\n      // Check if the current size is odd; if so, we set this index in the branch to be the node.\\n      if ((size & 1) == 1) {\\n        // If i > 0, then this node will be a hash of the original node with every layer up\\n        // until layer `i`.\\n        tree.branch[i] = node;\\n        return tree;\\n      }\\n      // If the size is not yet odd, we hash the current index in the tree branch with the node.\\n      node = keccak256(abi.encodePacked(tree.branch[i], node));\\n      size >>= 1; // Cut size in half (statement equivalent to: `size /= 2`).\\n\\n      unchecked {\\n        ++i;\\n      }\\n    }\\n    // As the loop should always end prematurely with the `return` statement, this code should\\n    // be unreachable. We revert here just to be safe.\\n    revert MerkleLib__insert_treeIsFull();\\n  }\\n\\n  // ========= Read Methods =========\\n\\n  /**\\n   * @notice Calculates and returns tree's current root.\\n   * @return _current bytes32 root.\\n   **/\\n  function root(Tree storage tree) internal view returns (bytes32 _current) {\\n    uint256 _index = tree.count;\\n\\n    if (_index == 0) {\\n      return Z_32;\\n    }\\n\\n    uint256 i;\\n    assembly {\\n      let TREE_SLOT := tree.slot\\n\\n      for {\\n\\n      } true {\\n\\n      } {\\n        for {\\n\\n        } true {\\n\\n        } {\\n          if and(_index, 1) {\\n            mstore(0, sload(TREE_SLOT))\\n            mstore(0x20, Z_0)\\n            _current := keccak256(0, 0x40)\\n            break\\n          }\\n\\n          if and(_index, shl(1, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 1)))\\n            mstore(0x20, Z_1)\\n            _current := keccak256(0, 0x40)\\n            i := 1\\n            break\\n          }\\n\\n          if and(_index, shl(2, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 2)))\\n            mstore(0x20, Z_2)\\n            _current := keccak256(0, 0x40)\\n            i := 2\\n            break\\n          }\\n\\n          if and(_index, shl(3, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 3)))\\n            mstore(0x20, Z_3)\\n            _current := keccak256(0, 0x40)\\n            i := 3\\n            break\\n          }\\n\\n          if and(_index, shl(4, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 4)))\\n            mstore(0x20, Z_4)\\n            _current := keccak256(0, 0x40)\\n            i := 4\\n            break\\n          }\\n\\n          if and(_index, shl(5, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 5)))\\n            mstore(0x20, Z_5)\\n            _current := keccak256(0, 0x40)\\n            i := 5\\n            break\\n          }\\n\\n          if and(_index, shl(6, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 6)))\\n            mstore(0x20, Z_6)\\n            _current := keccak256(0, 0x40)\\n            i := 6\\n            break\\n          }\\n\\n          if and(_index, shl(7, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 7)))\\n            mstore(0x20, Z_7)\\n            _current := keccak256(0, 0x40)\\n            i := 7\\n            break\\n          }\\n\\n          if and(_index, shl(8, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 8)))\\n            mstore(0x20, Z_8)\\n            _current := keccak256(0, 0x40)\\n            i := 8\\n            break\\n          }\\n\\n          if and(_index, shl(9, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 9)))\\n            mstore(0x20, Z_9)\\n            _current := keccak256(0, 0x40)\\n            i := 9\\n            break\\n          }\\n\\n          if and(_index, shl(10, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 10)))\\n            mstore(0x20, Z_10)\\n            _current := keccak256(0, 0x40)\\n            i := 10\\n            break\\n          }\\n\\n          if and(_index, shl(11, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 11)))\\n            mstore(0x20, Z_11)\\n            _current := keccak256(0, 0x40)\\n            i := 11\\n            break\\n          }\\n\\n          if and(_index, shl(12, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 12)))\\n            mstore(0x20, Z_12)\\n            _current := keccak256(0, 0x40)\\n            i := 12\\n            break\\n          }\\n\\n          if and(_index, shl(13, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 13)))\\n            mstore(0x20, Z_13)\\n            _current := keccak256(0, 0x40)\\n            i := 13\\n            break\\n          }\\n\\n          if and(_index, shl(14, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 14)))\\n            mstore(0x20, Z_14)\\n            _current := keccak256(0, 0x40)\\n            i := 14\\n            break\\n          }\\n\\n          if and(_index, shl(15, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 15)))\\n            mstore(0x20, Z_15)\\n            _current := keccak256(0, 0x40)\\n            i := 15\\n            break\\n          }\\n\\n          if and(_index, shl(16, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 16)))\\n            mstore(0x20, Z_16)\\n            _current := keccak256(0, 0x40)\\n            i := 16\\n            break\\n          }\\n\\n          if and(_index, shl(17, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 17)))\\n            mstore(0x20, Z_17)\\n            _current := keccak256(0, 0x40)\\n            i := 17\\n            break\\n          }\\n\\n          if and(_index, shl(18, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 18)))\\n            mstore(0x20, Z_18)\\n            _current := keccak256(0, 0x40)\\n            i := 18\\n            break\\n          }\\n\\n          if and(_index, shl(19, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 19)))\\n            mstore(0x20, Z_19)\\n            _current := keccak256(0, 0x40)\\n            i := 19\\n            break\\n          }\\n\\n          if and(_index, shl(20, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 20)))\\n            mstore(0x20, Z_20)\\n            _current := keccak256(0, 0x40)\\n            i := 20\\n            break\\n          }\\n\\n          if and(_index, shl(21, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 21)))\\n            mstore(0x20, Z_21)\\n            _current := keccak256(0, 0x40)\\n            i := 21\\n            break\\n          }\\n\\n          if and(_index, shl(22, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 22)))\\n            mstore(0x20, Z_22)\\n            _current := keccak256(0, 0x40)\\n            i := 22\\n            break\\n          }\\n\\n          if and(_index, shl(23, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 23)))\\n            mstore(0x20, Z_23)\\n            _current := keccak256(0, 0x40)\\n            i := 23\\n            break\\n          }\\n\\n          if and(_index, shl(24, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 24)))\\n            mstore(0x20, Z_24)\\n            _current := keccak256(0, 0x40)\\n            i := 24\\n            break\\n          }\\n\\n          if and(_index, shl(25, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 25)))\\n            mstore(0x20, Z_25)\\n            _current := keccak256(0, 0x40)\\n            i := 25\\n            break\\n          }\\n\\n          if and(_index, shl(26, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 26)))\\n            mstore(0x20, Z_26)\\n            _current := keccak256(0, 0x40)\\n            i := 26\\n            break\\n          }\\n\\n          if and(_index, shl(27, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 27)))\\n            mstore(0x20, Z_27)\\n            _current := keccak256(0, 0x40)\\n            i := 27\\n            break\\n          }\\n\\n          if and(_index, shl(28, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 28)))\\n            mstore(0x20, Z_28)\\n            _current := keccak256(0, 0x40)\\n            i := 28\\n            break\\n          }\\n\\n          if and(_index, shl(29, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 29)))\\n            mstore(0x20, Z_29)\\n            _current := keccak256(0, 0x40)\\n            i := 29\\n            break\\n          }\\n\\n          if and(_index, shl(30, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 30)))\\n            mstore(0x20, Z_30)\\n            _current := keccak256(0, 0x40)\\n            i := 30\\n            break\\n          }\\n\\n          if and(_index, shl(31, 1)) {\\n            mstore(0, sload(add(TREE_SLOT, 31)))\\n            mstore(0x20, Z_31)\\n            _current := keccak256(0, 0x40)\\n            i := 31\\n            break\\n          }\\n\\n          _current := Z_32\\n          i := 32\\n          break\\n        }\\n\\n        if gt(i, 30) {\\n          break\\n        }\\n\\n        {\\n          if lt(i, 1) {\\n            switch and(_index, shl(1, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_1)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 1)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 2) {\\n            switch and(_index, shl(2, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_2)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 2)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 3) {\\n            switch and(_index, shl(3, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_3)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 3)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 4) {\\n            switch and(_index, shl(4, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_4)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 4)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 5) {\\n            switch and(_index, shl(5, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_5)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 5)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 6) {\\n            switch and(_index, shl(6, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_6)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 6)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 7) {\\n            switch and(_index, shl(7, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_7)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 7)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 8) {\\n            switch and(_index, shl(8, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_8)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 8)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 9) {\\n            switch and(_index, shl(9, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_9)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 9)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 10) {\\n            switch and(_index, shl(10, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_10)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 10)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 11) {\\n            switch and(_index, shl(11, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_11)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 11)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 12) {\\n            switch and(_index, shl(12, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_12)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 12)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 13) {\\n            switch and(_index, shl(13, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_13)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 13)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 14) {\\n            switch and(_index, shl(14, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_14)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 14)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 15) {\\n            switch and(_index, shl(15, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_15)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 15)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 16) {\\n            switch and(_index, shl(16, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_16)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 16)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 17) {\\n            switch and(_index, shl(17, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_17)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 17)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 18) {\\n            switch and(_index, shl(18, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_18)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 18)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 19) {\\n            switch and(_index, shl(19, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_19)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 19)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 20) {\\n            switch and(_index, shl(20, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_20)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 20)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 21) {\\n            switch and(_index, shl(21, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_21)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 21)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 22) {\\n            switch and(_index, shl(22, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_22)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 22)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 23) {\\n            switch and(_index, shl(23, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_23)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 23)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 24) {\\n            switch and(_index, shl(24, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_24)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 24)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 25) {\\n            switch and(_index, shl(25, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_25)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 25)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 26) {\\n            switch and(_index, shl(26, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_26)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 26)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 27) {\\n            switch and(_index, shl(27, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_27)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 27)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 28) {\\n            switch and(_index, shl(28, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_28)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 28)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 29) {\\n            switch and(_index, shl(29, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_29)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 29)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 30) {\\n            switch and(_index, shl(30, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_30)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 30)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n\\n          if lt(i, 31) {\\n            switch and(_index, shl(31, 1))\\n            case 0 {\\n              mstore(0, _current)\\n              mstore(0x20, Z_31)\\n            }\\n            default {\\n              mstore(0, sload(add(TREE_SLOT, 31)))\\n              mstore(0x20, _current)\\n            }\\n\\n            _current := keccak256(0, 0x40)\\n          }\\n        }\\n\\n        break\\n      }\\n    }\\n  }\\n\\n  /**\\n   * @notice Calculates and returns the merkle root for the given leaf `_item`,\\n   * a merkle branch, and the index of `_item` in the tree.\\n   * @param _item Merkle leaf\\n   * @param _branch Merkle proof\\n   * @param _index Index of `_item` in tree\\n   * @return _current Calculated merkle root\\n   **/\\n  function branchRoot(\\n    bytes32 _item,\\n    bytes32[TREE_DEPTH] memory _branch,\\n    uint256 _index\\n  ) internal pure returns (bytes32 _current) {\\n    assembly {\\n      _current := _item\\n      let BRANCH_DATA_OFFSET := _branch\\n      let f\\n\\n      f := shl(5, and(_index, 1))\\n      mstore(f, _current)\\n      mstore(sub(0x20, f), mload(BRANCH_DATA_OFFSET))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(1, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 1))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(2, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 2))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(3, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 3))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(4, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 4))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(5, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 5))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(6, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 6))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(7, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 7))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(8, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 8))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(9, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 9))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(10, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 10))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(11, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 11))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(12, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 12))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(13, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 13))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(14, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 14))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(15, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 15))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(16, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 16))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(17, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 17))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(18, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 18))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(19, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 19))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(20, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 20))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(21, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 21))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(22, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 22))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(23, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 23))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(24, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 24))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(25, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 25))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(26, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 26))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(27, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 27))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(28, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 28))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(29, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 29))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(30, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 30))))\\n      _current := keccak256(0, 0x40)\\n\\n      f := shl(5, iszero(and(_index, shl(31, 1))))\\n      mstore(sub(0x20, f), _current)\\n      mstore(f, mload(add(BRANCH_DATA_OFFSET, shl(5, 31))))\\n      _current := keccak256(0, 0x40)\\n    }\\n  }\\n}\\n\",\"keccak256\":\"0x08c791dbeef6253813d74e2145183501fe7631c13d5ac9d768036f47b66b693e\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/shared/ProposedOwnable.sol\":{\"content\":\"// SPDX-License-Identifier: UNLICENSED\\npragma solidity 0.8.17;\\n\\nimport {IProposedOwnable} from \\\"./interfaces/IProposedOwnable.sol\\\";\\n\\n/**\\n * @title ProposedOwnable\\n * @notice Contract module which provides a basic access control mechanism,\\n * where there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * By default, the owner account will be the one that deploys the contract. This\\n * can later be changed via a two step process:\\n * 1. Call `proposeOwner`\\n * 2. Wait out the delay period\\n * 3. Call `acceptOwner`\\n *\\n * @dev This module is used through inheritance. It will make available the\\n * modifier `onlyOwner`, which can be applied to your functions to restrict\\n * their use to the owner.\\n *\\n * @dev The majority of this code was taken from the openzeppelin Ownable\\n * contract\\n *\\n */\\nabstract contract ProposedOwnable is IProposedOwnable {\\n  // ========== Custom Errors ===========\\n\\n  error ProposedOwnable__onlyOwner_notOwner();\\n  error ProposedOwnable__onlyProposed_notProposedOwner();\\n  error ProposedOwnable__ownershipDelayElapsed_delayNotElapsed();\\n  error ProposedOwnable__proposeNewOwner_invalidProposal();\\n  error ProposedOwnable__proposeNewOwner_noOwnershipChange();\\n  error ProposedOwnable__renounceOwnership_noProposal();\\n  error ProposedOwnable__renounceOwnership_invalidProposal();\\n\\n  // ============ Properties ============\\n\\n  address private _owner;\\n\\n  address private _proposed;\\n  uint256 private _proposedOwnershipTimestamp;\\n\\n  uint256 private constant _delay = 7 days;\\n\\n  // ======== Getters =========\\n\\n  /**\\n   * @notice Returns the address of the current owner.\\n   */\\n  function owner() public view virtual returns (address) {\\n    return _owner;\\n  }\\n\\n  /**\\n   * @notice Returns the address of the proposed owner.\\n   */\\n  function proposed() public view virtual returns (address) {\\n    return _proposed;\\n  }\\n\\n  /**\\n   * @notice Returns the address of the proposed owner.\\n   */\\n  function proposedTimestamp() public view virtual returns (uint256) {\\n    return _proposedOwnershipTimestamp;\\n  }\\n\\n  /**\\n   * @notice Returns the delay period before a new owner can be accepted.\\n   */\\n  function delay() public view virtual returns (uint256) {\\n    return _delay;\\n  }\\n\\n  /**\\n   * @notice Throws if called by any account other than the owner.\\n   */\\n  modifier onlyOwner() {\\n    if (_owner != msg.sender) revert ProposedOwnable__onlyOwner_notOwner();\\n    _;\\n  }\\n\\n  /**\\n   * @notice Throws if called by any account other than the proposed owner.\\n   */\\n  modifier onlyProposed() {\\n    if (_proposed != msg.sender) revert ProposedOwnable__onlyProposed_notProposedOwner();\\n    _;\\n  }\\n\\n  /**\\n   * @notice Throws if the ownership delay has not elapsed\\n   */\\n  modifier ownershipDelayElapsed() {\\n    // Ensure delay has elapsed\\n    if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay)\\n      revert ProposedOwnable__ownershipDelayElapsed_delayNotElapsed();\\n    _;\\n  }\\n\\n  /**\\n   * @notice Indicates if the ownership has been renounced() by\\n   * checking if current owner is address(0)\\n   */\\n  function renounced() public view returns (bool) {\\n    return _owner == address(0);\\n  }\\n\\n  // ======== External =========\\n\\n  /**\\n   * @notice Sets the timestamp for an owner to be proposed, and sets the\\n   * newly proposed owner as step 1 in a 2-step process\\n   */\\n  function proposeNewOwner(address newlyProposed) public virtual onlyOwner {\\n    // Contract as source of truth\\n    if (_proposed == newlyProposed && _proposedOwnershipTimestamp != 0)\\n      revert ProposedOwnable__proposeNewOwner_invalidProposal();\\n\\n    // Sanity check: reasonable proposal\\n    if (_owner == newlyProposed) revert ProposedOwnable__proposeNewOwner_noOwnershipChange();\\n\\n    _setProposed(newlyProposed);\\n  }\\n\\n  /**\\n   * @notice Renounces ownership of the contract after a delay\\n   */\\n  function renounceOwnership() public virtual onlyOwner ownershipDelayElapsed {\\n    // Ensure there has been a proposal cycle started\\n    if (_proposedOwnershipTimestamp == 0) revert ProposedOwnable__renounceOwnership_noProposal();\\n\\n    // Require proposed is set to 0\\n    if (_proposed != address(0)) revert ProposedOwnable__renounceOwnership_invalidProposal();\\n\\n    // Emit event, set new owner, reset timestamp\\n    _setOwner(address(0));\\n  }\\n\\n  /**\\n   * @notice Transfers ownership of the contract to a new account (`newOwner`).\\n   * Can only be called by the current owner.\\n   */\\n  function acceptProposedOwner() public virtual onlyProposed ownershipDelayElapsed {\\n    // NOTE: no need to check if _owner == _proposed, because the _proposed\\n    // is 0-d out and this check is implicitly enforced by modifier\\n\\n    // NOTE: no need to check if _proposedOwnershipTimestamp > 0 because\\n    // the only time this would happen is if the _proposed was never\\n    // set (will fail from modifier) or if the owner == _proposed (checked\\n    // above)\\n\\n    // Emit event, set new owner, reset timestamp\\n    _setOwner(_proposed);\\n  }\\n\\n  // ======== Internal =========\\n\\n  function _setOwner(address newOwner) internal {\\n    emit OwnershipTransferred(_owner, newOwner);\\n    _owner = newOwner;\\n    delete _proposedOwnershipTimestamp;\\n    delete _proposed;\\n  }\\n\\n  function _setProposed(address newlyProposed) private {\\n    _proposedOwnershipTimestamp = block.timestamp;\\n    _proposed = newlyProposed;\\n    emit OwnershipProposed(newlyProposed);\\n  }\\n}\\n\",\"keccak256\":\"0xa96eff4fdff55ffa29cda5c18285a9af04c3cbaf55f83696085cdd2251a8d6c0\",\"license\":\"UNLICENSED\"},\"contracts/shared/ProposedOwnableUpgradeable.sol\":{\"content\":\"// SPDX-License-Identifier: UNLICENSED\\npragma solidity 0.8.17;\\n\\nimport {Initializable} from \\\"@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol\\\";\\n\\nimport {ProposedOwnable} from \\\"./ProposedOwnable.sol\\\";\\n\\nabstract contract ProposedOwnableUpgradeable is Initializable, ProposedOwnable {\\n  /**\\n   * @dev Initializes the contract setting the deployer as the initial\\n   */\\n  function __ProposedOwnable_init() internal onlyInitializing {\\n    __ProposedOwnable_init_unchained();\\n  }\\n\\n  function __ProposedOwnable_init_unchained() internal onlyInitializing {\\n    _setOwner(msg.sender);\\n  }\\n\\n  /**\\n   * @dev This empty reserved space is put in place to allow future versions to add new\\n   * variables without shifting down storage in the inheritance chain.\\n   * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps\\n   */\\n  uint256[47] private __GAP;\\n}\\n\",\"keccak256\":\"0x2b064b03a25915e93749905ef3aae516ffaac86b8ba9f126b614425b623bf477\",\"license\":\"UNLICENSED\"},\"contracts/shared/interfaces/IProposedOwnable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.17;\\n\\n/**\\n * @title IProposedOwnable\\n * @notice Defines a minimal interface for ownership with a two step proposal and acceptance\\n * process\\n */\\ninterface IProposedOwnable {\\n  /**\\n   * @dev This emits when change in ownership of a contract is proposed.\\n   */\\n  event OwnershipProposed(address indexed proposedOwner);\\n\\n  /**\\n   * @dev This emits when ownership of a contract changes.\\n   */\\n  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n  /**\\n   * @notice Get the address of the owner\\n   * @return owner_ The address of the owner.\\n   */\\n  function owner() external view returns (address owner_);\\n\\n  /**\\n   * @notice Get the address of the proposed owner\\n   * @return proposed_ The address of the proposed.\\n   */\\n  function proposed() external view returns (address proposed_);\\n\\n  /**\\n   * @notice Set the address of the proposed owner of the contract\\n   * @param newlyProposed The proposed new owner of the contract\\n   */\\n  function proposeNewOwner(address newlyProposed) external;\\n\\n  /**\\n   * @notice Set the address of the proposed owner of the contract\\n   */\\n  function acceptProposedOwner() external;\\n}\\n\",\"keccak256\":\"0x4ec1aa589d37d0c1eac9966e26d2d3540d1661b81763e678f14d2c6fa0682323\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50612220806100206000396000f3fe608060405234801561001057600080fd5b50600436106101165760003560e01c80638da5cb5b116100a2578063c9b0a6de11610071578063c9b0a6de14610220578063d1851c9214610228578063d232c22014610239578063ebf0c71714610262578063fd54b2281461026a57600080fd5b80638da5cb5b146101db578063b1f8100d146101f2578063c4d66de814610205578063c5b350df1461021857600080fd5b806334a55ee6116100e957806334a55ee61461019a5780633cf52ffb146101ad5780634b72d0d4146101b55780636a42b8f8146101ca578063715018a6146101d357600080fd5b806306661abd1461011b5780631b373a98146101325780632d287e431461014757806331d0913c1461016f575b600080fd5b6052545b6040519081526020015b60405180910390f35b610145610140366004611f04565b610274565b005b61015a610155366004611f34565b610362565b60408051928352602083019190915201610129565b605354610182906001600160a01b031681565b6040516001600160a01b039091168152602001610129565b61015a6101a8366004611f63565b610431565b60025461011f565b6101bd61053d565b6040516101299190612021565b62093a8061011f565b610145610579565b6000546201000090046001600160a01b0316610182565b610145610200366004611f04565b6105ac565b610145610213366004611f04565b610659565b610145610774565b61015a6107e4565b6001546001600160a01b0316610182565b6102526000546201000090046001600160a01b03161590565b6040519015158152602001610129565b61011f6107fd565b60525461011f9081565b6000546201000090046001600160a01b031633146102a5576040516311a8a1bb60e31b815260040160405180910390fd5b6001600160a01b0381166102cc57604051630c11a52d60e11b815260040160405180910390fd5b6053546001600160a01b0390811690821681036102fc5760405163606e957b60e11b815260040160405180910390fd5b604080516001600160a01b038084168252841660208201527ff2fa31e21376edb31995720340ba00a41a12a7c8744a9bde552660121f4b7771910160405180910390a150605380546001600160a01b0319166001600160a01b0392909216919091179055565b60535460009081906001600160a01b031633146103b25760405162461bcd60e51b815260206004820152600960248201526808585c989bdc9a5cdd60ba1b60448201526064015b60405180910390fd5b60408051610440810180835261040092869291603291839190820190839060209082845b8154815260200190600101908083116103d65750505091835250506020918201549101529061080e565b80516032906104129082906020611e72565b506020918201519101555060525461042a603261091a565b9150915091565b60535460009081906001600160a01b0316331461047c5760405162461bcd60e51b815260206004820152600960248201526808585c989bdc9a5cdd60ba1b60448201526064016103a9565b6040805161044081018083526000926032918391820190839060209082845b81548152602001906001019080831161049b575050509183525050602091820154910152845190915060005b81811015610505576104fb8682815181106104e4576104e4612057565b60200260200101518461080e90919063ffffffff16565b92506001016104c7565b508151829060329061051a9082906020611e72565b50602091820151908201558201519250610534603261091a565b93505050915091565b610545611eb0565b604080516104008101918290529060329060209082845b81548152602001906001019080831161055c575050505050905090565b6000546201000090046001600160a01b031633146105aa576040516311a8a1bb60e31b815260040160405180910390fd5b565b6000546201000090046001600160a01b031633146105dd576040516311a8a1bb60e31b815260040160405180910390fd5b6001546001600160a01b0382811691161480156105fb575060025415155b15610619576040516311bc066560e11b815260040160405180910390fd5b6000546001600160a01b0380831662010000909204160361064d57604051634a2fb73f60e11b815260040160405180910390fd5b61065681611cd0565b50565b600054610100900460ff16158080156106795750600054600160ff909116105b806106935750303b158015610693575060005460ff166001145b6106f65760405162461bcd60e51b815260206004820152602e60248201527f496e697469616c697a61626c653a20636f6e747261637420697320616c72656160448201526d191e481a5b9a5d1a585b1a5e995960921b60648201526084016103a9565b6000805460ff191660011790558015610719576000805461ff0019166101001790555b61072282611d1e565b61072a611d4e565b8015610770576000805461ff0019169055604051600181527f7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb38474024989060200160405180910390a15b5050565b6001546001600160a01b0316331461079f576040516311a7f27160e11b815260040160405180910390fd5b62093a80600254426107b19190612083565b116107cf576040516324e0285f60e21b815260040160405180910390fd5b6001546105aa906001600160a01b0316611d7d565b6000806107f1603261091a565b60525490939092509050565b6000610809603261091a565b905090565b610816611ecf565b600083602001805161082790612096565b908190529050600161083b60206002612193565b6108459190612083565b81111561086557604051638eab04bb60e01b815260040160405180910390fd5b60005b60208110156108fa57816001166001036108a15784518490826020811061089157610891612057565b6020020152508391506109149050565b845181602081106108b4576108b4612057565b6020020151846040516020016108d4929190918252602082015260400190565b60408051601f1981840301815291905280516020909101209350600191821c9101610868565b50604051638eab04bb60e01b815260040160405180910390fd5b92915050565b602081015460009080820361095157507f27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d75792915050565b6000836001831615610973578054600052600060205260406000209350611226565b60028316156109b85760018101546000527fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb56020526040600020935060019150611226565b60048316156109fd5760028101546000527fb4c11951957c6f8f642c4af61cd6b24640fec6dc7fc607ee8206a99e92410d306020526040600020935060029150611226565b6008831615610a425760038101546000527f21ddb9a356815c3fac1026b6dec5df3124afbadb485c9ba5a3e3398a04b7ba856020526040600020935060039150611226565b6010831615610a875760048101546000527fe58769b32a1beaf1ea27375a44095a0d1fb664ce2dd358e7fcbfb78c26a193446020526040600020935060049150611226565b6020831615610acc5760058101546000527f0eb01ebfc9ed27500cd4dfc979272d1f0913cc9f66540d7e8005811109e1cf2d6020526040600020935060059150611226565b6040831615610b115760068101546000527f887c22bd8750d34016ac3c66b5ff102dacdd73f6b014e710b51e8022af9a19686020526040600020935060069150611226565b6080831615610b565760078101546000527fffd70157e48063fc33c97a050f7f640233bf646cc98d9524c6b92bcf3ab56f836020526040600020935060079150611226565b610100831615610b9c5760088101546000527f9867cc5f7f196b93bae1e27e6320742445d290f2263827498b54fec539f756af6020526040600020935060089150611226565b610200831615610be25760098101546000527fcefad4e508c098b9a7e1d8feb19955fb02ba9675585078710969d3440f5054e06020526040600020935060099150611226565b610400831615610c2857600a8101546000527ff9dc3e7fe016e050eff260334f18a5d4fe391d82092319f5964f2e2eb7c1c3a560205260406000209350600a9150611226565b610800831615610c6e57600b8101546000527ff8b13a49e282f609c317a833fb8d976d11517c571d1221a265d25af778ecf89260205260406000209350600b9150611226565b611000831615610cb457600c8101546000527f3490c6ceeb450aecdc82e28293031d10c7d73bf85e57bf041a97360aa2c5d99c60205260406000209350600c9150611226565b612000831615610cfa57600d8101546000527fc1df82d9c4b87413eae2ef048f94b4d3554cea73d92b0f7af96e0271c691e2bb60205260406000209350600d9150611226565b614000831615610d4057600e8101546000527f5c67add7c6caf302256adedf7ab114da0acfe870d449a3a489f781d659e8becc60205260406000209350600e9150611226565b618000831615610d8657600f8101546000527fda7bce9f4e8618b6bd2f4132ce798cdc7a60e7e1460a7299e3c6342a579626d260205260406000209350600f9150611226565b62010000831615610dcd5760108101546000527f2733e50f526ec2fa19a22b31e8ed50f23cd1fdf94c9154ed3a7609a2f1ff981f6020526040600020935060109150611226565b62020000831615610e145760118101546000527fe1d3b5c807b281e4683cc6d6315cf95b9ade8641defcb32372f1c126e398ef7a6020526040600020935060119150611226565b62040000831615610e5b5760128101546000527f5a2dce0a8a7f68bb74560f8f71837c2c2ebbcbf7fffb42ae1896f13f7c7479a06020526040600020935060129150611226565b62080000831615610ea25760138101546000527fb46a28b6f55540f89444f63de0378e3d121be09e06cc9ded1c20e65876d36aa06020526040600020935060139150611226565b62100000831615610ee95760148101546000527fc65e9645644786b620e2dd2ad648ddfcbf4a7e5b1a3a4ecfe7f64667a3f0b7e26020526040600020935060149150611226565b62200000831615610f305760158101546000527ff4418588ed35a2458cffeb39b93d26f18d2ab13bdce6aee58e7b99359ec2dfd96020526040600020935060159150611226565b62400000831615610f775760168101546000527f5a9c16dc00d6ef18b7933a6f8dc65ccb55667138776f7dea101070dc8796e3776020526040600020935060169150611226565b62800000831615610fbe5760178101546000527f4df84f40ae0c8229d0d6069e5c8f39a7c299677a09d367fc7b05e3bc380ee6526020526040600020935060179150611226565b63010000008316156110065760188101546000527fcdc72595f74c7b1043d0e1ffbab734648c838dfb0527d971b602bc216c9619ef6020526040600020935060189150611226565b630200000083161561104e5760198101546000527f0abf5ac974a1ed57f4050aa510dd9c74f508277b39d7973bb2dfccc5eeb0618d6020526040600020935060199150611226565b630400000083161561109657601a8101546000527fb8cd74046ff337f0a7bf2c8e03e10f642c1886798d71806ab1e888d9e5ee87d060205260406000209350601a9150611226565b63080000008316156110de57601b8101546000527f838c5655cb21c6cb83313b5a631175dff4963772cce9108188b34ac87c81c41e60205260406000209350601b9150611226565b631000000083161561112657601c8101546000527f662ee4dd2dd7b2bc707961b1e646c4047669dcb6584f0d8d770daf5d7e7deb2e60205260406000209350601c9150611226565b632000000083161561116e57601d8101546000527f388ab20e2573d171a88108e79d820e98f26c0b84aa8b2f4aa4968dbb818ea32260205260406000209350601d9150611226565b63400000008316156111b657601e8101546000527f93237c50ba75ee485f4c22adf2f741400bdf8d6a9cc7df7ecae576221665d73560205260406000209350601e9150611226565b63800000008316156111fe57601f8101546000527f8448818bb4ae4562849e949e17ac16e0be16688e156b5cf15e098c627c0056a960205260406000209350601f9150611226565b7f27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d7579350602091505b601e8211611cc8576001821015611284576002831680156112525760018201546000528460205261127b565b846000527fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb56020525b50604060002093505b60028210156112da576004831680156112a8576002820154600052846020526112d1565b846000527fb4c11951957c6f8f642c4af61cd6b24640fec6dc7fc607ee8206a99e92410d306020525b50604060002093505b6003821015611330576008831680156112fe57600382015460005284602052611327565b846000527f21ddb9a356815c3fac1026b6dec5df3124afbadb485c9ba5a3e3398a04b7ba856020525b50604060002093505b6004821015611386576010831680156113545760048201546000528460205261137d565b846000527fe58769b32a1beaf1ea27375a44095a0d1fb664ce2dd358e7fcbfb78c26a193446020525b50604060002093505b60058210156113dc576020831680156113aa576005820154600052846020526113d3565b846000527f0eb01ebfc9ed27500cd4dfc979272d1f0913cc9f66540d7e8005811109e1cf2d6020525b50604060002093505b60068210156114325760408316801561140057600682015460005284602052611429565b846000527f887c22bd8750d34016ac3c66b5ff102dacdd73f6b014e710b51e8022af9a19686020525b50604060002093505b6007821015611488576080831680156114565760078201546000528460205261147f565b846000527fffd70157e48063fc33c97a050f7f640233bf646cc98d9524c6b92bcf3ab56f836020525b50604060002093505b60088210156114df57610100831680156114ad576008820154600052846020526114d6565b846000527f9867cc5f7f196b93bae1e27e6320742445d290f2263827498b54fec539f756af6020525b50604060002093505b600982101561153657610200831680156115045760098201546000528460205261152d565b846000527fcefad4e508c098b9a7e1d8feb19955fb02ba9675585078710969d3440f5054e06020525b50604060002093505b600a82101561158d576104008316801561155b57600a82015460005284602052611584565b846000527ff9dc3e7fe016e050eff260334f18a5d4fe391d82092319f5964f2e2eb7c1c3a56020525b50604060002093505b600b8210156115e457610800831680156115b257600b820154600052846020526115db565b846000527ff8b13a49e282f609c317a833fb8d976d11517c571d1221a265d25af778ecf8926020525b50604060002093505b600c82101561163b576110008316801561160957600c82015460005284602052611632565b846000527f3490c6ceeb450aecdc82e28293031d10c7d73bf85e57bf041a97360aa2c5d99c6020525b50604060002093505b600d821015611692576120008316801561166057600d82015460005284602052611689565b846000527fc1df82d9c4b87413eae2ef048f94b4d3554cea73d92b0f7af96e0271c691e2bb6020525b50604060002093505b600e8210156116e957614000831680156116b757600e820154600052846020526116e0565b846000527f5c67add7c6caf302256adedf7ab114da0acfe870d449a3a489f781d659e8becc6020525b50604060002093505b600f821015611740576180008316801561170e57600f82015460005284602052611737565b846000527fda7bce9f4e8618b6bd2f4132ce798cdc7a60e7e1460a7299e3c6342a579626d26020525b50604060002093505b60108210156117985762010000831680156117665760108201546000528460205261178f565b846000527f2733e50f526ec2fa19a22b31e8ed50f23cd1fdf94c9154ed3a7609a2f1ff981f6020525b50604060002093505b60118210156117f05762020000831680156117be576011820154600052846020526117e7565b846000527fe1d3b5c807b281e4683cc6d6315cf95b9ade8641defcb32372f1c126e398ef7a6020525b50604060002093505b60128210156118485762040000831680156118165760128201546000528460205261183f565b846000527f5a2dce0a8a7f68bb74560f8f71837c2c2ebbcbf7fffb42ae1896f13f7c7479a06020525b50604060002093505b60138210156118a057620800008316801561186e57601382015460005284602052611897565b846000527fb46a28b6f55540f89444f63de0378e3d121be09e06cc9ded1c20e65876d36aa06020525b50604060002093505b60148210156118f85762100000831680156118c6576014820154600052846020526118ef565b846000527fc65e9645644786b620e2dd2ad648ddfcbf4a7e5b1a3a4ecfe7f64667a3f0b7e26020525b50604060002093505b601582101561195057622000008316801561191e57601582015460005284602052611947565b846000527ff4418588ed35a2458cffeb39b93d26f18d2ab13bdce6aee58e7b99359ec2dfd96020525b50604060002093505b60168210156119a85762400000831680156119765760168201546000528460205261199f565b846000527f5a9c16dc00d6ef18b7933a6f8dc65ccb55667138776f7dea101070dc8796e3776020525b50604060002093505b6017821015611a005762800000831680156119ce576017820154600052846020526119f7565b846000527f4df84f40ae0c8229d0d6069e5c8f39a7c299677a09d367fc7b05e3bc380ee6526020525b50604060002093505b6018821015611a5957630100000083168015611a2757601882015460005284602052611a50565b846000527fcdc72595f74c7b1043d0e1ffbab734648c838dfb0527d971b602bc216c9619ef6020525b50604060002093505b6019821015611ab257630200000083168015611a8057601982015460005284602052611aa9565b846000527f0abf5ac974a1ed57f4050aa510dd9c74f508277b39d7973bb2dfccc5eeb0618d6020525b50604060002093505b601a821015611b0b57630400000083168015611ad957601a82015460005284602052611b02565b846000527fb8cd74046ff337f0a7bf2c8e03e10f642c1886798d71806ab1e888d9e5ee87d06020525b50604060002093505b601b821015611b6457630800000083168015611b3257601b82015460005284602052611b5b565b846000527f838c5655cb21c6cb83313b5a631175dff4963772cce9108188b34ac87c81c41e6020525b50604060002093505b601c821015611bbd57631000000083168015611b8b57601c82015460005284602052611bb4565b846000527f662ee4dd2dd7b2bc707961b1e646c4047669dcb6584f0d8d770daf5d7e7deb2e6020525b50604060002093505b601d821015611c1657632000000083168015611be457601d82015460005284602052611c0d565b846000527f388ab20e2573d171a88108e79d820e98f26c0b84aa8b2f4aa4968dbb818ea3226020525b50604060002093505b601e821015611c6f57634000000083168015611c3d57601e82015460005284602052611c66565b846000527f93237c50ba75ee485f4c22adf2f741400bdf8d6a9cc7df7ecae576221665d7356020525b50604060002093505b601f821015611cc857638000000083168015611c9657601f82015460005284602052611cbf565b846000527f8448818bb4ae4562849e949e17ac16e0be16688e156b5cf15e098c627c0056a96020525b50604060002093505b505050919050565b42600255600180546001600160a01b0319166001600160a01b0383169081179091556040517f6ab4d119f23076e8ad491bc65ce85f017fb0591dce08755ba8591059cc51737a90600090a250565b600054610100900460ff16611d455760405162461bcd60e51b81526004016103a99061219f565b61065681611df9565b600054610100900460ff16611d755760405162461bcd60e51b81526004016103a99061219f565b6105aa611e42565b600080546040516001600160a01b03808516936201000090930416917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b03909216620100000262010000600160b01b0319909216919091178155600255600180546001600160a01b0319169055565b600054610100900460ff16611e205760405162461bcd60e51b81526004016103a99061219f565b605380546001600160a01b0319166001600160a01b0392909216919091179055565b600054610100900460ff16611e695760405162461bcd60e51b81526004016103a99061219f565b6105aa33611d7d565b8260208101928215611ea0579160200282015b82811115611ea0578251825591602001919060010190611e85565b50611eac929150611eef565b5090565b6040518061040001604052806020906020820280368337509192915050565b6040518060400160405280611ee2611eb0565b8152602001600081525090565b5b80821115611eac5760008155600101611ef0565b600060208284031215611f1657600080fd5b81356001600160a01b0381168114611f2d57600080fd5b9392505050565b600060208284031215611f4657600080fd5b5035919050565b634e487b7160e01b600052604160045260246000fd5b60006020808385031215611f7657600080fd5b823567ffffffffffffffff80821115611f8e57600080fd5b818501915085601f830112611fa257600080fd5b813581811115611fb457611fb4611f4d565b8060051b604051601f19603f83011681018181108582111715611fd957611fd9611f4d565b604052918252848201925083810185019188831115611ff757600080fd5b938501935b8285101561201557843584529385019392850192611ffc565b98975050505050505050565b6104008101818360005b602080821061203a575061204e565b82518452928301929091019060010161202b565b50505092915050565b634e487b7160e01b600052603260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b818103818111156109145761091461206d565b6000600182016120a8576120a861206d565b5060010190565b600181815b808511156120ea5781600019048211156120d0576120d061206d565b808516156120dd57918102915b93841c93908002906120b4565b509250929050565b60008261210157506001610914565b8161210e57506000610914565b8160018114612124576002811461212e5761214a565b6001915050610914565b60ff84111561213f5761213f61206d565b50506001821b610914565b5060208310610133831016604e8410600b841016171561216d575081810a610914565b61217783836120af565b806000190482111561218b5761218b61206d565b029392505050565b6000611f2d83836120f2565b6020808252602b908201527f496e697469616c697a61626c653a20636f6e7472616374206973206e6f74206960408201526a6e697469616c697a696e6760a81b60608201526080019056fea26469706673582212205628b96540c1530d2feb1051455344bc74f5de1f26694abb1bc546b6d6ec184064736f6c63430008110033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106101165760003560e01c80638da5cb5b116100a2578063c9b0a6de11610071578063c9b0a6de14610220578063d1851c9214610228578063d232c22014610239578063ebf0c71714610262578063fd54b2281461026a57600080fd5b80638da5cb5b146101db578063b1f8100d146101f2578063c4d66de814610205578063c5b350df1461021857600080fd5b806334a55ee6116100e957806334a55ee61461019a5780633cf52ffb146101ad5780634b72d0d4146101b55780636a42b8f8146101ca578063715018a6146101d357600080fd5b806306661abd1461011b5780631b373a98146101325780632d287e431461014757806331d0913c1461016f575b600080fd5b6052545b6040519081526020015b60405180910390f35b610145610140366004611f04565b610274565b005b61015a610155366004611f34565b610362565b60408051928352602083019190915201610129565b605354610182906001600160a01b031681565b6040516001600160a01b039091168152602001610129565b61015a6101a8366004611f63565b610431565b60025461011f565b6101bd61053d565b6040516101299190612021565b62093a8061011f565b610145610579565b6000546201000090046001600160a01b0316610182565b610145610200366004611f04565b6105ac565b610145610213366004611f04565b610659565b610145610774565b61015a6107e4565b6001546001600160a01b0316610182565b6102526000546201000090046001600160a01b03161590565b6040519015158152602001610129565b61011f6107fd565b60525461011f9081565b6000546201000090046001600160a01b031633146102a5576040516311a8a1bb60e31b815260040160405180910390fd5b6001600160a01b0381166102cc57604051630c11a52d60e11b815260040160405180910390fd5b6053546001600160a01b0390811690821681036102fc5760405163606e957b60e11b815260040160405180910390fd5b604080516001600160a01b038084168252841660208201527ff2fa31e21376edb31995720340ba00a41a12a7c8744a9bde552660121f4b7771910160405180910390a150605380546001600160a01b0319166001600160a01b0392909216919091179055565b60535460009081906001600160a01b031633146103b25760405162461bcd60e51b815260206004820152600960248201526808585c989bdc9a5cdd60ba1b60448201526064015b60405180910390fd5b60408051610440810180835261040092869291603291839190820190839060209082845b8154815260200190600101908083116103d65750505091835250506020918201549101529061080e565b80516032906104129082906020611e72565b506020918201519101555060525461042a603261091a565b9150915091565b60535460009081906001600160a01b0316331461047c5760405162461bcd60e51b815260206004820152600960248201526808585c989bdc9a5cdd60ba1b60448201526064016103a9565b6040805161044081018083526000926032918391820190839060209082845b81548152602001906001019080831161049b575050509183525050602091820154910152845190915060005b81811015610505576104fb8682815181106104e4576104e4612057565b60200260200101518461080e90919063ffffffff16565b92506001016104c7565b508151829060329061051a9082906020611e72565b50602091820151908201558201519250610534603261091a565b93505050915091565b610545611eb0565b604080516104008101918290529060329060209082845b81548152602001906001019080831161055c575050505050905090565b6000546201000090046001600160a01b031633146105aa576040516311a8a1bb60e31b815260040160405180910390fd5b565b6000546201000090046001600160a01b031633146105dd576040516311a8a1bb60e31b815260040160405180910390fd5b6001546001600160a01b0382811691161480156105fb575060025415155b15610619576040516311bc066560e11b815260040160405180910390fd5b6000546001600160a01b0380831662010000909204160361064d57604051634a2fb73f60e11b815260040160405180910390fd5b61065681611cd0565b50565b600054610100900460ff16158080156106795750600054600160ff909116105b806106935750303b158015610693575060005460ff166001145b6106f65760405162461bcd60e51b815260206004820152602e60248201527f496e697469616c697a61626c653a20636f6e747261637420697320616c72656160448201526d191e481a5b9a5d1a585b1a5e995960921b60648201526084016103a9565b6000805460ff191660011790558015610719576000805461ff0019166101001790555b61072282611d1e565b61072a611d4e565b8015610770576000805461ff0019169055604051600181527f7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb38474024989060200160405180910390a15b5050565b6001546001600160a01b0316331461079f576040516311a7f27160e11b815260040160405180910390fd5b62093a80600254426107b19190612083565b116107cf576040516324e0285f60e21b815260040160405180910390fd5b6001546105aa906001600160a01b0316611d7d565b6000806107f1603261091a565b60525490939092509050565b6000610809603261091a565b905090565b610816611ecf565b600083602001805161082790612096565b908190529050600161083b60206002612193565b6108459190612083565b81111561086557604051638eab04bb60e01b815260040160405180910390fd5b60005b60208110156108fa57816001166001036108a15784518490826020811061089157610891612057565b6020020152508391506109149050565b845181602081106108b4576108b4612057565b6020020151846040516020016108d4929190918252602082015260400190565b60408051601f1981840301815291905280516020909101209350600191821c9101610868565b50604051638eab04bb60e01b815260040160405180910390fd5b92915050565b602081015460009080820361095157507f27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d75792915050565b6000836001831615610973578054600052600060205260406000209350611226565b60028316156109b85760018101546000527fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb56020526040600020935060019150611226565b60048316156109fd5760028101546000527fb4c11951957c6f8f642c4af61cd6b24640fec6dc7fc607ee8206a99e92410d306020526040600020935060029150611226565b6008831615610a425760038101546000527f21ddb9a356815c3fac1026b6dec5df3124afbadb485c9ba5a3e3398a04b7ba856020526040600020935060039150611226565b6010831615610a875760048101546000527fe58769b32a1beaf1ea27375a44095a0d1fb664ce2dd358e7fcbfb78c26a193446020526040600020935060049150611226565b6020831615610acc5760058101546000527f0eb01ebfc9ed27500cd4dfc979272d1f0913cc9f66540d7e8005811109e1cf2d6020526040600020935060059150611226565b6040831615610b115760068101546000527f887c22bd8750d34016ac3c66b5ff102dacdd73f6b014e710b51e8022af9a19686020526040600020935060069150611226565b6080831615610b565760078101546000527fffd70157e48063fc33c97a050f7f640233bf646cc98d9524c6b92bcf3ab56f836020526040600020935060079150611226565b610100831615610b9c5760088101546000527f9867cc5f7f196b93bae1e27e6320742445d290f2263827498b54fec539f756af6020526040600020935060089150611226565b610200831615610be25760098101546000527fcefad4e508c098b9a7e1d8feb19955fb02ba9675585078710969d3440f5054e06020526040600020935060099150611226565b610400831615610c2857600a8101546000527ff9dc3e7fe016e050eff260334f18a5d4fe391d82092319f5964f2e2eb7c1c3a560205260406000209350600a9150611226565b610800831615610c6e57600b8101546000527ff8b13a49e282f609c317a833fb8d976d11517c571d1221a265d25af778ecf89260205260406000209350600b9150611226565b611000831615610cb457600c8101546000527f3490c6ceeb450aecdc82e28293031d10c7d73bf85e57bf041a97360aa2c5d99c60205260406000209350600c9150611226565b612000831615610cfa57600d8101546000527fc1df82d9c4b87413eae2ef048f94b4d3554cea73d92b0f7af96e0271c691e2bb60205260406000209350600d9150611226565b614000831615610d4057600e8101546000527f5c67add7c6caf302256adedf7ab114da0acfe870d449a3a489f781d659e8becc60205260406000209350600e9150611226565b618000831615610d8657600f8101546000527fda7bce9f4e8618b6bd2f4132ce798cdc7a60e7e1460a7299e3c6342a579626d260205260406000209350600f9150611226565b62010000831615610dcd5760108101546000527f2733e50f526ec2fa19a22b31e8ed50f23cd1fdf94c9154ed3a7609a2f1ff981f6020526040600020935060109150611226565b62020000831615610e145760118101546000527fe1d3b5c807b281e4683cc6d6315cf95b9ade8641defcb32372f1c126e398ef7a6020526040600020935060119150611226565b62040000831615610e5b5760128101546000527f5a2dce0a8a7f68bb74560f8f71837c2c2ebbcbf7fffb42ae1896f13f7c7479a06020526040600020935060129150611226565b62080000831615610ea25760138101546000527fb46a28b6f55540f89444f63de0378e3d121be09e06cc9ded1c20e65876d36aa06020526040600020935060139150611226565b62100000831615610ee95760148101546000527fc65e9645644786b620e2dd2ad648ddfcbf4a7e5b1a3a4ecfe7f64667a3f0b7e26020526040600020935060149150611226565b62200000831615610f305760158101546000527ff4418588ed35a2458cffeb39b93d26f18d2ab13bdce6aee58e7b99359ec2dfd96020526040600020935060159150611226565b62400000831615610f775760168101546000527f5a9c16dc00d6ef18b7933a6f8dc65ccb55667138776f7dea101070dc8796e3776020526040600020935060169150611226565b62800000831615610fbe5760178101546000527f4df84f40ae0c8229d0d6069e5c8f39a7c299677a09d367fc7b05e3bc380ee6526020526040600020935060179150611226565b63010000008316156110065760188101546000527fcdc72595f74c7b1043d0e1ffbab734648c838dfb0527d971b602bc216c9619ef6020526040600020935060189150611226565b630200000083161561104e5760198101546000527f0abf5ac974a1ed57f4050aa510dd9c74f508277b39d7973bb2dfccc5eeb0618d6020526040600020935060199150611226565b630400000083161561109657601a8101546000527fb8cd74046ff337f0a7bf2c8e03e10f642c1886798d71806ab1e888d9e5ee87d060205260406000209350601a9150611226565b63080000008316156110de57601b8101546000527f838c5655cb21c6cb83313b5a631175dff4963772cce9108188b34ac87c81c41e60205260406000209350601b9150611226565b631000000083161561112657601c8101546000527f662ee4dd2dd7b2bc707961b1e646c4047669dcb6584f0d8d770daf5d7e7deb2e60205260406000209350601c9150611226565b632000000083161561116e57601d8101546000527f388ab20e2573d171a88108e79d820e98f26c0b84aa8b2f4aa4968dbb818ea32260205260406000209350601d9150611226565b63400000008316156111b657601e8101546000527f93237c50ba75ee485f4c22adf2f741400bdf8d6a9cc7df7ecae576221665d73560205260406000209350601e9150611226565b63800000008316156111fe57601f8101546000527f8448818bb4ae4562849e949e17ac16e0be16688e156b5cf15e098c627c0056a960205260406000209350601f9150611226565b7f27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d7579350602091505b601e8211611cc8576001821015611284576002831680156112525760018201546000528460205261127b565b846000527fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb56020525b50604060002093505b60028210156112da576004831680156112a8576002820154600052846020526112d1565b846000527fb4c11951957c6f8f642c4af61cd6b24640fec6dc7fc607ee8206a99e92410d306020525b50604060002093505b6003821015611330576008831680156112fe57600382015460005284602052611327565b846000527f21ddb9a356815c3fac1026b6dec5df3124afbadb485c9ba5a3e3398a04b7ba856020525b50604060002093505b6004821015611386576010831680156113545760048201546000528460205261137d565b846000527fe58769b32a1beaf1ea27375a44095a0d1fb664ce2dd358e7fcbfb78c26a193446020525b50604060002093505b60058210156113dc576020831680156113aa576005820154600052846020526113d3565b846000527f0eb01ebfc9ed27500cd4dfc979272d1f0913cc9f66540d7e8005811109e1cf2d6020525b50604060002093505b60068210156114325760408316801561140057600682015460005284602052611429565b846000527f887c22bd8750d34016ac3c66b5ff102dacdd73f6b014e710b51e8022af9a19686020525b50604060002093505b6007821015611488576080831680156114565760078201546000528460205261147f565b846000527fffd70157e48063fc33c97a050f7f640233bf646cc98d9524c6b92bcf3ab56f836020525b50604060002093505b60088210156114df57610100831680156114ad576008820154600052846020526114d6565b846000527f9867cc5f7f196b93bae1e27e6320742445d290f2263827498b54fec539f756af6020525b50604060002093505b600982101561153657610200831680156115045760098201546000528460205261152d565b846000527fcefad4e508c098b9a7e1d8feb19955fb02ba9675585078710969d3440f5054e06020525b50604060002093505b600a82101561158d576104008316801561155b57600a82015460005284602052611584565b846000527ff9dc3e7fe016e050eff260334f18a5d4fe391d82092319f5964f2e2eb7c1c3a56020525b50604060002093505b600b8210156115e457610800831680156115b257600b820154600052846020526115db565b846000527ff8b13a49e282f609c317a833fb8d976d11517c571d1221a265d25af778ecf8926020525b50604060002093505b600c82101561163b576110008316801561160957600c82015460005284602052611632565b846000527f3490c6ceeb450aecdc82e28293031d10c7d73bf85e57bf041a97360aa2c5d99c6020525b50604060002093505b600d821015611692576120008316801561166057600d82015460005284602052611689565b846000527fc1df82d9c4b87413eae2ef048f94b4d3554cea73d92b0f7af96e0271c691e2bb6020525b50604060002093505b600e8210156116e957614000831680156116b757600e820154600052846020526116e0565b846000527f5c67add7c6caf302256adedf7ab114da0acfe870d449a3a489f781d659e8becc6020525b50604060002093505b600f821015611740576180008316801561170e57600f82015460005284602052611737565b846000527fda7bce9f4e8618b6bd2f4132ce798cdc7a60e7e1460a7299e3c6342a579626d26020525b50604060002093505b60108210156117985762010000831680156117665760108201546000528460205261178f565b846000527f2733e50f526ec2fa19a22b31e8ed50f23cd1fdf94c9154ed3a7609a2f1ff981f6020525b50604060002093505b60118210156117f05762020000831680156117be576011820154600052846020526117e7565b846000527fe1d3b5c807b281e4683cc6d6315cf95b9ade8641defcb32372f1c126e398ef7a6020525b50604060002093505b60128210156118485762040000831680156118165760128201546000528460205261183f565b846000527f5a2dce0a8a7f68bb74560f8f71837c2c2ebbcbf7fffb42ae1896f13f7c7479a06020525b50604060002093505b60138210156118a057620800008316801561186e57601382015460005284602052611897565b846000527fb46a28b6f55540f89444f63de0378e3d121be09e06cc9ded1c20e65876d36aa06020525b50604060002093505b60148210156118f85762100000831680156118c6576014820154600052846020526118ef565b846000527fc65e9645644786b620e2dd2ad648ddfcbf4a7e5b1a3a4ecfe7f64667a3f0b7e26020525b50604060002093505b601582101561195057622000008316801561191e57601582015460005284602052611947565b846000527ff4418588ed35a2458cffeb39b93d26f18d2ab13bdce6aee58e7b99359ec2dfd96020525b50604060002093505b60168210156119a85762400000831680156119765760168201546000528460205261199f565b846000527f5a9c16dc00d6ef18b7933a6f8dc65ccb55667138776f7dea101070dc8796e3776020525b50604060002093505b6017821015611a005762800000831680156119ce576017820154600052846020526119f7565b846000527f4df84f40ae0c8229d0d6069e5c8f39a7c299677a09d367fc7b05e3bc380ee6526020525b50604060002093505b6018821015611a5957630100000083168015611a2757601882015460005284602052611a50565b846000527fcdc72595f74c7b1043d0e1ffbab734648c838dfb0527d971b602bc216c9619ef6020525b50604060002093505b6019821015611ab257630200000083168015611a8057601982015460005284602052611aa9565b846000527f0abf5ac974a1ed57f4050aa510dd9c74f508277b39d7973bb2dfccc5eeb0618d6020525b50604060002093505b601a821015611b0b57630400000083168015611ad957601a82015460005284602052611b02565b846000527fb8cd74046ff337f0a7bf2c8e03e10f642c1886798d71806ab1e888d9e5ee87d06020525b50604060002093505b601b821015611b6457630800000083168015611b3257601b82015460005284602052611b5b565b846000527f838c5655cb21c6cb83313b5a631175dff4963772cce9108188b34ac87c81c41e6020525b50604060002093505b601c821015611bbd57631000000083168015611b8b57601c82015460005284602052611bb4565b846000527f662ee4dd2dd7b2bc707961b1e646c4047669dcb6584f0d8d770daf5d7e7deb2e6020525b50604060002093505b601d821015611c1657632000000083168015611be457601d82015460005284602052611c0d565b846000527f388ab20e2573d171a88108e79d820e98f26c0b84aa8b2f4aa4968dbb818ea3226020525b50604060002093505b601e821015611c6f57634000000083168015611c3d57601e82015460005284602052611c66565b846000527f93237c50ba75ee485f4c22adf2f741400bdf8d6a9cc7df7ecae576221665d7356020525b50604060002093505b601f821015611cc857638000000083168015611c9657601f82015460005284602052611cbf565b846000527f8448818bb4ae4562849e949e17ac16e0be16688e156b5cf15e098c627c0056a96020525b50604060002093505b505050919050565b42600255600180546001600160a01b0319166001600160a01b0383169081179091556040517f6ab4d119f23076e8ad491bc65ce85f017fb0591dce08755ba8591059cc51737a90600090a250565b600054610100900460ff16611d455760405162461bcd60e51b81526004016103a99061219f565b61065681611df9565b600054610100900460ff16611d755760405162461bcd60e51b81526004016103a99061219f565b6105aa611e42565b600080546040516001600160a01b03808516936201000090930416917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b03909216620100000262010000600160b01b0319909216919091178155600255600180546001600160a01b0319169055565b600054610100900460ff16611e205760405162461bcd60e51b81526004016103a99061219f565b605380546001600160a01b0319166001600160a01b0392909216919091179055565b600054610100900460ff16611e695760405162461bcd60e51b81526004016103a99061219f565b6105aa33611d7d565b8260208101928215611ea0579160200282015b82811115611ea0578251825591602001919060010190611e85565b50611eac929150611eef565b5090565b6040518061040001604052806020906020820280368337509192915050565b6040518060400160405280611ee2611eb0565b8152602001600081525090565b5b80821115611eac5760008155600101611ef0565b600060208284031215611f1657600080fd5b81356001600160a01b0381168114611f2d57600080fd5b9392505050565b600060208284031215611f4657600080fd5b5035919050565b634e487b7160e01b600052604160045260246000fd5b60006020808385031215611f7657600080fd5b823567ffffffffffffffff80821115611f8e57600080fd5b818501915085601f830112611fa257600080fd5b813581811115611fb457611fb4611f4d565b8060051b604051601f19603f83011681018181108582111715611fd957611fd9611f4d565b604052918252848201925083810185019188831115611ff757600080fd5b938501935b8285101561201557843584529385019392850192611ffc565b98975050505050505050565b6104008101818360005b602080821061203a575061204e565b82518452928301929091019060010161202b565b50505092915050565b634e487b7160e01b600052603260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b818103818111156109145761091461206d565b6000600182016120a8576120a861206d565b5060010190565b600181815b808511156120ea5781600019048211156120d0576120d061206d565b808516156120dd57918102915b93841c93908002906120b4565b509250929050565b60008261210157506001610914565b8161210e57506000610914565b8160018114612124576002811461212e5761214a565b6001915050610914565b60ff84111561213f5761213f61206d565b50506001821b610914565b5060208310610133831016604e8410600b841016171561216d575081810a610914565b61217783836120af565b806000190482111561218b5761218b61206d565b029392505050565b6000611f2d83836120f2565b6020808252602b908201527f496e697469616c697a61626c653a20636f6e7472616374206973206e6f74206960408201526a6e697469616c697a696e6760a81b60608201526080019056fea26469706673582212205628b96540c1530d2feb1051455344bc74f5de1f26694abb1bc546b6d6ec184064736f6c63430008110033",
+  "devdoc": {
+    "details": "On the hub domain there are two MerkleTreeManager contracts, one for the hub and one for the MainnetSpokeConnector.",
+    "kind": "dev",
+    "methods": {
+      "insert(bytes32)": {
+        "params": {
+          "leaf": "The leaf to be inserted into the tree."
+        },
+        "returns": {
+          "_count": "Current node count (i.e. number of indices) AFTER the insertion of the new leaf, provided for convenience.",
+          "_root": "Current root for convenience."
+        }
+      },
+      "insert(bytes32[])": {
+        "params": {
+          "leaves": "The leaves to be inserted into the tree."
+        },
+        "returns": {
+          "_count": "Current node count (i.e. number of indices) AFTER the insertion of the new leaf, provided for convenience.",
+          "_root": "Current root for convenience."
+        }
+      },
+      "renounceOwnership()": {
+        "details": "Renounce ownership should be impossible as long as there is a possibility the arborist may change."
+      },
+      "setArborist(address)": {
+        "params": {
+          "newArborist": "The new address to set as the current arborist."
+        }
+      }
+    },
+    "stateVariables": {
+      "arborist": {
+        "details": "This could be the root manager contract or a spoke connector contract, for example."
+      }
+    },
+    "title": "MerkleTreeManager",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "acceptProposedOwner()": {
+        "notice": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      },
+      "arborist()": {
+        "notice": "The arborist contract that has permission to write to this tree."
+      },
+      "branch()": {
+        "notice": "Returns the current branch."
+      },
+      "count()": {
+        "notice": "Returns the number of inserted leaves in the tree (current index)."
+      },
+      "delay()": {
+        "notice": "Returns the delay period before a new owner can be accepted."
+      },
+      "insert(bytes32)": {
+        "notice": "Inserts the given leaf into the tree."
+      },
+      "insert(bytes32[])": {
+        "notice": "Inserts the given leaves into the tree."
+      },
+      "owner()": {
+        "notice": "Returns the address of the current owner."
+      },
+      "proposeNewOwner(address)": {
+        "notice": "Sets the timestamp for an owner to be proposed, and sets the newly proposed owner as step 1 in a 2-step process"
+      },
+      "proposed()": {
+        "notice": "Returns the address of the proposed owner."
+      },
+      "proposedTimestamp()": {
+        "notice": "Returns the address of the proposed owner."
+      },
+      "renounceOwnership()": {
+        "notice": "Remove ability to renounce ownership"
+      },
+      "renounced()": {
+        "notice": "Indicates if the ownership has been renounced() by checking if current owner is address(0)"
+      },
+      "root()": {
+        "notice": "Calculates and returns the current root."
+      },
+      "rootAndCount()": {
+        "notice": "Convenience getter: returns the root and count."
+      },
+      "setArborist(address)": {
+        "notice": "Method for the current arborist to assign write permissions to a new arborist."
+      },
+      "tree()": {
+        "notice": "Core data structure with which this contract is tasked with keeping custody. Writable only by the designated arborist."
+      }
+    },
+    "notice": "Contains a Merkle tree instance and exposes read/write functions for the tree.",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 8070,
+        "contract": "contracts/messaging/MerkleTreeManager.sol:MerkleTreeManager",
+        "label": "_initialized",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_uint8"
+      },
+      {
+        "astId": 8073,
+        "contract": "contracts/messaging/MerkleTreeManager.sol:MerkleTreeManager",
+        "label": "_initializing",
+        "offset": 1,
+        "slot": "0",
+        "type": "t_bool"
+      },
+      {
+        "astId": 49241,
+        "contract": "contracts/messaging/MerkleTreeManager.sol:MerkleTreeManager",
+        "label": "_owner",
+        "offset": 2,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 49243,
+        "contract": "contracts/messaging/MerkleTreeManager.sol:MerkleTreeManager",
+        "label": "_proposed",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_address"
+      },
+      {
+        "astId": 49245,
+        "contract": "contracts/messaging/MerkleTreeManager.sol:MerkleTreeManager",
+        "label": "_proposedOwnershipTimestamp",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 49494,
+        "contract": "contracts/messaging/MerkleTreeManager.sol:MerkleTreeManager",
+        "label": "__GAP",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_array(t_uint256)47_storage"
+      },
+      {
+        "astId": 37714,
+        "contract": "contracts/messaging/MerkleTreeManager.sol:MerkleTreeManager",
+        "label": "tree",
+        "offset": 0,
+        "slot": "50",
+        "type": "t_struct(Tree)48410_storage"
+      },
+      {
+        "astId": 37717,
+        "contract": "contracts/messaging/MerkleTreeManager.sol:MerkleTreeManager",
+        "label": "arborist",
+        "offset": 0,
+        "slot": "83",
+        "type": "t_address"
+      },
+      {
+        "astId": 37962,
+        "contract": "contracts/messaging/MerkleTreeManager.sol:MerkleTreeManager",
+        "label": "__GAP",
+        "offset": 0,
+        "slot": "84",
+        "type": "t_array(t_uint256)48_storage"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_bytes32)32_storage": {
+        "base": "t_bytes32",
+        "encoding": "inplace",
+        "label": "bytes32[32]",
+        "numberOfBytes": "1024"
+      },
+      "t_array(t_uint256)47_storage": {
+        "base": "t_uint256",
+        "encoding": "inplace",
+        "label": "uint256[47]",
+        "numberOfBytes": "1504"
+      },
+      "t_array(t_uint256)48_storage": {
+        "base": "t_uint256",
+        "encoding": "inplace",
+        "label": "uint256[48]",
+        "numberOfBytes": "1536"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_struct(Tree)48410_storage": {
+        "encoding": "inplace",
+        "label": "struct MerkleLib.Tree",
+        "members": [
+          {
+            "astId": 48407,
+            "contract": "contracts/messaging/MerkleTreeManager.sol:MerkleTreeManager",
+            "label": "branch",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_array(t_bytes32)32_storage"
+          },
+          {
+            "astId": 48409,
+            "contract": "contracts/messaging/MerkleTreeManager.sol:MerkleTreeManager",
+            "label": "count",
+            "offset": 0,
+            "slot": "32",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "1056"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint8": {
+        "encoding": "inplace",
+        "label": "uint8",
+        "numberOfBytes": "1"
+      }
+    }
+  }
+}

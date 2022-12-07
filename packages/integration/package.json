@@ -10,6 +10,7 @@
     "itest": "yarn tsc && node",
     "setup": "./setup.sh",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 300000 'test/local.spec.ts'",
+    "test:sample": "nyc ts-mocha --check-leaks --exit --timeout 300000 'test/sample.spec.ts'",
     "test:local": "nyc ts-mocha --check-leaks --exit --timeout 300000 'test/local.spec.ts'",
     "test:live": "nyc ts-mocha --check-leaks --exit --timeout 300000 'test/testnet.spec.ts'",
     "test:all": "nyc ts-mocha --check-leaks --exit --timeout 300000 'test/**/*.spec.ts'",

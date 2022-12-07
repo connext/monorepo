@@ -1,0 +1,138 @@
+name: Harbor Testnet
+
+on:
+  workflow_run:
+    workflows:
+      - E2E Workflow for Connext
+    types:
+      - completed
+
+jobs:
+  init:
+    name: Initial steps for harbor
+    if: github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    outputs:
+      label: ${{ steps.start-ec2-runner.outputs.label }}
+      ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
+      short-sha: ${{ steps.commit.outputs.short }}
+    steps:
+      - name: Get Commit value
+        id: commit
+        uses: pr-mpt/actions-commit-hash@v2
+        with:
+          commit: "${{ github.event.workflow_run.head_sha }}"
+          prefix: "sha-"
+      
+      - name: Echo tag name (sha-short)
+        run: echo ${{ steps.commit.outputs.short }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.HARBOR_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.HARBOR_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.HARBOR_REGION }}
+
+      - name: Start EC2 runner
+        id: start-ec2-runner
+        uses: machulav/ec2-github-runner@v2
+        with:
+          mode: start
+          github-token: ${{ secrets.GH_REGISTRATION_TOKEN }}
+          ec2-image-id: ami-012b908cf83070015
+          ec2-instance-type: c5.xlarge
+          subnet-id: subnet-0ff82089478a04bd1
+          security-group-id: sg-0a2341bf0d00efdee
+
+  bring-testnet-up:
+    name: Build the testnet on the runner
+    needs: init # required to start the main job when the runner is ready
+    runs-on: ${{ needs.init.outputs.label }} # run the job on the newly created runner
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_REGISTRATION_TOKEN }}
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Setup Nodejs and npm
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18"
+
+      - name: Configure Harbor
+        run: /root/go/bin/harbor configure keys --user-key ${{ secrets.HARBOR_USER_KEY }} --project-key ${{ secrets.HARBOR_PROJECT_KEY }}
+
+      - name: Compile code and other dependencies
+        run: yarn workspaces focus @connext/nxtp-contracts && yarn workspace @connext/nxtp-contracts build
+
+      - name: Build and Run Testnet
+        run: /root/go/bin/harbor apply connext-main --placeholder-map sha_default=${{ needs.init.outputs.short-sha }},tag_default=${{ needs.init.outputs.short-sha }} --no-wait true 
+
+      - name: yarn && yarn build:all
+        run: |
+          export NODE_OPTIONS="--max-old-space-size=6144" 
+          yarn && yarn build:all
+
+      - name: Poll until testnet running
+        run: sh /root/describe.sh connext-main
+
+      - name: Describe testnet
+        id: testnet-data
+        run: |
+          TDATA=$( /root/go/bin/harbor describe testnet --name connext-main --output json | sed '1d' )
+          TDATA="${TDATA//'%'/''}"
+          TDATA="${TDATA//$'\n'/''}"
+          TDATA="${TDATA//$'\r'/''}"
+          echo "TDATA=$TDATA" >> $GITHUB_OUTPUT
+          
+      - name: Echo testnet details 
+        run: echo ${{ steps.testnet-data.outputs.TDATA }}
+
+      - name: Echo testnet name
+        run: |
+          echo "${{fromJson(steps.testnet-data.outputs.TDATA).name}}"
+      
+      - name: Build and deploy subgraph 
+        run: |
+          IPFS_URL="${{fromJson(steps.testnet-data.outputs.TDATA).offChainActors.ipfs.endpoints[0]}}"
+          GRAPH_URL_1337="${{fromJson(steps.testnet-data.outputs.TDATA).offChainActors.graphNode1337.endpoints[0]}}" 
+          GRAPH_URL_1338="${{fromJson(steps.testnet-data.outputs.TDATA).offChainActors.graphNode1338.endpoints[0]}}"
+          IPFS_URL="${IPFS_URL%%:*}" GRAPH_URL_1337="${GRAPH_URL_1337%%:*}" GRAPH_URL_1338="${GRAPH_URL_1338%%:*}" sh setup_subgraph.sh
+
+      - name: Run Test
+        run:  yarn workspace @connext/nxtp-integration run test:sample
+
+      - name: Kill Testnet 
+        if: always()
+        run: /root/go/bin/harbor kill testnet --name connext-main --no-wait true
+
+  stop-runner:
+    name: Stop self-hosted EC2 runner
+    needs:
+      - init # required to get output from the start-runner job
+      - bring-testnet-up # required to wait when the main job is done
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main'
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.HARBOR_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.HARBOR_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.HARBOR_REGION }}
+
+      - name: Stop EC2 runner
+        uses: machulav/ec2-github-runner@v2
+        with:
+          mode: stop
+          github-token: ${{ secrets.GH_REGISTRATION_TOKEN }}
+          label: ${{ needs.init.outputs.label }}
+          ec2-instance-id: ${{ needs.init.outputs.ec2-instance-id }}
+      
+
+
+
+
+      
