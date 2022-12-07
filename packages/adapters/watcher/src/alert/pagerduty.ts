@@ -1,8 +1,7 @@
 import { jsonifyError } from "@connext/nxtp-utils";
 
-import { WatcherConfig } from "../config";
 import { pagerDutyTrigger } from "../mockable";
-import { Report } from "../types";
+import { Report, WatcherConfig } from "../types";
 
 export const alertViaPagerDuty = async (report: Report, config: WatcherConfig) => {
   const {

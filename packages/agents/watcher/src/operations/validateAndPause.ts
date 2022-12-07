@@ -28,20 +28,23 @@ export const pauseAndAlert = async (requestContext: RequestContext, reason: stri
   logger.warn("Pausing contracts!!!", requestContext, methodContext, { reason: "ADD REASON" });
   const paused = await watcher.pause(requestContext, reason, domains);
   logger.warn("Paused contracts, alerting", requestContext, methodContext, { paused });
-  await watcher.alert({
-    domains,
-    errors: paused.map((p) => p.error),
-    reason,
-    timestamp: Date.now(),
-    event: ReportEventType.Pause,
-    logger,
-    methodContext,
-    relevantTransactions: paused.map((p) => p.relevantTransaction),
-    requestContext,
-    rpcs: Object.entries(config.chains)
-      .map((chain) => chain[1].providers)
-      .flat(),
-  });
+  await watcher.alert(
+    {
+      domains,
+      errors: paused.map((p) => p.error),
+      reason,
+      timestamp: Date.now(),
+      event: ReportEventType.Pause,
+      logger,
+      methodContext,
+      relevantTransactions: paused.map((p) => p.relevantTransaction),
+      requestContext,
+      rpcs: Object.entries(config.chains)
+        .map((chain) => chain[1].providers)
+        .flat(),
+    },
+    config,
+  );
   logger.info("Finished alerting after pause", requestContext, methodContext);
   return paused;
 };

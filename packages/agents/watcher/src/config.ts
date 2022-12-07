@@ -21,6 +21,14 @@ export const WatcherConfigSchema = Type.Object({
     host: Type.String(),
   }),
   interval: Type.Number({ minimum: 5000, maximum: 500_000 }),
+  discordHookUrl: Type.Optional(Type.String({ format: "uri" })),
+  pagerDutyRoutingKey: Type.Optional(Type.String({ maxLength: 32, minLength: 32 })),
+  twilioNumber: Type.Optional(Type.String()),
+  twilioAccountSid: Type.Optional(Type.String()),
+  twilioAuthToken: Type.Optional(Type.String()),
+  twilioToPhoneNumbers: Type.Optional(Type.Array(Type.String())),
+  telegramApiKey: Type.Optional(Type.String()),
+  telegramChatId: Type.Optional(Type.String()),
 });
 
 export type WatcherConfig = Static<typeof WatcherConfigSchema>;
@@ -65,6 +73,16 @@ export const getEnvConfig = (): WatcherConfig => {
       host: process.env.WATCHER_HOST || configJson.server?.host || configFile.server?.host || "0.0.0.0",
     },
     interval: process.env.WATCHER_INTERVAL || configJson.interval || configFile.interval || 15000,
+    discordHookUrl: process.env.DISCORD_HOOK_URL || configJson.discordHookUrl || configFile.discordHookUrl,
+    pagerDutyRoutingKey:
+      process.env.PAGERDUTY_ROUTING_KEY || configJson.pagerDutyRoutingKey || configFile.pagerDutyRoutingKey,
+    twilioNumber: process.env.TWILIO_NUMBER || configJson.twilioNumber || configFile.twilioNumber,
+    twilioAccountSid: process.env.TWILIO_ACCOUNT_SID || configJson.twilioAccountSid || configFile.twilioAccountSid,
+    twilioAuthToken: process.env.TWILIO_AUTH_TOKEN || configJson.twilioAuthToken || configFile.twilioAuthToken,
+    twilioToPhoneNumbers:
+      process.env.TWILIO_TO_PHONE_NUMBERS || configJson.twilioToPhoneNumbers || configFile.twilioToPhoneNumbers || [],
+    telegramApiKey: process.env.TELEGRAM_API_KEY || configJson.telegramApiKey || configFile.telegramApiKey,
+    telegramChatId: process.env.TELEGRAM_CHAT_ID || configJson.telegramChatId || configFile.telegramChatId,
   };
 
   const validate = ajv.compile(WatcherConfigSchema);

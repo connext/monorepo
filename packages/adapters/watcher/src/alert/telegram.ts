@@ -1,8 +1,7 @@
 import { jsonifyError } from "@connext/nxtp-utils";
 
-import { WatcherConfig } from "../config";
 import { axiosPost } from "../mockable";
-import { Report } from "../types";
+import { Report, WatcherConfig } from "../types";
 
 enum Telegram_ParseModes {
   MarkdownV2,

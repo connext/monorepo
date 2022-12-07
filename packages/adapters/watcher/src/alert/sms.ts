@@ -1,9 +1,8 @@
 import { jsonifyError } from "@connext/nxtp-utils";
 import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message";
 
-import { WatcherConfig } from "../config";
 import { sendMessageViaTwilio } from "../mockable";
-import { Report } from "../types";
+import { Report, WatcherConfig } from "../types";
 
 export const alertViaSms = async (report: Report, config: WatcherConfig): Promise<MessageInstance[]> => {
   const {
