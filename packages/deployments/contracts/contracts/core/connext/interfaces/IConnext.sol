@@ -162,6 +162,8 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function delay() external view returns (uint256);
 
+  function paused() external view returns (bool);
+
   function proposeRouterAllowlistRemoval() external;
 
   function removeRouterAllowlist() external;

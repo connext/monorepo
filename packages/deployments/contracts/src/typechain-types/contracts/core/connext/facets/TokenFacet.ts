@@ -49,6 +49,7 @@ export interface TokenFacetInterface extends utils.Interface {
     "canonicalToAdopted((uint32,bytes32))": FunctionFragment;
     "canonicalToRepresentation(bytes32)": FunctionFragment;
     "canonicalToRepresentation((uint32,bytes32))": FunctionFragment;
+    "getCustodiedAmount(bytes32)": FunctionFragment;
     "getLocalAndAdoptedToken(bytes32,uint32)": FunctionFragment;
     "getTokenId(address)": FunctionFragment;
     "removeAssetId((uint32,bytes32),address,address)": FunctionFragment;
@@ -72,6 +73,7 @@ export interface TokenFacetInterface extends utils.Interface {
       | "canonicalToAdopted((uint32,bytes32))"
       | "canonicalToRepresentation(bytes32)"
       | "canonicalToRepresentation((uint32,bytes32))"
+      | "getCustodiedAmount"
       | "getLocalAndAdoptedToken"
       | "getTokenId"
       | "removeAssetId((uint32,bytes32),address,address)"
@@ -122,6 +124,10 @@ export interface TokenFacetInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "canonicalToRepresentation((uint32,bytes32))",
     values: [TokenIdStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getCustodiedAmount",
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "getLocalAndAdoptedToken",
@@ -215,6 +221,10 @@ export interface TokenFacetInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "canonicalToRepresentation((uint32,bytes32))",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getCustodiedAmount",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -408,6 +418,11 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    getCustodiedAmount(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     getLocalAndAdoptedToken(
       _id: PromiseOrValue<BytesLike>,
       _domain: PromiseOrValue<BigNumberish>,
@@ -522,6 +537,11 @@ export interface TokenFacet extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  getCustodiedAmount(
+    _key: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   getLocalAndAdoptedToken(
     _id: PromiseOrValue<BytesLike>,
     _domain: PromiseOrValue<BigNumberish>,
@@ -635,6 +655,11 @@ export interface TokenFacet extends BaseContract {
       _canonical: TokenIdStruct,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    getCustodiedAmount(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getLocalAndAdoptedToken(
       _id: PromiseOrValue<BytesLike>,
@@ -820,6 +845,11 @@ export interface TokenFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getCustodiedAmount(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getLocalAndAdoptedToken(
       _id: PromiseOrValue<BytesLike>,
       _domain: PromiseOrValue<BigNumberish>,
@@ -932,6 +962,11 @@ export interface TokenFacet extends BaseContract {
 
     "canonicalToRepresentation((uint32,bytes32))"(
       _canonical: TokenIdStruct,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getCustodiedAmount(
+      _key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
