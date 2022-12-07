@@ -1,0 +1,383 @@
+{
+  "address": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__onlyOwner_notOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__onlyProposed_notProposedOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__ownershipDelayElapsed_delayNotElapsed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__renounceOwnership_invalidProposal",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__renounceOwnership_noProposal",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "proposedOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipProposed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "watcher",
+          "type": "address"
+        }
+      ],
+      "name": "WatcherAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "watcher",
+          "type": "address"
+        }
+      ],
+      "name": "WatcherRemoved",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "acceptProposedOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_watcher",
+          "type": "address"
+        }
+      ],
+      "name": "addWatcher",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "delay",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "isWatcher",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newlyProposed",
+          "type": "address"
+        }
+      ],
+      "name": "proposeNewOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proposed",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proposedTimestamp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_watcher",
+          "type": "address"
+        }
+      ],
+      "name": "removeWatcher",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounced",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x5c068d2fdc788aea0180c0e20ea170eb75575982cc0401bc580369f4210a11a9",
+  "receipt": {
+    "to": null,
+    "from": "0x627306090abaB3A6e1400e9345bC60c78a8BEf57",
+    "contractAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0",
+    "transactionIndex": 0,
+    "gasUsed": "402337",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000002000001000000000000000000000000000000000000020000000000000000000800000000000000000000001000000000c00000000000000000000000000000000000000000000000000000010000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x22ce63e92ec1db6d61cf75563ec3bdf265d47db0abef40a7745ebb6a4abe9d72",
+    "transactionHash": "0x5c068d2fdc788aea0180c0e20ea170eb75575982cc0401bc580369f4210a11a9",
+    "logs": [
+      {
+        "transactionIndex": 0,
+        "blockNumber": 321,
+        "transactionHash": "0x5c068d2fdc788aea0180c0e20ea170eb75575982cc0401bc580369f4210a11a9",
+        "address": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000627306090abab3a6e1400e9345bc60c78a8bef57"
+        ],
+        "data": "0x",
+        "logIndex": 0,
+        "blockHash": "0x22ce63e92ec1db6d61cf75563ec3bdf265d47db0abef40a7745ebb6a4abe9d72"
+      }
+    ],
+    "blockNumber": 321,
+    "cumulativeGasUsed": "402337",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "08ca6ef6e120fb4cb0f5603df6e78508",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"ProposedOwnable__onlyOwner_notOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__onlyProposed_notProposedOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__ownershipDelayElapsed_delayNotElapsed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__proposeNewOwner_invalidProposal\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__proposeNewOwner_noOwnershipChange\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__renounceOwnership_invalidProposal\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__renounceOwnership_noProposal\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proposedOwner\",\"type\":\"address\"}],\"name\":\"OwnershipProposed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"watcher\",\"type\":\"address\"}],\"name\":\"WatcherAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"watcher\",\"type\":\"address\"}],\"name\":\"WatcherRemoved\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"acceptProposedOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_watcher\",\"type\":\"address\"}],\"name\":\"addWatcher\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"delay\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"isWatcher\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newlyProposed\",\"type\":\"address\"}],\"name\":\"proposeNewOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proposed\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proposedTimestamp\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_watcher\",\"type\":\"address\"}],\"name\":\"removeWatcher\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounced\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"addWatcher(address)\":{\"details\":\"Owner can enroll a watcher (abilities are defined by inheriting contracts)\"},\"removeWatcher(address)\":{\"details\":\"Owner can unenroll a watcher (abilities are defined by inheriting contracts)\"},\"renounceOwnership()\":{\"details\":\"Renounce ownership should be impossible as long as the watcher griefing vector exists. You can still propose `address(0)`, but it will never be accepted.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"acceptProposedOwner()\":{\"notice\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"},\"delay()\":{\"notice\":\"Returns the delay period before a new owner can be accepted.\"},\"owner()\":{\"notice\":\"Returns the address of the current owner.\"},\"proposeNewOwner(address)\":{\"notice\":\"Sets the timestamp for an owner to be proposed, and sets the newly proposed owner as step 1 in a 2-step process\"},\"proposed()\":{\"notice\":\"Returns the address of the proposed owner.\"},\"proposedTimestamp()\":{\"notice\":\"Returns the address of the proposed owner.\"},\"renounceOwnership()\":{\"notice\":\"Remove ability to renounce ownership\"},\"renounced()\":{\"notice\":\"Indicates if the ownership has been renounced() by checking if current owner is address(0)\"}},\"notice\":\"This contract manages a set of watchers. This is meant to be used as a shared resource that contracts can inherit to make use of the same watcher set.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/messaging/WatcherManager.sol\":\"WatcherManager\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/messaging/WatcherManager.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.17;\\n\\nimport {ProposedOwnable} from \\\"../shared/ProposedOwnable.sol\\\";\\n\\n/**\\n * @notice This contract manages a set of watchers. This is meant to be used as a shared resource that contracts can\\n * inherit to make use of the same watcher set.\\n */\\n\\ncontract WatcherManager is ProposedOwnable {\\n  // ============ Events ============\\n  event WatcherAdded(address watcher);\\n\\n  event WatcherRemoved(address watcher);\\n\\n  // ============ Properties ============\\n  mapping(address => bool) public isWatcher;\\n\\n  // ============ Constructor ============\\n  constructor() ProposedOwnable() {\\n    _setOwner(msg.sender);\\n  }\\n\\n  // ============ Modifiers ============\\n\\n  // ============ Admin fns ============\\n  /**\\n   * @dev Owner can enroll a watcher (abilities are defined by inheriting contracts)\\n   */\\n  function addWatcher(address _watcher) external onlyOwner {\\n    require(!isWatcher[_watcher], \\\"already watcher\\\");\\n    isWatcher[_watcher] = true;\\n    emit WatcherAdded(_watcher);\\n  }\\n\\n  /**\\n   * @dev Owner can unenroll a watcher (abilities are defined by inheriting contracts)\\n   */\\n  function removeWatcher(address _watcher) external onlyOwner {\\n    require(isWatcher[_watcher], \\\"!exist\\\");\\n    delete isWatcher[_watcher];\\n    emit WatcherRemoved(_watcher);\\n  }\\n\\n  /**\\n   * @notice Remove ability to renounce ownership\\n   * @dev Renounce ownership should be impossible as long as the watcher griefing\\n   * vector exists. You can still propose `address(0)`, but it will never be accepted.\\n   */\\n  function renounceOwnership() public virtual override onlyOwner {}\\n}\\n\",\"keccak256\":\"0x94d9db4cd19453c9047164f697011163a42a6e12f9b2e1d7fbcfb35a7d021318\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/shared/ProposedOwnable.sol\":{\"content\":\"// SPDX-License-Identifier: UNLICENSED\\npragma solidity 0.8.17;\\n\\nimport {IProposedOwnable} from \\\"./interfaces/IProposedOwnable.sol\\\";\\n\\n/**\\n * @title ProposedOwnable\\n * @notice Contract module which provides a basic access control mechanism,\\n * where there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * By default, the owner account will be the one that deploys the contract. This\\n * can later be changed via a two step process:\\n * 1. Call `proposeOwner`\\n * 2. Wait out the delay period\\n * 3. Call `acceptOwner`\\n *\\n * @dev This module is used through inheritance. It will make available the\\n * modifier `onlyOwner`, which can be applied to your functions to restrict\\n * their use to the owner.\\n *\\n * @dev The majority of this code was taken from the openzeppelin Ownable\\n * contract\\n *\\n */\\nabstract contract ProposedOwnable is IProposedOwnable {\\n  // ========== Custom Errors ===========\\n\\n  error ProposedOwnable__onlyOwner_notOwner();\\n  error ProposedOwnable__onlyProposed_notProposedOwner();\\n  error ProposedOwnable__ownershipDelayElapsed_delayNotElapsed();\\n  error ProposedOwnable__proposeNewOwner_invalidProposal();\\n  error ProposedOwnable__proposeNewOwner_noOwnershipChange();\\n  error ProposedOwnable__renounceOwnership_noProposal();\\n  error ProposedOwnable__renounceOwnership_invalidProposal();\\n\\n  // ============ Properties ============\\n\\n  address private _owner;\\n\\n  address private _proposed;\\n  uint256 private _proposedOwnershipTimestamp;\\n\\n  uint256 private constant _delay = 7 days;\\n\\n  // ======== Getters =========\\n\\n  /**\\n   * @notice Returns the address of the current owner.\\n   */\\n  function owner() public view virtual returns (address) {\\n    return _owner;\\n  }\\n\\n  /**\\n   * @notice Returns the address of the proposed owner.\\n   */\\n  function proposed() public view virtual returns (address) {\\n    return _proposed;\\n  }\\n\\n  /**\\n   * @notice Returns the address of the proposed owner.\\n   */\\n  function proposedTimestamp() public view virtual returns (uint256) {\\n    return _proposedOwnershipTimestamp;\\n  }\\n\\n  /**\\n   * @notice Returns the delay period before a new owner can be accepted.\\n   */\\n  function delay() public view virtual returns (uint256) {\\n    return _delay;\\n  }\\n\\n  /**\\n   * @notice Throws if called by any account other than the owner.\\n   */\\n  modifier onlyOwner() {\\n    if (_owner != msg.sender) revert ProposedOwnable__onlyOwner_notOwner();\\n    _;\\n  }\\n\\n  /**\\n   * @notice Throws if called by any account other than the proposed owner.\\n   */\\n  modifier onlyProposed() {\\n    if (_proposed != msg.sender) revert ProposedOwnable__onlyProposed_notProposedOwner();\\n    _;\\n  }\\n\\n  /**\\n   * @notice Throws if the ownership delay has not elapsed\\n   */\\n  modifier ownershipDelayElapsed() {\\n    // Ensure delay has elapsed\\n    if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay)\\n      revert ProposedOwnable__ownershipDelayElapsed_delayNotElapsed();\\n    _;\\n  }\\n\\n  /**\\n   * @notice Indicates if the ownership has been renounced() by\\n   * checking if current owner is address(0)\\n   */\\n  function renounced() public view returns (bool) {\\n    return _owner == address(0);\\n  }\\n\\n  // ======== External =========\\n\\n  /**\\n   * @notice Sets the timestamp for an owner to be proposed, and sets the\\n   * newly proposed owner as step 1 in a 2-step process\\n   */\\n  function proposeNewOwner(address newlyProposed) public virtual onlyOwner {\\n    // Contract as source of truth\\n    if (_proposed == newlyProposed && _proposedOwnershipTimestamp != 0)\\n      revert ProposedOwnable__proposeNewOwner_invalidProposal();\\n\\n    // Sanity check: reasonable proposal\\n    if (_owner == newlyProposed) revert ProposedOwnable__proposeNewOwner_noOwnershipChange();\\n\\n    _setProposed(newlyProposed);\\n  }\\n\\n  /**\\n   * @notice Renounces ownership of the contract after a delay\\n   */\\n  function renounceOwnership() public virtual onlyOwner ownershipDelayElapsed {\\n    // Ensure there has been a proposal cycle started\\n    if (_proposedOwnershipTimestamp == 0) revert ProposedOwnable__renounceOwnership_noProposal();\\n\\n    // Require proposed is set to 0\\n    if (_proposed != address(0)) revert ProposedOwnable__renounceOwnership_invalidProposal();\\n\\n    // Emit event, set new owner, reset timestamp\\n    _setOwner(address(0));\\n  }\\n\\n  /**\\n   * @notice Transfers ownership of the contract to a new account (`newOwner`).\\n   * Can only be called by the current owner.\\n   */\\n  function acceptProposedOwner() public virtual onlyProposed ownershipDelayElapsed {\\n    // NOTE: no need to check if _owner == _proposed, because the _proposed\\n    // is 0-d out and this check is implicitly enforced by modifier\\n\\n    // NOTE: no need to check if _proposedOwnershipTimestamp > 0 because\\n    // the only time this would happen is if the _proposed was never\\n    // set (will fail from modifier) or if the owner == _proposed (checked\\n    // above)\\n\\n    // Emit event, set new owner, reset timestamp\\n    _setOwner(_proposed);\\n  }\\n\\n  // ======== Internal =========\\n\\n  function _setOwner(address newOwner) internal {\\n    emit OwnershipTransferred(_owner, newOwner);\\n    _owner = newOwner;\\n    delete _proposedOwnershipTimestamp;\\n    delete _proposed;\\n  }\\n\\n  function _setProposed(address newlyProposed) private {\\n    _proposedOwnershipTimestamp = block.timestamp;\\n    _proposed = newlyProposed;\\n    emit OwnershipProposed(newlyProposed);\\n  }\\n}\\n\",\"keccak256\":\"0xa96eff4fdff55ffa29cda5c18285a9af04c3cbaf55f83696085cdd2251a8d6c0\",\"license\":\"UNLICENSED\"},\"contracts/shared/interfaces/IProposedOwnable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.17;\\n\\n/**\\n * @title IProposedOwnable\\n * @notice Defines a minimal interface for ownership with a two step proposal and acceptance\\n * process\\n */\\ninterface IProposedOwnable {\\n  /**\\n   * @dev This emits when change in ownership of a contract is proposed.\\n   */\\n  event OwnershipProposed(address indexed proposedOwner);\\n\\n  /**\\n   * @dev This emits when ownership of a contract changes.\\n   */\\n  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n  /**\\n   * @notice Get the address of the owner\\n   * @return owner_ The address of the owner.\\n   */\\n  function owner() external view returns (address owner_);\\n\\n  /**\\n   * @notice Get the address of the proposed owner\\n   * @return proposed_ The address of the proposed.\\n   */\\n  function proposed() external view returns (address proposed_);\\n\\n  /**\\n   * @notice Set the address of the proposed owner of the contract\\n   * @param newlyProposed The proposed new owner of the contract\\n   */\\n  function proposeNewOwner(address newlyProposed) external;\\n\\n  /**\\n   * @notice Set the address of the proposed owner of the contract\\n   */\\n  function acceptProposedOwner() external;\\n}\\n\",\"keccak256\":\"0x4ec1aa589d37d0c1eac9966e26d2d3540d1661b81763e678f14d2c6fa0682323\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5061001a3361001f565b610084565b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b039092166001600160a01b0319928316178155600255600180549091169055565b6105c5806100936000396000f3fe608060405234801561001057600080fd5b50600436106100a95760003560e01c80638da5cb5b116100715780638da5cb5b1461011e578063b1f8100d14610143578063c5b350df14610156578063d1851c921461015e578063d232c2201461016f578063ec2b13451461018157600080fd5b806324bdff8c146100ae5780633cf52ffb146100c35780636a42b8f8146100da578063715018a6146100e357806384785ecd146100eb575b600080fd5b6100c16100bc366004610538565b610194565b005b6002545b6040519081526020015b60405180910390f35b62093a806100c7565b6100c161027a565b61010e6100f9366004610538565b60036020526000908152604090205460ff1681565b60405190151581526020016100d1565b6000546001600160a01b03165b6040516001600160a01b0390911681526020016100d1565b6100c1610151366004610538565b6102a7565b6100c1610348565b6001546001600160a01b031661012b565b6000546001600160a01b03161561010e565b6100c161018f366004610538565b6103b8565b6000546001600160a01b031633146101bf576040516311a8a1bb60e31b815260040160405180910390fd5b6001600160a01b03811660009081526003602052604090205460ff161561021f5760405162461bcd60e51b815260206004820152600f60248201526e30b63932b0b23c903bb0ba31b432b960891b60448201526064015b60405180910390fd5b6001600160a01b038116600081815260036020908152604091829020805460ff1916600117905590519182527fbd71030f437353231b6e5bedade573b1e0da5cb6e8bdde37c33c1fea986c29c791015b60405180910390a150565b6000546001600160a01b031633146102a5576040516311a8a1bb60e31b815260040160405180910390fd5b565b6000546001600160a01b031633146102d2576040516311a8a1bb60e31b815260040160405180910390fd5b6001546001600160a01b0382811691161480156102f0575060025415155b1561030e576040516311bc066560e11b815260040160405180910390fd5b6000546001600160a01b0380831691160361033c57604051634a2fb73f60e11b815260040160405180910390fd5b61034581610485565b50565b6001546001600160a01b03163314610373576040516311a7f27160e11b815260040160405180910390fd5b62093a80600254426103859190610568565b116103a3576040516324e0285f60e21b815260040160405180910390fd5b6001546102a5906001600160a01b03166104d3565b6000546001600160a01b031633146103e3576040516311a8a1bb60e31b815260040160405180910390fd5b6001600160a01b03811660009081526003602052604090205460ff166104345760405162461bcd60e51b815260206004820152600660248201526508595e1a5cdd60d21b6044820152606401610216565b6001600160a01b038116600081815260036020908152604091829020805460ff1916905590519182527ffa8eab6357bec870e7048c2413cbaa813236bb29ebac113541a76fef429e94dc910161026f565b42600255600180546001600160a01b0319166001600160a01b0383169081179091556040517f6ab4d119f23076e8ad491bc65ce85f017fb0591dce08755ba8591059cc51737a90600090a250565b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b039092166001600160a01b0319928316178155600255600180549091169055565b60006020828403121561054a57600080fd5b81356001600160a01b038116811461056157600080fd5b9392505050565b8181038181111561058957634e487b7160e01b600052601160045260246000fd5b9291505056fea2646970667358221220d6fd2c863795124ce39d311825b230d35f5b9268f0c7da0b58adaa553832bcd064736f6c63430008110033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100a95760003560e01c80638da5cb5b116100715780638da5cb5b1461011e578063b1f8100d14610143578063c5b350df14610156578063d1851c921461015e578063d232c2201461016f578063ec2b13451461018157600080fd5b806324bdff8c146100ae5780633cf52ffb146100c35780636a42b8f8146100da578063715018a6146100e357806384785ecd146100eb575b600080fd5b6100c16100bc366004610538565b610194565b005b6002545b6040519081526020015b60405180910390f35b62093a806100c7565b6100c161027a565b61010e6100f9366004610538565b60036020526000908152604090205460ff1681565b60405190151581526020016100d1565b6000546001600160a01b03165b6040516001600160a01b0390911681526020016100d1565b6100c1610151366004610538565b6102a7565b6100c1610348565b6001546001600160a01b031661012b565b6000546001600160a01b03161561010e565b6100c161018f366004610538565b6103b8565b6000546001600160a01b031633146101bf576040516311a8a1bb60e31b815260040160405180910390fd5b6001600160a01b03811660009081526003602052604090205460ff161561021f5760405162461bcd60e51b815260206004820152600f60248201526e30b63932b0b23c903bb0ba31b432b960891b60448201526064015b60405180910390fd5b6001600160a01b038116600081815260036020908152604091829020805460ff1916600117905590519182527fbd71030f437353231b6e5bedade573b1e0da5cb6e8bdde37c33c1fea986c29c791015b60405180910390a150565b6000546001600160a01b031633146102a5576040516311a8a1bb60e31b815260040160405180910390fd5b565b6000546001600160a01b031633146102d2576040516311a8a1bb60e31b815260040160405180910390fd5b6001546001600160a01b0382811691161480156102f0575060025415155b1561030e576040516311bc066560e11b815260040160405180910390fd5b6000546001600160a01b0380831691160361033c57604051634a2fb73f60e11b815260040160405180910390fd5b61034581610485565b50565b6001546001600160a01b03163314610373576040516311a7f27160e11b815260040160405180910390fd5b62093a80600254426103859190610568565b116103a3576040516324e0285f60e21b815260040160405180910390fd5b6001546102a5906001600160a01b03166104d3565b6000546001600160a01b031633146103e3576040516311a8a1bb60e31b815260040160405180910390fd5b6001600160a01b03811660009081526003602052604090205460ff166104345760405162461bcd60e51b815260206004820152600660248201526508595e1a5cdd60d21b6044820152606401610216565b6001600160a01b038116600081815260036020908152604091829020805460ff1916905590519182527ffa8eab6357bec870e7048c2413cbaa813236bb29ebac113541a76fef429e94dc910161026f565b42600255600180546001600160a01b0319166001600160a01b0383169081179091556040517f6ab4d119f23076e8ad491bc65ce85f017fb0591dce08755ba8591059cc51737a90600090a250565b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b039092166001600160a01b0319928316178155600255600180549091169055565b60006020828403121561054a57600080fd5b81356001600160a01b038116811461056157600080fd5b9392505050565b8181038181111561058957634e487b7160e01b600052601160045260246000fd5b9291505056fea2646970667358221220d6fd2c863795124ce39d311825b230d35f5b9268f0c7da0b58adaa553832bcd064736f6c63430008110033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "addWatcher(address)": {
+        "details": "Owner can enroll a watcher (abilities are defined by inheriting contracts)"
+      },
+      "removeWatcher(address)": {
+        "details": "Owner can unenroll a watcher (abilities are defined by inheriting contracts)"
+      },
+      "renounceOwnership()": {
+        "details": "Renounce ownership should be impossible as long as the watcher griefing vector exists. You can still propose `address(0)`, but it will never be accepted."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "acceptProposedOwner()": {
+        "notice": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      },
+      "delay()": {
+        "notice": "Returns the delay period before a new owner can be accepted."
+      },
+      "owner()": {
+        "notice": "Returns the address of the current owner."
+      },
+      "proposeNewOwner(address)": {
+        "notice": "Sets the timestamp for an owner to be proposed, and sets the newly proposed owner as step 1 in a 2-step process"
+      },
+      "proposed()": {
+        "notice": "Returns the address of the proposed owner."
+      },
+      "proposedTimestamp()": {
+        "notice": "Returns the address of the proposed owner."
+      },
+      "renounceOwnership()": {
+        "notice": "Remove ability to renounce ownership"
+      },
+      "renounced()": {
+        "notice": "Indicates if the ownership has been renounced() by checking if current owner is address(0)"
+      }
+    },
+    "notice": "This contract manages a set of watchers. This is meant to be used as a shared resource that contracts can inherit to make use of the same watcher set.",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 49241,
+        "contract": "contracts/messaging/WatcherManager.sol:WatcherManager",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 49243,
+        "contract": "contracts/messaging/WatcherManager.sol:WatcherManager",
+        "label": "_proposed",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_address"
+      },
+      {
+        "astId": 49245,
+        "contract": "contracts/messaging/WatcherManager.sol:WatcherManager",
+        "label": "_proposedOwnershipTimestamp",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 38579,
+        "contract": "contracts/messaging/WatcherManager.sol:WatcherManager",
+        "label": "isWatcher",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_mapping(t_address,t_bool)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

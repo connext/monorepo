@@ -1,0 +1,406 @@
+{
+    "chains": [
+        {
+            "chain": "ethereum",
+            "config": {
+                "artifactsPath": "./packages/deployments/contracts/artifacts",
+                "deploy": {
+                    "scripts": "./packages/deployments/contracts/deploy",
+                    "include": [
+                        "./node_modules",
+                        "./packages/deployments/contracts/src",
+                        "./packages/deployments/contracts/deployConfig",
+                        "./packages/deployments/contracts/deployments.json",
+                        "./packages/deployments/contracts/abi",
+                        "./packages/deployments/contracts/cicdResources/deployments"
+                    ],
+                    "tags": "local"
+                },
+                "afterDeploy": {
+                    "image": "postgres",
+                    "command": [
+                        "postgres"
+                    ]
+                },
+                "networks": [
+                    {
+                        "name": "hardhat",
+                        "chainId": 1337,
+                        "accounts": {
+                            "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+                        }
+                    }
+                ],
+                "environment": {
+                    "MNEMONIC": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
+                    "CHAIN_ID": "1337",
+                    "ENV": "production",
+                    "ETH_PROVIDER_URL": "http://localhost:4000"
+                }
+            },
+            "tag": "$tag_default"
+        },
+        {
+            "chain": "polygon",
+            "config": {
+                "artifactsPath": "./packages/deployments/contracts/artifacts",
+                "deploy": {
+                    "scripts": "./packages/deployments/contracts/deploy",
+                    "include": [
+                        "./node_modules",
+                        "./packages/deployments/contracts/src",
+                        "./packages/deployments/contracts/deployConfig",
+                        "./packages/deployments/contracts/deployments.json",
+                        "./packages/deployments/contracts/abi",
+                        "./packages/deployments/contracts/cicdResources/deployments"
+                    ],
+                    "tags": "local"
+                },
+                "networks": [
+                    {
+                        "name": "hardhat",
+                        "chainId": 1338,
+                        "accounts": {
+                            "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+                        },
+                        "companionNetworks": {
+                            "hub": "local_1337"
+                        }
+                    },
+                    {
+                        "name": "local_1337",
+                        "url": "http://localhost:4000"
+                    }
+                ],
+                "environment": {
+                    "MNEMONIC": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
+                    "CHAIN_ID": "1338",
+                    "ENV": "production",
+                    "ETH_PROVIDER_URL": "http://localhost:4004"
+                }
+            },
+            "depends_on": [
+                "ethereum"
+            ],
+            "tag": "$tag_default"
+        }
+    ],
+    "offChainActors": [
+        {
+            "name": "ipfs",
+            "image": "ipfs/go-ipfs:v0.4.23",
+            "ports": [
+                5001
+            ],
+            "tag": "v1"
+        },
+        {
+            "image": "postgres",
+            "name": "postgres1337",
+            "ports": [
+                5432
+            ],
+            "command": "postgres -cshared_preload_libraries=pg_stat_statements",
+            "environment": {
+                "POSTGRES_USER": "graph-node",
+                "POSTGRES_PASSWORD": "let-me-in",
+                "POSTGRES_DB": "graph-node"
+            },
+            "tag": "v1"
+        },
+        {
+            "image": "postgres",
+            "name": "postgres1338",
+            "ports": [
+                5432
+            ],
+            "command": "postgres -cshared_preload_libraries=pg_stat_statements",
+            "environment": {
+                "POSTGRES_USER": "graph-node",
+                "POSTGRES_PASSWORD": "let-me-in",
+                "POSTGRES_DB": "graph-node"
+            },
+            "tag": "v1"
+        },
+        {
+            "image": "graphprotocol/graph-node:992121b",
+            "name": "graphNode1337",
+            "ports": [
+                8000,
+                8001,
+                8020,
+                8030,
+                8040
+            ],
+            "depends_on": [
+                "ipfs",
+                "postgres1337"
+            ],
+            "environment": {
+                "postgres_host": "$postgres1337_hburl",
+                "postgres_user": "graph-node",
+                "postgres_pass": "let-me-in",
+                "postgres_db": "graph-node",
+                "ethereum": "mainnet:http://$ethereum_hburl",
+                "ipfs": "$ipfs_hburl:5001",
+                "GRAPH_LOG": "info"
+            },
+            "tag": "v1"
+        },
+        {
+            "image": "graphprotocol/graph-node:992121b",
+            "name": "graphNode1338",
+            "ports": [
+                8000,
+                8001,
+                8020,
+                8030,
+                8040
+            ],
+            "depends_on": [
+                "ipfs",
+                "postgres1338"
+            ],
+            "environment": {
+                "postgres_host": "$postgres1338_hburl",
+                "postgres_user": "graph-node",
+                "postgres_pass": "let-me-in",
+                "postgres_db": "graph-node",
+                "ethereum": "mainnet:http://$polygon_hburl",
+                "ipfs": "$ipfs_hburl:5001",
+                "GRAPH_LOG": "info"
+            },
+            "tag": "v1"
+        },
+        {
+            "name": "signerRouter",
+            "image": "ghcr.io/connext/web3signer:latest",
+            "environment": {
+                "WEB3_SIGNER_PRIVATE_KEY": "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3",
+                "WEB3SIGNER_HTTP_HOST_ALLOWLIST": "*"
+            },
+            "ports": [
+                9000
+            ],
+            "tag": "v1"
+        },
+        {
+            "name": "signerSequencer",
+            "image": "ghcr.io/connext/web3signer:latest",
+            "environment": {
+                "WEB3_SIGNER_PRIVATE_KEY": "0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f",
+                "WEB3SIGNER_HTTP_HOST_ALLOWLIST": "*"
+            },
+            "ports": [
+                9000
+            ],
+            "tag": "v1"
+        },
+        {
+            "name": "signerRelayer",
+            "image": "ghcr.io/connext/web3signer:latest",
+            "environment": {
+                "WEB3_SIGNER_PRIVATE_KEY": "0x09ac2359ab897a5ffc47d7c67df32abbf9c006e00fa2ba36580e0cecc58834fe",
+                "WEB3SIGNER_HTTP_HOST_ALLOWLIST": "*"
+            },
+            "ports": [
+                9000
+            ],
+            "tag": "v1"
+        },
+        {
+            "name": "messageQueue",
+            "image": "rabbitmq:3.10-management",
+            "ports": [
+                5672,
+                15672
+            ],
+            "tag": "v1"
+        },
+        {
+            "name": "routerCache",
+            "image": "redis:latest",
+            "ports": [
+                6379
+            ],
+            "tag": "v1"
+        },
+        {
+            "name": "sequencerCache",
+            "image": "redis:latest",
+            "ports": [
+                6379
+            ],
+            "tag": "v1"
+        },
+        {
+            "name": "relayerCache",
+            "image": "redis:latest",
+            "ports": [
+                6379
+            ],
+            "tag": "v1"
+        },
+        {
+            "name": "relayer",
+            "image": "ghcr.io/connext/relayer:$sha_default",
+            "ports": [
+                8080
+            ],
+            "environment": {
+                "RELAYER_CONFIG": "{   \"logLevel\": \"debug\",   \"redis\": {     \"host\": \"$relayerCache_hburl\",     \"port\": 6379   },   \"server\": {     \"adminToken\": \"a\",     \"port\": 8080   },   \"chains\": {     \"1337\": {       \"providers\": [\"http://$ethereum_hburl\"],       \"deployments\": {         \"connext\": \"0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5\"       },       \"assets\": [         {           \"name\": \"TEST\",           \"address\": \"0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca\"         }       ]     },     \"1338\": {       \"providers\": [\"http://$polygon_hburl\"],       \"deployments\": {         \"connext\": \"0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc\"       },       \"assets\": [         {           \"name\": \"TEST\",           \"address\": \"0x2467636BEa0F3c2441227eeDBfFaC59f11D54a80\"         }       ]     }   },   \"web3SignerUrl\": \"http://$signerRelayer_hburl:9000\",   \"environment\": \"production\" }"
+            },
+            "depends_on": [
+                "signerRelayer",
+                "relayerCache"
+            ],
+            "tag": "$tag_default"
+        },
+        {
+            "name": "sequencerPublisher",
+            "image": "ghcr.io/connext/sequencer-publisher:$sha_default",
+            "ports": [
+                8081
+            ],
+            "environment": {
+                "GRAPH_1337_ENDPOINT": "http://$graphNode1337_hburl:8000/subgraphs/name/connext/nxtp",
+                "GRAPH_1338_ENDPOINT": "http://$graphNode1338_hburl:8000/subgraphs/name/connext/nxtp",
+                "SEQ_CONFIG": "{    \"redis\": {        \"host\": \"$sequencerCache_hburl\",        \"port\": 6379    },    \"server\": {        \"adminToken\": \"b\",        \"pub\": {            \"port\": 8081        },        \"sub\": {            \"port\": 8081        }    },    \"chains\": {        \"1337\": {            \"providers\": [                \"http://$ethereum_hburl\"            ],            \"deployments\": {                \"connext\": \"0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5\",                \"relayerProxy\": \"0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5\"            },            \"assets\": [                {                    \"address\": \"0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca\",                    \"name\": \"TEST\"                }            ]        },        \"1338\": {            \"providers\": [                \"http://$polygon_hburl\"            ],            \"deployments\": {                \"connext\": \"0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc\",                \"relayerProxy\": \"0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5\"            },            \"assets\": [                {                    \"address\": \"0x2467636BEa0F3c2441227eeDBfFaC59f11D54a80\",                    \"name\": \"TEST\"                }            ]        }    },    \"logLevel\": \"debug\",    \"mode\": {        \"cleanup\": false    },    \"auctionWaitTime\": 30000,    \"environment\": \"production\",    \"relayers\": [        {            \"type\": \"Connext\",            \"apiKey\": \"xxx\",            \"url\": \"http://$relayer_hburl:8080\"        }    ],    \"web3SignerUrl\": \"http://$signerSequencer_hburl:9000\",    \"messageQueue\": {        \"connection\": {            \"uri\": \"amqp://guest:guest@$messageQueue_hburl:5672\"        },        \"exchanges\": [            {                \"name\": \"sequencerX\",                \"type\": \"direct\",                \"publishTimeout\": 1000,                \"persistent\": true,                \"durable\": true            }        ],        \"queues\": [            {                \"name\": \"1337\",                \"limit\": 5,                \"queueLimit\": 10000,                \"subscribe\": true,                \"prefetch\": 250            },            {                \"name\": \"1338\",                \"limit\": 5,                \"queueLimit\": 10000,                \"subscribe\": true,                \"prefetch\": 250            }        ],        \"bindings\": [            {                \"exchange\": \"sequencerX\",                \"target\": \"1337\",                \"keys\": [                    \"1337\"                ]            },            {                \"exchange\": \"sequencerX\",                \"target\": \"1338\",                \"keys\": [                    \"1338\"                ]            }        ],        \"executerTimeout\": 300000,        \"publisher\": \"sequencerX\"    }}"
+            },
+            "depends_on": [
+                "signerSequencer",
+                "messageQueue"
+            ],
+            "tag": "$tag_default"
+        },
+        {
+            "name": "sequencerSubscriber",
+            "image": "ghcr.io/connext/sequencer-subscriber:$sha_default",
+            "ports": [
+                8081
+            ],
+            "environment": {
+                "GRAPH_1337_ENDPOINT": "http://$graphNode1337_hburl:8000/subgraphs/name/connext/nxtp",
+                "GRAPH_1338_ENDPOINT": "http://$graphNode1338_hburl:8000/subgraphs/name/connext/nxtp",
+                "SEQ_CONFIG": "{    \"redis\": {        \"host\": \"$sequencerCache_hburl\",        \"port\": 6379    },    \"server\": {        \"adminToken\": \"b\",        \"pub\": {            \"port\": 8081        },        \"sub\": {            \"port\": 8081        }    },    \"chains\": {        \"1337\": {            \"providers\": [                \"http://$ethereum_hburl\"            ],            \"deployments\": {                \"connext\": \"0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5\",                \"relayerProxy\": \"0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5\"            },            \"assets\": [                {                    \"address\": \"0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca\",                    \"name\": \"TEST\"                }            ]        },        \"1338\": {            \"providers\": [                \"http://$polygon_hburl\"            ],            \"deployments\": {                \"connext\": \"0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc\",                \"relayerProxy\": \"0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5\"            },            \"assets\": [                {                    \"address\": \"0x2467636BEa0F3c2441227eeDBfFaC59f11D54a80\",                    \"name\": \"TEST\"                }            ]        }    },    \"logLevel\": \"debug\",    \"mode\": {        \"cleanup\": false    },    \"auctionWaitTime\": 30000,    \"environment\": \"production\",    \"relayers\": [        {            \"type\": \"Connext\",            \"apiKey\": \"xxx\",            \"url\": \"http://$relayer_hburl:8080\"        }    ],    \"web3SignerUrl\": \"http://$signerSequencer_hburl:9000\",    \"messageQueue\": {        \"connection\": {            \"uri\": \"amqp://guest:guest@$messageQueue_hburl:5672\"        },        \"exchanges\": [            {                \"name\": \"sequencerX\",                \"type\": \"direct\",                \"publishTimeout\": 1000,                \"persistent\": true,                \"durable\": true            }        ],        \"queues\": [            {                \"name\": \"1337\",                \"limit\": 5,                \"queueLimit\": 10000,                \"subscribe\": true,                \"prefetch\": 250            },            {                \"name\": \"1338\",                \"limit\": 5,                \"queueLimit\": 10000,                \"subscribe\": true,                \"prefetch\": 250            }        ],        \"bindings\": [            {                \"exchange\": \"sequencerX\",                \"target\": \"1337\",                \"keys\": [                    \"1337\"                ]            },            {                \"exchange\": \"sequencerX\",                \"target\": \"1338\",                \"keys\": [                    \"1338\"                ]            }        ],        \"executerTimeout\": 300000,        \"publisher\": \"sequencerX\"    }}"
+            },
+            "depends_on": [
+                "signerSequencer",
+                "messageQueue"
+            ],
+            "tag": "$tag_default"
+        },
+        {
+            "name": "cartographerDatabase",
+            "image": "postgres",
+            "ports": [
+                5432
+            ],
+            "environment": {
+                "POSTGRES_PASSWORD": "qwerty"
+            },
+            "command": "postgres",
+            "tag": "v1"
+        },
+        {
+            "name": "cartographerApi",
+            "image": "postgrest/postgrest:v9.0.0.20220107",
+            "ports": [
+                3000
+            ],
+            "environment": {
+                "PGRST_DB_URI": "postgres://reader:3eadooor@$cartographerDatabase_hburl:5432/connext",
+                "PGRST_DB_SCHEMA": "public",
+                "PGRST_DB_ANON_ROLE": "query"
+            },
+            "depends_on": [
+                "cartographerDatabase"
+            ],
+            "tag": "v1"
+        },
+        {
+            "name": "cartographerTransfers",
+            "image": "ghcr.io/connext/cartographer-transfers:$sha_default",
+            "ports": [
+                8080
+            ],
+            "schedule_expression": "rate(1 minute)",
+            "environment": {
+                "GRAPH_1337_ENDPOINT": "http://$graphNode1337_hburl:8000/subgraphs/name/connext/nxtp",
+                "GRAPH_1338_ENDPOINT": "http://$graphNode1338_hburl:8000/subgraphs/name/connext/nxtp",
+                "DATABASE_URL": "postgres://postgres:qwerty@$cartographerDatabase_hburl:5432/connext?sslmode=disable",
+                "CARTOGRAPHER_CONFIG": "{\"logLevel\": \"debug\",\"chains\": {\"1337\": { \"providers\": [\"http://$ethereum_hburl\"] },\"1338\": { \"providers\": [\"http://$polygon_hburl\"] }},\"environment\": \"production\"}"
+            },
+            "tag": "$tag_default"
+        },
+        {
+            "name": "cartographerRouters",
+            "image": "ghcr.io/connext/cartographer-routers:$sha_default",
+            "ports": [
+                8080
+            ],
+            "schedule_expression": "rate(1 minute)",
+            "environment": {
+                "GRAPH_1337_ENDPOINT": "http://$graphNode1337_hburl:8000/subgraphs/name/connext/nxtp",
+                "GRAPH_1338_ENDPOINT": "http://$graphNode1338_hburl:8000/subgraphs/name/connext/nxtp",
+                "DATABASE_URL": "postgres://postgres:qwerty@$cartographerDatabase_hburl:5432/connext?sslmode=disable",
+                "CARTOGRAPHER_CONFIG": "{\"logLevel\": \"debug\",\"chains\": {\"1337\": { \"providers\": [\"http://$ethereum_hburl\"] },\"1338\": { \"providers\": [\"http://$polygon_hburl\"] }},\"environment\": \"production\"}"
+            },
+            "tag": "$tag_default"
+        },
+        {
+            "name": "routerPublisher",
+            "image": "ghcr.io/connext/router-publisher:$sha_default",
+            "ports": [
+                8080
+            ],
+            "environment": {
+                "GRAPH_1337_ENDPOINT": "http://$graphNode1337_hburl:8000/subgraphs/name/connext/nxtp",
+                "GRAPH_1338_ENDPOINT": "http://$graphNode1338_hburl:8000/subgraphs/name/connext/nxtp",
+                "NXTP_CONFIG": "{   \"logLevel\": \"debug\",   \"sequencerUrl\": \"http://$sequencerPublisher_hburl:8081\",   \"cartographerUrl\": \"http://$cartographerApi_hburl:3000\",   \"redis\": {     \"host\": \"$routerCache_hburl\",     \"port\": 6379   },   \"server\": {     \"adminToken\": \"a\",     \"pub\": {       \"port\": 8080     },     \"sub\": {       \"port\": 8080     }   },   \"chains\": {     \"1337\": {       \"providers\": [\"http://$ethereum_hburl\"],       \"deployments\": {         \"connext\": \"0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5\", \"relayerProxy\": \"0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5\"       },       \"assets\": [         {           \"name\": \"TEST\",           \"address\": \"0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca\"         }       ]     },     \"1338\": {       \"providers\": [\"http://$polygon_hburl\"],       \"deployments\": {         \"connext\": \"0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc\", \"relayerProxy\": \"0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc\"       },       \"assets\": [         {           \"name\": \"TEST\",           \"address\": \"0x2467636BEa0F3c2441227eeDBfFaC59f11D54a80\"         }       ]     }   },   \"web3SignerUrl\": \"http://$signerRouter_hburl:9000\",   \"environment\": \"production\",   \"nomadEnvironment\": \"none\",   \"messageQueue\": {     \"uri\": \"amqp://guest:guest@$messageQueue_hburl:5672\"   } }"
+            },
+            "depends_on": [
+                "messageQueue",
+                "signerRouter",
+                "routerCache"
+            ],
+            "tag": "$tag_default"
+        },
+        {
+            "name": "routerSubscriber",
+            "image": "ghcr.io/connext/router-subscriber:$sha_default",
+            "ports": [
+                8080
+            ],
+            "environment": {
+                "GRAPH_1337_ENDPOINT": "http://$graphNode1337_hburl:8000/subgraphs/name/connext/nxtp",
+                "GRAPH_1338_ENDPOINT": "http://$graphNode1338_hburl:8000/subgraphs/name/connext/nxtp",
+                "NXTP_CONFIG": "{   \"logLevel\": \"debug\",   \"sequencerUrl\": \"http://$sequencerPublisher_hburl:8081\",   \"cartographerUrl\": \"http://$cartographerApi_hburl:3000\",   \"redis\": {     \"host\": \"$routerCache_hburl\",     \"port\": 6379   },   \"server\": {     \"adminToken\": \"a\",     \"pub\": {       \"port\": 8080     },     \"sub\": {       \"port\": 8080     }   },   \"chains\": {     \"1337\": {       \"providers\": [\"http://$ethereum_hburl\"],       \"deployments\": {         \"connext\": \"0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5\", \"relayerProxy\": \"0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5\"       },       \"assets\": [         {           \"name\": \"TEST\",           \"address\": \"0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca\"         }       ]     },     \"1338\": {       \"providers\": [\"http://$polygon_hburl\"],       \"deployments\": {         \"connext\": \"0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc\", \"relayerProxy\": \"0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc\"       },       \"assets\": [         {           \"name\": \"TEST\",           \"address\": \"0x2467636BEa0F3c2441227eeDBfFaC59f11D54a80\"         }       ]     }   },   \"web3SignerUrl\": \"http://$signerRouter_hburl:9000\",   \"environment\": \"production\",   \"nomadEnvironment\": \"none\",   \"messageQueue\": {     \"uri\": \"amqp://guest:guest@$messageQueue_hburl:5672\"   } }"
+            },
+            "depends_on": [
+                "messageQueue",
+                "signerRouter",
+                "routerCache"
+            ],
+            "tag": "$tag_default"
+        },
+        {
+            "name": "routerExecutor",
+            "image": "ghcr.io/connext/router-executor:$sha_default",
+            "ports": [
+                8080
+            ],
+            "environment": {
+                "GRAPH_1337_ENDPOINT": "http://$graphNode1337_hburl:8000/subgraphs/name/connext/nxtp",
+                "GRAPH_1338_ENDPOINT": "http://$graphNode1338_hburl:8000/subgraphs/name/connext/nxtp",
+                "NXTP_CONFIG": "{   \"logLevel\": \"debug\",   \"sequencerUrl\": \"http://$sequencerPublisher_hburl:8081\",   \"cartographerUrl\": \"http://$cartographerApi_hburl:3000\",   \"redis\": {     \"host\": \"$routerCache_hburl\",     \"port\": 6379   },   \"server\": {     \"adminToken\": \"a\",     \"pub\": {       \"port\": 8080     },     \"sub\": {       \"port\": 8080     }   },   \"chains\": {     \"1337\": {       \"providers\": [\"http://$ethereum_hburl\"],       \"deployments\": {         \"connext\": \"0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5\", \"relayerProxy\": \"0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5\"       },       \"assets\": [         {           \"name\": \"TEST\",           \"address\": \"0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca\"         }       ]     },     \"1338\": {       \"providers\": [\"http://$polygon_hburl\"],       \"deployments\": {         \"connext\": \"0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc\", \"relayerProxy\": \"0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc\"       },       \"assets\": [         {           \"name\": \"TEST\",           \"address\": \"0x2467636BEa0F3c2441227eeDBfFaC59f11D54a80\"         }       ]     }   },   \"web3SignerUrl\": \"http://$signerRouter_hburl:9000\",   \"environment\": \"production\",   \"nomadEnvironment\": \"none\",   \"messageQueue\": {     \"uri\": \"amqp://guest:guest@$messageQueue_hburl:5672\"   } }"
+            },
+            "depends_on": [
+                "messageQueue",
+                "signerRouter",
+                "routerCache"
+            ],
+            "tag": "$tag_default"
+        }
+    ]
+}
