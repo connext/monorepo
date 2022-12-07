@@ -38,10 +38,21 @@ export class WatcherAdapter {
     const { requestContext, methodContext, logger } = report;
     logger.info("alert: Attempt to alert", requestContext, methodContext, report);
 
+    const {
+      discordHookUrl,
+      pagerDutyRoutingKey,
+      twilioNumber,
+      twilioAccountSid,
+      twilioAuthToken,
+      twilioToPhoneNumbers,
+      telegramApiKey,
+      telegramChatId,
+    } = config;
+
     const errors = [];
     // attempt to alert via discord
     try {
-      await alertViaDiscord(report, config);
+      await alertViaDiscord(report, discordHookUrl);
     } catch (e: unknown) {
       logger.error("alert: failed to alert via discord", requestContext, methodContext, jsonifyError(e as Error));
       errors.push(e);
