@@ -10,9 +10,9 @@ export const validateAndPause = async () => {
 
   const { requestContext } = createLoggingContext("validateAndPause");
 
-  const needsPause = await watcher.checkInvariants(requestContext);
+  const { needsPause, reason } = await watcher.checkInvariants(requestContext);
   if (needsPause) {
-    await pauseAndAlert(requestContext, "TODO");
+    await pauseAndAlert(requestContext, reason || "");
   }
 };
 
@@ -31,12 +31,12 @@ export const pauseAndAlert = async (requestContext: RequestContext, reason: stri
   await watcher.alert({
     domains,
     errors: paused.map((p) => p.error),
-    reason: "", // TODO: need to return this from checkInvariants
+    reason,
     timestamp: Date.now(),
     event: ReportEventType.Pause,
     logger,
     methodContext,
-    relevantTransactions: paused.map((p) => p.relevantTransaction), // TODO: need to return this from pause function
+    relevantTransactions: paused.map((p) => p.relevantTransaction),
     requestContext,
     rpcs: Object.entries(config.chains)
       .map((chain) => chain[1].providers)
