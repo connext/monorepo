@@ -1,8 +1,8 @@
-import { ConnextInterface, domainToChainId } from "@connext/nxtp-contracts";
-import { getErc20Interface } from "@connext/nxtp-txservice";
+import { domainToChainId } from "@connext/nxtp-contracts";
 import { getCanonicalHash, RequestContext } from "@connext/nxtp-utils";
-import { BigNumber, constants, utils } from "ethers";
+import { BigNumber, BigNumberish, constants } from "ethers";
 
+import { ConnextInterface, getErc20Interface } from "../mockable";
 import { Verifier, VerifierContext, AssetInfo, VerifyResponse } from "../types";
 
 export class AssetVerifier extends Verifier {
@@ -77,7 +77,7 @@ export class AssetVerifier extends Verifier {
         to: representation,
         data: totalSupplyCalldata,
       });
-      let totalSupply;
+      let totalSupply: BigNumberish;
       try {
         totalSupply = erc20.decodeFunctionResult("totalSupply", totalSupplyRes)[0];
       } catch (e: any) {

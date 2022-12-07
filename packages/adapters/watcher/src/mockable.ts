@@ -2,6 +2,8 @@ import { axiosGet as _axiosGet, axiosPost as _axiosPost } from "@connext/nxtp-ut
 import { Twilio as _Twilio } from "twilio";
 import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message";
 import { trigger as _trigger } from "@pagerduty/pdjs";
+import { ConnextInterface as _ConnextInterface } from "@connext/nxtp-contracts";
+import { getErc20Interface as _getErc20Interface } from "@connext/nxtp-txservice";
 
 export const axiosGet = _axiosGet;
 export const axiosPost = _axiosPost;
@@ -17,3 +19,7 @@ export const sendMessageViaTwilio = async (
 };
 
 export const pagerDutyTrigger = _trigger;
+
+export const ConnextInterface = _ConnextInterface;
+
+export const getErc20Interface = _getErc20Interface;

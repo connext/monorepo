@@ -2,10 +2,11 @@ import { TransactionService } from "@connext/nxtp-txservice";
 import { createRequestContext, expect, Logger, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub, SinonStub } from "sinon";
+import { ConnextAbi } from "@connext/nxtp-contracts";
 
+import * as MockableFns from "../../src/mockable";
 import { AssetVerifier } from "../../src/verifiers";
 import { AssetInfo, VerifierContext } from "../../src/types";
-import { ConnextAbi } from "@connext/nxtp-contracts";
 
 describe("Watcher Adapter: AssetVerifier", () => {
   const canonicalDomain = "1337";
@@ -19,6 +20,11 @@ describe("Watcher Adapter: AssetVerifier", () => {
   let txservice: SinonStubbedInstance<TransactionService>;
   let context: VerifierContext;
   let assetVerifier: AssetVerifier;
+
+  let connextEncodeFunctionData: SinonStub<any[], any>;
+  let connextDecodeFunctionResult: SinonStub<any[], any>;
+  let erc20EncodeFunctionData: SinonStub<any[], any>;
+  let erc20DecodeFunctionResult: SinonStub<any[], any>;
 
   beforeEach(() => {
     const canonicalAssetAddress = mkAddress("0x123123123");
@@ -47,9 +53,24 @@ describe("Watcher Adapter: AssetVerifier", () => {
       abi: [...ConnextAbi, "function getCustodiedAmount(bytes32) view returns (uint256)"],
       address: connextAddress,
     });
+
+    connextEncodeFunctionData = stub().returns("0x123");
+    connextDecodeFunctionResult = stub().returns(["123"]);
+
+    stub(MockableFns, "ConnextInterface").value({
+      encodeFunctionData: connextEncodeFunctionData,
+      decodeFunctionResult: connextDecodeFunctionResult,
+    });
+
+    erc20EncodeFunctionData = stub().returns("0x123");
+    erc20DecodeFunctionResult = stub().returns(["123"]);
+
+    stub(MockableFns, "getErc20Interface").value(() => ({
+      encodeFunctionData: erc20EncodeFunctionData,
+      decodeFunctionResult: erc20DecodeFunctionResult,
+    }));
   });
 
-  // TODO:
   describe("#totalMintedAssets", () => {
     it("should query custodied on-chain", async () => {
       readTxResult = "123";
@@ -58,7 +79,6 @@ describe("Watcher Adapter: AssetVerifier", () => {
     });
   });
 
-  // TODO:
   describe("#totalLockedAssets", () => {
     it("should query custodied on-chain", async () => {
       readTxResult = "1234";
