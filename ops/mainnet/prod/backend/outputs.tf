@@ -1,9 +1,17 @@
-output "cartographer-routers-service-name" {
-  value = module.cartographer-routers-cron.daemon_service_name
+output "cartographer-routers-service-endpoint" {
+  value = module.cartographer-routers-lambda-cron.lambda_cron_service_name
 }
 
-output "cartographer-transfers-service-name" {
-  value = module.cartographer-transfers-cron.daemon_service_name
+output "cartographer-transfers-service-endpoint" {
+  value = module.cartographer-transfers-lambda-cron.lambda_cron_service_name
+}
+
+output "cartographer-messages-service-endpoint" {
+  value = module.cartographer-messages-lambda-cron.lambda_cron_service_name
+}
+
+output "cartographer-roots-service-endpoint" {
+  value = module.cartographer-roots-lambda-cron.lambda_cron_service_name
 }
 
 output "postgrest-dns" {

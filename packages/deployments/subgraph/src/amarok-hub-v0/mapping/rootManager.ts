@@ -6,6 +6,7 @@ import {
   RootReceived as RootReceivedEvent,
   RootsAggregated as RootsAggregatedEvent,
   ConnectorAdded as ConnectorAddedEvent,
+  ConnectorRemoved as ConnectorRemovedEvent,
 } from "../../../generated/RootManager/RootManager";
 import { RootPropagated, AggregatedMessageRoot, RootAggregated, RootManagerMeta } from "../../../generated/schema";
 
@@ -68,6 +69,17 @@ export function handleRootPropagated(event: RootPropagatedEvent): void {
 }
 
 export function handleConnectorAdded(event: ConnectorAddedEvent): void {
+  let instance = RootManagerMeta.load(ROOT_MANAGER_META_ID);
+  if (instance == null) {
+    instance = new RootManagerMeta(ROOT_MANAGER_META_ID);
+  }
+  instance.domains = event.params.domains;
+  instance.connectors = event.params.connectors.map<Bytes>((c: Address): Bytes => Bytes.fromHexString(c.toHexString()));
+
+  instance.save();
+}
+
+export function handleConnectorRemoved(event: ConnectorRemovedEvent): void {
   let instance = RootManagerMeta.load(ROOT_MANAGER_META_ID);
   if (instance == null) {
     instance = new RootManagerMeta(ROOT_MANAGER_META_ID);
