@@ -60,7 +60,7 @@ export class WatcherAdapter {
 
     // attempt to alert via pager duty
     try {
-      await alertViaPagerDuty(report, config);
+      await alertViaPagerDuty(report, pagerDutyRoutingKey);
     } catch (e: unknown) {
       logger.error("alert: failed to alert via pager duty", requestContext, methodContext, jsonifyError(e as Error));
       errors.push(e);

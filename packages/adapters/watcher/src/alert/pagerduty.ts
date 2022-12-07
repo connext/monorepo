@@ -1,9 +1,9 @@
 import { jsonifyError } from "@connext/nxtp-utils";
 
 import { pagerDutyTrigger } from "../mockable";
-import { Report, WatcherConfig } from "../types";
+import { Report } from "../types";
 
-export const alertViaPagerDuty = async (report: Report, config: WatcherConfig) => {
+export const alertViaPagerDuty = async (report: Report, routingKey?: string) => {
   const {
     timestamp,
     event,
@@ -17,8 +17,7 @@ export const alertViaPagerDuty = async (report: Report, config: WatcherConfig) =
     rpcs,
   } = report;
 
-  const { pagerDutyRoutingKey } = config;
-  if (!pagerDutyRoutingKey || pagerDutyRoutingKey.length != 32) {
+  if (!routingKey || routingKey.length != 32) {
     logger.error(
       "Failed to alert via pager duty",
       requestContext,
@@ -55,8 +54,8 @@ export const alertViaPagerDuty = async (report: Report, config: WatcherConfig) =
           rpcs,
         },
       },
-      routing_key: pagerDutyRoutingKey,
-      dedup_key: pagerDutyRoutingKey,
+      routing_key: routingKey,
+      dedup_key: routingKey,
       images: [
         {
           src: "https://connextscan.io/logos/logo.png",
