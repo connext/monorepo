@@ -76,7 +76,7 @@ export class WatcherAdapter {
 
     // attempt to alert via telegram
     try {
-      await alertViaTelegram(report, config);
+      await alertViaTelegram(report, telegramApiKey, telegramChatId);
     } catch (e: unknown) {
       logger.error("alert: failed to alert via telegram", requestContext, methodContext, jsonifyError(e as Error));
       errors.push(e);
