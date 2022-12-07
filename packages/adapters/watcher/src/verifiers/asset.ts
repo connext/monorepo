@@ -107,17 +107,14 @@ export class AssetVerifier extends Verifier {
     const connext = this.getConnextDeployment(chainId);
 
     // 1. Call `getCustodiedAmount` (see: TokenFacet getters), will get `custodied` value from tokenConfig.
-    const getCustodiedAmountCalldata = new utils.Interface(connext.abi as string[]).encodeFunctionData(
-      "getCustodiedAmount",
-      [assetKey],
-    );
+    const getCustodiedAmountCalldata = ConnextInterface.encodeFunctionData("getCustodiedAmount", [assetKey]);
     const amountRes = await this.context.txservice.readTx({
       chainId: +asset.canonicalDomain,
       to: connext.address,
       data: getCustodiedAmountCalldata,
     });
     try {
-      return BigNumber.from(amountRes);
+      return ConnextInterface.decodeFunctionResult("getCustodiedAmount", amountRes)[0];
     } catch (e: any) {
       throw new Error(
         "Failed to convert getCustodiedAmount response to BigNumber. " +
