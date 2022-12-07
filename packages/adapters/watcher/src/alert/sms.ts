@@ -2,9 +2,15 @@ import { jsonifyError } from "@connext/nxtp-utils";
 import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message";
 
 import { sendMessageViaTwilio } from "../mockable";
-import { Report, WatcherConfig } from "../types";
+import { Report } from "../types";
 
-export const alertViaSms = async (report: Report, config: WatcherConfig): Promise<MessageInstance[]> => {
+export const alertViaSms = async (
+  report: Report,
+  accountSid?: string,
+  authToken?: string,
+  twilioNumber?: string,
+  toPhoneNumbers?: string[],
+): Promise<MessageInstance[]> => {
   const {
     timestamp,
     event,
@@ -18,15 +24,7 @@ export const alertViaSms = async (report: Report, config: WatcherConfig): Promis
     rpcs,
   } = report;
 
-  const { twilioNumber, twilioAccountSid, twilioAuthToken, twilioToPhoneNumbers } = config;
-
-  if (
-    !twilioNumber ||
-    !twilioAccountSid ||
-    !twilioAuthToken ||
-    !twilioToPhoneNumbers ||
-    twilioToPhoneNumbers.length == 0
-  ) {
+  if (!twilioNumber || !accountSid || !authToken || !toPhoneNumbers || toPhoneNumbers.length == 0) {
     logger.error(
       "Failed to alert via sms",
       requestContext,
@@ -47,7 +45,7 @@ export const alertViaSms = async (report: Report, config: WatcherConfig): Promis
   });
 
   const messages: MessageInstance[] = [];
-  for (const phoneNumber of twilioToPhoneNumbers) {
+  for (const phoneNumber of toPhoneNumbers) {
     if (!/^\+?[1-9]\d{1,14}$/.test(phoneNumber)) {
       logger.warn(
         "Failed to alert via sms. to phoneNumber must be E164 format!, skipping...",
@@ -60,12 +58,12 @@ export const alertViaSms = async (report: Report, config: WatcherConfig): Promis
     const textContent = {
       body: `Watcher Alert!. Reason: ${reason}, type: ${event}, domains: ${domains.join(",")}, errors: ${errors.join(
         ",",
-      )}, repo`,
+      )}`,
       to: phoneNumber,
       from: twilioNumber,
     };
 
-    const message = await sendMessageViaTwilio(twilioAccountSid, twilioAuthToken, textContent);
+    const message = await sendMessageViaTwilio(accountSid, authToken, textContent);
     messages.push(message);
   }
   return messages;
