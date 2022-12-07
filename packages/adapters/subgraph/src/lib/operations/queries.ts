@@ -302,6 +302,20 @@ export const getAssetByLocalQuery = (prefix: string, local: string): string => {
   `;
 };
 
+export const getAssetsByLocalsQuery = (prefix: string, locals: string[]): string => {
+  const queryString = `
+  ${prefix}_assets(
+    where: { localAsset_in: [${locals.map((l) => `"${l}"`)}] }
+  ) {
+    ${ASSET_ENTITY}
+  }`;
+  return gql`
+    query GetAssetsByLocals {
+      ${queryString}
+    }
+  `;
+};
+
 export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string): string => {
   const str = `
     ${prefix}_assets(where: { canonicalId: "${canonicalId}" }, orderBy: blockNumber, orderDirection: desc) {
