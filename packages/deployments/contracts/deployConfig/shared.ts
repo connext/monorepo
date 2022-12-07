@@ -411,12 +411,12 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         delayBlocks: DEFAULT_DELAY_BLOCKS,
         custom: {
           hub: {
-            mirrorChainId: "100",
             gasCap: "4000000", // maxGasPerTx
+            mirrorChainId: "100",
           },
           spoke: {
-            mirrorChainId: "1",
             gasCap: "2000000", // maxGasPerTx
+            mirrorChainId: "1",
           },
         },
       },
