@@ -81,23 +81,23 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       representations: {
         // optimism
         "1869640809": {
-          local: "0x74bcb73fA7010EB523a81feE2bB23EaB3d12c2f8",
-          adopted: "0x74bcb73fA7010EB523a81feE2bB23EaB3d12c2f8",
+          local: "0xa83ad51c99bb40995f9292c9a436046ab7578caf",
+          adopted: "0xa83ad51c99bb40995f9292c9a436046ab7578caf",
         },
         // polygon
         "1886350457": {
-          local: "0x8b46589ACB27C66d09dBeACBcdBAFF7dcc681b13",
-          adopted: "0x8b46589ACB27C66d09dBeACBcdBAFF7dcc681b13",
+          local: "0x725dB429F0ff5A3DF5f41fcA8676CF9Dd1C6b3F0",
+          adopted: "0x725dB429F0ff5A3DF5f41fcA8676CF9Dd1C6b3F0",
         },
         // bnb
         "6450786": {
-          local: "0xeC9A9073f7D386e1Ef5f931eE2A33150C9E52cd5",
-          adopted: "0xeC9A9073f7D386e1Ef5f931eE2A33150C9E52cd5",
+          local: "0xB3de3929C3bE8a1Fa446f27d1b549Dd9d5C313E0",
+          adopted: "0xB3de3929C3bE8a1Fa446f27d1b549Dd9d5C313E0",
         },
         // gnosis
         "6778479": {
-          local: "0x7Cd74859273818F928d2D20472343cb61378af49",
-          adopted: "0x7Cd74859273818F928d2D20472343cb61378af49",
+          local: "0xA83ad51C99BB40995F9292C9a436046ab7578cAF",
+          adopted: "0xA83ad51C99BB40995F9292C9a436046ab7578cAF",
         },
       },
     },
@@ -111,23 +111,23 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       representations: {
         // optimism
         "1869640809": {
-          local: "0x3007DB59A437f3F0a64b4fE26c8caf20E9Cb6f43",
-          adopted: "0x3007DB59A437f3F0a64b4fE26c8caf20E9Cb6f43",
+          local: "0x87A93A942D10B6cC061A952C3A1213d52044bE97",
+          adopted: "0x87A93A942D10B6cC061A952C3A1213d52044bE97",
         },
         // polygon
         "1886350457": {
-          local: "0x37227A963Da5bdbe192E12add9f207fF915F470C",
-          adopted: "0x37227A963Da5bdbe192E12add9f207fF915F470C",
+          local: "0x381BC51bb203c5940A398622be918C876cB0f035",
+          adopted: "0x381BC51bb203c5940A398622be918C876cB0f035",
         },
         // bnb
         "6450786": {
-          local: "0x6D9F091C2D92215b6Ab68061f0997ADe31985C3C",
-          adopted: "0x6D9F091C2D92215b6Ab68061f0997ADe31985C3C",
+          local: "0xf813835326f1c606892a36F96b6Cdd18D6d87De9",
+          adopted: "0xf813835326f1c606892a36F96b6Cdd18D6d87De9",
         },
         // gnosis
         "6778479": {
-          local: "0x2F8e2b29cBf58875035eCfe41E61112c9B3be19e",
-          adopted: "0x2F8e2b29cBf58875035eCfe41E61112c9B3be19e",
+          local: "0x87A93A942D10B6cC061A952C3A1213d52044bE97",
+          adopted: "0x87A93A942D10B6cC061A952C3A1213d52044bE97",
         },
       },
     },
