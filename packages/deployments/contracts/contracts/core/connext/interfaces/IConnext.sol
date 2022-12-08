@@ -39,6 +39,8 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function getTokenId(address _candidate) external view returns (TokenId memory);
 
+  function getCustodiedAmount(bytes32 _key) external view returns (uint256);
+
   function setupAsset(
     TokenId calldata _canonical,
     uint8 _canonicalDecimals,
