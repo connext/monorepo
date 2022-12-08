@@ -107,8 +107,7 @@ contract ArbitrumSpokeConnector is SpokeConnector {
   }
 
   function _setAliasedSender(address _mirrorConnector) internal {
-    // Calculate the alias address: here, we call the AMB's method to convert the L1 sender
-    // address to the proper L2 alias.
+    // Calculate the alias address.
     address _alias = IArbSys(AMB).mapL1SenderContractAddressToL2Alias(_mirrorConnector, address(0));
     emit AliasedSenderUpdated(aliasedSender, _alias);
     // Update our aliased sender (used in `processMessage` override).
