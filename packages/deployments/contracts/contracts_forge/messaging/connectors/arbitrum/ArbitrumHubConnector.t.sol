@@ -6,6 +6,7 @@ import {IBridge as ArbitrumL1_Bridge} from "@openzeppelin/contracts/vendor/arbit
 import {IArbSys as ArbitrumL2_Bridge} from "@openzeppelin/contracts/vendor/arbitrum/IArbSys.sol";
 import "@openzeppelin/contracts/crosschain/errors.sol";
 
+import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.sol";
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 import {Node} from "../../../../contracts/messaging/interfaces/ambs/arbitrum/IArbitrumRollup.sol";
 
@@ -75,6 +76,10 @@ contract MockArbitrumOutbox {
 }
 
 contract ArbitrumHubConnectorTest is ConnectorHelper {
+  // ============ Libraries ============
+  using TypedMemView for bytes;
+  using TypedMemView for bytes29;
+
   // ============ Events ============
   event RetryableTicketCreated(uint256 indexed ticketId);
   event MaxSubmissionCapUpdated(uint256 _previous, uint256 _updated);
@@ -93,7 +98,7 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
   bytes32 _blockHash = bytes32(abi.encode(5646465));
   bytes32[] _proof = [_sendRoot, _blockHash];
   uint256 _index = 2;
-  bytes32 _root = bytes32(abi.encode(3131312252525));
+  bytes _root = abi.encode(3131312252525);
   L2Message _message;
 
   function setUp() public {
@@ -119,6 +124,10 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
       )
     );
 
+    // On spoke, arbitrum encodes differently than other AMBs: the result is that we have a 4 byte function
+    // selector and a 96 byte calldata message (100 bytes total).
+    bytes memory callData = abi.encodeWithSelector(Connector.processMessage.selector, _root);
+
     // set message
     _message = L2Message(
       _l2Connector, // l2Sender
@@ -127,7 +136,7 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
       123123, // l1Block
       block.timestamp, // l2Timestamp
       0, // value
-      abi.encodeWithSelector(Connector.processMessage.selector, _root) // callData
+      callData // callData
     );
   }
 
@@ -197,7 +206,8 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     );
 
     // should call root manager
-    vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector, _l2Domain, _root));
+    bytes32 data = _message.callData.ref(0).index(4, 32);
+    vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector, _l2Domain, data));
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
@@ -490,9 +500,9 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     );
   }
 
-  function test_ArbitrumHubConnector__processMessageFromRoot_failsIfNot36Bytes() public {
+  function test_ArbitrumHubConnector__processMessageFromRoot_failsIfNot100Bytes() public {
     _message.callData = abi.encode(
-      "somehow this should be longer than 36 bytes and really i should use a more elegant way to generate this but its the last test so im feeling pretty quick and dirty and my typing speed is faster than trying to think rn"
+      "somehow this should be longer than 100 bytes and really i should use a more elegant way to generate this but its the last test so im feeling pretty quick and dirty and my typing speed is faster than trying to think rn"
     );
     utils_setHubConnectorProcessMocks(_l2Connector);
 
