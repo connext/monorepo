@@ -7,7 +7,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "1735356532", /// OPTIMISM-GOERLI
     // "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
-    "1667785072", // CHAPEL
+    //"1667785072", // CHAPEL
   ],
   assets: [
     {
@@ -58,10 +58,10 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         //   local: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
         //   adopted: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
         // },
-        "1667785072": {
-          local: "0xA3d86B750312dd82F0fCC564493fb26c41A901bB",
-          adopted: "0xA3d86B750312dd82F0fCC564493fb26c41A901bB",
-        },
+        // "1667785072": {
+        //   local: "0xA3d86B750312dd82F0fCC564493fb26c41A901bB",
+        //   adopted: "0xA3d86B750312dd82F0fCC564493fb26c41A901bB",
+        // },
       },
     },
     {
