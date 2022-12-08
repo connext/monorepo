@@ -67,7 +67,7 @@ export const hardhatNetworks = {
     gasPrice: utils.parseUnits("50", "gwei").toNumber(),
   },
   optimism: {
-    accounts: { mnemonic },
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 10,
     url: "https://rpc.ankr.com/optimism",
     companionNetworks: {
