@@ -112,6 +112,8 @@ describe("Database client", () => {
     const xTransferDestination = mock.entity.xtransfer({ status: XTransferStatus.CompletedFast });
     xTransfer.destination = xTransferDestination.destination;
     xTransfer.origin = undefined;
+    const bridgedAmt = "100230889509432937";
+    xTransfer.xparams.bridgedAmt = bridgedAmt;
     const reconcile_timestamp = xTransfer.destination!.reconcile!.timestamp;
     await saveTransfers([xTransfer], pool);
     const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
@@ -120,6 +122,7 @@ describe("Database client", () => {
     expect(dbTransfer?.destination?.reconcile?.timestamp).deep.equal(reconcile_timestamp);
     expect(dbTransfer!.transferId).equal(xTransfer.transferId);
     expect(dbTransfer?.origin).deep.equal(origin);
+    expect(dbTransfer!.xparams.bridgedAmt).deep.equal(bridgedAmt);
   });
 
   it("should upsert destination and then origin side transfer", async () => {
