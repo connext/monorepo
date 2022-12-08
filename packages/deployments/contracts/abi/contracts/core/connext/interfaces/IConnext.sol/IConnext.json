@@ -48,6 +48,7 @@
   "function getAavePortalDebt(bytes32) view returns (uint256)",
   "function getAavePortalFeeDebt(bytes32) view returns (uint256)",
   "function getAcceptanceTime(tuple(address,uint8,bytes4[])[],address,bytes) returns (uint256)",
+  "function getCustodiedAmount(bytes32) view returns (uint256)",
   "function getLocalAndAdoptedToken(bytes32,uint32) view returns (address, address)",
   "function getProposedRouterOwner(address) view returns (address)",
   "function getProposedRouterOwnerTimestamp(address) view returns (uint256)",
