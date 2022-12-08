@@ -55,7 +55,8 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
       )
     );
 
-    // Make sure our mocked mapL1SenderContractAddressToL2Alias was called.
+    // Make sure our mocked mapL1SenderContractAddressToL2Alias was called and alias
+    // address was set correctly.
     assertEq(ArbitrumSpokeConnector(_l2Connector).aliasedSender(), _alias);
   }
 
