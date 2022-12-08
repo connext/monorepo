@@ -37,6 +37,18 @@ export const bindSubscriber = async (queueName: string) => {
         const child = spawn(process.argv[0], ["dist/executer.js", message.transferId, message.type], {
           timeout: config.messageQueue.executerTimeout,
         });
+        logger.info("Spawned child", requestContext, methodContext, child);
+        child.on("spawn", async () => {
+          logger.info("Child Spawn Event", requestContext, methodContext, {
+            transferId: message.transferId,
+          });
+        });
+        child.on("error", async (err) => {
+          logger.info("Child error", requestContext, methodContext, {
+            transferId: message.transferId,
+            error: err,
+          });
+        });
 
         child.stdout.on("data", (data) => {
           console.log(`${data}`);
