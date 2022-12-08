@@ -715,6 +715,8 @@ export const getProcessedRootMessagesByDomainAndBlockQuery = (
       where: { 
         blockNumber_gt: ${param.offset} 
       }
+      orderBy: blockNumber
+      orderDirection: asc
     ) {
       ${ROOT_MESSAGE_PROCESSED_ENTITY}
     }`;
