@@ -44,9 +44,9 @@ export const alertViaTelegram = async (report: Report, apiKey?: string, chatId?:
   <strong>Timestamp: </strong><code>${new Date(timestamp).toISOString()}</code>
   <strong>Domains: </strong> <code>${domains.join(", ")}</code>
   <strong>Errors: </strong>
-  ${errors.map((e) => "<code>" + e + "</code>")}
+  ${errors.map((e) => `<code>${e}</code>`)}
   <strong>Rpcs: </strong> 
-  ${rpcs.map((e) => "<code>" + e + "</code>")}
+  ${rpcs.map((e) => `<code>${e}</code>`)}
   `;
 
   return await axiosPost(`https://api.telegram.org/bot${apiKey}/sendMessage`, {
