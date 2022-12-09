@@ -5,16 +5,14 @@ import { getDeployedRootManagerContract as _getDeployedRootManagerContract } fro
 import { CrossChainMessenger as _CrossChainMessenger } from "@eth-optimism/sdk";
 import { GelatoRelaySDK } from "@gelatonetwork/relay-sdk";
 import { sendWithRelayerWithBackup as _sendWithRelayerWithBackup } from "@connext/nxtp-adapters-relayer";
-import {
-  EventFetcher as _EventFetcher,
-  L2TransactionReceipt as _L2TransactionReceipt,
-  L1ToL2MessageGasEstimator,
-} from "@arbitrum/sdk";
+import { EventFetcher as _EventFetcher, L2TransactionReceipt as _L2TransactionReceipt } from "@arbitrum/sdk";
+import { L1ToL2MessageGasEstimator } from "@arbitrum/sdk/dist/lib/message/L1ToL2MessageGasEstimator";
+import { getBaseFee as _getBaseFee } from "@arbitrum/sdk/dist/lib/utils/lib";
 import {
   RollupUserLogic__factory as _RollupUserLogic__factory,
   Outbox__factory as _Outbox__factory,
 } from "@connext/nxtp-contracts";
-import { Contract, ContractInterface, providers, utils } from "ethers";
+import { Contract, ContractInterface, ethers, providers, utils } from "ethers";
 
 export const getDeployedRootManagerContract = _getDeployedRootManagerContract;
 
@@ -64,3 +62,6 @@ export const getL1ToL2MessageGasEstimator = (l2Provider: providers.JsonRpcProvid
 
 export const getContract = (address: string, abi: ContractInterface, provider?: providers.JsonRpcProvider) =>
   new Contract(address, abi, provider);
+export const getInterface = (abi: any[]) => new ethers.utils.Interface(abi);
+
+export const getBaseFee = _getBaseFee;
