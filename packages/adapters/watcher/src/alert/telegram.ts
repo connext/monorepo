@@ -3,11 +3,6 @@ import { jsonifyError } from "@connext/nxtp-utils";
 import { axiosPost } from "../mockable";
 import { Report } from "../types";
 
-enum Telegram_ParseModes {
-  MarkdownV2,
-  HTML,
-}
-
 export const alertViaTelegram = async (report: Report, apiKey?: string, chatId?: string) => {
   const {
     timestamp,
@@ -42,18 +37,21 @@ export const alertViaTelegram = async (report: Report, apiKey?: string, chatId?:
     rpcs,
   });
 
-  const message = `### Watcher Alert!
-   **Reason:** ${reason}
-   **Type:** ${event}
-   **Timestamp:** ${new Date(timestamp).toISOString()}
-   **Errors:** ${errors.join("\n")}
-   **Domains:** ${domains.join("\n")}
-   **Rpcs:** ${rpcs.join("\n")}
-   `;
+  const message = `
+  <b>Watcher Alert!</b>
+  <strong>Reason: </strong><code>${reason}</code>
+  <strong>Type: </strong><code>${event}</code>
+  <strong>Timestamp: </strong><code>${new Date(timestamp).toISOString()}</code>
+  <strong>Domains: </strong> <code>${domains.join(", ")}</code>
+  <strong>Errors: </strong>
+  ${errors.map((e) => `<code>${e}</code>`)}
+  <strong>Rpcs: </strong> 
+  ${rpcs.map((e) => `<code>${e}</code>`)}
+  `;
 
-  return await axiosPost(`https://api.telegram.org/bot/${apiKey}/sendMessage`, {
+  return await axiosPost(`https://api.telegram.org/bot${apiKey}/sendMessage`, {
     chat_id: chatId,
     text: message,
-    parse_mode: Telegram_ParseModes.MarkdownV2,
+    parse_mode: "Html",
   });
 };
