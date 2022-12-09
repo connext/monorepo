@@ -206,13 +206,15 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
         emit PropagateFailed(domains[i], _connectors[i]);
       } else {
         // Roots are different, try to send via connector to spoke
-        lastPropagatedRoot[domains[i]] = _aggregateRoot;
 
         // Try to send the message with appropriate encoded data and fees
         // Continue on revert, but emit an event
         try
           IHubConnector(_connectors[i]).sendMessage{value: _fees[i]}(abi.encodePacked(_aggregateRoot), _encodedData[i])
         {
+          // Update last sent root IFF successful
+          lastPropagatedRoot[domains[i]] = _aggregateRoot;
+
           // NOTE: This will ensure there is sufficient msg.value for all fees before calling `sendMessage`
           // This will revert as soon as there are insufficient fees for call i, even if call n > i has
           // sufficient budget, this function will revert
