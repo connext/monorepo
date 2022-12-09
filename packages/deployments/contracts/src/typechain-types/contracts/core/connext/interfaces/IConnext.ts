@@ -231,6 +231,7 @@ export interface IConnextInterface extends utils.Interface {
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
     "getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
+    "getCustodiedAmount(bytes32)": FunctionFragment;
     "getLocalAndAdoptedToken(bytes32,uint32)": FunctionFragment;
     "getProposedRouterOwner(address)": FunctionFragment;
     "getProposedRouterOwnerTimestamp(address)": FunctionFragment;
@@ -256,6 +257,7 @@ export interface IConnextInterface extends utils.Interface {
     "nonce()": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
+    "paused()": FunctionFragment;
     "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposeRouterAllowlistRemoval()": FunctionFragment;
@@ -359,6 +361,7 @@ export interface IConnextInterface extends utils.Interface {
       | "getAavePortalDebt"
       | "getAavePortalFeeDebt"
       | "getAcceptanceTime"
+      | "getCustodiedAmount"
       | "getLocalAndAdoptedToken"
       | "getProposedRouterOwner"
       | "getProposedRouterOwnerTimestamp"
@@ -384,6 +387,7 @@ export interface IConnextInterface extends utils.Interface {
       | "nonce"
       | "owner"
       | "pause"
+      | "paused"
       | "proposeDiamondCut"
       | "proposeNewOwner"
       | "proposeRouterAllowlistRemoval"
@@ -646,6 +650,10 @@ export interface IConnextInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "getCustodiedAmount",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getLocalAndAdoptedToken",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
@@ -750,6 +758,7 @@ export interface IConnextInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
+  encodeFunctionData(functionFragment: "paused", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proposeDiamondCut",
     values: [
@@ -1221,6 +1230,10 @@ export interface IConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getCustodiedAmount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getLocalAndAdoptedToken",
     data: BytesLike
   ): Result;
@@ -1302,6 +1315,7 @@ export interface IConnextInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeDiamondCut",
     data: BytesLike
@@ -1799,6 +1813,11 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    getCustodiedAmount(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     getLocalAndAdoptedToken(
       _id: PromiseOrValue<BytesLike>,
       _domain: PromiseOrValue<BigNumberish>,
@@ -1926,6 +1945,8 @@ export interface IConnext extends BaseContract {
     pause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    paused(overrides?: CallOverrides): Promise<[boolean]>;
 
     proposeDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
@@ -2475,6 +2496,11 @@ export interface IConnext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  getCustodiedAmount(
+    _key: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   getLocalAndAdoptedToken(
     _id: PromiseOrValue<BytesLike>,
     _domain: PromiseOrValue<BigNumberish>,
@@ -2602,6 +2628,8 @@ export interface IConnext extends BaseContract {
   pause(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  paused(overrides?: CallOverrides): Promise<boolean>;
 
   proposeDiamondCut(
     _diamondCut: IDiamondCut.FacetCutStruct[],
@@ -3151,6 +3179,11 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getCustodiedAmount(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getLocalAndAdoptedToken(
       _id: PromiseOrValue<BytesLike>,
       _domain: PromiseOrValue<BigNumberish>,
@@ -3276,6 +3309,8 @@ export interface IConnext extends BaseContract {
     owner(overrides?: CallOverrides): Promise<string>;
 
     pause(overrides?: CallOverrides): Promise<void>;
+
+    paused(overrides?: CallOverrides): Promise<boolean>;
 
     proposeDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
@@ -3857,6 +3892,11 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    getCustodiedAmount(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getLocalAndAdoptedToken(
       _id: PromiseOrValue<BytesLike>,
       _domain: PromiseOrValue<BigNumberish>,
@@ -3984,6 +4024,8 @@ export interface IConnext extends BaseContract {
     pause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    paused(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposeDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
@@ -4538,6 +4580,11 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    getCustodiedAmount(
+      _key: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getLocalAndAdoptedToken(
       _id: PromiseOrValue<BytesLike>,
       _domain: PromiseOrValue<BigNumberish>,
@@ -4669,6 +4716,8 @@ export interface IConnext extends BaseContract {
     pause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    paused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proposeDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],

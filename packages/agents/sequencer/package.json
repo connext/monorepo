@@ -40,7 +40,7 @@
     "@connext/nxtp-utils": "workspace:*",
     "@gelatonetwork/relay-sdk": "^2.1.0",
     "@sinclair/typebox": "0.25.2",
-    "dd-trace": "3.6.0",
+    "dd-trace": "3.9.2",
     "dotenv": "16.0.3",
     "ethers": "5.7.2",
     "fastify": "4.9.2",

@@ -156,6 +156,10 @@ contract TokenFacet is BaseConnextFacet {
     return adoptedToLocalExternalPools(AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain));
   }
 
+  function getCustodiedAmount(bytes32 _key) public view returns (uint256) {
+    return s.tokenConfigs[_key].custodied;
+  }
+
   // ============ Admin functions ============
 
   /**

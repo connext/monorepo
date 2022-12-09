@@ -3531,10 +3531,10 @@ declare module 'zapatos/schema' {
       origin_transacting_asset: string | null;
       /**
       * **transfers.origin_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_transacting_amount: number | null;
+      origin_transacting_amount: string | null;
       /**
       * **transfers.origin_bridged_asset**
       * - `bpchar` in database
@@ -3543,10 +3543,10 @@ declare module 'zapatos/schema' {
       origin_bridged_asset: string | null;
       /**
       * **transfers.origin_bridged_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_bridged_amount: number | null;
+      origin_bridged_amount: string | null;
       /**
       * **transfers.xcall_caller**
       * - `bpchar` in database
@@ -3567,16 +3567,16 @@ declare module 'zapatos/schema' {
       xcall_timestamp: number | null;
       /**
       * **transfers.xcall_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_price: number | null;
+      xcall_gas_price: string | null;
       /**
       * **transfers.xcall_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_limit: number | null;
+      xcall_gas_limit: string | null;
       /**
       * **transfers.xcall_block_number**
       * - `int4` in database
@@ -3609,10 +3609,10 @@ declare module 'zapatos/schema' {
       destination_transacting_asset: string | null;
       /**
       * **transfers.destination_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_transacting_amount: number | null;
+      destination_transacting_amount: string | null;
       /**
       * **transfers.destination_local_asset**
       * - `bpchar` in database
@@ -3621,10 +3621,10 @@ declare module 'zapatos/schema' {
       destination_local_asset: string | null;
       /**
       * **transfers.destination_local_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_local_amount: number | null;
+      destination_local_amount: string | null;
       /**
       * **transfers.execute_caller**
       * - `bpchar` in database
@@ -3645,16 +3645,16 @@ declare module 'zapatos/schema' {
       execute_timestamp: number | null;
       /**
       * **transfers.execute_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_price: number | null;
+      execute_gas_price: string | null;
       /**
       * **transfers.execute_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_limit: number | null;
+      execute_gas_limit: string | null;
       /**
       * **transfers.execute_block_number**
       * - `int4` in database
@@ -3687,16 +3687,16 @@ declare module 'zapatos/schema' {
       reconcile_timestamp: number | null;
       /**
       * **transfers.reconcile_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_price: number | null;
+      reconcile_gas_price: string | null;
       /**
       * **transfers.reconcile_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_limit: number | null;
+      reconcile_gas_limit: string | null;
       /**
       * **transfers.reconcile_block_number**
       * - `int4` in database
@@ -3741,16 +3741,16 @@ declare module 'zapatos/schema' {
       origin_sender: string | null;
       /**
       * **transfers.bridged_amt**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      bridged_amt: number | null;
+      bridged_amt: string | null;
       /**
       * **transfers.normalized_in**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      normalized_in: number | null;
+      normalized_in: string | null;
       /**
       * **transfers.canonical_id**
       * - `bpchar` in database
@@ -3759,10 +3759,10 @@ declare module 'zapatos/schema' {
       canonical_id: string | null;
       /**
       * **transfers.router_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      router_fee: number | null;
+      router_fee: string | null;
     }
     export interface JSONSelectable {
       /**
@@ -3821,10 +3821,10 @@ declare module 'zapatos/schema' {
       origin_transacting_asset: string | null;
       /**
       * **transfers.origin_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_transacting_amount: number | null;
+      origin_transacting_amount: string | null;
       /**
       * **transfers.origin_bridged_asset**
       * - `bpchar` in database
@@ -3833,10 +3833,10 @@ declare module 'zapatos/schema' {
       origin_bridged_asset: string | null;
       /**
       * **transfers.origin_bridged_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_bridged_amount: number | null;
+      origin_bridged_amount: string | null;
       /**
       * **transfers.xcall_caller**
       * - `bpchar` in database
@@ -3857,16 +3857,16 @@ declare module 'zapatos/schema' {
       xcall_timestamp: number | null;
       /**
       * **transfers.xcall_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_price: number | null;
+      xcall_gas_price: string | null;
       /**
       * **transfers.xcall_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_limit: number | null;
+      xcall_gas_limit: string | null;
       /**
       * **transfers.xcall_block_number**
       * - `int4` in database
@@ -3899,10 +3899,10 @@ declare module 'zapatos/schema' {
       destination_transacting_asset: string | null;
       /**
       * **transfers.destination_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_transacting_amount: number | null;
+      destination_transacting_amount: string | null;
       /**
       * **transfers.destination_local_asset**
       * - `bpchar` in database
@@ -3911,10 +3911,10 @@ declare module 'zapatos/schema' {
       destination_local_asset: string | null;
       /**
       * **transfers.destination_local_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_local_amount: number | null;
+      destination_local_amount: string | null;
       /**
       * **transfers.execute_caller**
       * - `bpchar` in database
@@ -3935,16 +3935,16 @@ declare module 'zapatos/schema' {
       execute_timestamp: number | null;
       /**
       * **transfers.execute_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_price: number | null;
+      execute_gas_price: string | null;
       /**
       * **transfers.execute_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_limit: number | null;
+      execute_gas_limit: string | null;
       /**
       * **transfers.execute_block_number**
       * - `int4` in database
@@ -3977,16 +3977,16 @@ declare module 'zapatos/schema' {
       reconcile_timestamp: number | null;
       /**
       * **transfers.reconcile_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_price: number | null;
+      reconcile_gas_price: string | null;
       /**
       * **transfers.reconcile_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_limit: number | null;
+      reconcile_gas_limit: string | null;
       /**
       * **transfers.reconcile_block_number**
       * - `int4` in database
@@ -4031,16 +4031,16 @@ declare module 'zapatos/schema' {
       origin_sender: string | null;
       /**
       * **transfers.bridged_amt**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      bridged_amt: number | null;
+      bridged_amt: string | null;
       /**
       * **transfers.normalized_in**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      normalized_in: number | null;
+      normalized_in: string | null;
       /**
       * **transfers.canonical_id**
       * - `bpchar` in database
@@ -4049,10 +4049,10 @@ declare module 'zapatos/schema' {
       canonical_id: string | null;
       /**
       * **transfers.router_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      router_fee: number | null;
+      router_fee: string | null;
     }
     export interface Whereable {
       /**
@@ -4111,10 +4111,10 @@ declare module 'zapatos/schema' {
       origin_transacting_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.origin_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_transacting_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      origin_transacting_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.origin_bridged_asset**
       * - `bpchar` in database
@@ -4123,10 +4123,10 @@ declare module 'zapatos/schema' {
       origin_bridged_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.origin_bridged_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_bridged_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      origin_bridged_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.xcall_caller**
       * - `bpchar` in database
@@ -4147,16 +4147,16 @@ declare module 'zapatos/schema' {
       xcall_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.xcall_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      xcall_gas_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.xcall_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_limit?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      xcall_gas_limit?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.xcall_block_number**
       * - `int4` in database
@@ -4189,10 +4189,10 @@ declare module 'zapatos/schema' {
       destination_transacting_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.destination_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_transacting_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      destination_transacting_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.destination_local_asset**
       * - `bpchar` in database
@@ -4201,10 +4201,10 @@ declare module 'zapatos/schema' {
       destination_local_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.destination_local_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_local_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      destination_local_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.execute_caller**
       * - `bpchar` in database
@@ -4225,16 +4225,16 @@ declare module 'zapatos/schema' {
       execute_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.execute_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      execute_gas_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.execute_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_limit?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      execute_gas_limit?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.execute_block_number**
       * - `int4` in database
@@ -4267,16 +4267,16 @@ declare module 'zapatos/schema' {
       reconcile_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.reconcile_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      reconcile_gas_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.reconcile_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_limit?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      reconcile_gas_limit?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.reconcile_block_number**
       * - `int4` in database
@@ -4321,16 +4321,16 @@ declare module 'zapatos/schema' {
       origin_sender?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.bridged_amt**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      bridged_amt?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      bridged_amt?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.normalized_in**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      normalized_in?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      normalized_in?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.canonical_id**
       * - `bpchar` in database
@@ -4339,10 +4339,10 @@ declare module 'zapatos/schema' {
       canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.router_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      router_fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      router_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -4401,10 +4401,10 @@ declare module 'zapatos/schema' {
       origin_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.origin_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_transacting_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      origin_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.origin_bridged_asset**
       * - `bpchar` in database
@@ -4413,10 +4413,10 @@ declare module 'zapatos/schema' {
       origin_bridged_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.origin_bridged_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_bridged_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      origin_bridged_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.xcall_caller**
       * - `bpchar` in database
@@ -4437,16 +4437,16 @@ declare module 'zapatos/schema' {
       xcall_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.xcall_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      xcall_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.xcall_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      xcall_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.xcall_block_number**
       * - `int4` in database
@@ -4479,10 +4479,10 @@ declare module 'zapatos/schema' {
       destination_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.destination_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_transacting_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      destination_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.destination_local_asset**
       * - `bpchar` in database
@@ -4491,10 +4491,10 @@ declare module 'zapatos/schema' {
       destination_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.destination_local_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_local_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      destination_local_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.execute_caller**
       * - `bpchar` in database
@@ -4515,16 +4515,16 @@ declare module 'zapatos/schema' {
       execute_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.execute_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      execute_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.execute_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      execute_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.execute_block_number**
       * - `int4` in database
@@ -4557,16 +4557,16 @@ declare module 'zapatos/schema' {
       reconcile_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.reconcile_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      reconcile_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.reconcile_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      reconcile_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.reconcile_block_number**
       * - `int4` in database
@@ -4611,16 +4611,16 @@ declare module 'zapatos/schema' {
       origin_sender?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.bridged_amt**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      bridged_amt?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      bridged_amt?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.normalized_in**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      normalized_in?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      normalized_in?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.canonical_id**
       * - `bpchar` in database
@@ -4629,10 +4629,10 @@ declare module 'zapatos/schema' {
       canonical_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.router_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      router_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      router_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -4691,10 +4691,10 @@ declare module 'zapatos/schema' {
       origin_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.origin_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_transacting_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      origin_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.origin_bridged_asset**
       * - `bpchar` in database
@@ -4703,10 +4703,10 @@ declare module 'zapatos/schema' {
       origin_bridged_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.origin_bridged_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_bridged_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      origin_bridged_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.xcall_caller**
       * - `bpchar` in database
@@ -4727,16 +4727,16 @@ declare module 'zapatos/schema' {
       xcall_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.xcall_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      xcall_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.xcall_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      xcall_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.xcall_block_number**
       * - `int4` in database
@@ -4769,10 +4769,10 @@ declare module 'zapatos/schema' {
       destination_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.destination_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_transacting_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      destination_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.destination_local_asset**
       * - `bpchar` in database
@@ -4781,10 +4781,10 @@ declare module 'zapatos/schema' {
       destination_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.destination_local_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_local_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      destination_local_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.execute_caller**
       * - `bpchar` in database
@@ -4805,16 +4805,16 @@ declare module 'zapatos/schema' {
       execute_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.execute_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      execute_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.execute_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      execute_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.execute_block_number**
       * - `int4` in database
@@ -4847,16 +4847,16 @@ declare module 'zapatos/schema' {
       reconcile_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.reconcile_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      reconcile_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.reconcile_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      reconcile_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.reconcile_block_number**
       * - `int4` in database
@@ -4901,16 +4901,16 @@ declare module 'zapatos/schema' {
       origin_sender?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.bridged_amt**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      bridged_amt?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      bridged_amt?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.normalized_in**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      normalized_in?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      normalized_in?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.canonical_id**
       * - `bpchar` in database
@@ -4919,10 +4919,10 @@ declare module 'zapatos/schema' {
       canonical_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.router_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      router_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      router_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'transfers_pkey';
     export type Column = keyof Selectable;
@@ -4994,10 +4994,10 @@ declare module 'zapatos/schema' {
       origin_transacting_asset: string | null;
       /**
       * **transfers_with_ttr_ttv.origin_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_transacting_amount: number | null;
+      origin_transacting_amount: string | null;
       /**
       * **transfers_with_ttr_ttv.origin_bridged_asset**
       * - `bpchar` in database
@@ -5006,10 +5006,10 @@ declare module 'zapatos/schema' {
       origin_bridged_asset: string | null;
       /**
       * **transfers_with_ttr_ttv.origin_bridged_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_bridged_amount: number | null;
+      origin_bridged_amount: string | null;
       /**
       * **transfers_with_ttr_ttv.xcall_caller**
       * - `bpchar` in database
@@ -5030,16 +5030,16 @@ declare module 'zapatos/schema' {
       xcall_timestamp: number | null;
       /**
       * **transfers_with_ttr_ttv.xcall_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_price: number | null;
+      xcall_gas_price: string | null;
       /**
       * **transfers_with_ttr_ttv.xcall_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_limit: number | null;
+      xcall_gas_limit: string | null;
       /**
       * **transfers_with_ttr_ttv.xcall_block_number**
       * - `int4` in database
@@ -5072,10 +5072,10 @@ declare module 'zapatos/schema' {
       destination_transacting_asset: string | null;
       /**
       * **transfers_with_ttr_ttv.destination_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_transacting_amount: number | null;
+      destination_transacting_amount: string | null;
       /**
       * **transfers_with_ttr_ttv.destination_local_asset**
       * - `bpchar` in database
@@ -5084,10 +5084,10 @@ declare module 'zapatos/schema' {
       destination_local_asset: string | null;
       /**
       * **transfers_with_ttr_ttv.destination_local_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_local_amount: number | null;
+      destination_local_amount: string | null;
       /**
       * **transfers_with_ttr_ttv.execute_caller**
       * - `bpchar` in database
@@ -5108,16 +5108,16 @@ declare module 'zapatos/schema' {
       execute_timestamp: number | null;
       /**
       * **transfers_with_ttr_ttv.execute_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_price: number | null;
+      execute_gas_price: string | null;
       /**
       * **transfers_with_ttr_ttv.execute_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_limit: number | null;
+      execute_gas_limit: string | null;
       /**
       * **transfers_with_ttr_ttv.execute_block_number**
       * - `int4` in database
@@ -5150,16 +5150,16 @@ declare module 'zapatos/schema' {
       reconcile_timestamp: number | null;
       /**
       * **transfers_with_ttr_ttv.reconcile_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_price: number | null;
+      reconcile_gas_price: string | null;
       /**
       * **transfers_with_ttr_ttv.reconcile_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_limit: number | null;
+      reconcile_gas_limit: string | null;
       /**
       * **transfers_with_ttr_ttv.reconcile_block_number**
       * - `int4` in database
@@ -5204,16 +5204,16 @@ declare module 'zapatos/schema' {
       origin_sender: string | null;
       /**
       * **transfers_with_ttr_ttv.bridged_amt**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      bridged_amt: number | null;
+      bridged_amt: string | null;
       /**
       * **transfers_with_ttr_ttv.normalized_in**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      normalized_in: number | null;
+      normalized_in: string | null;
       /**
       * **transfers_with_ttr_ttv.canonical_id**
       * - `bpchar` in database
@@ -5222,10 +5222,10 @@ declare module 'zapatos/schema' {
       canonical_id: string | null;
       /**
       * **transfers_with_ttr_ttv.router_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      router_fee: number | null;
+      router_fee: string | null;
       /**
       * **transfers_with_ttr_ttv.ttr**
       * - `int4` in database
@@ -5296,10 +5296,10 @@ declare module 'zapatos/schema' {
       origin_transacting_asset: string | null;
       /**
       * **transfers_with_ttr_ttv.origin_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_transacting_amount: number | null;
+      origin_transacting_amount: string | null;
       /**
       * **transfers_with_ttr_ttv.origin_bridged_asset**
       * - `bpchar` in database
@@ -5308,10 +5308,10 @@ declare module 'zapatos/schema' {
       origin_bridged_asset: string | null;
       /**
       * **transfers_with_ttr_ttv.origin_bridged_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_bridged_amount: number | null;
+      origin_bridged_amount: string | null;
       /**
       * **transfers_with_ttr_ttv.xcall_caller**
       * - `bpchar` in database
@@ -5332,16 +5332,16 @@ declare module 'zapatos/schema' {
       xcall_timestamp: number | null;
       /**
       * **transfers_with_ttr_ttv.xcall_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_price: number | null;
+      xcall_gas_price: string | null;
       /**
       * **transfers_with_ttr_ttv.xcall_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_limit: number | null;
+      xcall_gas_limit: string | null;
       /**
       * **transfers_with_ttr_ttv.xcall_block_number**
       * - `int4` in database
@@ -5374,10 +5374,10 @@ declare module 'zapatos/schema' {
       destination_transacting_asset: string | null;
       /**
       * **transfers_with_ttr_ttv.destination_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_transacting_amount: number | null;
+      destination_transacting_amount: string | null;
       /**
       * **transfers_with_ttr_ttv.destination_local_asset**
       * - `bpchar` in database
@@ -5386,10 +5386,10 @@ declare module 'zapatos/schema' {
       destination_local_asset: string | null;
       /**
       * **transfers_with_ttr_ttv.destination_local_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_local_amount: number | null;
+      destination_local_amount: string | null;
       /**
       * **transfers_with_ttr_ttv.execute_caller**
       * - `bpchar` in database
@@ -5410,16 +5410,16 @@ declare module 'zapatos/schema' {
       execute_timestamp: number | null;
       /**
       * **transfers_with_ttr_ttv.execute_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_price: number | null;
+      execute_gas_price: string | null;
       /**
       * **transfers_with_ttr_ttv.execute_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_limit: number | null;
+      execute_gas_limit: string | null;
       /**
       * **transfers_with_ttr_ttv.execute_block_number**
       * - `int4` in database
@@ -5452,16 +5452,16 @@ declare module 'zapatos/schema' {
       reconcile_timestamp: number | null;
       /**
       * **transfers_with_ttr_ttv.reconcile_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_price: number | null;
+      reconcile_gas_price: string | null;
       /**
       * **transfers_with_ttr_ttv.reconcile_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_limit: number | null;
+      reconcile_gas_limit: string | null;
       /**
       * **transfers_with_ttr_ttv.reconcile_block_number**
       * - `int4` in database
@@ -5506,16 +5506,16 @@ declare module 'zapatos/schema' {
       origin_sender: string | null;
       /**
       * **transfers_with_ttr_ttv.bridged_amt**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      bridged_amt: number | null;
+      bridged_amt: string | null;
       /**
       * **transfers_with_ttr_ttv.normalized_in**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      normalized_in: number | null;
+      normalized_in: string | null;
       /**
       * **transfers_with_ttr_ttv.canonical_id**
       * - `bpchar` in database
@@ -5524,10 +5524,10 @@ declare module 'zapatos/schema' {
       canonical_id: string | null;
       /**
       * **transfers_with_ttr_ttv.router_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      router_fee: number | null;
+      router_fee: string | null;
       /**
       * **transfers_with_ttr_ttv.ttr**
       * - `int4` in database
@@ -5598,10 +5598,10 @@ declare module 'zapatos/schema' {
       origin_transacting_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.origin_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_transacting_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      origin_transacting_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.origin_bridged_asset**
       * - `bpchar` in database
@@ -5610,10 +5610,10 @@ declare module 'zapatos/schema' {
       origin_bridged_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.origin_bridged_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_bridged_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      origin_bridged_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.xcall_caller**
       * - `bpchar` in database
@@ -5634,16 +5634,16 @@ declare module 'zapatos/schema' {
       xcall_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.xcall_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      xcall_gas_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.xcall_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_limit?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      xcall_gas_limit?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.xcall_block_number**
       * - `int4` in database
@@ -5676,10 +5676,10 @@ declare module 'zapatos/schema' {
       destination_transacting_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.destination_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_transacting_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      destination_transacting_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.destination_local_asset**
       * - `bpchar` in database
@@ -5688,10 +5688,10 @@ declare module 'zapatos/schema' {
       destination_local_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.destination_local_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_local_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      destination_local_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.execute_caller**
       * - `bpchar` in database
@@ -5712,16 +5712,16 @@ declare module 'zapatos/schema' {
       execute_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.execute_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      execute_gas_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.execute_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_limit?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      execute_gas_limit?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.execute_block_number**
       * - `int4` in database
@@ -5754,16 +5754,16 @@ declare module 'zapatos/schema' {
       reconcile_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.reconcile_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      reconcile_gas_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.reconcile_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_limit?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      reconcile_gas_limit?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.reconcile_block_number**
       * - `int4` in database
@@ -5808,16 +5808,16 @@ declare module 'zapatos/schema' {
       origin_sender?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.bridged_amt**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      bridged_amt?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      bridged_amt?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.normalized_in**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      normalized_in?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      normalized_in?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.canonical_id**
       * - `bpchar` in database
@@ -5826,10 +5826,10 @@ declare module 'zapatos/schema' {
       canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.router_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      router_fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      router_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.ttr**
       * - `int4` in database
@@ -5900,10 +5900,10 @@ declare module 'zapatos/schema' {
       origin_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.origin_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_transacting_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      origin_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.origin_bridged_asset**
       * - `bpchar` in database
@@ -5912,10 +5912,10 @@ declare module 'zapatos/schema' {
       origin_bridged_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.origin_bridged_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_bridged_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      origin_bridged_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.xcall_caller**
       * - `bpchar` in database
@@ -5936,16 +5936,16 @@ declare module 'zapatos/schema' {
       xcall_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.xcall_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      xcall_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.xcall_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      xcall_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.xcall_block_number**
       * - `int4` in database
@@ -5978,10 +5978,10 @@ declare module 'zapatos/schema' {
       destination_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.destination_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_transacting_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      destination_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.destination_local_asset**
       * - `bpchar` in database
@@ -5990,10 +5990,10 @@ declare module 'zapatos/schema' {
       destination_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.destination_local_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_local_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      destination_local_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.execute_caller**
       * - `bpchar` in database
@@ -6014,16 +6014,16 @@ declare module 'zapatos/schema' {
       execute_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.execute_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      execute_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.execute_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      execute_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.execute_block_number**
       * - `int4` in database
@@ -6056,16 +6056,16 @@ declare module 'zapatos/schema' {
       reconcile_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.reconcile_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      reconcile_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.reconcile_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      reconcile_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.reconcile_block_number**
       * - `int4` in database
@@ -6110,16 +6110,16 @@ declare module 'zapatos/schema' {
       origin_sender?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.bridged_amt**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      bridged_amt?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      bridged_amt?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.normalized_in**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      normalized_in?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      normalized_in?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.canonical_id**
       * - `bpchar` in database
@@ -6128,10 +6128,10 @@ declare module 'zapatos/schema' {
       canonical_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.router_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      router_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      router_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.ttr**
       * - `int4` in database
@@ -6202,10 +6202,10 @@ declare module 'zapatos/schema' {
       origin_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.origin_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_transacting_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      origin_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.origin_bridged_asset**
       * - `bpchar` in database
@@ -6214,10 +6214,10 @@ declare module 'zapatos/schema' {
       origin_bridged_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.origin_bridged_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      origin_bridged_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      origin_bridged_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.xcall_caller**
       * - `bpchar` in database
@@ -6238,16 +6238,16 @@ declare module 'zapatos/schema' {
       xcall_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.xcall_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      xcall_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.xcall_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      xcall_gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      xcall_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.xcall_block_number**
       * - `int4` in database
@@ -6280,10 +6280,10 @@ declare module 'zapatos/schema' {
       destination_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.destination_transacting_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_transacting_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      destination_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.destination_local_asset**
       * - `bpchar` in database
@@ -6292,10 +6292,10 @@ declare module 'zapatos/schema' {
       destination_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.destination_local_amount**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      destination_local_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      destination_local_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.execute_caller**
       * - `bpchar` in database
@@ -6316,16 +6316,16 @@ declare module 'zapatos/schema' {
       execute_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.execute_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      execute_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.execute_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      execute_gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      execute_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.execute_block_number**
       * - `int4` in database
@@ -6358,16 +6358,16 @@ declare module 'zapatos/schema' {
       reconcile_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.reconcile_gas_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      reconcile_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.reconcile_gas_limit**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      reconcile_gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      reconcile_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.reconcile_block_number**
       * - `int4` in database
@@ -6412,16 +6412,16 @@ declare module 'zapatos/schema' {
       origin_sender?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.bridged_amt**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      bridged_amt?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      bridged_amt?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.normalized_in**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      normalized_in?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      normalized_in?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.canonical_id**
       * - `bpchar` in database
@@ -6430,10 +6430,10 @@ declare module 'zapatos/schema' {
       canonical_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.router_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - Nullable, no default
       */
-      router_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      router_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.ttr**
       * - `int4` in database
