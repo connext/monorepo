@@ -68,6 +68,8 @@ export default task("redeem", "Process a transaction on a spoke for L1 -> L2 mes
     console.log("networkType: ", networkType);
     console.log("env:", env);
     console.log("tx", tx);
+    console.log("force", force);
+    console.log("spoke", spoke);
     console.log("deployer", deployer.address);
 
     // get config
