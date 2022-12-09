@@ -105,7 +105,7 @@ export const getPropagateParams = async (
      * This is highly unlikely, but just to be safe, let's increase the amount we'll be paying (the difference between the actual cost and the amount we pay gets refunded to our address on L2 anyway)
      * In nitro, submission fee will be charged in L1 based on L1 basefee, revert on L1 side upon insufficient fee.
      */
-    submissionPriceWei = _submissionPriceWei.mul(5);
+    submissionPriceWei = _submissionPriceWei.mul(20);
 
     /**
      * With these three values, we can calculate the total callvalue we'll need our L1 transaction to send to L2
