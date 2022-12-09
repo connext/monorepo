@@ -241,7 +241,7 @@ contract RootManagerTest is ForgeHelper {
   }
 
   // ============ RootManager.propagate ============
-  function test_RootManager__propagate_shouldSendToSpoke(bytes32 inbound) public {
+  function test_RootManager__propagate_shouldSendToSpoke() public {
     utils_generateAndAddConnectors(1, true, true);
 
     // Fast forward delayBlocks number of blocks so all of the inbound roots are considered verified.
@@ -250,7 +250,7 @@ contract RootManagerTest is ForgeHelper {
     _rootManager.propagate(_connectors, _fees, _encodedData);
   }
 
-  function test_RootManager__propagate_shouldSendToAllSpokes(bytes32 inbound) public {
+  function test_RootManager__propagate_shouldSendToAllSpokes() public {
     uint256 numSpokes = 20;
     utils_generateAndAddConnectors(numSpokes, true, true);
     assertEq(_rootManager.getPendingInboundRootsCount(), numSpokes);
@@ -262,7 +262,7 @@ contract RootManagerTest is ForgeHelper {
     assertEq(_rootManager.getPendingInboundRootsCount(), 0);
   }
 
-  function test_RootManager__propagate_shouldRevertIfRedundantRoot(bytes32 inbound) public {
+  function test_RootManager__propagate_shouldRevertIfRedundantRoot() public {
     uint256 numSpokes = 20;
     utils_generateAndAddConnectors(numSpokes, true, true);
     assertEq(_rootManager.getPendingInboundRootsCount(), numSpokes);
@@ -275,11 +275,18 @@ contract RootManagerTest is ForgeHelper {
     bytes32 currentRoot = MerkleTreeManager(_merkle).root();
 
     _rootManager.propagate(_connectors, _fees, _encodedData);
-    assertEq(_rootManager.lastPropagatedRoot(), currentRoot);
+    for (uint256 i; i < _domains.length; i++) {
+      assertEq(_rootManager.lastPropagatedRoot(_domains[i]), currentRoot);
+    }
 
     // The current root has already been sent, the following call should revert since sending
     // again would be redundant.
-    vm.expectRevert(bytes("redundant root"));
+
+    // Should emit fail event for each duplicate domain
+    for (uint256 i; i < _connectors.length; i++) {
+      vm.expectEmit(true, true, true, true);
+      emit PropagateFailed(_domains[i], _connectors[i]);
+    }
     _rootManager.propagate(_connectors, _fees, _encodedData);
   }
 
