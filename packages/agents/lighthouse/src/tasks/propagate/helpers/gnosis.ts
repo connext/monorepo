@@ -1,4 +1,4 @@
-import { ContractInterface } from "ethers";
+import { ContractInterface, utils } from "ethers";
 import { createLoggingContext, mkBytes32, RequestContext } from "@connext/nxtp-utils";
 
 import { getContract, getJsonRpcProvider } from "../../../mockable";
@@ -54,7 +54,7 @@ export const getPropagateParams = async (
 
   const ambContract = getContract(ambAddress as string, ambs.gnosis as ContractInterface, l1Provider);
   const maxGasPerTx = await ambContract.maxGasPerTx();
-  const encodedData = mkBytes32(maxGasPerTx as string);
+  const encodedData = utils.defaultAbiCoder.encode(["uint256"], [maxGasPerTx as string]);
 
-  return { _connector: "", _fee: "0x", _encodedData: encodedData };
+  return { _connector: "", _fee: "0", _encodedData: encodedData };
 };
