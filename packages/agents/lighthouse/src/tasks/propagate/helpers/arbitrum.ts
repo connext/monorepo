@@ -1,10 +1,11 @@
 import { createLoggingContext, NxtpError, RequestContext } from "@connext/nxtp-utils";
-import { constants, utils } from "ethers";
+import { BigNumber, constants, utils } from "ethers";
 
 import { getContext } from "../propagate";
 import { NoSpokeConnector, NoHubConnector, NoProviderForDomain } from "../errors";
 import { ExtraPropagateParam } from "../operations/propagate";
 import { getJsonRpcProvider, getL1ToL2MessageGasEstimator, getBaseFee, getInterface } from "../../../mockable";
+import { hexDataLength } from "ethers/lib/utils";
 
 // example at https://github.com/OffchainLabs/arbitrum-tutorials/blob/master/packages/greeter/scripts/exec.js
 export const getPropagateParams = async (
@@ -73,28 +74,26 @@ export const getPropagateParams = async (
     const callData = spokeConnectorIface.encodeFunctionData("processMessage", [
       "0x0000000000000000000000000000000000000000000000000000000000000001",
     ]);
+
     const L1ToL2MessageGasParams = await l1ToL2MessageGasEstimate.estimateAll(
-      {
-        from: l1HubConnector.address,
-        to: l2SpokeConnector.address,
-        l2CallValue: constants.Zero,
-        excessFeeRefundAddress: l2SpokeConnector.address,
-        callValueRefundAddress: l2SpokeConnector.address,
-        data: callData, // "0x4ff746f6000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000207465737400000000000000000000000000000000000000000000000000000000",
-      },
+      l1HubConnector.address,
+      l2SpokeConnector.address,
+      callData,
+      constants.Zero,
       baseFee,
+      l2SpokeConnector.address,
+      l2SpokeConnector.address,
       l1Provider,
     );
     logger.info(`Got message gas params`, requestContext, methodContext, {
       maxFeePerGas: L1ToL2MessageGasParams.maxFeePerGas.toString(),
-      maxSubmissionCost: L1ToL2MessageGasParams.maxSubmissionCost.toString(),
-      deposit: L1ToL2MessageGasParams.deposit.toString(),
+      maxSubmissionCost: L1ToL2MessageGasParams.maxSubmissionFee.toString(),
       gasLimit: L1ToL2MessageGasParams.gasLimit.toString(),
     });
 
-    submissionPriceWei = L1ToL2MessageGasParams.maxSubmissionCost.toString();
-    callValue = L1ToL2MessageGasParams.deposit.toString();
-    maxGas = L1ToL2MessageGasParams.maxFeePerGas.toString();
+    submissionPriceWei = L1ToL2MessageGasParams.maxSubmissionFee.mul(5).toString();
+    maxGas = L1ToL2MessageGasParams.gasLimit.toString();
+    callValue = BigNumber.from(submissionPriceWei).add(gasPriceBid.mul(maxGas));
   } catch (err: unknown) {
     console.log(err);
     logger.error("Error getting propagate params for Arbitrum", requestContext, methodContext, err as NxtpError);
@@ -110,5 +109,5 @@ export const getPropagateParams = async (
     [submissionPriceWei, maxGas, gasPriceBid],
   );
 
-  return { _connector: "", _fee: callValue, _encodedData: encodedData };
+  return { _connector: "", _fee: callValue.toString(), _encodedData: encodedData };
 };

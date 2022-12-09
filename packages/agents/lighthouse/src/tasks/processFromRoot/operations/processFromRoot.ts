@@ -16,7 +16,7 @@ import {
   getProcessFromOptimismRootArgs,
   getProcessFromPolygonRootArgs,
   getProcessFromGnosisRootArgs,
-  //getProcessFromArbitrumRootArgs,
+  getProcessFromArbitrumRootArgs,
 } from "../helpers";
 import { getContext } from "../processFromRoot";
 
@@ -37,11 +37,11 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     hubConnectorPrefix: "Polygon",
     processorFunctionName: "receiveMessage",
   },
-  // "1734439522": {
-  //   getArgs: getProcessFromArbitrumRootArgs,
-  //   hubConnectorPrefix: "Arbitrum",
-  //   processorFunctionName: "processMessageFromRoot",
-  // },
+  "1734439522": {
+    getArgs: getProcessFromArbitrumRootArgs,
+    hubConnectorPrefix: "Arbitrum",
+    processorFunctionName: "processMessageFromRoot",
+  },
   "1869640809": {
     getArgs: getProcessFromOptimismRootArgs,
     hubConnectorPrefix: "Optimism",
