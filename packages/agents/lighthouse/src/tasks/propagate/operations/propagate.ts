@@ -1,5 +1,5 @@
 import { createLoggingContext, NATIVE_TOKEN, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 
 import { getEstimatedFee, sendWithRelayerWithBackup, getDeployedRootManagerContract } from "../../../mockable";
 import { NoChainIdForHubDomain } from "../errors";
@@ -50,6 +50,7 @@ export const propagate = async () => {
   const _connectors: string[] = [];
   const _encodedData: string[] = [];
   const _fees: string[] = [];
+  let _totalFee = constants.Zero;
 
   for (const domain of domains) {
     const connector = rootManagerMeta.connectors[domains.indexOf(domain)];
@@ -65,6 +66,7 @@ export const propagate = async () => {
       );
       _encodedData.push(propagateParam._encodedData);
       _fees.push(propagateParam._fee);
+      _totalFee = _totalFee.add(BigNumber.from(propagateParam._fee));
     } else {
       _encodedData.push("0x");
       _fees.push("0");
@@ -80,13 +82,14 @@ export const propagate = async () => {
     to: rootManagerAddress,
     data: encodedData,
     from: relayerAddress,
+    value: _totalFee.toString(),
   });
-
   const gas = await chainreader.getGasEstimateWithRevertCode(+config.hubDomain, {
     chainId: hubChainId,
     to: rootManagerAddress,
     data: encodedData,
     from: relayerAddress,
+    value: _totalFee.toString(),
   });
 
   const gasLimit = gas.add(200_000); // Add extra overhead for gelato

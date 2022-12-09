@@ -1,5 +1,5 @@
 import { createLoggingContext, NxtpError, RequestContext } from "@connext/nxtp-utils";
-import { constants, ContractInterface, utils } from "ethers";
+import { constants, utils } from "ethers";
 
 import { getContext } from "../propagate";
 import { NoSpokeConnector, NoHubConnector, NoProviderForDomain } from "../errors";
@@ -27,9 +27,7 @@ export const getPropagateParams = async (
   }
 
   // must be ETH mainnet for arbitrum SDK
-  const l1RpcUrl = "https://rpc.ankr.com/eth";
-  // TODO: use below when mainnet is deployed
-  // const l1RpcUrl = config.chains["6648936"]?.providers[0];
+  const l1RpcUrl = config.chains[config.hubDomain]?.providers[0];
   if (!l1RpcUrl) {
     throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
   }
@@ -71,7 +69,6 @@ export const getPropagateParams = async (
     });
 
     const baseFee = await getBaseFee(l1Provider);
-    console.log({ baseFee: baseFee.toString() });
     const spokeConnectorIface = getInterface(l2SpokeConnector.abi as any[]);
     const callData = spokeConnectorIface.encodeFunctionData("processMessage", [
       "0x0000000000000000000000000000000000000000000000000000000000000001",
@@ -106,12 +103,6 @@ export const getPropagateParams = async (
     gasPriceBid = "0";
     callValue = "0";
   }
-
-  console.log({
-    submissionPriceWei: submissionPriceWei.toString(),
-    maxGas: maxGas.toString(),
-    gasPriceBid: gasPriceBid.toString(),
-  });
 
   // (uint256 maxSubmissionCost, uint256 maxGas, uint256 gasPrice) = abi.decode(
   const encodedData = utils.defaultAbiCoder.encode(
