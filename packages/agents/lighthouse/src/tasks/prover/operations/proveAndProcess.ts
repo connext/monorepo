@@ -44,7 +44,6 @@ export const proveAndProcess = async () => {
   const domains: string[] = Object.keys(config.chains);
 
   // Batch size of proofs to send to relayer.
-  const batchSize = 100;
 
   // Process messages
   // Batch messages to be processed by origin_domain and destination_domain.
@@ -71,12 +70,18 @@ export const proveAndProcess = async () => {
             let offset = 0;
             let end = false;
             while (!end) {
+              logger.info(
+                "Getting unprocessed messages for origin and destination pair",
+                requestContext,
+                methodContext,
+                { batchSize: config.proverBatchSize, offset, originDomain, destinationDomain },
+              );
               const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
                 originDomain,
                 destinationDomain,
                 latestMessageRoot.count,
                 offset,
-                batchSize,
+                config.proverBatchSize,
               );
               if (unprocessed.length > 0) {
                 // Batch process messages from the same origin domain

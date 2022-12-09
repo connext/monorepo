@@ -39,7 +39,7 @@ export const alertViaDiscord = async (report: Report, discordHookUrl?: string) =
 
   const params = {
     content: `Watcher ${event} Alert!!!!`, //This will be the regular message above the embed
-    username: "Watcher Alert",
+    username: "Watcher Alerter",
     avatar_url: "",
     allowed_mentions: {
       parse: ["everyone"],
@@ -47,7 +47,7 @@ export const alertViaDiscord = async (report: Report, discordHookUrl?: string) =
     embeds: [
       {
         color: event == ReportEventType.Tx || ReportEventType.Rpc ? 0xff3827 : 0x0052cc,
-        timestamp: new Date(timestamp * 1000),
+        timestamp: new Date(timestamp).toISOString(),
         title: "Reason",
         description: "",
         fields: [
@@ -57,23 +57,25 @@ export const alertViaDiscord = async (report: Report, discordHookUrl?: string) =
           },
           {
             name: "Reason",
-            value: reason,
+            value: reason || "No Reason",
           },
           {
             name: "Domains",
-            value: domains.join(","),
+            value: domains.length ? domains.join("\n") : "None",
           },
           {
             name: "Errors",
-            value: errors.join("\n"),
+            value: errors.filter((e) => !!e).length ? errors.join("\n") : "None",
           },
           {
             name: "Relevant Transactions",
-            value: relevantTransactions.map((tx) => (typeof tx === "string" ? tx : tx.hash)).join(","),
+            value: relevantTransactions.filter((tx) => !!tx).length
+              ? relevantTransactions.map((tx) => (typeof tx === "string" ? tx : tx.hash)).join("\n")
+              : "None",
           },
           {
             name: "Rpcs",
-            value: rpcs.join(","),
+            value: rpcs.filter((r) => !!r).length ? rpcs.join("\n") : "None",
           },
         ],
         url: "", //This will set an URL for the title
@@ -81,5 +83,5 @@ export const alertViaDiscord = async (report: Report, discordHookUrl?: string) =
     ],
   };
 
-  return await axiosPost(discordHookUrl, params);
+  return await axiosPost(discordHookUrl, JSON.parse(JSON.stringify(params)));
 };
