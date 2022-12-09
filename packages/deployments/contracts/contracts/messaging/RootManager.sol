@@ -66,7 +66,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @notice The last aggregate root we propagated to spoke chains. Used to prevent sending redundant
    * aggregate roots in `propagate`.
    */
-  bytes32 public lastPropagatedRoot;
+  mapping(uint32 => bytes32) public lastPropagatedRoot;
 
   /**
    * @notice MerkleTreeManager contract instance. Will hold the active tree of aggregated inbound roots.
@@ -197,23 +197,29 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     // Dequeue verified roots from the queue and insert into the tree.
     (bytes32 _aggregateRoot, uint256 _count) = dequeue();
 
-    // Sanity check: make sure we are not propagating a redundant aggregate root.
-    require(_aggregateRoot != lastPropagatedRoot, "redundant root");
-    lastPropagatedRoot = _aggregateRoot;
-
     uint256 sum = msg.value;
     for (uint32 i; i < _numDomains; ) {
-      // Try to send the message with appropriate encoded data and fees
-      // Continue on revert, but emit an event
-      try
-        IHubConnector(_connectors[i]).sendMessage{value: _fees[i]}(abi.encodePacked(_aggregateRoot), _encodedData[i])
-      {
-        // NOTE: This will ensure there is sufficient msg.value for all fees before calling `sendMessage`
-        // This will revert as soon as there are insufficient fees for call i, even if call n > i has
-        // sufficient budget, this function will revert
-        sum -= _fees[i];
-      } catch {
+      // Sanity check: make sure we are not propagating a redundant aggregate root.
+      // If the last propagate root is the aggregate, treat as a failure.
+      if (_aggregateRoot == lastPropagatedRoot[domains[i]]) {
+        // Duplicate -- emit fail
         emit PropagateFailed(domains[i], _connectors[i]);
+      } else {
+        // Roots are different, try to send via connector to spoke
+        lastPropagatedRoot[domains[i]] = _aggregateRoot;
+
+        // Try to send the message with appropriate encoded data and fees
+        // Continue on revert, but emit an event
+        try
+          IHubConnector(_connectors[i]).sendMessage{value: _fees[i]}(abi.encodePacked(_aggregateRoot), _encodedData[i])
+        {
+          // NOTE: This will ensure there is sufficient msg.value for all fees before calling `sendMessage`
+          // This will revert as soon as there are insufficient fees for call i, even if call n > i has
+          // sufficient budget, this function will revert
+          sum -= _fees[i];
+        } catch {
+          emit PropagateFailed(domains[i], _connectors[i]);
+        }
       }
 
       unchecked {
