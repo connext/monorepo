@@ -36,7 +36,7 @@ resource "aws_ecs_task_definition" "service" {
     },
     # {
     #   name  = "datadog-agent-${var.environment}-${var.stage}-${var.container_family}",
-    #   image = "public.ecr.aws/datadog/agent:latest",
+    #   image = "public.ecr.aws/datadog/agent:7.40.1",
     #   environment = [
     #     {
     #       name  = "DD_API_KEY",
@@ -96,7 +96,7 @@ resource "aws_ecs_task_definition" "service" {
     # },
     # {
     #   name  = "fluent-bit-agent-${var.environment}-${var.stage}-${var.container_family}",
-    #   image = "public.ecr.aws/aws-observability/aws-for-fluent-bit:latest",
+    #   image = "public.ecr.aws/aws-observability/aws-for-fluent-bit:2.28.4",
     #   firelensConfiguration = {
     #     type = "fluentbit",
     #     options = {
