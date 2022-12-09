@@ -45,9 +45,9 @@ export const alertViaTelegram = async (report: Report, apiKey?: string, chatId?:
   const message = `### Watcher Alert!
    **Reason:** ${reason}
    **Type:** ${event}
-   **Timestamp:** ${new Date(timestamp * 1000).toString()}
+   **Timestamp:** ${new Date(timestamp).toISOString()}
    **Errors:** ${errors.join("\n")}
-   **Domains:** ${domains.join(", ")}
+   **Domains:** ${domains.join("\n")}
    **Rpcs:** ${rpcs.join("\n")}
    `;
 
