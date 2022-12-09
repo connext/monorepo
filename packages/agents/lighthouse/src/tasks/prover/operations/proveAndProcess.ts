@@ -89,16 +89,27 @@ export const proveAndProcess = async () => {
                 "processUnprocessedMessages",
                 `${originDomain}-${destinationDomain}-${offset}-${latestMessageRoot.root}`,
               );
+              logger.info("Got unprocessed messages for origin and destination pair", subContext, methodContext, {
+                unprocessed,
+                originDomain,
+                destinationDomain,
+                offset,
+              });
               if (unprocessed.length > 0) {
                 // Batch process messages from the same origin domain
                 await processMessages(unprocessed, originDomain, destinationDomain, latestMessageRoot.root, subContext);
                 offset += unprocessed.length;
-                logger.info("Got unprocessed messages for origin and destination pair", subContext, methodContext, {
-                  unprocessed,
-                  originDomain,
-                  destinationDomain,
-                  offset,
-                });
+                logger.info(
+                  "Processed unprocessed messages for origin and destination pair",
+                  subContext,
+                  methodContext,
+                  {
+                    unprocessed,
+                    originDomain,
+                    destinationDomain,
+                    offset,
+                  },
+                );
               } else {
                 // End the loop if no more messages are found
                 end = true;
