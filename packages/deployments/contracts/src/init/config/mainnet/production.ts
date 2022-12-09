@@ -20,11 +20,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
       representations: {
         "1869640809": {
-          local: "0xc7d36fE97cC7A8D10FdD3F678b660118fb13D548",
+          local: "0x1184DB7933360Ec8D6D0ad0fF261D0307e9F564B",
           adopted: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
         },
         "1886350457": {
-          local: "0x11DAd8C97a7688d9deD484a7270efDc4a7Fe04C5",
+          local: "0xad4f8CC889ad0912509144f6Fb694d6a82e14b01",
           adopted: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         },
         // "1634886255": {
@@ -32,11 +32,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         //   adopted: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
         // },
         "6450786": {
-          local: "0xe4f1ce2dc807084a874e957d5d2ac6502820bc15",
+          local: "0x6af298677f4203E04469163B90dC5357CcCf700B",
           adopted: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
         },
         "6778479": {
-          local: "0x67e79CC8d6b7C164Da28864875242b9210BFeb15",
+          local: "0x1184DB7933360Ec8D6D0ad0fF261D0307e9F564B",
           adopted: "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
         },
       },
@@ -50,11 +50,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
       representations: {
         "1869640809": {
-          local: "0x20bf24AfE0A935f15059d65cF24ff6bA360E6c97",
+          local: "0x402C07DeDd1A72FAD1f1e4BDf59a5C6A59Ad32fA",
           adopted: "0x4200000000000000000000000000000000000006",
         },
         "1886350457": {
-          local: "0xe918780FdC803388B8281caEe8E096CB2c227E4A",
+          local: "0x8134BbffdC2f0E90c77A528f1B834bBDBCc94EB5",
           adopted: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
         },
         // "1634886255": {
@@ -62,11 +62,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         //   adopted: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
         // },
         "6450786": {
-          local: "0x6b205aeaae9de574d76d4e45af92998aefca205b",
+          local: "0x9f77e4e5B4cd22553497652da0BEd12547413B69",
           adopted: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
         },
         "6778479": {
-          local: "0x735c7e2035ff902EC8F7115355191Cabb05D86fd",
+          local: "0x402C07DeDd1A72FAD1f1e4BDf59a5C6A59Ad32fA",
           adopted: "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1",
         },
       },
