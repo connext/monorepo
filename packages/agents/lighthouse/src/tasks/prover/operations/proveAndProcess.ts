@@ -8,6 +8,8 @@ import {
   ReceivedAggregateRoot,
   NATIVE_TOKEN,
   GELATO_RELAYER_ADDRESS,
+  createRequestContext,
+  RequestContext,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
@@ -83,11 +85,15 @@ export const proveAndProcess = async () => {
                 offset,
                 config.proverBatchSize,
               );
+              const subContext = createRequestContext(
+                "processUnprocessedMessages",
+                `${originDomain}-${destinationDomain}-${offset}-${latestMessageRoot.root}`,
+              );
               if (unprocessed.length > 0) {
                 // Batch process messages from the same origin domain
-                await processMessages(unprocessed, originDomain, destinationDomain, latestMessageRoot.root);
+                await processMessages(unprocessed, originDomain, destinationDomain, latestMessageRoot.root, subContext);
                 offset += unprocessed.length;
-                logger.info("Got unprocessed messages for origin and destination pair", requestContext, methodContext, {
+                logger.info("Got unprocessed messages for origin and destination pair", subContext, methodContext, {
                   unprocessed,
                   originDomain,
                   destinationDomain,
@@ -99,7 +105,7 @@ export const proveAndProcess = async () => {
                 if (offset === 0) {
                   logger.info(
                     "Reached end of unprocessed messages for origin and destination pair",
-                    requestContext,
+                    subContext,
                     methodContext,
                     {
                       originDomain,
@@ -124,6 +130,7 @@ export const processMessages = async (
   originDomain: string,
   destinationDomain: string,
   targetMessageRoot: string,
+  _requestContext: RequestContext,
 ) => {
   const {
     logger,
@@ -131,7 +138,7 @@ export const processMessages = async (
     config,
     chainData,
   } = getContext();
-  const { requestContext, methodContext } = createLoggingContext("processUnprocessedMessage");
+  const { requestContext, methodContext } = createLoggingContext("processUnprocessedMessage", _requestContext);
 
   // Count of leaf nodes in origin domain`s outbound tree with the targetMessageRoot as root
   const messageRootCount = await database.getMessageRootCount(originDomain, targetMessageRoot);
