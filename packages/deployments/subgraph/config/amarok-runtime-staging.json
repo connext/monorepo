@@ -53,13 +53,13 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0xCF1C4967e3287fF188EA9bfa1218734DFAe46641",
-        "startBlock": 1431823
+        "address": "0x4C9dd3a579b7a25c53dBe0cb840F174b2EdBBB61",
+        "startBlock": 2454106
       },
       {
         "name": "Connector",
-        "address": "0x608323d2f4C17D976D08EB4FE41B2FDfA408ADA3",
-        "startBlock": 1431811
+        "address": "0x9d607ac62C6DEd368cAa8948e16527A695BE0DB5",
+        "startBlock": 2454078
       }
     ]
   }
