@@ -67,11 +67,17 @@ export const hardhatNetworks = {
     gasPrice: utils.parseUnits("50", "gwei").toNumber(),
   },
   optimism: {
-    accounts: { mnemonic },
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 10,
     url: "https://rpc.ankr.com/optimism",
     companionNetworks: {
       hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.OPSCAN_API_KEY!,
+        apiUrl: "https://api-optimistic.etherscan.io/",
+      },
     },
   },
   kovan: {
@@ -131,7 +137,7 @@ export const hardhatNetworks = {
     },
   },
   xdai: {
-    accounts: { mnemonic },
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 100,
     companionNetworks: {
       hub: "mainnet",
@@ -139,7 +145,7 @@ export const hardhatNetworks = {
     url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://rpc.gnosischain.com/",
     verify: {
       etherscan: {
-        apiKey: process.env.ETHERSCAN_API_KEY!,
+        apiKey: process.env.GNOSISSCAN_API_KEY!,
         apiUrl: "https://api.gnosisscan.io",
       },
     },
@@ -150,9 +156,9 @@ export const hardhatNetworks = {
     url: "https://rpc.fuse.io/",
   },
   matic: {
-    accounts: { mnemonic },
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 137,
-    url: urlOverride || process.env.MATIC_PROVIDER_URL || "https://polygon-rpc.com",
+    url: urlOverride || process.env.MATIC_PROVIDER_URL || "https://1rpc.io/matic",
     companionNetworks: {
       hub: "mainnet",
     },
@@ -164,12 +170,12 @@ export const hardhatNetworks = {
     },
   },
   ftm: {
-    accounts: { mnemonic },
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 250,
     url: urlOverride || process.env.FTM_PROVIDER_URL || "https://rpcapi.fantom.network/",
   },
   moonriver: {
-    accounts: { mnemonic },
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 1285,
     url: "https://rpc.moonriver.moonbeam.network",
     gasPrice: 5000000000,
@@ -195,7 +201,7 @@ export const hardhatNetworks = {
     url: "https://eth.bd.evmos.dev:8545",
   },
   "arbitrum-one": {
-    accounts: { mnemonic },
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 42161,
     url: "https://arb1.arbitrum.io/rpc",
     companionNetworks: {
@@ -210,7 +216,7 @@ export const hardhatNetworks = {
   avalanche: {
     url: "https://api.avax.network/ext/bc/C/rpc",
     chainId: 43114,
-    accounts: { mnemonic },
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
   },
   mumbai: {
     accounts: { mnemonic },

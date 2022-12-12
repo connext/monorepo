@@ -116,7 +116,10 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       allowlist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
     },
     routers: {
-      allowlist: ["0xD2aD711861ab345977B7379c81165708C8717fF1"],
+      allowlist: [
+        "0xD2aD711861ab345977B7379c81165708C8717fF1", // connext
+        "0xE879261F44041E030404Ac9847f0cEE2591F62F5", // bware
+      ],
     },
     sequencers: {
       allowlist: ["0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C"],

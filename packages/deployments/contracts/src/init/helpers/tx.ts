@@ -103,7 +103,11 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
   if (desiredExists) {
     try {
       value = await readCall();
-      valid = value === desired;
+      if (typeof desired === "string" && typeof value === "string") {
+        valid = value.toLowerCase() === desired.toLowerCase();
+      } else {
+        valid = value === desired;
+      }
     } catch {}
   }
 
