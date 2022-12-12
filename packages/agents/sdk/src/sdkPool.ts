@@ -1,10 +1,10 @@
-import { providers, BigNumber, constants, utils } from "ethers";
+import { providers, BigNumber, BigNumberish, constants, utils } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData, getCanonicalHash } from "@connext/nxtp-utils";
 import { getContractInterfaces, contractDeployments, ChainReader } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
 
 import { NxtpSdkConfig, getConfig, AssetDescription } from "./config";
-import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined, PoolDoesNotExist } from "./lib/errors";
+import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { IPoolStats, IPoolData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
 
@@ -18,6 +18,7 @@ export class Pool implements IPoolData {
   lpTokenAddress: string;
   canonicalHash: string; // hash of the domain and canonicalId
   address?: string; // no address if internal pool
+  // TODO: Add token index mapping to tokenAddress
 
   constructor(
     domainId: string,
@@ -362,6 +363,66 @@ export class NxtpSdkPool {
     return this.calculatePriceImpact(rate, marketRate);
   }
 
+  async calculateReceiveAmount(params: {
+    originDomain: string;
+    destinationDomain: string;
+    originTokenAddress: string;
+    destinationTokenAddress: string;
+    amount: BigNumberish;
+  }): Promise<{
+    amountReceived: BigNumberish;
+    originSlippage: BigNumberish;
+    routerFee: BigNumberish;
+    destinationSlippage: BigNumberish;
+    priceImpact: BigNumberish;
+  }> {
+    const { requestContext, methodContext } = createLoggingContext(this.calculateReceiveAmount.name);
+    this.logger.info("Method start", requestContext, methodContext, { params });
+
+    const { originDomain, destinationDomain, originTokenAddress, destinationTokenAddress, amount } = params;
+
+    let originAmountReceive = amount;
+    // for origin
+    const originPool = await this.getPool(originDomain, originTokenAddress);
+
+    const originTokenIndexFrom = 0;
+    const originTokenIndexTo = 0;
+
+    if (originPool) {
+      const [originConnextContract, [canonicalDomain, canonicalId]] = await Promise.all([
+        this.getConnext(originDomain),
+        this.getCanonicalTokenId(originDomain, originTokenAddress),
+      ]);
+
+      const originKey = getCanonicalHash(canonicalDomain, canonicalId);
+
+      originAmountReceive = await originConnextContract.calculateSwap(
+        originKey,
+        originTokenIndexFrom,
+        originTokenIndexTo,
+        amount,
+      );
+    }
+
+    // for destination
+    // getPool()
+
+    // TODO: figure out if we have stable swap here
+
+    const originSlippage = amount.minus(originAmountReceive).div();
+
+    const routerFee = originAmountReceive.div();
+
+    const inputDxForDestination = originAmountReceive.minus(routerFee);
+
+    // TODO: figure out if we have stable swap here
+    const destinationAmountReceive = this.calculateSwap({ domain: destinationDomain });
+
+    const destinationSlippage = amount;
+
+    return {};
+  }
+
   /**
    * Fetches the current price of a token.
    * @param tokenSymbol The symbol for the token.
@@ -608,11 +669,18 @@ export class NxtpSdkPool {
    * @param domainId The domain id of the pool.
    * @param tokenAddress The address of local or adopted token.
    */
-  async getPool(domainId: string, tokenAddress: string): Promise<Pool> {
+  async getPool(domainId: string, tokenAddress: string): Promise<Pool | undefined> {
+    const { requestContext, methodContext } = createLoggingContext(this.getPool.name);
+    this.logger.info("Method start", requestContext, methodContext, {
+      domainId,
+      tokenAddress,
+    });
+
     const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(domainId, tokenAddress);
 
     if (canonicalDomain == domainId) {
-      throw new PoolDoesNotExist(domainId, tokenAddress);
+      this.logger.debug("No Pool Exist");
+      return;
     }
 
     const key: string = getCanonicalHash(canonicalDomain, canonicalId);
@@ -629,7 +697,8 @@ export class NxtpSdkPool {
     ]);
 
     if (local == adopted) {
-      throw new PoolDoesNotExist(domainId, tokenAddress);
+      this.logger.debug("No Pool Exist");
+      return;
     }
 
     const [localErc20Contract, adoptedErc20Contract] = await Promise.all([
