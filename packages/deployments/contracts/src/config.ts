@@ -145,7 +145,7 @@ export const hardhatNetworks = {
     url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://rpc.gnosischain.com/",
     verify: {
       etherscan: {
-        apiKey: process.env.ETHERSCAN_API_KEY!,
+        apiKey: process.env.GNOSISSCAN_API_KEY!,
         apiUrl: "https://api.gnosisscan.io",
       },
     },
