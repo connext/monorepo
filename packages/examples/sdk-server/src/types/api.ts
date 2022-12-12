@@ -92,6 +92,15 @@ export const calculateSwapPriceImpactSchema = Type.Object({
   tokenY: Type.String(),
 });
 
+export const calculateAmountReceivedSchema = Type.Object({
+  originDomain: Type.String(),
+  destinationDomain: Type.String(),
+  originTokenAddress: Type.String(),
+  destinationTokenAddress: Type.String(),
+  amount: Type.String(),
+  isNextAsset: Type.Optional(Type.Boolean()),
+});
+
 export const getPoolSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),

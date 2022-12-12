@@ -25,6 +25,7 @@ import {
   calculateAddLiquidityPriceImpactSchema,
   calculateRemoveLiquidityPriceImpactSchema,
   calculateSwapPriceImpactSchema,
+  calculateAmountReceivedSchema,
   getYieldStatsForDaySchema,
   getYieldDataSchema,
   getBlockNumberFromUnixTimestampSchema,
@@ -241,6 +242,28 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
     async (request, reply) => {
       const { domainId, amountX, tokenX, tokenY } = request.body;
       const res = await sdkPoolInstance.calculateSwapPriceImpact(domainId, amountX, tokenX, tokenY);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
+    "/calculateAmountReceived",
+    {
+      schema: {
+        body: calculateAmountReceivedSchema,
+      },
+    },
+    async (request, reply) => {
+      const { originDomain, destinationDomain, originTokenAddress, destinationTokenAddress, amount, isNextAsset } =
+        request.body;
+      const res = await sdkPoolInstance.calculateAmountReceived(
+        originDomain,
+        destinationDomain,
+        originTokenAddress,
+        destinationTokenAddress,
+        amount,
+        isNextAsset,
+      );
       reply.status(200).send(res);
     },
   );
