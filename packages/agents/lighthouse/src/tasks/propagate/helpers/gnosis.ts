@@ -18,7 +18,7 @@ export const getPropagateParams = async (
     adapters: { deployments, ambs },
   } = getContext();
   const { methodContext, requestContext } = createLoggingContext(getPropagateParams.name, _requestContext);
-  logger.info("Getting propagate params for BNB", requestContext, methodContext, { l2domain });
+  logger.info("Getting propagate params for Gnosis", requestContext, methodContext, { l2domain });
 
   const l2RpcUrl = config.chains[l2domain]?.providers[0];
 
@@ -32,14 +32,18 @@ export const getPropagateParams = async (
 
   const l2SpokeConnector = deployments.spokeConnector(
     l2ChainId,
-    "Bnb",
+    "Gnosis",
     config.environment === "staging" ? "Staging" : "",
   );
   if (!l2SpokeConnector) {
     throw new NoSpokeConnector(l2ChainId, requestContext, methodContext);
   }
 
-  const l1HubConnector = deployments.hubConnector(l1ChainId, "Bnb", config.environment === "staging" ? "Staging" : "");
+  const l1HubConnector = deployments.hubConnector(
+    l1ChainId,
+    "Gnosis",
+    config.environment === "staging" ? "Staging" : "",
+  );
   if (!l1HubConnector) {
     throw new NoHubConnector(l1ChainId, requestContext, methodContext);
   }
