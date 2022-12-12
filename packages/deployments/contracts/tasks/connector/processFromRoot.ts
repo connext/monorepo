@@ -206,7 +206,7 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
       // get the l1 provider
       const l1Provider = getProviderFromHardhatConfig(hardhatConfig, protocolConfig.hub);
 
-      // see what prerfix this spoke is
+      // see what prefix this spoke is
       const prefix = protocolConfig.configs[spoke].prefix;
 
       let args: any[];
