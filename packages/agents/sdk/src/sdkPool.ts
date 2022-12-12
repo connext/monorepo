@@ -2,6 +2,7 @@ import { providers, BigNumber, BigNumberish, constants, utils } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData, getCanonicalHash } from "@connext/nxtp-utils";
 import { getContractInterfaces, contractDeployments, ChainReader } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
+import { DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
 
 import { NxtpSdkConfig, getConfig, AssetDescription } from "./config";
 import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined } from "./lib/errors";
@@ -372,61 +373,76 @@ export class NxtpSdkPool {
     return this.calculatePriceImpact(rate, marketRate);
   }
 
-  async calculateReceiveAmount(params: {
-    originDomain: string;
-    destinationDomain: string;
-    originTokenAddress: string;
-    destinationTokenAddress: string;
-    amount: BigNumberish;
-  }): Promise<{
+  async calculateAmountReceived(
+    originDomain: string,
+    destinationDomain: string,
+    originTokenAddress: string,
+    destinationTokenAddress: string,
+    amount: BigNumberish,
+    isNextAsset = false,
+  ): Promise<{
     amountReceived: BigNumberish;
     originSlippage: BigNumberish;
     routerFee: BigNumberish;
     destinationSlippage: BigNumberish;
     priceImpact: BigNumberish;
   }> {
-    const { requestContext, methodContext } = createLoggingContext(this.calculateReceiveAmount.name);
-    this.logger.info("Method start", requestContext, methodContext, { params });
+    const { requestContext, methodContext } = createLoggingContext(this.calculateAmountReceived.name);
+    this.logger.info("Method start", requestContext, methodContext, {
+      originDomain,
+      destinationDomain,
+      originTokenAddress,
+      destinationTokenAddress,
+      amount,
+      isNextAsset,
+    });
 
-    const { originDomain, destinationDomain, originTokenAddress, destinationTokenAddress, amount } = params;
-
-    // for origin
-    let originAmountReceive = amount;
+    // Calculate origin swap
     const originPool = await this.getPool(originDomain, originTokenAddress);
+    let originAmountReceived = amount;
 
-    const originTokenIndexFrom = 0;
-    const originTokenIndexTo = 0;
+    // nextAssets don't need to be swapped on origin
+    if (!isNextAsset && originPool) {
+      const originConnextContract = await this.getConnext(originDomain);
 
-    if (originPool) {
-      const [originConnextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-        this.getConnext(originDomain),
-        this.getCanonicalTokenId(originDomain, originTokenAddress),
-      ]);
-
-      const originKey = getCanonicalHash(canonicalDomain, canonicalId);
-
-      originAmountReceive = await originConnextContract.calculateSwap(
-        originKey,
-        originTokenIndexFrom,
-        originTokenIndexTo,
+      originAmountReceived = await originConnextContract.calculateSwap(
+        originPool.canonicalHash,
+        originPool.tokenIndices.get(originTokenAddress)!,
+        originPool.tokenIndices.get(originTokenAddress)!,
         amount,
       );
     }
 
-    // for destination
-    // getPool()
+    const originSlippage = (amount as BigNumber).sub(originAmountReceived).div(amount);
+    const routerFee = (originAmountReceived as BigNumber).mul(DEFAULT_ROUTER_FEE);
 
-    const originSlippage = amount.minus(originAmountReceive).div();
+    // Calculate destination swap
+    const destinationPool = await this.getPool(destinationDomain, destinationTokenAddress);
+    const destinationAmount = (originAmountReceived as BigNumber).sub(routerFee);
+    let destinationAmountReceived = originAmountReceived;
 
-    const routerFee = originAmountReceive.div();
+    if (destinationPool) {
+      const destinationConnextContract = await this.getConnext(destinationDomain);
 
-    const inputDxForDestination = originAmountReceive.minus(routerFee);
+      destinationAmountReceived = await destinationConnextContract.calculateSwap(
+        destinationPool.canonicalHash,
+        destinationPool.tokenIndices.get(originTokenAddress)!,
+        destinationPool.tokenIndices.get(originTokenAddress)!,
+        destinationAmount,
+      );
+    }
 
-    const destinationAmountReceive = this.calculateSwap({ domain: destinationDomain });
+    const destinationSlippage = destinationAmount.sub(destinationAmountReceived).div(destinationAmount);
 
-    const destinationSlippage = amount;
+    const priceImpact = this.calculatePriceImpact(amount as BigNumber, destinationAmountReceived as BigNumber);
 
-    return {};
+    return {
+      amountReceived: destinationAmountReceived,
+      originSlippage,
+      routerFee,
+      destinationSlippage,
+      priceImpact,
+    };
   }
 
   /**
