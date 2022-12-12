@@ -13,6 +13,7 @@ export class Pool implements IPoolData {
   name: string;
   symbol: string; // in the form of <TKN>-next<TKN>
   tokens: string[]; // index order specified when the pool was initialized
+  tokenIndices: Map<string, number>; // maps token to its index in the pool
   decimals: number[];
   balances: BigNumber[];
   lpTokenAddress: string;
@@ -25,6 +26,7 @@ export class Pool implements IPoolData {
     name: string,
     symbol: string,
     tokens: string[],
+    tokenIndices: Map<string, number>,
     decimals: number[],
     balances: BigNumber[],
     lpTokenAddress: string,
@@ -35,6 +37,7 @@ export class Pool implements IPoolData {
     this.name = name;
     this.symbol = symbol;
     this.tokens = tokens;
+    this.tokenIndices = tokenIndices;
     this.decimals = decimals;
     this.balances = balances;
     this.lpTokenAddress = lpTokenAddress;
@@ -387,8 +390,8 @@ export class NxtpSdkPool {
 
     const { originDomain, destinationDomain, originTokenAddress, destinationTokenAddress, amount } = params;
 
-    let originAmountReceive = amount;
     // for origin
+    let originAmountReceive = amount;
     const originPool = await this.getPool(originDomain, originTokenAddress);
 
     const originTokenIndexFrom = 0;
@@ -724,11 +727,16 @@ export class NxtpSdkPool {
         ? [local, localDecimals, localBalance, adopted, adoptedDecimals, adoptedBalance]
         : [adopted, adoptedDecimals, adoptedBalance, local, localDecimals, localBalance];
 
+    const indices = new Map<string, number>();
+    indices.set(asset0, 0);
+    indices.set(asset1, 1);
+
     pool = new Pool(
       domainId,
       `${tokenSymbol}-Pool`,
       `${tokenSymbol}-next${tokenSymbol}`,
       [asset0, asset1],
+      indices,
       [asset0Decimals, asset1Decimals],
       [asset0Balance, asset1Balance],
       lpTokenAddress,
