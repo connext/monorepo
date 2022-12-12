@@ -1,6 +1,6 @@
-import { createRequestContext, expect } from "@connext/nxtp-utils";
+import { createRequestContext, expect, mkBytes32 } from "@connext/nxtp-utils";
 import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon";
-import { constants, providers } from "ethers";
+import { BigNumber, constants, providers } from "ethers";
 
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../../../../src/tasks/propagate/errors";
 import * as Mockable from "../../../../src/mockable";
@@ -20,6 +20,8 @@ describe("Helpers: Arbitrum ", () => {
     l1ToL2 = createStubInstance(L1ToL2MessageGasEstimator, { estimateSubmissionFee, estimateRetryableTicketGasLimit });
     stub(Mockable, "getJsonRpcProvider").returns(createStubInstance(providers.JsonRpcProvider));
     stub(Mockable, "getL1ToL2MessageGasEstimator").returns(l1ToL2);
+    stub(Mockable, "getBaseFee").resolves(BigNumber.from(1));
+    stub(Mockable, "getInterface").returns({ encodeFunctionData: stub().resolves(mkBytes32("0xcalldadta")) } as any);
   });
 
   describe("#getPropagateParams", () => {
@@ -45,17 +47,23 @@ describe("Helpers: Arbitrum ", () => {
     });
 
     it("should return necessary data successfully", async () => {
+      l1ToL2.estimateAll.resolves({
+        gasLimit: BigNumber.from(100),
+        maxSubmissionFee: BigNumber.from(100),
+        maxFeePerGas: BigNumber.from(100),
+        totalL2GasCosts: BigNumber.from(100),
+      });
       const data = await getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext);
       expect(data).to.deep.eq({
         _connector: "",
-        _fee: "109691273861924",
+        _fee: "4700",
         _encodedData:
-          "0x000000000000000000000000000000000000000000000000000063c37d69dad00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000002a",
+          "0x00000000000000000000000000000000000000000000000000000000000001f40000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000002a",
       });
     });
 
     it("should return dummy data if errors", async () => {
-      l1ToL2.estimateRetryableTicketGasLimit.rejects("foo");
+      l1ToL2.estimateAll.rejects("foo");
       const data = await getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext);
       expect(data).to.deep.eq({
         _connector: "",

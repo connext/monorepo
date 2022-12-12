@@ -5,7 +5,6 @@ import { getContext } from "../propagate";
 import { NoSpokeConnector, NoHubConnector, NoProviderForDomain } from "../errors";
 import { ExtraPropagateParam } from "../operations/propagate";
 import { getJsonRpcProvider, getL1ToL2MessageGasEstimator, getBaseFee, getInterface } from "../../../mockable";
-import { hexDataLength } from "ethers/lib/utils";
 
 // example at https://github.com/OffchainLabs/arbitrum-tutorials/blob/master/packages/greeter/scripts/exec.js
 export const getPropagateParams = async (
@@ -69,12 +68,14 @@ export const getPropagateParams = async (
       gasPriceBid: gasPriceBid.toString(),
     });
 
+    console.log("before getBaseFee: ");
     const baseFee = await getBaseFee(l1Provider);
+    console.log("before getInterface: ");
     const spokeConnectorIface = getInterface(l2SpokeConnector.abi as any[]);
     const callData = spokeConnectorIface.encodeFunctionData("processMessage", [
       "0x0000000000000000000000000000000000000000000000000000000000000001",
     ]);
-
+    console.log("before estimateAll: ");
     const L1ToL2MessageGasParams = await l1ToL2MessageGasEstimate.estimateAll(
       l1HubConnector.address,
       l2SpokeConnector.address,
@@ -93,7 +94,7 @@ export const getPropagateParams = async (
 
     submissionPriceWei = L1ToL2MessageGasParams.maxSubmissionFee.mul(5).toString();
     maxGas = L1ToL2MessageGasParams.gasLimit.toString();
-    callValue = BigNumber.from(submissionPriceWei).add(gasPriceBid.mul(maxGas));
+    callValue = BigNumber.from(submissionPriceWei).add(gasPriceBid.mul(maxGas)).toString();
   } catch (err: unknown) {
     console.log(err);
     logger.error("Error getting propagate params for Arbitrum", requestContext, methodContext, err as NxtpError);
@@ -103,11 +104,12 @@ export const getPropagateParams = async (
     callValue = "0";
   }
 
-  // (uint256 maxSubmissionCost, uint256 maxGas, uint256 gasPrice) = abi.decode(
+  console.log("before encode");
   const encodedData = utils.defaultAbiCoder.encode(
     ["uint256", "uint256", "uint256"],
     [submissionPriceWei, maxGas, gasPriceBid],
   );
 
-  return { _connector: "", _fee: callValue.toString(), _encodedData: encodedData };
+  console.log("before return");
+  return { _connector: "", _fee: callValue, _encodedData: encodedData };
 };
