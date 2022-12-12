@@ -73,6 +73,12 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "mainnet",
     },
+    verify: {
+      etherscan: {
+        apiKey: process.env.OPSCAN_API_KEY!,
+        apiUrl: "https://api-optimistic.etherscan.io/",
+      },
+    },
   },
   kovan: {
     accounts: { mnemonic },
@@ -99,8 +105,8 @@ export const hardhatNetworks = {
     },
     verify: {
       etherscan: {
-        apiKey: process.env.ETHERSCAN_API_KEY!,
-        apiUrl: "https://blockscout.com/optimism/goerli",
+        apiKey: process.env.OPSCAN_API_KEY!,
+        apiUrl: "https://api-goerli-optimistic.etherscan.io/",
       },
     },
   },
