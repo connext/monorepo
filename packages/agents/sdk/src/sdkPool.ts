@@ -407,15 +407,12 @@ export class NxtpSdkPool {
     // for destination
     // getPool()
 
-    // TODO: figure out if we have stable swap here
-
     const originSlippage = amount.minus(originAmountReceive).div();
 
     const routerFee = originAmountReceive.div();
 
     const inputDxForDestination = originAmountReceive.minus(routerFee);
 
-    // TODO: figure out if we have stable swap here
     const destinationAmountReceive = this.calculateSwap({ domain: destinationDomain });
 
     const destinationSlippage = amount;
