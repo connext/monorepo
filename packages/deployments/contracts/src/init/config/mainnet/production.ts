@@ -20,11 +20,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
       representations: {
         "1869640809": {
-          local: "0x1184DB7933360Ec8D6D0ad0fF261D0307e9F564B",
+          local: "",
           adopted: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
         },
         "1886350457": {
-          local: "0xad4f8CC889ad0912509144f6Fb694d6a82e14b01",
+          local: "",
           adopted: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         },
         // "1634886255": {
@@ -32,11 +32,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         //   adopted: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
         // },
         "6450786": {
-          local: "0x6af298677f4203E04469163B90dC5357CcCf700B",
+          local: "",
           adopted: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
         },
         "6778479": {
-          local: "0x1184DB7933360Ec8D6D0ad0fF261D0307e9F564B",
+          local: "",
           adopted: "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
         },
       },
@@ -50,11 +50,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
       representations: {
         "1869640809": {
-          local: "0x402C07DeDd1A72FAD1f1e4BDf59a5C6A59Ad32fA",
+          local: "",
           adopted: "0x4200000000000000000000000000000000000006",
         },
         "1886350457": {
-          local: "0x8134BbffdC2f0E90c77A528f1B834bBDBCc94EB5",
+          local: "",
           adopted: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
         },
         // "1634886255": {
@@ -62,11 +62,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         //   adopted: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
         // },
         "6450786": {
-          local: "0x9f77e4e5B4cd22553497652da0BEd12547413B69",
+          local: "",
           adopted: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
         },
         "6778479": {
-          local: "0x402C07DeDd1A72FAD1f1e4BDf59a5C6A59Ad32fA",
+          local: "",
           adopted: "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1",
         },
       },
@@ -81,23 +81,23 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       representations: {
         // optimism
         "1869640809": {
-          local: "0xa83ad51c99bb40995f9292c9a436046ab7578caf",
-          adopted: "0xa83ad51c99bb40995f9292c9a436046ab7578caf",
+          local: "0x3975e0292bEF3Fca8feF414f01E120652Ac60A69",
+          adopted: "0x3975e0292bEF3Fca8feF414f01E120652Ac60A69",
         },
         // polygon
         "1886350457": {
-          local: "0x725dB429F0ff5A3DF5f41fcA8676CF9Dd1C6b3F0",
-          adopted: "0x725dB429F0ff5A3DF5f41fcA8676CF9Dd1C6b3F0",
+          local: "0xE810e6F30A2dF7677aFDc13a3746D132295E7b0D",
+          adopted: "0xE810e6F30A2dF7677aFDc13a3746D132295E7b0D",
         },
         // bnb
         "6450786": {
-          local: "0xB3de3929C3bE8a1Fa446f27d1b549Dd9d5C313E0",
-          adopted: "0xB3de3929C3bE8a1Fa446f27d1b549Dd9d5C313E0",
+          local: "0x14b72bef1447c9eaececf7baeb9cf2c63910819f",
+          adopted: "0x14b72bef1447c9eaececf7baeb9cf2c63910819f",
         },
         // gnosis
         "6778479": {
-          local: "0xA83ad51C99BB40995F9292C9a436046ab7578cAF",
-          adopted: "0xA83ad51C99BB40995F9292C9a436046ab7578cAF",
+          local: "0x98a8dfc12cb844e199993c75acd6856960eb6186",
+          adopted: "0x98a8dfc12cb844e199993c75acd6856960eb6186",
         },
       },
     },
@@ -111,23 +111,23 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       representations: {
         // optimism
         "1869640809": {
-          local: "0x87A93A942D10B6cC061A952C3A1213d52044bE97",
-          adopted: "0x87A93A942D10B6cC061A952C3A1213d52044bE97",
+          local: "0xafe2bbc98af9fcff73596ebe1327b27d8a16d06b",
+          adopted: "0xafe2bbc98af9fcff73596ebe1327b27d8a16d06b",
         },
         // polygon
         "1886350457": {
-          local: "0x381BC51bb203c5940A398622be918C876cB0f035",
-          adopted: "0x381BC51bb203c5940A398622be918C876cB0f035",
+          local: "0x9902932c0a200ad16a19ad6863baa72f19409780",
+          adopted: "0x9902932c0a200ad16a19ad6863baa72f19409780",
         },
         // bnb
         "6450786": {
-          local: "0xf813835326f1c606892a36F96b6Cdd18D6d87De9",
-          adopted: "0xf813835326f1c606892a36F96b6Cdd18D6d87De9",
+          local: "0x9d1cae770ecca019ea36c4ddfcbe114c754e14ed",
+          adopted: "0x9d1cae770ecca019ea36c4ddfcbe114c754e14ed",
         },
         // gnosis
         "6778479": {
-          local: "0x87A93A942D10B6cC061A952C3A1213d52044bE97",
-          adopted: "0x87A93A942D10B6cC061A952C3A1213d52044bE97",
+          local: "0xf2b1aa2bea51460c7083b430cdda0c990eddb5fa",
+          adopted: "0xf2b1aa2bea51460c7083b430cdda0c990eddb5fa",
         },
       },
     },
