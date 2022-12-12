@@ -63,6 +63,17 @@ export const makeWatcher = async () => {
     // bindings
     await bindServer();
     await bindInterval();
+    console.log(
+      `
+
+        _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
+      _|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
+      _|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
+      _|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
+        _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
+
+      `,
+    );
   } catch (err: unknown) {
     console.error(err);
     process.exit(1);
