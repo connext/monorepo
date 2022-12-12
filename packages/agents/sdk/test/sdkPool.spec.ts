@@ -260,11 +260,14 @@ describe("NxtpSdkPool", () => {
       poolName: `${mock.asset.A.symbol}-Pool`,
       poolSymbol: `${mock.asset.A.symbol}-next${mock.asset.A.symbol}`,
       poolTokens: [utils.formatBytes32String("1"), mock.asset.A.address],
+      poolTokenIndices: new Map<string, number>(),
       poolDecimals: [18, 18],
       poolTokenUserBalances: [BigNumber.from(100), BigNumber.from(200)],
       lpTokenAddress: utils.formatBytes32String("2"),
       lpTokenUserBalance: BigNumber.from(150),
     };
+    mockParams.poolTokenIndices.set(mockParams.poolTokens[0], 0);
+    mockParams.poolTokenIndices.set(mockParams.poolTokens[1], 1);
 
     it("happy: should work", async () => {
       const mockPool: Pool = new Pool(
@@ -272,6 +275,7 @@ describe("NxtpSdkPool", () => {
         mockParams.poolName,
         mockParams.poolSymbol,
         mockParams.poolTokens,
+        mockParams.poolTokenIndices,
         mockParams.poolDecimals,
         mockParams.poolTokenUserBalances,
         mockParams.key,
@@ -349,10 +353,13 @@ describe("NxtpSdkPool", () => {
       poolName: `${mock.asset.A.symbol}-Pool`,
       poolSymbol: `${mock.asset.A.symbol}-next${mock.asset.A.symbol}`,
       poolTokens: [utils.formatBytes32String("1"), mock.asset.A.address],
+      poolTokenIndices: new Map<string, number>(),
       poolDecimals: [18, 18],
       amounts: [BigNumber.from(100), BigNumber.from(200)],
       lpTokenAddress: utils.formatBytes32String("2"),
     };
+    mockParams.poolTokenIndices.set(mockParams.poolTokens[0], 0);
+    mockParams.poolTokenIndices.set(mockParams.poolTokens[1], 1);
 
     it("happy: should work", async () => {
       const mockPool: Pool = new Pool(
@@ -360,6 +367,7 @@ describe("NxtpSdkPool", () => {
         mockParams.poolName,
         mockParams.poolSymbol,
         mockParams.poolTokens,
+        mockParams.poolTokenIndices,
         mockParams.poolDecimals,
         mockParams.amounts,
         mockParams.key,
