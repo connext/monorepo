@@ -20,11 +20,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
       representations: {
         "1869640809": {
-          local: "",
+          local: "0xFF748Daa6C2eAa1d3Ac78D2Ce8Ab84c25a53e68A",
           adopted: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
         },
         "1886350457": {
-          local: "",
+          local: "0x6653e37db7eEEe514ACD0998f66e66c75F216699",
           adopted: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         },
         // "1634886255": {
@@ -32,11 +32,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         //   adopted: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
         // },
         "6450786": {
-          local: "",
+          local: "0x58B04866a734677bC66fC2Bf405860D658Ae4a05",
           adopted: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
         },
         "6778479": {
-          local: "",
+          local: "0x7e0F3216A74888E8eE3C839C27db1b4a3D8C1CC3",
           adopted: "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
         },
       },
@@ -50,11 +50,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
       representations: {
         "1869640809": {
-          local: "",
+          local: "0x30E049eda6Da0cc0b4F5e39B51FD25666E38b24E",
           adopted: "0x4200000000000000000000000000000000000006",
         },
         "1886350457": {
-          local: "",
+          local: "0xd824518dF03a41d7124115799f78973A603D42f7",
           adopted: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
         },
         // "1634886255": {
@@ -62,11 +62,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         //   adopted: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
         // },
         "6450786": {
-          local: "",
+          local: "0xcEc11a1963BBA00e18255Ba590623cD99Ed38D42",
           adopted: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
         },
         "6778479": {
-          local: "",
+          local: "0x475e647B3E31585466506bd36c6a59822DC32A08",
           adopted: "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1",
         },
       },
