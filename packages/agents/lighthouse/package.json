@@ -35,7 +35,7 @@
     "@sinclair/typebox": "0.25.2",
     "@types/aws-lambda": "^8.10.109",
     "datadog-lambda-js": "^6.85.0",
-    "dd-trace": "^3.9.0",
+    "dd-trace": "3.9.2",
     "dotenv": "16.0.3",
     "ethers": "5.7.2",
     "fastify": "4.9.2",

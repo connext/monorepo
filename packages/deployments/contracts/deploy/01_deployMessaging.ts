@@ -13,12 +13,21 @@ const formatConnectorArgs = (
     deploymentChainId: number;
     mirrorChainId: number;
     rootManager: string;
+    mirrorConnector?: string;
     merkleManager?: string;
     watcherManager?: string;
     amb?: string;
   },
 ): any[] => {
-  const { deploymentChainId, mirrorChainId, rootManager, connectorChainId, merkleManager, watcherManager } = args;
+  const {
+    deploymentChainId,
+    mirrorChainId,
+    rootManager,
+    mirrorConnector,
+    connectorChainId,
+    merkleManager,
+    watcherManager,
+  } = args;
   const config = protocol.configs[connectorChainId];
   console.log(`using config`, config);
 
@@ -35,7 +44,7 @@ const formatConnectorArgs = (
     mirrorDomain,
     amb,
     rootManager,
-    constants.AddressZero,
+    mirrorConnector ?? constants.AddressZero,
     ...Object.values((isHub ? config?.custom?.hub : {}) ?? {}),
   ];
   if (isHub) {
@@ -248,6 +257,7 @@ const handleDeploySpoke = async (
   // Deploy Spoke Connector
 
   let amb: undefined | string;
+  let hubConnectorAddress;
   if (protocol.configs[deploymentChainId].prefix.includes("Arbitrum")) {
     // NOTE: If the spoke network is arbitrum, the AMB should be set to the alias address.
     // For more info, see alias address in docs:
@@ -261,27 +271,7 @@ const handleDeploySpoke = async (
           "address is needed in order to deploy ArbitrumSpokeConnector",
       );
     }
-
-    // Alias is the origin sender address + 0x1111000000000000000000000000000000001111.
-    // We can't just add that value here: if there's any 'f' hex digits there will be a
-    // leftover/remainder that will expand the address to include extra digits.
-    // TODO: Make util?
-    const L1_TO_L2_ALIAS_OFFSET = "0x1111000000000000000000000000000000001111";
-    let bn = BigNumber.from(arbitrumHubConnector.address).add(L1_TO_L2_ALIAS_OFFSET);
-    bn = BigNumber.from(bn);
-    if (bn.lt(0)) {
-      bn = BigNumber.from("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").add(bn).add(1);
-    }
-    let addr = bn.toHexString();
-    if (addr.includes("0x")) {
-      addr.replace("0x", "");
-    }
-    addr = addr.padStart(40, "0");
-    addr = addr.slice(addr.length - 40, addr.length);
-    addr = "0x" + addr;
-    // Set the AMB address we'll use.
-    amb = utils.getAddress(addr);
-    console.log("amb address generated with alias: ", amb);
+    hubConnectorAddress = arbitrumHubConnector.address;
   }
 
   console.log(`Deploying ${contract}...`);
@@ -294,6 +284,7 @@ const handleDeploySpoke = async (
         connectorChainId: deploymentChainId,
         deploymentChainId,
         mirrorChainId: protocol.hub,
+        mirrorConnector: hubConnectorAddress,
         rootManager: rootManagerDeployment.address,
         merkleManager: merkleTreeManager.address,
         watcherManager: watcherManager.address,
