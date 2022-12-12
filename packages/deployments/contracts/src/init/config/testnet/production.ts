@@ -119,6 +119,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       allowlist: [
         "0xD2aD711861ab345977B7379c81165708C8717fF1", // connext
         "0xE879261F44041E030404Ac9847f0cEE2591F62F5", // bware
+        "0x12060Ec432a76Fe35851Ae9e656b4fbb9C8ac842", // p2p
       ],
     },
     sequencers: {
