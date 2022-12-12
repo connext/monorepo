@@ -23,8 +23,8 @@ describe("Operations: Propagate", () => {
 
     it("should send encoded data to relayer succesfully", async () => {
       stub(PropagateFns, "getParamsForDomainFn").value({
-        [mock.domain.A]: () => Promise.resolve({ encodedData: "0x", value: "0" }),
-        [mock.domain.B]: () => Promise.resolve({ encodedData: "0x", value: "0" }),
+        [mock.domain.A]: () => Promise.resolve({ _encodedData: "0x", _fee: "0" }),
+        [mock.domain.B]: () => Promise.resolve({ _encodedData: "0x", _fee: "0" }),
       });
 
       await propagate();

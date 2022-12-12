@@ -4,7 +4,7 @@ import { BigNumber, constants, utils } from "ethers";
 import { getContext } from "../propagate";
 import { NoSpokeConnector, NoHubConnector, NoProviderForDomain } from "../errors";
 import { ExtraPropagateParam } from "../operations/propagate";
-import { getJsonRpcProvider, getL1ToL2MessageGasEstimator } from "../../../mockable";
+import { getJsonRpcProvider, getL1ToL2MessageGasEstimator, getBaseFee, getInterface } from "../../../mockable";
 
 // example at https://github.com/OffchainLabs/arbitrum-tutorials/blob/master/packages/greeter/scripts/exec.js
 export const getPropagateParams = async (
@@ -27,9 +27,7 @@ export const getPropagateParams = async (
   }
 
   // must be ETH mainnet for arbitrum SDK
-  const l1RpcUrl = "https://rpc.ankr.com/eth";
-  // TODO: use below when mainnet is deployed
-  // const l1RpcUrl = config.chains["6648936"]?.providers[0];
+  const l1RpcUrl = config.chains[config.hubDomain]?.providers[0];
   if (!l1RpcUrl) {
     throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
   }
@@ -63,55 +61,39 @@ export const getPropagateParams = async (
     // example encoded payload: 0x4ff746f6000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000207465737400000000000000000000000000000000000000000000000000000000
     // length = 200 not including 0x = 100 bytes
     // TODO: verify this is the correct payload to use
-    // const messageBytesLength = 100 + 4; // 4 bytes func identifier
-    // const l1Provider = getJsonRpcProvider(l1RpcUrl);
-    // const _submissionPriceWei = await l1ToL2MessageGasEstimate.estimateSubmissionFee(
-    //   l1Provider,
-    //   await l1Provider.getGasPrice(),
-    //   messageBytesLength,
-    // );
-
-    const _submissionPriceWei = BigNumber.from("21938254772368");
-
-    logger.info(
-      `Got current retryable base submission price: ${_submissionPriceWei.toString()}`,
-      requestContext,
-      methodContext,
-      { submissionPriceWei: _submissionPriceWei.toString() },
-    );
+    const l1Provider = getJsonRpcProvider(l1RpcUrl);
 
     gasPriceBid = await chainreader.getGasPrice(+l2domain, requestContext);
     logger.info(`Got current gas price bid: ${gasPriceBid.toString()}`, requestContext, methodContext, {
       gasPriceBid: gasPriceBid.toString(),
     });
 
-    maxGas = await l1ToL2MessageGasEstimate.estimateRetryableTicketGasLimit(
+    const baseFee = await getBaseFee(l1Provider);
+    const spokeConnectorIface = getInterface(l2SpokeConnector.abi as any[]);
+    const callData = spokeConnectorIface.encodeFunctionData("processMessage", [
+      "0x0000000000000000000000000000000000000000000000000000000000000001",
+    ]);
+    const L1ToL2MessageGasParams = await l1ToL2MessageGasEstimate.estimateAll(
       l1HubConnector.address,
       l2SpokeConnector.address,
+      callData,
       constants.Zero,
-      l2SpokeConnector.address, // TODO: check this
+      baseFee,
       l2SpokeConnector.address,
-      // use example calldata since it will always be the same
-      // TODO: check this, it shouldnt be the same as the above example calldata
-      "0x4ff746f6000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000207465737400000000000000000000000000000000000000000000000000000000",
-      utils.parseEther("1"),
+      l2SpokeConnector.address,
+      l1Provider,
     );
-    logger.info(`Got current max gas: ${maxGas.toString()}`, requestContext, methodContext, {
-      maxGas: maxGas.toString(),
+    logger.info(`Got message gas params`, requestContext, methodContext, {
+      maxFeePerGas: L1ToL2MessageGasParams.maxFeePerGas.toString(),
+      maxSubmissionCost: L1ToL2MessageGasParams.maxSubmissionFee.toString(),
+      gasLimit: L1ToL2MessageGasParams.gasLimit.toString(),
     });
 
-    /**
-     * ...Okay, but on the off chance we end up underpaying, our retryable ticket simply fails.
-     * This is highly unlikely, but just to be safe, let's increase the amount we'll be paying (the difference between the actual cost and the amount we pay gets refunded to our address on L2 anyway)
-     * In nitro, submission fee will be charged in L1 based on L1 basefee, revert on L1 side upon insufficient fee.
-     */
-    submissionPriceWei = _submissionPriceWei.mul(5);
-
-    /**
-     * With these three values, we can calculate the total callvalue we'll need our L1 transaction to send to L2
-     */
-    callValue = submissionPriceWei.add(gasPriceBid.mul(maxGas));
+    submissionPriceWei = L1ToL2MessageGasParams.maxSubmissionFee.mul(5).toString();
+    maxGas = L1ToL2MessageGasParams.gasLimit.toString();
+    callValue = BigNumber.from(submissionPriceWei).add(gasPriceBid.mul(maxGas)).toString();
   } catch (err: unknown) {
+    console.log(err);
     logger.error("Error getting propagate params for Arbitrum", requestContext, methodContext, err as NxtpError);
     submissionPriceWei = "0";
     maxGas = "0";
@@ -119,11 +101,10 @@ export const getPropagateParams = async (
     callValue = "0";
   }
 
-  // (uint256 maxSubmissionCost, uint256 maxGas, uint256 gasPrice) = abi.decode(
   const encodedData = utils.defaultAbiCoder.encode(
     ["uint256", "uint256", "uint256"],
     [submissionPriceWei, maxGas, gasPriceBid],
   );
 
-  return { _connector: "", _fee: callValue.toString(), _encodedData: encodedData };
+  return { _connector: "", _fee: callValue, _encodedData: encodedData };
 };
