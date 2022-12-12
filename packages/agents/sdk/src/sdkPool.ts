@@ -385,7 +385,6 @@ export class NxtpSdkPool {
     originSlippageBps: BigNumberish;
     routerFee: BigNumberish;
     destinationSlippageBps: BigNumberish;
-    priceImpact: BigNumberish;
   }> {
     const { requestContext, methodContext } = createLoggingContext(this.calculateAmountReceived.name);
     this.logger.info("Method start", requestContext, methodContext, {
@@ -433,14 +432,11 @@ export class NxtpSdkPool {
 
     const destinationSlippageBps = destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount);
 
-    const priceImpact = this.calculatePriceImpact(BigNumber.from(amount), BigNumber.from(destinationAmountReceived));
-
     return {
       amountReceived: destinationAmountReceived,
       originSlippageBps,
       routerFee,
       destinationSlippageBps,
-      priceImpact,
     };
   }
 
