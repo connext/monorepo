@@ -16,7 +16,12 @@ function sigsFromABI(abi: any[]): string[] {
     .map((fragment: any) => Interface.getSighash(FunctionFragment.from(fragment as unknown as FunctionFragment)));
 }
 
-type FacetOptions = { name: string; contract: string; args: any[] };
+type FacetOptions = {
+  name: string;
+  contract: string;
+  args?: any[];
+  deterministic?: boolean | string;
+};
 
 const proposeDiamondUpgrade = async (
   facets: FacetOptions[],
@@ -41,7 +46,12 @@ const proposeDiamondUpgrade = async (
   let abi: any[] = diamondArtifact.abi.concat([]);
 
   // Add DiamondLoupeFacet
-  facets.push({ name: "_DefaultDiamondLoupeFacet", contract: "DiamondLoupeFacet", args: [] });
+  facets.push({
+    name: "_DefaultDiamondLoupeFacet",
+    contract: "DiamondLoupeFacet",
+    args: [],
+    deterministic: true,
+  });
 
   let changesDetected = false;
 

@@ -49,7 +49,7 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
    * @dev Asserts the sender of a cross domain message
    */
   function _verifySender(address _expected) internal view override returns (bool) {
-    return _verifySender(AMB, _expected, GnosisAmb(AMB).sourceChainId());
+    return _verifySender(AMB, _expected, GnosisAmb(AMB).destinationChainId());
   }
 
   /**
@@ -81,7 +81,7 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!mirrorConnector");
     // ensure it is headed to this domain
-    require(GnosisAmb(AMB).destinationChainId() == block.chainid, "!destinationChain");
+    require(GnosisAmb(AMB).sourceChainId() == block.chainid, "!sourceChain");
     // update the aggregate root on the domain
     receiveAggregateRoot(bytes32(_data));
   }
