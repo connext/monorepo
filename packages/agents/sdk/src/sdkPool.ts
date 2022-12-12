@@ -288,7 +288,7 @@ export class NxtpSdkPool {
     tokenAddress: string,
     amountX: string,
     amountY: string,
-  ): Promise<BigNumber> {
+  ): Promise<BigNumber | undefined> {
     const [virtualPrice, lpTokenAmount] = await Promise.all([
       this.getVirtualPrice(domainId, tokenAddress),
       this.calculateTokenAmount(domainId, tokenAddress, [amountX, amountY]),
@@ -298,10 +298,13 @@ export class NxtpSdkPool {
 
     // Normalize to 18 decimals
     const pool = await this.getPool(domainId, tokenAddress);
-    const decimals = pool.decimals[0];
-    totalAmount = totalAmount.mul(BigNumber.from(10).pow(18 - decimals));
+    if (pool) {
+      const decimals = pool.decimals[0];
+      totalAmount = totalAmount.mul(BigNumber.from(10).pow(18 - decimals));
+      return this.calculatePriceImpact(totalAmount, lpTokenAmount, virtualPrice);
+    }
 
-    return this.calculatePriceImpact(totalAmount, lpTokenAmount, virtualPrice);
+    return;
   }
 
   /**
@@ -316,7 +319,7 @@ export class NxtpSdkPool {
     tokenAddress: string,
     amountX: string,
     amountY: string,
-  ): Promise<BigNumber> {
+  ): Promise<BigNumber | undefined> {
     const [virtualPrice, lpTokenAmount] = await Promise.all([
       this.getVirtualPrice(domainId, tokenAddress),
       this.calculateTokenAmount(domainId, tokenAddress, [amountX, amountY], false),
@@ -326,10 +329,13 @@ export class NxtpSdkPool {
 
     // Normalize to 18 decimals
     const pool = await this.getPool(domainId, tokenAddress);
-    const decimals = pool.decimals[0];
-    totalAmount = totalAmount.mul(BigNumber.from(10).pow(18 - decimals));
+    if (pool) {
+      const decimals = pool.decimals[0];
+      totalAmount = totalAmount.mul(BigNumber.from(10).pow(18 - decimals));
+      return this.calculatePriceImpact(lpTokenAmount, totalAmount, virtualPrice, false);
+    }
 
-    return this.calculatePriceImpact(lpTokenAmount, totalAmount, virtualPrice, false);
+    return;
   }
 
   /**
@@ -684,7 +690,7 @@ export class NxtpSdkPool {
 
     let pool = this.pools.get([domainId, key].join("-"));
     if (pool) {
-      return pool;
+      return;
     }
 
     const [local, adopted, lpTokenAddress] = await Promise.all([
@@ -694,7 +700,7 @@ export class NxtpSdkPool {
     ]);
 
     if (local == adopted) {
-      this.logger.debug("No Pool Exist");
+      this.logger.debug(`No Pool for token ${tokenAddress} on domain ${domainId}`);
       return;
     }
 
@@ -749,13 +755,7 @@ export class NxtpSdkPool {
 
     await Promise.all(
       Object.values(this.config.chains[domainId].assets).map(async (asset: AssetDescription) => {
-        let pool;
-        try {
-          pool = await this.getPool(domainId, asset.address);
-        } catch (e: any) {
-          this.logger.info("No pool for asset", requestContext, methodContext, { asset });
-        }
-
+        const pool = await this.getPool(domainId, asset.address);
         if (pool) {
           const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
           const adoptedTokenUserBalance = await this.getTokenUserBalance(domainId, pool.tokens[0], userAddress);
@@ -765,6 +765,8 @@ export class NxtpSdkPool {
             lpTokenBalance: lpTokenUserBalance,
             poolTokenBalances: [adoptedTokenUserBalance, localTokenUserBalance],
           });
+        } else {
+          this.logger.info("No pool for asset", requestContext, methodContext, { asset });
         }
       }),
     );
@@ -772,29 +774,35 @@ export class NxtpSdkPool {
     return result;
   }
 
-  async getPoolStats(domainId: string, tokenAddress: string): Promise<IPoolStats> {
+  async getPoolStats(domainId: string, tokenAddress: string): Promise<IPoolStats | undefined> {
     const pool = await this.getPool(domainId, tokenAddress);
+    if (pool) {
+      const stats: IPoolStats = {
+        liquidity: await pool.getLiquidity(),
+        volume: await pool.getVolume(),
+        fees: await pool.getFees(),
+        apy: await pool.getApy(),
+      };
 
-    const stats: IPoolStats = {
-      liquidity: await pool.getLiquidity(),
-      volume: await pool.getVolume(),
-      fees: await pool.getFees(),
-      apy: await pool.getApy(),
-    };
+      return stats;
+    }
 
-    return stats;
+    return;
   }
 
   async getYieldStatsForDay(
     domainId: string,
     tokenAddress: string,
     unixTimestamp: number,
-  ): Promise<{
-    totalFeesFormatted: number;
-    totalLiquidityFormatted: number;
-    totalVolume: BigNumber;
-    totalVolumeFormatted: number;
-  }> {
+  ): Promise<
+    | {
+        totalFeesFormatted: number;
+        totalLiquidityFormatted: number;
+        totalVolume: BigNumber;
+        totalVolumeFormatted: number;
+      }
+    | undefined
+  > {
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
@@ -802,52 +810,56 @@ export class NxtpSdkPool {
     const key: string = getCanonicalHash(canonicalDomain, canonicalId);
     const pool = await this.getPool(domainId, tokenAddress);
 
-    const endTimestamp = unixTimestamp;
-    const endBlock = await this.getBlockNumberFromUnixTimestamp(domainId, endTimestamp);
+    if (pool) {
+      const endTimestamp = unixTimestamp;
+      const endBlock = await this.getBlockNumberFromUnixTimestamp(domainId, endTimestamp);
 
-    const startTimestamp = endTimestamp - 86_400;
-    let startBlock = await this.getBlockNumberFromUnixTimestamp(domainId, startTimestamp);
+      const startTimestamp = endTimestamp - 86_400;
+      let startBlock = await this.getBlockNumberFromUnixTimestamp(domainId, startTimestamp);
 
-    const perBatch = 1000;
-    let endBatchBlock = Math.min(startBlock + perBatch, endBlock);
+      const perBatch = 1000;
+      let endBatchBlock = Math.min(startBlock + perBatch, endBlock);
 
-    const tokenSwapEvents: any[] = [];
-    while (startBlock < endBlock) {
-      tokenSwapEvents.push(
-        ...(await connextContract.queryFilter(connextContract.filters.TokenSwap(), startBlock, endBatchBlock)),
-      );
+      const tokenSwapEvents: any[] = [];
+      while (startBlock < endBlock) {
+        tokenSwapEvents.push(
+          ...(await connextContract.queryFilter(connextContract.filters.TokenSwap(), startBlock, endBatchBlock)),
+        );
 
-      startBlock = endBatchBlock;
-      endBatchBlock = Math.min(endBatchBlock + perBatch, endBlock);
+        startBlock = endBatchBlock;
+        endBatchBlock = Math.min(endBatchBlock + perBatch, endBlock);
+      }
+
+      const swapStorage = await connextContract.getSwapStorage(key);
+      const basisPoints = swapStorage.swapFee;
+      const FEE_DENOMINATOR = "10000000000"; // 10**10
+      const decimals = pool.decimals[0];
+
+      let totalVolume = BigNumber.from(0);
+      let totalFees = BigNumber.from(0);
+      for (const event of tokenSwapEvents) {
+        const tokensSold: BigNumber = event.args.tokensSold;
+        totalFees = totalFees.add(tokensSold.mul(BigNumber.from(basisPoints)).div(BigNumber.from(FEE_DENOMINATOR)));
+
+        totalVolume = totalVolume.add(tokensSold);
+      }
+
+      const reserve0 = pool.balances[0];
+      const reserve1 = pool.balances[1];
+      const totalLiquidity = reserve0.add(reserve1);
+      const totalLiquidityFormatted = Number(utils.formatUnits(totalLiquidity, decimals));
+      const totalFeesFormatted = Number(utils.formatUnits(totalFees, decimals));
+      const totalVolumeFormatted = Number(utils.formatUnits(totalVolume, decimals));
+
+      return {
+        totalFeesFormatted,
+        totalLiquidityFormatted,
+        totalVolume,
+        totalVolumeFormatted,
+      };
     }
 
-    const swapStorage = await connextContract.getSwapStorage(key);
-    const basisPoints = swapStorage.swapFee;
-    const FEE_DENOMINATOR = "10000000000"; // 10**10
-    const decimals = pool.decimals[0];
-
-    let totalVolume = BigNumber.from(0);
-    let totalFees = BigNumber.from(0);
-    for (const event of tokenSwapEvents) {
-      const tokensSold: BigNumber = event.args.tokensSold;
-      totalFees = totalFees.add(tokensSold.mul(BigNumber.from(basisPoints)).div(BigNumber.from(FEE_DENOMINATOR)));
-
-      totalVolume = totalVolume.add(tokensSold);
-    }
-
-    const reserve0 = pool.balances[0];
-    const reserve1 = pool.balances[1];
-    const totalLiquidity = reserve0.add(reserve1);
-    const totalLiquidityFormatted = Number(utils.formatUnits(totalLiquidity, decimals));
-    const totalFeesFormatted = Number(utils.formatUnits(totalFees, decimals));
-    const totalVolumeFormatted = Number(utils.formatUnits(totalVolume, decimals));
-
-    return {
-      totalFeesFormatted,
-      totalLiquidityFormatted,
-      totalVolume,
-      totalVolumeFormatted,
-    };
+    return;
   }
 
   calculateYield(
@@ -870,12 +882,15 @@ export class NxtpSdkPool {
     domainId: string,
     tokenAddress: string,
     days = 1,
-  ): Promise<{
-    apr: number;
-    apy: number;
-    volume: BigNumber;
-    volumeFormatted: number;
-  }> {
+  ): Promise<
+    | {
+        apr: number;
+        apy: number;
+        volume: BigNumber;
+        volumeFormatted: number;
+      }
+    | undefined
+  > {
     const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
     const block = await provider.getBlock("latest");
     const endTimestamp = block.timestamp;
@@ -884,30 +899,33 @@ export class NxtpSdkPool {
     startDate.setDate(endDate.getDate() - days);
     const startTimestamp = Math.floor(startDate.getTime() / 1000);
 
-    const {
-      totalFeesFormatted: feesEarnedToday,
-      totalLiquidityFormatted: totalLiquidityToday,
-      totalVolume,
-      totalVolumeFormatted,
-    } = await this.getYieldStatsForDay(domainId, tokenAddress, endTimestamp);
+    const yieldStatsEnd = await this.getYieldStatsForDay(domainId, tokenAddress, endTimestamp);
+    const yieldStatsStart = await this.getYieldStatsForDay(domainId, tokenAddress, startTimestamp);
 
-    let feesEarnedDaysAgo = 0;
-    if (days > 1) {
-      ({ totalFeesFormatted: feesEarnedDaysAgo } = await this.getYieldStatsForDay(
-        domainId,
-        tokenAddress,
-        startTimestamp,
-      ));
+    if (yieldStatsEnd && yieldStatsStart) {
+      const {
+        totalFeesFormatted: feesEarnedToday,
+        totalLiquidityFormatted: totalLiquidityToday,
+        totalVolume,
+        totalVolumeFormatted,
+      } = yieldStatsEnd;
+
+      let feesEarnedDaysAgo = 0;
+      if (days > 1) {
+        ({ totalFeesFormatted: feesEarnedDaysAgo } = yieldStatsStart);
+      }
+
+      const { apr, apy } = this.calculateYield(feesEarnedToday, feesEarnedDaysAgo, totalLiquidityToday, days);
+
+      return {
+        apr: Math.max(apr, 0),
+        apy: Math.max(apy, 0),
+        volume: totalVolume,
+        volumeFormatted: totalVolumeFormatted,
+      };
     }
 
-    const { apr, apy } = this.calculateYield(feesEarnedToday, feesEarnedDaysAgo, totalLiquidityToday, days);
-
-    return {
-      apr: Math.max(apr, 0),
-      apy: Math.max(apy, 0),
-      volume: totalVolume,
-      volumeFormatted: totalVolumeFormatted,
-    };
+    return;
   }
 
   async getLiquidityMiningAprPerPool(
