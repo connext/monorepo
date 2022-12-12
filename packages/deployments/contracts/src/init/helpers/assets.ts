@@ -86,12 +86,12 @@ export const setupAsset = async (args: {
     const desiredAdopted = representation.adopted;
     let setupAssetDone = true;
     try {
-      const adopted = await getValue({
+      const adopted: undefined | string = await getValue({
         deployment: network.deployments.Connext,
         read: { method: "canonicalToAdopted(bytes32)", args: [key] },
       });
 
-      if (adopted !== desiredAdopted) {
+      if (adopted && adopted.toLowerCase() !== desiredAdopted.toLowerCase()) {
         await updateIfNeeded({
           deployment: network.deployments.Connext,
           desired: false,
