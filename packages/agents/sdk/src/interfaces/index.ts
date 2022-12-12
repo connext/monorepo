@@ -15,6 +15,7 @@ export interface IPoolData {
   name: string;
   symbol: string;
   tokens: string[];
+  tokenIndices: Map<string, number>;
   decimals: number[];
   lpTokenAddress: string;
   canonicalHash: string;
