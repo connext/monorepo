@@ -49,7 +49,7 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
    * @dev Asserts the sender of a cross domain message
    */
   function _verifySender(address _expected) internal view override returns (bool) {
-    return _verifySender(AMB, _expected, GnosisAmb(AMB).sourceChainId());
+    return _verifySender(AMB, _expected, GnosisAmb(AMB).destinationChainId());
   }
 
   /**
