@@ -68,14 +68,11 @@ export const getPropagateParams = async (
       gasPriceBid: gasPriceBid.toString(),
     });
 
-    console.log("before getBaseFee: ");
     const baseFee = await getBaseFee(l1Provider);
-    console.log("before getInterface: ");
     const spokeConnectorIface = getInterface(l2SpokeConnector.abi as any[]);
     const callData = spokeConnectorIface.encodeFunctionData("processMessage", [
       "0x0000000000000000000000000000000000000000000000000000000000000001",
     ]);
-    console.log("before estimateAll: ");
     const L1ToL2MessageGasParams = await l1ToL2MessageGasEstimate.estimateAll(
       l1HubConnector.address,
       l2SpokeConnector.address,
@@ -104,12 +101,10 @@ export const getPropagateParams = async (
     callValue = "0";
   }
 
-  console.log("before encode");
   const encodedData = utils.defaultAbiCoder.encode(
     ["uint256", "uint256", "uint256"],
     [submissionPriceWei, maxGas, gasPriceBid],
   );
 
-  console.log("before return");
   return { _connector: "", _fee: callValue, _encodedData: encodedData };
 };
