@@ -3,7 +3,7 @@ import { BigNumber } from "ethers";
 
 import { getEstimatedFee, sendWithRelayerWithBackup, getDeployedRootManagerContract } from "../../../mockable";
 import { NoChainIdForHubDomain } from "../errors";
-import { getPropagateParamsArbitrum, getPropagateParamsBnb } from "../helpers";
+import { getPropagateParamsArbitrum, getPropagateParamsBnb, getPropagateParamsGnosis } from "../helpers";
 import { getContext } from "../propagate";
 
 export type ExtraPropagateParam = {
@@ -24,6 +24,7 @@ export const getParamsForDomainFn: Record<
   "1634886255": getPropagateParamsArbitrum,
   "1734439522": getPropagateParamsArbitrum,
   "6450786": getPropagateParamsBnb,
+  "6778479": getPropagateParamsGnosis,
 };
 
 export const propagate = async () => {

@@ -41,7 +41,7 @@ export const alertViaPagerDuty = async (report: Report, routingKey?: string) => 
     data: {
       payload: {
         summary: `Connext Watcher Alert - ${reason}`,
-        timestamp: new Date(timestamp * 1000).toString(),
+        timestamp: new Date(timestamp).toISOString(),
         source: "connext:watcher:mainnet", // unique id
         severity: "critical", // 'critical' | 'error' | 'warning' | 'info';
         component: "watcher",

@@ -53,6 +53,7 @@ export interface ArbitrumSpokeConnectorInterface extends utils.Interface {
     "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "addSender(address)": FunctionFragment;
+    "aliasedSender()": FunctionFragment;
     "allowlistedSenders(address)": FunctionFragment;
     "delay()": FunctionFragment;
     "delayBlocks()": FunctionFragment;
@@ -104,6 +105,7 @@ export interface ArbitrumSpokeConnectorInterface extends utils.Interface {
       | "ROOT_MANAGER"
       | "acceptProposedOwner"
       | "addSender"
+      | "aliasedSender"
       | "allowlistedSenders"
       | "delay"
       | "delayBlocks"
@@ -170,6 +172,10 @@ export interface ArbitrumSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "addSender",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "aliasedSender",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "allowlistedSenders",
@@ -334,6 +340,10 @@ export interface ArbitrumSpokeConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "addSender", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "aliasedSender",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "allowlistedSenders",
     data: BytesLike
   ): Result;
@@ -451,6 +461,7 @@ export interface ArbitrumSpokeConnectorInterface extends utils.Interface {
     "AggregateRootReceived(bytes32)": EventFragment;
     "AggregateRootRemoved(bytes32)": EventFragment;
     "AggregateRootVerified(bytes32)": EventFragment;
+    "AliasedSenderUpdated(address,address)": EventFragment;
     "DelayBlocksUpdated(uint256,address)": EventFragment;
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
     "FundsWithdrawn(address,uint256)": EventFragment;
@@ -473,6 +484,7 @@ export interface ArbitrumSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "AggregateRootReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AggregateRootRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AggregateRootVerified"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AliasedSenderUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DelayBlocksUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Dispatch"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsWithdrawn"): EventFragment;
@@ -524,6 +536,18 @@ export type AggregateRootVerifiedEvent = TypedEvent<
 
 export type AggregateRootVerifiedEventFilter =
   TypedEventFilter<AggregateRootVerifiedEvent>;
+
+export interface AliasedSenderUpdatedEventObject {
+  previous: string;
+  current: string;
+}
+export type AliasedSenderUpdatedEvent = TypedEvent<
+  [string, string],
+  AliasedSenderUpdatedEventObject
+>;
+
+export type AliasedSenderUpdatedEventFilter =
+  TypedEventFilter<AliasedSenderUpdatedEvent>;
 
 export interface DelayBlocksUpdatedEventObject {
   updated: BigNumber;
@@ -759,6 +783,8 @@ export interface ArbitrumSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    aliasedSender(overrides?: CallOverrides): Promise<[string]>;
+
     allowlistedSenders(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -933,6 +959,8 @@ export interface ArbitrumSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  aliasedSender(overrides?: CallOverrides): Promise<string>;
+
   allowlistedSenders(
     arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -1105,6 +1133,8 @@ export interface ArbitrumSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    aliasedSender(overrides?: CallOverrides): Promise<string>;
+
     allowlistedSenders(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1268,6 +1298,15 @@ export interface ArbitrumSpokeConnector extends BaseContract {
       root?: PromiseOrValue<BytesLike> | null
     ): AggregateRootVerifiedEventFilter;
 
+    "AliasedSenderUpdated(address,address)"(
+      previous?: null,
+      current?: null
+    ): AliasedSenderUpdatedEventFilter;
+    AliasedSenderUpdated(
+      previous?: null,
+      current?: null
+    ): AliasedSenderUpdatedEventFilter;
+
     "DelayBlocksUpdated(uint256,address)"(
       updated?: PromiseOrValue<BigNumberish> | null,
       caller?: null
@@ -1426,6 +1465,8 @@ export interface ArbitrumSpokeConnector extends BaseContract {
       _sender: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    aliasedSender(overrides?: CallOverrides): Promise<BigNumber>;
 
     allowlistedSenders(
       arg0: PromiseOrValue<string>,
@@ -1601,6 +1642,8 @@ export interface ArbitrumSpokeConnector extends BaseContract {
       _sender: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    aliasedSender(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     allowlistedSenders(
       arg0: PromiseOrValue<string>,
