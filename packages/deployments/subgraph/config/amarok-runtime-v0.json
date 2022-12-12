@@ -26,8 +26,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0xDF84553e8aA18BC14D1B1DC56B4139c38f01228B",
-        "startBlock": 36739129
+        "address": "0x1a238087E8FB9f6B248ec4143d94F11B1497383a",
+        "startBlock": 36741498
       }
     ]
   },
@@ -42,8 +42,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x200fdcf7ED3d856a70380D1d88778EBCA9EC6959",
-        "startBlock": 48439154
+        "address": "0x729a17a6802a7348eEBefBE54146Eda98B121656",
+        "startBlock": 48470169
       }
     ]
   },
@@ -74,8 +74,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x6d1854623bC7f64c5F5149685D2F42c497De220e",
-        "startBlock": 23840161
+        "address": "0x8D220D56EF60c63382CD4107eF0f6ED02D011663",
+        "startBlock": 23841812
       }
     ]
   },
@@ -90,8 +90,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x50eF4b4436faf884AfB95E7D5560f4c6Eaed2A1c",
-        "startBlock": 25410948
+        "address": "0x534F26d0FD8d1E0680bA98C19DfEd13803bFd256",
+        "startBlock": 25411855
       }
     ]
   },
