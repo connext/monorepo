@@ -201,7 +201,7 @@ export class NxtpSdkPool {
     tokenAddress: string,
     tokenIndexFrom: number,
     tokenIndexTo: number,
-    amount: string,
+    amount: BigNumberish,
   ): Promise<BigNumber> {
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
@@ -382,9 +382,9 @@ export class NxtpSdkPool {
     isNextAsset = false,
   ): Promise<{
     amountReceived: BigNumberish;
-    originSlippage: BigNumberish;
+    originSlippageBps: BigNumberish;
     routerFee: BigNumberish;
-    destinationSlippage: BigNumberish;
+    destinationSlippageBps: BigNumberish;
     priceImpact: BigNumberish;
   }> {
     const { requestContext, methodContext } = createLoggingContext(this.calculateAmountReceived.name);
@@ -403,44 +403,43 @@ export class NxtpSdkPool {
 
     // nextAssets don't need to be swapped on origin
     if (!isNextAsset && originPool) {
-      const originConnextContract = await this.getConnext(originDomain);
-
-      originAmountReceived = await originConnextContract.calculateSwap(
-        originPool.canonicalHash,
+      originAmountReceived = await this.calculateSwap(
+        originDomain,
+        originTokenAddress,
         originPool.tokenIndices.get(originTokenAddress)!,
-        originPool.tokenIndices.get(originTokenAddress)!,
+        originPool.tokenIndices.get(originTokenAddress)! == 0 ? 1 : 0,
         amount,
       );
     }
 
-    const originSlippage = (amount as BigNumber).sub(originAmountReceived).div(amount);
-    const routerFee = (originAmountReceived as BigNumber).mul(DEFAULT_ROUTER_FEE);
+    const originSlippageBps = BigNumber.from(amount).sub(originAmountReceived).mul(10000).div(amount);
+    const feeBps = BigNumber.from(+DEFAULT_ROUTER_FEE * 100);
+    const routerFee = BigNumber.from(originAmountReceived).mul(feeBps).div(10000);
 
     // Calculate destination swap
     const destinationPool = await this.getPool(destinationDomain, destinationTokenAddress);
-    const destinationAmount = (originAmountReceived as BigNumber).sub(routerFee);
-    let destinationAmountReceived = originAmountReceived;
+    const destinationAmount = BigNumber.from(originAmountReceived).sub(routerFee);
+    let destinationAmountReceived = destinationAmount;
 
     if (destinationPool) {
-      const destinationConnextContract = await this.getConnext(destinationDomain);
-
-      destinationAmountReceived = await destinationConnextContract.calculateSwap(
-        destinationPool.canonicalHash,
-        destinationPool.tokenIndices.get(originTokenAddress)!,
-        destinationPool.tokenIndices.get(originTokenAddress)!,
+      destinationAmountReceived = await this.calculateSwap(
+        destinationDomain,
+        destinationTokenAddress,
+        destinationPool.tokenIndices.get(destinationTokenAddress)!,
+        destinationPool.tokenIndices.get(destinationTokenAddress)! == 0 ? 1 : 0,
         destinationAmount,
       );
     }
 
-    const destinationSlippage = destinationAmount.sub(destinationAmountReceived).div(destinationAmount);
+    const destinationSlippageBps = destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount);
 
-    const priceImpact = this.calculatePriceImpact(amount as BigNumber, destinationAmountReceived as BigNumber);
+    const priceImpact = this.calculatePriceImpact(BigNumber.from(amount), BigNumber.from(destinationAmountReceived));
 
     return {
       amountReceived: destinationAmountReceived,
-      originSlippage,
+      originSlippageBps,
       routerFee,
-      destinationSlippage,
+      destinationSlippageBps,
       priceImpact,
     };
   }
@@ -701,7 +700,7 @@ export class NxtpSdkPool {
     const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(domainId, tokenAddress);
 
     if (canonicalDomain == domainId) {
-      this.logger.debug("No Pool Exist");
+      this.logger.debug(`No Pool; token ${tokenAddress} is canonical on domain ${domainId}`);
       return;
     }
 
@@ -709,7 +708,7 @@ export class NxtpSdkPool {
 
     let pool = this.pools.get([domainId, key].join("-"));
     if (pool) {
-      return;
+      return pool;
     }
 
     const [local, adopted, lpTokenAddress] = await Promise.all([
