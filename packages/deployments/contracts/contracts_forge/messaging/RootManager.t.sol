@@ -141,7 +141,7 @@ contract RootManagerTest is ForgeHelper {
     vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
 
-    vm.expectRevert(bytes("exists"));
+    vm.expectRevert(bytes("domain already exists"));
 
     vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
@@ -151,7 +151,7 @@ contract RootManagerTest is ForgeHelper {
     vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
 
-    vm.expectRevert(bytes("exists"));
+    vm.expectRevert(bytes("domain already exists"));
 
     vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[1]);
