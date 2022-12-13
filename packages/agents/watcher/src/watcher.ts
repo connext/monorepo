@@ -1,5 +1,6 @@
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { WatcherAdapter } from "@connext/nxtp-adapters-watcher";
+import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { TransactionService } from "@connext/nxtp-txservice";
 import {
   Asset,
@@ -10,6 +11,7 @@ import {
   Logger,
   RequestContext,
 } from "@connext/nxtp-utils";
+import { Wallet } from "ethers";
 
 import { bindServer, bindInterval } from "./bindings";
 import { getConfig } from "./config";
@@ -21,17 +23,35 @@ export const getContext = (): WatcherContext => context;
 export const makeWatcher = async () => {
   try {
     const { requestContext, methodContext } = createLoggingContext("makeWatcher");
+
+    /// MARK - Config
     context.chainData = await getChainData();
     context.adapters = {} as any;
     context.config = await getConfig();
-    context.logger = new Logger({ name: "Watcher", level: "info" });
-    const txservice = new TransactionService(
-      context.logger.child({ module: "TransactionService", level: context.config.logLevel }),
-      context.config.chains,
-      context.adapters.wallet,
-      true, // Ghost instance, in the event that this is running in the same process as a router.;
-    );
 
+    /// MARK - Logger
+    context.logger = new Logger({
+      name: "Watcher",
+      level: context.config.logLevel ?? "info",
+      formatters: {
+        level: (label) => {
+          return { level: label.toUpperCase() };
+        },
+      },
+    });
+
+    /// MARK - Signer
+    if (!context.config.mnemonic && !context.config.web3SignerUrl) {
+      throw new Error(
+        "No mnemonic or web3signer was configured. Please ensure either a mnemonic or a web3signer" +
+          " URL is provided in the config. Exiting!",
+      );
+    }
+    context.adapters.wallet = context.config.mnemonic
+      ? Wallet.fromMnemonic(context.config.mnemonic)
+      : new Web3Signer(context.config.web3SignerUrl!);
+
+    /// MARK - Asset Setup
     context.adapters.subgraph = await setupSubgraphReader(
       context.logger,
       context.chainData,
@@ -41,13 +61,21 @@ export const makeWatcher = async () => {
       requestContext,
     );
 
-    // get asset info from subgraph
+    // Get asset info from subgraph.
     const assetInfo: Asset[] = await context.adapters.subgraph.getAssetsByLocals(
       context.config.hubDomain,
       context.config.chains[context.config.hubDomain].assets.map((a) => a.address),
     );
     context.logger.info("Got asset info from subgraph", requestContext, methodContext, { assetInfo });
 
+    /// MARK - Watcher Adapter
+    // NOTE: TxService is not added to context directly; we only use it for initializing WatcherAdapter.
+    const txservice = new TransactionService(
+      context.logger.child({ module: "TransactionService", level: context.config.logLevel }),
+      context.config.chains,
+      context.adapters.wallet,
+      true, // Ghost instance, in the event that this is running in the same process as a router.
+    );
     context.adapters.watcher = new WatcherAdapter(
       {
         domains: Object.keys(context.config.chains),
@@ -60,17 +88,21 @@ export const makeWatcher = async () => {
       }),
     );
 
-    // bindings
+    /// MARK - Bindings
     await bindServer();
     await bindInterval();
     console.log(
       `
-
-        _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
-      _|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
-      _|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
-      _|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
-        _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
+C O N N E X T   W A T C H E R
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣠⣤⣤⣶⣶⣶⣤⣤⣄⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⢀⣤⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣄⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⣠⣶⣿⣿⡿⣿⣿⣿⡿⠋⠉⠀⠀⠉⠙⢿⣿⣿⡿⣿⣿⣷⣦⡀⠀⠀⠀
+⠀⢀⣼⣿⣿⠟⠁⢠⣿⣿⠏⠀⠀⢠⣤⣤⡀⠀⠀⢻⣿⣿⡀⠙⢿⣿⣿⣦⠀⠀
+⣰⣿⣿⡟⠁⠀⠀⢸⣿⣿⠀⠀⠀⢿⣿⣿⡟⠀⠀⠈⣿⣿⡇⠀⠀⠙⣿⣿⣷⡄
+⠈⠻⣿⣿⣦⣄⠀⠸⣿⣿⣆⠀⠀⠀⠉⠉⠀⠀⠀⣸⣿⣿⠃⢀⣤⣾⣿⣿⠟⠁
+⠀⠀⠈⠻⣿⣿⣿⣶⣿⣿⣿⣦⣄⠀⠀⠀⢀⣠⣾⣿⣿⣿⣾⣿⣿⡿⠋⠁⠀⠀
+⠀⠀⠀⠀⠀⠙⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⠁⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠛⠛⠿⠿⠿⠿⠿⠿⠛⠋⠉
 
       `,
     );

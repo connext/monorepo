@@ -173,51 +173,55 @@ struct AppStorage {
   /**
    * @notice Mapping of adopted to canonical asset information.
    */
+  // 5
   mapping(address => TokenId) adoptedToCanonical;
   /**
    * @notice Mapping of representation to canonical asset information.
    */
+  // 6
   mapping(address => TokenId) representationToCanonical;
   /**
    * @notice Mapping of hash(canonicalId, canonicalDomain) to token config on this domain.
    */
+  // 7
   mapping(bytes32 => TokenConfig) tokenConfigs;
   /**
    * @notice Mapping to track transfer status on destination domain
    */
-  // 12
+  // 8
   mapping(bytes32 => DestinationTransferStatus) transferStatus;
   /**
    * @notice Mapping holding router address that provided fast liquidity.
    */
-  // 13
+  // 9
   mapping(bytes32 => address[]) routedTransfers;
   /**
    * @notice Mapping of router to available balance of an asset.
    * @dev Routers should always store liquidity that they can expect to receive via the bridge on
    * this domain (the local asset).
    */
-  // 14
+  // 10
   mapping(address => mapping(address => uint256)) routerBalances;
   /**
    * @notice Mapping of approved relayers
    * @dev Send relayer fee if msg.sender is approvedRelayer; otherwise revert.
    */
-  // 15
+  // 11
   mapping(address => bool) approvedRelayers;
   /**
    * @notice The max amount of routers a payment can be routed through.
    */
-  // 18
+  // 12
   uint256 maxRoutersPerTransfer;
   /**
    * @notice Stores a mapping of transfer id to slippage overrides.
    */
-  // 20
+  // 13
   mapping(bytes32 => uint256) slippage;
   /**
    * @notice Stores a mapping of transfer id to receive local overrides.
    */
+  // 14
   mapping(bytes32 => bool) receiveLocalOverride;
   /**
    * @notice Stores a mapping of remote routers keyed on domains.
@@ -225,35 +229,36 @@ struct AppStorage {
    * This mapping is required because the Connext now contains the BridgeRouter and must implement
    * the remotes interface.
    */
-  // 21
+  // 15
   mapping(uint32 => bytes32) remotes;
   //
   // ProposedOwnable
   //
-  // 22
+  // 17
   address _proposed;
-  // 23
+  // 18
   uint256 _proposedOwnershipTimestamp;
-  // 24
+  // 19
   bool _routerAllowlistRemoved;
-  // 25
+  // 20
   uint256 _routerAllowlistTimestamp;
   /**
    * @notice Stores a mapping of address to Roles
    * @dev returns uint representing the enum Role value
    */
-  // 28
+  // 21
   mapping(address => Role) roles;
   //
   // RouterFacet
   //
-  // 29
+  // 22
   mapping(address => RouterConfig) routerConfigs;
   //
   // ReentrancyGuard
   //
-  // 30
+  // 23
   uint256 _status;
+  // 24
   uint256 _xcallStatus;
   //
   // StableSwap
@@ -264,24 +269,24 @@ struct AppStorage {
    * Struct storing data responsible for automatic market maker functionalities. In order to
    * access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol.
    */
-  // 31
+  // 25
   mapping(bytes32 => SwapUtils.Swap) swapStorages;
   /**
    * @notice Maps token address to an index in the pool. Used to prevent duplicate tokens in the pool.
    * @dev getTokenIndex function also relies on this mapping to retrieve token index.
    */
-  // 32
+  // 26
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
   /**
    * The address of an existing LPToken contract to use as a target
    * this target must be the address which connext deployed on this chain.
    */
-  // 33
+  // 27
   address lpTokenTargetAddress;
   /**
    * @notice Stores whether or not bribing, AMMs, have been paused.
    */
-  // 34
+  // 28
   bool _paused;
   //
   // AavePortals
@@ -289,35 +294,35 @@ struct AppStorage {
   /**
    * @notice Address of Aave Pool contract.
    */
-  // 35
+  // 29
   address aavePool;
   /**
    * @notice Fee percentage numerator for using Portal liquidity.
    * @dev Assumes the same basis points as the liquidity fee.
    */
-  // 36
+  // 30
   uint256 aavePortalFeeNumerator;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals.
    */
-  // 37
+  // 31
   mapping(bytes32 => uint256) portalDebt;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals.
    */
-  // 38
+  // 32
   mapping(bytes32 => uint256) portalFeeDebt;
   /**
    * @notice Mapping of approved sequencers
    * @dev Sequencer address provided must belong to an approved sequencer in order to call `execute`
    * for the fast liquidity route.
    */
-  // 39
+  // 33
   mapping(address => bool) approvedSequencers;
   /**
    * @notice Remote connection manager for xapp.
    */
-  // 40
+  // 34
   IConnectorManager xAppConnectionManager;
 }
 
