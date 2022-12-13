@@ -132,7 +132,7 @@ abstract contract DomainIndexer {
    */
   function addDomain(uint32 _domain, address _connector) internal {
     // Sanity check: domain does not already exist.
-    require(!isDomainSupported(_domain), "domain already exists");
+    require(!isDomainSupported(_domain), "domain exists");
     // Sanity check: connector is reasonable.
     require(_connector != address(0), "!connector");
     // Sanity check: Under maximum.
