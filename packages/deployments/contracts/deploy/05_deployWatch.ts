@@ -23,8 +23,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("deployer: ", deployer.address);
 
   if (SKIP_SETUP.includes(chainId)) {
-    console.log("Skipping watcher deployment on mainnet chain.");
-    return;
+    throw new Error(`Should be skipped on mainnet chain`);
   }
 
   console.log("Deploying watch token on non-mainnet chain...");
@@ -38,6 +37,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   });
   console.log("BIGBRO: ", deployment.address);
 
+  // Only perform cleanup on fresh deploy
+  if (!deployment.newlyDeployed) {
+    return;
+  }
+
   // Burn tokens minted to deployer on constructor
   const contract = new Contract(deployment.address, deployment.abi, deployer);
   const balance = await contract.balanceOf(deployer.address);
@@ -50,7 +54,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   }
 
   // Try to whitelist immediately after deployment
-  //   try {
   const canonical =
     chainId === 5
       ? deployment.address
@@ -72,19 +75,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("setting up asset with", taskArgs);
 
   await hre.run("setup-asset", taskArgs);
-  //   } catch (e: any) {
-  //     console.log("whitelist attempt failed:", e);
-  //   }
-
-  //   // Export abi
-  //   await hre.run("export", {
-  //     exportAll: "./deployments.json",
-  //   });
-
-  //   // Verify contract
-  //   await hre.run("etherscan-verify", {
-  //     solcInput: true,
-  //   });
 };
 export default func;
 func.tags = ["WatcherTest", "prod"];
+func.skip = async (hre: HardhatRuntimeEnvironment) => {
+  const chainId = +(await hre.getChainId());
+  return SKIP_SETUP.includes(chainId);
+};
