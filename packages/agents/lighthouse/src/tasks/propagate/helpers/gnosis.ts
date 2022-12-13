@@ -60,5 +60,11 @@ export const getPropagateParams = async (
   const maxGasPerTx = await ambContract.maxGasPerTx();
   const encodedData = utils.defaultAbiCoder.encode(["uint256"], [maxGasPerTx as string]);
 
+  logger.info("Got propagate params for Gnosis", requestContext, methodContext, {
+    ambAddress,
+    maxGasPerTx: maxGasPerTx.toString(),
+    encodedData,
+  });
+
   return { _connector: "", _fee: "0", _encodedData: encodedData };
 };
