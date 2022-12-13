@@ -213,3 +213,12 @@ export const getYieldDataSchema = Type.Object({
   tokenAddress: Type.String(),
   days: Type.Optional(Type.Number()),
 });
+
+export const addLiquidityForRouterSchema = Type.Object({
+  params: Type.Object({
+    domain: Type.String(),
+    amount: Type.String(),
+    assetId: Type.String(),
+    router: Type.String(),
+  }),
+});

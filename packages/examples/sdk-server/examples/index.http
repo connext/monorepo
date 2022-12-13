@@ -41,7 +41,7 @@ Content-Type: application/json
 
 ##############
 ### GET getCanonicalTokenId
-GET {{baseUrl}}/getCanonicalTokenId/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
+GET {{baseUrl}}/getCanonicalTokenId/6648936/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
 
 ##############
 ### GET getLPTokenAddress
@@ -299,3 +299,17 @@ GET {{baseUrl}}/getYieldStatsForDay/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1
 ##############
 ### GET getYieldData
 GET {{baseUrl}}/getYieldData/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/1
+
+##############
+### POST addLiquidityForRouter
+POST {{baseUrl}}/addLiquidityForRouter
+Content-Type: application/json
+
+{
+  "params": {
+    "domain": "9991",
+    "amount": "25000000",
+    "assetId": "0x6653e37db7eEEe514ACD0998f66e66c75F216699",
+    "router": "0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c"
+  }
+}
