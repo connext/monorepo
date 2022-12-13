@@ -223,11 +223,11 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and frontload the http request.
   const chainData = await getChainData(true);
 
-  /// ********************* Messaging **********************
+  /// ********************* MESSAGING **********************
   /// MARK - Messaging
   await setupMessaging(protocol);
 
-  /// ********************* CONNEXT *********************
+  /// ********************* CONNECTORS REGISTERED *********************
   /// MARK - Enroll Handlers
   console.log("\n\nEnrolling handlers");
   for (let i = 0; i < protocol.networks.length; i++) {
@@ -246,23 +246,6 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         chainData,
       });
     }
-  }
-
-  /// ********************* ASSETS **********************
-  /// MARK - Register Assets
-  console.log("\n\nREGISTER ASSETS");
-  // Convert asset addresses: get canonical ID, canonical domain, convert to `key` hash.
-  // Determine if a stableswap pool is needed - does asset have both `local` and `adopted`?
-  // If so, initialize stableswap pool with `initializeSwap`.
-  // Call `setupAsset` for each domain. This will:
-  // - Set up mappings for canonical ID / canonical domain / adopted asset address / etc.
-  // - Set up mapping for stableswap pool if applicable.
-  for (const asset of protocol.assets) {
-    await setupAsset({
-      asset,
-      networks: protocol.networks,
-      chainData,
-    });
   }
 
   /// ********************* AGENTS **********************
@@ -367,5 +350,22 @@ export const initProtocol = async (protocol: ProtocolStack) => {
       }
       // TODO: Blacklist/remove routers.
     }
+  }
+
+  /// ********************* ASSETS **********************
+  /// MARK - Register Assets
+  console.log("\n\nREGISTER ASSETS");
+  // Convert asset addresses: get canonical ID, canonical domain, convert to `key` hash.
+  // Determine if a stableswap pool is needed - does asset have both `local` and `adopted`?
+  // If so, initialize stableswap pool with `initializeSwap`.
+  // Call `setupAsset` for each domain. This will:
+  // - Set up mappings for canonical ID / canonical domain / adopted asset address / etc.
+  // - Set up mapping for stableswap pool if applicable.
+  for (const asset of protocol.assets) {
+    await setupAsset({
+      asset,
+      networks: protocol.networks,
+      chainData,
+    });
   }
 };
