@@ -90,14 +90,12 @@ export const propagate = async () => {
     to: rootManagerAddress,
     data: encodedData,
     from: relayerAddress,
-    value: _totalFee.toString(),
   });
   const gas = await chainreader.getGasEstimateWithRevertCode(+config.hubDomain, {
     chainId: hubChainId,
     to: rootManagerAddress,
     data: encodedData,
     from: relayerAddress,
-    value: _totalFee.toString(),
   });
 
   const gasLimit = gas.add(200_000); // Add extra overhead for gelato
