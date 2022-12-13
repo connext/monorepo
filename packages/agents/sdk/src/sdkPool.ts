@@ -382,9 +382,9 @@ export class NxtpSdkPool {
     isNextAsset = false,
   ): Promise<{
     amountReceived: BigNumberish;
-    originSlippageBps: BigNumberish;
+    originSlippage: BigNumberish;
     routerFee: BigNumberish;
-    destinationSlippageBps: BigNumberish;
+    destinationSlippage: BigNumberish;
   }> {
     const { requestContext, methodContext } = createLoggingContext(this.calculateAmountReceived.name);
     this.logger.info("Method start", requestContext, methodContext, {
@@ -411,7 +411,7 @@ export class NxtpSdkPool {
       );
     }
 
-    const originSlippageBps = BigNumber.from(amount).sub(originAmountReceived).mul(10000).div(amount);
+    const originSlippage = BigNumber.from(amount).sub(originAmountReceived).mul(10000).div(amount);
     const feeBps = BigNumber.from(+DEFAULT_ROUTER_FEE * 100);
     const routerFee = BigNumber.from(originAmountReceived).mul(feeBps).div(10000);
 
@@ -430,13 +430,13 @@ export class NxtpSdkPool {
       );
     }
 
-    const destinationSlippageBps = destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount);
+    const destinationSlippage = destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount);
 
     return {
       amountReceived: destinationAmountReceived,
-      originSlippageBps,
+      originSlippage,
       routerFee,
-      destinationSlippageBps,
+      destinationSlippage,
     };
   }
 
