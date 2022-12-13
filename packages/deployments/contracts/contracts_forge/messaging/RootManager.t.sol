@@ -194,6 +194,10 @@ contract RootManagerTest is ForgeHelper {
 
     vm.expectRevert(bytes("!supported"));
     _rootManager.getConnectorForDomain(_domains[0]);
+
+    // ensure the mappings were properly updated
+    assertEq(_rootManager.getDomainIndex(_domains[1]), 0);
+    assertEq(_rootManager.getConnectorForDomain(_domains[1]), _connectors[1]);
   }
 
   function test_RootManager__removeConnector_shouldFailIfCallerNotWatcher() public {
