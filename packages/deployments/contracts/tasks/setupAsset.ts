@@ -79,6 +79,7 @@ export default task("setup-asset", "Configures an asset")
       console.log("representation name:", representationName);
       console.log("representation symbol:", representationSymbol);
       console.log("adopted: ", adopted);
+      console.log("local: ", local);
       console.log("pool: ", pool);
       console.log("cap: ", cap);
       console.log("domain: ", domain);
