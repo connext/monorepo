@@ -132,7 +132,7 @@ abstract contract DomainIndexer {
    */
   function addDomain(uint32 _domain, address _connector) internal {
     // Sanity check: domain does not already exist.
-    require(!isDomainSupported(_domain), "exists");
+    require(!isDomainSupported(_domain), "domain already exists");
     // Sanity check: connector is reasonable.
     require(_connector != address(0), "!connector");
     // Sanity check: Under maximum.
@@ -167,11 +167,13 @@ abstract contract DomainIndexer {
     // IFF not, we'll need to swap the target with the current last so we can pop().
     uint256 _lastIndex = domains.length - 1;
     if (_index < _lastIndex) {
-      // If the target index for removal is not the last index, we'll need to move the last index
-      // item to the target index's place so we can conveniently pop the last item.
-      // Replace domain in domains array with the domain in the final index.
-      domains[_index] = domains[_lastIndex];
+      // If the target index for removal is not the last index, we copy over the domain at the last
+      // index to overwrite the target's index so we can conveniently pop the last item.
+      uint32 copiedDomain = domains[_lastIndex];
+      domains[_index] = copiedDomain;
       connectors[_index] = connectors[_lastIndex];
+      // Update the domain to index mapping for the copied domain.
+      domainToIndexPlusOne[copiedDomain] = _index + 1; // NOTE: Naturally adding 1 here; see mapping name.
     }
 
     // Pop the last item in the arrays.
