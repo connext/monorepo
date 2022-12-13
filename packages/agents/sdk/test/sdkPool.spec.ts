@@ -410,7 +410,7 @@ describe("NxtpSdkPool", () => {
         BigNumber.from("100000"),
       );
 
-      expect(res.destinationSlippageBps.toString()).to.equal(BigNumber.from("-0x04").toString());
+      expect(res.destinationSlippage.toString()).to.equal(BigNumber.from("-0x04").toString());
     });
   });
 
