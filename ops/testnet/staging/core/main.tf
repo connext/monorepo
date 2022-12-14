@@ -307,7 +307,7 @@ module "relayer" {
   container_port           = 8080
   loadbalancer_port        = 80
   cpu                      = 1024
-  memory                   = 4096
+  memory                   = 2048
   instance_count           = 1
   timeout                  = 180
   internal_lb              = false
@@ -393,6 +393,16 @@ module "router_cache" {
   stage                         = var.stage
   environment                   = var.environment
   family                        = "router"
+  sg_id                         = module.network.ecs_task_sg
+  vpc_id                        = module.network.vpc_id
+  cache_subnet_group_subnet_ids = module.network.public_subnets
+}
+
+module "relayer_cache" {
+  source                        = "../../../modules/redis"
+  stage                         = var.stage
+  environment                   = var.environment
+  family                        = "relayer"
   sg_id                         = module.network.ecs_task_sg
   vpc_id                        = module.network.vpc_id
   cache_subnet_group_subnet_ids = module.network.public_subnets
