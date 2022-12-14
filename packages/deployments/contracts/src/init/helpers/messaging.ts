@@ -3,7 +3,13 @@ import { constants } from "ethers";
 import { HubMessagingDeployments, NetworkStack, ProtocolStack, SpokeMessagingDeployments } from "./types";
 import { assertValue, getValue, updateIfNeeded } from "./tx";
 
-export const setupMessaging = async (protocol: ProtocolStack) => {
+/**
+ * Configures the messaging layer
+ * @param protocol Messaging protocol stack to use for configuration
+ * @returns An array of calldata to submit to a `Multicall` contract on each chain. Multicall should delegatecall
+ * the calldata
+ */
+export const setupMessaging = async (protocol: ProtocolStack): Promise<void> => {
   /// MARK - Peripherals
   // Get hub domain for specific use.
   const hub: NetworkStack = protocol.networks.filter((d) => d.domain === protocol.hub)[0];
@@ -148,7 +154,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
   // On the hub itself, you only need to connect the mainnet l1 connector to RootManager (no mirror).
   console.log("\tVerifying MainnetConnector is set up correctly...");
   // Sanity check: mirror is address(0).
-  assertValue({
+  await assertValue({
     deployment: MainnetConnector,
     desired: constants.AddressZero,
     read: "mirrorConnector",
@@ -156,7 +162,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
 
   // Make sure RootManager is set correctly for this MainnetConnector.
   // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
-  assertValue({
+  await assertValue({
     deployment: MainnetConnector,
     desired: RootManager.address,
     read: "ROOT_MANAGER",
