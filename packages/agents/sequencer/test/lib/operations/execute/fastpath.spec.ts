@@ -38,7 +38,7 @@ describe("Operations:Execute:FastPath", () => {
   let publishStub: SinonStub;
 
   // operations
-  let sendExecuteFastToRelayerStub: SinonStub;
+  let sendExecuteFastToRelayerStub: SinonStub<any[], any>;
 
   // helpers
   let encodeExecuteFromBidStub: SinonStub;
@@ -368,26 +368,14 @@ describe("Operations:Execute:FastPath", () => {
 
       // round-2 needs to be selected
       expect(sendExecuteFastToRelayerStub.getCall(0).args[0]).to.be.eq(2);
-      expect(sendExecuteFastToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
-        {
+      sendExecuteFastToRelayerStub.getCall(0).args[1].forEach((bid: Bid) => {
+        expect(bid).to.deep.contain({
           routerVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
-          router: router1,
-          signatures: {
-            "2": mkSig("0xrouter1_2"),
-          },
-        },
-        {
-          routerVersion: "0.0.0",
-          transferId: transferId,
-          origin: "1111",
-          router: router2,
-          signatures: {
-            "2": mkSig("0xrouter2_2"),
-          },
-        },
-      ]);
+        });
+        expect(bid.signatures["2"]).to.be.ok;
+      });
       expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
       expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
     });
