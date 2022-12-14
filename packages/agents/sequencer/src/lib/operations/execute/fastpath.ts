@@ -232,7 +232,13 @@ export const executeFastPathData = async (
   for (const roundIdx of availableRoundIds) {
     const roundIdInNum = Number(roundIdx);
     const totalBids = bidsRoundMap[roundIdInNum];
-    const combinedBidsForRound = getAllSubsets(totalBids, getMinimumBidsCountForRound(roundIdInNum)) as Bid[][];
+    const _combinedBidsForRound = getAllSubsets(totalBids, getMinimumBidsCountForRound(roundIdInNum)) as Bid[][];
+    // shuffle the bids
+    const combinedBidsForRound = _combinedBidsForRound
+      .map((value) => ({ value, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ value }) => value);
+
     logger.debug(`Selecting the round ${roundIdx}`, requestContext, methodContext, {
       availableRoundIds,
       totalBidsCount: totalBids.length,

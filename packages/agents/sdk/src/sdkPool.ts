@@ -1,8 +1,7 @@
 import { providers, BigNumber, BigNumberish, constants, utils } from "ethers";
-import { getChainData, Logger, createLoggingContext, ChainData, getCanonicalHash } from "@connext/nxtp-utils";
+import { getChainData, Logger, createLoggingContext, ChainData, getCanonicalHash , DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
 import { getContractInterfaces, contractDeployments, ChainReader } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
-import { DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
 
 import { NxtpSdkConfig, getConfig, AssetDescription } from "./config";
 import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined } from "./lib/errors";
