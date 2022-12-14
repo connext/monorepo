@@ -105,6 +105,13 @@ export type ProtocolStack = {
   agents?: Agents;
 };
 
+// This type contains information about how we want to configure the contracts
+export type ConfigurationOptions = {
+  liquidity: boolean; // whether we want to configure the liquidity layer
+  messaging: boolean; // whether we want to configure the messaging layer
+  multisend: boolean; // whether we want to use multisend for the txs
+};
+
 export type CallSchema<T> = {
   deployment: Deployment;
   desired?: T; // Desired value.
