@@ -734,17 +734,12 @@ describe("Operations:Execute:FastPath", () => {
       await executeFastPathData(transferId, requestContext);
       expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(1);
       expect(sendExecuteFastToRelayerStub.getCall(0).args[0]).to.be.eq(1);
-      expect(sendExecuteFastToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
-        {
-          routerVersion: "0.0.0",
-          transferId: transferId,
-          origin: "1111",
-          router: router1,
-          signatures: {
-            "1": mkSig("0xrouter1_1"),
-          },
-        },
-      ]);
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[1][0]).to.deep.contain({
+        routerVersion: "0.0.0",
+        transferId: transferId,
+        origin: "1111",
+      });
+      expect([router1, router2, router3]).to.deep.contain(sendExecuteFastToRelayerStub.getCall(0).args[1][0].router);
       expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
       expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
     });
@@ -806,17 +801,12 @@ describe("Operations:Execute:FastPath", () => {
       await executeFastPathData(transferId, requestContext);
       expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(1);
       expect(sendExecuteFastToRelayerStub.getCall(0).args[0]).to.be.eq(1);
-      expect(sendExecuteFastToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
-        {
-          routerVersion: "0.0.0",
-          transferId: transferId,
-          origin: "1111",
-          router: router1,
-          signatures: {
-            "1": mkSig("0xrouter1_1"),
-          },
-        },
-      ]);
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[1][0]).to.be.deep.contain({
+        routerVersion: "0.0.0",
+        transferId: transferId,
+        origin: "1111",
+      });
+      expect([router1, router2, router3]).to.deep.contain(sendExecuteFastToRelayerStub.getCall(0).args[1][0].router);
       expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
       expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
     });
