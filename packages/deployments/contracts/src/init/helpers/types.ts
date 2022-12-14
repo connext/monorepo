@@ -122,6 +122,13 @@ export type CallSchema<T> = {
   };
   chainData?: any;
   caseSensitive?: boolean;
+  multisend?: boolean;
+};
+
+// NOTE: used to do a sanity check if updating a value onchain to ensure it is the desired result
+export type CheckResult<T = any> = {
+  method: () => Promise<T>;
+  desired: T;
 };
 
 // NOTE: Used to do a sanity check when loading default config from json files
