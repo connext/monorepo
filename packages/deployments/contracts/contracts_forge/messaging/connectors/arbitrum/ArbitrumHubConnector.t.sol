@@ -211,7 +211,7 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageProcessed(_message.callData, address(this));
+    emit MessageProcessed(abi.encode(data), address(this));
 
     // make call
     ArbitrumHubConnector(_l1Connector).processMessageFromRoot(
