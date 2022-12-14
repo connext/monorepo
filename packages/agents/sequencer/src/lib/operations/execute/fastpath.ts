@@ -234,7 +234,7 @@ export const executeFastPathData = async (
     const totalBids = bidsRoundMap[roundIdInNum];
     const _combinedBidsForRound = getAllSubsets(totalBids, getMinimumBidsCountForRound(roundIdInNum)) as Bid[][];
     // shuffle the bids
-    let combinedBidsForRound = _combinedBidsForRound
+    const combinedBidsForRound = _combinedBidsForRound
       .map((value) => ({ value, sort: Math.random() }))
       .sort((a, b) => a.sort - b.sort)
       .map(({ value }) => value);
