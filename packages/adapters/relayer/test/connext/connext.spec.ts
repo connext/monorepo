@@ -50,6 +50,7 @@ describe("Connext Relayer", () => {
           chain: Number(mock.chain.A),
           token: constants.AddressZero,
         },
+        apiKey: "foo",
       };
       const res = await connextRelayerSend(
         Number(mock.chain.A),

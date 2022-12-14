@@ -9,6 +9,8 @@ import {
   RelayerApiPostTaskResponseSchema,
   RelayerApiErrorResponseSchema,
   RelayerApiErrorResponse,
+  ClearCacheRequest,
+  ClearCacheRequestSchema,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../relayer";
@@ -43,6 +45,7 @@ export const bindServer = () =>
           body: RelayerApiPostTaskRequestParamsSchema,
           response: {
             200: RelayerApiPostTaskResponseSchema,
+            401: RelayerApiErrorResponseSchema,
             500: RelayerApiErrorResponseSchema,
           },
         },
@@ -52,11 +55,16 @@ export const bindServer = () =>
         const {
           tasks: { createTask },
         } = getOperations();
+        const { config } = getContext();
+
         try {
           const { chainId } = request.params;
           const chain = Number(chainId);
           if (isNaN(chain)) {
             throw new NxtpError("Invalid chainId, must be numeric", { chainId });
+          }
+          if (request.body.apiKey !== config.server.adminToken) {
+            return response.status(401).send({ message: "Invalid API key" });
           }
           const task = request.body;
           const taskId = await createTask(chain, task, requestContext);
@@ -66,6 +74,22 @@ export const bindServer = () =>
           logger.error("Create Task Post Error", requestContext, methodContext, jsonifyError(error as Error));
           return response.code(500).send({ message: type, error: jsonifyError(error as Error) });
         }
+      },
+    );
+
+    server.post<{ Body: ClearCacheRequest }>(
+      "/clear-cache",
+      { schema: { body: ClearCacheRequestSchema } },
+      async (req, res) => {
+        const {
+          adapters: { cache },
+          config,
+        } = getContext();
+        if (config.server.adminToken !== req.body.adminToken) {
+          return res.status(401).send("Unauthorized to perform this operation");
+        }
+        await cache.tasks.clear();
+        return res.status(200).send({ message: "Cache cleared" });
       },
     );
 
