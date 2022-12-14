@@ -196,7 +196,7 @@ describe("Operations:Execute:FastPath", () => {
         }),
       );
 
-    it("should pick up the auction rounds which has enough number of bids", async () => {
+    it.only("should pick up the auction rounds which has enough number of bids", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
       sendExecuteFastToRelayerStub.resolves({ taskId });
@@ -206,6 +206,10 @@ describe("Operations:Execute:FastPath", () => {
       const router1 = mkAddress("0x111");
       const router2 = mkAddress("0x112");
       const router3 = mkAddress("0x113");
+      const router4 = mkAddress("0x114");
+      const router5 = mkAddress("0x115");
+      const router6 = mkAddress("0x116");
+      const router7 = mkAddress("0x117");
       const bids: Record<string, Bid> = {};
       bids[router1] = {
         routerVersion: "0.0.0",
@@ -238,6 +242,50 @@ describe("Operations:Execute:FastPath", () => {
           "3": mkSig("0xrouter3_3"),
         },
       };
+      bids[router4] = {
+        routerVersion: "0.0.0",
+        transferId: transferId,
+        origin: "1111",
+        router: router4,
+        signatures: {
+          "1": mkSig("0xrouter3_1"),
+          "2": mkSig("0xrouter3_2"),
+          "3": mkSig("0xrouter3_3"),
+        },
+      };
+      bids[router5] = {
+        routerVersion: "0.0.0",
+        transferId: transferId,
+        origin: "1111",
+        router: router5,
+        signatures: {
+          "1": mkSig("0xrouter3_1"),
+          "2": mkSig("0xrouter3_2"),
+          "3": mkSig("0xrouter3_3"),
+        },
+      };
+      bids[router6] = {
+        routerVersion: "0.0.0",
+        transferId: transferId,
+        origin: "1111",
+        router: router6,
+        signatures: {
+          "1": mkSig("0xrouter3_1"),
+          "2": mkSig("0xrouter3_2"),
+          "3": mkSig("0xrouter3_3"),
+        },
+      };
+      bids[router7] = {
+        routerVersion: "0.0.0",
+        transferId: transferId,
+        origin: "1111",
+        router: router7,
+        signatures: {
+          "1": mkSig("0xrouter3_1"),
+          "2": mkSig("0xrouter3_2"),
+          "3": mkSig("0xrouter3_3"),
+        },
+      };
 
       const auction = mock.entity.auction({
         timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
@@ -250,17 +298,15 @@ describe("Operations:Execute:FastPath", () => {
       await executeFastPathData(transferId, requestContext);
       expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(1);
       expect(sendExecuteFastToRelayerStub.getCall(0).args[0]).to.be.eq(1);
-      expect(sendExecuteFastToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
-        {
-          routerVersion: "0.0.0",
-          transferId: transferId,
-          origin: "1111",
-          router: router1,
-          signatures: {
-            "1": mkSig("0xrouter1_1"),
-          },
-        },
-      ]);
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[1][0]).to.deep.contain({
+        origin: "1111",
+        routerVersion: "0.0.0",
+        transferId,
+      });
+      // bid is random
+      expect([router1, router2, router3, router4, router5, router6, router7]).to.deep.include(
+        sendExecuteFastToRelayerStub.getCall(0).args[1][0].router,
+      );
       expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
       expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
     });
