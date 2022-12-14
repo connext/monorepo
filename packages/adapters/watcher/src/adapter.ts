@@ -1,7 +1,6 @@
 import { jsonifyError, RequestContext } from "@connext/nxtp-utils";
 
-import { alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram } from "./alert";
-import { alertViaKeybase } from "./alert/keybase";
+import { alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram, alertViaKeybase } from "./alert";
 import { Pauser } from "./pause";
 import { Verifier, VerifierContext, AssetInfo, Report, PauseResponse, VerifyResponse, WatcherConfig } from "./types";
 import { AssetVerifier } from "./verifiers";

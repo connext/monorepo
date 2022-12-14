@@ -18,8 +18,10 @@ export const alertViaKeybase = async (report: Report, user: string, keys: string
     },
     {
       body:
-        `WATCHER ALERT!\nReason: ${reason}\nType: ${event}\nDomains: ${domains.join(",")}` +
-        `\nRelevant Txs: ${relevantTransactions.join(",")}\nErrors: ${errors.join(",")}`,
+        `*WATCHER ALERT!*\n\n*Reason:* ${reason}\n\n*Type:* ${event}\n\n*Domains:* ${domains.join(", ")}` +
+        `\n\n*Relevant Txs:* ${relevantTransactions
+          .map((t) => (typeof t === "string" ? t : t.hash))
+          .join(", ")}\n\n*Errors:* ${errors.join(", ")}`,
     },
   );
 
