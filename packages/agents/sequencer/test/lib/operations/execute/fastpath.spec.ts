@@ -196,7 +196,7 @@ describe("Operations:Execute:FastPath", () => {
         }),
       );
 
-    it.only("should pick up the auction rounds which has enough number of bids", async () => {
+    it("should pick up the auction rounds which has enough number of bids", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
       sendExecuteFastToRelayerStub.resolves({ taskId });
