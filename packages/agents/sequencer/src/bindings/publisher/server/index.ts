@@ -103,13 +103,18 @@ export const bindServer = async (): Promise<FastifyInstance> => {
       const {
         execute: { storeFastPathData },
       } = getOperations();
-      const { requestContext } = createLoggingContext("POST /execute-fast/:transferId endpoint", undefined, "");
+      const { requestContext, methodContext } = createLoggingContext(
+        "POST /execute-fast/:transferId endpoint",
+        undefined,
+        "",
+      );
       try {
         const bid = request.body;
         requestContext.transferId = bid.transferId;
         await storeFastPathData(bid, requestContext);
         return response.status(200).send({ message: "Bid received", transferId: bid.transferId, router: bid.router });
       } catch (error: unknown) {
+        logger.error(`Failed to store fastpath data`, requestContext, methodContext, jsonifyError(error as Error));
         const type = (error as NxtpError).type;
         return response.code(500).send({ message: type, error: jsonifyError(error as Error) });
       }
@@ -150,7 +155,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
       },
     },
     async (request, response) => {
-      const { requestContext } = createLoggingContext("POST /execute-slow endpoint");
+      const { requestContext, methodContext } = createLoggingContext("POST /execute-slow endpoint");
       const {
         execute: { storeSlowPathData },
       } = getOperations();
@@ -159,6 +164,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
         await storeSlowPathData(executorData, requestContext);
         return response.status(200).send({ message: "executor data received", transferId: executorData.transferId });
       } catch (error: unknown) {
+        logger.error(`Failed to store slowpath data`, requestContext, methodContext, jsonifyError(error as Error));
         const type = (error as NxtpError).type;
         return response.code(500).send({ message: type, error: jsonifyError(error as Error) });
       }
