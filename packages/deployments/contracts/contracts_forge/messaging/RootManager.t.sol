@@ -141,7 +141,7 @@ contract RootManagerTest is ForgeHelper {
     vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
 
-    vm.expectRevert(bytes("exists"));
+    vm.expectRevert(bytes("domain exists"));
 
     vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
@@ -151,7 +151,7 @@ contract RootManagerTest is ForgeHelper {
     vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[0]);
 
-    vm.expectRevert(bytes("exists"));
+    vm.expectRevert(bytes("domain exists"));
 
     vm.prank(owner);
     _rootManager.addConnector(_domains[0], _connectors[1]);
@@ -166,34 +166,42 @@ contract RootManagerTest is ForgeHelper {
 
   // ============ RootManager.removeConnector ============
   function test_RootManager__removeConnector_shouldWork() public {
-    vm.prank(owner);
-    _rootManager.addConnector(_domains[0], _connectors[0]);
-    vm.prank(owner);
-    _rootManager.addConnector(_domains[1], _connectors[1]);
+    for (uint256 i; i < 100; i++) {
+      vm.startPrank(owner);
+      _rootManager.addConnector(_domains[0], _connectors[0]);
+      _rootManager.addConnector(_domains[1], _connectors[1]);
+      vm.stopPrank();
 
-    uint32[] memory emitted = new uint32[](1);
-    address[] memory emittedConnectors = new address[](1);
+      uint32[] memory emitted = new uint32[](1);
+      address[] memory emittedConnectors = new address[](1);
 
-    emitted[0] = _domains[1];
-    emittedConnectors[0] = _connectors[1];
-    vm.expectEmit(true, true, true, true);
-    emit ConnectorRemoved(_domains[0], _connectors[0], emitted, emittedConnectors, address(this));
+      emitted[0] = _domains[1];
+      emittedConnectors[0] = _connectors[1];
+      vm.expectEmit(true, true, true, true);
+      emit ConnectorRemoved(_domains[0], _connectors[0], emitted, emittedConnectors, address(this));
 
-    vm.mockCall(
-      watcherManager,
-      abi.encodeWithSelector(WatcherManager(watcherManager).isWatcher.selector),
-      abi.encode(true)
-    );
+      vm.mockCall(
+        watcherManager,
+        abi.encodeWithSelector(WatcherManager(watcherManager).isWatcher.selector),
+        abi.encode(true)
+      );
 
-    _rootManager.removeConnector(_domains[0]);
+      _rootManager.removeConnector(_domains[0]);
 
-    assertEq(_rootManager.isDomainSupported(_domains[0]), false);
+      assertEq(_rootManager.isDomainSupported(_domains[0]), false);
 
-    vm.expectRevert(bytes("!supported"));
-    _rootManager.getDomainIndex(_domains[0]);
+      vm.expectRevert(bytes("!supported"));
+      _rootManager.getDomainIndex(_domains[0]);
 
-    vm.expectRevert(bytes("!supported"));
-    _rootManager.getConnectorForDomain(_domains[0]);
+      vm.expectRevert(bytes("!supported"));
+      _rootManager.getConnectorForDomain(_domains[0]);
+
+      // ensure the mappings were properly updated
+      assertEq(_rootManager.getDomainIndex(_domains[1]), 0);
+      assertEq(_rootManager.getConnectorForDomain(_domains[1]), _connectors[1]);
+
+      _rootManager.removeConnector(_domains[1]);
+    }
   }
 
   function test_RootManager__removeConnector_shouldFailIfCallerNotWatcher() public {

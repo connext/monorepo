@@ -109,7 +109,7 @@ locals {
       },
       {
         type   = "Connext",
-        apiKey = "foo",
+        apiKey = "${var.admin_token_relayer}",
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
@@ -261,7 +261,7 @@ locals {
       },
       {
         type   = "Connext",
-        apiKey = "foo",
+        apiKey = "${var.admin_token_relayer}",
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
@@ -276,8 +276,8 @@ locals {
 
   local_relayer_config = jsonencode({
     redis = {
-      host = module.sequencer_cache.redis_instance_address,
-      port = module.sequencer_cache.redis_instance_port
+      host = module.relayer_cache.redis_instance_address,
+      port = module.relayer_cache.redis_instance_port
     }
     server = {
       adminToken = var.admin_token_relayer
