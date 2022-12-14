@@ -2442,24 +2442,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp@workspace:.":
+"@connext/nxtp-watcher@workspace:packages/agents/watcher":
   version: 0.0.0-use.local
-  resolution: "@connext/nxtp@workspace:."
-  dependencies:
-    "@istanbuljs/nyc-config-typescript": 1.0.2
-    "@jtbennett/ts-project-scripts": 1.0.0-rc.4
-    "@typescript-eslint/eslint-plugin": 5.42.0
-    "@typescript-eslint/parser": 5.42.0
-    eslint: 8.26.0
-    eslint-plugin-import: 2.26.0
-    eslint-plugin-node: 11.1.0
-    rimraf: 3.0.2
-  languageName: unknown
-  linkType: soft
-
-"@connext/watcher@workspace:packages/agents/watcher":
-  version: 0.0.0-use.local
-  resolution: "@connext/watcher@workspace:packages/agents/watcher"
+  resolution: "@connext/nxtp-watcher@workspace:packages/agents/watcher"
   dependencies:
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-adapters-watcher": "workspace:*"
@@ -2483,6 +2468,21 @@ __metadata:
     ts-node: 10.9.1
     tslib: 2.4.0
     typescript: 4.8.4
+  languageName: unknown
+  linkType: soft
+
+"@connext/nxtp@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@connext/nxtp@workspace:."
+  dependencies:
+    "@istanbuljs/nyc-config-typescript": 1.0.2
+    "@jtbennett/ts-project-scripts": 1.0.0-rc.4
+    "@typescript-eslint/eslint-plugin": 5.42.0
+    "@typescript-eslint/parser": 5.42.0
+    eslint: 8.26.0
+    eslint-plugin-import: 2.26.0
+    eslint-plugin-node: 11.1.0
+    rimraf: 3.0.2
   languageName: unknown
   linkType: soft
 
