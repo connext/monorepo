@@ -272,6 +272,8 @@ export type { IProposedOwnable } from "./contracts/shared/interfaces/IProposedOw
 export { IProposedOwnable__factory } from "./factories/contracts/shared/interfaces/IProposedOwnable__factory";
 export type { TypedMemView } from "./contracts/shared/libraries/TypedMemView";
 export { TypedMemView__factory } from "./factories/contracts/shared/libraries/TypedMemView__factory";
+export type { MultiSend } from "./contracts/shared/Multisend.sol/MultiSend";
+export { MultiSend__factory } from "./factories/contracts/shared/Multisend.sol/MultiSend__factory";
 export type { ProposedOwnable } from "./contracts/shared/ProposedOwnable";
 export { ProposedOwnable__factory } from "./factories/contracts/shared/ProposedOwnable__factory";
 export type { ProposedOwnableUpgradeable } from "./contracts/shared/ProposedOwnableUpgradeable";
