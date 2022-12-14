@@ -130,7 +130,7 @@ locals {
       },
       {
         type   = "Connext",
-        apiKey = "foo",
+        apiKey = "${var.admin_token_relayer}",
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
