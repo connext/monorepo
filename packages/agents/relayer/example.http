@@ -6,13 +6,14 @@
 GET {{relayerUrl}}/ping
 
 ### STATUS
-GET {{relayerUrl}}/tasks/status/0x857b76afdd26924bca5efa67e4fb20e22e58cd1fb7b062f13193e14b299c6e83
+GET {{relayerUrl}}/tasks/status/0x6b522f0ce0cef3cd724bcf5cb3e810ea8bbeeeb202932ea67e800d11e58abc0a
 
 ### RELAY
 POST {{relayerUrl}}/relays/5
 Content-Type: application/json
 
 {
+  "apiKey": "{{adminToken}}",
   "to": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
   "data": "0x095ea7b30000000000000000000000005a9e792143bf2708b4765c144451dca54f559a190000000000000000000000000000000000000000000000000000000000000001",
   "fee": {
@@ -20,4 +21,12 @@ Content-Type: application/json
     "token": "0x0000000000000000000000000000000000000000",
     "amount": "0"
   }
+}
+
+### CLEAR CACHE
+POST {{relayerUrl}}/clear-cache
+Content-Type: application/json
+
+{
+  "adminToken": "{{adminToken}}"
 }

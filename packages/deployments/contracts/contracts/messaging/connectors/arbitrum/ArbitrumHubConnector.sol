@@ -217,7 +217,7 @@ contract ArbitrumHubConnector is HubConnector {
     IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _data);
 
     // Emit event
-    emit MessageProcessed(_message.callData, msg.sender);
+    emit MessageProcessed(abi.encode(_data), msg.sender);
   }
 
   function _validateSendRoot(

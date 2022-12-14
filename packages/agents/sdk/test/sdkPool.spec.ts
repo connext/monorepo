@@ -41,6 +41,26 @@ describe("NxtpSdkPool", () => {
       expect(nxtpPool.config).to.not.be.null;
       expect(nxtpPool.chainData).to.not.be.null;
 
+      expect(nxtpPool.getConnext).to.be.a("function");
+      expect(nxtpPool.getERC20).to.be.a("function");
+      expect(nxtpPool.getBlockNumberFromUnixTimestamp).to.be.a("function");
+      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
+      expect(nxtpPool.calculateCanonicalKey).to.be.a("function");
+      expect(nxtpPool.calculateSwap).to.be.a("function");
+      expect(nxtpPool.calculateTokenAmount).to.be.a("function");
+      expect(nxtpPool.calculateRemoveSwapLiquidity).to.be.a("function");
+      expect(nxtpPool.calculatePriceImpact).to.be.a("function");
+      expect(nxtpPool.calculateSwapPriceImpact).to.be.a("function");
+      expect(nxtpPool.calculateAddLiquidityPriceImpact).to.be.a("function");
+      expect(nxtpPool.calculateRemoveLiquidityPriceImpact).to.be.a("function");
+      expect(nxtpPool.calculateSwapPriceImpact).to.be.a("function");
+      expect(nxtpPool.calculateAmountReceived).to.be.a("function");
+      expect(nxtpPool.getTokenPrice).to.be.a("function");
+      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
+      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
+      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
+      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
+
       expect(nxtpPool.getCanonicalTokenId).to.be.a("function");
       expect(nxtpPool.getLPTokenAddress).to.be.a("function");
       expect(nxtpPool.getLPTokenSupply).to.be.a("function");
@@ -49,19 +69,20 @@ describe("NxtpSdkPool", () => {
       expect(nxtpPool.getPoolTokenBalance).to.be.a("function");
       expect(nxtpPool.getPoolTokenAddress).to.be.a("function");
       expect(nxtpPool.getVirtualPrice).to.be.a("function");
-      expect(nxtpPool.calculateSwap).to.be.a("function");
-      expect(nxtpPool.calculateTokenAmount).to.be.a("function");
-      expect(nxtpPool.calculateRemoveSwapLiquidity).to.be.a("function");
+      expect(nxtpPool.getRepresentation).to.be.a("function");
+      expect(nxtpPool.getAdopted).to.be.a("function");
+
       expect(nxtpPool.addLiquidity).to.be.a("function");
       expect(nxtpPool.removeLiquidity).to.be.a("function");
       expect(nxtpPool.swap).to.be.a("function");
+
       expect(nxtpPool.getPool).to.be.a("function");
       expect(nxtpPool.getUserPools).to.be.a("function");
       expect(nxtpPool.getPoolStats).to.be.a("function");
-      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
-      expect(nxtpPool.calculateAddLiquidityPriceImpact).to.be.a("function");
-      expect(nxtpPool.calculateRemoveLiquidityPriceImpact).to.be.a("function");
-      expect(nxtpPool.calculatePriceImpact).to.be.a("function");
+      expect(nxtpPool.getYieldStatsForDay).to.be.a("function");
+      expect(nxtpPool.calculateYield).to.be.a("function");
+      expect(nxtpPool.getYieldData).to.be.a("function");
+      expect(nxtpPool.getLiquidityMiningAprPerPool).to.be.a("function");
     });
   });
 
@@ -260,11 +281,14 @@ describe("NxtpSdkPool", () => {
       poolName: `${mock.asset.A.symbol}-Pool`,
       poolSymbol: `${mock.asset.A.symbol}-next${mock.asset.A.symbol}`,
       poolTokens: [utils.formatBytes32String("1"), mock.asset.A.address],
+      poolTokenIndices: new Map<string, number>(),
       poolDecimals: [18, 18],
       poolTokenUserBalances: [BigNumber.from(100), BigNumber.from(200)],
       lpTokenAddress: utils.formatBytes32String("2"),
       lpTokenUserBalance: BigNumber.from(150),
     };
+    mockParams.poolTokenIndices.set(mockParams.poolTokens[0], 0);
+    mockParams.poolTokenIndices.set(mockParams.poolTokens[1], 1);
 
     it("happy: should work", async () => {
       const mockPool: Pool = new Pool(
@@ -272,6 +296,7 @@ describe("NxtpSdkPool", () => {
         mockParams.poolName,
         mockParams.poolSymbol,
         mockParams.poolTokens,
+        mockParams.poolTokenIndices,
         mockParams.poolDecimals,
         mockParams.poolTokenUserBalances,
         mockParams.key,
@@ -341,6 +366,54 @@ describe("NxtpSdkPool", () => {
     });
   });
 
+  describe("#calculateAmountReceived", () => {
+    const mockParams = {
+      userAddress: "0x01".padEnd(42, "0"),
+      domainId: mock.domain.A,
+      key: utils.formatBytes32String("0"),
+      poolName: `${mock.asset.A.symbol}-Pool`,
+      poolSymbol: `${mock.asset.A.symbol}-next${mock.asset.A.symbol}`,
+      poolTokens: [utils.formatBytes32String("1"), mock.asset.A.address],
+      poolTokenIndices: new Map<string, number>(),
+      poolDecimals: [18, 18],
+      poolTokenUserBalances: [BigNumber.from(100), BigNumber.from(200)],
+      lpTokenAddress: utils.formatBytes32String("2"),
+      lpTokenUserBalance: BigNumber.from(150),
+    };
+    mockParams.poolTokenIndices.set(mockParams.poolTokens[0], 0);
+    mockParams.poolTokenIndices.set(mockParams.poolTokens[1], 1);
+
+    it("happy: should work with canonical origin asset", async () => {
+      const mockPool: Pool = new Pool(
+        mockParams.domainId,
+        mockParams.poolName,
+        mockParams.poolSymbol,
+        mockParams.poolTokens,
+        mockParams.poolTokenIndices,
+        mockParams.poolDecimals,
+        mockParams.poolTokenUserBalances,
+        mockParams.key,
+        mockParams.lpTokenAddress,
+      );
+
+      stub(nxtpPool, "getPool").onCall(0).resolves(mockPool).onCall(1).resolves(mockPool);
+
+      // only destination swap should be calculated
+      const destinationAmountReceived = BigNumber.from("0x0186dd");
+      stub(nxtpPool, "calculateSwap").resolves(destinationAmountReceived);
+
+      const res = await nxtpPool.calculateAmountReceived(
+        mockParams.domainId,
+        mockParams.domainId,
+        mockParams.poolTokens[0],
+        mockParams.poolTokens[0],
+        BigNumber.from("100000"),
+      );
+
+      expect(res.destinationSlippage.toString()).to.equal(BigNumber.from("-0x04").toString());
+    });
+  });
+
   describe("#getPoolStats", () => {
     const mockParams = {
       domainId: mock.domain.A,
@@ -349,10 +422,13 @@ describe("NxtpSdkPool", () => {
       poolName: `${mock.asset.A.symbol}-Pool`,
       poolSymbol: `${mock.asset.A.symbol}-next${mock.asset.A.symbol}`,
       poolTokens: [utils.formatBytes32String("1"), mock.asset.A.address],
+      poolTokenIndices: new Map<string, number>(),
       poolDecimals: [18, 18],
       amounts: [BigNumber.from(100), BigNumber.from(200)],
       lpTokenAddress: utils.formatBytes32String("2"),
     };
+    mockParams.poolTokenIndices.set(mockParams.poolTokens[0], 0);
+    mockParams.poolTokenIndices.set(mockParams.poolTokens[1], 1);
 
     it("happy: should work", async () => {
       const mockPool: Pool = new Pool(
@@ -360,6 +436,7 @@ describe("NxtpSdkPool", () => {
         mockParams.poolName,
         mockParams.poolSymbol,
         mockParams.poolTokens,
+        mockParams.poolTokenIndices,
         mockParams.poolDecimals,
         mockParams.amounts,
         mockParams.key,

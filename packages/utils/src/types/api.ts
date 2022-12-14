@@ -125,6 +125,7 @@ export const RelayerApiPostTaskRequestParamsSchema = Type.Object({
   to: Type.String(),
   data: Type.String(),
   fee: RelayerApiFeeSchema,
+  apiKey: Type.String(),
 });
 export type RelayerApiPostTaskRequestParams = Static<typeof RelayerApiPostTaskRequestParamsSchema>;
 

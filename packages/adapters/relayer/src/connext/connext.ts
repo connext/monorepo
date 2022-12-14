@@ -27,7 +27,7 @@ export const connextRelayerSend = async (
   domain: string,
   destinationAddress: string,
   encodedData: string,
-  _apiKey: string,
+  apiKey: string,
   chainReader: ChainReader,
   logger: Logger,
   _requestContext?: RequestContext,
@@ -35,6 +35,7 @@ export const connextRelayerSend = async (
   const { requestContext, methodContext } = createLoggingContext(connextRelayerSend.name, _requestContext);
   let output;
   const params: RelayerApiPostTaskRequestParams = {
+    apiKey,
     data: encodedData,
     fee: { amount: "0", chain: chainId, token: constants.AddressZero },
     to: destinationAddress,
