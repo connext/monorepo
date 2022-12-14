@@ -129,6 +129,7 @@ export const InitHeaderConfigSchema = Type.Object({
   hub: Type.String(),
   assets: Type.Array(AssetStackSchema),
   agents: AgentsSchema,
+  liquidity: Type.Boolean(),
 });
 
 export const InitConfigSchema = Type.Intersect([

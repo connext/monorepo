@@ -9,6 +9,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "9991", /// MUMBAI
     //"1667785072", // CHAPEL
   ],
+  liquidity: true,
   assets: [
     {
       name: "TEST",

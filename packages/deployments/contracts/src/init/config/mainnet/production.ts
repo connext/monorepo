@@ -10,6 +10,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "6450786", // BNB
     "6778479", // GNOSIS
   ],
+  liquidity: true,
   assets: [
     {
       name: "USDC",

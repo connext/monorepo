@@ -30,6 +30,7 @@ export const optionDefinitions = [
   { name: "network", type: String },
   { name: "env", type: String },
   { name: "domains", type: String, multiple: true },
+  { name: "liquidity", type: Boolean, defaultValue: true },
 ];
 
 /**
@@ -44,13 +45,17 @@ export const sanitizeAndInit = async () => {
   }
 
   // Validate command line arguments
-  const { network, env, domains: _domains } = cmdArgs;
+  const { network, env, domains: _domains, liquidity: configureLiquidity } = cmdArgs;
   if (!["staging", "production"].includes(env as string)) {
     throw new Error(`Environment should be either staging or production, env: ${env}`);
   }
 
   if (!["testnet", "mainnet"].includes(network as string)) {
     throw new Error(`Network should be either testnet or mainnet, network: ${network}`);
+  }
+
+  if (typeof configureLiquidity !== "boolean") {
+    throw new Error(`"liquidity" option must be a boolean, liquidity: ${configureLiquidity}`);
   }
 
   const useStaging = env === "staging";
@@ -206,7 +211,7 @@ export const sanitizeAndInit = async () => {
     );
   }
 
-  await initProtocol(sanitized);
+  await initProtocol(sanitized, configureLiquidity);
 };
 
 /**
@@ -217,7 +222,7 @@ export const sanitizeAndInit = async () => {
  * requires configuration and/or setup has been done so properly.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const initProtocol = async (protocol: ProtocolStack) => {
+export const initProtocol = async (protocol: ProtocolStack, configureLiquidity: boolean) => {
   /// ********************** SETUP **********************
   /// MARK - ChainData
   // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and frontload the http request.
@@ -251,6 +256,8 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// ********************* AGENTS **********************
   if (protocol.agents) {
     /// MARK - Watchers
+    // NOTE: watchers configured on watcher manager, which is used by messaging layer
+    // so should be configured always
     if (protocol.agents.watchers) {
       if (protocol.agents.watchers.allowlist) {
         console.log("\n\nWHITELIST WATCHERS");
@@ -278,19 +285,23 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     }
 
     /// MARK - Relayers
+    // NOTE: only relayers on the RelayerProxyHub should be configured if not configuring
+    // the liquidity layer
     if (protocol.agents.relayers) {
       if (protocol.agents.relayers.allowlist) {
         console.log("\n\nWHITELIST RELAYERS");
 
-        for (const network of protocol.networks) {
-          const relayerProxyAddress = network.deployments.messaging.RelayerProxy.address;
-          await updateIfNeeded({
-            deployment: network.deployments.Connext,
-            desired: true,
-            read: { method: "approvedRelayers", args: [relayerProxyAddress] },
-            write: { method: "addRelayer", args: [relayerProxyAddress] },
-            chainData,
-          });
+        if (configureLiquidity) {
+          for (const network of protocol.networks) {
+            const relayerProxyAddress = network.deployments.messaging.RelayerProxy.address;
+            await updateIfNeeded({
+              deployment: network.deployments.Connext,
+              desired: true,
+              read: { method: "approvedRelayers", args: [relayerProxyAddress] },
+              write: { method: "addRelayer", args: [relayerProxyAddress] },
+              chainData,
+            });
+          }
         }
 
         // Whitelist named relayers for the Relayer Proxy, in order to call `execute`.
@@ -311,7 +322,8 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     }
 
     /// MARK - Sequencers
-    if (protocol.agents.sequencers) {
+    // NOTE: sequencers should only be configured if configuring liquidity layer
+    if (protocol.agents.sequencers && configureLiquidity) {
       if (protocol.agents.sequencers.allowlist) {
         console.log("\n\nWHITELIST SEQUENCERS");
         // Allowlist named sequencers.
@@ -331,7 +343,8 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     }
 
     /// MARK - Routers
-    if (protocol.agents.routers) {
+    // NOTE: routers should only be configured if configuring liquidity layer
+    if (protocol.agents.routers && configureLiquidity) {
       if (protocol.agents.routers.allowlist) {
         console.log("\n\nWHITELIST ROUTERS");
         // Allowlist connext routers.
@@ -350,6 +363,12 @@ export const initProtocol = async (protocol: ProtocolStack) => {
       }
       // TODO: Blacklist/remove routers.
     }
+  }
+
+  // NOTE: only remaining step is to configure the assets, which will only happen if
+  // configuring the liquidity layer
+  if (!configureLiquidity) {
+    return;
   }
 
   /// ********************* ASSETS **********************
