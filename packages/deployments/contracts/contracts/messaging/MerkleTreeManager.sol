@@ -19,6 +19,10 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
 
   event ArboristUpdated(address previous, address updated);
 
+  event LeafInserted(bytes32 root, uint256 count, bytes32 leaf);
+
+  event LeavesInserted(bytes32 root, uint256 count, bytes32[] leaves);
+
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
@@ -145,6 +149,8 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     _count = _tree.count;
     // NOTE: Root calculation method currently reads from storage only.
     _root = tree.root();
+
+    emit LeavesInserted(_root, _count, leaves);
   }
 
   /**
@@ -159,6 +165,8 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     tree = tree.insert(leaf);
     _count = tree.count;
     _root = tree.root();
+
+    emit LeafInserted(_root, _count, leaf);
   }
 
   // ============ Upgrade Gap ============

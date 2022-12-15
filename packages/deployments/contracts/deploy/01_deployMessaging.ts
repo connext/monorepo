@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployResult } from "hardhat-deploy/types";
-import { BigNumber, constants, Wallet, utils } from "ethers";
+import { BigNumber, constants, Wallet } from "ethers";
 
 import { chainIdToDomain, getConnectorName, getDeploymentName, getProtocolNetwork, deployBeaconProxy } from "../src";
 import { MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";

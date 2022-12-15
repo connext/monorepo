@@ -33,7 +33,6 @@ export const ORIGIN_MESSAGE_ENTITY = `
       leaf
       index
       root
-      message
       transferId
       destinationDomain
       transactionHash

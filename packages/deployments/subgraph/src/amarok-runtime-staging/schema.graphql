@@ -150,7 +150,6 @@ type OriginMessage @entity {
   leaf: Bytes
   index: BigInt
   root: Bytes
-  message: Bytes
   transactionHash: Bytes
   blockNumber: BigInt
 
