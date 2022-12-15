@@ -687,7 +687,6 @@ type stagingarbitrumgoerli_OriginMessage {
   leaf: stagingarbitrumgoerli_Bytes
   index: BigInt
   root: stagingarbitrumgoerli_Bytes
-  message: stagingarbitrumgoerli_Bytes
   transactionHash: stagingarbitrumgoerli_Bytes
   blockNumber: BigInt
   rootCount: stagingarbitrumgoerli_RootCount
@@ -736,12 +735,6 @@ input stagingarbitrumgoerli_OriginMessage_filter {
   root_not_in: [stagingarbitrumgoerli_Bytes!]
   root_contains: stagingarbitrumgoerli_Bytes
   root_not_contains: stagingarbitrumgoerli_Bytes
-  message: stagingarbitrumgoerli_Bytes
-  message_not: stagingarbitrumgoerli_Bytes
-  message_in: [stagingarbitrumgoerli_Bytes!]
-  message_not_in: [stagingarbitrumgoerli_Bytes!]
-  message_contains: stagingarbitrumgoerli_Bytes
-  message_not_contains: stagingarbitrumgoerli_Bytes
   transactionHash: stagingarbitrumgoerli_Bytes
   transactionHash_not: stagingarbitrumgoerli_Bytes
   transactionHash_in: [stagingarbitrumgoerli_Bytes!]
@@ -788,7 +781,6 @@ enum stagingarbitrumgoerli_OriginMessage_orderBy {
   leaf
   index
   root
-  message
   transactionHash
   blockNumber
   rootCount

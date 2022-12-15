@@ -10,13 +10,13 @@
       },
       {
         "name": "Connector",
-        "address": "0x9741a6c445cfb3fe7d3d88323cc26e891463b5cb",
+        "address": "0x9741a6C445CfB3fe7D3D88323Cc26e891463b5CB",
         "startBlock": 8132571
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0x9741a6c445cfb3fe7d3d88323cc26e891463b5cb",
-        "startBlock": 8132571
+        "address": "0xc41DFb64A2a04A9e8A09211F553718Baffb5A07F",
+        "startBlock": 8107125
       }
     ]
   },
@@ -57,8 +57,8 @@
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0xc41DFb64A2a04A9e8A09211F553718Baffb5A07F",
-        "startBlock": 8107125
+        "address": "0x974b3Ac3dD69D4Ac28cEb53b8823b821251D1643",
+        "startBlock": 29579731
       }
     ]
   },
