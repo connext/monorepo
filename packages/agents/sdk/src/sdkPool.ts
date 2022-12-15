@@ -1,17 +1,9 @@
 import { providers, BigNumber, BigNumberish, constants, utils } from "ethers";
-import {
-  getChainData,
-  Logger,
-  createLoggingContext,
-  ChainData,
-  getCanonicalHash,
-  DEFAULT_ROUTER_FEE,
-} from "@connext/nxtp-utils";
+import { getChainData, Logger, createLoggingContext, ChainData, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
 import { contractDeployments, ChainReader } from "@connext/nxtp-txservice";
-import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
 
 import { NxtpSdkConfig, getConfig, AssetDescription } from "./config";
-import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined } from "./lib/errors";
+import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { IPoolStats, IPoolData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
 import { NxtpSdkBase } from "./sdkBase";
@@ -120,21 +112,6 @@ export class NxtpSdkPool extends NxtpSdkBase {
 
   // ------------------- Utils ------------------- //
 
-  async getConnext(domainId: string): Promise<Connext> {
-    const connextAddress = this.config.chains[domainId]?.deployments?.connext;
-    if (!connextAddress) {
-      throw new ContractAddressMissing();
-    }
-
-    const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
-    return Connext__factory.connect(connextAddress, provider);
-  }
-
-  async getERC20(domainId: string, tokenAddress: string): Promise<IERC20> {
-    const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
-    return IERC20__factory.connect(tokenAddress, provider);
-  }
-
   /**
    * Finds the block closest to the desired timestamp.
    * @param domainId The domain to search for the block.
@@ -173,15 +150,6 @@ export class NxtpSdkPool extends NxtpSdkBase {
   }
 
   /**
-   * Returns the hash of the canonical id + domain. Used in various pool operations.
-   * @param domainId The canonical domain id of the token.
-   * @param tokenAddress The address of the canonical token.
-   */
-  async calculateCanonicalKey(domainId: string, tokenId: string): Promise<string> {
-    return getCanonicalHash(domainId, tokenId);
-  }
-
-  /**
    * Returns the amount of tokens received on a swap.
    * @param domainId The domain id of the pool.
    * @param tokenAddress The address of local or adopted token.
@@ -200,7 +168,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
     ]);
-    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const minAmount = await connextContract.calculateSwap(key, tokenIndexFrom, tokenIndexTo, amount);
 
     return minAmount;
@@ -223,7 +191,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
     ]);
-    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const amount = await connextContract.calculateSwapTokenAmount(key, amounts, isDeposit);
 
     return amount;
@@ -240,7 +208,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
     ]);
-    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const amounts = await connextContract.calculateRemoveSwapLiquidity(key, amount);
 
     return amounts;
@@ -354,7 +322,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       this.getPoolTokenIndex(domainId, tokenX, tokenX),
       this.getPoolTokenIndex(domainId, tokenX, tokenY),
     ]);
-    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const amountXNoSlippage = BigNumber.from(1000);
 
     const amountY = await connextContract.calculateSwap(key, tokenIndexFrom, tokenIndexTo, amountX);
@@ -457,7 +425,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
     ]);
-    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const lpTokenAddress = await connextContract.getSwapLPToken(key);
 
     return lpTokenAddress;
@@ -482,7 +450,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
     ]);
-    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const index = await connextContract.getSwapTokenIndex(key, poolTokenAddress);
 
     return index;
@@ -494,7 +462,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       this.getPoolTokenIndex(domainId, tokenAddress, poolTokenAddress),
       this.getCanonicalTokenId(domainId, tokenAddress),
     ]);
-    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const balance = await connextContract.getSwapTokenBalance(key, index);
 
     return balance;
@@ -505,7 +473,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
     ]);
-    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const poolTokenAddress = await connextContract.getSwapToken(key, index);
 
     return poolTokenAddress;
@@ -516,7 +484,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
     ]);
-    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const price = await connextContract.getSwapVirtualPrice(key);
 
     return price;
@@ -527,7 +495,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
     ]);
-    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const representation = await connextContract["canonicalToRepresentation(bytes32)"](key);
 
     return representation;
@@ -538,7 +506,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
     ]);
-    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const adopted = await connextContract["canonicalToAdopted(bytes32)"](key);
 
     return adopted;
@@ -573,7 +541,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
     ]);
-    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const txRequest = await connextContract.populateTransaction.addSwapLiquidity(key, amounts, minToMint, deadline);
 
     this.logger.info(`${this.addLiquidity.name} transaction created `, requestContext, methodContext);
@@ -608,7 +576,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
     ]);
-    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const txRequest = await connextContract.populateTransaction.removeSwapLiquidity(key, amount, minAmounts, deadline);
 
     this.logger.info(`${this.addLiquidity.name} transaction created `, requestContext, methodContext);
@@ -656,7 +624,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       this.getPoolTokenIndex(domainId, tokenAddress, from),
       this.getPoolTokenIndex(domainId, tokenAddress, to),
     ]);
-    const key = getCanonicalHash(canonicalDomain, canonicalId);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
 
     const txRequest = await connextContract.populateTransaction.swap(
       key,
@@ -693,7 +661,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       return;
     }
 
-    const key: string = getCanonicalHash(canonicalDomain, canonicalId);
+    const key: string = this.calculateCanonicalKey(canonicalDomain, canonicalId);
 
     let pool = this.pools.get([domainId, key].join("-"));
     if (pool) {
@@ -819,7 +787,7 @@ export class NxtpSdkPool extends NxtpSdkBase {
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenAddress),
     ]);
-    const key: string = getCanonicalHash(canonicalDomain, canonicalId);
+    const key: string = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const pool = await this.getPool(domainId, tokenAddress);
 
     if (pool) {

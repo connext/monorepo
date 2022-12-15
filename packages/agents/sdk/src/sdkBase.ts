@@ -1,5 +1,5 @@
 import { constants, providers, BigNumber } from "ethers";
-import { Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
+import { Logger, createLoggingContext, ChainData, getCanonicalHash } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
 
@@ -97,5 +97,14 @@ export class NxtpSdkBase {
     });
 
     return parsedlogs;
+  }
+
+  /**
+   * Returns the hash of the canonical id + domain.
+   * @param domainId The canonical domain id of the token.
+   * @param tokenAddress The address of the canonical token.
+   */
+  calculateCanonicalKey(domainId: string, tokenId: string): string {
+    return getCanonicalHash(domainId, tokenId);
   }
 }
