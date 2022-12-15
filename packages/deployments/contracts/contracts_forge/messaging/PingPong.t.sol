@@ -223,6 +223,9 @@ contract PingPong is ConnectorHelper {
     // Get initial count.
     uint256 initialCount = SpokeConnector(payable(_originConnectors.spoke)).MERKLE().count();
     vm.expectEmit(true, true, true, true);
+    emit LeafInserted(expectedRoot, expectedCount, messageHash);
+
+    vm.expectEmit(true, true, true, true);
     emit Dispatch(messageHash, initialCount, expectedRoot, message);
 
     // Call `dispatch`: will add the message hash to the current tree.
@@ -289,6 +292,8 @@ contract PingPong is ConnectorHelper {
     bytes[] memory encodedData = new bytes[](2);
 
     // Propagate the aggregate root.
+    vm.expectEmit(true, true, true, true);
+    emit LeavesInserted(expectedAggregateRoot, expectedAggregateCount, inboundRoots);
     RootManager(_rootManager).propagate(connectors, fees, encodedData);
 
     // Assert that the current aggregate root matches expected (from reference tree).

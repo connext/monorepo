@@ -21,6 +21,8 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
 
   event LeafInserted(bytes32 root, uint256 count, bytes32 leaf);
 
+  event LeavesInserted(bytes32 root, uint256 count, bytes32[] leaves);
+
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
@@ -147,6 +149,8 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     _count = _tree.count;
     // NOTE: Root calculation method currently reads from storage only.
     _root = tree.root();
+
+    emit LeavesInserted(_root, _count, leaves);
   }
 
   /**
