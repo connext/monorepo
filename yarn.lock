@@ -2095,6 +2095,7 @@ __metadata:
     eslint: 8.26.0
     ethers: 5.7.2
     interval-promise: 1.4.0
+    keybase-bot: ^3.6.1
     mocha: 10.1.0
     nyc: 15.1.0
     ts-mocha: 10.0.0
@@ -2441,24 +2442,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp@workspace:.":
+"@connext/nxtp-watcher@workspace:packages/agents/watcher":
   version: 0.0.0-use.local
-  resolution: "@connext/nxtp@workspace:."
-  dependencies:
-    "@istanbuljs/nyc-config-typescript": 1.0.2
-    "@jtbennett/ts-project-scripts": 1.0.0-rc.4
-    "@typescript-eslint/eslint-plugin": 5.42.0
-    "@typescript-eslint/parser": 5.42.0
-    eslint: 8.26.0
-    eslint-plugin-import: 2.26.0
-    eslint-plugin-node: 11.1.0
-    rimraf: 3.0.2
-  languageName: unknown
-  linkType: soft
-
-"@connext/watcher@workspace:packages/agents/watcher":
-  version: 0.0.0-use.local
-  resolution: "@connext/watcher@workspace:packages/agents/watcher"
+  resolution: "@connext/nxtp-watcher@workspace:packages/agents/watcher"
   dependencies:
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-adapters-watcher": "workspace:*"
@@ -2482,6 +2468,21 @@ __metadata:
     ts-node: 10.9.1
     tslib: 2.4.0
     typescript: 4.8.4
+  languageName: unknown
+  linkType: soft
+
+"@connext/nxtp@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@connext/nxtp@workspace:."
+  dependencies:
+    "@istanbuljs/nyc-config-typescript": 1.0.2
+    "@jtbennett/ts-project-scripts": 1.0.0-rc.4
+    "@typescript-eslint/eslint-plugin": 5.42.0
+    "@typescript-eslint/parser": 5.42.0
+    eslint: 8.26.0
+    eslint-plugin-import: 2.26.0
+    eslint-plugin-node: 11.1.0
+    rimraf: 3.0.2
   languageName: unknown
   linkType: soft
 
@@ -15264,7 +15265,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 71abe7f31555f169a47510675596f79193c8f55e4beeb4e6efa06c22d41988fa9c747d5e398af7f8401cca22c08ffb7a6d57b03d764c14858513c9eba23b53b8
+  checksum: 39134821c7233bae61fa0d85bcc5ab4ccd2cbe00173c53cc3cab74c4f29d54de939809832fc4e9bedb896a0795313d28f854bc7d5abe7b154bf7d77c319398bd
   languageName: node
   linkType: hard
 
@@ -17205,7 +17206,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"isexe@npm:^2.0.0":
+"isexe@npm:2.0.0, isexe@npm:^2.0.0":
   version: 2.0.0
   resolution: "isexe@npm:2.0.0"
   checksum: 26bf6c5480dda5161c820c5b5c751ae1e766c587b1f951ea3fcfc973bafb7831ae5b54a31a69bd670220e42e99ec154475025a468eae58ea262f813fdc8d1c62
@@ -17886,6 +17887,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"keybase-bot@npm:^3.6.1":
+  version: 3.6.1
+  resolution: "keybase-bot@npm:3.6.1"
+  dependencies:
+    isexe: 2.0.0
+    lodash.camelcase: 4.3.0
+    lodash.kebabcase: 4.1.1
+    lodash.snakecase: 4.1.1
+    mkdirp: 0.5.1
+    which: 1.3.1
+  checksum: 717d6f9e23ffdcb6a096a0b910de707b6dec3db9354ef78cc65803972d0017a0aace0c769e452bf29d21aee08441fba1510775576f4209d47aebfdbbb62bb4cd
+  languageName: node
+  linkType: hard
+
 "keypair@npm:^1.0.1":
   version: 1.0.4
   resolution: "keypair@npm:1.0.4"
@@ -18474,7 +18489,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.camelcase@npm:^4.3.0":
+"lodash.camelcase@npm:4.3.0, lodash.camelcase@npm:^4.3.0":
   version: 4.3.0
   resolution: "lodash.camelcase@npm:4.3.0"
   checksum: cb9227612f71b83e42de93eccf1232feeb25e705bdb19ba26c04f91e885bfd3dd5c517c4a97137658190581d3493ea3973072ca010aab7e301046d90740393d1
@@ -18565,7 +18580,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.kebabcase@npm:^4.1.1":
+"lodash.kebabcase@npm:4.1.1, lodash.kebabcase@npm:^4.1.1":
   version: 4.1.1
   resolution: "lodash.kebabcase@npm:4.1.1"
   checksum: 5a6c59161914e1bae23438a298c7433e83d935e0f59853fa862e691164696bc07f6dfa4c313d499fbf41ba8d53314e9850416502376705a357d24ee6ca33af78
@@ -18649,7 +18664,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.snakecase@npm:^4.1.1":
+"lodash.snakecase@npm:4.1.1, lodash.snakecase@npm:^4.1.1":
   version: 4.1.1
   resolution: "lodash.snakecase@npm:4.1.1"
   checksum: 1685ed3e83dda6eae5a4dcaee161a51cd210aabb3e1c09c57150e7dd8feda19e4ca0d27d0631eabe8d0f4eaa51e376da64e8c018ae5415417c5890d42feb72a8
@@ -19386,6 +19401,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"minimist@npm:0.0.8":
+  version: 0.0.8
+  resolution: "minimist@npm:0.0.8"
+  checksum: 042f8b626b1fa44dffc23bac55771425ac4ee9d267b56f9064c07713e516e1799f3ba933bb628d2475a210caf7dcdb98161611baa1f0daf49309a944cb4bc48f
+  languageName: node
+  linkType: hard
+
 "minimist@npm:^1.2.0, minimist@npm:^1.2.5, minimist@npm:^1.2.6, minimist@npm:~1.2.0, minimist@npm:~1.2.6":
   version: 1.2.7
   resolution: "minimist@npm:1.2.7"
@@ -19507,6 +19529,17 @@ __metadata:
   bin:
     mkdirp: bin/cmd.js
   checksum: a96865108c6c3b1b8e1d5e9f11843de1e077e57737602de1b82030815f311be11f96f09cce59bd5b903d0b29834733e5313f9301e3ed6d6f6fba2eae0df4298f
+  languageName: node
+  linkType: hard
+
+"mkdirp@npm:0.5.1":
+  version: 0.5.1
+  resolution: "mkdirp@npm:0.5.1"
+  dependencies:
+    minimist: 0.0.8
+  bin:
+    mkdirp: bin/cmd.js
+  checksum: ed1ab49bb1d06c88dba7cfe930a3186f2605b5465aab7c8f24119baaba6e38f9ab4ac1695c68f476c65a48df2a69a8495049cd6e26c360ea082151a0771343d2
   languageName: node
   linkType: hard
 
