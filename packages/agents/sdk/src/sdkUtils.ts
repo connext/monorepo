@@ -1,24 +1,20 @@
 import { Logger, ChainData, formatUrl, XTransferStatus, transfersCastForUrl } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
-import { providers } from "ethers";
 
-import { getChainData, validateUri, axiosGetRequest, parseConnextLog } from "./lib/helpers";
+import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
 import { ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
+import { NxtpSdkBase } from "./sdkBase";
 
 /**
- * @classdesc Lightweight class to facilitate interaction with the Connext contract on configured chains.
+ * @classdesc SDK class encapsulating utility functions.
  *
  */
-export class NxtpSdkUtils {
-  public readonly config: NxtpSdkConfig;
-  private readonly logger: Logger;
-  public readonly chainData: Map<string, ChainData>;
+export class NxtpSdkUtils extends NxtpSdkBase {
+  private static _instance: NxtpSdkUtils;
 
   constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
-    this.config = config;
-    this.logger = logger;
-    this.chainData = chainData;
+    super(config, logger, chainData);
   }
 
   static async create(
@@ -36,16 +32,7 @@ export class NxtpSdkUtils {
       ? _logger.child({ name: "NxtpSdkUtils" })
       : new Logger({ name: "NxtpSdkUtils", level: nxtpConfig.logLevel });
 
-    return new NxtpSdkUtils(nxtpConfig, logger, chainData);
-  }
-
-  public parseConnextTransactionReceipt(transactionReceipt: providers.TransactionReceipt): any {
-    const parsedlogs: any = [];
-    transactionReceipt.logs.forEach((log) => {
-      parsedlogs.push(parseConnextLog(log));
-    });
-
-    return parsedlogs;
+    return this._instance || (this._instance = new NxtpSdkUtils(nxtpConfig, logger, chainData));
   }
 
   async getRoutersData(): Promise<any> {
@@ -186,9 +173,5 @@ export class NxtpSdkUtils {
     validateUri(uri);
 
     return await axiosGetRequest(uri);
-  }
-
-  async changeSignerAddress(signerAddress: string) {
-    this.config.signerAddress = signerAddress;
   }
 }

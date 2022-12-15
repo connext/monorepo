@@ -1,12 +1,20 @@
 import { providers, BigNumber, BigNumberish, constants, utils } from "ethers";
-import { getChainData, Logger, createLoggingContext, ChainData, getCanonicalHash , DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
-import { getContractInterfaces, contractDeployments, ChainReader } from "@connext/nxtp-txservice";
+import {
+  getChainData,
+  Logger,
+  createLoggingContext,
+  ChainData,
+  getCanonicalHash,
+  DEFAULT_ROUTER_FEE,
+} from "@connext/nxtp-utils";
+import { contractDeployments, ChainReader } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
 
 import { NxtpSdkConfig, getConfig, AssetDescription } from "./config";
 import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { IPoolStats, IPoolData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
+import { NxtpSdkBase } from "./sdkBase";
 
 export class Pool implements IPoolData {
   domainId: string;
@@ -72,32 +80,21 @@ export class Pool implements IPoolData {
 }
 
 /**
- * @classdesc Lightweight class to facilitate interaction with StableSwap Pools.
+ * @classdesc SDK class encapsulating stableswap pool functions.
  * @dev This class will either interact with internal StableSwapFacet pools or external StableSwap pools
  *      depending on which type of pool is being used for each asset.
  *      Note: SDK currently only supports internal StableSwapFacet pools.
  *
  */
-export class NxtpSdkPool {
-  public readonly config: NxtpSdkConfig;
-  public readonly chainData: Map<string, ChainData>;
-  public readonly connext: Connext["interface"];
-  public readonly erc20: IERC20["interface"];
-
-  private readonly logger: Logger;
-  private readonly chainReader: ChainReader;
+export class NxtpSdkPool extends NxtpSdkBase {
+  private static _instance: NxtpSdkPool;
   private readonly priceFeed: PriceFeed;
 
   // key is "domainId-canonicalKey"
   private pools = new Map<string, Pool>();
 
-  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>, chainReader: ChainReader) {
-    this.config = config;
-    this.logger = logger;
-    this.chainData = chainData;
-    this.chainReader = chainReader;
-    this.connext = getContractInterfaces().connext;
-    this.erc20 = getContractInterfaces().erc20;
+  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
+    super(config, logger, chainData);
     this.priceFeed = new PriceFeed();
   }
 
@@ -118,10 +115,7 @@ export class NxtpSdkPool {
       ? _logger.child({ name: "NxtpSdkPool" })
       : new Logger({ name: "NxtpSdkPool", level: nxtpConfig.logLevel });
 
-    const chainReader =
-      _chainReader ?? new ChainReader(logger.child({ module: "ChainReader" }, nxtpConfig.logLevel), nxtpConfig.chains);
-
-    return new NxtpSdkPool(nxtpConfig, logger, chainData, chainReader);
+    return this._instance || (this._instance = new NxtpSdkPool(nxtpConfig, logger, chainData));
   }
 
   // ------------------- Utils ------------------- //
