@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {IERC20Metadata} from "@openzeppelin/contracts/interfaces/IERC20Metadata.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 
@@ -27,6 +28,10 @@ contract TokenFacet is BaseConnextFacet {
   error TokenFacet__updateDetails_localNotFound();
   error TokenFacet__updateDetails_onlyRemote();
   error TokenFacet__updateDetails_notApproved();
+  error TokenFacet__transferTokenOwnership_localNotFound();
+  error TokenFacet__transferTokenOwnership_onlyRemote();
+  error TokenFacet__transferTokenOwnership_notApproved();
+  error TokenFacet__transferTokenOwnership_nonzeroSupply();
   error TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical();
   error TokenFacet__setupAsset_representationListed();
   error TokenFacet__setupAsset_invalidCanonicalConfiguration();
@@ -381,6 +386,42 @@ contract TokenFacet is BaseConnextFacet {
 
     // make sure the asset is still active
     IBridgeToken(local).setDetails(_name, _symbol);
+  }
+
+  /**
+   * @notice Used to update the owner of a representation asset
+   * @dev You *CANNOT* call this function if there is a nonzero supply of the local asset
+   * (indicating that some funds are still locked on the canonical domain, and you may
+   * lose your ability to burn / mint them)
+   * @param _canonical - The canonical id and domain to remove
+   * @param _newOwner - The new owner
+   */
+  function transferTokenOwnership(TokenId calldata _canonical, address _newOwner) external onlyOwnerOrAdmin {
+    bytes32 key = AssetLogic.calculateCanonicalHash(_canonical.id, _canonical.domain);
+    address local = AssetLogic.getConfig(key).representation;
+    if (local == address(0)) {
+      revert TokenFacet__transferTokenOwnership_localNotFound();
+    }
+
+    // Can only happen on remote domains
+    if (s.domain == _canonical.domain) {
+      revert TokenFacet__transferTokenOwnership_onlyRemote();
+    }
+
+    // ensure asset is currently approved because `s.canonicalToRepresentation` does
+    // not get cleared when asset is removed from allowlist
+    if (!s.tokenConfigs[key].approval) {
+      revert TokenFacet__transferTokenOwnership_notApproved();
+    }
+
+    // ensure the total supply of this asset is 0 (i.e. we are not restricting our
+    // ability to mint and burn for assets that are actively bridged to this domain)
+    if (IERC20Metadata(local).totalSupply() > 0) {
+      revert TokenFacet__transferTokenOwnership_nonzeroSupply();
+    }
+
+    // transfer owner to specified address
+    Ownable(local).transferOwnership(_newOwner);
   }
 
   // ============ Private Functions ============
