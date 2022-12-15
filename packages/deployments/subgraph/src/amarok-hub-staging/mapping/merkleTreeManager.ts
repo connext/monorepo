@@ -1,9 +1,9 @@
 import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 
-import { LeaveInserted } from "../../../generated/MerkleTreeManager/MerkleTreeManager";
+import { LeavesInserted } from "../../../generated/MerkleTreeManager/MerkleTreeManager";
 import { AggregatedMessageRoot, RootAggregated } from "../../../generated/schema";
 
-export function handleLeavesInserted(event: LeaveInserted): void {
+export function handleLeavesInserted(event: LeavesInserted): void {
   const key = event.params.root.toHexString();
   const numRootsAggregated = event.params.leaves.length;
   const preCount = event.params.count.minus(BigInt.fromI32(numRootsAggregated));
