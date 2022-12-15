@@ -4465,6 +4465,26 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "TokenFacet__transferTokenOwnership_localNotFound",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__transferTokenOwnership_nonzeroSupply",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__transferTokenOwnership_notApproved",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenFacet__transferTokenOwnership_onlyRemote",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "TokenFacet__updateDetails_localNotFound",
     type: "error",
   },
@@ -5172,6 +5192,36 @@ const _abi = [
         type: "address",
       },
     ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
+        internalType: "address",
+        name: "_newOwner",
+        type: "address",
+      },
+    ],
+    name: "transferTokenOwnership",
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },

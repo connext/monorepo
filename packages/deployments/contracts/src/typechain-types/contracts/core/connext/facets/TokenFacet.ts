@@ -57,6 +57,7 @@ export interface TokenFacetInterface extends utils.Interface {
     "representationToCanonical(address)": FunctionFragment;
     "setupAsset((uint32,bytes32),uint8,string,string,address,address,uint256)": FunctionFragment;
     "setupAssetWithDeployedRepresentation((uint32,bytes32),address,address,address)": FunctionFragment;
+    "transferTokenOwnership((uint32,bytes32),address)": FunctionFragment;
     "updateDetails((uint32,bytes32),string,string)": FunctionFragment;
     "updateLiquidityCap((uint32,bytes32),uint256)": FunctionFragment;
   };
@@ -81,6 +82,7 @@ export interface TokenFacetInterface extends utils.Interface {
       | "representationToCanonical"
       | "setupAsset"
       | "setupAssetWithDeployedRepresentation"
+      | "transferTokenOwnership"
       | "updateDetails"
       | "updateLiquidityCap"
   ): FunctionFragment;
@@ -175,6 +177,10 @@ export interface TokenFacetInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "transferTokenOwnership",
+    values: [TokenIdStruct, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "updateDetails",
     values: [TokenIdStruct, PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
@@ -247,6 +253,10 @@ export interface TokenFacetInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "setupAsset", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setupAssetWithDeployedRepresentation",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferTokenOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -472,6 +482,12 @@ export interface TokenFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    transferTokenOwnership(
+      _canonical: TokenIdStruct,
+      _newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     updateDetails(
       _canonical: TokenIdStruct,
       _name: PromiseOrValue<string>,
@@ -588,6 +604,12 @@ export interface TokenFacet extends BaseContract {
     _representation: PromiseOrValue<string>,
     _adoptedAssetId: PromiseOrValue<string>,
     _stableSwapPool: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  transferTokenOwnership(
+    _canonical: TokenIdStruct,
+    _newOwner: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -709,6 +731,12 @@ export interface TokenFacet extends BaseContract {
       _stableSwapPool: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    transferTokenOwnership(
+      _canonical: TokenIdStruct,
+      _newOwner: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     updateDetails(
       _canonical: TokenIdStruct,
@@ -899,6 +927,12 @@ export interface TokenFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    transferTokenOwnership(
+      _canonical: TokenIdStruct,
+      _newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     updateDetails(
       _canonical: TokenIdStruct,
       _name: PromiseOrValue<string>,
@@ -1016,6 +1050,12 @@ export interface TokenFacet extends BaseContract {
       _representation: PromiseOrValue<string>,
       _adoptedAssetId: PromiseOrValue<string>,
       _stableSwapPool: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    transferTokenOwnership(
+      _canonical: TokenIdStruct,
+      _newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

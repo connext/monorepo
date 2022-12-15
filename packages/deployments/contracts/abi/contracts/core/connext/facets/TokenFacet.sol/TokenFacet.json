@@ -22,6 +22,10 @@
   "error TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain()",
   "error TokenFacet__setupAsset_invalidCanonicalConfiguration()",
   "error TokenFacet__setupAsset_representationListed()",
+  "error TokenFacet__transferTokenOwnership_localNotFound()",
+  "error TokenFacet__transferTokenOwnership_nonzeroSupply()",
+  "error TokenFacet__transferTokenOwnership_notApproved()",
+  "error TokenFacet__transferTokenOwnership_onlyRemote()",
   "error TokenFacet__updateDetails_localNotFound()",
   "error TokenFacet__updateDetails_notApproved()",
   "error TokenFacet__updateDetails_onlyRemote()",
@@ -48,6 +52,7 @@
   "function representationToCanonical(address) view returns (tuple(uint32,bytes32))",
   "function setupAsset(tuple(uint32,bytes32),uint8,string,string,address,address,uint256) returns (address)",
   "function setupAssetWithDeployedRepresentation(tuple(uint32,bytes32),address,address,address) returns (address)",
+  "function transferTokenOwnership(tuple(uint32,bytes32),address)",
   "function updateDetails(tuple(uint32,bytes32),string,string)",
   "function updateLiquidityCap(tuple(uint32,bytes32),uint256)"
 ]
