@@ -63,6 +63,9 @@ dataSources:
           handler: handleRouterOwnerAccepted
         - event: MaxRoutersPerTransferUpdated(uint256,address)
           handler: handleMaxRoutersPerTransferUpdated
+          # event XAppConnectionManagerSet(address updated, address caller)
+        - event: XAppConnectionManagerSet(address,address)
+          handler: handleXAppConnectionManagerSet
       file: ./src/amarok-runtime-staging/mapping/index.ts
 templates:
   # SPOKE CONNECTOR events

@@ -209,6 +209,13 @@ type RootMessageSent @entity {
   blockNumber: BigInt
 }
 
+type Connector @entity {
+  id: ID!
+  address: Bytes!
+  blockNumber: BigInt
+  caller: Bytes
+}
+
 ### STABLE SWAP
 type StableSwap @entity {
   id: ID!

@@ -13,7 +13,10 @@ import {
   ConnectorMeta,
   RootCount,
   DestinationMessage,
+  Connector,
 } from "../../../generated/schema";
+import { XAppConnectionManagerSet } from "../../../generated/Connext/Connext";
+import { SpokeConnector as ConnectorTemplate } from "../../../generated/templates";
 
 const DEFAULT_CONNECTOR_META_ID = "CONNECTOR_META_ID";
 
@@ -118,4 +121,19 @@ export function handleProcess(event: Process): void {
 
   message.blockNumber = event.block.number;
   message.save();
+}
+
+export function handleXAppConnectionManagerSet(event: XAppConnectionManagerSet): void {
+  let connector = Connector.load(event.params.updated.toHex());
+  if (connector == null) {
+    connector = new Connector(event.params.updated.toHex());
+
+    ConnectorTemplate.create(event.params.updated);
+  }
+
+  connector.address = event.params.updated;
+  connector.caller = event.params.caller;
+  connector.blockNumber = event.block.number;
+
+  connector.save();
 }
