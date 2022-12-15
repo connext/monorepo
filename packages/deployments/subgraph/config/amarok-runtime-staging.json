@@ -12,6 +12,11 @@
         "name": "Connector",
         "address": "0x9741a6c445cfb3fe7d3d88323cc26e891463b5cb",
         "startBlock": 8132571
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x9741a6c445cfb3fe7d3d88323cc26e891463b5cb",
+        "startBlock": 8132571
       }
     ]
   },
@@ -28,6 +33,11 @@
         "name": "Connector",
         "address": "0xd3B96C5689ba6a0c977FC75553cFc489DF07aF81",
         "startBlock": 3439687
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x9741a6c445cfb3fe7d3d88323cc26e891463b5cb",
+        "startBlock": 8132571
       }
     ]
   },
@@ -44,6 +54,11 @@
         "name": "Connector",
         "address": "0xCf201F3d42adFe53Db353c4a578fBBaFbEC8AaFB",
         "startBlock": 29676736
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x9741a6c445cfb3fe7d3d88323cc26e891463b5cb",
+        "startBlock": 8132571
       }
     ]
   },
@@ -60,6 +75,11 @@
         "name": "Connector",
         "address": "0xc8841102039b6e6466f804c1b948a58afe650109",
         "startBlock": 2805548
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x9741a6c445cfb3fe7d3d88323cc26e891463b5cb",
+        "startBlock": 8132571
       }
     ]
   }
