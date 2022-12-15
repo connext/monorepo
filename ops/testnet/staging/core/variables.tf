@@ -167,3 +167,27 @@ variable "admin_token_watcher" {
   type    = string
   default = "blahblah"
 }
+
+variable "discord_webhook_key" {
+  type = string
+}
+
+variable "telegram_api_key" {
+  type = string
+}
+
+variable "telegram_chat_id" {
+  type = string
+}
+
+variable "keybase_user" {
+  type = string
+}
+
+variable "keybase_key" {
+  type = string
+}
+
+variable "keybase_channel" {
+  type = string
+}
