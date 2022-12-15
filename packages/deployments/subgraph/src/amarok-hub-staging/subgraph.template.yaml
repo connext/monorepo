@@ -53,8 +53,8 @@ dataSources:
         - name: MerkleTreeManager
           file: ./src/amarok-hub-staging/abis/MerkleTreeManager.json
       eventHandlers:
-        - event: LeafInserted(bytes32,uint256,bytes32)
-          handler: handleLeafInserted
+        - event: LeavesInserted(bytes32,uint256,bytes32[])
+          handler: handleLeavesInserted
       file: ./src/amarok-hub-staging/mapping/merkleTreeManager.ts
   # PolygonHubConnector.sol events
   - kind: ethereum/contract
