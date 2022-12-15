@@ -64,15 +64,13 @@ dataSources:
         - event: MaxRoutersPerTransferUpdated(uint256,address)
           handler: handleMaxRoutersPerTransferUpdated
       file: ./src/amarok-runtime-staging/mapping/index.ts
+templates:
   # SPOKE CONNECTOR events
   - kind: ethereum/contract
     name: SpokeConnector
     network: "{{network}}"
     source:
-      address: "{{address}}"
       abi: SpokeConnector
-      # prettier-ignore
-      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -99,7 +97,6 @@ dataSources:
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleNewConnector
       file: ./src/amarok-runtime-staging/mapping/index.ts
-templates:
   # STABLE SWAP events
   - kind: ethereum/contract
     name: StableSwap

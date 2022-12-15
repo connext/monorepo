@@ -7,11 +7,6 @@
         "name": "Connext",
         "address": "0x096aC65AD03Ba3670822A24430E4B500D9A3F0Ea",
         "startBlock": 8107134
-      },
-      {
-        "name": "Connector",
-        "address": "0x9741a6c445cfb3fe7d3d88323cc26e891463b5cb",
-        "startBlock": 8132571
       }
     ]
   },
@@ -23,11 +18,6 @@
         "name": "Connext",
         "address": "0xA362290a4AC86747B85A53351ED550dec7E42313",
         "startBlock": 3328292
-      },
-      {
-        "name": "Connector",
-        "address": "0xd3B96C5689ba6a0c977FC75553cFc489DF07aF81",
-        "startBlock": 3439687
       }
     ]
   },
@@ -39,11 +29,6 @@
         "name": "Connext",
         "address": "0xaF6E3F83b691B435303792E1a5cDcd791E7d9c0C",
         "startBlock": 29579747
-      },
-      {
-        "name": "Connector",
-        "address": "0xCf201F3d42adFe53Db353c4a578fBBaFbEC8AaFB",
-        "startBlock": 29676736
       }
     ]
   },
@@ -55,11 +40,6 @@
         "name": "Connext",
         "address": "0x8Ecae7774feB26d1174f39B7104c0b24f64313b9",
         "startBlock": 2509482
-      },
-      {
-        "name": "Connector",
-        "address": "0xc8841102039b6e6466f804c1b948a58afe650109",
-        "startBlock": 2805548
       }
     ]
   }
