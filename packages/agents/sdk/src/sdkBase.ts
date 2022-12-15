@@ -2,6 +2,7 @@ import { constants, providers, BigNumber } from "ethers";
 import { Logger, createLoggingContext, ChainData, getCanonicalHash } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
+import memoize from "memoizee";
 
 import { parseConnextLog } from "./lib/helpers";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
@@ -28,20 +29,26 @@ export class NxtpSdkBase {
     );
   }
 
-  async getConnext(domainId: string): Promise<Connext> {
-    const connextAddress = this.config.chains[domainId]?.deployments?.connext;
-    if (!connextAddress) {
-      throw new ContractAddressMissing();
-    }
+  getConnext = memoize(
+    async (domainId: string): Promise<Connext> => {
+      const connextAddress = this.config.chains[domainId]?.deployments?.connext;
+      if (!connextAddress) {
+        throw new ContractAddressMissing();
+      }
 
-    const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
-    return Connext__factory.connect(connextAddress, provider);
-  }
+      const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
+      return Connext__factory.connect(connextAddress, provider);
+    },
+    { promise: true },
+  );
 
-  async getERC20(domainId: string, tokenAddress: string): Promise<IERC20> {
-    const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
-    return IERC20__factory.connect(tokenAddress, provider);
-  }
+  getERC20 = memoize(
+    async (domainId: string, tokenAddress: string): Promise<IERC20> => {
+      const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
+      return IERC20__factory.connect(tokenAddress, provider);
+    },
+    { promise: true },
+  );
 
   async approveIfNeeded(
     domainId: string,
