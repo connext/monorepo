@@ -19,6 +19,8 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
 
   event ArboristUpdated(address previous, address updated);
 
+  event LeafInserted(bytes32 root, uint256 count, bytes32 leaf);
+
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
@@ -159,6 +161,8 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     tree = tree.insert(leaf);
     _count = tree.count;
     _root = tree.root();
+
+    emit LeafInserted(_root, _count, leaf);
   }
 
   // ============ Upgrade Gap ============

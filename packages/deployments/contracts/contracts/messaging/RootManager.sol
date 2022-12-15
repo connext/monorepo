@@ -27,8 +27,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   event RootReceived(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
 
-  event RootsAggregated(bytes32 aggregateRoot, uint256 count, bytes32[] aggregatedMessageRoots);
-
   event RootPropagated(bytes32 aggregateRoot, uint256 count, bytes32 domainsHash);
 
   event RootDiscarded(bytes32 fraudulentRoot);
@@ -260,8 +258,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     // Insert the leaves into the aggregator tree (method will also calculate and return the current
     // aggregate root and count).
     (bytes32 _aggregateRoot, uint256 _count) = MERKLE.insert(_verifiedInboundRoots);
-
-    emit RootsAggregated(_aggregateRoot, _count, _verifiedInboundRoots);
 
     return (_aggregateRoot, _count);
   }
