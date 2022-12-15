@@ -2801,6 +2801,25 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "updated",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "XAppConnectionManagerSet",
+    "type": "event"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
