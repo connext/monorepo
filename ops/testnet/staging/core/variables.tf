@@ -154,3 +154,16 @@ variable "admin_token_relayer" {
   type    = string
   default = "blahblah"
 }
+
+variable "full_image_name_watcher" {
+  type        = string
+  description = "watcher image name"
+  default     = "ghcr.io/connext/watcher:sha-64dc7c9"
+}
+variable "watcher_web3_signer_private_key" {
+  type = string
+}
+variable "admin_token_watcher" {
+  type    = string
+  default = "blahblah"
+}
