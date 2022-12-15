@@ -16,6 +16,10 @@ contract ConnectorHelper is ForgeHelper {
   event MessageProcessed(bytes data, address caller);
   event MirrorConnectorUpdated(address previous, address current);
 
+  // Merkle lib events
+  event LeafInserted(bytes32 root, uint256 count, bytes32 leaf);
+  event LeavesInserted(bytes32 root, uint256 count, bytes32[] leaves);
+
   // ============ Storage ============
 
   uint32 _l1Domain = 1000;

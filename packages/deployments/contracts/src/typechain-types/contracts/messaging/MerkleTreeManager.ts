@@ -163,6 +163,7 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
     "ArboristUpdated(address,address)": EventFragment;
     "Initialized(uint8)": EventFragment;
     "LeafInserted(bytes32,uint256,bytes32)": EventFragment;
+    "LeavesInserted(bytes32,uint256,bytes32[])": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
@@ -170,6 +171,7 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ArboristUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LeafInserted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "LeavesInserted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
@@ -203,6 +205,18 @@ export type LeafInsertedEvent = TypedEvent<
 >;
 
 export type LeafInsertedEventFilter = TypedEventFilter<LeafInsertedEvent>;
+
+export interface LeavesInsertedEventObject {
+  root: string;
+  count: BigNumber;
+  leaves: string[];
+}
+export type LeavesInsertedEvent = TypedEvent<
+  [string, BigNumber, string[]],
+  LeavesInsertedEventObject
+>;
+
+export type LeavesInsertedEventFilter = TypedEventFilter<LeavesInsertedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -443,6 +457,17 @@ export interface MerkleTreeManager extends BaseContract {
       count?: null,
       leaf?: null
     ): LeafInsertedEventFilter;
+
+    "LeavesInserted(bytes32,uint256,bytes32[])"(
+      root?: null,
+      count?: null,
+      leaves?: null
+    ): LeavesInsertedEventFilter;
+    LeavesInserted(
+      root?: null,
+      count?: null,
+      leaves?: null
+    ): LeavesInsertedEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
