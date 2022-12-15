@@ -96,7 +96,7 @@ const config: HardhatUserConfig = {
       kovan: process.env.ETHERSCAN_API_KEY!,
       ropsten: process.env.ETHERSCAN_API_KEY!,
       goerli: process.env.ETHERSCAN_API_KEY!,
-      "optimism-goerli": process.env.ETHERSCAN_API_KEY!,
+      "optimism-goerli": process.env.OPTIMISM_ETHERSCAN_API_KEY!,
       "gnosis-testnet": process.env.ETHERSCAN_API_KEY!,
       mumbai: process.env.POLYGONSCAN_API_KEY!,
       // mainnets
