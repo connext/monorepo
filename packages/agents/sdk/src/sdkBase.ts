@@ -1,9 +1,10 @@
 import { constants, providers, BigNumber } from "ethers";
 import { Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
+import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
 
-import { getChainIdFromDomain, parseConnextLog } from "./lib/helpers";
-import { SignerAddressMissing } from "./lib/errors";
+import { parseConnextLog } from "./lib/helpers";
+import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
 import { NxtpSdkConfig } from "./config";
 
 /**
@@ -27,8 +28,23 @@ export class NxtpSdkBase {
     );
   }
 
+  async getConnext(domainId: string): Promise<Connext> {
+    const connextAddress = this.config.chains[domainId]?.deployments?.connext;
+    if (!connextAddress) {
+      throw new ContractAddressMissing();
+    }
+
+    const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
+    return Connext__factory.connect(connextAddress, provider);
+  }
+
+  async getERC20(domainId: string, tokenAddress: string): Promise<IERC20> {
+    const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
+    return IERC20__factory.connect(tokenAddress, provider);
+  }
+
   async approveIfNeeded(
-    domain: string,
+    domainId: string,
     assetId: string,
     amount: string,
     infiniteApprove = true,
@@ -37,7 +53,7 @@ export class NxtpSdkBase {
 
     const signerAddress = this.config.signerAddress;
     this.logger.info("Method start", requestContext, methodContext, {
-      domain,
+      domainId,
       assetId,
       amount,
       signerAddress,
@@ -47,43 +63,18 @@ export class NxtpSdkBase {
       throw new SignerAddressMissing();
     }
 
-    let chainId = this.config.chains[domain].chainId;
-    if (!chainId) {
-      chainId = await getChainIdFromDomain(domain, this.chainData);
-    }
+    const connextContract = await this.getConnext(domainId);
+    const erc20Contract = await this.getERC20(domainId, assetId);
 
     if (assetId !== constants.AddressZero) {
-      const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
+      const approved = await erc20Contract.allowance(signerAddress, connextContract.address);
 
-      const approvedData = this.contracts.erc20.encodeFunctionData("allowance", [
-        signerAddress,
-        ConnextContractAddress,
-      ]);
-      this.logger.debug("Got approved data", requestContext, methodContext, { approvedData });
-      const approvedEncoded = await this.chainReader.readTx({
-        to: assetId,
-        data: approvedData,
-        chainId: Number(domain),
-      });
-      this.logger.debug("Got approved data", requestContext, methodContext, { approvedEncoded });
-      const [approved] = this.contracts.erc20.decodeFunctionResult("allowance", approvedEncoded);
-      this.logger.debug("Got approved data", requestContext, methodContext, { approved });
-
-      this.logger.info("Got approved tokens", requestContext, methodContext, { approved: approved.toString() });
       if (BigNumber.from(approved).lt(amount)) {
-        const data = this.contracts.erc20.encodeFunctionData("approve", [
-          ConnextContractAddress,
+        const approveData = erc20Contract.populateTransaction.approve(
+          connextContract.address,
           infiniteApprove ? constants.MaxUint256 : amount,
-        ]);
-        const txRequest = {
-          to: assetId,
-          data,
-          from: signerAddress,
-          value: 0,
-          chainId,
-        };
-        this.logger.info("Approve transaction created", requestContext, methodContext, txRequest);
-        return txRequest;
+        );
+        return approveData;
       } else {
         this.logger.info("Allowance sufficient", requestContext, methodContext, {
           approved: approved.toString(),
@@ -95,6 +86,10 @@ export class NxtpSdkBase {
     return undefined;
   }
 
+  async changeSignerAddress(signerAddress: string) {
+    this.config.signerAddress = signerAddress;
+  }
+
   parseConnextTransactionReceipt(transactionReceipt: providers.TransactionReceipt): any {
     const parsedlogs: any = [];
     transactionReceipt.logs.forEach((log) => {
@@ -102,9 +97,5 @@ export class NxtpSdkBase {
     });
 
     return parsedlogs;
-  }
-
-  async changeSignerAddress(signerAddress: string) {
-    this.config.signerAddress = signerAddress;
   }
 }
