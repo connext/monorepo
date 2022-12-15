@@ -124,7 +124,7 @@
       {
         "indexed": false,
         "internalType": "bytes32[]",
-        "name": "leaf",
+        "name": "leaves",
         "type": "bytes32[]"
       }
     ],
