@@ -1007,7 +1007,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // ensure stored value returns 0
     s.tokenConfigs[utils_calculateCanonicalHash()].representation = address(0);
 
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet_xcall__emptyLocalAsset.selector);
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_emptyLocalAsset.selector);
   }
 
   // fails if asset cap would be exceeded on the canonical domain

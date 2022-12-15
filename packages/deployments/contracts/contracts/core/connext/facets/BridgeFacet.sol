@@ -43,7 +43,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_nativeAssetNotSupported();
   error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_invalidSlippage();
-  error BridgeFacet_xcall__emptyLocalAsset();
+  error BridgeFacet__xcall_emptyLocalAsset();
   error BridgeFacet__xcall_capReached();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
@@ -534,7 +534,7 @@ contract BridgeFacet is BaseConnextFacet {
         // Get the local address
         local = isCanonical ? TypeCasts.bytes32ToAddress(canonical.id) : config.representation;
         if (local == address(0)) {
-          revert BridgeFacet_xcall__emptyLocalAsset();
+          revert BridgeFacet__xcall_emptyLocalAsset();
         }
 
         {
