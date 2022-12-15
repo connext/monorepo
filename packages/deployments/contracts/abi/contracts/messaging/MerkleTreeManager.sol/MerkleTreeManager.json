@@ -11,6 +11,7 @@
   "error ProposedOwnable__renounceOwnership_noProposal()",
   "event ArboristUpdated(address,address)",
   "event Initialized(uint8)",
+  "event LeafInserted(bytes32,uint256,bytes32)",
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "function acceptProposedOwner()",

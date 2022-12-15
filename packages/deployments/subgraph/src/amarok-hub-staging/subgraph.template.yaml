@@ -26,8 +26,6 @@ dataSources:
       eventHandlers:
         - event: RootReceived(uint32,bytes32,uint256)
           handler: handleRootReceived
-        - event: RootsAggregated(bytes32,uint256,bytes32[])
-          handler: handleRootsAggregated
         - event: RootPropagated(bytes32,uint256,bytes32)
           handler: handleRootPropagated
         - event: ConnectorAdded(uint32,address,uint32[],address[])
@@ -35,6 +33,29 @@ dataSources:
         - event: ConnectorRemoved(uint32,address,uint32[],address[],address)
           handler: handleConnectorRemoved
       file: ./src/amarok-hub-staging/mapping/rootManager.ts
+  # MERKLE TREE MANAGER events
+  - kind: ethereum/contract
+    name: MerkleTreeManager
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: MerkleTreeManager
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - OriginMessage
+        - RootCount
+      abis:
+        - name: MerkleTreeManager
+          file: ./src/amarok-hub-staging/abis/MerkleTreeManager.json
+      eventHandlers:
+        - event: LeafInserted(bytes32,uint256,bytes32)
+          handler: handleLeafInserted
+      file: ./src/amarok-hub-staging/mapping/merkleTreeManager.ts
   # PolygonHubConnector.sol events
   - kind: ethereum/contract
     name: PolygonHubConnector
