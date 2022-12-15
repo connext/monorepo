@@ -96,6 +96,11 @@ export default task("setup-asset", "Configures an asset")
         [defaultAbiCoder.encode(["bytes32", "uint32"], [canonicalTokenId.id, canonicalTokenId.domain])],
       );
 
+      const network = await ethers.provider.getNetwork();
+      if (network.chainId === 1 && +cap === 0) {
+        throw new Error(`Must have nonzero cap on prod canonical domains`);
+      }
+
       console.log("key: ", key);
       const [approved] = connext.interface.decodeFunctionResult(
         "approvedAssets(bytes32)",
