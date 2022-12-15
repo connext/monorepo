@@ -36,8 +36,8 @@
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0x9741a6c445cfb3fe7d3d88323cc26e891463b5cb",
-        "startBlock": 8132571
+        "address": "0xdB104FFC346ae5Af06F25b50337dd68E677BA5D3",
+        "startBlock": 3328280
       }
     ]
   },
@@ -57,8 +57,8 @@
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0x9741a6c445cfb3fe7d3d88323cc26e891463b5cb",
-        "startBlock": 8132571
+        "address": "0xc41DFb64A2a04A9e8A09211F553718Baffb5A07F",
+        "startBlock": 8107125
       }
     ]
   },
@@ -78,8 +78,8 @@
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0x9741a6c445cfb3fe7d3d88323cc26e891463b5cb",
-        "startBlock": 8132571
+        "address": "0x9D92a580B282aC9F29e00022939b6B142Dce247F",
+        "startBlock": 2509470
       }
     ]
   }
