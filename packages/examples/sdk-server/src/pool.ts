@@ -26,6 +26,7 @@ import {
   calculateRemoveLiquidityPriceImpactSchema,
   calculateSwapPriceImpactSchema,
   calculateAmountReceivedSchema,
+  getTokenPriceSchema,
   getYieldStatsForDaySchema,
   getYieldDataSchema,
   getBlockNumberFromUnixTimestampSchema,
@@ -264,6 +265,20 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
         amount,
         isNextAsset,
       );
+      reply.status(200).send(res);
+    },
+  );
+
+  s.get(
+    "/getTokenPrice/:tokenSymbol",
+    {
+      schema: {
+        params: getTokenPriceSchema,
+      },
+    },
+    async (request, reply) => {
+      const { tokenSymbol } = request.params;
+      const res = await sdkPoolInstance.getTokenPrice(tokenSymbol);
       reply.status(200).send(res);
     },
   );

@@ -101,6 +101,10 @@ export const calculateAmountReceivedSchema = Type.Object({
   isNextAsset: Type.Optional(Type.Boolean()),
 });
 
+export const getTokenPriceSchema = Type.Object({
+  tokenSymbol: Type.String(),
+});
+
 export const getPoolSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),

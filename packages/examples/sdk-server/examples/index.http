@@ -63,7 +63,6 @@ GET {{baseUrl}}/getTokenUserBalance/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1
 ### GET getPoolTokenIndex
 GET {{baseUrl}}/getPoolTokenIndex/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9
 
-
 ##############
 ### GET getPoolTokenBalance
 GET {{baseUrl}}/getPoolTokenBalance/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
@@ -161,6 +160,10 @@ Content-Type: application/json
   "amount": "100000",
   "isNextAsset": false
 }
+
+##############
+### GET getTokenPrice
+GET {{baseUrl}}/getTokenPrice/WETH
 
 ##############
 ### POST getPool
