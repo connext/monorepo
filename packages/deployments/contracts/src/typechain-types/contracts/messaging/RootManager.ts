@@ -349,6 +349,7 @@ export interface RootManagerInterface extends utils.Interface {
     "RootDiscarded(bytes32)": EventFragment;
     "RootPropagated(bytes32,uint256,bytes32)": EventFragment;
     "RootReceived(uint32,bytes32,uint256)": EventFragment;
+    "RootsAggregated(bytes32,uint256,bytes32[])": EventFragment;
     "Unpaused(address)": EventFragment;
     "WatcherManagerChanged(address)": EventFragment;
   };
@@ -365,6 +366,7 @@ export interface RootManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "RootDiscarded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootPropagated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootReceived"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RootsAggregated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "WatcherManagerChanged"): EventFragment;
 }
@@ -498,6 +500,18 @@ export type RootReceivedEvent = TypedEvent<
 >;
 
 export type RootReceivedEventFilter = TypedEventFilter<RootReceivedEvent>;
+
+export interface RootsAggregatedEventObject {
+  aggregateRoot: string;
+  count: BigNumber;
+  aggregatedMessageRoots: string[];
+}
+export type RootsAggregatedEvent = TypedEvent<
+  [string, BigNumber, string[]],
+  RootsAggregatedEventObject
+>;
+
+export type RootsAggregatedEventFilter = TypedEventFilter<RootsAggregatedEvent>;
 
 export interface UnpausedEventObject {
   account: string;
@@ -1040,6 +1054,17 @@ export interface RootManager extends BaseContract {
       receivedRoot?: null,
       queueIndex?: null
     ): RootReceivedEventFilter;
+
+    "RootsAggregated(bytes32,uint256,bytes32[])"(
+      aggregateRoot?: null,
+      count?: null,
+      aggregatedMessageRoots?: null
+    ): RootsAggregatedEventFilter;
+    RootsAggregated(
+      aggregateRoot?: null,
+      count?: null,
+      aggregatedMessageRoots?: null
+    ): RootsAggregatedEventFilter;
 
     "Unpaused(address)"(account?: null): UnpausedEventFilter;
     Unpaused(account?: null): UnpausedEventFilter;
