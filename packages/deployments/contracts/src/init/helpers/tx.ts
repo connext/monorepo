@@ -14,19 +14,18 @@ type WaitForTxArguments = {
   chainData?: any;
 };
 
-export const getMultisendTransaction = (operation: "call" | "delegatecall", to: string, data: string): string => {
-  const bytes = utils.arrayify(data);
-  return utils.solidityPack(
-    [
-      "uint8", // operation as a uint8 with 0 for a call or 1 for a delegatecall)
-      "address", // to as a address
-      "uint256", // value as a uint256 (must always be 0 in our txs as not payable)
-      "uint256", // data length as a uint256
-      "bytes", // data as bytes
-    ],
-    [operation === "call" ? 0 : 1, to, 0, bytes.length, bytes],
-  );
+type MultisendUpdate = {
+  method: string;
+  checkResult?: CheckResult;
+  data: string;
 };
+
+export type MultisendConfig = {
+  updates: MultisendUpdate[];
+  deployment: Deployment;
+};
+
+export type MultisendAccumulator = Map<number, MultisendConfig>;
 
 export const waitForTx = async (
   args: WaitForTxArguments,
@@ -128,43 +127,6 @@ const shouldUpdate = async <T>(
   } catch {}
   log.info.value({ chain, deployment, call: read, value, valid: !shouldUpdate });
   return { valid, readCall, write, read };
-};
-
-export const generateMultisendUpdateIfNeeded = async <T>(
-  schema: CallSchema<T>,
-): Promise<{
-  checkResult?: CheckResult;
-  data: string;
-} | void> => {
-  const { deployment, desired, multisend: _multisend } = schema;
-  const { contract } = deployment;
-
-  // Sanity check: wants to write later
-  const multisend = _multisend ?? false;
-  if (!multisend) {
-    throw new Error(`Use "updateIfNeeded" when you should update immediately`);
-  }
-
-  const { valid, readCall, write } = await shouldUpdate(schema);
-
-  if (valid) {
-    return;
-  }
-
-  return {
-    checkResult:
-      desired != undefined
-        ? {
-            method: readCall,
-            desired,
-          }
-        : undefined,
-    data: getMultisendTransaction(
-      "delegatecall",
-      contract.address,
-      contract.interface.encodeFunctionData(write.method, write.args),
-    ),
-  };
 };
 
 export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> => {
@@ -307,4 +269,104 @@ export const getValue = async <T>(schema: CallSchema<T>): Promise<T> => {
     valid: schema.desired ? value === schema.desired : undefined,
   });
   return value;
+};
+
+export const getMultisendTransaction = (operation: "call" | "delegatecall", to: string, data: string): string => {
+  const bytes = utils.arrayify(data);
+  return utils.solidityPack(
+    [
+      "uint8", // operation as a uint8 with 0 for a call or 1 for a delegatecall)
+      "address", // to as a address
+      "uint256", // value as a uint256 (must always be 0 in our txs as not payable)
+      "uint256", // data length as a uint256
+      "bytes", // data as bytes
+    ],
+    [operation === "call" ? 0 : 1, to, 0, bytes.length, bytes],
+  );
+};
+
+export const generateMultisendUpdateIfNeeded = async <T>(
+  accumulator: MultisendAccumulator,
+  schema: CallSchema<T>,
+): Promise<void> => {
+  const { deployment, desired, multisend: _multisend } = schema;
+  const { contract } = deployment;
+
+  // Sanity check: wants to write later
+  const multisend = _multisend ?? false;
+  if (!multisend) {
+    throw new Error(`Use "updateIfNeeded" when you should update immediately`);
+  }
+
+  const { valid, readCall, write } = await shouldUpdate(schema);
+
+  if (valid) {
+    return;
+  }
+
+  // Get the chain ID, used as a key in the accumulator (we map the multisend by chain).
+  const chain = (await deployment.contract.provider.getNetwork()).chainId;
+  const config = accumulator.get(chain);
+  if (!config) {
+    throw new Error(
+      `Multisend contract was not configured for chain ${chain}; ` +
+        `unable to accumulate multisend txs for this chain.`,
+    );
+  }
+  config.updates.push({
+    method: write.method,
+    checkResult:
+      desired != undefined
+        ? {
+            method: readCall,
+            desired,
+          }
+        : undefined,
+    data: getMultisendTransaction(
+      "delegatecall",
+      contract.address,
+      contract.interface.encodeFunctionData(write.method, write.args),
+    ),
+  });
+};
+
+export const multisend = async (chainData: any, accumulator: MultisendAccumulator): Promise<void> => {
+  for (const chain of accumulator.keys()) {
+    console.log("Multisending txs for chain", chain);
+    const config = accumulator.get(chain)!;
+    const { deployment, updates } = config;
+
+    // TODO: For QOL, we should really be estimating gas for these transactions one at a time!
+    // i.e. do eth_estimateGas for each tx via multiSend, as if it were a single tx batch.
+
+    const tx = await deployment.contract.multiSend("0x" + updates.map((u) => u.data.replace("0x", "")).join(""));
+
+    const waitForTxParam: WaitForTxArguments = {
+      deployment,
+      tx,
+      name: "multiSend",
+      chainData,
+      checkResult: undefined, // Check results separately below.
+    };
+    await waitForTx(waitForTxParam);
+
+    // Cycle through all the updates and check each one's read method (to ensure changes occurred).
+    const failedMethods: { method: string; value: any; desired: any }[] = [];
+    for (const update of updates) {
+      if (!update.checkResult) {
+        continue;
+      }
+      const value = await update.checkResult.method();
+      if (value !== update.checkResult.desired) {
+        failedMethods.push({ method: update.method, value, desired: update.checkResult.desired });
+      }
+    }
+
+    if (failedMethods.length > 0) {
+      throw new Error(
+        "Multisend tx succeeded, but failed to update the following values correctly:\n" +
+          failedMethods.map((f) => `${f.method}: ${f.value} != ${f.desired}`).join("\n"),
+      );
+    }
+  }
 };

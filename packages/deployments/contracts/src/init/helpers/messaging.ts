@@ -1,7 +1,8 @@
-import { constants } from "ethers";
+import { constants, utils } from "ethers";
+import { canonizeId } from "@connext/nxtp-utils";
 
 import { HubMessagingDeployments, NetworkStack, ProtocolStack, SpokeMessagingDeployments } from "./types";
-import { assertValue, getValue, updateIfNeeded } from "./tx";
+import { assertValue, generateMultisendUpdateIfNeeded, getValue, multisend, MultisendAccumulator } from "./tx";
 
 /**
  * Configures the messaging layer
@@ -9,7 +10,7 @@ import { assertValue, getValue, updateIfNeeded } from "./tx";
  * @returns An array of calldata to submit to a `Multicall` contract on each chain. Multicall should delegatecall
  * the calldata
  */
-export const setupMessaging = async (protocol: ProtocolStack): Promise<void> => {
+export const setupMessaging = async (protocol: ProtocolStack, chainData: any): Promise<void> => {
   /// MARK - Peripherals
   // Get hub domain for specific use.
   const hub: NetworkStack = protocol.networks.filter((d) => d.domain === protocol.hub)[0];
@@ -18,6 +19,9 @@ export const setupMessaging = async (protocol: ProtocolStack): Promise<void> => 
   // Convenience setup for contracts.
   const { RootManager, MainnetConnector, HubConnectors, MerkleTreeManagerForRoot, MerkleTreeManagerForSpoke } = hub
     .deployments.messaging as HubMessagingDeployments;
+
+  // Make a transaction accumulator for sending our update atomically (all at once) using multisend.
+  const multisendAccumulator: MultisendAccumulator = new Map();
 
   /// ******************** MESSAGING ********************
   /// MARK - Init
@@ -79,7 +83,7 @@ export const setupMessaging = async (protocol: ProtocolStack): Promise<void> => 
             currentValue.toLowerCase() !== HubConnector.address.toLowerCase() &&
             currentValue.toLowerCase() !== constants.AddressZero
           ) {
-            await updateIfNeeded({
+            await generateMultisendUpdateIfNeeded(multisendAccumulator, {
               deployment: RootManager,
               desired: constants.AddressZero,
               read: { method: "getConnectorForDomain", args: [spoke.domain] },
@@ -88,7 +92,7 @@ export const setupMessaging = async (protocol: ProtocolStack): Promise<void> => 
           }
         } catch {}
 
-        await updateIfNeeded({
+        await generateMultisendUpdateIfNeeded(multisendAccumulator, {
           deployment: RootManager,
           desired: HubConnector.address,
           read: { method: "getConnectorForDomain", args: [spoke.domain] },
@@ -98,13 +102,13 @@ export const setupMessaging = async (protocol: ProtocolStack): Promise<void> => 
         /// MARK - Connectors: Mirrors
         // Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
         console.log("\tVerifying mirror connectors are set correctly.");
-        await updateIfNeeded({
+        await generateMultisendUpdateIfNeeded(multisendAccumulator, {
           deployment: HubConnector,
           desired: SpokeConnector.address,
           read: { method: "mirrorConnector", args: [] },
           write: { method: "setMirrorConnector", args: [SpokeConnector.address] },
         });
-        await updateIfNeeded({
+        await generateMultisendUpdateIfNeeded(multisendAccumulator, {
           deployment: SpokeConnector,
           desired: HubConnector.address,
           read: { method: "mirrorConnector", args: [] },
@@ -113,7 +117,7 @@ export const setupMessaging = async (protocol: ProtocolStack): Promise<void> => 
 
         /// MARK - MerkleTreeManager
         console.log("\tVerifying merkle tree managers are set correctly.");
-        await updateIfNeeded({
+        await generateMultisendUpdateIfNeeded(multisendAccumulator, {
           deployment: MerkleTreeManager,
           desired: SpokeConnector.address,
           read: { method: "arborist", args: [] },
@@ -123,7 +127,7 @@ export const setupMessaging = async (protocol: ProtocolStack): Promise<void> => 
         /// MARK - xAppManager
         // setXAppConnectionManager to Connext with SpokeConnector
         console.log("\tVerifying xappConnectionManager of Connext are set correctly.", spoke.chain);
-        await updateIfNeeded({
+        await generateMultisendUpdateIfNeeded(multisendAccumulator, {
           deployment: spoke.deployments.Connext,
           desired: SpokeConnector.address,
           read: { method: "xAppConnectionManager", args: [] },
@@ -132,7 +136,7 @@ export const setupMessaging = async (protocol: ProtocolStack): Promise<void> => 
 
         /// MARK - Connectors: Allowlist Senders
         console.log(`\tVerifying allowlistSender of SpokeConnector are set correctly.`, spoke.chain);
-        await updateIfNeeded({
+        await generateMultisendUpdateIfNeeded(multisendAccumulator, {
           deployment: SpokeConnector,
           desired: true,
           read: { method: "allowlistedSenders", args: [spoke.deployments.Connext.address] },
@@ -176,7 +180,7 @@ export const setupMessaging = async (protocol: ProtocolStack): Promise<void> => 
     });
     // If the current connector address is not correct and isn't empty, we need to remove the connector first.
     if (currentValue !== MainnetConnector.address && currentValue !== constants.AddressZero) {
-      await updateIfNeeded({
+      await generateMultisendUpdateIfNeeded(multisendAccumulator, {
         deployment: RootManager,
         desired: constants.AddressZero,
         read: { method: "getConnectorForDomain", args: [hub.domain] },
@@ -185,38 +189,63 @@ export const setupMessaging = async (protocol: ProtocolStack): Promise<void> => 
     }
   } catch {}
 
-  await updateIfNeeded({
+  await generateMultisendUpdateIfNeeded(multisendAccumulator, {
     deployment: RootManager,
     desired: MainnetConnector.address,
     read: { method: "getConnectorForDomain", args: [hub.domain] },
     write: { method: "addConnector", args: [hub.domain, MainnetConnector.address] },
   });
 
-  await updateIfNeeded({
+  await generateMultisendUpdateIfNeeded(multisendAccumulator, {
     deployment: MerkleTreeManagerForRoot,
     desired: RootManager.address,
     read: { method: "arborist", args: [] },
     write: { method: "setArborist", args: [RootManager.address] },
   });
 
-  await updateIfNeeded({
+  await generateMultisendUpdateIfNeeded(multisendAccumulator, {
     deployment: MerkleTreeManagerForSpoke,
     desired: MainnetConnector.address,
     read: { method: "arborist", args: [] },
     write: { method: "setArborist", args: [MainnetConnector.address] },
   });
 
-  await updateIfNeeded({
+  await generateMultisendUpdateIfNeeded(multisendAccumulator, {
     deployment: hub.deployments.Connext,
     desired: MainnetConnector.address,
     read: { method: "xAppConnectionManager", args: [] },
     write: { method: "setXAppConnectionManager", args: [MainnetConnector.address] },
   });
 
-  await updateIfNeeded({
+  await generateMultisendUpdateIfNeeded(multisendAccumulator, {
     deployment: MainnetConnector,
     desired: true,
     read: { method: "allowlistedSenders", args: [hub.deployments.Connext.address] },
     write: { method: "addSender", args: [hub.deployments.Connext.address] },
   });
+
+  /// ********************* CONNECTORS *********************
+  /// MARK - Enroll Handlers
+  console.log("\n\nRegistering connectors (enrolling handlers)...");
+  for (let i = 0; i < protocol.networks.length; i++) {
+    const targetNetwork = protocol.networks[i];
+    const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
+    for (const remoteNetwork of remoteNetworks) {
+      const desiredConnextion = remoteNetwork.deployments.Connext.address;
+      await generateMultisendUpdateIfNeeded(multisendAccumulator, {
+        deployment: targetNetwork.deployments.Connext,
+        desired: desiredConnextion,
+        read: { method: "remote", args: [remoteNetwork.domain] },
+        write: {
+          method: "enrollRemoteRouter",
+          args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
+        },
+        chainData,
+      });
+    }
+  }
+
+  /// MARK - Multisend!
+  console.log("Multisending accumulated transactions...");
+  await multisend(chainData, multisendAccumulator);
 };

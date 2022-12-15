@@ -1,12 +1,12 @@
 import * as fs from "fs";
 
 import { config } from "dotenv";
-import { providers, Wallet, utils } from "ethers";
+import { providers, Wallet } from "ethers";
 import commandLineArgs from "command-line-args";
 import { ajv, getChainData } from "@connext/nxtp-utils";
 import { HttpNetworkUserConfig } from "hardhat/types";
 
-import { canonizeId, domainToChainId } from "../domain";
+import { domainToChainId } from "../domain";
 import { hardhatNetworks } from "../config";
 
 import {
@@ -247,28 +247,7 @@ export const initProtocol = async (protocol: ProtocolStack, configuration: Confi
 
   /// ********************* MESSAGING **********************
   /// MARK - Messaging
-  await setupMessaging(protocol);
-
-  /// ********************* CONNECTORS REGISTERED *********************
-  /// MARK - Enroll Handlers
-  console.log("\n\nEnrolling handlers");
-  for (let i = 0; i < protocol.networks.length; i++) {
-    const targetNetwork = protocol.networks[i];
-    const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
-    for (const remoteNetwork of remoteNetworks) {
-      const desiredConnextion = remoteNetwork.deployments.Connext.address;
-      await updateIfNeeded({
-        deployment: targetNetwork.deployments.Connext,
-        desired: desiredConnextion,
-        read: { method: "remote", args: [remoteNetwork.domain] },
-        write: {
-          method: "enrollRemoteRouter",
-          args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
-        },
-        chainData,
-      });
-    }
-  }
+  await setupMessaging(protocol, chainData);
 
   /// ********************* AGENTS **********************
   if (protocol.agents) {
