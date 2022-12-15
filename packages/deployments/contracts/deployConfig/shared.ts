@@ -1,4 +1,4 @@
-import { BigNumber, constants } from "ethers";
+import { BigNumber, constants, utils } from "ethers";
 
 /**
  * AMB information contained below is used for setting up the testbed environment in deployment step
@@ -301,9 +301,9 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           hub: {
             // https://goerli.etherscan.io/address/0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049
             outbox: "0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049",
-            maxSubmissionCostCap: DEFAULT_PROCESS_GAS,
+            maxSubmissionCostCap: utils.parseUnits("200", "gwei"),
             maxGasCap: DEFAULT_PROCESS_GAS,
-            gasPriceCap: DEFAULT_RESERVE_GAS,
+            gasPriceCap: utils.parseUnits("20", "gwei"), // minimum on arbitrum is 0.01 gwei
           },
         },
       },

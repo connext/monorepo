@@ -483,19 +483,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_fxChildTunnel",
-        "type": "address"
-      }
-    ],
-    "name": "setFxChildTunnel",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "_mirrorConnector",
         "type": "address"
       }
