@@ -67,9 +67,9 @@ contract MockHome is IOutbox {
     uint32 _destinationDomain,
     bytes32 _recipientAddress,
     bytes memory _messageBody
-  ) external returns (bytes32) {
+  ) external returns (bytes32, bytes memory) {
     1 == 1;
-    return MESSAGE_HASH;
+    return (MESSAGE_HASH, bytes("test message"));
   }
 
   function localDomain() external returns (uint32) {
