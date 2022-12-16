@@ -2084,7 +2084,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-adapters-watcher@workspace:*, @connext/nxtp-adapters-watcher@workspace:packages/adapters/watcher":
+"@connext/nxtp-adapters-watcher@workspace:packages/adapters/watcher":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-adapters-watcher@workspace:packages/adapters/watcher"
   dependencies:
@@ -2447,7 +2447,6 @@ __metadata:
   resolution: "@connext/nxtp-watcher@workspace:packages/agents/watcher"
   dependencies:
     "@connext/nxtp-adapters-subgraph": "workspace:*"
-    "@connext/nxtp-adapters-watcher": "workspace:*"
     "@connext/nxtp-adapters-web3signer": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"

@@ -222,6 +222,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BridgeFacet__xcall_emptyLocalAsset",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BridgeFacet__xcall_emptyTo",
     type: "error",
   },
@@ -233,11 +238,6 @@ const _abi = [
   {
     inputs: [],
     name: "BridgeFacet__xcall_nativeAssetNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BridgeFacet_xcall__emptyLocalAsset",
     type: "error",
   },
   {
