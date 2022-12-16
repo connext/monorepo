@@ -186,12 +186,7 @@ export const saveMessages = async (
       const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === _message.transferId);
 
       const messageBody = dbTransfer
-        ? encodeMessageBody(
-            dbTransfer.canonical_domain!,
-            dbTransfer.canonical_id!,
-            dbTransfer.bridged_amt!,
-            dbTransfer.transfer_id,
-          )
+        ? encodeMessageBody(convertFromDbTransfer(dbTransfer), _message.originConnext!)
         : "";
       _message.origin.message = messageBody;
       return _message;

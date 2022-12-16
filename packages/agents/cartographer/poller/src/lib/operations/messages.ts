@@ -1,12 +1,14 @@
 import { createLoggingContext, XMessage, RootMessage } from "@connext/nxtp-utils";
+import { domainToChainId } from "@connext/nxtp-contracts";
 
-import { getContext } from "../../shared";
+import { getContext, getDeployedConnextContract } from "../../shared";
 
 export const retrieveOriginMessages = async () => {
   const {
     adapters: { subgraph, database },
     logger,
     domains,
+    config,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(retrieveOriginMessages.name);
 
@@ -28,6 +30,7 @@ export const retrieveOriginMessages = async () => {
         destinationDomain: _message.destinationDomain,
         transferId: _message.transferId,
         origin: { index: _message.index, root: _message.root, message: _message.message },
+        originConnext: getDeployedConnextContract(domainToChainId(+_message.domain), config.environment)!.address,
       };
     });
 
@@ -45,6 +48,7 @@ export const updateMessages = async () => {
   const {
     adapters: { subgraph, database },
     logger,
+    config,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateMessages.name);
   logger.debug("Updating messages", requestContext, methodContext);
@@ -69,6 +73,8 @@ export const updateMessages = async () => {
         processed: destinationMessage.processed,
         returnData: destinationMessage.returnData,
       },
+      originConnext: getDeployedConnextContract(domainToChainId(+pendingMessage.originDomain), config.environment)!
+        .address,
     });
   }
 

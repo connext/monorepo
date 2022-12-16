@@ -1,6 +1,6 @@
 import { defaultAbiCoder, keccak256, hexlify, solidityKeccak256, BytesLike } from "ethers/lib/utils";
 
-import { ExternalCall, ReconciledTransaction, canonizeId } from "..";
+import { ExternalCall, ReconciledTransaction, canonizeId, XTransfer, mkBytes32 } from "..";
 
 /**
  * Cleans any strings so they replace the newlines and properly format whitespace. Used to translate human readable encoding to contract-compatible encoding.
@@ -25,6 +25,14 @@ export const ReconciledTransactionDataEncoding = tidy(`tuple(
   address local,
   uint256 amount,
   address recipient
+)`);
+
+export const MessageBodyEncoding = tidy(`tuple(
+  uint32 canonicalDomain,
+  bytes32 canonicalId,
+  uint8 type,
+  uint256 amount,
+  bytes32 transferId
 )`);
 
 /**
@@ -108,21 +116,33 @@ export const getCanonicalHash = (canonicalDomain: string, _canonicalId: string):
 
 /**
  * Encodes message body, as defined in the BridgeFacet contract.
- *
- * @param canonicalDomain - The canonical domain
- * @param canonicalId - The canonical id
- * @param amount - The amount of the transfer
- * @param transferId - The transfer ID
+ * @param transfer - The XTransfer object
  * @returns Encoded message body
  */
-export const encodeMessageBody = (
-  canonicalDomain: string,
-  canonicalId: string,
-  amount: string,
-  transferId: string,
-): string => {
+export const encodeMessageBody = (transfer: XTransfer, originConnext: string): string => {
+  console.log(transfer, originConnext);
+  const messageBody = defaultAbiCoder.encode(
+    [MessageBodyEncoding],
+    [
+      {
+        canonicalDomain: transfer.xparams.canonicalDomain,
+        canonicalId: transfer.xparams.canonicalId,
+        type: 3,
+        amount: transfer.xparams.bridgedAmt,
+        transferId: transfer.transferId,
+      },
+    ],
+  );
+  console.log(messageBody);
   return defaultAbiCoder.encode(
-    ["uint32", "bytes32", "uint8", "uint256", "bytes32"],
-    [canonicalDomain, canonicalId, 3, amount, transferId],
+    ["uint32", "bytes32", "uint32", "uint32", "bytes32", "bytes"],
+    [
+      transfer.xparams.originDomain,
+      mkBytes32(originConnext),
+      transfer.xparams.nonce,
+      transfer.xparams.destinationDomain,
+      transfer.xparams.to,
+      messageBody,
+    ],
   );
 };

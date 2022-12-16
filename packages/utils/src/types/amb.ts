@@ -18,6 +18,7 @@ export const XMessageSchema = Type.Object({
       returnData: Type.String(),
     }),
   ),
+  originConnext: Type.Optional(Type.String()),
 });
 export type XMessage = Static<typeof XMessageSchema>;
 

@@ -29,6 +29,7 @@
     "@connext/nxtp-adapters-database": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
+    "@connext/nxtp-contracts": "workspace:*",
     "@sinclair/typebox": "0.25.2",
     "datadog-lambda-js": "^6.85.0",
     "dd-trace": "3.9.2",
