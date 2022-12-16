@@ -22,8 +22,8 @@
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-adapters-subgraph": "workspace:*",
-    "@connext/nxtp-adapters-web3signer": "workspace:*",
     "@connext/nxtp-adapters-watcher": "workspace:*",
+    "@connext/nxtp-adapters-web3signer": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "0.25.2",
