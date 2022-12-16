@@ -27,6 +27,7 @@ COPY packages/agents/watcher/package.json /tmp/build/packages/agents/watcher/
 COPY packages/adapters/subgraph/package.json /tmp/build/packages/adapters/subgraph/
 COPY packages/adapters/web3signer/package.json /tmp/build/packages/adapters/web3signer/
 COPY packages/adapters/txservice/package.json /tmp/build/packages/adapters/txservice/
+COPY packages/adapters/watcher/package.json /tmp/build/packages/adapters/watcher/
 COPY packages/deployments/contracts/package.json /tmp/build/packages/deployments/contracts/
 COPY packages/utils/package.json /tmp/build/packages/utils/
 COPY yarn.lock /tmp/build/
