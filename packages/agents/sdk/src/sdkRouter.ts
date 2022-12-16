@@ -1,8 +1,8 @@
-import { constants, providers, BigNumber } from "ethers";
+import { providers } from "ethers";
 import { Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
-import { getChainData, getChainIdFromDomain } from "./lib/helpers";
+import { getChainData } from "./lib/helpers";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkBase } from "./sdkBase";
 import { NxtpSdkConfig, getConfig } from "./config";
@@ -37,9 +37,9 @@ export class NxtpSdkRouter extends NxtpSdkBase {
   }
 
   async addLiquidityForRouter(params: {
-    domain: string;
+    domainId: string;
     amount: string;
-    assetId: string;
+    tokenAddress: string;
     router: string;
   }): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.addLiquidityForRouter.name);
@@ -49,24 +49,49 @@ export class NxtpSdkRouter extends NxtpSdkBase {
       throw new SignerAddressMissing();
     }
 
-    const { domain, amount, assetId, router } = params;
+    const { domainId, amount, tokenAddress, router } = params;
 
-    const chainId = await getChainIdFromDomain(domain, this.chainData);
-    const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
-
-    const value = assetId === constants.AddressZero ? BigNumber.from(amount) : 0;
-    const data = this.contracts.connext.encodeFunctionData("addRouterLiquidityFor", [amount, assetId, router]);
-
-    const txRequest = {
-      to: ConnextContractAddress,
-      value,
-      data,
-      from: signerAddress,
-      chainId,
-    };
+    const connextContract = await this.getConnext(domainId);
+    const txRequest = await connextContract.populateTransaction.addRouterLiquidityFor(amount, tokenAddress, router);
 
     this.logger.info(
       `${this.addLiquidityForRouter.name} transaction created`,
+      requestContext,
+      methodContext,
+      txRequest,
+    );
+
+    return txRequest;
+  }
+
+  async removeRouterLiquidity(params: {
+    domainId: string;
+    amount: string;
+    tokenAddress: string;
+    recipient: string;
+  }): Promise<providers.TransactionRequest> {
+    const { requestContext, methodContext } = createLoggingContext(this.removeRouterLiquidity.name);
+    this.logger.info("Method start", requestContext, methodContext, { params });
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    const { domainId, amount, tokenAddress, recipient } = params;
+
+    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
+      this.getConnext(domainId),
+      this.getCanonicalTokenId(domainId, tokenAddress),
+    ]);
+
+    const txRequest = await connextContract.populateTransaction.removeRouterLiquidity(
+      { domain: canonicalDomain, id: canonicalId },
+      amount,
+      recipient,
+    );
+
+    this.logger.info(
+      `${this.removeRouterLiquidity.name} transaction created`,
       requestContext,
       methodContext,
       txRequest,

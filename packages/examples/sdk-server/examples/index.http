@@ -324,9 +324,9 @@ Content-Type: application/json
 
 {
   "params": {
-    "domain": "9991",
+    "domainId": "9991",
     "amount": "25000000",
-    "assetId": "0x6653e37db7eEEe514ACD0998f66e66c75F216699",
+    "tokenAddress": "0x6653e37db7eEEe514ACD0998f66e66c75F216699",
     "router": "0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c"
   }
 }

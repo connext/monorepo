@@ -229,9 +229,18 @@ export const getYieldDataSchema = Type.Object({
 
 export const addLiquidityForRouterSchema = Type.Object({
   params: Type.Object({
-    domain: Type.String(),
+    domainId: Type.String(),
     amount: Type.String(),
-    assetId: Type.String(),
+    tokenAddress: Type.String(),
     router: Type.String(),
+  }),
+});
+
+export const removeRouterLiquiditySchema = Type.Object({
+  params: Type.Object({
+    domainId: Type.String(),
+    amount: Type.String(),
+    tokenAddress: Type.String(),
+    recipient: Type.String(),
   }),
 });

@@ -1,7 +1,7 @@
 import { reset, restore, stub } from "sinon";
-import { expect, mkAddress } from "@connext/nxtp-utils";
+import { expect } from "@connext/nxtp-utils";
 import { getConnextInterface } from "@connext/nxtp-txservice";
-import { constants, providers, BigNumber } from "ethers";
+import { constants, providers, BigNumber, utils } from "ethers";
 import { mock } from "./mock";
 import { NxtpSdkRouter } from "../src/sdkRouter";
 import { getEnvConfig } from "../src/config";
@@ -13,10 +13,9 @@ import * as SharedFns from "../src/lib/helpers/shared";
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
-
 const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connext;
-
 const chainId = 1337;
+
 describe("SdkRouter", () => {
   let nxtpRouter: NxtpSdkRouter;
   let config: ConfigFns.NxtpSdkConfig;
@@ -51,26 +50,23 @@ describe("SdkRouter", () => {
   });
 
   describe("#addLiquidityForRouter", () => {
-    const mockAddLiquidityParams = {
-      domain: mock.domain.A,
-      amount: "1",
-      assetId: mock.asset.A.address,
-      router: mock.address.router,
-    };
-
     it("happy: should work if ERC20", async () => {
+      const mockAddLiquidityParams = {
+        domainId: mock.domain.A,
+        amount: "1",
+        tokenAddress: mock.asset.A.address,
+        router: mock.address.router,
+      };
+
       const data = getConnextInterface().encodeFunctionData("addRouterLiquidityFor", [
         mockAddLiquidityParams.amount,
-        mockAddLiquidityParams.assetId,
+        mockAddLiquidityParams.tokenAddress,
         mockAddLiquidityParams.router,
       ]);
 
       const mockAddLiquidityForRouterRequest: providers.TransactionRequest = {
         to: mockConnextAddresss,
         data,
-        from: mock.config().signerAddress,
-        value: 0,
-        chainId,
       };
 
       const res = await nxtpRouter.addLiquidityForRouter(mockAddLiquidityParams);
@@ -79,24 +75,21 @@ describe("SdkRouter", () => {
 
     it("happy: should work if Native", async () => {
       const mockAddLiquidityParams = {
-        domain: mock.domain.A,
+        domainId: mock.domain.A,
         amount: "1",
-        assetId: constants.AddressZero,
+        tokenAddress: constants.AddressZero,
         router: mock.address.router,
       };
 
       const data = getConnextInterface().encodeFunctionData("addRouterLiquidityFor", [
         mockAddLiquidityParams.amount,
-        mockAddLiquidityParams.assetId,
+        constants.AddressZero,
         mockAddLiquidityParams.router,
       ]);
 
       const mockAddLiquidityForRouterRequest: providers.TransactionRequest = {
         to: mockConnextAddresss,
         data,
-        from: mock.config().signerAddress,
-        value: BigNumber.from(mockAddLiquidityParams.amount),
-        chainId,
       };
 
       const res = await nxtpRouter.addLiquidityForRouter(mockAddLiquidityParams);
@@ -104,6 +97,12 @@ describe("SdkRouter", () => {
     });
 
     it("should error if signerAddress is undefined", async () => {
+      const mockAddLiquidityParams = {
+        domainId: mock.domain.A,
+        amount: "1",
+        tokenAddress: mock.asset.A.address,
+        router: mock.address.router,
+      };
       (nxtpRouter as any).config.signerAddress = undefined;
 
       await expect(nxtpRouter.addLiquidityForRouter(mockAddLiquidityParams)).to.be.rejectedWith(SignerAddressMissing);
