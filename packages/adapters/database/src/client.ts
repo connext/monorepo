@@ -13,6 +13,7 @@ import {
   AggregatedRoot,
   PropagatedRoot,
   ReceivedAggregateRoot,
+  encodeMessageBody,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -174,6 +175,27 @@ export const saveMessages = async (
 ): Promise<void> => {
   // The `xMessages` are the ones retrieved only from the origin or destination domain
   const poolToUse = _pool ?? pool;
+
+  const dbTransfers = await getTransfersByTransferIds(
+    xMessages.map((xmessage) => xmessage.transferId),
+    poolToUse,
+  );
+
+  xMessages = xMessages.map((_message) => {
+    const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === _message.transferId);
+
+    const messageBody = dbTransfer
+      ? encodeMessageBody(
+          dbTransfer.canonical_domain!,
+          dbTransfer.canonical_id!,
+          dbTransfer.bridged_amt!,
+          dbTransfer.transfer_id,
+        )
+      : "";
+    _message.origin.message = messageBody;
+    return _message;
+  });
+
   const messages: s.messages.Insertable[] = xMessages.map(convertToDbMessage).map(sanitizeNull);
 
   await db.upsert("messages", messages, ["leaf"]).run(poolToUse);

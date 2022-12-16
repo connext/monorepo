@@ -105,3 +105,24 @@ export const getCanonicalHash = (canonicalDomain: string, _canonicalId: string):
   );
   return solidityKeccak256(["bytes"], [payload]);
 };
+
+/**
+ * Encodes message body, as defined in the BridgeFacet contract.
+ *
+ * @param canonicalDomain - The canonical domain
+ * @param canonicalId - The canonical id
+ * @param amount - The amount of the transfer
+ * @param transferId - The transfer ID
+ * @returns Encoded message body
+ */
+export const encodeMessageBody = (
+  canonicalDomain: string,
+  canonicalId: string,
+  amount: string,
+  transferId: string,
+): string => {
+  return defaultAbiCoder.encode(
+    ["uint32", "bytes32", "uint8", "uint256", "bytes32"],
+    [canonicalDomain, canonicalId, 3, amount, transferId],
+  );
+};
