@@ -108,4 +108,61 @@ describe("SdkRouter", () => {
       await expect(nxtpRouter.addLiquidityForRouter(mockAddLiquidityParams)).to.be.rejectedWith(SignerAddressMissing);
     });
   });
+
+  describe("#removeRouterLiquidity", () => {
+    const mockRemoveLiquidityParams = {
+      domainId: mock.domain.A,
+      amount: "1",
+      tokenAddress: mock.asset.A.address,
+      recipient: mock.address.router,
+    };
+
+    const canonicalId = utils.formatBytes32String("0");
+
+    it("happy: should work if ERC20", async () => {
+      (nxtpRouter as any).config.signerAddress = mockConfig.signerAddress;
+      const data = getConnextInterface().encodeFunctionData("removeRouterLiquidity", [
+        { domain: mockRemoveLiquidityParams.domainId, id: canonicalId },
+        mockRemoveLiquidityParams.amount,
+        mockRemoveLiquidityParams.recipient,
+      ]);
+
+      stub(nxtpRouter, "getCanonicalTokenId").resolves([mockRemoveLiquidityParams.domainId, canonicalId]);
+
+      const mockAddLiquidityForRouterRequest: providers.TransactionRequest = {
+        to: mockConnextAddresss,
+        data,
+      };
+
+      const res = await nxtpRouter.removeRouterLiquidity(mockRemoveLiquidityParams);
+      expect(res).to.be.deep.eq(mockAddLiquidityForRouterRequest);
+    });
+
+    it("happy: should work if Native", async () => {
+      (nxtpRouter as any).config.signerAddress = mockConfig.signerAddress;
+      const data = getConnextInterface().encodeFunctionData("removeRouterLiquidity", [
+        { domain: mockRemoveLiquidityParams.domainId, id: canonicalId },
+        mockRemoveLiquidityParams.amount,
+        mockRemoveLiquidityParams.recipient,
+      ]);
+
+      stub(nxtpRouter, "getCanonicalTokenId").resolves([mockRemoveLiquidityParams.domainId, canonicalId]);
+
+      const mockAddLiquidityForRouterRequest: providers.TransactionRequest = {
+        to: mockConnextAddresss,
+        data,
+      };
+
+      const res = await nxtpRouter.removeRouterLiquidity(mockRemoveLiquidityParams);
+      expect(res).to.be.deep.eq(mockAddLiquidityForRouterRequest);
+    });
+
+    it("should error if signerAddress is undefined", async () => {
+      (nxtpRouter as any).config.signerAddress = undefined;
+
+      await expect(nxtpRouter.removeRouterLiquidity(mockRemoveLiquidityParams)).to.be.rejectedWith(
+        SignerAddressMissing,
+      );
+    });
+  });
 });

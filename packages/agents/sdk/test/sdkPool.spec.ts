@@ -251,7 +251,7 @@ describe("NxtpSdkPool", () => {
     });
 
     it("should throw if local domain is canonical", async () => {
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockParams.domainId, mockParams.key]);
+      stub(nxtpPool, "getCanonicalTokenId").resolves([mockParams.domainId, mockParams.canonicalId]);
 
       expect(nxtpPool.getPool(mockParams.domainId, mockParams.tokenAddress)).to.be.rejectedWith(
         new Error("Pool doesn't exist for the token on this domain"),
@@ -259,7 +259,7 @@ describe("NxtpSdkPool", () => {
     });
 
     it("should return undefined if local token is adopted", async () => {
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.key]);
+      stub(nxtpPool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.canonicalId]);
 
       expect(nxtpPool.getPool(mockParams.domainId, mockParams.key)).to.be.rejectedWith(
         new Error("Pool doesn't exist for the token on this domain"),

@@ -28,7 +28,6 @@ describe("SdkUtils", () => {
     stub(SharedFns, "axiosGetRequest").resolves({ data: {} });
 
     nxtpUtils = await NxtpSdkUtils.create(mockConfig, undefined, mockChainData);
-    console.log(config.cartographerUrl);
   });
 
   afterEach(() => {
