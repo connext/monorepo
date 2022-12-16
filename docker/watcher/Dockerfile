@@ -41,6 +41,7 @@ COPY packages/agents/watcher /tmp/build/packages/agents/watcher
 COPY packages/adapters/subgraph /tmp/build/packages/adapters/subgraph
 COPY packages/adapters/web3signer /tmp/build/packages/adapters/web3signer
 COPY packages/adapters/txservice /tmp/build/packages/adapters/txservice
+COPY packages/adapters/watcher /tmp/build/packages/adapters/watcher
 COPY packages/deployments/contracts /tmp/build/packages/deployments/contracts/
 COPY packages/utils /tmp/build/packages/utils
 COPY .eslintignore /tmp/build/
