@@ -149,6 +149,7 @@ type OriginMessage @entity {
   # Dispatch Transaction
   leaf: Bytes
   index: BigInt
+  message: Bytes
   root: Bytes
   transactionHash: Bytes
   blockNumber: BigInt

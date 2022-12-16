@@ -47,7 +47,7 @@
   "function allowlistedSenders(address) view returns (bool)",
   "function delay() view returns (uint256)",
   "function delayBlocks() view returns (uint256)",
-  "function dispatch(uint32,bytes32,bytes) returns (bytes32)",
+  "function dispatch(uint32,bytes32,bytes) returns (bytes32, bytes)",
   "function fxChild() view returns (address)",
   "function fxRootTunnel() view returns (address)",
   "function home() view returns (address)",

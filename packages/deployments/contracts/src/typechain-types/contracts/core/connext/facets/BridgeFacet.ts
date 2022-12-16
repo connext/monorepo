@@ -282,7 +282,7 @@ export interface BridgeFacetInterface extends utils.Interface {
     "SlippageUpdated(bytes32,uint256)": EventFragment;
     "TransferRelayerFeesIncreased(bytes32,uint256,address)": EventFragment;
     "XAppConnectionManagerSet(address,address)": EventFragment;
-    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)": EventFragment;
+    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address,bytes)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AavePortalMintUnbacked"): EventFragment;
@@ -433,6 +433,7 @@ export interface XCalledEventObject {
   asset: string;
   amount: BigNumber;
   local: string;
+  messageBody: string;
 }
 export type XCalledEvent = TypedEvent<
   [
@@ -442,6 +443,7 @@ export type XCalledEvent = TypedEvent<
     TransferInfoStructOutput,
     string,
     BigNumber,
+    string,
     string
   ],
   XCalledEventObject
@@ -855,14 +857,15 @@ export interface BridgeFacet extends BaseContract {
       caller?: null
     ): XAppConnectionManagerSetEventFilter;
 
-    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)"(
+    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address,bytes)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
       messageHash?: PromiseOrValue<BytesLike> | null,
       params?: null,
       asset?: null,
       amount?: null,
-      local?: null
+      local?: null,
+      messageBody?: null
     ): XCalledEventFilter;
     XCalled(
       transferId?: PromiseOrValue<BytesLike> | null,
@@ -871,7 +874,8 @@ export interface BridgeFacet extends BaseContract {
       params?: null,
       asset?: null,
       amount?: null,
-      local?: null
+      local?: null,
+      messageBody?: null
     ): XCalledEventFilter;
   };
 

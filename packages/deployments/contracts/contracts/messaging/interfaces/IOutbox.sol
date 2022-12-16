@@ -39,5 +39,5 @@ interface IOutbox {
     uint32 _destinationDomain,
     bytes32 _recipientAddress,
     bytes memory _messageBody
-  ) external returns (bytes32);
+  ) external returns (bytes32, bytes memory);
 }

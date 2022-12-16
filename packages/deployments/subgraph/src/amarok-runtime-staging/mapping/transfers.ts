@@ -53,6 +53,7 @@ export function handleXCalled(event: XCalled): void {
   message.leaf = event.params.messageHash;
   message.destinationDomain = event.params.params.destinationDomain;
   message.transferId = event.params.transferId;
+  message.message = event.params.messageBody;
   message.save();
   transfer.message = message.id;
 

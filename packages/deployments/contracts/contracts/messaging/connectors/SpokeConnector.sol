@@ -330,7 +330,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     uint32 _destinationDomain,
     bytes32 _recipientAddress,
     bytes memory _messageBody
-  ) external onlyAllowlistedSender returns (bytes32) {
+  ) external onlyAllowlistedSender returns (bytes32, bytes memory) {
     // Get the next nonce for the destination domain, then increment it.
     uint32 _nonce = nonces[_destinationDomain]++;
 
@@ -354,7 +354,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     // Emit Dispatch event with message information.
     // NOTE: Current leaf index is count - 1 since new leaf has already been inserted.
     emit Dispatch(_messageHash, _count - 1, _root, _message);
-    return _messageHash;
+    return (_messageHash, _message);
   }
 
   /**
