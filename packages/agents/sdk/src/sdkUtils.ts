@@ -4,13 +4,13 @@ import { contractDeployments } from "@connext/nxtp-txservice";
 import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
 import { ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
-import { NxtpSdkBase } from "./sdkBase";
+import { NxtpSdkShared } from "./sdkShared";
 
 /**
  * @classdesc SDK class encapsulating utility functions.
  *
  */
-export class NxtpSdkUtils extends NxtpSdkBase {
+export class NxtpSdkUtils extends NxtpSdkShared {
   private static _instance: NxtpSdkUtils;
 
   constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
