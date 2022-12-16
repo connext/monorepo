@@ -1,9 +1,9 @@
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
-import { NxtpSdkBridge } from "@connext/nxtp-sdk";
+import { NxtpSdkBase } from "@connext/nxtp-sdk";
 import { SdkServerApiXCallSchema, SdkServerApiXCall } from "@connext/nxtp-utils";
 
-export const bridgeRoutes = async (server: FastifyInstance, sdkBridgeInstance: NxtpSdkBridge): Promise<any> => {
+export const bridgeRoutes = async (server: FastifyInstance, sdkBridgeInstance: NxtpSdkBase): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
 
   s.post<{ Body: SdkServerApiXCall }>(
